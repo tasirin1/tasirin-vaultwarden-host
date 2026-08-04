@@ -38,6 +38,7 @@ public class ServerService extends Service {
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
     public static final String KEY_UPDATE_VERSION = "update_version";
+    public static final String KEY_HTTPS = "https";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
@@ -49,9 +50,16 @@ public class ServerService extends Service {
     public static volatile String binaryVersion = "";
     public static final StringBuilder logBuffer = new StringBuilder();
 
+    private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
+
+    private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+
     private Process process;
     private PowerManager.WakeLock wakeLock;
     private File logFile;
+    private boolean autoRestart = false;
+    private int restartAttempt = 0;
+    private long lastStartTime = 0;
 
     public static void start(Context context) {
         Intent i = new Intent(context, ServerService.class).setAction(ACTION_START);
@@ -76,11 +84,13 @@ public class ServerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
+            autoRestart = false;
             stopServer();
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         }
+        autoRestart = true;
         startForegroundCompat();
         if (process == null || !process.isAlive()) {
             startServer();
@@ -153,6 +163,19 @@ public class ServerService extends Service {
         }
 
         try {
+            boolean https = sp.getBoolean(KEY_HTTPS, false);
+            String scheme = "http";
+            File tlsDir = null;
+            if (https) {
+                tlsDir = prepareTls(dataFolder);
+                if (tlsDir == null) {
+                    appendLog("[app] HTTPS diaktifkan tapi sertifikat gagal dibuat; pakai HTTP.");
+                    setStatus("Gagal buat sertifikat - lanjut HTTP");
+                } else {
+                    scheme = "https";
+                }
+            }
+
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath());
             pb.environment().put("DATA_FOLDER", dataDir);
             pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
@@ -165,18 +188,24 @@ public class ServerService extends Service {
             } else {
                 pb.environment().put("WEB_VAULT_ENABLED", "false");
             }
+            if (tlsDir != null) {
+                pb.environment().put("ROCKET_TLS_CERTS", new File(tlsDir, "cert.pem").getAbsolutePath());
+                pb.environment().put("ROCKET_TLS_KEY", new File(tlsDir, "key.pem").getAbsolutePath());
+            }
             pb.environment().put("RUST_LOG", "info");
-            String domain = detectDomain(port);
+            String domain = scheme + "://" + detectHostPort(port);
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
             process = pb.start();
             acquireWakeLock();
+            lastStartTime = System.currentTimeMillis();
+            restartAttempt = 0;
 
             logFile = new File(dataFolder, "vaultwarden.log");
             running = true;
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
-                    + "\nURL lokal (di HP): http://127.0.0.1:" + port
+                    + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
 
             final Process p = process;
@@ -233,11 +262,37 @@ public class ServerService extends Service {
                 process = null;
                 running = false;
                 releaseWakeLock();
-                setStatus("Stopped (exit code " + code + ")");
                 appendLog("[app] process exit: " + code);
+                if (autoRestart) {
+                    scheduleRestart();
+                } else {
+                    setStatus("Stopped (exit code " + code + ")");
+                }
             }
         } catch (InterruptedException ignored) {
         }
+    }
+
+    /** Restart otomatis dengan jeda bertingkat bila server crash. */
+    private void scheduleRestart() {
+        long uptime = System.currentTimeMillis() - lastStartTime;
+        if (uptime > 60_000) {
+            restartAttempt = 0;
+        }
+        if (restartAttempt >= RESTART_DELAYS.length) {
+            autoRestart = false;
+            setStatus("Server berhenti - gagal restart 5x berturut-turut.");
+            appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
+            return;
+        }
+        long delay = RESTART_DELAYS[restartAttempt++];
+        setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + restartAttempt + ")");
+        appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
+        mainHandler.postDelayed(() -> {
+            if (autoRestart && (process == null || !process.isAlive())) {
+                startServer();
+            }
+        }, delay);
     }
 
     private void pumpOutput(Process p) {
@@ -387,25 +442,50 @@ public class ServerService extends Service {
         return null;
     }
 
-    private String detectDomain(String port) {
+    private String detectHostPort(String port) {
+        List<String> ips = collectIps();
+        if (!ips.isEmpty()) {
+            return ips.get(0) + ":" + port;
+        }
+        return "localhost:" + port;
+    }
+
+    private List<String> collectIps() {
+        List<String> ips = new ArrayList<>();
         try {
-            List<InetAddress> addresses = new ArrayList<>();
             for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 if (!ni.isUp() || ni.isLoopback()) {
                     continue;
                 }
                 for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
                     if (addr instanceof java.net.Inet4Address) {
-                        addresses.add(addr);
+                        ips.add(addr.getHostAddress());
                     }
                 }
             }
-            if (!addresses.isEmpty()) {
-                return "http://" + addresses.get(0).getHostAddress() + ":" + port;
-            }
         } catch (Exception ignored) {
         }
-        return "http://localhost:" + port;
+        return ips;
+    }
+
+    /** Buat/ambil sertifikat self-signed untuk HTTPS. */
+    private File prepareTls(File dataFolder) {
+        try {
+            List<String> ips = collectIps();
+            ips.add(0, "127.0.0.1");
+            File tlsDir = new File(dataFolder, "tls");
+            File dir = TlsCert.ensure(tlsDir, ips);
+            if (dir == null) {
+                dir = TlsCert.ensure(new File(getFilesDir(), "tls"), ips);
+            }
+            if (dir != null) {
+                appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
+            }
+            return dir;
+        } catch (Exception e) {
+            appendLog("[app] Gagal siapkan TLS: " + e);
+            return null;
+        }
     }
 
     private String getPid(Process p) {

@@ -51,6 +51,12 @@
         android:layout_marginTop="6dp"
         android:text="Auto start saat boot" />
 
+    <CheckBox
+        android:id="@+id/https"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HTTPS (self-signed)" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -98,6 +104,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Revert Bawaan" />
+
+        <Button
+            android:id="@+id/cert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sertifikat" />
     </LinearLayout>
 
     <TextView

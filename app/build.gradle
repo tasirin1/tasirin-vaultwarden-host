@@ -18,6 +18,14 @@ android {
         versionName '1.0'
     }
 
+    // Satu APK per ABI (split) — asset binary diletakkan di src/<flavor>/assets/bin/<abi>/
+    flavorDimensions 'abi'
+    productFlavors {
+        arm64 { dimension 'abi' }
+        armv7 { dimension 'abi' }
+        x64 { dimension 'abi' }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

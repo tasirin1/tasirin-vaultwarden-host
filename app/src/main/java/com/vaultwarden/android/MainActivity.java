@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
     private EditText dataDirInput;
     private EditText portInput;
     private CheckBox autoStartCheck;
+    private CheckBox httpsCheck;
     private TextView statusView;
     private TextView versionView;
     private TextView logView;
@@ -62,6 +63,7 @@ public class MainActivity extends Activity {
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
         autoStartCheck = findViewById(R.id.autoStart);
+        httpsCheck = findViewById(R.id.https);
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         logView = findViewById(R.id.log);
@@ -72,21 +74,27 @@ public class MainActivity extends Activity {
         Button openBtn = findViewById(R.id.open);
         Button updateBtn = findViewById(R.id.update);
         Button revertBtn = findViewById(R.id.revert);
+        Button certBtn = findViewById(R.id.cert);
 
         startBtn.setOnClickListener(v -> ServerService.start(this));
         stopBtn.setOnClickListener(v -> ServerService.stop(this));
         openBtn.setOnClickListener(v -> openWebUi());
         updateBtn.setOnClickListener(v -> new Thread(this::checkForUpdate, "vw-update").start());
         revertBtn.setOnClickListener(v -> revertToBundled());
+        certBtn.setOnClickListener(v -> showCertHelp());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(sp.getString(ServerService.KEY_PORT, DEFAULT_PORT));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
+        httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
+        httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(ServerService.KEY_HTTPS, checked).apply());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -293,12 +301,23 @@ public class MainActivity extends Activity {
         if (TextUtils.isEmpty(port)) {
             port = DEFAULT_PORT;
         }
+        String scheme = httpsCheck.isChecked() ? "https" : "http";
         try {
             startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://127.0.0.1:" + port)));
+                    Uri.parse(scheme + "://127.0.0.1:" + port)));
         } catch (Exception e) {
             toast("Tidak bisa membuka browser: " + e.getMessage());
         }
+    }
+
+    private void showCertHelp() {
+        String dataDir = dataDirInput.getText().toString().trim();
+        if (TextUtils.isEmpty(dataDir)) {
+            dataDir = DEFAULT_DATA_DIR;
+        }
+        toast("Sertifikat: " + dataDir + "/tls/cert.pem\n"
+                + "Install: Settings > Security > Install certificate > CA certificate\n"
+                + "HTTPS aktif setelah Start berikutnya (browser akan tetap menampilkan peringatan self-signed).");
     }
 
     private void appendUiLog(String line) {
