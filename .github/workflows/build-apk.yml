@@ -71,9 +71,9 @@ jobs:
           TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
           # Set compiler + linker dari NDK untuk target Android (API 21 = Android 5.0).
           # cargo-ndk 4.x tidak dipakai karena hanya menyalin hasil cdylib (.so).
-          export "${cc_env}=${TOOLCHAIN}/${{ matrix.clang }}"
-          export "${linker_env}=${TOOLCHAIN}/${{ matrix.clang }}"
-          export "${ar_env}=${TOOLCHAIN}/llvm-ar"
+          export "${{ matrix.cc_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
+          export "${{ matrix.linker_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
+          export "${{ matrix.ar_env }}=${TOOLCHAIN}/llvm-ar"
           export RUSTFLAGS="-C link-arg=-Wl,-z,max-page-size=16384"
           cd vaultwarden
           export RUSTUP_TOOLCHAIN=${{ env.VW_RUST_VERSION }}
