@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.vaultwarden.android'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.vaultwarden.android'
+        // minSdk 21 = Android 5.0 (Lollipop)
+        minSdk 21
+        // targetSdk 28 sengaja: agar binary vaultwarden tetap bisa di-execute dari app data
+        // di Android 10+ (Android 10+ memblokir exec utk app yg targetSdk >= 29),
+        // sekaligus tetap mendapat akses storage lama (/sdcard) di Android 11+.
+        targetSdk 28
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+    }
+}
