@@ -21,6 +21,7 @@ jobs:
           - abi: arm64-v8a
             rust_target: aarch64-linux-android
             clang: aarch64-linux-android21-clang
+            tool_prefixes: aarch64-linux-android
             cc_env: CC_aarch64_linux_android
             ar_cc_env: AR_aarch64_linux_android
             linker_env: CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER
@@ -28,6 +29,7 @@ jobs:
           - abi: armeabi-v7a
             rust_target: armv7-linux-androideabi
             clang: armv7a-linux-androideabi21-clang
+            tool_prefixes: armv7-linux-androideabi armv7a-linux-androideabi
             cc_env: CC_armv7_linux_androideabi
             ar_cc_env: AR_armv7_linux_androideabi
             linker_env: CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER
@@ -35,6 +37,7 @@ jobs:
           - abi: x86_64
             rust_target: x86_64-linux-android
             clang: x86_64-linux-android21-clang
+            tool_prefixes: x86_64-linux-android
             cc_env: CC_x86_64_linux_android
             ar_cc_env: AR_x86_64_linux_android
             linker_env: CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER
@@ -77,8 +80,21 @@ jobs:
           export "${{ matrix.cc_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
           export "${{ matrix.ar_cc_env }}=${TOOLCHAIN}/llvm-ar"
           export AR="${TOOLCHAIN}/llvm-ar"
+          export RANLIB="${TOOLCHAIN}/llvm-ranlib"
           export "${{ matrix.linker_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
           export "${{ matrix.ar_env }}=${TOOLCHAIN}/llvm-ar"
+          # NDK r25 tidak punya binary <triple>-ar / <triple>-ranlib (cuma llvm-*);
+          # symlink ke llvm-* supaya openssl-src (make install_dev) tidak gagal.
+          TOOLCHAIN_BIN="$RUNNER_TEMP/toolchain-bin"
+          mkdir -p "$TOOLCHAIN_BIN"
+          for prefix in ${{ matrix.tool_prefixes }}; do
+            ln -sf "$TOOLCHAIN/llvm-ar"      "$TOOLCHAIN_BIN/${prefix}-ar"
+            ln -sf "$TOOLCHAIN/llvm-ranlib"  "$TOOLCHAIN_BIN/${prefix}-ranlib"
+            ln -sf "$TOOLCHAIN/llvm-nm"      "$TOOLCHAIN_BIN/${prefix}-nm"
+            ln -sf "$TOOLCHAIN/llvm-strip"   "$TOOLCHAIN_BIN/${prefix}-strip"
+            ln -sf "$TOOLCHAIN/llvm-objcopy" "$TOOLCHAIN_BIN/${prefix}-objcopy"
+          done
+          export PATH="$TOOLCHAIN_BIN:$PATH"
           export RUSTFLAGS="-C link-arg=-Wl,-z,max-page-size=16384"
           cd vaultwarden
           export RUSTUP_TOOLCHAIN=${{ env.VW_RUST_VERSION }}
