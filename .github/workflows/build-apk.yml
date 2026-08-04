@@ -56,12 +56,10 @@ jobs:
 
       - name: Cross-compile vaultwarden for Android
         run: |
-          NDK_PATH="${ANDROID_SDK_ROOT:-$HOME/.android/sdk}/ndk/${{ env.NDK_VERSION }}"
-          test -d "$NDK_PATH" || { echo "NDK not found at $NDK_PATH"; exit 1; }
           cd vaultwarden
           export RUSTUP_TOOLCHAIN=${{ env.VW_RUST_VERSION }}
-          cargo ndk -t ${{ matrix.abi }} -p 21 \
-            --ndk-path "$NDK_PATH" \
+          # -P = min Android API level (21 = Android 5.0). NDK dideteksi otomatis dari $ANDROID_HOME/ndk.
+          cargo ndk -t ${{ matrix.abi }} -P 21 \
             -o ../app/src/main/assets/bin \
             build --release --features sqlite,vendored_openssl
 
