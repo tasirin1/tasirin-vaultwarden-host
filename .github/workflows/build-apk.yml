@@ -183,7 +183,12 @@ jobs:
 
       - name: Fetch web-vault (matching Vaultwarden version)
         run: |
-          docker create --name vwweb vaultwarden/web-vault:${{ needs.resolve.outputs.vw }}
+          # Web-vault di-pin per rilis Vaultwarden lewat digest di docker/DockerSettings.yaml
+          DIGEST=$(curl -s "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
+            | grep 'vault_image_digest' | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
+          test -n "$DIGEST" || { echo "Digest web-vault tidak ditemukan"; exit 1; }
+          echo "Web-vault digest: $DIGEST"
+          docker create --name vwweb "vaultwarden/web-vault@$DIGEST"
           docker cp vwweb:/web-vault /tmp/web-vault
           docker rm vwweb
           mkdir -p app/src/main/assets
