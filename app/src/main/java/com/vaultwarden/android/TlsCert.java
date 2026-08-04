@@ -26,15 +26,22 @@ public final class TlsCert {
     private TlsCert() {
     }
 
+    /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
+    private static final int CERT_VERSION = 2;
+
     /** Pastikan cert.pem & key.pem ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {
         try {
             File certFile = new File(dir, "cert.pem");
             File keyFile = new File(dir, "key.pem");
             if (certFile.exists() && keyFile.exists()
-                    && certFile.length() > 100 && keyFile.length() > 100) {
+                    && certFile.length() > 100 && keyFile.length() > 100
+                    && certVersionOk(dir)) {
                 return dir;
             }
+            // Cert lama (format rusak / versi lama) dihapus agar dibuat ulang.
+            certFile.delete();
+            keyFile.delete();
             if (!dir.exists() && !dir.mkdirs()) {
                 return null;
             }
@@ -57,6 +64,7 @@ public final class TlsCert {
 
             writePem(certFile, "CERTIFICATE", cert);
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
+            writeVersion(dir);
             return dir;
         } catch (Exception e) {
             return null;
@@ -76,7 +84,7 @@ public final class TlsCert {
         // version [0] EXPLICIT INTEGER 2 (v3)
         byte[] version = der(b -> b.raw(integer(BigInteger.valueOf(2))), 0xA0);
         byte[] serial = integer(new BigInteger(serialBytes));
-        byte[] sigAlg = der(b -> b.oidSha256Rsa(), 0x30);
+        byte[] sigAlg = sha256RsaAlgorithmId();
         byte[] issuer = nameCn("Vaultwarden Android");
         byte[] validity = der(b -> {
             b.utcTime(notBefore);
@@ -117,9 +125,11 @@ public final class TlsCert {
             b.oidSan();
             b.raw(extValue);
         }, 0x30);
+        // Extensions ::= SEQUENCE OF Extension
+        byte[] extensions = der(b -> b.raw(ext), 0x30);
 
-        // extensions [3] EXPLICIT SEQUENCE OF Extension
-        return der(b -> b.raw(ext), 0xA3);
+        // extensions [3] EXPLICIT Extensions
+        return der(b -> b.raw(extensions), 0xA3);
     }
 
     private static byte[] ipv4(String ip) {
@@ -143,12 +153,21 @@ public final class TlsCert {
     }
 
     private static byte[] nameCn(String cn) throws Exception {
-        // RDN: SET { SEQUENCE { OID 2.5.4.3, UTF8String } }
+        // AttributeTypeAndValue: SEQUENCE { OID 2.5.4.3, UTF8String }
         byte[] attr = der(b -> {
             b.oidCn();
             b.utf8(cn);
         }, 0x30);
-        return der(b -> b.raw(attr), 0x31);
+        // RDN: SET OF AttributeTypeAndValue
+        byte[] rdn = der(b -> b.raw(attr), 0x31);
+        // Name: SEQUENCE OF RDN
+        return der(b -> b.raw(rdn), 0x30);
+    }
+
+    private static byte[] sha256RsaAlgorithmId() {
+        // SEQUENCE { OID 1.2.840.113549.1.1.11, NULL }
+        return new byte[]{0x30, 0x0D, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
+                (byte) 0x86, (byte) 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00};
     }
 
     private static byte[] integer(BigInteger v) throws IOException {
@@ -158,6 +177,26 @@ public final class TlsCert {
         len(body.length, o);
         o.write(body, 0, body.length);
         return o.toByteArray();
+    }
+
+    private static boolean certVersionOk(File dir) {
+        try (java.io.FileInputStream in = new java.io.FileInputStream(new File(dir, "version.txt"))) {
+            byte[] buf = new byte[16];
+            int n = in.read(buf);
+            if (n <= 0) {
+                return false;
+            }
+            String v = new String(buf, 0, n, StandardCharsets.US_ASCII).trim();
+            return Integer.parseInt(v) >= CERT_VERSION;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static void writeVersion(File dir) throws IOException {
+        try (FileOutputStream w = new FileOutputStream(new File(dir, "version.txt"))) {
+            w.write((CERT_VERSION + "\n").getBytes(StandardCharsets.US_ASCII));
+        }
     }
 
     private static void writePem(File f, String type, byte[] der) throws IOException {
@@ -245,8 +284,9 @@ public final class TlsCert {
         }
 
         void oidSha256Rsa() throws IOException {
-            // SHA256withRSA: 1.2.840.113549.1.1.11
-            raw(new byte[]{0x30, 0x0B, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
+            // SHA256withRSA: 1.2.840.113549.1.1.11 + NULL params.
+            // 30 0D: SEQUENCE panjang 13 (OID 11 byte + NULL 2 byte)
+            raw(new byte[]{0x30, 0x0D, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
                     (byte) 0x86, (byte) 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00});
         }
 
