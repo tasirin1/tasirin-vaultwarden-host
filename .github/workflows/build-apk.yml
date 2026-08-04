@@ -20,10 +20,22 @@ jobs:
         include:
           - abi: arm64-v8a
             rust_target: aarch64-linux-android
+            clang: aarch64-linux-android21-clang
+            cc_env: CC_aarch64_linux_android
+            linker_env: CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER
+            ar_env: CARGO_TARGET_AARCH64_LINUX_ANDROID_AR
           - abi: armeabi-v7a
             rust_target: armv7-linux-androideabi
+            clang: armv7a-linux-androideabi21-clang
+            cc_env: CC_armv7_linux_androideabi
+            linker_env: CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER
+            ar_env: CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_AR
           - abi: x86_64
             rust_target: x86_64-linux-android
+            clang: x86_64-linux-android21-clang
+            cc_env: CC_x86_64_linux_android
+            linker_env: CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER
+            ar_env: CARGO_TARGET_X86_64_LINUX_ANDROID_AR
     steps:
       - uses: actions/checkout@v4
 
@@ -46,9 +58,6 @@ jobs:
         with:
           packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
 
-      - name: Install cargo-ndk
-        run: cargo install cargo-ndk --version 4.1.2
-
       - name: Fetch Vaultwarden source
         run: |
           git clone --depth 1 --branch ${{ env.VW_VERSION }} \
@@ -56,12 +65,23 @@ jobs:
 
       - name: Cross-compile vaultwarden for Android
         run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          NDK="$SDK/ndk/${{ env.NDK_VERSION }}"
+          test -d "$NDK" || { echo "NDK not found at $NDK"; exit 1; }
+          TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          # Set compiler + linker dari NDK untuk target Android (API 21 = Android 5.0).
+          # cargo-ndk 4.x tidak dipakai karena hanya menyalin hasil cdylib (.so).
+          export "${cc_env}=${TOOLCHAIN}/${{ matrix.clang }}"
+          export "${linker_env}=${TOOLCHAIN}/${{ matrix.clang }}"
+          export "${ar_env}=${TOOLCHAIN}/llvm-ar"
+          export RUSTFLAGS="-C link-arg=-Wl,-z,max-page-size=16384"
           cd vaultwarden
           export RUSTUP_TOOLCHAIN=${{ env.VW_RUST_VERSION }}
-          # -P = min Android API level (21 = Android 5.0). NDK dideteksi otomatis dari $ANDROID_HOME/ndk.
-          cargo ndk -t ${{ matrix.abi }} -P 21 \
-            -o ../app/src/main/assets/bin \
-            build --release --features sqlite,vendored_openssl
+          cargo build --release --target ${{ matrix.rust_target }} \
+            --features sqlite,vendored_openssl
+          mkdir -p ../app/src/main/assets/bin/${{ matrix.abi }}
+          cp target/${{ matrix.rust_target }}/release/vaultwarden \
+            ../app/src/main/assets/bin/${{ matrix.abi }}/vaultwarden
 
       - name: Inspect binary
         run: |
