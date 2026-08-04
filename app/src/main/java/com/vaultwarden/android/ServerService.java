@@ -39,12 +39,12 @@ public class ServerService extends Service {
     public static final String KEY_AUTO_START = "auto_start";
     public static final String KEY_UPDATE_VERSION = "update_version";
     public static final String KEY_HTTPS = "https";
+    public static final String KEY_ADMIN_TOKEN = "admin_token";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
     private static final int MAX_LOG_CHARS = 300_000;
 
-    /** Keadaan yang dibaca UI. */
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
     public static volatile String binaryVersion = "";
@@ -181,16 +181,33 @@ public class ServerService extends Service {
             pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
             pb.environment().put("ROCKET_PORT", port);
             pb.environment().put("ROCKET_WORKERS", "2");
-            File webVault = extractWebVault();
-            if (webVault != null) {
-                pb.environment().put("WEB_VAULT_ENABLED", "true");
-                pb.environment().put("WEB_VAULT_FOLDER", webVault.getAbsolutePath());
-            } else {
-                pb.environment().put("WEB_VAULT_ENABLED", "false");
+
+            // Admin token
+            String adminToken = sp.getString(KEY_ADMIN_TOKEN, "");
+            if (adminToken != null && !adminToken.trim().isEmpty()) {
+                pb.environment().put("ADMIN_TOKEN", adminToken.trim());
+                appendLog("[app] Admin token diaktifkan.");
             }
+
+            // Web vault: prioritaskan yang di-update di dataDir, baru fallback ke bundled
+            File localWv = new File(dataFolder, "web-vault/index.html");
+            if (localWv.exists()) {
+                pb.environment().put("WEB_VAULT_ENABLED", "true");
+                pb.environment().put("WEB_VAULT_FOLDER", localWv.getParentFile().getAbsolutePath());
+                appendLog("[app] Web vault (updated): " + localWv.getParentFile().getAbsolutePath());
+            } else {
+                File webVault = extractWebVault();
+                if (webVault != null) {
+                    pb.environment().put("WEB_VAULT_ENABLED", "true");
+                    pb.environment().put("WEB_VAULT_FOLDER", webVault.getAbsolutePath());
+                } else {
+                    pb.environment().put("WEB_VAULT_ENABLED", "false");
+                }
+            }
+
             if (tlsDir != null) {
                 String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
-                String tlsKey  = new File(tlsDir, "key.pem").getAbsolutePath();
+                String tlsKey = new File(tlsDir, "key.pem").getAbsolutePath();
                 pb.environment().put("ROCKET_TLS", "{certs=\"" + tlsCert + "\",key=\"" + tlsKey + "\"}");
                 appendLog("[app] TLS cert: " + tlsCert);
                 appendLog("[app] TLS key:  " + tlsKey);
@@ -202,11 +219,11 @@ public class ServerService extends Service {
 
             process = pb.start();
             acquireWakeLock();
+            running = true;
             lastStartTime = System.currentTimeMillis();
             restartAttempt = 0;
 
             logFile = new File(dataFolder, "vaultwarden.log");
-            running = true;
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
@@ -276,7 +293,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Restart otomatis dengan jeda bertingkat bila server crash. */
     private void scheduleRestart() {
         long uptime = System.currentTimeMillis() - lastStartTime;
         if (uptime > 60_000) {
@@ -354,9 +370,10 @@ public class ServerService extends Service {
                         fos.write(buf, 0, n);
                     }
                 }
+                out.setReadable(true, false);
+                out.setExecutable(true, false);
+                appendLog("[app] Binary diekstrak: " + out.getAbsolutePath());
             }
-            out.setReadable(true, false);
-            out.setExecutable(true, false);
             detectBinaryVersion(out);
             return out;
         } catch (Exception e) {
@@ -365,7 +382,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Ekstrak web vault dari assets (web-vault.zip) ke app data bila belum ada. */
     private File extractWebVault() {
         try {
             File dir = new File(getFilesDir(), "web-vault");
@@ -373,25 +389,19 @@ public class ServerService extends Service {
             if (index.exists()) {
                 return dir;
             }
-            if (!dir.exists() && !dir.mkdirs()) {
-                return null;
-            }
-            String dirPath = dir.getCanonicalPath();
+            byte[] buf = new byte[64 * 1024];
             try (InputStream in = getAssets().open("web-vault.zip");
                  ZipInputStream zis = new ZipInputStream(in)) {
                 ZipEntry entry;
-                byte[] buf = new byte[64 * 1024];
                 while ((entry = zis.getNextEntry()) != null) {
-                    File outFile = new File(dir, entry.getName());
-                    if (!outFile.getCanonicalPath().startsWith(dirPath + File.separator)) {
-                        continue; // anti zip-slip
-                    }
                     if (entry.isDirectory()) {
-                        outFile.mkdirs();
+                        new File(dir, entry.getName()).mkdirs();
                     } else {
-                        if (outFile.getParentFile() != null) {
-                            outFile.getParentFile().mkdirs();
+                        File outFile = new File(dir, entry.getName());
+                        if (!outFile.getCanonicalPath().startsWith(dir.getCanonicalPath())) {
+                            continue;
                         }
+                        outFile.getParentFile().mkdirs();
                         try (FileOutputStream fos = new FileOutputStream(outFile)) {
                             int n;
                             while ((n = zis.read(buf)) > 0) {
@@ -435,7 +445,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** ABI yang didukung untuk perangkat ini, atau null. */
     public static String getAbi() {
         for (String a : Build.SUPPORTED_ABIS) {
             if ("arm64-v8a".equals(a) || "armeabi-v7a".equals(a) || "x86_64".equals(a)) {
@@ -471,7 +480,6 @@ public class ServerService extends Service {
         return ips;
     }
 
-    /** Buat/ambil sertifikat self-signed untuk HTTPS. */
     private File prepareTls(File dataFolder) {
         try {
             List<String> ips = collectIps();

@@ -8,22 +8,16 @@ android {
 
     defaultConfig {
         applicationId 'com.vaultwarden.android'
-        // minSdk 21 = Android 5.0 (Lollipop)
         minSdk 21
         // targetSdk 28 sengaja: agar binary vaultwarden tetap bisa di-execute dari app data
-        // di Android 10+ (Android 10+ memblokir exec utk app yg targetSdk >= 29),
-        // sekaligus tetap mendapat akses storage lama (/sdcard) di Android 11+.
         targetSdk 28
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '2.0'
     }
 
-    // Satu APK per ABI (split) — asset binary diletakkan di src/<flavor>/assets/bin/<abi>/
     flavorDimensions 'abi'
     productFlavors {
-        arm64 { dimension 'abi' }
         armv7 { dimension 'abi' }
-        x64 { dimension 'abi' }
     }
 
     buildTypes {

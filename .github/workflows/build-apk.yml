@@ -25,37 +25,9 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   build-binary:
-    name: Build vaultwarden (${{ matrix.abi }})
+    name: Build vaultwarden (armeabi-v7a)
     needs: resolve
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - abi: arm64-v8a
-            rust_target: aarch64-linux-android
-            clang: aarch64-linux-android21-clang
-            tool_prefixes: aarch64-linux-android
-            cc_env: CC_aarch64_linux_android
-            ar_cc_env: AR_aarch64_linux_android
-            linker_env: CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER
-            ar_env: CARGO_TARGET_AARCH64_LINUX_ANDROID_AR
-          - abi: armeabi-v7a
-            rust_target: armv7-linux-androideabi
-            clang: armv7a-linux-androideabi21-clang
-            tool_prefixes: armv7-linux-androideabi armv7a-linux-androideabi
-            cc_env: CC_armv7_linux_androideabi
-            ar_cc_env: AR_armv7_linux_androideabi
-            linker_env: CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER
-            ar_env: CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_AR
-          - abi: x86_64
-            rust_target: x86_64-linux-android
-            clang: x86_64-linux-android21-clang
-            tool_prefixes: x86_64-linux-android
-            cc_env: CC_x86_64_linux_android
-            ar_cc_env: AR_x86_64_linux_android
-            linker_env: CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER
-            ar_env: CARGO_TARGET_X86_64_LINUX_ANDROID_AR
     steps:
       - uses: actions/checkout@v4
 
@@ -83,7 +55,7 @@ jobs:
           RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' vaultwarden/rust-toolchain.toml)
           echo "Toolchain: $RUST_VERSION"
           rustup toolchain install "$RUST_VERSION" --profile minimal \
-            --target ${{ matrix.rust_target }}
+            --target armv7-linux-androideabi
 
       - name: Cache cargo build
         uses: actions/cache@v4
@@ -91,27 +63,25 @@ jobs:
           path: |
             vaultwarden/target
             ~/.cargo/registry
-          key: vw-cargo-${{ matrix.abi }}-${{ needs.resolve.outputs.vw }}-${{ github.sha }}
+          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-${{ github.sha }}
           restore-keys: |
-            vw-cargo-${{ matrix.abi }}-${{ needs.resolve.outputs.vw }}-
+            vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-
 
-      - name: Cross-compile vaultwarden for Android
+      - name: Cross-compile vaultwarden for Android (armv7)
         run: |
           SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
           NDK="$SDK/ndk/${{ env.NDK_VERSION }}"
           test -d "$NDK" || { echo "NDK not found at $NDK"; exit 1; }
           TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          export "${{ matrix.cc_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
-          export "${{ matrix.ar_cc_env }}=${TOOLCHAIN}/llvm-ar"
-          export AR="${TOOLCHAIN}/llvm-ar"
-          export RANLIB="${TOOLCHAIN}/llvm-ranlib"
-          export "${{ matrix.linker_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
-          export "${{ matrix.ar_env }}=${TOOLCHAIN}/llvm-ar"
-          # NDK r25 tidak punya binary <triple>-ar / <triple>-ranlib (cuma llvm-*);
-          # symlink ke llvm-* supaya openssl-src (make install_dev) tidak gagal.
+          export CC_armv7_linux_androideabi="$TOOLCHAIN/armv7a-linux-androideabi21-clang"
+          export AR_armv7_linux_androideabi="$TOOLCHAIN/llvm-ar"
+          export AR="$TOOLCHAIN/llvm-ar"
+          export RANLIB="$TOOLCHAIN/llvm-ranlib"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$TOOLCHAIN/armv7a-linux-androideabi21-clang"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_AR="$TOOLCHAIN/llvm-ar"
           TOOLCHAIN_BIN="$RUNNER_TEMP/toolchain-bin"
           mkdir -p "$TOOLCHAIN_BIN"
-          for prefix in ${{ matrix.tool_prefixes }}; do
+          for prefix in armv7-linux-androideabi armv7a-linux-androideabi; do
             ln -sf "$TOOLCHAIN/llvm-ar"      "$TOOLCHAIN_BIN/${prefix}-ar"
             ln -sf "$TOOLCHAIN/llvm-ranlib"  "$TOOLCHAIN_BIN/${prefix}-ranlib"
             ln -sf "$TOOLCHAIN/llvm-nm"      "$TOOLCHAIN_BIN/${prefix}-nm"
@@ -122,48 +92,36 @@ jobs:
           cd vaultwarden
           RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' rust-toolchain.toml)
           export RUSTUP_TOOLCHAIN="$RUST_VERSION"
-          cargo build --release --target ${{ matrix.rust_target }} \
+          cargo build --release --target armv7-linux-androideabi \
             --features sqlite,vendored_openssl
-          mkdir -p ../app/src/main/assets/bin/${{ matrix.abi }}
-          cp target/${{ matrix.rust_target }}/release/vaultwarden \
-            ../app/src/main/assets/bin/${{ matrix.abi }}/vaultwarden
+          mkdir -p ../app/src/main/assets/bin/armeabi-v7a
+          cp target/armv7-linux-androideabi/release/vaultwarden \
+            ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Inspect binary
         run: |
-          file app/src/main/assets/bin/${{ matrix.abi }}/vaultwarden
-          ls -lh app/src/main/assets/bin/${{ matrix.abi }}/vaultwarden
+          file app/src/main/assets/bin/armeabi-v7a/vaultwarden
+          ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vw-binary-${{ matrix.abi }}
-          path: app/src/main/assets/bin/${{ matrix.abi }}/vaultwarden
+          name: vw-binary-armeabi-v7a
+          path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
           if-no-files-found: error
 
   build-apk:
-    name: Assemble APK (split per ABI)
+    name: Assemble APK
     needs: [build-binary, resolve]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download binaries (arm64-v8a)
-        uses: actions/download-artifact@v4
-        with:
-          name: vw-binary-arm64-v8a
-          path: app/src/arm64/assets/bin/arm64-v8a
-
-      - name: Download binaries (armeabi-v7a)
+      - name: Download binary (armeabi-v7a)
         uses: actions/download-artifact@v4
         with:
           name: vw-binary-armeabi-v7a
           path: app/src/armv7/assets/bin/armeabi-v7a
-
-      - name: Download binaries (x86_64)
-        uses: actions/download-artifact@v4
-        with:
-          name: vw-binary-x86_64
-          path: app/src/x64/assets/bin/x86_64
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -176,14 +134,13 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
-      - name: Check binaries
+      - name: Check binary
         run: |
-          file app/src/*/assets/bin/*/vaultwarden
-          ls -lhR app/src/arm64/assets/bin app/src/armv7/assets/bin app/src/x64/assets/bin
+          file app/src/armv7/assets/bin/armeabi-v7a/vaultwarden
+          ls -lh app/src/armv7/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Fetch web-vault (matching Vaultwarden version)
         run: |
-          # Web-vault di-pin per rilis Vaultwarden lewat digest di docker/DockerSettings.yaml
           DIGEST=$(curl -s "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
             | grep 'vault_image_digest' | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
           test -n "$DIGEST" || { echo "Digest web-vault tidak ditemukan"; exit 1; }
@@ -205,61 +162,38 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APKs (semua flavor)
+      - name: Build debug APK (armv7)
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon :app:assembleDebug
+          ./gradlew --no-daemon :app:assembleArmv7Debug
 
       - name: Verify APK contents
         run: |
-          for apk in app/build/outputs/apk/*/debug/app-*-debug.apk; do
-            echo "== $apk"
-            unzip -l "$apk" | grep -E 'assets/bin|vw_version|web-vault.zip|classes.dex|AndroidManifest'
-          done
-          ls -lh app/build/outputs/apk/*/debug/*.apk
-
-      - name: Stage release files
-        run: |
-          cp app/build/outputs/apk/arm64/debug/app-arm64-debug.apk vaultwarden-android-arm64-v8a.apk
-          cp app/build/outputs/apk/armv7/debug/app-armv7-debug.apk vaultwarden-android-armeabi-v7a.apk
-          cp app/build/outputs/apk/x64/debug/app-x64-debug.apk vaultwarden-android-x86_64.apk
-          cp app/src/arm64/assets/bin/arm64-v8a/vaultwarden vaultwarden-arm64-v8a
-          cp app/src/armv7/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
-          cp app/src/x64/assets/bin/x86_64/vaultwarden vaultwarden-x86_64
-          ls -lh vaultwarden-*
+          APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
+          echo "== $APK"
+          unzip -l "$APK" | grep -E 'assets/bin|vw_version|web-vault.zip|classes.dex|AndroidManifest'
+          ls -lh "$APK"
 
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete v${{ needs.resolve.outputs.vw }} --yes --cleanup-tag || true
-          gh release create v${{ needs.resolve.outputs.vw }} \
-            vaultwarden-android-arm64-v8a.apk \
+          APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
+          cp "$APK" vaultwarden-android-armeabi-v7a.apk
+          cp app/src/armv7/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
+          cp app/src/main/assets/web-vault.zip web-vault.zip
+          ls -lh vaultwarden-*.apk vaultwarden-armeabi-v7a web-vault.zip
+          gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true
+          gh release create "v${{ needs.resolve.outputs.vw }}" \
             vaultwarden-android-armeabi-v7a.apk \
-            vaultwarden-android-x86_64.apk \
-            vaultwarden-arm64-v8a \
             vaultwarden-armeabi-v7a \
-            vaultwarden-x86_64 \
+            web-vault.zip \
             --title "Vaultwarden ${{ needs.resolve.outputs.vw }} (Android)" \
-            --notes "APK per ABI: arm64-v8a (HP modern), armeabi-v7a (HP lama), x86_64 (emulator). Plus binary untuk update di dalam app."
+            --notes "APK armv7 (32-bit ARM). Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
 
-      - name: Upload APK (arm64-v8a)
-        uses: actions/upload-artifact@v4
-        with:
-          name: vaultwarden-android-apk-arm64-v8a
-          path: vaultwarden-android-arm64-v8a.apk
-          if-no-files-found: error
-
-      - name: Upload APK (armeabi-v7a)
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: vaultwarden-android-apk-armeabi-v7a
           path: vaultwarden-android-armeabi-v7a.apk
-          if-no-files-found: error
-
-      - name: Upload APK (x86_64)
-        uses: actions/upload-artifact@v4
-        with:
-          name: vaultwarden-android-apk-x86_64
-          path: vaultwarden-android-x86_64.apk
           if-no-files-found: error
