@@ -445,13 +445,10 @@ public class ServerService extends Service {
         }
     }
 
+    /** Selalu pakai binary 32-bit ARM (armeabi-v7a) - build hanya untuk ABI ini.
+     *  HP arm64 tetap bisa menjalankan binary 32-bit (compat mode). */
     public static String getAbi() {
-        for (String a : Build.SUPPORTED_ABIS) {
-            if ("arm64-v8a".equals(a) || "armeabi-v7a".equals(a) || "x86_64".equals(a)) {
-                return a;
-            }
-        }
-        return null;
+        return "armeabi-v7a";
     }
 
     private String detectHostPort(String port) {
