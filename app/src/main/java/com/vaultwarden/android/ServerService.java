@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ServerService extends Service {
 
@@ -156,9 +158,16 @@ public class ServerService extends Service {
             pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
             pb.environment().put("ROCKET_PORT", port);
             pb.environment().put("ROCKET_WORKERS", "2");
-            pb.environment().put("WEB_VAULT_ENABLED", "false");
+            File webVault = extractWebVault();
+            if (webVault != null) {
+                pb.environment().put("WEB_VAULT_ENABLED", "true");
+                pb.environment().put("WEB_VAULT_FOLDER", webVault.getAbsolutePath());
+            } else {
+                pb.environment().put("WEB_VAULT_ENABLED", "false");
+            }
             pb.environment().put("RUST_LOG", "info");
-            pb.environment().put("DOMAIN", detectDomain(port));
+            String domain = detectDomain(port);
+            pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
             process = pb.start();
@@ -167,7 +176,8 @@ public class ServerService extends Service {
             logFile = new File(dataFolder, "vaultwarden.log");
             running = true;
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
-                    + "\nURL lokal: http://127.0.0.1:" + port);
+                    + "\nURL lokal (di HP): http://127.0.0.1:" + port
+                    + "\nURL jaringan (dari PC/laptop): " + domain);
 
             final Process p = process;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
@@ -293,6 +303,54 @@ public class ServerService extends Service {
             return out;
         } catch (Exception e) {
             appendLog("[app] Gagal ekstrak binary: " + e);
+            return null;
+        }
+    }
+
+    /** Ekstrak web vault dari assets (web-vault.zip) ke app data bila belum ada. */
+    private File extractWebVault() {
+        try {
+            File dir = new File(getFilesDir(), "web-vault");
+            File index = new File(dir, "index.html");
+            if (index.exists()) {
+                return dir;
+            }
+            if (!dir.exists() && !dir.mkdirs()) {
+                return null;
+            }
+            String dirPath = dir.getCanonicalPath();
+            try (InputStream in = getAssets().open("web-vault.zip");
+                 ZipInputStream zis = new ZipInputStream(in)) {
+                ZipEntry entry;
+                byte[] buf = new byte[64 * 1024];
+                while ((entry = zis.getNextEntry()) != null) {
+                    File outFile = new File(dir, entry.getName());
+                    if (!outFile.getCanonicalPath().startsWith(dirPath + File.separator)) {
+                        continue; // anti zip-slip
+                    }
+                    if (entry.isDirectory()) {
+                        outFile.mkdirs();
+                    } else {
+                        if (outFile.getParentFile() != null) {
+                            outFile.getParentFile().mkdirs();
+                        }
+                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                            int n;
+                            while ((n = zis.read(buf)) > 0) {
+                                fos.write(buf, 0, n);
+                            }
+                        }
+                    }
+                    zis.closeEntry();
+                }
+            }
+            if (index.exists()) {
+                appendLog("[app] Web vault siap di " + dir.getAbsolutePath());
+                return dir;
+            }
+            return null;
+        } catch (Exception e) {
+            appendLog("[app] Gagal ekstrak web-vault: " + e);
             return null;
         }
     }

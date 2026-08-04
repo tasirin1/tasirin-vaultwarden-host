@@ -181,6 +181,16 @@ jobs:
           file app/src/main/assets/bin/*/vaultwarden
           ls -lhR app/src/main/assets/bin
 
+      - name: Fetch web-vault (matching Vaultwarden version)
+        run: |
+          docker create --name vwweb vaultwarden/web-vault:${{ needs.resolve.outputs.vw }}
+          docker cp vwweb:/web-vault /tmp/web-vault
+          docker rm vwweb
+          mkdir -p app/src/main/assets
+          (cd /tmp/web-vault && zip -qr /tmp/web-vault.zip .)
+          cp /tmp/web-vault.zip app/src/main/assets/web-vault.zip
+          ls -lh app/src/main/assets/web-vault.zip
+
       - name: Write bundled version
         run: |
           mkdir -p app/src/main/assets
@@ -197,7 +207,7 @@ jobs:
 
       - name: Verify APK contents
         run: |
-          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -E 'assets/bin|vw_version|classes.dex|AndroidManifest'
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -E 'assets/bin|vw_version|web-vault.zip|classes.dex|AndroidManifest'
 
       - name: Stage release files
         run: |

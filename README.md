@@ -31,9 +31,9 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 
 1. Install APK, buka app **Vaultwarden Host**, beri izin **Storage** bila diminta.
 2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8080`).
-3. Tekan **Start**. Status menunjukkan server berjalan.
-4. Buka `http://127.0.0.1:8080` lewat tombol **Open Web UI**, atau dari perangkat
-   lain pakai `http://<IP-lokal-android>:8080`.
+3. Tekan **Start**. Status menunjukkan server berjalan + URL jaringan.
+4. Buka `http://127.0.0.1:8080` lewat tombol **Open Web UI** (browser HP),
+   atau dari PC/laptop pakai `http://<IP-lokal-android>:8080`.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8080`.
 
