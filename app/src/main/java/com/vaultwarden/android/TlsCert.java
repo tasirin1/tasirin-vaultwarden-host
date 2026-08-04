@@ -98,7 +98,7 @@ public final class TlsCert {
         }, 0x30);
     }
 
-    private static byte[] sanExtension(List<String> ips) {
+    private static byte[] sanExtension(List<String> ips) throws Exception {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -142,7 +142,7 @@ public final class TlsCert {
         }
     }
 
-    private static byte[] nameCn(String cn) {
+    private static byte[] nameCn(String cn) throws Exception {
         // RDN: SET { SEQUENCE { OID 2.5.4.3, UTF8String } }
         byte[] attr = der(b -> {
             b.oidCn();
@@ -151,21 +151,12 @@ public final class TlsCert {
         return der(b -> b.raw(attr), 0x31);
     }
 
-    private static byte[] integer(BigInteger v) {
+    private static byte[] integer(BigInteger v) throws IOException {
         byte[] body = v.toByteArray();
         ByteArrayOutputStream o = new ByteArrayOutputStream();
         o.write(0x02);
         len(body.length, o);
         o.write(body, 0, body.length);
-        return o.toByteArray();
-    }
-
-    private static byte[] bitString(byte[] data) {
-        ByteArrayOutputStream o = new ByteArrayOutputStream();
-        o.write(0x03);
-        len(data.length + 1, o);
-        o.write(0); // unused bits
-        o.write(data, 0, data.length);
         return o.toByteArray();
     }
 
@@ -228,6 +219,13 @@ public final class TlsCert {
         }
 
         void bytes(byte[] data) throws IOException {
+            out.write(data, 0, data.length);
+        }
+
+        void bitString(byte[] data) throws IOException {
+            out.write(0x03);
+            len(data.length + 1, out);
+            out.write(0); // unused bits
             out.write(data, 0, data.length);
         }
 
