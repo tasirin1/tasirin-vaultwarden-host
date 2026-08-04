@@ -189,8 +189,11 @@ public class ServerService extends Service {
                 pb.environment().put("WEB_VAULT_ENABLED", "false");
             }
             if (tlsDir != null) {
-                pb.environment().put("ROCKET_TLS_CERTS", new File(tlsDir, "cert.pem").getAbsolutePath());
-                pb.environment().put("ROCKET_TLS_KEY", new File(tlsDir, "key.pem").getAbsolutePath());
+                String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
+                String tlsKey  = new File(tlsDir, "key.pem").getAbsolutePath();
+                pb.environment().put("ROCKET_TLS", "{certs=\"" + tlsCert + "\",key=\"" + tlsKey + "\"}");
+                appendLog("[app] TLS cert: " + tlsCert);
+                appendLog("[app] TLS key:  " + tlsKey);
             }
             pb.environment().put("RUST_LOG", "info");
             String domain = scheme + "://" + detectHostPort(port);
