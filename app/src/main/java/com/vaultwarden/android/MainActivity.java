@@ -308,11 +308,14 @@ public class MainActivity extends Activity {
         return "http://localhost:" + port;
     }
 
-    private int getPid(Process p) {
+    private String getPid(Process p) {
+        // Process.pid() tidak tersedia di stub Android pada semua versi API;
+        // gunakan reflection agar tetap kompilasi dan aman di API < 26.
         try {
-            return (int) p.pid();
+            java.lang.reflect.Method pid = Process.class.getMethod("pid");
+            return String.valueOf(pid.invoke(p));
         } catch (Throwable t) {
-            return -1;
+            return "?";
         }
     }
 

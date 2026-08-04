@@ -69,6 +69,16 @@ jobs:
           git clone --depth 1 --branch ${{ env.VW_VERSION }} \
             https://github.com/dani-garcia/vaultwarden.git
 
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: |
+            vaultwarden/target
+            ~/.cargo/registry
+          key: vw-cargo-${{ matrix.abi }}-${{ env.VW_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            vw-cargo-${{ matrix.abi }}-${{ env.VW_VERSION }}-
+
       - name: Cross-compile vaultwarden for Android
         run: |
           SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
