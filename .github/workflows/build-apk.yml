@@ -5,14 +5,28 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
-  VW_VERSION: 1.37.1
-  VW_RUST_VERSION: 1.97.1
   NDK_VERSION: 25.2.9519653
 
 jobs:
+  resolve:
+    name: Resolve latest Vaultwarden
+    runs-on: ubuntu-latest
+    outputs:
+      vw: ${{ steps.vw.outputs.tag }}
+    steps:
+      - id: vw
+        run: |
+          TAG=$(curl -s https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
+          echo "Latest Vaultwarden: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
   build-binary:
     name: Build vaultwarden (${{ matrix.abi }})
+    needs: resolve
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -54,20 +68,22 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install pinned Vaultwarden toolchain with Android target
-        run: |
-          rustup toolchain install ${{ env.VW_RUST_VERSION }} --profile minimal \
-            --target ${{ matrix.rust_target }}
-
       - name: Install Android NDK
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
 
-      - name: Fetch Vaultwarden source
+      - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw }})
         run: |
-          git clone --depth 1 --branch ${{ env.VW_VERSION }} \
+          git clone --depth 1 --branch ${{ needs.resolve.outputs.vw }} \
             https://github.com/dani-garcia/vaultwarden.git
+
+      - name: Install pinned Vaultwarden toolchain with Android target
+        run: |
+          RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' vaultwarden/rust-toolchain.toml)
+          echo "Toolchain: $RUST_VERSION"
+          rustup toolchain install "$RUST_VERSION" --profile minimal \
+            --target ${{ matrix.rust_target }}
 
       - name: Cache cargo build
         uses: actions/cache@v4
@@ -75,9 +91,9 @@ jobs:
           path: |
             vaultwarden/target
             ~/.cargo/registry
-          key: vw-cargo-${{ matrix.abi }}-${{ env.VW_VERSION }}-${{ github.sha }}
+          key: vw-cargo-${{ matrix.abi }}-${{ needs.resolve.outputs.vw }}-${{ github.sha }}
           restore-keys: |
-            vw-cargo-${{ matrix.abi }}-${{ env.VW_VERSION }}-
+            vw-cargo-${{ matrix.abi }}-${{ needs.resolve.outputs.vw }}-
 
       - name: Cross-compile vaultwarden for Android
         run: |
@@ -85,8 +101,6 @@ jobs:
           NDK="$SDK/ndk/${{ env.NDK_VERSION }}"
           test -d "$NDK" || { echo "NDK not found at $NDK"; exit 1; }
           TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          # Set compiler + linker dari NDK untuk target Android (API 21 = Android 5.0).
-          # cargo-ndk 4.x tidak dipakai karena hanya menyalin hasil cdylib (.so).
           export "${{ matrix.cc_env }}=${TOOLCHAIN}/${{ matrix.clang }}"
           export "${{ matrix.ar_cc_env }}=${TOOLCHAIN}/llvm-ar"
           export AR="${TOOLCHAIN}/llvm-ar"
@@ -105,9 +119,9 @@ jobs:
             ln -sf "$TOOLCHAIN/llvm-objcopy" "$TOOLCHAIN_BIN/${prefix}-objcopy"
           done
           export PATH="$TOOLCHAIN_BIN:$PATH"
-          export RUSTFLAGS="-C link-arg=-Wl,-z,max-page-size=16384"
           cd vaultwarden
-          export RUSTUP_TOOLCHAIN=${{ env.VW_RUST_VERSION }}
+          RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' rust-toolchain.toml)
+          export RUSTUP_TOOLCHAIN="$RUST_VERSION"
           cargo build --release --target ${{ matrix.rust_target }} \
             --features sqlite,vendored_openssl
           mkdir -p ../app/src/main/assets/bin/${{ matrix.abi }}
@@ -128,7 +142,7 @@ jobs:
 
   build-apk:
     name: Assemble APK
-    needs: build-binary
+    needs: [build-binary, resolve]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -167,6 +181,12 @@ jobs:
           file app/src/main/assets/bin/*/vaultwarden
           ls -lhR app/src/main/assets/bin
 
+      - name: Write bundled version
+        run: |
+          mkdir -p app/src/main/assets
+          echo "${{ needs.resolve.outputs.vw }}" > app/src/main/assets/vw_version.txt
+          echo "Bundled Vaultwarden: $(cat app/src/main/assets/vw_version.txt)"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -177,7 +197,28 @@ jobs:
 
       - name: Verify APK contents
         run: |
-          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -E 'assets/bin|classes.dex|AndroidManifest'
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -E 'assets/bin|vw_version|classes.dex|AndroidManifest'
+
+      - name: Stage release files
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk vaultwarden-android.apk
+          cp app/src/main/assets/bin/arm64-v8a/vaultwarden vaultwarden-arm64-v8a
+          cp app/src/main/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
+          cp app/src/main/assets/bin/x86_64/vaultwarden vaultwarden-x86_64
+          ls -lh vaultwarden-*
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete v${{ needs.resolve.outputs.vw }} --yes --cleanup-tag || true
+          gh release create v${{ needs.resolve.outputs.vw }} \
+            vaultwarden-android.apk \
+            vaultwarden-arm64-v8a \
+            vaultwarden-armeabi-v7a \
+            vaultwarden-x86_64 \
+            --title "Vaultwarden ${{ needs.resolve.outputs.vw }} (Android)" \
+            --notes "APK + binary vaultwarden untuk Android (arm64-v8a, armeabi-v7a, x86_64). Bangun otomatis dari GitHub Actions."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

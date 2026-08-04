@@ -10,10 +10,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -22,37 +23,36 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
-    private static final String PREFS = "vw_prefs";
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
-    private static final int MAX_LOG_CHARS = 200_000;
+    private static final String UPDATE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/";
+    private static final String LATEST_API = "https://api.github.com/repos/tasirin1/vaultwardenhostingandroid/releases/latest";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private EditText dataDirInput;
     private EditText portInput;
+    private CheckBox autoStartCheck;
     private TextView statusView;
+    private TextView versionView;
     private TextView logView;
     private ScrollView scrollView;
 
-    private final StringBuilder logBuffer = new StringBuilder();
-    private Process serverProcess;
-    private PowerManager.WakeLock wakeLock;
-    private File logFile;
+    private String bundledVersion = "?";
+    private String lastShownStatus = "";
+    private String lastShownVersion = "";
+    private int lastShownLogLen = -1;
+    private String lastSavedDataDir = "";
+    private String lastSavedPort = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,20 +61,32 @@ public class MainActivity extends Activity {
 
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
+        autoStartCheck = findViewById(R.id.autoStart);
         statusView = findViewById(R.id.status);
+        versionView = findViewById(R.id.version);
         logView = findViewById(R.id.log);
         scrollView = findViewById(R.id.scroll);
 
         Button startBtn = findViewById(R.id.start);
         Button stopBtn = findViewById(R.id.stop);
         Button openBtn = findViewById(R.id.open);
-        startBtn.setOnClickListener(v -> startServer());
-        stopBtn.setOnClickListener(v -> stopServer());
-        openBtn.setOnClickListener(v -> openWebUi());
+        Button updateBtn = findViewById(R.id.update);
+        Button revertBtn = findViewById(R.id.revert);
 
-        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        dataDirInput.setText(sp.getString("data_dir", DEFAULT_DATA_DIR));
-        portInput.setText(sp.getString("port", DEFAULT_PORT));
+        startBtn.setOnClickListener(v -> ServerService.start(this));
+        stopBtn.setOnClickListener(v -> ServerService.stop(this));
+        openBtn.setOnClickListener(v -> openWebUi());
+        updateBtn.setOnClickListener(v -> new Thread(this::checkForUpdate, "vw-update").start());
+        revertBtn.setOnClickListener(v -> revertToBundled());
+
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        portInput.setText(sp.getString(ServerService.KEY_PORT, DEFAULT_PORT));
+        autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
+
+        autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -83,195 +95,197 @@ public class MainActivity extends Activity {
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_WRITE);
             }
         }
+
+        bundledVersion = readBundledVersion();
+        ui.post(this::refreshFromService);
     }
 
-    private void startServer() {
-        if (serverProcess != null && serverProcess.isAlive()) {
-            toast("Server sudah berjalan");
-            return;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ui.post(this::refreshFromService);
+    }
+
+    /** Update tampilan dari status service (dipanggil periodik). */
+    private void refreshFromService() {
+        String status = ServerService.statusLine;
+        if (status == null || status.isEmpty()) {
+            status = ServerService.running ? "Running..." : "Stopped";
+        }
+        if (!status.equals(lastShownStatus)) {
+            statusView.setText(status);
+            lastShownStatus = status;
         }
 
+        String version = "Vaultwarden bawaan: " + bundledVersion
+                + " | binary: " + (ServerService.binaryVersion.isEmpty() ? "-" : ServerService.binaryVersion)
+                + " | update terpasang: " + getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .getString(ServerService.KEY_UPDATE_VERSION, "-");
+        if (!version.equals(lastShownVersion)) {
+            versionView.setText(version);
+            lastShownVersion = version;
+        }
+
+        synchronized (ServerService.logBuffer) {
+            if (ServerService.logBuffer.length() != lastShownLogLen) {
+                logView.setText(ServerService.logBuffer.toString());
+                lastShownLogLen = ServerService.logBuffer.length();
+                scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        }
+
+        // Simpan setting bila user ganti (dipakai oleh boot auto-start).
         String dataDir = dataDirInput.getText().toString().trim();
-        if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
-        }
         String port = portInput.getText().toString().trim();
-        if (TextUtils.isEmpty(port)) {
-            port = DEFAULT_PORT;
-        }
-
-        File dataFolder = new File(dataDir);
-        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
-            toast("Gagal membuat folder: " + dataDir);
-            return;
-        }
-        if (!dataFolder.canWrite()) {
-            toast("Folder tidak bisa ditulis: " + dataDir + "\nPastikan izin storage diberikan.");
-            return;
-        }
-
-        File binary = extractBinary();
-        if (binary == null) {
-            return;
-        }
-
-        try {
-            ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath());
-            pb.environment().put("DATA_FOLDER", dataDir);
-            pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
-            pb.environment().put("ROCKET_PORT", port);
-            pb.environment().put("ROCKET_WORKERS", "2");
-            pb.environment().put("WEB_VAULT_ENABLED", "false");
-            pb.environment().put("RUST_LOG", "info");
-            pb.environment().put("DOMAIN", detectDomain(port));
-            pb.redirectErrorStream(true);
-
-            serverProcess = pb.start();
-            acquireWakeLock();
-
-            logBuffer.setLength(0);
-            logFile = new File(dataFolder, "vaultwarden.log");
-
-            final Process p = serverProcess;
-            Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
-            reader.setDaemon(true);
-            reader.start();
-
-            Thread watcher = new Thread(() -> watchProcess(p), "vw-watch");
-            watcher.setDaemon(true);
-            watcher.start();
-
-            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
-                    .putString("data_dir", dataDir)
-                    .putString("port", port)
+        if (!TextUtils.isEmpty(dataDir) && !TextUtils.isEmpty(port)
+                && (!dataDir.equals(lastSavedDataDir) || !port.equals(lastSavedPort))) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(ServerService.KEY_DATA_DIR, dataDir)
+                    .putString(ServerService.KEY_PORT, port)
                     .apply();
+            lastSavedDataDir = dataDir;
+            lastSavedPort = port;
+        }
 
-            appendLog("[app] start: " + binary.getAbsolutePath()
-                    + " | data=" + dataDir + " | port=" + port);
-            updateStatus("Running (PID " + getPid(p) + ")\nData: " + dataDir
-                    + "\nURL lokal: http://127.0.0.1:" + port);
+        ui.postDelayed(this::refreshFromService, 1000);
+    }
+
+    private String readBundledVersion() {
+        try (InputStream in = getAssets().open("vw_version.txt");
+             BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            String v = r.readLine();
+            return (v == null || v.trim().isEmpty()) ? "?" : v.trim();
         } catch (Exception e) {
-            serverProcess = null;
-            releaseWakeLock();
-            appendLog("[app] ERROR start: " + e);
-            toast("Gagal start: " + e.getMessage());
+            return "?";
         }
     }
 
-    private void stopServer() {
-        if (serverProcess == null) {
-            updateStatus("Stopped");
-            releaseWakeLock();
-            return;
-        }
-        final Process p = serverProcess;
-        updateStatus("Stopping...");
-        p.destroy();
-        Thread stopper = new Thread(() -> {
-            try {
-                if (!waitForOrKill(p, 5000)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        p.destroyForcibly();
-                    } else {
-                        p.destroy();
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }, "vw-stop");
-        stopper.setDaemon(true);
-        stopper.start();
-        releaseWakeLock();
-    }
-
-    private void watchProcess(Process p) {
-        try {
-            int code = p.waitFor();
-            ui.post(() -> {
-                if (serverProcess == p) {
-                    serverProcess = null;
-                    releaseWakeLock();
-                    updateStatus("Stopped (exit code " + code + ")");
-                    appendLog("[app] process exit: " + code);
-                }
-            });
-        } catch (InterruptedException ignored) {
-        }
-    }
-
-    private void pumpOutput(Process p) {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                appendLog(line);
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void appendLog(String line) {
-        if (line == null) {
-            return;
-        }
-        synchronized (logBuffer) {
-            logBuffer.append(line).append('\n');
-            if (logBuffer.length() > MAX_LOG_CHARS) {
-                logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
-            }
-        }
-        if (logFile != null) {
-            try (FileWriter w = new FileWriter(logFile, true)) {
-                w.write(line + "\n");
-            } catch (Exception ignored) {
-            }
-        }
-        ui.post(() -> {
-            synchronized (logBuffer) {
-                logView.setText(logBuffer.toString());
-            }
-            scrollView.fullScroll(View.FOCUS_DOWN);
-        });
-    }
-
-    private File extractBinary() {
-        String abi = null;
-        for (String supported : Build.SUPPORTED_ABIS) {
-            if ("arm64-v8a".equals(supported)
-                    || "armeabi-v7a".equals(supported)
-                    || "x86_64".equals(supported)) {
-                abi = supported;
-                break;
-            }
-        }
+    private void checkForUpdate() {
+        String abi = ServerService.getAbi();
         if (abi == null) {
             toast("ABI tidak didukung: " + TextUtils.join(", ", Build.SUPPORTED_ABIS));
-            return null;
+            return;
         }
         try {
-            File binDir = new File(getFilesDir(), "bin");
-            if (!binDir.exists() && !binDir.mkdirs()) {
-                toast("Gagal membuat folder binary");
-                return null;
+            HttpURLConnection conn = (HttpURLConnection) new URL(LATEST_API).openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(15000);
+            conn.setRequestProperty("Accept", "application/vnd.github+json");
+            String body;
+            try (BufferedReader r = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line);
+                }
+                body = sb.toString();
             }
-            File out = new File(binDir, "vaultwarden-" + abi);
-            try (InputStream in = getAssets().open("bin/" + abi + "/vaultwarden");
-                 FileOutputStream fos = new FileOutputStream(out)) {
+            String latestTag = extractTag(body);
+            if (latestTag == null) {
+                toast("Gagal membaca release terbaru.");
+                return;
+            }
+            String latest = latestTag.startsWith("v") ? latestTag.substring(1) : latestTag;
+            if (latest.equals(bundledVersion)) {
+                toast("Sudah versi terbaru (v" + bundledVersion + ").");
+                return;
+            }
+
+            String assetUrl = UPDATE_URL + "vaultwarden-" + abi;
+            toast("Update v" + latest + " ditemukan, mengunduh...");
+            appendUiLog("[app] Mengunduh update v" + latest + " dari " + assetUrl);
+
+            File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
+            File tmp = new File(getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
+            File binDir = out.getParentFile();
+            if (binDir != null && !binDir.exists()) {
+                binDir.mkdirs();
+            }
+            HttpURLConnection dl = (HttpURLConnection) new URL(assetUrl).openConnection();
+            dl.setConnectTimeout(20000);
+            dl.setReadTimeout(60000);
+            dl.setInstanceFollowRedirects(true);
+            int code = dl.getResponseCode();
+            if (code != 200) {
+                toast("Unduhan gagal (HTTP " + code + ").");
+                return;
+            }
+            long size = dl.getContentLength();
+            try (InputStream in = dl.getInputStream();
+                 FileOutputStream fos = new FileOutputStream(tmp)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
                 while ((n = in.read(buf)) > 0) {
                     fos.write(buf, 0, n);
                 }
             }
+            if (tmp.length() < 1_000_000 || !isElf(tmp)) {
+                tmp.delete();
+                toast("File update tidak valid.");
+                return;
+            }
+            if (out.exists()) {
+                out.delete();
+            }
+            if (!tmp.renameTo(out)) {
+                tmp.delete();
+                toast("Gagal menyimpan update.");
+                return;
+            }
             out.setReadable(true, false);
             out.setExecutable(true, false);
-            return out;
+
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+            ServerService.binaryVersion = "";
+            toast("Update v" + latest + " terpasang. Tekan Start untuk memakai.");
+            appendUiLog("[app] Update v" + latest + " terpasang. (" + (size > 0 ? size : "?") + " bytes)");
         } catch (Exception e) {
-            appendLog("[app] Gagal ekstrak binary: " + e);
-            toast("Binary vaultwarden tidak ditemukan di APK (" + abi + ").\n"
-                    + "Gunakan APK hasil build GitHub Actions.");
+            toast("Gagal cek update: " + e.getMessage());
+            appendUiLog("[app] Gagal cek update: " + e);
+        }
+    }
+
+    private void revertToBundled() {
+        String abi = ServerService.getAbi();
+        if (abi == null) {
+            return;
+        }
+        File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
+        if (out.exists() && out.delete()) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .remove(ServerService.KEY_UPDATE_VERSION).apply();
+            ServerService.binaryVersion = "";
+            toast("Binary bawaan dipulihkan. Tekan Start.");
+            appendUiLog("[app] Kembali ke binary bawaan APK.");
+        } else {
+            toast("Tidak ada update terpasang.");
+        }
+    }
+
+    private boolean isElf(File f) {
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            byte[] magic = new byte[4];
+            int n = in.read(magic);
+            return n == 4 && magic[0] == 0x7F && magic[1] == 'E' && magic[2] == 'L' && magic[3] == 'F';
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String extractTag(String body) {
+        String key = "\"tag_name\":";
+        int i = body.indexOf(key);
+        if (i < 0) {
             return null;
         }
+        int s = body.indexOf('"', i + key.length());
+        int e = body.indexOf('"', s + 1);
+        if (s < 0 || e < 0) {
+            return null;
+        }
+        return body.substring(s + 1, e);
     }
 
     private void openWebUi() {
@@ -287,75 +301,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String detectDomain(String port) {
-        try {
-            List<InetAddress> addresses = new ArrayList<>();
-            for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-                if (!ni.isUp() || ni.isLoopback()) {
-                    continue;
-                }
-                for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
-                    if (addr instanceof java.net.Inet4Address) {
-                        addresses.add(addr);
-                    }
-                }
-            }
-            if (!addresses.isEmpty()) {
-                return "http://" + addresses.get(0).getHostAddress() + ":" + port;
-            }
-        } catch (Exception ignored) {
+    private void appendUiLog(String line) {
+        synchronized (ServerService.logBuffer) {
+            ServerService.logBuffer.append(line).append('\n');
         }
-        return "http://localhost:" + port;
-    }
-
-    private String getPid(Process p) {
-        // Process.pid() tidak tersedia di stub Android pada semua versi API;
-        // gunakan reflection agar tetap kompilasi dan aman di API < 26.
-        try {
-            java.lang.reflect.Method pid = Process.class.getMethod("pid");
-            return String.valueOf(pid.invoke(p));
-        } catch (Throwable t) {
-            return "?";
-        }
-    }
-
-    private boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
-        }
-        long deadline = System.currentTimeMillis() + timeoutMillis;
-        while (System.currentTimeMillis() < deadline) {
-            if (!p.isAlive()) {
-                return true;
-            }
-            Thread.sleep(200);
-        }
-        return false;
-    }
-
-    private void acquireWakeLock() {
-        try {
-            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            if (pm != null) {
-                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
-                wakeLock.acquire();
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void releaseWakeLock() {
-        if (wakeLock != null && wakeLock.isHeld()) {
-            try {
-                wakeLock.release();
-            } catch (Exception ignored) {
-            }
-        }
-        wakeLock = null;
-    }
-
-    private void updateStatus(String text) {
-        ui.post(() -> statusView.setText(text));
+        ui.post(this::refreshFromService);
     }
 
     private void toast(String message) {
@@ -365,9 +315,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        releaseWakeLock();
-        if (serverProcess != null) {
-            serverProcess.destroy();
-        }
+        ui.removeCallbacksAndMessages(null);
     }
 }
