@@ -20,10 +20,12 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 
 ## Download APK
 
-- **Tab Actions** → run terbaru → artifact **`vaultwarden-android-apk`**
-  (paling bawah halaman run).
-- **GitHub Release** → `vaultwarden-android.apk` (plus binary per-ABI untuk
-  keperluan update di dalam app).
+- **GitHub Release** → pilih APK sesuai arsitektur HP:
+  - `vaultwarden-android-arm64-v8a.apk` — HP modern (64-bit, mayoritas).
+  - `vaultwarden-android-armeabi-v7a.apk` — HP lama (32-bit).
+  - `vaultwarden-android-x86_64.apk` — emulator / perangkat x86_64.
+- **Tab Actions** → run terbaru → artifact `vaultwarden-android-apk-<abi>`.
+- Cek arsitektur HP: app **CPU-Z**, atau terminal `adb shell getprop ro.product.cpu.abi`.
 - APK ditandatangani debug key — tinggal install (aktifkan
   *install from unknown sources*).
 
@@ -45,8 +47,22 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 - Centang **Auto start saat boot** agar server otomatis menyala setelah device
   restart. Server berjalan sebagai *foreground service* (ada notifikasi), lebih
   tahan dibunuh sistem, plus wake lock saat aktif.
+- **Restart otomatis saat crash**: jika proses server mati mendadak, app
+  menyalakan ulang dengan jeda bertingkat (2 → 5 → 10 → 20 → 40 dtk, maks
+  5 percobaan; penghitung di-reset bila server stabil > 1 menit).
 - Catatan: jika app di-**force-stop**, Android memblokir broadcast boot sampai
   app dibuka sekali lagi. Swipe dari recents tidak memengaruhi service.
+
+## HTTPS (self-signed)
+
+- Centang opsi **HTTPS (self-signed)** di app lalu Start.
+- Sertifikat dibuat otomatis di `<DATA_FOLDER>/tls/` (`cert.pem` + `key.pem`).
+- Browser tetap menampilkan peringatan *self-signed*; untuk menghilangkannya:
+  *Settings → Security → Install certificate → CA certificate* lalu pilih
+  `cert.pem`.
+- Aplikasi **Bitwarden** resmi umumnya menolak sertifikat self-signed —
+  untuk klien selain web vault, sebaiknya tetap pakai HTTP di jaringan lokal
+  yang tepercaya.
 
 ## Update server otomatis
 
