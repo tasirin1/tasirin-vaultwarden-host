@@ -42,8 +42,11 @@ public class MainActivity extends Activity {
     private static final int REQ_RESTORE = 1002;
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
+    // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
+    private static final String OFFICIAL_API = "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
+    // Binary Android & web-vault.zip di-host di repo build karena resmi
+    // tidak menyediakan biner Android (Docker-only) / web-vault.zip.
     private static final String UPDATE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/";
-    private static final String LATEST_API = "https://api.github.com/repos/tasirin1/vaultwardenhostingandroid/releases/latest";
     private static final String WV_UPDATE_URL = UPDATE_URL + "web-vault.zip";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -215,7 +218,7 @@ public class MainActivity extends Activity {
 
     private void autoUpdateCheck() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(LATEST_API).openConnection();
+            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(10000);
             if (conn.getResponseCode() != 200) return;
@@ -224,9 +227,9 @@ public class MainActivity extends Activity {
             String line;
             while ((line = r.readLine()) != null) sb.append(line);
             r.close();
-            String latest = extractTag(sb.toString());
+            String latest = normVersion(extractTag(sb.toString()));
             if (latest == null) return;
-            String current = readBundledVersionRaw();
+            String current = normVersion(readBundledVersionRaw());
             if (current != null && !current.equals(latest)) {
                 ui.post(() -> toast("Update tersedia: v" + latest));
                 showUpdateNotification(latest);
@@ -472,8 +475,8 @@ public class MainActivity extends Activity {
 
     private void checkForUpdate() {
         try {
-            appendUiLog("[app] Mengecek update...");
-            HttpURLConnection conn = (HttpURLConnection) new URL(LATEST_API).openConnection();
+            appendUiLog("[app] Mengecek update dari sumber resmi...");
+            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
             conn.setConnectTimeout(15000);
             conn.setReadTimeout(15000);
             int code = conn.getResponseCode();
@@ -486,11 +489,12 @@ public class MainActivity extends Activity {
             String line;
             while ((line = r.readLine()) != null) sb.append(line);
             r.close();
-            String latest = extractTag(sb.toString());
+            String latest = normVersion(extractTag(sb.toString()));
             if (latest == null) {
                 toast("Tidak bisa baca versi terbaru.");
                 return;
             }
+            appendUiLog("[app] Versi resmi terbaru: v" + latest);
 
             String abi = ServerService.getAbi();
             if (abi == null) {
@@ -506,7 +510,7 @@ public class MainActivity extends Activity {
             }
 
             String assetUrl = UPDATE_URL + "vaultwarden-" + abi;
-            appendUiLog("[app] Mengunduh update v" + latest + " dari " + assetUrl);
+            appendUiLog("[app] Mengunduh binary Android v" + latest + " dari repo build (resmi tidak menyediakan biner Android).");
 
             File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
             File tmp = new File(getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
@@ -580,6 +584,13 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private String normVersion(String v) {
+        if (v == null) {
+            return null;
+        }
+        return v.startsWith("v") ? v.substring(1) : v;
     }
 
     private String extractTag(String body) {

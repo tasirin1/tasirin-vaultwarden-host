@@ -64,19 +64,27 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
   untuk klien selain web vault, sebaiknya tetap pakai HTTP di jaringan lokal
   yang tepercaya.
 
-## Update server otomatis
+## Sumber & update otomatis
 
-- Setiap build, workflow memakai **Vaultwarden rilis terbaru** dan mem-publish
-  release baru (tag `v<versi>`).
+- **Cek versi diambil dari sumber resmi** (`dani-garcia/vaultwarden`), bukan
+  repo ini. Notifikasi "Update tersedia" muncul otomatis saat app dibuka.
+- Workflow dijadwalkan **tiap 6 jam**; bila Vaultwarden rilis versi baru,
+  repo ini otomatis di-build ulang (skip bila versi sama).
+- Binary Android & `web-vault.zip` **di-host di repo ini** karena rilis resmi
+  Vaultwarden tidak menyediakan asset biner (Docker-only) — kontennya tetap
+  diambil dari sumber resmi: source `dani-garcia/vaultwarden` untuk binary,
+  dan image `vaultwarden/web-vault` (digest resmi) untuk web vault.
 - Di app: tekan **Cek Update** — jika ada versi lebih baru, binary diunduh
   sesuai ABI perangkat dan langsung dipakai saat Start berikutnya
   (**tanpa install ulang APK**).
+- **Update Web Vault** mengunduh `web-vault.zip` dari repo ini (isinya dari
+  image web vault resmi) dan mengekstraknya ke `<data>/web-vault`.
 - **Revert Bawaan** mengembalikan ke binary yang dibundel di dalam APK.
 
 ## Build ulang manual
 
 - **Actions → Build Vaultwarden Android APK → Run workflow**
-  (atau otomatis tiap push ke `main`).
+  (atau otomatis tiap push ke `main`, atau tiap 6 jam).
 
 ## Lisensi
 

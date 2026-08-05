@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  # Auto-rebuild beberapa jam setelah Vaultwarden rilis versi baru
+  schedule:
+    - cron: '0 */6 * * *' 
 
 permissions:
   contents: write
@@ -23,10 +26,17 @@ jobs:
           TAG=$(curl -s https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            EXISTING=$(curl -s "https://api.github.com/repos/tasirin1/vaultwardenhostingandroid/releases/tags/v$TAG" | jq -r .tag_name)
+            if [ "$EXISTING" = "v$TAG" ]; then
+              echo "skip=yes" >> "$GITHUB_OUTPUT"
+            fi
+          fi
 
   build-binary:
     name: Build vaultwarden (armeabi-v7a)
     needs: resolve
+    if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -113,6 +123,7 @@ jobs:
   build-apk:
     name: Assemble APK
     needs: [build-binary, resolve]
+    if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
