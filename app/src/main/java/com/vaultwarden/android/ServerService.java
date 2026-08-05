@@ -32,6 +32,7 @@ public class ServerService extends Service {
 
     public static final String ACTION_START = "com.vaultwarden.android.START";
     public static final String ACTION_STOP = "com.vaultwarden.android.STOP";
+    public static final String ACTION_TG_BACKUP = "com.vaultwarden.android.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
     public static final String KEY_DATA_DIR = "data_dir";
@@ -49,6 +50,12 @@ public class ServerService extends Service {
     public static volatile String statusLine = "Stopped";
     public static volatile String binaryVersion = "";
     public static final StringBuilder logBuffer = new StringBuilder();
+
+    /** Snapshot konfigurasi server yang sedang berjalan (untuk peringatan restart). */
+    public static volatile String runningDataDir = "";
+    public static volatile String runningPort = "";
+    public static volatile boolean runningHttps = false;
+    public static volatile String runningAdminToken = "";
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
 
@@ -74,6 +81,16 @@ public class ServerService extends Service {
         context.startService(new Intent(context, ServerService.class).setAction(ACTION_STOP));
     }
 
+    /** Jalankan backup Telegram terjadwal (via AlarmReceiver). */
+    public static void backupNow(Context context) {
+        Intent i = new Intent(context, ServerService.class).setAction(ACTION_TG_BACKUP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(i);
+        } else {
+            context.startService(i);
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -88,6 +105,22 @@ public class ServerService extends Service {
             stopServer();
             stopForeground(true);
             stopSelf();
+            return START_NOT_STICKY;
+        }
+        if (ACTION_TG_BACKUP.equals(action)) {
+            startForegroundCompat();
+            new Thread(() -> {
+                try {
+                    appendLog("[tg] " + TgBackup.backupNow(this));
+                } catch (Exception e) {
+                    appendLog("[tg] Gagal backup terjadwal: " + e);
+                } finally {
+                    if (process == null || !process.isAlive()) {
+                        stopForeground(true);
+                        stopSelf();
+                    }
+                }
+            }, "vw-tg-sched").start();
             return START_NOT_STICKY;
         }
         autoRestart = true;
@@ -217,6 +250,11 @@ public class ServerService extends Service {
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
+            runningDataDir = dataDir;
+            runningPort = port;
+            runningHttps = https;
+            runningAdminToken = adminToken == null ? "" : adminToken.trim();
+
             process = pb.start();
             acquireWakeLock();
             running = true;
@@ -272,6 +310,10 @@ public class ServerService extends Service {
             setStatus("Stopped");
         }
         running = false;
+        runningDataDir = "";
+        runningPort = "";
+        runningHttps = false;
+        runningAdminToken = "";
         releaseWakeLock();
     }
 
@@ -481,10 +523,14 @@ public class ServerService extends Service {
         try {
             List<String> ips = collectIps();
             ips.add(0, "127.0.0.1");
+            String cur = joinIps(ips);
+
             File tlsDir = new File(dataFolder, "tls");
-            File dir = TlsCert.ensure(tlsDir, ips);
+            File ipFile = new File(tlsDir, "ips.txt");
+            File dir = ensureCertWithIps(tlsDir, ipFile, ips, cur);
             if (dir == null) {
-                dir = TlsCert.ensure(new File(getFilesDir(), "tls"), ips);
+                File alt = new File(getFilesDir(), "tls");
+                dir = ensureCertWithIps(alt, new File(alt, "ips.txt"), ips, cur);
             }
             if (dir != null) {
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
@@ -493,6 +539,48 @@ public class ServerService extends Service {
         } catch (Exception e) {
             appendLog("[app] Gagal siapkan TLS: " + e);
             return null;
+        }
+    }
+
+    private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips, String cur) throws Exception {
+        String saved = readText(ipFile);
+        if (saved != null && !saved.equals(cur)) {
+            appendLog("[app] IP berubah - regenerasi sertifikat.");
+            new File(tlsDir, "cert.pem").delete();
+            new File(tlsDir, "key.pem").delete();
+            new File(tlsDir, "version.txt").delete();
+            ipFile.delete();
+        }
+        File dir = TlsCert.ensure(tlsDir, ips);
+        if (dir != null) {
+            writeText(ipFile, cur);
+        }
+        return dir;
+    }
+
+    private static String joinIps(List<String> ips) {
+        StringBuilder sb = new StringBuilder();
+        for (String ip : ips) {
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(ip);
+        }
+        return sb.toString();
+    }
+
+    private static String readText(File f) {
+        try (BufferedReader r = new BufferedReader(
+                new InputStreamReader(new java.io.FileInputStream(f), StandardCharsets.UTF_8))) {
+            return r.readLine();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static void writeText(File f, String text) throws Exception {
+        try (FileWriter w = new FileWriter(f)) {
+            w.write(text);
         }
     }
 

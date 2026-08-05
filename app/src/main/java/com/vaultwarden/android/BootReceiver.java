@@ -17,6 +17,10 @@ public class BootReceiver extends BroadcastReceiver {
             if (sp.getBoolean(ServerService.KEY_AUTO_START, false)) {
                 ServerService.start(context);
             }
+            // Pertahankan jadwal backup harian setelah reboot
+            if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                TgBackup.schedule(context, true);
+            }
         }
     }
 }

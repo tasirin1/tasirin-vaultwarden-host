@@ -2,6 +2,7 @@ package com.vaultwarden.android;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,24 +14,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +38,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 public class MainActivity extends Activity {
 
@@ -47,18 +45,11 @@ public class MainActivity extends Activity {
     private static final int REQ_RESTORE = 1002;
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
-    private static final String TG_API = "https://api.telegram.org/bot";
-    private static final String KEY_TG_TOKEN = "tg_token";
-    private static final String KEY_TG_CHAT = "tg_chat";
-    private static final String KEY_TG_AUTO = "tg_auto";
-    private static final String KEY_TG_LAST = "tg_last_backup";
-    private static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
     // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
     private static final String OFFICIAL_API = "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
-    // Binary Android & web-vault.zip di-host di repo build karena resmi
-    // tidak menyediakan biner Android (Docker-only) / web-vault.zip.
-    private static final String UPDATE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/";
-    private static final String WV_UPDATE_URL = UPDATE_URL + "web-vault.zip";
+    // Binary Android di-host di repo build (resmi tidak menyediakan biner Android).
+    private static final String RELEASE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/download/";
+    private static final String WV_UPDATE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/web-vault.zip";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
@@ -73,6 +64,14 @@ public class MainActivity extends Activity {
     private TextView statusView;
     private TextView versionView;
     private TextView logView;
+    private ScrollView logScroll;
+    private Button logToggleBtn;
+    private Button updateBtn;
+    private Button revertBtn;
+    private Button updateWvBtn;
+    private Button backupDbBtn;
+    private Button restoreDbBtn;
+    private Button backupTgBtn;
 
     private String bundledVersion = "?";
     private String lastShownStatus = "";
@@ -95,30 +94,48 @@ public class MainActivity extends Activity {
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         logView = findViewById(R.id.log);
+        logScroll = findViewById(R.id.logScroll);
+        logToggleBtn = findViewById(R.id.logToggle);
 
         Button startBtn = findViewById(R.id.start);
         Button stopBtn = findViewById(R.id.stop);
         Button openBtn = findViewById(R.id.open);
-        Button updateBtn = findViewById(R.id.update);
-        Button revertBtn = findViewById(R.id.revert);
+        updateBtn = findViewById(R.id.update);
+        revertBtn = findViewById(R.id.revert);
         Button certBtn = findViewById(R.id.cert);
-        Button updateWvBtn = findViewById(R.id.updateWv);
-        Button backupDbBtn = findViewById(R.id.backupDb);
-        Button restoreDbBtn = findViewById(R.id.restoreDb);
+        updateWvBtn = findViewById(R.id.updateWv);
+        backupDbBtn = findViewById(R.id.backupDb);
+        restoreDbBtn = findViewById(R.id.restoreDb);
         Button batteryBtn = findViewById(R.id.batteryBtn);
-        Button backupTgBtn = findViewById(R.id.backupTg);
+        backupTgBtn = findViewById(R.id.backupTg);
+        Button showAdminBtn = findViewById(R.id.showAdmin);
+        Button showTgBtn = findViewById(R.id.showTg);
 
         startBtn.setOnClickListener(v -> saveAndStart());
         stopBtn.setOnClickListener(v -> ServerService.stop(this));
         openBtn.setOnClickListener(v -> openWebUi());
-        updateBtn.setOnClickListener(v -> new Thread(this::checkForUpdate, "vw-update").start());
-        revertBtn.setOnClickListener(v -> revertToBundled());
+        updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
+        revertBtn.setOnClickListener(v -> confirm("Revert ke binary bawaan",
+                "Binary update akan dihapus dan diganti dengan binary bawaan APK. Lanjutkan?",
+                () -> runBusy(this::revertToBundled)));
         certBtn.setOnClickListener(v -> showCertHelp());
-        updateWvBtn.setOnClickListener(v -> new Thread(this::updateWebVault, "vw-wv-update").start());
-        backupDbBtn.setOnClickListener(v -> backupDatabase());
+        updateWvBtn.setOnClickListener(v -> runBusy(this::updateWebVault));
+        backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
-        backupTgBtn.setOnClickListener(v -> new Thread(() -> backupToTelegram(false), "vw-tg").start());
+        backupTgBtn.setOnClickListener(v -> runBusy(() -> {
+            try {
+                String msg = TgBackup.backupNow(MainActivity.this);
+                toast(msg);
+                appendUiLog("[tg] " + msg);
+            } catch (Exception e) {
+                toast("Backup gagal: " + e.getMessage());
+                appendUiLog("[tg] Gagal backup: " + e);
+            }
+        }));
+        logToggleBtn.setOnClickListener(v -> toggleLog());
+        showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
+        showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -126,9 +143,9 @@ public class MainActivity extends Activity {
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
-        tgTokenInput.setText(sp.getString(KEY_TG_TOKEN, ""));
-        tgChatInput.setText(sp.getString(KEY_TG_CHAT, ""));
-        tgAutoCheck.setChecked(sp.getBoolean(KEY_TG_AUTO, false));
+        tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+        tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
+        tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -136,11 +153,14 @@ public class MainActivity extends Activity {
         httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_HTTPS, checked).apply());
-        tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                        .putBoolean(KEY_TG_AUTO, checked).apply());
-        tgTokenInput.addTextChangedListener(new SimpleTextWatcher(KEY_TG_TOKEN));
-        tgChatInput.addTextChangedListener(new SimpleTextWatcher(KEY_TG_CHAT));
+        tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
+            TgBackup.schedule(MainActivity.this, checked);
+            toast(checked ? "Backup harian diaktifkan." : "Backup harian dimatikan.");
+        });
+        tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
+        tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -155,8 +175,8 @@ public class MainActivity extends Activity {
 
         // Auto-update check on launch
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
-        // Auto Telegram backup (tiap 24 jam bila diaktifkan)
-        new Thread(this::maybeAutoBackup, "vw-tg-auto").start();
+        // Pastikan jadwal backup harian tetap terpasang
+        TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
     }
 
     @Override
@@ -184,9 +204,26 @@ public class MainActivity extends Activity {
         if (status == null || status.isEmpty()) {
             status = ServerService.running ? "Running..." : "Stopped";
         }
-        if (!status.equals(lastShownStatus)) {
-            statusView.setText(status);
-            lastShownStatus = status;
+
+        // Peringatan bila setting diubah tapi server belum di-restart
+        String hint = "";
+        if (ServerService.running) {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
+            boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
+            String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
+            if (!d.equals(ServerService.runningDataDir)
+                    || !p.equals(ServerService.runningPort)
+                    || h != ServerService.runningHttps
+                    || !a.equals(ServerService.runningAdminToken)) {
+                hint = "\n\u26A0 Setting diubah \u2014 restart server agar berlaku";
+            }
+        }
+        String display = status + hint;
+        if (!display.equals(lastShownStatus)) {
+            statusView.setText(display);
+            lastShownStatus = display;
         }
 
         String version = bundledVersion;
@@ -203,6 +240,9 @@ public class MainActivity extends Activity {
             if (len != lastShownLogLen) {
                 logView.setText(ServerService.logBuffer.toString());
                 lastShownLogLen = len;
+                if (logScroll != null) {
+                    logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+                }
             }
         }
 
@@ -243,22 +283,32 @@ public class MainActivity extends Activity {
                 + "HTTPS aktif setelah Start berikutnya (browser akan tetap menampilkan peringatan self-signed).");
     }
 
-    // ─── Feature 2: Auto-update check on launch ─────────────────────────
+    // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
 
     private void autoUpdateCheck() {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(10000);
-            if (conn.getResponseCode() != 200) return;
-            BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            if (conn.getResponseCode() != 200) {
+                return;
+            }
+            BufferedReader r = new BufferedReader(new InputStreamReader(
+                    conn.getInputStream(), StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             String line;
-            while ((line = r.readLine()) != null) sb.append(line);
+            while ((line = r.readLine()) != null) {
+                sb.append(line);
+            }
             r.close();
             String latest = normVersion(extractTag(sb.toString()));
-            if (latest == null) return;
-            String current = normVersion(readBundledVersionRaw());
+            if (latest == null) {
+                return;
+            }
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+            String current = normVersion(updated != null && !updated.isEmpty()
+                    ? updated : readBundledVersionRaw());
             if (current != null && !current.equals(latest)) {
                 ui.post(() -> toast("Update tersedia: v" + latest));
                 showUpdateNotification(latest);
@@ -308,16 +358,20 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ─── Feature 1: Update web-vault ─────────────────────────────────────
+    // ─── Update web-vault ───────────────────────────────────────────────
 
     private void updateWebVault() {
         try {
             appendUiLog("[app] Mengunduh web-vault terbaru...");
             String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) dataDir = DEFAULT_DATA_DIR;
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
 
             File dataFolder = new File(dataDir);
-            if (!dataFolder.exists()) dataFolder.mkdirs();
+            if (!dataFolder.exists()) {
+                dataFolder.mkdirs();
+            }
 
             File targetDir = new File(dataFolder, "web-vault");
             File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
@@ -350,7 +404,6 @@ public class MainActivity extends Activity {
             deleteRecursive(targetDir);
             targetDir.mkdirs();
 
-            // Ekstrak zip
             byte[] buf = new byte[64 * 1024];
             try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
                 ZipEntry entry;
@@ -388,13 +441,15 @@ public class MainActivity extends Activity {
         if (file.isDirectory()) {
             File[] children = file.listFiles();
             if (children != null) {
-                for (File c : children) deleteRecursive(c);
+                for (File c : children) {
+                    deleteRecursive(c);
+                }
             }
         }
         file.delete();
     }
 
-    // ─── Feature 3: Battery optimization exemption ───────────────────────
+    // ─── Battery optimization ───────────────────────────────────────────
 
     private void requestBatteryExemption() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -407,7 +462,8 @@ public class MainActivity extends Activity {
             return;
         }
         try {
-            Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            Intent intent = new Intent(
+                    android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(Uri.parse("package:" + getPackageName()));
             startActivity(intent);
         } catch (Exception e) {
@@ -415,12 +471,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ─── Feature 4: Backup & Restore database ────────────────────────────
+    // ─── Backup & Restore database lokal ────────────────────────────────
 
     private void backupDatabase() {
         try {
             String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) dataDir = DEFAULT_DATA_DIR;
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
 
             File dbFile = new File(dataDir, "db.sqlite3");
             if (!dbFile.exists()) {
@@ -429,12 +487,15 @@ public class MainActivity extends Activity {
             }
 
             File backupDir = new File(dataDir, "backups");
-            if (!backupDir.exists()) backupDir.mkdirs();
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
 
             String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
             File backup = new File(backupDir, "db-backup-" + timestamp + ".sqlite3");
 
             copyFile(dbFile, backup);
+            TgBackup.cleanupOldBackups(backupDir);
             toast("Backup tersimpan:\n" + backup.getAbsolutePath());
             appendUiLog("[app] Backup DB: " + backup.getName() + " (" + backup.length() + " bytes)");
         } catch (Exception e) {
@@ -457,35 +518,48 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_RESTORE && resultCode == RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            if (uri == null) return;
-            try {
-                String dataDir = dataDirInput.getText().toString().trim();
-                if (TextUtils.isEmpty(dataDir)) dataDir = DEFAULT_DATA_DIR;
-
-                File dbFile = new File(dataDir, "db.sqlite3");
-                if (dbFile.exists()) {
-                    // Backup dulu sebelum restore
-                    File backupDir = new File(dataDir, "backups");
-                    if (!backupDir.exists()) backupDir.mkdirs();
-                    String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
-                    copyFile(dbFile, new File(backupDir, "db-backup-" + ts + ".sqlite3"));
-                }
-
-                try (InputStream in = getContentResolver().openInputStream(uri);
-                     FileOutputStream fos = new FileOutputStream(dbFile)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    while ((n = in.read(buf)) > 0) {
-                        fos.write(buf, 0, n);
-                    }
-                }
-                toast("Database direstore. Restart server untuk memakai.");
-                appendUiLog("[app] DB direstore dari URI. Ukuran: " + dbFile.length() + " bytes");
-            } catch (Exception e) {
-                toast("Gagal restore: " + e.getMessage());
-                appendUiLog("[app] Gagal restore: " + e);
+            final Uri uri = data.getData();
+            if (uri == null) {
+                return;
             }
+            confirm("Restore Database",
+                    "Database saat ini akan diganti dengan file yang dipilih. "
+                            + "Backup otomatis dibuat dulu. Lanjutkan?",
+                    () -> runBusy(() -> restoreDatabase(uri)));
+        }
+    }
+
+    private void restoreDatabase(Uri uri) {
+        try {
+            String dataDir = dataDirInput.getText().toString().trim();
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+
+            File dbFile = new File(dataDir, "db.sqlite3");
+            if (dbFile.exists()) {
+                File backupDir = new File(dataDir, "backups");
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs();
+                }
+                String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
+                copyFile(dbFile, new File(backupDir, "db-backup-" + ts + ".sqlite3"));
+                TgBackup.cleanupOldBackups(backupDir);
+            }
+
+            try (InputStream in = getContentResolver().openInputStream(uri);
+                 FileOutputStream fos = new FileOutputStream(dbFile)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    fos.write(buf, 0, n);
+                }
+            }
+            toast("Database direstore. Restart server untuk memakai.");
+            appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
+        } catch (Exception e) {
+            toast("Gagal restore: " + e.getMessage());
+            appendUiLog("[app] Gagal restore: " + e);
         }
     }
 
@@ -500,139 +574,227 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ─── Feature 5: Backup Cloud (Telegram) ─────────────────────────────
+    // ─── Update binary (unduh per tag versi resmi) ──────────────────────
 
-    private void backupToTelegram(boolean auto) {
+    private void checkForUpdate() {
         try {
+            appendUiLog("[app] Mengecek update dari sumber resmi...");
+            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(15000);
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                toast("Gagal cek update (HTTP " + code + ").");
+                return;
+            }
+            BufferedReader r = new BufferedReader(new InputStreamReader(
+                    conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                sb.append(line);
+            }
+            r.close();
+            String latest = normVersion(extractTag(sb.toString()));
+            if (latest == null) {
+                toast("Tidak bisa baca versi terbaru.");
+                return;
+            }
+            appendUiLog("[app] Versi resmi terbaru: v" + latest);
+
+            String abi = ServerService.getAbi();
+            if (abi == null) {
+                toast("ABI tidak didukung.");
+                return;
+            }
+
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String token = sp.getString(KEY_TG_TOKEN, "").trim();
-            String chat = sp.getString(KEY_TG_CHAT, "").trim();
-            if (token.isEmpty() || chat.isEmpty()) {
-                if (!auto) {
-                    toast("Isi bot token & chat ID dulu.");
-                }
-                return;
-            }
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-            if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
-            }
-            File db = new File(dataDir, "db.sqlite3");
-            if (!db.exists()) {
-                if (!auto) {
-                    toast("Database belum ada: " + db.getAbsolutePath());
-                }
+            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+            String current = normVersion(updated != null && !updated.isEmpty()
+                    ? updated : readBundledVersionRaw());
+            if (current != null && current.equals(latest)) {
+                toast("Sudah versi terbaru: v" + latest);
                 return;
             }
 
-            appendUiLog("[tg] Membuat backup...");
-            File zip = createBackupZip(dataDir);
-            appendUiLog("[tg] Upload " + zip.getName() + " (" + zip.length() + " bytes) ke Telegram");
-            uploadTelegram(token, chat, zip);
-            sp.edit().putLong(KEY_TG_LAST, System.currentTimeMillis()).apply();
-            toast("Backup terkirim ke Telegram \u2713");
-            appendUiLog("[tg] Backup terkirim: " + zip.getName());
-        } catch (Exception e) {
-            if (!auto) {
-                toast("Backup gagal: " + e.getMessage());
-            }
-            appendUiLog("[tg] Gagal backup: " + e);
-        }
-    }
+            // Unduh per tag resmi; kalau build belum ada, beri tahu menunggu build otomatis
+            String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + abi;
+            appendUiLog("[app] Mengunduh binary Android v" + latest
+                    + " dari repo build (resmi tidak menyediakan biner Android).");
 
-    private void maybeAutoBackup() {
-        try {
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            if (!sp.getBoolean(KEY_TG_AUTO, false)) {
+            File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
+            File tmp = new File(getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
+            File binDir = out.getParentFile();
+            if (binDir != null && !binDir.exists()) {
+                binDir.mkdirs();
+            }
+            HttpURLConnection dl = (HttpURLConnection) new URL(assetUrl).openConnection();
+            dl.setConnectTimeout(20000);
+            dl.setReadTimeout(60000);
+            dl.setInstanceFollowRedirects(true);
+            code = dl.getResponseCode();
+            if (code == 404) {
+                toast("Build Android v" + latest
+                        + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.");
                 return;
             }
-            String token = sp.getString(KEY_TG_TOKEN, "").trim();
-            String chat = sp.getString(KEY_TG_CHAT, "").trim();
-            if (token.isEmpty() || chat.isEmpty()) {
+            if (code != 200) {
+                toast("Unduhan gagal (HTTP " + code + ").");
                 return;
             }
-            long last = sp.getLong(KEY_TG_LAST, 0);
-            if (System.currentTimeMillis() - last < TG_INTERVAL_MS) {
-                return;
-            }
-            backupToTelegram(true);
-        } catch (Exception ignored) {
-        }
-    }
-
-    private File createBackupZip(String dataDir) throws Exception {
-        File dataFolder = new File(dataDir);
-        File backupDir = new File(dataFolder, "backups");
-        if (!backupDir.exists() && !backupDir.mkdirs()) {
-            throw new IOException("Gagal membuat folder backup");
-        }
-        String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-        File zip = new File(backupDir, "backup-telegram-" + ts + ".zip");
-        String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
-            byte[] buf = new byte[64 * 1024];
-            for (String name : names) {
-                File f = new File(dataFolder, name);
-                if (!f.exists() || f.length() == 0) {
-                    continue;
-                }
-                zos.putNextEntry(new ZipEntry(name));
-                try (FileInputStream fis = new FileInputStream(f)) {
-                    int n;
-                    while ((n = fis.read(buf)) > 0) {
-                        zos.write(buf, 0, n);
-                    }
-                }
-                zos.closeEntry();
-            }
-        }
-        return zip;
-    }
-
-    /** Upload file via Telegram Bot API sendDocument (multipart/form-data). */
-    private void uploadTelegram(String token, String chatId, File file) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        conn.setConnectTimeout(20000);
-        conn.setReadTimeout(180000);
-        String boundary = "----vw" + System.currentTimeMillis() + "bound";
-        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-
-        try (OutputStream os = conn.getOutputStream();
-             DataOutputStream dos = new DataOutputStream(os)) {
-            dos.writeBytes("--" + boundary + "\r\n");
-            dos.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
-            dos.writeBytes(chatId + "\r\n");
-            dos.writeBytes("--" + boundary + "\r\n");
-            dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\"" + file.getName() + "\"\r\n");
-            dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-            try (FileInputStream fis = new FileInputStream(file)) {
+            long size = dl.getContentLength();
+            try (InputStream in = dl.getInputStream();
+                 FileOutputStream fos = new FileOutputStream(tmp)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
-                while ((n = fis.read(buf)) > 0) {
-                    dos.write(buf, 0, n);
+                while ((n = in.read(buf)) > 0) {
+                    fos.write(buf, 0, n);
                 }
             }
-            dos.writeBytes("\r\n--" + boundary + "--\r\n");
-            dos.flush();
-        }
+            if (tmp.length() < 1_000_000 || !isElf(tmp)) {
+                tmp.delete();
+                toast("File update tidak valid.");
+                return;
+            }
+            if (out.exists()) {
+                out.delete();
+            }
+            if (!tmp.renameTo(out)) {
+                tmp.delete();
+                toast("Gagal menyimpan update.");
+                return;
+            }
+            out.setReadable(true, false);
+            out.setExecutable(true, false);
 
-        int code = conn.getResponseCode();
-        InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
-        StringBuilder sb = new StringBuilder();
-        if (is != null) {
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    sb.append(line);
-                }
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+            ServerService.binaryVersion = "";
+            toast("Update v" + latest + " terpasang. Tekan Start untuk memakai.");
+            appendUiLog("[app] Update v" + latest + " terpasang. ("
+                    + (size > 0 ? size : "?") + " bytes)");
+        } catch (Exception e) {
+            toast("Gagal cek update: " + e.getMessage());
+            appendUiLog("[app] Gagal cek update: " + e);
+        }
+    }
+
+    private void revertToBundled() {
+        String abi = ServerService.getAbi();
+        if (abi == null) {
+            return;
+        }
+        File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
+        if (out.exists() && out.delete()) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .remove(ServerService.KEY_UPDATE_VERSION).apply();
+            ServerService.binaryVersion = "";
+            toast("Binary bawaan dipulihkan. Tekan Start.");
+            appendUiLog("[app] Kembali ke binary bawaan APK.");
+        } else {
+            toast("Tidak ada update terpasang.");
+        }
+    }
+
+    private boolean isElf(File f) {
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            byte[] magic = new byte[4];
+            int n = in.read(magic);
+            return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
+                    && magic[2] == 'L' && magic[3] == 'F';
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String normVersion(String v) {
+        if (v == null) {
+            return null;
+        }
+        return v.startsWith("v") ? v.substring(1) : v;
+    }
+
+    private String extractTag(String body) {
+        String key = "\"tag_name\":";
+        int i = body.indexOf(key);
+        if (i < 0) {
+            return null;
+        }
+        int s = body.indexOf('"', i + key.length());
+        int e = body.indexOf('"', s + 1);
+        if (s < 0 || e < 0) {
+            return null;
+        }
+        return body.substring(s + 1, e);
+    }
+
+    // ─── UI helpers ─────────────────────────────────────────────────────
+
+    private void togglePassword(EditText et, Button btn) {
+        boolean hidden = (et.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0;
+        et.setInputType(hidden
+                ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        et.setSelection(et.getText().length());
+        btn.setText(hidden ? "Sembunyi" : "Lihat");
+    }
+
+    private void toggleLog() {
+        boolean visible = logScroll.getVisibility() == View.VISIBLE;
+        logScroll.setVisibility(visible ? View.GONE : View.VISIBLE);
+        logToggleBtn.setText(visible ? "Tampilkan" : "Sembunyikan");
+        if (!visible) {
+            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+        }
+    }
+
+    private void confirm(String title, String message, final Runnable action) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Ya", (d, w) -> action.run())
+                .setNegativeButton("Batal", null)
+                .show();
+    }
+
+    /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
+    private void setBusy(final boolean busy) {
+        ui.post(() -> {
+            updateBtn.setEnabled(!busy);
+            revertBtn.setEnabled(!busy);
+            updateWvBtn.setEnabled(!busy);
+            backupDbBtn.setEnabled(!busy);
+            restoreDbBtn.setEnabled(!busy);
+            backupTgBtn.setEnabled(!busy);
+            if (busy) {
+                statusView.setText("Sedang bekerja\u2026");
+                lastShownStatus = "";
+            } else {
+                refreshFromService();
             }
+        });
+    }
+
+    private void runBusy(final Runnable task) {
+        setBusy(true);
+        new Thread(() -> {
+            try {
+                task.run();
+            } finally {
+                setBusy(false);
+            }
+        }, "vw-task").start();
+    }
+
+    private void appendUiLog(String line) {
+        synchronized (ServerService.logBuffer) {
+            ServerService.logBuffer.append(line).append('\n');
         }
-        conn.disconnect();
-        if (code != 200 || !sb.toString().contains("\"ok\":true")) {
-            throw new IOException("Telegram HTTP " + code + ": " + sb);
-        }
+        ui.post(this::refreshFromService);
+    }
+
+    private void toast(String message) {
+        ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
     /** Simpan nilai EditText ke prefs begitu berubah. */
@@ -656,149 +818,6 @@ public class MainActivity extends Activity {
         @Override
         public void afterTextChanged(android.text.Editable s) {
         }
-    }
-
-    // ─── Update binary ───────────────────────────────────────────────────
-
-    private void checkForUpdate() {
-        try {
-            appendUiLog("[app] Mengecek update dari sumber resmi...");
-            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(15000);
-            int code = conn.getResponseCode();
-            if (code != 200) {
-                toast("Gagal cek update (HTTP " + code + ").");
-                return;
-            }
-            BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) sb.append(line);
-            r.close();
-            String latest = normVersion(extractTag(sb.toString()));
-            if (latest == null) {
-                toast("Tidak bisa baca versi terbaru.");
-                return;
-            }
-            appendUiLog("[app] Versi resmi terbaru: v" + latest);
-
-            String abi = ServerService.getAbi();
-            if (abi == null) {
-                toast("ABI tidak didukung.");
-                return;
-            }
-
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String current = sp.getString(ServerService.KEY_UPDATE_VERSION, null);
-            if (latest.equals(current)) {
-                toast("Sudah versi terbaru: v" + latest);
-                return;
-            }
-
-            String assetUrl = UPDATE_URL + "vaultwarden-" + abi;
-            appendUiLog("[app] Mengunduh binary Android v" + latest + " dari repo build (resmi tidak menyediakan biner Android).");
-
-            File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
-            File tmp = new File(getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
-            File binDir = out.getParentFile();
-            if (binDir != null && !binDir.exists()) {
-                binDir.mkdirs();
-            }
-            HttpURLConnection dl = (HttpURLConnection) new URL(assetUrl).openConnection();
-            dl.setConnectTimeout(20000);
-            dl.setReadTimeout(60000);
-            dl.setInstanceFollowRedirects(true);
-            code = dl.getResponseCode();
-            if (code != 200) {
-                toast("Unduhan gagal (HTTP " + code + ").");
-                return;
-            }
-            long size = dl.getContentLength();
-            try (InputStream in = dl.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(tmp)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    fos.write(buf, 0, n);
-                }
-            }
-            if (tmp.length() < 1_000_000 || !isElf(tmp)) {
-                tmp.delete();
-                toast("File update tidak valid.");
-                return;
-            }
-            if (out.exists()) out.delete();
-            if (!tmp.renameTo(out)) {
-                tmp.delete();
-                toast("Gagal menyimpan update.");
-                return;
-            }
-            out.setReadable(true, false);
-            out.setExecutable(true, false);
-
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-            ServerService.binaryVersion = "";
-            toast("Update v" + latest + " terpasang. Tekan Start untuk memakai.");
-            appendUiLog("[app] Update v" + latest + " terpasang. (" + (size > 0 ? size : "?") + " bytes)");
-        } catch (Exception e) {
-            toast("Gagal cek update: " + e.getMessage());
-            appendUiLog("[app] Gagal cek update: " + e);
-        }
-    }
-
-    private void revertToBundled() {
-        String abi = ServerService.getAbi();
-        if (abi == null) return;
-        File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
-        if (out.exists() && out.delete()) {
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .remove(ServerService.KEY_UPDATE_VERSION).apply();
-            ServerService.binaryVersion = "";
-            toast("Binary bawaan dipulihkan. Tekan Start.");
-            appendUiLog("[app] Kembali ke binary bawaan APK.");
-        } else {
-            toast("Tidak ada update terpasang.");
-        }
-    }
-
-    private boolean isElf(File f) {
-        try (InputStream in = new java.io.FileInputStream(f)) {
-            byte[] magic = new byte[4];
-            int n = in.read(magic);
-            return n == 4 && magic[0] == 0x7F && magic[1] == 'E' && magic[2] == 'L' && magic[3] == 'F';
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private String normVersion(String v) {
-        if (v == null) {
-            return null;
-        }
-        return v.startsWith("v") ? v.substring(1) : v;
-    }
-
-    private String extractTag(String body) {
-        String key = "\"tag_name\":";
-        int i = body.indexOf(key);
-        if (i < 0) return null;
-        int s = body.indexOf('"', i + key.length());
-        int e = body.indexOf('"', s + 1);
-        if (s < 0 || e < 0) return null;
-        return body.substring(s + 1, e);
-    }
-
-    private void appendUiLog(String line) {
-        synchronized (ServerService.logBuffer) {
-            ServerService.logBuffer.append(line).append('\n');
-        }
-        ui.post(this::refreshFromService);
-    }
-
-    private void toast(String message) {
-        ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
     @Override
