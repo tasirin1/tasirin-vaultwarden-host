@@ -45,6 +45,8 @@ public class ServerService extends Service {
     public static final String ACTION_TG_BACKUP = "com.vaultwarden.android.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
+    public static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
+    public static final String DEFAULT_PORT = "8080";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
@@ -251,8 +253,8 @@ public class ServerService extends Service {
 
     private String currentPort() {
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        String p = sp.getString(KEY_PORT, "8080");
-        return (p == null || p.trim().isEmpty()) ? "8080" : p.trim();
+        String p = sp.getString(KEY_PORT, DEFAULT_PORT);
+        return (p == null || p.trim().isEmpty()) ? DEFAULT_PORT : p.trim();
     }
 
     private void createChannel() {
@@ -268,9 +270,9 @@ public class ServerService extends Service {
 
     private void startServer() {
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(KEY_DATA_DIR, "/sdcard/vaultwarden");
+        String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = "/sdcard/vaultwarden";
+            dataDir = DEFAULT_DATA_DIR;
         }
         String port = currentPort();
 
@@ -580,19 +582,29 @@ public class ServerService extends Service {
         return sslFactory;
     }
 
-    /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama). */
+    private static volatile long ipCacheTime = 0;
+    private static volatile String ipCache = "";
+
+    /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama).
+     *  Di-cache 3 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
+        long now = System.currentTimeMillis();
+        if (now - ipCacheTime < 3000 && !ipCache.isEmpty()) {
+            return ipCache;
+        }
         List<String> ips = collectIps();
-        return ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+        ipCache = ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+        ipCacheTime = now;
+        return ipCache;
     }
 
     /** URL akses lengkap dari perangkat lain, mengikuti setting port & HTTPS. */
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         boolean https = sp.getBoolean(KEY_HTTPS, false);
-        String port = sp.getString(KEY_PORT, "8080");
+        String port = sp.getString(KEY_PORT, DEFAULT_PORT);
         if (port == null || port.trim().isEmpty()) {
-            port = "8080";
+            port = DEFAULT_PORT;
         }
         return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
     }

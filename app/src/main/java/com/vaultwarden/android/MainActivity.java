@@ -52,8 +52,8 @@ public class MainActivity extends Activity {
     private static final int REQ_WRITE = 1001;
     private static final int REQ_RESTORE = 1002;
     private static final int REQ_IMPORT = 1003;
-    private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
-    private static final String DEFAULT_PORT = "8080";
+    private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
+    private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
     // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
@@ -100,6 +100,7 @@ public class MainActivity extends Activity {
     private String lastShownVersion = "";
     private String lastShownNet = "";
     private int lastShownLogLen = -1;
+    private boolean refreshActive = true;
 
     private static boolean unlocked = false;
 
@@ -300,6 +301,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        refreshActive = true;
         ui.post(this::refreshFromService);
         // Auto-lock PIN setiap kali app kembali ke depan
         maybeShowPinLock();
@@ -308,6 +310,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        refreshActive = false;
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         if (sp.getBoolean(KEY_PIN_ON, false)) {
             unlocked = false;
@@ -384,7 +387,9 @@ public class MainActivity extends Activity {
             }
         }
 
-        ui.postDelayed(this::refreshFromService, 1000);
+        if (refreshActive) {
+            ui.postDelayed(this::refreshFromService, 1000);
+        }
     }
 
     private String readBundledVersion() {

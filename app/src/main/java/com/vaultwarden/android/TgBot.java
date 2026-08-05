@@ -90,7 +90,9 @@ public final class TgBot {
                     }
                 }
             }
-            sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+            if (newOffset != offset) {
+                sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+            }
         } catch (Exception ignored) {
         }
     }
@@ -164,9 +166,9 @@ public final class TgBot {
     /** Ringkasan status untuk dibalas ke Telegram. */
     static String statusText(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, "/sdcard/vaultwarden");
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = "/sdcard/vaultwarden";
+            dataDir = ServerService.DEFAULT_DATA_DIR;
         }
         String version = ServerService.binaryVersion.isEmpty()
                 ? "?" : ServerService.binaryVersion;

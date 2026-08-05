@@ -65,9 +65,9 @@ public final class TgBackup {
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, "/sdcard/vaultwarden");
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = "/sdcard/vaultwarden";
+            dataDir = ServerService.DEFAULT_DATA_DIR;
         }
         File db = new File(dataDir, "db.sqlite3");
         if (!db.exists()) {
@@ -100,25 +100,31 @@ public final class TgBackup {
                 + upload.length() + " bytes)";
     }
 
-    /** Kirim pesan teks ke chat ID yang dikonfigurasi; silent bila belum diisi. */
+    /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
+     *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
     public static void sendMessage(Context ctx, String text) {
-        try {
-            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-            String token = sp.getString(KEY_TG_TOKEN, "").trim();
-            String chat = sp.getString(KEY_TG_CHAT, "").trim();
-            if (token.isEmpty() || chat.isEmpty()) {
-                return;
+        final Context app = ctx.getApplicationContext();
+        final String msg = text == null ? "" : text;
+        new Thread(() -> {
+            try {
+                SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                String token = sp.getString(KEY_TG_TOKEN, "").trim();
+                String chat = sp.getString(KEY_TG_CHAT, "").trim();
+                if (token.isEmpty() || chat.isEmpty()) {
+                    return;
+                }
+                String url = TG_API + token + "/sendMessage?chat_id="
+                        + URLEncoder.encode(chat, "UTF-8")
+                        + "&text=" + URLEncoder.encode(msg, "UTF-8");
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+                conn.getInputStream().close();
+                conn.disconnect();
+            } catch (Exception ignored) {
             }
-            String url = TG_API + token + "/sendMessage?chat_id="
-                    + URLEncoder.encode(chat, "UTF-8")
-                    + "&text=" + URLEncoder.encode(text, "UTF-8");
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(30000);
-            conn.getInputStream().close();
-            conn.disconnect();
-        } catch (Exception ignored) {
-        }
+        }, "vw-tgmsg").start();
     }
 
     /** Zip db + WAL ke <data>/backups/, lalu bersihkan backup lama (sisakan 10). */
