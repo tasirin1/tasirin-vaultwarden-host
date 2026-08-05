@@ -6,13 +6,18 @@ import android.content.SharedPreferences;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 /** Cek & pasang update binary vaultwarden dan web-vault (dipakai UI dan perintah bot). */
 public final class Updater {
@@ -25,17 +30,38 @@ public final class Updater {
             "https://github.com/tasirin1/vaultwardenhostingandroid/releases/download/";
     private static final String WV_UPDATE_URL =
             "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/web-vault.zip";
+    private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
 
     private Updater() {
+    }
+
+    /** Buka koneksi HTTPS ke GitHub yang ramah Android 5/6 (TLS 1.2 eksplisit + User-Agent). */
+    private static HttpURLConnection open(String url, int connectMs, int readMs) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(connectMs);
+        c.setReadTimeout(readMs);
+        c.setInstanceFollowRedirects(true);
+        c.setRequestProperty("User-Agent",
+                "Mozilla/5.0 (Linux; Android) VaultwardenHost");
+        if (c instanceof HttpsURLConnection) {
+            // Android 5-6 kadang hanya menawarkan TLS 1.0/1.1; GitHub butuh TLS 1.2.
+            try {
+                SSLContext sc = SSLContext.getInstance("TLSv1.2");
+                sc.init(null, null, new SecureRandom());
+                ((HttpsURLConnection) c).setSSLSocketFactory(sc.getSocketFactory());
+            } catch (Exception ignored) {
+                // biarkan default bila TLSv1.2 tidak tersedia
+            }
+        }
+        return c;
     }
 
     /** Versi resmi terbaru (tanpa huruf v) atau null bila gagal. */
     public static String latestVersion() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
+            HttpURLConnection conn = open(OFFICIAL_API, 10000, 10000);
             if (conn.getResponseCode() != 200) {
+                conn.disconnect();
                 return null;
             }
             BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -57,11 +83,11 @@ public final class Updater {
     public static String tryUpdate(Context ctx) throws Exception {
         String latest = latestVersion();
         if (latest == null) {
-            throw new java.io.IOException("Tidak bisa baca versi terbaru.");
+            throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
         }
         String abi = ServerService.getAbi();
         if (abi == null) {
-            throw new java.io.IOException("ABI tidak didukung.");
+            throw new IOException("ABI tidak didukung.");
         }
 
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
@@ -80,17 +106,16 @@ public final class Updater {
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
         }
-        HttpURLConnection dl = (HttpURLConnection) new URL(assetUrl).openConnection();
-        dl.setConnectTimeout(20000);
-        dl.setReadTimeout(60000);
-        dl.setInstanceFollowRedirects(true);
+        HttpURLConnection dl = open(assetUrl, 20000, 60000);
         int code = dl.getResponseCode();
         if (code == 404) {
+            dl.disconnect();
             return "Build Android v" + latest
                     + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.";
         }
         if (code != 200) {
-            throw new java.io.IOException("Unduhan gagal (HTTP " + code + ").");
+            dl.disconnect();
+            throw new IOException("Unduhan gagal (HTTP " + code + ").");
         }
         try (InputStream in = dl.getInputStream();
              FileOutputStream fos = new FileOutputStream(tmp)) {
@@ -99,17 +124,19 @@ public final class Updater {
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
             }
+        } finally {
+            dl.disconnect();
         }
         if (tmp.length() < 1_000_000 || !isElf(tmp)) {
             tmp.delete();
-            throw new java.io.IOException("File update tidak valid.");
+            throw new IOException("File update tidak valid.");
         }
         if (out.exists()) {
             out.delete();
         }
         if (!tmp.renameTo(out)) {
             tmp.delete();
-            throw new java.io.IOException("Gagal menyimpan update.");
+            throw new IOException("Gagal menyimpan update.");
         }
         out.setReadable(true, false);
         out.setExecutable(true, false);
@@ -127,6 +154,12 @@ public final class Updater {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }
 
+        long free = TgBackup.freeBytes(dataDir);
+        if (free < MIN_FREE_FOR_WEBVAULT) {
+            throw new IOException("Sisa penyimpanan tinggal " + TgBackup.humanBytes(free)
+                    + " - butuh minimal 150 MB untuk update web-vault.");
+        }
+
         File dataFolder = new File(dataDir);
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
@@ -135,25 +168,39 @@ public final class Updater {
         File targetDir = new File(dataFolder, "web-vault");
         File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
 
-        HttpURLConnection dl = (HttpURLConnection) new URL(WV_UPDATE_URL).openConnection();
-        dl.setConnectTimeout(20000);
-        dl.setReadTimeout(120000);
-        dl.setInstanceFollowRedirects(true);
-        int code = dl.getResponseCode();
-        if (code != 200) {
-            throw new java.io.IOException("Gagal unduh web-vault (HTTP " + code + ")");
-        }
-        try (InputStream in = dl.getInputStream();
-             FileOutputStream fos = new FileOutputStream(tmpZip)) {
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            while ((n = in.read(buf)) > 0) {
-                fos.write(buf, 0, n);
+        // Unduh dengan retry sekali bila gagal (koneksi Android 5/6 kadang putus).
+        Exception lastErr = null;
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            try {
+                HttpURLConnection dl = open(WV_UPDATE_URL, 20000, 120000);
+                int code = dl.getResponseCode();
+                if (code != 200) {
+                    throw new IOException("Gagal unduh web-vault (HTTP " + code
+                            + ") dari " + dl.getURL());
+                }
+                try (InputStream in = dl.getInputStream();
+                     FileOutputStream fos = new FileOutputStream(tmpZip)) {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    while ((n = in.read(buf)) > 0) {
+                        fos.write(buf, 0, n);
+                    }
+                } finally {
+                    dl.disconnect();
+                }
+                lastErr = null;
+                break;
+            } catch (Exception e) {
+                lastErr = e;
+                tmpZip.delete();
+                if (attempt < 2) {
+                    Thread.sleep(3000);
+                }
             }
         }
         if (tmpZip.length() < 1000) {
-            tmpZip.delete();
-            throw new java.io.IOException("File web-vault tidak valid.");
+            throw lastErr != null ? lastErr
+                    : new IOException("File web-vault tidak valid.");
         }
 
         // Hapus web-vault lama
@@ -164,10 +211,13 @@ public final class Updater {
         try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
+                File outFile = new File(targetDir, entry.getName());
+                if (!outFile.getCanonicalPath().startsWith(targetDir.getCanonicalPath())) {
+                    continue;
+                }
                 if (entry.isDirectory()) {
-                    new File(targetDir, entry.getName()).mkdirs();
+                    outFile.mkdirs();
                 } else {
-                    File outFile = new File(targetDir, entry.getName());
                     outFile.getParentFile().mkdirs();
                     try (FileOutputStream fos = new FileOutputStream(outFile)) {
                         int n;
@@ -176,14 +226,16 @@ public final class Updater {
                         }
                     }
                 }
+                zis.closeEntry();
             }
         }
         tmpZip.delete();
 
         File index = new File(targetDir, "index.html");
-        return index.exists()
-                ? "Web vault updated di " + targetDir.getAbsolutePath()
-                : "Web vault updated tapi index.html tidak ditemukan.";
+        if (!index.exists()) {
+            throw new IOException("Web vault updated tapi index.html tidak ditemukan.");
+        }
+        return "Web vault updated di " + targetDir.getAbsolutePath();
     }
 
     /** Versi Vaultwarden yang dibundel di APK (tanpa huruf v) atau null. */
