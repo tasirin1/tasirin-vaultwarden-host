@@ -85,8 +85,14 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 
 - Di app: isi **Bot token** dan **Chat ID**, lalu tekan **Backup ke Telegram**.
 - Backup berupa zip `db.sqlite3` (+ file WAL) dengan timestamp, disimpan juga
-  di `<data>/backups/`.
-- Centang **Backup otomatis tiap 24 jam** untuk kirim otomatis saat app dibuka.
+  di `<data>/backups/` (maksimal 10 file, tertua otomatis dihapus).
+- **Restore dari Telegram**: ambil backup terakhir yang pernah terkirim,
+  server dihentikan otomatis, database dipulihkan.
+- **Enkripsi**: isi *Password enkripsi backup* untuk mengenkripsi (AES-256-GCM)
+  backup sebelum dikirim — wajib diisi sama saat restore.
+- Centang **Backup otomatis tiap 24 jam** untuk kirim otomatis (via AlarmManager,
+  jalan walau app tidak dibuka; terjadwal ulang setelah reboot).
+- **PIN kunci app** (opsional): kunci app dengan PIN 4-6 digit saat dibuka.
 - Cara buat bot: chat `@BotFather` → `/newbot` → ikuti langkah → dapat token.
 - Chat ID: kirim pesan ke bot-mu dulu, lalu buka
   `https://api.telegram.org/bot<TOKEN>/getUpdates` di browser dan ambil angka

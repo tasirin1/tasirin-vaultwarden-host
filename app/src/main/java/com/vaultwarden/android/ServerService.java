@@ -61,7 +61,7 @@ public class ServerService extends Service {
 
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
-    private Process process;
+    private static volatile Process process;
     private PowerManager.WakeLock wakeLock;
     private File logFile;
     private boolean autoRestart = false;
@@ -88,6 +88,28 @@ public class ServerService extends Service {
             context.startForegroundService(i);
         } else {
             context.startService(i);
+        }
+    }
+
+    /** Apakah proses vaultwarden masih hidup (dipakai sebelum restore DB). */
+    public static boolean isProcessAlive() {
+        Process p = process;
+        return p != null && p.isAlive();
+    }
+
+    /** Stop server dan tunggu proses benar-benar mati. */
+    public static void stopAndWait(Context context, long timeoutMs) {
+        if (!isProcessAlive()) {
+            return;
+        }
+        stop(context);
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline && isProcessAlive()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                return;
+            }
         }
     }
 

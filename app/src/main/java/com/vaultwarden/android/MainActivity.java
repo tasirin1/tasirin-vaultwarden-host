@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -45,6 +46,8 @@ public class MainActivity extends Activity {
     private static final int REQ_RESTORE = 1002;
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
+    private static final String KEY_PIN = "pin_hash";
+    private static final String KEY_PIN_ON = "pin_on";
     // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
     private static final String OFFICIAL_API = "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
     // Binary Android di-host di repo build (resmi tidak menyediakan biner Android).
@@ -61,6 +64,10 @@ public class MainActivity extends Activity {
     private CheckBox tgAutoCheck;
     private EditText tgTokenInput;
     private EditText tgChatInput;
+    private EditText backupPassInput;
+    private EditText pinInput;
+    private CheckBox pinEnabledCheck;
+    private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
     private TextView logView;
@@ -78,6 +85,8 @@ public class MainActivity extends Activity {
     private String lastShownVersion = "";
     private int lastShownLogLen = -1;
 
+    private static boolean unlocked = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +100,9 @@ public class MainActivity extends Activity {
         tgTokenInput = findViewById(R.id.tgToken);
         tgChatInput = findViewById(R.id.tgChat);
         tgAutoCheck = findViewById(R.id.tgAuto);
+        backupPassInput = findViewById(R.id.backupPass);
+        pinInput = findViewById(R.id.pinInput);
+        pinEnabledCheck = findViewById(R.id.pinEnabled);
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         logView = findViewById(R.id.log);
@@ -108,8 +120,10 @@ public class MainActivity extends Activity {
         restoreDbBtn = findViewById(R.id.restoreDb);
         Button batteryBtn = findViewById(R.id.batteryBtn);
         backupTgBtn = findViewById(R.id.backupTg);
+        restoreTgBtn = findViewById(R.id.restoreTg);
         Button showAdminBtn = findViewById(R.id.showAdmin);
         Button showTgBtn = findViewById(R.id.showTg);
+        Button showPassBtn = findViewById(R.id.showPass);
 
         startBtn.setOnClickListener(v -> saveAndStart());
         stopBtn.setOnClickListener(v -> ServerService.stop(this));
@@ -134,8 +148,10 @@ public class MainActivity extends Activity {
             }
         }));
         logToggleBtn.setOnClickListener(v -> toggleLog());
+        restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
+        showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -146,6 +162,9 @@ public class MainActivity extends Activity {
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        pinInput.setText("");
+        pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -161,6 +180,36 @@ public class MainActivity extends Activity {
         });
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
+        backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
+        pinInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int a, int b, int c) {
+                SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
+                if (s.length() >= 4) {
+                    ed.putString(KEY_PIN, sha256(s.toString()));
+                } else {
+                    ed.remove(KEY_PIN);
+                }
+                ed.apply();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+        pinEnabledCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
+            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            if (checked && sp2.getString(KEY_PIN, "").isEmpty()) {
+                toast("Isi PIN dulu (minimal 4 digit).");
+                b.setChecked(false);
+                return;
+            }
+            sp2.edit().putBoolean(KEY_PIN_ON, checked).apply();
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -177,6 +226,9 @@ public class MainActivity extends Activity {
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+
+        // Kunci app dengan PIN
+        maybeShowPinLock();
     }
 
     @Override
@@ -230,9 +282,11 @@ public class MainActivity extends Activity {
         if (!ServerService.binaryVersion.isEmpty()) {
             version = "Binary: " + ServerService.binaryVersion;
         }
-        if (!version.equals(lastShownVersion)) {
-            versionView.setText(version);
-            lastShownVersion = version;
+        String dbInfo = dbInfoLine();
+        String full = dbInfo.isEmpty() ? version : version + "\n" + dbInfo;
+        if (!full.equals(lastShownVersion)) {
+            versionView.setText(full);
+            lastShownVersion = full;
         }
 
         synchronized (ServerService.logBuffer) {
@@ -485,6 +539,11 @@ public class MainActivity extends Activity {
                 toast("Database belum ada: " + dbFile.getAbsolutePath());
                 return;
             }
+            long free = TgBackup.freeBytes(dataDir);
+            if (free < 50L * 1024 * 1024) {
+                toast("Peringatan: sisa penyimpanan tinggal " + TgBackup.humanBytes(free));
+                appendUiLog("[app] Peringatan storage tinggal " + TgBackup.humanBytes(free));
+            }
 
             File backupDir = new File(dataDir, "backups");
             if (!backupDir.exists()) {
@@ -571,6 +630,162 @@ public class MainActivity extends Activity {
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
             }
+        }
+    }
+
+    // ─── Restore dari Telegram ──────────────────────────────────────────
+
+    private void restoreFromTelegram() {
+        runBusy(() -> {
+            try {
+                File tmp = new File(getCacheDir(), "vwtg-restore.zip");
+                String name = TgBackup.downloadLastBackup(MainActivity.this, tmp);
+
+                File zip = tmp;
+                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+                if (TgBackup.isEncrypted(tmp)) {
+                    if (pass == null || pass.trim().isEmpty()) {
+                        toast("Backup terenkripsi \u2014 isi password backup dulu.");
+                        return;
+                    }
+                    File plain = new File(getCacheDir(), "vwtg-restore-dec.zip");
+                    TgBackup.decryptFile(tmp, plain, pass.trim());
+                    zip = plain;
+                }
+                final File finalZip = zip;
+                final String fname = name;
+                ui.post(() -> confirm("Restore dari Telegram",
+                        "Gunakan backup '" + fname + "'? Server akan dihentikan dulu. Lanjutkan?",
+                        () -> runBusy(() -> restoreFromZip(finalZip))));
+            } catch (Exception e) {
+                toast("Gagal ambil backup: " + e.getMessage());
+                appendUiLog("[tg] Gagal ambil backup: " + e);
+            }
+        });
+    }
+
+    private void restoreFromZip(File zip) {
+        try {
+            if (ServerService.isProcessAlive()) {
+                appendUiLog("[app] Menghentikan server sebelum restore...");
+                ServerService.stopAndWait(this, 8000);
+            }
+
+            String dataDir = dataDirInput.getText().toString().trim();
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            File dataFolder = new File(dataDir);
+            if (!dataFolder.exists()) {
+                dataFolder.mkdirs();
+            }
+
+            File dbFile = new File(dataFolder, "db.sqlite3");
+            if (dbFile.exists()) {
+                File backupDir = new File(dataFolder, "backups");
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs();
+                }
+                String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
+                copyFile(dbFile, new File(backupDir, "db-backup-" + ts + ".sqlite3"));
+                TgBackup.cleanupOldBackups(backupDir);
+            }
+
+            byte[] buf = new byte[64 * 1024];
+            try (ZipInputStream zis = new ZipInputStream(
+                    new java.io.FileInputStream(zip))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    File outFile = new File(dataFolder, entry.getName());
+                    if (!outFile.getCanonicalPath().startsWith(dataFolder.getCanonicalPath())) {
+                        continue;
+                    }
+                    if (entry.isDirectory()) {
+                        outFile.mkdirs();
+                    } else {
+                        outFile.getParentFile().mkdirs();
+                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                            int n;
+                            while ((n = zis.read(buf)) > 0) {
+                                fos.write(buf, 0, n);
+                            }
+                        }
+                    }
+                    zis.closeEntry();
+                }
+            }
+            zip.delete();
+            toast("Restore selesai. Tekan Start untuk menjalankan.");
+            appendUiLog("[app] Restore dari Telegram selesai.");
+        } catch (Exception e) {
+            toast("Gagal restore: " + e.getMessage());
+            appendUiLog("[app] Gagal restore: " + e);
+        }
+    }
+
+    // ─── PIN lock ───────────────────────────────────────────────────────
+
+    private void maybeShowPinLock() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        if (!sp.getBoolean(KEY_PIN_ON, false) || unlocked) {
+            return;
+        }
+        final String pinHash = sp.getString(KEY_PIN, "");
+        if (pinHash == null || pinHash.isEmpty()) {
+            return;
+        }
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setMaxLines(1);
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Masukkan PIN")
+                .setMessage("App dikunci")
+                .setView(input)
+                .setPositiveButton("Buka", null)
+                .setNegativeButton("Keluar", (d, w) -> finish())
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String entered = input.getText().toString();
+                    if (pinHash.equals(sha256(entered))) {
+                        unlocked = true;
+                        dialog.dismiss();
+                    } else {
+                        input.setError("PIN salah");
+                    }
+                }));
+        dialog.show();
+    }
+
+    private String sha256(String text) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(text.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format(Locale.US, "%02x", b & 0xFF));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return text;
+        }
+    }
+
+    private String dbInfoLine() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            File db = new File(dataDir, "db.sqlite3");
+            if (!db.exists()) {
+                return "";
+            }
+            File backupDir = new File(dataDir, "backups");
+            File[] files = backupDir.listFiles();
+            int n = files == null ? 0 : files.length;
+            return "DB: " + TgBackup.humanBytes(db.length()) + " | Backup lokal: " + n;
+        } catch (Exception e) {
+            return "";
         }
     }
 
@@ -766,6 +981,7 @@ public class MainActivity extends Activity {
             backupDbBtn.setEnabled(!busy);
             restoreDbBtn.setEnabled(!busy);
             backupTgBtn.setEnabled(!busy);
+            restoreTgBtn.setEnabled(!busy);
             if (busy) {
                 statusView.setText("Sedang bekerja\u2026");
                 lastShownStatus = "";
