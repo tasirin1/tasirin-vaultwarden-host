@@ -23,10 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +38,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class MainActivity extends Activity {
 
@@ -42,6 +46,12 @@ public class MainActivity extends Activity {
     private static final int REQ_RESTORE = 1002;
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
+    private static final String TG_API = "https://api.telegram.org/bot";
+    private static final String KEY_TG_TOKEN = "tg_token";
+    private static final String KEY_TG_CHAT = "tg_chat";
+    private static final String KEY_TG_AUTO = "tg_auto";
+    private static final String KEY_TG_LAST = "tg_last_backup";
+    private static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
     // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
     private static final String OFFICIAL_API = "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
     // Binary Android & web-vault.zip di-host di repo build karena resmi
@@ -56,6 +66,9 @@ public class MainActivity extends Activity {
     private EditText adminTokenInput;
     private CheckBox autoStartCheck;
     private CheckBox httpsCheck;
+    private CheckBox tgAutoCheck;
+    private EditText tgTokenInput;
+    private EditText tgChatInput;
     private TextView statusView;
     private TextView versionView;
     private TextView logView;
@@ -75,6 +88,9 @@ public class MainActivity extends Activity {
         adminTokenInput = findViewById(R.id.adminToken);
         autoStartCheck = findViewById(R.id.autoStart);
         httpsCheck = findViewById(R.id.https);
+        tgTokenInput = findViewById(R.id.tgToken);
+        tgChatInput = findViewById(R.id.tgChat);
+        tgAutoCheck = findViewById(R.id.tgAuto);
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         logView = findViewById(R.id.log);
@@ -89,6 +105,7 @@ public class MainActivity extends Activity {
         Button backupDbBtn = findViewById(R.id.backupDb);
         Button restoreDbBtn = findViewById(R.id.restoreDb);
         Button batteryBtn = findViewById(R.id.batteryBtn);
+        Button backupTgBtn = findViewById(R.id.backupTg);
 
         startBtn.setOnClickListener(v -> saveAndStart());
         stopBtn.setOnClickListener(v -> ServerService.stop(this));
@@ -100,6 +117,7 @@ public class MainActivity extends Activity {
         backupDbBtn.setOnClickListener(v -> backupDatabase());
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
+        backupTgBtn.setOnClickListener(v -> new Thread(() -> backupToTelegram(false), "vw-tg").start());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -107,6 +125,9 @@ public class MainActivity extends Activity {
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
+        tgTokenInput.setText(sp.getString(KEY_TG_TOKEN, ""));
+        tgChatInput.setText(sp.getString(KEY_TG_CHAT, ""));
+        tgAutoCheck.setChecked(sp.getBoolean(KEY_TG_AUTO, false));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -114,6 +135,11 @@ public class MainActivity extends Activity {
         httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_HTTPS, checked).apply());
+        tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(KEY_TG_AUTO, checked).apply());
+        tgTokenInput.addTextChangedListener(new SimpleTextWatcher(KEY_TG_TOKEN));
+        tgChatInput.addTextChangedListener(new SimpleTextWatcher(KEY_TG_CHAT));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -128,6 +154,8 @@ public class MainActivity extends Activity {
 
         // Auto-update check on launch
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
+        // Auto Telegram backup (tiap 24 jam bila diaktifkan)
+        new Thread(this::maybeAutoBackup, "vw-tg-auto").start();
     }
 
     @Override
@@ -468,6 +496,164 @@ public class MainActivity extends Activity {
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
             }
+        }
+    }
+
+    // ─── Feature 5: Backup Cloud (Telegram) ─────────────────────────────
+
+    private void backupToTelegram(boolean auto) {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String token = sp.getString(KEY_TG_TOKEN, "").trim();
+            String chat = sp.getString(KEY_TG_CHAT, "").trim();
+            if (token.isEmpty() || chat.isEmpty()) {
+                if (!auto) {
+                    toast("Isi bot token & chat ID dulu.");
+                }
+                return;
+            }
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            File db = new File(dataDir, "db.sqlite3");
+            if (!db.exists()) {
+                if (!auto) {
+                    toast("Database belum ada: " + db.getAbsolutePath());
+                }
+                return;
+            }
+
+            appendUiLog("[tg] Membuat backup...");
+            File zip = createBackupZip(dataDir);
+            appendUiLog("[tg] Upload " + zip.getName() + " (" + zip.length() + " bytes) ke Telegram");
+            uploadTelegram(token, chat, zip);
+            sp.edit().putLong(KEY_TG_LAST, System.currentTimeMillis()).apply();
+            toast("Backup terkirim ke Telegram \u2713");
+            appendUiLog("[tg] Backup terkirim: " + zip.getName());
+        } catch (Exception e) {
+            if (!auto) {
+                toast("Backup gagal: " + e.getMessage());
+            }
+            appendUiLog("[tg] Gagal backup: " + e);
+        }
+    }
+
+    private void maybeAutoBackup() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            if (!sp.getBoolean(KEY_TG_AUTO, false)) {
+                return;
+            }
+            String token = sp.getString(KEY_TG_TOKEN, "").trim();
+            String chat = sp.getString(KEY_TG_CHAT, "").trim();
+            if (token.isEmpty() || chat.isEmpty()) {
+                return;
+            }
+            long last = sp.getLong(KEY_TG_LAST, 0);
+            if (System.currentTimeMillis() - last < TG_INTERVAL_MS) {
+                return;
+            }
+            backupToTelegram(true);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private File createBackupZip(String dataDir) throws Exception {
+        File dataFolder = new File(dataDir);
+        File backupDir = new File(dataFolder, "backups");
+        if (!backupDir.exists() && !backupDir.mkdirs()) {
+            throw new IOException("Gagal membuat folder backup");
+        }
+        String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+        File zip = new File(backupDir, "backup-telegram-" + ts + ".zip");
+        String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+            byte[] buf = new byte[64 * 1024];
+            for (String name : names) {
+                File f = new File(dataFolder, name);
+                if (!f.exists() || f.length() == 0) {
+                    continue;
+                }
+                zos.putNextEntry(new ZipEntry(name));
+                try (FileInputStream fis = new FileInputStream(f)) {
+                    int n;
+                    while ((n = fis.read(buf)) > 0) {
+                        zos.write(buf, 0, n);
+                    }
+                }
+                zos.closeEntry();
+            }
+        }
+        return zip;
+    }
+
+    /** Upload file via Telegram Bot API sendDocument (multipart/form-data). */
+    private void uploadTelegram(String token, String chatId, File file) throws Exception {
+        HttpURLConnection conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setConnectTimeout(20000);
+        conn.setReadTimeout(180000);
+        String boundary = "----vw" + System.currentTimeMillis() + "bound";
+        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+        try (OutputStream os = conn.getOutputStream();
+             DataOutputStream dos = new DataOutputStream(os)) {
+            dos.writeBytes("--" + boundary + "\r\n");
+            dos.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
+            dos.writeBytes(chatId + "\r\n");
+            dos.writeBytes("--" + boundary + "\r\n");
+            dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\"" + file.getName() + "\"\r\n");
+            dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+            try (FileInputStream fis = new FileInputStream(file)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = fis.read(buf)) > 0) {
+                    dos.write(buf, 0, n);
+                }
+            }
+            dos.writeBytes("\r\n--" + boundary + "--\r\n");
+            dos.flush();
+        }
+
+        int code = conn.getResponseCode();
+        InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+        StringBuilder sb = new StringBuilder();
+        if (is != null) {
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+        }
+        conn.disconnect();
+        if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+            throw new IOException("Telegram HTTP " + code + ": " + sb);
+        }
+    }
+
+    /** Simpan nilai EditText ke prefs begitu berubah. */
+    private class SimpleTextWatcher implements android.text.TextWatcher {
+        private final String key;
+
+        SimpleTextWatcher(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int a, int b, int c) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(key, s.toString()).apply();
+        }
+
+        @Override
+        public void afterTextChanged(android.text.Editable s) {
         }
     }
 

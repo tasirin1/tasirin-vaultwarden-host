@@ -81,6 +81,17 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
   image web vault resmi) dan mengekstraknya ke `<data>/web-vault`.
 - **Revert Bawaan** mengembalikan ke binary yang dibundel di dalam APK.
 
+## Backup cloud (Telegram)
+
+- Di app: isi **Bot token** dan **Chat ID**, lalu tekan **Backup ke Telegram**.
+- Backup berupa zip `db.sqlite3` (+ file WAL) dengan timestamp, disimpan juga
+  di `<data>/backups/`.
+- Centang **Backup otomatis tiap 24 jam** untuk kirim otomatis saat app dibuka.
+- Cara buat bot: chat `@BotFather` → `/newbot` → ikuti langkah → dapat token.
+- Chat ID: kirim pesan ke bot-mu dulu, lalu buka
+  `https://api.telegram.org/bot<TOKEN>/getUpdates` di browser dan ambil angka
+  `"chat":{"id":...}` (bisa juga pakai `@userinfobot`).
+
 ## Build ulang manual
 
 - **Actions → Build Vaultwarden Android APK → Run workflow**
