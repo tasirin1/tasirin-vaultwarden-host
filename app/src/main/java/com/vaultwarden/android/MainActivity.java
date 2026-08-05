@@ -82,6 +82,7 @@ public class MainActivity extends Activity {
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
+    private Button installCertBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -144,6 +145,7 @@ public class MainActivity extends Activity {
         copyUrlBtn = findViewById(R.id.copyUrl);
         exportCfgBtn = findViewById(R.id.exportCfg);
         importCfgBtn = findViewById(R.id.importCfg);
+        installCertBtn = findViewById(R.id.installCert);
         Button showAdminBtn = findViewById(R.id.showAdmin);
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
@@ -156,6 +158,7 @@ public class MainActivity extends Activity {
                 "Binary update akan dihapus dan diganti dengan binary bawaan APK. Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
         certBtn.setOnClickListener(v -> showCertHelp());
+        installCertBtn.setOnClickListener(v -> installCertificate());
         updateWvBtn.setOnClickListener(v -> runBusy(this::updateWebVault));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
@@ -422,9 +425,45 @@ public class MainActivity extends Activity {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
         }
-        toast("Sertifikat: " + dataDir + "/tls/cert.pem\n"
-                + "Install: Settings > Security > Install certificate > CA certificate\n"
-                + "HTTPS aktif setelah Start berikutnya (browser akan tetap menampilkan peringatan self-signed).");
+        new AlertDialog.Builder(this)
+                .setTitle("Cara install sertifikat")
+                .setMessage("File: " + dataDir + "/tls/cert.pem\n\n"
+                        + "1. Tekan tombol \"Install Cert\" - installer Android langsung terbuka "
+                        + "dalam mode CA certificate.\n\n"
+                        + "2. Kalau manual: Settings > Security > Install certificate "
+                        + "> CA certificate, lalu pilih cert.pem.\n\n"
+                        + "PENTING:\n"
+                        + "- Pilih jenis \"CA certificate\", BUKAN \"User certificate\". "
+                        + "Kalau muncul \"butuh private key\", itu karena kamu memilih "
+                        + "\"User certificate\".\n"
+                        + "- key.pem milik server - JANGAN di-install atau disebar.\n"
+                        + "- HTTPS aktif setelah Start berikutnya (browser tetap menampilkan "
+                        + "peringatan self-signed pada koneksi pertama).")
+                .setPositiveButton("Oke", null)
+                .show();
+    }
+
+    /** Buka installer sertifikat Android langsung dalam mode CA (tanpa pilih manual). */
+    private void installCertificate() {
+        try {
+            String dataDir = dataDirInput.getText().toString().trim();
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            File cert = new File(dataDir, "tls/cert.pem");
+            if (!cert.exists()) {
+                toast("Sertifikat belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+                return;
+            }
+            Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
+                    + cert.getAbsolutePath());
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/x-x509-ca-cert");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+        } catch (Exception e) {
+            toast("Gagal membuka installer: " + e.getMessage());
+        }
     }
 
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────

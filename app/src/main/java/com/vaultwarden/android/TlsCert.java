@@ -27,7 +27,7 @@ public final class TlsCert {
     }
 
     /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
-    private static final int CERT_VERSION = 2;
+    private static final int CERT_VERSION = 3;
 
     /** Pastikan cert.pem & key.pem ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {
@@ -92,7 +92,7 @@ public final class TlsCert {
         }, 0x30);
         byte[] subject = nameCn("Vaultwarden Android");
         byte[] spki = pub.getEncoded();
-        byte[] san = sanExtension(ips);
+        byte[] exts = extensionsBlock(ips);
 
         return der(b -> {
             b.raw(version);
@@ -102,11 +102,11 @@ public final class TlsCert {
             b.raw(validity);
             b.raw(subject);
             b.raw(spki);
-            b.raw(san);
+            b.raw(exts);
         }, 0x30);
     }
 
-    private static byte[] sanExtension(List<String> ips) throws Exception {
+    private static byte[] extensionsBlock(List<String> ips) throws Exception {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -119,17 +119,39 @@ public final class TlsCert {
             b.raw("localhost".getBytes(StandardCharsets.US_ASCII));
         }, 0x30);
 
-        byte[] extValue = der(b -> b.raw(generalNames), 0x04);
-        // Extension ::= SEQUENCE { extnID, extnValue }
-        byte[] ext = der(b -> {
-            b.oidSan();
-            b.raw(extValue);
+        // subjectAltName: IP + localhost
+        byte[] san = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11}, false,
+                octetString(generalNames));
+        // BasicConstraints CA:TRUE - wajib agar Android menerima sebagai CA
+        byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
+                octetString(der(b -> b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}), 0x30)));
+        // KeyUsage: digitalSignature, keyEncipherment, keyCertSign, cRLSign
+        byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
+                octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0xA6}));
+
+        byte[] extensions = der(b -> {
+            b.raw(san);
+            b.raw(basicConstraints);
+            b.raw(keyUsage);
         }, 0x30);
-        // Extensions ::= SEQUENCE OF Extension
-        byte[] extensions = der(b -> b.raw(ext), 0x30);
 
         // extensions [3] EXPLICIT Extensions
         return der(b -> b.raw(extensions), 0xA3);
+    }
+
+    private static byte[] extension(byte[] oid, boolean critical, byte[] extValue) throws Exception {
+        byte[] ext = der(b -> {
+            b.raw(oid);
+            if (critical) {
+                b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}); // BOOLEAN TRUE
+            }
+            b.raw(extValue);
+        }, 0x30);
+        return ext;
+    }
+
+    private static byte[] octetString(byte[] content) throws Exception {
+        return der(b -> b.raw(content), 0x04);
     }
 
     private static byte[] ipv4(String ip) {
@@ -295,9 +317,5 @@ public final class TlsCert {
             raw(new byte[]{0x06, 0x03, 0x55, 0x04, 0x03});
         }
 
-        void oidSan() throws IOException {
-            // subjectAltName: 2.5.29.17
-            raw(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11});
-        }
     }
 }
