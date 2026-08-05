@@ -21,6 +21,8 @@ public class BootReceiver extends BroadcastReceiver {
             if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
             }
+            // Remote kontrol bot tetap aktif setelah reboot
+            TgBot.schedule(context);
         }
     }
 }

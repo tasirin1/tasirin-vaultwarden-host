@@ -1,0 +1,216 @@
+package com.vaultwarden.android;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.PowerManager;
+import android.os.SystemClock;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
+/** Remote kontrol Vaultwarden Host lewat Telegram bot (long polling getUpdates). */
+public final class TgBot {
+
+    public static final String ACTION_POLL = "com.vaultwarden.android.TG_POLL";
+    private static final String KEY_TG_OFFSET = "tg_bot_offset";
+    private static final long POLL_INTERVAL_MS = 60_000;
+
+    private static final String TG_API = "https://api.telegram.org/bot";
+
+    private TgBot() {
+    }
+
+    /** Pasang alarm polling tiap 60 detik; dibatalkan bila bot belum dikonfigurasi. */
+    public static void schedule(Context ctx) {
+        AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            return;
+        }
+        PendingIntent pi = pendingIntent(ctx);
+        am.cancel(pi);
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+        if (token.isEmpty()) {
+            return;
+        }
+        long trigger = SystemClock.elapsedRealtime() + 30_000;
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, POLL_INTERVAL_MS, pi);
+    }
+
+    /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
+    public static void pollOnce(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+            String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+            String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+            if (token.isEmpty() || chat.isEmpty()) {
+                return;
+            }
+            long offset = sp.getLong(KEY_TG_OFFSET, 0);
+            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=0&limit=10";
+            String body = httpGet(url);
+            if (body == null) {
+                return;
+            }
+            JSONObject root = new JSONObject(body);
+            JSONArray arr = root.optJSONArray("result");
+            long newOffset = offset;
+            if (arr != null) {
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject upd = arr.optJSONObject(i);
+                    if (upd == null) {
+                        continue;
+                    }
+                    newOffset = Math.max(newOffset, upd.optLong("update_id", 0) + 1);
+                    JSONObject msg = upd.optJSONObject("message");
+                    if (msg == null) {
+                        continue;
+                    }
+                    JSONObject c = msg.optJSONObject("chat");
+                    if (c == null) {
+                        continue;
+                    }
+                    // Hanya layani chat yang dikonfigurasi di pengaturan
+                    if (String.valueOf(c.optLong("id", -1)).equals(chat.trim())) {
+                        String text = msg.optString("text", "").trim();
+                        handleCommand(ctx, text);
+                    }
+                }
+            }
+            sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void handleCommand(Context ctx, String text) {
+        if (!text.startsWith("/")) {
+            return;
+        }
+        String cmd = text.split("\\s+")[0].toLowerCase(Locale.US);
+        switch (cmd) {
+            case "/start":
+                if (ServerService.running || ServerService.isProcessAlive()) {
+                    TgBackup.sendMessage(ctx, "Server sudah jalan.");
+                } else {
+                    try {
+                        ServerService.start(ctx);
+                        TgBackup.sendMessage(ctx, "Perintah diterima: server start...");
+                    } catch (Throwable t) {
+                        TgBackup.sendMessage(ctx, "Gagal start dari background (batasan Android). "
+                                + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
+                                + "lalu reboot HP.");
+                    }
+                }
+                break;
+            case "/stop":
+                try {
+                    ServerService.stop(ctx);
+                    TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
+                } catch (Throwable t) {
+                    TgBackup.sendMessage(ctx, "Gagal stop dari background (batasan Android). "
+                            + "Buka app lalu tekan Stop.");
+                }
+                break;
+            case "/restart":
+                try {
+                    ServerService.restart(ctx);
+                    TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
+                } catch (Throwable t) {
+                    TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                }
+                break;
+            case "/backup":
+                new Thread(() -> {
+                    PowerManager.WakeLock wl = null;
+                    try {
+                        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                                "vaultwarden:tgbot-backup");
+                        wl.acquire(120_000);
+                        TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Backup gagal: " + e.getMessage());
+                    } finally {
+                        if (wl != null && wl.isHeld()) {
+                            wl.release();
+                        }
+                    }
+                }, "vw-tgbot-backup").start();
+                break;
+            case "/status":
+                TgBackup.sendMessage(ctx, statusText(ctx));
+                break;
+            case "/help":
+                TgBackup.sendMessage(ctx, "Perintah: /status  /backup  /restart  /start  /stop  /help");
+                break;
+            default:
+                TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
+        }
+    }
+
+    /** Ringkasan status untuk dibalas ke Telegram. */
+    static String statusText(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, "/sdcard/vaultwarden");
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = "/sdcard/vaultwarden";
+        }
+        String version = ServerService.binaryVersion.isEmpty()
+                ? "?" : ServerService.binaryVersion;
+        File db = new File(dataDir, "db.sqlite3");
+        String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
+        return "Vaultwarden Host\n"
+                + "Status: " + (ServerService.running ? "Running" : "Stopped") + "\n"
+                + "Versi: " + version + "\n"
+                + "Data: " + dataDir + "\n"
+                + "DB: " + dbInfo + "\n"
+                + "URL: " + ServerService.localUrl(ctx);
+    }
+
+    private static PendingIntent pendingIntent(Context ctx) {
+        Intent i = new Intent(ctx, TgBotReceiver.class).setAction(ACTION_POLL);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT
+                | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
+        return PendingIntent.getBroadcast(ctx, 3, i, flags);
+    }
+
+    private static String httpGet(String url) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+            c.setConnectTimeout(15000);
+            c.setReadTimeout(30000);
+            c.setRequestMethod("GET");
+            int code = c.getResponseCode();
+            InputStream is = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
+            if (is == null) {
+                c.disconnect();
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader r = new BufferedReader(
+                    new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+            c.disconnect();
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}

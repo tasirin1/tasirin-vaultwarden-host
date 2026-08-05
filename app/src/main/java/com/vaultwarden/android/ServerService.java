@@ -18,9 +18,13 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,10 +32,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 public class ServerService extends Service {
 
     public static final String ACTION_START = "com.vaultwarden.android.START";
     public static final String ACTION_STOP = "com.vaultwarden.android.STOP";
+    public static final String ACTION_RESTART = "com.vaultwarden.android.RESTART";
     public static final String ACTION_TG_BACKUP = "com.vaultwarden.android.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
@@ -45,6 +55,8 @@ public class ServerService extends Service {
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
     private static final int MAX_LOG_CHARS = 300_000;
+    private static final long MAX_LOG_FILE = 2L * 1024 * 1024;
+    private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
 
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
@@ -67,6 +79,18 @@ public class ServerService extends Service {
     private boolean autoRestart = false;
     private int restartAttempt = 0;
     private long lastStartTime = 0;
+    private int healthFails = 0;
+
+    private final Runnable healthTick = new Runnable() {
+        @Override
+        public void run() {
+            mainHandler.postDelayed(this, HEALTH_INTERVAL_MS);
+            if (process == null || !process.isAlive() || !running) {
+                return;
+            }
+            new Thread(ServerService.this::checkHealthOnce, "vw-health").start();
+        }
+    };
 
     public static void start(Context context) {
         Intent i = new Intent(context, ServerService.class).setAction(ACTION_START);
@@ -79,6 +103,11 @@ public class ServerService extends Service {
 
     public static void stop(Context context) {
         context.startService(new Intent(context, ServerService.class).setAction(ACTION_STOP));
+    }
+
+    /** Restart proses server tanpa mematikan service (dipakai dari perintah bot). */
+    public static void restart(Context context) {
+        context.startService(new Intent(context, ServerService.class).setAction(ACTION_RESTART));
     }
 
     /** Jalankan backup Telegram terjadwal (via AlarmReceiver). */
@@ -140,13 +169,45 @@ public class ServerService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
+        if (ACTION_RESTART.equals(action)) {
+            startForegroundCompat();
+            new Thread(() -> {
+                appendLog("[app] Restart diminta via Telegram.");
+                if (process != null) {
+                    final Process p = process;
+                    process = null;
+                    running = false;
+                    releaseWakeLock();
+                    p.destroy();
+                    try {
+                        if (!waitForOrKill(p, 5000)) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                p.destroyForcibly();
+                            } else {
+                                p.destroy();
+                            }
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+                mainHandler.post(() -> {
+                    if (autoRestart) {
+                        startServer();
+                    }
+                });
+            }, "vw-restart").start();
+            return START_NOT_STICKY;
+        }
         if (ACTION_TG_BACKUP.equals(action)) {
             startForegroundCompat();
             new Thread(() -> {
                 try {
-                    appendLog("[tg] " + TgBackup.backupNow(this));
+                    String msg = TgBackup.backupNow(this);
+                    appendLog("[tg] " + msg);
+                    TgBackup.sendMessage(this, "Backup otomatis: " + msg);
                 } catch (Exception e) {
                     appendLog("[tg] Gagal backup terjadwal: " + e);
+                    TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + e.getMessage());
                 } finally {
                     if (process == null || !process.isAlive()) {
                         stopForeground(true);
@@ -161,6 +222,8 @@ public class ServerService extends Service {
         if (process == null || !process.isAlive()) {
             startServer();
         }
+        mainHandler.removeCallbacks(healthTick);
+        mainHandler.postDelayed(healthTick, HEALTH_INTERVAL_MS);
         return START_NOT_STICKY;
     }
 
@@ -298,6 +361,7 @@ public class ServerService extends Service {
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
+            TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
 
             final Process p = process;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
@@ -348,6 +412,7 @@ public class ServerService extends Service {
         runningHttps = false;
         runningAdminToken = "";
         releaseWakeLock();
+        TgBackup.sendMessage(this, "Server dihentikan.");
     }
 
     private void watchProcess(Process p) {
@@ -359,6 +424,8 @@ public class ServerService extends Service {
                 releaseWakeLock();
                 appendLog("[app] process exit: " + code);
                 if (autoRestart) {
+                    TgBackup.sendMessage(this, "Server crash (exit " + code
+                            + ") - restart otomatis...");
                     scheduleRestart();
                 } else {
                     setStatus("Stopped (exit code " + code + ")");
@@ -377,6 +444,7 @@ public class ServerService extends Service {
             autoRestart = false;
             setStatus("Server berhenti - gagal restart 5x berturut-turut.");
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
+            TgBackup.sendMessage(this, "Server berhenti: gagal restart 5x berturut-turut.");
             return;
         }
         long delay = RESTART_DELAYS[restartAttempt++];
@@ -415,7 +483,118 @@ public class ServerService extends Service {
                 w.write(line + "\n");
             } catch (Exception ignored) {
             }
+            if (logFile.length() > MAX_LOG_FILE) {
+                File old = new File(logFile.getParentFile(), logFile.getName() + ".1");
+                if (old.exists()) {
+                    old.delete();
+                }
+                logFile.renameTo(old);
+            }
         }
+    }
+
+    // ─── Health check (/alive) ─────────────────────────────────────────
+
+    private void checkHealthOnce() {
+        try {
+            SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+            boolean https = sp.getBoolean(KEY_HTTPS, false);
+            String scheme = https ? "https" : "http";
+            HttpURLConnection c = (HttpURLConnection) new URL(
+                    scheme + "://127.0.0.1:" + currentPort() + "/alive").openConnection();
+            c.setConnectTimeout(5000);
+            c.setReadTimeout(5000);
+            if (https) {
+                HttpsURLConnection hc = (HttpsURLConnection) c;
+                hc.setSSLSocketFactory(trustAllSslFactory());
+                hc.setHostnameVerifier((host, session) -> true);
+            }
+            int code = c.getResponseCode();
+            c.disconnect();
+            if (code == 200) {
+                healthFails = 0;
+                return;
+            }
+            healthFail("HTTP " + code);
+        } catch (Exception e) {
+            healthFail(String.valueOf(e.getMessage()));
+        }
+    }
+
+    private void healthFail(String reason) {
+        healthFails++;
+        appendLog("[health] /alive gagal: " + reason + " (ke-" + healthFails + "/3)");
+        if (healthFails >= 3) {
+            autoRestart = false;
+            setStatus("Server tidak sehat - berhenti.");
+            appendLog("[health] 3x gagal beruntun - server dihentikan.");
+            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - dihentikan.");
+            if (process != null) {
+                final Process p = process;
+                process = null;
+                running = false;
+                releaseWakeLock();
+                p.destroy();
+            }
+            return;
+        }
+        TgBackup.sendMessage(this,
+                "Server tidak sehat (" + healthFails + "/3) - restart otomatis...");
+        appendLog("[health] Restart otomatis...");
+        if (process != null) {
+            final Process p = process;
+            process = null;
+            running = false;
+            releaseWakeLock();
+            p.destroy();
+        }
+        mainHandler.post(() -> {
+            if (autoRestart) {
+                startServer();
+            }
+        });
+    }
+
+    private static javax.net.ssl.SSLSocketFactory sslFactory;
+
+    private static javax.net.ssl.SSLSocketFactory trustAllSslFactory() throws Exception {
+        if (sslFactory == null) {
+            TrustManager[] tm = new TrustManager[]{new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }};
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, tm, new SecureRandom());
+            sslFactory = sc.getSocketFactory();
+        }
+        return sslFactory;
+    }
+
+    /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama). */
+    public static String localIp() {
+        List<String> ips = collectIps();
+        return ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+    }
+
+    /** URL akses lengkap dari perangkat lain, mengikuti setting port & HTTPS. */
+    public static String localUrl(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        boolean https = sp.getBoolean(KEY_HTTPS, false);
+        String port = sp.getString(KEY_PORT, "8080");
+        if (port == null || port.trim().isEmpty()) {
+            port = "8080";
+        }
+        return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
     }
 
     private void setStatus(String text) {
@@ -534,7 +713,7 @@ public class ServerService extends Service {
         return "localhost:" + port;
     }
 
-    private List<String> collectIps() {
+    private static List<String> collectIps() {
         List<String> ips = new ArrayList<>();
         try {
             for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {

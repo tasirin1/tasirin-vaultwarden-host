@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -97,6 +98,27 @@ public final class TgBackup {
                 .apply();
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
                 + upload.length() + " bytes)";
+    }
+
+    /** Kirim pesan teks ke chat ID yang dikonfigurasi; silent bila belum diisi. */
+    public static void sendMessage(Context ctx, String text) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+            String token = sp.getString(KEY_TG_TOKEN, "").trim();
+            String chat = sp.getString(KEY_TG_CHAT, "").trim();
+            if (token.isEmpty() || chat.isEmpty()) {
+                return;
+            }
+            String url = TG_API + token + "/sendMessage?chat_id="
+                    + URLEncoder.encode(chat, "UTF-8")
+                    + "&text=" + URLEncoder.encode(text, "UTF-8");
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+            conn.getInputStream().close();
+            conn.disconnect();
+        } catch (Exception ignored) {
+        }
     }
 
     /** Zip db + WAL ke <data>/backups/, lalu bersihkan backup lama (sisakan 10). */

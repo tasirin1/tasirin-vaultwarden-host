@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.os.PowerManager;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -36,14 +39,19 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
     private static final int REQ_RESTORE = 1002;
+    private static final int REQ_IMPORT = 1003;
     private static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     private static final String DEFAULT_PORT = "8080";
     private static final String KEY_PIN = "pin_hash";
@@ -71,11 +79,15 @@ public class MainActivity extends Activity {
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
+    private TextView netInfoView;
     private TextView logView;
     private ScrollView logScroll;
     private Button logToggleBtn;
     private Button logShareBtn;
     private Button logClearBtn;
+    private Button copyUrlBtn;
+    private Button exportCfgBtn;
+    private Button importCfgBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -86,6 +98,7 @@ public class MainActivity extends Activity {
     private String bundledVersion = "?";
     private String lastShownStatus = "";
     private String lastShownVersion = "";
+    private String lastShownNet = "";
     private int lastShownLogLen = -1;
 
     private static boolean unlocked = false;
@@ -93,6 +106,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Privasi: nonaktifkan screenshot + preview recents dikosongkan
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
 
         dataDirInput = findViewById(R.id.dataDir);
@@ -109,6 +124,7 @@ public class MainActivity extends Activity {
         pinEnabledCheck = findViewById(R.id.pinEnabled);
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
+        netInfoView = findViewById(R.id.netInfo);
         logView = findViewById(R.id.log);
         logScroll = findViewById(R.id.logScroll);
         logToggleBtn = findViewById(R.id.logToggle);
@@ -127,6 +143,9 @@ public class MainActivity extends Activity {
         Button batteryBtn = findViewById(R.id.batteryBtn);
         backupTgBtn = findViewById(R.id.backupTg);
         restoreTgBtn = findViewById(R.id.restoreTg);
+        copyUrlBtn = findViewById(R.id.copyUrl);
+        exportCfgBtn = findViewById(R.id.exportCfg);
+        importCfgBtn = findViewById(R.id.importCfg);
         Button showAdminBtn = findViewById(R.id.showAdmin);
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
@@ -161,6 +180,9 @@ public class MainActivity extends Activity {
             refreshFromService();
         });
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
+        copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
+        exportCfgBtn.setOnClickListener(v -> runBusy(this::exportConfig));
+        importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
@@ -196,6 +218,34 @@ public class MainActivity extends Activity {
                         .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
+        tgTokenInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int a, int b, int c) {
+                TgBot.schedule(MainActivity.this);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+        tgChatInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int a, int b, int c) {
+                TgBot.schedule(MainActivity.this);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -242,6 +292,8 @@ public class MainActivity extends Activity {
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        // Remote kontrol via Telegram bot
+        TgBot.schedule(this);
 
     }
 
@@ -313,6 +365,12 @@ public class MainActivity extends Activity {
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
             lastShownVersion = full;
+        }
+
+        String net = ServerService.localUrl(this);
+        if (!net.equals(lastShownNet)) {
+            netInfoView.setText(net);
+            lastShownNet = net;
         }
 
         synchronized (ServerService.logBuffer) {
@@ -611,6 +669,14 @@ public class MainActivity extends Activity {
                     "Database saat ini akan diganti dengan file yang dipilih. "
                             + "Backup otomatis dibuat dulu. Lanjutkan?",
                     () -> runBusy(() -> restoreDatabase(uri)));
+        } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
+            final Uri uri = data.getData();
+            if (uri == null) {
+                return;
+            }
+            confirm("Import Pengaturan",
+                    "Semua pengaturan app akan diganti dari file ini. Lanjutkan?",
+                    () -> runBusy(() -> importConfig(uri)));
         }
     }
 
@@ -748,6 +814,159 @@ public class MainActivity extends Activity {
             toast("Gagal restore: " + e.getMessage());
             appendUiLog("[app] Gagal restore: " + e);
         }
+    }
+
+    // ─── Export / Import pengaturan ─────────────────────────────────────
+
+    private void exportConfig() {
+        try {
+            String dataDir = dataDirInput.getText().toString().trim();
+            if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            File backupDir = new File(dataDir, "backups");
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
+            String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+            File out = new File(backupDir, "app-config-" + ts + ".json");
+
+            JSONObject root = new JSONObject();
+            root.put("app", "vaultwarden-android");
+            root.put("version", 1);
+            JSONObject prefs = new JSONObject();
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
+                Object v = e.getValue();
+                if (v instanceof String) {
+                    prefs.put(e.getKey(), (String) v);
+                } else if (v instanceof Boolean) {
+                    prefs.put(e.getKey(), (Boolean) v);
+                } else if (v instanceof Integer) {
+                    prefs.put(e.getKey(), (Integer) v);
+                } else if (v instanceof Long) {
+                    prefs.put(e.getKey(), (Long) v);
+                } else if (v instanceof Float) {
+                    prefs.put(e.getKey(), (Float) v);
+                }
+            }
+            root.put("prefs", prefs);
+            byte[] bytes = root.toString(2).getBytes(StandardCharsets.UTF_8);
+            try (FileOutputStream fos = new FileOutputStream(out)) {
+                fos.write(bytes);
+            }
+            final String path = out.getAbsolutePath();
+            ui.post(() -> {
+                Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + path);
+                Intent send = new Intent(Intent.ACTION_SEND);
+                send.setType("application/json");
+                send.putExtra(Intent.EXTRA_STREAM, uri);
+                send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    startActivity(Intent.createChooser(send, "Bagikan file konfigurasi"));
+                } catch (Exception e2) {
+                    toast("File tersimpan: " + path);
+                }
+                toast("Konfigurasi diekspor: " + path);
+                appendUiLog("[app] Config export: " + path);
+            });
+        } catch (Exception e) {
+            toast("Gagal export config: " + e.getMessage());
+            appendUiLog("[app] Gagal export config: " + e);
+        }
+    }
+
+    private void pickImportFile() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("application/json");
+            startActivityForResult(intent, REQ_IMPORT);
+        } catch (Exception e) {
+            toast("Gagal membuka file picker: " + e.getMessage());
+        }
+    }
+
+    private void importConfig(Uri uri) {
+        try {
+            String json;
+            try (InputStream in = getContentResolver().openInputStream(uri)) {
+                json = new String(readAll(in), StandardCharsets.UTF_8);
+            }
+            JSONObject root = new JSONObject(json);
+            JSONObject prefs = root.optJSONObject("prefs");
+            if (prefs == null) {
+                toast("File config tidak valid.");
+                return;
+            }
+            SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
+            ed.clear();
+            Iterator<String> keys = prefs.keys();
+            while (keys.hasNext()) {
+                String k = keys.next();
+                Object v = prefs.get(k);
+                if (v instanceof String) {
+                    ed.putString(k, (String) v);
+                } else if (v instanceof Boolean) {
+                    ed.putBoolean(k, (Boolean) v);
+                } else if (v instanceof Integer) {
+                    ed.putInt(k, (Integer) v);
+                } else if (v instanceof Long) {
+                    ed.putLong(k, (Long) v);
+                } else if (v instanceof Double) {
+                    ed.putLong(k, ((Double) v).longValue());
+                }
+            }
+            ed.apply();
+            ui.post(() -> {
+                reloadSettingsFromPrefs();
+                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                TgBackup.schedule(MainActivity.this,
+                        sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                TgBot.schedule(MainActivity.this);
+                toast("Pengaturan diimpor. Tekan Start agar berlaku.");
+                appendUiLog("[app] Config import selesai.");
+            });
+        } catch (Exception e) {
+            toast("Gagal import config: " + e.getMessage());
+            appendUiLog("[app] Gagal import config: " + e);
+        }
+    }
+
+    /** Muat ulang isi form dari prefs (dipakai setelah import config). */
+    private void reloadSettingsFromPrefs() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        portInput.setText(sp.getString(ServerService.KEY_PORT, DEFAULT_PORT));
+        adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
+        autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
+        httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
+        tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+        tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
+        tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
+        backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
+    }
+
+    private void copyLocalUrl() {
+        String url = ServerService.localUrl(this);
+        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm != null) {
+            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", url));
+            toast("URL disalin: " + url);
+        } else {
+            toast(url);
+        }
+    }
+
+    private static byte[] readAll(InputStream in) throws Exception {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) > 0) {
+            bos.write(buf, 0, n);
+        }
+        return bos.toByteArray();
     }
 
     // ─── PIN lock ───────────────────────────────────────────────────────
