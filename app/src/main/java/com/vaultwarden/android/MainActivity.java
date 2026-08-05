@@ -470,7 +470,7 @@ public class MainActivity extends Activity {
 
     private void autoUpdateCheck() {
         try {
-            String latest = Updater.latestVersion();
+            String latest = Updater.latestVersion(this);
             if (latest == null) {
                 return;
             }

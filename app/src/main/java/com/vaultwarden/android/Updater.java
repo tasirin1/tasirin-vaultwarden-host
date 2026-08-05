@@ -12,12 +12,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 
 /** Cek & pasang update binary vaultwarden dan web-vault (dipakai UI dan perintah bot). */
 public final class Updater {
@@ -35,31 +31,24 @@ public final class Updater {
     private Updater() {
     }
 
-    /** Buka koneksi HTTPS ke GitHub yang ramah Android 5/6 (TLS 1.2 eksplisit + User-Agent). */
-    private static HttpURLConnection open(String url, int connectMs, int readMs) throws Exception {
+    /** Buka koneksi HTTPS ke GitHub yang ramah Android 5/6
+     *  (TLS 1.2 + trust anchor tambahan + User-Agent). */
+    private static HttpURLConnection open(Context ctx, String url,
+                                          int connectMs, int readMs) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(connectMs);
         c.setReadTimeout(readMs);
         c.setInstanceFollowRedirects(true);
         c.setRequestProperty("User-Agent",
                 "Mozilla/5.0 (Linux; Android) VaultwardenHost");
-        if (c instanceof HttpsURLConnection) {
-            // Android 5-6 kadang hanya menawarkan TLS 1.0/1.1; GitHub butuh TLS 1.2.
-            try {
-                SSLContext sc = SSLContext.getInstance("TLSv1.2");
-                sc.init(null, null, new SecureRandom());
-                ((HttpsURLConnection) c).setSSLSocketFactory(sc.getSocketFactory());
-            } catch (Exception ignored) {
-                // biarkan default bila TLSv1.2 tidak tersedia
-            }
-        }
+        HttpsCompat.apply(c, ctx);
         return c;
     }
 
     /** Versi resmi terbaru (tanpa huruf v) atau null bila gagal. */
-    public static String latestVersion() {
+    public static String latestVersion(Context ctx) {
         try {
-            HttpURLConnection conn = open(OFFICIAL_API, 10000, 10000);
+            HttpURLConnection conn = open(ctx, OFFICIAL_API, 10000, 10000);
             if (conn.getResponseCode() != 200) {
                 conn.disconnect();
                 return null;
@@ -81,7 +70,7 @@ public final class Updater {
 
     /** Unduh & pasang update binary; return pesan hasil. Lempar Exception bila gagal. */
     public static String tryUpdate(Context ctx) throws Exception {
-        String latest = latestVersion();
+        String latest = latestVersion(ctx);
         if (latest == null) {
             throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
         }
@@ -106,7 +95,7 @@ public final class Updater {
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
         }
-        HttpURLConnection dl = open(assetUrl, 20000, 60000);
+        HttpURLConnection dl = open(ctx, assetUrl, 20000, 60000);
         int code = dl.getResponseCode();
         if (code == 404) {
             dl.disconnect();
@@ -172,7 +161,7 @@ public final class Updater {
         Exception lastErr = null;
         for (int attempt = 1; attempt <= 2; attempt++) {
             try {
-                HttpURLConnection dl = open(WV_UPDATE_URL, 20000, 120000);
+                HttpURLConnection dl = open(ctx, WV_UPDATE_URL, 20000, 120000);
                 int code = dl.getResponseCode();
                 if (code != 200) {
                     throw new IOException("Gagal unduh web-vault (HTTP " + code
