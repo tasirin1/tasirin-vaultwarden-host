@@ -47,7 +47,9 @@ public final class TgBackup {
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
+    private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
+    private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
 
     private static final String ENC_MAGIC = "VWB1";
 
@@ -125,6 +127,30 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
         }, "vw-tgmsg").start();
+    }
+
+    /** Kirim peringatan storage ke Telegram sekali saat sisa < 500 MB; reset bila lega. */
+    public static void notifyLowStorage(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                    ServerService.DEFAULT_DATA_DIR);
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = ServerService.DEFAULT_DATA_DIR;
+            }
+            long free = freeBytes(dataDir);
+            boolean low = free < LOW_STORAGE_BYTES;
+            boolean notified = sp.getBoolean(KEY_TG_LOW_STORAGE, false);
+            if (low && !notified) {
+                sp.edit().putBoolean(KEY_TG_LOW_STORAGE, true).apply();
+                sendMessage(ctx, "Peringatan storage: sisa " + humanBytes(free)
+                        + " di " + dataDir + ". Segera backup & bersihkan!");
+            } else if (!low && notified) {
+                sp.edit().putBoolean(KEY_TG_LOW_STORAGE, false).apply();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     /** Zip db + WAL ke <data>/backups/, lalu bersihkan backup lama (sisakan 10). */

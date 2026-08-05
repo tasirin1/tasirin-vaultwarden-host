@@ -135,32 +135,114 @@ public final class TgBot {
                 }
                 break;
             case "/backup":
-                new Thread(() -> {
-                    PowerManager.WakeLock wl = null;
+                runWithWakeLock(ctx, () -> {
                     try {
-                        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
-                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                                "vaultwarden:tgbot-backup");
-                        wl.acquire(120_000);
                         TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
                     } catch (Exception e) {
                         TgBackup.sendMessage(ctx, "Backup gagal: " + e.getMessage());
-                    } finally {
-                        if (wl != null && wl.isHeld()) {
-                            wl.release();
-                        }
                     }
-                }, "vw-tgbot-backup").start();
+                });
                 break;
             case "/status":
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
+            case "/log":
+                TgBackup.sendMessage(ctx, tailLog());
+                break;
+            case "/uptime":
+                long up = ServerService.uptimeMs();
+                if (up <= 0) {
+                    TgBackup.sendMessage(ctx, "Server sedang berhenti.");
+                } else {
+                    TgBackup.sendMessage(ctx, "Server jalan selama " + durationText(up) + ".");
+                }
+                break;
+            case "/alive":
+                TgBackup.sendMessage(ctx, ServerService.pingAlive(ctx)
+                        ? "Server sehat (HTTP 200 /alive)."
+                        : "Server TIDAK merespon /alive!");
+                break;
+            case "/update":
+                runWithWakeLock(ctx, () -> {
+                    try {
+                        String msg = Updater.tryUpdate(ctx);
+                        if (msg.startsWith("Update v")) {
+                            TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                            ServerService.restart(ctx);
+                        } else {
+                            TgBackup.sendMessage(ctx, msg);
+                        }
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Update gagal: " + e.getMessage());
+                    }
+                });
+                break;
+            case "/webvault":
+                runWithWakeLock(ctx, () -> {
+                    try {
+                        String msg = Updater.updateWebVault(ctx);
+                        TgBackup.sendMessage(ctx, msg + " Restart server (/restart) agar berlaku.");
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Update web-vault gagal: " + e.getMessage());
+                    }
+                });
+                break;
             case "/help":
-                TgBackup.sendMessage(ctx, "Perintah: /status  /backup  /restart  /start  /stop  /help");
+                TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup\n"
+                        + "/update  /webvault  /restart  /start  /stop  /help");
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
         }
+    }
+
+    /** Jalankan tugas berat di thread sendiri + partial wake lock. */
+    private static void runWithWakeLock(Context ctx, Runnable task) {
+        new Thread(() -> {
+            PowerManager.WakeLock wl = null;
+            try {
+                PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
+                wl.acquire(10 * 60 * 1000L);
+                task.run();
+            } finally {
+                if (wl != null && wl.isHeld()) {
+                    wl.release();
+                }
+            }
+        }, "vw-tgbot-task").start();
+    }
+
+    /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */
+    private static String tailLog() {
+        String all;
+        synchronized (ServerService.logBuffer) {
+            all = ServerService.logBuffer.toString();
+        }
+        if (all.isEmpty()) {
+            return "Log kosong.";
+        }
+        String[] lines = all.split("\n", -1);
+        StringBuilder sb = new StringBuilder();
+        int start = Math.max(0, lines.length - 30);
+        for (int i = start; i < lines.length; i++) {
+            sb.append(lines[i]).append('\n');
+        }
+        String log = sb.toString();
+        return log.length() > 3500 ? "..." + log.substring(log.length() - 3500) : log;
+    }
+
+    private static String durationText(long ms) {
+        long s = ms / 1000;
+        long h = s / 3600;
+        long m = (s % 3600) / 60;
+        if (h > 0) {
+            return h + " jam " + m + " menit";
+        }
+        if (m > 0) {
+            return m + " menit " + (s % 60) + " detik";
+        }
+        return s + " detik";
     }
 
     /** Ringkasan status untuk dibalas ke Telegram. */

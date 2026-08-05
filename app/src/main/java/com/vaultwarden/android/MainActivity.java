@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -56,11 +54,7 @@ public class MainActivity extends Activity {
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
-    // Cek versi dari sumber RESMI Vaultwarden (dani-garcia/vaultwarden).
-    private static final String OFFICIAL_API = "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
-    // Binary Android di-host di repo build (resmi tidak menyediakan biner Android).
-    private static final String RELEASE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/download/";
-    private static final String WV_UPDATE_URL = "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/web-vault.zip";
+    private static final String KEY_TG_NOTIFIED = "tg_notified_version";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
@@ -101,6 +95,9 @@ public class MainActivity extends Activity {
     private String lastShownNet = "";
     private int lastShownLogLen = -1;
     private boolean refreshActive = true;
+    private long lastWvCheck = 0;
+    private String wvLine = "";
+    private static final long WV_CHECK_MS = 10_000;
 
     private static boolean unlocked = false;
 
@@ -365,6 +362,10 @@ public class MainActivity extends Activity {
         }
         String dbInfo = dbInfoLine();
         String full = dbInfo.isEmpty() ? version : version + "\n" + dbInfo;
+        String wv = webVaultInfoLine();
+        if (!wv.isEmpty()) {
+            full += "\n" + wv;
+        }
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
             lastShownVersion = full;
@@ -430,43 +431,26 @@ public class MainActivity extends Activity {
 
     private void autoUpdateCheck() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-            if (conn.getResponseCode() != 200) {
-                return;
-            }
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
-            }
-            r.close();
-            String latest = normVersion(extractTag(sb.toString()));
+            String latest = Updater.latestVersion();
             if (latest == null) {
                 return;
             }
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String current = normVersion(updated != null && !updated.isEmpty()
-                    ? updated : readBundledVersionRaw());
+            String current = Updater.normVersion(updated != null && !updated.isEmpty()
+                    ? updated : Updater.readBundledVersionRaw(this));
             if (current != null && !current.equals(latest)) {
                 ui.post(() -> toast("Update tersedia: v" + latest));
                 showUpdateNotification(latest);
+                // Notifikasi ke Telegram cukup sekali per versi
+                if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
+                    sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
+                    TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
+                            + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
+                }
             }
+            TgBackup.notifyLowStorage(this);
         } catch (Exception ignored) {
-        }
-    }
-
-    private String readBundledVersionRaw() {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
-            String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? null : v.trim();
-        } catch (Exception e) {
-            return null;
         }
     }
 
@@ -493,6 +477,7 @@ public class MainActivity extends Activity {
                 .setContentText("v" + version + " tersedia")
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
+                .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
                 .setAutoCancel(true)
                 .build();
         NotificationManager nm = getSystemService(NotificationManager.class);
@@ -506,90 +491,14 @@ public class MainActivity extends Activity {
     private void updateWebVault() {
         try {
             appendUiLog("[app] Mengunduh web-vault terbaru...");
-            String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
-            }
-
-            File dataFolder = new File(dataDir);
-            if (!dataFolder.exists()) {
-                dataFolder.mkdirs();
-            }
-
-            File targetDir = new File(dataFolder, "web-vault");
-            File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
-
-            HttpURLConnection dl = (HttpURLConnection) new URL(WV_UPDATE_URL).openConnection();
-            dl.setConnectTimeout(20000);
-            dl.setReadTimeout(120000);
-            dl.setInstanceFollowRedirects(true);
-            int code = dl.getResponseCode();
-            if (code != 200) {
-                toast("Gagal unduh web-vault (HTTP " + code + ")");
-                return;
-            }
-            long size = dl.getContentLength();
-            try (InputStream in = dl.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(tmpZip)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    fos.write(buf, 0, n);
-                }
-            }
-            if (tmpZip.length() < 1000) {
-                tmpZip.delete();
-                toast("File web-vault tidak valid.");
-                return;
-            }
-
-            // Hapus web-vault lama
-            deleteRecursive(targetDir);
-            targetDir.mkdirs();
-
-            byte[] buf = new byte[64 * 1024];
-            try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    if (entry.isDirectory()) {
-                        new File(targetDir, entry.getName()).mkdirs();
-                    } else {
-                        File outFile = new File(targetDir, entry.getName());
-                        outFile.getParentFile().mkdirs();
-                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                            int n;
-                            while ((n = zis.read(buf)) > 0) {
-                                fos.write(buf, 0, n);
-                            }
-                        }
-                    }
-                }
-            }
-            tmpZip.delete();
-
-            File index = new File(targetDir, "index.html");
-            if (index.exists()) {
-                toast("Web vault updated! Restart server untuk memakai.");
-                appendUiLog("[app] Web vault updated di " + targetDir.getAbsolutePath());
-            } else {
-                toast("Web vault updated tapi index.html tidak ditemukan.");
-            }
+            String msg = Updater.updateWebVault(this);
+            toast(msg);
+            appendUiLog("[app] " + msg);
+            lastWvCheck = 0; // paksa baca ulang info versi web-vault
         } catch (Exception e) {
             toast("Gagal update web-vault: " + e.getMessage());
             appendUiLog("[app] Gagal update web-vault: " + e);
         }
-    }
-
-    private void deleteRecursive(File file) {
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                for (File c : children) {
-                    deleteRecursive(c);
-                }
-            }
-        }
-        file.delete();
     }
 
     // ─── Battery optimization ───────────────────────────────────────────
@@ -1039,105 +948,76 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ─── Update binary (unduh per tag versi resmi) ──────────────────────
-
-    private void checkForUpdate() {
+    /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server. */
+    private String webVaultInfoLine() {
+        long now = System.currentTimeMillis();
+        if (now - lastWvCheck < WV_CHECK_MS) {
+            return wvLine;
+        }
+        lastWvCheck = now;
         try {
-            appendUiLog("[app] Mengecek update dari sumber resmi...");
-            HttpURLConnection conn = (HttpURLConnection) new URL(OFFICIAL_API).openConnection();
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(15000);
-            int code = conn.getResponseCode();
-            if (code != 200) {
-                toast("Gagal cek update (HTTP " + code + ").");
-                return;
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            String bundled = Updater.readBundledVersionRaw(this);
+            String wv = updated != null ? updated
+                    : (bundled != null ? Updater.normVersion(bundled) : null);
+            if (wv == null) {
+                wvLine = "";
+                return wvLine;
             }
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder("Web vault: ").append(wv)
+                    .append(updated != null ? " (updated)" : " (bundled)");
+            String server = currentServerVersion();
+            if (server != null && !server.equals(wv)) {
+                sb.append(" \u26A0 beda versi server v").append(server);
+            }
+            wvLine = sb.toString();
+        } catch (Exception e) {
+            wvLine = "";
+        }
+        return wvLine;
+    }
+
+    /** Versi dari file vw-version.json (web-vault yang sudah di-update) atau null. */
+    private String readWvVersion(File f) {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                new java.io.FileInputStream(f), StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = r.readLine()) != null) {
                 sb.append(line);
             }
-            r.close();
-            String latest = normVersion(extractTag(sb.toString()));
-            if (latest == null) {
-                toast("Tidak bisa baca versi terbaru.");
-                return;
-            }
-            appendUiLog("[app] Versi resmi terbaru: v" + latest);
+            String v = new JSONObject(sb.toString()).optString("version", "");
+            return v.isEmpty() ? null : v;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-            String abi = ServerService.getAbi();
-            if (abi == null) {
-                toast("ABI tidak didukung.");
-                return;
-            }
+    /** Versi binary yang benar-benar dipakai server saat ini. */
+    private String currentServerVersion() {
+        if (!ServerService.binaryVersion.isEmpty()) {
+            return ServerService.binaryVersion;
+        }
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        if (updated != null && !updated.isEmpty()) {
+            return updated;
+        }
+        return Updater.readBundledVersionRaw(this);
+    }
 
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String current = normVersion(updated != null && !updated.isEmpty()
-                    ? updated : readBundledVersionRaw());
-            if (current != null && current.equals(latest)) {
-                toast("Sudah versi terbaru: v" + latest);
-                return;
-            }
+    // ─── Update binary (unduh per tag versi resmi) ──────────────────────
 
-            // Unduh per tag resmi; kalau build belum ada, beri tahu menunggu build otomatis
-            String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + abi;
-            appendUiLog("[app] Mengunduh binary Android v" + latest
-                    + " dari repo build (resmi tidak menyediakan biner Android).");
-
-            File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
-            File tmp = new File(getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
-            File binDir = out.getParentFile();
-            if (binDir != null && !binDir.exists()) {
-                binDir.mkdirs();
-            }
-            HttpURLConnection dl = (HttpURLConnection) new URL(assetUrl).openConnection();
-            dl.setConnectTimeout(20000);
-            dl.setReadTimeout(60000);
-            dl.setInstanceFollowRedirects(true);
-            code = dl.getResponseCode();
-            if (code == 404) {
-                toast("Build Android v" + latest
-                        + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.");
-                return;
-            }
-            if (code != 200) {
-                toast("Unduhan gagal (HTTP " + code + ").");
-                return;
-            }
-            long size = dl.getContentLength();
-            try (InputStream in = dl.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(tmp)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    fos.write(buf, 0, n);
-                }
-            }
-            if (tmp.length() < 1_000_000 || !isElf(tmp)) {
-                tmp.delete();
-                toast("File update tidak valid.");
-                return;
-            }
-            if (out.exists()) {
-                out.delete();
-            }
-            if (!tmp.renameTo(out)) {
-                tmp.delete();
-                toast("Gagal menyimpan update.");
-                return;
-            }
-            out.setReadable(true, false);
-            out.setExecutable(true, false);
-
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-            ServerService.binaryVersion = "";
-            toast("Update v" + latest + " terpasang. Tekan Start untuk memakai.");
-            appendUiLog("[app] Update v" + latest + " terpasang. ("
-                    + (size > 0 ? size : "?") + " bytes)");
+    private void checkForUpdate() {
+        try {
+            appendUiLog("[app] Mengecek update dari sumber resmi...");
+            String msg = Updater.tryUpdate(this);
+            appendUiLog("[app] " + msg);
+            toast(msg.startsWith("Update v")
+                    ? msg + " Tekan Start untuk memakai."
+                    : msg);
         } catch (Exception e) {
             toast("Gagal cek update: " + e.getMessage());
             appendUiLog("[app] Gagal cek update: " + e);
@@ -1159,38 +1039,6 @@ public class MainActivity extends Activity {
         } else {
             toast("Tidak ada update terpasang.");
         }
-    }
-
-    private boolean isElf(File f) {
-        try (InputStream in = new java.io.FileInputStream(f)) {
-            byte[] magic = new byte[4];
-            int n = in.read(magic);
-            return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
-                    && magic[2] == 'L' && magic[3] == 'F';
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private String normVersion(String v) {
-        if (v == null) {
-            return null;
-        }
-        return v.startsWith("v") ? v.substring(1) : v;
-    }
-
-    private String extractTag(String body) {
-        String key = "\"tag_name\":";
-        int i = body.indexOf(key);
-        if (i < 0) {
-            return null;
-        }
-        int s = body.indexOf('"', i + key.length());
-        int e = body.indexOf('"', s + 1);
-        if (s < 0 || e < 0) {
-            return null;
-        }
-        return body.substring(s + 1, e);
     }
 
     // ─── UI helpers ─────────────────────────────────────────────────────

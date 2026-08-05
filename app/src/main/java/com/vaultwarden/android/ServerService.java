@@ -80,7 +80,7 @@ public class ServerService extends Service {
     private static volatile File logFile;
     private boolean autoRestart = false;
     private int restartAttempt = 0;
-    private long lastStartTime = 0;
+    private static volatile long lastStartTime = 0;
     private int healthFails = 0;
 
     private final Runnable healthTick = new Runnable() {
@@ -136,6 +136,42 @@ public class ServerService extends Service {
         File f = logFile;
         if (f != null) {
             f.delete();
+        }
+    }
+
+    /** Lama server sudah berjalan (ms); 0 bila sedang berhenti. */
+    public static long uptimeMs() {
+        if (!running) {
+            return 0;
+        }
+        long t = lastStartTime;
+        return t == 0 ? 0 : System.currentTimeMillis() - t;
+    }
+
+    /** Cek /alive sekali tanpa efek samping; true bila sehat (HTTP 200). */
+    public static boolean pingAlive(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            boolean https = sp.getBoolean(KEY_HTTPS, false);
+            String port = sp.getString(KEY_PORT, DEFAULT_PORT);
+            if (port == null || port.trim().isEmpty()) {
+                port = DEFAULT_PORT;
+            }
+            String scheme = https ? "https" : "http";
+            HttpURLConnection c = (HttpURLConnection) new URL(
+                    scheme + "://127.0.0.1:" + port.trim() + "/alive").openConnection();
+            c.setConnectTimeout(5000);
+            c.setReadTimeout(5000);
+            if (https) {
+                HttpsURLConnection hc = (HttpsURLConnection) c;
+                hc.setSSLSocketFactory(trustAllSslFactory());
+                hc.setHostnameVerifier((host, session) -> true);
+            }
+            int code = c.getResponseCode();
+            c.disconnect();
+            return code == 200;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -247,6 +283,7 @@ public class ServerService extends Service {
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setOngoing(true)
+                .setVisibility(Notification.VISIBILITY_PRIVATE)
                 .build();
         startForeground(NOTIF_ID, n);
     }
@@ -364,6 +401,7 @@ public class ServerService extends Service {
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
+            TgBackup.notifyLowStorage(this);
 
             final Process p = process;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
@@ -498,29 +536,11 @@ public class ServerService extends Service {
     // ─── Health check (/alive) ─────────────────────────────────────────
 
     private void checkHealthOnce() {
-        try {
-            SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-            boolean https = sp.getBoolean(KEY_HTTPS, false);
-            String scheme = https ? "https" : "http";
-            HttpURLConnection c = (HttpURLConnection) new URL(
-                    scheme + "://127.0.0.1:" + currentPort() + "/alive").openConnection();
-            c.setConnectTimeout(5000);
-            c.setReadTimeout(5000);
-            if (https) {
-                HttpsURLConnection hc = (HttpsURLConnection) c;
-                hc.setSSLSocketFactory(trustAllSslFactory());
-                hc.setHostnameVerifier((host, session) -> true);
-            }
-            int code = c.getResponseCode();
-            c.disconnect();
-            if (code == 200) {
-                healthFails = 0;
-                return;
-            }
-            healthFail("HTTP " + code);
-        } catch (Exception e) {
-            healthFail(String.valueOf(e.getMessage()));
+        if (pingAlive(this)) {
+            healthFails = 0;
+            return;
         }
+        healthFail("tidak merespon /alive");
     }
 
     private void healthFail(String reason) {
