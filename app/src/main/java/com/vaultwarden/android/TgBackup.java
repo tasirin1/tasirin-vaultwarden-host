@@ -41,6 +41,7 @@ public final class TgBackup {
     public static final String KEY_TG_TOKEN = "tg_token";
     public static final String KEY_TG_CHAT = "tg_chat";
     public static final String KEY_TG_AUTO = "tg_auto";
+    public static final String KEY_TG_BACKUP_ON_START = "tg_backup_on_start";
     public static final String KEY_TG_LAST = "tg_last_backup";
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";

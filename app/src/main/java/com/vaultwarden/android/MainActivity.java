@@ -62,6 +62,7 @@ public class MainActivity extends Activity {
     private CheckBox autoStartCheck;
     private CheckBox httpsCheck;
     private CheckBox tgAutoCheck;
+    private CheckBox backupOnStartCheck;
     private EditText tgTokenInput;
     private EditText tgChatInput;
     private EditText backupPassInput;
@@ -73,6 +74,8 @@ public class MainActivity extends Activity {
     private TextView logView;
     private ScrollView logScroll;
     private Button logToggleBtn;
+    private Button logShareBtn;
+    private Button logClearBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -100,6 +103,7 @@ public class MainActivity extends Activity {
         tgTokenInput = findViewById(R.id.tgToken);
         tgChatInput = findViewById(R.id.tgChat);
         tgAutoCheck = findViewById(R.id.tgAuto);
+        backupOnStartCheck = findViewById(R.id.backupOnStart);
         backupPassInput = findViewById(R.id.backupPass);
         pinInput = findViewById(R.id.pinInput);
         pinEnabledCheck = findViewById(R.id.pinEnabled);
@@ -108,6 +112,8 @@ public class MainActivity extends Activity {
         logView = findViewById(R.id.log);
         logScroll = findViewById(R.id.logScroll);
         logToggleBtn = findViewById(R.id.logToggle);
+        logShareBtn = findViewById(R.id.logShare);
+        logClearBtn = findViewById(R.id.logClear);
 
         Button startBtn = findViewById(R.id.start);
         Button stopBtn = findViewById(R.id.stop);
@@ -148,6 +154,12 @@ public class MainActivity extends Activity {
             }
         }));
         logToggleBtn.setOnClickListener(v -> toggleLog());
+        logShareBtn.setOnClickListener(v -> shareLog());
+        logClearBtn.setOnClickListener(v -> {
+            ServerService.clearLog();
+            lastShownLogLen = -1;
+            refreshFromService();
+        });
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
@@ -162,6 +174,7 @@ public class MainActivity extends Activity {
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
@@ -178,6 +191,9 @@ public class MainActivity extends Activity {
             TgBackup.schedule(MainActivity.this, checked);
             toast(checked ? "Backup harian diaktifkan." : "Backup harian dimatikan.");
         });
+        backupOnStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
@@ -227,14 +243,23 @@ public class MainActivity extends Activity {
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
 
-        // Kunci app dengan PIN
-        maybeShowPinLock();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         ui.post(this::refreshFromService);
+        // Auto-lock PIN setiap kali app kembali ke depan
+        maybeShowPinLock();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        if (sp.getBoolean(KEY_PIN_ON, false)) {
+            unlocked = false;
+        }
     }
 
     private void saveAndStart() {
@@ -249,6 +274,7 @@ public class MainActivity extends Activity {
         ed.apply();
 
         ServerService.start(this);
+        maybeAutoBackup();
     }
 
     private void refreshFromService() {
@@ -961,6 +987,59 @@ public class MainActivity extends Activity {
         if (!visible) {
             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         }
+    }
+
+    /** Bagikan isi log lewat app lain (WhatsApp, file manager, dll). */
+    private void shareLog() {
+        String log;
+        synchronized (ServerService.logBuffer) {
+            log = ServerService.logBuffer.toString();
+        }
+        if (log.isEmpty()) {
+            toast("Log masih kosong.");
+            return;
+        }
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT, "Vaultwarden Host - Log");
+        send.putExtra(Intent.EXTRA_TEXT, log);
+        try {
+            startActivity(Intent.createChooser(send, "Bagikan log"));
+        } catch (Exception e) {
+            toast("Gagal membagikan log: " + e.getMessage());
+        }
+    }
+
+    /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
+    private void maybeAutoBackup() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        if (!sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false)) {
+            return;
+        }
+        String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+        String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+        if (token.isEmpty() || chat.isEmpty()) {
+            appendUiLog("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
+            return;
+        }
+        long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+        if (System.currentTimeMillis() - last < TgBackup.TG_INTERVAL_MS) {
+            return; // backup terakhir masih kurang dari 24 jam yang lalu
+        }
+        appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000); // tunggu sebentar agar DB terbentuk setelah start
+                final String msg = TgBackup.backupNow(MainActivity.this);
+                ui.post(() -> {
+                    toast(msg);
+                    appendUiLog("[tg] " + msg);
+                });
+            } catch (InterruptedException ignored) {
+            } catch (Exception e) {
+                appendUiLog("[tg] Gagal backup otomatis saat Start: " + e);
+            }
+        }, "vw-tg-onstart").start();
     }
 
     private void confirm(String title, String message, final Runnable action) {

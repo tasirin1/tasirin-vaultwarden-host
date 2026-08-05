@@ -63,7 +63,7 @@ public class ServerService extends Service {
 
     private static volatile Process process;
     private PowerManager.WakeLock wakeLock;
-    private File logFile;
+    private static volatile File logFile;
     private boolean autoRestart = false;
     private int restartAttempt = 0;
     private long lastStartTime = 0;
@@ -95,6 +95,17 @@ public class ServerService extends Service {
     public static boolean isProcessAlive() {
         Process p = process;
         return p != null && p.isAlive();
+    }
+
+    /** Kosongkan buffer log (in-memory) dan hapus file log di folder data. */
+    public static void clearLog() {
+        synchronized (logBuffer) {
+            logBuffer.setLength(0);
+        }
+        File f = logFile;
+        if (f != null) {
+            f.delete();
+        }
     }
 
     /** Stop server dan tunggu proses benar-benar mati. */
