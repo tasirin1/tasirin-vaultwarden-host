@@ -14,12 +14,15 @@ import android.os.PowerManager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -46,7 +49,7 @@ public class ServerService extends Service {
 
     public static final String PREFS = "vw_prefs";
     public static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
-    public static final String DEFAULT_PORT = "8080";
+    public static final String DEFAULT_PORT = "8088";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
@@ -81,7 +84,7 @@ public class ServerService extends Service {
     private boolean autoRestart = false;
     private int restartAttempt = 0;
     private static volatile long lastStartTime = 0;
-    private int healthFails = 0;
+    private volatile int healthFails = 0;
 
     private final Runnable healthTick = new Runnable() {
         @Override
@@ -153,10 +156,7 @@ public class ServerService extends Service {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             boolean https = sp.getBoolean(KEY_HTTPS, false);
-            String port = sp.getString(KEY_PORT, DEFAULT_PORT);
-            if (port == null || port.trim().isEmpty()) {
-                port = DEFAULT_PORT;
-            }
+            String port = effectivePort(sp);
             String scheme = https ? "https" : "http";
             HttpURLConnection c = (HttpURLConnection) new URL(
                     scheme + "://127.0.0.1:" + port.trim() + "/alive").openConnection();
@@ -288,10 +288,18 @@ public class ServerService extends Service {
         startForeground(NOTIF_ID, n);
     }
 
-    private String currentPort() {
-        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+    /** Baca port tersimpan; migrasikan default lama 8080 -> default baru sekali. */
+    public static String effectivePort(SharedPreferences sp) {
         String p = sp.getString(KEY_PORT, DEFAULT_PORT);
+        if ("8080".equals(p)) {
+            p = DEFAULT_PORT;
+            sp.edit().putString(KEY_PORT, p).apply();
+        }
         return (p == null || p.trim().isEmpty()) ? DEFAULT_PORT : p.trim();
+    }
+
+    private String currentPort() {
+        return effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
     }
 
     private void createChannel() {
@@ -327,6 +335,23 @@ public class ServerService extends Service {
 
         File binary = extractBinary();
         if (binary == null) {
+            return;
+        }
+
+        // Bersihkan proses vaultwarden lama yang masih nyangkut (biasanya masih
+        // memegang port) sebelum start - penyebab utama "looping" saat start.
+        killStaleVaultwarden();
+        int portNum = Integer.parseInt(DEFAULT_PORT);
+        try {
+            portNum = Integer.parseInt(port.trim());
+        } catch (Exception ignored) {
+        }
+        if (isPortBusy(portNum)) {
+            setStatus("Port " + port.trim() + " sedang dipakai proses lain.\n"
+                    + "Stop server lain / restart HP dulu, lalu Start lagi.");
+            appendLog("[app] Port " + port.trim() + " sedang dipakai - server TIDAK start (cegah loop).");
+            TgBackup.sendMessage(this, "Gagal start: port " + port.trim()
+                    + " sedang dipakai proses lain. Restart HP lalu coba lagi.");
             return;
         }
 
@@ -393,6 +418,7 @@ public class ServerService extends Service {
             process = pb.start();
             acquireWakeLock();
             running = true;
+            healthFails = 0;
             lastStartTime = System.currentTimeMillis();
             restartAttempt = 0;
 
@@ -463,9 +489,12 @@ public class ServerService extends Service {
                 running = false;
                 releaseWakeLock();
                 appendLog("[app] process exit: " + code);
+                String tail = tailLog(18);
                 if (autoRestart) {
                     TgBackup.sendMessage(this, "Server crash (exit " + code
-                            + ") - restart otomatis...");
+                            + ")\n" + shorten(tail, 500) + "\nRestart otomatis...");
+                    setStatus("Server crash (exit " + code
+                            + ") - restart otomatis\n" + shorten(tail, 250));
                     scheduleRestart();
                 } else {
                     setStatus("Stopped (exit code " + code + ")");
@@ -482,9 +511,11 @@ public class ServerService extends Service {
         }
         if (restartAttempt >= RESTART_DELAYS.length) {
             autoRestart = false;
-            setStatus("Server berhenti - gagal restart 5x berturut-turut.");
+            String tail = tailLog(18);
+            setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
-            TgBackup.sendMessage(this, "Server berhenti: gagal restart 5x berturut-turut.");
+            TgBackup.sendMessage(this, "Server berhenti: gagal restart 5x.\n"
+                    + shorten(tail, 600));
             return;
         }
         long delay = RESTART_DELAYS[restartAttempt++];
@@ -571,6 +602,7 @@ public class ServerService extends Service {
             p.destroy();
         }
         mainHandler.post(() -> {
+            healthFails = 0;
             if (autoRestart) {
                 startServer();
             }
@@ -622,10 +654,7 @@ public class ServerService extends Service {
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         boolean https = sp.getBoolean(KEY_HTTPS, false);
-        String port = sp.getString(KEY_PORT, DEFAULT_PORT);
-        if (port == null || port.trim().isEmpty()) {
-            port = DEFAULT_PORT;
-        }
+        String port = effectivePort(sp);
         return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
     }
 
@@ -828,6 +857,9 @@ public class ServerService extends Service {
         }
     }
 
+
+
+
     private String getPid(Process p) {
         try {
             java.lang.reflect.Method pid = Process.class.getMethod("pid");
@@ -835,6 +867,129 @@ public class ServerService extends Service {
         } catch (Throwable t) {
             return "?";
         }
+    }
+
+    /** Bunuh proses vaultwarden lama (UID sama, bukan proses kita) yang masih
+     *  nyangkut & memegang port setelah app di-restart/update. */
+    private void killStaleVaultwarden() {
+        try {
+            File[] dirs = new File("/proc").listFiles();
+            if (dirs == null) {
+                return;
+            }
+            int myUid = android.os.Process.myUid();
+            int myPid = android.os.Process.myPid();
+            int childPid = runningChildPid();
+            for (File d : dirs) {
+                String name = d.getName();
+                if (name.isEmpty() || !Character.isDigit(name.charAt(0))) {
+                    continue;
+                }
+                try {
+                    int pid = Integer.parseInt(name);
+                    if (pid == myPid || pid == childPid) {
+                        continue;
+                    }
+                    if (readProcUid(d) != myUid) {
+                        continue;
+                    }
+                    String cmd = readProcCmdline(d);
+                    if (cmd != null && cmd.contains("bin/vaultwarden")) {
+                        android.os.Process.killProcess(pid);
+                        appendLog("[app] Proses vaultwarden lama (pid " + pid + ") dibersihkan.");
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private int runningChildPid() {
+        Process cur = process;
+        if (cur == null) {
+            return -1;
+        }
+        try {
+            return (Integer) Process.class.getMethod("pid").invoke(cur);
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    private static String readProcCmdline(File dir) {
+        File f = new File(dir, "cmdline");
+        if (!f.canRead()) {
+            return null;
+        }
+        try (FileInputStream in = new FileInputStream(f)) {
+            byte[] buf = new byte[1024];
+            int n = in.read(buf);
+            if (n <= 0) {
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < n; i++) {
+                sb.append((char) (buf[i] & 0xFF));
+            }
+            return sb.toString().replace('\u0000', ' ').trim();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static int readProcUid(File dir) {
+        try (BufferedReader r = new BufferedReader(
+                new java.io.FileReader(new File(dir, "status")))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                if (line.startsWith("Uid:")) {
+                    String[] parts = line.trim().split("\\s+");
+                    if (parts.length >= 2) {
+                        return Integer.parseInt(parts[1]);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    /** True bila port sedang dipakai proses lain (listening). */
+    private static boolean isPortBusy(int port) {
+        try (ServerSocket s = new ServerSocket()) {
+            s.setReuseAddress(true);
+            s.bind(new InetSocketAddress(port));
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    /** N baris terakhir log (tanpa baris kosong), untuk pesan crash. */
+    private static String tailLog(int lines) {
+        synchronized (logBuffer) {
+            String all = logBuffer.toString();
+            String[] arr = all.split("\n");
+            int from = Math.max(0, arr.length - lines);
+            StringBuilder sb = new StringBuilder();
+            for (int i = from; i < arr.length; i++) {
+                if (!arr[i].trim().isEmpty()) {
+                    if (sb.length() > 0) {
+                        sb.append('\n');
+                    }
+                    sb.append(arr[i]);
+                }
+            }
+            return sb.toString();
+        }
+    }
+
+    private static String shorten(String s, int max) {
+        if (s == null || s.length() <= max) {
+            return s == null ? "" : s;
+        }
+        return s.substring(s.length() - max);
     }
 
     private boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {

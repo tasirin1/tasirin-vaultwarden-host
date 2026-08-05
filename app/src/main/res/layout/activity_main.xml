@@ -52,7 +52,7 @@
             android:id="@+id/port"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="8080"
+            android:hint="8088"
             android:inputType="number" />
 
         <TextView

@@ -190,7 +190,7 @@ public class MainActivity extends Activity {
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
-        portInput.setText(sp.getString(ServerService.KEY_PORT, DEFAULT_PORT));
+        portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
@@ -343,7 +343,7 @@ public class MainActivity extends Activity {
         if (ServerService.running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-            String p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
+            String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
             if (!d.equals(ServerService.runningDataDir)
@@ -889,7 +889,7 @@ public class MainActivity extends Activity {
     private void reloadSettingsFromPrefs() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
-        portInput.setText(sp.getString(ServerService.KEY_PORT, DEFAULT_PORT));
+        portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
