@@ -62,6 +62,7 @@ public class ServerService extends Service {
     public static final String KEY_ADMIN_TOKEN = "admin_token";
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
     public static final String KEY_AUTO_UPDATE_WV = "auto_update_webvault";
+    public static final String KEY_AUTO_RESTART_UPDATE = "auto_restart_update";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";

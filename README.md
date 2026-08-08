@@ -1,5 +1,8 @@
 # Tasirin Vaultwarden Host
 
+[![Build](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
+[![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
+
 Menjalankan server **Vaultwarden** (Bitwarden-compatible, Rust) langsung di Android,
 dibangun otomatis lewat **GitHub Actions** (repo `tasirin1/tasirin-vaultwarden-host`).
 Mendukung **Android 5.0 (API 21) ke atas**.
@@ -158,6 +161,38 @@ folder data.
 - Chat ID: kirim pesan ke bot-mu dulu, lalu buka
   `https://api.telegram.org/bot<TOKEN>/getUpdates` di browser dan ambil angka
   `"chat":{"id":...}` (bisa juga pakai `@userinfobot`).
+
+## Troubleshooting
+
+**"Port 8088 sedang dipakai" saat Start**
+- Ada aplikasi lain yang memakai port tersebut. Ganti **Port** di app, stop
+  aplikasi lain, atau restart HP. Status web otomatis memakai port bebas
+  (8089 → 8098) bila port defaultnya bentrok.
+
+**Server start terus gagal / looping**
+- Bisa ada proses `vaultwarden` lama yang nyangkut. Restart HP, lalu Start lagi
+  (app juga membersihkan proses lama se-UID otomatis saat Start).
+
+**Web UI tidak bisa dibuka dari perangkat lain**
+- Pastikan status **Running**, perangkat lain di jaringan yang sama, dan URL
+  memakai IP lokal (`http://<IP>:8088`). Bila HP Android 9+ memakai HTTPS,
+  sertifikat self-signed perlu di-install dulu (lihat seksi HTTPS).
+
+**Peringatan sertifikat di browser**
+- Normal untuk sertifikat self-signed. Install `cert.pem` sebagai CA
+  (Settings → Security → Install certificate) agar peringatan hilang.
+
+**Auto start saat boot tidak jalan**
+- Jika app pernah di-**force-stop**, Android memblokir broadcast boot sampai
+  app dibuka sekali lagi. Buka app setelah reboot.
+
+**Backup Telegram gagal**
+- Cek **Bot token** & **Chat ID** (lihat seksi Backup cloud), sisa storage,
+  dan koneksi. Backup terenkripsi wajib memakai password yang sama saat restore.
+
+**Update web-vault gagal (checksum/unduhan)**
+- Koneksi Android lama kadang putus-putus; coba lagi nanti. Unduhan diverifikasi
+  SHA-256 dan dibatalkan bila tidak cocok — aman diulang.
 
 ## Build ulang manual
 

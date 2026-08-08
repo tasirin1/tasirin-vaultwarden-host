@@ -82,6 +82,7 @@ public class MainActivity extends Activity {
     private TextView updateHint;
     private CheckBox autoUpdateCb;
     private CheckBox autoUpdateWvCb;
+    private CheckBox autoRestartCb;
     private volatile String pendingVersion = null;
     private Button logOpenBtn;
     private Button startStopBtn;
@@ -146,6 +147,7 @@ public class MainActivity extends Activity {
         updateHint = findViewById(R.id.updateHint);
         autoUpdateCb = findViewById(R.id.autoUpdate);
         autoUpdateWvCb = findViewById(R.id.autoUpdateWv);
+        autoRestartCb = findViewById(R.id.autoRestart);
         logOpenBtn = findViewById(R.id.logOpen);
         startStopBtn = findViewById(R.id.startStop);
         advancedToggleBtn = findViewById(R.id.advancedToggle);
@@ -226,6 +228,7 @@ public class MainActivity extends Activity {
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
+        autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
@@ -253,6 +256,9 @@ public class MainActivity extends Activity {
         autoUpdateWvCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_UPDATE_WV, checked).apply());
+        autoRestartCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, checked).apply());
         tgFullCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
@@ -636,6 +642,7 @@ public class MainActivity extends Activity {
             String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
             String current = Updater.normVersion(updated != null && !updated.isEmpty()
                     ? updated : Updater.readBundledVersionRaw(this));
+            boolean updatedSomething = false;
             if (current != null && !current.equals(latest)) {
                 if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
                         && isUnmeteredNetwork()) {
@@ -643,6 +650,9 @@ public class MainActivity extends Activity {
                     try {
                         String msg = Updater.tryUpdate(this);
                         pendingVersion = null;
+                        if (msg.startsWith("Update v")) {
+                            updatedSomething = true;
+                        }
                         ui.post(() -> {
                             toast(msg);
                             appendUiLog("[app] " + msg);
@@ -672,6 +682,9 @@ public class MainActivity extends Activity {
                         String marker = Updater.webVaultFromVersion(this);
                         if (marker == null || !marker.equals(latest)) {
                             String msg = Updater.updateWebVault(this);
+                            if (msg.contains("updated")) {
+                                updatedSomething = true;
+                            }
                             ui.post(() -> {
                                 toast(msg);
                                 appendUiLog("[app] " + msg);
@@ -682,6 +695,12 @@ public class MainActivity extends Activity {
                     ui.post(() -> appendUiLog("[app] Auto-update web-vault gagal: "
                             + e.getMessage()));
                 }
+            }
+            // Opsi: restart sekali bila ada update terpasang & server sedang jalan
+            if (updatedSomething && ServerService.running
+                    && sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
+                ui.post(() -> appendUiLog("[app] Auto-restart setelah update..."));
+                ServerService.restart(this);
             }
             TgBackup.notifyLowStorage(this);
             autoOfferWebVaultUpdate();
@@ -1183,6 +1202,7 @@ public class MainActivity extends Activity {
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
+        autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));

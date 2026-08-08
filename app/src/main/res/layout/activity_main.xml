@@ -358,13 +358,23 @@
 
                 <CheckBox
                     android:id="@+id/autoUpdateWv"
-                    android:nextFocusDown="@id/update"
+                    android:nextFocusDown="@id/autoRestart"
                     android:nextFocusUp="@id/autoUpdate"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Auto-update web vault mengikuti binary (jaringan rumah)" />
+
+                <CheckBox
+                    android:id="@+id/autoRestart"
+                    android:nextFocusDown="@id/update"
+                    android:nextFocusUp="@id/autoUpdateWv"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Restart server otomatis setelah update (bila sedang jalan)" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -375,7 +385,7 @@
                     <Button
                         android:id="@+id/update"
                         android:nextFocusDown="@id/revert"
-                        android:nextFocusUp="@id/autoUpdateWv"
+                        android:nextFocusUp="@id/autoRestart"
                         style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
