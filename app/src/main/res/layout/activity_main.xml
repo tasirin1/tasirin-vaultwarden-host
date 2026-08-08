@@ -60,7 +60,7 @@
                     android:id="@+id/startStop"
                     android:nextFocusDown="@id/copyUrl"
                     android:nextFocusUp="@id/logOpen"
-                    style="@style/Tasirin.Button.Primary"
+                    style="@style/TasirinBtnPrimary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -80,13 +80,13 @@
                 android:id="@+id/copyUrl"
                 android:nextFocusDown="@id/dataDir"
                 android:nextFocusUp="@id/startStop"
-                style="@style/Tasirin.Button.Small"
+                style="@style/TasirinBtnSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Salin URL" />
 
             <TextView
-                style="@style/Tasirin.Label"
+                style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Folder data" />
@@ -95,14 +95,14 @@
                 android:id="@+id/dataDir"
                 android:nextFocusDown="@id/port"
                 android:nextFocusUp="@id/copyUrl"
-                style="@style/Tasirin.Input"
+                style="@style/TasirinInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="/sdcard/vaultwarden"
                 android:inputType="text" />
 
             <TextView
-                style="@style/Tasirin.Label"
+                style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Port" />
@@ -111,7 +111,7 @@
                 android:id="@+id/port"
                 android:nextFocusDown="@id/open"
                 android:nextFocusUp="@id/dataDir"
-                style="@style/Tasirin.Input"
+                style="@style/TasirinInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="8088"
@@ -131,7 +131,7 @@
                 android:id="@+id/open"
                 android:nextFocusDown="@id/advancedToggle"
                 android:nextFocusUp="@id/port"
-                style="@style/Tasirin.Button.Primary"
+                style="@style/TasirinBtnPrimary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -143,7 +143,7 @@
             android:id="@+id/advancedToggle"
             android:nextFocusDown="@id/adminToken"
             android:nextFocusUp="@id/open"
-            style="@style/Tasirin.Button"
+            style="@style/TasirinBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -166,13 +166,13 @@
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/Tasirin.SectionTitle"
+                    style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Pengaturan" />
 
                 <TextView
-                    style="@style/Tasirin.Label"
+                    style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Admin Token" />
@@ -186,7 +186,7 @@
                         android:id="@+id/adminToken"
                         android:nextFocusDown="@id/showAdmin"
                         android:nextFocusUp="@id/advancedToggle"
-                        style="@style/Tasirin.Input"
+                        style="@style/TasirinInput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -197,7 +197,7 @@
                         android:id="@+id/showAdmin"
                         android:nextFocusDown="@id/autoStart"
                         android:nextFocusUp="@id/adminToken"
-                        style="@style/Tasirin.Button.Small"
+                        style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -224,7 +224,7 @@
                     android:text="HTTPS (self-signed)" />
 
                 <TextView
-                    style="@style/Tasirin.Label"
+                    style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="PIN kunci app" />
@@ -238,7 +238,7 @@
                         android:id="@+id/pinInput"
                         android:nextFocusDown="@id/pinEnabled"
                         android:nextFocusUp="@id/https"
-                        style="@style/Tasirin.Input"
+                        style="@style/TasirinInput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -277,7 +277,7 @@
                         android:id="@+id/batteryBtn"
                         android:nextFocusDown="@id/update"
                         android:nextFocusUp="@id/pinEnabled"
-                        style="@style/Tasirin.Button.Small"
+                        style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Izinkan" />
@@ -294,7 +294,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/Tasirin.SectionTitle"
+                    style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Pemeliharaan" />
@@ -308,7 +308,7 @@
                         android:id="@+id/update"
                         android:nextFocusDown="@id/revert"
                         android:nextFocusUp="@id/batteryBtn"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -318,7 +318,7 @@
                         android:id="@+id/revert"
                         android:nextFocusDown="@id/cert"
                         android:nextFocusUp="@id/update"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -336,7 +336,7 @@
                         android:id="@+id/cert"
                         android:nextFocusDown="@id/installCert"
                         android:nextFocusUp="@id/revert"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -346,7 +346,7 @@
                         android:id="@+id/installCert"
                         android:nextFocusDown="@id/exportCfg"
                         android:nextFocusUp="@id/cert"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -364,7 +364,7 @@
                         android:id="@+id/exportCfg"
                         android:nextFocusDown="@id/importCfg"
                         android:nextFocusUp="@id/installCert"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -374,7 +374,7 @@
                         android:id="@+id/importCfg"
                         android:nextFocusDown="@id/updateWv"
                         android:nextFocusUp="@id/exportCfg"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -392,7 +392,7 @@
                         android:id="@+id/updateWv"
                         android:nextFocusDown="@id/backupDb"
                         android:nextFocusUp="@id/importCfg"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -402,7 +402,7 @@
                         android:id="@+id/backupDb"
                         android:nextFocusDown="@id/restoreDb"
                         android:nextFocusUp="@id/updateWv"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -414,7 +414,7 @@
                     android:id="@+id/restoreDb"
                     android:nextFocusDown="@id/tgToken"
                     android:nextFocusUp="@id/backupDb"
-                    style="@style/Tasirin.Button"
+                    style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -431,13 +431,13 @@
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/Tasirin.SectionTitle"
+                    style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Backup Telegram" />
 
                 <TextView
-                    style="@style/Tasirin.Label"
+                    style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Bot token" />
@@ -451,7 +451,7 @@
                         android:id="@+id/tgToken"
                         android:nextFocusDown="@id/showTg"
                         android:nextFocusUp="@id/restoreDb"
-                        style="@style/Tasirin.Input"
+                        style="@style/TasirinInput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -462,7 +462,7 @@
                         android:id="@+id/showTg"
                         android:nextFocusDown="@id/tgChat"
                         android:nextFocusUp="@id/tgToken"
-                        style="@style/Tasirin.Button.Small"
+                        style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -470,7 +470,7 @@
                 </LinearLayout>
 
                 <TextView
-                    style="@style/Tasirin.Label"
+                    style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Chat ID" />
@@ -479,13 +479,13 @@
                     android:id="@+id/tgChat"
                     android:nextFocusDown="@id/backupPass"
                     android:nextFocusUp="@id/showTg"
-                    style="@style/Tasirin.Input"
+                    style="@style/TasirinInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="ID chat tujuan" />
 
                 <TextView
-                    style="@style/Tasirin.Label"
+                    style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Password enkripsi (opsional)" />
@@ -499,7 +499,7 @@
                         android:id="@+id/backupPass"
                         android:nextFocusDown="@id/showPass"
                         android:nextFocusUp="@id/tgChat"
-                        style="@style/Tasirin.Input"
+                        style="@style/TasirinInput"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -509,7 +509,7 @@
                         android:id="@+id/showPass"
                         android:nextFocusDown="@id/tgAuto"
                         android:nextFocusUp="@id/backupPass"
-                        style="@style/Tasirin.Button.Small"
+                        style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -545,7 +545,7 @@
                         android:id="@+id/backupTg"
                         android:nextFocusDown="@id/restoreTg"
                         android:nextFocusUp="@id/backupOnStart"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -555,7 +555,7 @@
                         android:id="@+id/restoreTg"
                         android:nextFocusDown="@id/logOpen"
                         android:nextFocusUp="@id/backupTg"
-                        style="@style/Tasirin.Button"
+                        style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -582,7 +582,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/Tasirin.SectionTitle"
+                    style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Log Realtime" />
@@ -591,7 +591,7 @@
                     android:id="@+id/logOpen"
                     android:nextFocusDown="@id/startStop"
                     android:nextFocusUp="@id/restoreTg"
-                    style="@style/Tasirin.Button.Primary"
+                    style="@style/TasirinBtnPrimary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Buka Log (layar penuh)" />
