@@ -34,6 +34,9 @@ public final class Updater {
     private static final String WV_UPDATE_URL =
             RELEASE_LATEST_URL + "web-vault.zip";
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
+    // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
+    // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
+    private static final String KEY_WV_FROM = "wv_from_version";
 
     private Updater() {
     }
@@ -199,12 +202,6 @@ public final class Updater {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }
 
-        long free = TgBackup.freeBytes(dataDir);
-        if (free < MIN_FREE_FOR_WEBVAULT) {
-            throw new IOException("Sisa penyimpanan tinggal " + TgBackup.humanBytes(free)
-                    + " - butuh minimal 150 MB untuk update web-vault.");
-        }
-
         File dataFolder = new File(dataDir);
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
@@ -214,6 +211,34 @@ public final class Updater {
         File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
 
         String latest = latestVersion(ctx);
+
+        // Sudah terpasang versi yang sama? Jangan unduh ulang 35 MB.
+        boolean wvExists = new File(targetDir, "vw-version.json").exists()
+                || new File(targetDir, "index.html").exists();
+        String installed = sp.getString(KEY_WV_FROM, "");
+        if (wvExists && latest != null) {
+            // Penanda lama (sebelum fitur ini): pakai versi server yang terdeteksi.
+            String known = !installed.isEmpty() ? installed
+                    : ServerService.binaryVersion;
+            if (known != null && !known.isEmpty() && known.equals(latest)) {
+                if (installed.isEmpty()) {
+                    sp.edit().putString(KEY_WV_FROM, latest).apply();
+                }
+                return "Web vault sudah versi terbaru: v" + latest;
+            }
+        }
+        if (wvExists && latest == null && !installed.isEmpty()) {
+            return "Web vault v" + installed
+                    + " terpasang; cek versi terbaru gagal (koneksi/rate-limit). Coba lagi nanti.";
+        }
+
+        // Cek ruang hanya bila benar-benar akan mengunduh.
+        long free = TgBackup.freeBytes(dataDir);
+        if (free < MIN_FREE_FOR_WEBVAULT) {
+            throw new IOException("Sisa penyimpanan tinggal " + TgBackup.humanBytes(free)
+                    + " - butuh minimal 150 MB untuk update web-vault.");
+        }
+
         String zipUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip"
                 : WV_UPDATE_URL;
         String shaUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip.sha256"
@@ -262,6 +287,7 @@ public final class Updater {
         // Hapus web-vault lama
         deleteRecursive(targetDir);
         targetDir.mkdirs();
+        sp.edit().putString(KEY_WV_FROM, latest != null ? latest : "").apply();
 
         byte[] buf = new byte[64 * 1024];
         try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
