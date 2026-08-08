@@ -94,8 +94,13 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - Di app: tekan **Cek Update** — jika ada versi lebih baru, binary diunduh
   sesuai ABI perangkat dan langsung dipakai saat Start berikutnya
   (**tanpa install ulang APK**).
+- Setiap unduhan (binary & web vault) **diverifikasi SHA-256** terhadap file
+  `.sha256` di release sebelum dipasang; kalau checksum tidak cocok, update
+  dibatalkan.
 - **Update Web Vault** mengunduh `web-vault.zip` dari repo ini (isinya dari
   image web vault resmi) dan mengekstraknya ke `<data>/web-vault`.
+- Saat versi web vault beda dari binary server, app otomatis menawarkan
+  update web vault sekali per versi.
 - **Revert Bawaan** mengembalikan ke binary yang dibundel di dalam APK.
 
 ## Backup cloud (Telegram)
@@ -108,7 +113,9 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - **Enkripsi**: isi *Password enkripsi backup* untuk mengenkripsi (AES-256-GCM)
   backup sebelum dikirim — wajib diisi sama saat restore.
 - Centang **Backup otomatis tiap 24 jam** untuk kirim otomatis (via AlarmManager,
-  jalan walau app tidak dibuka; terjadwal ulang setelah reboot).
+  jalan walau app tidak dibuka; pakai alarm **exact** supaya tidak di-batch
+  Doze, dijadwalkan ulang tepat 24 jam setelah backup selesai, dan otomatis
+  terpasang lagi setelah reboot).
 - **PIN kunci app** (opsional): kunci app dengan PIN 4-6 digit saat dibuka.
 - Cara buat bot: chat `@BotFather` → `/newbot` → ikuti langkah → dapat token.
 - Chat ID: kirim pesan ke bot-mu dulu, lalu buka

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,8 +27,10 @@ public final class Updater {
     // Binary Android di-host di repo build (resmi tidak menyediakan biner Android).
     private static final String RELEASE_URL =
             "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/download/";
+    private static final String RELEASE_LATEST_URL =
+            "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/latest/download/";
     private static final String WV_UPDATE_URL =
-            "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/latest/download/web-vault.zip";
+            RELEASE_LATEST_URL + "web-vault.zip";
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
 
     private Updater() {
@@ -111,6 +116,11 @@ public final class Updater {
         } finally {
             dl.disconnect();
         }
+        String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 60000);
+        if (expectedSha != null && !matchesSha256(tmp, expectedSha)) {
+            tmp.delete();
+            throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
+        }
         if (tmp.length() < 1_000_000 || !isElf(tmp)) {
             tmp.delete();
             throw new IOException("File update tidak valid.");
@@ -152,11 +162,17 @@ public final class Updater {
         File targetDir = new File(dataFolder, "web-vault");
         File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
 
+        String latest = latestVersion(ctx);
+        String zipUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip"
+                : WV_UPDATE_URL;
+        String shaUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip.sha256"
+                : RELEASE_LATEST_URL + "web-vault.zip.sha256";
+
         // Unduh dengan retry sekali bila gagal (koneksi Android 5/6 kadang putus).
         Exception lastErr = null;
         for (int attempt = 1; attempt <= 2; attempt++) {
             try {
-                HttpURLConnection dl = open(ctx, WV_UPDATE_URL, 20000, 120000);
+                HttpURLConnection dl = open(ctx, zipUrl, 20000, 120000);
                 int code = dl.getResponseCode();
                 if (code != 200) {
                     throw new IOException("Gagal unduh web-vault (HTTP " + code
@@ -185,6 +201,11 @@ public final class Updater {
         if (tmpZip.length() < 1000) {
             throw lastErr != null ? lastErr
                     : new IOException("File web-vault tidak valid.");
+        }
+        String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
+        if (expectedSha != null && !matchesSha256(tmpZip, expectedSha)) {
+            tmpZip.delete();
+            throw new IOException("Checksum SHA-256 web-vault tidak cocok; update dibatalkan.");
         }
 
         // Hapus web-vault lama
@@ -260,6 +281,50 @@ public final class Updater {
             int n = in.read(magic);
             return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
                     && magic[2] == 'L' && magic[3] == 'F';
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
+    private static String fetchChecksum(Context ctx, String url,
+                                        int connectMs, int readMs) {
+        try {
+            HttpURLConnection c = open(ctx, url, connectMs, readMs);
+            int code = c.getResponseCode();
+            if (code != 200) {
+                c.disconnect();
+                return null;
+            }
+            BufferedReader r = new BufferedReader(new InputStreamReader(
+                    c.getInputStream(), StandardCharsets.UTF_8));
+            String line = r.readLine();
+            r.close();
+            c.disconnect();
+            if (line == null) {
+                return null;
+            }
+            String hex = line.trim().split("\\s+")[0];
+            return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Cocokkan SHA-256 file dengan hex yang diharapkan. */
+    private static boolean matchesSha256(File f, String expectedHex) {
+        try (InputStream in = new FileInputStream(f)) {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                md.update(buf, 0, n);
+            }
+            StringBuilder sb = new StringBuilder(64);
+            for (byte b : md.digest()) {
+                sb.append(String.format(Locale.US, "%02x", b));
+            }
+            return expectedHex.equals(sb.toString());
         } catch (Exception e) {
             return false;
         }

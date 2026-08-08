@@ -255,6 +255,9 @@ public class ServerService extends Service {
                     appendLog("[tg] Gagal backup terjadwal: " + e);
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + e.getMessage());
                 } finally {
+                    // Jadwalkan ulang 24 jam dari sekarang (tepat waktu), selama masih aktif.
+                    SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+                    TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
                     if (process == null || !process.isAlive()) {
                         stopForeground(true);
                         stopSelf();

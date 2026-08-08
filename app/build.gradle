@@ -36,7 +36,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             def signing = signingConfigs.release
             if (signing.storeFile != null && signing.storeFile.exists()) {
                 signingConfig signing

@@ -16,8 +16,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -91,6 +93,7 @@ public class MainActivity extends Activity {
     private Button backupDbBtn;
     private Button restoreDbBtn;
     private Button backupTgBtn;
+    private Button aboutBtn;
 
     private String bundledVersion = "?";
     private String appVersion = "";
@@ -153,6 +156,7 @@ public class MainActivity extends Activity {
         Button showAdminBtn = findViewById(R.id.showAdmin);
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
+        aboutBtn = findViewById(R.id.aboutBtn);
 
         startStopBtn.setOnClickListener(v -> {
             if (ServerService.running) {
@@ -191,6 +195,7 @@ public class MainActivity extends Activity {
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
+        aboutBtn.setOnClickListener(v -> showAboutDialog());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -466,6 +471,50 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void showAboutDialog() {
+        String dataDir = dataDirInput.getText().toString().trim();
+        if (TextUtils.isEmpty(dataDir)) {
+            dataDir = DEFAULT_DATA_DIR;
+        }
+        String bin = currentServerVersion();
+        String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+        StringBuilder html = new StringBuilder();
+        html.append("<b>Tasirin Vaultwarden Host</b><br/>")
+                .append("Menjalankan server <b>Vaultwarden</b> (Bitwarden-compatible) "
+                        + "langsung di Android 5+ / TV.<br/><br/>")
+                .append("Versi app: <b>").append(appVersion.isEmpty() ? "?" : appVersion)
+                .append("</b><br/>")
+                .append("Binary server: <b>")
+                .append(bin == null ? "?" : "v" + bin).append("</b><br/>");
+        if (wv != null) {
+            html.append("Web vault: <b>v").append(wv).append("</b><br/>");
+        }
+        html.append("Perangkat: Android ").append(Build.VERSION.RELEASE)
+                .append(" (API ").append(Build.VERSION.SDK_INT).append(")<br/><br/>")
+                .append("Cara pakai:<br/>")
+                .append("1. Isi folder data &amp; port<br/>")
+                .append("2. Tekan <b>Start</b><br/>")
+                .append("3. Buka URL di baris atas lewat browser<br/>")
+                .append("4. Opsional: hubungkan bot Telegram untuk kontrol jarak jauh<br/><br/>")
+                .append("Sumber kode: <a href=\"https://github.com/tasirin1/"
+                        + "tasirin-vaultwarden-host\">github.com/tasirin1/"
+                        + "tasirin-vaultwarden-host</a><br/>")
+                .append("Lisensi: GPL-3.0 (aplikasi) \u00B7 AGPL-3.0 (Vaultwarden)");
+
+        TextView tv = new TextView(this);
+        float d = getResources().getDisplayMetrics().density;
+        tv.setPadding((int) (20 * d), (int) (16 * d), (int) (20 * d), (int) (8 * d));
+        tv.setTextSize(13);
+        tv.setText(Html.fromHtml(html.toString()));
+        tv.setMovementMethod(LinkMovementMethod.getInstance());
+        tv.setLinkTextColor(0xFF1E88E5);
+        new AlertDialog.Builder(this)
+                .setTitle("Tentang")
+                .setView(tv)
+                .setPositiveButton("Tutup", null)
+                .show();
+    }
+
     private void showCertHelp() {
         String dataDir = dataDirInput.getText().toString().trim();
         if (TextUtils.isEmpty(dataDir)) {
@@ -535,6 +584,41 @@ public class MainActivity extends Activity {
                 }
             }
             TgBackup.notifyLowStorage(this);
+            autoOfferWebVaultUpdate();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Tawarkan update web vault sekali per versi bila versinya beda dari server. */
+    private void autoOfferWebVaultUpdate() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            if (!webVaultReady(dataDir)) {
+                return;
+            }
+            String updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            if (updated == null) {
+                return;
+            }
+            String server = currentServerVersion();
+            if (server == null || server.equals(updated)) {
+                return;
+            }
+            final String key = "wv_notified_" + server;
+            if (sp.getBoolean(key, false)) {
+                return;
+            }
+            sp.edit().putBoolean(key, true).apply();
+            ui.post(() -> new AlertDialog.Builder(this)
+                    .setTitle("Update Web Vault tersedia")
+                    .setMessage("Web vault saat ini v" + updated
+                            + ", sedangkan server v" + server + ".\n\n"
+                            + "Update web vault sekarang? (unduh sekali ~35 MB, "
+                            + "berlaku setelah server di-restart)")
+                    .setPositiveButton("Update", (d, w) -> runBusy(this::updateWebVault))
+                    .setNegativeButton("Nanti", null)
+                    .show());
         } catch (Exception ignored) {
         }
     }

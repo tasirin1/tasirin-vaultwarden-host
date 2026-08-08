@@ -427,7 +427,9 @@ public final class TgBackup {
         return String.format(Locale.US, "%.1f MB", bytes / 1048576.0);
     }
 
-    /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false). */
+    /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false).
+     *  Dipakai alarm EXACT (tidak di-batch Doze) + dijadwalkan ulang tiap selesai,
+     *  jadi waktu backup selalu tepat 24 jam dari backup sebelumnya. */
     public static void schedule(Context ctx, boolean enable) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) {
@@ -438,9 +440,18 @@ public final class TgBackup {
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         PendingIntent pi = PendingIntent.getBroadcast(ctx, 0, intent, flags);
         if (enable) {
-            am.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + TG_INTERVAL_MS,
-                    TG_INTERVAL_MS, pi);
+            long trigger = System.currentTimeMillis() + TG_INTERVAL_MS;
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Tepat waktu walau dalam Doze; tanpa permission khusus karena targetSdk 28.
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                } else {
+                    am.set(AlarmManager.RTC_WAKEUP, trigger, pi);
+                }
+            } catch (Exception e) {
+                // Fallback aman bila perangkat menolak exact alarm.
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger, TG_INTERVAL_MS, pi);
+            }
         } else {
             am.cancel(pi);
         }

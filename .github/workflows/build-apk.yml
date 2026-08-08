@@ -246,12 +246,16 @@ jobs:
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           cp app/src/main/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
           cp /tmp/web-vault.zip web-vault.zip
+          sha256sum vaultwarden-armeabi-v7a > vaultwarden-armeabi-v7a.sha256
+          sha256sum web-vault.zip > web-vault.zip.sha256
           ls -lh tasirin-*.apk vaultwarden-armeabi-v7a web-vault.zip
           gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true
           gh release create "v${{ needs.resolve.outputs.vw }}" \
             tasirin-vaultwarden-host-armeabi-v7a.apk \
             vaultwarden-armeabi-v7a \
+            vaultwarden-armeabi-v7a.sha256 \
             web-vault.zip \
+            web-vault.zip.sha256 \
             --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
             --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
 
