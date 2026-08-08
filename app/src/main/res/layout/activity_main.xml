@@ -7,12 +7,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Vaultwarden server"
+            android:text="Tasirin Vaultwarden Host"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -20,574 +23,579 @@
             android:id="@+id/version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="11sp" />
+            android:layout_marginTop="2dp"
+            android:textSize="11sp"
+            android:textColor="@color/text_secondary" />
 
         <!-- ===================== SERVER ===================== -->
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Server"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Folder data (mis. /sdcard/vaultwarden)" />
-
-        <EditText
-            android:id="@+id/dataDir"
-            android:nextFocusDown="@id/port"
-            android:background="@drawable/bg_input_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="/sdcard/vaultwarden"
-            android:inputType="text" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Port" />
-
-        <EditText
-            android:id="@+id/port"
-            android:nextFocusDown="@id/adminToken"
-            android:nextFocusUp="@id/dataDir"
-            android:background="@drawable/bg_input_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="8088"
-            android:inputType="number" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Admin Token (kosongkan jika tidak perlu)" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/adminToken"
-            android:nextFocusDown="@id/autoStart"
-            android:nextFocusUp="@id/port"
-            android:background="@drawable/bg_input_tv"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="admin token"
-                android:inputType="textPassword" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_status_stopped"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Berhenti"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/startStop"
+                    android:nextFocusDown="@id/copyUrl"
+                    android:nextFocusUp="@id/logOpen"
+                    style="@style/Tasirin.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="Start" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/netInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary" />
 
             <Button
-                android:id="@+id/showAdmin"
-            android:nextFocusDown="@id/autoStart"
-            android:nextFocusUp="@id/port"
-            android:background="@drawable/bg_btn_tv"
+                android:id="@+id/copyUrl"
+                android:nextFocusDown="@id/dataDir"
+                android:nextFocusUp="@id/startStop"
+                style="@style/Tasirin.Button.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lihat"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:text="Salin URL" />
 
-        <CheckBox
-            android:id="@+id/autoStart"
-            android:nextFocusDown="@id/https"
-            android:nextFocusUp="@id/adminToken"
-            android:background="@drawable/item_focus_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Auto start saat boot" />
-
-        <CheckBox
-            android:id="@+id/https"
-            android:nextFocusDown="@id/pinInput"
-            android:nextFocusUp="@id/autoStart"
-            android:background="@drawable/item_focus_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="HTTPS (self-signed)" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="PIN kunci app (opsional)" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            <TextView
+                style="@style/Tasirin.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Folder data" />
 
             <EditText
-                android:id="@+id/pinInput"
-            android:nextFocusDown="@id/batteryBtn"
-            android:nextFocusUp="@id/https"
-            android:background="@drawable/bg_input_tv"
-                android:layout_width="0dp"
+                android:id="@+id/dataDir"
+                android:nextFocusDown="@id/port"
+                android:nextFocusUp="@id/copyUrl"
+                style="@style/Tasirin.Input"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="PIN 4-6 digit"
-                android:inputType="numberPassword"
-                android:maxLength="6" />
+                android:hint="/sdcard/vaultwarden"
+                android:inputType="text" />
 
-            <CheckBox
-                android:id="@+id/pinEnabled"
-            android:nextFocusDown="@id/batteryBtn"
-            android:nextFocusUp="@id/https"
-            android:background="@drawable/item_focus_bg"
-                android:layout_width="wrap_content"
+            <TextView
+                style="@style/Tasirin.Label"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Aktif"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:text="Port" />
 
-        <Button
-            android:id="@+id/batteryBtn"
-            android:nextFocusDown="@id/start"
-            android:nextFocusUp="@id/pinInput"
-            android:background="@drawable/bg_btn_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Nonaktifkan Battery Optimization"
-            android:textAllCaps="false"
-            android:textSize="12sp" />
-
-        <!-- ===================== KONTROL ===================== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Kontrol"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/start"
-            android:nextFocusDown="@id/update"
-            android:nextFocusUp="@id/batteryBtn"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
+            <EditText
+                android:id="@+id/port"
+                android:nextFocusDown="@id/open"
+                android:nextFocusUp="@id/dataDir"
+                style="@style/Tasirin.Input"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Start" />
+                android:hint="8088"
+                android:inputType="number" />
 
-            <Button
-                android:id="@+id/stop"
-            android:nextFocusDown="@id/revert"
-            android:nextFocusUp="@id/batteryBtn"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/restartHint"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Stop" />
+                android:layout_marginTop="8dp"
+                android:text="\u26A0 Setting diubah \u2014 restart server agar berlaku"
+                android:textColor="@color/status_off"
+                android:textSize="11sp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/open"
-            android:nextFocusDown="@id/installCert"
-            android:nextFocusUp="@id/batteryBtn"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Open Web UI" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/update"
-            android:nextFocusDown="@id/copyUrl"
-            android:nextFocusUp="@id/start"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cek Update" />
-
-            <Button
-                android:id="@+id/revert"
-            android:nextFocusDown="@id/exportCfg"
-            android:nextFocusUp="@id/stop"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Revert Bawaan" />
-
-            <Button
-                android:id="@+id/cert"
-            android:nextFocusDown="@id/importCfg"
-            android:nextFocusUp="@id/open"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sertifikat"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/installCert"
-            android:nextFocusDown="@id/exportCfg"
-            android:nextFocusUp="@id/open"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Install Cert"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Stopped"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Info Jaringan"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/netInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fontFamily="monospace"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/copyUrl"
-            android:nextFocusDown="@id/exportCfg"
-            android:nextFocusUp="@id/update"
-            android:background="@drawable/bg_btn_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Salin URL"
-            android:textAllCaps="false"
-            android:textSize="12sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/exportCfg"
-            android:nextFocusDown="@id/updateWv"
-            android:nextFocusUp="@id/copyUrl"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Export Config"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/importCfg"
-            android:nextFocusDown="@id/updateWv"
-            android:nextFocusUp="@id/copyUrl"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Import Config"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <!-- ===================== BACKUP ===================== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Backup"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/updateWv"
-            android:nextFocusDown="@id/tgToken"
-            android:nextFocusUp="@id/exportCfg"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Update Web Vault"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-
-            <Button
-                android:id="@+id/backupDb"
-            android:nextFocusDown="@id/tgToken"
-            android:nextFocusUp="@id/importCfg"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Backup DB"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-
-            <Button
-                android:id="@+id/restoreDb"
-            android:nextFocusDown="@id/tgToken"
-            android:nextFocusUp="@id/importCfg"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Restore DB"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Backup Cloud (Telegram)" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/tgToken"
-            android:nextFocusDown="@id/tgChat"
-            android:nextFocusUp="@id/updateWv"
-            android:background="@drawable/bg_input_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Bot token dari @BotFather"
-                android:inputType="textPassword" />
-
-            <Button
-                android:id="@+id/showTg"
-            android:nextFocusDown="@id/tgChat"
-            android:nextFocusUp="@id/updateWv"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lihat"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/tgChat"
-            android:nextFocusDown="@id/backupPass"
-            android:nextFocusUp="@id/tgToken"
-            android:background="@drawable/bg_input_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Chat ID (angka)"
-            android:inputType="number" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Password enkripsi backup (opsional)" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/backupPass"
-            android:nextFocusDown="@id/tgAuto"
-            android:nextFocusUp="@id/tgChat"
-            android:background="@drawable/bg_input_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="kosongkan = tanpa enkripsi"
-                android:inputType="textPassword" />
-
-            <Button
-                android:id="@+id/showPass"
-            android:nextFocusDown="@id/tgAuto"
-            android:nextFocusUp="@id/tgChat"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lihat"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <CheckBox
-            android:id="@+id/tgAuto"
-            android:nextFocusDown="@id/backupOnStart"
-            android:nextFocusUp="@id/backupPass"
-            android:background="@drawable/item_focus_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Backup otomatis tiap 24 jam" />
-
-        <CheckBox
-            android:id="@+id/backupOnStart"
-            android:nextFocusDown="@id/backupTg"
-            android:nextFocusUp="@id/tgAuto"
-            android:background="@drawable/item_focus_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Backup otomatis saat Start (maks. 1x/24 jam)" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/backupTg"
-            android:nextFocusDown="@id/logOpen"
-            android:nextFocusUp="@id/backupOnStart"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Backup ke Telegram"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/restoreTg"
-            android:nextFocusDown="@id/logOpen"
-            android:nextFocusUp="@id/backupOnStart"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Restore dari Telegram"
-                android:textAllCaps="false"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <!-- ===================== LOG ===================== -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Log"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-            <Button
-                android:id="@+id/logOpen"
-            android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/backupTg"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Buka"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/logClear"
-            android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/logOpen"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bersihkan"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/logToggle"
-            android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/logOpen"
-            android:background="@drawable/bg_btn_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sembunyikan"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/logSearch"
-            android:nextFocusDown="@id/logAutoScroll"
-            android:nextFocusUp="@id/logOpen"
-            android:background="@drawable/bg_input_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Cari di log..."
-                android:inputType="text"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/logAutoScroll"
-            android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/logSearch"
-            android:background="@drawable/item_focus_bg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Auto-scroll"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <ScrollView
-            android:id="@+id/logScroll"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginTop="4dp">
-
-            <TextView
-                android:id="@+id/log"
+                android:nextFocusDown="@id/advancedToggle"
+                android:nextFocusUp="@id/port"
+                style="@style/Tasirin.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="monospace"
-                android:textSize="10sp" />
-        </ScrollView>
+                android:layout_marginTop="12dp"
+                android:text="Buka Web UI" />
+        </LinearLayout>
 
+        <!-- ===================== LANJUTAN (collapsible) ===================== -->
+        <Button
+            android:id="@+id/advancedToggle"
+            android:nextFocusDown="@id/adminToken"
+            android:nextFocusUp="@id/open"
+            style="@style/Tasirin.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Lanjutan \u25BE" />
+
+        <LinearLayout
+            android:id="@+id/advancedPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Pengaturan -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/Tasirin.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pengaturan" />
+
+                <TextView
+                    style="@style/Tasirin.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Admin Token" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/adminToken"
+                        android:nextFocusDown="@id/showAdmin"
+                        android:nextFocusUp="@id/advancedToggle"
+                        style="@style/Tasirin.Input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="kosongkan jika tidak perlu"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/showAdmin"
+                        android:nextFocusDown="@id/autoStart"
+                        android:nextFocusUp="@id/adminToken"
+                        style="@style/Tasirin.Button.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Lihat" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/autoStart"
+                    android:nextFocusDown="@id/https"
+                    android:nextFocusUp="@id/showAdmin"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Auto start saat boot" />
+
+                <CheckBox
+                    android:id="@+id/https"
+                    android:nextFocusDown="@id/pinInput"
+                    android:nextFocusUp="@id/autoStart"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HTTPS (self-signed)" />
+
+                <TextView
+                    style="@style/Tasirin.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PIN kunci app" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/pinInput"
+                        android:nextFocusDown="@id/pinEnabled"
+                        android:nextFocusUp="@id/https"
+                        style="@style/Tasirin.Input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="PIN 4-6 digit"
+                        android:inputType="numberPassword" />
+
+                    <CheckBox
+                        android:id="@+id/pinEnabled"
+                        android:nextFocusDown="@id/batteryBtn"
+                        android:nextFocusUp="@id/pinInput"
+                        android:background="@drawable/item_focus_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Aktif" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/batteryRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Akses penuh belum diizinkan"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/batteryBtn"
+                        android:nextFocusDown="@id/update"
+                        android:nextFocusUp="@id/pinEnabled"
+                        style="@style/Tasirin.Button.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Izinkan" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Pemeliharaan -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/Tasirin.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pemeliharaan" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/update"
+                        android:nextFocusDown="@id/revert"
+                        android:nextFocusUp="@id/batteryBtn"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cek Update" />
+
+                    <Button
+                        android:id="@+id/revert"
+                        android:nextFocusDown="@id/cert"
+                        android:nextFocusUp="@id/update"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Revert Bawaan" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/cert"
+                        android:nextFocusDown="@id/installCert"
+                        android:nextFocusUp="@id/revert"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sertifikat" />
+
+                    <Button
+                        android:id="@+id/installCert"
+                        android:nextFocusDown="@id/exportCfg"
+                        android:nextFocusUp="@id/cert"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Install Cert" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/exportCfg"
+                        android:nextFocusDown="@id/importCfg"
+                        android:nextFocusUp="@id/installCert"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Export Config" />
+
+                    <Button
+                        android:id="@+id/importCfg"
+                        android:nextFocusDown="@id/updateWv"
+                        android:nextFocusUp="@id/exportCfg"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Import Config" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/updateWv"
+                        android:nextFocusDown="@id/backupDb"
+                        android:nextFocusUp="@id/importCfg"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Update Web Vault" />
+
+                    <Button
+                        android:id="@+id/backupDb"
+                        android:nextFocusDown="@id/restoreDb"
+                        android:nextFocusUp="@id/updateWv"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Backup DB" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/restoreDb"
+                    android:nextFocusDown="@id/tgToken"
+                    android:nextFocusUp="@id/backupDb"
+                    style="@style/Tasirin.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Restore DB" />
+            </LinearLayout>
+
+            <!-- Backup Telegram -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/Tasirin.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Backup Telegram" />
+
+                <TextView
+                    style="@style/Tasirin.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bot token" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/tgToken"
+                        android:nextFocusDown="@id/showTg"
+                        android:nextFocusUp="@id/restoreDb"
+                        style="@style/Tasirin.Input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="dari @BotFather"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/showTg"
+                        android:nextFocusDown="@id/tgChat"
+                        android:nextFocusUp="@id/tgToken"
+                        style="@style/Tasirin.Button.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Lihat" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/Tasirin.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Chat ID" />
+
+                <EditText
+                    android:id="@+id/tgChat"
+                    android:nextFocusDown="@id/backupPass"
+                    android:nextFocusUp="@id/showTg"
+                    style="@style/Tasirin.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="ID chat tujuan" />
+
+                <TextView
+                    style="@style/Tasirin.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Password enkripsi (opsional)" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/backupPass"
+                        android:nextFocusDown="@id/showPass"
+                        android:nextFocusUp="@id/tgChat"
+                        style="@style/Tasirin.Input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/showPass"
+                        android:nextFocusDown="@id/tgAuto"
+                        android:nextFocusUp="@id/backupPass"
+                        style="@style/Tasirin.Button.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Lihat" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/tgAuto"
+                    android:nextFocusDown="@id/backupOnStart"
+                    android:nextFocusUp="@id/showPass"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Backup otomatis tiap 24 jam" />
+
+                <CheckBox
+                    android:id="@+id/backupOnStart"
+                    android:nextFocusDown="@id/backupTg"
+                    android:nextFocusUp="@id/tgAuto"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Backup otomatis saat Start (maks. 1x/24 jam)" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/backupTg"
+                        android:nextFocusDown="@id/restoreTg"
+                        android:nextFocusUp="@id/backupOnStart"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Backup ke Telegram" />
+
+                    <Button
+                        android:id="@+id/restoreTg"
+                        android:nextFocusDown="@id/logOpen"
+                        android:nextFocusUp="@id/backupTg"
+                        style="@style/Tasirin.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Restore dari Telegram" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Buat bot lewat @BotFather di Telegram"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Log -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/Tasirin.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Log Realtime" />
+
+                <Button
+                    android:id="@+id/logOpen"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusUp="@id/restoreTg"
+                    style="@style/Tasirin.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Buka Log (layar penuh)" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

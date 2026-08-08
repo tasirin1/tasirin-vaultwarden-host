@@ -10,27 +10,21 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.text.Editable;
 import android.text.InputType;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +55,7 @@ public class MainActivity extends Activity {
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
     private static final String KEY_TG_NOTIFIED = "tg_notified_version";
+    private static final String KEY_ADVANCED_OPEN = "advanced_open";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
@@ -80,13 +75,12 @@ public class MainActivity extends Activity {
     private TextView statusView;
     private TextView versionView;
     private TextView netInfoView;
-    private TextView logView;
-    private ScrollView logScroll;
-    private Button logToggleBtn;
-    private Button logClearBtn;
+    private TextView restartHint;
     private Button logOpenBtn;
-    private EditText logSearchInput;
-    private CheckBox logAutoScrollCheck;
+    private Button startStopBtn;
+    private Button advancedToggleBtn;
+    private LinearLayout advancedPanel;
+    private LinearLayout batteryRow;
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
@@ -102,9 +96,7 @@ public class MainActivity extends Activity {
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
-    private String lastLogKey = null;
-    private String logSearch = "";
-    private boolean logAutoScroll = false;
+    private boolean advancedOpen = false;
     private boolean refreshActive = true;
     private long lastWvCheck = 0;
     private String wvLine = "";
@@ -136,16 +128,13 @@ public class MainActivity extends Activity {
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
-        logView = findViewById(R.id.log);
-        logScroll = findViewById(R.id.logScroll);
-        logToggleBtn = findViewById(R.id.logToggle);
+        restartHint = findViewById(R.id.restartHint);
         logOpenBtn = findViewById(R.id.logOpen);
-        logClearBtn = findViewById(R.id.logClear);
-        logSearchInput = findViewById(R.id.logSearch);
-        logAutoScrollCheck = findViewById(R.id.logAutoScroll);
+        startStopBtn = findViewById(R.id.startStop);
+        advancedToggleBtn = findViewById(R.id.advancedToggle);
+        advancedPanel = findViewById(R.id.advancedPanel);
+        batteryRow = findViewById(R.id.batteryRow);
 
-        Button startBtn = findViewById(R.id.start);
-        Button stopBtn = findViewById(R.id.stop);
         Button openBtn = findViewById(R.id.open);
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
@@ -164,8 +153,13 @@ public class MainActivity extends Activity {
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
 
-        startBtn.setOnClickListener(v -> saveAndStart());
-        stopBtn.setOnClickListener(v -> ServerService.stop(this));
+        startStopBtn.setOnClickListener(v -> {
+            if (ServerService.running) {
+                ServerService.stop(this);
+            } else {
+                saveAndStart();
+            }
+        });
         openBtn.setOnClickListener(v -> openWebUi());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm("Revert ke binary bawaan",
@@ -187,29 +181,8 @@ public class MainActivity extends Activity {
                 appendUiLog("[tg] Gagal backup: " + e);
             }
         }));
-        logToggleBtn.setOnClickListener(v -> toggleLog());
         logOpenBtn.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
-        logAutoScrollCheck.setOnCheckedChangeListener((b, checked) -> logAutoScroll = checked);
-        logSearchInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int a, int b, int c) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                logSearch = s == null ? "" : s.toString();
-                refreshFromService();
-            }
-        });
-        logClearBtn.setOnClickListener(v -> {
-            ServerService.clearLog();
-            lastLogKey = null;
-            refreshFromService();
-        });
+        advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
         exportCfgBtn.setOnClickListener(v -> runBusy(this::exportConfig));
@@ -231,6 +204,7 @@ public class MainActivity extends Activity {
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
+        setAdvancedOpen(sp.getBoolean(KEY_ADVANCED_OPEN, false));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -396,31 +370,35 @@ public class MainActivity extends Activity {
     }
 
     private void refreshFromService() {
-        String status = ServerService.statusLine;
-        if (status == null || status.isEmpty()) {
-            status = ServerService.running ? "Running..." : "Stopped";
+        // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
+        boolean running = ServerService.running;
+        String statusText = running ? "Berjalan" : "Berhenti";
+        String key = statusText + "|" + (running ? "on" : "off");
+        if (!key.equals(lastShownStatus)) {
+            statusView.setText(statusText);
+            statusView.setBackgroundResource(running
+                    ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
+            lastShownStatus = key;
+        }
+        String btnText = running ? "Stop" : "Start";
+        if (!btnText.equals(startStopBtn.getText().toString())) {
+            startStopBtn.setText(btnText);
         }
 
         // Peringatan bila setting diubah tapi server belum di-restart
-        String hint = "";
-        if (ServerService.running) {
+        boolean changed = false;
+        if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-            if (!d.equals(ServerService.runningDataDir)
+            changed = !d.equals(ServerService.runningDataDir)
                     || !p.equals(ServerService.runningPort)
                     || h != ServerService.runningHttps
-                    || !a.equals(ServerService.runningAdminToken)) {
-                hint = "\n\u26A0 Setting diubah \u2014 restart server agar berlaku";
-            }
+                    || !a.equals(ServerService.runningAdminToken);
         }
-        String display = status + hint;
-        if (!display.equals(lastShownStatus)) {
-            statusView.setText(display);
-            lastShownStatus = display;
-        }
+        restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
         String version = bundledVersion;
         if (!ServerService.binaryVersion.isEmpty()) {
@@ -443,27 +421,13 @@ public class MainActivity extends Activity {
             lastShownNet = net;
         }
 
-        synchronized (ServerService.logBuffer) {
-            String text = ServerService.logBuffer.toString();
-            String key = text + "\u0000" + logSearch;
-            if (!key.equals(lastLogKey)) {
-                int prevScroll = logScroll.getScrollY();
-                logView.setText(highlightLog(text, logSearch));
-                lastLogKey = key;
-                if (logScroll != null) {
-                    if (logAutoScroll) {
-                        logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
-                    } else {
-                        logScroll.post(() -> {
-                            View child = logScroll.getChildAt(0);
-                            int max = (child == null ? 0 : child.getHeight())
-                                    - logScroll.getHeight();
-                            logScroll.scrollTo(0, Math.max(0, Math.min(prevScroll, max)));
-                        });
-                    }
-                }
-            }
+        // Baris "Izinkan akses penuh" hanya muncul bila battery optimization aktif
+        boolean needBattery = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+        if (needBattery) {
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            needBattery = pm == null || !pm.isIgnoringBatteryOptimizations(getPackageName());
         }
+        batteryRow.setVisibility(needBattery ? View.VISIBLE : View.GONE);
 
         if (refreshActive) {
             ui.postDelayed(this::refreshFromService, 1000);
@@ -1151,47 +1115,6 @@ public class MainActivity extends Activity {
     }
 
     /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning. */
-    private CharSequence highlightLog(String text, String q) {
-        if (q.isEmpty() && !text.contains("GAGAL") && !text.contains("ERROR")
-                && !text.contains("FAILED")) {
-            return text;
-        }
-        SpannableStringBuilder sb = new SpannableStringBuilder(text);
-        String queryLower = q.toLowerCase(Locale.US);
-        if (!queryLower.isEmpty()) {
-            String textLower = text.toLowerCase(Locale.US);
-            int from = 0;
-            while (true) {
-                int idx = textLower.indexOf(queryLower, from);
-                if (idx < 0) {
-                    break;
-                }
-                sb.setSpan(new BackgroundColorSpan(0xFFFFE082),
-                        idx, idx + q.length(),
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-                from = idx + q.length();
-            }
-        }
-        int lineStart = 0;
-        while (lineStart < sb.length()) {
-            int lineEnd = text.indexOf('\n', lineStart);
-            int end = lineEnd < 0 ? sb.length() : lineEnd;
-            String upper = text.substring(lineStart, end).toUpperCase(Locale.US);
-            if (upper.contains("GAGAL") || upper.contains("ERROR") || upper.contains("FAILED")) {
-                sb.setSpan(new ForegroundColorSpan(Color.RED),
-                        lineStart, end,
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            if (lineEnd < 0) {
-                break;
-            }
-            lineStart = lineEnd + 1;
-        }
-        return sb;
-    }
-
-    // ─── UI helpers ─────────────────────────────────────────────────────
-
     private void togglePassword(EditText et, Button btn) {
         boolean hidden = (et.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0;
         et.setInputType(hidden
@@ -1199,15 +1122,6 @@ public class MainActivity extends Activity {
                 : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         et.setSelection(et.getText().length());
         btn.setText(hidden ? "Sembunyi" : "Lihat");
-    }
-
-    private void toggleLog() {
-        boolean visible = logScroll.getVisibility() == View.VISIBLE;
-        logScroll.setVisibility(visible ? View.GONE : View.VISIBLE);
-        logToggleBtn.setText(visible ? "Tampilkan" : "Sembunyikan");
-        if (!visible) {
-            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
-        }
     }
 
     /** Bagikan isi log lewat app lain (WhatsApp, file manager, dll). */
@@ -1253,6 +1167,14 @@ public class MainActivity extends Activity {
     }
 
     /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
+    private void setAdvancedOpen(boolean open) {
+        advancedOpen = open;
+        advancedPanel.setVisibility(open ? View.VISIBLE : View.GONE);
+        advancedToggleBtn.setText(open ? "Lanjutan \u25BE" : "Lanjutan \u25B8");
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                .putBoolean(KEY_ADVANCED_OPEN, open).apply();
+    }
+
     private void setBusy(final boolean busy) {
         ui.post(() -> {
             updateBtn.setEnabled(!busy);
@@ -1263,7 +1185,8 @@ public class MainActivity extends Activity {
             backupTgBtn.setEnabled(!busy);
             restoreTgBtn.setEnabled(!busy);
             if (busy) {
-                statusView.setText("Sedang bekerja\u2026");
+                statusView.setText("Bekerja\u2026");
+                statusView.setBackgroundResource(R.drawable.bg_status_busy);
                 lastShownStatus = "";
             } else {
                 refreshFromService();

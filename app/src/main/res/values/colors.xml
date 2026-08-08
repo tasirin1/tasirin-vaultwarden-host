@@ -8,4 +8,8 @@
     <color name="window_bg">#FAFAFA</color>
     <color name="status_on">#2E7D32</color>
     <color name="status_off">#B00020</color>
+    <color name="card_bg">#F3F3F3</color>
+    <color name="card_stroke">#DDDDDD</color>
+    <color name="chip_stopped">#616161</color>
+    <color name="chip_busy">#EF6C00</color>
 </resources>

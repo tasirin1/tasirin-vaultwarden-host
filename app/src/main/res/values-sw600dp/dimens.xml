@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layar lebar (TV/tablet): batasi lebar konten agar tidak melebar penuh. -->
+    <dimen name="side_padding">200dp</dimen>
+</resources>
