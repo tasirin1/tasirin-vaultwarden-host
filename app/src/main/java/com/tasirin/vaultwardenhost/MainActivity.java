@@ -41,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -94,6 +93,8 @@ public class MainActivity extends Activity {
     private Button restoreDbBtn;
     private Button backupTgBtn;
     private Button aboutBtn;
+    private Button statusWebBtn;
+    private CheckBox tgFullCheck;
 
     private String bundledVersion = "?";
     private String appVersion = "";
@@ -160,6 +161,8 @@ public class MainActivity extends Activity {
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
         aboutBtn = findViewById(R.id.aboutBtn);
+        statusWebBtn = findViewById(R.id.statusWeb);
+        tgFullCheck = findViewById(R.id.tgFull);
 
         startStopBtn.setOnClickListener(v -> {
             if (ServerService.running) {
@@ -175,7 +178,7 @@ public class MainActivity extends Activity {
                 () -> runBusy(this::revertToBundled)));
         certBtn.setOnClickListener(v -> showCertHelp());
         installCertBtn.setOnClickListener(v -> installCertificate());
-        updateWvBtn.setOnClickListener(v -> runBusy(this::updateWebVault));
+        updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(false));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
@@ -199,6 +202,7 @@ public class MainActivity extends Activity {
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
         aboutBtn.setOnClickListener(v -> showAboutDialog());
+        statusWebBtn.setOnClickListener(v -> openStatusWeb());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -211,6 +215,7 @@ public class MainActivity extends Activity {
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
         setAdvancedOpen(sp.getBoolean(KEY_ADVANCED_OPEN, false));
@@ -230,6 +235,9 @@ public class MainActivity extends Activity {
         backupOnStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
+        tgFullCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
         tgTokenInput.addTextChangedListener(onTextChanged(() -> TgBot.schedule(this)));
@@ -448,6 +456,21 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void openStatusWeb() {
+        if (!ServerService.running || !ControlServer.running
+                || ControlServer.listeningPort <= 0) {
+            toast("Status web belum aktif. Start server dulu.");
+            return;
+        }
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://" + ServerService.localIp()
+                            + ":" + ControlServer.listeningPort)));
+        } catch (Exception e) {
+            toast("Gagal membuka status web: " + e.getMessage());
+        }
+    }
+
     private void showAboutDialog() {
         String dataDir = dataDirInput.getText().toString().trim();
         if (TextUtils.isEmpty(dataDir)) {
@@ -593,7 +616,10 @@ public class MainActivity extends Activity {
                             + ", sedangkan server v" + server + ".\n\n"
                             + "Update web vault sekarang? (unduh sekali ~35 MB, "
                             + "berlaku setelah server di-restart)")
-                    .setPositiveButton("Update", (d, w) -> runBusy(this::updateWebVault))
+                    .setPositiveButton("Update & Restart",
+                            (d, w) -> runWebVaultUpdate(true))
+                    .setNeutralButton("Update saja",
+                            (d, w) -> runWebVaultUpdate(false))
                     .setNegativeButton("Nanti", null)
                     .show());
         } catch (Exception ignored) {
@@ -634,17 +660,24 @@ public class MainActivity extends Activity {
 
     // ─── Update web-vault ───────────────────────────────────────────────
 
-    private void updateWebVault() {
-        try {
-            appendUiLog("[app] Mengunduh web-vault terbaru...");
-            String msg = Updater.updateWebVault(this);
-            toast(msg);
-            appendUiLog("[app] " + msg);
-            lastWvCheck = 0; // paksa baca ulang info versi web-vault
-        } catch (Exception e) {
-            toast("Gagal update web-vault: " + e.getMessage());
-            appendUiLog("[app] Gagal update web-vault: " + e);
-        }
+    /** Unduh web-vault; opsional restart server agar update langsung berlaku. */
+    private void runWebVaultUpdate(boolean restartAfter) {
+        runBusy(() -> {
+            try {
+                appendUiLog("[app] Mengunduh web-vault terbaru...");
+                String msg = Updater.updateWebVault(this);
+                toast(msg);
+                appendUiLog("[app] " + msg);
+                lastWvCheck = 0; // paksa baca ulang info versi web-vault
+                if (restartAfter && ServerService.running) {
+                    appendUiLog("[app] Restart server agar web vault berlaku...");
+                    ServerService.restart(this);
+                }
+            } catch (Exception e) {
+                toast("Gagal update web-vault: " + e.getMessage());
+                appendUiLog("[app] Gagal update web-vault: " + e);
+            }
+        });
     }
 
     // ─── Battery optimization ───────────────────────────────────────────
@@ -824,9 +857,31 @@ public class MainActivity extends Activity {
                 ServerService.stopAndWait(this, 8000);
             }
 
+            // Baca config dulu (bila backup lengkap) untuk tahu folder data tujuan.
+            JSONObject cfg = null;
+            try (ZipInputStream probe = new ZipInputStream(
+                    new java.io.FileInputStream(zip))) {
+                ZipEntry e;
+                while ((e = probe.getNextEntry()) != null) {
+                    if ("app-config.json".equals(e.getName())) {
+                        cfg = new JSONObject(
+                                new String(readAll(probe), StandardCharsets.UTF_8));
+                        break;
+                    }
+                }
+            }
             String dataDir = dataDirInput.getText().toString().trim();
             if (TextUtils.isEmpty(dataDir)) {
                 dataDir = DEFAULT_DATA_DIR;
+            }
+            if (cfg != null) {
+                JSONObject cfgPrefs = cfg.optJSONObject("prefs");
+                if (cfgPrefs != null && cfgPrefs.has(ServerService.KEY_DATA_DIR)) {
+                    String d = cfgPrefs.optString(ServerService.KEY_DATA_DIR, "").trim();
+                    if (!d.isEmpty()) {
+                        dataDir = d;
+                    }
+                }
             }
             File dataFolder = new File(dataDir);
             if (!dataFolder.exists()) {
@@ -849,6 +904,9 @@ public class MainActivity extends Activity {
                     new java.io.FileInputStream(zip))) {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
+                    if ("app-config.json".equals(entry.getName())) {
+                        continue; // pengaturan diterapkan langsung, tidak ditulis ke disk
+                    }
                     File outFile = new File(dataFolder, entry.getName());
                     if (!outFile.getCanonicalPath().startsWith(dataFolder.getCanonicalPath())) {
                         continue;
@@ -868,12 +926,48 @@ public class MainActivity extends Activity {
                 }
             }
             zip.delete();
-            toast("Restore selesai. Tekan Start untuk menjalankan.");
-            appendUiLog("[app] Restore dari Telegram selesai.");
+            if (cfg != null) {
+                applyPrefs(cfg.optJSONObject("prefs"));
+            }
+            ui.post(() -> {
+                reloadSettingsFromPrefs();
+                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                TgBackup.schedule(MainActivity.this,
+                        sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                TgBot.schedule(MainActivity.this);
+                toast("Restore selesai. Tekan Start untuk menjalankan.");
+            });
+            appendUiLog("[app] Restore dari Telegram selesai" + (cfg != null ? " (lengkap)" : "") + ".");
         } catch (Exception e) {
             toast("Gagal restore: " + e.getMessage());
             appendUiLog("[app] Gagal restore: " + e);
         }
+    }
+
+    /** Terapkan seluruh prefs dari JSON (clear + tulis ulang). */
+    private void applyPrefs(JSONObject prefs) throws Exception {
+        if (prefs == null) {
+            return;
+        }
+        SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
+        ed.clear();
+        Iterator<String> keys = prefs.keys();
+        while (keys.hasNext()) {
+            String k = keys.next();
+            Object v = prefs.get(k);
+            if (v instanceof String) {
+                ed.putString(k, (String) v);
+            } else if (v instanceof Boolean) {
+                ed.putBoolean(k, (Boolean) v);
+            } else if (v instanceof Integer) {
+                ed.putInt(k, (Integer) v);
+            } else if (v instanceof Long) {
+                ed.putLong(k, (Long) v);
+            } else if (v instanceof Double) {
+                ed.putLong(k, ((Double) v).longValue());
+            }
+        }
+        ed.apply();
     }
 
     // ─── Export / Import pengaturan ─────────────────────────────────────
@@ -891,27 +985,8 @@ public class MainActivity extends Activity {
             String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
             File out = new File(backupDir, "app-config-" + ts + ".json");
 
-            JSONObject root = new JSONObject();
-            root.put("app", "tasirin-vaultwarden-host");
-            root.put("version", 1);
-            JSONObject prefs = new JSONObject();
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
-                Object v = e.getValue();
-                if (v instanceof String) {
-                    prefs.put(e.getKey(), (String) v);
-                } else if (v instanceof Boolean) {
-                    prefs.put(e.getKey(), (Boolean) v);
-                } else if (v instanceof Integer) {
-                    prefs.put(e.getKey(), (Integer) v);
-                } else if (v instanceof Long) {
-                    prefs.put(e.getKey(), (Long) v);
-                } else if (v instanceof Float) {
-                    prefs.put(e.getKey(), (Float) v);
-                }
-            }
-            root.put("prefs", prefs);
-            byte[] bytes = root.toString(2).getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
             try (FileOutputStream fos = new FileOutputStream(out)) {
                 fos.write(bytes);
             }
@@ -958,25 +1033,7 @@ public class MainActivity extends Activity {
                 toast("File config tidak valid.");
                 return;
             }
-            SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
-            ed.clear();
-            Iterator<String> keys = prefs.keys();
-            while (keys.hasNext()) {
-                String k = keys.next();
-                Object v = prefs.get(k);
-                if (v instanceof String) {
-                    ed.putString(k, (String) v);
-                } else if (v instanceof Boolean) {
-                    ed.putBoolean(k, (Boolean) v);
-                } else if (v instanceof Integer) {
-                    ed.putInt(k, (Integer) v);
-                } else if (v instanceof Long) {
-                    ed.putLong(k, (Long) v);
-                } else if (v instanceof Double) {
-                    ed.putLong(k, ((Double) v).longValue());
-                }
-            }
-            ed.apply();
+            applyPrefs(prefs);
             ui.post(() -> {
                 reloadSettingsFromPrefs();
                 SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -1005,6 +1062,7 @@ public class MainActivity extends Activity {
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
     }
 

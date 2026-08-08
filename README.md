@@ -52,6 +52,8 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - Halaman itu menampilkan status server (jalan/berhenti, versi app & binary, port,
   HTTPS, uptime, sisa storage, folder data) plus **log realtime** (SSE) dengan
   pencarian & auto-scroll. Buka dari HP/PC di jaringan yang sama.
+- Di layar utama ada tombol **Status Web** untuk langsung membuka halaman itu
+  di browser (tersedia setelah server Start).
 - Di app: tombol **Buka** di panel Log membuka **Log Realtime layar penuh** —
   cari + highlight `GAGAL/ERROR`, auto-scroll (default mati), hitungan baris,
   salin, bagikan, dan **Simpan .txt** ke folder `Download`.
@@ -116,6 +118,9 @@ Mendukung **Android 5.0 (API 21) ke atas**.
   jalan walau app tidak dibuka; pakai alarm **exact** supaya tidak di-batch
   Doze, dijadwalkan ulang tepat 24 jam setelah backup selesai, dan otomatis
   terpasang lagi setelah reboot).
+- Centang **Sertakan pengaturan & sertifikat** agar backup ikut mengirim
+  `app-config.json` + `tls/cert.pem` & `tls/key.pem`. Restore lengkap otomatis
+  memakai folder data & pengaturan dari backup (cocok untuk pindah perangkat).
 - **PIN kunci app** (opsional): kunci app dengan PIN 4-6 digit saat dibuka.
 - Cara buat bot: chat `@BotFather` → `/newbot` → ikuti langkah → dapat token.
 - Chat ID: kirim pesan ke bot-mu dulu, lalu buka

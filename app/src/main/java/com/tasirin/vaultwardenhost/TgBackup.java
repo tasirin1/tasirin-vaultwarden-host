@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,6 +36,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.json.JSONObject;
 
 /** Backup database ke Telegram + jadwal harian via AlarmManager. */
 public final class TgBackup {
@@ -47,6 +50,7 @@ public final class TgBackup {
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
+    public static final String KEY_TG_FULL = "tg_full";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
@@ -82,7 +86,8 @@ public final class TgBackup {
                     + " MB - backup dibatalkan.");
         }
 
-        File zip = createBackupZip(dataDir);
+        boolean full = sp.getBoolean(KEY_TG_FULL, false);
+        File zip = createBackupZip(dataDir, full, full ? configJson(sp) : null);
         File upload = zip;
         String pass = sp.getString(KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {
@@ -153,8 +158,10 @@ public final class TgBackup {
         }
     }
 
-    /** Zip db + WAL ke <data>/backups/, lalu bersihkan backup lama (sisakan 10). */
-    private static File createBackupZip(String dataDir) throws Exception {
+    /** Zip db + WAL (opsional config & sertifikat) ke <data>/backups/,
+     *  lalu bersihkan backup lama (sisakan 10). */
+    private static File createBackupZip(String dataDir, boolean full,
+                                        String configJson) throws Exception {
         File dataFolder = new File(dataDir);
         File backupDir = new File(dataFolder, "backups");
         if (!backupDir.exists() && !backupDir.mkdirs()) {
@@ -166,22 +173,59 @@ public final class TgBackup {
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
             byte[] buf = new byte[64 * 1024];
             for (String name : names) {
-                File f = new File(dataFolder, name);
-                if (!f.exists() || f.length() == 0) {
-                    continue;
+                addFileEntry(zos, buf, new File(dataFolder, name), name);
+            }
+            if (full) {
+                if (configJson != null) {
+                    zos.putNextEntry(new ZipEntry("app-config.json"));
+                    zos.write(configJson.getBytes(StandardCharsets.UTF_8));
+                    zos.closeEntry();
                 }
-                zos.putNextEntry(new ZipEntry(name));
-                try (FileInputStream fis = new FileInputStream(f)) {
-                    int n;
-                    while ((n = fis.read(buf)) > 0) {
-                        zos.write(buf, 0, n);
-                    }
-                }
-                zos.closeEntry();
+                addFileEntry(zos, buf, new File(dataFolder, "tls/cert.pem"), "tls/cert.pem");
+                addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
             }
         }
         cleanupOldBackups(backupDir);
         return zip;
+    }
+
+    private static void addFileEntry(ZipOutputStream zos, byte[] buf,
+                                     File f, String name) throws Exception {
+        if (!f.exists() || f.length() == 0) {
+            return;
+        }
+        zos.putNextEntry(new ZipEntry(name));
+        try (FileInputStream fis = new FileInputStream(f)) {
+            int n;
+            while ((n = fis.read(buf)) > 0) {
+                zos.write(buf, 0, n);
+            }
+        }
+        zos.closeEntry();
+    }
+
+    /** JSON pengaturan (format sama dengan export/import config di app). */
+    public static String configJson(SharedPreferences sp) throws Exception {
+        JSONObject root = new JSONObject();
+        root.put("app", "tasirin-vaultwarden-host");
+        root.put("version", 1);
+        JSONObject prefs = new JSONObject();
+        for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
+            Object v = e.getValue();
+            if (v instanceof String) {
+                prefs.put(e.getKey(), (String) v);
+            } else if (v instanceof Boolean) {
+                prefs.put(e.getKey(), (Boolean) v);
+            } else if (v instanceof Integer) {
+                prefs.put(e.getKey(), (Integer) v);
+            } else if (v instanceof Long) {
+                prefs.put(e.getKey(), (Long) v);
+            } else if (v instanceof Float) {
+                prefs.put(e.getKey(), (Float) v);
+            }
+        }
+        root.put("prefs", prefs);
+        return root.toString(2);
     }
 
     /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru. */

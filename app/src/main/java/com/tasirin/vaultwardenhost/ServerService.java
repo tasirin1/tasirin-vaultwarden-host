@@ -67,6 +67,8 @@ public class ServerService extends Service {
     private static final int MAX_LOG_CHARS = 300_000;
     private static final long MAX_LOG_FILE = 2L * 1024 * 1024;
     private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
+    private static final long HEALTH_FAST_MS = 5 * 60 * 1000;
+    private static final long HEALTH_FAST_INTERVAL_MS = 30 * 1000;
     private static final SimpleDateFormat LOG_TS =
             new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
 
@@ -97,7 +99,14 @@ public class ServerService extends Service {
     private final Runnable healthTick = new Runnable() {
         @Override
         public void run() {
-            mainHandler.postDelayed(this, HEALTH_INTERVAL_MS);
+            // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
+            // ketahuan), lalu tiap 2 menit setelah server stabil.
+            long delay = HEALTH_INTERVAL_MS;
+            long up = System.currentTimeMillis() - lastStartTime;
+            if (lastStartTime > 0 && up < HEALTH_FAST_MS) {
+                delay = HEALTH_FAST_INTERVAL_MS;
+            }
+            mainHandler.postDelayed(this, delay);
             if (process == null || !process.isAlive() || !running) {
                 return;
             }
@@ -272,7 +281,7 @@ public class ServerService extends Service {
             startServer();
         }
         mainHandler.removeCallbacks(healthTick);
-        mainHandler.postDelayed(healthTick, HEALTH_INTERVAL_MS);
+        mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
         return START_NOT_STICKY;
     }
 
@@ -344,6 +353,8 @@ public class ServerService extends Service {
             return;
         }
 
+        // Bersihkan sisa unduhan gagal agar tidak memakan storage.
+        cleanupTempFiles(dataDir);
         File binary = extractBinary();
         if (binary == null) {
             return;
@@ -694,6 +705,20 @@ public class ServerService extends Service {
 
     private void setStatus(String text) {
         statusLine = text;
+    }
+
+    /** Hapus file .tmp sisa unduhan gagal (binary & web-vault). */
+    private void cleanupTempFiles(String dataDir) {
+        File binDir = new File(getFilesDir(), "bin");
+        File[] bins = binDir.listFiles();
+        if (bins != null) {
+            for (File f : bins) {
+                if (f.getName().endsWith(".tmp")) {
+                    f.delete();
+                }
+            }
+        }
+        new File(dataDir, "web-vault.zip.tmp").delete();
     }
 
     private File extractBinary() {

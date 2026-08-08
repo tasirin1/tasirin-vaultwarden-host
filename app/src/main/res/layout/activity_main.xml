@@ -95,14 +95,32 @@
                 android:textSize="11sp"
                 android:textColor="@color/text_secondary" />
 
-            <Button
-                android:id="@+id/copyUrl"
-                android:nextFocusDown="@id/dataDir"
-                android:nextFocusUp="@id/startStop"
-                style="@style/TasirinBtnSmall"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Salin URL" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/copyUrl"
+                    android:nextFocusDown="@id/statusWeb"
+                    android:nextFocusUp="@id/startStop"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Salin URL" />
+
+                <Button
+                    android:id="@+id/statusWeb"
+                    android:nextFocusDown="@id/dataDir"
+                    android:nextFocusUp="@id/copyUrl"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Status Web" />
+            </LinearLayout>
 
             <TextView
                 style="@style/TasirinLabel"
@@ -547,12 +565,22 @@
 
                 <CheckBox
                     android:id="@+id/backupOnStart"
-                    android:nextFocusDown="@id/backupTg"
+                    android:nextFocusDown="@id/tgFull"
                     android:nextFocusUp="@id/tgAuto"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Backup otomatis saat Start (maks. 1x/24 jam)" />
+
+                <CheckBox
+                    android:id="@+id/tgFull"
+                    android:nextFocusDown="@id/backupTg"
+                    android:nextFocusUp="@id/backupOnStart"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Sertakan pengaturan &amp; sertifikat" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
