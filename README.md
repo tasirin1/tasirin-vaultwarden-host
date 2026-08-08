@@ -10,7 +10,10 @@ Mendukung **Android 5.0 (API 21) ke atas**.
    melakukan *cross-compile* untuk **`armeabi-v7a`** (ARM 32-bit, target
    Android API 21) — satu-satunya ABI yang didukung.
 2. Binary di-*bundle* ke dalam APK, lalu **APK + binary** di-publish ke
-   **GitHub Release** repo ini.
+   **GitHub Release** repo ini. (Catatan: DNS resolver kustom Vaultwarden
+   `hickory` dinonaktifkan di Android karena butuh konteks JNI yang tidak
+   tersedia di proses *standalone*; diganti DNS sistem agar ikon vault &
+   request keluar tetap jalan.)
 3. Saat tombol **Start** ditekan, app menjalankan binary dengan `DATA_FOLDER`
    sesuai pilihan kamu (default `/sdcard/vaultwarden`) — database SQLite &
    data lain tersimpan di sana.

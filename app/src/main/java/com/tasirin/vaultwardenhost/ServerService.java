@@ -701,7 +701,18 @@ public class ServerService extends Service {
                 return null;
             }
             File out = new File(binDir, "vaultwarden-" + ABI);
-            boolean valid = out.exists() && out.length() > 1_000_000;
+            // Binary bundel baru (APK update) bisa beda ukuran walau versi sama;
+            // kecuali user sudah update binary manual (KEY_UPDATE_VERSION), jangan
+            // timpa file update-nya. Ukuran file sama -> biarkan (tidak perlu baca ulang).
+            long bundledSize = -1;
+            try {
+                bundledSize = getAssets().openFd("bin/" + ABI + "/vaultwarden").getLength();
+            } catch (Exception ignored) {
+            }
+            boolean updated = !getSharedPreferences(PREFS, MODE_PRIVATE)
+                    .getString(KEY_UPDATE_VERSION, "").isEmpty();
+            boolean valid = out.exists() && out.length() > 1_000_000
+                    && (updated || bundledSize <= 0 || out.length() == bundledSize);
             if (!valid) {
                 try (InputStream in = getAssets().open("bin/" + ABI + "/vaultwarden");
                      FileOutputStream fos = new FileOutputStream(out)) {

@@ -60,6 +60,32 @@ jobs:
           git clone --depth 1 --branch ${{ needs.resolve.outputs.vw }} \
             https://github.com/dani-garcia/vaultwarden.git
 
+      - name: Patch DNS resolver untuk Android (tanpa ndk-context)
+        run: |
+          python3 - <<'PYEOF'
+          p = 'vaultwarden/src/http_client.rs'
+          src = open(p).read()
+          anchor = """impl CustomDnsResolver {
+          fn new() -> Arc<Self> {
+              TokioResolver::builder(TokioRuntimeProvider::default())"""
+          addition = """impl CustomDnsResolver {
+          fn new() -> Arc<Self> {
+              // Hickory butuh konteks JNI Android (ndk-context) untuk baca DNS
+              // sistem; proses standalone tidak punya JavaVM -> panic saat request
+              // keluar (mis. ikon vault). Di Android pakai DNS sistem default.
+              if cfg!(target_os = "android") {
+                  return Arc::new(Self::Default());
+              }
+              TokioResolver::builder(TokioRuntimeProvider::default())"""
+          if anchor in src:
+              open(p, 'w').write(src.replace(anchor, addition))
+              print('Patch DNS Android diterapkan.')
+          elif 'ndk-context' not in open('vaultwarden/Cargo.lock').read():
+              print('ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
+          else:
+              raise SystemExit('Anchor patch tidak ditemukan tapi ndk-context masih dipakai!')
+          PYEOF
+
       - name: Install pinned Vaultwarden toolchain with Android target
         run: |
           RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' vaultwarden/rust-toolchain.toml)
