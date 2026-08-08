@@ -31,7 +31,7 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - **Tab Actions** → run terbaru → artifact `tasirin-vaultwarden-host-apk-armeabi-v7a`.
 - APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
   Manager) — tinggal install (aktifkan *install from unknown sources*).
-- Ukuran APK **sangat kecil (~2–3 MB)**: binary server & web vault TIDAK
+- Ukuran APK **super kecil (~0,1 MB)**: binary server & web vault TIDAK
   dibundel ke dalam APK. Keduanya diunduh dari GitHub Release saat
   **Start pertama** (binary ~20 MB otomatis; web vault ~35 MB lewat dialog
   "Unduh & Start" atau kapan saja lewat tombol **Update Web Vault**).
