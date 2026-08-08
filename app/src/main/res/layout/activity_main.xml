@@ -348,13 +348,23 @@
 
                 <CheckBox
                     android:id="@+id/autoUpdate"
-                    android:nextFocusDown="@id/update"
+                    android:nextFocusDown="@id/autoUpdateWv"
                     android:nextFocusUp="@id/batteryBtn"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Auto-update binary saat ada versi baru (jaringan rumah)" />
+
+                <CheckBox
+                    android:id="@+id/autoUpdateWv"
+                    android:nextFocusDown="@id/update"
+                    android:nextFocusUp="@id/autoUpdate"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Auto-update web vault mengikuti binary (jaringan rumah)" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -365,7 +375,7 @@
                     <Button
                         android:id="@+id/update"
                         android:nextFocusDown="@id/revert"
-                        android:nextFocusUp="@id/autoUpdate"
+                        android:nextFocusUp="@id/autoUpdateWv"
                         style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

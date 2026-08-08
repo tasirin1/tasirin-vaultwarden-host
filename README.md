@@ -49,6 +49,28 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8088`.
 
+## Instal tanpa internet (offline)
+
+APK tidak membundel binary & web vault supaya ukurannya kecil, jadi Start
+pertama biasanya butuh internet. Bila perangkat tidak punya akses internet
+(khususnya STB/TV), siapkan dua file ini **sekali** lewat perangkat lain:
+
+1. Unduh dari halaman **Release** repo ini:
+   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB)
+   - `web-vault.zip` (halaman web vault, ~36 MB)
+2. Letakkan binary dengan nama persis:
+   `/sdcard/vaultwarden/vaultwarden-armeabi-v7a`
+3. Ekstrak `web-vault.zip` sehingga muncul file
+   `/sdcard/vaultwarden/web-vault/index.html`
+   (isi zip langsung diekstrak ke folder `web-vault`).
+4. Buka app, isi **Folder data** = `/sdcard/vaultwarden`, tekan **Start** —
+   app memakai binary & web vault yang sudah ada **tanpa internet**.
+
+Catatan: binary di `/sdcard` tidak bisa dieksekusi langsung (storage FAT),
+karena itu app menyalinnya ke internal dulu saat Start — otomatis, tanpa
+unduh. File lain (`web-vault`, database, config) dipakai langsung dari
+folder data.
+
 ## Status web & log realtime
 
 - Saat server berjalan, app juga menjalankan **status web** di **port server + 1**

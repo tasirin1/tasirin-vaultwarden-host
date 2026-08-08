@@ -232,7 +232,7 @@ public final class TgBot {
         return log.length() > 3500 ? "..." + log.substring(log.length() - 3500) : log;
     }
 
-    private static String durationText(long ms) {
+    static String durationText(long ms) {
         long s = ms / 1000;
         long h = s / 3600;
         long m = (s % 3600) / 60;
@@ -256,12 +256,25 @@ public final class TgBot {
                 ? "?" : ServerService.binaryVersion;
         File db = new File(dataDir, "db.sqlite3");
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
-        return "Vaultwarden Host\n"
-                + "Status: " + (ServerService.running ? "Running" : "Stopped") + "\n"
-                + "Versi: " + version + "\n"
-                + "Data: " + dataDir + "\n"
-                + "DB: " + dbInfo + "\n"
-                + "URL: " + ServerService.localUrl(ctx);
+        String wv = Updater.webVaultFromVersion(ctx);
+        String wvInfo = wv != null ? wv : "belum ada";
+        long rss = ServerService.processRssKb();
+        String ram = rss > 0 ? TgBackup.humanBytes(rss * 1024) : "?";
+        long up = ServerService.uptimeMs();
+        String uptime = up > 0 ? durationText(up) : "-";
+        long free = TgBackup.freeBytes(dataDir);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Vaultwarden Host\n")
+                .append("Status: ").append(ServerService.running ? "Running" : "Stopped").append("\n")
+                .append("Versi: ").append(version).append("\n")
+                .append("Web vault: ").append(wvInfo).append("\n")
+                .append("Data: ").append(dataDir).append("\n")
+                .append("DB: ").append(dbInfo).append("\n")
+                .append("RAM: ").append(ram).append("\n")
+                .append("Uptime: ").append(uptime).append("\n")
+                .append("Sisa: ").append(TgBackup.humanBytes(free)).append("\n")
+                .append("URL: ").append(ServerService.localUrl(ctx));
+        return sb.toString();
     }
 
     private static PendingIntent pendingIntent(Context ctx) {

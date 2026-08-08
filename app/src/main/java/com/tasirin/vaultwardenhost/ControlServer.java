@@ -155,10 +155,17 @@ public final class ControlServer {
                 o.put("build", 0);
             }
             o.put("binaryVersion", ServerService.binaryVersion == null ? "" : ServerService.binaryVersion);
+            String wv = Updater.webVaultFromVersion(context);
+            o.put("wvVersion", wv == null ? "" : wv);
             o.put("port", ServerService.runningPort == null ? "" : ServerService.runningPort);
             o.put("https", ServerService.runningHttps);
             o.put("dataDir", ServerService.runningDataDir == null ? "" : ServerService.runningDataDir);
             o.put("uptimeMs", ServerService.uptimeMs());
+            long up = ServerService.uptimeMs();
+            o.put("uptimeHuman", up > 0 ? TgBot.durationText(up) : "");
+            long rss = ServerService.processRssKb();
+            o.put("ramKb", rss > 0 ? rss : -1);
+            o.put("ramHuman", rss > 0 ? TgBackup.humanBytes(rss * 1024) : "");
             o.put("ctrlPort", listeningPort);
             String dir = ServerService.runningDataDir == null || ServerService.runningDataDir.isEmpty()
                     ? Environment.getDataDirectory().getAbsolutePath()

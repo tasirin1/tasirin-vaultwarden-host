@@ -61,6 +61,7 @@ public class ServerService extends Service {
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
+    public static final String KEY_AUTO_UPDATE_WV = "auto_update_webvault";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
@@ -407,6 +408,11 @@ public class ServerService extends Service {
                     setStatus("Gagal buat sertifikat - lanjut HTTP");
                 } else {
                     scheme = "https";
+                    long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
+                    if (certDays >= 0 && certDays < 30) {
+                        appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
+                                + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
+                    }
                 }
             }
 
@@ -469,13 +475,17 @@ public class ServerService extends Service {
                 controlServer.stop();
             }
             controlServer = new ControlServer(this);
-            boolean ctrlOk = controlServer.start(portNum + 1);
+            boolean ctrlOk = false;
+            for (int cp = portNum + 1; cp <= portNum + 10 && !ctrlOk; cp++) {
+                ctrlOk = controlServer.start(cp);
+            }
             String ctrlUrl = "";
             if (ctrlOk) {
                 ctrlUrl = scheme + "://" + lanHost() + ":" + ControlServer.listeningPort;
                 appendLog("[app] Status web (log realtime): " + ctrlUrl);
             } else {
-                appendLog("[app] Status web tidak start (port " + (portNum + 1) + " dipakai).");
+                appendLog("[app] Status web tidak start: port " + (portNum + 1)
+                        + "-" + (portNum + 10) + " semuanya dipakai.");
             }
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
@@ -999,6 +1009,69 @@ public class ServerService extends Service {
         }
     }
 
+    /** RAM (VmRSS, kB) proses vaultwarden; -1 bila tidak terbaca. */
+    public static long processRssKb() {
+        int pid = -1;
+        Process p = process;
+        if (p != null) {
+            pid = pidOf(p);
+        }
+        if (pid < 0) {
+            pid = findChildPid();
+        }
+        if (pid < 0) {
+            return -1;
+        }
+        try (BufferedReader r = new BufferedReader(
+                new java.io.FileReader("/proc/" + pid + "/status"))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                if (line.startsWith("VmRSS:")) {
+                    String[] parts = line.trim().split("\\s+");
+                    if (parts.length >= 2) {
+                        return Long.parseLong(parts[1]);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    /** Cari pid anak vaultwarden via /proc (fallback API < 26 tanpa Process.pid()). */
+    private static int findChildPid() {
+        try {
+            File[] dirs = new File("/proc").listFiles();
+            if (dirs == null) {
+                return -1;
+            }
+            int myUid = android.os.Process.myUid();
+            int myPid = android.os.Process.myPid();
+            for (File d : dirs) {
+                String name = d.getName();
+                if (name.isEmpty() || !Character.isDigit(name.charAt(0))) {
+                    continue;
+                }
+                try {
+                    int pid = Integer.parseInt(name);
+                    if (pid == myPid) {
+                        continue;
+                    }
+                    if (readProcUid(d) != myUid) {
+                        continue;
+                    }
+                    String cmd = readProcCmdline(d);
+                    if (cmd != null && cmd.contains("bin/vaultwarden")) {
+                        return pid;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
     /** Bunuh proses vaultwarden lama (UID sama, bukan proses kita) yang masih
      *  nyangkut & memegang port setelah app di-restart/update. */
     private void killStaleVaultwarden() {
@@ -1078,7 +1151,7 @@ public class ServerService extends Service {
     }
 
     /** True bila port sedang dipakai proses lain (listening). */
-    private static boolean isPortBusy(int port) {
+    public static boolean isPortBusy(int port) {
         try (ServerSocket s = new ServerSocket()) {
             s.setReuseAddress(true);
             s.bind(new InetSocketAddress(port));

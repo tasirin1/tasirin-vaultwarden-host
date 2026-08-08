@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.Date;
@@ -28,6 +31,18 @@ public final class TlsCert {
 
     /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
     private static final int CERT_VERSION = 3;
+
+    /** Sisa hari masa berlaku cert.pem; -1 bila tidak bisa dibaca. */
+    public static long daysLeft(File certFile) {
+        try (FileInputStream in = new FileInputStream(certFile)) {
+            Certificate cert = CertificateFactory.getInstance("X.509")
+                    .generateCertificate(in);
+            long ms = cert.getNotAfter().getTime() - System.currentTimeMillis();
+            return ms > 0 ? ms / (24L * 3600 * 1000) : 0;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
 
     /** Pastikan cert.pem & key.pem ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {

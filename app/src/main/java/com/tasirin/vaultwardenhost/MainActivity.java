@@ -81,6 +81,7 @@ public class MainActivity extends Activity {
     private TextView restartHint;
     private TextView updateHint;
     private CheckBox autoUpdateCb;
+    private CheckBox autoUpdateWvCb;
     private volatile String pendingVersion = null;
     private Button logOpenBtn;
     private Button startStopBtn;
@@ -144,6 +145,7 @@ public class MainActivity extends Activity {
         restartHint = findViewById(R.id.restartHint);
         updateHint = findViewById(R.id.updateHint);
         autoUpdateCb = findViewById(R.id.autoUpdate);
+        autoUpdateWvCb = findViewById(R.id.autoUpdateWv);
         logOpenBtn = findViewById(R.id.logOpen);
         startStopBtn = findViewById(R.id.startStop);
         advancedToggleBtn = findViewById(R.id.advancedToggle);
@@ -223,6 +225,7 @@ public class MainActivity extends Activity {
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
+        autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
@@ -247,6 +250,9 @@ public class MainActivity extends Activity {
         autoUpdateCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_UPDATE, checked).apply());
+        autoUpdateWvCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(ServerService.KEY_AUTO_UPDATE_WV, checked).apply());
         tgFullCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
@@ -339,6 +345,22 @@ public class MainActivity extends Activity {
         ed.putString(ServerService.KEY_PORT, TextUtils.isEmpty(port) ? DEFAULT_PORT : port);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
+
+        int portNum = -1;
+        try {
+            portNum = Integer.parseInt(port.trim());
+        } catch (Exception ignored) {
+        }
+        if (portNum > 0 && ServerService.isPortBusy(portNum)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Port " + portNum + " sedang dipakai")
+                    .setMessage("Port utama (" + portNum + ") sudah dipakai proses lain.\n"
+                            + "Stop aplikasi lain yang memakainya, ganti port di atas, "
+                            + "atau restart HP dulu.")
+                    .setPositiveButton("Oke", null)
+                    .show();
+            return;
+        }
 
         if (!webVaultReady(dataDir)) {
             // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
@@ -440,6 +462,14 @@ public class MainActivity extends Activity {
         String wv = webVaultInfoLine();
         if (!wv.isEmpty()) {
             full += "\n" + wv;
+        }
+        String sys = sysInfoLine();
+        if (!sys.isEmpty()) {
+            full += "\n" + sys;
+        }
+        String cert = certInfoLine();
+        if (!cert.isEmpty()) {
+            full += "\n" + cert;
         }
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
@@ -632,6 +662,25 @@ public class MainActivity extends Activity {
                         TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
                     }
+                }
+            }
+            if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false)
+                    && isUnmeteredNetwork()) {
+                try {
+                    String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                    if (webVaultReady(dataDir)) {
+                        String marker = Updater.webVaultFromVersion(this);
+                        if (marker == null || !marker.equals(latest)) {
+                            String msg = Updater.updateWebVault(this);
+                            ui.post(() -> {
+                                toast(msg);
+                                appendUiLog("[app] " + msg);
+                            });
+                        }
+                    }
+                } catch (Exception e) {
+                    ui.post(() -> appendUiLog("[app] Auto-update web-vault gagal: "
+                            + e.getMessage()));
                 }
             }
             TgBackup.notifyLowStorage(this);
@@ -1133,6 +1182,7 @@ public class MainActivity extends Activity {
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
+        autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
@@ -1263,6 +1313,56 @@ public class MainActivity extends Activity {
             wvLine = "";
         }
         return wvLine;
+    }
+
+    /** RAM proses server, uptime, dan sisa storage (satu baris ringkas). */
+    private String sysInfoLine() {
+        StringBuilder sb = new StringBuilder();
+        if (ServerService.running) {
+            long rss = ServerService.processRssKb();
+            if (rss > 0) {
+                sb.append("RAM ").append(TgBackup.humanBytes(rss * 1024));
+            }
+            long up = ServerService.uptimeMs();
+            if (up > 0) {
+                if (sb.length() > 0) {
+                    sb.append(" \u00B7 ");
+                }
+                sb.append("Uptime ").append(TgBot.durationText(up));
+            }
+        }
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        long free = TgBackup.freeBytes(dataDir);
+        if (free > 0) {
+            if (sb.length() > 0) {
+                sb.append(" \u00B7 ");
+            }
+            sb.append("Sisa ").append(TgBackup.humanBytes(free));
+        }
+        return sb.toString();
+    }
+
+    /** Sisa masa berlaku sertifikat TLS; kosong bila belum ada / tidak terbaca. */
+    private String certInfoLine() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            File cert = new File(dataDir, "tls/cert.pem");
+            if (!cert.exists()) {
+                return "";
+            }
+            long days = TlsCert.daysLeft(cert);
+            if (days < 0) {
+                return "";
+            }
+            if (days < 30) {
+                return "\u26A0 Sertifikat TLS tinggal " + days + " hari";
+            }
+            return "Sertifikat TLS: " + days + " hari";
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /** Versi dari file vw-version.json (web-vault yang sudah di-update) atau null. */
