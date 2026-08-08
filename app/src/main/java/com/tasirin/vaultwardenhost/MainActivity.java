@@ -93,6 +93,7 @@ public class MainActivity extends Activity {
     private Button backupTgBtn;
 
     private String bundledVersion = "?";
+    private String appVersion = "";
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
@@ -291,6 +292,11 @@ public class MainActivity extends Activity {
         }
 
         bundledVersion = readBundledVersion();
+        try {
+            appVersion = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception ignored) {
+        }
         ui.post(this::refreshFromService);
 
         // Auto-update check on launch
@@ -400,9 +406,11 @@ public class MainActivity extends Activity {
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
-        String version = bundledVersion;
+        String version = "App " + appVersion;
         if (!ServerService.binaryVersion.isEmpty()) {
-            version = "Binary: " + ServerService.binaryVersion;
+            version += " \u00B7 Binary: " + ServerService.binaryVersion;
+        } else {
+            version += " \u00B7 " + bundledVersion;
         }
         String dbInfo = dbInfoLine();
         String full = dbInfo.isEmpty() ? version : version + "\n" + dbInfo;

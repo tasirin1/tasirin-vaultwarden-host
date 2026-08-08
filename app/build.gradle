@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+// Versi aplikasi mengikuti tanggal build (UTC, konsisten dengan CI).
+def buildDate = new Date().format('yyyy.MM.dd', TimeZone.getTimeZone('UTC'))
+def buildCode = Integer.parseInt(new Date().format('yyyyMMdd', TimeZone.getTimeZone('UTC')))
+
 android {
     namespace 'com.tasirin.vaultwardenhost'
     compileSdk 34
@@ -11,8 +15,8 @@ android {
         minSdk 21
         // targetSdk 28 sengaja: agar binary vaultwarden tetap bisa di-execute dari app data
         targetSdk 28
-        versionCode 3
-        versionName '2.0'
+        versionCode buildCode
+        versionName buildDate
     }
 
     signingConfigs {

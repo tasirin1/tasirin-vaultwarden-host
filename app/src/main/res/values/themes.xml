@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tema utama: terang (Android 5-7) / ikut sistem saat mode gelap (Android 8+).
-         colorControlHighlight penting agar fokus D-pad terlihat di Android 6
-         yang tidak menggambar highlight fokus otomatis. -->
-    <style name="Theme.TasirinVaultwardenHost" parent="@android:style/Theme.Material.Light.DarkActionBar">
+    <!-- Tema utama tanpa action bar: header memakai teks di layout sendiri,
+         lebih lega & tidak ada banner biru di atas. -->
+    <style name="Theme.TasirinVaultwardenHost" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
