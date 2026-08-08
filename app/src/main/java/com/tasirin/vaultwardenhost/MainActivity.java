@@ -104,7 +104,10 @@ public class MainActivity extends Activity {
     private boolean refreshActive = true;
     private long lastWvCheck = 0;
     private String wvLine = "";
+    private long lastDbCheck = 0;
+    private String dbLine = "";
     private static final long WV_CHECK_MS = 10_000;
+    private static final long DB_CHECK_MS = 5_000;
 
     private static boolean unlocked = false;
 
@@ -229,34 +232,8 @@ public class MainActivity extends Activity {
                         .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
-        tgTokenInput.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int a, int b, int c) {
-                TgBot.schedule(MainActivity.this);
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-            }
-        });
-        tgChatInput.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int a, int b, int c) {
-                TgBot.schedule(MainActivity.this);
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-            }
-        });
+        tgTokenInput.addTextChangedListener(onTextChanged(() -> TgBot.schedule(this)));
+        tgChatInput.addTextChangedListener(onTextChanged(() -> TgBot.schedule(this)));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -1101,20 +1078,27 @@ public class MainActivity extends Activity {
     }
 
     private String dbInfoLine() {
+        long now = System.currentTimeMillis();
+        if (now - lastDbCheck < DB_CHECK_MS) {
+            return dbLine;
+        }
+        lastDbCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             File db = new File(dataDir, "db.sqlite3");
             if (!db.exists()) {
-                return "";
+                dbLine = "";
+                return dbLine;
             }
             File backupDir = new File(dataDir, "backups");
             File[] files = backupDir.listFiles();
             int n = files == null ? 0 : files.length;
-            return "DB: " + TgBackup.humanBytes(db.length()) + " | Backup lokal: " + n;
+            dbLine = "DB: " + TgBackup.humanBytes(db.length()) + " | Backup lokal: " + n;
         } catch (Exception e) {
-            return "";
+            dbLine = "";
         }
+        return dbLine;
     }
 
     /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server. */
@@ -1216,7 +1200,6 @@ public class MainActivity extends Activity {
         btn.setText(hidden ? "Sembunyi" : "Lihat");
     }
 
-    /** Bagikan isi log lewat app lain (WhatsApp, file manager, dll). */
     /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
     private void maybeAutoBackup() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -1306,6 +1289,24 @@ public class MainActivity extends Activity {
 
     private void toast(String message) {
         ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    /** Watcher ringkas untuk aksi onTextChanged tanpa boilerplate. */
+    private android.text.TextWatcher onTextChanged(final Runnable r) {
+        return new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int a, int b, int c) {
+                r.run();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        };
     }
 
     /** Simpan nilai EditText ke prefs begitu berubah. */

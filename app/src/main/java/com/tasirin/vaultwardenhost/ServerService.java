@@ -911,11 +911,18 @@ public class ServerService extends Service {
 
 
     private String getPid(Process p) {
+        int pid = pidOf(p);
+        return pid < 0 ? "?" : String.valueOf(pid);
+    }
+
+    private static int pidOf(Process p) {
+        if (p == null) {
+            return -1;
+        }
         try {
-            java.lang.reflect.Method pid = Process.class.getMethod("pid");
-            return String.valueOf(pid.invoke(p));
+            return (Integer) Process.class.getMethod("pid").invoke(p);
         } catch (Throwable t) {
-            return "?";
+            return -1;
         }
     }
 
@@ -956,15 +963,7 @@ public class ServerService extends Service {
     }
 
     private int runningChildPid() {
-        Process cur = process;
-        if (cur == null) {
-            return -1;
-        }
-        try {
-            return (Integer) Process.class.getMethod("pid").invoke(cur);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return pidOf(process);
     }
 
     private static String readProcCmdline(File dir) {

@@ -46,6 +46,8 @@ public class LogActivity extends Activity {
     private String logSearch = "";
     private boolean logAutoScroll = false;
     private String lastLogKey = null;
+    private int lastLogLen = 0;
+    private int lineCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,14 +118,22 @@ public class LogActivity extends Activity {
         synchronized (ServerService.logBuffer) {
             text = ServerService.logBuffer.toString();
         }
-        int lines = 0;
-        for (int i = 0; i < text.length(); i++) {
+        int len = text.length();
+        if (len < lastLogLen) {
+            // Log terpotong (trim buffer) - hitung ulang dari awal.
+            lineCount = 0;
+            lastLogLen = 0;
+        }
+        for (int i = lastLogLen; i < len; i++) {
             if (text.charAt(i) == '\n') {
-                lines++;
+                lineCount++;
             }
         }
-        logCount.setText("Baris: " + lines);
-        String key = text + "\u0000" + logSearch;
+        lastLogLen = len;
+        logCount.setText("Baris: " + lineCount);
+        // Konten log append-only (trim hanya memendekkan) - panjang cukup sebagai
+        // penanda perubahan, tanpa perlu menyalin/membandingkan teks 300 KB tiap detik.
+        String key = len + "\u0000" + logSearch;
         if (key.equals(lastLogKey)) {
             return;
         }

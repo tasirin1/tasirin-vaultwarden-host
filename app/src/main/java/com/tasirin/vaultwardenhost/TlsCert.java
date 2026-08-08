@@ -111,11 +111,11 @@ public final class TlsCert {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
                 if (octets != null) {
-                    b.bytes(new byte[]{(byte) 0x87, (byte) octets.length});
+                    b.raw(new byte[]{(byte) 0x87, (byte) octets.length});
                     b.raw(octets);
                 }
             }
-            b.bytes(new byte[]{(byte) 0x82, 9});
+            b.raw(new byte[]{(byte) 0x82, 9});
             b.raw("localhost".getBytes(StandardCharsets.US_ASCII));
         }, 0x30);
 
@@ -276,10 +276,6 @@ public final class TlsCert {
         }
 
         void raw(byte[] data) throws IOException {
-            out.write(data, 0, data.length);
-        }
-
-        void bytes(byte[] data) throws IOException {
             out.write(data, 0, data.length);
         }
 
