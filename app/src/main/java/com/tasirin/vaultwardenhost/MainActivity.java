@@ -666,10 +666,9 @@ public class MainActivity extends Activity {
             if (!webVaultReady(dataDir)) {
                 return;
             }
-            String updated = Updater.webVaultFromVersion(this);
-            if (updated == null) {
-                updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
-            }
+            String marker = Updater.webVaultFromVersion(this);
+            final String updated = marker != null ? marker
+                    : readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
             if (updated == null) {
                 return;
             }
