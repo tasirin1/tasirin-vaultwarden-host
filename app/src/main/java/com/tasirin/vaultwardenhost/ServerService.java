@@ -28,9 +28,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -62,6 +65,8 @@ public class ServerService extends Service {
     private static final int MAX_LOG_CHARS = 300_000;
     private static final long MAX_LOG_FILE = 2L * 1024 * 1024;
     private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
+    private static final SimpleDateFormat LOG_TS =
+            new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
 
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
@@ -543,15 +548,20 @@ public class ServerService extends Service {
         if (line == null) {
             return;
         }
+        String stamp;
+        synchronized (LOG_TS) {
+            stamp = LOG_TS.format(new Date());
+        }
+        String entry = stamp + " " + line;
         synchronized (logBuffer) {
-            logBuffer.append(line).append('\n');
+            logBuffer.append(entry).append('\n');
             if (logBuffer.length() > MAX_LOG_CHARS) {
                 logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
             }
         }
         if (logFile != null) {
             try (FileWriter w = new FileWriter(logFile, true)) {
-                w.write(line + "\n");
+                w.write(entry + "\n");
             } catch (Exception ignored) {
             }
             if (logFile.length() > MAX_LOG_FILE) {

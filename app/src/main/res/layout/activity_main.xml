@@ -422,6 +422,14 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/logSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Simpan"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <Button
                 android:id="@+id/logShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -443,6 +451,29 @@
                 android:layout_height="wrap_content"
                 android:text="Sembunyikan"
                 android:textAllCaps="false"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/logSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Cari di log..."
+                android:inputType="text"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/logAutoScroll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto-scroll"
                 android:textSize="12sp" />
         </LinearLayout>
 
