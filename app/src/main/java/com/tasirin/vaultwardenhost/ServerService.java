@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -35,8 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -355,7 +354,7 @@ public class ServerService extends Service {
 
         // Bersihkan sisa unduhan gagal agar tidak memakan storage.
         cleanupTempFiles(dataDir);
-        File binary = extractBinary();
+        File binary = ensureBinary();
         if (binary == null) {
             return;
         }
@@ -721,97 +720,104 @@ public class ServerService extends Service {
         new File(dataDir, "web-vault.zip.tmp").delete();
     }
 
-    private File extractBinary() {
-        try {
-            File binDir = new File(getFilesDir(), "bin");
-            if (!binDir.exists() && !binDir.mkdirs()) {
-                appendLog("[app] Gagal membuat folder binary.");
-                return null;
-            }
-            File out = new File(binDir, "vaultwarden-" + ABI);
-            // Binary bundel baru (APK update) bisa beda ukuran walau versi sama;
-            // kecuali user sudah update binary manual (KEY_UPDATE_VERSION), jangan
-            // timpa file update-nya. Ukuran file sama -> biarkan (tidak perlu baca ulang).
-            long bundledSize = -1;
+    /** Pastikan binary vaultwarden siap dipakai. Prioritas:
+     *  1) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
+     *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
+     *  2) cache internal milik APK ini (tidak diunduh ulang),
+     *  3) unduh dari release repo (dibangun dari sumber resmi, verifikasi SHA-256).
+     *  Return null bila gagal (status sudah diisi pesan). */
+    private File ensureBinary() {
+        File binDir = new File(getFilesDir(), "bin");
+        if (!binDir.exists() && !binDir.mkdirs()) {
+            appendLog("[app] Gagal membuat folder binary.");
+            return null;
+        }
+        File out = new File(binDir, "vaultwarden-" + ABI);
+        File verFile = new File(binDir, "version.txt");
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = DEFAULT_DATA_DIR;
+        }
+
+        // 1) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
+        File userBin = new File(dataDir, "vaultwarden-" + ABI);
+        if (isValidBinary(userBin)) {
             try {
-                bundledSize = getAssets().openFd("bin/" + ABI + "/vaultwarden").getLength();
+                copyBinary(userBin, out);
+                writeText(verFile, Updater.appVersionName(this));
+                appendLog("[app] Binary dari folder data dipakai: " + userBin.getAbsolutePath());
+                detectBinaryVersion(out);
+                return out;
+            } catch (Exception e) {
+                appendLog("[app] Gagal memakai binary dari folder data: " + e);
+            }
+        }
+
+        // 2) Cache internal milik APK ini (version.txt = versi APK saat diunduh).
+        if (isValidBinary(out) && verFile.exists()) {
+            try {
+                if (Updater.appVersionName(this).equals(readText(verFile))) {
+                    detectBinaryVersion(out);
+                    return out;
+                }
             } catch (Exception ignored) {
             }
-            boolean updated = !getSharedPreferences(PREFS, MODE_PRIVATE)
-                    .getString(KEY_UPDATE_VERSION, "").isEmpty();
-            boolean valid = out.exists() && out.length() > 1_000_000
-                    && (updated || bundledSize <= 0 || out.length() == bundledSize);
-            if (!valid) {
-                try (InputStream in = getAssets().open("bin/" + ABI + "/vaultwarden");
-                     FileOutputStream fos = new FileOutputStream(out)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    while ((n = in.read(buf)) > 0) {
-                        fos.write(buf, 0, n);
-                    }
-                }
-                out.setReadable(true, false);
-                out.setExecutable(true, false);
-                appendLog("[app] Binary diekstrak: " + out.getAbsolutePath());
-            }
+        }
+
+        // 3) Unduh dari release repo.
+        try {
+            String msg = Updater.downloadBinary(this, out);
+            appendLog("[app] " + msg);
+            writeText(verFile, Updater.appVersionName(this));
             detectBinaryVersion(out);
             return out;
         } catch (Exception e) {
-            appendLog("[app] Gagal ekstrak binary: " + e);
+            appendLog("[app] Gagal unduh binary: " + e);
+            setStatus("Binary belum tersedia - unduh gagal: " + e.getMessage()
+                    + "\nCek koneksi internet, lalu tekan Start lagi.");
             return null;
         }
     }
 
-    private File extractWebVault() {
-        try {
-            File dir = new File(getFilesDir(), "web-vault");
-            File index = new File(dir, "index.html");
-            if (index.exists()) {
-                return dir;
-            }
-            // APK baru tidak lagi membundel web-vault.zip (ukuran APK jauh lebih
-            // kecil); web vault diunduh sekali lewat tombol "Update Web Vault".
-            boolean bundled = false;
-            try (InputStream check = getAssets().open("web-vault.zip")) {
-                bundled = true;
-            } catch (Exception ignored) {
-            }
-            if (!bundled) {
-                appendLog("[app] Web vault belum terpasang - buka app lalu tekan 'Update Web Vault' untuk mengunduh sekali.");
-                return null;
-            }
-            byte[] buf = new byte[64 * 1024];
-            try (InputStream in = getAssets().open("web-vault.zip");
-                 ZipInputStream zis = new ZipInputStream(in)) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    if (entry.isDirectory()) {
-                        new File(dir, entry.getName()).mkdirs();
-                    } else {
-                        File outFile = new File(dir, entry.getName());
-                        if (!outFile.getCanonicalPath().startsWith(dir.getCanonicalPath())) {
-                            continue;
-                        }
-                        outFile.getParentFile().mkdirs();
-                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                            int n;
-                            while ((n = zis.read(buf)) > 0) {
-                                fos.write(buf, 0, n);
-                            }
-                        }
-                    }
-                    zis.closeEntry();
-                }
-            }
-            if (index.exists()) {
-                appendLog("[app] Web vault siap di " + dir.getAbsolutePath());
-                return dir;
-            }
-            return null;
-        } catch (Exception e) {
-            appendLog("[app] Gagal ekstrak web-vault: " + e);
-            return null;
+    private boolean isValidBinary(File f) {
+        if (f == null || !f.exists() || f.length() < 1_000_000) {
+            return false;
         }
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            byte[] magic = new byte[4];
+            int n = in.read(magic);
+            return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
+                    && magic[2] == 'L' && magic[3] == 'F';
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void copyBinary(File src, File dst) throws IOException {
+        try (InputStream in = new java.io.FileInputStream(src);
+             FileOutputStream fos = new FileOutputStream(dst)) {
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                fos.write(buf, 0, n);
+            }
+        }
+        dst.setReadable(true, false);
+        dst.setExecutable(true, false);
+    }
+
+    private File extractWebVault() {
+        // APK tidak lagi membundel web-vault; unduh sekali lewat tombol
+        // "Update Web Vault" (tersimpan di <data>/web-vault dan dipakai ulang).
+        File dir = new File(getFilesDir(), "web-vault");
+        File index = new File(dir, "index.html");
+        if (index.exists()) {
+            return dir;
+        }
+        appendLog("[app] Web vault belum terpasang - tekan 'Update Web Vault' "
+                + "untuk mengunduh sekali (~35 MB).");
+        return null;
     }
 
     private void detectBinaryVersion(File binary) {

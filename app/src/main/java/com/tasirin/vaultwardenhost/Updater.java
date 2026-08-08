@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -87,20 +88,30 @@ public final class Updater {
             return "Sudah versi terbaru: v" + latest;
         }
 
-        // Unduh per tag resmi; kalau build belum ada, beri tahu menunggu build otomatis
-        String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + ServerService.ABI;
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
-        File tmp = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI + ".tmp");
+        String msg = downloadBinary(ctx, out);
+        return msg;
+    }
+
+    /** Unduh binary versi terbaru dari release repo ke out (verifikasi SHA-256).
+     *  Dipakai saat Start bila binary belum ada (tidak lagi dibundel di APK). */
+    public static String downloadBinary(Context ctx, File out) throws Exception {
+        String latest = latestVersion(ctx);
+        if (latest == null) {
+            throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
+        }
+        String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + ServerService.ABI;
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
         }
+        File tmp = new File(binDir, out.getName() + ".tmp");
         HttpURLConnection dl = open(ctx, assetUrl, 20000, 60000);
         int code = dl.getResponseCode();
         if (code == 404) {
             dl.disconnect();
-            return "Build Android v" + latest
-                    + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.";
+            throw new IOException("Build Android v" + latest
+                    + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.");
         }
         if (code != 200) {
             dl.disconnect();
@@ -134,10 +145,27 @@ public final class Updater {
         }
         out.setReadable(true, false);
         out.setExecutable(true, false);
-
-        sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+        writeVersionTag(binDir, appVersionName(ctx));
+        ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                .edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
         ServerService.binaryVersion = "";
         return "Update v" + latest + " terpasang.";
+    }
+
+    /** Tandai cache binary dengan versi APK pemiliknya (untuk reuse saat Start). */
+    private static void writeVersionTag(File binDir, String apkVersion) {
+        try (FileWriter w = new FileWriter(new File(binDir, "version.txt"))) {
+            w.write(apkVersion);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static String appVersionName(Context ctx) {
+        try {
+            return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            return "?";
+        }
     }
 
     /** Unduh & ekstrak web-vault ke folder data; return pesan hasil. */

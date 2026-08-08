@@ -9,11 +9,13 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 1. GitHub Actions mengambil **versi Vaultwarden terbaru** dari rilis resminya,
    melakukan *cross-compile* untuk **`armeabi-v7a`** (ARM 32-bit, target
    Android API 21) — satu-satunya ABI yang didukung.
-2. Binary di-*bundle* ke dalam APK, lalu **APK + binary** di-publish ke
-   **GitHub Release** repo ini. (Catatan: DNS resolver kustom Vaultwarden
-   `hickory` dinonaktifkan di Android karena butuh konteks JNI yang tidak
-   tersedia di proses *standalone*; diganti DNS sistem agar ikon vault &
-   request keluar tetap jalan.)
+2. **APK + binary + web-vault.zip** di-publish ke **GitHub Release** repo ini.
+   Binary server & web vault **TIDAK lagi dibundel di dalam APK** (APK jauh
+   lebih kecil) — app mengunduhnya dari release saat pertama kali Start.
+   (Catatan: DNS resolver kustom Vaultwarden `hickory` dinonaktifkan di
+   Android karena butuh konteks JNI yang tidak tersedia di proses
+   *standalone*; diganti DNS sistem agar ikon vault & request keluar tetap
+   jalan.)
 3. Saat tombol **Start** ditekan, app menjalankan binary dengan `DATA_FOLDER`
    sesuai pilihan kamu (default `/sdcard/vaultwarden`) — database SQLite &
    data lain tersimpan di sana.
@@ -29,17 +31,19 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - **Tab Actions** → run terbaru → artifact `tasirin-vaultwarden-host-apk-armeabi-v7a`.
 - APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
   Manager) — tinggal install (aktifkan *install from unknown sources*).
-- Ukuran APK **kecil (~10–15 MB)**: web vault TIDAK lagi dibundel ke dalam APK.
-  Web vault diunduh sekali (~35 MB) saat **Start pertama** (ada pilihan
-  "Unduh & Start" atau "Start tanpa web vault"), atau kapan saja lewat tombol
-  **Update Web Vault** di app.
+- Ukuran APK **sangat kecil (~2–3 MB)**: binary server & web vault TIDAK
+  dibundel ke dalam APK. Keduanya diunduh dari GitHub Release saat
+  **Start pertama** (binary ~20 MB otomatis; web vault ~35 MB lewat dialog
+  "Unduh & Start" atau kapan saja lewat tombol **Update Web Vault**).
 
 ## Pemakaian
 
 1. Install APK, buka app **Tasirin Vaultwarden Host**, beri izin **Storage** bila diminta.
 2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8088`).
-3. Tekan **Start** (pilih **Unduh & Start** bila web vault belum ada).
-   Status menunjukkan server berjalan + URL jaringan.
+3. Tekan **Start**. Pertama kali, binary server diunduh otomatis dari
+   GitHub Release (diverifikasi SHA-256, tersimpan di internal — tidak
+   diunduh ulang pada Start berikutnya). Bila web vault belum ada, pilih
+   **Unduh & Start** di dialog. Status menunjukkan server berjalan + URL.
 4. Buka `http://127.0.0.1:8088` lewat tombol **Open Web UI** (browser HP),
    atau dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
@@ -93,6 +97,11 @@ Mendukung **Android 5.0 (API 21) ke atas**.
   Vaultwarden tidak menyediakan asset biner (Docker-only) — kontennya tetap
   diambil dari sumber resmi: source `dani-garcia/vaultwarden` untuk binary,
   dan image `vaultwarden/web-vault` (digest resmi) untuk web vault.
+- Binary **tidak dibundel di APK**: saat Start pertama app mengunduhnya dari
+  release repo ini dan menyimpannya di internal (dipakai ulang sampai APK
+  di-update). Bisa juga menaruh `vaultwarden-armeabi-v7a` manual di folder
+  data (mis. `/sdcard/vaultwarden/`) — app akan memakainya tanpa unduh ulang
+  (disalin ke internal dulu karena `/sdcard` tidak bisa dieksekusi langsung).
 - Di app: tekan **Cek Update** — jika ada versi lebih baru, binary diunduh
   sesuai ABI perangkat dan langsung dipakai saat Start berikutnya
   (**tanpa install ulang APK**).
@@ -103,7 +112,8 @@ Mendukung **Android 5.0 (API 21) ke atas**.
   image web vault resmi) dan mengekstraknya ke `<data>/web-vault`.
 - Saat versi web vault beda dari binary server, app otomatis menawarkan
   update web vault sekali per versi.
-- **Revert Bawaan** mengembalikan ke binary yang dibundel di dalam APK.
+- **Reset Binary** menghapus binary tersimpan — versi terbaru diunduh ulang
+  otomatis saat Start berikutnya.
 
 ## Backup cloud (Telegram)
 

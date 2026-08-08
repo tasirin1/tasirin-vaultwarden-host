@@ -173,8 +173,9 @@ public class MainActivity extends Activity {
         });
         openBtn.setOnClickListener(v -> openWebUi());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
-        revertBtn.setOnClickListener(v -> confirm("Revert ke binary bawaan",
-                "Binary update akan dihapus dan diganti dengan binary bawaan APK. Lanjutkan?",
+        revertBtn.setOnClickListener(v -> confirm("Reset Binary",
+                "Hapus binary tersimpan. Versi terbaru akan diunduh ulang "
+                        + "otomatis saat Start berikutnya (perlu internet). Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
         certBtn.setOnClickListener(v -> showCertHelp());
         installCertBtn.setOnClickListener(v -> installCertificate());
@@ -436,9 +437,9 @@ public class MainActivity extends Activity {
         try (BufferedReader r = new BufferedReader(new InputStreamReader(
                 getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
             String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? "?" : "Bundled: " + v.trim();
+            return (v == null || v.trim().isEmpty()) ? "?" : "Versi: " + v.trim();
         } catch (Exception e) {
-            return "Bundled: ?";
+            return "Versi: ?";
         }
     }
 
@@ -1237,14 +1238,15 @@ public class MainActivity extends Activity {
 
     private void revertToBundled() {
         File out = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
+        new File(getFilesDir(), "bin/version.txt").delete();
         if (out.exists() && out.delete()) {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .remove(ServerService.KEY_UPDATE_VERSION).apply();
             ServerService.binaryVersion = "";
-            toast("Binary bawaan dipulihkan. Tekan Start.");
-            appendUiLog("[app] Kembali ke binary bawaan APK.");
+            toast("Binary dihapus. Akan diunduh ulang saat Start.");
+            appendUiLog("[app] Binary di-reset; akan diunduh ulang saat Start.");
         } else {
-            toast("Tidak ada update terpasang.");
+            toast("Tidak ada binary tersimpan.");
         }
     }
 
