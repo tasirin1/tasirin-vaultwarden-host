@@ -10,6 +10,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -77,6 +79,9 @@ public class MainActivity extends Activity {
     private TextView versionView;
     private TextView netInfoView;
     private TextView restartHint;
+    private TextView updateHint;
+    private CheckBox autoUpdateCb;
+    private volatile String pendingVersion = null;
     private Button logOpenBtn;
     private Button startStopBtn;
     private Button advancedToggleBtn;
@@ -137,6 +142,8 @@ public class MainActivity extends Activity {
         versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
         restartHint = findViewById(R.id.restartHint);
+        updateHint = findViewById(R.id.updateHint);
+        autoUpdateCb = findViewById(R.id.autoUpdate);
         logOpenBtn = findViewById(R.id.logOpen);
         startStopBtn = findViewById(R.id.startStop);
         advancedToggleBtn = findViewById(R.id.advancedToggle);
@@ -215,6 +222,7 @@ public class MainActivity extends Activity {
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
+        autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
@@ -236,6 +244,9 @@ public class MainActivity extends Activity {
         backupOnStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
+        autoUpdateCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                        .putBoolean(ServerService.KEY_AUTO_UPDATE, checked).apply());
         tgFullCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
@@ -396,6 +407,27 @@ public class MainActivity extends Activity {
                     || !a.equals(ServerService.runningAdminToken);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
+
+        // Peringatan bila update binary tersedia tapi belum dipasang
+        boolean updAvail = false;
+        if (pendingVersion != null) {
+            SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
+            String cur = Updater.normVersion(up != null && !up.isEmpty()
+                    ? up : Updater.readBundledVersionRaw(this));
+            if (cur != null && cur.equals(pendingVersion)) {
+                pendingVersion = null; // update sudah terpasang
+            } else {
+                updAvail = !running;
+            }
+        }
+        if (updAvail) {
+            updateHint.setText("\u26A0 Update v" + pendingVersion
+                    + " tersedia \u2014 tekan Cek Update");
+            updateHint.setVisibility(View.VISIBLE);
+        } else {
+            updateHint.setVisibility(View.GONE);
+        }
 
         String version = "App " + appVersion;
         if (!ServerService.binaryVersion.isEmpty()) {
@@ -575,18 +607,54 @@ public class MainActivity extends Activity {
             String current = Updater.normVersion(updated != null && !updated.isEmpty()
                     ? updated : Updater.readBundledVersionRaw(this));
             if (current != null && !current.equals(latest)) {
-                ui.post(() -> toast("Update tersedia: v" + latest));
-                showUpdateNotification(latest);
-                // Notifikasi ke Telegram cukup sekali per versi
-                if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
-                    sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
-                    TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
-                            + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
+                if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
+                        && isUnmeteredNetwork()) {
+                    // Auto-update: pasang binary langsung (hanya WiFi/ethernet)
+                    try {
+                        String msg = Updater.tryUpdate(this);
+                        pendingVersion = null;
+                        ui.post(() -> {
+                            toast(msg);
+                            appendUiLog("[app] " + msg);
+                        });
+                    } catch (Exception e) {
+                        ui.post(() -> appendUiLog("[app] Auto-update gagal: " + e.getMessage()));
+                        pendingVersion = latest;
+                        showUpdateNotification(latest);
+                    }
+                } else {
+                    pendingVersion = latest;
+                    ui.post(() -> toast("Update tersedia: v" + latest));
+                    showUpdateNotification(latest);
+                    // Notifikasi ke Telegram cukup sekali per versi
+                    if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
+                        sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
+                        TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
+                                + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
+                    }
                 }
             }
             TgBackup.notifyLowStorage(this);
             autoOfferWebVaultUpdate();
         } catch (Exception ignored) {
+        }
+    }
+
+    /** Auto-update binary hanya di jaringan non-kuota (WiFi/ethernet). */
+    private boolean isUnmeteredNetwork() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            if (cm == null) {
+                return false;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return !cm.isActiveNetworkMetered();
+            }
+            NetworkInfo ni = cm.getActiveNetworkInfo();
+            return ni != null && (ni.getType() == ConnectivityManager.TYPE_WIFI
+                    || ni.getType() == ConnectivityManager.TYPE_ETHERNET);
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -598,7 +666,10 @@ public class MainActivity extends Activity {
             if (!webVaultReady(dataDir)) {
                 return;
             }
-            String updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            String updated = Updater.webVaultFromVersion(this);
+            if (updated == null) {
+                updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            }
             if (updated == null) {
                 return;
             }
@@ -1062,6 +1133,7 @@ public class MainActivity extends Activity {
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
+        autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
@@ -1170,7 +1242,10 @@ public class MainActivity extends Activity {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-            String updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            String updated = Updater.webVaultFromVersion(this);
+            if (updated == null) {
+                updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+            }
             String bundled = Updater.readBundledVersionRaw(this);
             String wv = updated != null ? updated
                     : (bundled != null ? Updater.normVersion(bundled) : null);
@@ -1226,6 +1301,9 @@ public class MainActivity extends Activity {
         try {
             appendUiLog("[app] Mengecek update dari sumber resmi...");
             String msg = Updater.tryUpdate(this);
+            if (msg.startsWith("Update v")) {
+                pendingVersion = null;
+            }
             appendUiLog("[app] " + msg);
             toast(msg.startsWith("Update v")
                     ? msg + " Tekan Start untuk memakai."

@@ -186,6 +186,13 @@ public final class Updater {
         }
     }
 
+    /** Versi vaultwarden pemilik web-vault yang terpasang (penanda), atau null. */
+    public static String webVaultFromVersion(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        String v = sp.getString(KEY_WV_FROM, "");
+        return (v == null || v.isEmpty()) ? null : v;
+    }
+
     public static String appVersionName(Context ctx) {
         try {
             return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;

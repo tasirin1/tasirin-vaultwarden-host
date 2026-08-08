@@ -60,6 +60,7 @@ public class ServerService extends Service {
     public static final String KEY_UPDATE_VERSION = "update_version";
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
+    public static final String KEY_AUTO_UPDATE = "auto_update_binary";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
@@ -591,6 +592,14 @@ public class ServerService extends Service {
                 new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                // Redam log bising yang tidak berguna: handshake TLS lokal
+                // (cert self-signed) dan peringatan HSTS bawaan Vaultwarden.
+                if (line.contains("CertificateUnknown")
+                        || line.contains("tls handshake with 127.0.0.1")
+                        || line.contains("Detected TLS-enabled liftoff")
+                        || line.contains("Shield has enabled a default HSTS policy")) {
+                    continue;
+                }
                 appendLog(line);
             }
         } catch (Exception ignored) {
@@ -759,7 +768,21 @@ public class ServerService extends Service {
             dataDir = DEFAULT_DATA_DIR;
         }
 
-        // 1) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
+        // 1) Binary update terbaru hasil tombol Perbarui (KEY_UPDATE_VERSION).
+        //    Didahulukan agar Start tidak memakai binary lama selamanya.
+        if (isValidBinary(out)) {
+            String updated = sp.getString(KEY_UPDATE_VERSION, "");
+            if (updated != null && !updated.isEmpty()) {
+                try {
+                    detectBinaryVersion(out);
+                    appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                    return out;
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        // 2) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
         File userBin = new File(dataDir, "vaultwarden-" + ABI);
         if (isValidBinary(userBin)) {
             try {

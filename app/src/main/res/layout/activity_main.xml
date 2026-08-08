@@ -164,6 +164,16 @@
                 android:textSize="11sp"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/updateHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="\u26A0 Update tersedia \u2014 tekan Cek Update"
+                android:textColor="@color/accent"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
             <Button
                 android:id="@+id/open"
                 android:nextFocusDown="@id/advancedToggle"
@@ -312,7 +322,7 @@
 
                     <Button
                         android:id="@+id/batteryBtn"
-                        android:nextFocusDown="@id/update"
+                        android:nextFocusDown="@id/autoUpdate"
                         android:nextFocusUp="@id/pinEnabled"
                         style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
@@ -336,15 +346,26 @@
                     android:layout_height="wrap_content"
                     android:text="Pemeliharaan" />
 
+                <CheckBox
+                    android:id="@+id/autoUpdate"
+                    android:nextFocusDown="@id/update"
+                    android:nextFocusUp="@id/batteryBtn"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Auto-update binary saat ada versi baru (jaringan rumah)" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/update"
                         android:nextFocusDown="@id/revert"
-                        android:nextFocusUp="@id/batteryBtn"
+                        android:nextFocusUp="@id/autoUpdate"
                         style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
