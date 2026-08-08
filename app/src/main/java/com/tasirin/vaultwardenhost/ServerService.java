@@ -733,6 +733,17 @@ public class ServerService extends Service {
             if (index.exists()) {
                 return dir;
             }
+            // APK baru tidak lagi membundel web-vault.zip (ukuran APK jauh lebih
+            // kecil); web vault diunduh sekali lewat tombol "Update Web Vault".
+            boolean bundled = false;
+            try (InputStream check = getAssets().open("web-vault.zip")) {
+                bundled = true;
+            } catch (Exception ignored) {
+            }
+            if (!bundled) {
+                appendLog("[app] Web vault belum terpasang - buka app lalu tekan 'Update Web Vault' untuk mengunduh sekali.");
+                return null;
+            }
             byte[] buf = new byte[64 * 1024];
             try (InputStream in = getAssets().open("web-vault.zip");
                  ZipInputStream zis = new ZipInputStream(in)) {

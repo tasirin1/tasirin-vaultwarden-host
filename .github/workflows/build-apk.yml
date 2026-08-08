@@ -102,11 +102,19 @@ jobs:
           cd vaultwarden
           RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' rust-toolchain.toml)
           export RUSTUP_TOOLCHAIN="$RUST_VERSION"
+          # Profil ukuran: strip simbol + LTO + 1 codegen unit + optimasi ukuran.
+          export CARGO_PROFILE_RELEASE_STRIP=true
+          export CARGO_PROFILE_RELEASE_LTO=thin
+          export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+          export CARGO_PROFILE_RELEASE_OPT_LEVEL=s
           cargo build --release --target armv7-linux-androideabi \
             --features sqlite,vendored_openssl
+          BIN=target/armv7-linux-androideabi/release/vaultwarden
+          ls -lh "$BIN"
+          # Strip ganda demi keamanan (llvm-strip dari NDK).
+          "$TOOLCHAIN/llvm-strip" -s "$BIN" || true
           mkdir -p ../app/src/main/assets/bin/armeabi-v7a
-          cp target/armv7-linux-androideabi/release/vaultwarden \
-            ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
+          cp "$BIN" ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Inspect binary
         run: |
@@ -161,10 +169,8 @@ jobs:
           docker create --name vwweb "vaultwarden/web-vault@$DIGEST"
           docker cp vwweb:/web-vault /tmp/web-vault
           docker rm vwweb
-          mkdir -p app/src/main/assets
           (cd /tmp/web-vault && zip -qr /tmp/web-vault.zip .)
-          cp /tmp/web-vault.zip app/src/main/assets/web-vault.zip
-          ls -lh app/src/main/assets/web-vault.zip
+          ls -lh /tmp/web-vault.zip
 
       - name: Write bundled version
         run: |
@@ -199,7 +205,7 @@ jobs:
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
           if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
           echo "== $APK"
-          unzip -l "$APK" | grep -E 'assets/bin|vw_version|web-vault.zip|classes.dex|AndroidManifest'
+          unzip -l "$APK" | grep -E 'assets/bin|vw_version|classes.dex|AndroidManifest'
           ls -lh "$APK"
 
       - name: Publish GitHub Release
@@ -210,7 +216,7 @@ jobs:
           if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           cp app/src/armv7/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
-          cp app/src/main/assets/web-vault.zip web-vault.zip
+          cp /tmp/web-vault.zip web-vault.zip
           ls -lh tasirin-*.apk vaultwarden-armeabi-v7a web-vault.zip
           gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true
           gh release create "v${{ needs.resolve.outputs.vw }}" \

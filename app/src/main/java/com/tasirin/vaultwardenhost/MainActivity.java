@@ -358,8 +358,41 @@ public class MainActivity extends Activity {
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
 
+        if (!webVaultReady(dataDir)) {
+            // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
+            // unduh sekali saat Start pertama bila diizinkan.
+            new AlertDialog.Builder(this)
+                    .setTitle("Web vault belum terpasang")
+                    .setMessage("APK baru tidak lagi menyertakan web vault agar ukurannya kecil.\n"
+                            + "Unduh sekali (~35 MB) supaya web UI bisa dibuka dari browser?\n\n"
+                            + "Tanpa web vault, server dan aplikasi Bitwarden tetap jalan normal.")
+                    .setPositiveButton("Unduh & Start", (d, w) -> {
+                        runBusy(() -> {
+                            try {
+                                String msg = Updater.updateWebVault(this);
+                                appendUiLog("[app] " + msg);
+                            } catch (Exception e) {
+                                toast("Gagal unduh web-vault: " + e.getMessage());
+                                appendUiLog("[app] Gagal unduh web-vault: " + e);
+                            }
+                            ServerService.start(this);
+                        });
+                        maybeAutoBackup();
+                    })
+                    .setNegativeButton("Start tanpa web vault", (d, w) -> {
+                        ServerService.start(this);
+                        maybeAutoBackup();
+                    })
+                    .show();
+            return;
+        }
         ServerService.start(this);
         maybeAutoBackup();
+    }
+
+    private boolean webVaultReady(String dataDir) {
+        return new File(dataDir, "web-vault/index.html").exists()
+                || new File(getFilesDir(), "web-vault/index.html").exists();
     }
 
     private void refreshFromService() {

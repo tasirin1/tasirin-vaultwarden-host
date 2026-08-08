@@ -27,12 +27,17 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 - Cek arsitektur HP: app **CPU-Z**, atau terminal `adb shell getprop ro.product.cpu.abi`.
 - APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
   Manager) — tinggal install (aktifkan *install from unknown sources*).
+- Ukuran APK **kecil (~10–15 MB)**: web vault TIDAK lagi dibundel ke dalam APK.
+  Web vault diunduh sekali (~35 MB) saat **Start pertama** (ada pilihan
+  "Unduh & Start" atau "Start tanpa web vault"), atau kapan saja lewat tombol
+  **Update Web Vault** di app.
 
 ## Pemakaian
 
 1. Install APK, buka app **Tasirin Vaultwarden Host**, beri izin **Storage** bila diminta.
-2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8080`).
-3. Tekan **Start**. Status menunjukkan server berjalan + URL jaringan.
+2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8088`).
+3. Tekan **Start** (pilih **Unduh & Start** bila web vault belum ada).
+   Status menunjukkan server berjalan + URL jaringan.
 4. Buka `http://127.0.0.1:8088` lewat tombol **Open Web UI** (browser HP),
    atau dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
