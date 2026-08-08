@@ -23,11 +23,13 @@ jobs:
     steps:
       - id: vw
         run: |
-          TAG=$(curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
+          TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq .tag_name 2>/dev/null \
+            || curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
+          test -n "$TAG" || { echo "Gagal ambil versi Vaultwarden terbaru"; exit 1; }
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            EXISTING=$(curl -sf --retry 3 --retry-delay 5 "https://api.github.com/repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" | jq -r .tag_name)
+            EXISTING=$(gh api "repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
             if [ "$EXISTING" = "v$TAG" ]; then
               echo "skip=yes" >> "$GITHUB_OUTPUT"
             fi
