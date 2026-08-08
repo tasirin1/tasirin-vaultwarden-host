@@ -142,7 +142,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: vw-binary-armeabi-v7a
-          path: app/src/armv7/assets/bin/armeabi-v7a
+          path: app/src/main/assets/bin/armeabi-v7a
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -157,8 +157,8 @@ jobs:
 
       - name: Check binary
         run: |
-          file app/src/armv7/assets/bin/armeabi-v7a/vaultwarden
-          ls -lh app/src/armv7/assets/bin/armeabi-v7a/vaultwarden
+          file app/src/main/assets/bin/armeabi-v7a/vaultwarden
+          ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Fetch web-vault (matching Vaultwarden version)
         run: |
@@ -184,7 +184,7 @@ jobs:
       - name: Build debug APK (armv7)
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon :app:assembleArmv7Debug
+          ./gradlew --no-daemon :app:assembleDebug
 
       - name: Build signed release APK (jika secret signing tersedia)
         if: env.KEYSTORE_BASE64 != ''
@@ -194,7 +194,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
-          ./gradlew --no-daemon :app:assembleArmv7Release \
+          ./gradlew --no-daemon :app:assembleRelease \
             -PstoreFile=keystore.jks \
             -PstorePassword="$KEYSTORE_PASSWORD" \
             -PkeyAlias="$KEY_ALIAS" \
@@ -215,7 +215,7 @@ jobs:
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
           if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
-          cp app/src/armv7/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
+          cp app/src/main/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
           cp /tmp/web-vault.zip web-vault.zip
           ls -lh tasirin-*.apk vaultwarden-armeabi-v7a web-vault.zip
           gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true

@@ -1138,11 +1138,7 @@ public class MainActivity extends Activity {
     }
 
     private void revertToBundled() {
-        String abi = ServerService.getAbi();
-        if (abi == null) {
-            return;
-        }
-        File out = new File(getFilesDir(), "bin/vaultwarden-" + abi);
+        File out = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
         if (out.exists() && out.delete()) {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .remove(ServerService.KEY_UPDATE_VERSION).apply();

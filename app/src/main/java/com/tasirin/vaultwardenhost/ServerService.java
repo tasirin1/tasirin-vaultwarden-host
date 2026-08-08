@@ -53,6 +53,8 @@ public class ServerService extends Service {
     public static final String PREFS = "vw_prefs";
     public static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
     public static final String DEFAULT_PORT = "8088";
+    /** Binary selalu 32-bit ARM (armeabi-v7a); HP arm64 tetap jalan via compat mode. */
+    public static final String ABI = "armeabi-v7a";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
@@ -692,21 +694,16 @@ public class ServerService extends Service {
     }
 
     private File extractBinary() {
-        String abi = getAbi();
-        if (abi == null) {
-            appendLog("[app] ABI tidak didukung.");
-            return null;
-        }
         try {
             File binDir = new File(getFilesDir(), "bin");
             if (!binDir.exists() && !binDir.mkdirs()) {
                 appendLog("[app] Gagal membuat folder binary.");
                 return null;
             }
-            File out = new File(binDir, "vaultwarden-" + abi);
+            File out = new File(binDir, "vaultwarden-" + ABI);
             boolean valid = out.exists() && out.length() > 1_000_000;
             if (!valid) {
-                try (InputStream in = getAssets().open("bin/" + abi + "/vaultwarden");
+                try (InputStream in = getAssets().open("bin/" + ABI + "/vaultwarden");
                      FileOutputStream fos = new FileOutputStream(out)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
@@ -798,12 +795,6 @@ public class ServerService extends Service {
         } catch (Exception e) {
             binaryVersion = "?";
         }
-    }
-
-    /** Selalu pakai binary 32-bit ARM (armeabi-v7a) - build hanya untuk ABI ini.
-     *  HP arm64 tetap bisa menjalankan binary 32-bit (compat mode). */
-    public static String getAbi() {
-        return "armeabi-v7a";
     }
 
     private static String lanHost() {

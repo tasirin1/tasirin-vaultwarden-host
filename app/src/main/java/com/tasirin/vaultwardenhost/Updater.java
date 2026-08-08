@@ -74,11 +74,6 @@ public final class Updater {
         if (latest == null) {
             throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
         }
-        String abi = ServerService.getAbi();
-        if (abi == null) {
-            throw new IOException("ABI tidak didukung.");
-        }
-
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = normVersion(updated != null && !updated.isEmpty()
@@ -88,9 +83,9 @@ public final class Updater {
         }
 
         // Unduh per tag resmi; kalau build belum ada, beri tahu menunggu build otomatis
-        String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + abi;
-        File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + abi);
-        File tmp = new File(ctx.getFilesDir(), "bin/vaultwarden-" + abi + ".tmp");
+        String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + ServerService.ABI;
+        File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
+        File tmp = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI + ".tmp");
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();

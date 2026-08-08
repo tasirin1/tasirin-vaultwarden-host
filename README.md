@@ -7,8 +7,8 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 ## Cara kerja
 
 1. GitHub Actions mengambil **versi Vaultwarden terbaru** dari rilis resminya,
-   melakukan *cross-compile* untuk `arm64-v8a`, `armeabi-v7a`, dan `x86_64`
-   (target Android, API 21).
+   melakukan *cross-compile* untuk **`armeabi-v7a`** (ARM 32-bit, target
+   Android API 21) — satu-satunya ABI yang didukung.
 2. Binary di-*bundle* ke dalam APK, lalu **APK + binary** di-publish ke
    **GitHub Release** repo ini.
 3. Saat tombol **Start** ditekan, app menjalankan binary dengan `DATA_FOLDER`
@@ -21,10 +21,9 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 
 ## Download APK
 
-- **GitHub Release** → pilih APK sesuai arsitektur HP:
-  - `tasirin-vaultwarden-host-armeabi-v7a.apk` — 32-bit ARM (STB / HP lama).
+- **GitHub Release** → `tasirin-vaultwarden-host-armeabi-v7a.apk`
+  (ARM 32-bit — jalan di STB & HP lama; HP arm64 tetap bisa via compat mode).
 - **Tab Actions** → run terbaru → artifact `tasirin-vaultwarden-host-apk-armeabi-v7a`.
-- Cek arsitektur HP: app **CPU-Z**, atau terminal `adb shell getprop ro.product.cpu.abi`.
 - APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
   Manager) — tinggal install (aktifkan *install from unknown sources*).
 - Ukuran APK **kecil (~10–15 MB)**: web vault TIDAK lagi dibundel ke dalam APK.

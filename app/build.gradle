@@ -15,11 +15,6 @@ android {
         versionName '2.0'
     }
 
-    flavorDimensions 'abi'
-    productFlavors {
-        armv7 { dimension 'abi' }
-    }
-
     signingConfigs {
         release {
             def storeFileProp = project.findProperty('storeFile') as String
