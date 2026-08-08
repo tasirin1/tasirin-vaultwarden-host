@@ -22,12 +22,18 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+            android:theme="@style/Theme.TasirinVaultwardenHost.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".LogActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/Theme.TasirinVaultwardenHost" />
 
         <service
             android:name=".ServerService"

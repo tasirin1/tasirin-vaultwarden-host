@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TasirinVaultwardenHost" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorControlHighlight">@color/accent</item>
+        <item name="android:windowBackground">@color/window_bg</item>
+    </style>
+
+    <style name="Theme.TasirinVaultwardenHost.Splash" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+    </style>
+</resources>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/logTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Log Realtime (layar penuh)"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/logBack"
+            android:nextFocusDown="@id/logSave"
+            android:background="@drawable/bg_btn_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kembali"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/logSave"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logBack"
+            android:background="@drawable/bg_btn_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Simpan .txt"
+            android:textAllCaps="false"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/logShare"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logBack"
+            android:background="@drawable/bg_btn_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bagikan"
+            android:textAllCaps="false"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/logCopy"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logBack"
+            android:background="@drawable/bg_btn_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Salin"
+            android:textAllCaps="false"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/logClear"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logBack"
+            android:background="@drawable/bg_btn_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bersihkan"
+            android:textAllCaps="false"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/logSearch"
+            android:nextFocusDown="@id/logAutoScroll"
+            android:nextFocusUp="@id/logSave"
+            android:background="@drawable/bg_input_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Cari di log..."
+            android:inputType="text"
+            android:textSize="12sp" />
+
+        <CheckBox
+            android:id="@+id/logAutoScroll"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logSearch"
+            android:background="@drawable/item_focus_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto-scroll"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/logCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Baris: 0"
+        android:textSize="11sp" />
+
+    <ScrollView
+        android:id="@+id/logScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textSize="11sp" />
+    </ScrollView>
+</LinearLayout>

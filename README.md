@@ -38,6 +38,17 @@ Mendukung **Android 5.0 (API 21) ke atas**.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8088`.
 
+## Status web & log realtime
+
+- Saat server berjalan, app juga menjalankan **status web** di **port server + 1**
+  (default `8088` -> `8089`): `http://<IP-lokal-android>:8089`.
+- Halaman itu menampilkan status server (jalan/berhenti, versi app & binary, port,
+  HTTPS, uptime, sisa storage, folder data) plus **log realtime** (SSE) dengan
+  pencarian & auto-scroll. Buka dari HP/PC di jaringan yang sama.
+- Di app: tombol **Buka** di panel Log membuka **Log Realtime layar penuh** —
+  cari + highlight `GAGAL/ERROR`, auto-scroll (default mati), hitungan baris,
+  salin, bagikan, dan **Simpan .txt** ke folder `Download`.
+
 ## Data & restart
 
 - Database tersimpan di `DATA_FOLDER` (default `/sdcard/vaultwarden/db.sqlite3`).

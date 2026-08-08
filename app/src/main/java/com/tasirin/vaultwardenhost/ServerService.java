@@ -89,6 +89,7 @@ public class ServerService extends Service {
     private boolean autoRestart = false;
     private int restartAttempt = 0;
     private static volatile long lastStartTime = 0;
+    private ControlServer controlServer;
     private volatile int healthFails = 0;
 
     private final Runnable healthTick = new Runnable() {
@@ -428,9 +429,23 @@ public class ServerService extends Service {
             restartAttempt = 0;
 
             logFile = new File(dataFolder, "vaultwarden.log");
+
+            if (controlServer != null) {
+                controlServer.stop();
+            }
+            controlServer = new ControlServer(this);
+            boolean ctrlOk = controlServer.start(portNum + 1);
+            String ctrlUrl = "";
+            if (ctrlOk) {
+                ctrlUrl = scheme + "://" + lanHost() + ":" + ControlServer.listeningPort;
+                appendLog("[app] Status web (log realtime): " + ctrlUrl);
+            } else {
+                appendLog("[app] Status web tidak start (port " + (portNum + 1) + " dipakai).");
+            }
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
-                    + "\nURL jaringan (dari PC/laptop): " + domain);
+                    + "\nURL jaringan (dari PC/laptop): " + domain
+                    + (ctrlOk ? "\nStatus web: " + ctrlUrl : ""));
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
             TgBackup.notifyLowStorage(this);
 
@@ -483,6 +498,10 @@ public class ServerService extends Service {
         runningHttps = false;
         runningAdminToken = "";
         releaseWakeLock();
+        if (controlServer != null) {
+            controlServer.stop();
+            controlServer = null;
+        }
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
 
@@ -776,6 +795,11 @@ public class ServerService extends Service {
         return "armeabi-v7a";
     }
 
+    private static String lanHost() {
+        List<String> ips = collectIps();
+        return ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+    }
+
     private String detectHostPort(String port) {
         List<String> ips = collectIps();
         if (!ips.isEmpty()) {
@@ -1041,5 +1065,9 @@ public class ServerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         releaseWakeLock();
+        if (controlServer != null) {
+            controlServer.stop();
+            controlServer = null;
+        }
     }
 }

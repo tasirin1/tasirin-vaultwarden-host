@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema utama: terang (Android 5-7) / ikut sistem saat mode gelap (Android 8+).
+         colorControlHighlight penting agar fokus D-pad terlihat di Android 6
+         yang tidak menggambar highlight fokus otomatis. -->
+    <style name="Theme.TasirinVaultwardenHost" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorControlHighlight">@color/accent</item>
+        <item name="android:windowBackground">@color/window_bg</item>
+    </style>
+
+    <!-- Splash: warna brand + ikon tengah saat cold start, lalu diganti
+         tema utama di onCreate (setTheme). -->
+    <style name="Theme.TasirinVaultwardenHost.Splash" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+    </style>
+</resources>

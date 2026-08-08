@@ -38,6 +38,8 @@
 
         <EditText
             android:id="@+id/dataDir"
+            android:nextFocusDown="@id/port"
+            android:background="@drawable/bg_input_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="/sdcard/vaultwarden"
@@ -50,6 +52,9 @@
 
         <EditText
             android:id="@+id/port"
+            android:nextFocusDown="@id/adminToken"
+            android:nextFocusUp="@id/dataDir"
+            android:background="@drawable/bg_input_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="8088"
@@ -67,6 +72,9 @@
 
             <EditText
                 android:id="@+id/adminToken"
+            android:nextFocusDown="@id/autoStart"
+            android:nextFocusUp="@id/port"
+            android:background="@drawable/bg_input_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -75,6 +83,9 @@
 
             <Button
                 android:id="@+id/showAdmin"
+            android:nextFocusDown="@id/autoStart"
+            android:nextFocusUp="@id/port"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lihat"
@@ -84,6 +95,9 @@
 
         <CheckBox
             android:id="@+id/autoStart"
+            android:nextFocusDown="@id/https"
+            android:nextFocusUp="@id/adminToken"
+            android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -91,6 +105,9 @@
 
         <CheckBox
             android:id="@+id/https"
+            android:nextFocusDown="@id/pinInput"
+            android:nextFocusUp="@id/autoStart"
+            android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="HTTPS (self-signed)" />
@@ -108,6 +125,9 @@
 
             <EditText
                 android:id="@+id/pinInput"
+            android:nextFocusDown="@id/batteryBtn"
+            android:nextFocusUp="@id/https"
+            android:background="@drawable/bg_input_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -117,6 +137,9 @@
 
             <CheckBox
                 android:id="@+id/pinEnabled"
+            android:nextFocusDown="@id/batteryBtn"
+            android:nextFocusUp="@id/https"
+            android:background="@drawable/item_focus_bg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Aktif"
@@ -125,6 +148,9 @@
 
         <Button
             android:id="@+id/batteryBtn"
+            android:nextFocusDown="@id/start"
+            android:nextFocusUp="@id/pinInput"
+            android:background="@drawable/bg_btn_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -149,6 +175,9 @@
 
             <Button
                 android:id="@+id/start"
+            android:nextFocusDown="@id/update"
+            android:nextFocusUp="@id/batteryBtn"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -156,6 +185,9 @@
 
             <Button
                 android:id="@+id/stop"
+            android:nextFocusDown="@id/revert"
+            android:nextFocusUp="@id/batteryBtn"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -163,6 +195,9 @@
 
             <Button
                 android:id="@+id/open"
+            android:nextFocusDown="@id/installCert"
+            android:nextFocusUp="@id/batteryBtn"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -177,6 +212,9 @@
 
             <Button
                 android:id="@+id/update"
+            android:nextFocusDown="@id/copyUrl"
+            android:nextFocusUp="@id/start"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -184,6 +222,9 @@
 
             <Button
                 android:id="@+id/revert"
+            android:nextFocusDown="@id/exportCfg"
+            android:nextFocusUp="@id/stop"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -191,6 +232,9 @@
 
             <Button
                 android:id="@+id/cert"
+            android:nextFocusDown="@id/importCfg"
+            android:nextFocusUp="@id/open"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -200,6 +244,9 @@
 
             <Button
                 android:id="@+id/installCert"
+            android:nextFocusDown="@id/exportCfg"
+            android:nextFocusUp="@id/open"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -234,6 +281,9 @@
 
         <Button
             android:id="@+id/copyUrl"
+            android:nextFocusDown="@id/exportCfg"
+            android:nextFocusUp="@id/update"
+            android:background="@drawable/bg_btn_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Salin URL"
@@ -248,6 +298,9 @@
 
             <Button
                 android:id="@+id/exportCfg"
+            android:nextFocusDown="@id/updateWv"
+            android:nextFocusUp="@id/copyUrl"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -257,6 +310,9 @@
 
             <Button
                 android:id="@+id/importCfg"
+            android:nextFocusDown="@id/updateWv"
+            android:nextFocusUp="@id/copyUrl"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -282,6 +338,9 @@
 
             <Button
                 android:id="@+id/updateWv"
+            android:nextFocusDown="@id/tgToken"
+            android:nextFocusUp="@id/exportCfg"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -291,6 +350,9 @@
 
             <Button
                 android:id="@+id/backupDb"
+            android:nextFocusDown="@id/tgToken"
+            android:nextFocusUp="@id/importCfg"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -300,6 +362,9 @@
 
             <Button
                 android:id="@+id/restoreDb"
+            android:nextFocusDown="@id/tgToken"
+            android:nextFocusUp="@id/importCfg"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -321,6 +386,9 @@
 
             <EditText
                 android:id="@+id/tgToken"
+            android:nextFocusDown="@id/tgChat"
+            android:nextFocusUp="@id/updateWv"
+            android:background="@drawable/bg_input_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -329,6 +397,9 @@
 
             <Button
                 android:id="@+id/showTg"
+            android:nextFocusDown="@id/tgChat"
+            android:nextFocusUp="@id/updateWv"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lihat"
@@ -338,6 +409,9 @@
 
         <EditText
             android:id="@+id/tgChat"
+            android:nextFocusDown="@id/backupPass"
+            android:nextFocusUp="@id/tgToken"
+            android:background="@drawable/bg_input_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Chat ID (angka)"
@@ -355,6 +429,9 @@
 
             <EditText
                 android:id="@+id/backupPass"
+            android:nextFocusDown="@id/tgAuto"
+            android:nextFocusUp="@id/tgChat"
+            android:background="@drawable/bg_input_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -363,6 +440,9 @@
 
             <Button
                 android:id="@+id/showPass"
+            android:nextFocusDown="@id/tgAuto"
+            android:nextFocusUp="@id/tgChat"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lihat"
@@ -372,12 +452,18 @@
 
         <CheckBox
             android:id="@+id/tgAuto"
+            android:nextFocusDown="@id/backupOnStart"
+            android:nextFocusUp="@id/backupPass"
+            android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Backup otomatis tiap 24 jam" />
 
         <CheckBox
             android:id="@+id/backupOnStart"
+            android:nextFocusDown="@id/backupTg"
+            android:nextFocusUp="@id/tgAuto"
+            android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Backup otomatis saat Start (maks. 1x/24 jam)" />
@@ -389,6 +475,9 @@
 
             <Button
                 android:id="@+id/backupTg"
+            android:nextFocusDown="@id/logOpen"
+            android:nextFocusUp="@id/backupOnStart"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -398,6 +487,9 @@
 
             <Button
                 android:id="@+id/restoreTg"
+            android:nextFocusDown="@id/logOpen"
+            android:nextFocusUp="@id/backupOnStart"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -420,25 +512,22 @@
                 android:text="Log"
                 android:textSize="14sp"
                 android:textStyle="bold" />
-
             <Button
-                android:id="@+id/logSave"
+                android:id="@+id/logOpen"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/backupTg"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Simpan"
-                android:textAllCaps="false"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/logShare"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bagikan"
+                android:text="Buka"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 
             <Button
                 android:id="@+id/logClear"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logOpen"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Bersihkan"
@@ -447,6 +536,9 @@
 
             <Button
                 android:id="@+id/logToggle"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logOpen"
+            android:background="@drawable/bg_btn_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sembunyikan"
@@ -462,6 +554,9 @@
 
             <EditText
                 android:id="@+id/logSearch"
+            android:nextFocusDown="@id/logAutoScroll"
+            android:nextFocusUp="@id/logOpen"
+            android:background="@drawable/bg_input_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -471,6 +566,9 @@
 
             <CheckBox
                 android:id="@+id/logAutoScroll"
+            android:nextFocusDown="@id/logSearch"
+            android:nextFocusUp="@id/logSearch"
+            android:background="@drawable/item_focus_bg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Auto-scroll"

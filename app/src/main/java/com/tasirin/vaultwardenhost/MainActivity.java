@@ -8,19 +8,15 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
@@ -41,10 +37,8 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -89,9 +83,8 @@ public class MainActivity extends Activity {
     private TextView logView;
     private ScrollView logScroll;
     private Button logToggleBtn;
-    private Button logShareBtn;
     private Button logClearBtn;
-    private Button logSaveBtn;
+    private Button logOpenBtn;
     private EditText logSearchInput;
     private CheckBox logAutoScrollCheck;
     private Button copyUrlBtn;
@@ -121,6 +114,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
+        setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
@@ -144,9 +139,8 @@ public class MainActivity extends Activity {
         logView = findViewById(R.id.log);
         logScroll = findViewById(R.id.logScroll);
         logToggleBtn = findViewById(R.id.logToggle);
-        logShareBtn = findViewById(R.id.logShare);
+        logOpenBtn = findViewById(R.id.logOpen);
         logClearBtn = findViewById(R.id.logClear);
-        logSaveBtn = findViewById(R.id.logSave);
         logSearchInput = findViewById(R.id.logSearch);
         logAutoScrollCheck = findViewById(R.id.logAutoScroll);
 
@@ -194,8 +188,7 @@ public class MainActivity extends Activity {
             }
         }));
         logToggleBtn.setOnClickListener(v -> toggleLog());
-        logShareBtn.setOnClickListener(v -> shareLog());
-        logSaveBtn.setOnClickListener(v -> exportLogTxt());
+        logOpenBtn.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
         logAutoScrollCheck.setOnCheckedChangeListener((b, checked) -> logAutoScroll = checked);
         logSearchInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -1149,139 +1142,6 @@ public class MainActivity extends Activity {
     }
 
     /** Bagikan isi log lewat app lain (WhatsApp, file manager, dll). */
-    private void shareLog() {
-        String log;
-        synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
-        }
-        if (log.isEmpty()) {
-            toast("Log masih kosong.");
-            return;
-        }
-        Intent send = new Intent(Intent.ACTION_SEND);
-        send.setType("text/plain");
-        send.putExtra(Intent.EXTRA_SUBJECT, "Vaultwarden Host - Log");
-        send.putExtra(Intent.EXTRA_TEXT, log);
-        try {
-            startActivity(Intent.createChooser(send, "Bagikan log"));
-        } catch (Exception e) {
-            toast("Gagal membagikan log: " + e.getMessage());
-        }
-    }
-
-    /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning. */
-    private CharSequence highlightLog(String text, String q) {
-        if (q.isEmpty() && !text.contains("GAGAL") && !text.contains("ERROR")
-                && !text.contains("FAILED")) {
-            return text;
-        }
-        SpannableStringBuilder sb = new SpannableStringBuilder(text);
-        String queryLower = q.toLowerCase(Locale.US);
-        if (!queryLower.isEmpty()) {
-            String textLower = text.toLowerCase(Locale.US);
-            int from = 0;
-            while (true) {
-                int idx = textLower.indexOf(queryLower, from);
-                if (idx < 0) {
-                    break;
-                }
-                sb.setSpan(new BackgroundColorSpan(0xFFFFE082),
-                        idx, idx + q.length(),
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-                from = idx + q.length();
-            }
-        }
-        int lineStart = 0;
-        while (lineStart < sb.length()) {
-            int lineEnd = text.indexOf('\n', lineStart);
-            int end = lineEnd < 0 ? sb.length() : lineEnd;
-            String upper = text.substring(lineStart, end).toUpperCase(Locale.US);
-            if (upper.contains("GAGAL") || upper.contains("ERROR") || upper.contains("FAILED")) {
-                sb.setSpan(new ForegroundColorSpan(Color.RED),
-                        lineStart, end,
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            if (lineEnd < 0) {
-                break;
-            }
-            lineStart = lineEnd + 1;
-        }
-        return sb;
-    }
-
-    /** Simpan log ke file .txt di folder Download (format header ala Tasirin). */
-    private void exportLogTxt() {
-        String log;
-        synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
-        }
-        StringBuilder header = new StringBuilder();
-        header.append("=== Tasirin Vaultwarden Host - Log Server (realtime) ===\n");
-        header.append("Waktu: ")
-                .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()))
-                .append('\n');
-        try {
-            android.content.pm.PackageInfo info =
-                    getPackageManager().getPackageInfo(getPackageName(), 0);
-            header.append("Versi app: ").append(info.versionName)
-                    .append(" (build ").append(info.versionCode).append(")\n");
-        } catch (Exception ignored) {
-            header.append("Versi app: ?\n");
-        }
-        header.append("Android: ").append(Build.VERSION.RELEASE)
-                .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        header.append("Perangkat: ").append(Build.MANUFACTURER).append(' ')
-                .append(Build.MODEL).append("\n\n");
-        header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
-        header.append('\n');
-
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-        String name = "tasirin-vaultwarden-host-log-" + stamp + ".txt";
-        boolean ok = false;
-        if (Build.VERSION.SDK_INT >= 29) {
-            try {
-                ContentResolver resolver = getContentResolver();
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
-                values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-                values.put(MediaStore.Downloads.RELATIVE_PATH, "Download/");
-                values.put(MediaStore.Downloads.IS_PENDING, 1);
-                Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                if (uri != null) {
-                    try {
-                        OutputStream out = resolver.openOutputStream(uri);
-                        if (out != null) {
-                            out.write(header.toString().getBytes(StandardCharsets.UTF_8));
-                            out.close();
-                            ok = true;
-                        }
-                    } catch (Exception e) {
-                        resolver.delete(uri, null, null);
-                    }
-                    if (ok) {
-                        ContentValues done = new ContentValues();
-                        done.put(MediaStore.Downloads.IS_PENDING, 0);
-                        resolver.update(uri, done, null, null);
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        } else {
-            try {
-                File dir = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS);
-                if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    try (FileWriter w = new FileWriter(new File(dir, name))) {
-                        w.write(header.toString());
-                    }
-                    ok = true;
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        toast(ok ? "Log disimpan: Download/" + name : "Gagal menyimpan log");
-    }
-
     /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
     private void maybeAutoBackup() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
