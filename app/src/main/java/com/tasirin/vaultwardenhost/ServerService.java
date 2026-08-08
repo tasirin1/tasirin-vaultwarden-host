@@ -87,6 +87,7 @@ public class ServerService extends Service {
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private static volatile Process process;
+    private static volatile boolean starting = false;
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
     private boolean autoRestart = false;
@@ -246,7 +247,7 @@ public class ServerService extends Service {
                 }
                 mainHandler.post(() -> {
                     if (autoRestart) {
-                        startServer();
+                        startServerAsync();
                     }
                 });
             }, "vw-restart").start();
@@ -277,7 +278,7 @@ public class ServerService extends Service {
         autoRestart = true;
         startForegroundCompat();
         if (process == null || !process.isAlive()) {
-            startServer();
+            startServerAsync();
         }
         mainHandler.removeCallbacks(healthTick);
         mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
@@ -330,6 +331,24 @@ public class ServerService extends Service {
                 nm.createNotificationChannel(ch);
             }
         }
+    }
+
+    /** Jalankan startServer di worker thread (unduh binary butuh jaringan;
+     *  di main thread Android memblokir dengan NetworkOnMainThreadException).
+     *  Guard mencegah Start ganda saat unduh binary masih berjalan. */
+    private void startServerAsync() {
+        if (starting) {
+            appendLog("[app] Start masih berjalan (unduh binary?), dilewati.");
+            return;
+        }
+        starting = true;
+        new Thread(() -> {
+            try {
+                startServer();
+            } finally {
+                starting = false;
+            }
+        }, "vw-start").start();
     }
 
     private void startServer() {
@@ -562,7 +581,7 @@ public class ServerService extends Service {
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
         mainHandler.postDelayed(() -> {
             if (autoRestart && (process == null || !process.isAlive())) {
-                startServer();
+                startServerAsync();
             }
         }, delay);
     }
@@ -648,7 +667,7 @@ public class ServerService extends Service {
         mainHandler.post(() -> {
             healthFails = 0;
             if (autoRestart) {
-                startServer();
+                startServerAsync();
             }
         });
     }
