@@ -23,11 +23,11 @@ jobs:
     steps:
       - id: vw
         run: |
-          TAG=$(curl -s https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
+          TAG=$(curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            EXISTING=$(curl -s "https://api.github.com/repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" | jq -r .tag_name)
+            EXISTING=$(curl -sf --retry 3 --retry-delay 5 "https://api.github.com/repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" | jq -r .tag_name)
             if [ "$EXISTING" = "v$TAG" ]; then
               echo "skip=yes" >> "$GITHUB_OUTPUT"
             fi
@@ -39,10 +39,10 @@ jobs:
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -68,7 +68,7 @@ jobs:
             --target armv7-linux-androideabi
 
       - name: Cache cargo build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             vaultwarden/target
@@ -122,7 +122,7 @@ jobs:
           ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vw-binary-armeabi-v7a
           path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
@@ -136,16 +136,16 @@ jobs:
     env:
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download binary (armeabi-v7a)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: vw-binary-armeabi-v7a
           path: app/src/main/assets/bin/armeabi-v7a
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -179,7 +179,7 @@ jobs:
           echo "Bundled Vaultwarden: $(cat app/src/main/assets/vw_version.txt)"
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build debug APK (armv7)
         run: |
@@ -227,7 +227,7 @@ jobs:
             --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: tasirin-vaultwarden-host-apk-armeabi-v7a
           path: tasirin-vaultwarden-host-armeabi-v7a.apk
