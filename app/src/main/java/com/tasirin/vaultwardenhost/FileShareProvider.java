@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 /** Provider sederhana agar file konfigurasi bisa dibagikan ke app lain. */
 public class FileShareProvider extends ContentProvider {
 
-    public static final String AUTHORITY = "com.vaultwarden.android.fileprovider";
+    public static final String AUTHORITY = "com.tasirin.vaultwardenhost.fileprovider";
 
     @Override
     public boolean onCreate() {

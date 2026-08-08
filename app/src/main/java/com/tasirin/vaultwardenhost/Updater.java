@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -23,9 +23,9 @@ public final class Updater {
             "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest";
     // Binary Android di-host di repo build (resmi tidak menyediakan biner Android).
     private static final String RELEASE_URL =
-            "https://github.com/tasirin1/vaultwardenhostingandroid/releases/download/";
+            "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/download/";
     private static final String WV_UPDATE_URL =
-            "https://github.com/tasirin1/vaultwardenhostingandroid/releases/latest/download/web-vault.zip";
+            "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/latest/download/web-vault.zip";
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
 
     private Updater() {
@@ -40,7 +40,7 @@ public final class Updater {
         c.setReadTimeout(readMs);
         c.setInstanceFollowRedirects(true);
         c.setRequestProperty("User-Agent",
-                "Mozilla/5.0 (Linux; Android) VaultwardenHost");
+                "Mozilla/5.0 (Linux; Android) TasirinVaultwardenHost");
         HttpsCompat.apply(c, ctx);
         return c;
     }

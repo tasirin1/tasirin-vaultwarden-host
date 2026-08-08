@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.Manifest;
 import android.app.Activity;
@@ -785,7 +785,7 @@ public class MainActivity extends Activity {
             File out = new File(backupDir, "app-config-" + ts + ".json");
 
             JSONObject root = new JSONObject();
-            root.put("app", "vaultwarden-android");
+            root.put("app", "tasirin-vaultwarden-host");
             root.put("version", 1);
             JSONObject prefs = new JSONObject();
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);

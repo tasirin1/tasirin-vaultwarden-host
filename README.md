@@ -1,7 +1,8 @@
-# Vaultwarden Host for Android
+# Tasirin Vaultwarden Host
 
 Menjalankan server **Vaultwarden** (Bitwarden-compatible, Rust) langsung di Android,
-dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke atas**.
+dibangun otomatis lewat **GitHub Actions** (repo `tasirin1/tasirin-vaultwarden-host`).
+Mendukung **Android 5.0 (API 21) ke atas**.
 
 ## Cara kerja
 
@@ -21,17 +22,15 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 ## Download APK
 
 - **GitHub Release** → pilih APK sesuai arsitektur HP:
-  - `vaultwarden-android-arm64-v8a.apk` — HP modern (64-bit, mayoritas).
-  - `vaultwarden-android-armeabi-v7a.apk` — HP lama (32-bit).
-  - `vaultwarden-android-x86_64.apk` — emulator / perangkat x86_64.
-- **Tab Actions** → run terbaru → artifact `vaultwarden-android-apk-<abi>`.
+  - `tasirin-vaultwarden-host-armeabi-v7a.apk` — 32-bit ARM (STB / HP lama).
+- **Tab Actions** → run terbaru → artifact `tasirin-vaultwarden-host-apk-armeabi-v7a`.
 - Cek arsitektur HP: app **CPU-Z**, atau terminal `adb shell getprop ro.product.cpu.abi`.
-- APK ditandatangani debug key — tinggal install (aktifkan
-  *install from unknown sources*).
+- APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
+  Manager) — tinggal install (aktifkan *install from unknown sources*).
 
 ## Pemakaian
 
-1. Install APK, buka app **Vaultwarden Host**, beri izin **Storage** bila diminta.
+1. Install APK, buka app **Tasirin Vaultwarden Host**, beri izin **Storage** bila diminta.
 2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8080`).
 3. Tekan **Start**. Status menunjukkan server berjalan + URL jaringan.
 4. Buka `http://127.0.0.1:8088` lewat tombol **Open Web UI** (browser HP),
@@ -100,7 +99,7 @@ dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0 (API 21) ke 
 
 ## Build ulang manual
 
-- **Actions → Build Vaultwarden Android APK → Run workflow**
+- **Actions → Build Tasirin Vaultwarden Host APK → Run workflow**
   (atau otomatis tiap push ke `main`, atau tiap 6 jam).
 
 ## Lisensi

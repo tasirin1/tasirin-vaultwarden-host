@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

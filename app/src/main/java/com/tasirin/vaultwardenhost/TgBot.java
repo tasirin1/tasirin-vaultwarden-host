@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -24,7 +24,7 @@ import java.util.Locale;
 /** Remote kontrol Vaultwarden Host lewat Telegram bot (long polling getUpdates). */
 public final class TgBot {
 
-    public static final String ACTION_POLL = "com.vaultwarden.android.TG_POLL";
+    public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     private static final String KEY_TG_OFFSET = "tg_bot_offset";
     private static final long POLL_INTERVAL_MS = 60_000;
 

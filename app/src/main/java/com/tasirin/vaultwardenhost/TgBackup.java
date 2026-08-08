@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

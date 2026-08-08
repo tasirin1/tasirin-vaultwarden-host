@@ -1,4 +1,4 @@
-package com.vaultwarden.android;
+package com.tasirin.vaultwardenhost;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -42,10 +42,10 @@ import javax.net.ssl.X509TrustManager;
 
 public class ServerService extends Service {
 
-    public static final String ACTION_START = "com.vaultwarden.android.START";
-    public static final String ACTION_STOP = "com.vaultwarden.android.STOP";
-    public static final String ACTION_RESTART = "com.vaultwarden.android.RESTART";
-    public static final String ACTION_TG_BACKUP = "com.vaultwarden.android.TG_BACKUP";
+    public static final String ACTION_START = "com.tasirin.vaultwardenhost.START";
+    public static final String ACTION_STOP = "com.tasirin.vaultwardenhost.STOP";
+    public static final String ACTION_RESTART = "com.tasirin.vaultwardenhost.RESTART";
+    public static final String ACTION_TG_BACKUP = "com.tasirin.vaultwardenhost.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
     public static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";

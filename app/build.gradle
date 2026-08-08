@@ -3,15 +3,15 @@ plugins {
 }
 
 android {
-    namespace 'com.vaultwarden.android'
+    namespace 'com.tasirin.vaultwardenhost'
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.vaultwarden.android'
+        applicationId 'com.tasirin.vaultwardenhost'
         minSdk 21
         // targetSdk 28 sengaja: agar binary vaultwarden tetap bisa di-execute dari app data
         targetSdk 28
-        versionCode 2
+        versionCode 3
         versionName '2.0'
     }
 
@@ -20,9 +20,28 @@ android {
         armv7 { dimension 'abi' }
     }
 
+    signingConfigs {
+        release {
+            def storeFileProp = project.findProperty('storeFile') as String
+            def storePasswordProp = project.findProperty('storePassword') as String
+            def keyAliasProp = project.findProperty('keyAlias') as String
+            def keyPasswordProp = project.findProperty('keyPassword') as String
+            if (storeFileProp && storePasswordProp && keyAliasProp && keyPasswordProp) {
+                storeFile = rootProject.file(storeFileProp)
+                storePassword = storePasswordProp
+                keyAlias = keyAliasProp
+                keyPassword = keyPasswordProp
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            def signing = signingConfigs.release
+            if (signing.storeFile != null && signing.storeFile.exists()) {
+                signingConfig signing
+            }
         }
     }
 

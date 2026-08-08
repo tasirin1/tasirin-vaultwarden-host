@@ -43,7 +43,7 @@
 
         <provider
             android:name=".FileShareProvider"
-            android:authorities="com.vaultwarden.android.fileprovider"
+            android:authorities="com.tasirin.vaultwardenhost.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" />
 

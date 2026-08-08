@@ -1,4 +1,4 @@
-name: Build Vaultwarden Android APK
+name: Build Tasirin Vaultwarden Host APK
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            EXISTING=$(curl -s "https://api.github.com/repos/tasirin1/vaultwardenhostingandroid/releases/tags/v$TAG" | jq -r .tag_name)
+            EXISTING=$(curl -s "https://api.github.com/repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" | jq -r .tag_name)
             if [ "$EXISTING" = "v$TAG" ]; then
               echo "skip=yes" >> "$GITHUB_OUTPUT"
             fi
@@ -125,6 +125,8 @@ jobs:
     needs: [build-binary, resolve]
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -178,9 +180,24 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon :app:assembleArmv7Debug
 
+      - name: Build signed release APK (jika secret signing tersedia)
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
+          ./gradlew --no-daemon :app:assembleArmv7Release \
+            -PstoreFile=keystore.jks \
+            -PstorePassword="$KEYSTORE_PASSWORD" \
+            -PkeyAlias="$KEY_ALIAS" \
+            -PkeyPassword="$KEY_PASSWORD"
+
       - name: Verify APK contents
         run: |
-          APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
+          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
           echo "== $APK"
           unzip -l "$APK" | grep -E 'assets/bin|vw_version|web-vault.zip|classes.dex|AndroidManifest'
           ls -lh "$APK"
@@ -189,22 +206,23 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
-          cp "$APK" vaultwarden-android-armeabi-v7a.apk
+          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
+          cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           cp app/src/armv7/assets/bin/armeabi-v7a/vaultwarden vaultwarden-armeabi-v7a
           cp app/src/main/assets/web-vault.zip web-vault.zip
-          ls -lh vaultwarden-*.apk vaultwarden-armeabi-v7a web-vault.zip
+          ls -lh tasirin-*.apk vaultwarden-armeabi-v7a web-vault.zip
           gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true
           gh release create "v${{ needs.resolve.outputs.vw }}" \
-            vaultwarden-android-armeabi-v7a.apk \
+            tasirin-vaultwarden-host-armeabi-v7a.apk \
             vaultwarden-armeabi-v7a \
             web-vault.zip \
-            --title "Vaultwarden ${{ needs.resolve.outputs.vw }} (Android)" \
-            --notes "APK armv7 (32-bit ARM). Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
+            --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
+            --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vaultwarden-android-apk-armeabi-v7a
-          path: vaultwarden-android-armeabi-v7a.apk
+          name: tasirin-vaultwarden-host-apk-armeabi-v7a
+          path: tasirin-vaultwarden-host-armeabi-v7a.apk
           if-no-files-found: error
