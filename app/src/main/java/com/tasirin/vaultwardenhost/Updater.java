@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,27 +52,45 @@ public final class Updater {
         return c;
     }
 
-    /** Versi resmi terbaru (tanpa huruf v) atau null bila gagal. */
+    // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
+    // API GitHub saat Start diulang-ulang / koneksi Android 5/6 putus-putus.
+    private static final long VERSION_TTL_MS = 15 * 60 * 1000L;
+    private static volatile String sLatestVersion;
+    private static volatile long sLatestAt;
+
+    /** Versi resmi terbaru (tanpa huruf v) atau null bila belum pernah dapat. */
     public static String latestVersion(Context ctx) {
+        long now = SystemClock.elapsedRealtime();
+        String cached = sLatestVersion;
+        if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
+            return cached;
+        }
         try {
             HttpURLConnection conn = open(ctx, OFFICIAL_API, 10000, 10000);
-            if (conn.getResponseCode() != 200) {
+            int code = conn.getResponseCode();
+            if (code == 200) {
+                BufferedReader r = new BufferedReader(new InputStreamReader(
+                        conn.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line);
+                }
+                r.close();
                 conn.disconnect();
-                return null;
+                String v = normVersion(extractTag(sb.toString()));
+                if (v != null && !v.isEmpty()) {
+                    sLatestVersion = v;
+                    sLatestAt = now;
+                    return v;
+                }
+            } else {
+                // 403/429 = rate-limit; pakai cache lama kalau ada.
+                conn.disconnect();
             }
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
-            }
-            r.close();
-            conn.disconnect();
-            return normVersion(extractTag(sb.toString()));
-        } catch (Exception e) {
-            return null;
+        } catch (Exception ignored) {
         }
+        return cached;
     }
 
     /** Unduh & pasang update binary; return pesan hasil. Lempar Exception bila gagal. */
@@ -97,10 +116,11 @@ public final class Updater {
      *  Dipakai saat Start bila binary belum ada (tidak lagi dibundel di APK). */
     public static String downloadBinary(Context ctx, File out) throws Exception {
         String latest = latestVersion(ctx);
-        if (latest == null) {
-            throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
-        }
-        String assetUrl = RELEASE_URL + "v" + latest + "/vaultwarden-" + ServerService.ABI;
+        // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
+        // redirect "latest/download" tanpa perlu tahu nomor versi.
+        boolean known = latest != null && !latest.isEmpty();
+        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
+                + "vaultwarden-" + ServerService.ABI;
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
@@ -110,8 +130,10 @@ public final class Updater {
         int code = dl.getResponseCode();
         if (code == 404) {
             dl.disconnect();
-            throw new IOException("Build Android v" + latest
-                    + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti.");
+            throw new IOException(known
+                    ? "Build Android v" + latest
+                            + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
+                    : "Release binary Android belum tersedia. Coba lagi nanti.");
         }
         if (code != 200) {
             dl.disconnect();
@@ -147,9 +169,10 @@ public final class Updater {
         out.setExecutable(true, false);
         writeVersionTag(binDir, appVersionName(ctx));
         ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                .edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+                .edit().putString(ServerService.KEY_UPDATE_VERSION,
+                        latest != null ? latest : "").apply();
         ServerService.binaryVersion = "";
-        return "Update v" + latest + " terpasang.";
+        return "Update v" + (latest != null ? latest : "?") + " terpasang.";
     }
 
     /** Tandai cache binary dengan versi APK pemiliknya (untuk reuse saat Start). */
