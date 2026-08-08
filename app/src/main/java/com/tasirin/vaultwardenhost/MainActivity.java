@@ -1121,6 +1121,46 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning. */
+    private CharSequence highlightLog(String text, String q) {
+        if (q.isEmpty() && !text.contains("GAGAL") && !text.contains("ERROR")
+                && !text.contains("FAILED")) {
+            return text;
+        }
+        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        String queryLower = q.toLowerCase(Locale.US);
+        if (!queryLower.isEmpty()) {
+            String textLower = text.toLowerCase(Locale.US);
+            int from = 0;
+            while (true) {
+                int idx = textLower.indexOf(queryLower, from);
+                if (idx < 0) {
+                    break;
+                }
+                sb.setSpan(new BackgroundColorSpan(0xFFFFE082),
+                        idx, idx + q.length(),
+                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+                from = idx + q.length();
+            }
+        }
+        int lineStart = 0;
+        while (lineStart < sb.length()) {
+            int lineEnd = text.indexOf('\n', lineStart);
+            int end = lineEnd < 0 ? sb.length() : lineEnd;
+            String upper = text.substring(lineStart, end).toUpperCase(Locale.US);
+            if (upper.contains("GAGAL") || upper.contains("ERROR") || upper.contains("FAILED")) {
+                sb.setSpan(new ForegroundColorSpan(Color.RED),
+                        lineStart, end,
+                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            if (lineEnd < 0) {
+                break;
+            }
+            lineStart = lineEnd + 1;
+        }
+        return sb;
+    }
+
     // ─── UI helpers ─────────────────────────────────────────────────────
 
     private void togglePassword(EditText et, Button btn) {
