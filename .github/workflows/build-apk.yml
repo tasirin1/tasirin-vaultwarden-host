@@ -41,7 +41,7 @@ jobs:
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -151,7 +151,7 @@ jobs:
           ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Upload binary artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: vw-binary-armeabi-v7a
           path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
@@ -165,7 +165,7 @@ jobs:
     env:
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Download binary (armeabi-v7a)
         uses: actions/download-artifact@v7
@@ -215,6 +215,14 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon :app:assembleDebug
 
+      - name: Lint & unit test
+        run: |
+          ./gradlew --no-daemon :app:lintDebug :app:testDebugUnitTest
+
+      - name: Tampilkan laporan lint di log
+        if: always()
+        run: cat app/build/reports/lint-results-debug.txt || true
+
       - name: Build signed release APK (jika secret signing tersedia)
         if: env.KEYSTORE_BASE64 != ''
         env:
@@ -236,6 +244,19 @@ jobs:
           echo "== $APK"
           unzip -l "$APK" | grep -E 'vw_version|classes.dex|AndroidManifest'
           ls -lh "$APK"
+
+      - name: Cek ukuran APK (jaga APK tetap kecil)
+        run: |
+          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
+          SIZE=$(stat -c %s "$APK")
+          echo "Ukuran APK (${APK##*/}): $SIZE bytes"
+          # APK desain ~0,1 MB (binary & web-vault tidak dibundel); batas 2 MB
+          # agar membengkaknya APK langsung ketahuan di CI.
+          if [ "$SIZE" -gt 2097152 ]; then
+            echo "::error::APK terlalu besar: $SIZE > 2097152 bytes"
+            exit 1
+          fi
 
       - name: Publish GitHub Release
         env:
@@ -260,7 +281,7 @@ jobs:
             --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary untuk update di dalam app. Web-vault.zip untuk update web vault."
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tasirin-vaultwarden-host-apk-armeabi-v7a
           path: tasirin-vaultwarden-host-armeabi-v7a.apk

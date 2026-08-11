@@ -6,11 +6,11 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
-rootProject.name = 'TasirinVaultwardenHost'
-include ':app'
+rootProject.name = "TasirinVaultwardenHost"
+include(":app")
