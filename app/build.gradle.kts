@@ -22,11 +22,8 @@ android {
         targetSdk = 28
         versionCode = buildCode
         versionName = buildDate
-    }
-
-    // UI memakai Indonesia (default values/); locale pustaka lain dibuang — hemat ukuran.
-    androidResources {
-        localeFilters += listOf("id")
+        // UI memakai Indonesia (default values/); locale lain dibuang — hemat ukuran.
+        resConfigs("id")
     }
 
     signingConfigs {
