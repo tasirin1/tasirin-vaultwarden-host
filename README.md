@@ -43,14 +43,21 @@ teknis; panduan pengelolaan lengkap ada di
   dari GitHub Release saat Start pertama (diverifikasi SHA-256).
 - Auto-update binary & web vault di jaringan rumah (WiFi/ethernet), plus
   restart otomatis setelah update — semua bisa diatur lewat checkbox.
-- Status web ringan (JSON + log realtime via SSE) di port terpisah.
-- Remote & backup via **Telegram bot** (command + backup AES-256-GCM).
+- Status web ringan (JSON + log realtime via SSE) di port terpisah — kini
+  menampilkan juga **versi web vault + ukurannya, ukuran DB, riwayat restart**.
+- Remote & backup via **Telegram bot** (command + backup AES-256-GCM), termasuk
+  `/crashlog` untuk mengirim crash log terakhir.
 - **QR koneksi** sekali tekan: pindai langsung dari HP lain (buka
   `http(s)://IP:port` tanpa mengetik).
+- **Crash log** tersimpan otomatis, bisa dibuka lewat tombol **Crash** di
+  layar Log (dialog + salin) atau dikirim ke Telegram dengan `/crashlog`.
+- **Progress unduh realtime** di chip status: persen + ukuran saat mengunduh
+  binary/web-vault (update atau Start pertama).
+- **Rincian storage** di layar utama: ukuran DB, backup lokal (jumlah + total),
+  web-vault, dan binary.
 - HTTPS self-signed, PIN kunci app, auto-start saat boot, restart otomatis
   saat crash (dengan **anti-loop**: berhenti total bila restart beruntun 3×
-  dalam 5 menit), **crash log** tersimpan otomatis, deteksi port bentrok,
-  export/import config.
+  dalam 5 menit), deteksi port bentrok, export/import config.
 - UI ramah remote TV (navigasi D-pad) maupun layar sentuh HP.
 
 ## Cara kerja
@@ -119,13 +126,17 @@ File lain (`web-vault`, database, config) dipakai langsung dari folder data.
 - Saat server berjalan, app juga menjalankan **status web** di **port server + 1**
   (default `8088` → `8089`): `http://<IP-lokal-android>:8089`. Bila port itu
   dipakai, app otomatis mencari port bebas berikutnya (sampai +10).
-- Halaman menampilkan status server (jalan/berhenti, versi app/binary/web-vault,
-  port, HTTPS, uptime, RAM proses, sisa storage, folder data) plus **log
-  realtime** (SSE) dengan pencarian & auto-scroll.
-- Endpoint JSON: `GET /api/status`, log teks: `GET /api/log`, stream: `GET /api/events`.
+- Halaman menampilkan status server (jalan/berhenti, versi app/binary, versi
+  web vault + ukurannya, ukuran DB, jumlah backup, port, HTTPS, uptime, RAM
+  proses, sisa storage, riwayat restart, folder data) plus **log realtime**
+  (SSE) dengan pencarian & auto-scroll.
+- Endpoint JSON: `GET /api/status` (termasuk `dbHuman`, `wvHuman`,
+  `binaryHuman`, `backupCount`, `restartHistory`), log teks: `GET /api/log`,
+  stream: `GET /api/events`.
 - Di app: tombol **Status Web** membuka halaman itu; tombol **Buka** di panel
   Log membuka **Log Realtime layar penuh** (cari + highlight `GAGAL/ERROR`,
-  hitungan baris, salin, bagikan, **Simpan .txt** ke `Download`).
+  hitungan baris, salin, bagikan, **Simpan .txt** ke `Download`, dan tombol
+  **Crash** untuk melihat crash log terakhir).
 
 ## Remote via Telegram
 
@@ -138,6 +149,7 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 | `/uptime`     | Lama server berjalan                                |
 | `/alive`      | Cek sehat via HTTP `/alive`                         |
 | `/backup`     | Backup database sekarang (terenkripsi)              |
+| `/crashlog`   | Kirim crash log terakhir (bila ada)                 |
 | `/update`     | Update binary + restart otomatis                    |
 | `/webvault`   | Update web vault (restart manual via `/restart`)    |
 | `/start` `/stop` `/restart` | Kontrol server                        |
@@ -151,7 +163,9 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
   ber-timestamp ke `<data>/backups/` (maks 10, tertua otomatis dihapus).
   **Backup ke Telegram**: zip sama, disimpan juga di `<data>/backups/`, opsional
   terenkripsi **AES-256-GCM** (password wajib sama saat restore), bisa otomatis
-  tiap 24 jam atau saat Start, dan menyertakan config + sertifikat.
+  tiap 24 jam atau saat Start, dan menyertakan config + sertifikat. Baris
+  storage di layar utama menampilkan ukuran DB, backup (jumlah + total),
+  web-vault, dan binary.
 - **Restore**: dari backup Telegram, file `.zip` lokal, atau `.sqlite3` mentah
   (backup lama); server dihentikan otomatis saat restore.
 - **Auto start saat boot** (foreground service + wake lock). **Restart otomatis
@@ -159,8 +173,9 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
   menit). **Anti-loop**: 3× restart dalam 5 menit → auto-restart dimatikan,
   status & Telegram diberi tahu. **Riwayat restart** (jumlah + waktu terakhir)
   tampil di layar utama dan `/status`. **Crash log** (~100 baris terakhir)
-  tersimpan di `crash-last.log` (internal) saat server crash/health gagal.
-  Health check `/alive` adaptif.
+  tersimpan di `crash-last.log` (internal) saat server crash/health gagal —
+  bisa dibuka lewat tombol **Crash** di layar Log (dialog + salin) atau
+  dikirim ke Telegram dengan `/crashlog`. Health check `/alive` adaptif.
 - Catatan: jika app di-**force-stop**, Android memblokir broadcast boot sampai
   app dibuka sekali lagi (swipe dari recents tidak memengaruhi service).
 
@@ -187,7 +202,8 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
     terpasang saat server jalan.
 - Tombol **Cek Update** memasang binary terbaru (dipakai saat Start berikutnya,
   tanpa install ulang APK). **Update Web Vault** mengunduh `web-vault.zip` dari
-  release (isinya dari image web vault resmi) ke `<data>/web-vault`.
+  release (isinya dari image web vault resmi) ke `<data>/web-vault`. Selama
+  mengunduh, chip status menampilkan **progress realtime** (persen + ukuran).
 - Semua unduhan **diverifikasi SHA-256** terhadap file `.sha256` di release;
   bila tidak cocok, update dibatalkan (aman diulang).
 - **Reset Binary** menghapus binary tersimpan — versi terbaru diunduh ulang

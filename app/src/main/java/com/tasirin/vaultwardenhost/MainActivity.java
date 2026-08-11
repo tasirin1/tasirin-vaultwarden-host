@@ -114,12 +114,16 @@ public class MainActivity extends Activity {
     private String lastShownNet = "";
     private boolean advancedOpen = false;
     private boolean refreshActive = true;
+    private boolean uiBusy = false;
     private long lastWvCheck = 0;
     private String wvLine = "";
     private long lastDbCheck = 0;
     private String dbLine = "";
+    private long lastStorageCheck = 0;
+    private String storageLine = "";
     private static final long WV_CHECK_MS = 10_000;
     private static final long DB_CHECK_MS = 5_000;
+    private static final long STORAGE_CHECK_MS = 5_000;
 
     private static boolean unlocked = false;
 
@@ -412,9 +416,23 @@ public class MainActivity extends Activity {
     }
 
     private void refreshFromService() {
+        // Sedang sibuk (update/backup)? Kunci chip status: progress unduh bila ada,
+        // selain itu "Bekerja…" — jangan biarkan polling menimpa dengan status lama.
+        if (uiBusy) {
+            String dl = Updater.downloadStatus;
+            statusView.setText(dl.isEmpty() ? getString(R.string.busy_work) : dl);
+            statusView.setBackgroundResource(R.drawable.bg_status_busy);
+            lastShownStatus = "";
+            if (refreshActive) {
+                ui.postDelayed(this::refreshFromService, 500);
+            }
+            return;
+        }
+
         // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
-        String statusText = running ? "Berjalan" : "Berhenti";
+        String statusText = running ? getString(R.string.running)
+                : getString(R.string.stopped);
         String key = statusText + "|" + (running ? "on" : "off");
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
@@ -422,7 +440,8 @@ public class MainActivity extends Activity {
                     ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
             lastShownStatus = key;
         }
-        String btnText = running ? "Stop" : "Start";
+        String btnText = running ? getString(R.string.stop)
+                : getString(R.string.start);
         if (!btnText.equals(startStopBtn.getText().toString())) {
             startStopBtn.setText(btnText);
         }
@@ -456,8 +475,7 @@ public class MainActivity extends Activity {
             }
         }
         if (updAvail) {
-            updateHint.setText("\u26A0 Update v" + pendingVersion
-                    + " tersedia \u2014 tekan Cek Update");
+            updateHint.setText(getString(R.string.update_available, pendingVersion));
             updateHint.setVisibility(View.VISIBLE);
         } else {
             updateHint.setVisibility(View.GONE);
@@ -478,6 +496,10 @@ public class MainActivity extends Activity {
         String sys = sysInfoLine();
         if (!sys.isEmpty()) {
             full += "\n" + sys;
+        }
+        String storage = storageInfoLine();
+        if (!storage.isEmpty()) {
+            full += "\n" + storage;
         }
         String cert = certInfoLine();
         if (!cert.isEmpty()) {
@@ -1305,7 +1327,7 @@ public class MainActivity extends Activity {
         iv.setPadding(pad, pad, pad, pad);
 
         TextView tv = new TextView(this);
-        tv.setText("Pindai dengan kamera HP lain untuk membuka " + url);
+        tv.setText(getString(R.string.scan_qr, url));
         tv.setTextSize(13);
         tv.setTextColor(0xFF607D8B);
         tv.setPadding((int) (20 * d), 0, (int) (20 * d), (int) (12 * d));
@@ -1403,6 +1425,73 @@ public class MainActivity extends Activity {
             dbLine = "";
         }
         return dbLine;
+    }
+
+    /** Rincian storage: DB, backup lokal, web-vault, binary (satu baris ringkas). */
+    private String storageInfoLine() {
+        long now = System.currentTimeMillis();
+        if (now - lastStorageCheck < STORAGE_CHECK_MS) {
+            return storageLine;
+        }
+        lastStorageCheck = now;
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            File data = new File(dataDir);
+            File db = new File(data, "db.sqlite3");
+            File backups = new File(data, "backups");
+            File webVault = new File(data, "web-vault");
+            File bin = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
+            StringBuilder sb = new StringBuilder("Storage: ");
+            boolean first = true;
+            if (db.exists()) {
+                sb.append("DB ").append(TgBackup.humanBytes(db.length()));
+                first = false;
+            }
+            File[] files = backups.listFiles();
+            if (files != null && files.length > 0) {
+                if (!first) {
+                    sb.append(" \u00B7 ");
+                }
+                sb.append("Backup ").append(TgBackup.humanBytes(folderBytes(backups)))
+                        .append(" (").append(files.length).append(")");
+                first = false;
+            }
+            long wvBytes = folderBytes(webVault);
+            if (wvBytes > 0) {
+                if (!first) {
+                    sb.append(" \u00B7 ");
+                }
+                sb.append("Web ").append(TgBackup.humanBytes(wvBytes));
+                first = false;
+            }
+            if (bin.exists()) {
+                if (!first) {
+                    sb.append(" \u00B7 ");
+                }
+                sb.append("Binary ").append(TgBackup.humanBytes(bin.length()));
+            }
+            storageLine = sb.toString();
+        } catch (Exception e) {
+            storageLine = "";
+        }
+        return storageLine;
+    }
+
+    /** Total byte isi folder (rekursif). */
+    private static long folderBytes(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                long sum = 0;
+                for (File c : children) {
+                    sum += folderBytes(c);
+                }
+                return sum;
+            }
+            return 0;
+        }
+        return file.isFile() ? file.length() : 0;
     }
 
     /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server. */
@@ -1565,7 +1654,7 @@ public class MainActivity extends Activity {
                 ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         et.setSelection(et.getText().length());
-        btn.setText(hidden ? "Sembunyi" : "Lihat");
+        btn.setText(hidden ? getString(R.string.hide) : getString(R.string.show));
     }
 
     /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
@@ -1613,12 +1702,14 @@ public class MainActivity extends Activity {
     private void setAdvancedOpen(boolean open) {
         advancedOpen = open;
         advancedPanel.setVisibility(open ? View.VISIBLE : View.GONE);
-        advancedToggleBtn.setText(open ? "Lanjutan \u25BE" : "Lanjutan \u25B8");
+        advancedToggleBtn.setText(getString(open
+                ? R.string.advanced_open : R.string.advanced_closed));
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                 .putBoolean(KEY_ADVANCED_OPEN, open).apply();
     }
 
     private void setBusy(final boolean busy) {
+        uiBusy = busy;
         ui.post(() -> {
             updateBtn.setEnabled(!busy);
             revertBtn.setEnabled(!busy);
@@ -1628,7 +1719,7 @@ public class MainActivity extends Activity {
             backupTgBtn.setEnabled(!busy);
             restoreTgBtn.setEnabled(!busy);
             if (busy) {
-                statusView.setText("Bekerja\u2026");
+                statusView.setText(getString(R.string.busy_work));
                 statusView.setBackgroundResource(R.drawable.bg_status_busy);
                 lastShownStatus = "";
             } else {

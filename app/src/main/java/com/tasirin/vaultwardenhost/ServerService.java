@@ -674,6 +674,25 @@ public class ServerService extends Service {
         }
     }
 
+    /** Isi crash log terakhir (crash-last.log internal); null bila belum ada crash. */
+    public static String crashLogText(Context ctx) {
+        File f = new File(ctx.getFilesDir(), CRASH_LOG_NAME);
+        if (!f.exists()) {
+            return null;
+        }
+        try (BufferedReader r = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /** Tulis ~100 baris log terakhir ke file internal (crash-last.log). */
     private void writeCrashLog(String reason) {
         try {

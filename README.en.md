@@ -21,12 +21,20 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   from the GitHub Release on first Start (SHA-256 verified).
 - Auto-update binary & web vault on your home network, with auto-restart after
   update (all optional).
-- Lightweight status web (JSON + realtime SSE logs) on a separate port.
-- Remote control & backup via **Telegram bot** (commands + AES-256-GCM backup).
+- Lightweight status web (JSON + realtime SSE logs) on a separate port — now
+  also shows **web vault version + size, DB size, and restart history**.
+- Remote control & backup via **Telegram bot** (commands + AES-256-GCM backup),
+  including `/crashlog` to send the last crash log.
 - **Connection QR**: one tap shows a scannable QR for `http(s)://IP:port`.
+- **Crash log** saved automatically — view it via the **Crash** button on the
+  full-screen log page (dialog + copy) or send it to Telegram with `/crashlog`.
+- **Realtime download progress** in the status chip: percent + size while
+  downloading the binary/web vault (update or first Start).
+- **Storage breakdown** on the main screen: DB, local backups (count + total),
+  web vault, and binary sizes.
 - Self-signed HTTPS, PIN lock, boot auto-start, crash auto-restart (with
-  **anti-loop**: stops after 3 restarts in 5 minutes), **crash log** saved
-  automatically, port conflict detection, config export/import.
+  **anti-loop**: stops after 3 restarts in 5 minutes), port conflict detection,
+  config export/import.
 - TV-remote (D-pad) and touch-friendly UI.
 
 ## How it works
@@ -59,8 +67,8 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   accept the self-signed certificate.
 - From another phone, tap **QR** and scan to open the URL instantly.
 - **Telegram remote**: set bot token + chat id to use `/log /uptime /alive
-  /status /update /webvault`, backups, and notifications. `/status` now shows
-  DB size, last backup time, and restart history.
+  /status /crashlog /update /webvault`, backups, and notifications. `/status`
+  shows DB size, last backup time, and restart history.
 - **Offline**: copy `vaultwarden-armeabi-v7a` + `web-vault.zip` from the
   Release into `/sdcard/vaultwarden/bin` and `/sdcard/vaultwarden/web-vault`
   (see [README.md](README.md) for details).
@@ -68,7 +76,11 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
 ## Update & troubleshooting
 
 - Updates are checked from the official Vaultwarden repo; binary & web vault
-  update in-app over your network, with SHA-256 verification.
+  update in-app over your network, with SHA-256 verification and **realtime
+  progress** (percent + size) in the status chip.
+- The status web page now also shows web vault version + size, DB size, backup
+  count, and restart history; the full-screen log page has a **Crash** button
+  to open the last crash log.
 - Common issues (TLS on old Android, Telegram backup, web-vault update
   failures, DNS icon panics) are covered in the
   [Indonesian README](README.md#troubleshooting).

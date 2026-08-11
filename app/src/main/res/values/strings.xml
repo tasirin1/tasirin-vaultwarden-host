@@ -1,4 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Tasirin Vaultwarden Host</string>
+
+    <!-- Umum -->
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="stopped">Berhenti</string>
+    <string name="running">Berjalan</string>
+    <string name="show">Lihat</string>
+    <string name="hide">Sembunyi</string>
+    <string name="allow">Izinkan</string>
+    <string name="active">Aktif</string>
+    <string name="about">Tentang</string>
+    <string name="back">Kembali</string>
+    <string name="copy">Salin</string>
+    <string name="share">Bagikan</string>
+    <string name="clear">Bersihkan</string>
+    <string name="close">Tutup</string>
+    <string name="crash">Crash</string>
+    <string name="busy_work">Bekerja…</string>
+
+    <!-- Halaman utama -->
+    <string name="copy_url">Salin URL</string>
+    <string name="qr">QR</string>
+    <string name="status_web">Status Web</string>
+    <string name="open_web_ui">Buka Web UI</string>
+    <string name="folder_data">Folder data</string>
+    <string name="default_data_dir">/sdcard/vaultwarden</string>
+    <string name="port">Port</string>
+    <string name="default_port">8088</string>
+    <string name="settings_changed_hint">⚠ Setting diubah — restart server agar berlaku</string>
+    <string name="update_available_hint">⚠ Update tersedia — tekan Cek Update</string>
+    <string name="update_available">⚠ Update v%1$s tersedia — tekan Cek Update</string>
+    <string name="advanced_open">Lanjutan ▾</string>
+    <string name="advanced_closed">Lanjutan ▸</string>
+    <string name="settings">Pengaturan</string>
+    <string name="admin_token">Admin Token</string>
+    <string name="admin_token_hint">kosongkan jika tidak perlu</string>
+    <string name="auto_start_boot">Auto start saat boot</string>
+    <string name="https_self_signed">HTTPS (self-signed)</string>
+    <string name="pin_label">PIN kunci app</string>
+    <string name="pin_hint">PIN 4-6 digit</string>
+    <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
+    <string name="maintenance">Pemeliharaan</string>
+    <string name="auto_update_binary">Auto-update binary saat ada versi baru (jaringan rumah)</string>
+    <string name="auto_update_webvault">Auto-update web vault mengikuti binary (jaringan rumah)</string>
+    <string name="auto_restart_update">Restart server otomatis setelah update (bila sedang jalan)</string>
+    <string name="check_update">Cek Update</string>
+    <string name="reset_binary">Reset Binary</string>
+    <string name="cert">Sertifikat</string>
+    <string name="install_cert">Install Cert</string>
+    <string name="export_config">Export Config</string>
+    <string name="import_config">Import Config</string>
+    <string name="update_web_vault">Update Web Vault</string>
+    <string name="backup_local">Backup Lokal</string>
+    <string name="restore_db">Restore DB</string>
+    <string name="backup_telegram">Backup Telegram</string>
+    <string name="bot_token">Bot token</string>
+    <string name="bot_token_hint">dari @BotFather</string>
+    <string name="chat_id">Chat ID</string>
+    <string name="chat_id_hint">ID chat tujuan</string>
+    <string name="backup_pass_label">Password enkripsi (opsional)</string>
+    <string name="backup_auto_24h">Backup otomatis tiap 24 jam</string>
+    <string name="backup_auto_on_start">Backup otomatis saat Start (maks. 1x/24 jam)</string>
+    <string name="backup_include_settings">Sertakan pengaturan &amp; sertifikat</string>
+    <string name="backup_to_tg">Backup ke Telegram</string>
+    <string name="restore_from_tg">Restore dari Telegram</string>
+    <string name="tg_bot_info">Buat bot lewat @BotFather di Telegram</string>
+    <string name="log_realtime">Log Realtime</string>
+    <string name="open_log_full">Buka Log (layar penuh)</string>
+    <string name="scan_qr">Pindai dengan kamera HP lain untuk membuka %1$s</string>
+
+    <!-- Halaman log -->
+    <string name="log_full_title">Log Realtime (layar penuh)</string>
+    <string name="save_txt">Simpan .txt</string>
+    <string name="search_hint">Cari di log...</string>
+    <string name="auto_scroll">Auto-scroll</string>
+    <string name="log_lines">Baris: %1$d</string>
+    <string name="log_lines_initial">Baris: 0</string>
 </resources>

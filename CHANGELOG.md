@@ -6,6 +6,27 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [2026-08-11] — Progress unduh, crash log viewer & status web kaya
+
+### Ditambahkan
+- **Progress unduh realtime**: chip status di layar utama menampilkan persen +
+  ukuran saat mengunduh binary/web-vault (update manual, auto-update, atau
+  Start pertama); polling UI dipercepat ke 500 ms selama unduhan.
+- **Crash log viewer**: tombol **Crash** di halaman Log membuka dialog
+  monospace berisi `crash-last.log` (bisa disalin); perintah Telegram
+  **`/crashlog`** mengirim crash log terakhir (3500 karakter).
+- **Rincian storage** di layar utama: ukuran DB, backup lokal (jumlah + total),
+  web-vault, dan binary (di-cache 5 detik).
+- **Status web diperkaya**: kartu baru Web Vault (versi + ukuran), DB (ukuran),
+  dan Restart (riwayat); JSON `/api/status` kini menyertakan `dbHuman`,
+  `wvHuman`, `binaryHuman`, `backupCount`, dan `restartHistory`.
+
+### Diperbaiki
+- **Lint bersih total (0 warning)**: semua string layout dipindahkan ke
+  `strings.xml`, `setText` memakai resource (placeholder), `tgChat` diberi
+  `inputType`, dan warning yang sengaja (trust-all TLS, wakelock, tombol TV,
+  autofill) dinonaktifkan eksplisit dengan alasan di `app/build.gradle.kts`.
+
 ## [2026-08-11] — Koneksi mudah, anti-loop & lint bersih
 
 ### Ditambahkan

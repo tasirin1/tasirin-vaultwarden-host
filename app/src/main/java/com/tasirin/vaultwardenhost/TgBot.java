@@ -189,9 +189,18 @@ public final class TgBot {
                     }
                 });
                 break;
+            case "/crashlog":
+                String crash = ServerService.crashLogText(ctx);
+                if (crash == null || crash.trim().isEmpty()) {
+                    TgBackup.sendMessage(ctx, "Belum ada crash log tersimpan.");
+                } else {
+                    TgBackup.sendMessage(ctx, crash.length() > 3500
+                            ? crash.substring(crash.length() - 3500) : crash);
+                }
+                break;
             case "/help":
                 TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup\n"
-                        + "/update  /webvault  /restart  /start  /stop  /help");
+                        + "/crashlog  /update  /webvault  /restart  /start  /stop  /help");
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");

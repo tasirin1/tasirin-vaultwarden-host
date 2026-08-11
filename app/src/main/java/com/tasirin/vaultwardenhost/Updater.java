@@ -37,6 +37,8 @@ public final class Updater {
     // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
     // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
     private static final String KEY_WV_FROM = "wv_from_version";
+    // Status unduhan yang sedang berjalan (dibaca UI realtime); kosong = tidak ada unduhan.
+    public static volatile String downloadStatus = "";
 
     private Updater() {
     }
@@ -118,6 +120,14 @@ public final class Updater {
     /** Unduh binary versi terbaru dari release repo ke out (verifikasi SHA-256).
      *  Dipakai saat Start bila binary belum ada (tidak lagi dibundel di APK). */
     public static String downloadBinary(Context ctx, File out) throws Exception {
+        try {
+            return downloadBinaryInner(ctx, out);
+        } finally {
+            downloadStatus = "";
+        }
+    }
+
+    private static String downloadBinaryInner(Context ctx, File out) throws Exception {
         String latest = latestVersion(ctx);
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
@@ -142,12 +152,20 @@ public final class Updater {
             dl.disconnect();
             throw new IOException("Unduhan gagal (HTTP " + code + ").");
         }
+        long total = dl.getContentLength();
         try (InputStream in = dl.getInputStream();
              FileOutputStream fos = new FileOutputStream(tmp)) {
             byte[] buf = new byte[64 * 1024];
             int n;
+            long done = 0;
+            long lastReport = 0;
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
+                done += n;
+                if (done - lastReport >= 256 * 1024) {
+                    lastReport = done;
+                    reportDownload("binary", done, total);
+                }
             }
         } finally {
             dl.disconnect();
@@ -179,6 +197,17 @@ public final class Updater {
         return "Update v" + (latest != null ? latest : "?") + " terpasang.";
     }
 
+    /** Perbarui status unduhan untuk UI (persen + ukuran bila total diketahui). */
+    private static void reportDownload(String label, long done, long total) {
+        if (total > 0) {
+            int pct = (int) (done * 100 / total);
+            downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done)
+                    + "/" + TgBackup.humanBytes(total) + " (" + pct + "%)";
+        } else {
+            downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done) + "...";
+        }
+    }
+
     /** Tandai cache binary dengan versi APK pemiliknya (untuk reuse saat Start). */
     private static void writeVersionTag(File binDir, String apkVersion) {
         try (FileWriter w = new FileWriter(new File(binDir, "version.txt"))) {
@@ -204,6 +233,14 @@ public final class Updater {
 
     /** Unduh & ekstrak web-vault ke folder data; return pesan hasil. */
     public static String updateWebVault(Context ctx) throws Exception {
+        try {
+            return updateWebVaultInner(ctx);
+        } finally {
+            downloadStatus = "";
+        }
+    }
+
+    private static String updateWebVaultInner(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
@@ -262,12 +299,20 @@ public final class Updater {
                     throw new IOException("Gagal unduh web-vault (HTTP " + code
                             + ") dari " + dl.getURL());
                 }
+                long total = dl.getContentLength();
                 try (InputStream in = dl.getInputStream();
                      FileOutputStream fos = new FileOutputStream(tmpZip)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
+                    long done = 0;
+                    long lastReport = 0;
                     while ((n = in.read(buf)) > 0) {
                         fos.write(buf, 0, n);
+                        done += n;
+                        if (done - lastReport >= 256 * 1024) {
+                            lastReport = done;
+                            reportDownload("web vault", done, total);
+                        }
                     }
                 } finally {
                     dl.disconnect();

@@ -6,6 +6,7 @@ import android.os.Environment;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -173,10 +174,45 @@ public final class ControlServer {
             long free = TgBackup.freeBytes(dir);
             o.put("freeBytes", free);
             o.put("freeHuman", TgBackup.humanBytes(free));
+
+            File dbFile = new File(dir, "db.sqlite3");
+            long dbBytes = dbFile.exists() ? dbFile.length() : 0;
+            o.put("dbBytes", dbBytes);
+            o.put("dbHuman", dbBytes > 0 ? TgBackup.humanBytes(dbBytes) : "");
+            File wvDir = new File(dir, "web-vault");
+            long wvBytes = folderBytes(wvDir);
+            o.put("wvBytes", wvBytes);
+            o.put("wvHuman", wvBytes > 0 ? TgBackup.humanBytes(wvBytes) : "");
+            File binFile = new File(context.getFilesDir(),
+                    "bin/vaultwarden-" + ServerService.ABI);
+            long binBytes = binFile.exists() ? binFile.length() : 0;
+            o.put("binaryBytes", binBytes);
+            o.put("binaryHuman", binBytes > 0 ? TgBackup.humanBytes(binBytes) : "");
+            File backupDir = new File(dir, "backups");
+            File[] backups = backupDir.listFiles();
+            o.put("backupCount", backups == null ? 0 : backups.length);
+            String restarts = ServerService.restartSummary();
+            o.put("restartHistory", restarts == null ? "" : restarts);
             return o.toString();
         } catch (Exception e) {
             return "{\"error\":\"" + e.getMessage() + "\"}";
         }
+    }
+
+    /** Total byte isi folder (rekursif). */
+    private static long folderBytes(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                long sum = 0;
+                for (File c : children) {
+                    sum += folderBytes(c);
+                }
+                return sum;
+            }
+            return 0;
+        }
+        return file.isFile() ? file.length() : 0;
     }
 
     private static String logTail() {
@@ -286,6 +322,9 @@ public final class ControlServer {
                 <div class="card"><div class="k">HTTPS</div><div class="v" id="https">-</div></div>
                 <div class="card"><div class="k">Uptime</div><div class="v" id="uptime">-</div></div>
                 <div class="card"><div class="k">Storage</div><div class="v" id="storage">-</div></div>
+                <div class="card"><div class="k">Web Vault</div><div class="v" id="wvVer">-</div></div>
+                <div class="card"><div class="k">DB</div><div class="v" id="dbSize">-</div></div>
+                <div class="card"><div class="k">Restart</div><div class="v" id="restartInfo">-</div></div>
                 <div class="card"><div class="k">Folder Data</div><div class="v" id="dataDir">-</div></div>
               </div>
               <div class="bar">
@@ -339,6 +378,11 @@ public final class ControlServer {
                 document.getElementById("https").textContent = j.https ? "Ya" : "Tidak";
                 document.getElementById("uptime").textContent = fmtUptime(j.uptimeMs);
                 document.getElementById("storage").textContent = j.freeHuman + " bebas";
+                document.getElementById("wvVer").textContent = (j.wvVersion || "-")
+                        + (j.wvHuman ? " \u00B7 " + j.wvHuman : "");
+                document.getElementById("dbSize").textContent = j.dbHuman
+                        || (j.dbBytes > 0 ? "-" : "belum ada");
+                document.getElementById("restartInfo").textContent = j.restartHistory || "-";
                 document.getElementById("dataDir").textContent = j.dataDir || "-";
               }).catch(function(){});
               setTimeout(pollStatus, 2000);

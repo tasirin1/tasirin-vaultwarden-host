@@ -71,7 +71,12 @@ android {
             "ExpiredTargetSdkVersion", // targetSdk 28 sengaja (W^X); bukan untuk Play Store
             "SdCardPath",     // /sdcard/vaultwarden memang folder data publik bawaan
             "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna
-            "UnusedAttribute" // usesCleartextTraffic untuk Android 6+ (API 23)
+            "UnusedAttribute", // usesCleartextTraffic untuk Android 6+ (API 23)
+            "TrustAllX509TrustManager",   // trust-all sengaja: HTTPS self-signed untuk Android 5/6
+            "CustomX509TrustManager",     // idem (trust anchor tambahan + self-signed)
+            "WakelockTimeout",            // wakelock sengaja: server harus tetap jalan saat update
+            "ButtonStyle",                // tombol log pakai bg kustom agar terlihat di TV
+            "Autofill"                    // kolom pengaturan LAN + PIN; autofill tidak relevan
         )
     }
 

@@ -1,12 +1,14 @@
 package com.tasirin.vaultwardenhost;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,6 +68,7 @@ public class LogActivity extends Activity {
         Button shareBtn = findViewById(R.id.logShare);
         Button copyBtn = findViewById(R.id.logCopy);
         Button clearBtn = findViewById(R.id.logClear);
+        Button crashBtn = findViewById(R.id.logCrash);
 
         autoScrollCheck.setChecked(logAutoScroll);
         autoScrollCheck.setOnCheckedChangeListener((b, checked) -> logAutoScroll = checked);
@@ -73,6 +76,7 @@ public class LogActivity extends Activity {
         saveBtn.setOnClickListener(v -> exportLogTxt());
         shareBtn.setOnClickListener(v -> shareLog());
         copyBtn.setOnClickListener(v -> copyLog());
+        crashBtn.setOnClickListener(v -> showCrashDialog());
         clearBtn.setOnClickListener(v -> {
             ServerService.clearLog();
             lastLogKey = null;
@@ -130,7 +134,7 @@ public class LogActivity extends Activity {
             }
         }
         lastLogLen = len;
-        logCount.setText("Baris: " + lineCount);
+        logCount.setText(getString(R.string.log_lines, lineCount));
         // Konten log append-only (trim hanya memendekkan) - panjang cukup sebagai
         // penanda perubahan, tanpa perlu menyalin/membandingkan teks 300 KB tiap detik.
         String key = len + "\u0000" + logSearch;
@@ -189,6 +193,35 @@ public class LogActivity extends Activity {
             lineStart = lineEnd + 1;
         }
         return sb;
+    }
+
+    /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */
+    private void showCrashDialog() {
+        String crash = ServerService.crashLogText(this);
+        if (crash == null || crash.trim().isEmpty()) {
+            toast("Belum ada crash log.");
+            return;
+        }
+        float d = getResources().getDisplayMetrics().density;
+        TextView tv = new TextView(this);
+        tv.setText(crash);
+        tv.setTextSize(11);
+        tv.setTypeface(Typeface.MONOSPACE);
+        tv.setTextIsSelectable(true);
+        int pad = (int) (12 * d);
+        tv.setPadding(pad, pad, pad, pad);
+        ScrollView sv = new ScrollView(this);
+        sv.addView(tv);
+        new AlertDialog.Builder(this)
+                .setTitle("Crash Log")
+                .setView(sv)
+                .setPositiveButton("Salin", (dlg, w) -> {
+                    ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-crash", crash));
+                    toast("Crash log disalin ke clipboard.");
+                })
+                .setNegativeButton(getString(R.string.close), null)
+                .show();
     }
 
     private void shareLog() {
