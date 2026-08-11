@@ -68,6 +68,7 @@ android {
         abortOnError = true
         disable += setOf(
             "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)
+            "ExpiredTargetSdkVersion", // targetSdk 28 sengaja (W^X); bukan untuk Play Store
             "SdCardPath",     // /sdcard/vaultwarden memang folder data publik bawaan
             "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna
             "UnusedAttribute" // usesCleartextTraffic untuk Android 6+ (API 23)
