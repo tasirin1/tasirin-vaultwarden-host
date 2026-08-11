@@ -40,7 +40,7 @@
     <string name="auto_start_boot">Auto start saat boot</string>
     <string name="https_self_signed">HTTPS (self-signed)</string>
     <string name="pin_label">PIN kunci app</string>
-    <string name="pin_hint">PIN 4-6 digit</string>
+    <string name="pin_hint">PIN 4–6 digit</string>
     <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
     <string name="maintenance">Pemeliharaan</string>
     <string name="auto_update_binary">Auto-update binary saat ada versi baru (jaringan rumah)</string>
@@ -74,7 +74,7 @@
     <!-- Halaman log -->
     <string name="log_full_title">Log Realtime (layar penuh)</string>
     <string name="save_txt">Simpan .txt</string>
-    <string name="search_hint">Cari di log...</string>
+    <string name="search_hint">Cari di log…</string>
     <string name="auto_scroll">Auto-scroll</string>
     <string name="log_lines">Baris: %1$d</string>
     <string name="log_lines_initial">Baris: 0</string>
