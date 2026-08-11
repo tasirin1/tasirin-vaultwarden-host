@@ -10,6 +10,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -28,6 +29,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.json.JSONObject;
 
@@ -90,6 +93,7 @@ public class MainActivity extends Activity {
     private LinearLayout advancedPanel;
     private LinearLayout batteryRow;
     private Button copyUrlBtn;
+    private Button qrBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
     private Button installCertBtn;
@@ -165,6 +169,7 @@ public class MainActivity extends Activity {
         backupTgBtn = findViewById(R.id.backupTg);
         restoreTgBtn = findViewById(R.id.restoreTg);
         copyUrlBtn = findViewById(R.id.copyUrl);
+        qrBtn = findViewById(R.id.qrBtn);
         exportCfgBtn = findViewById(R.id.exportCfg);
         importCfgBtn = findViewById(R.id.importCfg);
         installCertBtn = findViewById(R.id.installCert);
@@ -208,6 +213,7 @@ public class MainActivity extends Activity {
         advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
+        qrBtn.setOnClickListener(v -> showQrDialog());
         exportCfgBtn.setOnClickListener(v -> runBusy(this::exportConfig));
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
@@ -767,7 +773,7 @@ public class MainActivity extends Activity {
 
     private void showUpdateNotification(String version) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager nm = getSystemService(NotificationManager.class);
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (nm != null) {
                 NotificationChannel ch = new NotificationChannel("vw_updates",
                         "Vaultwarden Update", NotificationManager.IMPORTANCE_DEFAULT);
@@ -791,7 +797,8 @@ public class MainActivity extends Activity {
                 .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
                 .setAutoCancel(true)
                 .build();
-        NotificationManager nm = getSystemService(NotificationManager.class);
+        // getSystemService(Class) baru di API 23; pakai string agar API 21/22 aman.
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (nm != null) {
             nm.notify(2, n);
         }
@@ -867,9 +874,26 @@ public class MainActivity extends Activity {
             }
 
             String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-            File backup = new File(backupDir, "db-backup-" + timestamp + ".sqlite3");
+            File backup = new File(backupDir, "db-backup-" + timestamp + ".zip");
 
-            copyFile(dbFile, backup);
+            // Zip DB + WAL/SHM agar konsisten walau server sedang berjalan.
+            String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(backup))) {
+                byte[] buf = new byte[64 * 1024];
+                for (String name : names) {
+                    File f = new File(dataDir, name);
+                    if (f.exists() && f.length() > 0) {
+                        zos.putNextEntry(new ZipEntry(name));
+                        try (InputStream in = new java.io.FileInputStream(f)) {
+                            int n;
+                            while ((n = in.read(buf)) > 0) {
+                                zos.write(buf, 0, n);
+                            }
+                        }
+                        zos.closeEntry();
+                    }
+                }
+            }
             TgBackup.cleanupOldBackups(backupDir);
             toast("Backup tersimpan:\n" + backup.getAbsolutePath());
             appendUiLog("[app] Backup DB: " + backup.getName() + " (" + backup.length() + " bytes)");
@@ -930,13 +954,47 @@ public class MainActivity extends Activity {
                 TgBackup.cleanupOldBackups(backupDir);
             }
 
-            try (InputStream in = getContentResolver().openInputStream(uri);
-                 FileOutputStream fos = new FileOutputStream(dbFile)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    fos.write(buf, 0, n);
+            boolean restored = false;
+            byte[] buf = new byte[64 * 1024];
+            try (InputStream in = getContentResolver().openInputStream(uri)) {
+                byte[] magic = new byte[2];
+                int n = in.read(magic);
+                boolean isZip = n == 2 && magic[0] == 'P' && magic[1] == 'K';
+                if (isZip) {
+                    // Backup lokal .zip berisi db.sqlite3 (+wal/shm).
+                    ZipInputStream zis = new ZipInputStream(in);
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        String name = entry.getName();
+                        if (!name.startsWith("db.sqlite3")) {
+                            continue;
+                        }
+                        File out = "db.sqlite3".equals(name)
+                                ? dbFile : new File(dataDir, name);
+                        try (FileOutputStream fos = new FileOutputStream(out)) {
+                            int len;
+                            while ((len = zis.read(buf)) > 0) {
+                                fos.write(buf, 0, len);
+                            }
+                        }
+                        restored = true;
+                    }
+                } else {
+                    // File .sqlite3 mentah (backup lama).
+                    try (FileOutputStream fos = new FileOutputStream(dbFile)) {
+                        fos.write(magic, 0, n);
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            fos.write(buf, 0, len);
+                        }
+                    }
+                    restored = true;
                 }
+            }
+            if (!restored) {
+                toast("File backup tidak berisi db.sqlite3.");
+                appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
+                return;
             }
             toast("Database direstore. Restart server untuk memakai.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
@@ -1219,6 +1277,52 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Tampilkan QR koneksi (http(s)://ip:port) agar mudah dipindai dari HP lain. */
+    private void showQrDialog() {
+        final String url = ServerService.localUrl(this);
+        QrEncoder.Matrix matrix = QrEncoder.encode(url, QrEncoder.Ecc.L);
+        if (matrix == null) {
+            toast("URL terlalu panjang untuk QR.");
+            return;
+        }
+        int scale = 8;
+        int px = matrix.size * scale;
+        Bitmap bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
+        for (int y = 0; y < matrix.size; y++) {
+            for (int x = 0; x < matrix.size; x++) {
+                int color = matrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
+                for (int dy = 0; dy < scale; dy++) {
+                    for (int dx = 0; dx < scale; dx++) {
+                        bmp.setPixel(x * scale + dx, y * scale + dy, color);
+                    }
+                }
+            }
+        }
+        float d = getResources().getDisplayMetrics().density;
+        ImageView iv = new ImageView(this);
+        iv.setImageBitmap(bmp);
+        int pad = (int) (16 * d);
+        iv.setPadding(pad, pad, pad, pad);
+
+        TextView tv = new TextView(this);
+        tv.setText("Pindai dengan kamera HP lain untuk membuka " + url);
+        tv.setTextSize(13);
+        tv.setTextColor(0xFF607D8B);
+        tv.setPadding((int) (20 * d), 0, (int) (20 * d), (int) (12 * d));
+
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.addView(iv);
+        box.addView(tv);
+
+        new AlertDialog.Builder(this)
+                .setTitle("QR Koneksi")
+                .setView(box)
+                .setPositiveButton("Salin URL", (di, w) -> copyLocalUrl())
+                .setNegativeButton("Tutup", null)
+                .show();
+    }
+
     private static byte[] readAll(InputStream in) throws Exception {
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         byte[] buf = new byte[8192];
@@ -1359,6 +1463,13 @@ public class MainActivity extends Activity {
                 sb.append(" \u00B7 ");
             }
             sb.append("Sisa ").append(TgBackup.humanBytes(free));
+        }
+        String restarts = ServerService.restartSummary();
+        if (!restarts.isEmpty()) {
+            if (sb.length() > 0) {
+                sb.append(" \u00B7 ");
+            }
+            sb.append(restarts);
         }
         return sb.toString();
     }

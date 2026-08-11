@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /** Remote kontrol Vaultwarden Host lewat Telegram bot (long polling getUpdates). */
@@ -256,6 +258,10 @@ public final class TgBot {
                 ? "?" : ServerService.binaryVersion;
         File db = new File(dataDir, "db.sqlite3");
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
+        long lastBackup = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+        String backupInfo = lastBackup > 0
+                ? new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(lastBackup))
+                : "belum pernah";
         String wv = Updater.webVaultFromVersion(ctx);
         String wvInfo = wv != null ? wv : "belum ada";
         long rss = ServerService.processRssKb();
@@ -263,6 +269,7 @@ public final class TgBot {
         long up = ServerService.uptimeMs();
         String uptime = up > 0 ? durationText(up) : "-";
         long free = TgBackup.freeBytes(dataDir);
+        String restarts = ServerService.restartSummary();
         StringBuilder sb = new StringBuilder();
         sb.append("Vaultwarden Host\n")
                 .append("Status: ").append(ServerService.running ? "Running" : "Stopped").append("\n")
@@ -270,10 +277,14 @@ public final class TgBot {
                 .append("Web vault: ").append(wvInfo).append("\n")
                 .append("Data: ").append(dataDir).append("\n")
                 .append("DB: ").append(dbInfo).append("\n")
+                .append("Backup TG: ").append(backupInfo).append("\n")
                 .append("RAM: ").append(ram).append("\n")
                 .append("Uptime: ").append(uptime).append("\n")
                 .append("Sisa: ").append(TgBackup.humanBytes(free)).append("\n")
                 .append("URL: ").append(ServerService.localUrl(ctx));
+        if (!restarts.isEmpty()) {
+            sb.append("\n").append(restarts);
+        }
         return sb.toString();
     }
 

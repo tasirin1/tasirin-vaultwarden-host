@@ -102,7 +102,7 @@
 
                 <Button
                     android:id="@+id/copyUrl"
-                    android:nextFocusDown="@id/statusWeb"
+                    android:nextFocusDown="@id/qrBtn"
                     android:nextFocusUp="@id/startStop"
                     style="@style/TasirinBtnSmall"
                     android:layout_width="0dp"
@@ -111,9 +111,20 @@
                     android:text="Salin URL" />
 
                 <Button
+                    android:id="@+id/qrBtn"
+                    android:nextFocusDown="@id/statusWeb"
+                    android:nextFocusUp="@id/copyUrl"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="QR" />
+
+                <Button
                     android:id="@+id/statusWeb"
                     android:nextFocusDown="@id/dataDir"
-                    android:nextFocusUp="@id/copyUrl"
+                    android:nextFocusUp="@id/qrBtn"
                     style="@style/TasirinBtnSmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -485,7 +496,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="Backup DB" />
+                        android:text="Backup Lokal" />
                 </LinearLayout>
 
                 <Button

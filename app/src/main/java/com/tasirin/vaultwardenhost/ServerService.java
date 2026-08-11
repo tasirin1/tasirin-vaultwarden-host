@@ -86,6 +86,13 @@ public class ServerService extends Service {
     public static volatile String runningAdminToken = "";
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
+    // Anti-loop: berhenti total bila restart beruntun ≥3x dalam 5 menit.
+    private static final long RESTART_WINDOW_MS = 5 * 60 * 1000L;
+    private static final int RESTART_WINDOW_MAX = 3;
+    private static final int RESTART_HISTORY_MAX = 10;
+    private static final String CRASH_LOG_NAME = "crash-last.log";
+    private static final List<Long> RESTART_TIMES = new ArrayList<>();
+    private static final List<String> RESTART_REASONS = new ArrayList<>();
 
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -110,7 +117,7 @@ public class ServerService extends Service {
                 delay = HEALTH_FAST_INTERVAL_MS;
             }
             mainHandler.postDelayed(this, delay);
-            if (process == null || !process.isAlive() || !running) {
+            if (process == null || !alive(process) || !running) {
                 return;
             }
             new Thread(ServerService.this::checkHealthOnce, "vw-health").start();
@@ -148,7 +155,20 @@ public class ServerService extends Service {
     /** Apakah proses vaultwarden masih hidup (dipakai sebelum restore DB). */
     public static boolean isProcessAlive() {
         Process p = process;
-        return p != null && p.isAlive();
+        return alive(p);
+    }
+
+    /** Process.isAlive() baru ada di API 26; fallback exitValue() untuk Android 5/6. */
+    private static boolean alive(Process p) {
+        if (p == null) {
+            return false;
+        }
+        try {
+            p.exitValue();
+            return false;
+        } catch (IllegalThreadStateException e) {
+            return true;
+        }
     }
 
     /** Kosongkan buffer log (in-memory) dan hapus file log di folder data. */
@@ -270,7 +290,7 @@ public class ServerService extends Service {
                     // Jadwalkan ulang 24 jam dari sekarang (tepat waktu), selama masih aktif.
                     SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
                     TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
-                    if (process == null || !process.isAlive()) {
+                    if (process == null || !alive(process)) {
                         stopForeground(true);
                         stopSelf();
                     }
@@ -280,7 +300,7 @@ public class ServerService extends Service {
         }
         autoRestart = true;
         startForegroundCompat();
-        if (process == null || !process.isAlive()) {
+        if (process == null || !alive(process)) {
             startServerAsync();
         }
         mainHandler.removeCallbacks(healthTick);
@@ -329,7 +349,7 @@ public class ServerService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Vaultwarden server",
                     NotificationManager.IMPORTANCE_LOW);
-            NotificationManager nm = getSystemService(NotificationManager.class);
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (nm != null) {
                 nm.createNotificationChannel(ch);
             }
@@ -561,11 +581,16 @@ public class ServerService extends Service {
                 appendLog("[app] process exit: " + code);
                 String tail = tailLog(18);
                 if (autoRestart) {
-                    TgBackup.sendMessage(this, "Server crash (exit " + code
-                            + ")\n" + shorten(tail, 500) + "\nRestart otomatis...");
-                    setStatus("Server crash (exit " + code
-                            + ") - restart otomatis\n" + shorten(tail, 250));
-                    scheduleRestart();
+                    writeCrashLog("crash (exit " + code + ")");
+                    if (recordRestart("crash (exit " + code + ")")) {
+                        // Loop terdeteksi: recordRestart sudah set status + kirim Telegram.
+                    } else {
+                        TgBackup.sendMessage(this, "Server crash (exit " + code
+                                + ")\n" + shorten(tail, 500) + "\nRestart otomatis...");
+                        setStatus("Server crash (exit " + code
+                                + ") - restart otomatis\n" + shorten(tail, 250));
+                        scheduleRestart();
+                    }
                 } else {
                     setStatus("Stopped (exit code " + code + ")");
                 }
@@ -584,6 +609,7 @@ public class ServerService extends Service {
             String tail = tailLog(18);
             setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
+            writeCrashLog("restart 5x gagal");
             TgBackup.sendMessage(this, "Server berhenti: gagal restart 5x.\n"
                     + shorten(tail, 600));
             return;
@@ -592,10 +618,75 @@ public class ServerService extends Service {
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + restartAttempt + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
         mainHandler.postDelayed(() -> {
-            if (autoRestart && (process == null || !process.isAlive())) {
+            if (autoRestart && (process == null || !alive(process))) {
                 startServerAsync();
             }
         }, delay);
+    }
+
+    /** Catat restart otomatis + deteksi loop. Return true bila harus berhenti
+     *  (≥3 restart dalam 5 menit): matikan auto-restart, tulis crash log,
+     *  beri tahu via status & Telegram. */
+    private boolean recordRestart(String reason) {
+        long now = System.currentTimeMillis();
+        String stamp;
+        synchronized (LOG_TS) {
+            stamp = LOG_TS.format(new Date());
+        }
+        synchronized (RESTART_TIMES) {
+            RESTART_TIMES.add(now);
+            RESTART_REASONS.add(stamp + " " + reason);
+            while (RESTART_TIMES.size() > RESTART_HISTORY_MAX) {
+                RESTART_TIMES.remove(0);
+                RESTART_REASONS.remove(0);
+            }
+            int n = 0;
+            for (long t : RESTART_TIMES) {
+                if (now - t <= RESTART_WINDOW_MS) {
+                    n++;
+                }
+            }
+            if (n >= RESTART_WINDOW_MAX) {
+                autoRestart = false;
+                String tail = tailLog(14);
+                setStatus("Restart berulang (" + n + "x dalam 5 mnt) - dihentikan.\n"
+                        + shorten(tail, 300));
+                appendLog("[app] Restart berulang (" + n
+                        + "x dalam 5 mnt) - auto-restart dimatikan.");
+                writeCrashLog("restart loop (" + n + "x/5mnt)");
+                TgBackup.sendMessage(this, "Server restart berulang (" + n
+                        + "x dalam 5 menit) - auto-restart dimatikan.\n"
+                        + shorten(tail, 600));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Ringkasan riwayat restart untuk UI/Telegram; kosong bila tidak pernah restart. */
+    public static String restartSummary() {
+        synchronized (RESTART_TIMES) {
+            if (RESTART_REASONS.isEmpty()) {
+                return "";
+            }
+            String last = RESTART_REASONS.get(RESTART_REASONS.size() - 1);
+            return "Restart: " + RESTART_REASONS.size() + "x (terakhir " + last + ")";
+        }
+    }
+
+    /** Tulis ~100 baris log terakhir ke file internal (crash-last.log). */
+    private void writeCrashLog(String reason) {
+        try {
+            String stamp;
+            synchronized (LOG_TS) {
+                stamp = LOG_TS.format(new Date());
+            }
+            String body = "=== " + stamp + " [" + reason + "] ===\n" + tailLog(100) + "\n";
+            try (FileWriter w = new FileWriter(new File(getFilesDir(), CRASH_LOG_NAME), false)) {
+                w.write(body);
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void pumpOutput(Process p) {
@@ -664,7 +755,9 @@ public class ServerService extends Service {
             autoRestart = false;
             setStatus("Server tidak sehat - berhenti.");
             appendLog("[health] 3x gagal beruntun - server dihentikan.");
-            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - dihentikan.");
+            writeCrashLog("health 3x");
+            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - dihentikan.\n"
+                    + shorten(tailLog(15), 500));
             if (process != null) {
                 final Process p = process;
                 process = null;
@@ -674,9 +767,12 @@ public class ServerService extends Service {
             }
             return;
         }
-        TgBackup.sendMessage(this,
-                "Server tidak sehat (" + healthFails + "/3) - restart otomatis...");
-        appendLog("[health] Restart otomatis...");
+        boolean loop = recordRestart("health " + healthFails + "/3");
+        if (!loop) {
+            TgBackup.sendMessage(this,
+                    "Server tidak sehat (" + healthFails + "/3) - restart otomatis...");
+            appendLog("[health] Restart otomatis...");
+        }
         if (process != null) {
             final Process p = process;
             process = null;
@@ -856,7 +952,9 @@ public class ServerService extends Service {
                 fos.write(buf, 0, n);
             }
         }
-        dst.setReadable(true, false);
+        // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
+        // sebagai UID sama) — tidak perlu world-readable.
+        dst.setReadable(true, true);
         dst.setExecutable(true, false);
     }
 
@@ -1194,7 +1292,7 @@ public class ServerService extends Service {
         }
         long deadline = System.currentTimeMillis() + timeoutMillis;
         while (System.currentTimeMillis() < deadline) {
-            if (!p.isAlive()) {
+            if (!alive(p)) {
                 return true;
             }
             Thread.sleep(200);
