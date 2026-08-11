@@ -23,8 +23,10 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   update (all optional).
 - Lightweight status web (JSON + realtime SSE logs) on a separate port.
 - Remote control & backup via **Telegram bot** (commands + AES-256-GCM backup).
-- Self-signed HTTPS, PIN lock, boot auto-start, crash auto-restart, port
-  conflict detection, config export/import.
+- **Connection QR**: one tap shows a scannable QR for `http(s)://IP:port`.
+- Self-signed HTTPS, PIN lock, boot auto-start, crash auto-restart (with
+  **anti-loop**: stops after 3 restarts in 5 minutes), **crash log** saved
+  automatically, port conflict detection, config export/import.
 - TV-remote (D-pad) and touch-friendly UI.
 
 ## How it works
@@ -55,8 +57,10 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
 - Press **Start**; the status web is at `http(s)://<device-ip>:<port+1>`.
 - Pair clients (bitwarden mobile/desktop) to `https://<device-ip>:<port>` and
   accept the self-signed certificate.
+- From another phone, tap **QR** and scan to open the URL instantly.
 - **Telegram remote**: set bot token + chat id to use `/log /uptime /alive
-  /update /webvault`, backups, and notifications.
+  /status /update /webvault`, backups, and notifications. `/status` now shows
+  DB size, last backup time, and restart history.
 - **Offline**: copy `vaultwarden-armeabi-v7a` + `web-vault.zip` from the
   Release into `/sdcard/vaultwarden/bin` and `/sdcard/vaultwarden/web-vault`
   (see [README.md](README.md) for details).

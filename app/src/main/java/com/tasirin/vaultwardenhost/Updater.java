@@ -168,7 +168,8 @@ public final class Updater {
             tmp.delete();
             throw new IOException("Gagal menyimpan update.");
         }
-        out.setReadable(true, false);
+        // ownerOnly=true: hanya UID app yang membaca binary — tidak world-readable.
+        out.setReadable(true, true);
         out.setExecutable(true, false);
         writeVersionTag(binDir, appVersionName(ctx));
         ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
@@ -345,7 +346,11 @@ public final class Updater {
         return v.startsWith("v") ? v.substring(1) : v;
     }
 
-    private static String extractTag(String body) {
+    /** Package-private agar bisa diuji unit (tanpa jaringan). */
+    static String extractTag(String body) {
+        if (body == null) {
+            return null;
+        }
         String key = "\"tag_name\":";
         int i = body.indexOf(key);
         if (i < 0) {

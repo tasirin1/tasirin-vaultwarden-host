@@ -19,4 +19,17 @@ public class UpdaterTest {
     public void normVersion_nullTetapNull() {
         assertNull(Updater.normVersion(null));
     }
+
+    @Test
+    public void extractTag_ambilTagNameDariJson() {
+        String body = "{\"tag_name\":\"v1.37.1\",\"name\":\"1.37.1\"}";
+        assertEquals("v1.37.1", Updater.extractTag(body));
+    }
+
+    @Test
+    public void extractTag_tanpaTagNameMengembalikanNull() {
+        assertNull(Updater.extractTag("{\"name\":\"x\"}"));
+        assertNull(Updater.extractTag(""));
+        assertNull(Updater.extractTag(null));
+    }
 }

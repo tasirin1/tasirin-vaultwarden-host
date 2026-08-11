@@ -45,8 +45,12 @@ teknis; panduan pengelolaan lengkap ada di
   restart otomatis setelah update — semua bisa diatur lewat checkbox.
 - Status web ringan (JSON + log realtime via SSE) di port terpisah.
 - Remote & backup via **Telegram bot** (command + backup AES-256-GCM).
+- **QR koneksi** sekali tekan: pindai langsung dari HP lain (buka
+  `http(s)://IP:port` tanpa mengetik).
 - HTTPS self-signed, PIN kunci app, auto-start saat boot, restart otomatis
-  saat crash, deteksi port bentrok, export/import config.
+  saat crash (dengan **anti-loop**: berhenti total bila restart beruntun 3×
+  dalam 5 menit), **crash log** tersimpan otomatis, deteksi port bentrok,
+  export/import config.
 - UI ramah remote TV (navigasi D-pad) maupun layar sentuh HP.
 
 ## Cara kerja
@@ -86,6 +90,7 @@ teknis; panduan pengelolaan lengkap ada di
    Start** di dialog. Status menampilkan server berjalan + URL.
 4. Buka `http://127.0.0.1:8088` lewat tombol **Open Web UI** (browser HP), atau
    dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
+   Dari HP lain: tekan **QR** lalu pindai — URL terbuka otomatis tanpa mengetik.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8088`.
 
@@ -128,7 +133,7 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 
 | Perintah      | Fungsi                                              |
 |---------------|-----------------------------------------------------|
-| `/status`     | Status lengkap: versi, web vault, RAM, uptime, sisa |
+| `/status`     | Status lengkap: versi, web vault, DB, backup terakhir, RAM, uptime, sisa, riwayat restart |
 | `/log`        | Potongan log terakhir (3500 karakter)               |
 | `/uptime`     | Lama server berjalan                                |
 | `/alive`      | Cek sehat via HTTP `/alive`                         |
@@ -142,15 +147,20 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 
 - Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). Karena di
   storage eksternal, data tidak hilang saat update app/restart device.
-- **Backup ke Telegram**: zip `db.sqlite3` (+ WAL) ber-timestamp, disimpan juga
-  di `<data>/backups/` (maks 10, tertua otomatis dihapus). Opsional terenkripsi
-  **AES-256-GCM** (password wajib sama saat restore). Bisa otomatis tiap 24 jam
-  atau saat Start, dan menyertakan config + sertifikat (untuk pindah perangkat).
-- **Restore**: dari backup Telegram atau file `.zip` lokal; server dihentikan
-  otomatis saat restore.
+- **Backup Lokal** (tombol di Pemeliharaan): zip `db.sqlite3` + WAL/SHM
+  ber-timestamp ke `<data>/backups/` (maks 10, tertua otomatis dihapus).
+  **Backup ke Telegram**: zip sama, disimpan juga di `<data>/backups/`, opsional
+  terenkripsi **AES-256-GCM** (password wajib sama saat restore), bisa otomatis
+  tiap 24 jam atau saat Start, dan menyertakan config + sertifikat.
+- **Restore**: dari backup Telegram, file `.zip` lokal, atau `.sqlite3` mentah
+  (backup lama); server dihentikan otomatis saat restore.
 - **Auto start saat boot** (foreground service + wake lock). **Restart otomatis
   saat crash**: jeda bertingkat 2→5→10→20→40 dtk (maks 5×; reset bila stabil >1
-  menit). Health check `/alive` adaptif.
+  menit). **Anti-loop**: 3× restart dalam 5 menit → auto-restart dimatikan,
+  status & Telegram diberi tahu. **Riwayat restart** (jumlah + waktu terakhir)
+  tampil di layar utama dan `/status`. **Crash log** (~100 baris terakhir)
+  tersimpan di `crash-last.log` (internal) saat server crash/health gagal.
+  Health check `/alive` adaptif.
 - Catatan: jika app di-**force-stop**, Android memblokir broadcast boot sampai
   app dibuka sekali lagi (swipe dari recents tidak memengaruhi service).
 

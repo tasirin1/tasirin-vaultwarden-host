@@ -64,10 +64,14 @@ android {
     }
 
     lint {
-        // App lawas Java + layout TV: warning tidak menggagalkan build.
-        // OldTargetApi dimatikan: targetSdk 28 sengaja (eksekusi binary Android 10+).
-        abortOnError = false
-        disable += setOf("OldTargetApi")
+        // Error menggagalkan build; warning yang disengaja dinonaktifkan.
+        abortOnError = true
+        disable += setOf(
+            "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)
+            "SdCardPath",     // /sdcard/vaultwarden memang folder data publik bawaan
+            "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna
+            "UnusedAttribute" // usesCleartextTraffic untuk Android 6+ (API 23)
+        )
     }
 
     packaging {
@@ -77,4 +81,6 @@ android {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    // zxing hanya untuk unit test decode QR; tidak ikut ke APK.
+    testImplementation("com.google.zxing:core:3.5.1")
 }

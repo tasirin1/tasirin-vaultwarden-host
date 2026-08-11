@@ -6,6 +6,29 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [2026-08-11] — Koneksi mudah, anti-loop & lint bersih
+
+### Ditambahkan
+- **QR koneksi** (encoder QR mandiri, tanpa dependensi): tombol **QR** di layar
+  utama menampilkan QR `http(s)://IP:port` untuk dipindai HP lain.
+- **Riwayat restart** tampil di layar utama & Telegram `/status`.
+- **Anti-loop restart**: 3× restart dalam 5 menit → auto-restart dimatikan
+  (status + notifikasi Telegram).
+- **Crash log**: ~100 baris log terakhir tersimpan ke `crash-last.log` (internal)
+  saat crash/health gagal.
+- **Backup Lokal** jadi `.zip` (DB + WAL/SHM) dengan retensi 10; restore
+  menerima `.zip` maupun `.sqlite3` mentah.
+- Perintah Telegram `/status` kini menampilkan ukuran DB, backup terakhir,
+  dan riwayat restart.
+
+### Diperbaiki
+- **Lint bersih** (`abortOnError = true`): `Process.isAlive()` (API 26) diganti
+  fallback `exitValue()` agar jalan di Android 5/6; `String.format` tanpa
+  `Locale`; `getSystemService(Class)` (API 23); binary tidak lagi
+  world-readable (`setReadable(ownerOnly=true)`).
+- Unit test bertambah: decode QR via zxing (test-only), `extractTag`,
+  `humanBytes`.
+
 ## [v1.37.1 — 2026-08-08] — Pematangan: update otomatis & panduan lengkap
 
 ### Ditambahkan

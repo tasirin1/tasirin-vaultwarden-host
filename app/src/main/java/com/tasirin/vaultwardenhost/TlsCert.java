@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -309,7 +310,7 @@ public final class TlsCert {
         }
 
         void utcTime(Date d) throws IOException {
-            String s = String.format("%1$ty%1$tm%1$td%1$tH%1$tM%1$tSZ", d);
+            String s = String.format(Locale.US, "%1$ty%1$tm%1$td%1$tH%1$tM%1$tSZ", d);
             byte[] data = s.getBytes(StandardCharsets.US_ASCII);
             out.write(0x17);
             len(data.length, out);
