@@ -108,7 +108,9 @@ pertama biasanya butuh internet. Bila perangkat tidak punya akses internet
 (khususnya STB/TV), siapkan dua file ini **sekali** lewat perangkat lain:
 
 1. Unduh dari halaman **Release** repo ini:
-   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB)
+   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB) — untuk STB Android 5/6
+     (kernel lama) pilih `vaultwarden-armeabi-v7a-legacy` dan simpan dengan nama
+     `vaultwarden-armeabi-v7a` di folder data
    - `web-vault.zip` (halaman web vault, ~36 MB)
 2. Letakkan binary dengan nama persis: `/sdcard/vaultwarden/vaultwarden-armeabi-v7a`.
 3. Ekstrak `web-vault.zip` sehingga muncul file
@@ -236,10 +238,13 @@ merusak server.
 
 **Server langsung crash: `failed to generate random data` (exit 101)**
 - Binary Vaultwarden terbaru butuh `getrandom()` kernel baru; di kernel STB
-  Android 5/6 (mis. ZTE B860H) selalu panic (`errno=22`) saat start. Ini bukan
-  salah TLS/web-vault — app langsung menghentikan auto-restart dan menampilkan
-  saran di log + Telegram (baris `WARNING: linker ... DT_FLAGS_1` diabaikan,
-  tidak fatal). Solusi: taruh binary legacy yang cocok Android 6
+  Android 5/6 (mis. ZTE B860H, kernel 3.14.x) selalu panic (`errno=22`) saat
+  start. Ini bukan salah TLS/web-vault (baris `WARNING: linker ... DT_FLAGS_1`
+  diabaikan, tidak fatal). App mendeteksi kernel lama otomatis:
+  log menampilkan `kernel 3.x | ... | channel legacy`, cache binary yang salah
+  channel diunduh ulang sendiri, dan tombol **Cek Update** / `/update`
+  memasang binary legacy (`vaultwarden-armeabi-v7a-legacy` v1.29.2) — lalu
+  Start lagi. Cara manual tetap bisa: taruh binary legacy yang cocok Android 6
   (`vaultwarden-armeabi-v7a`) di folder data, isi SHA-256-nya di pengaturan,
   lalu Start lagi; atau jalankan di perangkat Android 7+.
 

@@ -28,4 +28,16 @@ public class ServerServiceTest {
         assertFalse(ServerService.isKernelRandomPanic(
                 "WARNING: linker: vaultwarden-armeabi-v7a: unsupported flags DT_FLAGS_1=0x8000001"));
     }
+
+    @Test
+    public void varianPesanGetrandomTetapTerdeteksi() {
+        assertTrue(ServerService.isKernelRandomPanic(
+                "thread 'main' panicked at src/random.rs:10:\nfailed getrandom syscall"));
+    }
+
+    @Test
+    public void outputVersionNormalBukanPanic() {
+        assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
+        assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));
+    }
 }

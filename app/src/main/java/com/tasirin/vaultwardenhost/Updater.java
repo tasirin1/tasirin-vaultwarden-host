@@ -188,24 +188,43 @@ public final class Updater {
         return cached;
     }
 
+    /** Versi binary yang seharusnya dipakai perangkat ini: STB kernel lama dipin ke
+     *  versi legacy, perangkat lain mengikuti versi resmi terbaru.
+     *  Web-vault tidak ikut (file statis, aman di kernel lama). */
+    public static String wantedBinaryVersion(Context ctx) {
+        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            return KernelCompat.LEGACY_VW_VERSION;
+        }
+        return latestVersion(ctx);
+    }
+
+    /** Nama asset binary sesuai channel perangkat ini (legacy/modern). */
+    public static String wantedBinaryAsset() {
+        return KernelCompat.binaryAsset(
+                KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang()));
+    }
+
     /** Unduh & pasang update binary; return pesan hasil. Lempar Exception bila gagal. */
     public static String tryUpdate(Context ctx) throws Exception {
-        String latest = latestVersion(ctx);
-        if (latest == null) {
+        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
+        String wanted = legacy ? KernelCompat.LEGACY_VW_VERSION : latestVersion(ctx);
+        if (wanted == null) {
             throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String real = parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null && real.equals(latest)) {
+        if (real != null && real.equals(wanted)) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
-            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-            return "Sudah versi terbaru: v" + latest;
+            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, wanted).apply();
+            return legacy ? "Sudah versi legacy terbaru: v" + wanted
+                    : "Sudah versi terbaru: v" + wanted;
         }
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (current != null && current.equals(latest)) {
-            return "Sudah versi terbaru: v" + latest;
+        if (current != null && current.equals(wanted)) {
+            return legacy ? "Sudah versi legacy terbaru: v" + wanted
+                    : "Sudah versi terbaru: v" + wanted;
         }
 
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
@@ -224,17 +243,31 @@ public final class Updater {
     }
 
     private static String downloadBinaryInner(Context ctx, File out) throws Exception {
+        // STB kernel lama wajib memakai asset legacy (binary modern pasti panic getrandom).
+        // Kedua asset dipublish berdampingan di rilis terbaru repo ini.
+        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
+        String asset = wantedBinaryAsset();
         String latest = latestVersion(ctx);
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
         boolean known = latest != null && !latest.isEmpty();
-        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
-                + "vaultwarden-" + ServerService.ABI;
+        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL) + asset;
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
+        // Parsial channel lain (modern vs legacy = file beda) jangan dilanjutkan via Range.
+        File marker = new File(binDir, "asset.txt");
+        try {
+            if (tmp.exists() && marker.exists()) {
+                String dulu = bacaMarker(marker);
+                if (dulu != null && !dulu.isEmpty() && !dulu.equals(asset)) {
+                    tmp.delete();
+                }
+            }
+        } catch (Exception ignored) {
+        }
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         String digestHex = null;
@@ -248,6 +281,15 @@ public final class Updater {
                 dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
                 int code = dl.getResponseCode();
                 if (code == 404 && known && !fallback) {
+                    if (legacy) {
+                        // Jangan fallback ke binary modern: pasti panic getrandom di kernel lama.
+                        dl.disconnect();
+                        dl = null;
+                        throw new IOException("Binary legacy v" + KernelCompat.LEGACY_VW_VERSION
+                                + " belum tersedia di rilis v" + latest
+                                + " (build CI ~6 jam). Coba lagi nanti atau pakai cara manual"
+                                + " di README (taruh binary di folder data).");
+                    }
                     // Rilis versi ini belum ada / sedang dibuat ulang CI -
                     // pakai binary rilis terbaru repo agar tetap bisa Start.
                     dl.disconnect();
@@ -378,16 +420,27 @@ public final class Updater {
         out.setReadable(true, true);
         out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
+        try (FileWriter w = new FileWriter(marker)) {
+            w.write(asset);
+        } catch (Exception ignored) {
+        }
         String installed = detectVersion(out);
+        // Legacy: penanda harus versi binary legacy (bukan tag rilis modern)
+        // agar cek "sudah terbaru" tidak mengunduh ulang terus.
+        String wantTag = legacy ? KernelCompat.LEGACY_VW_VERSION : latest;
         String effective = installed != null ? installed
-                : (!fallback ? latest : null);
+                : (!fallback ? wantTag : null);
         if (effective != null && !effective.isEmpty()) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(ServerService.KEY_UPDATE_VERSION, effective).apply();
         }
         ServerService.binaryVersion = "";
         if (installed != null) {
-            return "Update v" + installed + " terpasang.";
+            return legacy ? "Binary legacy v" + installed + " terpasang."
+                    : "Update v" + installed + " terpasang.";
+        }
+        if (legacy) {
+            return "Binary legacy v" + KernelCompat.LEGACY_VW_VERSION + " terpasang.";
         }
         return fallback
                 ? "Binary rilis terbaru terpasang (v" + latest + " belum tersedia di repo)."
@@ -402,6 +455,20 @@ public final class Updater {
                     + "/" + TgBackup.humanBytes(total) + " (" + pct + "%)";
         } else {
             downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done) + "...";
+        }
+    }
+
+    /** Baca penanda asset channel (stream murni agar aman di API 21). */
+    private static String bacaMarker(File marker) {
+        try (FileInputStream in = new FileInputStream(marker)) {
+            byte[] buf = new byte[128];
+            int n = in.read(buf);
+            if (n <= 0) {
+                return null;
+            }
+            return new String(buf, 0, n, StandardCharsets.UTF_8).trim();
+        } catch (Exception e) {
+            return null;
         }
     }
 

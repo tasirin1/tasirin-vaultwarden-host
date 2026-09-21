@@ -86,7 +86,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ## Alur build & rilis (CI, build-apk.yml)
 
-Pipeline 3 job. Pemicu: `push` ke `main` (selalu build + terbitkan ulang
+Pipeline 4 job. Pemicu: `push` ke `main` (selalu build + terbitkan ulang
 rilis), `schedule` tiap 6 jam (cek versi upstream; skip bila rilis untuk tag
 tersebut sudah ada), dan `workflow_dispatch` (manual). `concurrency:
 vw-release` mencegah dua run berebut rilis yang sama; cache cargo dipakai
@@ -97,14 +97,19 @@ ulang antar run:
    (nonaktifkan `hickory`/`ndk-context` di `vaultwarden/src/http_client.rs` —
    anchor `impl CustomDnsResolver { fn new()`), cross-compile `armeabi-v7a`
    (NDK 25, target `armv7-linux-androideabi`), strip, upload artifact.
-3. **build-apk** — unduh binary, ambil **web-vault dari Docker digest resmi**
+3. **build-binary-legacy** — clone Vaultwarden `LEGACY_VW` (pin, mis. 1.29.2),
+   toolchain sezamannya (agar lolos kernel 3.x), patch DNS toleran, publish
+   asset `vaultwarden-armeabi-v7a-legacy` + `.sha256` di rilis yang sama.
+4. **build-apk** — unduh binary + binary legacy, ambil **web-vault dari Docker digest resmi**
    (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`),
    tulis `app/src/main/assets/vw_version.txt`, `assembleDebug` +
    `lintDebug` + `testDebugUnitTest` + `assembleRelease` (signed bila secrets
    ada), cek ukuran APK, publish release, upload artifact APK.
 
-Release GitHub bernama `v<versi-vaultwarden>` berisi 5 asset: APK signed,
-`vaultwarden-armeabi-v7a` + `.sha256`, `web-vault.zip` + `.sha256`.
+Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed,
+`vaultwarden-armeabi-v7a` + `.sha256`, `vaultwarden-armeabi-v7a-legacy` +
+`.sha256` (untuk STB kernel lama, dibangun dari `LEGACY_VW` dengan toolchain
+sezamannya), `web-vault.zip` + `.sha256`.
 **Jangan edit asset release secara manual** — selalu lewat workflow.
 
 ## Secrets yang dibutuhkan (Settings → Secrets and variables → Actions)
@@ -149,7 +154,8 @@ seamless (beda signature) — backup keystore di tempat aman.
   `strings.xml`; jangan ubah ID/`nextFocusUp/Down` di layout.
 - **Perilaku server (start/stop/env/health)** → `ServerService.java`.
 - **Update/unduhan (versi, URL, checksum)** → `Updater.java` (URL asset di-host
-  repo ini; versi diambil dari `dani-garcia/vaultwarden`).
+  repo ini; versi diambil dari `dani-garcia/vaultwarden`; STB kernel lama
+  otomatis memakai channel legacy via `KernelCompat.java`).
 - **Status web/API JSON** → `ControlServer.java`.
 - **Telegram bot/backup** → `TgBot.java`, `TgBackup.java`.
 - **UI log** → `LogActivity.java` + `activity_log.xml`.
@@ -162,7 +168,7 @@ gh run view <run-id> --json status,conclusion
 gh release view v<versi> --json assets -q '.assets[].name'
 ```
 
-Pastikan conclusion `success` dan release punya 5 asset. Verifikasi **favicon
+Pastikan conclusion `success` dan release punya 7 asset. Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
 tidak ada `panic 'android context was not initialized'` / `500` pada
 `/icons/...`. Bila muncul, patch DNS di workflow perlu disesuaikan.

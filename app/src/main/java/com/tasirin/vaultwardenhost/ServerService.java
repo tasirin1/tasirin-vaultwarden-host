@@ -415,8 +415,25 @@ public class ServerService extends Service {
 
         // Bersihkan sisa unduhan gagal agar tidak memakan storage.
         cleanupTempFiles(dataDir);
+        appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
+                KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
         File binary = ensureBinary();
         if (binary == null) {
+            return;
+        }
+
+        // Smoke test kernel: binary modern panic getrandom() di kernel 3.x (exit 101).
+        // Digagalkan di sini dengan pesan jelas — jangan sampai start setengah jalan.
+        if (isKernelRandomPanic(lastVersionOutput)) {
+            String kernel = KernelCompat.kernelSekarang();
+            String saran = KernelCompat.saranLegacy(
+                    kernel.isEmpty() ? "?" : kernel, Build.VERSION.SDK_INT);
+            autoRestart = false;
+            setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
+            appendLog("[app] FATAL: " + saran + " Web-vault & TLS tidak masalah.");
+            writeCrashLog("binary tak cocok kernel (smoke test)");
+            TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
+                    + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
             return;
         }
 
@@ -611,11 +628,9 @@ public class ServerService extends Service {
                     // STB Android 5/6 (errno=22) selalu panic saat start.
                     // Retry tidak ada gunanya — langsung berhenti + beri saran.
                     autoRestart = false;
-                    String saran = "Binary tidak cocok dengan kernel STB lama"
-                            + " (gagal generate random/getrandom errno=22)."
-                            + " Solusi: taruh binary legacy yang cocok Android 6"
-                            + " (vaultwarden-" + ABI + ") di folder data,"
-                            + " isi SHA-256-nya di pengaturan, lalu Start lagi.";
+                    String kernel2 = KernelCompat.kernelSekarang();
+                    String saran = KernelCompat.saranLegacy(
+                            kernel2.isEmpty() ? "?" : kernel2, Build.VERSION.SDK_INT);
                     setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
                     appendLog("[app] FATAL: " + saran
                             + " Web-vault & TLS tidak masalah.");
@@ -676,7 +691,11 @@ public class ServerService extends Service {
         if (logTail == null) {
             return false;
         }
-        return logTail.contains("failed to generate random data");
+        if (logTail.contains("failed to generate random data")) {
+            return true;
+        }
+        String rendah = logTail.toLowerCase(Locale.US);
+        return rendah.contains("panicked") && rendah.contains("getrandom");
     }
 
     /** Catat restart otomatis + deteksi loop. Return true bila harus berhenti
@@ -975,6 +994,17 @@ public class ServerService extends Service {
         file.delete();
     }
 
+    /** True bila binary internal cocok dengan channel perangkat.
+     *  STB kernel lama wajib versi legacy yang dipin; perangkat lain bebas.
+     *  Binary manual (folder data) tidak dinilai di sini — itu pilihan eksplisit user. */
+    private boolean cocokChannel() {
+        if (!KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            return true;
+        }
+        String v = Updater.parseBinaryVersion(binaryVersion);
+        return KernelCompat.LEGACY_VW_VERSION.equals(v);
+    }
+
     /** Pastikan binary vaultwarden siap dipakai. Prioritas:
      *  1) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
      *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
@@ -1002,8 +1032,14 @@ public class ServerService extends Service {
             if (updated != null && !updated.isEmpty()) {
                 try {
                     detectBinaryVersion(out);
-                    appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
-                    return out;
+                    if (!cocokChannel()) {
+                        appendLog("[app] Binary tersimpan tidak cocok channel legacy"
+                                + " (perlu v" + KernelCompat.LEGACY_VW_VERSION + ") - unduh ulang.");
+                        out.delete();
+                    } else {
+                        appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                        return out;
+                    }
                 } catch (Exception ignored) {
                 }
             }
@@ -1050,7 +1086,13 @@ public class ServerService extends Service {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
                     detectBinaryVersion(out);
-                    return out;
+                    if (!cocokChannel()) {
+                        appendLog("[app] Binary tersimpan tidak cocok channel legacy"
+                                + " (perlu v" + KernelCompat.LEGACY_VW_VERSION + ") - unduh ulang.");
+                        out.delete();
+                    } else {
+                        return out;
+                    }
                 }
             } catch (Exception ignored) {
             }
@@ -1118,6 +1160,9 @@ public class ServerService extends Service {
         return null;
     }
 
+    /** Output mentah "--version" terakhir (maks ~8 KB) untuk smoke test panic kernel. */
+    static volatile String lastVersionOutput = "";
+
     private void detectBinaryVersion(File binary) {
         Process p = null;
         BufferedReader r = null;
@@ -1127,7 +1172,19 @@ public class ServerService extends Service {
                     .start();
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            String first = r.readLine();
+            String first = null;
+            StringBuilder semua = new StringBuilder();
+            String baris;
+            while ((baris = r.readLine()) != null && semua.length() < 8192) {
+                if (first == null) {
+                    first = baris;
+                }
+                if (semua.length() > 0) {
+                    semua.append('\n');
+                }
+                semua.append(baris);
+            }
+            lastVersionOutput = semua.toString();
             // Timeout 15 detik di SEMUA API (waitFor(timeout) hanya API 26+).
             if (!waitForOrKill(p, 15000)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
