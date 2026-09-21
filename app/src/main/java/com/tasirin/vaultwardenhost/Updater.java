@@ -39,6 +39,8 @@ public final class Updater {
     private static final String KEY_WV_FROM = "wv_from_version";
     // Status unduhan yang sedang berjalan (dibaca UI realtime); kosong = tidak ada unduhan.
     public static volatile String downloadStatus = "";
+    // Unduhan di STB sering timeout TCP ke github.com; coba ulang 3x sebelum gagal.
+    private static final int MAX_COBA_UNDUH = 3;
 
     private Updater() {
     }
@@ -65,6 +67,46 @@ public final class Updater {
             c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
         }
         return c;
+    }
+
+    /** Saran perbaikan koneksi (Bahasa Indonesia) berdasarkan jenis galat. */
+    static String saranKoneksi(Exception e) {
+        if (e == null) {
+            return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
+        }
+        String gabung = (e.getClass().getSimpleName() + " " + String.valueOf(e.getMessage()))
+                .toLowerCase(Locale.US);
+        if (gabung.contains("unknownhost") || gabung.contains("no address")
+                || gabung.contains("unable to resolve")) {
+            return "DNS gagal (nama github.com tidak ketemu). Cek internet STB,"
+                    + " coba hotspot HP / ganti DNS, lalu tekan Start lagi.";
+        }
+        if (gabung.contains("timed out") || gabung.contains("timeout")
+                || gabung.contains("failed to connect") || gabung.contains("econn")
+                || gabung.contains("unreachable") || gabung.contains("etimedout")) {
+            return "Koneksi ke GitHub timeout/diblokir. Cek WiFi ada internet"
+                    + " (buka github.com di browser), cek tanggal & jam STB,"
+                    + " coba hotspot HP, lalu tekan Start lagi.";
+        }
+        if (gabung.contains("ssl") || gabung.contains("certificate")
+                || gabung.contains("handshake") || gabung.contains("tls")) {
+            return "TLS gagal di Android 5/6. Cek tanggal & jam STB sudah benar,"
+                    + " lalu coba lagi.";
+        }
+        if (gabung.contains("403") || gabung.contains("429") || gabung.contains("rate")) {
+            return "GitHub membatasi sementara (rate-limit). Tunggu +-15 menit,"
+                    + " lalu coba lagi.";
+        }
+        if (gabung.contains("404")) {
+            return "File belum tersedia di rilis (build +-6 jam). Coba lagi nanti.";
+        }
+        return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
+    }
+
+    /** Bungkus galat unduh dengan saran aksi agar log/toast langsung bisa ditindak. */
+    static String pesanGalatUnduh(String aksi, Exception e) {
+        String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
+        return aksi + " gagal: " + inti + ". " + saranKoneksi(e);
     }
 
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
@@ -157,74 +199,119 @@ public final class Updater {
             binDir.mkdirs();
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
-        // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
-        long resumeFrom = tmp.exists() ? tmp.length() : 0;
-        HttpURLConnection dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
-        int code = dl.getResponseCode();
+        // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
+        // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
+        String digestHex = null;
         boolean fallback = false;
-        if (code == 404 && known) {
-            // Rilis versi ini belum ada / sedang dibuat ulang CI -
-            // pakai binary rilis terbaru repo agar tetap bisa Start.
-            dl.disconnect();
-            resumeFrom = 0;
-            tmp.delete();
-            assetUrl = RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
-            dl = open(ctx, assetUrl, 20000, 60000);
-            code = dl.getResponseCode();
-            fallback = code == 200;
-        }
-        if (code == 404) {
-            dl.disconnect();
-            throw new IOException(known
-                    ? "Build Android v" + latest
-                            + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
-                    : "Release binary Android belum tersedia. Coba lagi nanti.");
-        }
-        if (code == 200 && resumeFrom > 0) {
-            // Server mengabaikan Range - mulai dari nol agar tidak korup.
-            dl.disconnect();
-            tmp.delete();
-            resumeFrom = 0;
-            dl = open(ctx, assetUrl, 20000, 60000);
-            code = dl.getResponseCode();
-        }
-        if (code != 200 && code != 206) {
-            dl.disconnect();
-            throw new IOException("Unduhan gagal (HTTP " + code + ").");
-        }
-        long total = dl.getContentLength();
-        if (code == 206 && total >= 0) {
-            total += resumeFrom;
-        }
-        // Hash dihitung sambil menulis agar file (~15 MB) tidak dibaca ulang
-        // hanya untuk verifikasi. Lanjutan unduhan: hash awalan yang sudah ada dulu.
-        java.security.MessageDigest md;
-        try {
-            md = java.security.MessageDigest.getInstance("SHA-256");
-        } catch (Exception e) {
-            dl.disconnect();
-            throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
-        }
-        if (resumeFrom > 0) {
-            digestPrefix(md, tmp, resumeFrom);
-        }
-        try (InputStream in = dl.getInputStream();
-             FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            long done = resumeFrom;
-            long lastReport = done;
-            while ((n = in.read(buf)) > 0) {
-                fos.write(buf, 0, n);
-                md.update(buf, 0, n);
-                done += n;
-                if (done - lastReport >= 256 * 1024) {
-                    lastReport = done;
-                    reportDownload("binary", done, total);
+        Exception gagalKonek = null;
+        for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
+            // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
+            long resumeFrom = tmp.exists() ? tmp.length() : 0;
+            HttpURLConnection dl = null;
+            try {
+                dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
+                int code = dl.getResponseCode();
+                if (code == 404 && known && !fallback) {
+                    // Rilis versi ini belum ada / sedang dibuat ulang CI -
+                    // pakai binary rilis terbaru repo agar tetap bisa Start.
+                    dl.disconnect();
+                    dl = null;
+                    resumeFrom = 0;
+                    tmp.delete();
+                    assetUrl = RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
+                    dl = open(ctx, assetUrl, 20000, 60000);
+                    code = dl.getResponseCode();
+                    fallback = code == 200;
+                }
+                if (code == 404) {
+                    throw new IOException(known
+                            ? "Build Android v" + latest
+                                    + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
+                            : "Release binary Android belum tersedia. Coba lagi nanti.");
+                }
+                if (code == 200 && resumeFrom > 0) {
+                    // Server mengabaikan Range - mulai dari nol agar tidak korup.
+                    dl.disconnect();
+                    tmp.delete();
+                    resumeFrom = 0;
+                    dl = open(ctx, assetUrl, 20000, 60000);
+                    code = dl.getResponseCode();
+                }
+                if (code != 200 && code != 206) {
+                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
+                }
+                long total = dl.getContentLength();
+                if (code == 206 && total >= 0) {
+                    total += resumeFrom;
+                }
+                // Hash dihitung sambil menulis agar file (~15 MB) tidak dibaca ulang
+                // hanya untuk verifikasi. Lanjutan unduhan: hash awalan yang sudah ada dulu.
+                java.security.MessageDigest md;
+                try {
+                    md = java.security.MessageDigest.getInstance("SHA-256");
+                } catch (Exception e) {
+                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
+                }
+                if (resumeFrom > 0) {
+                    digestPrefix(md, tmp, resumeFrom);
+                }
+                try (InputStream in = dl.getInputStream();
+                     FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    long done = resumeFrom;
+                    long lastReport = done;
+                    while ((n = in.read(buf)) > 0) {
+                        fos.write(buf, 0, n);
+                        md.update(buf, 0, n);
+                        done += n;
+                        if (done - lastReport >= 256 * 1024) {
+                            lastReport = done;
+                            reportDownload("binary", done, total);
+                        }
+                    }
+                }
+                digestHex = toHex(md.digest());
+                gagalKonek = null;
+                break;
+            } catch (IOException e) {
+                gagalKonek = e;
+                String rendah = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
+                boolean bisaCobaLagi = rendah.contains("timed out") || rendah.contains("timeout")
+                        || rendah.contains("failed to connect") || rendah.contains("econn")
+                        || rendah.contains("unreachable") || rendah.contains("reset")
+                        || rendah.contains("broken pipe") || rendah.contains("http");
+                // 404 versi (file memang belum ada) jangan di-retry sia-sia.
+                if (rendah.contains("404") || rendah.contains("belum tersedia")) {
+                    bisaCobaLagi = false;
+                }
+                if (!bisaCobaLagi || coba >= MAX_COBA_UNDUH) {
+                    break;
+                }
+                downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            } catch (Exception e) {
+                gagalKonek = e;
+                break;
+            } finally {
+                if (dl != null) {
+                    dl.disconnect();
                 }
             }
-        } finally {
-            dl.disconnect();
+        }
+        if (digestHex == null) {
+            if (gagalKonek instanceof IOException
+                    && String.valueOf(gagalKonek.getMessage()).contains("belum tersedia")) {
+                throw (IOException) gagalKonek;
+            }
+            throw new IOException(pesanGalatUnduh("Unduh binary",
+                    gagalKonek instanceof Exception ? (Exception) gagalKonek
+                            : new IOException("koneksi gagal")));
         }
         String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 60000);
         if (expectedSha == null) {
@@ -232,7 +319,7 @@ public final class Updater {
             throw new IOException("Checksum SHA-256 tidak ditemukan di release"
                     + " - update dibatalkan demi keamanan. Coba lagi nanti.");
         }
-        if (!expectedHexEquals(expectedSha, toHex(md.digest()))) {
+        if (!expectedHexEquals(expectedSha, digestHex)) {
             tmp.delete();
             throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
         }
@@ -361,7 +448,7 @@ public final class Updater {
         String shaUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip.sha256"
                 : RELEASE_LATEST_URL + "web-vault.zip.sha256";
 
-        // Unduh dengan retry sekali bila gagal (koneksi Android 5/6 kadang putus).
+        // Unduh dengan retry 3x (koneksi STB/Android 5/6 sering timeout ke github.com).
         boolean wvFallback = false;
         if (latest != null) {
             HttpURLConnection probe = null;
@@ -380,7 +467,7 @@ public final class Updater {
         }
         Exception lastErr = null;
         String wvDigestHex = null;
-        for (int attempt = 1; attempt <= 2; attempt++) {
+        for (int attempt = 1; attempt <= MAX_COBA_UNDUH; attempt++) {
             // Lanjutkan unduhan terputus (hemat kuota ~35 MB).
             long resumeFrom = tmpZip.exists() ? tmpZip.length() : 0;
             HttpURLConnection dl = null;
@@ -432,7 +519,9 @@ public final class Updater {
                 break;
             } catch (Exception e) {
                 lastErr = e;
-                if (attempt < 2) {
+                if (attempt < MAX_COBA_UNDUH) {
+                    downloadStatus = "Koneksi putus, coba lagi " + (attempt + 1) + "/"
+                            + MAX_COBA_UNDUH + "...";
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException ie) {
@@ -448,8 +537,9 @@ public final class Updater {
         }
         if (tmpZip.length() < 1000) {
             tmpZip.delete();
-            throw lastErr != null ? lastErr
-                    : new IOException("File web-vault tidak valid.");
+            throw new IOException(pesanGalatUnduh("Unduh web-vault",
+                    lastErr instanceof Exception ? (Exception) lastErr
+                            : new IOException("file tidak valid")));
         }
         String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
         if (expectedSha == null) {

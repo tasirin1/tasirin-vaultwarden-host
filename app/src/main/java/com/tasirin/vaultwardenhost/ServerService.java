@@ -1023,9 +1023,14 @@ public class ServerService extends Service {
             detectBinaryVersion(out);
             return out;
         } catch (Exception e) {
-            appendLog("[app] Gagal unduh binary: " + e);
-            setStatus("Binary belum tersedia - unduh gagal: " + e.getMessage()
-                    + "\nCek koneksi internet, lalu tekan Start lagi.");
+            // Pesan Updater sudah ramah (isi saran koneksi); jangan ditimpa pesan generik.
+            String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
+                    ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
+            appendLog("[app] Gagal unduh binary: " + e
+                    + "\n[app] Saran: " + Updater.saranKoneksi(e)
+                    + " Bila STB offline, pakai cara manual di README"
+                    + " (taruh binary di folder data).");
+            setStatus("Binary belum tersedia - " + ramah);
             return null;
         }
     }

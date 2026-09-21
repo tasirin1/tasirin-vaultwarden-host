@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -34,6 +35,29 @@ public class UpdaterTest {
         assertNull(Updater.parseBinaryVersion("?"));
         assertNull(Updater.parseBinaryVersion(""));
         assertNull(Updater.parseBinaryVersion(null));
+    }
+
+    @Test
+    public void saranKoneksi_timeoutMenyebutGithubDanHotspot() {
+        Exception e = new java.net.SocketTimeoutException(
+                "failed to connect to github.com/20.205.243.166 (port 443) after 20000ms");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("GitHub"));
+        assertTrue(saran.contains("hotspot"));
+    }
+
+    @Test
+    public void saranKoneksi_dnsGagalMenyebutDns() {
+        Exception e = new java.net.UnknownHostException("Unable to resolve host");
+        assertTrue(Updater.saranKoneksi(e).contains("DNS"));
+    }
+
+    @Test
+    public void pesanGalatUnduh_memuatAksiDanSaran() {
+        Exception e = new java.net.SocketTimeoutException("failed to connect");
+        String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
+        assertTrue(pesan.contains("Unduh binary gagal"));
+        assertTrue(pesan.contains("hotspot"));
     }
 
     @Test

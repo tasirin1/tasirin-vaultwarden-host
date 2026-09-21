@@ -92,7 +92,8 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   status-web endpoints require `?token=<admin-token>` (the in-app
   **Status Web** button appends it automatically).
 - Common issues (TLS on old Android, Telegram backup, web-vault update
-  failures, DNS icon panics) are covered in the
+  failures, DNS icon panics, GitHub connect timeout with 3x auto-retry and
+  offline manual setup) are covered in the
   [Indonesian README](README.md#troubleshooting).
 
 ## Repository

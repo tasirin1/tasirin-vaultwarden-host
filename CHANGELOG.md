@@ -21,6 +21,11 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
 
 ### Diperbaiki
+- **Unduhan tahan putus**: binary & web-vault coba ulang 3x otomatis
+  (sebelumnya binary langsung gagal sekali); galat `failed to connect to
+  github.com` kini menampilkan saran aksi (cek internet/browser, tanggal & jam,
+  hotspot/DNS, cara offline) di log & status; unduhan parsial tetap dilanjutkan
+  via Range.
 - **Warning lint nol**: layout di-split ke `main_card_*.xml` (bebas
   TooManyViews) dan deprecation `javac` dibersihkan; derive PIN kini
   menangani checked exception agar kompilasi lolos.
