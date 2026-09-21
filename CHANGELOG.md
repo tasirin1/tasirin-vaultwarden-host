@@ -6,7 +6,15 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
-## [Belum rilis] — Perbaikan bug audit
+## [Belum rilis] — Perintah restore Telegram
+
+### Ditambahkan
+- **Perintah `/restore` Telegram**: `/restore` menampilkan info backup
+  terakhir, `/restore YA` mengunduh + restore database (server dihentikan
+  dulu, DB lama diamankan ke `db-backup-*-pre.sqlite3`, rollback bila hasil
+  bukan SQLite valid). Identitas bot (token/chat/password/offset)
+  dipertahankan agar bot tetap terhubung; logika restore dipindah ke
+  `TgBackup.restoreFromZip()` agar dipakai tombol UI & bot.
 
 ### Diperbaiki
 - **Validasi port**: Start ditolak bila port bukan 1-65535; prefs rusak

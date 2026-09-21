@@ -152,6 +152,7 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 | `/uptime`     | Lama server berjalan                                |
 | `/alive`      | Cek sehat via HTTP `/alive`                         |
 | `/backup`     | Backup database sekarang (terenkripsi)              |
+| `/restore`    | Restore backup terakhir (`/restore YA` konfirmasi)   |
 | `/crashlog`   | Kirim crash log terakhir (bila ada)                 |
 | `/update`     | Update binary + restart otomatis                    |
 | `/webvault`   | Update web vault (restart manual via `/restart`)    |
@@ -169,8 +170,10 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
   tiap 24 jam atau saat Start, dan menyertakan config + sertifikat. Baris
   storage di layar utama menampilkan ukuran DB, backup (jumlah + total),
   web-vault, dan binary.
-- **Restore**: dari backup Telegram, file `.zip` lokal, atau `.sqlite3` mentah
-  (backup lama); server dihentikan otomatis saat restore.
+- **Restore**: dari backup Telegram (tombol di app atau perintah `/restore` +
+  konfirmasi `/restore YA`), file `.zip` lokal, atau `.sqlite3` mentah
+  (backup lama); server dihentikan otomatis saat restore. Identitas bot
+  (token/chat/password) dipertahankan agar bot tetap terhubung.
 - **Auto start saat boot** (foreground service + wake lock). **Restart otomatis
   saat crash**: jeda bertingkat 2→5→10→20→40 dtk (maks 5×; reset bila stabil >1
   menit). **Anti-loop**: 3× restart dalam 5 menit → auto-restart dimatikan,

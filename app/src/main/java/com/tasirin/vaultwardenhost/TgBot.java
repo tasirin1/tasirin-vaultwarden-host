@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -110,6 +111,11 @@ public final class TgBot {
             return;
         }
         String cmd = text.split("\\s+")[0].toLowerCase(Locale.US);
+        String arg = "";
+        int space = text.indexOf(' ');
+        if (space >= 0) {
+            arg = text.substring(space + 1).trim();
+        }
         switch (cmd) {
             case "/start":
                 if (ServerService.running || ServerService.isProcessAlive()) {
@@ -150,6 +156,20 @@ public final class TgBot {
                         TgBackup.sendMessage(ctx, "Backup gagal: " + e.getMessage());
                     }
                 });
+                break;
+            case "/restore":
+                if (isRestoreConfirm(arg)) {
+                    runWithWakeLock(ctx, () -> {
+                        try {
+                            TgBackup.sendMessage(ctx, "Mengunduh backup terakhir...");
+                            TgBackup.sendMessage(ctx, doRestore(ctx));
+                        } catch (Exception e) {
+                            TgBackup.sendMessage(ctx, "Restore gagal: " + e.getMessage());
+                        }
+                    });
+                } else {
+                    TgBackup.sendMessage(ctx, restoreInfoText(ctx));
+                }
                 break;
             case "/status":
                 TgBackup.sendMessage(ctx, statusText(ctx));
@@ -210,12 +230,64 @@ public final class TgBot {
                 }
                 break;
             case "/help":
-                TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup\n"
+                TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
                         + "/crashlog  /update  /webvault  /restart  /start  /stop  /help");
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
         }
+    }
+
+    /** True bila argumen /restore adalah kata konfirmasi (YA/YES/Y/OK/KONFIRMASI/LANJUT). */
+    static boolean isRestoreConfirm(String arg) {
+        if (arg == null) {
+            return false;
+        }
+        String a = arg.trim().toLowerCase(Locale.US);
+        return a.equals("ya") || a.equals("yes") || a.equals("y")
+                || a.equals("ok") || a.equals("konfirmasi") || a.equals("lanjut");
+    }
+
+    /** Teks konfirmasi /restore: info backup terakhir + cara konfirmasi. */
+    static String restoreInfoText(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String name = sp.getString(TgBackup.KEY_TG_LAST_NAME, "");
+        String fileId = sp.getString(TgBackup.KEY_TG_LAST_FILE, "");
+        long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+        if ((name == null || name.isEmpty()) && (fileId == null || fileId.isEmpty())) {
+            return "Belum ada backup terkirim dari app ini. Kirim /backup dulu.";
+        }
+        if (name == null || name.isEmpty()) {
+            name = "backup terakhir";
+        }
+        String tgl = last > 0
+                ? new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(last))
+                : "?";
+        return "Backup terakhir: " + name + " (" + tgl + ").\n"
+                + "Server akan dihentikan & database ditimpa."
+                + " Balas /restore YA untuk lanjut.";
+    }
+
+    /** Unduh backup terakhir dari Telegram lalu restore; kembalikan ringkasan hasil. */
+    static String doRestore(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+        File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
+        TgBackup.downloadLastBackup(ctx, tmp);
+        File zip = tmp;
+        if (TgBackup.isEncrypted(tmp)) {
+            if (pass == null || pass.trim().isEmpty()) {
+                throw new IOException("Backup terenkripsi"
+                        + " - isi password backup di pengaturan dulu.");
+            }
+            File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
+            TgBackup.decryptFile(tmp, plain, pass.trim());
+            tmp.delete();
+            zip = plain;
+        }
+        return TgBackup.restoreFromZip(ctx, zip);
     }
 
     /** Jalankan tugas berat di thread sendiri + partial wake lock. */

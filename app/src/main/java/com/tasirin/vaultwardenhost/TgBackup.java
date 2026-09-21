@@ -26,9 +26,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.crypto.Cipher;
@@ -460,6 +462,240 @@ public final class TgBackup {
             }
             off += n;
         }
+    }
+
+    // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
+
+    /** Restore database dari file zip backup Telegram.
+     *  Server dihentikan dulu; DB lama diamankan ke
+     *  {@code backups/db-backup-*-pre.sqlite3} dan dikembalikan bila hasil
+     *  restore bukan SQLite valid. Pengaturan di {@code app-config.json} ikut
+     *  diterapkan, kecuali identitas bot (token/chat/password/offset) yang
+     *  dipertahankan agar bot tetap terhubung. */
+    public static String restoreFromZip(Context ctx, File zip) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String curDir = sp.getString(ServerService.KEY_DATA_DIR,
+                ServerService.DEFAULT_DATA_DIR);
+        if (curDir == null || curDir.trim().isEmpty()) {
+            curDir = ServerService.DEFAULT_DATA_DIR;
+        }
+
+        // Baca config dulu (bila backup lengkap) untuk tahu folder data tujuan.
+        JSONObject cfg = null;
+        try (ZipInputStream probe = new ZipInputStream(new FileInputStream(zip))) {
+            ZipEntry e;
+            while ((e = probe.getNextEntry()) != null) {
+                if ("app-config.json".equals(e.getName())) {
+                    cfg = new JSONObject(new String(readAllBytes(probe),
+                            StandardCharsets.UTF_8));
+                    break;
+                }
+            }
+        }
+        String dataDir = curDir;
+        if (cfg != null) {
+            JSONObject cfgPrefs = cfg.optJSONObject("prefs");
+            if (cfgPrefs != null && cfgPrefs.has(ServerService.KEY_DATA_DIR)) {
+                String d = cfgPrefs.optString(ServerService.KEY_DATA_DIR, "").trim();
+                if (!d.isEmpty()) {
+                    dataDir = d;
+                }
+            }
+        }
+        File dataFolder = new File(dataDir);
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
+
+        if (ServerService.isProcessAlive()) {
+            ServerService.stopAndWait(ctx, 8000);
+        }
+
+        File dbFile = new File(dataFolder, "db.sqlite3");
+        File preBackup = null;
+        if (dbFile.exists()) {
+            File backupDir = new File(dataFolder, "backups");
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
+            String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US)
+                    .format(new Date());
+            preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
+            copyFile(dbFile, preBackup);
+            cleanupOldBackups(backupDir);
+        }
+
+        byte[] buf = new byte[64 * 1024];
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if ("app-config.json".equals(entry.getName())) {
+                    continue; // pengaturan diterapkan langsung, tidak ditulis ke disk
+                }
+                File outFile = new File(dataFolder, entry.getName());
+                if (!outFile.getCanonicalPath()
+                        .startsWith(dataFolder.getCanonicalPath())) {
+                    continue; // cegah zip-slip
+                }
+                if (entry.isDirectory()) {
+                    outFile.mkdirs();
+                } else {
+                    File parent = outFile.getParentFile();
+                    if (parent != null) {
+                        parent.mkdirs();
+                    }
+                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                        int n;
+                        while ((n = zis.read(buf)) > 0) {
+                            fos.write(buf, 0, n);
+                        }
+                    }
+                }
+                zis.closeEntry();
+            }
+        } finally {
+            zip.delete();
+        }
+        if (!dbFile.exists()) {
+            throw new IOException("Backup tidak berisi db.sqlite3.");
+        }
+        if (!isSqliteFile(dbFile)) {
+            if (preBackup != null && preBackup.exists()) {
+                copyFile(preBackup, dbFile);
+            } else {
+                dbFile.delete();
+            }
+            throw new IOException("Backup rusak (bukan SQLite)"
+                    + " - database lama dikembalikan.");
+        }
+        boolean lengkap = false;
+        if (cfg != null) {
+            applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
+            lengkap = true;
+        }
+        SharedPreferences fresh = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        TgBackup.schedule(ctx, fresh.getBoolean(KEY_TG_AUTO, false));
+        TgBot.schedule(ctx);
+        return "Database direstore dari Telegram"
+                + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
+                + ". Ukuran DB: " + dbFile.length() + " bytes."
+                + " Tekan /start untuk menjalankan.";
+    }
+
+    /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
+     *  dipertahankan agar bot tetap terhubung setelah restore. */
+    static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
+        if (prefs == null) {
+            return;
+        }
+        SharedPreferences cur = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String keepToken = cur.getString(KEY_TG_TOKEN, "");
+        String keepChat = cur.getString(KEY_TG_CHAT, "");
+        String keepPass = cur.getString(KEY_TG_PASS, "");
+        long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
+        String keepNotified = cur.getString("tg_notified_version", "");
+        String keepWvFrom = cur.getString("wv_from_version", "");
+        java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();
+        for (Map.Entry<String, ?> e : cur.getAll().entrySet()) {
+            if (e.getKey().startsWith("wv_notified_")
+                    && e.getValue() instanceof Boolean) {
+                keepWv.put(e.getKey(), (Boolean) e.getValue());
+            }
+        }
+        SharedPreferences.Editor ed = cur.edit();
+        ed.clear();
+        Iterator<String> keys = prefs.keys();
+        while (keys.hasNext()) {
+            String k = keys.next();
+            Object v = prefs.get(k);
+            if (v instanceof String) {
+                ed.putString(k, (String) v);
+            } else if (v instanceof Boolean) {
+                ed.putBoolean(k, (Boolean) v);
+            } else if (v instanceof Integer) {
+                ed.putInt(k, (Integer) v);
+            } else if (v instanceof Long) {
+                ed.putLong(k, (Long) v);
+            } else if (v instanceof Double) {
+                double d = (Double) v;
+                if (d == Math.rint(d) && !Double.isInfinite(d)) {
+                    long l = (long) d;
+                    if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
+                        ed.putInt(k, (int) l);
+                    } else {
+                        ed.putLong(k, l);
+                    }
+                } else {
+                    ed.putFloat(k, (float) d);
+                }
+            }
+        }
+        ed.putString(KEY_TG_TOKEN, keepToken);
+        ed.putString(KEY_TG_CHAT, keepChat);
+        ed.putString(KEY_TG_PASS, keepPass);
+        long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
+                ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
+        ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));
+        if (!prefs.has("tg_notified_version") && !keepNotified.isEmpty()) {
+            ed.putString("tg_notified_version", keepNotified);
+        }
+        if (!prefs.has("wv_from_version") && !keepWvFrom.isEmpty()) {
+            ed.putString("wv_from_version", keepWvFrom);
+        }
+        for (Map.Entry<String, Boolean> e : keepWv.entrySet()) {
+            if (!prefs.has(e.getKey())) {
+                ed.putBoolean(e.getKey(), e.getValue());
+            }
+        }
+        ed.apply();
+    }
+
+    private static void copyFile(File src, File dst) throws Exception {
+        try (FileInputStream fis = new FileInputStream(src);
+             FileOutputStream fos = new FileOutputStream(dst)) {
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            while ((n = fis.read(buf)) > 0) {
+                fos.write(buf, 0, n);
+            }
+        }
+    }
+
+    /** True bila file ber-header SQLite ("SQLite format 3\0"). */
+    private static boolean isSqliteFile(File f) {
+        byte[] head = new byte[16];
+        try (FileInputStream in = new FileInputStream(f)) {
+            int off = 0;
+            while (off < head.length) {
+                int n = in.read(head, off, head.length - off);
+                if (n < 0) {
+                    return false;
+                }
+                off += n;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        byte[] magic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+        for (int i = 0; i < magic.length; i++) {
+            if (head[i] != magic[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static byte[] readAllBytes(InputStream in) throws Exception {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[64 * 1024];
+        int n;
+        while ((n = in.read(buf)) > 0) {
+            bos.write(buf, 0, n);
+        }
+        return bos.toByteArray();
     }
 
     // ─── Util ───────────────────────────────────────────────────────────

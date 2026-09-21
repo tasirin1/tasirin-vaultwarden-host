@@ -67,8 +67,10 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   accept the self-signed certificate.
 - From another phone, tap **QR** and scan to open the URL instantly.
 - **Telegram remote**: set bot token + chat id to use `/log /uptime /alive
-  /status /crashlog /update /webvault`, backups, and notifications. `/status`
-  shows DB size, last backup time, and restart history.
+  /status /crashlog /update /webvault /restore`, backups, and notifications.
+  `/status` shows DB size, last backup time, and restart history. `/restore`
+  shows the last backup and needs `/restore YA` to confirm (bot credentials
+  are kept so the bot stays reachable).
 - **Offline**: copy `vaultwarden-armeabi-v7a` + `web-vault.zip` from the
   Release into `/sdcard/vaultwarden/bin` and `/sdcard/vaultwarden/web-vault`
   (see [README.md](README.md) for details).
