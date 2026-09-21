@@ -33,6 +33,24 @@ public final class Updater {
             "https://github.com/tasirin1/tasirin-vaultwarden-host/releases/latest/download/";
     private static final String WV_UPDATE_URL =
             RELEASE_LATEST_URL + "web-vault.zip";
+
+    /** URL asset binary untuk versi resmi tertentu; fallback latest bila versi tak dikenal.
+     *  Package-private agar bisa diuji unit (regresi slash hilang = HTTP 404 terus). */
+    static String binaryAssetUrl(String latest, String abi) {
+        if (latest != null && !latest.isEmpty()) {
+            return RELEASE_URL + "v" + latest + "/vaultwarden-" + abi;
+        }
+        return RELEASE_LATEST_URL + "vaultwarden-" + abi;
+    }
+
+    /** URL asset shim getrandom untuk versi resmi tertentu; fallback latest bila tak dikenal. */
+    static String shimAssetUrl(String latest) {
+        if (latest != null && !latest.isEmpty()) {
+            return RELEASE_URL + "v" + latest + "/" + KernelCompat.SHIM_ASSET;
+        }
+        return RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;
+    }
+
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
     // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
     // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
@@ -103,7 +121,7 @@ public final class Updater {
             return "GitHub membatasi sementara (rate-limit). Tunggu +-15 menit,"
                     + " lalu coba lagi.";
         }
-        if (gabung.contains("404")) {
+        if (gabung.contains("404") || gabung.contains("belum tersedia")) {
             return "File belum tersedia di rilis (build +-6 jam). Coba lagi nanti.";
         }
         return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
@@ -228,8 +246,7 @@ public final class Updater {
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
         boolean known = latest != null && !latest.isEmpty();
-        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
-                + "vaultwarden-" + ServerService.ABI;
+        String assetUrl = binaryAssetUrl(latest, ServerService.ABI);
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
@@ -426,8 +443,7 @@ public final class Updater {
     private static String downloadShimInner(Context ctx, File out) throws Exception {
         String latest = latestVersion(ctx);
         boolean known = latest != null && !latest.isEmpty();
-        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
-                + KernelCompat.SHIM_ASSET;
+        String assetUrl = shimAssetUrl(latest);
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
@@ -441,9 +457,21 @@ public final class Updater {
             try {
                 dl = openRange(ctx, assetUrl, resumeFrom, 20000, 30000);
                 int code = dl.getResponseCode();
-                if (code == 404 && known) {
-                    throw new IOException("Shim getrandom belum tersedia di rilis v" + latest
-                            + " (build CI ~6 jam). Coba lagi nanti.");
+                if (code == 404 && known
+                        && !assetUrl.startsWith(RELEASE_LATEST_URL)) {
+                    // Rilis versi ini belum memuat shim (mis. CI belum publish) -
+                    // coba rilis terbaru repo seperti binary agar tetap bisa Start.
+                    dl.disconnect();
+                    dl = null;
+                    resumeFrom = 0;
+                    tmp.delete();
+                    assetUrl = RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;
+                    dl = open(ctx, assetUrl, 20000, 30000);
+                    code = dl.getResponseCode();
+                    if (code == 404) {
+                        throw new IOException("Shim getrandom belum tersedia di rilis v" + latest
+                                + " (build CI ~6 jam). Coba lagi nanti.");
+                    }
                 }
                 if (perluResetResume(code, resumeFrom)) {
                     dl.disconnect();

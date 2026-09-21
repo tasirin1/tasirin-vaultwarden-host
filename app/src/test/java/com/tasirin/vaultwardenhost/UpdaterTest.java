@@ -135,6 +135,29 @@ public class UpdaterTest {
     }
 
     @Test
+    public void assetUrl_memakaiSlashAntaraVersiDanNama() {
+        String bin = Updater.binaryAssetUrl("1.37.3", "armeabi-v7a");
+        assertEquals("https://github.com/tasirin1/tasirin-vaultwarden-host"
+                + "/releases/download/v1.37.3/vaultwarden-armeabi-v7a", bin);
+        String shim = Updater.shimAssetUrl("1.37.3");
+        assertEquals("https://github.com/tasirin1/tasirin-vaultwarden-host"
+                + "/releases/download/v1.37.3/" + KernelCompat.SHIM_ASSET, shim);
+    }
+
+    @Test
+    public void assetUrl_tanpaVersiPakaiLatestDownload() {
+        assertTrue(Updater.binaryAssetUrl(null, "armeabi-v7a").contains("/latest/download/"));
+        assertTrue(Updater.shimAssetUrl("").contains("/latest/download/"));
+    }
+
+    @Test
+    public void saranKoneksi_belumTersediaMenyebutRilis() {
+        Exception e = new java.io.IOException(
+                "Shim getrandom belum tersedia di rilis v1.37.3 (build CI ~6 jam). Coba lagi nanti.");
+        assertTrue(Updater.saranKoneksi(e).contains("belum tersedia"));
+    }
+
+    @Test
     public void extractTag_tanpaTagNameMengembalikanNull() {
         assertNull(Updater.extractTag("{\"name\":\"x\"}"));
         assertNull(Updater.extractTag(""));
