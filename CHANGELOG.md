@@ -21,6 +21,18 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
 
 ### Diperbaiki
+- **Crash kernel lama langsung dikenali**: panic `failed to generate random
+  data` (binary Rust terbaru vs kernel STB Android 5/6, exit 101) kini
+  menghentikan auto-restart seketika dengan saran binary legacy di log/status/
+  Telegram — sebelumnya di-retry buta 5x lalu anti-loop. Warning linker
+  `DT_FLAGS_1` yang tidak fatal ikut diredam dari log.
+- **Resume HTTP 416 diperbaiki**: server menolak Range (file berubah/parsial
+  lebih besar) kini memicu ulang dari nol otomatis di binary & web-vault —
+  sebelumnya gagal terus dengan Range yang sama. Zip korup saat ekstrak
+  (`invalid stored block lengths`) dilaporkan jujur + versi lama dipertahankan.
+- **Deteksi DNS dibajak**: `github.com` yang resolve ke IP lokal/router
+  (mis. `/192.168.100.1` + `ECONNREFUSED`) kini menampilkan saran portal
+  login/DNS/hotspot yang spesifik, bukan sekadar timeout generik.
 - **Perbaikan unduhan & CI**: checksum `.sha256` dicoba 2x dan tidak lagi
   menghapus file parsial bila gagal jaringan (bisa dilanjutkan); file `.tmp`
   dipertahankan antar-Start; pesan Telegram `/update` & `/webvault` memakai

@@ -32,8 +32,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 5 kelas test JVM (junit4): Updater, TgBot, TgBackup,
-                                      # PinCrypto, QrEncoder — jalan di CI
+├── app/src/test/                     # 6 kelas test JVM (junit4): Updater, ServerService,
+                                      # TgBot, TgBackup, PinCrypto, QrEncoder — jalan di CI
 └── gradle wrapper                    # build via ./gradlew (CI saja untuk rilis)
 ```
 

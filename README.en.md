@@ -94,10 +94,11 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   to open the last crash log. If an **admin token** is set, the `/api/*`
   status-web endpoints require `?token=<admin-token>` (the in-app
   **Status Web** button appends it automatically).
-- Common issues (TLS on old Android, Telegram backup, web-vault update
-  failures, DNS icon panics, GitHub connect timeout with 3x auto-retry and
-  offline manual setup) are covered in the
-  [Indonesian README](README.md#troubleshooting).
+- Common issues (TLS on old Android, kernel getrandom incompatibility on
+  Android 5/6 STBs, Telegram backup, web-vault update failures including
+  HTTP 416 resume and corrupt-zip handling, DNS-hijacked GitHub, DNS icon
+  panics, GitHub connect timeout with 3x auto-retry and offline manual setup)
+  are covered in the [Indonesian README](README.md#troubleshooting).
 
 ## Repository
 

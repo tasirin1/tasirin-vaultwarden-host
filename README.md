@@ -234,6 +234,15 @@ merusak server.
 - Bisa ada proses `vaultwarden` lama yang nyangkut. Restart HP, lalu Start lagi
   (app juga membersihkan proses lama se-UID otomatis saat Start).
 
+**Server langsung crash: `failed to generate random data` (exit 101)**
+- Binary Vaultwarden terbaru butuh `getrandom()` kernel baru; di kernel STB
+  Android 5/6 (mis. ZTE B860H) selalu panic (`errno=22`) saat start. Ini bukan
+  salah TLS/web-vault — app langsung menghentikan auto-restart dan menampilkan
+  saran di log + Telegram (baris `WARNING: linker ... DT_FLAGS_1` diabaikan,
+  tidak fatal). Solusi: taruh binary legacy yang cocok Android 6
+  (`vaultwarden-armeabi-v7a`) di folder data, isi SHA-256-nya di pengaturan,
+  lalu Start lagi; atau jalankan di perangkat Android 7+.
+
 **Web UI tidak bisa dibuka dari perangkat lain**
 - Pastikan status **Running**, perangkat lain di jaringan yang sama, dan URL
   memakai IP lokal (`http://<IP>:8088`). Bila memakai HTTPS, install sertifikat
@@ -269,6 +278,16 @@ merusak server.
   [Instal tanpa internet](#instal-tanpa-internet-offline): taruh binary
   `vaultwarden-armeabi-v7a` di folder data, ekstrak `web-vault.zip` ke
   `web-vault/`, lalu Start tanpa internet.
+- Khusus `github.com/192.168.x.x ... ECONNREFUSED` (github.com mengarah ke IP
+  lokal/router, bukan IP GitHub asli): DNS dibajak / WiFi pakai portal login /
+  proxy ISP. Buka `github.com` di browser STB (login dulu bila diminta), coba
+  hotspot HP / ganti DNS, lalu Start lagi.
+
+**Unduhan gagal HTTP 416 / `ZipException: invalid stored block lengths`**
+- HTTP 416 = server menolak resume (file berubah / parsial lebih besar); app
+  kini membuang parsial dan mengulang dari nol otomatis (sebelumnya gagal terus
+  dengan Range yang sama). Zip korup saat ekstrak dilaporkan jujur sebagai
+  "file zip korup ... aman diulang" dan versi web-vault lama dipertahankan.
 
 ---
 
