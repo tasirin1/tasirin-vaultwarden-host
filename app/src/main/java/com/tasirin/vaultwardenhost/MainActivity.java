@@ -218,7 +218,10 @@ public class MainActivity extends Activity {
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
         qrBtn.setOnClickListener(v -> showQrDialog());
-        exportCfgBtn.setOnClickListener(v -> runBusy(this::exportConfig));
+        exportCfgBtn.setOnClickListener(v -> confirm("Export Pengaturan",
+                "File berisi DATA SENSITIF (token bot, admin token, PIN, "
+                        + "password backup). Jangan bagikan ke orang lain. Lanjutkan?",
+                () -> runBusy(this::exportConfig)));
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
@@ -1368,15 +1371,21 @@ public class MainActivity extends Activity {
         try {
             String json;
             try (InputStream in = getContentResolver().openInputStream(uri)) {
-                json = new String(readAll(in), StandardCharsets.UTF_8);
+                json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
             }
             JSONObject root = new JSONObject(json);
+            if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
+                toast("File config tidak valid (bukan export app ini).");
+                appendUiLog("[app] Import ditolak: marker app tidak cocok");
+                return;
+            }
             JSONObject prefs = root.optJSONObject("prefs");
             if (prefs == null) {
                 toast("File config tidak valid.");
                 return;
             }
             applyPrefs(prefs);
+            sanitizePortPref();
             ui.post(() -> {
                 reloadSettingsFromPrefs();
                 SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -1467,6 +1476,37 @@ public class MainActivity extends Activity {
                 .setPositiveButton("Salin URL", (di, w) -> copyLocalUrl())
                 .setNegativeButton("Tutup", null)
                 .show();
+    }
+
+    /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */
+    private static byte[] readCapped(InputStream in, int max) throws Exception {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int total = 0;
+        int n;
+        while ((n = in.read(buf)) > 0) {
+            total += n;
+            if (total > max) {
+                throw new java.io.IOException("File terlalu besar (>512 KB) - bukan config valid.");
+            }
+            bos.write(buf, 0, n);
+        }
+        return bos.toByteArray();
+    }
+
+    /** Kembalikan port ke default bila hasil import bukan angka 1-65535. */
+    private void sanitizePortPref() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        String p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
+        try {
+            int pn = Integer.parseInt(p.trim());
+            if (pn >= 1 && pn <= 65535) {
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+        sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
+        appendUiLog("[app] Port hasil import tidak valid - kembali ke " + DEFAULT_PORT + ".");
     }
 
     private static byte[] readAll(InputStream in) throws Exception {

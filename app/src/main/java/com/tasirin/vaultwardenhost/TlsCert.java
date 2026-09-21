@@ -53,7 +53,12 @@ public final class TlsCert {
             if (certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && certVersionOk(dir)) {
-                return dir;
+                if (daysLeft(certFile) > 0) {
+                    return dir;
+                }
+                // Kedaluwarsa / tidak terbaca - buat ulang di bawah.
+                certFile.delete();
+                keyFile.delete();
             }
             // Cert lama (format rusak / versi lama) dihapus agar dibuat ulang.
             certFile.delete();

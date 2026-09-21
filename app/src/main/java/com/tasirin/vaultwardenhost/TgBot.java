@@ -173,10 +173,15 @@ public final class TgBot {
             case "/update":
                 runWithWakeLock(ctx, () -> {
                     try {
+                        boolean was = ServerService.running || ServerService.isProcessAlive();
                         String msg = Updater.tryUpdate(ctx);
                         if (msg.startsWith("Update v")) {
-                            TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
-                            ServerService.restart(ctx);
+                            if (was) {
+                                TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                ServerService.restart(ctx);
+                            } else {
+                                TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
+                            }
                         } else {
                             TgBackup.sendMessage(ctx, msg);
                         }

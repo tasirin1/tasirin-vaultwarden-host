@@ -11,6 +11,12 @@ on:
 permissions:
   contents: write
 
+# Satu rilis (satu tag) hanya dikerjakan satu run - cegah dua push
+# berdekatan saling hapus/buat ulang rilis yang sama (pemicu 404 sesaat).
+concurrency:
+  group: vw-release
+  cancel-in-progress: false
+
 env:
   NDK_VERSION: 25.2.9519653
 

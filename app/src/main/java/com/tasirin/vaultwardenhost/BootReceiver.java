@@ -15,7 +15,11 @@ public class BootReceiver extends BroadcastReceiver {
                 || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             if (sp.getBoolean(ServerService.KEY_AUTO_START, false)) {
-                ServerService.start(context);
+                try {
+                    ServerService.start(context);
+                } catch (Exception ignored) {
+                    // Android 12+ bisa menolak start dari background - user tekan Start manual.
+                }
             }
             // Pertahankan jadwal backup harian setelah reboot
             if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {

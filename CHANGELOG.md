@@ -21,6 +21,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Status web**: endpoint `/api/*` butuh `?token=` bila Admin Token diisi.
 - **Lainnya**: `humanBytes` dukung GB/TB, retensi backup tidak hapus export
   `app-config`, binary owner-executable.
+- **Fallback unduh**: binary/web-vault pakai rilis terbaru repo bila URL versi
+  spesifik 404 (jendela CI sedang buat ulang rilis).
+- **Ronde 2**: `/update` Telegram tidak start-kan server yang berhenti,
+  konfirmasi export config (sensitif), validasi import (marker + maks 512 KB
+  + sanitasi port), hapus file pending hantu, auto-start aman Android 12+,
+  regenerasi sertifikat kedaluwarsa, `concurrency` CI anti-race rilis.
 
 ## [2026-08-11] — Progress unduh, crash log viewer & status web kaya
 

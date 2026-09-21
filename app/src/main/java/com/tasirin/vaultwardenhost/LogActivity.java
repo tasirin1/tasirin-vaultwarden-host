@@ -254,6 +254,10 @@ public class LogActivity extends Activity {
             return;
         }
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm == null) {
+            toast("Clipboard tidak tersedia.");
+            return;
+        }
         cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", log));
         toast("Log disalin ke clipboard.");
     }
@@ -303,6 +307,8 @@ public class LogActivity extends Activity {
                             out.write(header.toString().getBytes(StandardCharsets.UTF_8));
                             out.close();
                             ok = true;
+                        } else {
+                            resolver.delete(uri, null, null);
                         }
                     } catch (Exception e) {
                         resolver.delete(uri, null, null);
