@@ -40,10 +40,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -970,6 +966,8 @@ public class MainActivity extends Activity {
                 toast("Database belum ada: " + dbFile.getAbsolutePath());
                 return;
             }
+            // Tulis WAL ke DB utama dulu agar backup konsisten seperti backup Telegram.
+            TgBackup.checkpointWal(dbFile);
             long free = TgBackup.freeBytes(dataDir);
             if (free >= 0 && free < 50L * 1024 * 1024) {
                 toast("Peringatan: sisa penyimpanan tinggal " + TgBackup.humanBytes(free));
@@ -981,7 +979,7 @@ public class MainActivity extends Activity {
                 backupDir.mkdirs();
             }
 
-            String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+            String timestamp = TgBackup.backupTimestamp();
             File backup = new File(backupDir, "db-backup-" + timestamp + ".zip");
 
             // Zip DB + WAL/SHM agar konsisten walau server sedang berjalan.
@@ -1033,10 +1031,15 @@ public class MainActivity extends Activity {
             if (uri == null) {
                 return;
             }
+            String dir = dataDirInput.getText().toString().trim();
+            if (TextUtils.isEmpty(dir)) {
+                dir = DEFAULT_DATA_DIR;
+            }
+            final String dataDir = dir;
             confirm("Restore Database",
                     "Database saat ini akan diganti dengan file yang dipilih. "
                             + "Backup otomatis dibuat dulu. Lanjutkan?",
-                    () -> runBusy(() -> restoreDatabase(uri)));
+                    () -> runBusy(() -> restoreDatabase(uri, dataDir)));
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
             if (uri == null) {
@@ -1048,13 +1051,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void restoreDatabase(Uri uri) {
+    private void restoreDatabase(Uri uri, String dataDir) {
         try {
-            String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
-            }
-
             File dbFile = new File(dataDir, "db.sqlite3");
             File preBackup = null;
             if (dbFile.exists()) {
@@ -1062,9 +1060,9 @@ public class MainActivity extends Activity {
                 if (!backupDir.exists()) {
                     backupDir.mkdirs();
                 }
-                String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
+                String ts = TgBackup.backupTimestamp() + "-pre";
                 preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
-                copyFile(dbFile, preBackup);
+                TgBackup.copyFile(dbFile, preBackup);
                 TgBackup.cleanupOldBackups(backupDir);
             }
 
@@ -1086,7 +1084,7 @@ public class MainActivity extends Activity {
                         String name = entry.getName();
                         if ("app-config.json".equals(name)) {
                             zipCfg = new JSONObject(
-                                    new String(readAll(zis), StandardCharsets.UTF_8));
+                                    new String(TgBackup.readAllBytes(zis), StandardCharsets.UTF_8));
                             zis.closeEntry();
                             continue;
                         }
@@ -1182,9 +1180,9 @@ public class MainActivity extends Activity {
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
                 return;
             }
-            if (!isSqlite(dbFile)) {
+            if (!TgBackup.isSqliteFile(dbFile)) {
                 if (preBackup != null && preBackup.exists()) {
-                    copyFile(preBackup, dbFile);
+                    TgBackup.copyFile(preBackup, dbFile);
                 } else {
                     dbFile.delete();
                 }
@@ -1200,20 +1198,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void copyFile(File src, File dst) throws Exception {
-        try (InputStream in = new java.io.FileInputStream(src);
-             FileOutputStream fos = new FileOutputStream(dst)) {
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            while ((n = in.read(buf)) > 0) {
-                fos.write(buf, 0, n);
-            }
-        }
-    }
-
     // ─── Restore dari Telegram ──────────────────────────────────────────
 
     private void restoreFromTelegram() {
+        String inputDir = dataDirInput.getText().toString().trim();
+        if (!TextUtils.isEmpty(inputDir)) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(ServerService.KEY_DATA_DIR, inputDir).apply();
+        }
         runBusy(() -> {
             try {
                 File tmp = new File(getCacheDir(), "vwtg-restore.zip");
@@ -1243,197 +1235,23 @@ public class MainActivity extends Activity {
         });
     }
 
+    // Restore Telegram didelegasikan ke TgBackup agar satu implementasi:
+    // stop server, pre-backup, validasi SQLite + rollback, terapkan pengaturan,
+    // dan jaga identitas bot. Folder yang diketik (belum di-Start) disimpan
+    // dulu ke prefs di UI thread agar dipakai sebagai folder tujuan.
     private void restoreFromZip(File zip) {
         try {
-            if (ServerService.isProcessAlive()) {
-                appendUiLog("[app] Menghentikan server sebelum restore...");
-                ServerService.stopAndWait(this, 8000);
-            }
-
-            // Baca config dulu (bila backup lengkap) untuk tahu folder data tujuan.
-            JSONObject cfg = null;
-            try (ZipInputStream probe = new ZipInputStream(
-                    new java.io.FileInputStream(zip))) {
-                ZipEntry e;
-                while ((e = probe.getNextEntry()) != null) {
-                    if ("app-config.json".equals(e.getName())) {
-                        cfg = new JSONObject(
-                                new String(readAll(probe), StandardCharsets.UTF_8));
-                        break;
-                    }
-                }
-            }
-            String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
-            }
-            if (cfg != null) {
-                JSONObject cfgPrefs = cfg.optJSONObject("prefs");
-                if (cfgPrefs != null && cfgPrefs.has(ServerService.KEY_DATA_DIR)) {
-                    String d = cfgPrefs.optString(ServerService.KEY_DATA_DIR, "").trim();
-                    if (!d.isEmpty()) {
-                        dataDir = d;
-                    }
-                }
-            }
-            File dataFolder = new File(dataDir);
-            if (!dataFolder.exists()) {
-                dataFolder.mkdirs();
-            }
-
-            File dbFile = new File(dataFolder, "db.sqlite3");
-            File preBackup = null;
-            if (dbFile.exists()) {
-                File backupDir = new File(dataFolder, "backups");
-                if (!backupDir.exists()) {
-                    backupDir.mkdirs();
-                }
-                String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
-                preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
-                copyFile(dbFile, preBackup);
-                TgBackup.cleanupOldBackups(backupDir);
-            }
-
-            byte[] buf = new byte[64 * 1024];
-            try (ZipInputStream zis = new ZipInputStream(
-                    new java.io.FileInputStream(zip))) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    if ("app-config.json".equals(entry.getName())) {
-                        continue; // pengaturan diterapkan langsung, tidak ditulis ke disk
-                    }
-                    File outFile = new File(dataFolder, entry.getName());
-                    if (!outFile.getCanonicalPath().startsWith(dataFolder.getCanonicalPath())) {
-                        continue;
-                    }
-                    if (entry.isDirectory()) {
-                        outFile.mkdirs();
-                    } else {
-                        outFile.getParentFile().mkdirs();
-                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                            int n;
-                            while ((n = zis.read(buf)) > 0) {
-                                fos.write(buf, 0, n);
-                            }
-                        }
-                    }
-                    zis.closeEntry();
-                }
-            }
-            zip.delete();
-            if (!dbFile.exists()) {
-                toast("Backup tidak berisi db.sqlite3.");
-                appendUiLog("[app] Restore Telegram gagal: zip tanpa db.sqlite3");
-                return;
-            }
-            if (!isSqlite(dbFile)) {
-                if (preBackup != null && preBackup.exists()) {
-                    copyFile(preBackup, dbFile);
-                } else {
-                    dbFile.delete();
-                }
-                toast("Backup rusak (bukan SQLite) - database lama dikembalikan.");
-                appendUiLog("[app] Restore Telegram gagal: header SQLite tidak cocok, rollback.");
-                return;
-            }
-            if (cfg != null) {
-                applyPrefs(cfg.optJSONObject("prefs"));
-            }
+            appendUiLog("[app] Menghentikan server sebelum restore...");
+            String msg = TgBackup.restoreFromZip(this, zip);
             ui.post(() -> {
                 reloadSettingsFromPrefs();
-                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                TgBackup.schedule(MainActivity.this,
-                        sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
-                TgBot.schedule(MainActivity.this);
                 toast("Restore selesai. Tekan Start untuk menjalankan.");
             });
-            appendUiLog("[app] Restore dari Telegram selesai" + (cfg != null ? " (lengkap)" : "") + ".");
+            appendUiLog("[app] " + msg);
         } catch (Exception e) {
             toast("Gagal restore: " + e.getMessage());
             appendUiLog("[app] Gagal restore: " + e);
         }
-    }
-
-    /** Terapkan seluruh prefs dari JSON (clear + tulis ulang).
-     *  Offset polling bot & penanda notifikasi dipertahankan agar perintah
-     *  Telegram lama tidak tereksekusi ulang setelah import. */
-    private void applyPrefs(JSONObject prefs) throws Exception {
-        if (prefs == null) {
-            return;
-        }
-        SharedPreferences cur = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
-        String keepNotified = cur.getString(KEY_TG_NOTIFIED, "");
-        java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, ?> e : cur.getAll().entrySet()) {
-            if (e.getKey().startsWith("wv_notified_") && e.getValue() instanceof Boolean) {
-                keepWv.put(e.getKey(), (Boolean) e.getValue());
-            }
-        }
-        SharedPreferences.Editor ed = cur.edit();
-        ed.clear();
-        Iterator<String> keys = prefs.keys();
-        while (keys.hasNext()) {
-            String k = keys.next();
-            Object v = prefs.get(k);
-            if (v instanceof String) {
-                ed.putString(k, (String) v);
-            } else if (v instanceof Boolean) {
-                ed.putBoolean(k, (Boolean) v);
-            } else if (v instanceof Integer) {
-                ed.putInt(k, (Integer) v);
-            } else if (v instanceof Long) {
-                ed.putLong(k, (Long) v);
-            } else if (v instanceof Double) {
-                double d = (Double) v;
-                if (d == Math.rint(d) && !Double.isInfinite(d)) {
-                    long l = (long) d;
-                    if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
-                        ed.putInt(k, (int) l);
-                    } else {
-                        ed.putLong(k, l);
-                    }
-                } else {
-                    ed.putFloat(k, (float) d);
-                }
-            }
-        }
-        long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
-                ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
-        ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));
-        if (!prefs.has(KEY_TG_NOTIFIED) && !keepNotified.isEmpty()) {
-            ed.putString(KEY_TG_NOTIFIED, keepNotified);
-        }
-        for (java.util.Map.Entry<String, Boolean> e : keepWv.entrySet()) {
-            if (!prefs.has(e.getKey())) {
-                ed.putBoolean(e.getKey(), e.getValue());
-            }
-        }
-        ed.apply();
-    }
-
-    /** True bila file ber-header SQLite ("SQLite format 3\0"). */
-    private static boolean isSqlite(File f) {
-        byte[] head = new byte[16];
-        try (InputStream in = new java.io.FileInputStream(f)) {
-            int off = 0;
-            while (off < head.length) {
-                int n = in.read(head, off, head.length - off);
-                if (n < 0) {
-                    return false;
-                }
-                off += n;
-            }
-        } catch (Exception e) {
-            return false;
-        }
-        byte[] magic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
-        for (int i = 0; i < magic.length; i++) {
-            if (head[i] != magic[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     // ─── Export / Import pengaturan ─────────────────────────────────────
@@ -1448,7 +1266,7 @@ public class MainActivity extends Activity {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+            String ts = TgBackup.backupTimestamp();
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
             // Config berisi token & PIN: enkripsi bila password backup diisi.
@@ -1555,7 +1373,7 @@ public class MainActivity extends Activity {
                 toast("File config tidak valid.");
                 return;
             }
-            applyPrefs(prefs);
+            TgBackup.applyPrefsFromJson(this, prefs);
             sanitizePortPref();
             ui.post(() -> {
                 reloadSettingsFromPrefs();
@@ -1682,16 +1500,6 @@ public class MainActivity extends Activity {
         }
         sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
         appendUiLog("[app] Port hasil import tidak valid - kembali ke " + DEFAULT_PORT + ".");
-    }
-
-    private static byte[] readAll(InputStream in) throws Exception {
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        byte[] buf = new byte[8192];
-        int n;
-        while ((n = in.read(buf)) > 0) {
-            bos.write(buf, 0, n);
-        }
-        return bos.toByteArray();
     }
 
     // ─── PIN lock ───────────────────────────────────────────────────────

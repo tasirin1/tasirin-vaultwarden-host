@@ -257,7 +257,7 @@ public final class TgBackup {
         if (!backupDir.exists() && !backupDir.mkdirs()) {
             throw new IOException("Gagal membuat folder backup");
         }
-        String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+        String ts = backupTimestamp();
         File zip = new File(backupDir, "backup-telegram-" + ts + ".zip");
         String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
@@ -634,8 +634,7 @@ public final class TgBackup {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US)
-                    .format(new Date());
+            String ts = backupTimestamp() + "-pre";
             preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
             copyFile(dbFile, preBackup);
             cleanupOldBackups(backupDir);
@@ -768,7 +767,8 @@ public final class TgBackup {
         ed.apply();
     }
 
-    private static void copyFile(File src, File dst) throws Exception {
+    /** Salin file (dipakai juga restore/backup UI agar satu implementasi). */
+    static void copyFile(File src, File dst) throws Exception {
         try (FileInputStream fis = new FileInputStream(src);
              FileOutputStream fos = new FileOutputStream(dst)) {
             byte[] buf = new byte[64 * 1024];
@@ -780,7 +780,7 @@ public final class TgBackup {
     }
 
     /** True bila file ber-header SQLite ("SQLite format 3\0"). */
-    private static boolean isSqliteFile(File f) {
+    static boolean isSqliteFile(File f) {
         byte[] head = new byte[16];
         try (FileInputStream in = new FileInputStream(f)) {
             int off = 0;
@@ -803,7 +803,7 @@ public final class TgBackup {
         return true;
     }
 
-    private static byte[] readAllBytes(InputStream in) throws Exception {
+    static byte[] readAllBytes(InputStream in) throws Exception {
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         byte[] buf = new byte[64 * 1024];
         int n;
@@ -862,6 +862,11 @@ public final class TgBackup {
             return 0;
         }
         return file.isFile() ? file.length() : 0;
+    }
+
+    /** Stamp "yyyyMMdd-HHmmss" untuk nama file backup/export (satu format). */
+    public static String backupTimestamp() {
+        return new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
