@@ -473,13 +473,19 @@ public class MainActivity extends Activity {
         boolean updAvail = false;
         if (pendingVersion != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String cur = Updater.normVersion(up != null && !up.isEmpty()
-                    ? up : Updater.readBundledVersionRaw(this));
-            if (cur != null && cur.equals(pendingVersion)) {
+            String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
+            if (real != null && real.equals(pendingVersion)) {
+                psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
-                updAvail = !running;
+                String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
+                String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
+                        ? up : Updater.readBundledVersionRaw(this));
+                if (cur != null && cur.equals(pendingVersion)) {
+                    pendingVersion = null; // update sudah terpasang
+                } else {
+                    updAvail = !running;
+                }
             }
         }
         if (updAvail) {
@@ -679,11 +685,16 @@ public class MainActivity extends Activity {
                 return;
             }
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
             String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String current = Updater.normVersion(updated != null && !updated.isEmpty()
-                    ? updated : Updater.readBundledVersionRaw(this));
+            String current = real != null ? real : Updater.normVersion(
+                    updated != null && !updated.isEmpty()
+                            ? updated : Updater.readBundledVersionRaw(this));
             boolean updatedSomething = false;
-            if (current != null && !current.equals(latest)) {
+            if (real != null && real.equals(latest)) {
+                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+                pendingVersion = null;
+            } else if (current != null && !current.equals(latest)) {
                 if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
                         && isUnmeteredNetwork()) {
                     // Auto-update: pasang binary langsung (hanya WiFi/ethernet)
@@ -705,10 +716,10 @@ public class MainActivity extends Activity {
                 } else {
                     pendingVersion = latest;
                     ui.post(() -> toast("Update tersedia: v" + latest));
-                    showUpdateNotification(latest);
-                    // Notifikasi ke Telegram cukup sekali per versi
+                    // Notifikasi sistem + Telegram cukup sekali per versi
                     if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
                         sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
+                        showUpdateNotification(latest);
                         TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
                     }
@@ -1765,10 +1776,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Versi binary yang benar-benar dipakai server saat ini. */
+    /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
     private String currentServerVersion() {
-        if (!ServerService.binaryVersion.isEmpty()) {
-            return ServerService.binaryVersion;
+        String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
+        if (real != null) {
+            return real;
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");

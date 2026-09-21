@@ -105,8 +105,14 @@ public final class Updater {
             throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        String real = parseBinaryVersion(ServerService.binaryVersion);
+        if (real != null && real.equals(latest)) {
+            // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
+            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+            return "Sudah versi terbaru: v" + latest;
+        }
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-        String current = normVersion(updated != null && !updated.isEmpty()
+        String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
         if (current != null && current.equals(latest)) {
             return "Sudah versi terbaru: v" + latest;
@@ -200,12 +206,20 @@ public final class Updater {
         out.setReadable(true, true);
         out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
-        if (known && !fallback) {
+        String installed = detectVersion(out);
+        String effective = installed != null ? installed
+                : (!fallback ? latest : null);
+        if (effective != null && !effective.isEmpty()) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+                    .edit().putString(ServerService.KEY_UPDATE_VERSION, effective).apply();
         }
         ServerService.binaryVersion = "";
-        return "Update v" + (latest != null ? latest : "?") + " terpasang.";
+        if (installed != null) {
+            return "Update v" + installed + " terpasang.";
+        }
+        return fallback
+                ? "Binary rilis terbaru terpasang (v" + latest + " belum tersedia di repo)."
+                : "Update v" + (latest != null ? latest : "?") + " terpasang.";
     }
 
     /** Perbarui status unduhan untuk UI (persen + ukuran bila total diketahui). */
@@ -275,7 +289,7 @@ public final class Updater {
         if (wvExists && latest != null) {
             // Penanda lama (sebelum fitur ini): pakai versi server yang terdeteksi.
             String known = !installed.isEmpty() ? installed
-                    : ServerService.binaryVersion;
+                    : parseBinaryVersion(ServerService.binaryVersion);
             if (known != null && !known.isEmpty() && known.equals(latest)) {
                 if (installed.isEmpty()) {
                     sp.edit().putString(KEY_WV_FROM, latest).apply();
@@ -413,6 +427,39 @@ public final class Updater {
             return null;
         }
         return v.startsWith("v") ? v.substring(1) : v;
+    }
+
+    /** Ambil "x.y.z" dari output "--version" ("vaultwarden 1.37.3" -> "1.37.3"). */
+    static String parseBinaryVersion(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        java.util.regex.Matcher m =
+                java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+").matcher(raw);
+        return m.find() ? m.group() : null;
+    }
+
+    /** Jalankan binary --version; kembalikan "x.y.z" atau null bila gagal. */
+    static String detectVersion(File binary) {
+        try {
+            Process p = new ProcessBuilder(binary.getAbsolutePath(), "--version")
+                    .redirectErrorStream(true)
+                    .start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(
+                    p.getInputStream(), StandardCharsets.UTF_8));
+            String first = r.readLine();
+            r.close();
+            try {
+                p.waitFor();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                p.destroy();
+            }
+            return parseBinaryVersion(first);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** Package-private agar bisa diuji unit (tanpa jaringan). */

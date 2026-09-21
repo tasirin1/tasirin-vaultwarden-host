@@ -27,6 +27,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void parseBinaryVersion_ambilXyzDariOutputVersion() {
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3"));
+        assertEquals("1.37.3", Updater.parseBinaryVersion("1.37.3"));
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3 (abc123)"));
+        assertNull(Updater.parseBinaryVersion("?"));
+        assertNull(Updater.parseBinaryVersion(""));
+        assertNull(Updater.parseBinaryVersion(null));
+    }
+
+    @Test
     public void extractTag_tanpaTagNameMengembalikanNull() {
         assertNull(Updater.extractTag("{\"name\":\"x\"}"));
         assertNull(Updater.extractTag(""));
