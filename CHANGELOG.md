@@ -6,6 +6,25 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Tampilan utama, backup Telegram & efisiensi
+
+### Ditambahkan
+- **Tampilan utama baru**: hero gradien brand (ikon + tagline), kartu Server
+  dengan label aksi cepat & kotak info, tombol utama berisi, palet
+  terang/gelap diselaraskan — ID dan navigasi D-pad tidak berubah.
+
+### Diubah
+- **Backup/restore terpadu**: duplikasi logika backup/restore
+  dikonsolidasikan ke `TgBackup` (dipakai tombol UI & perintah bot).
+- **Perintah `/log` hemat**: pakai `tailLog` tanpa salinan buffer penuh.
+- **Efisiensi CPU/RAM/I-O**: kurangi alokasi dan I/O berlebih di semua modul.
+- **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
+
+### Diperbaiki
+- **Warning lint nol**: layout di-split ke `main_card_*.xml` (bebas
+  TooManyViews) dan deprecation `javac` dibersihkan; derive PIN kini
+  menangani checked exception agar kompilasi lolos.
+
 ## [Belum rilis] — Audit keamanan, bug & efisiensi
 
 ### Keamanan

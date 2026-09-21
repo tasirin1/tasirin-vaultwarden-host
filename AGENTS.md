@@ -17,17 +17,23 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
+│   ├── res/layout/                   # activity_main.xml + main_card_*.xml (split anti TooManyViews)
+│   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
+│   ├── res/values/ (+night, sw600dp) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
 │       ├── MainActivity.java         # UI utama, pengaturan, auto-update check, PIN, export/import
 │       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS, ControlServer
 │       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
 │       ├── ControlServer.java        # status web ringan (JSON + log SSE) di port+1
 │       ├── TgBot.java / TgBackup.java / TgBotReceiver.java  # remote & backup Telegram
+│       ├── PinCrypto.java              # PIN PBKDF2+salt (format PBKDF2$...)
+│       ├── QrEncoder.java              # QR koneksi (URL server ke HP lain)
 │       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed
 │       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # Unit test JVM (junit4) — jalan di CI
+├── app/src/test/                     # 5 kelas test JVM (junit4): Updater, TgBot, TgBackup,
+                                      # PinCrypto, QrEncoder — jalan di CI
 └── gradle wrapper                    # build via ./gradlew (CI saja untuk rilis)
 ```
 
@@ -80,8 +86,11 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ## Alur build & rilis (CI, build-apk.yml)
 
-Pipeline 3 job; semua di-skip bila release untuk versi Vaultwarden terbaru
-sudah ada (job `resolve` membandingkan tag):
+Pipeline 3 job. Pemicu: `push` ke `main` (selalu build + terbitkan ulang
+rilis), `schedule` tiap 6 jam (cek versi upstream; skip bila rilis untuk tag
+tersebut sudah ada), dan `workflow_dispatch` (manual). `concurrency:
+vw-release` mencegah dua run berebut rilis yang sama; cache cargo dipakai
+ulang antar run:
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
 2. **build-binary** — clone source Vaultwarden, terapkan **patch DNS Android**
@@ -124,15 +133,20 @@ seamless (beda signature) — backup keystore di tempat aman.
   sudah tidak dipakai, patch bisa dihapus.
 - **`ControlServer` bukan web vault** — itu status web ringan (JSON + SSE)
   di port `port+1`; web vault asli dilayani binary Vaultwarden di port utama.
-- **Unit test**: `Updater.normVersion()` adalah fungsi murni yang diuji;
-  tambahkan test untuk logika murni baru (versi, path, parse) — jangan test
-  yang butuh Android runtime/network.
+- **Unit test**: 5 kelas (`Updater`, `TgBot`, `TgBackup`, `PinCrypto`,
+  `QrEncoder`) menguji logika murni; tambahkan test untuk logika murni baru
+  (versi, path, parse, crypto) — jangan test yang butuh Android
+  runtime/network.
 
 ## Pemetaan fitur → file
 
-- **Pengaturan baru (checkbox/input)** → `activity_main.xml` (layout, lengkapi
-  `nextFocusUp/Down`) + `MainActivity.java` (field, `setChecked`, listener,
-  simpan ke prefs) + konstanta `KEY_*` di `ServerService.java`.
+- **Pengaturan baru (checkbox/input)** → `main_card_*.xml` yang sesuai
+  (`activity_main.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
+  `MainActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
+  konstanta `KEY_*` di `ServerService.java`.
+- **Percantik tampilan (tanpa logika)** → `colors.xml` (+ `values-night`,
+  wajib sinkron) + `styles.xml` + `drawable/bg_*` + string baru di
+  `strings.xml`; jangan ubah ID/`nextFocusUp/Down` di layout.
 - **Perilaku server (start/stop/env/health)** → `ServerService.java`.
 - **Update/unduhan (versi, URL, checksum)** → `Updater.java` (URL asset di-host
   repo ini; versi diambil dari `dani-garcia/vaultwarden`).
