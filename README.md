@@ -108,11 +108,12 @@ pertama biasanya butuh internet. Bila perangkat tidak punya akses internet
 (khususnya STB/TV), siapkan dua file ini **sekali** lewat perangkat lain:
 
 1. Unduh dari halaman **Release** repo ini:
-   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB) — untuk STB Android 5/6
-     (kernel lama) pilih `vaultwarden-armeabi-v7a-legacy` dan simpan dengan nama
-     `vaultwarden-armeabi-v7a` di folder data
+   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB)
+   - `libgetrandom-shim-armeabi-v7a.so` (wajib untuk STB Android 5/6 kernel lama)
    - `web-vault.zip` (halaman web vault, ~36 MB)
-2. Letakkan binary dengan nama persis: `/sdcard/vaultwarden/vaultwarden-armeabi-v7a`.
+2. Letakkan dengan nama persis: binary di
+   `/sdcard/vaultwarden/vaultwarden-armeabi-v7a` dan (untuk STB kernel lama)
+   shim di `/sdcard/vaultwarden/libgetrandom-shim-armeabi-v7a.so`.
 3. Ekstrak `web-vault.zip` sehingga muncul file
    `/sdcard/vaultwarden/web-vault/index.html` (isi zip diekstrak langsung ke
    folder `web-vault`).
@@ -240,13 +241,12 @@ merusak server.
 - Binary Vaultwarden terbaru butuh `getrandom()` kernel baru; di kernel STB
   Android 5/6 (mis. ZTE B860H, kernel 3.14.x) selalu panic (`errno=22`) saat
   start. Ini bukan salah TLS/web-vault (baris `WARNING: linker ... DT_FLAGS_1`
-  diabaikan, tidak fatal). App mendeteksi kernel lama otomatis:
-  log menampilkan `kernel 3.x | ... | channel legacy`, cache binary yang salah
-  channel diunduh ulang sendiri, dan tombol **Cek Update** / `/update`
-  memasang binary legacy (`vaultwarden-armeabi-v7a-legacy` v1.29.2) — lalu
-  Start lagi. Cara manual tetap bisa: taruh binary legacy yang cocok Android 6
-  (`vaultwarden-armeabi-v7a`) di folder data, isi SHA-256-nya di pengaturan,
-  lalu Start lagi; atau jalankan di perangkat Android 7+.
+  diabaikan, tidak fatal). App mendeteksi kernel lama otomatis
+  (log `kernel 3.x | ... | channel legacy`) dan memakai shim getrandom
+  (`libgetrandom-shim-armeabi-v7a.so`, diunduh otomatis + terverifikasi
+  SHA-256 saat Start/Cek Update) via `LD_PRELOAD` — binary terbaru tetap jalan
+  tanpa setting tambahan. Bila shim belum terunduh (rilis baru ~6 jam), tekan
+  **Cek Update** lalu Start lagi; atau jalankan di perangkat Android 7+.
 
 **Web UI tidak bisa dibuka dari perangkat lain**
 - Pastikan status **Running**, perangkat lain di jaringan yang sama, dan URL

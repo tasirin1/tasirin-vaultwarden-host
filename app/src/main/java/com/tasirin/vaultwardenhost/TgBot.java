@@ -208,7 +208,15 @@ public final class TgBot {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
                         String msg = Updater.tryUpdate(ctx);
-                        if (msg.startsWith("Update v") || msg.startsWith("Binary legacy v")) {
+                        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                            try {
+                                Updater.ensureShimFile(ctx);
+                                msg += " Shim getrandom siap.";
+                            } catch (Exception se) {
+                                msg += " Shim gagal: " + se.getMessage();
+                            }
+                        }
+                        if (msg.startsWith("Update v")) {
                             if (was) {
                                 TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
                                 ServerService.restart(ctx);

@@ -97,19 +97,21 @@ ulang antar run:
    (nonaktifkan `hickory`/`ndk-context` di `vaultwarden/src/http_client.rs` —
    anchor `impl CustomDnsResolver { fn new()`), cross-compile `armeabi-v7a`
    (NDK 25, target `armv7-linux-androideabi`), strip, upload artifact.
-3. **build-binary-legacy** — clone Vaultwarden `LEGACY_VW` (pin, mis. 1.29.2),
-   toolchain sezamannya (agar lolos kernel 3.x), patch DNS toleran, publish
-   asset `vaultwarden-armeabi-v7a-legacy` + `.sha256` di rilis yang sama.
-4. **build-apk** — unduh binary + binary legacy, ambil **web-vault dari Docker digest resmi**
+3. **build-shim** — kompilasi `shim/getrandom_shim.c` (NDK, API 21, armv7,
+   detik) + uji interposisi `LD_PRELOAD` di host, publish asset
+   `libgetrandom-shim-armeabi-v7a.so` + `.sha256` di rilis yang sama.
+   Shim ini dipakai app (via `LD_PRELOAD`) agar binary terbaru tetap jalan
+   di kernel STB lama (getrandom/EINVAL).
+4. **build-apk** — unduh binary + shim, ambil **web-vault dari Docker digest resmi**
    (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`),
    tulis `app/src/main/assets/vw_version.txt`, `assembleDebug` +
    `lintDebug` + `testDebugUnitTest` + `assembleRelease` (signed bila secrets
    ada), cek ukuran APK, publish release, upload artifact APK.
 
 Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed,
-`vaultwarden-armeabi-v7a` + `.sha256`, `vaultwarden-armeabi-v7a-legacy` +
-`.sha256` (untuk STB kernel lama, dibangun dari `LEGACY_VW` dengan toolchain
-sezamannya), `web-vault.zip` + `.sha256`.
+`vaultwarden-armeabi-v7a` + `.sha256`, `libgetrandom-shim-armeabi-v7a.so` +
+`.sha256` (shim `LD_PRELOAD` untuk STB kernel lama, dibangun dari `shim/`),
+`web-vault.zip` + `.sha256`.
 **Jangan edit asset release secara manual** — selalu lewat workflow.
 
 ## Secrets yang dibutuhkan (Settings → Secrets and variables → Actions)
@@ -155,7 +157,7 @@ seamless (beda signature) — backup keystore di tempat aman.
 - **Perilaku server (start/stop/env/health)** → `ServerService.java`.
 - **Update/unduhan (versi, URL, checksum)** → `Updater.java` (URL asset di-host
   repo ini; versi diambil dari `dani-garcia/vaultwarden`; STB kernel lama
-  otomatis memakai channel legacy via `KernelCompat.java`).
+  otomatis memakai shim getrandom via `KernelCompat.java` + `LD_PRELOAD`).
 - **Status web/API JSON** → `ControlServer.java`.
 - **Telegram bot/backup** → `TgBot.java`, `TgBackup.java`.
 - **UI log** → `LogActivity.java` + `activity_log.xml`.

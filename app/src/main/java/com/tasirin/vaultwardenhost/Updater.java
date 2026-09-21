@@ -188,43 +188,24 @@ public final class Updater {
         return cached;
     }
 
-    /** Versi binary yang seharusnya dipakai perangkat ini: STB kernel lama dipin ke
-     *  versi legacy, perangkat lain mengikuti versi resmi terbaru.
-     *  Web-vault tidak ikut (file statis, aman di kernel lama). */
-    public static String wantedBinaryVersion(Context ctx) {
-        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
-            return KernelCompat.LEGACY_VW_VERSION;
-        }
-        return latestVersion(ctx);
-    }
-
-    /** Nama asset binary sesuai channel perangkat ini (legacy/modern). */
-    public static String wantedBinaryAsset() {
-        return KernelCompat.binaryAsset(
-                KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang()));
-    }
-
     /** Unduh & pasang update binary; return pesan hasil. Lempar Exception bila gagal. */
     public static String tryUpdate(Context ctx) throws Exception {
-        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
-        String wanted = legacy ? KernelCompat.LEGACY_VW_VERSION : latestVersion(ctx);
-        if (wanted == null) {
+        String latest = latestVersion(ctx);
+        if (latest == null) {
             throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String real = parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null && real.equals(wanted)) {
+        if (real != null && real.equals(latest)) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
-            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, wanted).apply();
-            return legacy ? "Sudah versi legacy terbaru: v" + wanted
-                    : "Sudah versi terbaru: v" + wanted;
+            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+            return "Sudah versi terbaru: v" + latest;
         }
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (current != null && current.equals(wanted)) {
-            return legacy ? "Sudah versi legacy terbaru: v" + wanted
-                    : "Sudah versi terbaru: v" + wanted;
+        if (current != null && current.equals(latest)) {
+            return "Sudah versi terbaru: v" + latest;
         }
 
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
@@ -243,31 +224,17 @@ public final class Updater {
     }
 
     private static String downloadBinaryInner(Context ctx, File out) throws Exception {
-        // STB kernel lama wajib memakai asset legacy (binary modern pasti panic getrandom).
-        // Kedua asset dipublish berdampingan di rilis terbaru repo ini.
-        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
-        String asset = wantedBinaryAsset();
         String latest = latestVersion(ctx);
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
         boolean known = latest != null && !latest.isEmpty();
-        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL) + asset;
+        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
+                + "vaultwarden-" + ServerService.ABI;
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
             binDir.mkdirs();
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
-        // Parsial channel lain (modern vs legacy = file beda) jangan dilanjutkan via Range.
-        File marker = new File(binDir, "asset.txt");
-        try {
-            if (tmp.exists() && marker.exists()) {
-                String dulu = bacaMarker(marker);
-                if (dulu != null && !dulu.isEmpty() && !dulu.equals(asset)) {
-                    tmp.delete();
-                }
-            }
-        } catch (Exception ignored) {
-        }
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         String digestHex = null;
@@ -281,15 +248,6 @@ public final class Updater {
                 dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
                 int code = dl.getResponseCode();
                 if (code == 404 && known && !fallback) {
-                    if (legacy) {
-                        // Jangan fallback ke binary modern: pasti panic getrandom di kernel lama.
-                        dl.disconnect();
-                        dl = null;
-                        throw new IOException("Binary legacy v" + KernelCompat.LEGACY_VW_VERSION
-                                + " belum tersedia di rilis v" + latest
-                                + " (build CI ~6 jam). Coba lagi nanti atau pakai cara manual"
-                                + " di README (taruh binary di folder data).");
-                    }
                     // Rilis versi ini belum ada / sedang dibuat ulang CI -
                     // pakai binary rilis terbaru repo agar tetap bisa Start.
                     dl.disconnect();
@@ -420,31 +378,195 @@ public final class Updater {
         out.setReadable(true, true);
         out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
-        try (FileWriter w = new FileWriter(marker)) {
-            w.write(asset);
-        } catch (Exception ignored) {
-        }
-        String installed = detectVersion(out);
-        // Legacy: penanda harus versi binary legacy (bukan tag rilis modern)
-        // agar cek "sudah terbaru" tidak mengunduh ulang terus.
-        String wantTag = legacy ? KernelCompat.LEGACY_VW_VERSION : latest;
+        String installed = detectVersion(ctx, out);
         String effective = installed != null ? installed
-                : (!fallback ? wantTag : null);
+                : (!fallback ? latest : null);
         if (effective != null && !effective.isEmpty()) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(ServerService.KEY_UPDATE_VERSION, effective).apply();
         }
         ServerService.binaryVersion = "";
         if (installed != null) {
-            return legacy ? "Binary legacy v" + installed + " terpasang."
-                    : "Update v" + installed + " terpasang.";
-        }
-        if (legacy) {
-            return "Binary legacy v" + KernelCompat.LEGACY_VW_VERSION + " terpasang.";
+            return "Update v" + installed + " terpasang.";
         }
         return fallback
                 ? "Binary rilis terbaru terpasang (v" + latest + " belum tersedia di repo)."
                 : "Update v" + (latest != null ? latest : "?") + " terpasang.";
+    }
+
+    /** True bila file shim valid (ELF + ukuran wajar). */
+    static boolean shimValid(File f) {
+        return f != null && f.exists()
+                && f.length() >= KernelCompat.SHIM_MIN_BYTES && isElf(f);
+    }
+
+    /** Pastikan shim getrandom tersedia (khusus kernel lama); unduh bila belum ada/rusak.
+     *  Return file shim. Lempar IOException berbahasa Indonesia bila gagal. */
+    public static File ensureShimFile(Context ctx) throws Exception {
+        File out = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
+        if (shimValid(out) && appVersionName(ctx).equals(bacaTagShim(out.getParentFile()))) {
+            return out;
+        }
+        downloadShim(ctx, out);
+        if (!shimValid(out)) {
+            throw new IOException("File shim tidak valid.");
+        }
+        return out;
+    }
+
+    /** Unduh shim getrandom dari release repo ke out (verifikasi SHA-256). */
+    public static String downloadShim(Context ctx, File out) throws Exception {
+        try {
+            return downloadShimInner(ctx, out);
+        } finally {
+            downloadStatus = "";
+        }
+    }
+
+    private static String downloadShimInner(Context ctx, File out) throws Exception {
+        String latest = latestVersion(ctx);
+        boolean known = latest != null && !latest.isEmpty();
+        String assetUrl = (known ? RELEASE_URL + "v" + latest : RELEASE_LATEST_URL)
+                + KernelCompat.SHIM_ASSET;
+        File binDir = out.getParentFile();
+        if (binDir != null && !binDir.exists()) {
+            binDir.mkdirs();
+        }
+        File tmp = new File(binDir, out.getName() + ".tmp");
+        String digestHex = null;
+        Exception gagalKonek = null;
+        for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
+            long resumeFrom = tmp.exists() ? tmp.length() : 0;
+            HttpURLConnection dl = null;
+            try {
+                dl = openRange(ctx, assetUrl, resumeFrom, 20000, 30000);
+                int code = dl.getResponseCode();
+                if (code == 404 && known) {
+                    throw new IOException("Shim getrandom belum tersedia di rilis v" + latest
+                            + " (build CI ~6 jam). Coba lagi nanti.");
+                }
+                if (perluResetResume(code, resumeFrom)) {
+                    dl.disconnect();
+                    tmp.delete();
+                    resumeFrom = 0;
+                    dl = open(ctx, assetUrl, 20000, 30000);
+                    code = dl.getResponseCode();
+                }
+                if (code != 200 && code != 206) {
+                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
+                }
+                long total = dl.getContentLength();
+                if (code == 206 && total >= 0) {
+                    total += resumeFrom;
+                }
+                java.security.MessageDigest md;
+                try {
+                    md = java.security.MessageDigest.getInstance("SHA-256");
+                } catch (Exception e) {
+                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
+                }
+                if (resumeFrom > 0) {
+                    digestPrefix(md, tmp, resumeFrom);
+                }
+                try (InputStream in = dl.getInputStream();
+                     FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    long done = resumeFrom;
+                    long lastReport = done;
+                    while ((n = in.read(buf)) > 0) {
+                        fos.write(buf, 0, n);
+                        md.update(buf, 0, n);
+                        done += n;
+                        if (done - lastReport >= 256 * 1024) {
+                            lastReport = done;
+                            reportDownload("shim", done, total);
+                        }
+                    }
+                }
+                digestHex = toHex(md.digest());
+                gagalKonek = null;
+                break;
+            } catch (IOException e) {
+                gagalKonek = e;
+                String rendah = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
+                boolean bisaCobaLagi = rendah.contains("timed out") || rendah.contains("timeout")
+                        || rendah.contains("failed to connect") || rendah.contains("econn")
+                        || rendah.contains("unreachable") || rendah.contains("reset")
+                        || rendah.contains("broken pipe") || rendah.contains("http");
+                if (rendah.contains("404") || rendah.contains("belum tersedia")) {
+                    bisaCobaLagi = false;
+                }
+                if (!bisaCobaLagi || coba >= MAX_COBA_UNDUH) {
+                    break;
+                }
+                downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            } catch (Exception e) {
+                gagalKonek = e;
+                break;
+            } finally {
+                if (dl != null) {
+                    dl.disconnect();
+                }
+            }
+        }
+        if (digestHex == null) {
+            if (gagalKonek instanceof IOException
+                    && String.valueOf(gagalKonek.getMessage()).contains("belum tersedia")) {
+                throw (IOException) gagalKonek;
+            }
+            throw new IOException(pesanGalatUnduh("Unduh shim",
+                    gagalKonek instanceof Exception ? (Exception) gagalKonek
+                            : new IOException("koneksi gagal")));
+        }
+        String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 30000);
+        if (expectedSha == null) {
+            throw new IOException("Checksum SHA-256 tidak ditemukan di release"
+                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
+        }
+        if (!expectedHexEquals(expectedSha, digestHex)) {
+            tmp.delete();
+            throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
+        }
+        if (tmp.length() < KernelCompat.SHIM_MIN_BYTES || !isElf(tmp)) {
+            tmp.delete();
+            throw new IOException("File shim tidak valid.");
+        }
+        if (out.exists()) {
+            out.delete();
+        }
+        if (!tmp.renameTo(out)) {
+            tmp.delete();
+            throw new IOException("Gagal menyimpan shim.");
+        }
+        out.setReadable(true, true);
+        out.setExecutable(true, true);
+        tulisTagShim(binDir, appVersionName(ctx));
+        return "Shim getrandom terpasang.";
+    }
+
+    /** Tandai shim dengan versi APK pemiliknya (untuk reuse saat Start). */
+    private static void tulisTagShim(File binDir, String apkVersion) {
+        try (FileWriter w = new FileWriter(new File(binDir, "shim-tag.txt"))) {
+            w.write(apkVersion);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Tag APK pemilik shim, atau null bila belum pernah dipasang. */
+    private static String bacaTagShim(File binDir) {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                new FileInputStream(new File(binDir, "shim-tag.txt")), StandardCharsets.UTF_8))) {
+            return r.readLine();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** Perbarui status unduhan untuk UI (persen + ukuran bila total diketahui). */
@@ -455,20 +577,6 @@ public final class Updater {
                     + "/" + TgBackup.humanBytes(total) + " (" + pct + "%)";
         } else {
             downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done) + "...";
-        }
-    }
-
-    /** Baca penanda asset channel (stream murni agar aman di API 21). */
-    private static String bacaMarker(File marker) {
-        try (FileInputStream in = new FileInputStream(marker)) {
-            byte[] buf = new byte[128];
-            int n = in.read(buf);
-            if (n <= 0) {
-                return null;
-            }
-            return new String(buf, 0, n, StandardCharsets.UTF_8).trim();
-        } catch (Exception e) {
-            return null;
         }
     }
 
@@ -777,10 +885,21 @@ public final class Updater {
 
     /** Jalankan binary --version; kembalikan "x.y.z" atau null bila gagal. */
     static String detectVersion(File binary) {
+        return detectVersion(null, binary);
+    }
+
+    /** Sama, tapi memakai shim getrandom bila perangkat kernel lama (agar --version lolos). */
+    static String detectVersion(Context ctx, File binary) {
         try {
-            Process p = new ProcessBuilder(binary.getAbsolutePath(), "--version")
-                    .redirectErrorStream(true)
-                    .start();
+            ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
+                    .redirectErrorStream(true);
+            if (ctx != null && KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                File shim = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
+                if (shim.exists()) {
+                    pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
+                }
+            }
+            Process p = pb.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(
                     p.getInputStream(), StandardCharsets.UTF_8));
             String first = r.readLine();

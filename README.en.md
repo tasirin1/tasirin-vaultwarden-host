@@ -80,7 +80,7 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
 - **Offline**: copy `vaultwarden-armeabi-v7a` + `web-vault.zip` from the
   Release into `/sdcard/vaultwarden/bin` and `/sdcard/vaultwarden/web-vault`
   (see [README.md](README.md) for details). On old-kernel STBs (Android 5/6)
-  use `vaultwarden-armeabi-v7a-legacy` renamed to `vaultwarden-armeabi-v7a`.
+  also copy `libgetrandom-shim-armeabi-v7a.so` next to the binary.
 
 ## Update & troubleshooting
 
@@ -91,11 +91,11 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   the connection error with advice and keeps the partial file for resume
   instead of a misleading checksum error.
 - **Old-kernel STBs** (Android 5/6, e.g. ZTE B860H): the app auto-detects the
-  legacy kernel (`channel legacy` in the log) and installs the pinned legacy
-  binary (`vaultwarden-armeabi-v7a-legacy`) via **Check Update** — no manual
-  setup needed. Cached binaries from the wrong channel are re-downloaded
-  automatically, and an incompatible binary fails fast with a clear message
-  instead of restart loops.
+  legacy kernel (`channel legacy` in the log) and serves getrandom() from
+  /dev/urandom via a tiny `LD_PRELOAD` shim (auto-downloaded, SHA-256
+  verified) — the latest Vaultwarden keeps running with no manual setup.
+  An incompatible binary still fails fast with a clear message instead of
+  restart loops.
 - The status web page now also shows web vault version + size, DB size, backup
   count, and restart history; the full-screen log page has a **Crash** button
   to open the last crash log. If an **admin token** is set, the `/api/*`

@@ -21,15 +21,15 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
 
 ### Diperbaiki
-- **STB kernel lama kini jalan otomatis (channel binary legacy)**: perangkat
-  kernel <3.17 (mis. ZTE B860H Android 6) terdeteksi saat Start
-  (`kernel 3.x | ... | channel legacy` di log) dan memakai asset
-  `vaultwarden-armeabi-v7a-legacy` (pin v1.29.2, toolchain sezaman) lewat
-  **Cek Update** / auto-update / `/update` — tanpa cara manual. Cache binary
-  yang salah channel diunduh ulang sendiri; binary tak cocok tetap digagalkan
-  cepat lewat smoke test `--version` (bukan restart buta); unduhan legacy
-  tidak pernah fallback ke binary modern; CI membangun + mempublish asset
-  legacy di setiap rilis (7 asset).
+- **STB kernel lama kini jalan dengan Vaultwarden terbaru (shim getrandom)**:
+  perangkat kernel <3.17 (mis. ZTE B860H Android 6) terdeteksi saat Start
+  (`kernel 3.x | ... | channel legacy` di log); app memasang shim
+  `libgetrandom-shim-armeabi-v7a.so` (terverifikasi SHA-256, via **Cek Update**
+  / `/update` / otomatis saat Start) dan menjalankan binary dengan
+  `LD_PRELOAD` — getrandom dilayani dari /dev/urandom (mekanisme teruji:
+  flag bogus yang ditolak libc lolos dengan shim). Binary tak cocok tetap
+  digagalkan cepat lewat smoke test `--version` (bukan restart buta); CI
+  membangun + menguji interposisi + mempublish shim di setiap rilis (7 asset).
 - **Crash kernel lama langsung dikenali**: panic `failed to generate random
   data` (binary Rust terbaru vs kernel STB Android 5/6, exit 101) kini
   menghentikan auto-restart seketika dengan saran binary legacy di log/status/

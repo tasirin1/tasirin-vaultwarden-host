@@ -422,12 +422,24 @@ public class ServerService extends Service {
             return;
         }
 
-        // Smoke test kernel: binary modern panic getrandom() di kernel 3.x (exit 101).
+        // Kernel lama: pastikan shim getrandom, lalu uji --version sekali lagi
+        // dengan shim agar smoke test menilai kondisi start yang sebenarnya.
+        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
+        File shim = null;
+        if (legacy) {
+            shim = ensureShim();
+            if (shim == null) {
+                return;
+            }
+            detectBinaryVersion(binary);
+            appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
+        }
+
+        // Smoke test kernel: tanpa shim, binary panic getrandom() di kernel 3.x.
         // Digagalkan di sini dengan pesan jelas — jangan sampai start setengah jalan.
         if (isKernelRandomPanic(lastVersionOutput)) {
             String kernel = KernelCompat.kernelSekarang();
-            String saran = KernelCompat.saranLegacy(
-                    kernel.isEmpty() ? "?" : kernel, Build.VERSION.SDK_INT);
+            String saran = KernelCompat.saranShimGagal(kernel.isEmpty() ? "?" : kernel);
             autoRestart = false;
             setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
             appendLog("[app] FATAL: " + saran + " Web-vault & TLS tidak masalah.");
@@ -516,6 +528,10 @@ public class ServerService extends Service {
                 appendLog("[app] TLS key:  " + tlsKey);
             }
             pb.environment().put("RUST_LOG", "info");
+            if (shim != null) {
+                pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
+                appendLog("[app] LD_PRELOAD shim getrandom aktif.");
+            }
             String domain = scheme + "://" + detectHostPort(port);
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
@@ -629,8 +645,8 @@ public class ServerService extends Service {
                     // Retry tidak ada gunanya — langsung berhenti + beri saran.
                     autoRestart = false;
                     String kernel2 = KernelCompat.kernelSekarang();
-                    String saran = KernelCompat.saranLegacy(
-                            kernel2.isEmpty() ? "?" : kernel2, Build.VERSION.SDK_INT);
+                    String saran = KernelCompat.saranShimGagal(
+                            kernel2.isEmpty() ? "?" : kernel2);
                     setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
                     appendLog("[app] FATAL: " + saran
                             + " Web-vault & TLS tidak masalah.");
@@ -994,17 +1010,6 @@ public class ServerService extends Service {
         file.delete();
     }
 
-    /** True bila binary internal cocok dengan channel perangkat.
-     *  STB kernel lama wajib versi legacy yang dipin; perangkat lain bebas.
-     *  Binary manual (folder data) tidak dinilai di sini — itu pilihan eksplisit user. */
-    private boolean cocokChannel() {
-        if (!KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
-            return true;
-        }
-        String v = Updater.parseBinaryVersion(binaryVersion);
-        return KernelCompat.LEGACY_VW_VERSION.equals(v);
-    }
-
     /** Pastikan binary vaultwarden siap dipakai. Prioritas:
      *  1) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
      *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
@@ -1032,14 +1037,8 @@ public class ServerService extends Service {
             if (updated != null && !updated.isEmpty()) {
                 try {
                     detectBinaryVersion(out);
-                    if (!cocokChannel()) {
-                        appendLog("[app] Binary tersimpan tidak cocok channel legacy"
-                                + " (perlu v" + KernelCompat.LEGACY_VW_VERSION + ") - unduh ulang.");
-                        out.delete();
-                    } else {
-                        appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
-                        return out;
-                    }
+                    appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                    return out;
                 } catch (Exception ignored) {
                 }
             }
@@ -1086,13 +1085,7 @@ public class ServerService extends Service {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
                     detectBinaryVersion(out);
-                    if (!cocokChannel()) {
-                        appendLog("[app] Binary tersimpan tidak cocok channel legacy"
-                                + " (perlu v" + KernelCompat.LEGACY_VW_VERSION + ") - unduh ulang.");
-                        out.delete();
-                    } else {
-                        return out;
-                    }
+                    return out;
                 }
             } catch (Exception ignored) {
             }
@@ -1163,13 +1156,35 @@ public class ServerService extends Service {
     /** Output mentah "--version" terakhir (maks ~8 KB) untuk smoke test panic kernel. */
     static volatile String lastVersionOutput = "";
 
+    /** Pastikan shim getrandom ada (khusus kernel lama); null + status bila gagal. */
+    private File ensureShim() {
+        try {
+            File shim = Updater.ensureShimFile(this);
+            appendLog("[app] Shim getrandom dipakai: " + shim.getAbsolutePath());
+            return shim;
+        } catch (Exception e) {
+            String ramah = e.getMessage() != null ? e.getMessage() : e.toString();
+            appendLog("[app] Gagal pasang shim getrandom: " + e
+                    + "\n[app] Saran: " + Updater.saranKoneksi(
+                            e instanceof Exception ? (Exception) e : null));
+            setStatus("Shim getrandom belum tersedia - " + ramah);
+            return null;
+        }
+    }
+
     private void detectBinaryVersion(File binary) {
         Process p = null;
         BufferedReader r = null;
         try {
-            p = new ProcessBuilder(binary.getAbsolutePath(), "--version")
-                    .redirectErrorStream(true)
-                    .start();
+            ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
+                    .redirectErrorStream(true);
+            if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
+                if (shim.exists()) {
+                    pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
+                }
+            }
+            p = pb.start();
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String first = null;

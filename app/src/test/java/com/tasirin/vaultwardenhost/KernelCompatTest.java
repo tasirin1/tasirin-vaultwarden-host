@@ -35,12 +35,6 @@ public class KernelCompatTest {
     }
 
     @Test
-    public void assetSesuaiChannel() {
-        assertEquals("vaultwarden-armeabi-v7a-legacy", KernelCompat.binaryAsset(true));
-        assertEquals("vaultwarden-armeabi-v7a", KernelCompat.binaryAsset(false));
-    }
-
-    @Test
     public void infoBarisMemuatKernelDanChannel() {
         String info = KernelCompat.infoBaris("3.14.29", 23);
         assertTrue(info.contains("3.14.29"));
@@ -50,10 +44,14 @@ public class KernelCompatTest {
     }
 
     @Test
-    public void saranLegacyMenyebutLangkahKonkret() {
-        String saran = KernelCompat.saranLegacy("3.14.29", 23);
+    public void namaAssetShimTetap() {
+        assertEquals("libgetrandom-shim-armeabi-v7a.so", KernelCompat.SHIM_ASSET);
+    }
+
+    @Test
+    public void saranShimGagalMenyebutLangkahKonkret() {
+        String saran = KernelCompat.saranShimGagal("3.14.29");
         assertTrue(saran.contains("Cek Update"));
-        assertTrue(saran.contains(KernelCompat.LEGACY_VW_VERSION));
-        assertTrue(saran.contains("SHA-256"));
+        assertTrue(saran.contains(KernelCompat.SHIM_ASSET));
     }
 }

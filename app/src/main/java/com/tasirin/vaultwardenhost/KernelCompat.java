@@ -2,19 +2,17 @@ package com.tasirin.vaultwardenhost;
 
 /** Kompatibilitas kernel STB lama (logika murni tanpa API Android agar bisa diuji JVM).
  *
- * <p>Binary Vaultwarden terbaru (Rust modern) memanggil syscall
- * {@code getrandom()} yang baru ada di kernel 3.17+. STB Android 5/6
- * (mis. ZTE B860H, kernel 3.14.x) menjawab {@code EINVAL (errno=22)}
- * sehingga binary langsung panic (exit 101) setiap start.
- * Perangkat seperti itu wajib memakai channel binary legacy. */
+ * <p>Binary Vaultwarden (Rust modern) memanggil {@code getrandom()} yang di kernel
+ * STB Android 5/6 (mis. ZTE B860H, kernel 3.14.x) gagal dengan {@code EINVAL
+ * (errno=22)} sehingga Rust panic setiap start (exit 101). Perangkat seperti itu
+ * menjalankan binary yang sama via shim {@code LD_PRELOAD}
+ * ({@link #SHIM_ASSET}) yang melayani getrandom dari /dev/urandom. */
 public final class KernelCompat {
 
-    /** Versi Vaultwarden legacy yang dipin untuk STB kernel lama. */
-    public static final String LEGACY_VW_VERSION = "1.29.2";
-    /** Nama asset binary modern di release repo. */
-    public static final String MODERN_ASSET = "vaultwarden-armeabi-v7a";
-    /** Nama asset binary legacy di release repo (dipublish berdampingan). */
-    public static final String LEGACY_ASSET = "vaultwarden-armeabi-v7a-legacy";
+    /** Nama asset shim getrandom di release repo (belasan KB, dibangun dari shim/). */
+    public static final String SHIM_ASSET = "libgetrandom-shim-armeabi-v7a.so";
+    /** Ukuran minimum shim yang valid (shim asli ~10-20 KB). */
+    public static final long SHIM_MIN_BYTES = 4096;
 
     private KernelCompat() {
     }
@@ -32,7 +30,7 @@ public final class KernelCompat {
         return v[0] == 3 && v[1] < 17;
     }
 
-    /** True bila perangkat butuh channel legacy (penentu tunggal: versi kernel). */
+    /** True bila perangkat butuh shim getrandom (penentu tunggal: versi kernel). */
     public static boolean isLegacyDevice(String osVersion) {
         return isLegacyKernel(osVersion);
     }
@@ -47,12 +45,7 @@ public final class KernelCompat {
         }
     }
 
-    /** Nama asset binary sesuai channel (legacy/modern). */
-    public static String binaryAsset(boolean legacy) {
-        return legacy ? LEGACY_ASSET : MODERN_ASSET;
-    }
-
-    /** Nama channel untuk log/UI ("legacy"/"modern"). */
+    /** Nama channel untuk log/UI ("legacy"=pakai shim / "modern"). */
     public static String channelName(boolean legacy) {
         return legacy ? "legacy" : "modern";
     }
@@ -64,15 +57,13 @@ public final class KernelCompat {
                 + " | channel " + channelName(isLegacyDevice(osVersion));
     }
 
-    /** Saran perbaikan (Bahasa Indonesia) saat binary modern panic di kernel lama. */
-    public static String saranLegacy(String osVersion, int sdkInt) {
-        return "Binary tidak cocok dengan kernel STB lama (kernel " + osVersion
-                + ", getrandom errno=22). Solusi otomatis: tekan Cek Update"
-                + " untuk memasang binary legacy v" + LEGACY_VW_VERSION
-                + " (" + LEGACY_ASSET + "), lalu Start lagi."
-                + " Cara manual: taruh binary legacy yang cocok Android 6"
-                + " (vaultwarden-armeabi-v7a) di folder data,"
-                + " isi SHA-256-nya di pengaturan, lalu Start lagi.";
+    /** Saran perbaikan (Bahasa Indonesia) bila binary tetap panic walau shim dipasang. */
+    public static String saranShimGagal(String osVersion) {
+        return "Binary tetap crash di kernel STB lama (kernel " + osVersion
+                + ", getrandom errno=22) walau shim dipasang."
+                + " Coba tekan Cek Update (shim diunduh ulang), lalu Start lagi."
+                + " Cara manual: taruh " + SHIM_ASSET + " dari halaman Release"
+                + " ke folder data dengan nama yang sama, lalu Start lagi.";
     }
 
     /** Parse "3.14.29-gabc" -> {3,14}; null bila tak terpola. Package-private agar bisa diuji. */

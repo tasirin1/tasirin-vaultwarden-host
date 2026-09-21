@@ -735,16 +735,9 @@ public class MainActivity extends Activity {
 
     private void autoUpdateCheck() {
         try {
-            // Binary mengikuti channel perangkat (STB kernel lama = legacy),
-            // web-vault (file statis) selalu mengikuti versi resmi terbaru.
             String latest = Updater.latestVersion(this);
-            String wanted = Updater.wantedBinaryVersion(this);
-            if (wanted == null) {
+            if (latest == null) {
                 return;
-            }
-            if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
-                ui.post(() -> appendUiLog("[app] Channel binary legacy (kernel lama)"
-                        + " - target v" + KernelCompat.LEGACY_VW_VERSION + "."));
             }
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
@@ -753,17 +746,17 @@ public class MainActivity extends Activity {
                     updated != null && !updated.isEmpty()
                             ? updated : Updater.readBundledVersionRaw(this));
             boolean updatedSomething = false;
-            if (real != null && real.equals(wanted)) {
-                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, wanted).apply();
+            if (real != null && real.equals(latest)) {
+                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pendingVersion = null;
-            } else if (current != null && !current.equals(wanted)) {
+            } else if (current != null && !current.equals(latest)) {
                 if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
                         && isUnmeteredNetwork()) {
                     // Auto-update: pasang binary langsung (hanya WiFi/ethernet)
                     try {
                         String msg = Updater.tryUpdate(this);
                         pendingVersion = null;
-                        if (msg.startsWith("Update v") || msg.startsWith("Binary legacy v")) {
+                        if (msg.startsWith("Update v")) {
                             updatedSomething = true;
                         }
                         ui.post(() -> {
@@ -772,17 +765,17 @@ public class MainActivity extends Activity {
                         });
                     } catch (Exception e) {
                         ui.post(() -> appendUiLog("[app] Auto-update gagal: " + e.getMessage()));
-                        pendingVersion = wanted;
-                        showUpdateNotification(wanted);
+                        pendingVersion = latest;
+                        showUpdateNotification(latest);
                     }
                 } else {
-                    pendingVersion = wanted;
-                    ui.post(() -> toast("Update tersedia: v" + wanted));
+                    pendingVersion = latest;
+                    ui.post(() -> toast("Update tersedia: v" + latest));
                     // Notifikasi sistem + Telegram cukup sekali per versi
-                    if (!wanted.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
-                        sp.edit().putString(KEY_TG_NOTIFIED, wanted).apply();
-                        showUpdateNotification(wanted);
-                        TgBackup.sendMessage(this, "Update Vaultwarden v" + wanted
+                    if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
+                        sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
+                        showUpdateNotification(latest);
+                        TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
                     }
                 }
@@ -1771,12 +1764,21 @@ public class MainActivity extends Activity {
         try {
             appendUiLog("[app] Mengecek update dari sumber resmi...");
             String msg = Updater.tryUpdate(this);
-            boolean sukses = msg.startsWith("Update v") || msg.startsWith("Binary legacy v");
-            if (sukses) {
+            if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                try {
+                    Updater.ensureShimFile(this);
+                    msg += " Shim getrandom siap.";
+                } catch (Exception se) {
+                    msg += " Shim gagal: " + se.getMessage();
+                }
+            }
+            if (msg.startsWith("Update v")) {
                 pendingVersion = null;
             }
             appendUiLog("[app] " + msg);
-            toast(sukses ? msg + " Tekan Start untuk memakai." : msg);
+            toast(msg.startsWith("Update v")
+                    ? msg + " Tekan Start untuk memakai."
+                    : msg);
         } catch (Exception e) {
             toast("Gagal cek update: " + e.getMessage());
             appendUiLog("[app] Gagal cek update: " + e);
@@ -1786,7 +1788,6 @@ public class MainActivity extends Activity {
     private void revertToBundled() {
         File out = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
         new File(getFilesDir(), "bin/version.txt").delete();
-        new File(getFilesDir(), "bin/asset.txt").delete();
         if (out.exists() && out.delete()) {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .remove(ServerService.KEY_UPDATE_VERSION).apply();
