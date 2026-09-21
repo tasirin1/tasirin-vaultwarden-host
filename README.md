@@ -254,6 +254,9 @@ merusak server.
 **Update web-vault gagal (checksum/unduhan)**
 - Koneksi Android lama kadang putus-putus; app mencoba ulang 3x otomatis.
   Unduhan diverifikasi SHA-256 dan dibatalkan bila tidak cocok — aman diulang.
+  Bila unduhan belum selesai (3x timeout), app melaporkan galat koneksi +
+  saran dan file parsial dipertahankan agar Start berikutnya melanjutkan
+  (bukan pesan checksum).
 
 **Gagal unduh binary/web-vault (`failed to connect to github.com`, timeout)**
 - Artinya STB tidak tembus ke GitHub (TCP connect timeout, mis. ke

@@ -86,6 +86,9 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
 - Updates are checked from the official Vaultwarden repo; binary & web vault
   update in-app over your network, with SHA-256 verification and **realtime
   progress** (percent + size) in the status chip.
+  If a web-vault download never finishes (e.g. 3 timeouts), the app reports
+  the connection error with advice and keeps the partial file for resume
+  instead of a misleading checksum error.
 - The status web page now also shows web vault version + size, DB size, backup
   count, and restart history; the full-screen log page has a **Crash** button
   to open the last crash log. If an **admin token** is set, the `/api/*`

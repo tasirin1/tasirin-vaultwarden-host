@@ -31,6 +31,10 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   github.com` kini menampilkan saran aksi (cek internet/browser, tanggal & jam,
   hotspot/DNS, cara offline) di log & status; unduhan parsial tetap dilanjutkan
   via Range.
+  **Pesan web-vault jujur**: unduhan yang belum selesai (3x timeout) kini
+  melaporkan galat koneksi + saran dan mempertahankan file parsial untuk
+  resume — sebelumnya salah tampil sebagai "checksum tidak cocok" dan parsial
+  ikut dihapus sehingga unduhan ~35 MB mengulang dari nol.
 - **Warning lint nol**: layout di-split ke `main_card_*.xml` (bebas
   TooManyViews) dan deprecation `javac` dibersihkan; derive PIN kini
   menangani checked exception agar kompilasi lolos.

@@ -536,6 +536,16 @@ public final class Updater {
                 }
             }
         }
+        if (wvDigestHex == null) {
+            // Unduhan tidak selesai (3x percobaan gagal, mis. timeout) - file
+            // parsial SENGAJA dipertahankan agar Start berikutnya melanjutkan
+            // via Range; sebelumnya salah dilaporkan sebagai "checksum tidak
+            // cocok" dan parsial ikut dihapus sehingga unduhan ~35 MB
+            // mengulang dari nol.
+            throw new IOException(pesanGalatUnduh("Unduh web-vault",
+                    lastErr instanceof Exception ? (Exception) lastErr
+                            : new IOException("koneksi gagal")));
+        }
         if (tmpZip.length() < 1000) {
             tmpZip.delete();
             throw new IOException(pesanGalatUnduh("Unduh web-vault",
@@ -548,9 +558,10 @@ public final class Updater {
             throw new IOException("Checksum SHA-256 web-vault tidak ditemukan"
                     + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
-        if (wvDigestHex == null || !expectedHexEquals(expectedSha, wvDigestHex)) {
+        if (!expectedHexEquals(expectedSha, wvDigestHex)) {
             tmpZip.delete();
-            throw new IOException("Checksum SHA-256 web-vault tidak cocok; update dibatalkan.");
+            throw new IOException("Checksum SHA-256 web-vault tidak cocok; file dihapus,"
+                    + " aman diulang. " + saranKoneksi(null));
         }
 
         // Ekstrak ke folder sementara dulu; web-vault lama baru diganti bila
@@ -753,7 +764,7 @@ public final class Updater {
     }
 
     /** Banding hex checksum tanpa alokasi string sementara (case-insensitive). */
-    private static boolean expectedHexEquals(String expectedHex, String gotHex) {
+    static boolean expectedHexEquals(String expectedHex, String gotHex) {
         return gotHex != null && expectedHex != null
                 && expectedHex.trim().equalsIgnoreCase(gotHex);
     }
