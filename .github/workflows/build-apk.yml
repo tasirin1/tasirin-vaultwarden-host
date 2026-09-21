@@ -23,7 +23,7 @@ env:
 jobs:
   resolve:
     name: Resolve latest Vaultwarden
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       vw: ${{ steps.vw.outputs.tag }}
     steps:
@@ -45,7 +45,7 @@ jobs:
     name: Build vaultwarden (armeabi-v7a)
     needs: resolve
     if: needs.resolve.outputs.skip != 'yes'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -167,7 +167,7 @@ jobs:
     name: Assemble APK
     needs: [build-binary, resolve]
     if: needs.resolve.outputs.skip != 'yes'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
