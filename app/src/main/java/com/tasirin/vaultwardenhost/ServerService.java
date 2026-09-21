@@ -1417,7 +1417,7 @@ public class ServerService extends Service {
     /** N baris terakhir log (tanpa baris kosong), untuk pesan crash.
      *  Pindai mundur dari akhir buffer: hanya ekor kecil yang disalin,
      *  bukan seluruh buffer (≤300 KB) + split ribuan baris. */
-    private static String tailLog(int lines) {
+    static String tailLog(int lines) {
         synchronized (logBuffer) {
             int len = logBuffer.length();
             int from = 0;

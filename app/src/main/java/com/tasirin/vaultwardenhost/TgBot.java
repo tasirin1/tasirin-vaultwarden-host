@@ -348,20 +348,10 @@ public final class TgBot {
 
     /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */
     private static String tailLog() {
-        String all;
-        synchronized (ServerService.logBuffer) {
-            all = ServerService.logBuffer.toString();
-        }
-        if (all.isEmpty()) {
+        String log = ServerService.tailLog(30);
+        if (log.isEmpty()) {
             return "Log kosong.";
         }
-        String[] lines = all.split("\n", -1);
-        StringBuilder sb = new StringBuilder();
-        int start = Math.max(0, lines.length - 30);
-        for (int i = start; i < lines.length; i++) {
-            sb.append(lines[i]).append('\n');
-        }
-        String log = sb.toString();
         return log.length() > 3500 ? "..." + log.substring(log.length() - 3500) : log;
     }
 
