@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/maintenance" />
+
+                <CheckBox
+                    android:id="@+id/autoUpdate"
+                    android:nextFocusDown="@id/autoUpdateWv"
+                    android:nextFocusUp="@id/batteryBtn"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/auto_update_binary" />
+
+                <CheckBox
+                    android:id="@+id/autoUpdateWv"
+                    android:nextFocusDown="@id/autoRestart"
+                    android:nextFocusUp="@id/autoUpdate"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/auto_update_webvault" />
+
+                <CheckBox
+                    android:id="@+id/autoRestart"
+                    android:nextFocusDown="@id/update"
+                    android:nextFocusUp="@id/autoUpdateWv"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/auto_restart_update" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/update"
+                        android:nextFocusDown="@id/revert"
+                        android:nextFocusUp="@id/autoRestart"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/check_update" />
+
+                    <Button
+                        android:id="@+id/revert"
+                        android:nextFocusDown="@id/cert"
+                        android:nextFocusUp="@id/update"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/reset_binary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/cert"
+                        android:nextFocusDown="@id/installCert"
+                        android:nextFocusUp="@id/revert"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/cert" />
+
+                    <Button
+                        android:id="@+id/installCert"
+                        android:nextFocusDown="@id/exportCfg"
+                        android:nextFocusUp="@id/cert"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/install_cert" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/exportCfg"
+                        android:nextFocusDown="@id/importCfg"
+                        android:nextFocusUp="@id/installCert"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/export_config" />
+
+                    <Button
+                        android:id="@+id/importCfg"
+                        android:nextFocusDown="@id/updateWv"
+                        android:nextFocusUp="@id/exportCfg"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/import_config" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/updateWv"
+                        android:nextFocusDown="@id/backupDb"
+                        android:nextFocusUp="@id/importCfg"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/update_web_vault" />
+
+                    <Button
+                        android:id="@+id/backupDb"
+                        android:nextFocusDown="@id/restoreDb"
+                        android:nextFocusUp="@id/updateWv"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/backup_local" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/restoreDb"
+                    android:nextFocusDown="@id/tgToken"
+                    android:nextFocusUp="@id/backupDb"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/restore_db" />
+            </LinearLayout>

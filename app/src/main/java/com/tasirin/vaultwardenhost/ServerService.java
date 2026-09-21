@@ -327,6 +327,8 @@ public class ServerService extends Service {
         return null;
     }
 
+    // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
+    @SuppressWarnings("deprecation")
     private void startForegroundCompat() {
         Intent open = new Intent(this, MainActivity.class);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT

@@ -280,6 +280,8 @@ public final class Updater {
         return (v == null || v.isEmpty()) ? null : v;
     }
 
+    // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
     public static String appVersionName(Context ctx) {
         try {
             return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;

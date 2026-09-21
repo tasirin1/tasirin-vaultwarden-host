@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/log_realtime" />
+
+                <Button
+                    android:id="@+id/logOpen"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusUp="@id/restoreTg"
+                    style="@style/TasirinBtnPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/open_log_full" />
+            </LinearLayout>

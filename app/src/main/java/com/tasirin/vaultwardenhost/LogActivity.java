@@ -263,6 +263,8 @@ public class LogActivity extends Activity {
     }
 
     /** Simpan log ke .txt di Download (format header ala Tasirin). */
+    // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur untuk API 21-32.
+    @SuppressWarnings("deprecation")
     private void exportLogTxt() {
         String log;
         synchronized (ServerService.logBuffer) {

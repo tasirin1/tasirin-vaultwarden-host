@@ -141,6 +141,8 @@ public class MainActivity extends Activity {
     private static final long PIN_GRACE_MS = 60_000;
 
     @Override
+    // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32 (varian Flags butuh API 33+).
+    @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);
@@ -628,6 +630,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
+    @SuppressWarnings("deprecation")
     private void showAboutDialog() {
         String dataDir = dataDirInput.getText().toString().trim();
         if (TextUtils.isEmpty(dataDir)) {
@@ -662,7 +666,11 @@ public class MainActivity extends Activity {
         float d = getResources().getDisplayMetrics().density;
         tv.setPadding((int) (20 * d), (int) (16 * d), (int) (20 * d), (int) (8 * d));
         tv.setTextSize(13);
-        tv.setText(Html.fromHtml(html.toString()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            tv.setText(Html.fromHtml(html.toString(), Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            tv.setText(Html.fromHtml(html.toString()));
+        }
         tv.setMovementMethod(LinkMovementMethod.getInstance());
         tv.setLinkTextColor(0xFF1E88E5);
         new AlertDialog.Builder(this)
@@ -802,6 +810,8 @@ public class MainActivity extends Activity {
     }
 
     /** Auto-update binary hanya di jaringan non-kuota (WiFi/ethernet). */
+    // API lawas sengaja untuk Android 5.0/5.1 (API 21/22); jalur modern dipakai bila API >= 23.
+    @SuppressWarnings("deprecation")
     private boolean isUnmeteredNetwork() {
         try {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -858,6 +868,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
+    @SuppressWarnings("deprecation")
     private void showUpdateNotification(String version) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -990,6 +1002,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // File picker klasik tanpa androidx agar APK tetap kecil + kompatibel API 21.
+    @SuppressWarnings("deprecation")
     private void pickRestoreFile() {
         try {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1001,6 +1015,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    // Callback klasik pasangan startActivityForResult (tanpa androidx, API 21+).
+    @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_RESTORE && resultCode == RESULT_OK && data != null) {
@@ -1467,6 +1483,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // File picker klasik tanpa androidx agar APK tetap kecil + kompatibel API 21.
+    @SuppressWarnings("deprecation")
     private void pickImportFile() {
         try {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

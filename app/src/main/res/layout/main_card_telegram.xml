@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/backup_telegram" />
+
+                <TextView
+                    style="@style/TasirinLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bot_token" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/tgToken"
+                        android:nextFocusDown="@id/showTg"
+                        android:nextFocusUp="@id/restoreDb"
+                        style="@style/TasirinInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/bot_token_hint"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/showTg"
+                        android:nextFocusDown="@id/tgChat"
+                        android:nextFocusUp="@id/tgToken"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/show" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/TasirinLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chat_id" />
+
+                <EditText
+                    android:id="@+id/tgChat"
+                    android:nextFocusDown="@id/backupPass"
+                    android:nextFocusUp="@id/showTg"
+                    style="@style/TasirinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/chat_id_hint"
+                    android:inputType="text" />
+
+                <TextView
+                    style="@style/TasirinLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/backup_pass_label" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/backupPass"
+                        android:nextFocusDown="@id/showPass"
+                        android:nextFocusUp="@id/tgChat"
+                        style="@style/TasirinInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/showPass"
+                        android:nextFocusDown="@id/binSha"
+                        android:nextFocusUp="@id/backupPass"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/show" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/TasirinLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/bin_sha_label" />
+
+                <EditText
+                    android:id="@+id/binSha"
+                    android:nextFocusDown="@id/tgAuto"
+                    android:nextFocusUp="@id/showPass"
+                    style="@style/TasirinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/bin_sha_hint"
+                    android:inputType="text" />
+
+                <CheckBox
+                    android:id="@+id/tgAuto"
+                    android:nextFocusDown="@id/backupOnStart"
+                    android:nextFocusUp="@id/binSha"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/backup_auto_24h" />
+
+                <CheckBox
+                    android:id="@+id/backupOnStart"
+                    android:nextFocusDown="@id/tgFull"
+                    android:nextFocusUp="@id/tgAuto"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/backup_auto_on_start" />
+
+                <CheckBox
+                    android:id="@+id/tgFull"
+                    android:nextFocusDown="@id/backupTg"
+                    android:nextFocusUp="@id/backupOnStart"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/backup_include_settings" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/backupTg"
+                        android:nextFocusDown="@id/restoreTg"
+                        android:nextFocusUp="@id/backupOnStart"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/backup_to_tg" />
+
+                    <Button
+                        android:id="@+id/restoreTg"
+                        android:nextFocusDown="@id/logOpen"
+                        android:nextFocusUp="@id/backupTg"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/restore_from_tg" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/tg_bot_info"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>

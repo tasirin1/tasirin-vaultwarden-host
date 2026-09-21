@@ -206,6 +206,8 @@ public final class ControlServer {
         out.flush();
     }
 
+    // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
     private String statusJson() {
         long now = System.currentTimeMillis();
         String cached = jsonCache;
