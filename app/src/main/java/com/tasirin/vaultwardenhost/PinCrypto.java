@@ -68,11 +68,15 @@ public final class PinCrypto {
         }
     }
 
-    private static byte[] derive(String pin, byte[] salt, int iter) throws Exception {
+    private static byte[] derive(String pin, byte[] salt, int iter) {
         PBEKeySpec spec = new PBEKeySpec(pin.toCharArray(), salt, iter, HASH_BITS);
         try {
             SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             return f.generateSecret(spec).getEncoded();
+        } catch (Exception e) {
+            // PBKDF2-HMAC-SHA256 dijamin ada di Android & JVM; bila hilang,
+            // gagal lantang (verify() menangkapnya sebagai false).
+            throw new IllegalStateException("PBKDF2 tidak tersedia", e);
         } finally {
             spec.clearPassword();
         }
