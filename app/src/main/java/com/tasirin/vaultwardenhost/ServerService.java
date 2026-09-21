@@ -69,6 +69,9 @@ public class ServerService extends Service {
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
     private static final int MAX_LOG_CHARS = 300_000;
+    // Histeresis trim: pangkas hanya bila melampaui batas + 32 KB agar memmove
+    // O(n) tidak terjadi terlalu sering saat log deras.
+    private static final int LOG_TRIM_THRESHOLD = MAX_LOG_CHARS + 32 * 1024;
     private static final long MAX_LOG_FILE = 2L * 1024 * 1024;
     private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
     private static final long HEALTH_FAST_MS = 5 * 60 * 1000;
@@ -766,7 +769,7 @@ public class ServerService extends Service {
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');
-            if (logBuffer.length() > MAX_LOG_CHARS) {
+            if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
                 logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
             }
         }
@@ -1217,16 +1220,42 @@ public class ServerService extends Service {
         return pid < 0 ? "?" : String.valueOf(pid);
     }
 
+    // Cache Method "pid" (API 26+): lookup refleksi hanya sekali, bukan tiap panggil.
+    private static volatile java.lang.reflect.Method pidMethod;
+    private static volatile boolean pidMethodLookedUp = false;
+
     private static int pidOf(Process p) {
         if (p == null) {
             return -1;
         }
         try {
-            return (Integer) Process.class.getMethod("pid").invoke(p);
+            java.lang.reflect.Method m = pidMethod;
+            if (m == null && !pidMethodLookedUp) {
+                synchronized (ServerService.class) {
+                    if (!pidMethodLookedUp) {
+                        try {
+                            pidMethod = Process.class.getMethod("pid");
+                        } catch (Throwable ignored) {
+                        }
+                        pidMethodLookedUp = true;
+                    }
+                    m = pidMethod;
+                }
+            }
+            if (m == null) {
+                return -1;
+            }
+            return (Integer) m.invoke(p);
         } catch (Throwable t) {
             return -1;
         }
     }
+
+    // PID anak vaultwarden di-cache 30 dtk agar info RAM (dipanggil UI tiap
+    // 5 dtk & status web tiap 10 dtk) tidak memindai /proc terus-menerus.
+    private static volatile int cachedChildPid = -1;
+    private static volatile long cachedChildPidAt = 0;
+    private static final long CHILD_PID_TTL_MS = 30_000;
 
     /** RAM (VmRSS, kB) proses vaultwarden; -1 bila tidak terbaca. */
     public static long processRssKb() {
@@ -1236,7 +1265,15 @@ public class ServerService extends Service {
             pid = pidOf(p);
         }
         if (pid < 0) {
-            pid = findChildPid();
+            long now = System.currentTimeMillis();
+            int cached = cachedChildPid;
+            if (cached >= 0 && now - cachedChildPidAt < CHILD_PID_TTL_MS) {
+                pid = cached;
+            } else {
+                pid = findChildPid();
+                cachedChildPid = pid;
+                cachedChildPidAt = now;
+            }
         }
         if (pid < 0) {
             return -1;
@@ -1342,11 +1379,8 @@ public class ServerService extends Service {
             if (n <= 0) {
                 return null;
             }
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < n; i++) {
-                sb.append((char) (buf[i] & 0xFF));
-            }
-            return sb.toString().replace('\u0000', ' ').trim();
+            return new String(buf, 0, n, StandardCharsets.UTF_8)
+                    .replace('\u0000', ' ').trim();
         } catch (Exception e) {
             return null;
         }
@@ -1380,14 +1414,28 @@ public class ServerService extends Service {
         }
     }
 
-    /** N baris terakhir log (tanpa baris kosong), untuk pesan crash. */
+    /** N baris terakhir log (tanpa baris kosong), untuk pesan crash.
+     *  Pindai mundur dari akhir buffer: hanya ekor kecil yang disalin,
+     *  bukan seluruh buffer (≤300 KB) + split ribuan baris. */
     private static String tailLog(int lines) {
         synchronized (logBuffer) {
-            String all = logBuffer.toString();
-            String[] arr = all.split("\n");
-            int from = Math.max(0, arr.length - lines);
+            int len = logBuffer.length();
+            int from = 0;
+            int nl = 0;
+            for (int i = len - 1; i >= 0; i--) {
+                if (logBuffer.charAt(i) == '\n') {
+                    nl++;
+                    if (nl > lines) {
+                        from = i + 1;
+                        break;
+                    }
+                }
+            }
+            String tail = from > 0 ? logBuffer.substring(from, len) : logBuffer.toString();
+            String[] arr = tail.split("\n");
+            int start = Math.max(0, arr.length - lines);
             StringBuilder sb = new StringBuilder();
-            for (int i = from; i < arr.length; i++) {
+            for (int i = start; i < arr.length; i++) {
                 if (!arr[i].trim().isEmpty()) {
                     if (sb.length() > 0) {
                         sb.append('\n');
@@ -1396,6 +1444,24 @@ public class ServerService extends Service {
                 }
             }
             return sb.toString();
+        }
+    }
+
+    /** Panjang buffer log tanpa menyalin (untuk deteksi perubahan murah). */
+    public static int logLength() {
+        synchronized (logBuffer) {
+            return logBuffer.length();
+        }
+    }
+
+    /** N karakter terakhir log: satu salinan kecil tanpa split (untuk SSE/log API). */
+    public static String logTailChars(int maxChars) {
+        synchronized (logBuffer) {
+            int len = logBuffer.length();
+            if (len <= maxChars) {
+                return logBuffer.toString();
+            }
+            return logBuffer.substring(len - maxChars, len);
         }
     }
 

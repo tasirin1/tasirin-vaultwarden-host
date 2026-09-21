@@ -134,6 +134,9 @@ public class MainActivity extends Activity {
     private long lastCertCheck = 0;
     private String certLine = "";
     private long lastUiLogRefresh = 0;
+    private static final long BATTERY_CHECK_MS = 30_000;
+    private long lastBatteryCheck = 0;
+    private boolean needBatteryCached = false;
 
     private static boolean unlocked = false;
     /** Kapan MainActivity terakhir pause; kunci PIN baru muncul bila >60 detik. */
@@ -574,13 +577,19 @@ public class MainActivity extends Activity {
             lastShownNet = net;
         }
 
-        // Baris "Izinkan akses penuh" hanya muncul bila battery optimization aktif
-        boolean needBattery = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
-        if (needBattery) {
-            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            needBattery = pm == null || !pm.isIgnoringBatteryOptimizations(getPackageName());
+        // Baris "Izinkan akses penuh" hanya muncul bila battery optimization aktif.
+        // Hasil IPC di-cache 30 dtk agar refresh tiap detik tidak membebani binder.
+        long nowBattery = System.currentTimeMillis();
+        if (nowBattery - lastBatteryCheck >= BATTERY_CHECK_MS) {
+            lastBatteryCheck = nowBattery;
+            boolean need = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+            if (need) {
+                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                need = pm == null || !pm.isIgnoringBatteryOptimizations(getPackageName());
+            }
+            needBatteryCached = need;
         }
-        batteryRow.setVisibility(needBattery ? View.VISIBLE : View.GONE);
+        batteryRow.setVisibility(needBatteryCached ? View.VISIBLE : View.GONE);
 
         if (refreshActive) {
             ui.postDelayed(this::refreshFromService, 1000);
@@ -1777,11 +1786,11 @@ public class MainActivity extends Activity {
                 if (!first) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append("Backup ").append(TgBackup.humanBytes(folderBytes(backups)))
+                sb.append("Backup ").append(TgBackup.humanBytes(TgBackup.folderBytesCached(backups)))
                         .append(" (").append(files.length).append(")");
                 first = false;
             }
-            long wvBytes = folderBytes(webVault);
+            long wvBytes = TgBackup.folderBytesCached(webVault);
             if (wvBytes > 0) {
                 if (!first) {
                     sb.append(" \u00B7 ");
@@ -1800,22 +1809,6 @@ public class MainActivity extends Activity {
             storageLine = "";
         }
         return storageLine;
-    }
-
-    /** Total byte isi folder (rekursif). */
-    private static long folderBytes(File file) {
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                long sum = 0;
-                for (File c : children) {
-                    sum += folderBytes(c);
-                }
-                return sum;
-            }
-            return 0;
-        }
-        return file.isFile() ? file.length() : 0;
     }
 
     /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server. */

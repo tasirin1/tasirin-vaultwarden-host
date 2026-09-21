@@ -196,6 +196,18 @@ public final class Updater {
         if (code == 206 && total >= 0) {
             total += resumeFrom;
         }
+        // Hash dihitung sambil menulis agar file (~15 MB) tidak dibaca ulang
+        // hanya untuk verifikasi. Lanjutan unduhan: hash awalan yang sudah ada dulu.
+        java.security.MessageDigest md;
+        try {
+            md = java.security.MessageDigest.getInstance("SHA-256");
+        } catch (Exception e) {
+            dl.disconnect();
+            throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
+        }
+        if (resumeFrom > 0) {
+            digestPrefix(md, tmp, resumeFrom);
+        }
         try (InputStream in = dl.getInputStream();
              FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
             byte[] buf = new byte[64 * 1024];
@@ -204,6 +216,7 @@ public final class Updater {
             long lastReport = done;
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
+                md.update(buf, 0, n);
                 done += n;
                 if (done - lastReport >= 256 * 1024) {
                     lastReport = done;
@@ -219,7 +232,7 @@ public final class Updater {
             throw new IOException("Checksum SHA-256 tidak ditemukan di release"
                     + " - update dibatalkan demi keamanan. Coba lagi nanti.");
         }
-        if (!matchesSha256(tmp, expectedSha)) {
+        if (!expectedHexEquals(expectedSha, toHex(md.digest()))) {
             tmp.delete();
             throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
         }
@@ -366,6 +379,7 @@ public final class Updater {
             }
         }
         Exception lastErr = null;
+        String wvDigestHex = null;
         for (int attempt = 1; attempt <= 2; attempt++) {
             // Lanjutkan unduhan terputus (hemat kuota ~35 MB).
             long resumeFrom = tmpZip.exists() ? tmpZip.length() : 0;
@@ -388,6 +402,15 @@ public final class Updater {
                 if (code == 206 && total >= 0) {
                     total += resumeFrom;
                 }
+                java.security.MessageDigest wvMd;
+                try {
+                    wvMd = java.security.MessageDigest.getInstance("SHA-256");
+                } catch (Exception e) {
+                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
+                }
+                if (resumeFrom > 0) {
+                    digestPrefix(wvMd, tmpZip, resumeFrom);
+                }
                 try (InputStream in = dl.getInputStream();
                      FileOutputStream fos = new FileOutputStream(tmpZip, code == 206)) {
                     byte[] buf = new byte[64 * 1024];
@@ -396,6 +419,7 @@ public final class Updater {
                     long lastReport = done;
                     while ((n = in.read(buf)) > 0) {
                         fos.write(buf, 0, n);
+                        wvMd.update(buf, 0, n);
                         done += n;
                         if (done - lastReport >= 256 * 1024) {
                             lastReport = done;
@@ -403,6 +427,7 @@ public final class Updater {
                         }
                     }
                 }
+                wvDigestHex = toHex(wvMd.digest());
                 lastErr = null;
                 break;
             } catch (Exception e) {
@@ -432,7 +457,7 @@ public final class Updater {
             throw new IOException("Checksum SHA-256 web-vault tidak ditemukan"
                     + " - update dibatalkan demi keamanan. Coba lagi nanti.");
         }
-        if (!matchesSha256(tmpZip, expectedSha)) {
+        if (wvDigestHex == null || !expectedHexEquals(expectedSha, wvDigestHex)) {
             tmpZip.delete();
             throw new IOException("Checksum SHA-256 web-vault tidak cocok; update dibatalkan.");
         }
@@ -443,11 +468,12 @@ public final class Updater {
         deleteRecursive(newDir);
         newDir.mkdirs();
         byte[] buf = new byte[64 * 1024];
+        String newBase = newDir.getCanonicalPath();
         try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 File outFile = new File(newDir, entry.getName());
-                if (!outFile.getCanonicalPath().startsWith(newDir.getCanonicalPath())) {
+                if (!outFile.getCanonicalPath().startsWith(newBase)) {
                     continue;
                 }
                 if (entry.isDirectory()) {
@@ -505,13 +531,16 @@ public final class Updater {
         return v.startsWith("v") ? v.substring(1) : v;
     }
 
+    // Pola versi di-compile sekali (dipanggil tiap detik dari UI & status web).
+    private static final java.util.regex.Pattern VERSION_PATTERN =
+            java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+");
+
     /** Ambil "x.y.z" dari output "--version" ("vaultwarden 1.37.3" -> "1.37.3"). */
     static String parseBinaryVersion(String raw) {
         if (raw == null) {
             return null;
         }
-        java.util.regex.Matcher m =
-                java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+").matcher(raw);
+        java.util.regex.Matcher m = VERSION_PATTERN.matcher(raw);
         return m.find() ? m.group() : null;
     }
 
@@ -594,6 +623,39 @@ public final class Updater {
         }
     }
 
+    private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
+
+    /** Byte -> hex kecil tanpa String.format per byte (32x lebih murah). */
+    static String toHex(byte[] digest) {
+        char[] out = new char[digest.length * 2];
+        for (int i = 0; i < digest.length; i++) {
+            int v = digest[i] & 0xFF;
+            out[i * 2] = HEX_DIGITS[v >>> 4];
+            out[i * 2 + 1] = HEX_DIGITS[v & 0x0F];
+        }
+        return new String(out);
+    }
+
+    /** Hash awalan file yang sudah terunduh (untuk unduhan lanjutan/Range). */
+    private static void digestPrefix(java.security.MessageDigest md, File f, long len)
+            throws IOException {
+        try (InputStream in = new FileInputStream(f)) {
+            byte[] buf = new byte[64 * 1024];
+            long left = len;
+            int n;
+            while (left > 0 && (n = in.read(buf, 0, (int) Math.min(buf.length, left))) > 0) {
+                md.update(buf, 0, n);
+                left -= n;
+            }
+        }
+    }
+
+    /** Banding hex checksum tanpa alokasi string sementara (case-insensitive). */
+    private static boolean expectedHexEquals(String expectedHex, String gotHex) {
+        return gotHex != null && expectedHex != null
+                && expectedHex.trim().equalsIgnoreCase(gotHex);
+    }
+
     /** SHA-256 file sebagai hex kecil; null bila gagal dibaca. */
     static String sha256Hex(File f) {
         try (InputStream in = new FileInputStream(f)) {
@@ -603,20 +665,10 @@ public final class Updater {
             while ((n = in.read(buf)) > 0) {
                 md.update(buf, 0, n);
             }
-            StringBuilder sb = new StringBuilder(64);
-            for (byte b : md.digest()) {
-                sb.append(String.format(Locale.US, "%02x", b));
-            }
-            return sb.toString();
+            return toHex(md.digest());
         } catch (Exception e) {
             return null;
         }
-    }
-
-    /** Cocokkan SHA-256 file dengan hex yang diharapkan. */
-    private static boolean matchesSha256(File f, String expectedHex) {
-        String got = sha256Hex(f);
-        return got != null && expectedHex.equals(got);
     }
 
     private static void deleteRecursive(File file) {

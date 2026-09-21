@@ -118,23 +118,14 @@ public class LogActivity extends Activity {
     }
 
     private void refreshLog() {
-        String text;
-        synchronized (ServerService.logBuffer) {
-            text = ServerService.logBuffer.toString();
-        }
-        int len = text.length();
+        // Salinan 300 KB hanya dibuat bila panjang berubah (hampir selalu sama
+        // antar refresh tiap detik); sebelumnya menyalin dulu baru membandingkan.
+        int len = ServerService.logLength();
         if (len < lastLogLen) {
             // Log terpotong (trim buffer) - hitung ulang dari awal.
             lineCount = 0;
             lastLogLen = 0;
         }
-        for (int i = lastLogLen; i < len; i++) {
-            if (text.charAt(i) == '\n') {
-                lineCount++;
-            }
-        }
-        lastLogLen = len;
-        logCount.setText(getString(R.string.log_lines, lineCount));
         // Konten log append-only (trim hanya memendekkan) - panjang cukup sebagai
         // penanda perubahan, tanpa perlu menyalin/membandingkan teks 300 KB tiap detik.
         String key = len + "\u0000" + logSearch;
@@ -142,6 +133,18 @@ public class LogActivity extends Activity {
             return;
         }
         lastLogKey = key;
+        String text;
+        synchronized (ServerService.logBuffer) {
+            text = ServerService.logBuffer.toString();
+        }
+        int n = Math.min(len, text.length());
+        for (int i = lastLogLen; i < n; i++) {
+            if (text.charAt(i) == '\n') {
+                lineCount++;
+            }
+        }
+        lastLogLen = len;
+        logCount.setText(getString(R.string.log_lines, lineCount));
         int prevScroll = logScroll.getScrollY();
         logView.setText(highlightLog(text, logSearch));
         if (logAutoScroll) {
@@ -155,19 +158,20 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning. */
+    /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning.
+     *  Tanpa toLowerCase()/substring() per baris: pencocokan case-insensitive
+     *  via regionMatches agar tidak ada salinan besar tiap refresh. */
     private CharSequence highlightLog(String text, String q) {
-        if (q.isEmpty() && !text.contains("GAGAL") && !text.contains("ERROR")
-                && !text.contains("FAILED")) {
+        if ((q == null || q.isEmpty()) && rangeIndexOf(text, "GAGAL", 0, text.length()) < 0
+                && rangeIndexOf(text, "ERROR", 0, text.length()) < 0
+                && rangeIndexOf(text, "FAILED", 0, text.length()) < 0) {
             return text;
         }
         SpannableStringBuilder sb = new SpannableStringBuilder(text);
-        String queryLower = q.toLowerCase(Locale.US);
-        if (!queryLower.isEmpty()) {
-            String textLower = text.toLowerCase(Locale.US);
+        if (q != null && !q.isEmpty()) {
             int from = 0;
-            while (true) {
-                int idx = textLower.indexOf(queryLower, from);
+            while (from + q.length() <= text.length()) {
+                int idx = rangeIndexOf(text, q, from, text.length());
                 if (idx < 0) {
                     break;
                 }
@@ -178,21 +182,36 @@ public class LogActivity extends Activity {
             }
         }
         int lineStart = 0;
-        while (lineStart < sb.length()) {
+        int total = text.length();
+        while (lineStart <= total) {
             int lineEnd = text.indexOf('\n', lineStart);
-            int end = lineEnd < 0 ? sb.length() : lineEnd;
-            String upper = text.substring(lineStart, end).toUpperCase(Locale.US);
-            if (upper.contains("GAGAL") || upper.contains("ERROR") || upper.contains("FAILED")) {
+            if (lineEnd < 0) {
+                lineEnd = total;
+            }
+            if (rangeIndexOf(text, "GAGAL", lineStart, lineEnd) >= 0
+                    || rangeIndexOf(text, "ERROR", lineStart, lineEnd) >= 0
+                    || rangeIndexOf(text, "FAILED", lineStart, lineEnd) >= 0) {
                 sb.setSpan(new ForegroundColorSpan(Color.RED),
-                        lineStart, end,
+                        lineStart, lineEnd,
                         SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            if (lineEnd < 0) {
+            if (lineEnd == total) {
                 break;
             }
             lineStart = lineEnd + 1;
         }
         return sb;
+    }
+
+    /** indexOf case-insensitive dalam rentang [from, end) tanpa alokasi baru. */
+    private static int rangeIndexOf(String text, String keyword, int from, int end) {
+        int max = end - keyword.length();
+        for (int i = Math.max(from, 0); i <= max; i++) {
+            if (text.regionMatches(true, i, keyword, 0, keyword.length())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */

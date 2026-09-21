@@ -105,12 +105,17 @@ public final class ControlServer {
             if (line == null || line.length() > MAX_HEADER_LINE) {
                 return;
             }
-            String[] parts = line.split(" ");
-            if (parts.length < 2) {
+            // Tanpa regex: baris request hanya "METHOD TARGET ...".
+            int sp1 = line.indexOf(' ');
+            if (sp1 <= 0) {
                 return;
             }
-            String method = parts[0];
-            String target = parts[1];
+            int sp2 = line.indexOf(' ', sp1 + 1);
+            String method = line.substring(0, sp1);
+            String target = sp2 < 0 ? line.substring(sp1 + 1) : line.substring(sp1 + 1, sp2);
+            if (target.isEmpty()) {
+                return;
+            }
             // Baca header dengan batas (cegah slowloris / header raksasa).
             int headerTotal = line.length();
             for (int i = 0; i < MAX_HEADER_LINES; i++) {
@@ -176,18 +181,27 @@ public final class ControlServer {
         if (need == null || need.trim().isEmpty()) {
             return true;
         }
-        for (String kv : query.split("&")) {
-            int eq = kv.indexOf('=');
-            if (eq > 0 && kv.substring(0, eq).equals("token")) {
+        // Tanpa regex: pindai pasangan kunci=nilai satu per satu.
+        int start = 0;
+        while (start <= query.length()) {
+            int amp = query.indexOf('&', start);
+            int end = amp < 0 ? query.length() : amp;
+            int eq = query.indexOf('=', start);
+            if (eq > start && eq < end && query.regionMatches(start, "token", 0, eq - start)
+                    && eq - start == 5) {
                 try {
                     String got = java.net.URLDecoder.decode(
-                            kv.substring(eq + 1), "UTF-8");
+                            query.substring(eq + 1, end), "UTF-8");
                     if (need.trim().equals(got)) {
                         return true;
                     }
                 } catch (Exception ignored) {
                 }
             }
+            if (amp < 0) {
+                break;
+            }
+            start = amp + 1;
         }
         return false;
     }
@@ -252,7 +266,7 @@ public final class ControlServer {
             o.put("dbBytes", dbBytes);
             o.put("dbHuman", dbBytes > 0 ? TgBackup.humanBytes(dbBytes) : "");
             File wvDir = new File(dir, "web-vault");
-            long wvBytes = folderBytes(wvDir);
+            long wvBytes = TgBackup.folderBytesCached(wvDir);
             o.put("wvBytes", wvBytes);
             o.put("wvHuman", wvBytes > 0 ? TgBackup.humanBytes(wvBytes) : "");
             File binFile = new File(context.getFilesDir(),
@@ -274,6 +288,8 @@ public final class ControlServer {
         }
     }
 
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
+
     /** Escape string untuk sisipan JSON manual (tanpa library tambahan). */
     private static String escJson(String v) {
         if (v == null) {
@@ -290,7 +306,11 @@ public final class ControlServer {
                 case '\t': sb.append("\\t"); break;
                 default:
                     if (c < 0x20) {
-                        sb.append(String.format("\\u%04x", (int) c));
+                        sb.append("\\u");
+                        sb.append(HEX[(c >> 12) & 0xF]);
+                        sb.append(HEX[(c >> 8) & 0xF]);
+                        sb.append(HEX[(c >> 4) & 0xF]);
+                        sb.append(HEX[c & 0xF]);
                     } else {
                         sb.append(c);
                     }
@@ -299,31 +319,8 @@ public final class ControlServer {
         return sb.toString();
     }
 
-    /** Total byte isi folder (rekursif). */
-    private static long folderBytes(File file) {
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                long sum = 0;
-                for (File c : children) {
-                    sum += folderBytes(c);
-                }
-                return sum;
-            }
-            return 0;
-        }
-        return file.isFile() ? file.length() : 0;
-    }
-
     private static String logTail() {
-        String text;
-        synchronized (ServerService.logBuffer) {
-            text = ServerService.logBuffer.toString();
-        }
-        if (text.length() > LOG_TAIL_CHARS) {
-            text = text.substring(text.length() - LOG_TAIL_CHARS);
-        }
-        return text;
+        return ServerService.logTailChars(LOG_TAIL_CHARS);
     }
 
     /** SSE: kirim seluruh log lalu delta tiap detik + heartbeat tiap 15 dtk. */
@@ -350,7 +347,9 @@ public final class ControlServer {
                 synchronized (ServerService.logBuffer) {
                     len = ServerService.logBuffer.length();
                     if (sent < 0 || len < sent) {
-                        text = ServerService.logBuffer.toString();
+                        // Klien baru cukup menerima ekor log (20 KB), bukan
+                        // salinan seluruh buffer (≤300 KB) per koneksi.
+                        text = ServerService.logTailChars(LOG_TAIL_CHARS);
                     } else if (len > sent) {
                         text = ServerService.logBuffer.substring(sent, len);
                     }

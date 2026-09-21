@@ -25,6 +25,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -57,6 +59,13 @@ public final class TgBackup {
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
+    // Satu worker berantre untuk pesan Telegram: hemat thread (sebelumnya satu
+    // thread baru per pesan) sekaligus menjaga urutan pengiriman.
+    private static final ExecutorService TG_MSG_EXEC = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "vw-tgmsg");
+        t.setDaemon(true);
+        return t;
+    });
 
     private static final String ENC_MAGIC = "VWB1";
 
@@ -119,7 +128,7 @@ public final class TgBackup {
     public static void sendMessage(Context ctx, String text) {
         final Context app = ctx.getApplicationContext();
         final String msg = text == null ? "" : text;
-        new Thread(() -> {
+        TG_MSG_EXEC.execute(() -> {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
@@ -171,7 +180,7 @@ public final class TgBackup {
             } catch (Exception e) {
                 logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
             }
-        }, "vw-tgmsg").start();
+        });
     }
 
     /** Paksa SQLite menulis isi WAL ke DB utama (best-effort; gagal = lanjut). */
@@ -345,6 +354,8 @@ public final class TgBackup {
             conn.setDoOutput(true);
             conn.setConnectTimeout(20000);
             conn.setReadTimeout(180000);
+            // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
+            conn.setChunkedStreamingMode(0);
             HttpsCompat.apply(conn, ctx);
             String boundary = "----vw" + System.currentTimeMillis() + "bound";
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -501,11 +512,13 @@ public final class TgBackup {
         }
     }
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     public static void encryptFile(File in, File out, String pass) throws Exception {
         byte[] salt = new byte[16];
         byte[] iv = new byte[12];
-        new SecureRandom().nextBytes(salt);
-        new SecureRandom().nextBytes(iv);
+        SECURE_RANDOM.nextBytes(salt);
+        SECURE_RANDOM.nextBytes(iv);
         Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt), "AES"),
                 new GCMParameterSpec(128, iv));
@@ -629,6 +642,7 @@ public final class TgBackup {
         }
 
         byte[] buf = new byte[64 * 1024];
+        String basePath = dataFolder.getCanonicalPath();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -636,8 +650,7 @@ public final class TgBackup {
                     continue; // pengaturan diterapkan langsung, tidak ditulis ke disk
                 }
                 File outFile = new File(dataFolder, entry.getName());
-                if (!outFile.getCanonicalPath()
-                        .startsWith(dataFolder.getCanonicalPath())) {
+                if (!outFile.getCanonicalPath().startsWith(basePath)) {
                     continue; // cegah zip-slip
                 }
                 if (entry.isDirectory()) {
@@ -801,6 +814,55 @@ public final class TgBackup {
     }
 
     // ─── Util ───────────────────────────────────────────────────────────
+
+    // Cache ukuran folder (TTL 60 dtk): jalan rekursif web-vault (~35 MB,
+    // ribuan file) terlalu mahal untuk diulang tiap 5-10 detik oleh UI/status web.
+    private static final java.util.Map<String, long[]> FOLDER_SIZE_CACHE =
+            new java.util.HashMap<>();
+    private static final long FOLDER_SIZE_TTL_MS = 60_000;
+
+    /** Total byte isi folder (rekursif) dengan cache 60 dtk per path. */
+    public static long folderBytesCached(File dir) {
+        if (dir == null) {
+            return 0;
+        }
+        String key;
+        try {
+            key = dir.getCanonicalPath();
+        } catch (Exception e) {
+            key = dir.getAbsolutePath();
+        }
+        long now = System.currentTimeMillis();
+        synchronized (FOLDER_SIZE_CACHE) {
+            long[] hit = FOLDER_SIZE_CACHE.get(key);
+            if (hit != null && now - hit[1] < FOLDER_SIZE_TTL_MS) {
+                return hit[0];
+            }
+        }
+        long size = folderBytesWalk(dir);
+        synchronized (FOLDER_SIZE_CACHE) {
+            if (FOLDER_SIZE_CACHE.size() > 64) {
+                FOLDER_SIZE_CACHE.clear();
+            }
+            FOLDER_SIZE_CACHE.put(key, new long[]{size, now});
+        }
+        return size;
+    }
+
+    private static long folderBytesWalk(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                long sum = 0;
+                for (File c : children) {
+                    sum += folderBytesWalk(c);
+                }
+                return sum;
+            }
+            return 0;
+        }
+        return file.isFile() ? file.length() : 0;
+    }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
     public static long freeBytes(String dirPath) {
