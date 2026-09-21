@@ -367,6 +367,11 @@ public class MainActivity extends Activity {
             portNum = Integer.parseInt(port.trim());
         } catch (Exception ignored) {
         }
+        if (!port.isEmpty() && (portNum < 1 || portNum > 65535)) {
+            toast("Port harus angka 1-65535.");
+            appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
+            return;
+        }
         if (portNum > 0 && ServerService.isPortBusy(portNum)) {
             new AlertDialog.Builder(this)
                     .setTitle("Port " + portNum + " sedang dipakai")
@@ -560,9 +565,13 @@ public class MainActivity extends Activity {
             return;
         }
         try {
+            String at = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                    .getString(ServerService.KEY_ADMIN_TOKEN, "");
+            String suffix = (at == null || at.trim().isEmpty()) ? ""
+                    : "?token=" + Uri.encode(at.trim());
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://" + ServerService.localIp()
-                            + ":" + ControlServer.listeningPort)));
+                            + ":" + ControlServer.listeningPort + suffix)));
         } catch (Exception e) {
             toast("Gagal membuka status web: " + e.getMessage());
         }
@@ -885,7 +894,7 @@ public class MainActivity extends Activity {
                 return;
             }
             long free = TgBackup.freeBytes(dataDir);
-            if (free < 50L * 1024 * 1024) {
+            if (free >= 0 && free < 50L * 1024 * 1024) {
                 toast("Peringatan: sisa penyimpanan tinggal " + TgBackup.humanBytes(free));
                 appendUiLog("[app] Peringatan storage tinggal " + TgBackup.humanBytes(free));
             }
@@ -966,13 +975,15 @@ public class MainActivity extends Activity {
             }
 
             File dbFile = new File(dataDir, "db.sqlite3");
+            File preBackup = null;
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
                     backupDir.mkdirs();
                 }
                 String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
-                copyFile(dbFile, new File(backupDir, "db-backup-" + ts + ".sqlite3"));
+                preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
+                copyFile(dbFile, preBackup);
                 TgBackup.cleanupOldBackups(backupDir);
             }
 
@@ -1002,9 +1013,39 @@ public class MainActivity extends Activity {
                         restored = true;
                     }
                 } else {
-                    // File .sqlite3 mentah (backup lama).
+                    // File .sqlite3 mentah (backup lama) - wajib header SQLite.
+                    if (n <= 0) {
+                        toast("File kosong - restore dibatalkan.");
+                        appendUiLog("[app] Restore gagal: file kosong");
+                        return;
+                    }
+                    byte[] head = new byte[16];
+                    head[0] = magic[0];
+                    if (n > 1) {
+                        head[1] = magic[1];
+                    }
+                    int off = n;
+                    while (off < head.length) {
+                        int r = in.read(head, off, head.length - off);
+                        if (r < 0) {
+                            break;
+                        }
+                        off += r;
+                    }
+                    byte[] sqliteMagic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+                    boolean ok = off == head.length;
+                    for (int i = 0; ok && i < sqliteMagic.length; i++) {
+                        if (head[i] != sqliteMagic[i]) {
+                            ok = false;
+                        }
+                    }
+                    if (!ok) {
+                        toast("File bukan database SQLite - restore dibatalkan.");
+                        appendUiLog("[app] Restore gagal: header SQLite tidak cocok");
+                        return;
+                    }
                     try (FileOutputStream fos = new FileOutputStream(dbFile)) {
-                        fos.write(magic, 0, n);
+                        fos.write(head, 0, off);
                         int len;
                         while ((len = in.read(buf)) > 0) {
                             fos.write(buf, 0, len);
@@ -1016,6 +1057,16 @@ public class MainActivity extends Activity {
             if (!restored) {
                 toast("File backup tidak berisi db.sqlite3.");
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
+                return;
+            }
+            if (!isSqlite(dbFile)) {
+                if (preBackup != null && preBackup.exists()) {
+                    copyFile(preBackup, dbFile);
+                } else {
+                    dbFile.delete();
+                }
+                toast("Backup rusak (bukan SQLite) - database lama dikembalikan.");
+                appendUiLog("[app] Restore gagal: header SQLite tidak cocok, rollback.");
                 return;
             }
             toast("Database direstore. Restart server untuk memakai.");
@@ -1108,13 +1159,15 @@ public class MainActivity extends Activity {
             }
 
             File dbFile = new File(dataFolder, "db.sqlite3");
+            File preBackup = null;
             if (dbFile.exists()) {
                 File backupDir = new File(dataFolder, "backups");
                 if (!backupDir.exists()) {
                     backupDir.mkdirs();
                 }
                 String ts = new SimpleDateFormat("yyyyMMdd-HHmmss-pre", Locale.US).format(new Date());
-                copyFile(dbFile, new File(backupDir, "db-backup-" + ts + ".sqlite3"));
+                preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
+                copyFile(dbFile, preBackup);
                 TgBackup.cleanupOldBackups(backupDir);
             }
 
@@ -1145,6 +1198,21 @@ public class MainActivity extends Activity {
                 }
             }
             zip.delete();
+            if (!dbFile.exists()) {
+                toast("Backup tidak berisi db.sqlite3.");
+                appendUiLog("[app] Restore Telegram gagal: zip tanpa db.sqlite3");
+                return;
+            }
+            if (!isSqlite(dbFile)) {
+                if (preBackup != null && preBackup.exists()) {
+                    copyFile(preBackup, dbFile);
+                } else {
+                    dbFile.delete();
+                }
+                toast("Backup rusak (bukan SQLite) - database lama dikembalikan.");
+                appendUiLog("[app] Restore Telegram gagal: header SQLite tidak cocok, rollback.");
+                return;
+            }
             if (cfg != null) {
                 applyPrefs(cfg.optJSONObject("prefs"));
             }
@@ -1163,12 +1231,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Terapkan seluruh prefs dari JSON (clear + tulis ulang). */
+    /** Terapkan seluruh prefs dari JSON (clear + tulis ulang).
+     *  Offset polling bot & penanda notifikasi dipertahankan agar perintah
+     *  Telegram lama tidak tereksekusi ulang setelah import. */
     private void applyPrefs(JSONObject prefs) throws Exception {
         if (prefs == null) {
             return;
         }
-        SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
+        SharedPreferences cur = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
+        String keepNotified = cur.getString(KEY_TG_NOTIFIED, "");
+        java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();
+        for (java.util.Map.Entry<String, ?> e : cur.getAll().entrySet()) {
+            if (e.getKey().startsWith("wv_notified_") && e.getValue() instanceof Boolean) {
+                keepWv.put(e.getKey(), (Boolean) e.getValue());
+            }
+        }
+        SharedPreferences.Editor ed = cur.edit();
         ed.clear();
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
@@ -1183,10 +1262,55 @@ public class MainActivity extends Activity {
             } else if (v instanceof Long) {
                 ed.putLong(k, (Long) v);
             } else if (v instanceof Double) {
-                ed.putLong(k, ((Double) v).longValue());
+                double d = (Double) v;
+                if (d == Math.rint(d) && !Double.isInfinite(d)) {
+                    long l = (long) d;
+                    if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
+                        ed.putInt(k, (int) l);
+                    } else {
+                        ed.putLong(k, l);
+                    }
+                } else {
+                    ed.putFloat(k, (float) d);
+                }
+            }
+        }
+        long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
+                ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
+        ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));
+        if (!prefs.has(KEY_TG_NOTIFIED) && !keepNotified.isEmpty()) {
+            ed.putString(KEY_TG_NOTIFIED, keepNotified);
+        }
+        for (java.util.Map.Entry<String, Boolean> e : keepWv.entrySet()) {
+            if (!prefs.has(e.getKey())) {
+                ed.putBoolean(e.getKey(), e.getValue());
             }
         }
         ed.apply();
+    }
+
+    /** True bila file ber-header SQLite ("SQLite format 3\0"). */
+    private static boolean isSqlite(File f) {
+        byte[] head = new byte[16];
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            int off = 0;
+            while (off < head.length) {
+                int n = in.read(head, off, head.length - off);
+                if (n < 0) {
+                    return false;
+                }
+                off += n;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        byte[] magic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+        for (int i = 0; i < magic.length; i++) {
+            if (head[i] != magic[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // ─── Export / Import pengaturan ─────────────────────────────────────

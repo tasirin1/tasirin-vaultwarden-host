@@ -248,6 +248,7 @@ public class ServerService extends Service {
             return START_NOT_STICKY;
         }
         if (ACTION_RESTART.equals(action)) {
+            autoRestart = true;
             startForegroundCompat();
             new Thread(() -> {
                 appendLog("[app] Restart diminta via Telegram.");
@@ -404,10 +405,16 @@ public class ServerService extends Service {
         // Bersihkan proses vaultwarden lama yang masih nyangkut (biasanya masih
         // memegang port) sebelum start - penyebab utama "looping" saat start.
         killStaleVaultwarden();
-        int portNum = Integer.parseInt(DEFAULT_PORT);
+        int portNum = -1;
         try {
             portNum = Integer.parseInt(port.trim());
         } catch (Exception ignored) {
+        }
+        if (portNum < 1 || portNum > 65535) {
+            appendLog("[app] Port tidak valid ('" + port + "') - pakai default " + DEFAULT_PORT + ".");
+            port = DEFAULT_PORT;
+            portNum = Integer.parseInt(DEFAULT_PORT);
+            sp.edit().putString(KEY_PORT, port).apply();
         }
         if (isPortBusy(portNum)) {
             setStatus("Port " + port.trim() + " sedang dipakai proses lain.\n"
@@ -974,7 +981,7 @@ public class ServerService extends Service {
         // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
         // sebagai UID sama) — tidak perlu world-readable.
         dst.setReadable(true, true);
-        dst.setExecutable(true, false);
+        dst.setExecutable(true, true);
     }
 
     private File extractWebVault() {

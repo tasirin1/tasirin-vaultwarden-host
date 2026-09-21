@@ -103,9 +103,16 @@ public final class ControlServer {
                 return;
             }
             String path = target;
+            String query = "";
             int q = path.indexOf('?');
             if (q >= 0) {
+                query = path.substring(q + 1);
                 path = path.substring(0, q);
+            }
+            if (path.startsWith("/api/") && !checkToken(query)) {
+                respond(s, 403, "text/plain; charset=utf-8",
+                        "Akses ditolak: admin token dibutuhkan (?token=).");
+                return;
             }
             switch (path) {
                 case "/api/status":
@@ -129,10 +136,41 @@ public final class ControlServer {
         }
     }
 
+    /** True bila query membawa admin token yang benar (atau tidak ada token
+     *  yang dikonfigurasi - status web tetap terbuka seperti sebelumnya). */
+    private boolean checkToken(String query) {
+        String need;
+        try {
+            need = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_ADMIN_TOKEN, "");
+        } catch (Exception e) {
+            return true;
+        }
+        if (need == null || need.trim().isEmpty()) {
+            return true;
+        }
+        for (String kv : query.split("&")) {
+            int eq = kv.indexOf('=');
+            if (eq > 0 && kv.substring(0, eq).equals("token")) {
+                try {
+                    String got = java.net.URLDecoder.decode(
+                            kv.substring(eq + 1), "UTF-8");
+                    if (need.trim().equals(got)) {
+                        return true;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return false;
+    }
+
     private void respond(Socket s, int code, String type, String body) throws Exception {
         byte[] data = body.getBytes(StandardCharsets.UTF_8);
         OutputStream out = s.getOutputStream();
-        String status = code == 200 ? "OK" : (code == 405 ? "Method Not Allowed" : "Service Unavailable");
+        String status = code == 200 ? "OK"
+                : (code == 403 ? "Forbidden"
+                : (code == 405 ? "Method Not Allowed" : "Service Unavailable"));
         out.write(("HTTP/1.1 " + code + " " + status + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Type: " + type + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Length: " + data.length + "\r\n").getBytes(StandardCharsets.UTF_8));
@@ -173,7 +211,7 @@ public final class ControlServer {
                     : ServerService.runningDataDir;
             long free = TgBackup.freeBytes(dir);
             o.put("freeBytes", free);
-            o.put("freeHuman", TgBackup.humanBytes(free));
+            o.put("freeHuman", free < 0 ? "" : TgBackup.humanBytes(free));
 
             File dbFile = new File(dir, "db.sqlite3");
             long dbBytes = dbFile.exists() ? dbFile.length() : 0;
@@ -335,6 +373,7 @@ public final class ControlServer {
               <pre id="log"></pre>
             </div>
             <script>
+            var QS = location.search || "";
             var buf = ""; var lastKey = null;
             function esc(s){ return s.replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
             function render(){
@@ -357,7 +396,7 @@ public final class ControlServer {
               else { pre.scrollTop = scroll; }
             }
             function pollLog(){
-              fetch("/api/log").then(function(r){ return r.text(); }).then(function(t){
+              fetch("/api/log" + QS).then(function(r){ return r.text(); }).then(function(t){
                 buf = t; render();
               }).catch(function(){});
               setTimeout(pollLog, 1000);
@@ -368,7 +407,7 @@ public final class ControlServer {
               return h+"j "+m+"m "+sec+"d";
             }
             function pollStatus(){
-              fetch("/api/status").then(function(r){ return r.json(); }).then(function(j){
+              fetch("/api/status" + QS).then(function(r){ return r.json(); }).then(function(j){
                 var st = document.getElementById("st");
                 st.textContent = j.running ? "Berjalan" : "Berhenti";
                 st.className = "pill " + (j.running ? "on" : "off");
@@ -388,7 +427,7 @@ public final class ControlServer {
               setTimeout(pollStatus, 2000);
             }
             if (window.EventSource) {
-              var es = new EventSource("/api/events");
+              var es = new EventSource("/api/events" + QS);
               es.onmessage = function(e){ buf += e.data + "\\n"; if (buf.length > 60000) buf = buf.slice(-60000); render(); };
               es.onerror = function(){ es.close(); pollLog(); };
             } else {

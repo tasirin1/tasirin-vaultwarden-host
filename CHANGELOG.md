@@ -6,6 +6,22 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Perbaikan bug audit
+
+### Diperbaiki
+- **Validasi port**: Start ditolak bila port bukan 1-65535; prefs rusak
+  otomatis jatuh ke `8088` (sebelumnya string mentah dikirim ke `ROCKET_PORT`
+  lalu crash loop).
+- **Cache update**: penanda versi binary/web-vault tidak lagi tertimpa string
+  kosong saat API versi gagal (sebelumnya picu unduh ulang tiap Start).
+- **Restart Telegram**: perintah `/restart` kini benar-benar start server
+  walau sedang berhenti; offset polling disimpan per pesan (anti-spam).
+- **Restore aman**: file mentah/zip wajib header SQLite, gagal → rollback
+  ke backup `pre`; import pengaturan mempertahankan offset bot.
+- **Status web**: endpoint `/api/*` butuh `?token=` bila Admin Token diisi.
+- **Lainnya**: `humanBytes` dukung GB/TB, retensi backup tidak hapus export
+  `app-config`, binary owner-executable.
+
 ## [2026-08-11] — Progress unduh, crash log viewer & status web kaya
 
 ### Ditambahkan

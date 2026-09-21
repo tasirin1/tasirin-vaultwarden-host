@@ -81,7 +81,7 @@ public final class TgBackup {
         }
 
         long free = freeBytes(dataDir);
-        if (free < 10L * 1024 * 1024) {
+        if (free >= 0 && free < 10L * 1024 * 1024) {
             throw new IOException("Sisa penyimpanan tinggal " + (free / 1048576)
                     + " MB - backup dibatalkan.");
         }
@@ -145,6 +145,9 @@ public final class TgBackup {
                 dataDir = ServerService.DEFAULT_DATA_DIR;
             }
             long free = freeBytes(dataDir);
+            if (free < 0) {
+                return;
+            }
             boolean low = free < LOW_STORAGE_BYTES;
             boolean notified = sp.getBoolean(KEY_TG_LOW_STORAGE, false);
             if (low && !notified) {
@@ -228,12 +231,22 @@ public final class TgBackup {
         return root.toString(2);
     }
 
-    /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru. */
+    /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru.
+     *  Hanya file backup (backup-telegram-*, db-backup-*) yang dihitung;
+     *  export pengaturan (app-config-*.json) tidak ikut terhapus. */
     public static void cleanupOldBackups(File backupDir) {
-        File[] files = backupDir.listFiles();
-        if (files == null) {
+        File[] all = backupDir.listFiles();
+        if (all == null) {
             return;
         }
+        java.util.List<File> list = new java.util.ArrayList<>();
+        for (File f : all) {
+            String n = f.getName();
+            if (n.startsWith("backup-telegram-") || n.startsWith("db-backup-")) {
+                list.add(f);
+            }
+        }
+        File[] files = list.toArray(new File[0]);
         Arrays.sort(files, new Comparator<File>() {
             @Override
             public int compare(File a, File b) {
@@ -451,24 +464,33 @@ public final class TgBackup {
 
     // ─── Util ───────────────────────────────────────────────────────────
 
-    /** Sisa ruang penyimpanan (bytes) pada partisi path, atau MAX bila gagal. */
+    /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
     public static long freeBytes(String dirPath) {
         try {
             StatFs sf = new StatFs(dirPath);
             return sf.getAvailableBytes();
         } catch (Exception e) {
-            return Long.MAX_VALUE;
+            return -1;
         }
     }
 
     public static String humanBytes(long bytes) {
+        if (bytes < 0) {
+            return "?";
+        }
         if (bytes < 1024) {
             return bytes + " B";
         }
         if (bytes < 1024 * 1024) {
             return String.format(Locale.US, "%.1f KB", bytes / 1024.0);
         }
-        return String.format(Locale.US, "%.1f MB", bytes / 1048576.0);
+        if (bytes < 1024L * 1024 * 1024) {
+            return String.format(Locale.US, "%.1f MB", bytes / 1048576.0);
+        }
+        if (bytes < 1024L * 1024 * 1024 * 1024) {
+            return String.format(Locale.US, "%.1f GB", bytes / 1073741824.0);
+        }
+        return String.format(Locale.US, "%.1f TB", bytes / 1099511627776.0);
     }
 
     /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false).

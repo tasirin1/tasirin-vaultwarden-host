@@ -80,7 +80,9 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   progress** (percent + size) in the status chip.
 - The status web page now also shows web vault version + size, DB size, backup
   count, and restart history; the full-screen log page has a **Crash** button
-  to open the last crash log.
+  to open the last crash log. If an **admin token** is set, the `/api/*`
+  status-web endpoints require `?token=<admin-token>` (the in-app
+  **Status Web** button appends it automatically).
 - Common issues (TLS on old Android, Telegram backup, web-vault update
   failures, DNS icon panics) are covered in the
   [Indonesian README](README.md#troubleshooting).

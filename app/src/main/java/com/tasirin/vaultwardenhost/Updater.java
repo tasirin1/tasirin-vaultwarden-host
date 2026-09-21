@@ -188,11 +188,12 @@ public final class Updater {
         }
         // ownerOnly=true: hanya UID app yang membaca binary — tidak world-readable.
         out.setReadable(true, true);
-        out.setExecutable(true, false);
+        out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
-        ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                .edit().putString(ServerService.KEY_UPDATE_VERSION,
-                        latest != null ? latest : "").apply();
+        if (known) {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+        }
         ServerService.binaryVersion = "";
         return "Update v" + (latest != null ? latest : "?") + " terpasang.";
     }
@@ -279,7 +280,7 @@ public final class Updater {
 
         // Cek ruang hanya bila benar-benar akan mengunduh.
         long free = TgBackup.freeBytes(dataDir);
-        if (free < MIN_FREE_FOR_WEBVAULT) {
+        if (free >= 0 && free < MIN_FREE_FOR_WEBVAULT) {
             throw new IOException("Sisa penyimpanan tinggal " + TgBackup.humanBytes(free)
                     + " - butuh minimal 150 MB untuk update web-vault.");
         }
@@ -340,7 +341,9 @@ public final class Updater {
         // Hapus web-vault lama
         deleteRecursive(targetDir);
         targetDir.mkdirs();
-        sp.edit().putString(KEY_WV_FROM, latest != null ? latest : "").apply();
+        if (latest != null) {
+            sp.edit().putString(KEY_WV_FROM, latest).apply();
+        }
 
         byte[] buf = new byte[64 * 1024];
         try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {

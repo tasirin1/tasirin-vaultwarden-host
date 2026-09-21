@@ -133,6 +133,9 @@ File lain (`web-vault`, database, config) dipakai langsung dari folder data.
 - Endpoint JSON: `GET /api/status` (termasuk `dbHuman`, `wvHuman`,
   `binaryHuman`, `backupCount`, `restartHistory`), log teks: `GET /api/log`,
   stream: `GET /api/events`.
+- Bila **Admin Token** diisi, endpoint `/api/*` butuh `?token=<admin-token>`
+  (tombol **Status Web** menyertakannya otomatis) — orang lain di jaringan
+  yang sama tidak bisa mengintip log tanpa token.
 - Di app: tombol **Status Web** membuka halaman itu; tombol **Buka** di panel
   Log membuka **Log Realtime layar penuh** (cari + highlight `GAGAL/ERROR`,
   hitungan baris, salin, bagikan, **Simpan .txt** ke `Download`, dan tombol

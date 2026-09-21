@@ -27,7 +27,7 @@ import java.util.Locale;
 public final class TgBot {
 
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
-    private static final String KEY_TG_OFFSET = "tg_bot_offset";
+    static final String KEY_TG_OFFSET = "tg_bot_offset";
     private static final long POLL_INTERVAL_MS = 60_000;
 
     private static final String TG_API = "https://api.telegram.org/bot";
@@ -67,33 +67,39 @@ public final class TgBot {
             if (body == null) {
                 return;
             }
-            JSONObject root = new JSONObject(body);
-            JSONArray arr = root.optJSONArray("result");
             long newOffset = offset;
-            if (arr != null) {
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject upd = arr.optJSONObject(i);
-                    if (upd == null) {
-                        continue;
-                    }
-                    newOffset = Math.max(newOffset, upd.optLong("update_id", 0) + 1);
-                    JSONObject msg = upd.optJSONObject("message");
-                    if (msg == null) {
-                        continue;
-                    }
-                    JSONObject c = msg.optJSONObject("chat");
-                    if (c == null) {
-                        continue;
-                    }
-                    // Hanya layani chat yang dikonfigurasi di pengaturan
-                    if (String.valueOf(c.optLong("id", -1)).equals(chat.trim())) {
-                        String text = msg.optString("text", "").trim();
-                        handleCommand(ctx, text);
+            try {
+                JSONObject root = new JSONObject(body);
+                JSONArray arr = root.optJSONArray("result");
+                if (arr != null) {
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject upd = arr.optJSONObject(i);
+                        if (upd == null) {
+                            continue;
+                        }
+                        newOffset = Math.max(newOffset, upd.optLong("update_id", 0) + 1);
+                        try {
+                            JSONObject msg = upd.optJSONObject("message");
+                            if (msg == null) {
+                                continue;
+                            }
+                            JSONObject c = msg.optJSONObject("chat");
+                            if (c == null) {
+                                continue;
+                            }
+                            // Hanya layani chat yang dikonfigurasi di pengaturan
+                            if (String.valueOf(c.optLong("id", -1)).equals(chat.trim())) {
+                                String text = msg.optString("text", "").trim();
+                                handleCommand(ctx, text);
+                            }
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
-            }
-            if (newOffset != offset) {
-                sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+            } finally {
+                if (newOffset != offset) {
+                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+                }
             }
         } catch (Exception ignored) {
         }
@@ -289,7 +295,7 @@ public final class TgBot {
                 .append("Backup TG: ").append(backupInfo).append("\n")
                 .append("RAM: ").append(ram).append("\n")
                 .append("Uptime: ").append(uptime).append("\n")
-                .append("Sisa: ").append(TgBackup.humanBytes(free)).append("\n")
+                .append("Sisa: ").append(free < 0 ? "?" : TgBackup.humanBytes(free)).append("\n")
                 .append("URL: ").append(ServerService.localUrl(ctx));
         if (!restarts.isEmpty()) {
             sb.append("\n").append(restarts);

@@ -14,5 +14,7 @@ public class TgBackupTest {
         assertEquals("1.0 KB", TgBackup.humanBytes(1024));
         assertEquals("1.5 KB", TgBackup.humanBytes(1536));
         assertEquals("2.0 MB", TgBackup.humanBytes(2 * 1048576));
+        assertEquals("1.0 GB", TgBackup.humanBytes(1073741824L));
+        assertEquals("?", TgBackup.humanBytes(-1));
     }
 }
