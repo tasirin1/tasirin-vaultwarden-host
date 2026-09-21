@@ -1,6 +1,7 @@
 package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -162,5 +163,63 @@ public class UpdaterTest {
         assertNull(Updater.extractTag("{\"name\":\"x\"}"));
         assertNull(Updater.extractTag(""));
         assertNull(Updater.extractTag(null));
+    }
+
+    @Test
+    public void shimValid_terimaShimRilis2712Byte() throws Exception {
+        // Regresi: shim rilis v1.37.3 hanya 2712 byte (stripped) sehingga
+        // batas minimum lama 4096 byte selalu menolaknya sebagai tidak valid.
+        assertTrue(KernelCompat.SHIM_MIN_BYTES <= 2712);
+        java.io.File elf = buatBerkasElf(2712);
+        try {
+            assertTrue(Updater.shimValid(elf));
+        } finally {
+            elf.delete();
+        }
+    }
+
+    @Test
+    public void shimValid_tolakBukanElfDanTerlaluKecil() throws Exception {
+        java.io.File bukanElf = buatBerkasBukanElf(2712);
+        try {
+            assertFalse(Updater.shimValid(bukanElf));
+        } finally {
+            bukanElf.delete();
+        }
+        java.io.File kecil = buatBerkasElf(512);
+        try {
+            assertFalse(Updater.shimValid(kecil));
+        } finally {
+            kecil.delete();
+        }
+    }
+
+    private static java.io.File buatBerkasElf(int ukuran) throws Exception {
+        java.io.File f = java.io.File.createTempFile("shim", ".so");
+        java.io.FileOutputStream o = new java.io.FileOutputStream(f);
+        try {
+            byte[] magic = new byte[]{0x7F, (byte) 'E', (byte) 'L', (byte) 'F'};
+            o.write(magic);
+            for (int i = 4; i < ukuran; i++) {
+                o.write(0);
+            }
+        } finally {
+            o.close();
+        }
+        return f;
+    }
+
+    private static java.io.File buatBerkasBukanElf(int ukuran) throws Exception {
+        java.io.File f = java.io.File.createTempFile("shim", ".so");
+        java.io.FileOutputStream o = new java.io.FileOutputStream(f);
+        try {
+            o.write("<html>bukan elf</html>".getBytes("UTF-8"));
+            for (int i = 24; i < ukuran; i++) {
+                o.write(0);
+            }
+        } finally {
+            o.close();
+        }
+        return f;
     }
 }

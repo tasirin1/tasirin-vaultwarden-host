@@ -426,7 +426,8 @@ public final class Updater {
         }
         downloadShim(ctx, out);
         if (!shimValid(out)) {
-            throw new IOException("File shim tidak valid.");
+            throw new IOException("File shim tidak valid (ukuran "
+                    + (out.exists() ? out.length() : 0) + " byte).");
         }
         return out;
     }
@@ -563,8 +564,9 @@ public final class Updater {
             throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
         }
         if (tmp.length() < KernelCompat.SHIM_MIN_BYTES || !isElf(tmp)) {
+            long ukuran = tmp.length();
             tmp.delete();
-            throw new IOException("File shim tidak valid.");
+            throw new IOException("File shim tidak valid (ukuran " + ukuran + " byte).");
         }
         if (out.exists()) {
             out.delete();

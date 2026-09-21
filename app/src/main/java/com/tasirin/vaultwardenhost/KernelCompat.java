@@ -9,10 +9,10 @@ package com.tasirin.vaultwardenhost;
  * ({@link #SHIM_ASSET}) yang melayani getrandom dari /dev/urandom. */
 public final class KernelCompat {
 
-    /** Nama asset shim getrandom di release repo (belasan KB, dibangun dari shim/). */
+    /** Nama asset shim getrandom di release repo (sekitar 3 KB stripped, dibangun dari shim/). */
     public static final String SHIM_ASSET = "libgetrandom-shim-armeabi-v7a.so";
-    /** Ukuran minimum shim yang valid (shim asli ~10-20 KB). */
-    public static final long SHIM_MIN_BYTES = 4096;
+    /** Ukuran minimum shim yang valid (shim rilis ~2,7 KB stripped; batas 1 KB agar lolos). */
+    public static final long SHIM_MIN_BYTES = 1024;
 
     private KernelCompat() {
     }

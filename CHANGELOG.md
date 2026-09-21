@@ -21,6 +21,7 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
 
 ### Diperbaiki
+- **Shim getrandom selalu ditolak sebagai "tidak valid"**: batas ukuran minimum (`SHIM_MIN_BYTES` 4096 byte) lebih besar dari shim rilis yang asli (2712 byte, stripped) sehingga setiap unduhan yang checksum-nya cocok langsung dihapus dan Start gagal terus di STB kernel lama (mis. ZTE B860H) — batas kini 1024 byte + test regresi, dan pesan galat menyebut ukuran file agar mudah didiagnosis.
 - **URL shim/binary diperbaiki (slash hilang = 404 terus)**: pembentukan URL asset versi kini memakai helper `binaryAssetUrl`/`shimAssetUrl` (`.../download/v<versi>/<asset>`) + test regresi; shim mendapat fallback `latest/download` seperti binary bila rilis versi belum memuat shim, dan saran koneksi kini mengenali frasa "belum tersedia" — sebelumnya STB selalu gagal pasang shim dengan pesan "belum tersedia di rilis v1.37.3" padahal asset sudah ada.
 - **STB kernel lama kini jalan dengan Vaultwarden terbaru (shim getrandom)**:
   perangkat kernel <3.17 (mis. ZTE B860H Android 6) terdeteksi saat Start
