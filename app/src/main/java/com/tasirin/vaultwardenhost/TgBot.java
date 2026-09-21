@@ -219,7 +219,9 @@ public final class TgBot {
                             TgBackup.sendMessage(ctx, msg);
                         }
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Update gagal: " + e.getMessage());
+                        String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
+                                ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
+                        TgBackup.sendMessage(ctx, "Update gagal: " + ramah);
                     }
                 });
                 break;
@@ -229,7 +231,9 @@ public final class TgBot {
                         String msg = Updater.updateWebVault(ctx);
                         TgBackup.sendMessage(ctx, msg + " Restart server (/restart) agar berlaku.");
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Update web-vault gagal: " + e.getMessage());
+                        String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
+                                ? e.getMessage() : Updater.pesanGalatUnduh("Unduh web-vault", e);
+                        TgBackup.sendMessage(ctx, "Update web-vault gagal: " + ramah);
                     }
                 });
                 break;

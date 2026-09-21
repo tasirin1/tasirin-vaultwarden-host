@@ -209,9 +209,20 @@ public final class ControlServer {
     private void respond(Socket s, int code, String type, String body) throws Exception {
         byte[] data = body.getBytes(StandardCharsets.UTF_8);
         OutputStream out = s.getOutputStream();
-        String status = code == 200 ? "OK"
-                : (code == 403 ? "Forbidden"
-                : (code == 405 ? "Method Not Allowed" : "Service Unavailable"));
+        String status;
+        if (code == 200) {
+            status = "OK";
+        } else if (code == 403) {
+            status = "Forbidden";
+        } else if (code == 405) {
+            status = "Method Not Allowed";
+        } else if (code == 431) {
+            status = "Request Header Fields Too Large";
+        } else if (code == 503) {
+            status = "Service Unavailable";
+        } else {
+            status = "Error";
+        }
         out.write(("HTTP/1.1 " + code + " " + status + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Type: " + type + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Length: " + data.length + "\r\n").getBytes(StandardCharsets.UTF_8));

@@ -260,7 +260,8 @@ merusak server.
   `20.205.243.166:443`), bukan salah TLS. App mencoba ulang 3x lalu menampilkan
   saran di log. Cek berurutan: WiFi ada internet (buka `github.com` di browser
   STB), cek tanggal & jam STB sudah benar, coba hotspot HP / ganti DNS, lalu
-  tekan **Start** lagi (unduhan parsial dilanjutkan otomatis via Range).
+  tekan **Start** lagi (unduhan parsial dilanjutkan otomatis via Range, bahkan
+  antar-Start; file `.tmp` tidak lagi dihapus saat Start).
 - Bila STB memang offline/blokir, pakai cara manual di seksi
   [Instal tanpa internet](#instal-tanpa-internet-offline): taruh binary
   `vaultwarden-armeabi-v7a` di folder data, ekstrak `web-vault.zip` ke

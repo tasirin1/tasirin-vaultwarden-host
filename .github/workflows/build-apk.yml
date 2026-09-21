@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       vw: ${{ steps.vw.outputs.tag }}
+      skip: ${{ steps.vw.outputs.skip }}
     steps:
       - id: vw
         run: |
@@ -108,7 +109,7 @@ jobs:
           path: |
             vaultwarden/target
             ~/.cargo/registry
-          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-${{ github.sha }}
+          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}
           restore-keys: |
             vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-
 

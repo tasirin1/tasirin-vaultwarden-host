@@ -53,6 +53,11 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_nullTetapAdaSaran() {
+        assertTrue(Updater.saranKoneksi(null).contains("github.com"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

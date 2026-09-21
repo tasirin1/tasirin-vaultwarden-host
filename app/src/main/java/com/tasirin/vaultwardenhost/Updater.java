@@ -156,7 +156,7 @@ public final class Updater {
     public static String tryUpdate(Context ctx) throws Exception {
         String latest = latestVersion(ctx);
         if (latest == null) {
-            throw new IOException("Tidak bisa baca versi terbaru (cek koneksi/TLS).");
+            throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String real = parseBinaryVersion(ServerService.binaryVersion);
@@ -315,9 +315,10 @@ public final class Updater {
         }
         String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 60000);
         if (expectedSha == null) {
-            tmp.delete();
+            // File parsial dipertahankan agar bisa dilanjutkan (gagal ambil checksum
+            // biasanya soal jaringan, bukan file korup).
             throw new IOException("Checksum SHA-256 tidak ditemukan di release"
-                    + " - update dibatalkan demi keamanan. Coba lagi nanti.");
+                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
         if (!expectedHexEquals(expectedSha, digestHex)) {
             tmp.delete();
@@ -543,9 +544,9 @@ public final class Updater {
         }
         String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
         if (expectedSha == null) {
-            tmpZip.delete();
+            // Zip parsial dipertahankan agar bisa dilanjutkan via Range.
             throw new IOException("Checksum SHA-256 web-vault tidak ditemukan"
-                    + " - update dibatalkan demi keamanan. Coba lagi nanti.");
+                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
         if (wvDigestHex == null || !expectedHexEquals(expectedSha, wvDigestHex)) {
             tmpZip.delete();
@@ -689,28 +690,39 @@ public final class Updater {
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
     private static String fetchChecksum(Context ctx, String url,
                                         int connectMs, int readMs) {
-        HttpURLConnection c = null;
-        try {
-            c = open(ctx, url, connectMs, readMs);
-            if (c.getResponseCode() != 200) {
-                return null;
-            }
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-                    c.getInputStream(), StandardCharsets.UTF_8));
-            String line = r.readLine();
-            r.close();
-            if (line == null) {
-                return null;
-            }
-            String hex = line.trim().split("\\s+")[0];
-            return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
-        } catch (Exception e) {
-            return null;
-        } finally {
-            if (c != null) {
-                c.disconnect();
+        for (int coba = 1; coba <= 2; coba++) {
+            HttpURLConnection c = null;
+            try {
+                c = open(ctx, url, connectMs, readMs);
+                if (c.getResponseCode() != 200) {
+                    return null;
+                }
+                BufferedReader r = new BufferedReader(new InputStreamReader(
+                        c.getInputStream(), StandardCharsets.UTF_8));
+                String line = r.readLine();
+                r.close();
+                if (line == null) {
+                    return null;
+                }
+                String hex = line.trim().split("\\s+")[0];
+                return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
+            } catch (Exception e) {
+                if (coba >= 2) {
+                    return null;
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            } finally {
+                if (c != null) {
+                    c.disconnect();
+                }
             }
         }
+        return null;
     }
 
     private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();

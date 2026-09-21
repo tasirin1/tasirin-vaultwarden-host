@@ -920,18 +920,28 @@ public class ServerService extends Service {
         statusLine = text;
     }
 
-    /** Hapus file .tmp sisa unduhan gagal (binary & web-vault). */
+    /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume. */
     private void cleanupTempFiles(String dataDir) {
-        File binDir = new File(getFilesDir(), "bin");
-        File[] bins = binDir.listFiles();
-        if (bins != null) {
-            for (File f : bins) {
-                if (f.getName().endsWith(".tmp")) {
-                    f.delete();
+        // File .tmp unduhan (binary/web-vault) SENGAJA dipertahankan agar Start
+        // berikutnya melanjutkan via HTTP Range (hemat kuota ~15/35 MB).
+        // Updater menghapusnya sendiri bila korup/checksum tak cocok.
+        // Hanya folder ekstrak yatim yang dibersihkan di sini.
+        deleteRecursive(new File(dataDir, "web-vault.new"));
+    }
+
+    private static void deleteRecursive(File file) {
+        if (file == null || !file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File c : children) {
+                    deleteRecursive(c);
                 }
             }
         }
-        new File(dataDir, "web-vault.zip.tmp").delete();
+        file.delete();
     }
 
     /** Pastikan binary vaultwarden siap dipakai. Prioritas:

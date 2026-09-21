@@ -21,6 +21,11 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
 
 ### Diperbaiki
+- **Perbaikan unduhan & CI**: checksum `.sha256` dicoba 2x dan tidak lagi
+  menghapus file parsial bila gagal jaringan (bisa dilanjutkan); file `.tmp`
+  dipertahankan antar-Start; pesan Telegram `/update` & `/webvault` memakai
+  saran koneksi yang sama; workflow schedule kini benar-benar skip bila rilis
+  sudah ada (`outputs.skip`) dan cache cargo dipakai ulang per versi.
 - **Unduhan tahan putus**: binary & web-vault coba ulang 3x otomatis
   (sebelumnya binary langsung gagal sekali); galat `failed to connect to
   github.com` kini menampilkan saran aksi (cek internet/browser, tanggal & jam,
