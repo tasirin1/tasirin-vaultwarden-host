@@ -141,6 +141,16 @@ public final class Updater {
         File tmp = new File(binDir, out.getName() + ".tmp");
         HttpURLConnection dl = open(ctx, assetUrl, 20000, 60000);
         int code = dl.getResponseCode();
+        boolean fallback = false;
+        if (code == 404 && known) {
+            // Rilis versi ini belum ada / sedang dibuat ulang CI -
+            // pakai binary rilis terbaru repo agar tetap bisa Start.
+            dl.disconnect();
+            assetUrl = RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
+            dl = open(ctx, assetUrl, 20000, 60000);
+            code = dl.getResponseCode();
+            fallback = code == 200;
+        }
         if (code == 404) {
             dl.disconnect();
             throw new IOException(known
@@ -190,7 +200,7 @@ public final class Updater {
         out.setReadable(true, true);
         out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
-        if (known) {
+        if (known && !fallback) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
         }
@@ -291,6 +301,17 @@ public final class Updater {
                 : RELEASE_LATEST_URL + "web-vault.zip.sha256";
 
         // Unduh dengan retry sekali bila gagal (koneksi Android 5/6 kadang putus).
+        boolean wvFallback = false;
+        if (latest != null) {
+            HttpURLConnection probe = open(ctx, zipUrl, 20000, 20000);
+            int probeCode = probe.getResponseCode();
+            probe.disconnect();
+            if (probeCode == 404) {
+                zipUrl = WV_UPDATE_URL;
+                shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
+                wvFallback = true;
+            }
+        }
         Exception lastErr = null;
         for (int attempt = 1; attempt <= 2; attempt++) {
             try {
@@ -341,7 +362,7 @@ public final class Updater {
         // Hapus web-vault lama
         deleteRecursive(targetDir);
         targetDir.mkdirs();
-        if (latest != null) {
+        if (latest != null && !wvFallback) {
             sp.edit().putString(KEY_WV_FROM, latest).apply();
         }
 
