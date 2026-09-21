@@ -31,7 +31,7 @@ public final class TlsCert {
     }
 
     /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
-    private static final int CERT_VERSION = 3;
+    private static final int CERT_VERSION = 4;
 
     /** Sisa hari masa berlaku cert.pem; -1 bila tidak bisa dibaca. */
     public static long daysLeft(File certFile) {
@@ -143,17 +143,23 @@ public final class TlsCert {
         // subjectAltName: IP + localhost
         byte[] san = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11}, false,
                 octetString(generalNames));
-        // BasicConstraints CA:TRUE - wajib agar Android menerima sebagai CA
+        // BasicConstraints CA:FALSE - cert server biasa, BUKAN CA: bila key bocor,
+        // penyerang tidak bisa menerbitkan cert untuk host lain atas nama perangkat.
         byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
-                octetString(der(b -> b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}), 0x30)));
-        // KeyUsage: digitalSignature, keyEncipherment, keyCertSign, cRLSign
+                octetString(der(b -> b.raw(new byte[]{0x01, 0x01, 0x00}), 0x30)));
+        // KeyUsage: digitalSignature + keyEncipherment saja (tanpa keyCertSign).
         byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
-                octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0xA6}));
+                octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0xA0}));
+        // ExtendedKeyUsage: serverAuth saja (1.3.6.1.5.5.7.3.1).
+        byte[] eku = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x25}, false,
+                octetString(der(b -> b.raw(new byte[]{0x06, 0x08, 0x2B, 0x06,
+                        0x01, 0x05, 0x05, 0x07, 0x03, 0x01}), 0x30)));
 
         byte[] extensions = der(b -> {
             b.raw(san);
             b.raw(basicConstraints);
             b.raw(keyUsage);
+            b.raw(eku);
         }, 0x30);
 
         // extensions [3] EXPLICIT Extensions

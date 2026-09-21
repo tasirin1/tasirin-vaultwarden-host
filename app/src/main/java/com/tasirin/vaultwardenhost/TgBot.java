@@ -50,7 +50,10 @@ public final class TgBot {
             return;
         }
         long trigger = SystemClock.elapsedRealtime() + 30_000;
-        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, POLL_INTERVAL_MS, pi);
+        // Inexact: boleh di-batch sistem dengan alarm lain (hemat baterai);
+        // perintah bot memang tidak butuh ketepatan detik.
+        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger,
+                POLL_INTERVAL_MS, pi);
     }
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
@@ -64,7 +67,7 @@ public final class TgBot {
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
             String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=0&limit=10";
-            String body = httpGet(url);
+            String body = httpGet(ctx, url);
             if (body == null) {
                 return;
             }
@@ -132,6 +135,9 @@ public final class TgBot {
                 }
                 break;
             case "/stop":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 try {
                     ServerService.stop(ctx);
                     TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
@@ -158,7 +164,11 @@ public final class TgBot {
                 });
                 break;
             case "/restore":
-                if (isRestoreConfirm(arg)) {
+                String cleanRestore = authDangerous(ctx, arg);
+                if (cleanRestore == null) {
+                    break;
+                }
+                if (isRestoreConfirm(cleanRestore)) {
                     runWithWakeLock(ctx, () -> {
                         try {
                             TgBackup.sendMessage(ctx, "Mengunduh backup terakhir...");
@@ -191,6 +201,9 @@ public final class TgBot {
                         : "Server TIDAK merespon /alive!");
                 break;
             case "/update":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 runWithWakeLock(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
@@ -231,7 +244,9 @@ public final class TgBot {
                 break;
             case "/help":
                 TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
-                        + "/crashlog  /update  /webvault  /restart  /start  /stop  /help");
+                        + "/crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
+                        + "Bila PIN app aktif, /stop /update /restore wajib diakhiri PIN"
+                        + " (mis. /stop 123456).");
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
@@ -288,6 +303,30 @@ public final class TgBot {
             zip = plain;
         }
         return TgBackup.restoreFromZip(ctx, zip);
+    }
+
+    /** Otorisasi perintah berbahaya (/stop, /update, /restore).
+     *  Bila PIN app aktif, kata terakhir argumen wajib PIN yang benar;
+     *  kembalikan argumen bersih (tanpa PIN), atau null (pesan sudah dikirim). */
+    static String authDangerous(Context ctx, String arg) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String hash = sp.getString("pin_hash", "");
+        boolean need = sp.getBoolean("pin_on", false)
+                && hash != null && !hash.isEmpty();
+        String t = arg == null ? "" : arg.trim();
+        if (!need) {
+            return t;
+        }
+        int i = t.lastIndexOf(' ');
+        String pin = i < 0 ? t : t.substring(i + 1);
+        String rest = i < 0 ? "" : t.substring(0, i).trim();
+        if (!pin.isEmpty() && PinCrypto.verify(hash, pin)) {
+            return rest;
+        }
+        TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
+                + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
+        return null;
     }
 
     /** Jalankan tugas berat di thread sendiri + partial wake lock. */
@@ -387,16 +426,17 @@ public final class TgBot {
         return PendingIntent.getBroadcast(ctx, 3, i, flags);
     }
 
-    private static String httpGet(String url) {
+    private static String httpGet(Context ctx, String url) {
+        HttpURLConnection c = null;
         try {
-            HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+            c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(15000);
             c.setReadTimeout(30000);
             c.setRequestMethod("GET");
+            HttpsCompat.apply(c, ctx);
             int code = c.getResponseCode();
             InputStream is = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
             if (is == null) {
-                c.disconnect();
                 return null;
             }
             StringBuilder sb = new StringBuilder();
@@ -407,10 +447,13 @@ public final class TgBot {
                     sb.append(line);
                 }
             }
-            c.disconnect();
             return sb.toString();
         } catch (Exception e) {
             return null;
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
         }
     }
 }

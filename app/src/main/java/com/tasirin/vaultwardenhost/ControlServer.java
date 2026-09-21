@@ -24,6 +24,17 @@ public final class ControlServer {
     private static final int MAX_SSE_CLIENTS = 3;
     private static final AtomicInteger sseClients = new AtomicInteger();
     private static final int LOG_TAIL_CHARS = 20_000;
+    // Batas DoS LAN: koneksi konkuren + ukuran header HTTP.
+    private static final int MAX_CONNS = 12;
+    private static final AtomicInteger conns = new AtomicInteger();
+    private static final int MAX_HEADER_LINES = 64;
+    private static final int MAX_HEADER_LINE = 8192;
+    private static final int MAX_HEADER_TOTAL = 65536;
+    // Cache JSON status 10 dtk: halaman polling tiap 2 dtk, isinya mahal
+    // (jalan rekursif folder web-vault + baca /proc).
+    private static volatile String jsonCache = null;
+    private static volatile long jsonCacheAt = 0;
+    private static final long JSON_CACHE_MS = 10_000;
 
     private final Context context;
     private ServerSocket serverSocket;
@@ -78,12 +89,20 @@ public final class ControlServer {
     }
 
     private void handle(Socket s) {
+        if (conns.incrementAndGet() > MAX_CONNS) {
+            try {
+                respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
+            } catch (Exception ignored) {
+            }
+            conns.decrementAndGet();
+            return;
+        }
         try {
             s.setSoTimeout(8000);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8));
             String line = in.readLine();
-            if (line == null) {
+            if (line == null || line.length() > MAX_HEADER_LINE) {
                 return;
             }
             String[] parts = line.split(" ");
@@ -92,10 +111,17 @@ public final class ControlServer {
             }
             String method = parts[0];
             String target = parts[1];
-            while (true) {
+            // Baca header dengan batas (cegah slowloris / header raksasa).
+            int headerTotal = line.length();
+            for (int i = 0; i < MAX_HEADER_LINES; i++) {
                 String h = in.readLine();
                 if (h == null || h.isEmpty()) {
                     break;
+                }
+                headerTotal += h.length();
+                if (h.length() > MAX_HEADER_LINE || headerTotal > MAX_HEADER_TOTAL) {
+                    respond(s, 431, "text/plain; charset=utf-8", "Header terlalu besar");
+                    return;
                 }
             }
             if (!"GET".equals(method)) {
@@ -129,6 +155,7 @@ public final class ControlServer {
             }
         } catch (Exception ignored) {
         } finally {
+            conns.decrementAndGet();
             try {
                 s.close();
             } catch (Exception ignored) {
@@ -180,6 +207,11 @@ public final class ControlServer {
     }
 
     private String statusJson() {
+        long now = System.currentTimeMillis();
+        String cached = jsonCache;
+        if (cached != null && now - jsonCacheAt < JSON_CACHE_MS) {
+            return cached;
+        }
         try {
             JSONObject o = new JSONObject();
             o.put("running", ServerService.running);
@@ -231,10 +263,38 @@ public final class ControlServer {
             o.put("backupCount", backups == null ? 0 : backups.length);
             String restarts = ServerService.restartSummary();
             o.put("restartHistory", restarts == null ? "" : restarts);
-            return o.toString();
+            String json = o.toString();
+            jsonCache = json;
+            jsonCacheAt = System.currentTimeMillis();
+            return json;
         } catch (Exception e) {
-            return "{\"error\":\"" + e.getMessage() + "\"}";
+            return "{\"error\":\"" + escJson(e.getMessage()) + "\"}";
         }
+    }
+
+    /** Escape string untuk sisipan JSON manual (tanpa library tambahan). */
+    private static String escJson(String v) {
+        if (v == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(v.length());
+        for (int i = 0; i < v.length(); i++) {
+            char c = v.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        return sb.toString();
     }
 
     /** Total byte isi folder (rekursif). */

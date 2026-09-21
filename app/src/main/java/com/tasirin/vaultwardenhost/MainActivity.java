@@ -40,13 +40,13 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipOutputStream;
 
 import org.json.JSONObject;
@@ -75,6 +75,7 @@ public class MainActivity extends Activity {
     private EditText tgTokenInput;
     private EditText tgChatInput;
     private EditText backupPassInput;
+    private EditText binShaInput;
     private EditText pinInput;
     private CheckBox pinEnabledCheck;
     private Button restoreTgBtn;
@@ -124,8 +125,20 @@ public class MainActivity extends Activity {
     private static final long WV_CHECK_MS = 10_000;
     private static final long DB_CHECK_MS = 5_000;
     private static final long STORAGE_CHECK_MS = 5_000;
+    private static final long SYS_CHECK_MS = 5_000;
+    private static final long CERT_CHECK_MS = 30_000;
+    /** Guard agar I/O info berat hanya jalan satu worker dalam satu waktu. */
+    private final AtomicBoolean heavyRunning = new AtomicBoolean(false);
+    private long lastSysCheck = 0;
+    private String sysLine = "";
+    private long lastCertCheck = 0;
+    private String certLine = "";
+    private long lastUiLogRefresh = 0;
 
     private static boolean unlocked = false;
+    /** Kapan MainActivity terakhir pause; kunci PIN baru muncul bila >60 detik. */
+    private static long pauseStamp = 0;
+    private static final long PIN_GRACE_MS = 60_000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +159,7 @@ public class MainActivity extends Activity {
         tgAutoCheck = findViewById(R.id.tgAuto);
         backupOnStartCheck = findViewById(R.id.backupOnStart);
         backupPassInput = findViewById(R.id.backupPass);
+        binShaInput = findViewById(R.id.binSha);
         pinInput = findViewById(R.id.pinInput);
         pinEnabledCheck = findViewById(R.id.pinEnabled);
         statusView = findViewById(R.id.status);
@@ -243,6 +257,7 @@ public class MainActivity extends Activity {
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
@@ -277,9 +292,11 @@ public class MainActivity extends Activity {
                         .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
-        tgTokenInput.addTextChangedListener(onTextChanged(() -> TgBot.schedule(this)));
-        tgChatInput.addTextChangedListener(onTextChanged(() -> TgBot.schedule(this)));
+        // Jadwal bot di-debounce: jangan pasang ulang alarm tiap karakter.
+        tgTokenInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
+        tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
+        binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {
@@ -289,7 +306,7 @@ public class MainActivity extends Activity {
             public void onTextChanged(CharSequence s, int a, int b, int c) {
                 SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
                 if (s.length() >= 4) {
-                    ed.putString(KEY_PIN, sha256(s.toString()));
+                    ed.putString(KEY_PIN, PinCrypto.hash(s.toString()));
                 } else {
                     ed.remove(KEY_PIN);
                 }
@@ -348,10 +365,9 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         refreshActive = false;
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (sp.getBoolean(KEY_PIN_ON, false)) {
-            unlocked = false;
-        }
+        // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
+        // maybeShowPinLock mengunci bila jeda > PIN_GRACE_MS.
+        pauseStamp = System.currentTimeMillis();
     }
 
     private void saveAndStart() {
@@ -500,6 +516,32 @@ public class MainActivity extends Activity {
             version += " \u00B7 Binary: " + ServerService.binaryVersion;
         } else {
             version += " \u00B7 " + bundledVersion;
+        }
+        // I/O berat (stat DB, jalan folder backup/web-vault) di worker thread;
+        // UI thread hanya membaca nilai cache agar tidak jank/ANR.
+        long nowHeavy = System.currentTimeMillis();
+        boolean heavyDue = nowHeavy - lastDbCheck >= DB_CHECK_MS
+                || nowHeavy - lastStorageCheck >= STORAGE_CHECK_MS
+                || nowHeavy - lastWvCheck >= WV_CHECK_MS
+                || nowHeavy - lastSysCheck >= SYS_CHECK_MS
+                || nowHeavy - lastCertCheck >= CERT_CHECK_MS;
+        if (heavyDue && heavyRunning.compareAndSet(false, true)) {
+            new Thread(() -> {
+                try {
+                    dbInfoLine();
+                    storageInfoLine();
+                    webVaultInfoLine();
+                    sysInfoLine();
+                    certInfoLine();
+                } finally {
+                    heavyRunning.set(false);
+                    ui.post(() -> {
+                        if (refreshActive) {
+                            refreshFromService();
+                        }
+                    });
+                }
+            }, "vw-ui-heavy").start();
         }
         String dbInfo = dbInfoLine();
         String full = dbInfo.isEmpty() ? version : version + "\n" + dbInfo;
@@ -1008,23 +1050,65 @@ public class MainActivity extends Activity {
                 int n = in.read(magic);
                 boolean isZip = n == 2 && magic[0] == 'P' && magic[1] == 'K';
                 if (isZip) {
-                    // Backup lokal .zip berisi db.sqlite3 (+wal/shm).
+                    // Backup lokal .zip berisi db.sqlite3 (+wal/shm);
+                    // backup lengkap juga memuat tls/* + app-config.json.
+                    File dataFolder = new File(dataDir);
+                    String canonBase = dataFolder.getCanonicalPath();
+                    JSONObject zipCfg = null;
                     ZipInputStream zis = new ZipInputStream(in);
                     ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
                         String name = entry.getName();
-                        if (!name.startsWith("db.sqlite3")) {
+                        if ("app-config.json".equals(name)) {
+                            zipCfg = new JSONObject(
+                                    new String(readAll(zis), StandardCharsets.UTF_8));
+                            zis.closeEntry();
                             continue;
                         }
-                        File out = "db.sqlite3".equals(name)
-                                ? dbFile : new File(dataDir, name);
-                        try (FileOutputStream fos = new FileOutputStream(out)) {
-                            int len;
-                            while ((len = zis.read(buf)) > 0) {
-                                fos.write(buf, 0, len);
+                        boolean dbPart = name.startsWith("db.sqlite3")
+                                && !name.contains("..") && !name.contains(":");
+                        boolean tlsPart = name.startsWith("tls/")
+                                && !name.contains("..") && !name.contains(":");
+                        if (!dbPart && !tlsPart) {
+                            continue;
+                        }
+                        File out = new File(dataFolder, name);
+                        // Cegah zip-slip: entri licik (mis. db.sqlite3/../../x)
+                        // tidak boleh keluar dari folder data.
+                        if (!out.getCanonicalPath().startsWith(canonBase)) {
+                            zis.closeEntry();
+                            continue;
+                        }
+                        if (entry.isDirectory()) {
+                            out.mkdirs();
+                        } else {
+                            File parent = out.getParentFile();
+                            if (parent != null) {
+                                parent.mkdirs();
+                            }
+                            try (FileOutputStream fos = new FileOutputStream(out)) {
+                                int len;
+                                while ((len = zis.read(buf)) > 0) {
+                                    fos.write(buf, 0, len);
+                                }
                             }
                         }
+                        zis.closeEntry();
                         restored = true;
+                    }
+                    if (zipCfg != null) {
+                        TgBackup.applyPrefsFromJson(MainActivity.this,
+                                zipCfg.optJSONObject("prefs"));
+                        sanitizePortPref();
+                        ui.post(() -> {
+                            reloadSettingsFromPrefs();
+                            SharedPreferences sp2 = getSharedPreferences(
+                                    ServerService.PREFS, MODE_PRIVATE);
+                            TgBackup.schedule(MainActivity.this,
+                                    sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                            TgBot.schedule(MainActivity.this);
+                            appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
+                        });
                     }
                 } else {
                     // File .sqlite3 mentah (backup lama) - wajib header SQLite.
@@ -1340,18 +1424,33 @@ public class MainActivity extends Activity {
                 backupDir.mkdirs();
             }
             String ts = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-            File out = new File(backupDir, "app-config-" + ts + ".json");
-
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
-            try (FileOutputStream fos = new FileOutputStream(out)) {
-                fos.write(bytes);
+            // Config berisi token & PIN: enkripsi bila password backup diisi.
+            String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+            final File out;
+            final String mime;
+            if (pass != null && !pass.trim().isEmpty()) {
+                File plain = new File(backupDir, "app-config-" + ts + ".json");
+                try (FileOutputStream fos = new FileOutputStream(plain)) {
+                    fos.write(bytes);
+                }
+                out = new File(backupDir, "app-config-" + ts + ".json.enc");
+                TgBackup.encryptFile(plain, out, pass.trim());
+                plain.delete();
+                mime = "application/octet-stream";
+            } else {
+                out = new File(backupDir, "app-config-" + ts + ".json");
+                try (FileOutputStream fos = new FileOutputStream(out)) {
+                    fos.write(bytes);
+                }
+                mime = "application/json";
             }
             final String path = out.getAbsolutePath();
             ui.post(() -> {
                 Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + path);
                 Intent send = new Intent(Intent.ACTION_SEND);
-                send.setType("application/json");
+                send.setType(mime);
                 send.putExtra(Intent.EXTRA_STREAM, uri);
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
@@ -1371,7 +1470,10 @@ public class MainActivity extends Activity {
     private void pickImportFile() {
         try {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("application/json");
+            // Terima .json plaintext maupun .json.enc (export terenkripsi).
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES,
+                    new String[]{"application/json", "application/octet-stream"});
             startActivityForResult(intent, REQ_IMPORT);
         } catch (Exception e) {
             toast("Gagal membuka file picker: " + e.getMessage());
@@ -1380,10 +1482,41 @@ public class MainActivity extends Activity {
 
     private void importConfig(Uri uri) {
         try {
+            File tmp = new File(getCacheDir(), "vwcfg-import.bin");
+            try (InputStream in = getContentResolver().openInputStream(uri);
+                 FileOutputStream fos = new FileOutputStream(tmp)) {
+                byte[] buf = new byte[8192];
+                int total = 0;
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    total += n;
+                    if (total > 512 * 1024) {
+                        throw new java.io.IOException(
+                                "File terlalu besar (>512 KB) - bukan config valid.");
+                    }
+                    fos.write(buf, 0, n);
+                }
+            }
+            File src = tmp;
+            if (TgBackup.isEncrypted(tmp)) {
+                SharedPreferences sp0 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                String pass0 = sp0.getString(TgBackup.KEY_TG_PASS, "");
+                if (pass0 == null || pass0.trim().isEmpty()) {
+                    toast("Config terenkripsi - isi password backup dulu.");
+                    appendUiLog("[app] Import ditolak: config terenkripsi, password kosong");
+                    tmp.delete();
+                    return;
+                }
+                File plain = new File(getCacheDir(), "vwcfg-import-dec.json");
+                TgBackup.decryptFile(tmp, plain, pass0.trim());
+                tmp.delete();
+                src = plain;
+            }
             String json;
-            try (InputStream in = getContentResolver().openInputStream(uri)) {
+            try (InputStream in = new java.io.FileInputStream(src)) {
                 json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
             }
+            src.delete();
             JSONObject root = new JSONObject(json);
             if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
                 toast("File config tidak valid (bukan export app ini).");
@@ -1428,6 +1561,7 @@ public class MainActivity extends Activity {
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
+        binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
         tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
     }
@@ -1453,17 +1587,20 @@ public class MainActivity extends Activity {
         }
         int scale = 8;
         int px = matrix.size * scale;
-        Bitmap bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
+        int[] pixels = new int[px * px];
         for (int y = 0; y < matrix.size; y++) {
             for (int x = 0; x < matrix.size; x++) {
                 int color = matrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
                 for (int dy = 0; dy < scale; dy++) {
+                    int base = (y * scale + dy) * px + x * scale;
                     for (int dx = 0; dx < scale; dx++) {
-                        bmp.setPixel(x * scale + dx, y * scale + dy, color);
+                        pixels[base + dx] = color;
                     }
                 }
             }
         }
+        Bitmap bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
+        bmp.setPixels(pixels, 0, px, 0, 0, px, px);
         float d = getResources().getDisplayMetrics().density;
         ImageView iv = new ImageView(this);
         iv.setImageBitmap(bmp);
@@ -1534,9 +1671,13 @@ public class MainActivity extends Activity {
 
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(KEY_PIN_ON, false) || unlocked) {
+        if (!sp.getBoolean(KEY_PIN_ON, false)) {
             return;
         }
+        if (unlocked && System.currentTimeMillis() - pauseStamp < PIN_GRACE_MS) {
+            return;
+        }
+        unlocked = false;
         final String pinHash = sp.getString(KEY_PIN, "");
         if (pinHash == null || pinHash.isEmpty()) {
             return;
@@ -1554,7 +1695,11 @@ public class MainActivity extends Activity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     String entered = input.getText().toString();
-                    if (pinHash.equals(sha256(entered))) {
+                    if (PinCrypto.verify(pinHash, entered)) {
+                        // Migrasi hash lama (SHA-256 polos) ke PBKDF2.
+                        if (!PinCrypto.isNewFormat(pinHash)) {
+                            sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
+                        }
                         unlocked = true;
                         dialog.dismiss();
                     } else {
@@ -1562,20 +1707,6 @@ public class MainActivity extends Activity {
                     }
                 }));
         dialog.show();
-    }
-
-    private String sha256(String text) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(text.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hash) {
-                sb.append(String.format(Locale.US, "%02x", b & 0xFF));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            return text;
-        }
     }
 
     private String dbInfoLine() {
@@ -1705,6 +1836,11 @@ public class MainActivity extends Activity {
 
     /** RAM proses server, uptime, dan sisa storage (satu baris ringkas). */
     private String sysInfoLine() {
+        long now = System.currentTimeMillis();
+        if (now - lastSysCheck < SYS_CHECK_MS) {
+            return sysLine;
+        }
+        lastSysCheck = now;
         StringBuilder sb = new StringBuilder();
         if (ServerService.running) {
             long rss = ServerService.processRssKb();
@@ -1735,11 +1871,22 @@ public class MainActivity extends Activity {
             }
             sb.append(restarts);
         }
-        return sb.toString();
+        sysLine = sb.toString();
+        return sysLine;
     }
 
     /** Sisa masa berlaku sertifikat TLS; kosong bila belum ada / tidak terbaca. */
     private String certInfoLine() {
+        long now = System.currentTimeMillis();
+        if (now - lastCertCheck < CERT_CHECK_MS) {
+            return certLine;
+        }
+        lastCertCheck = now;
+        certLine = certInfoLineInner();
+        return certLine;
+    }
+
+    private String certInfoLineInner() {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
@@ -1919,11 +2066,24 @@ public class MainActivity extends Activity {
         synchronized (ServerService.logBuffer) {
             ServerService.logBuffer.append(line).append('\n');
         }
-        ui.post(this::refreshFromService);
+        // Ledakan log (mis. output binary) tidak boleh membanjiri UI thread.
+        long now = System.currentTimeMillis();
+        if (now - lastUiLogRefresh > 500) {
+            lastUiLogRefresh = now;
+            ui.post(this::refreshFromService);
+        }
     }
 
     private void toast(String message) {
         ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    private final Runnable scheduleBotRunnable = () -> TgBot.schedule(MainActivity.this);
+
+    /** Pasang ulang jadwal bot maksimal 1x/detik saat token/chat diketik. */
+    private void scheduleBotDebounced() {
+        ui.removeCallbacks(scheduleBotRunnable);
+        ui.postDelayed(scheduleBotRunnable, 1000);
     }
 
     /** Watcher ringkas untuk aksi onTextChanged tanpa boilerplate. */

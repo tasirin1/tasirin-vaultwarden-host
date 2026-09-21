@@ -70,7 +70,13 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   /status /crashlog /update /webvault /restore`, backups, and notifications.
   `/status` shows DB size, last backup time, and restart history. `/restore`
   shows the last backup and needs `/restore YA` to confirm (bot credentials
-  are kept so the bot stays reachable).
+  are kept so the bot stays reachable). When the app PIN is enabled,
+  `/stop`, `/update`, and `/restore` must end with the PIN
+  (e.g. `/stop 123456`).
+- **Security**: binary/web-vault updates abort when the SHA-256 checksum is
+  missing or mismatched; manual binaries need their SHA-256 set in settings;
+  config export is encrypted when a backup password is set; the PIN uses
+  PBKDF2+salt; the TLS certificate is now end-entity (not CA).
 - **Offline**: copy `vaultwarden-armeabi-v7a` + `web-vault.zip` from the
   Release into `/sdcard/vaultwarden/bin` and `/sdcard/vaultwarden/web-vault`
   (see [README.md](README.md) for details).

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.StatFs;
 
@@ -88,6 +89,10 @@ public final class TgBackup {
                     + " MB - backup dibatalkan.");
         }
 
+        // Kunci konsistensi: pindahkan isi WAL ke DB utama dulu supaya salinan
+        // file tidak menangkap transaksi setengah jalan saat server sedang jalan.
+        checkpointWal(db);
+
         boolean full = sp.getBoolean(KEY_TG_FULL, false);
         File zip = createBackupZip(dataDir, full, full ? configJson(sp) : null);
         File upload = zip;
@@ -98,7 +103,7 @@ public final class TgBackup {
             zip.delete();
             upload = enc;
         }
-        String resp = uploadTelegram(token, chat, upload);
+        String resp = uploadTelegram(ctx, token, chat, upload);
         String fileId = extractFileId(resp);
         sp.edit()
                 .putLong(KEY_TG_LAST, System.currentTimeMillis())
@@ -123,17 +128,88 @@ public final class TgBackup {
                 if (token.isEmpty() || chat.isEmpty()) {
                     return;
                 }
-                String url = TG_API + token + "/sendMessage?chat_id="
-                        + URLEncoder.encode(chat, "UTF-8")
-                        + "&text=" + URLEncoder.encode(msg, "UTF-8");
-                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(30000);
-                conn.getInputStream().close();
-                conn.disconnect();
-            } catch (Exception ignored) {
+                // POST (bukan GET): token tidak bocor ke log URL/proxy.
+                byte[] body = ("chat_id=" + URLEncoder.encode(chat, "UTF-8")
+                        + "&text=" + URLEncoder.encode(msg, "UTF-8"))
+                        .getBytes(StandardCharsets.UTF_8);
+                HttpURLConnection conn = null;
+                try {
+                    conn = (HttpURLConnection) new URL(TG_API + token + "/sendMessage")
+                            .openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(30000);
+                    conn.setRequestProperty("Content-Type",
+                            "application/x-www-form-urlencoded");
+                    conn.setRequestProperty("Content-Length", String.valueOf(body.length));
+                    HttpsCompat.apply(conn, app);
+                    try (OutputStream os = conn.getOutputStream()) {
+                        os.write(body);
+                    }
+                    int code = conn.getResponseCode();
+                    InputStream is = (code >= 200 && code < 300)
+                            ? conn.getInputStream() : conn.getErrorStream();
+                    StringBuilder sb = new StringBuilder();
+                    if (is != null) {
+                        try (BufferedReader br = new BufferedReader(
+                                new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                sb.append(line);
+                            }
+                        }
+                    }
+                    if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                        logTgFailure("kirim pesan", code, sb.toString());
+                    }
+                } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
+                }
+            } catch (Exception e) {
+                logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
             }
         }, "vw-tgmsg").start();
+    }
+
+    /** Paksa SQLite menulis isi WAL ke DB utama (best-effort; gagal = lanjut). */
+    static void checkpointWal(File dbFile) {
+        SQLiteDatabase db = null;
+        try {
+            db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
+                    SQLiteDatabase.OPEN_READONLY);
+            android.database.Cursor c = db.rawQuery(
+                    "PRAGMA wal_checkpoint(TRUNCATE);", null);
+            if (c != null) {
+                c.moveToFirst();
+                c.close();
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (db != null && db.isOpen()) {
+                try {
+                    db.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    /** Catat kegagalan Telegram ke log app (isi respons dipotong 200 char). */
+    static void logTgFailure(String aksi, int code, String detail) {
+        try {
+            String d = detail == null ? "" : detail;
+            if (d.length() > 200) {
+                d = d.substring(0, 200) + "...";
+            }
+            String line = "[tg] Gagal " + aksi + " (HTTP " + code + "): " + d;
+            synchronized (ServerService.logBuffer) {
+                ServerService.logBuffer.append(line).append('\n');
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     /** Kirim peringatan storage ke Telegram sekali saat sisa < 500 MB; reset bila lega. */
@@ -260,51 +336,63 @@ public final class TgBackup {
         }
     }
 
-    private static String uploadTelegram(String token, String chatId, File file) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        conn.setConnectTimeout(20000);
-        conn.setReadTimeout(180000);
-        String boundary = "----vw" + System.currentTimeMillis() + "bound";
-        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+    private static String uploadTelegram(Context ctx, String token, String chatId, File file)
+            throws Exception {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(20000);
+            conn.setReadTimeout(180000);
+            HttpsCompat.apply(conn, ctx);
+            String boundary = "----vw" + System.currentTimeMillis() + "bound";
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-        try (OutputStream os = conn.getOutputStream();
-             DataOutputStream dos = new DataOutputStream(os)) {
-            dos.writeBytes("--" + boundary + "\r\n");
-            dos.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
-            dos.writeBytes(chatId + "\r\n");
-            dos.writeBytes("--" + boundary + "\r\n");
-            dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\""
-                    + file.getName() + "\"\r\n");
-            dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-            try (FileInputStream fis = new FileInputStream(file)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while ((n = fis.read(buf)) > 0) {
-                    dos.write(buf, 0, n);
+            try (OutputStream os = conn.getOutputStream();
+                 DataOutputStream dos = new DataOutputStream(os)) {
+                dos.writeBytes("--" + boundary + "\r\n");
+                dos.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
+                dos.writeBytes(chatId + "\r\n");
+                dos.writeBytes("--" + boundary + "\r\n");
+                dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\""
+                        + file.getName() + "\"\r\n");
+                dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    while ((n = fis.read(buf)) > 0) {
+                        dos.write(buf, 0, n);
+                    }
+                }
+                dos.writeBytes("\r\n--" + boundary + "--\r\n");
+                dos.flush();
+            }
+
+            int code = conn.getResponseCode();
+            InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+            StringBuilder sb = new StringBuilder();
+            if (is != null) {
+                try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = r.readLine()) != null) {
+                        sb.append(line);
+                    }
                 }
             }
-            dos.writeBytes("\r\n--" + boundary + "--\r\n");
-            dos.flush();
-        }
-
-        int code = conn.getResponseCode();
-        InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
-        StringBuilder sb = new StringBuilder();
-        if (is != null) {
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    sb.append(line);
+            if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                String body = sb.toString();
+                if (body.length() > 200) {
+                    body = body.substring(0, 200) + "...";
                 }
+                throw new IOException("Telegram HTTP " + code + ": " + body);
+            }
+            return sb.toString();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
             }
         }
-        conn.disconnect();
-        if (code != 200 || !sb.toString().contains("\"ok\":true")) {
-            throw new IOException("Telegram HTTP " + code + ": " + sb);
-        }
-        return sb.toString();
     }
 
     /** Ambil file_id dokumen dari respons sendDocument. */
@@ -335,46 +423,60 @@ public final class TgBackup {
         if (token.isEmpty() || fileId.isEmpty()) {
             throw new IOException("Belum ada backup terkirim dari app ini.");
         }
-        String path = getFilePath(token, fileId);
-        HttpURLConnection conn = (HttpURLConnection) new URL(
-                "https://api.telegram.org/file/bot" + token + "/" + path).openConnection();
-        conn.setConnectTimeout(20000);
-        conn.setReadTimeout(120000);
-        conn.setInstanceFollowRedirects(true);
-        int code = conn.getResponseCode();
-        if (code != 200) {
-            throw new IOException("Unduh backup gagal (HTTP " + code + ")");
-        }
-        try (InputStream in = conn.getInputStream();
-             FileOutputStream fos = new FileOutputStream(dest)) {
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            while ((n = in.read(buf)) > 0) {
-                fos.write(buf, 0, n);
+        String path = getFilePath(ctx, token, fileId);
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(
+                    "https://api.telegram.org/file/bot" + token + "/" + path).openConnection();
+            conn.setConnectTimeout(20000);
+            conn.setReadTimeout(120000);
+            conn.setInstanceFollowRedirects(true);
+            HttpsCompat.apply(conn, ctx);
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                throw new IOException("Unduh backup gagal (HTTP " + code + ")");
+            }
+            try (InputStream in = conn.getInputStream();
+                 FileOutputStream fos = new FileOutputStream(dest)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    fos.write(buf, 0, n);
+                }
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
             }
         }
-        conn.disconnect();
         return name;
     }
 
-    private static String getFilePath(String token, String fileId) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) new URL(
-                "https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId).openConnection();
-        conn.setConnectTimeout(15000);
-        conn.setReadTimeout(15000);
-        int code = conn.getResponseCode();
-        if (code != 200) {
-            throw new IOException("getFile gagal (HTTP " + code + ")");
-        }
+    private static String getFilePath(Context ctx, String token, String fileId) throws Exception {
+        HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                conn.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
+        try {
+            conn = (HttpURLConnection) new URL(
+                    "https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId).openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(15000);
+            HttpsCompat.apply(conn, ctx);
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                throw new IOException("getFile gagal (HTTP " + code + ")");
+            }
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                    conn.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
             }
         }
-        conn.disconnect();
         int start = sb.indexOf("\"file_path\":\"");
         if (start < 0) {
             throw new IOException("file_path tidak ditemukan");

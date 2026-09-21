@@ -159,6 +159,10 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 | `/start` `/stop` `/restart` | Kontrol server                        |
 | `/help`       | Daftar perintah                                     |
 
+Bila **PIN app aktif**, perintah `/stop`, `/update`, dan `/restore` wajib
+diakhiri PIN (contoh: `/stop 123456`) agar sesi Telegram curian tidak bisa
+merusak server.
+
 ## Data, backup & restart
 
 - Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). Karena di
@@ -174,6 +178,10 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
   konfirmasi `/restore YA`), file `.zip` lokal, atau `.sqlite3` mentah
   (backup lama); server dihentikan otomatis saat restore. Identitas bot
   (token/chat/password) dipertahankan agar bot tetap terhubung.
+- **Keamanan**: update binary/web-vault dibatalkan bila checksum SHA-256 tidak
+  ditemukan/cocok; binary manual butuh SHA-256 yang diisi di pengaturan;
+  export config terenkripsi bila password backup diisi; PIN memakai
+  PBKDF2+salt; sertifikat TLS kini end-entity (bukan CA).
 - **Auto start saat boot** (foreground service + wake lock). **Restart otomatis
   saat crash**: jeda bertingkat 2→5→10→20→40 dtk (maks 5×; reset bila stabil >1
   menit). **Anti-loop**: 3× restart dalam 5 menit → auto-restart dimatikan,

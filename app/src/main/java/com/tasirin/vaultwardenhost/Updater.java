@@ -57,6 +57,16 @@ public final class Updater {
         return c;
     }
 
+    /** Buka koneksi unduh; tambah header Range bila melanjutkan file terputus. */
+    private static HttpURLConnection openRange(Context ctx, String url, long resumeFrom,
+                                               int connectMs, int readMs) throws Exception {
+        HttpURLConnection c = open(ctx, url, connectMs, readMs);
+        if (resumeFrom > 0) {
+            c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
+        }
+        return c;
+    }
+
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
     // API GitHub saat Start diulang-ulang / koneksi Android 5/6 putus-putus.
     private static final long VERSION_TTL_MS = 15 * 60 * 1000L;
@@ -70,8 +80,9 @@ public final class Updater {
         if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
             return cached;
         }
+        HttpURLConnection conn = null;
         try {
-            HttpURLConnection conn = open(ctx, OFFICIAL_API, 10000, 10000);
+            conn = open(ctx, OFFICIAL_API, 10000, 10000);
             int code = conn.getResponseCode();
             if (code == 200) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -82,18 +93,19 @@ public final class Updater {
                     sb.append(line);
                 }
                 r.close();
-                conn.disconnect();
                 String v = normVersion(extractTag(sb.toString()));
                 if (v != null && !v.isEmpty()) {
                     sLatestVersion = v;
                     sLatestAt = now;
                     return v;
                 }
-            } else {
-                // 403/429 = rate-limit; pakai cache lama kalau ada.
+            }
+            // Kode lain (mis. 403/429 rate-limit): pakai cache lama kalau ada.
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) {
                 conn.disconnect();
             }
-        } catch (Exception ignored) {
         }
         return cached;
     }
@@ -145,13 +157,17 @@ public final class Updater {
             binDir.mkdirs();
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
-        HttpURLConnection dl = open(ctx, assetUrl, 20000, 60000);
+        // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
+        long resumeFrom = tmp.exists() ? tmp.length() : 0;
+        HttpURLConnection dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
         int code = dl.getResponseCode();
         boolean fallback = false;
         if (code == 404 && known) {
             // Rilis versi ini belum ada / sedang dibuat ulang CI -
             // pakai binary rilis terbaru repo agar tetap bisa Start.
             dl.disconnect();
+            resumeFrom = 0;
+            tmp.delete();
             assetUrl = RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
             dl = open(ctx, assetUrl, 20000, 60000);
             code = dl.getResponseCode();
@@ -164,17 +180,28 @@ public final class Updater {
                             + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
                     : "Release binary Android belum tersedia. Coba lagi nanti.");
         }
-        if (code != 200) {
+        if (code == 200 && resumeFrom > 0) {
+            // Server mengabaikan Range - mulai dari nol agar tidak korup.
+            dl.disconnect();
+            tmp.delete();
+            resumeFrom = 0;
+            dl = open(ctx, assetUrl, 20000, 60000);
+            code = dl.getResponseCode();
+        }
+        if (code != 200 && code != 206) {
             dl.disconnect();
             throw new IOException("Unduhan gagal (HTTP " + code + ").");
         }
         long total = dl.getContentLength();
+        if (code == 206 && total >= 0) {
+            total += resumeFrom;
+        }
         try (InputStream in = dl.getInputStream();
-             FileOutputStream fos = new FileOutputStream(tmp)) {
+             FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
             byte[] buf = new byte[64 * 1024];
             int n;
-            long done = 0;
-            long lastReport = 0;
+            long done = resumeFrom;
+            long lastReport = done;
             while ((n = in.read(buf)) > 0) {
                 fos.write(buf, 0, n);
                 done += n;
@@ -187,7 +214,12 @@ public final class Updater {
             dl.disconnect();
         }
         String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 60000);
-        if (expectedSha != null && !matchesSha256(tmp, expectedSha)) {
+        if (expectedSha == null) {
+            tmp.delete();
+            throw new IOException("Checksum SHA-256 tidak ditemukan di release"
+                    + " - update dibatalkan demi keamanan. Coba lagi nanti.");
+        }
+        if (!matchesSha256(tmp, expectedSha)) {
             tmp.delete();
             throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
         }
@@ -317,31 +349,49 @@ public final class Updater {
         // Unduh dengan retry sekali bila gagal (koneksi Android 5/6 kadang putus).
         boolean wvFallback = false;
         if (latest != null) {
-            HttpURLConnection probe = open(ctx, zipUrl, 20000, 20000);
-            int probeCode = probe.getResponseCode();
-            probe.disconnect();
-            if (probeCode == 404) {
-                zipUrl = WV_UPDATE_URL;
-                shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
-                wvFallback = true;
+            HttpURLConnection probe = null;
+            try {
+                probe = open(ctx, zipUrl, 20000, 20000);
+                if (probe.getResponseCode() == 404) {
+                    zipUrl = WV_UPDATE_URL;
+                    shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
+                    wvFallback = true;
+                }
+            } finally {
+                if (probe != null) {
+                    probe.disconnect();
+                }
             }
         }
         Exception lastErr = null;
         for (int attempt = 1; attempt <= 2; attempt++) {
+            // Lanjutkan unduhan terputus (hemat kuota ~35 MB).
+            long resumeFrom = tmpZip.exists() ? tmpZip.length() : 0;
+            HttpURLConnection dl = null;
             try {
-                HttpURLConnection dl = open(ctx, zipUrl, 20000, 120000);
+                dl = openRange(ctx, zipUrl, resumeFrom, 20000, 120000);
                 int code = dl.getResponseCode();
-                if (code != 200) {
+                if (code == 200 && resumeFrom > 0) {
+                    dl.disconnect();
+                    tmpZip.delete();
+                    resumeFrom = 0;
+                    dl = open(ctx, zipUrl, 20000, 120000);
+                    code = dl.getResponseCode();
+                }
+                if (code != 200 && code != 206) {
                     throw new IOException("Gagal unduh web-vault (HTTP " + code
                             + ") dari " + dl.getURL());
                 }
                 long total = dl.getContentLength();
+                if (code == 206 && total >= 0) {
+                    total += resumeFrom;
+                }
                 try (InputStream in = dl.getInputStream();
-                     FileOutputStream fos = new FileOutputStream(tmpZip)) {
+                     FileOutputStream fos = new FileOutputStream(tmpZip, code == 206)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
-                    long done = 0;
-                    long lastReport = 0;
+                    long done = resumeFrom;
+                    long lastReport = done;
                     while ((n = in.read(buf)) > 0) {
                         fos.write(buf, 0, n);
                         done += n;
@@ -350,48 +400,61 @@ public final class Updater {
                             reportDownload("web vault", done, total);
                         }
                     }
-                } finally {
-                    dl.disconnect();
                 }
                 lastErr = null;
                 break;
             } catch (Exception e) {
                 lastErr = e;
-                tmpZip.delete();
                 if (attempt < 2) {
-                    Thread.sleep(3000);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            } finally {
+                if (dl != null) {
+                    dl.disconnect();
                 }
             }
         }
         if (tmpZip.length() < 1000) {
+            tmpZip.delete();
             throw lastErr != null ? lastErr
                     : new IOException("File web-vault tidak valid.");
         }
         String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
-        if (expectedSha != null && !matchesSha256(tmpZip, expectedSha)) {
+        if (expectedSha == null) {
+            tmpZip.delete();
+            throw new IOException("Checksum SHA-256 web-vault tidak ditemukan"
+                    + " - update dibatalkan demi keamanan. Coba lagi nanti.");
+        }
+        if (!matchesSha256(tmpZip, expectedSha)) {
             tmpZip.delete();
             throw new IOException("Checksum SHA-256 web-vault tidak cocok; update dibatalkan.");
         }
 
-        // Hapus web-vault lama
-        deleteRecursive(targetDir);
-        targetDir.mkdirs();
-        if (latest != null && !wvFallback) {
-            sp.edit().putString(KEY_WV_FROM, latest).apply();
-        }
-
+        // Ekstrak ke folder sementara dulu; web-vault lama baru diganti bila
+        // hasil ekstrak valid (hindari tanpa web UI saat unduhan korup).
+        File newDir = new File(dataFolder, "web-vault.new");
+        deleteRecursive(newDir);
+        newDir.mkdirs();
         byte[] buf = new byte[64 * 1024];
         try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                File outFile = new File(targetDir, entry.getName());
-                if (!outFile.getCanonicalPath().startsWith(targetDir.getCanonicalPath())) {
+                File outFile = new File(newDir, entry.getName());
+                if (!outFile.getCanonicalPath().startsWith(newDir.getCanonicalPath())) {
                     continue;
                 }
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
                 } else {
-                    outFile.getParentFile().mkdirs();
+                    File parent = outFile.getParentFile();
+                    if (parent != null) {
+                        parent.mkdirs();
+                    }
                     try (FileOutputStream fos = new FileOutputStream(outFile)) {
                         int n;
                         while ((n = zis.read(buf)) > 0) {
@@ -404,9 +467,20 @@ public final class Updater {
         }
         tmpZip.delete();
 
-        File index = new File(targetDir, "index.html");
+        File index = new File(newDir, "index.html");
         if (!index.exists()) {
-            throw new IOException("Web vault updated tapi index.html tidak ditemukan.");
+            deleteRecursive(newDir);
+            throw new IOException("Web vault updated tapi index.html tidak ditemukan"
+                    + " - versi lama dipertahankan.");
+        }
+        deleteRecursive(targetDir);
+        if (!newDir.renameTo(targetDir)) {
+            deleteRecursive(newDir);
+            throw new IOException("Gagal memasang web vault baru"
+                    + " - versi lama dipertahankan.");
+        }
+        if (latest != null && !wvFallback) {
+            sp.edit().putString(KEY_WV_FROM, latest).apply();
         }
         return "Web vault updated di " + targetDir.getAbsolutePath();
     }
@@ -494,18 +568,16 @@ public final class Updater {
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
     private static String fetchChecksum(Context ctx, String url,
                                         int connectMs, int readMs) {
+        HttpURLConnection c = null;
         try {
-            HttpURLConnection c = open(ctx, url, connectMs, readMs);
-            int code = c.getResponseCode();
-            if (code != 200) {
-                c.disconnect();
+            c = open(ctx, url, connectMs, readMs);
+            if (c.getResponseCode() != 200) {
                 return null;
             }
             BufferedReader r = new BufferedReader(new InputStreamReader(
                     c.getInputStream(), StandardCharsets.UTF_8));
             String line = r.readLine();
             r.close();
-            c.disconnect();
             if (line == null) {
                 return null;
             }
@@ -513,11 +585,15 @@ public final class Updater {
             return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
         } catch (Exception e) {
             return null;
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
         }
     }
 
-    /** Cocokkan SHA-256 file dengan hex yang diharapkan. */
-    private static boolean matchesSha256(File f, String expectedHex) {
+    /** SHA-256 file sebagai hex kecil; null bila gagal dibaca. */
+    static String sha256Hex(File f) {
         try (InputStream in = new FileInputStream(f)) {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] buf = new byte[64 * 1024];
@@ -529,10 +605,16 @@ public final class Updater {
             for (byte b : md.digest()) {
                 sb.append(String.format(Locale.US, "%02x", b));
             }
-            return expectedHex.equals(sb.toString());
+            return sb.toString();
         } catch (Exception e) {
-            return false;
+            return null;
         }
+    }
+
+    /** Cocokkan SHA-256 file dengan hex yang diharapkan. */
+    private static boolean matchesSha256(File f, String expectedHex) {
+        String got = sha256Hex(f);
+        return got != null && expectedHex.equals(got);
     }
 
     private static void deleteRecursive(File file) {

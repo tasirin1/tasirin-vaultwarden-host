@@ -63,6 +63,8 @@ public class ServerService extends Service {
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
     public static final String KEY_AUTO_UPDATE_WV = "auto_update_webvault";
     public static final String KEY_AUTO_RESTART_UPDATE = "auto_restart_update";
+    /** SHA-256 (hex) binary manual di folder data; wajib diisi bila pakai binary sendiri. */
+    public static final String KEY_BIN_SHA = "bin_sha";
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
@@ -106,9 +108,14 @@ public class ServerService extends Service {
     private ControlServer controlServer;
     private volatile int healthFails = 0;
 
+    private volatile boolean healthActive = false;
     private final Runnable healthTick = new Runnable() {
         @Override
         public void run() {
+            // Jangan repost bila service sudah berhenti (cegah bocor handler).
+            if (!healthActive) {
+                return;
+            }
             // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
             // ketahuan), lalu tiap 2 menit setelah server stabil.
             long delay = HEALTH_INTERVAL_MS;
@@ -193,12 +200,13 @@ public class ServerService extends Service {
 
     /** Cek /alive sekali tanpa efek samping; true bila sehat (HTTP 200). */
     public static boolean pingAlive(Context ctx) {
+        HttpURLConnection c = null;
         try {
             SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             boolean https = sp.getBoolean(KEY_HTTPS, false);
             String port = effectivePort(sp);
             String scheme = https ? "https" : "http";
-            HttpURLConnection c = (HttpURLConnection) new URL(
+            c = (HttpURLConnection) new URL(
                     scheme + "://127.0.0.1:" + port.trim() + "/alive").openConnection();
             c.setConnectTimeout(5000);
             c.setReadTimeout(5000);
@@ -207,11 +215,13 @@ public class ServerService extends Service {
                 hc.setSSLSocketFactory(trustAllSslFactory());
                 hc.setHostnameVerifier((host, session) -> true);
             }
-            int code = c.getResponseCode();
-            c.disconnect();
-            return code == 200;
+            return c.getResponseCode() == 200;
         } catch (Exception e) {
             return false;
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
         }
     }
 
@@ -242,6 +252,8 @@ public class ServerService extends Service {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
             autoRestart = false;
+            healthActive = false;
+            mainHandler.removeCallbacks(healthTick);
             stopServer();
             stopForeground(true);
             stopSelf();
@@ -300,6 +312,7 @@ public class ServerService extends Service {
             return START_NOT_STICKY;
         }
         autoRestart = true;
+        healthActive = true;
         startForegroundCompat();
         if (process == null || !alive(process)) {
             startServerAsync();
@@ -575,6 +588,7 @@ public class ServerService extends Service {
             controlServer.stop();
             controlServer = null;
         }
+        flushLogFile();
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
 
@@ -734,6 +748,11 @@ public class ServerService extends Service {
         }
     }
 
+    // Buffer tulis file log: flush tiap 16 KB agar tidak buka-tutup file per baris.
+    private static final int LOG_FILE_FLUSH_CHARS = 16 * 1024;
+    private static final StringBuilder logFileBuf = new StringBuilder();
+    private static final Object LOG_FILE_LOCK = new Object();
+
     private void appendLog(String line) {
         if (line == null) {
             return;
@@ -750,17 +769,43 @@ public class ServerService extends Service {
             }
         }
         if (logFile != null) {
-            try (FileWriter w = new FileWriter(logFile, true)) {
-                w.write(entry + "\n");
-            } catch (Exception ignored) {
-            }
-            if (logFile.length() > MAX_LOG_FILE) {
-                File old = new File(logFile.getParentFile(), logFile.getName() + ".1");
-                if (old.exists()) {
-                    old.delete();
+            synchronized (LOG_FILE_LOCK) {
+                logFileBuf.append(entry).append('\n');
+                if (logFileBuf.length() >= LOG_FILE_FLUSH_CHARS) {
+                    flushLogFileLocked();
                 }
-                logFile.renameTo(old);
             }
+        }
+    }
+
+    /** Tulis buffer log ke file (panggil saat stop/destroy agar tak ada yang hilang). */
+    private static void flushLogFile() {
+        synchronized (LOG_FILE_LOCK) {
+            flushLogFileLocked();
+        }
+    }
+
+    private static void flushLogFileLocked() {
+        if (logFileBuf.length() == 0) {
+            return;
+        }
+        File f = logFile;
+        if (f == null) {
+            logFileBuf.setLength(0);
+            return;
+        }
+        try (FileWriter w = new FileWriter(f, true)) {
+            w.write(logFileBuf.toString());
+        } catch (Exception ignored) {
+        } finally {
+            logFileBuf.setLength(0);
+        }
+        if (f.length() > MAX_LOG_FILE) {
+            File old = new File(f.getParentFile(), f.getName() + ".1");
+            if (old.exists()) {
+                old.delete();
+            }
+            f.renameTo(old);
         }
     }
 
@@ -841,6 +886,9 @@ public class ServerService extends Service {
 
     private static volatile long ipCacheTime = 0;
     private static volatile String ipCache = "";
+    private static volatile long collectCacheTime = 0;
+    private static volatile List<String> collectCache = new ArrayList<>();
+    private static final Object COLLECT_LOCK = new Object();
 
     /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama).
      *  Di-cache 3 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
@@ -918,14 +966,36 @@ public class ServerService extends Service {
         // 2) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
         File userBin = new File(dataDir, "vaultwarden-" + ABI);
         if (isValidBinary(userBin)) {
-            try {
-                copyBinary(userBin, out);
-                writeText(verFile, Updater.appVersionName(this));
-                appendLog("[app] Binary dari folder data dipakai: " + userBin.getAbsolutePath());
-                detectBinaryVersion(out);
-                return out;
-            } catch (Exception e) {
-                appendLog("[app] Gagal memakai binary dari folder data: " + e);
+            String wantSha = sp.getString(KEY_BIN_SHA, "");
+            if (wantSha != null && !wantSha.trim().isEmpty()) {
+                String gotSha = Updater.sha256Hex(userBin);
+                if (gotSha == null || !gotSha.equalsIgnoreCase(wantSha.trim())) {
+                    appendLog("[app] Binary manual DITOLAK: SHA-256 tidak cocok"
+                            + " dengan pengaturan. Cek kembali file/SHA-nya.");
+                    TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
+                } else {
+                    try {
+                        copyBinary(userBin, out);
+                        writeText(verFile, Updater.appVersionName(this));
+                        appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
+                        detectBinaryVersion(out);
+                        return out;
+                    } catch (Exception e) {
+                        appendLog("[app] Gagal memakai binary dari folder data: " + e);
+                    }
+                }
+            } else {
+                appendLog("[app] PERINGATAN: binary manual dipakai TANPA verifikasi"
+                        + " SHA-256. Isi SHA-256 di pengaturan demi keamanan.");
+                try {
+                    copyBinary(userBin, out);
+                    writeText(verFile, Updater.appVersionName(this));
+                    appendLog("[app] Binary dari folder data dipakai: " + userBin.getAbsolutePath());
+                    detectBinaryVersion(out);
+                    return out;
+                } catch (Exception e) {
+                    appendLog("[app] Gagal memakai binary dari folder data: " + e);
+                }
             }
         }
 
@@ -998,24 +1068,38 @@ public class ServerService extends Service {
     }
 
     private void detectBinaryVersion(File binary) {
+        Process p = null;
+        BufferedReader r = null;
         try {
-            Process p = new ProcessBuilder(binary.getAbsolutePath(), "--version")
+            p = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true)
                     .start();
-            BufferedReader r = new BufferedReader(
+            r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String first = r.readLine();
-            r.close();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!p.waitFor(15, TimeUnit.SECONDS)) {
+            // Timeout 15 detik di SEMUA API (waitFor(timeout) hanya API 26+).
+            if (!waitForOrKill(p, 15000)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    p.destroyForcibly();
+                } else {
                     p.destroy();
                 }
-            } else {
-                p.waitFor();
+                binaryVersion = "?";
+                return;
             }
             binaryVersion = (first == null || first.trim().isEmpty()) ? "?" : first.trim();
         } catch (Exception e) {
             binaryVersion = "?";
+        } finally {
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (Exception ignored) {
+                }
+            }
+            if (p != null) {
+                p.destroy();
+            }
         }
     }
 
@@ -1033,21 +1117,29 @@ public class ServerService extends Service {
     }
 
     private static List<String> collectIps() {
-        List<String> ips = new ArrayList<>();
-        try {
-            for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-                if (!ni.isUp() || ni.isLoopback()) {
-                    continue;
-                }
-                for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
-                    if (addr instanceof java.net.Inet4Address) {
-                        ips.add(addr.getHostAddress());
+        synchronized (COLLECT_LOCK) {
+            long now = System.currentTimeMillis();
+            if (now - collectCacheTime < 5000 && !collectCache.isEmpty()) {
+                return new ArrayList<>(collectCache);
+            }
+            List<String> ips = new ArrayList<>();
+            try {
+                for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                    if (!ni.isUp() || ni.isLoopback()) {
+                        continue;
+                    }
+                    for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
+                        if (addr instanceof java.net.Inet4Address) {
+                            ips.add(addr.getHostAddress());
+                        }
                     }
                 }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
+            collectCache = new ArrayList<>(ips);
+            collectCacheTime = now;
+            return ips;
         }
-        return ips;
     }
 
     private File prepareTls(File dataFolder) {
@@ -1349,6 +1441,9 @@ public class ServerService extends Service {
 
     @Override
     public void onDestroy() {
+        healthActive = false;
+        mainHandler.removeCallbacks(healthTick);
+        flushLogFile();
         super.onDestroy();
         releaseWakeLock();
         if (controlServer != null) {

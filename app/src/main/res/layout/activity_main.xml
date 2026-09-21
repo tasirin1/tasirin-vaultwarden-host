@@ -597,7 +597,7 @@
 
                     <Button
                         android:id="@+id/showPass"
-                        android:nextFocusDown="@id/tgAuto"
+                        android:nextFocusDown="@id/binSha"
                         android:nextFocusUp="@id/backupPass"
                         style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
@@ -606,10 +606,27 @@
                         android:text="@string/show" />
                 </LinearLayout>
 
+                <TextView
+                    style="@style/TasirinLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/bin_sha_label" />
+
+                <EditText
+                    android:id="@+id/binSha"
+                    android:nextFocusDown="@id/tgAuto"
+                    android:nextFocusUp="@id/showPass"
+                    style="@style/TasirinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/bin_sha_hint"
+                    android:inputType="text" />
+
                 <CheckBox
                     android:id="@+id/tgAuto"
                     android:nextFocusDown="@id/backupOnStart"
-                    android:nextFocusUp="@id/showPass"
+                    android:nextFocusUp="@id/binSha"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

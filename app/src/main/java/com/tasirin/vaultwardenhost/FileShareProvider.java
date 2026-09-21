@@ -52,6 +52,47 @@ public class FileShareProvider extends ContentProvider {
         if (f == null || !f.exists() || !f.isFile()) {
             throw new FileNotFoundException(String.valueOf(uri));
         }
+        // Hanya file di lokasi yang memang perlu dibagikan (cert, backup,
+        // export config, cache): tolak yang lain meski provider internal.
+        try {
+            String canon = f.getCanonicalPath();
+            if (!isShareable(canon)) {
+                throw new FileNotFoundException("Lokasi tidak diizinkan: " + uri);
+            }
+        } catch (FileNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FileNotFoundException(String.valueOf(uri));
+        }
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
+    }
+
+    /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
+     *  di folder data. Database mentah (db.sqlite3*) tidak ikut dibagikan. */
+    private boolean isShareable(String canon) {
+        try {
+            String files = getContext().getFilesDir().getCanonicalPath();
+            String cache = getContext().getCacheDir().getCanonicalPath();
+            if (canon.startsWith(files + File.separator)
+                    || canon.startsWith(cache + File.separator)) {
+                return true;
+            }
+            android.content.SharedPreferences sp = getContext().getSharedPreferences(
+                    ServerService.PREFS, android.content.Context.MODE_PRIVATE);
+            String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                    ServerService.DEFAULT_DATA_DIR);
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = ServerService.DEFAULT_DATA_DIR;
+            }
+            String data = new File(dataDir).getCanonicalPath();
+            String name = new File(canon).getName();
+            if (name.startsWith("db.sqlite3")) {
+                return false;
+            }
+            return canon.startsWith(data + File.separator + "tls" + File.separator)
+                    || canon.startsWith(data + File.separator + "backups" + File.separator);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

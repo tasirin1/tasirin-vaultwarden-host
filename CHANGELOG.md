@@ -6,6 +6,41 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit keamanan, bug & efisiensi
+
+### Keamanan
+- **Checksum fail-closed**: update binary/web-vault dibatalkan bila `.sha256`
+  tidak ditemukan atau tidak cocok (sebelumnya dipasang tanpa verifikasi).
+- **Binary manual terverifikasi**: SHA-256 bisa diisi di pengaturan; bila
+  diisi harus cocok, bila kosong ada peringatan eksplisit di log.
+- **PIN PBKDF2+salt** (format `PBKDF2$...`); hash lama otomatis dimigrasi
+  saat login berhasil. Perintah bot berbahaya (`/stop`, `/update`,
+  `/restore`) wajib diakhiri PIN bila PIN aktif.
+- **Export config terenkripsi** (AES-GCM) bila password backup diisi; import
+  bisa membaca `.json.enc`.
+- **TLS end-entity**: cert baru `CA:FALSE` + EKU serverAuth (regenerasi
+  otomatis via bump versi); pesan Telegram via POST terverifikasi;
+  koneksi Telegram memakai trust anchor Android 5/6; batas koneksi &
+  header di status web; `FileShareProvider` hanya melayani
+  `tls/`/`backups`/internal; zip-slip restore file ditutup; backup
+  checkpoint WAL dulu agar konsisten.
+
+### Diperbaiki
+- **Web-vault aman**: ekstrak ke folder sementara, versi lama baru diganti
+  bila hasil valid (gagal ekstrak tidak lagi menghilangkan web UI).
+- **Health check bocor**: callback dihentikan saat stop/destroy.
+- **Detect versi**: timeout 15 detik di semua API, reader & proses ditutup.
+- **Koneksi**: `disconnect()` dalam `finally` di semua unduhan/API.
+- **Restore file** ikut memulihkan `tls/` + pengaturan seperti restore
+  Telegram; **PIN** tidak mengunci saat pindah ke halaman Log (<60 detik).
+
+### Efisiensi
+- **Buffer tulis log** (flush tiap 16 KB, bukan per baris); **cache JSON
+  status 10 detik**; info berat UI di worker thread + cache; throttle
+  refresh log 500 ms; QR `setPixels` sekali; alarm bot inexact;
+  **unduhan bisa dilanjutkan** (HTTP Range); cache enumerasi IP 5 detik;
+  debounce jadwal bot saat mengetik token.
+
 ## [Belum rilis] — Perintah restore Telegram
 
 ### Ditambahkan
