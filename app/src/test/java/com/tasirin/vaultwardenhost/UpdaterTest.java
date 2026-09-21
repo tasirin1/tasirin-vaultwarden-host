@@ -93,6 +93,48 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_dnsHijackKeIpLokalMenyebutPortal() {
+        Exception e = new java.net.ConnectException(
+                "failed to connect to github.com/192.168.100.1 (port 443) after 20000ms:"
+                        + " isConnected failed: ECONNREFUSED (Connection refused)");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("IP lokal"));
+        assertTrue(saran.contains("hotspot"));
+    }
+
+    @Test
+    public void isDnsHijackKeIpLokal_mendeteksiIpPrivatSetelahSlash() {
+        assertTrue(Updater.isDnsHijackKeIpLokal(
+                "failed to connect to github.com/192.168.100.1 (port 443)".toLowerCase(
+                        java.util.Locale.US)));
+        assertTrue(Updater.isDnsHijackKeIpLokal(
+                "failed to connect to github.com/10.0.0.1 (port 443)".toLowerCase(
+                        java.util.Locale.US)));
+        assertTrue(!Updater.isDnsHijackKeIpLokal(
+                "failed to connect to github.com/20.205.243.166 (port 443)".toLowerCase(
+                        java.util.Locale.US)));
+        assertTrue(!Updater.isDnsHijackKeIpLokal(null));
+    }
+
+    @Test
+    public void perluResetResume_416Atau200DenganParsialMintaUlangDariNol() {
+        assertTrue(Updater.perluResetResume(416, 1024));
+        assertTrue(Updater.perluResetResume(200, 1024));
+        assertTrue(!Updater.perluResetResume(206, 1024));
+        assertTrue(!Updater.perluResetResume(200, 0));
+        assertTrue(!Updater.perluResetResume(416, 0));
+        assertTrue(!Updater.perluResetResume(500, 1024));
+    }
+
+    @Test
+    public void pesanGalatUnduh_zipKorupMenyebutFileDihapusDanAmanDiulang() {
+        Exception e = new java.util.zip.ZipException("invalid stored block lengths");
+        String pesan = Updater.pesanGalatUnduh("Unduh web-vault", e);
+        assertTrue(pesan.contains("zip korup"));
+        assertTrue(pesan.contains("aman diulang"));
+    }
+
+    @Test
     public void extractTag_tanpaTagNameMengembalikanNull() {
         assertNull(Updater.extractTag("{\"name\":\"x\"}"));
         assertNull(Updater.extractTag(""));

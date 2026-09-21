@@ -606,6 +606,24 @@ public class ServerService extends Service {
                 releaseWakeLock();
                 appendLog("[app] process exit: " + code);
                 String tail = tailLog(18);
+                if (isKernelRandomPanic(tail)) {
+                    // Binary Rust terbaru butuh getrandom() kernel baru; di kernel
+                    // STB Android 5/6 (errno=22) selalu panic saat start.
+                    // Retry tidak ada gunanya — langsung berhenti + beri saran.
+                    autoRestart = false;
+                    String saran = "Binary tidak cocok dengan kernel STB lama"
+                            + " (gagal generate random/getrandom errno=22)."
+                            + " Solusi: taruh binary legacy yang cocok Android 6"
+                            + " (vaultwarden-" + ABI + ") di folder data,"
+                            + " isi SHA-256-nya di pengaturan, lalu Start lagi.";
+                    setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
+                    appendLog("[app] FATAL: " + saran
+                            + " Web-vault & TLS tidak masalah.");
+                    writeCrashLog("binary tak cocok kernel (getrandom)");
+                    TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
+                            + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
+                    return;
+                }
                 if (autoRestart) {
                     writeCrashLog("crash (exit " + code + ")");
                     if (recordRestart("crash (exit " + code + ")")) {
@@ -648,6 +666,17 @@ public class ServerService extends Service {
                 startServerAsync();
             }
         }, delay);
+    }
+
+    /** True bila log mengandung panic getrandom Rust
+     *  ("failed to generate random data" dari std::sys::random) — tanda binary
+     *  tidak cocok dengan kernel Android lama (STB Android 5/6, errno=22).
+     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
+    static boolean isKernelRandomPanic(String logTail) {
+        if (logTail == null) {
+            return false;
+        }
+        return logTail.contains("failed to generate random data");
     }
 
     /** Catat restart otomatis + deteksi loop. Return true bila harus berhenti
@@ -740,10 +769,12 @@ public class ServerService extends Service {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Redam log bising yang tidak berguna: handshake TLS lokal
-                // (cert self-signed) dan peringatan HSTS bawaan Vaultwarden.
+                // (cert self-signed), peringatan HSTS bawaan Vaultwarden, dan
+                // warning linker DT_FLAGS_1 di STB lama (tidak fatal).
                 if (line.contains("CertificateUnknown")
                         || line.contains("tls handshake with 127.0.0.1")
                         || line.contains("Detected TLS-enabled liftoff")
+                        || line.contains("unsupported flags DT_FLAGS_1")
                         || line.contains("Shield has enabled a default HSTS policy")) {
                     continue;
                 }

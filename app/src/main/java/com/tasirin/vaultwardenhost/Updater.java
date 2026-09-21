@@ -81,6 +81,12 @@ public final class Updater {
             return "DNS gagal (nama github.com tidak ketemu). Cek internet STB,"
                     + " coba hotspot HP / ganti DNS, lalu tekan Start lagi.";
         }
+        if (isDnsHijackKeIpLokal(gabung) && gabung.contains("github")) {
+            return "github.com malah mengarah ke IP lokal/router (bukan IP GitHub asli)."
+                    + " DNS dibajak / WiFi pakai portal login / proxy ISP."
+                    + " Buka github.com di browser (login dulu bila diminta),"
+                    + " coba hotspot HP / ganti DNS, lalu tekan Start lagi.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {
@@ -106,7 +112,37 @@ public final class Updater {
     /** Bungkus galat unduh dengan saran aksi agar log/toast langsung bisa ditindak. */
     static String pesanGalatUnduh(String aksi, Exception e) {
         String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
+        String rendah = ((e != null ? e.getClass().getSimpleName() + " " : "")
+                + String.valueOf(e != null ? e.getMessage() : "")).toLowerCase(Locale.US);
+        if (e instanceof java.util.zip.ZipException
+                || rendah.contains("zipexception")
+                || rendah.contains("invalid stored block")
+                || rendah.contains("invalid block")
+                || rendah.contains("not a zip")) {
+            return aksi + " gagal: file zip korup (" + inti + "). File parsial dihapus,"
+                    + " aman diulang. " + saranKoneksi(e);
+        }
         return aksi + " gagal: " + inti + ". " + saranKoneksi(e);
+    }
+
+    /** True bila pesan galat menunjukkan github.com resolve ke IP lokal/router
+     *  (mis. "failed to connect to github.com/192.168.100.1") — pola khas DNS
+     *  dibajak / captive portal / proxy ISP, bukan IP GitHub asli. */
+    static boolean isDnsHijackKeIpLokal(String pesanRendah) {
+        if (pesanRendah == null) {
+            return false;
+        }
+        return pesanRendah.contains("/192.168.") || pesanRendah.contains("/10.")
+                || pesanRendah.contains("/172.16.") || pesanRendah.contains("/172.17.")
+                || pesanRendah.contains("/172.18.") || pesanRendah.contains("/172.19.")
+                || pesanRendah.contains("/172.2") || pesanRendah.contains("/172.30.")
+                || pesanRendah.contains("/172.31.");
+    }
+
+    /** True bila unduhan lanjutan harus diulang dari nol: server menolak Range
+     *  (HTTP 416) atau mengabaikannya (HTTP 200 padahal kirim Range). */
+    static boolean perluResetResume(int kodeHttp, long lanjutDari) {
+        return lanjutDari > 0 && (kodeHttp == 416 || kodeHttp == 200);
     }
 
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
@@ -229,8 +265,11 @@ public final class Updater {
                                     + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
                             : "Release binary Android belum tersedia. Coba lagi nanti.");
                 }
-                if (code == 200 && resumeFrom > 0) {
-                    // Server mengabaikan Range - mulai dari nol agar tidak korup.
+                if (perluResetResume(code, resumeFrom)) {
+                    // HTTP 416 = Range ditolak (parsial lebih besar / file berubah);
+                    // HTTP 200 = server mengabaikan Range. Ulang dari nol agar
+                    // file tidak korup (sebelumnya 416 dilempar lalu di-retry
+                    // dengan Range yang sama sehingga gagal terus).
                     dl.disconnect();
                     tmp.delete();
                     resumeFrom = 0;
@@ -475,7 +514,9 @@ public final class Updater {
             try {
                 dl = openRange(ctx, zipUrl, resumeFrom, 20000, 120000);
                 int code = dl.getResponseCode();
-                if (code == 200 && resumeFrom > 0) {
+                if (perluResetResume(code, resumeFrom)) {
+                    // Sama seperti binary: 416/200 saat resume = ulang dari nol
+                    // agar tidak gagal terus dengan Range yang sama.
                     dl.disconnect();
                     tmpZip.delete();
                     resumeFrom = 0;
@@ -571,29 +612,50 @@ public final class Updater {
         newDir.mkdirs();
         byte[] buf = new byte[64 * 1024];
         String newBase = newDir.getCanonicalPath();
-        try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                File outFile = new File(newDir, entry.getName());
-                if (!outFile.getCanonicalPath().startsWith(newBase)) {
-                    continue;
-                }
-                if (entry.isDirectory()) {
-                    outFile.mkdirs();
-                } else {
-                    File parent = outFile.getParentFile();
-                    if (parent != null) {
-                        parent.mkdirs();
+        try {
+            try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    File outFile = new File(newDir, entry.getName());
+                    if (!outFile.getCanonicalPath().startsWith(newBase)) {
+                        continue;
                     }
-                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                        int n;
-                        while ((n = zis.read(buf)) > 0) {
-                            fos.write(buf, 0, n);
+                    if (entry.isDirectory()) {
+                        outFile.mkdirs();
+                    } else {
+                        File parent = outFile.getParentFile();
+                        if (parent != null) {
+                            parent.mkdirs();
+                        }
+                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                            int n;
+                            while ((n = zis.read(buf)) > 0) {
+                                fos.write(buf, 0, n);
+                            }
                         }
                     }
+                    zis.closeEntry();
                 }
-                zis.closeEntry();
             }
+        } catch (java.util.zip.ZipException e) {
+            // Zip korup di tengah ekstrak (mis. "invalid stored block lengths"
+            // karena unduhan terpotong): buang hasil + sisa zip agar Start
+            // berikutnya unduh ulang bersih, versi lama tetap dipakai.
+            deleteRecursive(newDir);
+            tmpZip.delete();
+            throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
+        } catch (IOException e) {
+            String rendah = (e.getClass().getSimpleName() + " " + String.valueOf(e.getMessage()))
+                    .toLowerCase(Locale.US);
+            if (rendah.contains("zipexception") || rendah.contains("stored block")
+                    || rendah.contains("invalid block") || rendah.contains("eocd")
+                    || rendah.contains("truncated") || rendah.contains("not a zip")) {
+                deleteRecursive(newDir);
+                tmpZip.delete();
+                throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
+            }
+            deleteRecursive(newDir);
+            throw e;
         }
         tmpZip.delete();
 
