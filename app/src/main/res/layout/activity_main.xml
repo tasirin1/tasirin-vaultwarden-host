@@ -14,39 +14,65 @@
         android:paddingStart="@dimen/side_padding"
         android:paddingEnd="@dimen/side_padding">
 
+        <!-- Hero: identitas app di atas gradien brand -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_hero"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/appTitle"
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/app_name"
+                android:focusable="false"
+                android:src="@drawable/ic_launcher" />
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="@string/app_name"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/appTitle"
+                    style="@style/TasirinHeroTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name" />
+
+                <TextView
+                    style="@style/TasirinHeroSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/app_tagline" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/aboutBtn"
                 android:nextFocusDown="@id/startStop"
                 android:nextFocusUp="@id/logOpen"
-                style="@style/TasirinBtnSmall"
+                style="@style/TasirinBtnHero"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:text="@string/about" />
         </LinearLayout>
 
+        <!-- Rincian versi, DB & storage (teks panjang dari MainActivity) -->
         <TextView
             android:id="@+id/version"
+            style="@style/TasirinInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textSize="11sp"
-            android:textColor="@color/text_secondary" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_info_box"
+            android:padding="12dp" />
 
         <!-- ===================== SERVER ===================== -->
         <include layout="@layout/main_card_server" />

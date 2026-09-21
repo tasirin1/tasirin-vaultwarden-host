@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Kartu utama: status + kontrol server. ID dan rantai nextFocus* dijaga
+     agar navigasi D-pad TV tidak berubah. -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -6,6 +8,12 @@
             android:background="@drawable/bg_card"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <TextView
+                style="@style/TasirinSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/server_title" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -18,10 +26,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_status_stopped"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
                     android:text="@string/stopped"
                     android:textColor="@color/white"
                     android:textSize="13sp"
@@ -40,16 +48,45 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/netInfo"
+                android:id="@+id/restartHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/settings_changed_hint"
+                android:textColor="@color/status_off"
                 android:textSize="11sp"
-                android:textColor="@color/text_secondary" />
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/updateHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/update_available_hint"
+                android:textColor="@color/accent"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/netInfo"
+                style="@style/TasirinInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_info_box"
+                android:padding="12dp" />
+
+            <TextView
+                style="@style/TasirinLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/quick_actions" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -85,6 +122,12 @@
                     android:text="@string/status_web" />
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:background="@color/card_stroke" />
+
             <TextView
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
@@ -117,26 +160,6 @@
                 android:hint="@string/default_port"
                 android:inputType="number" />
 
-            <TextView
-                android:id="@+id/restartHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/settings_changed_hint"
-                android:textColor="@color/status_off"
-                android:textSize="11sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/updateHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/update_available_hint"
-                android:textColor="@color/accent"
-                android:textSize="11sp"
-                android:visibility="gone" />
-
             <Button
                 android:id="@+id/open"
                 android:nextFocusDown="@id/advancedToggle"
@@ -144,6 +167,6 @@
                 style="@style/TasirinBtnPrimary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:text="@string/open_web_ui" />
         </LinearLayout>

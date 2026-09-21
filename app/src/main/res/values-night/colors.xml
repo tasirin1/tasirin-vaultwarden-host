@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Mode malam: latar biru-tinta, kartu sedikit terangkat. -->
     <color name="primary">#90CAF9</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#FFB74D</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_secondary">#9E9E9E</color>
-    <color name="window_bg">#121212</color>
-    <color name="status_on">#66BB6A</color>
-    <color name="status_off">#EF5350</color>
-    <color name="card_bg">#1E1E1E</color>
-    <color name="card_stroke">#333333</color>
-    <color name="chip_stopped">#757575</color>
-    <color name="chip_busy">#FFB74D</color>
+    <color name="text_primary">#E8EDF5</color>
+    <color name="text_secondary">#9DACC6</color>
+    <color name="window_bg">#0C1220</color>
+    <color name="status_on">#34A853</color>
+    <color name="status_off">#F0554D</color>
+    <color name="card_bg">#161F31</color>
+    <color name="card_stroke">#2A3A57</color>
+    <color name="info_bg">#1E2A44</color>
+    <color name="hero_start">#1B5FD9</color>
+    <color name="hero_end">#0A2F7A</color>
+    <color name="chip_stopped">#5F6B7A</color>
+    <color name="chip_busy">#E8710A</color>
 </resources>

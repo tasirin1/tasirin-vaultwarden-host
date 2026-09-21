@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#0D47A1</color>
-    <color name="primary_dark">#002171</color>
+    <!-- Palet utama: biru brand + aksen oranye, latar kebiruan lembut,
+         kartu putih agar konten terasa mengambang. -->
+    <color name="primary">#1B5FD9</color>
+    <color name="primary_dark">#0F3D91</color>
     <color name="accent">#FF6F00</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_secondary">#757575</color>
-    <color name="window_bg">#FAFAFA</color>
-    <color name="status_on">#2E7D32</color>
-    <color name="status_off">#B00020</color>
-    <color name="card_bg">#F3F3F3</color>
-    <color name="card_stroke">#DDDDDD</color>
-    <color name="chip_stopped">#616161</color>
-    <color name="chip_busy">#EF6C00</color>
+    <color name="text_primary">#16233A</color>
+    <color name="text_secondary">#5B6B84</color>
+    <color name="window_bg">#EAF0F8</color>
+    <color name="status_on">#1E8E3E</color>
+    <color name="status_off">#C5221F</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_stroke">#D7E1F0</color>
+    <color name="info_bg">#F1F5FC</color>
+    <color name="hero_start">#1B5FD9</color>
+    <color name="hero_end">#0A2F7A</color>
+    <color name="chip_stopped">#5F6B7A</color>
+    <color name="chip_busy">#E8710A</color>
 </resources>

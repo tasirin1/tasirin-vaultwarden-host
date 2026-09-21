@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Tasirin Vaultwarden Host</string>
+    <string name="app_tagline">Brankas sandi pribadi di Android Anda</string>
+    <string name="server_title">Server</string>
+    <string name="quick_actions">Aksi cepat</string>
 
     <!-- Umum -->
     <string name="start">Start</string>
