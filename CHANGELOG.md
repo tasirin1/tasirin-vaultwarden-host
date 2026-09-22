@@ -39,6 +39,9 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   **Install Cert**; dua toggle backup Telegram digabung jadi satu
   **Backup otomatis tiap 24 jam & saat Start** (migrasi pref lama otomatis);
   backup Telegram selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
+- **QR koneksi dihapus** untuk menghemat ukuran APK: encoder mandiri
+  (`QrEncoder`, tanpa dependensi) + dialog + tombol + unit test + dependensi
+  zxing (scope test) dibuang; URL dibagikan lewat **Salin URL**.
 
 ### Diperbaiki
 - **Warning linker tak lagi mengotori versi terpasang**: di STB kernel lama baris pertama output `binary --version` adalah `WARNING: linker: ... unsupported flags DT_FLAGS_1` (tidak fatal) sehingga versi terbaca sebagai teks warning (`versi: WARNING: linker...` di log Start) dan deteksi versi terpasang gagal (regex tak cocok). Baris noise kini disaring di `ServerService` + `Updater` (helper `isNoiseLinker` + test regresi) — log Start menampilkan versi asli; saringan log realtime yang sudah ada tak berubah.

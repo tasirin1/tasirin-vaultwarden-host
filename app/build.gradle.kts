@@ -87,6 +87,4 @@ android {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
-    // zxing hanya untuk unit test decode QR; tidak ikut ke APK.
-    testImplementation("com.google.zxing:core:3.5.1")
 }

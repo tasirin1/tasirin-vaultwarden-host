@@ -42,13 +42,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── TgBot.java / TgBackup.java / TgBotReceiver.java  # remote & backup Telegram
 │       ├── KernelCompat.java         # deteksi kernel lama + pasang shim getrandom via LD_PRELOAD
 │       ├── PinCrypto.java              # PIN PBKDF2+salt (format PBKDF2$...)
-│       ├── QrEncoder.java              # QR koneksi (URL server ke HP lain)
 │       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed
 │       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 7 kelas test JVM (junit4): Updater, ServerService,
-                                      # TgBot, TgBackup, PinCrypto, QrEncoder, KernelCompat — jalan di CI
+├── app/src/test/                     # 6 kelas test JVM (junit4): Updater, ServerService,
+                                      # TgBot, TgBackup, PinCrypto, KernelCompat — jalan di CI
 └── gradle wrapper                    # HANYA dipakai CI; AI dilarang menjalankannya (lihat Aturan No. 1)
 ```
 
@@ -175,8 +174,8 @@ seamless (beda signature) — backup keystore di tempat aman.
   sudah tidak dipakai, patch bisa dihapus.
 - **`ControlServer` bukan web vault** — itu status web ringan (JSON + SSE)
   di port `port+1`; web vault asli dilayani binary Vaultwarden di port utama.
-- **Unit test**: 7 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
-  `PinCrypto`, `QrEncoder`, `KernelCompat`) menguji logika murni; tambahkan
+- **Unit test**: 6 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+  `PinCrypto`, `KernelCompat`) menguji logika murni; tambahkan
   test untuk logika murni baru (versi, path, parse, crypto) — jangan test
   yang butuh Android runtime/network. Test hanya jalan di CI, bukan lokal.
 

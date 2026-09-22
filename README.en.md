@@ -25,7 +25,6 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   also shows **web vault version + size, DB size, and restart history**.
 - Remote control & backup via **Telegram bot** (commands + AES-256-GCM backup),
   including `/crashlog` to send the last crash log.
-- **Connection QR**: one tap shows a scannable QR for `http(s)://IP:port`.
 - **Crash log** saved automatically — view it via the **Crash** button on the
   full-screen log page (dialog + copy) or send it to Telegram with `/crashlog`.
 - **Realtime download progress** in the status chip: percent + size while
@@ -69,7 +68,8 @@ log**, and **Save .txt**. Everything else lives under the **three-dot
 - Press **Start** on the home screen; the status web is at `http(s)://<device-ip>:<port+1>`.
 - Pair clients (bitwarden mobile/desktop) to `https://<device-ip>:<port>` and
   accept the self-signed certificate.
-- From another phone, tap **QR** and scan to open the URL instantly.
+- From another phone, copy the URL from Settings (**Copy URL**) and open it
+  in a browser.
 - **Telegram remote**: set bot token + chat id to use `/log /uptime /alive
   /status /crashlog /update /webvault /restore`, backups, and notifications.
   `/status` shows DB size, last backup time, and restart history. `/restore`

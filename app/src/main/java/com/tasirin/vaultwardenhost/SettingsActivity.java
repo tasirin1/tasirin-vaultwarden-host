@@ -10,7 +10,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -29,7 +28,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,7 +87,6 @@ public class SettingsActivity extends Activity {
     private LinearLayout advancedPanel;
     private LinearLayout batteryRow;
     private Button copyUrlBtn;
-    private Button qrBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
     private Button installCertBtn;
@@ -184,7 +181,6 @@ public class SettingsActivity extends Activity {
         backupTgBtn = findViewById(R.id.backupTg);
         restoreTgBtn = findViewById(R.id.restoreTg);
         copyUrlBtn = findViewById(R.id.copyUrl);
-        qrBtn = findViewById(R.id.qrBtn);
         exportCfgBtn = findViewById(R.id.exportCfg);
         importCfgBtn = findViewById(R.id.importCfg);
         installCertBtn = findViewById(R.id.installCert);
@@ -229,7 +225,6 @@ public class SettingsActivity extends Activity {
         advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
-        qrBtn.setOnClickListener(v -> showQrDialog());
         exportCfgBtn.setOnClickListener(v -> confirm("Export Pengaturan",
                 "File berisi DATA SENSITIF (token bot, admin token, PIN, "
                         + "password backup). Jangan bagikan ke orang lain. Lanjutkan?",
@@ -1366,55 +1361,6 @@ public class SettingsActivity extends Activity {
         } else {
             toast(url);
         }
-    }
-
-    /** Tampilkan QR koneksi (http(s)://ip:port) agar mudah dipindai dari HP lain. */
-    private void showQrDialog() {
-        final String url = ServerService.localUrl(this);
-        QrEncoder.Matrix matrix = QrEncoder.encode(url, QrEncoder.Ecc.L);
-        if (matrix == null) {
-            toast("URL terlalu panjang untuk QR.");
-            return;
-        }
-        int scale = 8;
-        int px = matrix.size * scale;
-        int[] pixels = new int[px * px];
-        for (int y = 0; y < matrix.size; y++) {
-            for (int x = 0; x < matrix.size; x++) {
-                int color = matrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
-                for (int dy = 0; dy < scale; dy++) {
-                    int base = (y * scale + dy) * px + x * scale;
-                    for (int dx = 0; dx < scale; dx++) {
-                        pixels[base + dx] = color;
-                    }
-                }
-            }
-        }
-        Bitmap bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
-        bmp.setPixels(pixels, 0, px, 0, 0, px, px);
-        float d = getResources().getDisplayMetrics().density;
-        ImageView iv = new ImageView(this);
-        iv.setImageBitmap(bmp);
-        int pad = (int) (16 * d);
-        iv.setPadding(pad, pad, pad, pad);
-
-        TextView tv = new TextView(this);
-        tv.setText(getString(R.string.scan_qr, url));
-        tv.setTextSize(13);
-        tv.setTextColor(0xFF607D8B);
-        tv.setPadding((int) (20 * d), 0, (int) (20 * d), (int) (12 * d));
-
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.addView(iv);
-        box.addView(tv);
-
-        new AlertDialog.Builder(this)
-                .setTitle("QR Koneksi")
-                .setView(box)
-                .setPositiveButton("Salin URL", (di, w) -> copyLocalUrl())
-                .setNegativeButton("Tutup", null)
-                .show();
     }
 
     /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */

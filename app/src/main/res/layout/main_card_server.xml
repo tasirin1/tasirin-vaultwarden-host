@@ -91,22 +91,13 @@
 
                 <Button
                     android:id="@+id/copyUrl"
-                    android:nextFocusDown="@id/qrBtn"
+                    android:nextFocusDown="@id/dataDir"
                     android:nextFocusUp="@id/startStop"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/copy_url" />
 
-                <Button
-                    android:id="@+id/qrBtn"
-                    android:nextFocusDown="@id/dataDir"
-                    android:nextFocusUp="@id/copyUrl"
-                    style="@style/TasirinBtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/qr" />
 
             </LinearLayout>
 

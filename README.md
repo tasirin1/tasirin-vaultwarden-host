@@ -47,8 +47,6 @@ teknis; panduan pengelolaan lengkap ada di
   menampilkan juga **versi web vault + ukurannya, ukuran DB, riwayat restart**.
 - Remote & backup via **Telegram bot** (command + backup AES-256-GCM), termasuk
   `/crashlog` untuk mengirim crash log terakhir.
-- **QR koneksi** sekali tekan: pindai langsung dari HP lain (buka
-  `http(s)://IP:port` tanpa mengetik).
 - **Crash log** tersimpan otomatis, bisa dibuka lewat tombol **Crash** di
   layar Log (dialog + salin) atau dikirim ke Telegram dengan `/crashlog`.
 - **Progress unduh realtime** di chip status: persen + ukuran saat mengunduh
@@ -103,8 +101,8 @@ Layar awal kini sederhana: hanya **status server**, tombol **Start/Stop**,
    server berjalan + URL.
 4. Buka `http://127.0.0.1:8088` lewat tombol **Buka Web UI** di Settings
    (browser HP), atau dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
-   Dari HP lain: tekan **QR** di Settings lalu pindai — URL terbuka otomatis
-   tanpa mengetik.
+   Dari HP lain: salin URL dari Settings (tombol **Salin URL**) lalu buka
+   di browser.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8088`.
 
