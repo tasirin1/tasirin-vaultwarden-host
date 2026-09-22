@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -17,6 +18,18 @@ public class TgBotTest {
         assertTrue(TgBot.isRestoreConfirm("ok"));
         assertTrue(TgBot.isRestoreConfirm("konfirmasi"));
         assertTrue(TgBot.isRestoreConfirm("lanjut"));
+    }
+
+    @Test
+    public void menuPayload_memuatSemuaPerintah() {
+        String json = TgBot.menuPayload();
+        assertTrue(json.startsWith("{\"commands\":["));
+        for (String c : new String[]{"status", "log", "uptime", "alive", "backup",
+                "restore", "crashlog", "update", "webvault", "start", "stop",
+                "restart", "help"}) {
+            assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
+        }
+        assertEquals(13, TgBot.daftarPerintahMenu().length);
     }
 
     @Test

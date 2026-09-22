@@ -9,6 +9,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 ## [Belum rilis] — Tampilan utama, backup Telegram & efisiensi
 
 ### Ditambahkan
+- **Menu perintah Telegram otomatis**: app mendaftarkan menu bot (tombol `/`)
+  via `setMyCommands` setiap token disimpan (`TgBot.refreshMenuAsync`, sekali
+  per token, best-effort di thread latar) — tidak perlu setting manual di
+  @BotFather. Payload 13 perintah dibuat manual (`menuPayload`) agar bisa
+  di-unit-test JVM; `README.md`/`README.en.md` diperbarui. `README.en.md`
+  disinkron ulang mengikuti struktur Indonesia + CI 4 job.
 - **Domain lokal**: kolom opsional **Domain lokal** di kartu Server
   (mis. `vault.lan`, boleh `host:port`/URL) — dipakai sebagai `DOMAIN`
   Vaultwarden, URL jaringan, dan tombol Salin URL; sertifikat HTTPS ikut

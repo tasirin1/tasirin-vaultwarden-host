@@ -171,6 +171,10 @@ Bila **PIN app aktif**, perintah `/stop`, `/update`, dan `/restore` wajib
 diakhiri PIN (contoh: `/stop 123456`) agar sesi Telegram curian tidak bisa
 merusak server.
 
+Menu perintah (tombol `/`) didaftarkan otomatis via `setMyCommands` setiap
+token bot disimpan — tidak perlu setting manual di @BotFather. Bila menu
+belum muncul, ganti token lalu simpan ulang, atau kirim `/help` manual.
+
 ## Data, backup & restart
 
 - Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). Karena di

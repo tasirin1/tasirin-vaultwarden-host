@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,7 @@ public final class TgBot {
 
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
+    static final String KEY_TG_MENU_HASH = "tg_menu_hash";
     private static final long POLL_INTERVAL_MS = 60_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
@@ -57,6 +59,97 @@ public final class TgBot {
         // perintah bot memang tidak butuh ketepatan detik.
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger,
                 POLL_INTERVAL_MS, pi);
+        refreshMenuAsync(ctx);
+    }
+
+    /** Daftar perintah untuk menu bot Telegram (tombol `/`). */
+    static String[][] daftarPerintahMenu() {
+        return new String[][]{
+                {"status", "Status lengkap server"},
+                {"log", "Potongan log terakhir"},
+                {"uptime", "Lama server berjalan"},
+                {"alive", "Cek sehat HTTP /alive"},
+                {"backup", "Backup database sekarang"},
+                {"restore", "Restore backup terakhir"},
+                {"crashlog", "Kirim crash log terakhir"},
+                {"update", "Update binary + restart"},
+                {"webvault", "Update web vault"},
+                {"start", "Start server"},
+                {"stop", "Stop server"},
+                {"restart", "Restart server"},
+                {"help", "Daftar perintah"},
+        };
+    }
+
+    /** Payload JSON setMyCommands (string manual agar bisa di-unit-test JVM). */
+    static String menuPayload() {
+        StringBuilder sb = new StringBuilder("{\"commands\":[");
+        String[][] daftar = daftarPerintahMenu();
+        for (int i = 0; i < daftar.length; i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append("{\"command\":\"").append(daftar[i][0])
+                    .append("\",\"description\":\"").append(daftar[i][1]).append("\"}");
+        }
+        sb.append("]}");
+        return sb.toString();
+    }
+
+    /** Daftarkan menu perintah ke BotFather API (best-effort, sekali per token). */
+    static void refreshMenuAsync(Context ctx) {
+        final Context app = ctx.getApplicationContext();
+        SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        final String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+        if (token.isEmpty()) {
+            return;
+        }
+        final int hash = token.hashCode();
+        if (sp.getInt(KEY_TG_MENU_HASH, 0) == hash) {
+            return;
+        }
+        final String payload = menuPayload();
+        new Thread(() -> {
+            HttpURLConnection c = null;
+            try {
+                byte[] body = payload.getBytes(StandardCharsets.UTF_8);
+                c = (HttpURLConnection) new URL(TG_API + token + "/setMyCommands")
+                        .openConnection();
+                c.setRequestMethod("POST");
+                c.setDoOutput(true);
+                c.setConnectTimeout(15000);
+                c.setReadTimeout(30000);
+                c.setRequestProperty("Content-Type", "application/json");
+                c.setRequestProperty("Content-Length", String.valueOf(body.length));
+                HttpsCompat.apply(c, app);
+                try (OutputStream os = c.getOutputStream()) {
+                    os.write(body);
+                }
+                int code = c.getResponseCode();
+                InputStream is = (code >= 200 && code < 300)
+                        ? c.getInputStream() : c.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (is != null) {
+                    try (BufferedReader r = new BufferedReader(
+                            new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                        String baris;
+                        while ((baris = r.readLine()) != null) {
+                            sb.append(baris);
+                        }
+                    }
+                }
+                if (code == 200 && sb.toString().contains("\"ok\":true")) {
+                    app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                            .edit().putInt(KEY_TG_MENU_HASH, hash).apply();
+                }
+            } catch (Exception ignored) {
+            } finally {
+                if (c != null) {
+                    c.disconnect();
+                }
+            }
+        }, "vw-tgmenu").start();
     }
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
