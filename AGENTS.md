@@ -1,5 +1,17 @@
 # Panduan pengelolaan repo (untuk AI)
 
+> ⚠ **ATURAN NO. 1 — DILARANG KERAS BUILD DI LOKAL.**
+> AI yang mengelola repo ini **tidak boleh** menjalankan `./gradlew`,
+> `gradle`, `apktool`, `javac`/`kotlinc`, emulator, `adb install`, atau
+> perintah build/test/lint Android apa pun di mesin lokal — tanpa kecuali,
+> bahkan "cuma cek sebentar" atau "cuma unit test". Build lokal butuh
+> SDK/NDK/Rust/toolchain khusus dan hasilnya **tidak mewakili release**.
+> Satu-satunya cara build, test, lint, dan rilis: **push ke `main`**,
+> lalu workflow GitHub Actions yang mengerjakan semuanya.
+> Verifikasi lokal yang diizinkan hanya yang tanpa toolchain Android:
+> membaca kode, `grep`/`rg`, `git diff`/`git log`, dan parse XML polos.
+> Pelanggaran aturan ini = pengerjaan dianggap gagal.
+
 Baca file ini **SEBELUM** mengubah, memperbaiki, atau mengelola repository ini.
 Panduan lengkap untuk pengguna ada di `README.md` (Indonesia) dan
 `README.en.md` (Inggris) — jaga keduanya sinkron dengan fitur terbaru.
@@ -12,6 +24,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── .github/workflows/build-apk.yml  # CI: resolve versi → build binary → build APK → release
 ├── AGENTS.md                         # Panduan pengelolaan ini
 ├── CHANGELOG.md                      # Riwayat perubahan per rilis (update manual)
+├── shim/getrandom_shim.c             # shim getrandom LD_PRELOAD untuk STB kernel lama
 ├── app/build.gradle.kts              # Kotlin DSL: targetSdk 28, minSdk 21, R8, signing via -P
 ├── app/proguard-rules.pro            # Aturan R8 minimal (Java murni, tanpa refleksi sendiri)
 ├── app/src/main/
@@ -22,26 +35,32 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │   ├── res/values/ (+night, sw600dp) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
 │       ├── MainActivity.java         # layar awal ringkas: status, Start/Stop, log realtime, simpan .txt, titik tiga
-│       ├── SettingsActivity.java     # semua pengaturan (pindahan UI utama lama), dibuka via titik tiga
+│       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
 │       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS, ControlServer
 │       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
 │       ├── ControlServer.java        # status web ringan (JSON + log SSE) di port+1
 │       ├── TgBot.java / TgBackup.java / TgBotReceiver.java  # remote & backup Telegram
+│       ├── KernelCompat.java         # deteksi kernel lama + pasang shim getrandom via LD_PRELOAD
 │       ├── PinCrypto.java              # PIN PBKDF2+salt (format PBKDF2$...)
 │       ├── QrEncoder.java              # QR koneksi (URL server ke HP lain)
 │       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed
 │       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 6 kelas test JVM (junit4): Updater, ServerService,
-                                      # TgBot, TgBackup, PinCrypto, QrEncoder — jalan di CI
-└── gradle wrapper                    # build via ./gradlew (CI saja untuk rilis)
+├── app/src/test/                     # 7 kelas test JVM (junit4): Updater, ServerService,
+                                      # TgBot, TgBackup, PinCrypto, QrEncoder, KernelCompat — jalan di CI
+└── gradle wrapper                    # HANYA dipakai CI; AI dilarang menjalankannya (lihat Aturan No. 1)
 ```
 
 ## Arsitektur ringkas
 
-- **MainActivity** menyimpan pengaturan ke `SharedPreferences` (`vw_prefs`),
-  lalu memanggil `ServerService.start(this)`.
+- **MainActivity** (layar awal) hanya membaca pengaturan dari
+  `SharedPreferences` (`vw_prefs`), menampilkan status + log realtime, dan
+  memanggil `ServerService.start/stop`. Tidak ada input pengaturan di sini.
+- **SettingsActivity** (titik tiga ⋮ → Settings) pemilik semua input
+  pengaturan: menyimpan ke `vw_prefs` saat diubah. Status buka PIN dibagi
+  dengan MainActivity (`pinBaruSajaDibuka`/`catatPinDibuka`) agar tidak
+  diminta dua kali.
 - **ServerService.startServer()** (di worker thread):
   1. `ensureBinary()` → `resolveBinary()`: pakai (a) binary update terbaru di
      cache internal (`KEY_UPDATE_VERSION`), (b) binary user di folder data
@@ -62,28 +81,37 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ## Aturan pengembangan
 
-1. **Build HANYA via GitHub Actions** — jangan build lokal
-   (`./gradlew`, apktool, dsb). Build lokal butuh SDK/NDK/Rust khusus dan
-   hasilnya tidak mewakili release; semua perubahan dikirim sebagai commit +
-   push, lalu workflow yang membangun.
+1. **DILARANG build/test/lint di lokal — SELALU via GitHub Actions.**
+   Larangan mencakup `./gradlew` (perintah apa pun: `assemble*`, `lint*`,
+   `test*`), `apktool`, `adb`, emulator, dan instalasi SDK/NDK di mesin
+   kerja. Alur wajib: edit → `git commit` → `git push origin main` →
+   pantau dengan `gh run watch` → verifikasi rilis dengan `gh release view`
+   (lihat "Verifikasi setelah build"). Tidak ada pengecualian.
 2. **Bahasa**: kode, komentar, pesan UI, dan commit memakai **Bahasa Indonesia**.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
-   singkat (contoh di `git log`). Satu commit satu tujuan logis.
+   singkat (contoh di `git log`). Satu commit satu tujuan logis. Setiap push
+   ke `main` memicu full rebuild (~15 menit), jadi gabungkan perubahan kecil
+   dalam satu commit.
 4. **Jangan menaikkan `targetSdk` ≥ 29** tanpa solusi eksekusi binary:
    Android 10+ memblokir `execve` dari app home untuk targetSdk ≥ 29 (W^X).
 5. **Jangan menambah ABI lain** — repo ini sengaja `armeabi-v7a` saja
    (STB 32-bit). Menambah arm64 membuat APK/binary membengkak dan menambah
    waktu build.
-6. **Jangan membundel binary/web-vault ke APK** — inti desain: APK tetap
-   kecil (~0,1 MB); keduanya diunduh dari release.
+6. **Jangan membundel binary/web-vault ke APK, dan jangan commit
+   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,1 MB);
+   binary & web-vault diunduh dari release dan diverifikasi SHA-256.
 7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API ≥ 21 tanpa fallback,
    jangan `NetworkOnMainThreadException` (semua tugas jaringan di thread),
    UI harus bisa dinavigasi **D-pad** (setiap kontrol berfokus:
    `nextFocusUp/Down`, background `@drawable/item_focus_bg`).
 8. **UI 2 mode**: layar sentuh HP dan remote TV — ukuran tombol cukup besar,
-   tidak memakai gesture yang butuh sentuhan presisi.
+   tidak memakai gesture yang butuh sentuhan presisi. Layar awal
+   (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log, simpan
+   .txt, titik tiga); kontrol baru selalu masuk `SettingsActivity`.
 9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai tanggal
    build UTC (`yyyy.MM.dd` / `yyyyMMdd`); konsisten dengan CI.
+10. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
+    lewat workflow; jangan edit asset release lewat web/UI manual.
 
 ## Alur build & rilis (CI, build-apk.yml)
 
@@ -130,21 +158,27 @@ seamless (beda signature) — backup keystore di tempat aman.
 
 ## Yang sering membingungkan AI
 
+- **Build lokal dilarang total** — bila tergoda menjalankan `./gradlew`
+  "hanya untuk memastikan", jangan. Kepastiannya didapat dari `gh run watch`
+  setelah push. Lihat Aturan No. 1.
 - **`targetSdk 28` bukan kelalaian** — Android 10+ memblokir eksekusi binary
   dari app home untuk targetSdk ≥ 29 (perilaku W^X). Lihat aturan #4.
 - **APK tidak memuat binary server** — `assets/bin/` diisi CI saat build;
   di repo hanya `assets/certs/` dan (saat CI) `vw_version.txt`. Jangan commit
   binary (puluhan MB) ke repo.
+- **Layar awal vs Settings** — `MainActivity` (ringkas) hanya membaca prefs;
+  semua input pengaturan ada di `SettingsActivity`. Jangan menambah kontrol
+  ke layar awal.
 - **Patch DNS** rapuh terhadap perubahan upstream — saat Vaultwarden mengubah
   `http_client.rs`, workflow akan gagal di langkah patch. Periksa anchor
   `impl CustomDnsResolver { fn new()` dan sesuaikan polanya; bila `ndk-context`
   sudah tidak dipakai, patch bisa dihapus.
 - **`ControlServer` bukan web vault** — itu status web ringan (JSON + SSE)
   di port `port+1`; web vault asli dilayani binary Vaultwarden di port utama.
-- **Unit test**: 5 kelas (`Updater`, `TgBot`, `TgBackup`, `PinCrypto`,
-  `QrEncoder`) menguji logika murni; tambahkan test untuk logika murni baru
-  (versi, path, parse, crypto) — jangan test yang butuh Android
-  runtime/network.
+- **Unit test**: 7 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+  `PinCrypto`, `QrEncoder`, `KernelCompat`) menguji logika murni; tambahkan
+  test untuk logika murni baru (versi, path, parse, crypto) — jangan test
+  yang butuh Android runtime/network. Test hanya jalan di CI, bukan lokal.
 
 ## Pemetaan fitur → file
 
@@ -173,7 +207,8 @@ gh run view <run-id> --json status,conclusion
 gh release view v<versi> --json assets -q '.assets[].name'
 ```
 
-Pastikan conclusion `success` dan release punya 7 asset. Verifikasi **favicon
+Pastikan conclusion `success` dan release punya 7 asset. Ini satu-satunya
+cara verifikasi yang sah (tidak ada verifikasi lokal). Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
 tidak ada `panic 'android context was not initialized'` / `500` pada
 `/icons/...`. Bila muncul, patch DNS di workflow perlu disesuaikan.
