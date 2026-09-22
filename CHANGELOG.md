@@ -58,6 +58,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Ikon website (favicon) selalu 500**: reqwest memakai
+  `rustls-platform-verifier` yang wajib init dari JavaVM — binary standalone
+  panic di tiap HTTPS keluar (`Expect ... to be initialized`). Patch CI
+  (`http_client.rs`, teruji polanya) kini memakai verifier webpki + bundel
+  root Mozilla di Android; DNS patch dipertahankan. Diterima lewat
+  **Cek Update** (ikut binary, tanpa install ulang APK).
 - **Restore database dari .zip lokal selalu gagal**: deteksi magic `PK`
   memakan 2 byte pertama stream sehingga `ZipInputStream` membaca header
   rusak (semua zip valid ditolak walau berisi `db.sqlite3`); stream kini

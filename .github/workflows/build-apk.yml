@@ -69,6 +69,12 @@ jobs:
           git clone --depth 1 --branch ${{ needs.resolve.outputs.vw }} \
             https://github.com/dani-garcia/vaultwarden.git
 
+      - name: Unduh bundel CA Mozilla (verifier TLS Android)
+        run: |
+          curl -fsSL --retry 3 https://curl.se/ca/cacert.pem \
+            -o vaultwarden/mozilla-cacert.pem
+          grep -q "BEGIN CERTIFICATE" vaultwarden/mozilla-cacert.pem
+
       - name: Patch DNS resolver untuk Android (tanpa ndk-context)
         run: |
           python3 - <<'PYEOF'
@@ -92,6 +98,48 @@ jobs:
               print('ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
           else:
               raise SystemExit('Anchor patch tidak ditemukan tapi ndk-context masih dipakai!')
+
+          # Patch TLS verifier Android: rustls-platform-verifier (bawaan reqwest)
+          # wajib di-init dari JavaVM; proses standalone tak punya JVM sehingga
+          # tiap HTTPS keluar (ikon vault) panic 'to be initialized' -> 500.
+          # Di Android pakai bundel root Mozilla + verifier webpki murni.
+          old_builder = ('    Client::builder()\n'
+              '        .default_headers(headers)\n'
+              '        .redirect(redirect_policy)\n'
+              '        .dns_resolver(CustomDns::instance(enforce_block))\n'
+              '        .timeout(Duration::from_secs(10))\n'
+              '}')
+          new_builder = ('    let mut builder = Client::builder()\n'
+              '        .default_headers(headers)\n'
+              '        .redirect(redirect_policy)\n'
+              '        .dns_resolver(CustomDns::instance(enforce_block))\n'
+              '        .timeout(Duration::from_secs(10));\n'
+              '    // rustls-platform-verifier (bawaan reqwest) wajib di-init dari JavaVM\n'
+              '    // Android; proses standalone tak punya JVM sehingga tiap HTTPS keluar\n'
+              '    // (mis. ikon vault) panic. Di Android pakai bundel root Mozilla + verifier\n'
+              '    // webpki murni.\n'
+              '    if cfg!(target_os = "android") {\n'
+              '        builder = builder.tls_certs_only(mozilla_roots());\n'
+              '    }\n'
+              '    builder\n'
+              '}\n'
+              '\n'
+              '/// Akar CA Mozilla (dibundel saat build CI) untuk verifier webpki di Android.\n'
+              'fn mozilla_roots() -> Vec<reqwest::Certificate> {\n'
+              '    const BUNDLE: &str = include_str!("../mozilla-cacert.pem");\n'
+              '    match reqwest::Certificate::from_pem_bundle(BUNDLE.as_bytes()) {\n'
+              '        Ok(certs) => certs,\n'
+              '        Err(e) => {\n'
+              '            warn!("Bundel CA Mozilla rusak, TLS keluar akan gagal: {e:?}");\n'
+              '            Vec::new()\n'
+              '        }\n'
+              '    }\n'
+              '}')
+          if old_builder not in src:
+              raise SystemExit('Anchor patch TLS tidak ditemukan, periksa http_client.rs upstream!')
+          src = src.replace(old_builder, new_builder, 1)
+          open(p, 'w').write(src)
+          print('Patch TLS Android diterapkan.')
           PYEOF
 
 

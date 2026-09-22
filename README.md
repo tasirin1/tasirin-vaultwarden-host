@@ -274,6 +274,11 @@ merusak server.
 **Peringatan sertifikat di browser**
 - Normal untuk self-signed. Install `ca.pem` sebagai CA agar peringatan hilang.
 
+**Ikon website (favicon) tidak muncul / `/icons/...` 500 di log**
+- Pastikan binary terbaru: **Cek Update** lalu Start (perbaikan verifier TLS
+  ikut binary, tanpa install ulang APK). Ikon diunduh STB dari internet, jadi
+  STB wajib online; hasil gagal di-cache sementara, tunggu lalu refresh.
+
 **Auto start saat boot tidak jalan**
 - Jika app pernah di-**force-stop**, Android memblokir broadcast boot sampai
   app dibuka sekali lagi. Buka app setelah reboot.

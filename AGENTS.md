@@ -168,10 +168,15 @@ seamless (beda signature) — backup keystore di tempat aman.
 - **Layar awal vs Settings** — `MainActivity` (ringkas) hanya membaca prefs;
   semua input pengaturan ada di `SettingsActivity`. Jangan menambah kontrol
   ke layar awal.
-- **Patch DNS** rapuh terhadap perubahan upstream — saat Vaultwarden mengubah
-  `http_client.rs`, workflow akan gagal di langkah patch. Periksa anchor
-  `impl CustomDnsResolver { fn new()` dan sesuaikan polanya; bila `ndk-context`
-  sudah tidak dipakai, patch bisa dihapus.
+- **Patch Android (`http_client.rs`)** rapuh terhadap perubahan upstream —
+  workflow menambal DNS (`CustomDnsResolver::new()` → DNS sistem, tanpa
+  `ndk-context`/JavaVM) dan TLS verifier (reqwest memakai
+  `rustls-platform-verifier` yang wajib init dari JavaVM; binary standalone
+  diganti verifier webpki + bundel root Mozilla via `tls_certs_only`). Saat
+  Vaultwarden mengubah file ini, workflow gagal di langkah patch (anchor
+  `impl CustomDnsResolver { fn new()` / rantai `Client::builder()`): sesuaikan
+  polanya; bila `ndk-context`/platform-verifier sudah tidak dipakai, patch
+  terkait bisa dihapus.
 - **`ControlServer` bukan web vault** — itu status web ringan (JSON + SSE)
   di port `port+1`; web vault asli dilayani binary Vaultwarden di port utama.
 - **Unit test**: 6 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
@@ -211,5 +216,6 @@ gh release view v<versi> --json assets -q '.assets[].name'
 Pastikan conclusion `success` dan release punya 7 asset. Ini satu-satunya
 cara verifikasi yang sah (tidak ada verifikasi lokal). Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
-tidak ada `panic 'android context was not initialized'` / `500` pada
+tidak ada panic (`android context was not initialized` /
+  `Expect rustls-platform-verifier to be initialized`) / `500` pada
 `/icons/...`. Bila muncul, patch DNS di workflow perlu disesuaikan.
