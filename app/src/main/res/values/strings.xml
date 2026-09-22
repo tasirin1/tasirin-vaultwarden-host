@@ -17,6 +17,12 @@
     <string name="about">Tentang</string>
     <string name="menu">Menu</string>
     <string name="open_settings">Settings</string>
+    <string name="expand">Bentangkan</string>
+    <string name="collapse">Ciutkan</string>
+    <string name="update_open_settings">⚠ Update v%1$s tersedia — buka di Settings</string>
+    <string name="uptime_format">Uptime %1$s</string>
+    <string name="url_copied">URL disalin: %1$s</string>
+    <string name="log_empty_hint">Log masih kosong — tekan Start untuk menjalankan server.</string>
     <string name="back">Kembali</string>
     <string name="copy">Salin</string>
     <string name="share">Bagikan</string>

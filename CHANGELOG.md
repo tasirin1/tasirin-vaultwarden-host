@@ -16,6 +16,10 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   (D-pad). Tombol buka-log layar penuh dihapus dari awal (log penuh tetap
   ada di Settings); brand diperkecil dan kotak info versi ala Settings
   ditampilkan di bawah brand.
+- **Poles layar awal**: brand tanpa tagline, kartu info gabungan (versi +
+  URL ketuk-untuk-salinan + uptime), tombol Start/Stop sticky di footer,
+  pratinjau log bisa diciutkan/bentangkan, peringatan update menjadi tombol
+  lompat ke Settings, dan status kosong log yang membantu.
 - **Tampilan utama baru**: hero gradien brand (ikon + tagline), kartu Server
   dengan label aksi cepat & kotak info, tombol utama berisi, palet
   terang/gelap diselaraskan — ID dan navigasi D-pad tidak berubah.

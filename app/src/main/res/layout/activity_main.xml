@@ -1,207 +1,245 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal sederhana: brand ringkas + info versi + status + Start/Stop
-     + log realtime + simpan .txt. Semua pengaturan pindah ke
-     SettingsActivity (titik tiga di hero). Rantai nextFocus* dijaga agar
-     navigasi D-pad TV tetap jalan. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Layar awal: brand ringkas (tanpa tagline) + kartu info (versi, URL ketuk-
+     untuk-salinan, uptime) + kartu server + kartu log collapsible + footer
+     Start/Stop sticky. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang
+     melewati updateBtn yang kadang gone diperbaiki dinamis di MainActivity. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp"
-        android:paddingStart="@dimen/side_padding"
-        android:paddingEnd="@dimen/side_padding">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <!-- Hero ringkas: identitas app + tombol titik tiga ke Settings -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/bg_hero"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="10dp">
+            android:orientation="vertical"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingStart="@dimen/side_padding"
+            android:paddingEnd="@dimen/side_padding">
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="@string/app_name"
-                android:focusable="false"
-                android:src="@drawable/ic_launcher" />
-
+            <!-- Hero ringkas: ikon + judul + titik tiga -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginTop="2dp"
+                android:background="@drawable/bg_hero"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/app_name"
+                    android:focusable="false"
+                    android:src="@drawable/ic_launcher" />
 
                 <TextView
                     android:id="@+id/appTitle"
                     style="@style/TasirinHeroTitle"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
                     android:text="@string/app_name" />
 
-                <TextView
-                    style="@style/TasirinHeroSub"
-                    android:layout_width="match_parent"
+                <Button
+                    android:id="@+id/overflowBtn"
+                    android:nextFocusDown="@id/netInfo"
+                    android:nextFocusUp="@id/startStop"
+                    style="@style/TasirinBtnHero"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/app_tagline" />
+                    android:contentDescription="@string/menu"
+                    android:text="&#8942;" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/overflowBtn"
-                android:nextFocusDown="@id/startStop"
-                android:nextFocusUp="@id/homeSaveLog"
-                style="@style/TasirinBtnHero"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/menu"
-                android:text="&#8942;" />
-        </LinearLayout>
-
-        <!-- Info versi & binary (seperti di bawah brand pada Settings) -->
-        <TextView
-            android:id="@+id/version"
-            style="@style/TasirinInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_info_box"
-            android:padding="10dp" />
-
-        <!-- ===================== SERVER ===================== -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                style="@style/TasirinSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/server_title" />
-
+            <!-- ===================== INFO ===================== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_status_stopped"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
-                    android:text="@string/stopped"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:id="@+id/version"
+                    style="@style/TasirinInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-                <Button
-                    android:id="@+id/startStop"
-                    android:nextFocusDown="@id/homeSaveLog"
+                <TextView
+                    android:id="@+id/netInfo"
+                    android:nextFocusDown="@id/updateBtn"
                     android:nextFocusUp="@id/overflowBtn"
-                    style="@style/TasirinBtnPrimary"
-                    android:layout_width="0dp"
+                    style="@style/TasirinInfo"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:text="@string/start" />
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_url_box"
+                    android:clickable="true"
+                    android:contentDescription="@string/copy_url"
+                    android:focusable="true"
+                    android:padding="10dp" />
+
+                <TextView
+                    android:id="@+id/uptimeInfo"
+                    style="@style/TasirinInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/restartHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/settings_changed_hint"
-                android:textColor="@color/status_off"
-                android:textSize="11sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/updateHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/update_available_hint"
-                android:textColor="@color/accent"
-                android:textSize="11sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/netInfo"
-                style="@style/TasirinInfo"
+            <!-- ===================== SERVER ===================== -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_info_box"
-                android:padding="12dp" />
-        </LinearLayout>
-
-        <!-- ===================== LOG REALTIME ===================== -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                style="@style/TasirinSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/log_realtime" />
-
-            <TextView
-                android:id="@+id/homeLogCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/log_lines_initial"
-                android:textSize="11sp" />
-
-            <ScrollView
-                android:id="@+id/homeLogScroll"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_info_box">
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/homeLog"
+                    style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="monospace"
-                    android:padding="8dp"
-                    android:textSize="11sp" />
-            </ScrollView>
+                    android:text="@string/server_title" />
 
-            <Button
-                android:id="@+id/homeSaveLog"
-                android:nextFocusDown="@id/overflowBtn"
-                android:nextFocusUp="@id/startStop"
-                style="@style/TasirinBtn"
+                <TextView
+                    android:id="@+id/restartHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/settings_changed_hint"
+                    android:textColor="@color/status_off"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/updateBtn"
+                    android:nextFocusDown="@id/logToggle"
+                    android:nextFocusUp="@id/netInfo"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/update_available_hint"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- ===================== LOG REALTIME ===================== -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/save_txt" />
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/TasirinSection"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/log_realtime" />
+
+                    <Button
+                        android:id="@+id/logToggle"
+                        android:nextFocusDown="@id/homeSaveLog"
+                        android:nextFocusUp="@id/updateBtn"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/collapse" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/homeLogCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/log_lines_initial"
+                    android:textSize="11sp" />
+
+                <ScrollView
+                    android:id="@+id/homeLogScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_info_box">
+
+                    <TextView
+                        android:id="@+id/homeLog"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:padding="8dp"
+                        android:textSize="11sp" />
+                </ScrollView>
+
+                <Button
+                    android:id="@+id/homeSaveLog"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusUp="@id/logToggle"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/save_txt" />
+            </LinearLayout>
         </LinearLayout>
+    </ScrollView>
+
+    <!-- Footer sticky: status + Start/Stop selalu terlihat -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/card_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding"
+        android:paddingTop="10dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_stopped"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text="@string/stopped"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/startStop"
+            android:nextFocusDown="@id/overflowBtn"
+            android:nextFocusUp="@id/homeSaveLog"
+            style="@style/TasirinBtnPrimary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/start" />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

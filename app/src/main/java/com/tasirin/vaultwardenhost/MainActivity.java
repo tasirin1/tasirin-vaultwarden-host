@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -51,14 +53,17 @@ public class MainActivity extends Activity {
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
     private static final String KEY_TG_NOTIFIED = "tg_notified_version";
+    private static final String KEY_HOME_LOG_EXPANDED = "home_log_expanded";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private TextView statusView;
     private TextView versionView;
     private TextView netInfoView;
+    private TextView uptimeView;
     private TextView restartHint;
-    private TextView updateHint;
+    private Button updateBtn;
+    private Button logToggleBtn;
     private TextView homeLogView;
     private ScrollView homeLogScroll;
     private TextView homeLogCount;
@@ -72,6 +77,9 @@ public class MainActivity extends Activity {
     private String lastShownStatus = "";
     private String lastShownNet = "";
     private String lastShownVersion = "";
+    private String lastShownUptime = "";
+    private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
+    private boolean homeLogExpanded = true;
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private int lineCount = 0;
@@ -109,8 +117,10 @@ public class MainActivity extends Activity {
         statusView = findViewById(R.id.status);
         versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
+        uptimeView = findViewById(R.id.uptimeInfo);
         restartHint = findViewById(R.id.restartHint);
-        updateHint = findViewById(R.id.updateHint);
+        updateBtn = findViewById(R.id.updateBtn);
+        logToggleBtn = findViewById(R.id.logToggle);
         homeLogView = findViewById(R.id.homeLog);
         homeLogScroll = findViewById(R.id.homeLogScroll);
         homeLogCount = findViewById(R.id.homeLogCount);
@@ -127,6 +137,12 @@ public class MainActivity extends Activity {
         });
         overflowBtn.setOnClickListener(v -> showOverflowMenu());
         homeSaveBtn.setOnClickListener(v -> exportHomeLogTxt());
+        // Ketuk URL untuk menyalin (pengganti tombol Salin URL yang pindah ke Settings)
+        netInfoView.setOnClickListener(v -> copyShownUrl());
+        // Tombol update melompat ke Settings tempat Cek Update berada
+        updateBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, SettingsActivity.class)));
+        logToggleBtn.setOnClickListener(v -> setHomeLogExpanded(!homeLogExpanded));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -145,6 +161,8 @@ public class MainActivity extends Activity {
         ui.post(this::refreshFromService);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        homeLogExpanded = sp.getBoolean(KEY_HOME_LOG_EXPANDED, true);
+        applyHomeLogExpanded();
         // Cek update otomatis saat dibuka
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
@@ -327,16 +345,35 @@ public class MainActivity extends Activity {
             }
         }
         if (updAvail) {
-            updateHint.setText(getString(R.string.update_available, pendingVersion));
-            updateHint.setVisibility(View.VISIBLE);
+            updateBtn.setText(getString(R.string.update_open_settings, pendingVersion));
+            updateBtn.setVisibility(View.VISIBLE);
         } else {
-            updateHint.setVisibility(View.GONE);
+            updateBtn.setVisibility(View.GONE);
+        }
+        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: alihkan tetangga
+        if (updAvail != lastUpdBtnVisible) {
+            lastUpdBtnVisible = updAvail;
+            netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.logToggle);
+            logToggleBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
         }
 
         String net = ServerService.localUrl(this);
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;
+        }
+
+        String uptime = "";
+        if (running) {
+            long up = ServerService.uptimeMs();
+            if (up > 0) {
+                uptime = getString(R.string.uptime_format, TgBot.durationText(up));
+            }
+        }
+        if (!uptime.equals(lastShownUptime)) {
+            lastShownUptime = uptime;
+            uptimeView.setText(uptime);
+            uptimeView.setVisibility(uptime.isEmpty() ? View.GONE : View.VISIBLE);
         }
 
         String version = "App " + appVersion;
@@ -381,8 +418,36 @@ public class MainActivity extends Activity {
         }
         lastLogLen = len;
         homeLogCount.setText(getString(R.string.log_lines, lineCount));
-        homeLogView.setText(text);
+        homeLogView.setText(text.isEmpty()
+                ? getString(R.string.log_empty_hint) : text);
         homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL). */
+    private void copyShownUrl() {
+        String url = ServerService.localUrl(this);
+        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm != null) {
+            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", url));
+            toast(getString(R.string.url_copied, url));
+        } else {
+            toast(url);
+        }
+    }
+
+    /** Ciutkan/bentangkan pratinjau log; pilihan disimpan di prefs. */
+    private void setHomeLogExpanded(boolean expanded) {
+        homeLogExpanded = expanded;
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                .putBoolean(KEY_HOME_LOG_EXPANDED, expanded).apply();
+        applyHomeLogExpanded();
+    }
+
+    private void applyHomeLogExpanded() {
+        homeLogScroll.setVisibility(homeLogExpanded ? View.VISIBLE : View.GONE);
+        homeLogCount.setVisibility(homeLogExpanded ? View.VISIBLE : View.GONE);
+        logToggleBtn.setText(getString(homeLogExpanded
+                ? R.string.collapse : R.string.expand));
     }
 
     // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
