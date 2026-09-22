@@ -756,8 +756,16 @@ public final class TgBackup {
                 + " Tekan /start untuk menjalankan.";
     }
 
+    /** PIN hanya aktif bila ada hash tersimpan; murni agar bisa unit test. */
+    static boolean pinAktif(boolean pinOn, String pinHash) {
+        return pinOn && pinHash != null && !pinHash.isEmpty();
+    }
+
     /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
-     *  dipertahankan agar bot tetap terhubung setelah restore. */
+     *  dipertahankan agar bot tetap terhubung setelah restore. Kredensial
+     *  tak pernah diimpor dari file (termasuk backup lama yang masih
+     *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
+     *  perangkat memang tak punya. */
     static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
         if (prefs == null) {
             return;
@@ -812,10 +820,17 @@ public final class TgBackup {
         ed.putString(KEY_TG_PASS, keepPass);
         if (!keepAdmin.isEmpty()) {
             ed.putString(ServerService.KEY_ADMIN_TOKEN, keepAdmin);
+        } else {
+            ed.remove(ServerService.KEY_ADMIN_TOKEN);
         }
         if (!keepPinHash.isEmpty()) {
             ed.putString("pin_hash", keepPinHash);
+        } else {
+            ed.remove("pin_hash");
         }
+        // Konsistensi PIN: tanpa hash, kunci PIN wajib mati agar tak fail-open
+        // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
+        ed.putBoolean("pin_on", pinAktif(prefs.optBoolean("pin_on", false), keepPinHash));
         long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
                 ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
         ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));

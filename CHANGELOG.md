@@ -52,6 +52,14 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Restore/import tak lagi membangkitkan kredensial lama**: `applyPrefsFromJson`
+  menghapus `admin_token`/`pin_hash` impor bila perangkat tak punya nilai
+  (backup lama yang masih menyimpan secrets tak lagi bocor saat restore),
+  dan `pin_on` dipaksa mati bila hash kosong agar tak fail-open
+  (helper murni `pinAktif` + test). Teks dialog Export yang masih menyebut
+  file berisi token/PIN/password diluruskan (kredensial memang tak ikut export).
+- **Banding token status web toleran spasi salinan**: helper murni
+  `tokenCocok` (trim kedua sisi + constant-time + test regresi).
 - **Warning linker tak lagi mengotori versi terpasang**: di STB kernel lama baris pertama output `binary --version` adalah `WARNING: linker: ... unsupported flags DT_FLAGS_1` (tidak fatal) sehingga versi terbaca sebagai teks warning (`versi: WARNING: linker...` di log Start) dan deteksi versi terpasang gagal (regex tak cocok). Baris noise kini disaring di `ServerService` + `Updater` (helper `isNoiseLinker` + test regresi) — log Start menampilkan versi asli; saringan log realtime yang sudah ada tak berubah.
 - **HTTPS di STB kernel lama (`bad TLS ticketer: failed to get random bytes`)**: HTTP jalan tapi HTTPS selalu crash exit 1 — crate `getrandom` 0.2 (dipakai `ring` 0.17 ke ticketer TLS Rocket `rustls`) memanggil `syscall(SYS_getrandom)` mentah yang juga `EINVAL` di kernel 3.14 tanpa fallback (bukan `ENOSYS`), sehingga shim lama yang hanya mencegat `getrandom()` libc tidak berpengaruh di jalur TLS. Shim kini mencegat kedua simbol (`getrandom` + `syscall`) dan melayani keduanya dari `/dev/urandom`; uji interposisi CI mencakup kedua jalur. Pengguna cukup tekan **Cek Update** (shim baru terunduh otomatis + terverifikasi SHA-256) lalu Start lagi. App juga mengenali pesan ticketer sebagai masalah kernel lama (auto-restart dimatikan + saran, bukan salah sertifikat) + test regresi.
 - **Shim getrandom selalu ditolak sebagai "tidak valid"**: batas ukuran minimum (`SHIM_MIN_BYTES` 4096 byte) lebih besar dari shim rilis yang asli (2712 byte, stripped) sehingga setiap unduhan yang checksum-nya cocok langsung dihapus dan Start gagal terus di STB kernel lama (mis. ZTE B860H) — batas kini 1024 byte + test regresi, dan pesan galat menyebut ukuran file agar mudah didiagnosis.

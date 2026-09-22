@@ -226,8 +226,8 @@ public class SettingsActivity extends Activity {
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
         exportCfgBtn.setOnClickListener(v -> confirm("Export Pengaturan",
-                "File berisi DATA SENSITIF (token bot, admin token, PIN, "
-                        + "password backup). Jangan bagikan ke orang lain. Lanjutkan?",
+                "File tidak membawa token/PIN/password (tetap di perangkat ini)."
+                        + " Tetap jangan bagikan ke orang lain. Lanjutkan?",
                 () -> runBusy(this::exportConfig)));
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
@@ -1217,7 +1217,7 @@ public class SettingsActivity extends Activity {
             String ts = TgBackup.backupTimestamp();
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
-            // Config berisi token & PIN: enkripsi bila password backup diisi.
+            // Kredensial tak ikut export (tetap di perangkat); enkripsi bila password backup diisi.
             String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
             final File out;
             final String mime;

@@ -1,6 +1,8 @@
 package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -16,5 +18,23 @@ public class TgBackupTest {
         assertEquals("2.0 MB", TgBackup.humanBytes(2 * 1048576));
         assertEquals("1.0 GB", TgBackup.humanBytes(1073741824L));
         assertEquals("?", TgBackup.humanBytes(-1));
+    }
+
+    @Test
+    public void pinAktif_butuhHash() {
+        assertTrue(TgBackup.pinAktif(true, "PBKDF2$120000$aa$bb"));
+        assertFalse(TgBackup.pinAktif(true, ""));
+        assertFalse(TgBackup.pinAktif(true, null));
+        assertFalse(TgBackup.pinAktif(false, "PBKDF2$120000$aa$bb"));
+        assertFalse(TgBackup.pinAktif(false, ""));
+    }
+
+    @Test
+    public void secretTakIkutBackup() {
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains("admin_token"));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_token"));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_chat"));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_pass"));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains("pin_hash"));
     }
 }

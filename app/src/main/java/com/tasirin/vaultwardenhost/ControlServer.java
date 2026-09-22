@@ -169,6 +169,21 @@ public final class ControlServer {
         }
     }
 
+    /** Banding token constant-time; kedua sisi di-trim agar salinan token
+     *  ber-spasi tak ditolak. Murni agar bisa unit test. */
+    static boolean tokenCocok(String perlu, String dapat) {
+        if (perlu == null || dapat == null) {
+            return false;
+        }
+        String a = perlu.trim();
+        if (a.isEmpty()) {
+            return false;
+        }
+        return MessageDigest.isEqual(
+                a.getBytes(StandardCharsets.UTF_8),
+                dapat.trim().getBytes(StandardCharsets.UTF_8));
+    }
+
     /** True bila query membawa admin token yang benar (atau tidak ada token
      *  yang dikonfigurasi - status web tetap terbuka seperti sebelumnya). */
     private boolean checkToken(String query) {
@@ -194,9 +209,7 @@ public final class ControlServer {
                     String got = java.net.URLDecoder.decode(
                             query.substring(eq + 1, end), "UTF-8");
                     // Banding constant-time: lawan timing attack di LAN.
-                    if (MessageDigest.isEqual(
-                            need.trim().getBytes(StandardCharsets.UTF_8),
-                            got.getBytes(StandardCharsets.UTF_8))) {
+                    if (tokenCocok(need, got)) {
                         return true;
                     }
                 } catch (Exception ignored) {
