@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Status web ringan di port terpisah dari vaultwarden: JSON status + log realtime
@@ -192,7 +193,10 @@ public final class ControlServer {
                 try {
                     String got = java.net.URLDecoder.decode(
                             query.substring(eq + 1, end), "UTF-8");
-                    if (need.trim().equals(got)) {
+                    // Banding constant-time: lawan timing attack di LAN.
+                    if (MessageDigest.isEqual(
+                            need.trim().getBytes(StandardCharsets.UTF_8),
+                            got.getBytes(StandardCharsets.UTF_8))) {
                         return true;
                     }
                 } catch (Exception ignored) {

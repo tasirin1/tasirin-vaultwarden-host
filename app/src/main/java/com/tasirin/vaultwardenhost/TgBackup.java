@@ -308,6 +308,13 @@ public final class TgBackup {
         zos.closeEntry();
     }
 
+    /** Kredensial perangkat-lokal: tidak ikut backup/export agar token tidak
+     *  mampir ke cloud Telegram / file polos. Restore/import mempertahankan
+     *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
+    static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
+            java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
+                    "tg_pass", "pin_hash"));
+
     /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {
         JSONObject root = new JSONObject();
@@ -315,6 +322,9 @@ public final class TgBackup {
         root.put("version", 1);
         JSONObject prefs = new JSONObject();
         for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
+            if (SECRET_PREF_KEYS.contains(e.getKey())) {
+                continue;
+            }
             Object v = e.getValue();
             if (v instanceof String) {
                 prefs.put(e.getKey(), (String) v);
@@ -550,7 +560,34 @@ public final class TgBackup {
         }
     }
 
+    /** Dekripsi + hapus output bila gagal (jangan sisakan plaintext parsial). */
     public static void decryptFile(File in, File out, String pass) throws Exception {
+        try {
+            decryptToFile(in, out, pass);
+        } catch (Exception e) {
+            try {
+                out.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
+        }
+    }
+
+    private static void decryptToFile(File in, File out, String pass) throws Exception {
+        try {
+            decryptWithKdf(in, out, pass, true);
+        } catch (Exception e) {
+            // Fallback: backup lama memakai PBKDF2-HMAC-SHA1.
+            try {
+                out.delete();
+            } catch (Exception ignored) {
+            }
+            decryptWithKdf(in, out, pass, false);
+        }
+    }
+
+    private static void decryptWithKdf(File in, File out, String pass, boolean sha256)
+            throws Exception {
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
             byte[] magic = new byte[4];
@@ -563,7 +600,8 @@ public final class TgBackup {
             readFully(fis, salt);
             readFully(fis, iv);
             Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
-            c.init(Cipher.DECRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt), "AES"),
+            c.init(Cipher.DECRYPT_MODE,
+                    new SecretKeySpec(deriveKey(pass, salt, sha256), "AES"),
                     new GCMParameterSpec(128, iv));
             byte[] buf = new byte[64 * 1024];
             int n;
@@ -575,8 +613,14 @@ public final class TgBackup {
     }
 
     private static byte[] deriveKey(String pass, byte[] salt) throws Exception {
+        return deriveKey(pass, salt, true);
+    }
+
+    /** KDF backup: SHA256 untuk file baru, SHA1 hanya fallback baca file lama. */
+    private static byte[] deriveKey(String pass, byte[] salt, boolean sha256) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(pass.toCharArray(), salt, 100000, 256);
-        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        SecretKeyFactory f = SecretKeyFactory.getInstance(
+                sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
         byte[] key = f.generateSecret(spec).getEncoded();
         spec.clearPassword();
         return key;
@@ -723,6 +767,8 @@ public final class TgBackup {
         String keepToken = cur.getString(KEY_TG_TOKEN, "");
         String keepChat = cur.getString(KEY_TG_CHAT, "");
         String keepPass = cur.getString(KEY_TG_PASS, "");
+        String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
+        String keepPinHash = cur.getString("pin_hash", "");
         long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
         String keepNotified = cur.getString("tg_notified_version", "");
         String keepWvFrom = cur.getString("wv_from_version", "");
@@ -764,6 +810,12 @@ public final class TgBackup {
         ed.putString(KEY_TG_TOKEN, keepToken);
         ed.putString(KEY_TG_CHAT, keepChat);
         ed.putString(KEY_TG_PASS, keepPass);
+        if (!keepAdmin.isEmpty()) {
+            ed.putString(ServerService.KEY_ADMIN_TOKEN, keepAdmin);
+        }
+        if (!keepPinHash.isEmpty()) {
+            ed.putString("pin_hash", keepPinHash);
+        }
         long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
                 ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
         ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));

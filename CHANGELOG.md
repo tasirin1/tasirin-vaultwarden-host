@@ -42,6 +42,14 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **QR koneksi dihapus** untuk menghemat ukuran APK: encoder mandiri
   (`QrEncoder`, tanpa dependensi) + dialog + tombol + unit test + dependensi
   zxing (scope test) dibuang; URL dibagikan lewat **Salin URL**.
+- **Backup tak lagi membawa kredensial**: `admin_token`, `tg_token`,
+  `tg_chat`, `tg_pass`, `pin_hash` dikecualikan dari JSON backup/export
+  (tidak mampir ke cloud Telegram / file polos); restore/import
+  mempertahankan nilai perangkat. Dekripsi gagal tak lagi menyisakan
+  plaintext parsial; KDF backup baru SHA256 (fallback baca SHA1 lama).
+- **Telegram**: perintah basi (>5 mnt) diabaikan, long-poll 50 dtk + guard
+  anti tumpang-tindih; banding admin token constant-time; peringatan bila
+  Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
 - **Warning linker tak lagi mengotori versi terpasang**: di STB kernel lama baris pertama output `binary --version` adalah `WARNING: linker: ... unsupported flags DT_FLAGS_1` (tidak fatal) sehingga versi terbaca sebagai teks warning (`versi: WARNING: linker...` di log Start) dan deteksi versi terpasang gagal (regex tak cocok). Baris noise kini disaring di `ServerService` + `Updater` (helper `isNoiseLinker` + test regresi) — log Start menampilkan versi asli; saringan log realtime yang sudah ada tak berubah.

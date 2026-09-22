@@ -551,6 +551,10 @@ public class SettingsActivity extends Activity {
         }
 
         String net = ServerService.localUrl(this);
+        String netWarn = ServerService.netWarning(this);
+        if (!netWarn.isEmpty()) {
+            net += "\n" + netWarn;
+        }
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;
@@ -1164,6 +1168,7 @@ public class SettingsActivity extends Activity {
                     }
                     File plain = new File(getCacheDir(), "vwtg-restore-dec.zip");
                     TgBackup.decryptFile(tmp, plain, pass.trim());
+                    tmp.delete();
                     zip = plain;
                 }
                 final File finalZip = zip;
@@ -1328,6 +1333,8 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Config import selesai.");
             });
         } catch (Exception e) {
+            new File(getCacheDir(), "vwcfg-import.bin").delete();
+            new File(getCacheDir(), "vwcfg-import-dec.json").delete();
             toast("Gagal import config: " + e.getMessage());
             appendUiLog("[app] Gagal import config: " + e);
         }

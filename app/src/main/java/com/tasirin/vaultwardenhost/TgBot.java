@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Remote kontrol Vaultwarden Host lewat Telegram bot (long polling getUpdates). */
 public final class TgBot {
@@ -30,6 +31,8 @@ public final class TgBot {
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     private static final long POLL_INTERVAL_MS = 60_000;
+    private static final long STALE_MSG_MS = 5 * 60_000;
+    private static final AtomicBoolean POLLING = new AtomicBoolean(false);
 
     private static final String TG_API = "https://api.telegram.org/bot";
 
@@ -58,6 +61,10 @@ public final class TgBot {
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
     public static void pollOnce(Context ctx) {
+        // Long-poll 50 dtk vs alarm 60 dtk bisa tumpang tindih: satu saja jalan.
+        if (!POLLING.compareAndSet(false, true)) {
+            return;
+        }
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
@@ -66,7 +73,7 @@ public final class TgBot {
                 return;
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
-            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=0&limit=10";
+            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=50&limit=10";
             String body = httpGet(ctx, url);
             if (body == null) {
                 return;
@@ -93,6 +100,13 @@ public final class TgBot {
                             }
                             // Hanya layani chat yang dikonfigurasi di pengaturan
                             if (String.valueOf(c.optLong("id", -1)).equals(chat.trim())) {
+                                // Perintah basi (>5 mnt, mis. /stop tertunda saat bot
+                                // offline) wajib diabaikan; offset tetap maju.
+                                long dateMs = msg.optLong("date", 0) * 1000L;
+                                if (dateMs > 0 && System.currentTimeMillis() - dateMs
+                                        > STALE_MSG_MS) {
+                                    continue;
+                                }
                                 String text = msg.optString("text", "").trim();
                                 handleCommand(ctx, text);
                             }
@@ -106,6 +120,8 @@ public final class TgBot {
                 }
             }
         } catch (Exception ignored) {
+        } finally {
+            POLLING.set(false);
         }
     }
 
@@ -433,7 +449,7 @@ public final class TgBot {
         try {
             c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(15000);
-            c.setReadTimeout(30000);
+            c.setReadTimeout(70000);
             c.setRequestMethod("GET");
             HttpsCompat.apply(c, ctx);
             int code = c.getResponseCode();

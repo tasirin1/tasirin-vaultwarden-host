@@ -989,6 +989,16 @@ public class ServerService extends Service {
         return ipCache;
     }
 
+    /** Peringatan bila Admin Token kosong: status web & log LAN terbuka. */
+    public static String netWarning(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        String at = sp.getString(KEY_ADMIN_TOKEN, "");
+        if (at == null || at.trim().isEmpty()) {
+            return context.getString(R.string.no_admin_token_warn);
+        }
+        return "";
+    }
+
     /** URL akses lengkap dari perangkat lain, mengikuti setting port & HTTPS. */
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);

@@ -359,6 +359,10 @@ public class MainActivity extends Activity {
         }
 
         String net = ServerService.localUrl(this);
+        String netWarn = ServerService.netWarning(this);
+        if (!netWarn.isEmpty()) {
+            net += "\n" + netWarn;
+        }
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;
