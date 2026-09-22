@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal: brand ringkas (tanpa tagline) + kartu info (versi, URL ketuk-
-     untuk-salinan, uptime) + kartu server + kartu log collapsible + footer
-     Start/Stop sticky. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang
-     melewati updateBtn yang kadang gone diperbaiki dinamis di MainActivity. -->
+<!-- Layar awal portrait: brand ringkas + kartu info + kartu server (banner
+     status full-width) + kartu log collapsible + footer Start full-width
+     sticky. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
+     updateBtn yang kadang gone diperbaiki dinamis di MainActivity.
+     Varian landscape ada di res/layout-land/activity_main.xml (ID sama). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -114,6 +115,20 @@
                     android:text="@string/server_title" />
 
                 <TextView
+                    android:id="@+id/status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_status_stopped"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/stopped"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/restartHint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -205,41 +220,24 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Footer sticky: status + Start/Stop selalu terlihat -->
+    <!-- Footer sticky: Start/Stop full-width selalu terlihat -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/card_bg"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingStart="@dimen/side_padding"
         android:paddingEnd="@dimen/side_padding"
         android:paddingTop="10dp"
         android:paddingBottom="12dp">
-
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_status_stopped"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:text="@string/stopped"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
 
         <Button
             android:id="@+id/startStop"
             android:nextFocusDown="@id/overflowBtn"
             android:nextFocusUp="@id/homeSaveLog"
             style="@style/TasirinBtnPrimary"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
             android:text="@string/start" />
     </LinearLayout>
 </LinearLayout>

@@ -20,6 +20,10 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   URL ketuk-untuk-salinan + uptime), tombol Start/Stop sticky di footer,
   pratinjau log bisa diciutkan/bentangkan, peringatan update menjadi tombol
   lompat ke Settings, dan status kosong log yang membantu.
+- **Status pindah + landscape optimal**: status server menjadi banner
+  full-width di kartu server (tidak lagi di samping Start; footer hanya
+  tombol Start full-width), dan varian `layout-land` dua kolom
+  (info+server | log penuh) untuk TV/STB horizontal.
 - **Tampilan utama baru**: hero gradien brand (ikon + tagline), kartu Server
   dengan label aksi cepat & kotak info, tombol utama berisi, palet
   terang/gelap diselaraskan — ID dan navigasi D-pad tidak berubah.

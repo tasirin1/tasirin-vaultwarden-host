@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layar awal landscape: hero + dua kolom (kiri: info+server, kanan: log
+     penuh) + footer Start full-width sticky. ID sama persis dengan portrait
+     agar MainActivity tidak berubah. Rantai nextFocus*: kolom kiri dulu,
+     lalu kolom kanan, lalu footer. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/side_padding"
+    android:paddingEnd="@dimen/side_padding"
+    android:paddingTop="8dp">
+
+    <!-- Hero ringkas satu baris -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_hero"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/app_name"
+            android:focusable="false"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:id="@+id/appTitle"
+            style="@style/TasirinHeroTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/app_name" />
+
+        <Button
+            android:id="@+id/overflowBtn"
+            android:nextFocusDown="@id/netInfo"
+            android:nextFocusUp="@id/startStop"
+            style="@style/TasirinBtnHero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/menu"
+            android:text="&#8942;" />
+    </LinearLayout>
+
+    <!-- Dua kolom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <!-- Kolom kiri: info + server -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/version"
+                        style="@style/TasirinInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/netInfo"
+                        android:nextFocusDown="@id/updateBtn"
+                        android:nextFocusUp="@id/overflowBtn"
+                        style="@style/TasirinInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_url_box"
+                        android:clickable="true"
+                        android:contentDescription="@string/copy_url"
+                        android:focusable="true"
+                        android:padding="10dp" />
+
+                    <TextView
+                        android:id="@+id/uptimeInfo"
+                        style="@style/TasirinInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        style="@style/TasirinSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/server_title" />
+
+                    <TextView
+                        android:id="@+id/status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_status_stopped"
+                        android:gravity="center"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/stopped"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/restartHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_changed_hint"
+                        android:textColor="@color/status_off"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/updateBtn"
+                        android:nextFocusDown="@id/logToggle"
+                        android:nextFocusUp="@id/netInfo"
+                        style="@style/TasirinBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/update_available_hint"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Kolom kanan: log penuh -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/log_realtime" />
+
+                <Button
+                    android:id="@+id/logToggle"
+                    android:nextFocusDown="@id/homeSaveLog"
+                    android:nextFocusUp="@id/updateBtn"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/collapse" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/homeLogCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/log_lines_initial"
+                android:textSize="11sp" />
+
+            <ScrollView
+                android:id="@+id/homeLogScroll"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_info_box">
+
+                <TextView
+                    android:id="@+id/homeLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:padding="8dp"
+                    android:textSize="11sp" />
+            </ScrollView>
+
+            <Button
+                android:id="@+id/homeSaveLog"
+                android:nextFocusDown="@id/startStop"
+                android:nextFocusUp="@id/logToggle"
+                style="@style/TasirinBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/save_txt" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Footer sticky: Start full-width -->
+    <Button
+        android:id="@+id/startStop"
+        android:nextFocusDown="@id/overflowBtn"
+        android:nextFocusUp="@id/homeSaveLog"
+        style="@style/TasirinBtnPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/start" />
+</LinearLayout>
