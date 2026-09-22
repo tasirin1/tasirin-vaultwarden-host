@@ -87,38 +87,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <Button
                     android:id="@+id/copyUrl"
                     android:nextFocusDown="@id/qrBtn"
                     android:nextFocusUp="@id/startStop"
-                    style="@style/TasirinBtnSmall"
-                    android:layout_width="0dp"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:text="@string/copy_url" />
 
                 <Button
                     android:id="@+id/qrBtn"
                     android:nextFocusDown="@id/statusWeb"
                     android:nextFocusUp="@id/copyUrl"
-                    style="@style/TasirinBtnSmall"
-                    android:layout_width="0dp"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
+                    android:layout_marginTop="8dp"
                     android:text="@string/qr" />
 
                 <Button
                     android:id="@+id/statusWeb"
                     android:nextFocusDown="@id/dataDir"
                     android:nextFocusUp="@id/qrBtn"
-                    style="@style/TasirinBtnSmall"
-                    android:layout_width="0dp"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
+                    android:layout_marginTop="8dp"
                     android:text="@string/status_web" />
             </LinearLayout>
 
@@ -129,9 +126,16 @@
                 android:background="@color/card_stroke" />
 
             <TextView
+                style="@style/TasirinSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sub_koneksi" />
+
+            <TextView
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="@string/folder_data" />
 
             <EditText

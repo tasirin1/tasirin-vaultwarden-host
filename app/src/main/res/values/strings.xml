@@ -84,6 +84,20 @@
     <string name="open_log_full">Buka Log (layar penuh)</string>
     <string name="scan_qr">Pindai dengan kamera HP lain untuk membuka %1$s</string>
 
+    <!-- Sub-judul grup di Settings -->
+    <string name="sub_koneksi">Koneksi</string>
+    <string name="sub_akses">Akses admin</string>
+    <string name="sub_sistem">Sistem</string>
+    <string name="sub_keamanan">Keamanan</string>
+    <string name="sub_pembaruan">Pembaruan</string>
+    <string name="sub_sertifikat">Sertifikat</string>
+    <string name="sub_konfigurasi">Konfigurasi</string>
+    <string name="sub_db">Web Vault &amp; Database</string>
+    <string name="sub_tg_kredensial">Kredensial bot</string>
+    <string name="sub_tg_otomatis">Backup otomatis</string>
+    <string name="sub_tg_aksi">Aksi</string>
+    <string name="log_hint">Lihat, cari, dan simpan log server di layar penuh.</string>
+
     <!-- Halaman log -->
     <string name="log_full_title">Log Realtime (layar penuh)</string>
     <string name="save_txt">Simpan .txt</string>

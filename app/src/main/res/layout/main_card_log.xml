@@ -2,7 +2,7 @@
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="16dp">
@@ -13,12 +13,19 @@
                     android:layout_height="wrap_content"
                     android:text="@string/log_realtime" />
 
+                <TextView
+                    style="@style/TasirinHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/log_hint" />
+
                 <Button
                     android:id="@+id/logOpen"
                     android:nextFocusDown="@id/startStop"
                     android:nextFocusUp="@id/restoreTg"
-                    style="@style/TasirinBtnPrimary"
+                    style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="@string/open_log_full" />
             </LinearLayout>

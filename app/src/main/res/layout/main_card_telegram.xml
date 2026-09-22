@@ -2,7 +2,7 @@
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="16dp">
@@ -14,9 +14,16 @@
                     android:text="@string/backup_telegram" />
 
                 <TextView
+                    style="@style/TasirinSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sub_tg_kredensial" />
+
+                <TextView
                     style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/bot_token" />
 
                 <LinearLayout
@@ -111,6 +118,17 @@
                     android:hint="@string/bin_sha_hint"
                     android:inputType="text" />
 
+                <View android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@color/card_stroke" />
+
+                <TextView
+                    style="@style/TasirinSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sub_tg_otomatis" />
+
                 <CheckBox
                     android:id="@+id/tgAuto"
                     android:nextFocusDown="@id/backupOnStart"
@@ -118,7 +136,7 @@
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:text="@string/backup_auto_24h" />
 
                 <CheckBox
@@ -140,20 +158,30 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/backup_include_settings" />
 
+                <View android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@color/card_stroke" />
+
+                <TextView
+                    style="@style/TasirinSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sub_tg_aksi" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical">
 
                     <Button
                         android:id="@+id/backupTg"
                         android:nextFocusDown="@id/restoreTg"
                         android:nextFocusUp="@id/backupOnStart"
                         style="@style/TasirinBtn"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:text="@string/backup_to_tg" />
 
                     <Button
@@ -161,10 +189,9 @@
                         android:nextFocusDown="@id/logOpen"
                         android:nextFocusUp="@id/backupTg"
                         style="@style/TasirinBtn"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
+                        android:layout_marginTop="8dp"
                         android:text="@string/restore_from_tg" />
                 </LinearLayout>
 
