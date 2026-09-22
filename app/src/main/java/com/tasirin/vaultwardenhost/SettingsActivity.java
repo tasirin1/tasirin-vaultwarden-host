@@ -1897,7 +1897,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    @Override
     /** Tunggu hash PIN yang masih antre (maks 5 dtk) agar pembaca pref dapat nilai final. */
     private void flushPinHash() {
         try {
