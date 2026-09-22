@@ -20,6 +20,7 @@
             android:textStyle="bold" />
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logBack"
             android:nextFocusDown="@id/logSave"
             android:background="@drawable/bg_btn_tv"
@@ -31,6 +32,7 @@
             android:textSize="12sp" />
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logCrash"
             android:nextFocusDown="@id/logSave"
             android:nextFocusUp="@id/logBack"
@@ -50,6 +52,7 @@
         android:orientation="horizontal">
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logSave"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
@@ -62,6 +65,7 @@
             android:textSize="11sp" />
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logShare"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
@@ -74,6 +78,7 @@
             android:textSize="11sp" />
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logCopy"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
@@ -86,6 +91,7 @@
             android:textSize="11sp" />
 
         <Button
+            android:stateListAnimator="@null"
             android:id="@+id/logClear"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
