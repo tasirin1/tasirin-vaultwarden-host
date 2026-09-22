@@ -107,8 +107,8 @@ log**, and **Save .txt**. Everything else lives under the **three-dot
 - The status web page now also shows web vault version + size, DB size, backup
   count, and restart history; the full-screen log page has a **Crash** button
   to open the last crash log. If an **admin token** is set, the `/api/*`
-  status-web endpoints require `?token=<admin-token>` (the in-app
-  **Status Web** button appends it automatically).
+  status-web endpoints require `?token=<admin-token>` (appended automatically
+  for local access).
 - Common issues (TLS on old Android, kernel getrandom incompatibility on
   Android 5/6 STBs, Telegram backup, web-vault update failures including
   HTTP 416 resume and corrupt-zip handling, DNS-hijacked GitHub, DNS icon

@@ -50,14 +50,28 @@ public final class TgBackup {
     public static final String KEY_TG_TOKEN = "tg_token";
     public static final String KEY_TG_CHAT = "tg_chat";
     public static final String KEY_TG_AUTO = "tg_auto";
-    public static final String KEY_TG_BACKUP_ON_START = "tg_backup_on_start";
     public static final String KEY_TG_LAST = "tg_last_backup";
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
-    public static final String KEY_TG_FULL = "tg_full";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
+
+    /** Migrasi sekali jalan: gabungan toggle lama ke KEY_TG_AUTO. */
+    public static void migrateAutoPref(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        if (sp.contains("tg_backup_on_start")) {
+            boolean lama = sp.getBoolean("tg_backup_on_start", false);
+            if (lama && !sp.getBoolean(KEY_TG_AUTO, false)) {
+                sp.edit().putBoolean(KEY_TG_AUTO, true).apply();
+            }
+            sp.edit().remove("tg_backup_on_start").apply();
+        }
+        if (sp.contains("tg_full")) {
+            sp.edit().remove("tg_full").apply();
+        }
+    }
+
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
     // Satu worker berantre untuk pesan Telegram: hemat thread (sebelumnya satu
     // thread baru per pesan) sekaligus menjaga urutan pengiriman.
@@ -102,8 +116,8 @@ public final class TgBackup {
         // file tidak menangkap transaksi setengah jalan saat server sedang jalan.
         checkpointWal(db);
 
-        boolean full = sp.getBoolean(KEY_TG_FULL, false);
-        File zip = createBackupZip(dataDir, full, full ? configJson(sp) : null);
+        // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
+        File zip = createBackupZip(dataDir, true, configJson(sp));
         File upload = zip;
         String pass = sp.getString(KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {

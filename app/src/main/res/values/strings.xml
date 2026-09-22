@@ -34,8 +34,7 @@
     <!-- Halaman utama -->
     <string name="copy_url">Salin URL</string>
     <string name="qr">QR</string>
-    <string name="status_web">Status Web</string>
-    <string name="open_web_ui">Buka Web UI</string>
+        <string name="open_web_ui">Buka Web UI</string>
     <string name="folder_data">Folder data</string>
     <string name="default_data_dir">/sdcard/vaultwarden</string>
     <string name="port">Port</string>
@@ -59,8 +58,7 @@
     <string name="auto_restart_update">Restart server otomatis setelah update (bila sedang jalan)</string>
     <string name="check_update">Cek Update</string>
     <string name="reset_binary">Reset Binary</string>
-    <string name="cert">Sertifikat</string>
-    <string name="install_cert">Install Cert</string>
+        <string name="install_cert">Install Cert</string>
     <string name="export_config">Export Config</string>
     <string name="import_config">Import Config</string>
     <string name="update_web_vault">Update Web Vault</string>
@@ -74,10 +72,8 @@
     <string name="backup_pass_label">Password enkripsi (opsional)</string>
     <string name="bin_sha_label">SHA-256 binary manual (opsional)</string>
     <string name="bin_sha_hint">wajib bila pakai binary sendiri</string>
-    <string name="backup_auto_24h">Backup otomatis tiap 24 jam</string>
-    <string name="backup_auto_on_start">Backup otomatis saat Start (maks. 1x/24 jam)</string>
-    <string name="backup_include_settings">Sertakan pengaturan &amp; sertifikat</string>
-    <string name="backup_to_tg">Backup ke Telegram</string>
+    <string name="backup_auto_24h">Backup otomatis tiap 24 jam &amp; saat Start</string>
+            <string name="backup_to_tg">Backup ke Telegram</string>
     <string name="restore_from_tg">Restore dari Telegram</string>
     <string name="tg_bot_info">Buat bot lewat @BotFather di Telegram</string>
     <string name="log_realtime">Log Realtime</string>
@@ -96,6 +92,7 @@
     <string name="sub_tg_kredensial">Kredensial bot</string>
     <string name="sub_tg_otomatis">Backup otomatis</string>
     <string name="sub_tg_aksi">Aksi</string>
+    <string name="cert_hint">File: tls/cert.pem di folder data. Saat install pilih jenis “CA certificate”, bukan “User certificate”. key.pem milik server, jangan disebar.</string>
     <string name="log_hint">Lihat, cari, dan simpan log server di layar penuh.</string>
 
     <!-- Halaman log -->

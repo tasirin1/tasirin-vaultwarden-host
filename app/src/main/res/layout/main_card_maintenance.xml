@@ -66,7 +66,7 @@
 
                     <Button
                         android:id="@+id/revert"
-                        android:nextFocusDown="@id/cert"
+                        android:nextFocusDown="@id/installCert"
                         android:nextFocusUp="@id/update"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
@@ -75,13 +75,8 @@
                         android:text="@string/reset_binary" />
                 </LinearLayout>
 
-                <LinearLayout
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical">
-
-                <View android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="14dp"
                     android:background="@color/card_stroke" />
@@ -92,25 +87,21 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sub_sertifikat" />
 
-                    <Button
-                        android:id="@+id/cert"
-                        android:nextFocusDown="@id/installCert"
-                        android:nextFocusUp="@id/revert"
-                        style="@style/TasirinBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cert" />
+                <Button
+                    android:id="@+id/installCert"
+                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusUp="@id/revert"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/install_cert" />
 
-                    <Button
-                        android:id="@+id/installCert"
-                        android:nextFocusDown="@id/exportCfg"
-                        android:nextFocusUp="@id/cert"
-                        style="@style/TasirinBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/install_cert" />
-                </LinearLayout>
+                <TextView
+                    style="@style/TasirinHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cert_hint" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

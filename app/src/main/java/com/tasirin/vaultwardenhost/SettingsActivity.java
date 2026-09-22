@@ -67,7 +67,6 @@ public class SettingsActivity extends Activity {
     private CheckBox autoStartCheck;
     private CheckBox httpsCheck;
     private CheckBox tgAutoCheck;
-    private CheckBox backupOnStartCheck;
     private EditText tgTokenInput;
     private EditText tgChatInput;
     private EditText backupPassInput;
@@ -101,8 +100,6 @@ public class SettingsActivity extends Activity {
     private Button restoreDbBtn;
     private Button backupTgBtn;
     private Button aboutBtn;
-    private Button statusWebBtn;
-    private CheckBox tgFullCheck;
 
     private String bundledVersion = "?";
     private String appVersion = "";
@@ -146,6 +143,7 @@ public class SettingsActivity extends Activity {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
+        TgBackup.migrateAutoPref(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_settings);
@@ -158,7 +156,6 @@ public class SettingsActivity extends Activity {
         tgTokenInput = findViewById(R.id.tgToken);
         tgChatInput = findViewById(R.id.tgChat);
         tgAutoCheck = findViewById(R.id.tgAuto);
-        backupOnStartCheck = findViewById(R.id.backupOnStart);
         backupPassInput = findViewById(R.id.backupPass);
         binShaInput = findViewById(R.id.binSha);
         pinInput = findViewById(R.id.pinInput);
@@ -180,7 +177,6 @@ public class SettingsActivity extends Activity {
         Button openBtn = findViewById(R.id.open);
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
-        Button certBtn = findViewById(R.id.cert);
         updateWvBtn = findViewById(R.id.updateWv);
         backupDbBtn = findViewById(R.id.backupDb);
         restoreDbBtn = findViewById(R.id.restoreDb);
@@ -196,8 +192,6 @@ public class SettingsActivity extends Activity {
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
         aboutBtn = findViewById(R.id.aboutBtn);
-        statusWebBtn = findViewById(R.id.statusWeb);
-        tgFullCheck = findViewById(R.id.tgFull);
 
         startStopBtn.setOnClickListener(v -> {
             if (ServerService.running) {
@@ -212,7 +206,6 @@ public class SettingsActivity extends Activity {
                 "Hapus binary tersimpan. Versi terbaru akan diunduh ulang "
                         + "otomatis saat Start berikutnya (perlu internet). Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
-        certBtn.setOnClickListener(v -> showCertHelp());
         installCertBtn.setOnClickListener(v -> installCertificate());
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(false));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
@@ -246,7 +239,6 @@ public class SettingsActivity extends Activity {
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
         aboutBtn.setOnClickListener(v -> showAboutDialog());
-        statusWebBtn.setOnClickListener(v -> openStatusWeb());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
@@ -257,13 +249,11 @@ public class SettingsActivity extends Activity {
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
-        backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
-        tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
         setAdvancedOpen(sp.getBoolean(KEY_ADVANCED_OPEN, true));
@@ -278,11 +268,8 @@ public class SettingsActivity extends Activity {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
             TgBackup.schedule(SettingsActivity.this, checked);
-            toast(checked ? "Backup harian diaktifkan." : "Backup harian dimatikan.");
+            toast(checked ? "Backup otomatis diaktifkan." : "Backup otomatis dimatikan.");
         });
-        backupOnStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                        .putBoolean(TgBackup.KEY_TG_BACKUP_ON_START, checked).apply());
         autoUpdateCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_UPDATE, checked).apply());
@@ -292,9 +279,6 @@ public class SettingsActivity extends Activity {
         autoRestartCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, checked).apply());
-        tgFullCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                        .putBoolean(TgBackup.KEY_TG_FULL, checked).apply());
         tgTokenInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_TOKEN));
         tgChatInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_CHAT));
         // Jadwal bot di-debounce: jangan pasang ulang alarm tiap karakter.
@@ -620,25 +604,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    private void openStatusWeb() {
-        if (!ServerService.running || !ControlServer.running
-                || ControlServer.listeningPort <= 0) {
-            toast("Status web belum aktif. Start server dulu.");
-            return;
-        }
-        try {
-            String at = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                    .getString(ServerService.KEY_ADMIN_TOKEN, "");
-            String suffix = (at == null || at.trim().isEmpty()) ? ""
-                    : "?token=" + Uri.encode(at.trim());
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://" + ServerService.localIp()
-                            + ":" + ControlServer.listeningPort + suffix)));
-        } catch (Exception e) {
-            toast("Gagal membuka status web: " + e.getMessage());
-        }
-    }
-
     // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
     @SuppressWarnings("deprecation")
     private void showAboutDialog() {
@@ -686,29 +651,6 @@ public class SettingsActivity extends Activity {
                 .setTitle("Tentang")
                 .setView(tv)
                 .setPositiveButton("Tutup", null)
-                .show();
-    }
-
-    private void showCertHelp() {
-        String dataDir = dataDirInput.getText().toString().trim();
-        if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
-        }
-        new AlertDialog.Builder(this)
-                .setTitle("Cara install sertifikat")
-                .setMessage("File: " + dataDir + "/tls/cert.pem\n\n"
-                        + "1. Tekan tombol \"Install Cert\" - installer Android langsung terbuka "
-                        + "dalam mode CA certificate.\n\n"
-                        + "2. Kalau manual: Settings > Security > Install certificate "
-                        + "> CA certificate, lalu pilih cert.pem.\n\n"
-                        + "PENTING:\n"
-                        + "- Pilih jenis \"CA certificate\", BUKAN \"User certificate\". "
-                        + "Kalau muncul \"butuh private key\", itu karena kamu memilih "
-                        + "\"User certificate\".\n"
-                        + "- key.pem milik server - JANGAN di-install atau disebar.\n"
-                        + "- HTTPS aktif setelah Start berikutnya (browser tetap menampilkan "
-                        + "peringatan self-signed pada koneksi pertama).")
-                .setPositiveButton("Oke", null)
                 .show();
     }
 
@@ -1407,13 +1349,11 @@ public class SettingsActivity extends Activity {
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
-        backupOnStartCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false));
         autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
         autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
         autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
-        tgFullCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_FULL, false));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
     }
 
@@ -1823,7 +1763,7 @@ public class SettingsActivity extends Activity {
     /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
     private void maybeAutoBackup() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false)) {
+        if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
             return;
         }
         String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();

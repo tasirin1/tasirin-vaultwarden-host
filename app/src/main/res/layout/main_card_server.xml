@@ -100,7 +100,7 @@
 
                 <Button
                     android:id="@+id/qrBtn"
-                    android:nextFocusDown="@id/statusWeb"
+                    android:nextFocusDown="@id/dataDir"
                     android:nextFocusUp="@id/copyUrl"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
@@ -108,15 +108,6 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/qr" />
 
-                <Button
-                    android:id="@+id/statusWeb"
-                    android:nextFocusDown="@id/dataDir"
-                    android:nextFocusUp="@id/qrBtn"
-                    style="@style/TasirinBtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/status_web" />
             </LinearLayout>
 
             <View

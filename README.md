@@ -144,9 +144,9 @@ File lain (`web-vault`, database, config) dipakai langsung dari folder data.
   `binaryHuman`, `backupCount`, `restartHistory`), log teks: `GET /api/log`,
   stream: `GET /api/events`.
 - Bila **Admin Token** diisi, endpoint `/api/*` butuh `?token=<admin-token>`
-  (tombol **Status Web** menyertakannya otomatis) — orang lain di jaringan
+  (token disematkan otomatis bila dibuka dari jaringan lokal) — orang lain di jaringan
   yang sama tidak bisa mengintip log tanpa token.
-- Di app: tombol **Status Web** membuka halaman itu; tombol **Buka** di panel
+- Halaman itu bisa dibuka dari browser; tombol **Buka** di panel
   Log membuka **Log Realtime layar penuh** (cari + highlight `GAGAL/ERROR`,
   hitungan baris, salin, bagikan, **Simpan .txt** ke `Download`, dan tombol
   **Crash** untuk melihat crash log terakhir).

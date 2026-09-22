@@ -34,6 +34,11 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Perintah `/log` hemat**: pakai `tailLog` tanpa salinan buffer penuh.
 - **Efisiensi CPU/RAM/I-O**: kurangi alokasi dan I/O berlebih di semua modul.
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
+- **Settings dipangkas**: tombol **Sertifikat** (cuma dialog bantuan) dan
+  **Status Web** dihapus — panduan sertifikat jadi hint di bawah
+  **Install Cert**; dua toggle backup Telegram digabung jadi satu
+  **Backup otomatis tiap 24 jam & saat Start** (migrasi pref lama otomatis);
+  backup Telegram selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
 
 ### Diperbaiki
 - **Warning linker tak lagi mengotori versi terpasang**: di STB kernel lama baris pertama output `binary --version` adalah `WARNING: linker: ... unsupported flags DT_FLAGS_1` (tidak fatal) sehingga versi terbaca sebagai teks warning (`versi: WARNING: linker...` di log Start) dan deteksi versi terpasang gagal (regex tak cocok). Baris noise kini disaring di `ServerService` + `Updater` (helper `isNoiseLinker` + test regresi) — log Start menampilkan versi asli; saringan log realtime yang sudah ada tak berubah.

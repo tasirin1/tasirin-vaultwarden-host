@@ -110,6 +110,7 @@ public class MainActivity extends Activity {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
+        TgBackup.migrateAutoPref(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
@@ -724,7 +725,7 @@ public class MainActivity extends Activity {
     /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
     private void maybeAutoBackup() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(TgBackup.KEY_TG_BACKUP_ON_START, false)) {
+        if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
             return;
         }
         String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();

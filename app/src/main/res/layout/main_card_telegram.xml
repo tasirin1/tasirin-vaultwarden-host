@@ -131,7 +131,7 @@
 
                 <CheckBox
                     android:id="@+id/tgAuto"
-                    android:nextFocusDown="@id/backupOnStart"
+                    android:nextFocusDown="@id/backupTg"
                     android:nextFocusUp="@id/binSha"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
@@ -139,24 +139,6 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/backup_auto_24h" />
 
-                <CheckBox
-                    android:id="@+id/backupOnStart"
-                    android:nextFocusDown="@id/tgFull"
-                    android:nextFocusUp="@id/tgAuto"
-                    android:background="@drawable/item_focus_bg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/backup_auto_on_start" />
-
-                <CheckBox
-                    android:id="@+id/tgFull"
-                    android:nextFocusDown="@id/backupTg"
-                    android:nextFocusUp="@id/backupOnStart"
-                    android:background="@drawable/item_focus_bg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/backup_include_settings" />
 
                 <View android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -178,7 +160,7 @@
                     <Button
                         android:id="@+id/backupTg"
                         android:nextFocusDown="@id/restoreTg"
-                        android:nextFocusUp="@id/backupOnStart"
+                        android:nextFocusUp="@id/tgAuto"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

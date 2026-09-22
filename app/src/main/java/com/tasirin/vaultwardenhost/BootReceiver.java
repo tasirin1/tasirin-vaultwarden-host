@@ -14,6 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
                 || "android.intent.action.QUICKBOOT_POWERON".equals(action)
                 || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+            TgBackup.migrateAutoPref(context);
             if (sp.getBoolean(ServerService.KEY_AUTO_START, false)) {
                 try {
                     ServerService.start(context);

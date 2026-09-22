@@ -76,7 +76,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https`,
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
-  `tg_auto`, `tg_backup_on_start`, `tg_pass`, `tg_full`, `pin_hash`, `pin_on`,
+  `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
   `wv_from_version`, `tg_notified_version`, `advanced_open`.
 
 ## Aturan pengembangan
