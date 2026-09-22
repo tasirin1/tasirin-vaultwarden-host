@@ -862,6 +862,43 @@ public final class TgBackup {
         }
     }
 
+    /** Normalisasi nama entri zip jadi path relatif di folder data; null bila ditolak.
+     *  Menerima entri top-level (db.sqlite3, tls/..., app-config.json) maupun yang
+     *  terbungkus folder (mis. vaultwarden/db.sqlite3 dari zip manual): folder
+     *  pembungkus dikupas. Entri licik (.., drive, absolut) selalu ditolak. */
+    static String normalisasiEntriZip(String name) {
+        if (name == null) {
+            return null;
+        }
+        String n = name.replace('\\', '/');
+        while (n.startsWith("/")) {
+            n = n.substring(1);
+        }
+        while (n.startsWith("./")) {
+            n = n.substring(2);
+        }
+        if (n.isEmpty() || n.contains("..") || n.contains(":")) {
+            return null;
+        }
+        if (diterimaEntriZip(n)) {
+            return n;
+        }
+        int i;
+        while ((i = n.indexOf('/')) >= 0) {
+            n = n.substring(i + 1);
+            if (diterimaEntriZip(n)) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    private static boolean diterimaEntriZip(String n) {
+        return !n.isEmpty() && !n.contains("..") && !n.contains(":")
+                && (n.equals("app-config.json") || n.startsWith("db.sqlite3")
+                        || n.startsWith("tls/") || n.equals("tls"));
+    }
+
     /** True bila file ber-header SQLite ("SQLite format 3\0"). */
     static boolean isSqliteFile(File f) {
         byte[] head = new byte[16];

@@ -37,4 +37,36 @@ public class TgBackupTest {
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_pass"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("pin_hash"));
     }
+
+    @Test
+    public void normalisasiEntriZip_terimaTopLevel() {
+        assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("db.sqlite3"));
+        assertEquals("db.sqlite3-wal", TgBackup.normalisasiEntriZip("db.sqlite3-wal"));
+        assertEquals("db.sqlite3-shm", TgBackup.normalisasiEntriZip("db.sqlite3-shm"));
+        assertEquals("tls/cert.pem", TgBackup.normalisasiEntriZip("tls/cert.pem"));
+        assertEquals("tls/ca.pem", TgBackup.normalisasiEntriZip("tls/ca.pem"));
+        assertEquals("app-config.json", TgBackup.normalisasiEntriZip("app-config.json"));
+    }
+
+    @Test
+    public void normalisasiEntriZip_kupasFolderPembungkus() {
+        assertEquals("db.sqlite3",
+                TgBackup.normalisasiEntriZip("vaultwarden/db.sqlite3"));
+        assertEquals("tls/cert.pem",
+                TgBackup.normalisasiEntriZip("vaultwarden/tls/cert.pem"));
+        assertEquals("app-config.json",
+                TgBackup.normalisasiEntriZip("data/app-config.json"));
+    }
+
+    @Test
+    public void normalisasiEntriZip_tolakLicikDanAsing() {
+        assertEquals(null, TgBackup.normalisasiEntriZip(null));
+        assertEquals(null, TgBackup.normalisasiEntriZip(""));
+        assertEquals(null, TgBackup.normalisasiEntriZip("../evil.sqlite3"));
+        assertEquals(null, TgBackup.normalisasiEntriZip("a/../../evil"));
+        assertEquals(null, TgBackup.normalisasiEntriZip("C:/data/db.sqlite3"));
+        assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("/db.sqlite3"));
+        assertEquals(null, TgBackup.normalisasiEntriZip("foto.jpg"));
+        assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("backups/db.sqlite3"));
+    }
 }

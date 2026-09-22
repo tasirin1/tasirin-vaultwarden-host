@@ -58,6 +58,13 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Restore database dari .zip lokal selalu gagal**: deteksi magic `PK`
+  memakan 2 byte pertama stream sehingga `ZipInputStream` membaca header
+  rusak (semua zip valid ditolak walau berisi `db.sqlite3`); stream kini
+  dibungkus `PushbackInputStream` agar byte dikembalikan utuh. Nama entri
+  juga dinormalisasi (`TgBackup.normalisasiEntriZip` + test) sehingga zip
+  manual berisi folder pembungkus (`vaultwarden/db.sqlite3`) tetap terbaca;
+  entri licik (`..`/drive/absolut) tetap ditolak.
 - **Sertifikat bisa dipasang di HP lain**: skema TLS baru CA lokal
   (`tls/ca.pem`, CA:TRUE, 10 tahun) + sertifikat server (`cert.pem`, SAN IP,
   ditandatangani CA). Yang dipasang cukup `ca.pem` sebagai CA certificate

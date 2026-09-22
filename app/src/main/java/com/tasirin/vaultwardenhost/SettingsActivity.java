@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -1015,11 +1016,21 @@ public class SettingsActivity extends Activity {
 
             boolean restored = false;
             byte[] buf = new byte[64 * 1024];
-            try (InputStream in = getContentResolver().openInputStream(uri)) {
+            try (InputStream raw = getContentResolver().openInputStream(uri)) {
+                if (raw == null) {
+                    toast("Gagal restore: file tidak bisa dibuka.");
+                    appendUiLog("[app] Restore gagal: stream null");
+                    return;
+                }
+                // Pushback agar byte magic (PK) dikembalikan utuh sebelum
+                // stream dibaca sebagai zip; tanpa ini header zip rusak dan
+                // semua restore .zip gagal walau berisi db.sqlite3.
+                PushbackInputStream in = new PushbackInputStream(raw, 2);
                 byte[] magic = new byte[2];
                 int n = in.read(magic);
                 boolean isZip = n == 2 && magic[0] == 'P' && magic[1] == 'K';
                 if (isZip) {
+                    in.unread(magic, 0, n);
                     // Backup lokal .zip berisi db.sqlite3 (+wal/shm);
                     // backup lengkap juga memuat tls/* + app-config.json.
                     File dataFolder = new File(dataDir);
@@ -1028,18 +1039,21 @@ public class SettingsActivity extends Activity {
                     ZipInputStream zis = new ZipInputStream(in);
                     ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
-                        String name = entry.getName();
+                        String name = TgBackup.normalisasiEntriZip(entry.getName());
+                        if (name == null) {
+                            zis.closeEntry();
+                            continue;
+                        }
                         if ("app-config.json".equals(name)) {
                             zipCfg = new JSONObject(
                                     new String(TgBackup.readAllBytes(zis), StandardCharsets.UTF_8));
                             zis.closeEntry();
                             continue;
                         }
-                        boolean dbPart = name.startsWith("db.sqlite3")
-                                && !name.contains("..") && !name.contains(":");
-                        boolean tlsPart = name.startsWith("tls/")
-                                && !name.contains("..") && !name.contains(":");
+                        boolean dbPart = name.startsWith("db.sqlite3");
+                        boolean tlsPart = name.startsWith("tls/") || name.equals("tls");
                         if (!dbPart && !tlsPart) {
+                            zis.closeEntry();
                             continue;
                         }
                         File out = new File(dataFolder, name);
