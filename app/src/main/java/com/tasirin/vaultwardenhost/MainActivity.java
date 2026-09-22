@@ -319,10 +319,8 @@ public class MainActivity extends Activity {
             String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-            String dm = sp.getString(ServerService.KEY_DOMAIN, "");
             changed = !d.equals(ServerService.runningDataDir)
                     || !p.equals(ServerService.runningPort)
-                    || !(dm == null ? "" : dm.trim()).equals(ServerService.runningDomain)
                     || h != ServerService.runningHttps
                     || !a.equals(ServerService.runningAdminToken);
         }

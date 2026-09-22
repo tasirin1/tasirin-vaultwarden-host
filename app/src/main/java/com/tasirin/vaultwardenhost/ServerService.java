@@ -56,8 +56,6 @@ public class ServerService extends Service {
     public static final String ABI = "armeabi-v7a";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
-    /** Domain lokal kustom (mis. vault.lan); kosong = otomatis IP LAN. */
-    public static final String KEY_DOMAIN = "domain_lokal";
     public static final String KEY_AUTO_START = "auto_start";
     public static final String KEY_UPDATE_VERSION = "update_version";
     public static final String KEY_HTTPS = "https";
@@ -98,7 +96,6 @@ public class ServerService extends Service {
     /** Snapshot konfigurasi server yang sedang berjalan (untuk peringatan restart). */
     public static volatile String runningDataDir = "";
     public static volatile String runningPort = "";
-    public static volatile String runningDomain = "";
     public static volatile boolean runningHttps = false;
     public static volatile String runningAdminToken = "";
 
@@ -376,83 +373,6 @@ public class ServerService extends Service {
         return effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
     }
 
-    /** Normalisasi input domain lokal menjadi host[:port] bersih; null bila kosong/tak valid.
-     *  Terima hostname (vault.lan), host:port, atau URL penuh; hanya logika murni. */
-    static String normalisasiHostDomain(String mentah) {
-        if (mentah == null) {
-            return null;
-        }
-        String s = mentah.trim().toLowerCase(Locale.US);
-        if (s.isEmpty()) {
-            return null;
-        }
-        int skema = s.indexOf("://");
-        if (skema >= 0) {
-            s = s.substring(skema + 3);
-        }
-        int slash = s.indexOf('/');
-        if (slash >= 0) {
-            s = s.substring(0, slash);
-        }
-        int tanya = s.indexOf('?');
-        if (tanya >= 0) {
-            s = s.substring(0, tanya);
-        }
-        if (s.isEmpty() || s.length() > 259) {
-            return null;
-        }
-        String host = s;
-        String port = "";
-        int colon = s.lastIndexOf(':');
-        if (colon >= 0) {
-            host = s.substring(0, colon);
-            port = s.substring(colon + 1);
-            if (port.isEmpty() || !port.matches("[0-9]{1,5}")) {
-                return null;
-            }
-            try {
-                int p = Integer.parseInt(port);
-                if (p < 1 || p > 65535) {
-                    return null;
-                }
-            } catch (NumberFormatException e) {
-                return null;
-            }
-            port = ":" + port;
-        }
-        // IP literal boleh (pakai SAN IP yang sudah ada); nama DNS divalidasi ketat.
-        if (TlsCert.ipv4(host) == null && !TlsCert.namaDnsValid(host)) {
-            return null;
-        }
-        return host + port;
-    }
-
-    /** Ambil nama DNS dari input domain untuk SAN sertifikat; null bila kosong/IP/tak valid. */
-    static String ambilDnsDomain(String mentah) {
-        String bersih = normalisasiHostDomain(mentah);
-        if (bersih == null) {
-            return null;
-        }
-        int colon = bersih.indexOf(':');
-        String host = colon >= 0 ? bersih.substring(0, colon) : bersih;
-        if (TlsCert.ipv4(host) != null) {
-            return null;
-        }
-        return TlsCert.namaDnsValid(host) ? host : null;
-    }
-
-    /** Bangun URL DOMAIN untuk env Vaultwarden; fallback ke host:port otomatis bila kosong/tak valid. */
-    static String bangunDomain(String mentah, String scheme, String port, String hostPortOtomatis) {
-        String bersih = normalisasiHostDomain(mentah);
-        if (bersih == null) {
-            return scheme + "://" + hostPortOtomatis;
-        }
-        if (bersih.contains(":")) {
-            return scheme + "://" + bersih;
-        }
-        return scheme + "://" + bersih + ":" + port;
-    }
-
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Vaultwarden server",
@@ -625,21 +545,13 @@ public class ServerService extends Service {
                 pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 appendLog("[app] LD_PRELOAD shim getrandom aktif.");
             }
-            String mentahDomain = sp.getString(KEY_DOMAIN, "");
-            String domain = bangunDomain(mentahDomain, scheme, port, detectHostPort(port));
+            // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
+            String domain = scheme + "://" + detectHostPort(port);
             pb.environment().put("DOMAIN", domain);
-            String dnsDomain = ambilDnsDomain(mentahDomain);
-            if (dnsDomain != null) {
-                appendLog("[app] Domain lokal: " + dnsDomain + " (pastikan DNS lokal mengarah ke IP ini).");
-            } else if (mentahDomain != null && !mentahDomain.trim().isEmpty()
-                    && normalisasiHostDomain(mentahDomain) == null) {
-                appendLog("[app] Domain lokal '" + mentahDomain.trim() + "' tak valid - pakai IP LAN.");
-            }
             pb.redirectErrorStream(true);
 
             runningDataDir = dataDir;
             runningPort = port;
-            runningDomain = mentahDomain == null ? "" : mentahDomain.trim();
             runningHttps = https;
             runningAdminToken = adminToken == null ? "" : adminToken.trim();
 
@@ -721,7 +633,6 @@ public class ServerService extends Service {
         running = false;
         runningDataDir = "";
         runningPort = "";
-        runningDomain = "";
         runningHttps = false;
         runningAdminToken = "";
         releaseWakeLock();
@@ -1133,13 +1044,13 @@ public class ServerService extends Service {
         return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
     }
 
-    /** URL jaringan memakai domain lokal kustom bila valid, bila tidak pakai IP LAN. */
+    /** URL jaringan (selalu IP LAN; fitur domain lokal dihapus). */
     public static String urlJaringan(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         boolean https = sp.getBoolean(KEY_HTTPS, false);
         String port = effectivePort(sp).trim();
         String scheme = https ? "https" : "http";
-        return bangunDomain(sp.getString(KEY_DOMAIN, ""), scheme, port, localIp() + ":" + port);
+        return scheme + "://" + localIp() + ":" + port;
     }
 
     private void setStatus(String text) {
@@ -1445,11 +1356,6 @@ public class ServerService extends Service {
             List<String> ips = collectIps();
             ips.add(0, "127.0.0.1");
             List<String> dns = new ArrayList<>();
-            String dnsDomain = ambilDnsDomain(
-                    getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_DOMAIN, ""));
-            if (dnsDomain != null) {
-                dns.add(dnsDomain);
-            }
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
 
             File tlsDir = new File(dataFolder, "tls");
@@ -1476,7 +1382,7 @@ public class ServerService extends Service {
         if (saved != null && !saved.equals(cur)) {
             // Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan agar HP lain
             // tak perlu install ulang, jadi version.txt jangan dihapus.
-            appendLog("[app] IP/domain berubah - regenerasi sertifikat server (CA tetap).");
+            appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
             new File(tlsDir, "cert.pem").delete();
             new File(tlsDir, "key.pem").delete();
             ipFile.delete();

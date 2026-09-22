@@ -64,9 +64,7 @@ log**, and **Save .txt**. Everything else lives under the **three-dot
 (⋮) → Settings** menu at the top right.
 
 - Set the data folder, port (default `8088`), HTTPS on/off, and admin token in
-  **⋮ → Settings**. Optionally set a **local domain** (e.g. `vault.lan`) if
-  your local DNS points it at the Android IP — invites and the HTTPS
-  certificate will use that name; leave it empty to use the IP.
+  **⋮ → Settings**. Access always uses the LAN IP.
 - Press **Start** on the home screen; the status web is at `http(s)://<device-ip>:<port+1>`.
 - Pair clients (bitwarden mobile/desktop) to `https://<device-ip>:<port>` and
   accept the self-signed certificate. To silence browser warnings on other

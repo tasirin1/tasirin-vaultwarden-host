@@ -86,61 +86,6 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void domainKosongPakaiOtomatis() {
-        assertEquals("http://192.168.1.10:8088",
-                ServerService.bangunDomain("", "http", "8088", "192.168.1.10:8088"));
-        assertEquals("http://192.168.1.10:8088",
-                ServerService.bangunDomain(null, "http", "8088", "192.168.1.10:8088"));
-        assertEquals("https://192.168.1.10:8088",
-                ServerService.bangunDomain("   ", "https", "8088", "192.168.1.10:8088"));
-    }
-
-    @Test
-    public void domainHostnameDapatPortAktif() {
-        assertEquals("http://vault.lan:8088",
-                ServerService.bangunDomain("vault.lan", "http", "8088", "192.168.1.10:8088"));
-        assertEquals("http://vault.lan:8088",
-                ServerService.bangunDomain("  VAULT.lan  ", "http", "8088", "192.168.1.10:8088"));
-        assertEquals("http://server:8088",
-                ServerService.bangunDomain("server", "http", "8088", "192.168.1.10:8088"));
-    }
-
-    @Test
-    public void domainDenganPortSendiriDipakai() {
-        assertEquals("http://vault.lan:9000",
-                ServerService.bangunDomain("vault.lan:9000", "http", "8088", "192.168.1.10:8088"));
-    }
-
-    @Test
-    public void domainUrlPenuhDiikutiSkemaAktif() {
-        assertEquals("https://vault.lan:8088",
-                ServerService.bangunDomain("http://vault.lan/", "https", "8088", "192.168.1.10:8088"));
-        assertEquals("http://vault.lan:8088",
-                ServerService.bangunDomain("https://vault.lan:8088/path?q=1", "http", "8088",
-                        "192.168.1.10:8088"));
-    }
-
-    @Test
-    public void domainTakValidFallbackOtomatis() {
-        assertEquals("http://192.168.1.10:8088",
-                ServerService.bangunDomain("va ult.lan", "http", "8088", "192.168.1.10:8088"));
-        assertEquals("http://192.168.1.10:8088",
-                ServerService.bangunDomain("vault.lan:0", "http", "8088", "192.168.1.10:8088"));
-        assertEquals("http://192.168.1.10:8088",
-                ServerService.bangunDomain("-salah-.lan", "http", "8088", "192.168.1.10:8088"));
-    }
-
-    @Test
-    public void ambilDnsHanyaNamaValid() {
-        assertEquals("vault.lan", ServerService.ambilDnsDomain("vault.lan"));
-        assertEquals("vault.lan", ServerService.ambilDnsDomain("http://vault.lan:9000/"));
-        assertNull(ServerService.ambilDnsDomain(""));
-        assertNull(ServerService.ambilDnsDomain(null));
-        assertNull(ServerService.ambilDnsDomain("192.168.1.10"));
-        assertNull(ServerService.ambilDnsDomain("va ult.lan"));
-    }
-
-    @Test
     public void saranCrashExit9MenyebutRamPenuh() {
         String saran = ServerService.saranCrash(9);
         assertTrue(saran.contains("RAM"));

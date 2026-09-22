@@ -39,8 +39,6 @@
     <string name="default_data_dir">/sdcard/vaultwarden</string>
     <string name="port">Port</string>
     <string name="default_port">8088</string>
-    <string name="domain_lokal">Domain lokal (opsional)</string>
-    <string name="domain_lokal_hint">mis. vault.lan — kosongkan bila pakai IP</string>
     <string name="settings_changed_hint">⚠ Setting diubah — restart server agar berlaku</string>
     <string name="update_available_hint">⚠ Update tersedia — tekan Cek Update</string>
     <string name="update_available">⚠ Update v%1$s tersedia — tekan Cek Update</string>

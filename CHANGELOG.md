@@ -62,6 +62,13 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   anti tumpang-tindih; banding admin token constant-time; peringatan bila
   Admin Token kosong (status/log LAN terbuka).
 
+### Dihapus
+- **Domain lokal kustom**: kolom **Domain lokal** dihapus dari Settings
+  beserta logika `DOMAIN`/SAN DNS-nya — nama seperti `vault.lan` butuh DNS
+  sendiri di jaringan (router/AdGuard) sehingga di kebanyakan STB/HP tidak
+  pernah bisa dibuka dan hanya membingungkan. Akses selalu memakai IP LAN;
+  sertifikat HTTPS tetap dibuat ulang otomatis saat IP berubah (CA tetap).
+
 ### Diperbaiki
 - **Patch DNS hilang tertimpa patch TLS (favicon tetap 500, `ndk-context`)**:
   skrip CI menulis patch DNS ke file lalu patch TLS menimpa dari variabel basi

@@ -62,7 +62,6 @@ public class SettingsActivity extends Activity {
 
     private EditText dataDirInput;
     private EditText portInput;
-    private EditText domainInput;
     private EditText adminTokenInput;
     private CheckBox autoStartCheck;
     private CheckBox httpsCheck;
@@ -149,7 +148,6 @@ public class SettingsActivity extends Activity {
 
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
-        domainInput = findViewById(R.id.domainInput);
         adminTokenInput = findViewById(R.id.adminToken);
         autoStartCheck = findViewById(R.id.autoStart);
         httpsCheck = findViewById(R.id.https);
@@ -241,7 +239,6 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
-        domainInput.setText(sp.getString(ServerService.KEY_DOMAIN, ""));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
@@ -285,7 +282,6 @@ public class SettingsActivity extends Activity {
         tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
-        domainInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_DOMAIN));
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {
@@ -362,18 +358,11 @@ public class SettingsActivity extends Activity {
     private void saveAndStart() {
         String dataDir = dataDirInput.getText().toString().trim();
         String port = portInput.getText().toString().trim();
-        String domain = domainInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();
 
-        if (!domain.isEmpty() && ServerService.normalisasiHostDomain(domain) == null) {
-            toast("Domain lokal tak valid (contoh: vault.lan). Kosongkan bila pakai IP.");
-            appendUiLog("[app] Domain lokal tak valid: '" + domain + "' - Start dibatalkan.");
-            return;
-        }
         SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
         ed.putString(ServerService.KEY_DATA_DIR, TextUtils.isEmpty(dataDir) ? DEFAULT_DATA_DIR : dataDir);
         ed.putString(ServerService.KEY_PORT, TextUtils.isEmpty(port) ? DEFAULT_PORT : port);
-        ed.putString(ServerService.KEY_DOMAIN, domain);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
 
@@ -474,10 +463,8 @@ public class SettingsActivity extends Activity {
             String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-            String dm = sp.getString(ServerService.KEY_DOMAIN, "");
             changed = !d.equals(ServerService.runningDataDir)
                     || !p.equals(ServerService.runningPort)
-                    || !(dm == null ? "" : dm.trim()).equals(ServerService.runningDomain)
                     || h != ServerService.runningHttps
                     || !a.equals(ServerService.runningAdminToken);
         }
@@ -1097,7 +1084,6 @@ public class SettingsActivity extends Activity {
                         TgBackup.applyPrefsFromJson(SettingsActivity.this,
                                 zipCfg.optJSONObject("prefs"));
                         sanitizePortPref();
-                        sanitizeDomainPref();
                         ui.post(() -> {
                             reloadSettingsFromPrefs();
                             SharedPreferences sp2 = getSharedPreferences(
@@ -1351,7 +1337,6 @@ public class SettingsActivity extends Activity {
             }
             TgBackup.applyPrefsFromJson(this, prefs);
             sanitizePortPref();
-            sanitizeDomainPref();
             ui.post(() -> {
                 reloadSettingsFromPrefs();
                 SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -1374,7 +1359,6 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
-        domainInput.setText(sp.getString(ServerService.KEY_DOMAIN, ""));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
@@ -1429,18 +1413,6 @@ public class SettingsActivity extends Activity {
         }
         sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
         appendUiLog("[app] Port hasil import tidak valid - kembali ke " + DEFAULT_PORT + ".");
-    }
-
-    private void sanitizeDomainPref() {
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String d = sp.getString(ServerService.KEY_DOMAIN, "");
-        if (d == null || d.trim().isEmpty()) {
-            return;
-        }
-        if (ServerService.normalisasiHostDomain(d) == null) {
-            sp.edit().putString(ServerService.KEY_DOMAIN, "").apply();
-            appendUiLog("[app] Domain hasil import tidak valid - dikosongkan (pakai IP).");
-        }
     }
 
     // ─── PIN lock ───────────────────────────────────────────────────────

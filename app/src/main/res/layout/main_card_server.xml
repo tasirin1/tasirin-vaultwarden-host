@@ -138,7 +138,7 @@
 
             <EditText
                 android:id="@+id/port"
-                android:nextFocusDown="@id/domainInput"
+                android:nextFocusDown="@id/open"
                 android:nextFocusUp="@id/dataDir"
                 style="@style/TasirinInput"
                 android:layout_width="match_parent"
@@ -146,26 +146,10 @@
                 android:hint="@string/default_port"
                 android:inputType="number" />
 
-            <TextView
-                style="@style/TasirinLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/domain_lokal" />
-
-            <EditText
-                android:id="@+id/domainInput"
-                android:nextFocusDown="@id/open"
-                android:nextFocusUp="@id/port"
-                style="@style/TasirinInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/domain_lokal_hint"
-                android:inputType="textUri" />
-
             <Button
                 android:id="@+id/open"
                 android:nextFocusDown="@id/advancedToggle"
-                android:nextFocusUp="@id/domainInput"
+                android:nextFocusUp="@id/port"
                 style="@style/TasirinBtnPrimary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
