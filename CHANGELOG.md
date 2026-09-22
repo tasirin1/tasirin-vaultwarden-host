@@ -13,7 +13,9 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   realtime, dan tombol Simpan .txt. Semua pengaturan (folder data, port,
   HTTPS, PIN, Telegram, pemeliharaan, sertifikat, export/import) pindah ke
   layar **Settings** lewat tombol **titik tiga (⋮)** — ramah remote TV
-  (D-pad).
+  (D-pad). Tombol buka-log layar penuh dihapus dari awal (log penuh tetap
+  ada di Settings); brand diperkecil dan kotak info versi ala Settings
+  ditampilkan di bawah brand.
 - **Tampilan utama baru**: hero gradien brand (ikon + tagline), kartu Server
   dengan label aksi cepat & kotak info, tombol utama berisi, palet
   terang/gelap diselaraskan — ID dan navigasi D-pad tidak berubah.

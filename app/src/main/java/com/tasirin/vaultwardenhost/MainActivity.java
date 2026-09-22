@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private TextView statusView;
+    private TextView versionView;
     private TextView netInfoView;
     private TextView restartHint;
     private TextView updateHint;
@@ -64,12 +65,13 @@ public class MainActivity extends Activity {
     private Button startStopBtn;
     private Button overflowBtn;
     private Button homeSaveBtn;
-    private Button homeOpenBtn;
 
     private volatile String pendingVersion = null;
     private String appVersion = "";
+    private String bundledVersion = "?";
     private String lastShownStatus = "";
     private String lastShownNet = "";
+    private String lastShownVersion = "";
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private int lineCount = 0;
@@ -105,6 +107,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         statusView = findViewById(R.id.status);
+        versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
         restartHint = findViewById(R.id.restartHint);
         updateHint = findViewById(R.id.updateHint);
@@ -114,7 +117,6 @@ public class MainActivity extends Activity {
         startStopBtn = findViewById(R.id.startStop);
         overflowBtn = findViewById(R.id.overflowBtn);
         homeSaveBtn = findViewById(R.id.homeSaveLog);
-        homeOpenBtn = findViewById(R.id.homeOpenLog);
 
         startStopBtn.setOnClickListener(v -> {
             if (ServerService.running) {
@@ -125,7 +127,6 @@ public class MainActivity extends Activity {
         });
         overflowBtn.setOnClickListener(v -> showOverflowMenu());
         homeSaveBtn.setOnClickListener(v -> exportHomeLogTxt());
-        homeOpenBtn.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -140,6 +141,7 @@ public class MainActivity extends Activity {
                     .getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {
         }
+        bundledVersion = readBundledVersion();
         ui.post(this::refreshFromService);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -335,6 +337,17 @@ public class MainActivity extends Activity {
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;
+        }
+
+        String version = "App " + appVersion;
+        if (!ServerService.binaryVersion.isEmpty()) {
+            version += " \u00B7 Binary: " + ServerService.binaryVersion;
+        } else {
+            version += " \u00B7 " + bundledVersion;
+        }
+        if (!version.equals(lastShownVersion)) {
+            versionView.setText(version);
+            lastShownVersion = version;
         }
 
         refreshHomeLog();
@@ -600,6 +613,16 @@ public class MainActivity extends Activity {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (nm != null) {
             nm.notify(2, n);
+        }
+    }
+
+    private String readBundledVersion() {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
+            String v = r.readLine();
+            return (v == null || v.trim().isEmpty()) ? "?" : "Versi: " + v.trim();
+        } catch (Exception e) {
+            return "Versi: ?";
         }
     }
 
