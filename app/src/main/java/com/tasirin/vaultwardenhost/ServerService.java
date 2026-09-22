@@ -67,8 +67,8 @@ public class ServerService extends Service {
     public static final String KEY_BIN_SHA = "bin_sha";
     /** Revisi patch binary rilis (naikkan bila CI memperbaiki binary tanpa ganti versi). */
     public static final String KEY_BIN_PATCH = "bin_patch_rev";
-    /** 2 = binary pasca-patch TLS favicon (webpki + Mozilla, tanpa platform-verifier). */
-    public static final int BIN_PATCH_REV = 2;
+    /** 3 = binary pasca-patch DNS+TLS favicon (tanpa ndk-context/platform-verifier). */
+    public static final int BIN_PATCH_REV = 3;
 
     /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {

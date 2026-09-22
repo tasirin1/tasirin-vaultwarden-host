@@ -74,6 +74,7 @@ public class ServerServiceTest {
         assertTrue(ServerService.perluRefreshPatch(null));
         assertTrue(ServerService.perluRefreshPatch(""));
         assertTrue(ServerService.perluRefreshPatch("1"));
+        assertTrue(ServerService.perluRefreshPatch("2"));
     }
 
     @Test

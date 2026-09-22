@@ -58,6 +58,13 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Patch DNS hilang tertimpa patch TLS (favicon tetap 500, `ndk-context`)**:
+  skrip CI menulis patch DNS ke file lalu patch TLS menimpa dari variabel basi
+  sehingga binary rilis berisi patch TLS tapi kehilangan patch DNS — ikon
+  panic `android context was not initialized` + `LazyLock ... poisoned`.
+  Skrip kini menampung kedua patch di satu variabel dan verifikasi keduanya
+  ada di file hasil. Revisi patch binary naik ke 3 agar cache basi terunduh
+  ulang sekali via Start/Cek Update.
 - **Binary lama tak pernah refresh padahal versi sama (favicon tetap 500)**:
   patch TLS favicon CI memperbaiki binary tanpa ganti versi Vaultwarden,
   tapi `Cek Update`/`Start` menganggap `1.37.3` yang ter-cache sudah terbaru

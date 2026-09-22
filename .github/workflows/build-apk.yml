@@ -92,7 +92,9 @@ jobs:
                   indent + 'if cfg!(target_os = "android") {\n' +
                   indent + '    return Arc::new(Self::Default());\n' +
                   indent + '}\n')
-              open(p, 'w').write(src[:m.end(1)] + guard + src[m.end(1):])
+              # Jangan tulis dulu: patch TLS di bawah memakai variabel src yang sama.
+              # Tulis sekali di akhir agar patch tidak saling menimpa.
+              src = src[:m.end(1)] + guard + src[m.end(1):]
               print('Patch DNS Android diterapkan.')
           elif 'ndk-context' not in open('vaultwarden/Cargo.lock').read():
               print('ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
@@ -139,7 +141,13 @@ jobs:
               raise SystemExit('Anchor patch TLS tidak ditemukan, periksa http_client.rs upstream!')
           src = src.replace(old_builder, new_builder, 1)
           open(p, 'w').write(src)
-          print('Patch TLS Android diterapkan.')
+          # Verifikasi kedua patch benar-benar ada di file hasil (anti saling menimpa).
+          hasil = open(p).read()
+          if 'ndk-context' in open('vaultwarden/Cargo.lock').read():
+              assert 'return Arc::new(Self::Default());' in hasil, \
+                  'Patch DNS hilang setelah patch TLS!'
+          assert 'tls_certs_only(mozilla_roots())' in hasil, 'Patch TLS hilang!'
+          print('Patch TLS Android diterapkan + verifikasi DNS/TLS OK.')
           PYEOF
 
 
