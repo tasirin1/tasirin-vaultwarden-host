@@ -721,6 +721,14 @@ public class ServerService extends Service {
         return rendah.contains("panicked") && rendah.contains("getrandom");
     }
 
+    /** True bila baris output binary hanya noise linker STB lama
+     *  ("WARNING: linker: ... unsupported flags DT_FLAGS_1 ...") — tidak fatal,
+     *  disaring dari deteksi versi agar versi terbaca benar.
+     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
+    static boolean isNoiseLinker(String baris) {
+        return baris != null && baris.trim().startsWith("WARNING: linker");
+    }
+
     /** Catat restart otomatis + deteksi loop. Return true bila harus berhenti
      *  (≥3 restart dalam 5 menit): matikan auto-restart, tulis crash log,
      *  beri tahu via status & Telegram. */
@@ -1198,6 +1206,11 @@ public class ServerService extends Service {
             StringBuilder semua = new StringBuilder();
             String baris;
             while ((baris = r.readLine()) != null && semua.length() < 8192) {
+                // Saring noise linker STB lama ("WARNING: linker: ... DT_FLAGS_1")
+                // agar versi tak terbaca sebagai teks warning.
+                if (isNoiseLinker(baris)) {
+                    continue;
+                }
                 if (first == null) {
                     first = baris;
                 }

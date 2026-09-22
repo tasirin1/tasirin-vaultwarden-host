@@ -39,6 +39,12 @@ public class UpdaterTest {
     }
 
     @Test
+    public void parseBinaryVersion_noiseLinkerBukanVersi() {
+        assertNull(Updater.parseBinaryVersion(
+                "WARNING: linker: vaultwarden-armeabi-v7a: unsupported flags DT_FLAGS_1=0x8000001"));
+    }
+
+    @Test
     public void saranKoneksi_timeoutMenyebutGithubDanHotspot() {
         Exception e = new java.net.SocketTimeoutException(
                 "failed to connect to github.com/20.205.243.166 (port 443) after 20000ms");

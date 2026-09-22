@@ -54,6 +54,22 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void noiseLinkerTerdeteksi() {
+        assertTrue(ServerService.isNoiseLinker(
+                "WARNING: linker: vaultwarden-armeabi-v7a: unsupported flags DT_FLAGS_1=0x8000001"));
+        assertTrue(ServerService.isNoiseLinker(
+                "  WARNING: linker: libfoo.so: unsupported flags DT_FLAGS_1=0x1"));
+    }
+
+    @Test
+    public void barisBiasaBukanNoiseLinker() {
+        assertFalse(ServerService.isNoiseLinker("vaultwarden 1.37.3"));
+        assertFalse(ServerService.isNoiseLinker("failed to get random bytes"));
+        assertFalse(ServerService.isNoiseLinker(""));
+        assertFalse(ServerService.isNoiseLinker(null));
+    }
+
+    @Test
     public void outputVersionNormalBukanPanic() {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));

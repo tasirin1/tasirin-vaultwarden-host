@@ -241,7 +241,7 @@ merusak server.
 - Binary Vaultwarden terbaru butuh `getrandom()` kernel baru; di kernel STB
   Android 5/6 (mis. ZTE B860H, kernel 3.14.x) selalu panic (`errno=22`) saat
   start. Ini bukan salah TLS/web-vault (baris `WARNING: linker ... DT_FLAGS_1`
-  diabaikan, tidak fatal). App mendeteksi kernel lama otomatis
+  tidak fatal — otomatis disaring dari log realtime & deteksi versi). App mendeteksi kernel lama otomatis
   (log `kernel 3.x | ... | channel legacy`) dan memakai shim getrandom
   (`libgetrandom-shim-armeabi-v7a.so`, diunduh otomatis + terverifikasi
   SHA-256 saat Start/Cek Update) via `LD_PRELOAD` — binary terbaru tetap jalan

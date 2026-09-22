@@ -932,7 +932,17 @@ public final class Updater {
             Process p = pb.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(
                     p.getInputStream(), StandardCharsets.UTF_8));
-            String first = r.readLine();
+            // Baca sampai baris bermakna: baris pertama di STB lama adalah
+            // noise linker ("WARNING: linker: ..."), bukan versi.
+            String first = null;
+            String baris;
+            for (int i = 0; i < 10 && (baris = r.readLine()) != null; i++) {
+                if (ServerService.isNoiseLinker(baris)) {
+                    continue;
+                }
+                first = baris;
+                break;
+            }
             r.close();
             try {
                 p.waitFor();
