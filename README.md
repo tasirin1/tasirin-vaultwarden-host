@@ -248,6 +248,15 @@ merusak server.
   tanpa setting tambahan. Bila shim belum terunduh (rilis baru ~6 jam), tekan
   **Cek Update** lalu Start lagi; atau jalankan di perangkat Android 7+.
 
+**HTTPS crash: `bad TLS ticketer: failed to get random bytes` (exit 1)**
+- Varian khusus HTTPS di kernel STB lama: HTTP jalan normal, tapi saat HTTPS
+  aktif Rocket gagal membuat ticketer TLS (jalur acak `ring`/`rustls` memakai
+  `syscall(SYS_getrandom)` mentah yang juga `EINVAL` di kernel 3.14).
+  Shim terbaru mencegat kedua jalur (`getrandom` + `syscall`) — tekan
+  **Cek Update** agar shim baru terunduh, lalu Start lagi. Sementara itu bisa
+  pakai HTTP dulu. App mengenali pesan ini sebagai masalah kernel lama
+  (auto-restart dimatikan + saran di log), bukan salah sertifikat.
+
 **Web UI tidak bisa dibuka dari perangkat lain**
 - Pastikan status **Running**, perangkat lain di jaringan yang sama, dan URL
   memakai IP lokal (`http://<IP>:8088`). Bila memakai HTTPS, install sertifikat

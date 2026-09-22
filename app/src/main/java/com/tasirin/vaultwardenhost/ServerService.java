@@ -699,15 +699,22 @@ public class ServerService extends Service {
         }, delay);
     }
 
-    /** True bila log mengandung panic getrandom Rust
-     *  ("failed to generate random data" dari std::sys::random) — tanda binary
-     *  tidak cocok dengan kernel Android lama (STB Android 5/6, errno=22).
+    /** True bila log mengandung gagal acak kernel lama: panic getrandom Rust
+     *  ("failed to generate random data" dari std::sys::random) atau gagal
+     *  ticketer TLS Rocket ("bad TLS ticketer: failed to get random bytes"
+     *  dari ring/rustls) — tanda binary tidak cocok dengan kernel Android
+     *  lama (STB Android 5/6, errno=22). Varian TLS hanya muncul saat HTTPS
+     *  aktif; HTTP tetap jalan karena hanya jalur std yang dipakai.
      *  Package-private agar bisa diuji unit (tanpa runtime Android). */
     static boolean isKernelRandomPanic(String logTail) {
         if (logTail == null) {
             return false;
         }
         if (logTail.contains("failed to generate random data")) {
+            return true;
+        }
+        if (logTail.contains("bad TLS ticketer")
+                || logTail.contains("failed to get random bytes")) {
             return true;
         }
         String rendah = logTail.toLowerCase(Locale.US);

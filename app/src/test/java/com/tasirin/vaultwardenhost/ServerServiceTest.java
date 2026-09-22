@@ -35,6 +35,24 @@ public class ServerServiceTest {
                 "thread 'main' panicked at src/random.rs:10:\nfailed getrandom syscall"));
     }
 
+
+    @Test
+    public void gagalTicketerTlsTerdeteksiSebagaiPanicKernel() {
+        String tail = "Error: Rocket.\n[CAUSE] Bind(\n    Custom {\n"
+                + "        kind: Other,\n"
+                + "        error: \"bad TLS ticketer: failed to get random bytes\",\n"
+                + "    },\n)";
+        assertTrue(ServerService.isKernelRandomPanic(tail));
+    }
+
+    @Test
+    public void varianPesanTicketerTetapTerdeteksi() {
+        assertTrue(ServerService.isKernelRandomPanic(
+                "bad TLS ticketer: failed to get random bytes"));
+        assertTrue(ServerService.isKernelRandomPanic(
+                "failed to get random bytes"));
+    }
+
     @Test
     public void outputVersionNormalBukanPanic() {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));

@@ -2,11 +2,14 @@ package com.tasirin.vaultwardenhost;
 
 /** Kompatibilitas kernel STB lama (logika murni tanpa API Android agar bisa diuji JVM).
  *
- * <p>Binary Vaultwarden (Rust modern) memanggil {@code getrandom()} yang di kernel
- * STB Android 5/6 (mis. ZTE B860H, kernel 3.14.x) gagal dengan {@code EINVAL
- * (errno=22)} sehingga Rust panic setiap start (exit 101). Perangkat seperti itu
+ * <p>Binary Vaultwarden (Rust modern) mengambil acak via {@code getrandom()} libc
+ * (std) dan via {@code syscall(SYS_getrandom)} mentah (crate getrandom 0.2
+ * lewat ring ke ticketer TLS) yang di kernel STB Android 5/6 (mis. ZTE B860H,
+ * kernel 3.14.x) gagal dengan {@code EINVAL (errno=22)} — tanpa fallback
+ * /dev/urandom — sehingga Rust panic setiap start (exit 101) atau TLS Rocket
+ * gagal ("bad TLS ticketer", exit 1, khusus HTTPS). Perangkat seperti itu
  * menjalankan binary yang sama via shim {@code LD_PRELOAD}
- * ({@link #SHIM_ASSET}) yang melayani getrandom dari /dev/urandom. */
+ * ({@link #SHIM_ASSET}) yang melayani kedua jalur dari /dev/urandom. */
 public final class KernelCompat {
 
     /** Nama asset shim getrandom di release repo (sekitar 3 KB stripped, dibangun dari shim/). */
@@ -60,7 +63,7 @@ public final class KernelCompat {
     /** Saran perbaikan (Bahasa Indonesia) bila binary tetap panic walau shim dipasang. */
     public static String saranShimGagal(String osVersion) {
         return "Binary tetap crash di kernel STB lama (kernel " + osVersion
-                + ", getrandom errno=22) walau shim dipasang."
+                + ", getrandom/syscall errno=22) walau shim dipasang."
                 + " Coba tekan Cek Update (shim diunduh ulang), lalu Start lagi."
                 + " Cara manual: taruh " + SHIM_ASSET + " dari halaman Release"
                 + " ke folder data dengan nama yang sama, lalu Start lagi.";

@@ -95,7 +95,11 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
   /dev/urandom via a tiny `LD_PRELOAD` shim (auto-downloaded, SHA-256
   verified) — the latest Vaultwarden keeps running with no manual setup.
   An incompatible binary still fails fast with a clear message instead of
-  restart loops.
+  restart loops. HTTPS-only crash (`bad TLS ticketer: failed to get random
+  bytes`, exit 1, while HTTP works) is the same old-kernel issue on the raw
+  `syscall(SYS_getrandom)` path used by ring/rustls — the latest shim hooks
+  both paths, so press **Check Update** to fetch it, then Start again
+  (or use HTTP meanwhile).
 - The status web page now also shows web vault version + size, DB size, backup
   count, and restart history; the full-screen log page has a **Crash** button
   to open the last crash log. If an **admin token** is set, the `/api/*`
