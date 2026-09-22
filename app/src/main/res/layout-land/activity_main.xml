@@ -6,6 +6,7 @@
      Padding kartu 12dp (bukan 16dp) agar hemat tinggi layar; margin tepi
      layar lebar diatur values-sw600dp-land (bukan 200dp). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -47,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/menu"
-            android:text="&#8942;" />
+            android:text="@string/overflow" />
     </LinearLayout>
 
     <!-- Dua kolom -->
@@ -56,14 +57,17 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <!-- Kolom kiri: info + server -->
+        <!-- Kolom setengah layar: weight di dalam baris ber-weight, abaikan NestedWeights. -->
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="4dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            tools:ignore="NestedWeights">
 
             <LinearLayout
                 android:layout_width="match_parent"

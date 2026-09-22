@@ -5,6 +5,7 @@
      updateBtn yang kadang gone diperbaiki dinamis di MainActivity.
      Varian landscape ada di res/layout-land/activity_main.xml (ID sama). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -58,7 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/menu"
-                    android:text="&#8942;" />
+                    android:text="@string/overflow" />
             </LinearLayout>
 
             <!-- ===================== INFO ===================== -->
@@ -191,8 +192,10 @@
                     android:text="@string/log_lines_initial"
                     android:textSize="11sp" />
 
+                <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
                 <ScrollView
                     android:id="@+id/homeLogScroll"
+                    tools:ignore="NestedScrolling"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
                     android:layout_marginTop="4dp"
