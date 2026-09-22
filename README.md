@@ -175,6 +175,11 @@ Menu perintah (tombol `/`) didaftarkan otomatis via `setMyCommands` setiap
 token bot disimpan — tidak perlu setting manual di @BotFather. Bila menu
 belum muncul, ganti token lalu simpan ulang, atau kirim `/help` manual.
 
+Perintah dibaca tiap ~20 detik (long-poll 15 detik). Kirim `/help` untuk
+mendapat **tombol inline** — ketuk tombol (Status, Backup, Restart, ...)
+tanpa mengetik. Perintah berbahaya via tombol tetap butuh PIN di akhir bila
+PIN aktif (ketik manual, mis. `/stop 123456`).
+
 ## Data, backup & restart
 
 - Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). Karena di
@@ -184,7 +189,10 @@ belum muncul, ganti token lalu simpan ulang, atau kirim `/help` manual.
   **Backup ke Telegram**: zip sama, disimpan juga di `<data>/backups/`, opsional
   terenkripsi **AES-256-GCM** (password wajib sama saat restore), bisa otomatis
   setiap tanggal berganti (tengah malam 00:01, jalan walau app tidak dibuka)
-  atau saat Start bila hari sudah berganti, dan menyertakan config + sertifikat. Baris
+  atau saat Start bila hari sudah berganti, dan menyertakan config + sertifikat. Setiap
+  backup **diverifikasi otomatis** sebelum diunggah (wajib ada `db.sqlite3`
+  ber-header SQLite valid; backup terenkripsi diuji buka dengan passwordnya
+  dulu) — backup korup dibatalkan, tidak dikirim. Baris
   storage di layar utama menampilkan ukuran DB, backup (jumlah + total),
   web-vault, dan binary.
 - **Restore**: dari backup Telegram (tombol di app atau perintah `/restore` +

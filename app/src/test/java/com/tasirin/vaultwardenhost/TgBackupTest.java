@@ -6,8 +6,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /** Unit test util murni (tanpa Android runtime). */
 public class TgBackupTest {
@@ -118,5 +123,45 @@ public class TgBackupTest {
         assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("/db.sqlite3"));
         assertEquals(null, TgBackup.normalisasiEntriZip("foto.jpg"));
         assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("backups/db.sqlite3"));
+    }
+
+    @Test
+    public void verifikasiZip_terimaBackupValid() throws Exception {
+        File zip = File.createTempFile("vwbaik", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+            zos.putNextEntry(new ZipEntry("db.sqlite3"));
+            zos.write("SQLite format 3\0isi-palsu".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNull(TgBackup.verifikasiZip(zip));
+        zip.delete();
+    }
+
+    @Test
+    public void verifikasiZip_tolakKorup() throws Exception {
+        assertNotNull(TgBackup.verifikasiZip(null));
+        assertNotNull(TgBackup.verifikasiZip(new File("/tidak/ada.zip")));
+        File tanpaDb = File.createTempFile("vwtanpadb", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tanpaDb))) {
+            zos.putNextEntry(new ZipEntry("catatan.txt"));
+            zos.write("halo".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNotNull(TgBackup.verifikasiZip(tanpaDb));
+        tanpaDb.delete();
+        File headerSalah = File.createTempFile("vwsalah", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(headerSalah))) {
+            zos.putNextEntry(new ZipEntry("db.sqlite3"));
+            zos.write("bukan-database-palsu-!!".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNotNull(TgBackup.verifikasiZip(headerSalah));
+        headerSalah.delete();
+        File sampah = File.createTempFile("vwsampah", ".zip");
+        try (FileOutputStream o = new FileOutputStream(sampah)) {
+            o.write("bukan zip sama sekali".getBytes("UTF-8"));
+        }
+        assertNotNull(TgBackup.verifikasiZip(sampah));
+        sampah.delete();
     }
 }

@@ -171,6 +171,11 @@ The command menu (the `/` button) is registered automatically via
 setup needed. If the menu does not appear yet, re-save the token or just
 send `/help`.
 
+Commands are polled roughly every ~20 seconds (15 s long-poll). Send `/help`
+to get **inline buttons** — tap (Status, Backup, Restart, ...) instead of
+typing. Dangerous commands via button still need the trailing PIN when the
+app PIN is on (type manually, e.g. `/stop 123456`).
+
 ## Data, backup & restart
 
 - Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). On
@@ -180,7 +185,10 @@ send `/help`.
   **Telegram backup**: same zip, also kept in `<data>/backups/`, optionally
   **AES-256-GCM** encrypted (same password required on restore), can run
   automatically on date change (00:01 midnight, even when the app is closed)
-  or on Start when the day has changed, and includes config + certificates.
+  or on Start when the day has changed, and includes config + certificates. Every
+  backup is **auto-verified** before upload (must contain a valid-header
+  `db.sqlite3`; encrypted backups are trial-decrypted with the password
+  first) — corrupt backups are aborted, never sent.
 - **Restore**: from a Telegram backup (in-app button or `/restore` +
   `/restore YA` confirmation), a local `.zip` file, or a raw `.sqlite3`
   (legacy backup); the server stops automatically during restore. Bot identity

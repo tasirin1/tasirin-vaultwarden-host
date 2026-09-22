@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -151,11 +152,29 @@ public final class TgBackup {
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
         File zip = createBackupZip(dataDir, true, configJson(sp));
+        // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
+        String galat = verifikasiZip(zip);
+        if (galat != null) {
+            zip.delete();
+            throw new IOException("Backup gagal verifikasi: " + galat);
+        }
         File upload = zip;
         String pass = sp.getString(KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {
             File enc = new File(zip.getParentFile(), zip.getName() + ".enc");
             encryptFile(zip, enc, pass.trim());
+            // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
+            File tmpDec = new File(zip.getParentFile(), "verifikasi-tmp.zip");
+            try {
+                decryptFile(enc, tmpDec, pass.trim());
+                String galat2 = verifikasiZip(tmpDec);
+                if (galat2 != null) {
+                    throw new IOException("Backup gagal verifikasi setelah enkripsi: "
+                            + galat2);
+                }
+            } finally {
+                tmpDec.delete();
+            }
             zip.delete();
             upload = enc;
         }
@@ -173,8 +192,18 @@ public final class TgBackup {
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
      *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
     public static void sendMessage(Context ctx, String text) {
+        kirimPesan(ctx, text, null);
+    }
+
+    /** Kirim pesan + keyboard inline (mis. tombol perintah di /help). */
+    public static void sendMessageKb(Context ctx, String text, String markupJson) {
+        kirimPesan(ctx, text, markupJson);
+    }
+
+    private static void kirimPesan(Context ctx, String text, String markupJson) {
         final Context app = ctx.getApplicationContext();
         final String msg = text == null ? "" : text;
+        final String markup = markupJson;
         TG_MSG_EXEC.execute(() -> {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
@@ -185,9 +214,12 @@ public final class TgBackup {
                     return;
                 }
                 // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                byte[] body = ("chat_id=" + URLEncoder.encode(chat, "UTF-8")
-                        + "&text=" + URLEncoder.encode(msg, "UTF-8"))
-                        .getBytes(StandardCharsets.UTF_8);
+                String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
+                        + "&text=" + URLEncoder.encode(msg, "UTF-8");
+                if (markup != null && !markup.isEmpty()) {
+                    param += "&reply_markup=" + URLEncoder.encode(markup, "UTF-8");
+                }
+                byte[] body = param.getBytes(StandardCharsets.UTF_8);
                 HttpURLConnection conn = null;
                 try {
                     conn = (HttpURLConnection) new URL(TG_API + token + "/sendMessage")
@@ -292,6 +324,42 @@ public final class TgBackup {
                 sp.edit().putBoolean(KEY_TG_LOW_STORAGE, false).apply();
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    /** Verifikasi isi zip backup: wajib ada db.sqlite3 ber-header SQLite valid.
+     *  Kembalikan null bila OK, atau pesan galat bila korup (tanpa Android runtime). */
+    static String verifikasiZip(File zip) {
+        if (zip == null || !zip.isFile() || zip.length() == 0) {
+            return "file backup kosong/hilang";
+        }
+        try (ZipFile zf = new ZipFile(zip)) {
+            java.util.zip.ZipEntry db = zf.getEntry("db.sqlite3");
+            if (db == null) {
+                return "tidak berisi db.sqlite3";
+            }
+            if (db.getSize() == 0) {
+                return "db.sqlite3 kosong (0 byte)";
+            }
+            byte[] head = new byte[16];
+            try (InputStream in = zf.getInputStream(db)) {
+                int off = 0;
+                while (off < head.length) {
+                    int n = in.read(head, off, head.length - off);
+                    if (n < 0) {
+                        return "db.sqlite3 terpotong";
+                    }
+                    off += n;
+                }
+            }
+            byte[] want = "SQLite format 3\0".getBytes(StandardCharsets.UTF_8);
+            if (!Arrays.equals(head, want)) {
+                return "db.sqlite3 bukan database SQLite valid";
+            }
+            return null;
+        } catch (Exception e) {
+            String sebab = e.getMessage() != null ? e.getMessage() : e.toString();
+            return "zip korup/tak terbaca (" + sebab + ")";
         }
     }
 

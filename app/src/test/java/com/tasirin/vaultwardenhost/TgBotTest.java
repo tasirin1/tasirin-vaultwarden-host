@@ -42,6 +42,27 @@ public class TgBotTest {
     }
 
     @Test
+    public void keyboardPerintah_memuatSemuaTombol() {
+        String json = TgBot.keyboardPerintah();
+        assertTrue(json.startsWith("{\"inline_keyboard\":["));
+        for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
+                "/restore", "/crashlog", "/update", "/webvault", "/start", "/stop",
+                "/restart", "/help"}) {
+            assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
+        }
+    }
+
+    @Test
+    public void callbackDataValid_hanyaPerintahDikenal() {
+        assertTrue(TgBot.callbackDataValid("/status"));
+        assertTrue(TgBot.callbackDataValid("/stop 123456"));
+        assertFalse(TgBot.callbackDataValid("/hapus"));
+        assertFalse(TgBot.callbackDataValid("status"));
+        assertFalse(TgBot.callbackDataValid(""));
+        assertFalse(TgBot.callbackDataValid(null));
+    }
+
+    @Test
     public void restoreConfirm_tolakKosongDanAsing() {
         assertFalse(TgBot.isRestoreConfirm(null));
         assertFalse(TgBot.isRestoreConfirm(""));

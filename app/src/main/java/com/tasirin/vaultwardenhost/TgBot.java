@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +34,7 @@ public final class TgBot {
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
     static final int MENU_REV = 2;
-    private static final long POLL_INTERVAL_MS = 60_000;
+    private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
 
@@ -55,9 +56,9 @@ public final class TgBot {
         if (token.isEmpty()) {
             return;
         }
-        long trigger = SystemClock.elapsedRealtime() + 30_000;
+        long trigger = SystemClock.elapsedRealtime() + 10_000;
         // Inexact: boleh di-batch sistem dengan alarm lain (hemat baterai);
-        // perintah bot memang tidak butuh ketepatan detik.
+        // long-poll 15 dtk + alarm 20 dtk = perintah dibaca < 1 menit.
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger,
                 POLL_INTERVAL_MS, pi);
         refreshMenuAsync(ctx);
@@ -160,7 +161,7 @@ public final class TgBot {
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
     public static void pollOnce(Context ctx) {
-        // Long-poll 50 dtk vs alarm 60 dtk bisa tumpang tindih: satu saja jalan.
+        // Long-poll vs alarm bisa tumpang tindih: satu saja jalan.
         if (!POLLING.compareAndSet(false, true)) {
             return;
         }
@@ -172,7 +173,7 @@ public final class TgBot {
                 return;
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
-            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=50&limit=10";
+            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=15&limit=10";
             String body = httpGet(ctx, url);
             if (body == null) {
                 return;
@@ -189,6 +190,11 @@ public final class TgBot {
                         }
                         newOffset = Math.max(newOffset, upd.optLong("update_id", 0) + 1);
                         try {
+                            JSONObject cb = upd.optJSONObject("callback_query");
+                            if (cb != null) {
+                                tanganiCallback(ctx, cb, chat.trim());
+                                continue;
+                            }
                             JSONObject msg = upd.optJSONObject("message");
                             if (msg == null) {
                                 continue;
@@ -222,6 +228,121 @@ public final class TgBot {
         } finally {
             POLLING.set(false);
         }
+    }
+
+    /** Keyboard inline agar tak perlu mengetik perintah (logika murni). */
+    static String keyboardPerintah() {
+        String[][] tombol = {
+                {"Status", "/status"}, {"Log", "/log"},
+                {"Uptime", "/uptime"}, {"Sehat", "/alive"},
+                {"Backup", "/backup"}, {"Restore", "/restore"},
+                {"Crash log", "/crashlog"}, {"Update", "/update"},
+                {"Web vault", "/webvault"}, {"Start", "/start"},
+                {"Stop", "/stop"}, {"Restart", "/restart"},
+                {"Bantuan", "/help"},
+        };
+        StringBuilder sb = new StringBuilder("{\"inline_keyboard\":[");
+        for (int i = 0; i < tombol.length; i += 2) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append('[');
+            for (int j = i; j < i + 2 && j < tombol.length; j++) {
+                if (j > i) {
+                    sb.append(',');
+                }
+                sb.append("{\"text\":\"").append(tombol[j][0])
+                        .append("\",\"callback_data\":\"").append(tombol[j][1])
+                        .append("\"}");
+            }
+            sb.append(']');
+        }
+        return sb.append("]}").toString();
+    }
+
+    /** True bila data callback adalah perintah bot yang dikenal. */
+    static boolean callbackDataValid(String data) {
+        if (data == null || !data.startsWith("/")) {
+            return false;
+        }
+        String cmd = data.split("\\s+")[0].toLowerCase(Locale.US).substring(1);
+        for (String[] c : daftarPerintahMenu()) {
+            if (c[0].equals(cmd)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Balas ketukan tombol inline: hanya dari chat resmi yang dijalankan. */
+    private static void tanganiCallback(Context ctx, JSONObject cb, String chatResmi) {
+        try {
+            String dari = "";
+            JSONObject pesan = cb.optJSONObject("message");
+            JSONObject ruang = pesan != null ? pesan.optJSONObject("chat") : null;
+            if (ruang != null) {
+                dari = String.valueOf(ruang.optLong("id", -1));
+            } else {
+                JSONObject pengirim = cb.optJSONObject("from");
+                if (pengirim != null) {
+                    dari = String.valueOf(pengirim.optLong("id", -1));
+                }
+            }
+            if (!chatResmi.equals(dari)) {
+                return;
+            }
+            long dateMs = pesan != null ? pesan.optLong("date", 0) * 1000L : 0;
+            if (dateMs > 0 && System.currentTimeMillis() - dateMs > STALE_MSG_MS) {
+                return;
+            }
+            jawabCallback(ctx, cb.optString("id", ""));
+            String data = cb.optString("data", "").trim();
+            if (callbackDataValid(data)) {
+                handleCommand(ctx, data);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Tutup spinner loading di tombol (best-effort, thread sendiri). */
+    private static void jawabCallback(Context ctx, String callbackId) {
+        if (callbackId == null || callbackId.isEmpty()) {
+            return;
+        }
+        final Context app = ctx.getApplicationContext();
+        new Thread(() -> {
+            HttpURLConnection c = null;
+            try {
+                SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+                if (token.isEmpty()) {
+                    return;
+                }
+                byte[] body = ("callback_query_id="
+                        + URLEncoder.encode(callbackId, "UTF-8"))
+                        .getBytes(StandardCharsets.UTF_8);
+                c = (HttpURLConnection) new URL(TG_API + token + "/answerCallbackQuery")
+                        .openConnection();
+                c.setRequestMethod("POST");
+                c.setDoOutput(true);
+                c.setConnectTimeout(15000);
+                c.setReadTimeout(30000);
+                c.setRequestProperty("Content-Type",
+                        "application/x-www-form-urlencoded");
+                c.setRequestProperty("Content-Length", String.valueOf(body.length));
+                HttpsCompat.apply(c, app);
+                try (OutputStream os = c.getOutputStream()) {
+                    os.write(body);
+                }
+                c.getResponseCode();
+            } catch (Exception ignored) {
+            } finally {
+                if (c != null) {
+                    c.disconnect();
+                }
+            }
+        }, "vw-tgcb").start();
     }
 
     private static void handleCommand(Context ctx, String text) {
@@ -380,10 +501,11 @@ public final class TgBot {
                 }
                 break;
             case "/help":
-                TgBackup.sendMessage(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
+                TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
                         + "/crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
+                        + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
                         + "Bila PIN app aktif, /stop /update /restore wajib diakhiri PIN"
-                        + " (mis. /stop 123456).");
+                        + " (mis. /stop 123456).", keyboardPerintah());
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");

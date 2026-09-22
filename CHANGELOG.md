@@ -21,6 +21,15 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   hanya terjadi bila file berubah (`webVaultBerubah`, ter-unit-test). Menu
   bot `webvault` menjadi `Update web vault + restart` (revisi menu 2,
   token lama daftar ulang sekali).
+- **Bot responsif + tombol inline**: polling Telegram 60 dtk → 20 dtk
+  (long-poll 15 dtk, trigger pertama 10 dtk); `/help` mengirim keyboard
+  inline 13 perintah — ketuk tanpa mengetik (`callback_query` hanya dari
+  chat resmi, basi >5 mnt diabaikan, `answerCallbackQuery` best-effort).
+  Perintah berbahaya via tombol tetap wajib PIN.
+- **Backup terverifikasi otomatis**: `backupNow` memeriksa zip sebelum
+  diunggah (`verifikasiZip`: wajib ada `db.sqlite3` ber-header SQLite) dan
+  uji-buka round-trip hasil enkripsi dengan passwordnya; backup korup
+  dibatalkan sebelum dikirim ke Telegram. Ter-unit-test JVM.
 - **Domain lokal**: kolom opsional **Domain lokal** di kartu Server
   (mis. `vault.lan`, boleh `host:port`/URL) — dipakai sebagai `DOMAIN`
   Vaultwarden, URL jaringan, dan tombol Salin URL; sertifikat HTTPS ikut
