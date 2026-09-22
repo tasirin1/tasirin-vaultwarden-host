@@ -584,7 +584,11 @@ public class ServerService extends Service {
             pb.environment().put("DATA_FOLDER", dataDir);
             pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
             pb.environment().put("ROCKET_PORT", port);
-            pb.environment().put("ROCKET_WORKERS", "2");
+            // STB 1 GB (mis. ZTE B860H): 1 worker + pool DB kecil agar
+            // tidak dibunuh LowMemoryKiller tepat setelah "Rocket has launched"
+            // (exit 9/SIGKILL tanpa panic). 1 worker cukup untuk pemakaian rumahan.
+            pb.environment().put("ROCKET_WORKERS", "1");
+            pb.environment().put("DATABASE_MAX_CONNS", "2");
 
             // Admin token
             String adminToken = sp.getString(KEY_ADMIN_TOKEN, "");
@@ -759,14 +763,25 @@ public class ServerService extends Service {
                     if (recordRestart("crash (exit " + code + ")")) {
                         // Loop terdeteksi: recordRestart sudah set status + kirim Telegram.
                     } else {
-                        TgBackup.sendMessage(this, "Server crash (exit " + code
-                                + ")\n" + shorten(tail, 500) + "\nRestart otomatis...");
-                        setStatus("Server crash (exit " + code
-                                + ") - restart otomatis\n" + shorten(tail, 250));
+                        String saran = saranCrash(code);
+                        if (!saran.isEmpty()) {
+                            appendLog("[app] " + saran);
+                        }
+                        TgBackup.sendMessage(this, "Server crash (exit " + code + ")"
+                                + (saran.isEmpty() ? "" : "\n" + saran)
+                                + "\n" + shorten(tail, 500) + "\nRestart otomatis...");
+                        setStatus("Server crash (exit " + code + ")"
+                                + (saran.isEmpty() ? "" : "\n" + saran)
+                                + " - restart otomatis\n" + shorten(tail, 250));
                         scheduleRestart();
                     }
                 } else {
-                    setStatus("Stopped (exit code " + code + ")");
+                    String saran = saranCrash(code);
+                    setStatus("Stopped (exit code " + code + ")"
+                            + (saran.isEmpty() ? "" : "\n" + saran));
+                    if (!saran.isEmpty()) {
+                        appendLog("[app] " + saran);
+                    }
                 }
             }
         } catch (InterruptedException ignored) {
@@ -796,6 +811,18 @@ public class ServerService extends Service {
                 startServerAsync();
             }
         }, delay);
+    }
+
+    /** Saran spesifik untuk exit code proses (logika murni agar bisa diuji).
+     *  Exit 9 = SIGKILL tanpa panic: di STB 1 GB hampir selalu LowMemoryKiller
+     *  (RAM penuh) tepat setelah "Rocket has launched", bukan shim getrandom
+     *  (getrandom panic = exit 101/1 + pesan getrandom). */
+    static String saranCrash(int code) {
+        if (code == 9) {
+            return "Proses dihentikan sistem (exit 9/SIGKILL), kemungkinan RAM penuh. "
+                    + "Tutup aplikasi lain / reboot STB lalu Start lagi.";
+        }
+        return "";
     }
 
     /** True bila log mengandung gagal acak kernel lama: panic getrandom Rust

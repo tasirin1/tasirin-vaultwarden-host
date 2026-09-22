@@ -141,6 +141,20 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void saranCrashExit9MenyebutRamPenuh() {
+        String saran = ServerService.saranCrash(9);
+        assertTrue(saran.contains("RAM"));
+        assertTrue(saran.contains("reboot"));
+    }
+
+    @Test
+    public void saranCrashExitLainKosong() {
+        assertEquals("", ServerService.saranCrash(0));
+        assertEquals("", ServerService.saranCrash(1));
+        assertEquals("", ServerService.saranCrash(101));
+    }
+
+    @Test
     public void outputVersionNormalBukanPanic() {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));
