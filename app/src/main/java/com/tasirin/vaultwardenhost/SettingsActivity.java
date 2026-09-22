@@ -285,6 +285,7 @@ public class SettingsActivity extends Activity {
         tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
+        domainInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_DOMAIN));
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {
