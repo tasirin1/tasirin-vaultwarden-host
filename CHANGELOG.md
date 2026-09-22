@@ -48,6 +48,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   mempertahankan nilai perangkat. Dekripsi gagal tak lagi menyisakan
   plaintext parsial; KDF backup baru SHA256 (fallback baca SHA1 lama).
 - **Telegram**: perintah basi (>5 mnt) diabaikan, long-poll 50 dtk + guard
+- **Landscape dirapikan**: margin tepi layar lebar (TV/tablet) turun dari
+  200dp ke 48dp (`values-sw600dp-land`, portrait tak berubah) sehingga dua
+  kolom tak lagi terjepit; footer Start dibungkus wadah `card_bg` seperti
+  portrait; padding kartu 16dp ke 12dp agar hemat tinggi layar; D-pad bisa
+  pindah kiri/kanan antar-kolom (info/server <-> log). ID kedua orientasi
+  tetap sama persis.
   anti tumpang-tindih; banding admin token constant-time; peringatan bila
   Admin Token kosong (status/log LAN terbuka).
 

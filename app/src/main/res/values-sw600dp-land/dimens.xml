@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Landscape layar lebar (TV/STB/tablet): margin 200dp portrait
+         terlalu menjepit dua kolom; 48dp cukup agar konten lega. -->
+    <dimen name="side_padding">48dp</dimen>
+</resources>

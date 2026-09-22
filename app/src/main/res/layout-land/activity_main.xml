@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layar awal landscape: hero + dua kolom (kiri: info+server, kanan: log
      penuh) + footer Start full-width sticky. ID sama persis dengan portrait
-     agar MainActivity tidak berubah. Rantai nextFocus*: kolom kiri dulu,
-     lalu kolom kanan, lalu footer. -->
+     agar MainActivity tidak berubah. Rantai nextFocus*: vertikal kolom kiri
+     dulu lalu kolom kanan, plus kiri/kanan antar-kolom untuk D-pad TV.
+     Padding kartu 12dp (bukan 16dp) agar hemat tinggi layar; margin tepi
+     layar lebar diatur values-sw600dp-land (bukan 200dp). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -74,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_card"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:id="@+id/version"
@@ -85,6 +87,8 @@
                     <TextView
                         android:id="@+id/netInfo"
                         android:nextFocusDown="@id/updateBtn"
+                        android:nextFocusLeft="@id/logToggle"
+                        android:nextFocusRight="@id/logToggle"
                         android:nextFocusUp="@id/overflowBtn"
                         style="@style/TasirinInfo"
                         android:layout_width="match_parent"
@@ -111,7 +115,7 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_card"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
                         style="@style/TasirinSection"
@@ -146,6 +150,8 @@
                     <Button
                         android:id="@+id/updateBtn"
                         android:nextFocusDown="@id/logToggle"
+                        android:nextFocusLeft="@id/logToggle"
+                        android:nextFocusRight="@id/logToggle"
                         android:nextFocusUp="@id/netInfo"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
@@ -165,7 +171,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_card"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -184,6 +190,8 @@
                 <Button
                     android:id="@+id/logToggle"
                     android:nextFocusDown="@id/homeSaveLog"
+                    android:nextFocusLeft="@id/netInfo"
+                    android:nextFocusRight="@id/netInfo"
                     android:nextFocusUp="@id/updateBtn"
                     style="@style/TasirinBtnSmall"
                     android:layout_width="wrap_content"
@@ -219,6 +227,8 @@
             <Button
                 android:id="@+id/homeSaveLog"
                 android:nextFocusDown="@id/startStop"
+                android:nextFocusLeft="@id/netInfo"
+                android:nextFocusRight="@id/netInfo"
                 android:nextFocusUp="@id/logToggle"
                 style="@style/TasirinBtn"
                 android:layout_width="match_parent"
@@ -228,15 +238,25 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Footer sticky: Start full-width -->
-    <Button
-        android:id="@+id/startStop"
-        android:nextFocusDown="@id/overflowBtn"
-        android:nextFocusUp="@id/homeSaveLog"
-        style="@style/TasirinBtnPrimary"
+    <!-- Footer sticky: Start full-width selalu terlihat (wadah sama dengan portrait) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/start" />
+        android:background="@color/card_bg"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding"
+        android:paddingTop="10dp"
+        android:paddingBottom="12dp">
+
+        <Button
+            android:id="@+id/startStop"
+            android:nextFocusDown="@id/overflowBtn"
+            android:nextFocusUp="@id/homeSaveLog"
+            style="@style/TasirinBtnPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/start" />
+    </LinearLayout>
 </LinearLayout>
