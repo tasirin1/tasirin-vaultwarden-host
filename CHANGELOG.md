@@ -189,6 +189,35 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Warning lint nol**: layout di-split ke `main_card_*.xml` (bebas
   TooManyViews) dan deprecation `javac` dibersihkan; derive PIN kini
   menangani checked exception agar kompilasi lolos.
+- **Zip-slip restore Telegram ditutup**: `restoreFromZip` (dipakai `/restore`
+  & tombol Restore Telegram) hanya mengecek `startsWith(basePath)` tanpa
+  separator sehingga entri `../vaultwarden-evil/...` lolos dan tertulis di
+  luar folder data. Kini memakai allowlist `normalisasiEntriZip` yang sama
+  dengan restore UI lokal (hanya `db.sqlite3*`, `tls/*`, `app-config.json`)
+  + cek canonical pakai separator; cek lokal ikut dikeraskan.
+- **Batas baca anti zip-bomb**: `app-config.json` dari zip tak tepercaya
+  dibaca maksimal 1 MB (`bacaTerbatas`) agar zip bomb kecil tak OOM-kan
+  STB 1 GB.
+- **`stop`/`restart` aman dari background**: keduanya kini memakai
+  `startForegroundService` di Android 8+ seperti `start`/`backupNow`
+  (sebelumnya `startService` mentah bisa `IllegalStateException` dan
+  `/stop` lapor gagal palsu).
+- **Tugas berat tak tumpang tindih**: `runBusy` dikunci `AtomicBoolean`
+  (tugas kedua ditolak dengan toast) dan `uiBusy` kini `volatile`.
+- **Centang PIN tak macetkan UI**: `flushPinHash` (PBKDF2 120rb iterasi,
+  s.d. 5 dtk di STB lambat) tak lagi dipanggil di UI thread — mengaktifkan
+  PIN saat hash masih antre kini diminta coba lagi sebentar; mematikan PIN
+  langsung tersimpan.
+- **Duplikasi dihapus**: `autoUpdateCheck` (±100 baris di Main & Settings)
+  pindah ke satu helper `AutoUpdate` (termasuk `tanpaKuota` + notifikasi);
+  blok retry + salin-hash unduhan binary/shim (±80 baris) gabung ke helper
+  `bolehCobaLagiUnduh`/`tundaCobaLagiUnduh`/`salinSambilHash` + test.
+- **Start lebih cepat**: `detectBinaryVersion` hanya baca 2 baris versi lalu
+  destroy (tanpa tampung 8 KB + tunggu 15 dtk bila binary aneh).
+- **Kecil-kecil**: `fetchChecksum` pakai try-with-resources (tak bocor soket),
+  `extractFileId` via `JSONObject` (fallback manual), semua tulis file teks
+  UTF-8 eksplisit (tak lagi `FileWriter` charset bawaan), wakelock polling
+  bot 60 dtk → 30 dtk (long-poll kini 15 dtk).
 
 ## [Belum rilis] — Audit keamanan, bug & efisiensi
 
@@ -224,6 +253,14 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   refresh log 500 ms; QR `setPixels` sekali; alarm bot inexact;
   **unduhan bisa dilanjutkan** (HTTP Range); cache enumerasi IP 5 detik;
   debounce jadwal bot saat mengetik token.
+- **Ronde audit hemat 9.481 baris**: satu helper unduh retry terklasifikasi
+  (404 tak di-retry) dipakai binary/shim/web-vault; pool tetap status web;
+  `folderBytesCached` kunci absolute-path; versi bundled di-cache per proses
+  + per layar; ekstrak web-vault ke `web-vault.new` lalu rename-swap dengan
+  cek zip-slip leksikal (tanpa canonical per entri); `tailLog`/SSE tanpa
+  split/concat per baris; `collectIps` tak-berubah; `humanBytes` manual;
+  chat-id Telegram di-parse sekali (ter-unit-test `amanEntriZip`,
+  `rentangKosong`).
 
 ## [Belum rilis] — Perintah restore Telegram
 

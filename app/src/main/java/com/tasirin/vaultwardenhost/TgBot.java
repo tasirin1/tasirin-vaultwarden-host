@@ -173,6 +173,7 @@ public final class TgBot {
                 return;
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
+            long chatId = parseChatId(chat);
             String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=15&limit=10";
             String body = httpGet(ctx, url);
             if (body == null) {
@@ -204,7 +205,8 @@ public final class TgBot {
                                 continue;
                             }
                             // Hanya layani chat yang dikonfigurasi di pengaturan
-                            if (String.valueOf(c.optLong("id", -1)).equals(chat.trim())) {
+                            // (banding long tanpa alokasi string per pesan).
+                            if (chatId != Long.MIN_VALUE && c.optLong("id", -1) == chatId) {
                                 // Perintah basi (>5 mnt, mis. /stop tertunda saat bot
                                 // offline) wajib diabaikan; offset tetap maju.
                                 long dateMs = msg.optLong("date", 0) * 1000L;
@@ -227,6 +229,19 @@ public final class TgBot {
         } catch (Exception ignored) {
         } finally {
             POLLING.set(false);
+        }
+    }
+
+    /** Parse chat ID konfigurasi sekali; Long.MIN_VALUE bila tak numerik
+     *  (= tak ada pesan yang cocok, aman). Murni agar bisa unit test. */
+    static long parseChatId(String chat) {
+        if (chat == null) {
+            return Long.MIN_VALUE;
+        }
+        try {
+            return Long.parseLong(chat.trim());
+        } catch (NumberFormatException e) {
+            return Long.MIN_VALUE;
         }
     }
 

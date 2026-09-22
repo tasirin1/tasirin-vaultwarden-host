@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Status web ringan di port terpisah dari vaultwarden: JSON status + log realtime
@@ -36,6 +38,14 @@ public final class ControlServer {
     private static volatile String jsonCache = null;
     private static volatile long jsonCacheAt = 0;
     private static final long JSON_CACHE_MS = 10_000;
+
+    // Pool tetap (bukan thread baru per koneksi): halaman status polling tiap
+    // 2 dtk sehingga thread churn boros. Statis agar tak bocor tiap restart.
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(6, r -> {
+        Thread t = new Thread(r, "vw-status-conn");
+        t.setDaemon(true);
+        return t;
+    });
 
     private final Context context;
     private ServerSocket serverSocket;
@@ -78,9 +88,14 @@ public final class ControlServer {
         while (!stop) {
             try {
                 Socket s = serverSocket.accept();
-                Thread t = new Thread(() -> handle(s), "vw-status-conn");
-                t.setDaemon(true);
-                t.start();
+                try {
+                    POOL.execute(() -> handle(s));
+                } catch (Exception e) {
+                    try {
+                        s.close();
+                    } catch (Exception ignored) {
+                    }
+                }
             } catch (Exception e) {
                 if (stop) {
                     break;
@@ -275,8 +290,8 @@ public final class ControlServer {
             o.put("port", ServerService.runningPort == null ? "" : ServerService.runningPort);
             o.put("https", ServerService.runningHttps);
             o.put("dataDir", ServerService.runningDataDir == null ? "" : ServerService.runningDataDir);
-            o.put("uptimeMs", ServerService.uptimeMs());
             long up = ServerService.uptimeMs();
+            o.put("uptimeMs", up);
             o.put("uptimeHuman", up > 0 ? TgBot.durationText(up) : "");
             long rss = ServerService.processRssKb();
             o.put("ramKb", rss > 0 ? rss : -1);
@@ -359,7 +374,8 @@ public final class ControlServer {
             return;
         }
         try {
-            OutputStream out = s.getOutputStream();
+            OutputStream out = new java.io.BufferedOutputStream(
+                    s.getOutputStream(), 8192);
             out.write("HTTP/1.1 200 OK\r\n".getBytes(StandardCharsets.UTF_8));
             out.write("Content-Type: text/event-stream; charset=utf-8\r\n".getBytes(StandardCharsets.UTF_8));
             out.write("Cache-Control: no-cache\r\n".getBytes(StandardCharsets.UTF_8));
@@ -384,12 +400,7 @@ public final class ControlServer {
                 }
                 if (text != null) {
                     sent = len;
-                    for (String line : text.split("\n", -1)) {
-                        String clean = line.replace("\r", "");
-                        if (!clean.isEmpty()) {
-                            out.write(("data: " + clean + "\n\n").getBytes(StandardCharsets.UTF_8));
-                        }
-                    }
+                    kirimSse(out, text);
                     lastWrite = System.currentTimeMillis();
                     out.flush();
                 } else {
@@ -404,6 +415,30 @@ public final class ControlServer {
             }
         } finally {
             sseClients.decrementAndGet();
+        }
+    }
+
+    private static final byte[] SSE_AWAL =
+            "data: ".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] SSE_AKHIR = "\n\n".getBytes(StandardCharsets.UTF_8);
+
+    /** Tulis blok SSE tanpa split/concat per baris (hemat alokasi per detik per klien). */
+    private static void kirimSse(java.io.OutputStream out, String text) throws Exception {
+        int start = 0;
+        int n = text.length();
+        for (int i = 0; i <= n; i++) {
+            if (i == n || text.charAt(i) == '\n') {
+                int end = i;
+                while (end > start && text.charAt(end - 1) == '\r') {
+                    end--;
+                }
+                if (end > start && !ServerService.rentangKosong(text, start, end)) {
+                    out.write(SSE_AWAL);
+                    out.write(text.substring(start, end).getBytes(StandardCharsets.UTF_8));
+                    out.write(SSE_AKHIR);
+                }
+                start = i + 1;
+            }
         }
     }
 

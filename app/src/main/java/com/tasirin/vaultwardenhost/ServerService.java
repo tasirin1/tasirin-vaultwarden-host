@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -153,12 +152,23 @@ public class ServerService extends Service {
     }
 
     public static void stop(Context context) {
-        context.startService(new Intent(context, ServerService.class).setAction(ACTION_STOP));
+        mulaiAksi(context, ACTION_STOP);
     }
 
     /** Restart proses server tanpa mematikan service (dipakai dari perintah bot). */
     public static void restart(Context context) {
-        context.startService(new Intent(context, ServerService.class).setAction(ACTION_RESTART));
+        mulaiAksi(context, ACTION_RESTART);
+    }
+
+    /** Kirim aksi ke service lewat foreground API di Android 8+ agar tidak
+     *  IllegalStateException saat dipanggil dari background (bot/alarm). */
+    private static void mulaiAksi(Context context, String aksi) {
+        Intent i = new Intent(context, ServerService.class).setAction(aksi);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(i);
+        } else {
+            context.startService(i);
+        }
     }
 
     /** Jalankan backup Telegram terjadwal (via AlarmReceiver). */
@@ -849,7 +859,9 @@ public class ServerService extends Service {
                 stamp = LOG_TS.format(new Date());
             }
             String body = "=== " + stamp + " [" + reason + "] ===\n" + tailLog(100) + "\n";
-            try (FileWriter w = new FileWriter(new File(getFilesDir(), CRASH_LOG_NAME), false)) {
+            try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                    new FileOutputStream(new File(getFilesDir(), CRASH_LOG_NAME), false),
+                    StandardCharsets.UTF_8)) {
                 w.write(body);
             }
         } catch (Exception ignored) {
@@ -923,7 +935,8 @@ public class ServerService extends Service {
             logFileBuf.setLength(0);
             return;
         }
-        try (FileWriter w = new FileWriter(f, true)) {
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(f, true), StandardCharsets.UTF_8)) {
             w.write(logFileBuf.toString());
         } catch (Exception ignored) {
         } finally {
@@ -1274,33 +1287,30 @@ public class ServerService extends Service {
             p = pb.start();
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
+            // Cukup 2 baris versi pertama (saring noise linker STB lama), lalu
+            // matikan proses sedini mungkin agar Start tak tertahan belasan detik
+            // bila binary aneh/macet.
             String first = null;
-            StringBuilder semua = new StringBuilder();
             String baris;
-            while ((baris = r.readLine()) != null && semua.length() < 8192) {
-                // Saring noise linker STB lama ("WARNING: linker: ... DT_FLAGS_1")
-                // agar versi tak terbaca sebagai teks warning.
+            int dibaca = 0;
+            while (dibaca < 20 && (baris = r.readLine()) != null) {
                 if (isNoiseLinker(baris)) {
                     continue;
                 }
                 if (first == null) {
                     first = baris;
                 }
-                if (semua.length() > 0) {
-                    semua.append('\n');
+                if (++dibaca >= 2) {
+                    break;
                 }
-                semua.append(baris);
             }
-            lastVersionOutput = semua.toString();
-            // Timeout 15 detik di SEMUA API (waitFor(timeout) hanya API 26+).
-            if (!waitForOrKill(p, 15000)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    p.destroyForcibly();
-                } else {
-                    p.destroy();
-                }
-                binaryVersion = "?";
-                return;
+            lastVersionOutput = first == null ? "" : first.trim();
+            p.destroy();
+            try {
+                // Timeout 2 detik di SEMUA API (waitFor(timeout) hanya API 26+).
+                waitForOrKill(p, 2000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
             }
             binaryVersion = (first == null || first.trim().isEmpty()) ? "?" : first.trim();
         } catch (Exception e) {
@@ -1335,7 +1345,7 @@ public class ServerService extends Service {
         synchronized (COLLECT_LOCK) {
             long now = System.currentTimeMillis();
             if (now - collectCacheTime < 5000 && !collectCache.isEmpty()) {
-                return new ArrayList<>(collectCache);
+                return collectCache;
             }
             List<String> ips = new ArrayList<>();
             try {
@@ -1351,15 +1361,17 @@ public class ServerService extends Service {
                 }
             } catch (Exception ignored) {
             }
-            collectCache = new ArrayList<>(ips);
+            // Tak-berubah: pemanggil hanya membaca (kecuali prepareTls, ia menyalin
+            // sendiri) sehingga cache-hit tanpa alokasi salinan per panggilan.
+            collectCache = Collections.unmodifiableList(ips);
             collectCacheTime = now;
-            return ips;
+            return collectCache;
         }
     }
 
     private File prepareTls(File dataFolder) {
         try {
-            List<String> ips = collectIps();
+            List<String> ips = new ArrayList<>(collectIps());
             ips.add(0, "127.0.0.1");
             List<String> dns = new ArrayList<>();
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
@@ -1421,7 +1433,8 @@ public class ServerService extends Service {
     }
 
     private static void writeText(File f, String text) throws Exception {
-        try (FileWriter w = new FileWriter(f)) {
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(f, false), StandardCharsets.UTF_8)) {
             w.write(text);
         }
     }
@@ -1493,13 +1506,21 @@ public class ServerService extends Service {
             return -1;
         }
         try (BufferedReader r = new BufferedReader(
-                new java.io.FileReader("/proc/" + pid + "/status"))) {
+                new InputStreamReader(new FileInputStream("/proc/" + pid + "/status"),
+                        StandardCharsets.UTF_8))) {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("VmRSS:")) {
-                    String[] parts = line.trim().split("\\s+");
-                    if (parts.length >= 2) {
-                        return Long.parseLong(parts[1]);
+                    // Tanpa split regex (compile Pattern per baris): "VmRSS:   1234 kB".
+                    String angka = line.substring(6).trim();
+                    int sp = angka.indexOf(' ');
+                    if (sp >= 0) {
+                        angka = angka.substring(0, sp);
+                    }
+                    try {
+                        return Long.parseLong(angka);
+                    } catch (NumberFormatException nfe) {
+                        return -1;
                     }
                 }
             }
@@ -1634,31 +1655,54 @@ public class ServerService extends Service {
     static String tailLog(int lines) {
         synchronized (logBuffer) {
             int len = logBuffer.length();
-            int from = 0;
-            int nl = 0;
-            for (int i = len - 1; i >= 0; i--) {
-                if (logBuffer.charAt(i) == '\n') {
-                    nl++;
-                    if (nl > lines) {
-                        from = i + 1;
-                        break;
+            java.util.ArrayList<String> ambil = new java.util.ArrayList<>(Math.max(0, lines));
+            int end = len;
+            for (int i = len - 1; i >= -1 && ambil.size() < lines; i--) {
+                if (i < 0 || logBuffer.charAt(i) == '\n') {
+                    int start = i + 1;
+                    int e = end;
+                    while (e > start && (logBuffer.charAt(e - 1) == '\r'
+                            || logBuffer.charAt(e - 1) == '\n')) {
+                        e--;
                     }
+                    if (e > start && !rentangKosong(logBuffer, start, e)) {
+                        ambil.add(logBuffer.substring(start, e));
+                    }
+                    end = i;
                 }
             }
-            String tail = from > 0 ? logBuffer.substring(from, len) : logBuffer.toString();
-            String[] arr = tail.split("\n");
-            int start = Math.max(0, arr.length - lines);
             StringBuilder sb = new StringBuilder();
-            for (int i = start; i < arr.length; i++) {
-                if (!arr[i].trim().isEmpty()) {
-                    if (sb.length() > 0) {
-                        sb.append('\n');
-                    }
-                    sb.append(arr[i]);
+            for (int k = ambil.size() - 1; k >= 0; k--) {
+                if (sb.length() > 0) {
+                    sb.append('\n');
                 }
+                sb.append(ambil.get(k));
             }
             return sb.toString();
         }
+    }
+
+    /** True bila rentang buffer hanya whitespace (tanpa alokasi substring). Murni. */
+    static boolean rentangKosong(CharSequence s, int start, int end) {
+        for (int i = start; i < end; i++) {
+            if (!Character.isWhitespace(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** True bila string hanya berisi whitespace (tanpa alokasi trim). Murni. */
+    static boolean barisKosong(String s) {
+        if (s == null || s.isEmpty()) {
+            return true;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isWhitespace(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Panjang buffer log tanpa menyalin (untuk deteksi perubahan murah). */

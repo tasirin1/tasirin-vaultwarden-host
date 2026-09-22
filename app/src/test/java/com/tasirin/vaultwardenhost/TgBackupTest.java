@@ -138,6 +138,52 @@ public class TgBackupTest {
     }
 
     @Test
+    public void extractFileId_dariJsonDanFallbackManual() {
+        String json = "{\"ok\":true,\"result\":{\"document\":{"
+                + "\"file_id\":\"ABC123\",\"file_name\":\"b.zip\"},"
+                + "\"chat\":{\"id\":1}}}";
+        assertEquals("ABC123", TgBackup.extractFileId(json));
+        assertEquals("", TgBackup.extractFileId("{\"ok\":false}"));
+        assertEquals("", TgBackup.extractFileId(null));
+        assertEquals("", TgBackup.extractFileId("bukan json"));
+        // Fallback manual bila struktur result/document hilang
+        assertEquals("ZZZ9", TgBackup.extractFileId(
+                "bla \"document\":{\"file_id\":\"ZZZ9\"} ekor"));
+    }
+
+    @Test
+    public void bacaTerbatas_tolakMelebihiBatas() throws Exception {
+        byte[] kecil = new byte[100];
+        assertEquals(100, TgBackup.bacaTerbatas(
+                new java.io.ByteArrayInputStream(kecil), 1024).length);
+        byte[] besar = new byte[TgBackup.BATAS_CONFIG_JSON + 1];
+        try {
+            TgBackup.bacaTerbatas(
+                    new java.io.ByteArrayInputStream(besar), TgBackup.BATAS_CONFIG_JSON);
+            org.junit.Assert.fail("wajib lempar IOException saat over-batas");
+        } catch (java.io.IOException diharapkan) {
+        }
+    }
+
+    @Test
+    public void satuDesimal_formatSamaSepertiDulu() {
+        assertEquals("1.5 KB", TgBackup.satuDesimal(1536, 1024, "KB"));
+        assertEquals("2.0 MB", TgBackup.satuDesimal(2 * 1048576, 1048576, "MB"));
+        assertEquals("1.0 GB", TgBackup.satuDesimal(1073741824, 1073741824, "GB"));
+        assertEquals("1.5 KB", TgBackup.humanBytes(1536));
+        assertEquals("2.0 MB", TgBackup.humanBytes(2 * 1048576));
+        assertEquals("1.0 GB", TgBackup.humanBytes(1073741824L));
+    }
+
+    @Test
+    public void normalisasiEntriZip_tolakSiblingLicik() {
+        // Entri berawalan nama folder data tapi di luar folder (tanpa separator)
+        // wajib ditolak di allowlist, bukan hanya di cek canonical.
+        assertEquals(null, TgBackup.normalisasiEntriZip("../vaultwarden-evil/x"));
+        assertEquals(null, TgBackup.normalisasiEntriZip("db.sqlite3/../../evil"));
+    }
+
+    @Test
     public void verifikasiZip_tolakKorup() throws Exception {
         assertNotNull(TgBackup.verifikasiZip(null));
         assertNotNull(TgBackup.verifikasiZip(new File("/tidak/ada.zip")));

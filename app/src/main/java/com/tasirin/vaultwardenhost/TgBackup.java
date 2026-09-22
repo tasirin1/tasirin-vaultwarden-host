@@ -533,8 +533,24 @@ public final class TgBackup {
         }
     }
 
-    /** Ambil file_id dokumen dari respons sendDocument. */
-    private static String extractFileId(String body) {
+    /** Ambil file_id dokumen dari respons sendDocument (JSONObject; fallback
+     *  parsing manual bila format Telegram berubah). Murni agar bisa unit test. */
+    static String extractFileId(String body) {
+        if (body != null) {
+            try {
+                JSONObject hasil = new JSONObject(body).optJSONObject("result");
+                JSONObject dokumen = hasil != null ? hasil.optJSONObject("document") : null;
+                String dariJson = dokumen != null ? dokumen.optString("file_id", "") : "";
+                if (dariJson != null && !dariJson.isEmpty()) {
+                    return dariJson;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return extractFileIdManual(body);
+    }
+
+    private static String extractFileIdManual(String body) {
         try {
             int doc = body.indexOf("\"document\":{");
             int start = body.indexOf("\"file_id\":\"", doc >= 0 ? doc : 0);
@@ -803,15 +819,20 @@ public final class TgBackup {
 
         byte[] buf = new byte[64 * 1024];
         String basePath = dataFolder.getCanonicalPath();
+        String awalanAman = basePath + File.separator;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                if ("app-config.json".equals(entry.getName())) {
-                    continue; // pengaturan diterapkan langsung, tidak ditulis ke disk
+                // Allowlist sama seperti restore UI lokal: hanya db.sqlite3*,
+                // tls/*, dan app-config.json (diterapkan langsung, tak ditulis).
+                String nama = normalisasiEntriZip(entry.getName());
+                if (nama == null || "app-config.json".equals(nama)) {
+                    continue;
                 }
-                File outFile = new File(dataFolder, entry.getName());
-                if (!outFile.getCanonicalPath().startsWith(basePath)) {
-                    continue; // cegah zip-slip
+                File outFile = new File(dataFolder, nama);
+                String kanon = outFile.getCanonicalPath();
+                if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
+                    continue; // cegah zip-slip (mis. basePath-evil tanpa separator)
                 }
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
@@ -1024,11 +1045,24 @@ public final class TgBackup {
         return true;
     }
 
+    /** Batas baca app-config.json dari zip tak tepercaya (anti zip-bomb di STB 1 GB). */
+    static final int BATAS_CONFIG_JSON = 1024 * 1024;
+
     static byte[] readAllBytes(InputStream in) throws Exception {
+        return bacaTerbatas(in, BATAS_CONFIG_JSON);
+    }
+
+    /** Baca stream sampai habis; lempar IOException bila melebihi batas byte. */
+    static byte[] bacaTerbatas(InputStream in, long batas) throws Exception {
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         byte[] buf = new byte[64 * 1024];
         int n;
+        long total = 0;
         while ((n = in.read(buf)) > 0) {
+            total += n;
+            if (total > batas) {
+                throw new IOException("Ukuran data melebihi batas " + batas + " byte.");
+            }
             bos.write(buf, 0, n);
         }
         return bos.toByteArray();
@@ -1047,12 +1081,9 @@ public final class TgBackup {
         if (dir == null) {
             return 0;
         }
-        String key;
-        try {
-            key = dir.getCanonicalPath();
-        } catch (Exception e) {
-            key = dir.getAbsolutePath();
-        }
+        // Kunci absolute path (tanpa I/O): getCanonicalPath() memanggil syscall
+        // sehingga cache-hit pun tetap mahal bila dipakai sebagai kunci.
+        String key = dir.getAbsolutePath();
         long now = System.currentTimeMillis();
         synchronized (FOLDER_SIZE_CACHE) {
             long[] hit = FOLDER_SIZE_CACHE.get(key);
@@ -1082,7 +1113,7 @@ public final class TgBackup {
             }
             return 0;
         }
-        return file.isFile() ? file.length() : 0;
+        return file.length();
     }
 
     /** Stamp "yyyyMMdd-HHmmss" untuk nama file backup/export (satu format). */
@@ -1108,15 +1139,22 @@ public final class TgBackup {
             return bytes + " B";
         }
         if (bytes < 1024 * 1024) {
-            return String.format(Locale.US, "%.1f KB", bytes / 1024.0);
+            return satuDesimal(bytes, 1024, "KB");
         }
         if (bytes < 1024L * 1024 * 1024) {
-            return String.format(Locale.US, "%.1f MB", bytes / 1048576.0);
+            return satuDesimal(bytes, 1048576, "MB");
         }
         if (bytes < 1024L * 1024 * 1024 * 1024) {
-            return String.format(Locale.US, "%.1f GB", bytes / 1073741824.0);
+            return satuDesimal(bytes, 1073741824, "GB");
         }
-        return String.format(Locale.US, "%.1f TB", bytes / 1099511627776.0);
+        return satuDesimal(bytes, 1099511627776L, "TB");
+    }
+
+    /** Format "x.y UNIT" tanpa String.format (dipanggil tiap refresh).
+     *  Murni agar bisa unit test. */
+    static String satuDesimal(long bytes, long unit, String suffix) {
+        long sepuluh = (bytes * 10 + unit / 2) / unit;
+        return (sepuluh / 10) + "." + (sepuluh % 10) + " " + suffix;
     }
 
     /** True bila backup terakhir beda hari kalender dengan sekarang (murni, bisa unit test).

@@ -31,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -347,7 +347,9 @@ public class LogActivity extends Activity {
                 File dir = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    try (FileWriter w = new FileWriter(new File(dir, name))) {
+                    try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                            new FileOutputStream(new File(dir, name), false),
+                            StandardCharsets.UTF_8)) {
                         w.write(header.toString());
                     }
                     ok = true;

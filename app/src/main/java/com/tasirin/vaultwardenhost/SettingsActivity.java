@@ -3,15 +3,10 @@ package com.tasirin.vaultwardenhost;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +50,6 @@ public class SettingsActivity extends Activity {
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
-    private static final String KEY_TG_NOTIFIED = "tg_notified_version";
     private static final String KEY_ADVANCED_OPEN = "advanced_open";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -105,17 +99,27 @@ public class SettingsActivity extends Activity {
     private Button aboutBtn;
 
     private String bundledVersion = "?";
+    private String bundledRaw = null;
     private String appVersion = "";
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
     private boolean advancedOpen = false;
     private boolean refreshActive = true;
-    private boolean uiBusy = false;
+    private volatile boolean uiBusy = false;
+    /** Cegah dua tugas berat (update/backup/restore) tumpang tindih. */
+    private final AtomicBoolean tugasBerjalan = new AtomicBoolean(false);
+    /** Guard agar setChecked programatik tak memicu ulang listener PIN. */
+    private boolean pinCentangProgram = false;
     private long lastWvCheck = 0;
     private String wvLine = "";
     private long lastDbCheck = 0;
     private String dbLine = "";
+    /** Cache daftar isi folder backups (TTL 5 dtk) agar dua info tak listFiles 2x. */
+    private File[] cacheDaftarBackup = null;
+    private String cacheDaftarBackupDir = "";
+    private long cacheDaftarBackupAt = 0;
+    private static final long DAFTAR_BACKUP_TTL_MS = 5_000;
     private long lastStorageCheck = 0;
     private String storageLine = "";
     private static final long WV_CHECK_MS = 10_000;
@@ -316,14 +320,32 @@ public class SettingsActivity extends Activity {
             }
         });
         pinEnabledCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
-            flushPinHash();
-            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            if (checked && sp2.getString(KEY_PIN, "").isEmpty()) {
-                toast("Isi PIN dulu (minimal 4 digit).");
-                b.setChecked(false);
+            if (pinCentangProgram) {
                 return;
             }
-            sp2.edit().putBoolean(KEY_PIN_ON, checked).apply();
+            if (!checked) {
+                // Mematikan PIN tak butuh hash: langsung simpan tanpa blokir UI.
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putBoolean(KEY_PIN_ON, false).apply();
+                return;
+            }
+            java.util.concurrent.Future<?> antre = pinPending;
+            if (antre != null && !antre.isDone()) {
+                toast("PIN masih diproses, coba lagi sebentar.");
+                pinCentangProgram = true;
+                b.setChecked(false);
+                pinCentangProgram = false;
+                return;
+            }
+            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            if (sp2.getString(KEY_PIN, "").isEmpty()) {
+                toast("Isi PIN dulu (minimal 4 digit).");
+                pinCentangProgram = true;
+                b.setChecked(false);
+                pinCentangProgram = false;
+                return;
+            }
+            sp2.edit().putBoolean(KEY_PIN_ON, true).apply();
         });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -335,6 +357,7 @@ public class SettingsActivity extends Activity {
         }
 
         bundledVersion = readBundledVersion();
+        bundledRaw = Updater.readBundledVersionRaw(this);
         try {
             appVersion = getPackageManager()
                     .getPackageInfo(getPackageName(), 0).versionName;
@@ -495,7 +518,7 @@ public class SettingsActivity extends Activity {
             } else {
                 String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
-                        ? up : Updater.readBundledVersionRaw(this));
+                        ? up : bundledRaw);
                 if (cur != null && cur.equals(pendingVersion)) {
                     pendingVersion = null; // update sudah terpasang
                 } else {
@@ -694,106 +717,30 @@ public class SettingsActivity extends Activity {
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
 
     private void autoUpdateCheck() {
-        try {
-            String latest = Updater.latestVersion(this);
-            if (latest == null) {
-                return;
+        AutoUpdate.cek(this, new AutoUpdate.Aksi() {
+            @Override public void toast(String pesan) {
+                SettingsActivity.this.toast(pesan);
             }
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String current = real != null ? real : Updater.normVersion(
-                    updated != null && !updated.isEmpty()
-                            ? updated : Updater.readBundledVersionRaw(this));
-            boolean updatedSomething = false;
-            if (real != null && real.equals(latest)) {
-                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-                pendingVersion = null;
-            } else if (current != null && !current.equals(latest)) {
-                if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
-                        && isUnmeteredNetwork()) {
-                    // Auto-update: pasang binary langsung (hanya WiFi/ethernet)
-                    try {
-                        String msg = Updater.tryUpdate(this);
-                        pendingVersion = null;
-                        if (msg.startsWith("Update v")) {
-                            updatedSomething = true;
-                        }
-                        ui.post(() -> {
-                            toast(msg);
-                            appendUiLog("[app] " + msg);
-                        });
-                    } catch (Exception e) {
-                        ui.post(() -> appendUiLog("[app] Auto-update gagal: " + e.getMessage()));
-                        pendingVersion = latest;
-                        showUpdateNotification(latest);
-                    }
-                } else {
-                    pendingVersion = latest;
-                    ui.post(() -> toast("Update tersedia: v" + latest));
-                    // Notifikasi sistem + Telegram cukup sekali per versi
-                    if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
-                        sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
-                        showUpdateNotification(latest);
-                        TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
-                                + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
-                    }
-                }
+            @Override public void catat(String baris) {
+                appendUiLog(baris);
             }
-            // Web-vault selalu mengikuti versi resmi (bukan channel legacy);
-            // lewati bila versi resmi tak terbaca (offline/rate-limit).
-            if (latest != null && sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false)
-                    && isUnmeteredNetwork()) {
-                try {
-                    String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-                    if (webVaultReady(dataDir)) {
-                        String marker = Updater.webVaultFromVersion(this);
-                        if (marker == null || !marker.equals(latest)) {
-                            String msg = Updater.updateWebVault(this);
-                            if (msg.contains("updated")) {
-                                updatedSomething = true;
-                            }
-                            ui.post(() -> {
-                                toast(msg);
-                                appendUiLog("[app] " + msg);
-                            });
-                        }
-                    }
-                } catch (Exception e) {
-                    ui.post(() -> appendUiLog("[app] Auto-update web-vault gagal: "
-                            + e.getMessage()));
-                }
+            @Override public void kabariTersedia(String versi) {
+                SettingsActivity.this.toast("Update tersedia: v" + versi);
             }
-            // Opsi: restart sekali bila ada update terpasang & server sedang jalan
-            if (updatedSomething && ServerService.running
-                    && sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
-                ui.post(() -> appendUiLog("[app] Auto-restart setelah update..."));
-                ServerService.restart(this);
+            @Override public void tawarkanWebVault() {
+                autoOfferWebVaultUpdate();
             }
-            TgBackup.notifyLowStorage(this);
-            autoOfferWebVaultUpdate();
-        } catch (Exception ignored) {
-        }
-    }
-
-    /** Auto-update binary hanya di jaringan non-kuota (WiFi/ethernet). */
-    // API lawas sengaja untuk Android 5.0/5.1 (API 21/22); jalur modern dipakai bila API >= 23.
-    @SuppressWarnings("deprecation")
-    private boolean isUnmeteredNetwork() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            if (cm == null) {
-                return false;
+            @Override public boolean webVaultSiap(String dataDir) {
+                return webVaultReady(dataDir);
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return !cm.isActiveNetworkMetered();
+            @Override public void restartServer() {
+                ServerService.restart(SettingsActivity.this);
             }
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            return ni != null && (ni.getType() == ConnectivityManager.TYPE_WIFI
-                    || ni.getType() == ConnectivityManager.TYPE_ETHERNET);
-        } catch (Exception e) {
-            return false;
-        }
+        }, new AutoUpdate.AturPending() {
+            @Override public void atur(String versi) {
+                pendingVersion = versi;
+            }
+        }, true);
     }
 
     /** Tawarkan update web vault sekali per versi bila versinya beda dari server. */
@@ -832,41 +779,6 @@ public class SettingsActivity extends Activity {
                     .setNegativeButton("Nanti", null)
                     .show());
         } catch (Exception ignored) {
-        }
-    }
-
-    // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
-    @SuppressWarnings("deprecation")
-    private void showUpdateNotification(String version) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (nm != null) {
-                NotificationChannel ch = new NotificationChannel("vw_updates",
-                        "Vaultwarden Update", NotificationManager.IMPORTANCE_DEFAULT);
-                nm.createNotificationChannel(ch);
-            }
-        }
-        Intent intent = new Intent(this, MainActivity.class);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT
-                | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, flags);
-        android.app.Notification.Builder b;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            b = new android.app.Notification.Builder(this, "vw_updates");
-        } else {
-            b = new android.app.Notification.Builder(this);
-        }
-        android.app.Notification n = b.setContentTitle("Vaultwarden Update")
-                .setContentText("v" + version + " tersedia")
-                .setSmallIcon(android.R.drawable.stat_notify_sync)
-                .setContentIntent(pi)
-                .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
-                .setAutoCancel(true)
-                .build();
-        // getSystemService(Class) baru di API 23; pakai string agar API 21/22 aman.
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (nm != null) {
-            nm.notify(2, n);
         }
     }
 
@@ -1049,6 +961,7 @@ public class SettingsActivity extends Activity {
                     // backup lengkap juga memuat tls/* + app-config.json.
                     File dataFolder = new File(dataDir);
                     String canonBase = dataFolder.getCanonicalPath();
+                    String awalanAman = canonBase + File.separator;
                     JSONObject zipCfg = null;
                     ZipInputStream zis = new ZipInputStream(in);
                     ZipEntry entry;
@@ -1059,8 +972,8 @@ public class SettingsActivity extends Activity {
                             continue;
                         }
                         if ("app-config.json".equals(name)) {
-                            zipCfg = new JSONObject(
-                                    new String(TgBackup.readAllBytes(zis), StandardCharsets.UTF_8));
+                            zipCfg = new JSONObject(new String(TgBackup.bacaTerbatas(
+                                    zis, TgBackup.BATAS_CONFIG_JSON), StandardCharsets.UTF_8));
                             zis.closeEntry();
                             continue;
                         }
@@ -1072,8 +985,10 @@ public class SettingsActivity extends Activity {
                         }
                         File out = new File(dataFolder, name);
                         // Cegah zip-slip: entri licik (mis. db.sqlite3/../../x)
-                        // tidak boleh keluar dari folder data.
-                        if (!out.getCanonicalPath().startsWith(canonBase)) {
+                        // tidak boleh keluar dari folder data (cek pakai separator
+                        // agar folder sibling berawalan sama tak lolos).
+                        String kanon = out.getCanonicalPath();
+                        if (!kanon.equals(canonBase) && !kanon.startsWith(awalanAman)) {
                             zis.closeEntry();
                             continue;
                         }
@@ -1488,6 +1403,21 @@ public class SettingsActivity extends Activity {
         dialog.show();
     }
 
+    /** Isi folder backups dengan cache 5 dtk (dipakai dua baris info). */
+    private File[] daftarBackup(File backupDir) {
+        long now = System.currentTimeMillis();
+        String kunci = backupDir.getAbsolutePath();
+        if (cacheDaftarBackup != null && kunci.equals(cacheDaftarBackupDir)
+                && now - cacheDaftarBackupAt < DAFTAR_BACKUP_TTL_MS) {
+            return cacheDaftarBackup;
+        }
+        File[] files = backupDir.listFiles();
+        cacheDaftarBackup = files;
+        cacheDaftarBackupDir = kunci;
+        cacheDaftarBackupAt = now;
+        return files;
+    }
+
     private String dbInfoLine() {
         long now = System.currentTimeMillis();
         if (now - lastDbCheck < DB_CHECK_MS) {
@@ -1502,8 +1432,7 @@ public class SettingsActivity extends Activity {
                 dbLine = "";
                 return dbLine;
             }
-            File backupDir = new File(dataDir, "backups");
-            File[] files = backupDir.listFiles();
+            File[] files = daftarBackup(new File(dataDir, "backups"));
             int n = files == null ? 0 : files.length;
             dbLine = "DB: " + TgBackup.humanBytes(db.length()) + " | Backup lokal: " + n;
         } catch (Exception e) {
@@ -1533,7 +1462,7 @@ public class SettingsActivity extends Activity {
                 sb.append("DB ").append(TgBackup.humanBytes(db.length()));
                 first = false;
             }
-            File[] files = backups.listFiles();
+            File[] files = daftarBackup(backups);
             if (files != null && files.length > 0) {
                 if (!first) {
                     sb.append(" \u00B7 ");
@@ -1577,7 +1506,7 @@ public class SettingsActivity extends Activity {
             if (updated == null) {
                 updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
             }
-            String bundled = Updater.readBundledVersionRaw(this);
+            String bundled = bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
             String wv = updated != null ? updated
                     : (bundled != null ? Updater.normVersion(bundled) : null);
             if (wv == null) {
@@ -1697,7 +1626,7 @@ public class SettingsActivity extends Activity {
         if (updated != null && !updated.isEmpty()) {
             return updated;
         }
-        return Updater.readBundledVersionRaw(this);
+        return bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
     }
 
     // ─── Update binary (unduh per tag versi resmi) ──────────────────────
@@ -1822,11 +1751,16 @@ public class SettingsActivity extends Activity {
     }
 
     private void runBusy(final Runnable task) {
+        if (!tugasBerjalan.compareAndSet(false, true)) {
+            toast("Masih bekerja, tunggu selesai.");
+            return;
+        }
         setBusy(true);
         new Thread(() -> {
             try {
                 task.run();
             } finally {
+                tugasBerjalan.set(false);
                 setBusy(false);
             }
         }, "vw-task").start();
@@ -1894,17 +1828,6 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void afterTextChanged(android.text.Editable s) {
-        }
-    }
-
-    /** Tunggu hash PIN yang masih antre (maks 5 dtk) agar pembaca pref dapat nilai final. */
-    private void flushPinHash() {
-        try {
-            java.util.concurrent.Future<?> f = pinPending;
-            if (f != null) {
-                f.get(5, java.util.concurrent.TimeUnit.SECONDS);
-            }
-        } catch (Exception ignored) {
         }
     }
 

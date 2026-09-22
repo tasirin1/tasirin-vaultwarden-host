@@ -10,6 +10,15 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void parseChatId_numerikSekali() {
+        assertEquals(123456789L, TgBot.parseChatId("123456789"));
+        assertEquals(123456789L, TgBot.parseChatId("  123456789  "));
+        assertEquals(Long.MIN_VALUE, TgBot.parseChatId("bukan-angka"));
+        assertEquals(Long.MIN_VALUE, TgBot.parseChatId(""));
+        assertEquals(Long.MIN_VALUE, TgBot.parseChatId(null));
+    }
+
+    @Test
     public void restoreConfirm_terimaVarianYa() {
         assertTrue(TgBot.isRestoreConfirm("YA"));
         assertTrue(TgBot.isRestoreConfirm("ya"));

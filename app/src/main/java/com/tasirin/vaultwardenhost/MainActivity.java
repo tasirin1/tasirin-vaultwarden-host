@@ -3,17 +3,12 @@ package com.tasirin.vaultwardenhost;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,7 +30,7 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +47,6 @@ public class MainActivity extends Activity {
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
-    private static final String KEY_TG_NOTIFIED = "tg_notified_version";
     private static final String KEY_HOME_LOG_EXPANDED = "home_log_expanded";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -74,17 +68,19 @@ public class MainActivity extends Activity {
     private volatile String pendingVersion = null;
     private String appVersion = "";
     private String bundledVersion = "?";
+    private String bundledRaw = null;
     private String lastShownStatus = "";
     private String lastShownNet = "";
     private String lastShownVersion = "";
     private String lastShownUptime = "";
     private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
+    private String lastUpdText = ""; // cegah setText+layout tiap tick saat teks sama
     private boolean homeLogExpanded = true;
     private int lastLogLen = 0;
     private int lineCount = 0;
     private boolean hintShown = false;
     private boolean refreshActive = true;
-    private boolean uiBusy = false;
+    private volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
 
     private static boolean unlocked = false;
@@ -159,6 +155,7 @@ public class MainActivity extends Activity {
         } catch (Exception ignored) {
         }
         bundledVersion = readBundledVersion();
+        bundledRaw = Updater.readBundledVersionRaw(this);
         ui.post(this::refreshFromService);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -337,7 +334,7 @@ public class MainActivity extends Activity {
             } else {
                 String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
-                        ? up : Updater.readBundledVersionRaw(this));
+                        ? up : bundledRaw);
                 if (cur != null && cur.equals(pendingVersion)) {
                     pendingVersion = null; // update sudah terpasang
                 } else {
@@ -346,7 +343,11 @@ public class MainActivity extends Activity {
             }
         }
         if (updAvail) {
-            updateBtn.setText(getString(R.string.update_open_settings, pendingVersion));
+            String teksUpd = getString(R.string.update_open_settings, pendingVersion);
+            if (!teksUpd.equals(lastUpdText)) {
+                lastUpdText = teksUpd;
+                updateBtn.setText(teksUpd);
+            }
             updateBtn.setVisibility(View.VISIBLE);
         } else {
             updateBtn.setVisibility(View.GONE);
@@ -582,7 +583,9 @@ public class MainActivity extends Activity {
                 File dir = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    try (FileWriter w = new FileWriter(new File(dir, name))) {
+                    try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                            new FileOutputStream(new File(dir, name), false),
+                            StandardCharsets.UTF_8)) {
                         w.write(header.toString());
                     }
                     ok = true;
@@ -596,105 +599,29 @@ public class MainActivity extends Activity {
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
 
     private void autoUpdateCheck() {
-        try {
-            String latest = Updater.latestVersion(this);
-            if (latest == null) {
-                return;
+        AutoUpdate.cek(this, new AutoUpdate.Aksi() {
+            @Override public void toast(String pesan) {
+                MainActivity.this.toast(pesan);
             }
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-            String current = real != null ? real : Updater.normVersion(
-                    updated != null && !updated.isEmpty()
-                            ? updated : Updater.readBundledVersionRaw(this));
-            if (real != null && real.equals(latest)) {
-                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-                pendingVersion = null;
-            } else if (current != null && !current.equals(latest)) {
-                if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false)
-                        && isUnmeteredNetwork()) {
-                    try {
-                        String msg = Updater.tryUpdate(this);
-                        pendingVersion = null;
-                        ui.post(() -> {
-                            toast(msg);
-                            appendUiLog("[app] " + msg);
-                        });
-                    } catch (Exception e) {
-                        ui.post(() -> appendUiLog("[app] Auto-update gagal: " + e.getMessage()));
-                        pendingVersion = latest;
-                        showUpdateNotification(latest);
-                    }
-                } else {
-                    pendingVersion = latest;
-                    ui.post(() -> toast("Update tersedia: v" + latest
-                            + " - buka Settings untuk update."));
-                    if (!latest.equals(sp.getString(KEY_TG_NOTIFIED, ""))) {
-                        sp.edit().putString(KEY_TG_NOTIFIED, latest).apply();
-                        showUpdateNotification(latest);
-                        TgBackup.sendMessage(this, "Update Vaultwarden v" + latest
-                                + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
-                    }
-                }
+            @Override public void catat(String baris) {
+                appendUiLog(baris);
             }
-            TgBackup.notifyLowStorage(this);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /** Auto-update binary hanya di jaringan non-kuota (WiFi/ethernet). */
-    // API lawas sengaja untuk Android 5.0/5.1 (API 21/22); jalur modern dipakai bila API >= 23.
-    @SuppressWarnings("deprecation")
-    private boolean isUnmeteredNetwork() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            if (cm == null) {
+            @Override public void kabariTersedia(String versi) {
+                MainActivity.this.toast("Update tersedia: v" + versi
+                        + " - buka Settings untuk update.");
+            }
+            @Override public void tawarkanWebVault() {
+            }
+            @Override public boolean webVaultSiap(String dataDir) {
                 return false;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return !cm.isActiveNetworkMetered();
+            @Override public void restartServer() {
             }
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            return ni != null && (ni.getType() == ConnectivityManager.TYPE_WIFI
-                    || ni.getType() == ConnectivityManager.TYPE_ETHERNET);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
-    @SuppressWarnings("deprecation")
-    private void showUpdateNotification(String version) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (nm != null) {
-                NotificationChannel ch = new NotificationChannel("vw_updates",
-                        "Vaultwarden Update", NotificationManager.IMPORTANCE_DEFAULT);
-                nm.createNotificationChannel(ch);
+        }, new AutoUpdate.AturPending() {
+            @Override public void atur(String versi) {
+                pendingVersion = versi;
             }
-        }
-        Intent intent = new Intent(this, MainActivity.class);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT
-                | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, flags);
-        android.app.Notification.Builder b;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            b = new android.app.Notification.Builder(this, "vw_updates");
-        } else {
-            b = new android.app.Notification.Builder(this);
-        }
-        android.app.Notification n = b.setContentTitle("Vaultwarden Update")
-                .setContentText("v" + version + " tersedia")
-                .setSmallIcon(android.R.drawable.stat_notify_sync)
-                .setContentIntent(pi)
-                .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
-                .setAutoCancel(true)
-                .build();
-        // getSystemService(Class) baru di API 23; pakai string agar API 21/22 aman.
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (nm != null) {
-            nm.notify(2, n);
-        }
+        }, false);
     }
 
     private String readBundledVersion() {
@@ -734,7 +661,7 @@ public class MainActivity extends Activity {
         if (updated != null && !updated.isEmpty()) {
             return updated;
         }
-        return Updater.readBundledVersionRaw(this);
+        return bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
     }
 
     /** Backup Telegram otomatis saat Start (sekali sehari, bila hari sudah berganti). */

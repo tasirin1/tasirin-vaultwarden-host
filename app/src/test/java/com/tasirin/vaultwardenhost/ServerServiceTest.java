@@ -9,6 +9,23 @@ import org.junit.Test;
 
 /** Unit test deteksi binary tak cocok kernel lama (tanpa Android runtime). */
 public class ServerServiceTest {
+    @Test
+    public void barisKosong_tanpaAlokasiTrim() {
+        assertTrue(ServerService.barisKosong(null));
+        assertTrue(ServerService.barisKosong(""));
+        assertTrue(ServerService.barisKosong("   \t "));
+        assertFalse(ServerService.barisKosong("log"));
+        assertFalse(ServerService.barisKosong("  x "));
+    }
+
+
+    @Test
+    public void rentangKosong_tanpaAlokasiSubstring() {
+        StringBuilder b = new StringBuilder("ab   \nxy");
+        assertTrue(ServerService.rentangKosong(b, 2, 5));
+        assertFalse(ServerService.rentangKosong(b, 0, 2));
+        assertTrue(ServerService.rentangKosong(b, 3, 3));
+    }
 
     @Test
     public void panicGetrandomTerdeteksiDariLogAsliStb() {

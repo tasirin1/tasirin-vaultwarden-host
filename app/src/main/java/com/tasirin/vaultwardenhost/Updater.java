@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -163,6 +162,135 @@ public final class Updater {
         return lanjutDari > 0 && (kodeHttp == 416 || kodeHttp == 200);
     }
 
+    /** Klasifikasi galat unduh yang layak dicoba ulang (dipakai binary & shim).
+     *  Murni agar bisa unit test. */
+    static boolean bolehCobaLagiUnduh(Exception e) {
+        String rendah = String.valueOf(e == null ? null : e.getMessage()).toLowerCase(Locale.US);
+        // 404 versi (file memang belum ada) jangan di-retry sia-sia.
+        if (rendah.contains("404") || rendah.contains("belum tersedia")) {
+            return false;
+        }
+        return rendah.contains("timed out") || rendah.contains("timeout")
+                || rendah.contains("failed to connect") || rendah.contains("econn")
+                || rendah.contains("unreachable") || rendah.contains("reset")
+                || rendah.contains("broken pipe") || rendah.contains("http");
+    }
+
+    /** Tunda 3 detik sebelum percobaan unduh berikut; false bila diinterupsi. */
+    static boolean tundaCobaLagiUnduh(int coba) {
+        downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
+        try {
+            Thread.sleep(3000);
+            return true;
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    /** Hook fallback URL bila unduhan 404 (mis. rilis versi belum memuat asset).
+     *  Return URL pengganti, atau null bila tidak ada. Boleh lempar IOException
+     *  berpesan final (mis. "belum tersedia") agar langsung gagal manis. */
+    interface UrlCadangan {
+        String ganti(String url, int kode) throws IOException;
+    }
+
+    /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
+     *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
+     *  Return hex SHA-256; lempar IOException terakhir bila gagal. */
+    static String unduhKeTmp(Context ctx, String url, File tmp, String label,
+                              int connectMs, int readMs, UrlCadangan cadangan)
+            throws IOException {
+        Exception gagal = null;
+        for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
+            // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
+            long resumeFrom = tmp.exists() ? tmp.length() : 0;
+            HttpURLConnection dl = null;
+            try {
+                dl = openRange(ctx, url, resumeFrom, connectMs, readMs);
+                int code = dl.getResponseCode();
+                if (code == 404 && cadangan != null) {
+                    String alt = cadangan.ganti(url, code);
+                    if (alt != null && !alt.equals(url)) {
+                        dl.disconnect();
+                        dl = null;
+                        resumeFrom = 0;
+                        tmp.delete();
+                        url = alt;
+                        dl = open(ctx, url, connectMs, readMs);
+                        code = dl.getResponseCode();
+                    }
+                }
+                if (perluResetResume(code, resumeFrom)) {
+                    // HTTP 416 = Range ditolak; HTTP 200 = server mengabaikan
+                    // Range. Ulang dari nol agar file tidak korup.
+                    dl.disconnect();
+                    tmp.delete();
+                    resumeFrom = 0;
+                    dl = open(ctx, url, connectMs, readMs);
+                    code = dl.getResponseCode();
+                }
+                if (code != 200 && code != 206) {
+                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
+                }
+                return salinSambilHash(dl, tmp, code, resumeFrom, label);
+            } catch (IOException e) {
+                gagal = e;
+                if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH
+                        || !tundaCobaLagiUnduh(coba)) {
+                    break;
+                }
+            } catch (Exception e) {
+                gagal = e;
+                break;
+            } finally {
+                if (dl != null) {
+                    dl.disconnect();
+                }
+            }
+        }
+        if (gagal instanceof IOException) {
+            throw (IOException) gagal;
+        }
+        throw new IOException(gagal == null ? "koneksi gagal" : String.valueOf(gagal));
+    }
+
+    /** Salin body unduhan ke file sementara sambil menghitung SHA-256
+     *  (dipakai binary & shim agar tak baca ulang file ~15 MB). Return hex digest. */
+    static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
+                                  long lanjutDari, String label) throws IOException {
+        long total = dl.getContentLength();
+        if (kodeHttp == 206 && total >= 0) {
+            total += lanjutDari;
+        }
+        java.security.MessageDigest md;
+        try {
+            md = java.security.MessageDigest.getInstance("SHA-256");
+        } catch (Exception e) {
+            throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
+        }
+        if (lanjutDari > 0) {
+            digestPrefix(md, tmp, lanjutDari);
+        }
+        try (InputStream in = dl.getInputStream();
+             FileOutputStream fos = new FileOutputStream(tmp, kodeHttp == 206)) {
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            long done = lanjutDari;
+            long lastReport = done;
+            while ((n = in.read(buf)) > 0) {
+                fos.write(buf, 0, n);
+                md.update(buf, 0, n);
+                done += n;
+                if (done - lastReport >= 256 * 1024) {
+                    lastReport = done;
+                    reportDownload(label, done, total);
+                }
+            }
+        }
+        return toHex(md.digest());
+    }
+
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
     // API GitHub saat Start diulang-ulang / koneksi Android 5/6 putus-putus.
     private static final long VERSION_TTL_MS = 15 * 60 * 1000L;
@@ -181,14 +309,14 @@ public final class Updater {
             conn = open(ctx, OFFICIAL_API, 10000, 10000);
             int code = conn.getResponseCode();
             if (code == 200) {
-                BufferedReader r = new BufferedReader(new InputStreamReader(
-                        conn.getInputStream(), StandardCharsets.UTF_8));
                 StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = r.readLine()) != null) {
-                    sb.append(line);
+                try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                        conn.getInputStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = r.readLine()) != null) {
+                        sb.append(line);
+                    }
                 }
-                r.close();
                 String v = normVersion(extractTag(sb.toString()));
                 if (v != null && !v.isEmpty()) {
                     sLatestVersion = v;
@@ -260,122 +388,36 @@ public final class Updater {
         File tmp = new File(binDir, out.getName() + ".tmp");
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
-        String digestHex = null;
-        boolean fallback = false;
-        Exception gagalKonek = null;
-        for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
-            // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
-            long resumeFrom = tmp.exists() ? tmp.length() : 0;
-            HttpURLConnection dl = null;
-            try {
-                dl = openRange(ctx, assetUrl, resumeFrom, 20000, 60000);
-                int code = dl.getResponseCode();
-                if (code == 404 && known && !fallback) {
-                    // Rilis versi ini belum ada / sedang dibuat ulang CI -
-                    // pakai binary rilis terbaru repo agar tetap bisa Start.
-                    dl.disconnect();
-                    dl = null;
-                    resumeFrom = 0;
-                    tmp.delete();
-                    assetUrl = RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
-                    dl = open(ctx, assetUrl, 20000, 60000);
-                    code = dl.getResponseCode();
-                    fallback = code == 200;
-                }
-                if (code == 404) {
-                    throw new IOException(known
-                            ? "Build Android v" + latest
-                                    + " belum tersedia (build otomatis ~6 jam). Coba lagi nanti."
-                            : "Release binary Android belum tersedia. Coba lagi nanti.");
-                }
-                if (perluResetResume(code, resumeFrom)) {
-                    // HTTP 416 = Range ditolak (parsial lebih besar / file berubah);
-                    // HTTP 200 = server mengabaikan Range. Ulang dari nol agar
-                    // file tidak korup (sebelumnya 416 dilempar lalu di-retry
-                    // dengan Range yang sama sehingga gagal terus).
-                    dl.disconnect();
-                    tmp.delete();
-                    resumeFrom = 0;
-                    dl = open(ctx, assetUrl, 20000, 60000);
-                    code = dl.getResponseCode();
-                }
-                if (code != 200 && code != 206) {
-                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
-                }
-                long total = dl.getContentLength();
-                if (code == 206 && total >= 0) {
-                    total += resumeFrom;
-                }
-                // Hash dihitung sambil menulis agar file (~15 MB) tidak dibaca ulang
-                // hanya untuk verifikasi. Lanjutan unduhan: hash awalan yang sudah ada dulu.
-                java.security.MessageDigest md;
-                try {
-                    md = java.security.MessageDigest.getInstance("SHA-256");
-                } catch (Exception e) {
-                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
-                }
-                if (resumeFrom > 0) {
-                    digestPrefix(md, tmp, resumeFrom);
-                }
-                try (InputStream in = dl.getInputStream();
-                     FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    long done = resumeFrom;
-                    long lastReport = done;
-                    while ((n = in.read(buf)) > 0) {
-                        fos.write(buf, 0, n);
-                        md.update(buf, 0, n);
-                        done += n;
-                        if (done - lastReport >= 256 * 1024) {
-                            lastReport = done;
-                            reportDownload("binary", done, total);
+        final boolean[] pakaiTerbaru = {false};
+        final String[] urlAkhir = {assetUrl};
+        String digestHex;
+        try {
+            digestHex = unduhKeTmp(ctx, assetUrl, tmp, "binary", 20000, 60000,
+                    new UrlCadangan() {
+                        @Override
+                        public String ganti(String url, int kode) throws IOException {
+                            if (known && !pakaiTerbaru[0] && url.equals(urlAkhir[0])) {
+                                // Rilis versi ini belum ada / sedang dibuat ulang CI -
+                                // pakai binary rilis terbaru repo agar tetap bisa Start.
+                                pakaiTerbaru[0] = true;
+                                urlAkhir[0] = RELEASE_LATEST_URL + "vaultwarden-"
+                                        + ServerService.ABI;
+                                return urlAkhir[0];
+                            }
+                            throw new IOException(known
+                                    ? "Build Android v" + latest + " belum tersedia"
+                                            + " (build otomatis ~6 jam). Coba lagi nanti."
+                                    : "Release binary Android belum tersedia. Coba lagi nanti.");
                         }
-                    }
-                }
-                digestHex = toHex(md.digest());
-                gagalKonek = null;
-                break;
-            } catch (IOException e) {
-                gagalKonek = e;
-                String rendah = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
-                boolean bisaCobaLagi = rendah.contains("timed out") || rendah.contains("timeout")
-                        || rendah.contains("failed to connect") || rendah.contains("econn")
-                        || rendah.contains("unreachable") || rendah.contains("reset")
-                        || rendah.contains("broken pipe") || rendah.contains("http");
-                // 404 versi (file memang belum ada) jangan di-retry sia-sia.
-                if (rendah.contains("404") || rendah.contains("belum tersedia")) {
-                    bisaCobaLagi = false;
-                }
-                if (!bisaCobaLagi || coba >= MAX_COBA_UNDUH) {
-                    break;
-                }
-                downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            } catch (Exception e) {
-                gagalKonek = e;
-                break;
-            } finally {
-                if (dl != null) {
-                    dl.disconnect();
-                }
+                    });
+        } catch (IOException e) {
+            if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
+                throw e;
             }
+            throw new IOException(pesanGalatUnduh("Unduh binary", e));
         }
-        if (digestHex == null) {
-            if (gagalKonek instanceof IOException
-                    && String.valueOf(gagalKonek.getMessage()).contains("belum tersedia")) {
-                throw (IOException) gagalKonek;
-            }
-            throw new IOException(pesanGalatUnduh("Unduh binary",
-                    gagalKonek instanceof Exception ? (Exception) gagalKonek
-                            : new IOException("koneksi gagal")));
-        }
-        String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 60000);
+        boolean fallback = pakaiTerbaru[0];
+        String expectedSha = fetchChecksum(ctx, urlAkhir[0] + ".sha256", 20000, 60000);
         if (expectedSha == null) {
             // File parsial dipertahankan agar bisa dilanjutkan (gagal ambil checksum
             // biasanya soal jaringan, bukan file korup).
@@ -456,111 +498,33 @@ public final class Updater {
             binDir.mkdirs();
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
-        String digestHex = null;
-        Exception gagalKonek = null;
-        for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
-            long resumeFrom = tmp.exists() ? tmp.length() : 0;
-            HttpURLConnection dl = null;
-            try {
-                dl = openRange(ctx, assetUrl, resumeFrom, 20000, 30000);
-                int code = dl.getResponseCode();
-                if (code == 404 && known
-                        && !assetUrl.startsWith(RELEASE_LATEST_URL)) {
-                    // Rilis versi ini belum memuat shim (mis. CI belum publish) -
-                    // coba rilis terbaru repo seperti binary agar tetap bisa Start.
-                    dl.disconnect();
-                    dl = null;
-                    resumeFrom = 0;
-                    tmp.delete();
-                    assetUrl = RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;
-                    dl = open(ctx, assetUrl, 20000, 30000);
-                    code = dl.getResponseCode();
-                    if (code == 404) {
-                        throw new IOException("Shim getrandom belum tersedia di rilis v" + latest
-                                + " (build CI ~6 jam). Coba lagi nanti.");
-                    }
-                }
-                if (perluResetResume(code, resumeFrom)) {
-                    dl.disconnect();
-                    tmp.delete();
-                    resumeFrom = 0;
-                    dl = open(ctx, assetUrl, 20000, 30000);
-                    code = dl.getResponseCode();
-                }
-                if (code != 200 && code != 206) {
-                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
-                }
-                long total = dl.getContentLength();
-                if (code == 206 && total >= 0) {
-                    total += resumeFrom;
-                }
-                java.security.MessageDigest md;
-                try {
-                    md = java.security.MessageDigest.getInstance("SHA-256");
-                } catch (Exception e) {
-                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
-                }
-                if (resumeFrom > 0) {
-                    digestPrefix(md, tmp, resumeFrom);
-                }
-                try (InputStream in = dl.getInputStream();
-                     FileOutputStream fos = new FileOutputStream(tmp, code == 206)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    long done = resumeFrom;
-                    long lastReport = done;
-                    while ((n = in.read(buf)) > 0) {
-                        fos.write(buf, 0, n);
-                        md.update(buf, 0, n);
-                        done += n;
-                        if (done - lastReport >= 256 * 1024) {
-                            lastReport = done;
-                            reportDownload("shim", done, total);
+        final String[] urlShimAkhir = {assetUrl};
+        String digestHex;
+        try {
+            digestHex = unduhKeTmp(ctx, assetUrl, tmp, "shim", 20000, 30000,
+                    new UrlCadangan() {
+                        @Override
+                        public String ganti(String url, int kode) throws IOException {
+                            if (known && !url.startsWith(RELEASE_LATEST_URL)) {
+                                // Rilis versi ini belum memuat shim -
+                                // coba rilis terbaru repo seperti binary.
+                                urlShimAkhir[0] = RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;
+                                return urlShimAkhir[0];
+                            }
+                            if (!known) {
+                                return null;
+                            }
+                            throw new IOException("Shim getrandom belum tersedia di rilis v"
+                                    + latest + " (build CI ~6 jam). Coba lagi nanti.");
                         }
-                    }
-                }
-                digestHex = toHex(md.digest());
-                gagalKonek = null;
-                break;
-            } catch (IOException e) {
-                gagalKonek = e;
-                String rendah = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
-                boolean bisaCobaLagi = rendah.contains("timed out") || rendah.contains("timeout")
-                        || rendah.contains("failed to connect") || rendah.contains("econn")
-                        || rendah.contains("unreachable") || rendah.contains("reset")
-                        || rendah.contains("broken pipe") || rendah.contains("http");
-                if (rendah.contains("404") || rendah.contains("belum tersedia")) {
-                    bisaCobaLagi = false;
-                }
-                if (!bisaCobaLagi || coba >= MAX_COBA_UNDUH) {
-                    break;
-                }
-                downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            } catch (Exception e) {
-                gagalKonek = e;
-                break;
-            } finally {
-                if (dl != null) {
-                    dl.disconnect();
-                }
+                    });
+        } catch (IOException e) {
+            if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
+                throw e;
             }
+            throw new IOException(pesanGalatUnduh("Unduh shim", e));
         }
-        if (digestHex == null) {
-            if (gagalKonek instanceof IOException
-                    && String.valueOf(gagalKonek.getMessage()).contains("belum tersedia")) {
-                throw (IOException) gagalKonek;
-            }
-            throw new IOException(pesanGalatUnduh("Unduh shim",
-                    gagalKonek instanceof Exception ? (Exception) gagalKonek
-                            : new IOException("koneksi gagal")));
-        }
-        String expectedSha = fetchChecksum(ctx, assetUrl + ".sha256", 20000, 30000);
+        String expectedSha = fetchChecksum(ctx, urlShimAkhir[0] + ".sha256", 20000, 30000);
         if (expectedSha == null) {
             throw new IOException("Checksum SHA-256 tidak ditemukan di release"
                     + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
@@ -589,7 +553,9 @@ public final class Updater {
 
     /** Tandai shim dengan versi APK pemiliknya (untuk reuse saat Start). */
     private static void tulisTagShim(File binDir, String apkVersion) {
-        try (FileWriter w = new FileWriter(new File(binDir, "shim-tag.txt"))) {
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(new File(binDir, "shim-tag.txt"), false),
+                StandardCharsets.UTF_8)) {
             w.write(apkVersion);
         } catch (Exception ignored) {
         }
@@ -618,7 +584,9 @@ public final class Updater {
 
     /** Tandai cache binary dengan versi APK pemiliknya (untuk reuse saat Start). */
     private static void writeVersionTag(File binDir, String apkVersion) {
-        try (FileWriter w = new FileWriter(new File(binDir, "version.txt"))) {
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(new File(binDir, "version.txt"), false),
+                StandardCharsets.UTF_8)) {
             w.write(apkVersion);
         } catch (Exception ignored) {
         }
@@ -699,110 +667,37 @@ public final class Updater {
         String shaUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip.sha256"
                 : RELEASE_LATEST_URL + "web-vault.zip.sha256";
 
-        // Unduh dengan retry 3x (koneksi STB/Android 5/6 sering timeout ke github.com).
-        boolean wvFallback = false;
-        if (latest != null) {
-            HttpURLConnection probe = null;
-            try {
-                probe = open(ctx, zipUrl, 20000, 20000);
-                if (probe.getResponseCode() == 404) {
-                    zipUrl = WV_UPDATE_URL;
-                    shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
-                    wvFallback = true;
-                }
-            } finally {
-                if (probe != null) {
-                    probe.disconnect();
-                }
-            }
-        }
-        Exception lastErr = null;
-        String wvDigestHex = null;
-        for (int attempt = 1; attempt <= MAX_COBA_UNDUH; attempt++) {
-            // Lanjutkan unduhan terputus (hemat kuota ~35 MB).
-            long resumeFrom = tmpZip.exists() ? tmpZip.length() : 0;
-            HttpURLConnection dl = null;
-            try {
-                dl = openRange(ctx, zipUrl, resumeFrom, 20000, 120000);
-                int code = dl.getResponseCode();
-                if (perluResetResume(code, resumeFrom)) {
-                    // Sama seperti binary: 416/200 saat resume = ulang dari nol
-                    // agar tidak gagal terus dengan Range yang sama.
-                    dl.disconnect();
-                    tmpZip.delete();
-                    resumeFrom = 0;
-                    dl = open(ctx, zipUrl, 20000, 120000);
-                    code = dl.getResponseCode();
-                }
-                if (code != 200 && code != 206) {
-                    throw new IOException("Gagal unduh web-vault (HTTP " + code
-                            + ") dari " + dl.getURL());
-                }
-                long total = dl.getContentLength();
-                if (code == 206 && total >= 0) {
-                    total += resumeFrom;
-                }
-                java.security.MessageDigest wvMd;
-                try {
-                    wvMd = java.security.MessageDigest.getInstance("SHA-256");
-                } catch (Exception e) {
-                    throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
-                }
-                if (resumeFrom > 0) {
-                    digestPrefix(wvMd, tmpZip, resumeFrom);
-                }
-                try (InputStream in = dl.getInputStream();
-                     FileOutputStream fos = new FileOutputStream(tmpZip, code == 206)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    long done = resumeFrom;
-                    long lastReport = done;
-                    while ((n = in.read(buf)) > 0) {
-                        fos.write(buf, 0, n);
-                        wvMd.update(buf, 0, n);
-                        done += n;
-                        if (done - lastReport >= 256 * 1024) {
-                            lastReport = done;
-                            reportDownload("web vault", done, total);
+        // Unduh dengan retry (koneksi STB/Android 6 sering timeout ke github.com).
+        // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
+        // Tanpa probe 404 terpisah: fallback latest ditangani di loop (hemat 1 request).
+        final boolean[] wvLewatTerbaru = {false};
+        final String[] urlZipAkhir = {zipUrl};
+        String wvDigestHex;
+        try {
+            wvDigestHex = unduhKeTmp(ctx, zipUrl, tmpZip, "web vault", 20000, 120000,
+                    new UrlCadangan() {
+                        @Override
+                        public String ganti(String url, int kode) {
+                            if (latest != null && !wvLewatTerbaru[0]
+                                    && url.equals(urlZipAkhir[0])) {
+                                wvLewatTerbaru[0] = true;
+                                urlZipAkhir[0] = WV_UPDATE_URL;
+                                return urlZipAkhir[0];
+                            }
+                            return null;
                         }
-                    }
-                }
-                wvDigestHex = toHex(wvMd.digest());
-                lastErr = null;
-                break;
-            } catch (Exception e) {
-                lastErr = e;
-                if (attempt < MAX_COBA_UNDUH) {
-                    downloadStatus = "Koneksi putus, coba lagi " + (attempt + 1) + "/"
-                            + MAX_COBA_UNDUH + "...";
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                }
-            } finally {
-                if (dl != null) {
-                    dl.disconnect();
-                }
-            }
+                    });
+        } catch (IOException e) {
+            throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
         }
-        if (wvDigestHex == null) {
-            // Unduhan tidak selesai (3x percobaan gagal, mis. timeout) - file
-            // parsial SENGAJA dipertahankan agar Start berikutnya melanjutkan
-            // via Range; sebelumnya salah dilaporkan sebagai "checksum tidak
-            // cocok" dan parsial ikut dihapus sehingga unduhan ~35 MB
-            // mengulang dari nol.
-            throw new IOException(pesanGalatUnduh("Unduh web-vault",
-                    lastErr instanceof Exception ? (Exception) lastErr
-                            : new IOException("koneksi gagal")));
+        boolean wvFallback = wvLewatTerbaru[0];
+        if (wvFallback) {
+            shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
         }
         if (tmpZip.length() < 1000) {
             tmpZip.delete();
             throw new IOException(pesanGalatUnduh("Unduh web-vault",
-                    lastErr instanceof Exception ? (Exception) lastErr
-                            : new IOException("file tidak valid")));
+                    new IOException("file tidak valid")));
         }
         String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
         if (expectedSha == null) {
@@ -822,15 +717,16 @@ public final class Updater {
         deleteRecursive(newDir);
         newDir.mkdirs();
         byte[] buf = new byte[64 * 1024];
-        String newBase = newDir.getCanonicalPath();
         try {
             try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
-                    File outFile = new File(newDir, entry.getName());
-                    if (!outFile.getCanonicalPath().startsWith(newBase)) {
+                    String namaEntri = entry.getName();
+                    // Cek zip-slip leksikal tanpa syscall canonical per entri.
+                    if (!amanEntriZip(namaEntri)) {
                         continue;
                     }
+                    File outFile = new File(newDir, namaEntri);
                     if (entry.isDirectory()) {
                         outFile.mkdirs();
                     } else {
@@ -888,15 +784,25 @@ public final class Updater {
         return "Web vault updated di " + targetDir.getAbsolutePath();
     }
 
-    /** Versi Vaultwarden yang dibundel di APK (tanpa huruf v) atau null. */
+    private static volatile String sBundledVersion;
+    private static volatile boolean sBundledLoaded;
+
+    /** Versi Vaultwarden yang dibundel di APK (tanpa huruf v) atau null.
+     *  Dibaca sekali lalu cache (konstan selama runtime; dipanggil tiap detik UI). */
     public static String readBundledVersionRaw(Context ctx) {
+        if (sBundledLoaded) {
+            return sBundledVersion;
+        }
+        String v = null;
         try (BufferedReader r = new BufferedReader(new InputStreamReader(
                 ctx.getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
-            String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? null : v.trim();
-        } catch (Exception e) {
-            return null;
+            String baris = r.readLine();
+            v = (baris == null || baris.trim().isEmpty()) ? null : baris.trim();
+        } catch (Exception ignored) {
         }
+        sBundledVersion = v;
+        sBundledLoaded = true;
+        return v;
     }
 
     public static String normVersion(String v) {
@@ -1002,10 +908,11 @@ public final class Updater {
                 if (c.getResponseCode() != 200) {
                     return null;
                 }
-                BufferedReader r = new BufferedReader(new InputStreamReader(
-                        c.getInputStream(), StandardCharsets.UTF_8));
-                String line = r.readLine();
-                r.close();
+                String line;
+                try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                        c.getInputStream(), StandardCharsets.UTF_8))) {
+                    line = r.readLine();
+                }
                 if (line == null) {
                     return null;
                 }
@@ -1076,6 +983,21 @@ public final class Updater {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** True bila nama entri zip aman dari zip-slip (tanpa I/O canonical).
+     *  Murni agar bisa unit test. */
+    static boolean amanEntriZip(String nama) {
+        if (nama == null || nama.isEmpty()) {
+            return false;
+        }
+        String n = nama.replace('\\', '/');
+        if (n.charAt(0) == '/' || n.contains(":")
+                || n.equals("..") || n.startsWith("../")
+                || n.contains("/../") || n.endsWith("/..")) {
+            return false;
+        }
+        return true;
     }
 
     private static void deleteRecursive(File file) {

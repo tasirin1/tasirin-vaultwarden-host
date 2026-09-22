@@ -200,6 +200,34 @@ public class UpdaterTest {
         }
     }
 
+    @Test
+    public void amanEntriZip_tolakTraversalTanpaCanonical() {
+        assertTrue(Updater.amanEntriZip("index.html"));
+        assertTrue(Updater.amanEntriZip("js/app.js"));
+        assertFalse(Updater.amanEntriZip("../evil.sh"));
+        assertFalse(Updater.amanEntriZip("js/../../evil.sh"));
+        assertFalse(Updater.amanEntriZip("/etc/passwd"));
+        assertFalse(Updater.amanEntriZip("C:evil"));
+        assertFalse(Updater.amanEntriZip(""));
+        assertFalse(Updater.amanEntriZip(null));
+    }
+
+    @Test
+    public void bolehCobaLagiUnduh_hanyaGalatJaringan() {
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("failed to connect to github.com")));
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.net.SocketTimeoutException("timed out")));
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Unduhan gagal (HTTP 500).")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Unduhan gagal (HTTP 404).")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Build Android v1.2 belum tersedia.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException((String) null)));
+    }
+
     private static java.io.File buatBerkasElf(int ukuran) throws Exception {
         java.io.File f = java.io.File.createTempFile("shim", ".so");
         java.io.FileOutputStream o = new java.io.FileOutputStream(f);
