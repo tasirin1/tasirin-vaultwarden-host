@@ -72,6 +72,11 @@ public class SettingsActivity extends Activity {
     private EditText binShaInput;
     private EditText pinInput;
     private CheckBox pinEnabledCheck;
+    /** Hash PIN (PBKDF2 120rb iterasi) di worker agar tiap ketikan tak macetkan UI. */
+    private final java.util.concurrent.ExecutorService pinExec =
+            java.util.concurrent.Executors.newSingleThreadExecutor();
+    private volatile int pinSeq;
+    private volatile java.util.concurrent.Future<?> pinPending;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -289,13 +294,21 @@ public class SettingsActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int a, int b, int c) {
-                SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
-                if (s.length() >= 4) {
-                    ed.putString(KEY_PIN, PinCrypto.hash(s.toString()));
-                } else {
-                    ed.remove(KEY_PIN);
+                if (s.length() < 4) {
+                    pinSeq++;
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                            .edit().remove(KEY_PIN).apply();
+                    return;
                 }
-                ed.apply();
+                final String pin = s.toString();
+                final int seq = ++pinSeq;
+                pinPending = pinExec.submit(() -> {
+                    String h = PinCrypto.hash(pin);
+                    if (seq == pinSeq) {
+                        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                .edit().putString(KEY_PIN, h).apply();
+                    }
+                });
             }
 
             @Override
@@ -303,6 +316,7 @@ public class SettingsActivity extends Activity {
             }
         });
         pinEnabledCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
+            flushPinHash();
             SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             if (checked && sp2.getString(KEY_PIN, "").isEmpty()) {
                 toast("Isi PIN dulu (minimal 4 digit).");
@@ -1448,18 +1462,28 @@ public class SettingsActivity extends Activity {
                 .create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
-                    String entered = input.getText().toString();
-                    if (PinCrypto.verify(pinHash, entered)) {
-                        // Migrasi hash lama (SHA-256 polos) ke PBKDF2.
-                        if (!PinCrypto.isNewFormat(pinHash)) {
+                    final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    ok.setEnabled(false);
+                    input.setError("Memeriksa PIN...");
+                    final String entered = input.getText().toString();
+                    new Thread(() -> {
+                        boolean cocok = PinCrypto.verify(pinHash, entered);
+                        if (cocok && !PinCrypto.isNewFormat(pinHash)) {
+                            // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
                         }
-                        unlocked = true;
-                        MainActivity.catatPinDibuka();
-                        dialog.dismiss();
-                    } else {
-                        input.setError("PIN salah");
-                    }
+                        final boolean hasil = cocok;
+                        ui.post(() -> {
+                            ok.setEnabled(true);
+                            if (hasil) {
+                                unlocked = true;
+                                MainActivity.catatPinDibuka();
+                                dialog.dismiss();
+                            } else {
+                                input.setError("PIN salah");
+                            }
+                        });
+                    }, "vw-pin-check").start();
                 }));
         dialog.show();
     }
@@ -1746,8 +1770,7 @@ public class SettingsActivity extends Activity {
         appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
         new Thread(() -> {
             try {
-                Thread.sleep(5000); // tunggu sebentar agar DB terbentuk setelah start
-                final String msg = TgBackup.backupNow(SettingsActivity.this);
+                final String msg = TgBackup.backupTungguDb(SettingsActivity.this);
                 ui.post(() -> {
                     toast(msg);
                     appendUiLog("[tg] " + msg);
@@ -1875,7 +1898,20 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    /** Tunggu hash PIN yang masih antre (maks 5 dtk) agar pembaca pref dapat nilai final. */
+    private void flushPinHash() {
+        try {
+            java.util.concurrent.Future<?> f = pinPending;
+            if (f != null) {
+                f.get(5, java.util.concurrent.TimeUnit.SECONDS);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
     protected void onDestroy() {
+        pinExec.shutdownNow();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }

@@ -89,6 +89,39 @@ public final class TgBackup {
     private TgBackup() {
     }
 
+    /** True bila file DB siap di-backup (ada + berisi + header SQLite valid). */
+    static boolean dbSiap(File f) {
+        return f != null && f.isFile() && f.length() > 0 && isSqliteFile(f);
+    }
+
+    /** Tunggu DB terbentuk setelah Start (cek tiap 500 ms, maks 30 dtk) lalu backup.
+     *  Pengganti sleep(5000) tebakan: di STB lambat DB belum tentu jadi dalam 5 dtk,
+     *  di HP cepat tak perlu menunggu selama itu. */
+    public static String backupTungguDb(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                ServerService.DEFAULT_DATA_DIR);
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = ServerService.DEFAULT_DATA_DIR;
+        }
+        File db = new File(dataDir, "db.sqlite3");
+        long batas = System.currentTimeMillis() + 30_000;
+        while (!dbSiap(db)) {
+            if (System.currentTimeMillis() >= batas) {
+                throw new IOException("Database belum siap 30 dtk setelah Start"
+                        + " - backup otomatis dilewati.");
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Backup otomatis dibatalkan.");
+            }
+        }
+        return backupNow(ctx);
+    }
+
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
     public static String backupNow(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);

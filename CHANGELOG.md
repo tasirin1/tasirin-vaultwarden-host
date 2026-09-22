@@ -62,6 +62,14 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   anti tumpang-tindih; banding admin token constant-time; peringatan bila
   Admin Token kosong (status/log LAN terbuka).
 
+- **UI tak lagi macet saat PIN/log/backup**: hash & verifikasi PIN
+  (PBKDF2 120rb iterasi) pindah ke worker thread — sebelumnya tiap ketikan
+  PIN di Settings memblokir UI; pratinjau log layar awal hanya menempel
+  selisih baris baru (delta) alih-alih salin + `setText` seluruh buffer
+  300 KB tiap 500 ms; `sleep(5000)` tebakan sebelum backup-otomatis-saat-Start
+  (duplikat di 2 layar) diganti `backupTungguDb` yang poll kesiapan DB tiap
+  500 ms (maks 30 dtk, helper murni `dbSiap` + test).
+
 ### Dihapus
 - **Domain lokal kustom**: kolom **Domain lokal** dihapus dari Settings
   beserta logika `DOMAIN`/SAN DNS-nya — nama seperti `vault.lan` butuh DNS

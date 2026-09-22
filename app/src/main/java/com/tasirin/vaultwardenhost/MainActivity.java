@@ -80,9 +80,9 @@ public class MainActivity extends Activity {
     private String lastShownUptime = "";
     private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
     private boolean homeLogExpanded = true;
-    private String lastLogKey = null;
     private int lastLogLen = 0;
     private int lineCount = 0;
+    private boolean hintShown = false;
     private boolean refreshActive = true;
     private boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
@@ -401,30 +401,41 @@ public class MainActivity extends Activity {
 
     /** Pratinjau log realtime di layar awal (ringan, tanpa pencarian). */
     private void refreshHomeLog() {
+        // Hanya tempel selisih baris baru (delta): salin+setText seluruh buffer
+        // (<=300 KB) tiap 500 ms bikin UI patah-patah saat log deras.
         int len = ServerService.logLength();
         if (len < lastLogLen) {
             lineCount = 0;
             lastLogLen = 0;
+            homeLogView.setText("");
+            hintShown = false;
         }
-        String key = len + "";
-        if (key.equals(lastLogKey)) {
+        String delta = "";
+        synchronized (ServerService.logBuffer) {
+            int n = ServerService.logBuffer.length();
+            if (n > lastLogLen) {
+                delta = ServerService.logBuffer.substring(lastLogLen, n);
+            }
+        }
+        if (delta.isEmpty()) {
+            if (!hintShown && homeLogView.length() == 0) {
+                homeLogView.setText(getString(R.string.log_empty_hint));
+                hintShown = true;
+            }
             return;
         }
-        lastLogKey = key;
-        String text;
-        synchronized (ServerService.logBuffer) {
-            text = ServerService.logBuffer.toString();
+        if (hintShown) {
+            homeLogView.setText("");
+            hintShown = false;
         }
-        int n = Math.min(len, text.length());
-        for (int i = lastLogLen; i < n; i++) {
-            if (text.charAt(i) == '\n') {
+        for (int i = 0; i < delta.length(); i++) {
+            if (delta.charAt(i) == '\n') {
                 lineCount++;
             }
         }
-        lastLogLen = len;
+        lastLogLen += delta.length();
+        homeLogView.append(delta);
         homeLogCount.setText(getString(R.string.log_lines, lineCount));
-        homeLogView.setText(text.isEmpty()
-                ? getString(R.string.log_empty_hint) : text);
         homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
     }
 
@@ -745,8 +756,7 @@ public class MainActivity extends Activity {
         appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
         new Thread(() -> {
             try {
-                Thread.sleep(5000); // tunggu sebentar agar DB terbentuk setelah start
-                final String msg = TgBackup.backupNow(MainActivity.this);
+                final String msg = TgBackup.backupTungguDb(MainActivity.this);
                 ui.post(() -> {
                     toast(msg);
                     appendUiLog("[app] " + msg);
@@ -785,18 +795,28 @@ public class MainActivity extends Activity {
                 .create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
-                    String entered = input.getText().toString();
-                    if (PinCrypto.verify(pinHash, entered)) {
-                        // Migrasi hash lama (SHA-256 polos) ke PBKDF2.
-                        if (!PinCrypto.isNewFormat(pinHash)) {
+                    final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    ok.setEnabled(false);
+                    input.setError("Memeriksa PIN...");
+                    final String entered = input.getText().toString();
+                    new Thread(() -> {
+                        boolean cocok = PinCrypto.verify(pinHash, entered);
+                        if (cocok && !PinCrypto.isNewFormat(pinHash)) {
+                            // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
                         }
-                        unlocked = true;
-                        catatPinDibuka();
-                        dialog.dismiss();
-                    } else {
-                        input.setError("PIN salah");
-                    }
+                        final boolean hasil = cocok;
+                        ui.post(() -> {
+                            ok.setEnabled(true);
+                            if (hasil) {
+                                unlocked = true;
+                                catatPinDibuka();
+                                dialog.dismiss();
+                            } else {
+                                input.setError("PIN salah");
+                            }
+                        });
+                    }, "vw-pin-check").start();
                 }));
         dialog.show();
     }

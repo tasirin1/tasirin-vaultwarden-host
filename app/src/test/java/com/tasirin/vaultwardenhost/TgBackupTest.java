@@ -6,6 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 /** Unit test util murni (tanpa Android runtime). */
 public class TgBackupTest {
 
@@ -18,6 +21,25 @@ public class TgBackupTest {
         assertEquals("2.0 MB", TgBackup.humanBytes(2 * 1048576));
         assertEquals("1.0 GB", TgBackup.humanBytes(1073741824L));
         assertEquals("?", TgBackup.humanBytes(-1));
+    }
+
+    @Test
+    public void dbSiap_butuhFileBerisiDanBerheader() throws Exception {
+        assertFalse(TgBackup.dbSiap(null));
+        assertFalse(TgBackup.dbSiap(new File("/tidak/ada/db.sqlite3")));
+        File kosong = File.createTempFile("dbkosong", ".sqlite3");
+        assertFalse(TgBackup.dbSiap(kosong));
+        try (FileOutputStream o = new FileOutputStream(kosong)) {
+            o.write(new byte[]{1, 2, 3});
+        }
+        assertFalse(TgBackup.dbSiap(kosong));
+        File valid = File.createTempFile("dbvalid", ".sqlite3");
+        try (FileOutputStream o = new FileOutputStream(valid)) {
+            o.write("SQLite format 3\0sampel".getBytes("UTF-8"));
+        }
+        assertTrue(TgBackup.dbSiap(valid));
+        kosong.delete();
+        valid.delete();
     }
 
     @Test
