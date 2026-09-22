@@ -912,7 +912,8 @@ public final class TgBackup {
             }
         }
         SharedPreferences.Editor ed = cur.edit();
-        ed.clear();
+        // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
+        // tak menghapus seluruh pengaturan perangkat.
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
             String k = keys.next();

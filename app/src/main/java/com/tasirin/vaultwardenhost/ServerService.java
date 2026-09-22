@@ -234,8 +234,9 @@ public class ServerService extends Service {
             c.setReadTimeout(5000);
             if (https) {
                 HttpsURLConnection hc = (HttpsURLConnection) c;
-                hc.setSSLSocketFactory(trustAllSslFactory());
-                hc.setHostnameVerifier((host, session) -> true);
+                hc.setSSLSocketFactory(loopbackSslFactory(ctx));
+                hc.setHostnameVerifier((host, session) ->
+                        "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host));
             }
             return c.getResponseCode() == 200;
         } catch (Exception e) {
@@ -1004,26 +1005,77 @@ public class ServerService extends Service {
     private static javax.net.ssl.SSLSocketFactory sslFactory;
 
     private static javax.net.ssl.SSLSocketFactory trustAllSslFactory() throws Exception {
+        return loopbackSslFactory(null);
+    }
+
+    /** Trust khusus health-check loopback: pin CA milik app bila ada,
+     *  fallback trust-all hanya untuk 127.0.0.1/localhost (verifier di atas
+     *  sudah membatasi host). Tak dipakai untuk koneksi luar. */
+    private static javax.net.ssl.SSLSocketFactory loopbackSslFactory(Context ctx) throws Exception {
         if (sslFactory == null) {
-            TrustManager[] tm = new TrustManager[]{new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) {
-                }
+            javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
+            if (pinned != null) {
+                sslFactory = pinned;
+            } else {
+                TrustManager[] tm = new TrustManager[]{new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                    }
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) {
-                }
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                    }
 
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }};
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, tm, new SecureRandom());
-            sslFactory = sc.getSocketFactory();
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+                }};
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, tm, new SecureRandom());
+                sslFactory = sc.getSocketFactory();
+            }
         }
         return sslFactory;
+    }
+
+    /** Muat tls/ca.pem milik app sebagai trust anchor bila tersedia. */
+    private static javax.net.ssl.SSLSocketFactory cobaPinnedCa(Context ctx) {
+        try {
+            if (ctx == null) return null;
+            android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
+            java.io.File ca = new java.io.File(dataDir, "tls/ca.pem");
+            if (!ca.isFile()) return null;
+            java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
+            java.security.KeyStore ks = java.security.KeyStore.getInstance(
+                    java.security.KeyStore.getDefaultType());
+            ks.load(null, null);
+            try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
+                int i = 0;
+                for (java.security.cert.Certificate cert : cf.generateCertificates(in)) {
+                    ks.setCertificateEntry("ca-" + (i++), cert);
+                }
+            }
+            if (ksKosong(ks)) return null;
+            javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance(
+                    javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ks);
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, tmf.getTrustManagers(), new SecureRandom());
+            return sc.getSocketFactory();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static boolean ksKosong(java.security.KeyStore ks) {
+        try {
+            return !ks.aliases().hasMoreElements();
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     private static volatile long ipCacheTime = 0;

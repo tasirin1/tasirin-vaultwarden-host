@@ -60,6 +60,8 @@ public final class ControlServer {
         try {
             serverSocket = new ServerSocket(port);
             listeningPort = serverSocket.getLocalPort();
+            jsonCache = null;
+            jsonCacheAt = 0;
             stop = false;
             acceptThread = new Thread(this::acceptLoop, "vw-status-web");
             acceptThread.setDaemon(true);
@@ -75,6 +77,8 @@ public final class ControlServer {
 
     public void stop() {
         stop = true;
+        jsonCache = null;
+        jsonCacheAt = 0;
         try {
             if (serverSocket != null) {
                 serverSocket.close();
@@ -134,6 +138,7 @@ public final class ControlServer {
             }
             // Baca header dengan batas (cegah slowloris / header raksasa).
             int headerTotal = line.length();
+            String authHeader = "";
             for (int i = 0; i < MAX_HEADER_LINES; i++) {
                 String h = in.readLine();
                 if (h == null || h.isEmpty()) {
@@ -143,6 +148,9 @@ public final class ControlServer {
                 if (h.length() > MAX_HEADER_LINE || headerTotal > MAX_HEADER_TOTAL) {
                     respond(s, 431, "text/plain; charset=utf-8", "Header terlalu besar");
                     return;
+                }
+                if (h.regionMatches(true, 0, "Authorization:", 0, 14)) {
+                    authHeader = h.substring(14).trim();
                 }
             }
             if (!"GET".equals(method)) {
@@ -156,9 +164,9 @@ public final class ControlServer {
                 query = path.substring(q + 1);
                 path = path.substring(0, q);
             }
-            if (path.startsWith("/api/") && !checkToken(query)) {
+            if (path.startsWith("/api/") && !checkToken(query, authHeader)) {
                 respond(s, 403, "text/plain; charset=utf-8",
-                        "Akses ditolak: admin token dibutuhkan (?token=).");
+                        "Akses ditolak: admin token dibutuhkan (?token= / Authorization: Bearer).");
                 return;
             }
             switch (path) {
@@ -199,9 +207,13 @@ public final class ControlServer {
                 dapat.trim().getBytes(StandardCharsets.UTF_8));
     }
 
-    /** True bila query membawa admin token yang benar (atau tidak ada token
-     *  yang dikonfigurasi - status web tetap terbuka seperti sebelumnya). */
-    private boolean checkToken(String query) {
+    /** True bila query/header membawa admin token yang benar (atau tidak ada token
+     *  yang dikonfigurasi - status web tetap terbuka + tercatat di log & JSON). */
+    boolean checkToken(String query) {
+        return checkToken(query, "");
+    }
+
+    private boolean checkToken(String query, String authHeader) {
         String need;
         try {
             need = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
@@ -211,6 +223,11 @@ public final class ControlServer {
         }
         if (need == null || need.trim().isEmpty()) {
             return true;
+        }
+        if (authHeader != null && authHeader.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            if (tokenCocok(need, authHeader.substring(7).trim())) {
+                return true;
+            }
         }
         // Tanpa regex: pindai pasangan kunci=nilai satu per satu.
         int start = 0;
@@ -263,6 +280,16 @@ public final class ControlServer {
         out.flush();
     }
 
+    private boolean adaAdminToken() {
+        try {
+            String at = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_ADMIN_TOKEN, "");
+            return at != null && !at.trim().isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private String statusJson() {
@@ -289,6 +316,7 @@ public final class ControlServer {
             o.put("wvVersion", wv == null ? "" : wv);
             o.put("port", ServerService.runningPort == null ? "" : ServerService.runningPort);
             o.put("https", ServerService.runningHttps);
+            o.put("protected", adaAdminToken());
             o.put("dataDir", ServerService.runningDataDir == null ? "" : ServerService.runningDataDir);
             long up = ServerService.uptimeMs();
             o.put("uptimeMs", up);

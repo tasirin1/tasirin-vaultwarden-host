@@ -322,11 +322,9 @@ public class LogActivity extends Activity {
                 values.put(MediaStore.Downloads.IS_PENDING, 1);
                 Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
                 if (uri != null) {
-                    try {
-                        OutputStream out = resolver.openOutputStream(uri);
+                    try (OutputStream out = resolver.openOutputStream(uri)) {
                         if (out != null) {
                             out.write(header.toString().getBytes(StandardCharsets.UTF_8));
-                            out.close();
                             ok = true;
                         } else {
                             resolver.delete(uri, null, null);

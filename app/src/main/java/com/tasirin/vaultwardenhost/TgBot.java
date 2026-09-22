@@ -372,6 +372,9 @@ public final class TgBot {
         }
         switch (cmd) {
             case "/start":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 if (ServerService.running || ServerService.isProcessAlive()) {
                     TgBackup.sendMessage(ctx, "Server sudah jalan.");
                 } else {
@@ -398,6 +401,9 @@ public final class TgBot {
                 }
                 break;
             case "/restart":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 try {
                     ServerService.restart(ctx);
                     TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
@@ -406,6 +412,9 @@ public final class TgBot {
                 }
                 break;
             case "/backup":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 runWithWakeLock(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
@@ -436,6 +445,9 @@ public final class TgBot {
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
             case "/log":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 TgBackup.sendMessage(ctx, tailLog());
                 break;
             case "/uptime":
@@ -485,6 +497,9 @@ public final class TgBot {
                 });
                 break;
             case "/webvault":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 runWithWakeLock(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
@@ -507,6 +522,9 @@ public final class TgBot {
                 });
                 break;
             case "/crashlog":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
                 String crash = ServerService.crashLogText(ctx);
                 if (crash == null || crash.trim().isEmpty()) {
                     TgBackup.sendMessage(ctx, "Belum ada crash log tersimpan.");
@@ -519,7 +537,7 @@ public final class TgBot {
                 TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
                         + "/crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /stop /update /restore wajib diakhiri PIN"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /log /crashlog /update /webvault /restore wajib diakhiri PIN"
                         + " (mis. /stop 123456).", keyboardPerintah());
                 break;
             default:

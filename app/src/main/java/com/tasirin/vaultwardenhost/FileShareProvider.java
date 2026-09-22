@@ -89,8 +89,14 @@ public class FileShareProvider extends ContentProvider {
             if (name.startsWith("db.sqlite3")) {
                 return false;
             }
-            return canon.startsWith(data + File.separator + "tls" + File.separator)
-                    || canon.startsWith(data + File.separator + "backups" + File.separator);
+            boolean diTls = canon.startsWith(data + File.separator + "tls" + File.separator);
+            boolean diBackup = canon.startsWith(data + File.separator + "backups" + File.separator);
+            if (!diTls && !diBackup) {
+                return false;
+            }
+            String rendah = name.toLowerCase(java.util.Locale.US);
+            return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
+                    || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt");
         } catch (Exception e) {
             return false;
         }
