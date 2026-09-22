@@ -58,6 +58,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Sertifikat bisa dipasang di HP lain**: skema TLS baru CA lokal
+  (`tls/ca.pem`, CA:TRUE, 10 tahun) + sertifikat server (`cert.pem`, SAN IP,
+  ditandatangani CA). Yang dipasang cukup `ca.pem` sebagai CA certificate
+  (tanpa private key, diterima installer Android baru); CA stabil saat IP
+  berubah sehingga tak perlu install ulang. Tombol Install Cert membagikan
+  `ca.pem`, backup lengkap ikut membawa `ca.pem`/`ca-key.pem`.
 - **Restore/import tak lagi membangkitkan kredensial lama**: `applyPrefsFromJson`
   menghapus `admin_token`/`pin_hash` impor bila perangkat tak punya nilai
   (backup lama yang masih menyimpan secrets tak lagi bocor saat restore),

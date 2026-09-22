@@ -285,6 +285,8 @@ public final class TgBackup {
                     zos.write(configJson.getBytes(StandardCharsets.UTF_8));
                     zos.closeEntry();
                 }
+                addFileEntry(zos, buf, new File(dataFolder, "tls/ca.pem"), "tls/ca.pem");
+                addFileEntry(zos, buf, new File(dataFolder, "tls/ca-key.pem"), "tls/ca-key.pem");
                 addFileEntry(zos, buf, new File(dataFolder, "tls/cert.pem"), "tls/cert.pem");
                 addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
             }

@@ -67,7 +67,9 @@ log**, and **Save .txt**. Everything else lives under the **three-dot
   **⋮ → Settings**.
 - Press **Start** on the home screen; the status web is at `http(s)://<device-ip>:<port+1>`.
 - Pair clients (bitwarden mobile/desktop) to `https://<device-ip>:<port>` and
-  accept the self-signed certificate.
+  accept the self-signed certificate. To silence browser warnings on other
+  devices, copy `tls/ca.pem` from the data folder and install it as a
+  CA certificate (no private key needed; survives IP changes).
 - From another phone, copy the URL from Settings (**Copy URL**) and open it
   in a browser.
 - **Telegram remote**: set bot token + chat id to use `/log /uptime /alive

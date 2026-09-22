@@ -203,11 +203,15 @@ merusak server.
 
 ## HTTPS (self-signed)
 
-- Centang **HTTPS (self-signed)** lalu Start. Sertifikat dibuat otomatis di
-  `<DATA_FOLDER>/tls/` (`cert.pem` + `key.pem`, RSA 2048, berlaku 5 tahun,
-  dibuat ulang otomatis saat IP berubah). Layar menampilkan sisa hari berlaku.
+- Centang **HTTPS (self-signed)** lalu Start. App membuat CA lokal
+  (`tls/ca.pem`, 10 tahun) + sertifikat server (`tls/cert.pem` + `key.pem`,
+  RSA 2048, 5 tahun, dibuat ulang otomatis saat IP berubah). Layar menampilkan
+  sisa hari berlaku.
 - Browser menampilkan peringatan self-signed; hilangkan dengan install
-  `cert.pem` sebagai CA (Settings → Security → Install certificate).
+  `ca.pem` (bukan `cert.pem`) sebagai CA di HP lain: salin `tls/ca.pem`,
+  lalu Settings → Security → Install CA certificate (tanpa private key).
+  CA stabil walau IP berubah, jadi cukup install sekali. `key.pem` dan
+  `ca-key.pem` milik server, jangan disebar.
 - App **Bitwarden** resmi umumnya menolak self-signed — untuk klien non-web
   vault sebaiknya pakai HTTP di jaringan lokal yang tepercaya.
 
@@ -268,7 +272,7 @@ merusak server.
   dulu (lihat seksi HTTPS).
 
 **Peringatan sertifikat di browser**
-- Normal untuk self-signed. Install `cert.pem` sebagai CA agar peringatan hilang.
+- Normal untuk self-signed. Install `ca.pem` sebagai CA agar peringatan hilang.
 
 **Auto start saat boot tidak jalan**
 - Jika app pernah di-**force-stop**, Android memblokir broadcast boot sampai

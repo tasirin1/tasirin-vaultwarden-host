@@ -1310,6 +1310,7 @@ public class ServerService extends Service {
             }
             if (dir != null) {
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
+                appendLog("[app] CA untuk HP lain: " + new File(dir, "ca.pem").getAbsolutePath());
             }
             return dir;
         } catch (Exception e) {
@@ -1321,10 +1322,11 @@ public class ServerService extends Service {
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips, String cur) throws Exception {
         String saved = readText(ipFile);
         if (saved != null && !saved.equals(cur)) {
-            appendLog("[app] IP berubah - regenerasi sertifikat.");
+            // Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan agar HP lain
+            // tak perlu install ulang, jadi version.txt jangan dihapus.
+            appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
             new File(tlsDir, "cert.pem").delete();
             new File(tlsDir, "key.pem").delete();
-            new File(tlsDir, "version.txt").delete();
             ipFile.delete();
         }
         File dir = TlsCert.ensure(tlsDir, ips);

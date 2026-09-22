@@ -660,9 +660,9 @@ public class SettingsActivity extends Activity {
             if (TextUtils.isEmpty(dataDir)) {
                 dataDir = DEFAULT_DATA_DIR;
             }
-            File cert = new File(dataDir, "tls/cert.pem");
+            File cert = new File(dataDir, "tls/ca.pem");
             if (!cert.exists()) {
-                toast("Sertifikat belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+                toast("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY

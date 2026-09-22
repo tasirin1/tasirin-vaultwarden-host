@@ -9,9 +9,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.SecureRandom;
@@ -22,8 +25,13 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Membuat sertifikat self-signed (RSA 2048, SHA256withRSA) tanpa library eksternal.
+ * Membuat CA lokal + sertifikat server (RSA 2048, SHA256withRSA) tanpa library eksternal.
  * Digunakan untuk HTTPS lokal (ROCKET_TLS_*).
+ *
+ * <p>Skema: CA self-signed (ca.pem, CA:TRUE, 10 tahun) menandatangani sertifikat
+ * server (cert.pem, CA:FALSE + SAN IP, 5 tahun). Yang dipasang di HP lain cukup
+ * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP berubah
+ * sehingga tidak perlu install ulang, hanya cert.pem yang dibuat ulang.</p>
  */
 public final class TlsCert {
 
@@ -31,7 +39,22 @@ public final class TlsCert {
     }
 
     /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
-    private static final int CERT_VERSION = 4;
+    private static final int CERT_VERSION = 5;
+
+    /** Nama file CA (boleh disebar ke HP lain untuk dipasang sebagai CA). */
+    public static final String CA_CERT_FILE = "ca.pem";
+
+    /** Nama file kunci privat CA (milik server, jangan disebar). */
+    public static final String CA_KEY_FILE = "ca-key.pem";
+
+    /** Nama file sertifikat server (dipakai Rocket, bukan untuk dipasang). */
+    public static final String LEAF_CERT_FILE = "cert.pem";
+
+    /** Nama file kunci privat server (milik server, jangan disebar). */
+    public static final String LEAF_KEY_FILE = "key.pem";
+
+    static final String CA_CN = "Vaultwarden Android CA";
+    static final String LEAF_CN = "Vaultwarden Android";
 
     /** Sisa hari masa berlaku cert.pem; -1 bila tidak bisa dibaca. */
     public static long daysLeft(File certFile) {
@@ -45,46 +68,38 @@ public final class TlsCert {
         }
     }
 
-    /** Pastikan cert.pem & key.pem ada di {@code dir}; buat bila belum. Return null bila gagal. */
+    /** Pastikan CA + cert server ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {
         try {
-            File certFile = new File(dir, "cert.pem");
-            File keyFile = new File(dir, "key.pem");
-            if (certFile.exists() && keyFile.exists()
-                    && certFile.length() > 100 && keyFile.length() > 100
-                    && certVersionOk(dir)) {
-                if (daysLeft(certFile) > 0) {
-                    return dir;
-                }
-                // Kedaluwarsa / tidak terbaca - buat ulang di bawah.
-                certFile.delete();
-                keyFile.delete();
-            }
-            // Cert lama (format rusak / versi lama) dihapus agar dibuat ulang.
-            certFile.delete();
-            keyFile.delete();
             if (!dir.exists() && !dir.mkdirs()) {
                 return null;
             }
-
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            KeyPair kp = kpg.generateKeyPair();
-
-            byte[] tbs = buildTbsCertificate(kp.getPublic(), ips);
-            Signature sig = Signature.getInstance("SHA256withRSA");
-            sig.initSign(kp.getPrivate());
-            sig.update(tbs);
-            byte[] signature = sig.sign();
-
-            byte[] cert = der(b -> {
-                b.raw(tbs);
-                b.oidSha256Rsa();
-                b.bitString(signature);
-            }, 0x30);
-
-            writePem(certFile, "CERTIFICATE", cert);
-            writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
+            File caCert = new File(dir, CA_CERT_FILE);
+            File caKey = new File(dir, CA_KEY_FILE);
+            File certFile = new File(dir, LEAF_CERT_FILE);
+            File keyFile = new File(dir, LEAF_KEY_FILE);
+            if (!caOk(caCert, caKey, dir)) {
+                // CA hilang / rusak / versi lama / kedaluwarsa: buat ulang semuanya.
+                caCert.delete();
+                caKey.delete();
+                certFile.delete();
+                keyFile.delete();
+                if (!buatCa(caCert, caKey)) {
+                    return null;
+                }
+                writeVersion(dir);
+            }
+            if (certFile.exists() && keyFile.exists()
+                    && certFile.length() > 100 && keyFile.length() > 100
+                    && daysLeft(certFile) > 0) {
+                return dir;
+            }
+            // Leaf hilang / rusak / kedaluwarsa / IP berubah: buat ulang, CA tetap.
+            certFile.delete();
+            keyFile.delete();
+            if (!buatLeaf(caKey, certFile, keyFile, ips)) {
+                return null;
+            }
             writeVersion(dir);
             return dir;
         } catch (Exception e) {
@@ -92,7 +107,98 @@ public final class TlsCert {
         }
     }
 
-    private static byte[] buildTbsCertificate(PublicKey pub, List<String> ips) throws Exception {
+    /** True bila CA bisa dipakai: file ada, versi cocok, belum kedaluwarsa. */
+    static boolean caOk(File caCert, File caKey, File dir) {
+        return caCert.exists() && caKey.exists()
+                && caCert.length() > 100 && caKey.length() > 100
+                && certVersionOk(dir) && daysLeft(caCert) > 0;
+    }
+
+    /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */
+    private static boolean buatCa(File caCert, File caKey) {
+        try {
+            KeyPair kp = buatRsa2048();
+            byte[] tbs = buildTbs(kp.getPublic(), CA_CN, CA_CN,
+                    caExtensionsBlock(), 365 * 10);
+            writePem(caCert, "CERTIFICATE", tandatangani(tbs, kp.getPrivate()));
+            writePem(caKey, "PRIVATE KEY", kp.getPrivate().getEncoded());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Buat sertifikat server baru ditandatangani CA (CA tetap). Return false bila gagal. */
+    private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
+            List<String> ips) {
+        try {
+            PrivateKey caPriv = bacaPrivateKey(caKeyFile);
+            if (caPriv == null) {
+                return false;
+            }
+            KeyPair kp = buatRsa2048();
+            byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
+                    extensionsBlock(ips), 365 * 5);
+            writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
+            writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static KeyPair buatRsa2048() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        return kpg.generateKeyPair();
+    }
+
+    /** Tandatangani TBS dengan kunci privat (SHA256withRSA), bungkus jadi sertifikat DER. */
+    private static byte[] tandatangani(byte[] tbs, PrivateKey key) throws Exception {
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initSign(key);
+        sig.update(tbs);
+        byte[] signature = sig.sign();
+        return der(b -> {
+            b.raw(tbs);
+            b.oidSha256Rsa();
+            b.bitString(signature);
+        }, 0x30);
+    }
+
+    /** Baca kunci privat RSA PKCS#8 dari file PEM; null bila gagal. */
+    private static PrivateKey bacaPrivateKey(File pem) {
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(pem);
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            byte[] tmp = new byte[1024];
+            int n;
+            while ((n = in.read(tmp)) > 0) {
+                buf.write(tmp, 0, n);
+            }
+            String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);
+            s = s.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s", "");
+            byte[] pkcs8 = android.util.Base64.decode(s, android.util.Base64.DEFAULT);
+            return KeyFactory.getInstance("RSA")
+                    .generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /** Susun TBS sertifikat v3 dengan issuer/subject/ekstensi/masa berlaku pilihan. */
+    private static byte[] buildTbs(PublicKey subjectPub, String issuerCn, String subjectCn,
+            byte[] exts, long masaHari) throws Exception {
         SecureRandom rnd = new SecureRandom();
         byte[] serialBytes = new byte[16];
         rnd.nextBytes(serialBytes);
@@ -100,20 +206,19 @@ public final class TlsCert {
 
         Date now = new Date();
         Date notBefore = new Date(now.getTime() - TimeUnit.DAYS.toMillis(1));
-        Date notAfter = new Date(now.getTime() + TimeUnit.DAYS.toMillis(365 * 5));
+        Date notAfter = new Date(now.getTime() + TimeUnit.DAYS.toMillis(masaHari));
 
         // version [0] EXPLICIT INTEGER 2 (v3)
         byte[] version = der(b -> b.raw(integer(BigInteger.valueOf(2))), 0xA0);
         byte[] serial = integer(new BigInteger(serialBytes));
         byte[] sigAlg = sha256RsaAlgorithmId();
-        byte[] issuer = nameCn("Vaultwarden Android");
+        byte[] issuer = nameCn(issuerCn);
         byte[] validity = der(b -> {
             b.utcTime(notBefore);
             b.utcTime(notAfter);
         }, 0x30);
-        byte[] subject = nameCn("Vaultwarden Android");
-        byte[] spki = pub.getEncoded();
-        byte[] exts = extensionsBlock(ips);
+        byte[] subject = nameCn(subjectCn);
+        byte[] spki = subjectPub.getEncoded();
 
         return der(b -> {
             b.raw(version);
@@ -125,6 +230,22 @@ public final class TlsCert {
             b.raw(spki);
             b.raw(exts);
         }, 0x30);
+    }
+
+    /** Ekstensi CA: BasicConstraints CA:TRUE + KeyUsage keyCertSign agar diterima installer. */
+    private static byte[] caExtensionsBlock() throws Exception {
+        byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
+                octetString(der(b -> b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}), 0x30)));
+        // KeyUsage: digitalSignature + keyCertSign + cRLSign.
+        byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
+                octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0x86}));
+        byte[] extensions = der(b -> {
+            b.raw(basicConstraints);
+            b.raw(keyUsage);
+        }, 0x30);
+
+        // extensions [3] EXPLICIT Extensions
+        return der(b -> b.raw(extensions), 0xA3);
     }
 
     private static byte[] extensionsBlock(List<String> ips) throws Exception {
@@ -181,7 +302,10 @@ public final class TlsCert {
         return der(b -> b.raw(content), 0x04);
     }
 
-    private static byte[] ipv4(String ip) {
+    static byte[] ipv4(String ip) {
+        if (ip == null) {
+            return null;
+        }
         String[] parts = ip.split("\\.");
         if (parts.length != 4) {
             return null;
@@ -228,7 +352,7 @@ public final class TlsCert {
         return o.toByteArray();
     }
 
-    private static boolean certVersionOk(File dir) {
+    static boolean certVersionOk(File dir) {
         try (java.io.FileInputStream in = new java.io.FileInputStream(new File(dir, "version.txt"))) {
             byte[] buf = new byte[16];
             int n = in.read(buf);
