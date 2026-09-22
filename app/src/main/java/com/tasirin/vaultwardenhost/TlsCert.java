@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
  * Digunakan untuk HTTPS lokal (ROCKET_TLS_*).
  *
  * <p>Skema: CA self-signed (ca.pem, CA:TRUE, 10 tahun) menandatangani sertifikat
- * server (cert.pem, CA:FALSE + SAN IP, 5 tahun). Yang dipasang di HP lain cukup
- * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP berubah
+ * server (cert.pem, CA:FALSE + SAN IP/DNS, 5 tahun). Yang dipasang di HP lain cukup
+ * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP/domain berubah
  * sehingga tidak perlu install ulang, hanya cert.pem yang dibuat ulang.</p>
  */
 public final class TlsCert {
@@ -39,7 +39,7 @@ public final class TlsCert {
     }
 
     /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
-    private static final int CERT_VERSION = 5;
+    private static final int CERT_VERSION = 6;
 
     /** Nama file CA (boleh disebar ke HP lain untuk dipasang sebagai CA). */
     public static final String CA_CERT_FILE = "ca.pem";
@@ -70,6 +70,11 @@ public final class TlsCert {
 
     /** Pastikan CA + cert server ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {
+        return ensure(dir, ips, java.util.Collections.<String>emptyList());
+    }
+
+    /** Varian dengan SAN DNS tambahan (domain lokal); {@code dns} boleh kosong. */
+    public static File ensure(File dir, List<String> ips, List<String> dns) {
         try {
             if (!dir.exists() && !dir.mkdirs()) {
                 return null;
@@ -94,10 +99,10 @@ public final class TlsCert {
                     && daysLeft(certFile) > 0) {
                 return dir;
             }
-            // Leaf hilang / rusak / kedaluwarsa / IP berubah: buat ulang, CA tetap.
+            // Leaf hilang / rusak / kedaluwarsa / IP atau domain berubah: buat ulang, CA tetap.
             certFile.delete();
             keyFile.delete();
-            if (!buatLeaf(caKey, certFile, keyFile, ips)) {
+            if (!buatLeaf(caKey, certFile, keyFile, ips, dns)) {
                 return null;
             }
             writeVersion(dir);
@@ -128,9 +133,57 @@ public final class TlsCert {
         }
     }
 
+    /** Validasi nama DNS (ASCII, label 1-63 char, boleh satu label lokal); false untuk IP. */
+    static boolean namaDnsValid(String host) {
+        if (host == null || host.isEmpty() || host.length() > 253) {
+            return false;
+        }
+        if (ipv4(host) != null) {
+            return false;
+        }
+        String[] label = host.split("\\.", -1);
+        if (label.length == 0) {
+            return false;
+        }
+        for (String l : label) {
+            if (l.isEmpty() || l.length() > 63) {
+                return false;
+            }
+            if (!l.matches("[a-z0-9]([a-z0-9-]*[a-z0-9])?")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Pecah input domain menjadi daftar DNS valid (kecil, unik, maks 5); kosong bila tak ada. */
+    static List<String> daftarDns(String mentah) {
+        List<String> hasil = new java.util.ArrayList<>();
+        if (mentah == null) {
+            return hasil;
+        }
+        for (String potong : mentah.trim().toLowerCase(java.util.Locale.US).split("[,\\s]+")) {
+            String h = potong.trim();
+            if (h.endsWith(".")) {
+                h = h.substring(0, h.length() - 1);
+            }
+            if (!h.isEmpty() && namaDnsValid(h) && !hasil.contains(h) && hasil.size() < 5) {
+                hasil.add(h);
+            }
+        }
+        return hasil;
+    }
+
     /** Buat sertifikat server baru ditandatangani CA (CA tetap). Return false bila gagal. */
     private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
             List<String> ips) {
+        return buatLeaf(caKeyFile, certFile, keyFile, ips,
+                java.util.Collections.<String>emptyList());
+    }
+
+    /** Varian dengan SAN DNS tambahan (domain lokal). */
+    private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
+            List<String> ips, List<String> dns) {
         try {
             PrivateKey caPriv = bacaPrivateKey(caKeyFile);
             if (caPriv == null) {
@@ -138,7 +191,7 @@ public final class TlsCert {
             }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips), 365 * 5);
+                    extensionsBlock(ips, dns), 365 * 5);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
@@ -249,6 +302,24 @@ public final class TlsCert {
     }
 
     private static byte[] extensionsBlock(List<String> ips) throws Exception {
+        return extensionsBlock(ips, java.util.Collections.<String>emptyList());
+    }
+
+    private static byte[] extensionsBlock(List<String> ips, List<String> dns) throws Exception {
+        final List<String> bersihDns = new java.util.ArrayList<>();
+        if (dns != null) {
+            for (String mentah : dns) {
+                String d = mentah == null ? "" : mentah.trim()
+                        .toLowerCase(java.util.Locale.US);
+                if (d.endsWith(".")) {
+                    d = d.substring(0, d.length() - 1);
+                }
+                if (namaDnsValid(d) && !bersihDns.contains(d) && bersihDns.size() < 5
+                        && d.getBytes(StandardCharsets.US_ASCII).length <= 127) {
+                    bersihDns.add(d);
+                }
+            }
+        }
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -259,9 +330,14 @@ public final class TlsCert {
             }
             b.raw(new byte[]{(byte) 0x82, 9});
             b.raw("localhost".getBytes(StandardCharsets.US_ASCII));
+            for (String d : bersihDns) {
+                byte[] encoded = d.getBytes(StandardCharsets.US_ASCII);
+                b.raw(new byte[]{(byte) 0x82, (byte) encoded.length});
+                b.raw(encoded);
+            }
         }, 0x30);
 
-        // subjectAltName: IP + localhost
+        // subjectAltName: IP + localhost + DNS lokal
         byte[] san = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11}, false,
                 octetString(generalNames));
         // BasicConstraints CA:FALSE - cert server biasa, BUKAN CA: bila key bocor,

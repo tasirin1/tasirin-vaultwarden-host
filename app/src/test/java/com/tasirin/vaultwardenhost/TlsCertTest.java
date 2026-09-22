@@ -49,10 +49,35 @@ public class TlsCertTest {
         assertFalse(TlsCert.certVersionOk(dir));
         Files.write(new File(dir, "version.txt").toPath(), "4\n".getBytes(StandardCharsets.US_ASCII));
         assertFalse(TlsCert.certVersionOk(dir));
-        Files.write(new File(dir, "version.txt").toPath(), "5\n".getBytes(StandardCharsets.US_ASCII));
+        Files.write(new File(dir, "version.txt").toPath(), "6\n".getBytes(StandardCharsets.US_ASCII));
         assertTrue(TlsCert.certVersionOk(dir));
         Files.write(new File(dir, "version.txt").toPath(), "rusak".getBytes(StandardCharsets.US_ASCII));
         assertFalse(TlsCert.certVersionOk(dir));
+    }
+
+    @Test
+    public void namaDnsValidTerimaLokalTolakIpDanRusak() {
+        assertTrue(TlsCert.namaDnsValid("vault.lan"));
+        assertTrue(TlsCert.namaDnsValid("server"));
+        assertTrue(TlsCert.namaDnsValid("vaultwarden-rumah.home"));
+        assertTrue(TlsCert.namaDnsValid("a.b.c.local"));
+        assertFalse(TlsCert.namaDnsValid(null));
+        assertFalse(TlsCert.namaDnsValid(""));
+        assertFalse(TlsCert.namaDnsValid("192.168.1.10"));
+        assertFalse(TlsCert.namaDnsValid("va ult.lan"));
+        assertFalse(TlsCert.namaDnsValid("-salah.lan"));
+        assertFalse(TlsCert.namaDnsValid("salah-.lan"));
+        assertFalse(TlsCert.namaDnsValid("VAULT.LAN".toLowerCase(java.util.Locale.US) + "!"));
+    }
+
+    @Test
+    public void daftarDnsBersihUnikBatas() {
+        assertEquals(java.util.Arrays.asList("vault.lan", "server"),
+                TlsCert.daftarDns("vault.lan, server vault.lan"));
+        assertEquals(java.util.Collections.emptyList(), TlsCert.daftarDns(null));
+        assertEquals(java.util.Collections.emptyList(), TlsCert.daftarDns("192.168.1.10"));
+        assertEquals(java.util.Collections.singletonList("vault.lan"),
+                TlsCert.daftarDns("  VAULT.LAN. "));
     }
 
     @Test

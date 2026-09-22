@@ -94,7 +94,10 @@ Layar awal kini sederhana: hanya **status server**, tombol **Start/Stop**,
 
 1. Install APK, buka app, beri izin **Storage** bila diminta.
 2. Buka **⋮ → Settings**, isi **Folder data** (mis. `/sdcard/vaultwarden`)
-   dan **Port** (default `8088`).
+   dan **Port** (default `8088`). Opsional: isi **Domain lokal**
+   (mis. `vault.lan`) bila punya DNS lokal yang mengarah ke IP Android —
+   link undangan dan sertifikat HTTPS ikut memakai nama itu; kosongkan
+   bila cukup pakai IP.
 3. Kembali ke layar awal, tekan **Start**. Pertama kali binary diunduh
    otomatis (SHA-256, tersimpan di internal, tidak diunduh ulang). Bila web
    vault belum ada, pilih **Unduh & Start** di dialog. Status menampilkan
@@ -207,6 +210,9 @@ merusak server.
   (`tls/ca.pem`, 10 tahun) + sertifikat server (`tls/cert.pem` + `key.pem`,
   RSA 2048, 5 tahun, dibuat ulang otomatis saat IP berubah). Layar menampilkan
   sisa hari berlaku.
+- Bila **Domain lokal** diisi (mis. `vault.lan`), sertifikat server ikut
+  memuat nama itu sebagai SAN DNS (dibuat ulang otomatis saat domain/IP
+  berubah), jadi HTTPS via nama lokal tidak lagi warning hostname.
 - Browser menampilkan peringatan self-signed; hilangkan dengan install
   `ca.pem` (bukan `cert.pem`) sebagai CA di HP lain: salin `tls/ca.pem`,
   lalu Settings → Security → Install CA certificate (tanpa private key).

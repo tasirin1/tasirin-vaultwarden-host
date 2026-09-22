@@ -9,6 +9,11 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 ## [Belum rilis] — Tampilan utama, backup Telegram & efisiensi
 
 ### Ditambahkan
+- **Domain lokal**: kolom opsional **Domain lokal** di kartu Server
+  (mis. `vault.lan`, boleh `host:port`/URL) — dipakai sebagai `DOMAIN`
+  Vaultwarden, URL jaringan, dan tombol Salin URL; sertifikat HTTPS ikut
+  memuatnya sebagai SAN DNS (regenerasi otomatis saat domain/IP berubah,
+  versi cert naik ke 6). Kosong = perilaku lama (IP LAN otomatis).
 - **Layar awal sederhana**: hanya status server, tombol Start/Stop, log
   realtime, dan tombol Simpan .txt. Semua pengaturan (folder data, port,
   HTTPS, PIN, Telegram, pemeliharaan, sertifikat, export/import) pindah ke

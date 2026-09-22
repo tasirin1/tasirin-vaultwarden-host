@@ -76,7 +76,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
-  `wv_from_version`, `tg_notified_version`, `advanced_open`,
+  `wv_from_version`, `tg_notified_version`, `domain_lokal`, `advanced_open`,
   `bin_patch_rev` (revisi patch binary; paksa unduh ulang bila CI perbaiki
   binary tanpa ganti versi Vaultwarden).
 
