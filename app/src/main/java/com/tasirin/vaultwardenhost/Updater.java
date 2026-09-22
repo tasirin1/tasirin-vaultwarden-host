@@ -213,8 +213,12 @@ public final class Updater {
             throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+        // Revisi patch binary: CI bisa memperbaiki binary tanpa ganti versi Vaultwarden
+        // (mis. patch TLS favicon). Versi sama tapi patch lama wajib diunduh ulang sekali.
+        boolean butuhRefresh = ServerService.perluRefreshPatch(
+                sp.getString(ServerService.KEY_BIN_PATCH, ""));
         String real = parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null && real.equals(latest)) {
+        if (!butuhRefresh && real != null && real.equals(latest)) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             return "Sudah versi terbaru: v" + latest;
@@ -222,12 +226,14 @@ public final class Updater {
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (current != null && current.equals(latest)) {
+        if (!butuhRefresh && current != null && current.equals(latest)) {
             return "Sudah versi terbaru: v" + latest;
         }
 
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
         String msg = downloadBinary(ctx, out);
+        sp.edit().putString(ServerService.KEY_BIN_PATCH,
+                String.valueOf(ServerService.BIN_PATCH_REV)).apply();
         return msg;
     }
 

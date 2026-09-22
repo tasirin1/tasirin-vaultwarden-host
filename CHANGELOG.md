@@ -58,6 +58,13 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   Admin Token kosong (status/log LAN terbuka).
 
 ### Diperbaiki
+- **Binary lama tak pernah refresh padahal versi sama (favicon tetap 500)**:
+  patch TLS favicon CI memperbaiki binary tanpa ganti versi Vaultwarden,
+  tapi `Cek Update`/`Start` menganggap `1.37.3` yang ter-cache sudah terbaru
+  sehingga binary pra-patch dipakai selamanya. Kini ada revisi patch binary
+  (`bin_patch_rev=2`): Start melewati cache basi dan mengunduh ulang sekali,
+  `Cek Update` pun memaksa unduh walau versi sama. Pengguna cukup tekan
+  **Start** (atau **Cek Update**) setelah update APK.
 - **Ikon website (favicon) selalu 500**: reqwest memakai
   `rustls-platform-verifier` yang wajib init dari JavaVM — binary standalone
   panic di tiap HTTPS keluar (`Expect ... to be initialized`). Patch CI

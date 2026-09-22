@@ -65,6 +65,15 @@ public class ServerService extends Service {
     public static final String KEY_AUTO_RESTART_UPDATE = "auto_restart_update";
     /** SHA-256 (hex) binary manual di folder data; wajib diisi bila pakai binary sendiri. */
     public static final String KEY_BIN_SHA = "bin_sha";
+    /** Revisi patch binary rilis (naikkan bila CI memperbaiki binary tanpa ganti versi). */
+    public static final String KEY_BIN_PATCH = "bin_patch_rev";
+    /** 2 = binary pasca-patch TLS favicon (webpki + Mozilla, tanpa platform-verifier). */
+    public static final int BIN_PATCH_REV = 2;
+
+    /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
+    static boolean perluRefreshPatch(String tersimpan) {
+        return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
+    }
 
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
@@ -1055,9 +1064,14 @@ public class ServerService extends Service {
             dataDir = DEFAULT_DATA_DIR;
         }
 
+        // Revisi patch binary: bila CI memperbaiki binary tanpa ganti versi Vaultwarden
+        // (mis. patch TLS favicon), cache lama wajib diunduh ulang sekali.
+        boolean butuhRefresh = perluRefreshPatch(sp.getString(KEY_BIN_PATCH, ""));
+
         // 1) Binary update terbaru hasil tombol Perbarui (KEY_UPDATE_VERSION).
         //    Didahulukan agar Start tidak memakai binary lama selamanya.
-        if (isValidBinary(out)) {
+        //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
+        if (!butuhRefresh && isValidBinary(out)) {
             String updated = sp.getString(KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
                 try {
@@ -1106,7 +1120,8 @@ public class ServerService extends Service {
         }
 
         // 2) Cache internal milik APK ini (version.txt = versi APK saat diunduh).
-        if (isValidBinary(out) && verFile.exists()) {
+        //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
+        if (!butuhRefresh && isValidBinary(out) && verFile.exists()) {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
                     detectBinaryVersion(out);
@@ -1120,6 +1135,10 @@ public class ServerService extends Service {
         try {
             String msg = Updater.downloadBinary(this, out);
             appendLog("[app] " + msg);
+            if (butuhRefresh) {
+                appendLog("[app] Binary perbaikan (patch favicon) terpasang.");
+            }
+            sp.edit().putString(KEY_BIN_PATCH, String.valueOf(BIN_PATCH_REV)).apply();
             writeText(verFile, Updater.appVersionName(this));
             detectBinaryVersion(out);
             return out;

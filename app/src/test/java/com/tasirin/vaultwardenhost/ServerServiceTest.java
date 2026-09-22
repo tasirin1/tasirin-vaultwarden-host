@@ -70,6 +70,19 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void refreshPatchDiperlukanBilaKosongAtauLama() {
+        assertTrue(ServerService.perluRefreshPatch(null));
+        assertTrue(ServerService.perluRefreshPatch(""));
+        assertTrue(ServerService.perluRefreshPatch("1"));
+    }
+
+    @Test
+    public void refreshPatchTidakDiperlukanBilaSudahTerkini() {
+        assertFalse(ServerService.perluRefreshPatch(
+                String.valueOf(ServerService.BIN_PATCH_REV)));
+    }
+
+    @Test
     public void outputVersionNormalBukanPanic() {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));
