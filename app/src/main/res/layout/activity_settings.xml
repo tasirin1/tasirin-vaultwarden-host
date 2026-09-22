@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kerangka utama: tiap kartu dipecah ke main_card_*.xml agar lint TooManyViews bersih
+     (satu layout >80 view). findViewById tetap bekerja karena <include> di-inflate sama. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding">
+
+        <Button
+            android:id="@+id/settingsBack"
+            android:nextFocusDown="@id/aboutBtn"
+            style="@style/TasirinBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/back" />
+
+        <!-- Hero: identitas app di atas gradien brand -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_hero"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/app_name"
+                android:focusable="false"
+                android:src="@drawable/ic_launcher" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/appTitle"
+                    style="@style/TasirinHeroTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name" />
+
+                <TextView
+                    style="@style/TasirinHeroSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/app_tagline" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/aboutBtn"
+                android:nextFocusDown="@id/startStop"
+                android:nextFocusUp="@id/logOpen"
+                style="@style/TasirinBtnHero"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/about" />
+        </LinearLayout>
+
+        <!-- Rincian versi, DB & storage (teks panjang dari MainActivity) -->
+        <TextView
+            android:id="@+id/version"
+            style="@style/TasirinInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_info_box"
+            android:padding="12dp" />
+
+        <!-- ===================== SERVER ===================== -->
+        <include layout="@layout/main_card_server" />
+
+        <!-- ===================== LANJUTAN (collapsible) ===================== -->
+        <Button
+            android:id="@+id/advancedToggle"
+            android:nextFocusDown="@id/adminToken"
+            android:nextFocusUp="@id/open"
+            style="@style/TasirinBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/advanced_open" />
+
+        <LinearLayout
+            android:id="@+id/advancedPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Pengaturan -->
+            <include layout="@layout/main_card_settings" />
+
+            <!-- Pemeliharaan -->
+            <include layout="@layout/main_card_maintenance" />
+
+            <!-- Backup Telegram -->
+            <include layout="@layout/main_card_telegram" />
+
+            <!-- Log -->
+            <include layout="@layout/main_card_log" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

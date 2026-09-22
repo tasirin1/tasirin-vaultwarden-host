@@ -17,11 +17,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
-│   ├── res/layout/                   # activity_main.xml + main_card_*.xml (split anti TooManyViews)
+│   ├── res/layout/                   # activity_main.xml (ringkas) + activity_settings.xml + main_card_*.xml (split anti TooManyViews)
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
 │   ├── res/values/ (+night, sw600dp) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
-│       ├── MainActivity.java         # UI utama, pengaturan, auto-update check, PIN, export/import
+│       ├── MainActivity.java         # layar awal ringkas: status, Start/Stop, log realtime, simpan .txt, titik tiga
+│       ├── SettingsActivity.java     # semua pengaturan (pindahan UI utama lama), dibuka via titik tiga
 │       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS, ControlServer
 │       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
 │       ├── ControlServer.java        # status web ringan (JSON + log SSE) di port+1
@@ -148,9 +149,11 @@ seamless (beda signature) — backup keystore di tempat aman.
 ## Pemetaan fitur → file
 
 - **Pengaturan baru (checkbox/input)** → `main_card_*.xml` yang sesuai
-  (`activity_main.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
-  `MainActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
-  konstanta `KEY_*` di `ServerService.java`.
+  (`activity_settings.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
+  `SettingsActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
+  konstanta `KEY_*` di `ServerService.java`. Layar awal (`MainActivity.java` +
+  `activity_main.xml`) tetap ringkas: status, Start/Stop, log realtime,
+  simpan .txt, titik tiga.
 - **Percantik tampilan (tanpa logika)** → `colors.xml` (+ `values-night`,
   wajib sinkron) + `styles.xml` + `drawable/bg_*` + string baru di
   `strings.xml`; jangan ubah ID/`nextFocusUp/Down` di layout.

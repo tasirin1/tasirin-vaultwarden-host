@@ -60,9 +60,13 @@ Android — built automatically via **GitHub Actions**. Supports **Android 5.0
 
 ## Usage
 
+The home screen is minimal: **server status**, **Start/Stop**, **realtime
+log**, and **Save .txt**. Everything else lives under the **three-dot
+(⋮) → Settings** menu at the top right.
+
 - Set the data folder, port (default `8088`), HTTPS on/off, and admin token in
-  the main screen.
-- Press **Start**; the status web is at `http(s)://<device-ip>:<port+1>`.
+  **⋮ → Settings**.
+- Press **Start** on the home screen; the status web is at `http(s)://<device-ip>:<port+1>`.
 - Pair clients (bitwarden mobile/desktop) to `https://<device-ip>:<port>` and
   accept the self-signed certificate.
 - From another phone, tap **QR** and scan to open the URL instantly.

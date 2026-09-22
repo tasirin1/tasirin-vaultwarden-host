@@ -90,14 +90,21 @@ teknis; panduan pengelolaan lengkap ada di
 
 ## Pemakaian
 
+Layar awal kini sederhana: hanya **status server**, tombol **Start/Stop**,
+**log realtime**, dan tombol **Simpan .txt**. Semua pengaturan pindah ke
+**titik tiga (⋮) → Settings** di kanan atas.
+
 1. Install APK, buka app, beri izin **Storage** bila diminta.
-2. Isi **Folder data** (mis. `/sdcard/vaultwarden`) dan **Port** (default `8088`).
-3. Tekan **Start**. Pertama kali binary diunduh otomatis (SHA-256, tersimpan di
-   internal, tidak diunduh ulang). Bila web vault belum ada, pilih **Unduh &
-   Start** di dialog. Status menampilkan server berjalan + URL.
-4. Buka `http://127.0.0.1:8088` lewat tombol **Open Web UI** (browser HP), atau
-   dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
-   Dari HP lain: tekan **QR** lalu pindai — URL terbuka otomatis tanpa mengetik.
+2. Buka **⋮ → Settings**, isi **Folder data** (mis. `/sdcard/vaultwarden`)
+   dan **Port** (default `8088`).
+3. Kembali ke layar awal, tekan **Start**. Pertama kali binary diunduh
+   otomatis (SHA-256, tersimpan di internal, tidak diunduh ulang). Bila web
+   vault belum ada, pilih **Unduh & Start** di dialog. Status menampilkan
+   server berjalan + URL.
+4. Buka `http://127.0.0.1:8088` lewat tombol **Buka Web UI** di Settings
+   (browser HP), atau dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
+   Dari HP lain: tekan **QR** di Settings lalu pindai — URL terbuka otomatis
+   tanpa mengetik.
 5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
    `http://<IP-lokal-android>:8088`.
 
@@ -212,7 +219,7 @@ merusak server.
   repo ini. Notifikasi "Update tersedia" muncul otomatis saat app dibuka.
 - Di layar utama muncul peringatan `⚠ Update vX tersedia — tekan Cek Update`
   (hilang otomatis setelah terpasang atau saat server berjalan).
-- Checkbox di panel **Lanjutan → Pemeliharaan**:
+- Checkbox di **Settings → Pemeliharaan**:
   - *Auto-update binary* — pasang binary terbaru otomatis (jaringan rumah).
   - *Auto-update web vault* — ikutkan web vault mengikuti binary.
   - *Restart otomatis setelah update* — restart server sekali bila update
