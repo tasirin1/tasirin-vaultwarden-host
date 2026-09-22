@@ -1051,9 +1051,38 @@ public final class TgBackup {
         return String.format(Locale.US, "%.1f TB", bytes / 1099511627776.0);
     }
 
+    /** True bila backup terakhir beda hari kalender dengan sekarang (murni, bisa unit test).
+     *  last<=0 (belum pernah backup) dianggap sudah ganti hari agar backup pertama jalan. */
+    static boolean sudahGantiHari(long lastBackupMs, long sekarangMs) {
+        if (lastBackupMs <= 0) {
+            return true;
+        }
+        java.util.Calendar a = java.util.Calendar.getInstance();
+        a.setTimeInMillis(lastBackupMs);
+        java.util.Calendar b = java.util.Calendar.getInstance();
+        b.setTimeInMillis(sekarangMs);
+        return a.get(java.util.Calendar.YEAR) != b.get(java.util.Calendar.YEAR)
+                || a.get(java.util.Calendar.DAY_OF_YEAR) != b.get(java.util.Calendar.DAY_OF_YEAR);
+    }
+
+    /** Waktu tengah malam berikutnya (00:01) dari acuan, murni agar bisa unit test.
+     *  +1 menit supaya tanggal pasti sudah berganti dan terhindar dari balapan
+     *  tepat di detik 00:00:00. */
+    static long nextMidnight(long acuanMs) {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.setTimeInMillis(acuanMs);
+        c.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        c.set(java.util.Calendar.MINUTE, 1);
+        c.set(java.util.Calendar.SECOND, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        c.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        return c.getTimeInMillis();
+    }
+
     /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false).
-     *  Dipakai alarm EXACT (tidak di-batch Doze) + dijadwalkan ulang tiap selesai,
-     *  jadi waktu backup selalu tepat 24 jam dari backup sebelumnya. */
+     *  Alarm dipasang tepat saat tanggal berganti (tengah malam 00:01) +
+     *  dijadwalkan ulang tiap selesai, jadi backup jalan sekali sehari.
+     *  Dipakai alarm EXACT (tidak di-batch Doze). */
     public static void schedule(Context ctx, boolean enable) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) {
@@ -1064,7 +1093,7 @@ public final class TgBackup {
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         PendingIntent pi = PendingIntent.getBroadcast(ctx, 0, intent, flags);
         if (enable) {
-            long trigger = System.currentTimeMillis() + TG_INTERVAL_MS;
+            long trigger = nextMidnight(System.currentTimeMillis());
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     // Tepat waktu walau dalam Doze; tanpa permission khusus karena targetSdk 28.
@@ -1074,7 +1103,8 @@ public final class TgBackup {
                 }
             } catch (Exception e) {
                 // Fallback aman bila perangkat menolak exact alarm.
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger, TG_INTERVAL_MS, pi);
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
+                        AlarmManager.INTERVAL_DAY, pi);
             }
         } else {
             am.cancel(pi);

@@ -22,9 +22,25 @@ public class BootReceiver extends BroadcastReceiver {
                     // Android 12+ bisa menolak start dari background - user tekan Start manual.
                 }
             }
-            // Pertahankan jadwal backup harian setelah reboot
+            // Pertahankan jadwal backup tengah malam setelah reboot;
+            // kejar backup bila tanggal sudah berganti saat device mati.
             if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
+                try {
+                    String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+                    String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+                    String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                            ServerService.DEFAULT_DATA_DIR);
+                    long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+                    boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
+                            && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
+                    if (!token.isEmpty() && !chat.isEmpty() && dbAda
+                            && TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
+                        ServerService.backupNow(context);
+                    }
+                } catch (Exception ignored) {
+                    // Backup susulan gagal - alarm tengah malam yang urus berikutnya.
+                }
             }
             // Remote kontrol bot tetap aktif setelah reboot
             TgBot.schedule(context);

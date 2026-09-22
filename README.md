@@ -179,7 +179,8 @@ merusak server.
   ber-timestamp ke `<data>/backups/` (maks 10, tertua otomatis dihapus).
   **Backup ke Telegram**: zip sama, disimpan juga di `<data>/backups/`, opsional
   terenkripsi **AES-256-GCM** (password wajib sama saat restore), bisa otomatis
-  tiap 24 jam atau saat Start, dan menyertakan config + sertifikat. Baris
+  setiap tanggal berganti (tengah malam 00:01, jalan walau app tidak dibuka)
+  atau saat Start bila hari sudah berganti, dan menyertakan config + sertifikat. Baris
   storage di layar utama menampilkan ukuran DB, backup (jumlah + total),
   web-vault, dan binary.
 - **Restore**: dari backup Telegram (tombol di app atau perintah `/restore` +

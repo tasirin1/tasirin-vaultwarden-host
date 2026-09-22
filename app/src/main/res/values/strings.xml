@@ -72,7 +72,7 @@
     <string name="backup_pass_label">Password enkripsi (opsional)</string>
     <string name="bin_sha_label">SHA-256 binary manual (opsional)</string>
     <string name="bin_sha_hint">wajib bila pakai binary sendiri</string>
-    <string name="backup_auto_24h">Backup otomatis tiap 24 jam &amp; saat Start</string>
+    <string name="backup_auto_24h">Backup otomatis saat tanggal berganti &amp; saat Start</string>
             <string name="backup_to_tg">Backup ke Telegram</string>
     <string name="restore_from_tg">Restore dari Telegram</string>
     <string name="tg_bot_info">Buat bot lewat @BotFather di Telegram</string>

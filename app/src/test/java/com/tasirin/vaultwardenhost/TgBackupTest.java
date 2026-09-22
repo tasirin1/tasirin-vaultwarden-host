@@ -43,6 +43,34 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sudahGantiHari_bedaHariKalender() {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.set(2026, java.util.Calendar.SEPTEMBER, 21, 23, 59, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        long malam = c.getTimeInMillis();
+        c.set(2026, java.util.Calendar.SEPTEMBER, 22, 0, 1, 0);
+        long besok = c.getTimeInMillis();
+        assertTrue(TgBackup.sudahGantiHari(malam, besok));
+        assertFalse(TgBackup.sudahGantiHari(malam, malam + 30_000));
+        assertFalse(TgBackup.sudahGantiHari(besok, besok));
+        assertTrue(TgBackup.sudahGantiHari(0, besok));
+    }
+
+    @Test
+    public void nextMidnight_jamSatuPagiBesok() {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.set(2026, java.util.Calendar.SEPTEMBER, 21, 15, 30, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        long hasil = TgBackup.nextMidnight(c.getTimeInMillis());
+        java.util.Calendar h = java.util.Calendar.getInstance();
+        h.setTimeInMillis(hasil);
+        assertEquals(22, h.get(java.util.Calendar.DAY_OF_MONTH));
+        assertEquals(0, h.get(java.util.Calendar.HOUR_OF_DAY));
+        assertEquals(1, h.get(java.util.Calendar.MINUTE));
+        assertTrue(hasil > c.getTimeInMillis());
+    }
+
+    @Test
     public void pinAktif_butuhHash() {
         assertTrue(TgBackup.pinAktif(true, "PBKDF2$120000$aa$bb"));
         assertFalse(TgBackup.pinAktif(true, ""));

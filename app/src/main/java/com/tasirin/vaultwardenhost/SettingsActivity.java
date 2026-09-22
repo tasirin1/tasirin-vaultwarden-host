@@ -1751,7 +1751,7 @@ public class SettingsActivity extends Activity {
         btn.setText(hidden ? getString(R.string.hide) : getString(R.string.show));
     }
 
-    /** Backup Telegram otomatis saat Start (maks. sekali per 24 jam). */
+    /** Backup Telegram otomatis saat Start (sekali sehari, bila hari sudah berganti). */
     private void maybeAutoBackup() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
@@ -1764,8 +1764,8 @@ public class SettingsActivity extends Activity {
             return;
         }
         long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
-        if (System.currentTimeMillis() - last < TgBackup.TG_INTERVAL_MS) {
-            return; // backup terakhir masih kurang dari 24 jam yang lalu
+        if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
+            return; // hari ini sudah backup (jadwal tengah malam yang urus sisanya)
         }
         appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
         new Thread(() -> {

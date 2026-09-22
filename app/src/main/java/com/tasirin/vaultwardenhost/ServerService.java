@@ -305,14 +305,20 @@ public class ServerService extends Service {
             startForegroundCompat();
             new Thread(() -> {
                 try {
-                    String msg = TgBackup.backupNow(this);
-                    appendLog("[tg] " + msg);
-                    TgBackup.sendMessage(this, "Backup otomatis: " + msg);
+                    SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
+                    long last = cek.getLong(TgBackup.KEY_TG_LAST, 0);
+                    if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
+                        appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
+                    } else {
+                        String msg = TgBackup.backupNow(this);
+                        appendLog("[tg] " + msg);
+                        TgBackup.sendMessage(this, "Backup otomatis: " + msg);
+                    }
                 } catch (Exception e) {
                     appendLog("[tg] Gagal backup terjadwal: " + e);
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + e.getMessage());
                 } finally {
-                    // Jadwalkan ulang 24 jam dari sekarang (tepat waktu), selama masih aktif.
+                    // Jadwalkan ulang ke tengah malam berikutnya, selama masih aktif.
                     SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
                     TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
                     if (process == null || !alive(process)) {

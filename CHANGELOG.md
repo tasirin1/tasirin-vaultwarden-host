@@ -39,6 +39,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - **Perintah `/log` hemat**: pakai `tailLog` tanpa salinan buffer penuh.
 - **Efisiensi CPU/RAM/I-O**: kurangi alokasi dan I/O berlebih di semua modul.
 - **Runner CI dikunci** ke `ubuntu-24.04` agar bebas notice migrasi.
+- **Backup otomatis saat tanggal berganti**: jadwal Telegram tidak lagi
+  tiap 24 jam dari backup terakhir, melainkan tepat tengah malam (00:01)
+  setiap hari via alarm + siaran ganti tanggal/jam/zona; bila device mati
+  saat tengah malam, backup dikejar saat boot/Start berikutnya. Backup
+  terjadwal ganda di hari yang sama dilewati otomatis. Label toggle,
+  README, dan test (`sudahGantiHari`/`nextMidnight`) ikut diperbarui.
 - **Settings dipangkas**: tombol **Sertifikat** (cuma dialog bantuan) dan
   **Status Web** dihapus — panduan sertifikat jadi hint di bawah
   **Install Cert**; dua toggle backup Telegram digabung jadi satu
