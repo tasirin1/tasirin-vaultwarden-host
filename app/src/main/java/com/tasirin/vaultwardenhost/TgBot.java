@@ -32,6 +32,7 @@ public final class TgBot {
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
+    static final int MENU_REV = 2;
     private static final long POLL_INTERVAL_MS = 60_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
@@ -73,12 +74,17 @@ public final class TgBot {
                 {"restore", "Restore backup terakhir"},
                 {"crashlog", "Kirim crash log terakhir"},
                 {"update", "Update binary + restart"},
-                {"webvault", "Update web vault"},
+                {"webvault", "Update web vault + restart"},
                 {"start", "Start server"},
                 {"stop", "Stop server"},
                 {"restart", "Restart server"},
                 {"help", "Daftar perintah"},
         };
+    }
+
+    /** True bila pesan hasil update web-vault berarti file berubah (perlu restart). */
+    static boolean webVaultBerubah(String msg) {
+        return msg != null && msg.contains("updated");
     }
 
     /** Payload JSON setMyCommands (string manual agar bisa di-unit-test JVM). */
@@ -105,7 +111,7 @@ public final class TgBot {
         if (token.isEmpty()) {
             return;
         }
-        final int hash = token.hashCode();
+        final int hash = token.hashCode() * 31 + MENU_REV;
         if (sp.getInt(KEY_TG_MENU_HASH, 0) == hash) {
             return;
         }
@@ -345,8 +351,18 @@ public final class TgBot {
             case "/webvault":
                 runWithWakeLock(ctx, () -> {
                     try {
+                        boolean was = ServerService.running || ServerService.isProcessAlive();
                         String msg = Updater.updateWebVault(ctx);
-                        TgBackup.sendMessage(ctx, msg + " Restart server (/restart) agar berlaku.");
+                        if (webVaultBerubah(msg)) {
+                            if (was) {
+                                TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                ServerService.restart(ctx);
+                            } else {
+                                TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
+                            }
+                        } else {
+                            TgBackup.sendMessage(ctx, msg);
+                        }
                     } catch (Exception e) {
                         String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
                                 ? e.getMessage() : Updater.pesanGalatUnduh("Unduh web-vault", e);

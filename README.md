@@ -163,7 +163,7 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 | `/restore`    | Restore backup terakhir (`/restore YA` konfirmasi)   |
 | `/crashlog`   | Kirim crash log terakhir (bila ada)                 |
 | `/update`     | Update binary + restart otomatis                    |
-| `/webvault`   | Update web vault (restart manual via `/restart`)    |
+| `/webvault`   | Update web vault + restart otomatis bila server jalan |
 | `/start` `/stop` `/restart` | Kontrol server                        |
 | `/help`       | Daftar perintah                                     |
 

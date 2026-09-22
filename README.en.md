@@ -158,7 +158,7 @@ Set **Bot token** + **Chat ID** in settings, then send commands to the bot:
 | `/restore`    | Restore last backup (`/restore YA` to confirm)              |
 | `/crashlog`   | Send last crash log (if any)                                |
 | `/update`     | Update binary + auto restart                                |
-| `/webvault`   | Update web vault (manual restart via `/restart`)            |
+| `/webvault`   | Update web vault + auto restart when running                |
 | `/start` `/stop` `/restart` | Server control                            |
 | `/help`       | Command list                                                |
 

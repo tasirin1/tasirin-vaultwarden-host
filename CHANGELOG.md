@@ -15,6 +15,12 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
   @BotFather. Payload 13 perintah dibuat manual (`menuPayload`) agar bisa
   di-unit-test JVM; `README.md`/`README.en.md` diperbarui. `README.en.md`
   disinkron ulang mengikuti struktur Indonesia + CI 4 job.
+- **`/webvault` restart otomatis**: perintah bot restart server sendiri bila
+  web vault benar-benar berubah dan server sedang jalan (seperti `/update`);
+  tombol Update Web Vault di pemeliharaan ikut restart otomatis, dan restart
+  hanya terjadi bila file berubah (`webVaultBerubah`, ter-unit-test). Menu
+  bot `webvault` menjadi `Update web vault + restart` (revisi menu 2,
+  token lama daftar ulang sekali).
 - **Domain lokal**: kolom opsional **Domain lokal** di kartu Server
   (mis. `vault.lan`, boleh `host:port`/URL) — dipakai sebagai `DOMAIN`
   Vaultwarden, URL jaringan, dan tombol Salin URL; sertifikat HTTPS ikut

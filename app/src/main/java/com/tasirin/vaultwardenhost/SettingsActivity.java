@@ -209,7 +209,7 @@ public class SettingsActivity extends Activity {
                         + "otomatis saat Start berikutnya (perlu internet). Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
         installCertBtn.setOnClickListener(v -> installCertificate());
-        updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(false));
+        updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
@@ -881,7 +881,7 @@ public class SettingsActivity extends Activity {
                 toast(msg);
                 appendUiLog("[app] " + msg);
                 lastWvCheck = 0; // paksa baca ulang info versi web-vault
-                if (restartAfter && ServerService.running) {
+                if (restartAfter && ServerService.running && TgBot.webVaultBerubah(msg)) {
                     appendUiLog("[app] Restart server agar web vault berlaku...");
                     ServerService.restart(this);
                 }
