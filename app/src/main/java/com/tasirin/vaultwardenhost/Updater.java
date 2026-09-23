@@ -716,6 +716,14 @@ public final class Updater {
         File newDir = new File(dataFolder, "web-vault.new");
         deleteRecursive(newDir);
         newDir.mkdirs();
+        String kanonBasis;
+        try {
+            kanonBasis = newDir.getCanonicalPath();
+        } catch (Exception e) {
+            deleteRecursive(newDir);
+            throw new IOException("Gagal menyiapkan folder web-vault: " + e.getMessage());
+        }
+        String awalanAman = kanonBasis + File.separator;
         byte[] buf = new byte[64 * 1024];
         try {
             try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
@@ -727,6 +735,20 @@ public final class Updater {
                         continue;
                     }
                     File outFile = new File(newDir, namaEntri);
+                    // Verifikasi kanonis agar symlink/entri licik tak keluar folder.
+                    try {
+                        String kanon = outFile.getCanonicalPath();
+                        if (!kanon.equals(kanonBasis) && !kanon.startsWith(awalanAman)) {
+                            zis.closeEntry();
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        try {
+                            zis.closeEntry();
+                        } catch (Exception ignored) {
+                        }
+                        continue;
+                    }
                     if (entry.isDirectory()) {
                         outFile.mkdirs();
                     } else {

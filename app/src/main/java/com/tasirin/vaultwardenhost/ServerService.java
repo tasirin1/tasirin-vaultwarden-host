@@ -628,7 +628,10 @@ public class ServerService extends Service {
     private void stopServer() {
         if (process != null) {
             final Process p = process;
-            setStatus("Stopping...");
+            // Kosongkan dulu agar watchProcess mengabaikan exit yang disengaja
+            // (status tetap "Stopped", tidak ditimpa "Stopped (exit code...)").
+            process = null;
+            setStatus("Stopped");
             p.destroy();
             Thread stopper = new Thread(() -> {
                 try {
@@ -981,25 +984,10 @@ public class ServerService extends Service {
             }
             return;
         }
-        boolean loop = recordRestart("health " + healthFails + "/3");
-        if (!loop) {
-            TgBackup.sendMessage(this,
-                    "Server tidak sehat (" + healthFails + "/3) - restart otomatis...");
-            appendLog("[health] Restart otomatis...");
-        }
-        if (process != null) {
-            final Process p = process;
-            process = null;
-            running = false;
-            releaseWakeLock();
-            p.destroy();
-        }
-        mainHandler.post(() -> {
-            healthFails = 0;
-            if (autoRestart) {
-                startServerAsync();
-            }
-        });
+        // Toleransi: gagal 1-2x hanya dicatat, tunggu cek berikutnya.
+        // Restart/penghentian hanya setelah 3x gagal beruntun agar
+        // timeout sesaat tidak memicu restart penuh.
+        return;
     }
 
     private static javax.net.ssl.SSLSocketFactory sslFactory;
