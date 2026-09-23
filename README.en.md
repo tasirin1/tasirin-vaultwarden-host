@@ -202,8 +202,7 @@ app PIN is on (type manually, e.g. `/stop 123456`).
   **Anti-loop**: 3× restarts in 5 min → auto-restart off, status & Telegram
   notified. **Restart history** (count + last time) shows on the home screen
   and `/status`. **Crash log** (last ~100 lines) is stored in
-  `crash-last.log` (internal) on server crash/health failure. Adaptive
-  `/alive` health check.
+  `crash-last.log` (internal) on server crash/health failure. Adaptive `/alive` health check (fallback `/api/config` + TCP probe so a healthy server is not killed when DB is slow).
 - Note: if the app is **force-stopped**, Android blocks the boot broadcast
   until the app is opened once more (swiping from recents does not affect the
   service).

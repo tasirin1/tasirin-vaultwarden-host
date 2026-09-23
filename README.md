@@ -210,7 +210,7 @@ PIN aktif (ketik manual, mis. `/stop 123456`).
   tampil di layar utama dan `/status`. **Crash log** (~100 baris terakhir)
   tersimpan di `crash-last.log` (internal) saat server crash/health gagal —
   bisa dibuka lewat tombol **Crash** di layar Log (dialog + salin) atau
-  dikirim ke Telegram dengan `/crashlog`. Health check `/alive` adaptif.
+  dikirim ke Telegram dengan `/crashlog`. Health check `/alive` adaptif (fallback `/api/config` + cek TCP agar server sehat tak dibunuh saat DB lambat).
 - Catatan: jika app di-**force-stop**, Android memblokir broadcast boot sampai
   app dibuka sekali lagi (swipe dari recents tidak memengaruhi service).
 

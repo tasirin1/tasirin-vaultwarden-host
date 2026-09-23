@@ -223,31 +223,147 @@ public class ServerService extends Service {
         return t == 0 ? 0 : System.currentTimeMillis() - t;
     }
 
-    /** Cek /alive sekali tanpa efek samping; true bila sehat (HTTP 200). */
+    /** Cek sehat sekali tanpa efek samping; true bila HTTP 200 di /alive atau /api/config. */
     public static boolean pingAlive(Context ctx) {
+        return pingRinci(ctx).sehat;
+    }
+
+    /** Hasil cek sehat rinci (untuk log diagnosa tanpa bocor token). */
+    static final class HasilPing {
+        final boolean sehat;
+        final int aliveCode;
+        final int configCode;
+        final String rincian;
+        HasilPing(boolean sehat, int aliveCode, int configCode, String rincian) {
+            this.sehat = sehat;
+            this.aliveCode = aliveCode;
+            this.configCode = configCode;
+            this.rincian = rincian;
+        }
+    }
+
+    /** Sehat bila /alive atau /api/config balas 200 (murni agar bisa diuji).
+     *  /alive butuh DB (DbConn) sehingga di STB lambat bisa timeout/500
+     *  sementara /api/config tetap 200 — server seperti itu tetap sehat. */
+    static boolean sehatDariKode(int aliveCode, int configCode) {
+        return aliveCode == 200 || configCode == 200;
+    }
+
+    /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200. */
+    static HasilPing pingRinci(Context ctx) {
+        boolean https;
+        String port;
+        try {
+            if (!runningPort.isEmpty()) {
+                https = runningHttps;
+                port = runningPort;
+            } else {
+                SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                https = sp.getBoolean(KEY_HTTPS, false);
+                port = effectivePort(sp);
+            }
+        } catch (Exception e) {
+            return new HasilPing(false, -1, -1, "baca prefs gagal");
+        }
+        String scheme = https ? "https" : "http";
+        String p = port == null ? "" : port.trim();
+        int alive = cobaKode(ctx, scheme, p, "/alive", https);
+        String aliveErr = aliveErrTerakhir;
+        int config = -1;
+        String configErr = "";
+        // /alive butuh DB; fallback ringan /api/config memastikan server
+        // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
+        if (alive != 200) {
+            config = cobaKode(ctx, scheme, p, "/api/config", https);
+            configErr = aliveErrTerakhir;
+        } else {
+            config = -2;
+        }
+        boolean sehat = sehatDariKode(alive, config);
+        String rincian;
+        if (sehat) {
+            rincian = alive == 200 ? "alive 200" : "config 200 (alive " + ringkasKode(alive, aliveErr) + ")";
+        } else {
+            rincian = "alive " + ringkasKode(alive, aliveErr)
+                    + ", config " + ringkasKode(config, configErr);
+        }
+        return new HasilPing(sehat, alive, config, rincian);
+    }
+
+    private static volatile String aliveErrTerakhir = "";
+
+    /** Satu request GET loopback; balas kode HTTP atau -1 bila gagal jaring/TLS. */
+    private static int cobaKode(Context ctx, String scheme, String port, String path, boolean https) {
         HttpURLConnection c = null;
         try {
-            SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            boolean https = sp.getBoolean(KEY_HTTPS, false);
-            String port = effectivePort(sp);
-            String scheme = https ? "https" : "http";
+            aliveErrTerakhir = "";
             c = (HttpURLConnection) new URL(
-                    scheme + "://127.0.0.1:" + port.trim() + "/alive").openConnection();
-            c.setConnectTimeout(5000);
-            c.setReadTimeout(5000);
+                    scheme + "://127.0.0.1:" + port + path).openConnection();
+            c.setConnectTimeout(8000);
+            c.setReadTimeout(8000);
             if (https) {
                 HttpsURLConnection hc = (HttpsURLConnection) c;
                 hc.setSSLSocketFactory(loopbackSslFactory(ctx));
                 hc.setHostnameVerifier((host, session) ->
                         "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host));
             }
-            return c.getResponseCode() == 200;
+            return c.getResponseCode();
         } catch (Exception e) {
-            return false;
+            String m = e.getClass().getSimpleName();
+            String msg = e.getMessage();
+            if (msg != null && !msg.isEmpty() && msg.length() > 80) {
+                msg = msg.substring(0, 80);
+            }
+            aliveErrTerakhir = msg == null || msg.isEmpty() ? m : m + ": " + msg;
+            return -1;
         } finally {
             if (c != null) {
                 c.disconnect();
             }
+        }
+    }
+
+    /** Ringkas kode + pesan error untuk log (tanpa token, tanpa stacktrace). Murni. */
+    static String ringkasKode(int code, String err) {
+        if (code > 0) {
+            return String.valueOf(code);
+        }
+        if (code == -2) {
+            return "dilewati";
+        }
+        return err == null || err.isEmpty() ? "tak tersambung" : "tak tersambung (" + err + ")";
+    }
+
+    /** TCP loopback ke port utama; true bila port masih menerima koneksi. */
+    static boolean tcpTersambung(int portNum) {
+        if (portNum < 1 || portNum > 65535) {
+            return false;
+        }
+        java.net.Socket s = null;
+        try {
+            s = new java.net.Socket();
+            s.connect(new InetSocketAddress("127.0.0.1", portNum), 3000);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    /** Port loopback yang sedang dipakai (running dulu, fallback prefs). */
+    int portLoopback() {
+        try {
+            String p = !runningPort.isEmpty() ? runningPort
+                    : effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
+            return Integer.parseInt(p.trim());
+        } catch (Exception e) {
+            return -1;
         }
     }
 
@@ -973,17 +1089,29 @@ public class ServerService extends Service {
     // ─── Health check (/alive) ─────────────────────────────────────────
 
     private void checkHealthOnce() {
-        if (pingAlive(this)) {
+        HasilPing h = pingRinci(this);
+        if (h.sehat) {
             healthFails = 0;
             return;
         }
-        healthFail("tidak merespon /alive");
+        healthFail("tidak merespon (" + h.rincian + ")");
     }
 
     private void healthFail(String reason) {
         healthFails++;
         appendLog("[health] /alive gagal: " + reason + " (ke-" + healthFails + "/3)");
         if (healthFails >= 3) {
+            // Pengaman positif-palsu: /alive butuh DB sehingga di STB lambat
+            // bisa gagal sementara server tetap melayani (/api/config 200 di log).
+            // Bila proses hidup dan port masih menerima TCP, jangan bunuh server.
+            boolean prosesHidup = process != null && alive(process);
+            boolean tcpOk = tcpTersambung(portLoopback());
+            if (prosesHidup && tcpOk) {
+                appendLog("[health] 3x gagal tapi port masih tersambung"
+                        + " - server TIDAK dihentikan, coba lagi.");
+                healthFails = 2;
+                return;
+            }
             autoRestart = false;
             setStatus("Server tidak sehat - berhenti.");
             appendLog("[health] 3x gagal beruntun - server dihentikan.");
@@ -1042,12 +1170,14 @@ public class ServerService extends Service {
     private static javax.net.ssl.SSLSocketFactory cobaPinnedCa(Context ctx) {
         try {
             if (ctx == null) return null;
-            android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
-            if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
-            java.io.File ca = new java.io.File(dataDir, "tls/ca.pem");
+            // Cert aktif tinggal di internal (migrasi dari /sdcard); cek internal
+            // dulu agar CA sesuai cert yang dipakai Rocket, baru fallback lama.
+            java.io.File ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
             if (!ca.isFile()) {
-                ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
+                android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
+                ca = new java.io.File(dataDir, "tls/ca.pem");
             }
             if (!ca.isFile()) return null;
             java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");

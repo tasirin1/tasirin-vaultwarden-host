@@ -130,4 +130,29 @@ public class ServerServiceTest {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));
     }
+
+    @Test
+    public void sehatBilaAliveAtauConfig200() {
+        assertTrue(ServerService.sehatDariKode(200, -1));
+        assertTrue(ServerService.sehatDariKode(500, 200));
+        assertTrue(ServerService.sehatDariKode(-1, 200));
+        assertTrue(ServerService.sehatDariKode(200, 200));
+    }
+
+    @Test
+    public void tidakSehatBilaKeduanyaGagal() {
+        assertFalse(ServerService.sehatDariKode(-1, -1));
+        assertFalse(ServerService.sehatDariKode(500, 500));
+        assertFalse(ServerService.sehatDariKode(500, -1));
+        assertFalse(ServerService.sehatDariKode(-1, 500));
+    }
+
+    @Test
+    public void ringkasKodeTampilKodeAtauAlasan() {
+        assertEquals("200", ServerService.ringkasKode(200, ""));
+        assertEquals("500", ServerService.ringkasKode(500, "x"));
+        assertEquals("dilewati", ServerService.ringkasKode(-2, ""));
+        assertTrue(ServerService.ringkasKode(-1, "").contains("tak tersambung"));
+        assertTrue(ServerService.ringkasKode(-1, "SSLHandshakeException").contains("SSLHandshakeException"));
+    }
 }
