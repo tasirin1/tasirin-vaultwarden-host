@@ -380,24 +380,60 @@ jobs:
           sha256sum libgetrandom-shim-armeabi-v7a.so > libgetrandom-shim-armeabi-v7a.so.sha256
           sha256sum web-vault.zip > web-vault.zip.sha256
           ls -lh tasirin-*.apk vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip
+          TAG="v${{ needs.resolve.outputs.vw }}"
           # Timpa asset tanpa hapus rilis: penghapus + buat ulang menciptakan
           # jendela 404 bagi app yang sedang update di saat bersamaan.
-          gh release view "v${{ needs.resolve.outputs.vw }}" >/dev/null 2>&1 || \
-            gh release create "v${{ needs.resolve.outputs.vw }}" \
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" \
               --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault."
-          # Hapus asset lama satu per satu (abaikan yang tak ada), baru unggah.
-          # Langsung timpa (--clobber) balapan hapus+unggah dan gagal 422.
-          # Hapus asset lama satu per satu (abaikan yang tak ada), lalu unggah
-          # SATU PER SATU sekuensial: unggah multi-file gh berjalan konkuren
-          # dan tabrakan nama (422), begitu pula --clobber.
+          # Unggah andal per asset, SATU PER SATU sekuensial (unggah multi-file
+          # gh berjalan konkuren dan tabrakan nama → 422).
+          # Hapus duplikat BERDASARKAN ID via REST API: pencocokan nama
+          # 'gh release delete-asset' kadang lapor 'not found' padahal asset
+          # masih ada, lalu unggahan langsung gagal 422 'already exists'.
+          # Setiap unggahan dicoba ulang dengan jeda karena API GitHub kadang
+          # butuh waktu hingga penghapusan terlihat di endpoint unggah.
+          unggah_asset() {
+            berkas="$1"
+            percobaan=1
+            while [ "$percobaan" -le 6 ]; do
+              for id in $(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
+                  --jq '.assets[] | select(.name=="'"$berkas"'") | .id' 2>/dev/null); do
+                gh api -X DELETE \
+                  "repos/$GITHUB_REPOSITORY/releases/assets/$id" >/dev/null 2>&1 || true
+              done
+              sleep 5
+              if gh release upload "$TAG" "$berkas" 2>"$berkas.gagal.log"; then
+                rm -f "$berkas.gagal.log"
+                return 0
+              fi
+              if ! grep -q "already exists" "$berkas.gagal.log"; then
+                cat "$berkas.gagal.log"
+                return 1
+              fi
+              echo "percobaan $percobaan: $berkas masih 'already exists', tunggu 15 dtk..."
+              sleep 15
+              percobaan=$((percobaan + 1))
+            done
+            cat "$berkas.gagal.log"
+            return 1
+          }
           for a in tasirin-vaultwarden-host-armeabi-v7a.apk \
               vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
               libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
               web-vault.zip web-vault.zip.sha256; do
-            gh release delete-asset "v${{ needs.resolve.outputs.vw }}" "$a" --yes || true
-            gh release upload "v${{ needs.resolve.outputs.vw }}" "$a"
+            unggah_asset "$a"
           done
+          # Verifikasi akhir: rilis wajib berisi 7 asset (coba ulang karena
+          # daftar asset API kadang basi sesaat setelah unggah).
+          for t in 1 2 3; do
+            JUMLAH=$(gh release view "$TAG" --json assets -q '.assets | length')
+            echo "Jumlah asset di $TAG: $JUMLAH (cek $t/3)"
+            [ "$JUMLAH" -eq 7 ] && break
+            sleep 10
+          done
+          test "$JUMLAH" -eq 7
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
