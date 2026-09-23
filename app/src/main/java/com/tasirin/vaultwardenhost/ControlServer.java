@@ -125,6 +125,9 @@ public final class ControlServer {
             conns.decrementAndGet();
             return;
         }
+        // Scope method (bukan dalam try): dipakai finally untuk tahu
+        // socket diserahkan ke thread SSE atau harus ditutup di sini.
+        boolean serahkan = false;
         try {
             s.setSoTimeout(8000);
             BufferedReader in = new BufferedReader(
@@ -179,7 +182,6 @@ public final class ControlServer {
             }
             // SSE hidup berjam-jam: serahkan ke thread khusus agar tak
             // menghabiskan pool (3 SSE + polling 2 dtk = pool 6 macet).
-            boolean serahkan = false;
             switch (path) {
                 case "/api/status":
                     respond(s, 200, "application/json; charset=utf-8", statusJson());
