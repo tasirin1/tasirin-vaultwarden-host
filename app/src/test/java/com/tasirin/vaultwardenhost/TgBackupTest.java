@@ -34,7 +34,8 @@ public class TgBackupTest {
         File lama = File.createTempFile("ca-lama", ".pem");
         assertEquals(internal, TgBackup.caAktif(internal, lama));
         assertEquals(lama, TgBackup.caAktif(new File("/tidak/ada/ca.pem"), lama));
-        assertEquals(new File("/tidak/ada/ca.pem"),
+        // Keduanya tak ada: kembalikan fallback agar pemanggil bisa lapor galat jelas.
+        assertEquals(new File("/tidak/ada/juga.pem"),
                 TgBackup.caAktif(new File("/tidak/ada/ca.pem"), new File("/tidak/ada/juga.pem")));
         internal.delete();
         lama.delete();
