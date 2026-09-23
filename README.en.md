@@ -156,6 +156,7 @@ Set **Bot token** + **Chat ID** in settings, then send commands to the bot:
 | `/alive`      | Health check via HTTP `/alive`                              |
 | `/backup`     | Back up the database now (encrypted)                        |
 | `/restore`    | Restore last backup (`/restore YA` to confirm)              |
+| `/ca`         | Send active HTTPS CA (`ca.pem`) to this chat — forward to another phone then install as CA |
 | `/crashlog`   | Send last crash log (if any)                                |
 | `/update`     | Update binary + auto restart                                |
 | `/webvault`   | Update web vault + auto restart when running                |
@@ -220,9 +221,10 @@ app PIN is on (type manually, e.g. `/stop 123456`).
   update that regenerates the CA (e.g. cert version bump): if it **used to
   work then fails**, remove the old CA on the phone and reinstall the new one.
 - **Transfer to another phone**: on the server phone tap **Share CA (Bagikan CA)**
-  and send it via Bluetooth/WhatsApp/Telegram; on the target phone save the file
-  then install it as a CA certificate. **Install Cert** only installs on the
-  server phone itself.
+  and send it via Bluetooth/WhatsApp/Telegram, or send the Telegram command
+  **`/ca`** to the bot (file arrives in chat, forward it to the other phone);
+  on the target phone save the file then install it as a CA certificate.
+  **Install Cert** only installs on the server phone itself.
 - The official **Bitwarden** app usually rejects self-signed certs — for
   non-web-vault clients prefer HTTP on a trusted local network.
 

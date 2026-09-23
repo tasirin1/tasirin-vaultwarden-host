@@ -6,6 +6,14 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Perintah Telegram /ca kirim CA
+
+### Ditambahkan
+- Perintah bot **`/ca`**: mengirim CA HTTPS aktif (`ca.pem` publik, tanpa
+  kunci privat, tanpa PIN seperti `/status`) ke chat Telegram resmi — teruskan
+  file-nya ke HP lain lalu install sebagai CA certificate. Menu `/` (revisi 3)
+  + tombol inline + `/help` diperbarui; cakupan unit test ikut (14 perintah).
+
 ## [Belum rilis] — Tombol Bagikan CA ke HP lain
 
 ### Ditambahkan

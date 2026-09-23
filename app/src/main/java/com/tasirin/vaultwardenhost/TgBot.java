@@ -32,7 +32,7 @@ public final class TgBot {
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
-    static final int MENU_REV = 2;
+    static final int MENU_REV = 3;
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
@@ -81,6 +81,7 @@ public final class TgBot {
                 {"alive", "Cek sehat HTTP /alive"},
                 {"backup", "Backup database sekarang"},
                 {"restore", "Restore backup terakhir"},
+                {"ca", "Kirim CA HTTPS ke chat ini"},
                 {"crashlog", "Kirim crash log terakhir"},
                 {"update", "Update binary + restart"},
                 {"webvault", "Update web vault + restart"},
@@ -258,7 +259,7 @@ public final class TgBot {
                 {"Crash log", "/crashlog"}, {"Update", "/update"},
                 {"Web vault", "/webvault"}, {"Start", "/start"},
                 {"Stop", "/stop"}, {"Restart", "/restart"},
-                {"Bantuan", "/help"},
+                {"Bantuan", "/help"}, {"CA", "/ca"},
         };
         StringBuilder sb = new StringBuilder("{\"inline_keyboard\":[");
         for (int i = 0; i < tombol.length; i += 2) {
@@ -442,6 +443,16 @@ public final class TgBot {
                     TgBackup.sendMessage(ctx, restoreInfoText(ctx));
                 }
                 break;
+            case "/ca":
+                // CA publik (tanpa kunci privat): tanpa PIN seperti /status.
+                runWithWakeLock(ctx, () -> {
+                    try {
+                        TgBackup.sendMessage(ctx, TgBackup.kirimCa(ctx));
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Kirim CA gagal: " + e.getMessage());
+                    }
+                });
+                break;
             case "/status":
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
@@ -535,7 +546,7 @@ public final class TgBot {
                 }
                 break;
             case "/help":
-                TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore\n"
+                TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
                         + "/crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
                         + "Bila PIN app aktif, /start /stop /restart /backup /log /crashlog /update /webvault /restore wajib diakhiri PIN"

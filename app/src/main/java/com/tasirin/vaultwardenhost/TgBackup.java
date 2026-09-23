@@ -573,6 +573,40 @@ public final class TgBackup {
         }
     }
 
+    /** Pilih file CA aktif: internal dulu, arsip folder data hanya fallback.
+     *  Murni agar bisa unit test JVM. */
+    static File caAktif(File internal, File lama) {
+        if (internal != null && internal.isFile()) {
+            return internal;
+        }
+        return lama;
+    }
+
+    /** Kirim CA HTTPS aktif (ca.pem publik, tanpa kunci privat) ke chat Telegram
+     *  resmi. Di HP tujuan: simpan lalu install sebagai “CA certificate”. */
+    public static String kirimCa(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String token = sp.getString(KEY_TG_TOKEN, "").trim();
+        String chat = sp.getString(KEY_TG_CHAT, "").trim();
+        if (token.isEmpty() || chat.isEmpty()) {
+            throw new IOException("Bot token / chat ID belum diisi.");
+        }
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                ServerService.DEFAULT_DATA_DIR);
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = ServerService.DEFAULT_DATA_DIR;
+        }
+        File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
+                new File(dataDir, "tls/ca.pem"));
+        if (ca == null || !ca.isFile()) {
+            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+        }
+        uploadTelegram(ctx, token, chat, ca);
+        return "CA terkirim (ca.pem). Di HP tujuan: simpan lalu install"
+                + " sebagai CA certificate (tanpa private key).";
+    }
+
     private static String uploadTelegram(Context ctx, String token, String chatId, File file)
             throws Exception {
         HttpURLConnection conn = null;

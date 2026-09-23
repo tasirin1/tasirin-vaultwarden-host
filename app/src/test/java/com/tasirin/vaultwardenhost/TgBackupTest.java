@@ -29,6 +29,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void caAktif_utamakanInternal() throws Exception {
+        File internal = File.createTempFile("ca-internal", ".pem");
+        File lama = File.createTempFile("ca-lama", ".pem");
+        assertEquals(internal, TgBackup.caAktif(internal, lama));
+        assertEquals(lama, TgBackup.caAktif(new File("/tidak/ada/ca.pem"), lama));
+        assertEquals(new File("/tidak/ada/ca.pem"),
+                TgBackup.caAktif(new File("/tidak/ada/ca.pem"), new File("/tidak/ada/juga.pem")));
+        internal.delete();
+        lama.delete();
+    }
+
+    @Test
     public void dbSiap_butuhFileBerisiDanBerheader() throws Exception {
         assertFalse(TgBackup.dbSiap(null));
         assertFalse(TgBackup.dbSiap(new File("/tidak/ada/db.sqlite3")));

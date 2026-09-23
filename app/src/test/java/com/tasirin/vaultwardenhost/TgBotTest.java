@@ -34,11 +34,11 @@ public class TgBotTest {
         String json = TgBot.menuPayload();
         assertTrue(json.startsWith("{\"commands\":["));
         for (String c : new String[]{"status", "log", "uptime", "alive", "backup",
-                "restore", "crashlog", "update", "webvault", "start", "stop",
+                "restore", "ca", "crashlog", "update", "webvault", "start", "stop",
                 "restart", "help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
-        assertEquals(13, TgBot.daftarPerintahMenu().length);
+        assertEquals(14, TgBot.daftarPerintahMenu().length);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class TgBotTest {
         String json = TgBot.keyboardPerintah();
         assertTrue(json.startsWith("{\"inline_keyboard\":["));
         for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
-                "/restore", "/crashlog", "/update", "/webvault", "/start", "/stop",
+                "/restore", "/ca", "/crashlog", "/update", "/webvault", "/start", "/stop",
                 "/restart", "/help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
@@ -64,6 +64,7 @@ public class TgBotTest {
     @Test
     public void callbackDataValid_hanyaPerintahDikenal() {
         assertTrue(TgBot.callbackDataValid("/status"));
+        assertTrue(TgBot.callbackDataValid("/ca"));
         assertTrue(TgBot.callbackDataValid("/stop 123456"));
         assertFalse(TgBot.callbackDataValid("/hapus"));
         assertFalse(TgBot.callbackDataValid("status"));

@@ -161,6 +161,7 @@ Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
 | `/alive`      | Cek sehat via HTTP `/alive`                         |
 | `/backup`     | Backup database sekarang (terenkripsi)              |
 | `/restore`    | Restore backup terakhir (`/restore YA` konfirmasi)   |
+| `/ca`         | Kirim CA HTTPS aktif (`ca.pem`) ke chat ini — teruskan ke HP lain lalu install sebagai CA |
 | `/crashlog`   | Kirim crash log terakhir (bila ada)                 |
 | `/update`     | Update binary + restart otomatis                    |
 | `/webvault`   | Update web vault + restart otomatis bila server jalan |
@@ -228,9 +229,10 @@ PIN aktif (ketik manual, mis. `/stop 123456`).
   yang regenerasi CA (mis. versi cert naik): bila **dulu bisa lalu gagal**,
   hapus CA lama di HP lalu install ulang CA baru.
 - **Transfer ke HP lain**: di HP server tekan **Bagikan CA (ke HP lain)**
-  lalu kirim via Bluetooth/WhatsApp/Telegram; di HP tujuan simpan file-nya
-  lalu install sebagai CA certificate. Tombol **Install Cert** hanya memasang
-  di HP server itu sendiri.
+  lalu kirim via Bluetooth/WhatsApp/Telegram, atau kirim perintah Telegram
+  **`/ca`** ke bot (file terkirim ke chat, teruskan ke HP lain); di HP tujuan
+  simpan file-nya lalu install sebagai CA certificate. Tombol **Install Cert**
+  hanya memasang di HP server itu sendiri.
 - App **Bitwarden** resmi umumnya menolak self-signed — untuk klien non-web
   vault sebaiknya pakai HTTP di jaringan lokal yang tepercaya.
 
