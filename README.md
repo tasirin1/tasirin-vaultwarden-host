@@ -221,10 +221,12 @@ PIN aktif (ketik manual, mis. `/stop 123456`).
   RSA 2048, 5 tahun, dibuat ulang otomatis saat IP berubah). Layar menampilkan
   sisa hari berlaku.
 - Browser menampilkan peringatan self-signed; hilangkan dengan install
-  `ca.pem` (bukan `cert.pem`) sebagai CA di HP lain: salin `tls/ca.pem`,
-  lalu Settings → Security → Install CA certificate (tanpa private key).
-  CA stabil walau IP berubah, jadi cukup install sekali. `key.pem` dan
-  `ca-key.pem` milik server, jangan disebar.
+  `ca.pem` (bukan `cert.pem`) sebagai CA di HP lain: tekan **Install Cert**
+  di Settings → Security → Install CA certificate (tanpa private key).
+  CA aktif ada di internal app (folder data lama hanya arsip). CA stabil
+  walau IP berubah, jadi cukup install sekali — kecuali setelah update
+  yang regenerasi CA (mis. versi cert naik): bila **dulu bisa lalu gagal**,
+  hapus CA lama di HP lalu install ulang CA baru.
 - App **Bitwarden** resmi umumnya menolak self-signed — untuk klien non-web
   vault sebaiknya pakai HTTP di jaringan lokal yang tepercaya.
 

@@ -694,11 +694,16 @@ public class SettingsActivity extends Activity {
     /** Buka installer sertifikat Android langsung dalam mode CA (tanpa pilih manual). */
     private void installCertificate() {
         try {
-            String dataDir = dataDirInput.getText().toString().trim();
-            if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
+            // CA aktif ada di internal (getFilesDir/tls) sejak migrasi TLS internal;
+            // folder data lama (/sdcard) hanya fallback agar tombol tetap jalan.
+            File cert = new File(getFilesDir(), "tls/ca.pem");
+            if (!cert.exists()) {
+                String dataDir = dataDirInput.getText().toString().trim();
+                if (TextUtils.isEmpty(dataDir)) {
+                    dataDir = DEFAULT_DATA_DIR;
+                }
+                cert = new File(dataDir, "tls/ca.pem");
             }
-            File cert = new File(dataDir, "tls/ca.pem");
             if (!cert.exists()) {
                 toast("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
                 return;
@@ -1595,9 +1600,13 @@ public class SettingsActivity extends Activity {
 
     private String certInfoLineInner() {
         try {
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-            File cert = new File(dataDir, "tls/cert.pem");
+            // Cert aktif di internal; folder data lama hanya fallback.
+            File cert = new File(getFilesDir(), "tls/cert.pem");
+            if (!cert.exists()) {
+                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                cert = new File(dataDir, "tls/cert.pem");
+            }
             if (!cert.exists()) {
                 return "";
             }

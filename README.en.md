@@ -214,8 +214,11 @@ app PIN is on (type manually, e.g. `/stop 123456`).
   RSA 2048, 5 years, auto-regenerated when the IP changes).
 - Browsers show a self-signed warning; silence it by installing `ca.pem`
   (not `cert.pem`) as a CA on other phones: copy `tls/ca.pem`, then
-  Settings → Security → Install CA certificate (no private key). The CA is
-  stable across IP changes, so install once.
+  Settings → Security → Install CA certificate (no private key). The active
+  CA lives in the app internal storage (old data folder is only an archive).
+  The CA is stable across IP changes, so install once — except after an
+  update that regenerates the CA (e.g. cert version bump): if it **used to
+  work then fails**, remove the old CA on the phone and reinstall the new one.
 - The official **Bitwarden** app usually rejects self-signed certs — for
   non-web-vault clients prefer HTTP on a trusted local network.
 

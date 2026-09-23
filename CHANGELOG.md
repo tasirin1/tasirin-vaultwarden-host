@@ -6,6 +6,17 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Perbaiki Install Cert menunjuk CA lama
+
+### Perbaikan
+- Tombol **Install Cert** dan info masa berlaku cert kini membaca CA/cert aktif
+  di internal (`getFilesDir/tls`), bukan arsip `/sdcard` — bila **dulu bisa
+  login lalu gagal** setelah update (regenerasi CA versi 5→6) atau migrasi TLS
+  internal, hapus CA lama di HP lalu install ulang CA baru via tombol tersebut.
+- Hint sertifikat dan README diperjelas: lokasi CA aktif, kapan wajib install
+  ulang, dan aplikasi Bitwarden resmi yang menolak self-signed (pakai HTTP
+  di LAN tepercaya atau web-vault browser).
+
 ## [Belum rilis] — Health check toleran DB lambat
 
 ### Perbaikan

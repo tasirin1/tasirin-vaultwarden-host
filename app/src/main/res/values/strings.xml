@@ -91,7 +91,7 @@
     <string name="sub_tg_kredensial">Kredensial bot</string>
     <string name="sub_tg_otomatis">Backup otomatis</string>
     <string name="sub_tg_aksi">Aksi</string>
-    <string name="cert_hint">File: tls/ca.pem di folder data untuk dipasang di HP lain (pilih jenis “CA certificate”, tanpa private key). cert.pem/key.pem/ca-key.pem milik server, jangan disebar. CA awet walau IP berubah.</string>
+    <string name="cert_hint">Tombol Install Cert membagikan CA aktif (internal). Pilih jenis “CA certificate”, tanpa private key. Bila dulu bisa lalu gagal setelah update/IP berubah: hapus CA lama di HP lalu install ulang CA baru. Aplikasi Bitwarden resmi umumnya menolak self-signed — pakai HTTP di LAN tepercaya atau web-vault browser.</string>
     <string name="no_admin_token_warn">Tanpa Admin Token, status &amp; log bisa dibaca perangkat lain di jaringan.</string>
     <string name="log_hint">Lihat, cari, dan simpan log server di layar penuh.</string>
 
