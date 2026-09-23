@@ -1587,7 +1587,7 @@ public class ServerService extends Service {
                 return;
             }
             for (String nama : new String[]{"ca.pem", "ca-key.pem", "cert.pem",
-                    "key.pem", "ips.txt"}) {
+                    "key.pem", "ips.txt", "version.txt"}) {
                 File asal = new File(lama, nama);
                 File tujuan = new File(baru, nama);
                 if (asal.isFile() && !tujuan.isFile()) {
