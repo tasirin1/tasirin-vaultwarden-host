@@ -22,7 +22,22 @@ public class FileShareProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        return null;
+        try {
+            String path = uri.getPath();
+            File f = path == null ? null : new File(path);
+            if (f == null || !f.isFile()) {
+                return null;
+            }
+            if (!isShareable(f.getCanonicalPath())) {
+                return null;
+            }
+            android.database.MatrixCursor c = new android.database.MatrixCursor(
+                    new String[]{"_display_name", "_size"});
+            c.addRow(new Object[]{f.getName(), f.length()});
+            return c;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

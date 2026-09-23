@@ -49,6 +49,7 @@ public class LogActivity extends Activity {
     private boolean logAutoScroll = false;
     private String lastLogKey = null;
     private int lastLogLen = 0;
+    private long lastLogVer = -1;
     private int lineCount = 0;
 
     @Override
@@ -80,6 +81,7 @@ public class LogActivity extends Activity {
         clearBtn.setOnClickListener(v -> {
             ServerService.clearLog();
             lastLogKey = null;
+            lastLogVer = -1;
             refreshLog();
         });
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -120,19 +122,22 @@ public class LogActivity extends Activity {
     private void refreshLog() {
         // Salinan 300 KB hanya dibuat bila panjang berubah (hampir selalu sama
         // antar refresh tiap detik); sebelumnya menyalin dulu baru membandingkan.
+        long ver = ServerService.logVersion();
         int len = ServerService.logLength();
-        if (len < lastLogLen) {
+        if (len < lastLogLen || ver < lastLogVer) {
             // Log terpotong (trim buffer) - hitung ulang dari awal.
             lineCount = 0;
             lastLogLen = 0;
+            lastLogVer = ver;
         }
         // Konten log append-only (trim hanya memendekkan) - panjang cukup sebagai
         // penanda perubahan, tanpa perlu menyalin/membandingkan teks 300 KB tiap detik.
-        String key = len + "\u0000" + logSearch;
+        String key = ver + "\u0000" + len + "\u0000" + logSearch;
         if (key.equals(lastLogKey)) {
             return;
         }
         lastLogKey = key;
+        lastLogVer = ver;
         String text;
         synchronized (ServerService.logBuffer) {
             text = ServerService.logBuffer.toString();
@@ -252,9 +257,12 @@ public class LogActivity extends Activity {
         if (log == null) {
             return "";
         }
-        // Samarkan nilai token di query (?token=...) agar tak ikut
-        // terbagi ke app lain via ACTION_SEND / clipboard.
-        return log.replaceAll("(?i)(token=)[^&\\s\\]]+", "$1***");
+        // Samarkan token, chat_id, dan token bot agar tak bocor via bagi/clipboard.
+        String r = log;
+        r = r.replaceAll("(?i)(token=)[^&\\s\\]]+", "$1***");
+        r = r.replaceAll("(?i)(chat_id=)[^&\\s\\]]+", "$1***");
+        r = r.replaceAll("bot\\d+:[A-Za-z0-9_-]{10,}", "bot***:***");
+        return r;
     }
 
     private void shareLog() {

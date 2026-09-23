@@ -63,27 +63,50 @@ public final class Updater {
     }
 
     /** Buka koneksi HTTPS ke GitHub yang ramah Android 5/6
-     *  (TLS 1.2 + trust anchor tambahan + User-Agent). */
+     *  (TLS 1.2 + trust anchor tambahan + User-Agent).
+     *  Redirect hanya diikuti bila tetap https (cegah downgrade ke http). */
     private static HttpURLConnection open(Context ctx, String url,
                                           int connectMs, int readMs) throws Exception {
-        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        c.setConnectTimeout(connectMs);
-        c.setReadTimeout(readMs);
-        c.setInstanceFollowRedirects(true);
-        c.setRequestProperty("User-Agent",
-                "Mozilla/5.0 (Linux; Android) TasirinVaultwardenHost");
-        HttpsCompat.apply(c, ctx);
-        return c;
+        return bukaIkutiRedirect(ctx, url, connectMs, readMs, 0);
     }
 
-    /** Buka koneksi unduh; tambah header Range bila melanjutkan file terputus. */
+    /** Buka koneksi unduh; tambah header Range bila melanjutkan file terputus.
+     *  Range dipasang sebelum connect agar resume tetap jalan (header sesudah
+     *  getResponseCode tak berpengaruh). Redirect bawa ulang header Range. */
     private static HttpURLConnection openRange(Context ctx, String url, long resumeFrom,
                                                int connectMs, int readMs) throws Exception {
-        HttpURLConnection c = open(ctx, url, connectMs, readMs);
-        if (resumeFrom > 0) {
-            c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
+        return bukaIkutiRedirect(ctx, url, connectMs, readMs, resumeFrom);
+    }
+
+    /** Ikuti redirect manual maks 5x, hanya ke https (cegah downgrade http). */
+    private static HttpURLConnection bukaIkutiRedirect(Context ctx, String url,
+            int connectMs, int readMs, long resumeFrom) throws Exception {
+        String kini = url;
+        for (int i = 0; i < 5; i++) {
+            HttpURLConnection c = (HttpURLConnection) new URL(kini).openConnection();
+            c.setConnectTimeout(connectMs);
+            c.setReadTimeout(readMs);
+            c.setInstanceFollowRedirects(false);
+            c.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Linux; Android) TasirinVaultwardenHost");
+            if (resumeFrom > 0) {
+                c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
+            }
+            HttpsCompat.apply(c, ctx);
+            int kode = c.getResponseCode();
+            if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
+                String lok = c.getHeaderField("Location");
+                c.disconnect();
+                if (lok == null || lok.isEmpty()
+                        || !Util.bolehIkutiRedirect(kini, lok)) {
+                    throw new IOException("Redirect tidak aman/ditolak: " + lok);
+                }
+                kini = Util.sambungRedirect(kini, lok);
+                continue;
+            }
+            return c;
         }
-        return c;
+        throw new IOException("Terlalu banyak redirect.");
     }
 
     /** Saran perbaikan koneksi (Bahasa Indonesia) berdasarkan jenis galat. */
@@ -725,6 +748,8 @@ public final class Updater {
         }
         String awalanAman = kanonBasis + File.separator;
         byte[] buf = new byte[64 * 1024];
+        long totalUnzip = 0;
+        int jumlahEntri = 0;
         try {
             try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
                 ZipEntry entry;
@@ -749,6 +774,7 @@ public final class Updater {
                         }
                         continue;
                     }
+                    jumlahEntri++;
                     if (entry.isDirectory()) {
                         outFile.mkdirs();
                     } else {
@@ -759,6 +785,9 @@ public final class Updater {
                         try (FileOutputStream fos = new FileOutputStream(outFile)) {
                             int n;
                             while ((n = zis.read(buf)) > 0) {
+                                totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
+                                        Util.BATAS_UNZIP_WEBVAULT, jumlahEntri,
+                                        Util.BATAS_JUMLAH_ENTRI);
                                 fos.write(buf, 0, n);
                             }
                         }

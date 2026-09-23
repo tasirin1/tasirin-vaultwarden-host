@@ -182,7 +182,7 @@ public final class TgBot {
                 return;
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
-            long chatId = parseChatId(chat);
+            String chatResmi = chat.trim();
             // POST (bukan GET): token bot tidak bocor ke log URL/proxy.
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
                     "offset=" + offset + "&timeout=15&limit=10");
@@ -214,14 +214,15 @@ public final class TgBot {
                             if (c == null) {
                                 continue;
                             }
-                            // Hanya layani chat yang dikonfigurasi di pengaturan
-                            // (banding long tanpa alokasi string per pesan).
-                            if (chatId != Long.MIN_VALUE && c.optLong("id", -1) == chatId) {
+                            // Hanya layani chat resmi (ID numerik atau @username).
+                            String namaUser = c.optString("username", "");
+                            if (Util.cocokChat(chatResmi, c.optLong("id", -1), namaUser)) {
                                 // Perintah basi (>5 mnt, mis. /stop tertunda saat bot
                                 // offline) wajib diabaikan; offset tetap maju.
+                                // Pesan masa depan (jam STB lambat) jangan dibuang.
                                 long dateMs = msg.optLong("date", 0) * 1000L;
-                                if (dateMs > 0 && System.currentTimeMillis() - dateMs
-                                        > STALE_MSG_MS) {
+                                if (!Util.pesanSegar(dateMs, System.currentTimeMillis(),
+                                        STALE_MSG_MS)) {
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
@@ -313,11 +314,14 @@ public final class TgBot {
                     dari = String.valueOf(pengirim.optLong("id", -1));
                 }
             }
-            if (!chatResmi.equals(dari)) {
+            String namaRuang = ruang != null ? ruang.optString("username", "") : "";
+            if (!Util.cocokChat(chatResmi, ruang != null ? ruang.optLong("id", -1) : -1,
+                    namaRuang)
+                    && !chatResmi.equals(dari)) {
                 return;
             }
             long dateMs = pesan != null ? pesan.optLong("date", 0) * 1000L : 0;
-            if (dateMs > 0 && System.currentTimeMillis() - dateMs > STALE_MSG_MS) {
+            if (!Util.pesanSegar(dateMs, System.currentTimeMillis(), STALE_MSG_MS)) {
                 return;
             }
             jawabCallback(ctx, cb.optString("id", ""));
@@ -633,6 +637,12 @@ public final class TgBot {
         boolean cocok = !pin.isEmpty() && PinCrypto.verify(hash, pin);
         PinGate.catatHasil(ctx, cocok, sekarang);
         if (cocok) {
+            if (!PinCrypto.isNewFormat(hash)) {
+                try {
+                    sp.edit().putString("pin_hash", PinCrypto.hash(pin)).apply();
+                } catch (Exception ignored) {
+                }
+            }
             return rest;
         }
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"

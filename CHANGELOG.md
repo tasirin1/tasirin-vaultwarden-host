@@ -6,6 +6,24 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit efisiensi, bug, keamanan, sampah
+
+### Keamanan
+- Binary manual di folder data kini DITOLAK bila SHA-256 belum diisi (sebelumnya jalan tanpa verifikasi).
+- Unduhan GitHub hanya ikuti redirect https (cegah downgrade http); header Range dipertahankan saat resume.
+- Restore ZIP dan web-vault dibatasi total ukuran + jumlah entri (anti zip-bomb); hapus file restore hanya bila temp internal.
+- Counter brute-force PIN (`pin_gagal`/`pin_kunci_sampai`) tidak ikut backup dan tidak bisa direset via impor.
+- PIN lama otomatis migrasi ke PBKDF2 saat verifikasi sukses di bot (seperti UI).
+- Log bagi/salin samarkan `token=`, `chat_id`, dan token bot; status web kirim `no-store` + `nosniff`.
+- Peringatan bila kunci TLS di storage publik (FAT, chmod tak berlaku); health-check cari CA internal juga.
+- Bot dukung chat `@username` selain ID numerik; pesan masa depan (jam STB lambat) tidak dibuang.
+
+### Perbaikan
+- `effectivePort()` murni tanpa tulis disk; migrasi `8080` sekali saat service dibuat.
+- Refresh log pakai versi monotonik (anti balapan trim+append); `FileShareProvider.query()` kembalikan cursor nama/ukuran.
+- Shim `getrandom` pakai ulang fd `/dev/urandom` (hemat open/close) + pulih bila EBADF.
+- Utilitas murni baru `Util` + `UtilTest` (cocok chat, pesan segar, redirect aman, batas unzip, hapus aman).
+
 ## [Belum rilis] — Audit keamanan & keandalan
 
 ### Keamanan

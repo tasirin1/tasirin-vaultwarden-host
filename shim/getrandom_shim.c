@@ -45,6 +45,9 @@
 #endif
 #endif
 
+// fd /dev/urandom dipakai ulang antar panggilan (hemat open/close saat TLS sibuk).
+static int fd_urandom = -1;
+
 // Isi buf dari /dev/urandom; 0 bila len 0, -1 + errno bila gagal.
 static ssize_t isi_urandom(void *buf, size_t len) {
     if (len == 0) {
@@ -54,30 +57,40 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         errno = 22; // EINVAL, samakan perilaku glibc untuk argumen buruk.
         return -1;
     }
-    int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-    if (fd < 0) {
-        return -1; // errno sudah diisi open().
+    if (fd_urandom < 0) {
+        int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+        if (fd < 0) {
+            return -1; // errno sudah diisi open().
+        }
+        fd_urandom = fd;
     }
     size_t sudah = 0;
     while (sudah < len) {
-        ssize_t n = read(fd, (char *) buf + sudah, len - sudah);
+        ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
         if (n < 0) {
             int e = errno;
             if (e == 4) { // EINTR: coba lagi, bukan gagal.
                 continue;
             }
-            close(fd);
+            if (e == 9) { // EBADF: fd rusak, buka ulang sekali.
+                close(fd_urandom);
+                fd_urandom = -1;
+                int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+                if (fd < 0) {
+                    return -1;
+                }
+                fd_urandom = fd;
+                continue;
+            }
             errno = e;
             return -1;
         }
         if (n == 0) { // /dev/urandom tak pernah EOF; anggap galat bila terjadi.
-            close(fd);
             errno = 5; // EIO.
             return -1;
         }
         sudah += (size_t) n;
     }
-    close(fd);
     return (ssize_t) sudah;
 }
 

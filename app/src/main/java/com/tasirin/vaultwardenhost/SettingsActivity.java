@@ -963,6 +963,8 @@ public class SettingsActivity extends Activity {
                     String canonBase = dataFolder.getCanonicalPath();
                     String awalanAman = canonBase + File.separator;
                     JSONObject zipCfg = null;
+                    long totalUnzip = 0;
+                    int jumlahEntri = 0;
                     ZipInputStream zis = new ZipInputStream(in);
                     ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
@@ -992,6 +994,7 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
+                        jumlahEntri++;
                         if (entry.isDirectory()) {
                             out.mkdirs();
                         } else {
@@ -1002,6 +1005,9 @@ public class SettingsActivity extends Activity {
                             try (FileOutputStream fos = new FileOutputStream(out)) {
                                 int len;
                                 while ((len = zis.read(buf)) > 0) {
+                                    totalUnzip = Util.tambahUkuranUnzip(totalUnzip, len,
+                                            Util.BATAS_UNZIP_RESTORE, jumlahEntri,
+                                            Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, len);
                                 }
                             }

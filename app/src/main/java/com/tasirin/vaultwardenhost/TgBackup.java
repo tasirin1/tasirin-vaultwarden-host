@@ -469,7 +469,7 @@ public final class TgBackup {
      *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
-                    "tg_pass", "pin_hash"));
+                    "tg_pass", "pin_hash", "pin_gagal", "pin_kunci_sampai"));
 
     /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {
@@ -882,6 +882,8 @@ public final class TgBackup {
         }
 
         byte[] buf = new byte[64 * 1024];
+        long totalUnzip = 0;
+        int jumlahEntri = 0;
         String basePath = dataFolder.getCanonicalPath();
         String awalanAman = basePath + File.separator;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
@@ -898,6 +900,7 @@ public final class TgBackup {
                 if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
                     continue; // cegah zip-slip (mis. basePath-evil tanpa separator)
                 }
+                jumlahEntri++;
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
                 } else {
@@ -908,6 +911,9 @@ public final class TgBackup {
                     try (FileOutputStream fos = new FileOutputStream(outFile)) {
                         int n;
                         while ((n = zis.read(buf)) > 0) {
+                            totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
+                                    Util.BATAS_UNZIP_RESTORE, jumlahEntri,
+                                    Util.BATAS_JUMLAH_ENTRI);
                             fos.write(buf, 0, n);
                         }
                     }
@@ -915,7 +921,12 @@ public final class TgBackup {
                 zis.closeEntry();
             }
         } finally {
-            zip.delete();
+            try {
+                if (Util.bolehHapusFile(ctx.getCacheDir(), ctx.getFilesDir(), zip)) {
+                    zip.delete();
+                }
+            } catch (Exception ignored) {
+            }
         }
         if (!dbFile.exists()) {
             throw new IOException("Backup tidak berisi db.sqlite3.");
@@ -965,6 +976,8 @@ public final class TgBackup {
         String keepPass = cur.getString(KEY_TG_PASS, "");
         String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
         String keepPinHash = cur.getString("pin_hash", "");
+        int keepGagal = cur.getInt("pin_gagal", 0);
+        long keepKunci = cur.getLong("pin_kunci_sampai", 0);
         long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
         String keepNotified = cur.getString("tg_notified_version", "");
         String keepWvFrom = cur.getString("wv_from_version", "");
@@ -1023,6 +1036,9 @@ public final class TgBackup {
         }
         // Konsistensi PIN: tanpa hash, kunci PIN wajib mati agar tak fail-open
         // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
+        // Counter brute-force selalu milik perangkat (backup tak boleh reset kunci).
+        ed.putInt("pin_gagal", keepGagal);
+        ed.putLong("pin_kunci_sampai", keepKunci);
         ed.putBoolean("pin_on", pinAktif(prefs.optBoolean("pin_on", false), keepPinHash));
         long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
                 ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;

@@ -316,6 +316,8 @@ public final class ControlServer {
         out.write(("HTTP/1.1 " + code + " " + status + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Type: " + type + "\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Length: " + data.length + "\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write("X-Content-Type-Options: nosniff\r\n".getBytes(StandardCharsets.UTF_8));
+        out.write("Cache-Control: no-store\r\n".getBytes(StandardCharsets.UTF_8));
         out.write("Connection: close\r\n\r\n".getBytes(StandardCharsets.UTF_8));
         out.write(data);
         out.flush();

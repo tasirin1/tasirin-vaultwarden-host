@@ -91,6 +91,8 @@ public class ServerService extends Service {
     public static volatile String statusLine = "Stopped";
     public static volatile String binaryVersion = "";
     public static final StringBuilder logBuffer = new StringBuilder();
+    /** Versi log naik tiap baris/trim/clear: kunci refresh UI tanpa adu panjang. */
+    private static volatile long logVer = 0;
 
     /** Snapshot konfigurasi server yang sedang berjalan (untuk peringatan restart). */
     public static volatile String runningDataDir = "";
@@ -204,6 +206,7 @@ public class ServerService extends Service {
     public static void clearLog() {
         synchronized (logBuffer) {
             logBuffer.setLength(0);
+            logVer++;
         }
         File f = logFile;
         if (f != null) {
@@ -267,6 +270,10 @@ public class ServerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        try {
+            migrasiPortSekali(getSharedPreferences(PREFS, MODE_PRIVATE));
+        } catch (Exception ignored) {
+        }
         createChannel();
     }
 
@@ -376,14 +383,21 @@ public class ServerService extends Service {
         startForeground(NOTIF_ID, n);
     }
 
-    /** Baca port tersimpan; migrasikan default lama 8080 -> default baru sekali. */
+    /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
+     *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat. */
     public static String effectivePort(SharedPreferences sp) {
         String p = sp.getString(KEY_PORT, DEFAULT_PORT);
-        if ("8080".equals(p)) {
-            p = DEFAULT_PORT;
-            sp.edit().putString(KEY_PORT, p).apply();
-        }
         return (p == null || p.trim().isEmpty()) ? DEFAULT_PORT : p.trim();
+    }
+
+    /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start). */
+    public static void migrasiPortSekali(SharedPreferences sp) {
+        try {
+            if ("8080".equals(sp.getString(KEY_PORT, DEFAULT_PORT))) {
+                sp.edit().putString(KEY_PORT, DEFAULT_PORT).apply();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private String currentPort() {
@@ -912,6 +926,7 @@ public class ServerService extends Service {
             if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
                 logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
             }
+            logVer++;
         }
         if (logFile != null) {
             synchronized (LOG_FILE_LOCK) {
@@ -1031,6 +1046,9 @@ public class ServerService extends Service {
             String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
             if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
             java.io.File ca = new java.io.File(dataDir, "tls/ca.pem");
+            if (!ca.isFile()) {
+                ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
+            }
             if (!ca.isFile()) return null;
             java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
             java.security.KeyStore ks = java.security.KeyStore.getInstance(
@@ -1188,17 +1206,9 @@ public class ServerService extends Service {
                     }
                 }
             } else {
-                appendLog("[app] PERINGATAN: binary manual dipakai TANPA verifikasi"
-                        + " SHA-256. Isi SHA-256 di pengaturan demi keamanan.");
-                try {
-                    copyBinary(userBin, out);
-                    writeText(verFile, Updater.appVersionName(this));
-                    appendLog("[app] Binary dari folder data dipakai: " + userBin.getAbsolutePath());
-                    detectBinaryVersion(out);
-                    return out;
-                } catch (Exception e) {
-                    appendLog("[app] Gagal memakai binary dari folder data: " + e);
-                }
+                appendLog("[app] Binary manual DITOLAK: SHA-256 belum diisi"
+                        + " di pengaturan. Isi SHA-256 dulu demi keamanan.");
+                TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 belum diisi.");
             }
         }
 
@@ -1409,6 +1419,16 @@ public class ServerService extends Service {
             if (dir != null) {
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
                 appendLog("[app] CA untuk HP lain: " + new File(dir, "ca.pem").getAbsolutePath());
+                try {
+                    String kanon = dir.getCanonicalPath();
+                    if (kanon.startsWith("/sdcard")
+                            || kanon.startsWith("/storage")) {
+                        appendLog("[app] PERINGATAN: kunci TLS di storage publik"
+                                + " (FAT, chmod tak berlaku). Siapa pun berizin baca storage"
+                                + " bisa menyalin ca-key.pem/key.pem.");
+                    }
+                } catch (Exception ignored) {
+                }
             }
             return dir;
         } catch (Exception e) {
@@ -1736,6 +1756,11 @@ public class ServerService extends Service {
         synchronized (logBuffer) {
             return logBuffer.length();
         }
+    }
+
+    /** Versi log monotonik: kunci refresh UI (anti balapan trim+append). */
+    public static long logVersion() {
+        return logVer;
     }
 
     /** N karakter terakhir log: satu salinan kecil tanpa split (untuk SSE/log API). */
