@@ -52,7 +52,7 @@ public final class TgBot {
     private TgBot() {
     }
 
-    /** Pasang alarm polling tiap 60 detik; dibatalkan bila bot belum dikonfigurasi. */
+    /** Pasang alarm polling tiap 20 detik; dibatalkan bila bot belum dikonfigurasi. */
     public static void schedule(Context ctx) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) {

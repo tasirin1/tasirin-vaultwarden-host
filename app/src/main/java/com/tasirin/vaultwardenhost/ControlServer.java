@@ -463,7 +463,8 @@ public final class ControlServer {
     }
 
     private static String logTail() {
-        return ServerService.logTailChars(LOG_TAIL_CHARS);
+        // Samarkan token seperti share/clipboard agar tak bocor via LAN.
+        return LogActivity.samarkanLog(ServerService.logTailChars(LOG_TAIL_CHARS));
     }
 
     /** SSE: kirim seluruh log lalu delta tiap detik + heartbeat tiap 15 dtk. */
@@ -500,7 +501,7 @@ public final class ControlServer {
                 }
                 if (text != null) {
                     sent = len;
-                    kirimSse(out, text);
+                    kirimSse(out, LogActivity.samarkanLog(text));
                     lastWrite = System.currentTimeMillis();
                     out.flush();
                 } else {

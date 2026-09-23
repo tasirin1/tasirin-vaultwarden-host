@@ -668,8 +668,17 @@ public class MainActivity extends Activity {
     }
 
     private void appendUiLog(String line) {
+        if (line == null) {
+            return;
+        }
+        String stamp = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date());
         synchronized (ServerService.logBuffer) {
-            ServerService.logBuffer.append(line).append('\n');
+            ServerService.logBuffer.append(stamp).append(' ').append(line).append('\n');
+            // Batas sama seperti ServerService (300 KB + 32 KB histeresis,
+            // pangkas ke separuh) agar log UI tak menumbuhkan buffer tanpa batas.
+            if (ServerService.logBuffer.length() > 332768) {
+                ServerService.logBuffer.delete(0, ServerService.logBuffer.length() - 150000);
+            }
         }
         // Ledakan log tidak boleh membanjiri UI thread.
         long now = System.currentTimeMillis();
