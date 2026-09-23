@@ -89,13 +89,23 @@
 
                 <Button
                     android:id="@+id/installCert"
-                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusDown="@id/shareCa"
                     android:nextFocusUp="@id/revert"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/install_cert" />
+
+                <Button
+                    android:id="@+id/shareCa"
+                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusUp="@id/installCert"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/share_ca" />
 
                 <TextView
                     style="@style/TasirinHint"
@@ -123,7 +133,7 @@
                     <Button
                         android:id="@+id/exportCfg"
                         android:nextFocusDown="@id/importCfg"
-                        android:nextFocusUp="@id/installCert"
+                        android:nextFocusUp="@id/shareCa"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

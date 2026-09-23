@@ -227,6 +227,10 @@ PIN aktif (ketik manual, mis. `/stop 123456`).
   walau IP berubah, jadi cukup install sekali — kecuali setelah update
   yang regenerasi CA (mis. versi cert naik): bila **dulu bisa lalu gagal**,
   hapus CA lama di HP lalu install ulang CA baru.
+- **Transfer ke HP lain**: di HP server tekan **Bagikan CA (ke HP lain)**
+  lalu kirim via Bluetooth/WhatsApp/Telegram; di HP tujuan simpan file-nya
+  lalu install sebagai CA certificate. Tombol **Install Cert** hanya memasang
+  di HP server itu sendiri.
 - App **Bitwarden** resmi umumnya menolak self-signed — untuk klien non-web
   vault sebaiknya pakai HTTP di jaringan lokal yang tepercaya.
 

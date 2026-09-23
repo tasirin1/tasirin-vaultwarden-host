@@ -90,6 +90,7 @@ public class SettingsActivity extends Activity {
     private Button exportCfgBtn;
     private Button importCfgBtn;
     private Button installCertBtn;
+    private Button shareCaBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -213,6 +214,10 @@ public class SettingsActivity extends Activity {
                         + "otomatis saat Start berikutnya (perlu internet). Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
         installCertBtn.setOnClickListener(v -> installCertificate());
+        shareCaBtn = findViewById(R.id.shareCa);
+        if (shareCaBtn != null) {
+            shareCaBtn.setOnClickListener(v -> bagikanCa());
+        }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
@@ -716,6 +721,39 @@ public class SettingsActivity extends Activity {
             startActivity(intent);
         } catch (Exception e) {
             toast("Gagal membuka installer: " + e.getMessage());
+        }
+    }
+
+    /** Kirim CA aktif (ca.pem saja, tanpa kunci privat) ke HP lain via aplikasi
+     *  berbagi (Bluetooth/WhatsApp/Telegram). Di HP tujuan: simpan lalu install
+     *  sebagai “CA certificate”. */
+    private void bagikanCa() {
+        try {
+            File cert = new File(getFilesDir(), "tls/ca.pem");
+            if (!cert.exists()) {
+                String dataDir = dataDirInput.getText().toString().trim();
+                if (TextUtils.isEmpty(dataDir)) {
+                    dataDir = DEFAULT_DATA_DIR;
+                }
+                cert = new File(dataDir, "tls/ca.pem");
+            }
+            if (!cert.exists()) {
+                toast("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+                return;
+            }
+            Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
+                    + cert.getAbsolutePath());
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("application/x-x509-ca-cert");
+            send.putExtra(Intent.EXTRA_STREAM, uri);
+            send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                startActivity(Intent.createChooser(send, "Bagikan CA ke HP lain"));
+            } catch (Exception e2) {
+                toast("Gagal berbagi: " + e2.getMessage());
+            }
+        } catch (Exception e) {
+            toast("Gagal berbagi CA: " + e.getMessage());
         }
     }
 

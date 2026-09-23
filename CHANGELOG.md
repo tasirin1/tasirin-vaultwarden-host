@@ -6,6 +6,13 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Tombol Bagikan CA ke HP lain
+
+### Ditambahkan
+- Tombol **Bagikan CA (ke HP lain)** di Settings → Sertifikat: mengirim CA
+  aktif (`ca.pem` saja, tanpa kunci privat) via Bluetooth/WhatsApp/Telegram.
+  Di HP tujuan simpan lalu install sebagai CA certificate.
+
 ## [Belum rilis] — Perbaiki Install Cert menunjuk CA lama
 
 ### Perbaikan

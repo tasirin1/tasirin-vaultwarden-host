@@ -219,6 +219,10 @@ app PIN is on (type manually, e.g. `/stop 123456`).
   The CA is stable across IP changes, so install once — except after an
   update that regenerates the CA (e.g. cert version bump): if it **used to
   work then fails**, remove the old CA on the phone and reinstall the new one.
+- **Transfer to another phone**: on the server phone tap **Share CA (Bagikan CA)**
+  and send it via Bluetooth/WhatsApp/Telegram; on the target phone save the file
+  then install it as a CA certificate. **Install Cert** only installs on the
+  server phone itself.
 - The official **Bitwarden** app usually rejects self-signed certs — for
   non-web-vault clients prefer HTTP on a trusted local network.
 
