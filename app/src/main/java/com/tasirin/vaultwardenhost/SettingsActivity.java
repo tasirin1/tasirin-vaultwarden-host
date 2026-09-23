@@ -1303,7 +1303,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void copyLocalUrl() {
-        String url = ServerService.urlJaringan(this);
+        String url = ServerService.localUrl(this);
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
             cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", url));
@@ -1378,11 +1378,20 @@ public class SettingsActivity extends Activity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    long sisa = PinGate.sisaKunciMs(SettingsActivity.this,
+                            System.currentTimeMillis());
+                    if (sisa > 0) {
+                        input.setError("Terkunci, coba lagi "
+                                + ((sisa + 59000) / 60000) + " menit.");
+                        return;
+                    }
                     ok.setEnabled(false);
                     input.setError("Memeriksa PIN...");
                     final String entered = input.getText().toString();
                     new Thread(() -> {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
+                        PinGate.catatHasil(SettingsActivity.this, cocok,
+                                System.currentTimeMillis());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
@@ -1600,33 +1609,15 @@ public class SettingsActivity extends Activity {
     }
 
     /** Versi dari file vw-version.json (web-vault yang sudah di-update) atau null. */
+    /** Versi dari file vw-version.json (satu implementasi di Updater). */
     private String readWvVersion(File f) {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                new java.io.FileInputStream(f), StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
-            }
-            String v = new JSONObject(sb.toString()).optString("version", "");
-            return v.isEmpty() ? null : v;
-        } catch (Exception e) {
-            return null;
-        }
+        return Updater.readWvVersion(f);
     }
 
     /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
+    /** Versi binary yang benar-benar dipakai server saat ini (satu di Updater). */
     private String currentServerVersion() {
-        String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null) {
-            return real;
-        }
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-        if (updated != null && !updated.isEmpty()) {
-            return updated;
-        }
-        return bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
+        return Updater.currentServerVersion(this);
     }
 
     // ─── Update binary (unduh per tag versi resmi) ──────────────────────
@@ -1680,35 +1671,19 @@ public class SettingsActivity extends Activity {
         btn.setText(hidden ? getString(R.string.hide) : getString(R.string.show));
     }
 
-    /** Backup Telegram otomatis saat Start (sekali sehari, bila hari sudah berganti). */
+    /** Backup Telegram otomatis saat Start (satu implementasi di TgBackup). */
     private void maybeAutoBackup() {
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
-            return;
-        }
-        String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
-        String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
-        if (token.isEmpty() || chat.isEmpty()) {
-            appendUiLog("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
-            return;
-        }
-        long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
-        if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
-            return; // hari ini sudah backup (jadwal tengah malam yang urus sisanya)
-        }
-        appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
-        new Thread(() -> {
-            try {
-                final String msg = TgBackup.backupTungguDb(SettingsActivity.this);
-                ui.post(() -> {
-                    toast(msg);
-                    appendUiLog("[tg] " + msg);
-                });
-            } catch (InterruptedException ignored) {
-            } catch (Exception e) {
-                appendUiLog("[tg] Gagal backup otomatis saat Start: " + e);
+        TgBackup.maybeAutoBackup(this, new TgBackup.BackupStartUi() {
+            @Override public void toast(String s) {
+                SettingsActivity.this.toast(s);
             }
-        }, "vw-tg-onstart").start();
+            @Override public void catat(String s) {
+                appendUiLog(s);
+            }
+            @Override public void jalankanUi(Runnable r) {
+                ui.post(r);
+            }
+        });
     }
 
     private void confirm(String title, String message, final Runnable action) {
@@ -1811,6 +1786,7 @@ public class SettingsActivity extends Activity {
     /** Simpan nilai EditText ke prefs begitu berubah. */
     private class SimpleTextWatcher implements android.text.TextWatcher {
         private final String key;
+        private Runnable tugasTunda;
 
         SimpleTextWatcher(String key) {
             this.key = key;
@@ -1822,8 +1798,14 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void onTextChanged(CharSequence s, int a, int b, int c) {
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putString(key, s.toString()).apply();
+            // Debounce: mengetik token panjang tak menulis flash per karakter.
+            final String nilai = s.toString();
+            if (tugasTunda != null) {
+                ui.removeCallbacks(tugasTunda);
+            }
+            tugasTunda = () -> getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                    .edit().putString(key, nilai).apply();
+            ui.postDelayed(tugasTunda, 400);
         }
 
         @Override

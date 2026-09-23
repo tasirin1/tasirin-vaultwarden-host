@@ -12,6 +12,14 @@ import android.content.SharedPreferences;
  *  dihitung ulang lalu backup susulan bila hari sudah berganti. */
 public class AlarmReceiver extends BroadcastReceiver {
 
+    private static void mulaiBackup(Context context) {
+        try {
+            ServerService.backupNow(context);
+        } catch (Exception ignored) {
+            // Batasan start service versi Android baru - jadwal berikutnya coba lagi.
+        }
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
@@ -32,10 +40,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
             if (TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
-                ServerService.backupNow(context);
+                mulaiBackup(context);
             }
             return;
         }
-        ServerService.backupNow(context);
+        mulaiBackup(context);
     }
 }

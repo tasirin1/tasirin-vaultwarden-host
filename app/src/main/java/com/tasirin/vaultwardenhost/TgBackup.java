@@ -123,6 +123,47 @@ public final class TgBackup {
         return backupNow(ctx);
     }
 
+    /** Callback UI untuk backup otomatis saat Start (toast + catat + pos UI). */
+    public interface BackupStartUi {
+        void toast(String s);
+        void catat(String s);
+        void jalankanUi(Runnable r);
+    }
+
+    /** Backup Telegram otomatis saat Start (sekali sehari, bila hari berganti).
+     *  Satu implementasi untuk Main & Settings (dulu duplikat). */
+    public static void maybeAutoBackup(Context ctx, BackupStartUi ui) {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        if (!sp.getBoolean(KEY_TG_AUTO, false)) {
+            return;
+        }
+        String token = sp.getString(KEY_TG_TOKEN, "").trim();
+        String chat = sp.getString(KEY_TG_CHAT, "").trim();
+        if (token.isEmpty() || chat.isEmpty()) {
+            ui.catat("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
+            return;
+        }
+        long last = sp.getLong(KEY_TG_LAST, 0);
+        if (last > 0 && !sudahGantiHari(last, System.currentTimeMillis())) {
+            return;
+        }
+        ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
+        final Context app = ctx.getApplicationContext();
+        new Thread(() -> {
+            try {
+                final String msg = backupTungguDb(app);
+                ui.jalankanUi(() -> {
+                    ui.toast(msg);
+                    ui.catat("[tg] " + msg);
+                });
+            } catch (InterruptedException ignored) {
+            } catch (Exception e) {
+                ui.catat("[tg] Gagal backup otomatis saat Start: " + e);
+            }
+        }, "vw-tg-onstart").start();
+    }
+
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
     public static String backupNow(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
@@ -151,7 +192,11 @@ public final class TgBackup {
         checkpointWal(db);
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
-        File zip = createBackupZip(dataDir, true, configJson(sp));
+        String passAwal = sp.getString(KEY_TG_PASS, "");
+        boolean terenkripsi = passAwal != null && !passAwal.trim().isEmpty();
+        // Tanpa password, backup melenggang plaintext ke cloud Telegram:
+        // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
+        File zip = createBackupZip(dataDir, true, configJson(sp), terenkripsi);
         // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
         String galat = verifikasiZip(zip);
         if (galat != null) {
@@ -185,8 +230,11 @@ public final class TgBackup {
                 .putString(KEY_TG_LAST_FILE, fileId)
                 .putString(KEY_TG_LAST_NAME, upload.getName())
                 .apply();
+        String peringatan = terenkripsi ? ""
+                : " (TANPA enkripsi: kunci privat tak ikut; isi password backup"
+                        + " agar terenkripsi penuh)";
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
-                + upload.length() + " bytes)";
+                + upload.length() + " bytes)" + peringatan;
     }
 
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
@@ -364,9 +412,11 @@ public final class TgBackup {
     }
 
     /** Zip db + WAL (opsional config & sertifikat) ke <data>/backups/,
-     *  lalu bersihkan backup lama (sisakan 10). */
+     *  lalu bersihkan backup lama (sisakan 10). Kunci privat hanya ikut bila
+     *  backup terenkripsi (denganKunci=true); tanpa itu plaintext ke cloud. */
     private static File createBackupZip(String dataDir, boolean full,
-                                        String configJson) throws Exception {
+                                        String configJson, boolean denganKunci)
+            throws Exception {
         File dataFolder = new File(dataDir);
         File backupDir = new File(dataFolder, "backups");
         if (!backupDir.exists() && !backupDir.mkdirs()) {
@@ -387,9 +437,12 @@ public final class TgBackup {
                     zos.closeEntry();
                 }
                 addFileEntry(zos, buf, new File(dataFolder, "tls/ca.pem"), "tls/ca.pem");
-                addFileEntry(zos, buf, new File(dataFolder, "tls/ca-key.pem"), "tls/ca-key.pem");
                 addFileEntry(zos, buf, new File(dataFolder, "tls/cert.pem"), "tls/cert.pem");
-                addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
+                if (denganKunci) {
+                    addFileEntry(zos, buf, new File(dataFolder, "tls/ca-key.pem"),
+                            "tls/ca-key.pem");
+                    addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
+                }
             }
         }
         cleanupOldBackups(backupDir);
@@ -448,6 +501,12 @@ public final class TgBackup {
     /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru.
      *  Hanya file backup (backup-telegram-*, db-backup-*) yang dihitung;
      *  export pengaturan (app-config-*.json) tidak ikut terhapus. */
+    /** True bila nama file adalah backup database (bukan export config). */
+    public static boolean isFileBackup(String nama) {
+        return nama != null && (nama.startsWith("backup-telegram-")
+                || nama.startsWith("db-backup-"));
+    }
+
     public static void cleanupOldBackups(File backupDir) {
         File[] all = backupDir.listFiles();
         if (all == null) {
@@ -455,8 +514,7 @@ public final class TgBackup {
         }
         java.util.List<File> list = new java.util.ArrayList<>();
         for (File f : all) {
-            String n = f.getName();
-            if (n.startsWith("backup-telegram-") || n.startsWith("db-backup-")) {
+            if (isFileBackup(f.getName())) {
                 list.add(f);
             }
         }
@@ -610,11 +668,22 @@ public final class TgBackup {
         HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
+            // POST agar token tidak nangkring di URL (konsisten dengan sendMessage).
+            byte[] body = ("file_id=" + URLEncoder.encode(fileId, "UTF-8"))
+                    .getBytes(StandardCharsets.UTF_8);
             conn = (HttpURLConnection) new URL(
-                    "https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId).openConnection();
+                    "https://api.telegram.org/bot" + token + "/getFile").openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
             conn.setConnectTimeout(15000);
             conn.setReadTimeout(15000);
+            conn.setRequestProperty("Content-Type",
+                    "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Length", String.valueOf(body.length));
             HttpsCompat.apply(conn, ctx);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body);
+            }
             int code = conn.getResponseCode();
             if (code != 200) {
                 throw new IOException("getFile gagal (HTTP " + code + ")");
@@ -1102,12 +1171,21 @@ public final class TgBackup {
     }
 
     private static long folderBytesWalk(File file) {
+        return folderBytesWalk(file, 0);
+    }
+
+    private static long folderBytesWalk(File file, int dalam) {
+        // Batas 32 tingkat: symlink melingkar di folder data tak boleh
+        // meledak jadi StackOverflowError (tak tertangkap catch Exception).
+        if (dalam > 32) {
+            return 0;
+        }
         if (file.isDirectory()) {
             File[] children = file.listFiles();
             if (children != null) {
                 long sum = 0;
                 for (File c : children) {
-                    sum += folderBytesWalk(c);
+                    sum += folderBytesWalk(c, dalam + 1);
                 }
                 return sum;
             }

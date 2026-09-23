@@ -40,6 +40,15 @@ public final class TgBot {
 
     private static final String TG_API = "https://api.telegram.org/bot";
 
+    // Satu pool kecil untuk tugas bot (perintah, callback, menu): hemat thread
+    // dibanding new Thread per ketukan/perintah di STB 1 GB.
+    private static final java.util.concurrent.ExecutorService BG =
+            java.util.concurrent.Executors.newFixedThreadPool(3, r -> {
+                Thread t = new Thread(r, "vw-tgbot-bg");
+                t.setDaemon(true);
+                return t;
+            });
+
     private TgBot() {
     }
 
@@ -117,7 +126,7 @@ public final class TgBot {
             return;
         }
         final String payload = menuPayload();
-        new Thread(() -> {
+        BG.execute(() -> {
             HttpURLConnection c = null;
             try {
                 byte[] body = payload.getBytes(StandardCharsets.UTF_8);
@@ -156,7 +165,7 @@ public final class TgBot {
                     c.disconnect();
                 }
             }
-        }, "vw-tgmenu").start();
+        });
     }
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
@@ -174,8 +183,9 @@ public final class TgBot {
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
             long chatId = parseChatId(chat);
-            String url = TG_API + token + "/getUpdates?offset=" + offset + "&timeout=15&limit=10";
-            String body = httpGet(ctx, url);
+            // POST (bukan GET): token bot tidak bocor ke log URL/proxy.
+            String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
+                    "offset=" + offset + "&timeout=15&limit=10");
             if (body == null) {
                 return;
             }
@@ -325,7 +335,7 @@ public final class TgBot {
             return;
         }
         final Context app = ctx.getApplicationContext();
-        new Thread(() -> {
+        BG.execute(() -> {
             HttpURLConnection c = null;
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
@@ -357,7 +367,7 @@ public final class TgBot {
                     c.disconnect();
                 }
             }
-        }, "vw-tgcb").start();
+        });
     }
 
     private static void handleCommand(Context ctx, String text) {
@@ -610,10 +620,19 @@ public final class TgBot {
         if (!need) {
             return t;
         }
+        long sekarang = System.currentTimeMillis();
+        long sisa = PinGate.sisaKunciMs(ctx, sekarang);
+        if (sisa > 0) {
+            TgBackup.sendMessage(ctx, "PIN terkunci sementara (kebanyakan gagal)."
+                    + " Coba lagi " + ((sisa + 59000) / 60000) + " menit.");
+            return null;
+        }
         int i = t.lastIndexOf(' ');
         String pin = i < 0 ? t : t.substring(i + 1);
         String rest = i < 0 ? "" : t.substring(0, i).trim();
-        if (!pin.isEmpty() && PinCrypto.verify(hash, pin)) {
+        boolean cocok = !pin.isEmpty() && PinCrypto.verify(hash, pin);
+        PinGate.catatHasil(ctx, cocok, sekarang);
+        if (cocok) {
             return rest;
         }
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
@@ -621,9 +640,9 @@ public final class TgBot {
         return null;
     }
 
-    /** Jalankan tugas berat di thread sendiri + partial wake lock. */
+    /** Jalankan tugas berat di pool + partial wake lock. */
     private static void runWithWakeLock(Context ctx, Runnable task) {
-        new Thread(() -> {
+        BG.execute(() -> {
             PowerManager.WakeLock wl = null;
             try {
                 PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
@@ -635,7 +654,7 @@ public final class TgBot {
                     wl.release();
                 }
             }
-        }, "vw-tgbot-task").start();
+        });
     }
 
     /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */
@@ -708,14 +727,22 @@ public final class TgBot {
         return PendingIntent.getBroadcast(ctx, 3, i, flags);
     }
 
-    private static String httpGet(Context ctx, String url) {
+    private static String httpPostForm(Context ctx, String url, String param) {
         HttpURLConnection c = null;
         try {
+            byte[] body = param.getBytes(StandardCharsets.UTF_8);
             c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(15000);
             c.setReadTimeout(35000);
-            c.setRequestMethod("GET");
+            c.setRequestMethod("POST");
+            c.setDoOutput(true);
+            c.setRequestProperty("Content-Type",
+                    "application/x-www-form-urlencoded");
+            c.setRequestProperty("Content-Length", String.valueOf(body.length));
             HttpsCompat.apply(c, ctx);
+            try (OutputStream os = c.getOutputStream()) {
+                os.write(body);
+            }
             int code = c.getResponseCode();
             InputStream is = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
             if (is == null) {

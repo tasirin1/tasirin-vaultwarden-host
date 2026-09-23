@@ -380,8 +380,13 @@ jobs:
           sha256sum libgetrandom-shim-armeabi-v7a.so > libgetrandom-shim-armeabi-v7a.so.sha256
           sha256sum web-vault.zip > web-vault.zip.sha256
           ls -lh tasirin-*.apk vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip
-          gh release delete "v${{ needs.resolve.outputs.vw }}" --yes --cleanup-tag || true
-          gh release create "v${{ needs.resolve.outputs.vw }}" \
+          # Timpa asset tanpa hapus rilis: penghapus + buat ulang menciptakan
+          # jendela 404 bagi app yang sedang update di saat bersamaan.
+          gh release view "v${{ needs.resolve.outputs.vw }}" >/dev/null 2>&1 || \
+            gh release create "v${{ needs.resolve.outputs.vw }}" \
+              --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
+              --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault."
+          gh release upload "v${{ needs.resolve.outputs.vw }}" \
             tasirin-vaultwarden-host-armeabi-v7a.apk \
             vaultwarden-armeabi-v7a \
             vaultwarden-armeabi-v7a.sha256 \
@@ -389,8 +394,7 @@ jobs:
             libgetrandom-shim-armeabi-v7a.so.sha256 \
             web-vault.zip \
             web-vault.zip.sha256 \
-            --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
-            --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault."
+            --clobber
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7

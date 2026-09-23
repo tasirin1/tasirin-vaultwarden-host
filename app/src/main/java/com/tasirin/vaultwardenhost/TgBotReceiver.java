@@ -35,7 +35,9 @@ public class TgBotReceiver extends BroadcastReceiver {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot");
-            wl.acquire(30_000);
+            // Harus melampaui read timeout HTTP (35 dtk) agar polling tak
+            // kehilangan wakelock sebelum respons long-poll tiba.
+            wl.acquire(60_000);
             return wl;
         } catch (Exception e) {
             return null;

@@ -177,6 +177,9 @@ public final class ControlServer {
                         "Akses ditolak: admin token dibutuhkan (?token= / Authorization: Bearer).");
                 return;
             }
+            // SSE hidup berjam-jam: serahkan ke thread khusus agar tak
+            // menghabiskan pool (3 SSE + polling 2 dtk = pool 6 macet).
+            boolean serahkan = false;
             switch (path) {
                 case "/api/status":
                     respond(s, 200, "application/json; charset=utf-8", statusJson());
@@ -185,19 +188,40 @@ public final class ControlServer {
                     respond(s, 200, "text/plain; charset=utf-8", logTail());
                     break;
                 case "/api/events":
-                    sse(s);
+                    serahkan = true;
+                    sseDiThread(s);
                     break;
                 default:
                     respond(s, 200, "text/html; charset=utf-8", PAGE);
             }
         } catch (Exception ignored) {
         } finally {
-            conns.decrementAndGet();
-            try {
-                s.close();
-            } catch (Exception ignored) {
+            if (!serahkan) {
+                conns.decrementAndGet();
+                try {
+                    s.close();
+                } catch (Exception ignored) {
+                }
             }
         }
+    }
+
+    /** Jalankan SSE di thread khusus; tutup socket + slot saat klien pergi. */
+    private void sseDiThread(Socket s) {
+        Thread t = new Thread(() -> {
+            try {
+                sse(s);
+            } catch (Exception ignored) {
+            } finally {
+                conns.decrementAndGet();
+                try {
+                    s.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }, "vw-status-sse");
+        t.setDaemon(true);
+        t.start();
     }
 
     /** Banding token constant-time; kedua sisi di-trim agar salinan token
@@ -228,10 +252,6 @@ public final class ControlServer {
 
     /** True bila query/header membawa admin token yang benar (atau tidak ada token
      *  yang dikonfigurasi - status web tetap terbuka + tercatat di log & JSON). */
-    boolean checkToken(String query) {
-        return checkToken(query, "");
-    }
-
     private boolean checkToken(String query, String authHeader) {
         String need;
         try {
@@ -299,6 +319,29 @@ public final class ControlServer {
         out.flush();
     }
 
+    // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
+    private void versiApp() {
+        if (cacheAppVersion != null && cacheAppBuild >= 0) {
+            return;
+        }
+        synchronized (VERSI_LOCK) {
+            if (cacheAppVersion != null && cacheAppBuild >= 0) {
+                return;
+            }
+            try {
+                android.content.pm.PackageInfo info =
+                        context.getPackageManager()
+                                .getPackageInfo(context.getPackageName(), 0);
+                cacheAppVersion = info.versionName;
+                cacheAppBuild = info.versionCode;
+            } catch (Exception ignored) {
+                cacheAppVersion = "?";
+                cacheAppBuild = 0;
+            }
+        }
+    }
+
     private boolean adaAdminToken() {
         try {
             String at = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
@@ -308,6 +351,12 @@ public final class ControlServer {
             return false;
         }
     }
+
+    // Versi app konstan selama runtime: baca PackageManager sekali saja,
+    // bukan tiap cache-miss status web (10 dtk).
+    private static volatile String cacheAppVersion = null;
+    private static volatile int cacheAppBuild = -1;
+    private static final Object VERSI_LOCK = new Object();
 
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
@@ -321,15 +370,9 @@ public final class ControlServer {
             JSONObject o = new JSONObject();
             o.put("running", ServerService.running);
             o.put("status", ServerService.statusLine == null ? "" : ServerService.statusLine);
-            try {
-                android.content.pm.PackageInfo info =
-                        context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-                o.put("appVersion", info.versionName);
-                o.put("build", info.versionCode);
-            } catch (Exception ignored) {
-                o.put("appVersion", "?");
-                o.put("build", 0);
-            }
+            versiApp();
+            o.put("appVersion", cacheAppVersion == null ? "?" : cacheAppVersion);
+            o.put("build", Math.max(0, cacheAppBuild));
             o.put("binaryVersion", ServerService.binaryVersion == null ? "" : ServerService.binaryVersion);
             String wv = Updater.webVaultFromVersion(context);
             o.put("wvVersion", wv == null ? "" : wv);
@@ -366,7 +409,15 @@ public final class ControlServer {
             o.put("binaryHuman", binBytes > 0 ? TgBackup.humanBytes(binBytes) : "");
             File backupDir = new File(dir, "backups");
             File[] backups = backupDir.listFiles();
-            o.put("backupCount", backups == null ? 0 : backups.length);
+            int jumlahBackup = 0;
+            if (backups != null) {
+                for (File b : backups) {
+                    if (TgBackup.isFileBackup(b.getName())) {
+                        jumlahBackup++;
+                    }
+                }
+            }
+            o.put("backupCount", jumlahBackup);
             String restarts = ServerService.restartSummary();
             o.put("restartHistory", restarts == null ? "" : restarts);
             String json = o.toString();

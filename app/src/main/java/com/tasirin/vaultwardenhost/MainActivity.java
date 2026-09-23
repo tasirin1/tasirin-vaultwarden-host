@@ -517,83 +517,14 @@ public class MainActivity extends Activity {
                 .show();
     }
 
-    /** Simpan log ke .txt di Download (format header ala Tasirin). */
-    // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur untuk API 21-32.
-    @SuppressWarnings("deprecation")
+/** Simpan log ke .txt di Download (satu implementasi di LogExport). */
     private void exportHomeLogTxt() {
         String log;
         synchronized (ServerService.logBuffer) {
             log = ServerService.logBuffer.toString();
         }
-        StringBuilder header = new StringBuilder();
-        header.append("=== Tasirin Vaultwarden Host - Log Server (realtime) ===\n");
-        header.append("Waktu: ")
-                .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()))
-                .append('\n');
-        try {
-            android.content.pm.PackageInfo info =
-                    getPackageManager().getPackageInfo(getPackageName(), 0);
-            header.append("Versi app: ").append(info.versionName)
-                    .append(" (build ").append(info.versionCode).append(")\n");
-        } catch (Exception ignored) {
-            header.append("Versi app: ?\n");
-        }
-        header.append("Android: ").append(Build.VERSION.RELEASE)
-                .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        header.append("Perangkat: ").append(Build.MANUFACTURER).append(' ')
-                .append(Build.MODEL).append("\n\n");
-        header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
-        header.append('\n');
-
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-        String name = "tasirin-vaultwarden-host-log-" + stamp + ".txt";
-        boolean ok = false;
-        if (Build.VERSION.SDK_INT >= 29) {
-            try {
-                ContentResolver resolver = getContentResolver();
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
-                values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-                values.put(MediaStore.Downloads.RELATIVE_PATH, "Download/");
-                values.put(MediaStore.Downloads.IS_PENDING, 1);
-                Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                if (uri != null) {
-                    try {
-                        OutputStream out = resolver.openOutputStream(uri);
-                        if (out != null) {
-                            out.write(header.toString().getBytes(StandardCharsets.UTF_8));
-                            out.close();
-                            ok = true;
-                        } else {
-                            resolver.delete(uri, null, null);
-                        }
-                    } catch (Exception e) {
-                        resolver.delete(uri, null, null);
-                    }
-                    if (ok) {
-                        ContentValues done = new ContentValues();
-                        done.put(MediaStore.Downloads.IS_PENDING, 0);
-                        resolver.update(uri, done, null, null);
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        } else {
-            try {
-                File dir = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS);
-                if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                            new FileOutputStream(new File(dir, name), false),
-                            StandardCharsets.UTF_8)) {
-                        w.write(header.toString());
-                    }
-                    ok = true;
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        toast(ok ? "Log disimpan: Download/" + name : "Gagal menyimpan log");
+        String nama = LogExport.simpanKeDownload(this, log);
+        toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
     }
 
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
@@ -634,65 +565,29 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Versi dari file vw-version.json (web-vault yang sudah di-update) atau null. */
+    /** Versi dari file vw-version.json (satu implementasi di Updater). */
     private String readWvVersion(File f) {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                new java.io.FileInputStream(f), StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
-            }
-            String v = new org.json.JSONObject(sb.toString()).optString("version", "");
-            return v.isEmpty() ? null : v;
-        } catch (Exception e) {
-            return null;
-        }
+        return Updater.readWvVersion(f);
     }
 
-    /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
+    /** Versi binary yang benar-benar dipakai server saat ini (satu di Updater). */
     private String currentServerVersion() {
-        String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null) {
-            return real;
-        }
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
-        if (updated != null && !updated.isEmpty()) {
-            return updated;
-        }
-        return bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
+        return Updater.currentServerVersion(this);
     }
 
-    /** Backup Telegram otomatis saat Start (sekali sehari, bila hari sudah berganti). */
+    /** Backup Telegram otomatis saat Start (satu implementasi di TgBackup). */
     private void maybeAutoBackup() {
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
-            return;
-        }
-        String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
-        String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
-        if (token.isEmpty() || chat.isEmpty()) {
-            appendUiLog("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
-            return;
-        }
-        long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
-        if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
-            return; // hari ini sudah backup (jadwal tengah malam yang urus sisanya)
-        }
-        appendUiLog("[tg] Backup otomatis saat Start akan dijalankan...");
-        new Thread(() -> {
-            try {
-                final String msg = TgBackup.backupTungguDb(MainActivity.this);
-                ui.post(() -> {
-                    toast(msg);
-                    appendUiLog("[app] " + msg);
-                });
-            } catch (InterruptedException ignored) {
-            } catch (Exception e) {
-                appendUiLog("[tg] Gagal backup otomatis saat Start: " + e);
+        TgBackup.maybeAutoBackup(this, new TgBackup.BackupStartUi() {
+            @Override public void toast(String s) {
+                MainActivity.this.toast(s);
             }
-        }, "vw-tg-onstart").start();
+            @Override public void catat(String s) {
+                appendUiLog(s);
+            }
+            @Override public void jalankanUi(Runnable r) {
+                ui.post(r);
+            }
+        });
     }
 
     // ─── Kunci PIN ──────────────────────────────────────────────────────
@@ -723,11 +618,20 @@ public class MainActivity extends Activity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    long sisa = PinGate.sisaKunciMs(MainActivity.this,
+                            System.currentTimeMillis());
+                    if (sisa > 0) {
+                        input.setError("Terkunci, coba lagi "
+                                + ((sisa + 59000) / 60000) + " menit.");
+                        return;
+                    }
                     ok.setEnabled(false);
                     input.setError("Memeriksa PIN...");
                     final String entered = input.getText().toString();
                     new Thread(() -> {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
+                        PinGate.catatHasil(MainActivity.this, cocok,
+                                System.currentTimeMillis());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();

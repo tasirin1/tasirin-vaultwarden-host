@@ -162,6 +162,11 @@ public class LogActivity extends Activity {
      *  Tanpa toLowerCase()/substring() per baris: pencocokan case-insensitive
      *  via regionMatches agar tidak ada salinan besar tiap refresh. */
     private CharSequence highlightLog(String text, String q) {
+        // Buffer bisa 300 KB: membangun ribuan span tiap detik bikin STB patah.
+        // Di atas 150 KB tampilkan polos (pencarian teks browser tetap jalan).
+        if (text.length() > 150_000) {
+            return text;
+        }
         if ((q == null || q.isEmpty()) && rangeIndexOf(text, "GAGAL", 0, text.length()) < 0
                 && rangeIndexOf(text, "ERROR", 0, text.length()) < 0
                 && rangeIndexOf(text, "FAILED", 0, text.length()) < 0) {
@@ -290,81 +295,14 @@ public class LogActivity extends Activity {
         toast("Log disalin ke clipboard.");
     }
 
-    /** Simpan log ke .txt di Download (format header ala Tasirin). */
-    // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur untuk API 21-32.
-    @SuppressWarnings("deprecation")
+/** Simpan log ke .txt di Download (satu implementasi di LogExport). */
     private void exportLogTxt() {
         String log;
         synchronized (ServerService.logBuffer) {
             log = ServerService.logBuffer.toString();
         }
-        StringBuilder header = new StringBuilder();
-        header.append("=== Tasirin Vaultwarden Host - Log Server (realtime) ===\n");
-        header.append("Waktu: ")
-                .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()))
-                .append('\n');
-        try {
-            android.content.pm.PackageInfo info =
-                    getPackageManager().getPackageInfo(getPackageName(), 0);
-            header.append("Versi app: ").append(info.versionName)
-                    .append(" (build ").append(info.versionCode).append(")\n");
-        } catch (Exception ignored) {
-            header.append("Versi app: ?\n");
-        }
-        header.append("Android: ").append(Build.VERSION.RELEASE)
-                .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        header.append("Perangkat: ").append(Build.MANUFACTURER).append(' ')
-                .append(Build.MODEL).append("\n\n");
-        header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
-        header.append('\n');
-
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
-        String name = "tasirin-vaultwarden-host-log-" + stamp + ".txt";
-        boolean ok = false;
-        if (Build.VERSION.SDK_INT >= 29) {
-            try {
-                ContentResolver resolver = getContentResolver();
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
-                values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-                values.put(MediaStore.Downloads.RELATIVE_PATH, "Download/");
-                values.put(MediaStore.Downloads.IS_PENDING, 1);
-                Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                if (uri != null) {
-                    try (OutputStream out = resolver.openOutputStream(uri)) {
-                        if (out != null) {
-                            out.write(header.toString().getBytes(StandardCharsets.UTF_8));
-                            ok = true;
-                        } else {
-                            resolver.delete(uri, null, null);
-                        }
-                    } catch (Exception e) {
-                        resolver.delete(uri, null, null);
-                    }
-                    if (ok) {
-                        ContentValues done = new ContentValues();
-                        done.put(MediaStore.Downloads.IS_PENDING, 0);
-                        resolver.update(uri, done, null, null);
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        } else {
-            try {
-                File dir = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS);
-                if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                            new FileOutputStream(new File(dir, name), false),
-                            StandardCharsets.UTF_8)) {
-                        w.write(header.toString());
-                    }
-                    ok = true;
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        toast(ok ? "Log disimpan: Download/" + name : "Gagal menyimpan log");
+        String nama = LogExport.simpanKeDownload(this, log);
+        toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
     }
 
     private void toast(String msg) {

@@ -31,6 +31,17 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void kunciLimaGagalBeruntun() {
+        long sekarang = 1_000_000L;
+        assertTrue(PinCrypto.sisaKunciMs(4, 0, sekarang) == 0);
+        long sampai = PinCrypto.kunciBerikutnyaMs(5, sekarang);
+        assertTrue(sampai == sekarang + PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sampai) == 0);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sampai + 1) == 0);
+    }
+
+    @Test
     public void inputRusakDitolak() {
         assertFalse(PinCrypto.verify(null, "1"));
         assertFalse(PinCrypto.verify("", "1"));

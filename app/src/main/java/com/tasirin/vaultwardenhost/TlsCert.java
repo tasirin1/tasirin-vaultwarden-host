@@ -459,6 +459,17 @@ public final class TlsCert {
             }
             w.write("-----END " + type + "-----\n");
         }
+        if (type.contains("PRIVATE")) {
+            // Best-effort: batasi ke pemilik saja bila FS mendukung chmod
+            // (di /sdcard FAT tidak berpengaruh; lihat catatan tls internal).
+            try {
+                f.setReadable(false, false);
+                f.setWritable(false, false);
+                f.setReadable(true, true);
+                f.setWritable(true, true);
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /** Builder ASN.1 DER sederhana. */

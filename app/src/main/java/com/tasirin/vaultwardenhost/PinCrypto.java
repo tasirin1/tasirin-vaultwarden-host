@@ -13,6 +13,9 @@ import javax.crypto.spec.PBEKeySpec;
  *  sekali lalu dimigrasi ke format baru. Murni JVM — bisa unit test. */
 public final class PinCrypto {
 
+    public static final int MAX_GAGAL = 5;
+    public static final long KUNCI_MS = 5 * 60_000;
+
     private static final String PREFIX = "PBKDF2$";
     private static final int ITERATIONS = 120_000;
     private static final int SALT_BYTES = 16;
@@ -66,6 +69,22 @@ public final class PinCrypto {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni. */
+    public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
+        if (gagal < MAX_GAGAL || sekarang >= terkunciSampai) {
+            return 0;
+        }
+        return terkunciSampai - sekarang;
+    }
+
+    /** Kunci baru sesudah satu kegagalan (perpanjangan bila sudah capai batas). Murni. */
+    public static long kunciBerikutnyaMs(int gagalSesudah, long sekarang) {
+        if (gagalSesudah < MAX_GAGAL) {
+            return 0;
+        }
+        return sekarang + KUNCI_MS;
     }
 
     private static byte[] derive(String pin, byte[] salt, int iter) {

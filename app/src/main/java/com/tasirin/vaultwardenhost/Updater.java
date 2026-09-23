@@ -805,6 +805,37 @@ public final class Updater {
         return v;
     }
 
+    /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
+    public static String currentServerVersion(Context ctx) {
+        String real = parseBinaryVersion(ServerService.binaryVersion);
+        if (real != null) {
+            return real;
+        }
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        if (updated != null && !updated.isEmpty()) {
+            return updated;
+        }
+        return readBundledVersionRaw(ctx);
+    }
+
+    /** Versi dari file vw-version.json web-vault, atau null bila tak terbaca. */
+    public static String readWvVersion(File f) {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                new FileInputStream(f), StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                sb.append(line);
+            }
+            String v = new org.json.JSONObject(sb.toString()).optString("version", "");
+            return v.isEmpty() ? null : v;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static String normVersion(String v) {
         if (v == null) {
             return null;
@@ -842,20 +873,20 @@ public final class Updater {
                 }
             }
             Process p = pb.start();
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-                    p.getInputStream(), StandardCharsets.UTF_8));
             // Baca sampai baris bermakna: baris pertama di STB lama adalah
             // noise linker ("WARNING: linker: ..."), bukan versi.
             String first = null;
-            String baris;
-            for (int i = 0; i < 10 && (baris = r.readLine()) != null; i++) {
-                if (ServerService.isNoiseLinker(baris)) {
-                    continue;
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                    p.getInputStream(), StandardCharsets.UTF_8))) {
+                String baris;
+                for (int i = 0; i < 10 && (baris = r.readLine()) != null; i++) {
+                    if (ServerService.isNoiseLinker(baris)) {
+                        continue;
+                    }
+                    first = baris;
+                    break;
                 }
-                first = baris;
-                break;
             }
-            r.close();
             try {
                 p.waitFor();
             } catch (InterruptedException e) {

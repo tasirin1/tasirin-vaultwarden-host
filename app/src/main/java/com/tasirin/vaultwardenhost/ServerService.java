@@ -563,7 +563,7 @@ public class ServerService extends Service {
                 appendLog("[app] LD_PRELOAD shim getrandom aktif.");
             }
             // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
-            String domain = scheme + "://" + detectHostPort(port);
+            String domain = scheme + "://" + lanHost() + ":" + port;
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
@@ -1004,10 +1004,6 @@ public class ServerService extends Service {
 
     private static javax.net.ssl.SSLSocketFactory sslFactory;
 
-    private static javax.net.ssl.SSLSocketFactory trustAllSslFactory() throws Exception {
-        return loopbackSslFactory(null);
-    }
-
     /** Trust khusus health-check loopback: pin CA milik app bila ada,
      *  fallback trust-all hanya untuk 127.0.0.1/localhost (verifier di atas
      *  sudah membatasi host). Tak dipakai untuk koneksi luar. */
@@ -1113,15 +1109,6 @@ public class ServerService extends Service {
         boolean https = sp.getBoolean(KEY_HTTPS, false);
         String port = effectivePort(sp);
         return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
-    }
-
-    /** URL jaringan (selalu IP LAN; fitur domain lokal dihapus). */
-    public static String urlJaringan(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        boolean https = sp.getBoolean(KEY_HTTPS, false);
-        String port = effectivePort(sp).trim();
-        String scheme = https ? "https" : "http";
-        return scheme + "://" + localIp() + ":" + port;
     }
 
     private void setStatus(String text) {
@@ -1345,7 +1332,11 @@ public class ServerService extends Service {
             String first = null;
             String baris;
             int dibaca = 0;
-            while (dibaca < 20 && (baris = r.readLine()) != null) {
+            // Batas total 50 baris (termasuk noise): binary aneh yang mengoceh
+            // tanpa henti tak boleh menggantung thread Start selamanya.
+            int total = 0;
+            while (total < 50 && (baris = r.readLine()) != null) {
+                total++;
                 if (isNoiseLinker(baris)) {
                     continue;
                 }
@@ -1383,14 +1374,6 @@ public class ServerService extends Service {
     private static String lanHost() {
         List<String> ips = collectIps();
         return ips.isEmpty() ? "127.0.0.1" : ips.get(0);
-    }
-
-    private String detectHostPort(String port) {
-        List<String> ips = collectIps();
-        if (!ips.isEmpty()) {
-            return ips.get(0) + ":" + port;
-        }
-        return "localhost:" + port;
     }
 
     private static List<String> collectIps() {
