@@ -773,7 +773,10 @@ public final class TgBackup {
             curDir = ServerService.DEFAULT_DATA_DIR;
         }
 
-        // Baca config dulu (bila backup lengkap) untuk tahu folder data tujuan.
+        // Selalu pulihkan ke folder data perangkat saat ini. Nilai data_dir
+        // di dalam zip tak tepercaya (bisa menunjuk path arbitrer) sehingga
+        // sengaja diabaikan; pengaturan non-rahasia tetap diterapkan
+        // belakangan via applyPrefsFromJson (kecuali data_dir).
         JSONObject cfg = null;
         try (ZipInputStream probe = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry e;
@@ -784,17 +787,9 @@ public final class TgBackup {
                     break;
                 }
             }
+        } catch (Exception ignored) {
         }
         String dataDir = curDir;
-        if (cfg != null) {
-            JSONObject cfgPrefs = cfg.optJSONObject("prefs");
-            if (cfgPrefs != null && cfgPrefs.has(ServerService.KEY_DATA_DIR)) {
-                String d = cfgPrefs.optString(ServerService.KEY_DATA_DIR, "").trim();
-                if (!d.isEmpty()) {
-                    dataDir = d;
-                }
-            }
-        }
         File dataFolder = new File(dataDir);
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
@@ -913,10 +908,14 @@ public final class TgBackup {
         }
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
-        // tak menghapus seluruh pengaturan perangkat.
+        // tak menghapus seluruh pengaturan perangkat. Folder data selalu
+        // milik perangkat (abaikan data_dir dari zip tak tepercaya).
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
             String k = keys.next();
+            if (ServerService.KEY_DATA_DIR.equals(k)) {
+                continue;
+            }
             Object v = prefs.get(k);
             if (v instanceof String) {
                 ed.putString(k, (String) v);

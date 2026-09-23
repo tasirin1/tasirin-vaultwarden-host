@@ -713,7 +713,7 @@ public final class TgBot {
         try {
             c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(15000);
-            c.setReadTimeout(70000);
+            c.setReadTimeout(35000);
             c.setRequestMethod("GET");
             HttpsCompat.apply(c, ctx);
             int code = c.getResponseCode();

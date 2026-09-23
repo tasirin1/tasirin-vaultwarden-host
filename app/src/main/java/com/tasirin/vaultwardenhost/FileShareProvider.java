@@ -67,15 +67,31 @@ public class FileShareProvider extends ContentProvider {
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
+    /** Ekstensi file yang aman dibagikan (cert, backup, export, log). */
+    private static boolean namaBolehDibagikan(String name) {
+        if (name == null) {
+            return false;
+        }
+        String rendah = name.toLowerCase(java.util.Locale.US);
+        return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
+                || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt");
+    }
+
     /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
-     *  di folder data. Database mentah (db.sqlite3*) tidak ikut dibagikan. */
+     *  di folder data. Database mentah (db.sqlite3*) dan binary tidak ikut. */
     private boolean isShareable(String canon) {
         try {
             String files = getContext().getFilesDir().getCanonicalPath();
             String cache = getContext().getCacheDir().getCanonicalPath();
             if (canon.startsWith(files + File.separator)
                     || canon.startsWith(cache + File.separator)) {
-                return true;
+                // Jangan bagikan binary server / file decrypt sementara dari
+                // files/cache: hanya ekstensi aman yang boleh lewat.
+                String nama = new File(canon).getName();
+                if (nama.startsWith("db.sqlite3")) {
+                    return false;
+                }
+                return namaBolehDibagikan(nama);
             }
             android.content.SharedPreferences sp = getContext().getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);
@@ -94,9 +110,7 @@ public class FileShareProvider extends ContentProvider {
             if (!diTls && !diBackup) {
                 return false;
             }
-            String rendah = name.toLowerCase(java.util.Locale.US);
-            return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
-                    || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt");
+            return namaBolehDibagikan(name);
         } catch (Exception e) {
             return false;
         }

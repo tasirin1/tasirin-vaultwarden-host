@@ -491,10 +491,10 @@ public class ServerService extends Service {
         }
         if (isPortBusy(portNum)) {
             setStatus("Port " + port.trim() + " sedang dipakai proses lain.\n"
-                    + "Stop server lain / restart HP dulu, lalu Start lagi.");
+                    + "Stop server lain / ganti port di Settings, lalu Start lagi.");
             appendLog("[app] Port " + port.trim() + " sedang dipakai - server TIDAK start (cegah loop).");
             TgBackup.sendMessage(this, "Gagal start: port " + port.trim()
-                    + " sedang dipakai proses lain. Restart HP lalu coba lagi.");
+                    + " sedang dipakai proses lain. Stop server lain / ganti port lalu coba lagi.");
             return;
         }
 
@@ -1460,6 +1460,9 @@ public class ServerService extends Service {
         File dir = TlsCert.ensure(tlsDir, ips, dns);
         if (dir != null) {
             writeText(ipFile, cur);
+            // Sertifikat bisa baru dibuat: buang cache SSL agar health check
+            // memakai CA terbaru, bukan trust-all lama.
+            sslFactory = null;
         }
         return dir;
     }
@@ -1801,7 +1804,13 @@ public class ServerService extends Service {
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             if (pm != null) {
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
-                wakeLock.acquire();
+                // Timeout 12 jam: bila jalur stop()/destroy terlewat, kunci
+                // tetap dilepas sistem agar baterai tak terkuras selamanya.
+                try {
+                    wakeLock.acquire(12L * 3600 * 1000L);
+                } catch (Exception e) {
+                    wakeLock.acquire();
+                }
             }
         } catch (Exception ignored) {
         }

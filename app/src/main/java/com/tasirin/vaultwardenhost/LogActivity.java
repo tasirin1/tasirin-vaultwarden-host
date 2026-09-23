@@ -243,10 +243,19 @@ public class LogActivity extends Activity {
                 .show();
     }
 
+    static String samarkanLog(String log) {
+        if (log == null) {
+            return "";
+        }
+        // Samarkan nilai token di query (?token=...) agar tak ikut
+        // terbagi ke app lain via ACTION_SEND / clipboard.
+        return log.replaceAll("(?i)(token=)[^&\\s\\]]+", "$1***");
+    }
+
     private void shareLog() {
         String log;
         synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
+            log = samarkanLog(ServerService.logBuffer.toString());
         }
         if (log.isEmpty()) {
             toast("Log masih kosong.");
@@ -266,7 +275,7 @@ public class LogActivity extends Activity {
     private void copyLog() {
         String log;
         synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
+            log = samarkanLog(ServerService.logBuffer.toString());
         }
         if (log.isEmpty()) {
             toast("Log masih kosong.");

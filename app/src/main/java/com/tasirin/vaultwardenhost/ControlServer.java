@@ -58,7 +58,15 @@ public final class ControlServer {
 
     public boolean start(int port) {
         try {
-            serverSocket = new ServerSocket(port);
+            // Bila admin token kosong, /api/* terbuka tanpa auth: ikat ke
+            // loopback saja agar tak terekspos ke satu LAN. Bila token ada,
+            // ikat normal agar status LAN tetap bisa diakses.
+            if (adminTokenKosong()) {
+                serverSocket = new ServerSocket(port, 50,
+                        java.net.InetAddress.getByName("127.0.0.1"));
+            } else {
+                serverSocket = new ServerSocket(port);
+            }
             listeningPort = serverSocket.getLocalPort();
             jsonCache = null;
             jsonCacheAt = 0;
@@ -205,6 +213,17 @@ public final class ControlServer {
         return MessageDigest.isEqual(
                 a.getBytes(StandardCharsets.UTF_8),
                 dapat.trim().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private boolean adminTokenKosong() {
+        try {
+            String at = context.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_ADMIN_TOKEN, "");
+            return at == null || at.trim().isEmpty();
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     /** True bila query/header membawa admin token yang benar (atau tidak ada token
