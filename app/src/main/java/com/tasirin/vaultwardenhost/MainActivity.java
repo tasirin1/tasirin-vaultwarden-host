@@ -34,9 +34,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /** Layar awal sederhana: status server + Start/Stop + log realtime + simpan .txt.
  *  Semua pengaturan pindah ke SettingsActivity lewat tombol titik tiga. */
@@ -167,6 +164,22 @@ public class MainActivity extends Activity {
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
+        // Susulan backup boot yang ditolak sistem (Android 12+ batasi start background).
+        if (sp.getBoolean("tg_backup_tertunda", false)) {
+            try {
+                sp.edit().remove("tg_backup_tertunda").apply();
+            } catch (Exception ignored) {
+            }
+            final android.content.Context app = getApplicationContext();
+            new Thread(() -> {
+                try {
+                    String msg = TgBackup.backupNow(app);
+                    ServerService.catatLog("[tg] " + msg + " (susulan boot).");
+                } catch (Exception e) {
+                    ServerService.catatLog("[tg] Backup susulan boot gagal: " + e.getMessage());
+                }
+            }, "vw-boot-susulan").start();
+        }
     }
 
     @Override
@@ -436,6 +449,19 @@ public class MainActivity extends Activity {
         }
         lastLogLen += delta.length();
         homeLogView.append(delta);
+        // TextView 300 KB + fullScroll tiap 500 ms bikin STB patah: tampilkan ekor saja.
+        if (homeLogView.length() > 40000) {
+            CharSequence penuh = homeLogView.getText();
+            int potong = penuh.length() - 30000;
+            int nl = -1;
+            for (int i = potong; i < penuh.length(); i++) {
+                if (penuh.charAt(i) == '\n') {
+                    nl = i + 1;
+                    break;
+                }
+            }
+            homeLogView.setText(penuh.subSequence(nl < 0 ? potong : nl, penuh.length()));
+        }
         homeLogCount.setText(getString(R.string.log_lines, lineCount));
         homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
     }
@@ -671,15 +697,7 @@ public class MainActivity extends Activity {
         if (line == null) {
             return;
         }
-        String stamp = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date());
-        synchronized (ServerService.logBuffer) {
-            ServerService.logBuffer.append(stamp).append(' ').append(line).append('\n');
-            // Batas sama seperti ServerService (300 KB + 32 KB histeresis,
-            // pangkas ke separuh) agar log UI tak menumbuhkan buffer tanpa batas.
-            if (ServerService.logBuffer.length() > 332768) {
-                ServerService.logBuffer.delete(0, ServerService.logBuffer.length() - 150000);
-            }
-        }
+        ServerService.catatLog(line);
         // Ledakan log tidak boleh membanjiri UI thread.
         long now = System.currentTimeMillis();
         if (now - lastUiLogRefresh > 500) {

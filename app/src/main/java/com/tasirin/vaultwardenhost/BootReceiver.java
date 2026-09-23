@@ -39,7 +39,12 @@ public class BootReceiver extends BroadcastReceiver {
                         ServerService.backupNow(context);
                     }
                 } catch (Exception ignored) {
-                    // Backup susulan gagal - alarm tengah malam yang urus berikutnya.
+                    // Android 12+ bisa menolak start dari background: tandai agar
+                    // MainActivity menjalankan susulan saat dibuka berikutnya.
+                    try {
+                        sp.edit().putBoolean("tg_backup_tertunda", true).apply();
+                    } catch (Exception ignored2) {
+                    }
                 }
             }
             // Remote kontrol bot tetap aktif setelah reboot

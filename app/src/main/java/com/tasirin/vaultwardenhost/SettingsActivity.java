@@ -1748,9 +1748,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void appendUiLog(String line) {
-        synchronized (ServerService.logBuffer) {
-            ServerService.logBuffer.append(line).append('\n');
-        }
+        ServerService.catatLog(line);
         // Ledakan log (mis. output binary) tidak boleh membanjiri UI thread.
         long now = System.currentTimeMillis();
         if (now - lastUiLogRefresh > 500) {

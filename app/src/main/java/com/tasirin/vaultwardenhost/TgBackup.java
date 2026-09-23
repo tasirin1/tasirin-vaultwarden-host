@@ -237,6 +237,58 @@ public final class TgBackup {
                 + upload.length() + " bytes)" + peringatan;
     }
 
+    /** Siapkan POST Telegram tanpa ikuti redirect otomatis.
+     *  Redirect POST ditolak mentah (Telegram API tak memakai redirect;
+     *  mengikuti redirect bisa bocorkan token bot ke host lain). */
+    static HttpURLConnection bukaPostTelegram(Context ctx, String url, byte[] body,
+            String contentType, int connectMs, int readMs) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new java.net.URL(url).openConnection();
+        c.setRequestMethod("POST");
+        c.setDoOutput(true);
+        c.setConnectTimeout(connectMs);
+        c.setReadTimeout(readMs);
+        c.setInstanceFollowRedirects(false);
+        c.setRequestProperty("Content-Type", contentType);
+        c.setRequestProperty("Content-Length", String.valueOf(body.length));
+        HttpsCompat.apply(c, ctx);
+        return c;
+    }
+
+    /** Tolak redirect Telegram (fail-closed agar token tak bocor ke http/host lain). */
+    static void tolakRedirectTelegram(HttpURLConnection c) throws java.io.IOException {
+        int kode = c.getResponseCode();
+        if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
+            String lok = c.getHeaderField("Location");
+            throw new java.io.IOException("Redirect Telegram ditolak: " + lok);
+        }
+    }
+
+    /** Buka URL file Telegram sambil ikuti redirect hanya yang https. */
+    static HttpURLConnection bukaFileTelegram(Context ctx, String url,
+            int connectMs, int readMs) throws Exception {
+        String kini = url;
+        for (int i = 0; i < 5; i++) {
+            HttpURLConnection c = (HttpURLConnection) new java.net.URL(kini).openConnection();
+            c.setConnectTimeout(connectMs);
+            c.setReadTimeout(readMs);
+            c.setInstanceFollowRedirects(false);
+            HttpsCompat.apply(c, ctx);
+            int kode = c.getResponseCode();
+            if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
+                String lok = c.getHeaderField("Location");
+                c.disconnect();
+                if (lok == null || lok.isEmpty()
+                        || !Util.bolehIkutiRedirect(kini, lok)) {
+                    throw new java.io.IOException("Redirect Telegram tidak aman: " + lok);
+                }
+                kini = Util.sambungRedirect(kini, lok);
+                continue;
+            }
+            return c;
+        }
+        throw new java.io.IOException("Terlalu banyak redirect Telegram.");
+    }
+
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
      *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
     public static void sendMessage(Context ctx, String text) {
@@ -270,19 +322,12 @@ public final class TgBackup {
                 byte[] body = param.getBytes(StandardCharsets.UTF_8);
                 HttpURLConnection conn = null;
                 try {
-                    conn = (HttpURLConnection) new URL(TG_API + token + "/sendMessage")
-                            .openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
-                    conn.setConnectTimeout(15000);
-                    conn.setReadTimeout(30000);
-                    conn.setRequestProperty("Content-Type",
-                            "application/x-www-form-urlencoded");
-                    conn.setRequestProperty("Content-Length", String.valueOf(body.length));
-                    HttpsCompat.apply(conn, app);
+                    conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
+                            "application/x-www-form-urlencoded", 15000, 30000);
                     try (OutputStream os = conn.getOutputStream()) {
                         os.write(body);
                     }
+                    tolakRedirectTelegram(conn);
                     int code = conn.getResponseCode();
                     InputStream is = (code >= 200 && code < 300)
                             ? conn.getInputStream() : conn.getErrorStream();
@@ -341,9 +386,7 @@ public final class TgBackup {
                 d = d.substring(0, 200) + "...";
             }
             String line = "[tg] Gagal " + aksi + " (HTTP " + code + "): " + d;
-            synchronized (ServerService.logBuffer) {
-                ServerService.logBuffer.append(line).append('\n');
-            }
+            ServerService.catatLog(line);
         } catch (Exception ignored) {
         }
     }
@@ -539,6 +582,7 @@ public final class TgBackup {
             conn.setDoOutput(true);
             conn.setConnectTimeout(20000);
             conn.setReadTimeout(180000);
+            conn.setInstanceFollowRedirects(false);
             // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
             conn.setChunkedStreamingMode(0);
             HttpsCompat.apply(conn, ctx);
@@ -565,6 +609,7 @@ public final class TgBackup {
                 dos.flush();
             }
 
+            tolakRedirectTelegram(conn);
             int code = conn.getResponseCode();
             InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
             StringBuilder sb = new StringBuilder();
@@ -638,12 +683,9 @@ public final class TgBackup {
         String path = getFilePath(ctx, token, fileId);
         HttpURLConnection conn = null;
         try {
-            conn = (HttpURLConnection) new URL(
-                    "https://api.telegram.org/file/bot" + token + "/" + path).openConnection();
-            conn.setConnectTimeout(20000);
-            conn.setReadTimeout(120000);
-            conn.setInstanceFollowRedirects(true);
-            HttpsCompat.apply(conn, ctx);
+            conn = bukaFileTelegram(ctx,
+                    "https://api.telegram.org/file/bot" + token + "/" + path,
+                    20000, 120000);
             int code = conn.getResponseCode();
             if (code != 200) {
                 throw new IOException("Unduh backup gagal (HTTP " + code + ")");
@@ -671,19 +713,13 @@ public final class TgBackup {
             // POST agar token tidak nangkring di URL (konsisten dengan sendMessage).
             byte[] body = ("file_id=" + URLEncoder.encode(fileId, "UTF-8"))
                     .getBytes(StandardCharsets.UTF_8);
-            conn = (HttpURLConnection) new URL(
-                    "https://api.telegram.org/bot" + token + "/getFile").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(15000);
-            conn.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length", String.valueOf(body.length));
-            HttpsCompat.apply(conn, ctx);
+            conn = bukaPostTelegram(ctx,
+                    "https://api.telegram.org/bot" + token + "/getFile", body,
+                    "application/x-www-form-urlencoded", 15000, 15000);
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body);
             }
+            tolakRedirectTelegram(conn);
             int code = conn.getResponseCode();
             if (code != 200) {
                 throw new IOException("getFile gagal (HTTP " + code + ")");

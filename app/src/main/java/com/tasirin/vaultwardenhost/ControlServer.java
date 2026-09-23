@@ -175,7 +175,8 @@ public final class ControlServer {
                 query = path.substring(q + 1);
                 path = path.substring(0, q);
             }
-            if (path.startsWith("/api/") && !checkToken(query, authHeader)) {
+            if ((path.startsWith("/api/") || path.equals("/"))
+                    && !checkToken(query, authHeader)) {
                 respond(s, 403, "text/plain; charset=utf-8",
                         "Akses ditolak: admin token dibutuhkan (?token= / Authorization: Bearer).");
                 return;
@@ -481,7 +482,7 @@ public final class ControlServer {
                     s.getOutputStream(), 8192);
             out.write("HTTP/1.1 200 OK\r\n".getBytes(StandardCharsets.UTF_8));
             out.write("Content-Type: text/event-stream; charset=utf-8\r\n".getBytes(StandardCharsets.UTF_8));
-            out.write("Cache-Control: no-cache\r\n".getBytes(StandardCharsets.UTF_8));
+            out.write("Cache-Control: no-store\r\n".getBytes(StandardCharsets.UTF_8));
             out.write("Connection: close\r\n\r\n".getBytes(StandardCharsets.UTF_8));
             out.write("retry: 1000\n\n".getBytes(StandardCharsets.UTF_8));
             out.flush();

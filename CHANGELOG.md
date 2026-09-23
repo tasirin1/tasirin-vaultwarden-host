@@ -19,6 +19,10 @@ Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 - Bot dukung chat `@username` selain ID numerik; pesan masa depan (jam STB lambat) tidak dibuang.
 
 ### Perbaikan
+- Satu penulis log terpusat `ServerService.catatLog()` (stempel + trim + versi); pratinjau log awal dibatasi ekor 30 KB.
+- Halaman status `/` wajib token bila admin token diset; SSE pakai `no-store`.
+- Kunci TLS dimigrasi ke internal (tak lagi di `/sdcard`); backup boot tertunda dijalankan susulan.
+- Semua POST Telegram tolak redirect; unduh file Telegram hanya ikuti redirect https.
 - `effectivePort()` murni tanpa tulis disk; migrasi `8080` sekali saat service dibuat.
 - Refresh log pakai versi monotonik (anti balapan trim+append); `FileShareProvider.query()` kembalikan cursor nama/ukuran.
 - Shim `getrandom` pakai ulang fd `/dev/urandom` (hemat open/close) + pulih bila EBADF.

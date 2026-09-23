@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -130,18 +129,12 @@ public final class TgBot {
             HttpURLConnection c = null;
             try {
                 byte[] body = payload.getBytes(StandardCharsets.UTF_8);
-                c = (HttpURLConnection) new URL(TG_API + token + "/setMyCommands")
-                        .openConnection();
-                c.setRequestMethod("POST");
-                c.setDoOutput(true);
-                c.setConnectTimeout(15000);
-                c.setReadTimeout(30000);
-                c.setRequestProperty("Content-Type", "application/json");
-                c.setRequestProperty("Content-Length", String.valueOf(body.length));
-                HttpsCompat.apply(c, app);
+                c = TgBackup.bukaPostTelegram(app, TG_API + token + "/setMyCommands",
+                        body, "application/json", 15000, 30000);
                 try (OutputStream os = c.getOutputStream()) {
                     os.write(body);
                 }
+                TgBackup.tolakRedirectTelegram(c);
                 int code = c.getResponseCode();
                 InputStream is = (code >= 200 && code < 300)
                         ? c.getInputStream() : c.getErrorStream();
@@ -351,19 +344,13 @@ public final class TgBot {
                 byte[] body = ("callback_query_id="
                         + URLEncoder.encode(callbackId, "UTF-8"))
                         .getBytes(StandardCharsets.UTF_8);
-                c = (HttpURLConnection) new URL(TG_API + token + "/answerCallbackQuery")
-                        .openConnection();
-                c.setRequestMethod("POST");
-                c.setDoOutput(true);
-                c.setConnectTimeout(15000);
-                c.setReadTimeout(30000);
-                c.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded");
-                c.setRequestProperty("Content-Length", String.valueOf(body.length));
-                HttpsCompat.apply(c, app);
+                c = TgBackup.bukaPostTelegram(app,
+                        TG_API + token + "/answerCallbackQuery", body,
+                        "application/x-www-form-urlencoded", 15000, 30000);
                 try (OutputStream os = c.getOutputStream()) {
                     os.write(body);
                 }
+                TgBackup.tolakRedirectTelegram(c);
                 c.getResponseCode();
             } catch (Exception ignored) {
             } finally {
@@ -741,18 +728,12 @@ public final class TgBot {
         HttpURLConnection c = null;
         try {
             byte[] body = param.getBytes(StandardCharsets.UTF_8);
-            c = (HttpURLConnection) new URL(url).openConnection();
-            c.setConnectTimeout(15000);
-            c.setReadTimeout(35000);
-            c.setRequestMethod("POST");
-            c.setDoOutput(true);
-            c.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
-            c.setRequestProperty("Content-Length", String.valueOf(body.length));
-            HttpsCompat.apply(c, ctx);
+            c = TgBackup.bukaPostTelegram(ctx, url, body,
+                    "application/x-www-form-urlencoded", 15000, 35000);
             try (OutputStream os = c.getOutputStream()) {
                 os.write(body);
             }
+            TgBackup.tolakRedirectTelegram(c);
             int code = c.getResponseCode();
             InputStream is = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
             if (is == null) {

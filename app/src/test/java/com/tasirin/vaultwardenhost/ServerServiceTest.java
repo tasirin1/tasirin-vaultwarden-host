@@ -117,6 +117,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void catatLogNaikkanVersi() {
+        long sebelum = ServerService.logVersion();
+        ServerService.catatLog("uji baris");
+        assertTrue(ServerService.logVersion() > sebelum);
+        ServerService.catatLog(null);
+        assertTrue(ServerService.logVersion() > sebelum);
+    }
+
+    @Test
     public void outputVersionNormalBukanPanic() {
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.29.2"));
         assertFalse(ServerService.isKernelRandomPanic("vaultwarden 1.37.3\n"));

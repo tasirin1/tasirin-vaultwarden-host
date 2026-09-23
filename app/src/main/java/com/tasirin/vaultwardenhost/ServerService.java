@@ -1409,12 +1409,16 @@ public class ServerService extends Service {
             List<String> dns = new ArrayList<>();
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
 
-            File tlsDir = new File(dataFolder, "tls");
-            File ipFile = new File(tlsDir, "ips.txt");
-            File dir = ensureCertWithIps(tlsDir, ipFile, ips, dns, cur);
+            // Kunci TLS di internal (bukan /sdcard FAT yang chmod-nya tak berlaku):
+            // migrasi sekali dari folder data lama agar CA tetap sama (HP lain
+            // tak perlu install ulang), lalu pakai internal seterusnya.
+            File internal = new File(getFilesDir(), "tls");
+            migrasiTlsKeInternal(new File(dataFolder, "tls"), internal);
+            File ipFile = new File(internal, "ips.txt");
+            File dir = ensureCertWithIps(internal, ipFile, ips, dns, cur);
             if (dir == null) {
-                File alt = new File(getFilesDir(), "tls");
-                dir = ensureCertWithIps(alt, new File(alt, "ips.txt"), ips, dns, cur);
+                File lama = new File(dataFolder, "tls");
+                dir = ensureCertWithIps(lama, new File(lama, "ips.txt"), ips, dns, cur);
             }
             if (dir != null) {
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
@@ -1434,6 +1438,34 @@ public class ServerService extends Service {
         } catch (Exception e) {
             appendLog("[app] Gagal siapkan TLS: " + e);
             return null;
+        }
+    }
+
+    /** Salin tls lama (/sdcard) ke internal sekali bila internal kosong.
+     *  Best-effort: gagal migrasi bukan fatal (fallback folder lama dipakai). */
+    private void migrasiTlsKeInternal(File lama, File baru) {
+        try {
+            if (!new File(lama, "ca.pem").isFile()
+                    || !new File(lama, "ca-key.pem").isFile()) {
+                return;
+            }
+            if (new File(baru, "ca.pem").isFile()
+                    && new File(baru, "ca-key.pem").isFile()) {
+                return;
+            }
+            if (!baru.exists() && !baru.mkdirs()) {
+                return;
+            }
+            for (String nama : new String[]{"ca.pem", "ca-key.pem", "cert.pem",
+                    "key.pem", "ips.txt"}) {
+                File asal = new File(lama, nama);
+                File tujuan = new File(baru, nama);
+                if (asal.isFile() && !tujuan.isFile()) {
+                    TgBackup.copyFile(asal, tujuan);
+                }
+            }
+            appendLog("[app] TLS dimigrasi ke internal (kunci tak lagi di /sdcard).");
+        } catch (Exception ignored) {
         }
     }
 
@@ -1761,6 +1793,26 @@ public class ServerService extends Service {
     /** Versi log monotonik: kunci refresh UI (anti balapan trim+append). */
     public static long logVersion() {
         return logVer;
+    }
+
+    /** Tulis satu baris log dari mana saja (UI/bot): stempel + trim + versi.
+     *  Wajib dipakai penulis luar agar tak lewati batas 300 KB dan UI refresh. */
+    public static void catatLog(String line) {
+        if (line == null) {
+            return;
+        }
+        String stamp;
+        synchronized (LOG_TS) {
+            stamp = LOG_TS.format(new java.util.Date());
+        }
+        String entry = stamp + " " + line;
+        synchronized (logBuffer) {
+            logBuffer.append(entry).append('\n');
+            if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
+                logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
+            }
+            logVer++;
+        }
     }
 
     /** N karakter terakhir log: satu salinan kecil tanpa split (untuk SSE/log API). */
