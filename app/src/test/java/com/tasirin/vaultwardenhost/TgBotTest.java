@@ -62,10 +62,21 @@ public class TgBotTest {
     }
 
     @Test
+    public void namaPerintah_kupasSuffixAtBotGrup() {
+        assertEquals("ca", TgBot.namaPerintah("/ca"));
+        assertEquals("ca", TgBot.namaPerintah("/ca@NamaBot"));
+        assertEquals("ca", TgBot.namaPerintah("/CA@NamaBot arg"));
+        assertEquals("stop", TgBot.namaPerintah("/stop@Bot 123456"));
+        assertEquals("", TgBot.namaPerintah(null));
+    }
+
+    @Test
     public void callbackDataValid_hanyaPerintahDikenal() {
         assertTrue(TgBot.callbackDataValid("/status"));
         assertTrue(TgBot.callbackDataValid("/ca"));
         assertTrue(TgBot.callbackDataValid("/stop 123456"));
+        assertTrue(TgBot.callbackDataValid("/ca@NamaBot"));
+        assertTrue(TgBot.callbackDataValid("/stop@Bot 123456"));
         assertFalse(TgBot.callbackDataValid("/hapus"));
         assertFalse(TgBot.callbackDataValid("status"));
         assertFalse(TgBot.callbackDataValid(""));

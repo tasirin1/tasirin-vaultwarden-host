@@ -280,12 +280,28 @@ public final class TgBot {
         return sb.append("]}").toString();
     }
 
+    /** Nama perintah tanpa `/`, argumen, dan imbuhan `@namabot` grup. Murni. */
+    static String namaPerintah(String text) {
+        if (text == null) {
+            return "";
+        }
+        String pertama = text.trim().split("\\s+")[0].toLowerCase(Locale.US);
+        if (pertama.startsWith("/")) {
+            pertama = pertama.substring(1);
+        }
+        int at = pertama.indexOf('@');
+        if (at >= 0) {
+            pertama = pertama.substring(0, at);
+        }
+        return pertama;
+    }
+
     /** True bila data callback adalah perintah bot yang dikenal. */
     static boolean callbackDataValid(String data) {
-        if (data == null || !data.startsWith("/")) {
+        if (data == null || !data.trim().startsWith("/")) {
             return false;
         }
-        String cmd = data.split("\\s+")[0].toLowerCase(Locale.US).substring(1);
+        String cmd = namaPerintah(data);
         for (String[] c : daftarPerintahMenu()) {
             if (c[0].equals(cmd)) {
                 return true;
@@ -366,7 +382,7 @@ public final class TgBot {
         if (!text.startsWith("/")) {
             return;
         }
-        String cmd = text.split("\\s+")[0].toLowerCase(Locale.US);
+        String cmd = "/" + namaPerintah(text);
         String arg = "";
         int space = text.indexOf(' ');
         if (space >= 0) {
