@@ -47,7 +47,8 @@ public final class LogExport {
         header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
         header.append('\n');
 
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+        // Milidetik: dua export dalam sedetik tak saling timpa/hapus.
+        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
         String name = "tasirin-vaultwarden-host-log-" + stamp + ".txt";
         boolean ok = false;
         if (Build.VERSION.SDK_INT >= 29) {

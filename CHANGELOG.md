@@ -6,6 +6,27 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug 3: unduh campur, tombol Telegram, auth web, zip TLS
+
+### Perbaikan
+- Unduh tak campur: `unduhKeTmp()` hapus `tmp` + mulai dari nol setiap ganti
+  URL (fallback latest ↔ URL asli), cegah file campuran 2 asset + SHA-256 gagal.
+- Tombol inline awet: `tanganiCallback()` tak lagi pakai `message.date` untuk
+  cek basi (sebelumnya semua tombol mati setelah 5 menit); cek basi tetap
+  untuk pesan ketik, tanpa tanggal kini basi (fail-closed).
+- Tombol + PIN: perintah berbahaya via tombol diberi tahu agar ketik manual
+  dengan PIN bila PIN aktif (sebelumnya selalu ditolak diam-diam).
+- Status web ketat: semua path wajib token bila admin token diset (sebelumnya
+  hanya `/api/` dan `/`).
+- Restore aman: hanya `app-config.json`, `db.sqlite3*` (3 file), dan 4 file
+  `tls/` resmi (`ca.pem`, `cert.pem`, `key.pem`, `ca-key.pem`); `tls/evil.sh`
+  ditolak. Ekstrak web-vault tolak entri `.`/`./`.
+- Enkripsi tak NPE: `Cipher.update()` null-safe sebelum `write` (GCM buffering).
+- Cleartext terkunci: `usesCleartextTraffic=false` + `network_security_config`
+  hanya izinkan cleartext ke `127.0.0.1`/`localhost`.
+- Folder data ikut perangkat: bawaan pakai `Environment` + fallback
+  `/sdcard/vaultwarden`; PIN legasi tak peka huruf; stempel export milidetik.
+
 ## [Belum rilis] — Audit bug 2: biner parsial, zip parsial, balap bot
 
 ### Perbaikan

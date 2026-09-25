@@ -225,6 +225,8 @@ public final class Updater {
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws IOException {
         Exception gagal = null;
+        String originalUrl = url;  // Simpan URL asli untuk retry
+        boolean fallbackUsed = false;
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
             long resumeFrom = tmp.exists() ? tmp.length() : 0;
@@ -232,7 +234,7 @@ public final class Updater {
             try {
                 dl = openRange(ctx, url, resumeFrom, connectMs, readMs);
                 int code = dl.getResponseCode();
-                if (code == 404 && cadangan != null) {
+                if (code == 404 && cadangan != null && !fallbackUsed) {
                     String alt = cadangan.ganti(url, code);
                     if (alt != null && !alt.equals(url)) {
                         dl.disconnect();
@@ -240,6 +242,7 @@ public final class Updater {
                         resumeFrom = 0;
                         tmp.delete();
                         url = alt;
+                        fallbackUsed = true;
                         dl = open(ctx, url, connectMs, readMs);
                         code = dl.getResponseCode();
                     }
@@ -259,6 +262,17 @@ public final class Updater {
                 return salinSambilHash(dl, tmp, code, resumeFrom, label);
             } catch (IOException e) {
                 gagal = e;
+                // Bila fallback sudah dipakai dan gagal, coba URL asli di percobaan berikut.
+                // Isi URL beda wajib mulai dari nol: buang parsial agar tak campur
+                // (sebelumnya resume menumpuk bytes 2 asset + hash prefix salah).
+                if (fallbackUsed && coba < MAX_COBA_UNDUH) {
+                    url = originalUrl;
+                    fallbackUsed = false;
+                    try {
+                        tmp.delete();
+                    } catch (Exception ignored) {
+                    }
+                }
                 if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH
                         || !tundaCobaLagiUnduh(coba)) {
                     break;
@@ -1074,9 +1088,13 @@ public final class Updater {
             return false;
         }
         String n = nama.replace('\\', '/');
-        if (n.charAt(0) == '/' || n.contains(":")
+        if (n.isEmpty() || n.charAt(0) == '/' || n.contains(":")
                 || n.equals("..") || n.startsWith("../")
                 || n.contains("/../") || n.endsWith("/..")) {
+            return false;
+        }
+        // Tolak entri "." atau "./" (current dir) yang bisa berbahaya saat diekstrak
+        if (n.equals(".") || n.startsWith("./")) {
             return false;
         }
         return true;

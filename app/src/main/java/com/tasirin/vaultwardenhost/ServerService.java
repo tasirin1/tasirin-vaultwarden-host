@@ -49,7 +49,21 @@ public class ServerService extends Service {
     public static final String ACTION_TG_BACKUP = "com.tasirin.vaultwardenhost.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
-    public static final String DEFAULT_DATA_DIR = "/sdcard/vaultwarden";
+    /** Folder data bawaan: penyimpanan eksternal perangkat + vaultwarden.
+     *  Dulunya hardcode "/sdcard/vaultwarden" yang tak ada di sebagian perangkat;
+     *  kini ikut Environment dengan fallback lama agar tetap bisa start. */
+    public static final String DEFAULT_DATA_DIR = defaultDataDir();
+
+    private static String defaultDataDir() {
+        try {
+            java.io.File ext = android.os.Environment.getExternalStorageDirectory();
+            if (ext != null) {
+                return new java.io.File(ext, "vaultwarden").getAbsolutePath();
+            }
+        } catch (Exception ignored) {
+        }
+        return "/sdcard/vaultwarden";
+    }
     public static final String DEFAULT_PORT = "8088";
     /** Binary selalu 32-bit ARM (armeabi-v7a); HP arm64 tetap jalan via compat mode. */
     public static final String ABI = "armeabi-v7a";

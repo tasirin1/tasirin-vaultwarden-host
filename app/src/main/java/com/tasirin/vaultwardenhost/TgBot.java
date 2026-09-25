@@ -332,16 +332,47 @@ public final class TgBot {
                     && !chatResmi.equals(dari)) {
                 return;
             }
-            long dateMs = pesan != null ? pesan.optLong("date", 0) * 1000L : 0;
-            if (!Util.pesanSegar(dateMs, System.currentTimeMillis(), STALE_MSG_MS)) {
-                return;
-            }
+            // Tombol inline sengaja berumur panjang: jangan pakai message.date
+            // (tanggal pesan keyboard lama) untuk cek basi, kalau tidak semua
+            // tombol mati setelah 5 menit dan ketukan hilang diam-diam.
+            // Cek basi tetap berlaku untuk pesan ketik di pollOnce().
             jawabCallback(ctx, cb.optString("id", ""));
             String data = cb.optString("data", "").trim();
             if (callbackDataValid(data)) {
-                handleCommand(ctx, data);
+                if (perluPinTombol(ctx, data)) {
+                    TgBackup.sendMessage(ctx, "Tombol tak bisa membawa PIN."
+                            + " Ketik manual mis. " + data + " 123456.");
+                } else {
+                    handleCommand(ctx, data);
+                }
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    /** True bila perintah tombol wajib PIN tapi tak bisa dibawa tombol.
+     *  Perintah berbahaya butuh PIN di akhir argumen; tombol hanya kirim
+     *  "/perintah" tanpa PIN sehingga selalu ditolak bila PIN aktif. */
+    static boolean perintahBerbahayaTombol(String data) {
+        String cmd = namaPerintah(data);
+        return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
+                || cmd.equals("backup") || cmd.equals("restore") || cmd.equals("log")
+                || cmd.equals("crashlog") || cmd.equals("update")
+                || cmd.equals("webvault");
+    }
+
+    /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
+    static boolean perluPinTombol(android.content.Context ctx, String data) {
+        if (!perintahBerbahayaTombol(data)) {
+            return false;
+        }
+        try {
+            android.content.SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, android.content.Context.MODE_PRIVATE);
+            String hash = sp.getString("pin_hash", "");
+            return sp.getBoolean("pin_on", false) && hash != null && !hash.isEmpty();
+        } catch (Exception e) {
+            return false;
         }
     }
 

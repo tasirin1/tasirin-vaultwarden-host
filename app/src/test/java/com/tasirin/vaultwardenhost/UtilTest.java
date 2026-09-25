@@ -27,7 +27,7 @@ public class UtilTest {
         assertFalse(Util.pesanSegar(kini - 400_000L, kini, 300_000L));
         assertTrue(Util.pesanSegar(kini - 100_000L, kini, 300_000L));
         assertTrue(Util.pesanSegar(kini + 60_000L, kini, 300_000L));
-        assertTrue(Util.pesanSegar(0, kini, 300_000L));
+        assertFalse(Util.pesanSegar(0, kini, 300_000L));
     }
 
     @Test

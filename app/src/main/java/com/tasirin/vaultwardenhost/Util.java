@@ -49,8 +49,10 @@ public final class Util {
     /** True bila pesan masih segar (tidak basi). Pesan masa depan (jam STB
      *  lambat) jangan dibuang: hanya pesan lama yang ditolak. Murni. */
     public static boolean pesanSegar(long dateMs, long sekarang, long basiMs) {
+        // Tanpa tanggal = basi (fail-closed): perintah berbahaya basi
+        // (mis. /stop tertunda) tak boleh lolos karena field date hilang.
         if (dateMs <= 0) {
-            return true;
+            return false;
         }
         if (dateMs > sekarang) {
             return true;

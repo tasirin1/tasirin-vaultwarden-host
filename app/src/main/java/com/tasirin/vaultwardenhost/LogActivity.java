@@ -125,8 +125,8 @@ public class LogActivity extends Activity {
         long ver = ServerService.logVersion();
         int len = ServerService.logLength();
         if (len < lastLogLen || ver < lastLogVer) {
-            // Log terpotong (trim buffer) - hitung ulang dari awal.
-            lineCount = 0;
+            // Log terpotong (trim buffer) - hitung ulang dari awal di renderLog.
+            // Jangan set lineCount = 0 di sini karena renderLog akan menghitung ulang.
             lastLogLen = 0;
             lastLogVer = ver;
         }
@@ -142,8 +142,9 @@ public class LogActivity extends Activity {
         synchronized (ServerService.logBuffer) {
             text = ServerService.logBuffer.toString();
         }
-        int n = Math.min(len, text.length());
-        for (int i = lastLogLen; i < n; i++) {
+        // Hitung ulang lineCount dari awal teks saat ini (handle trim dengan benar)
+        lineCount = 0;
+        for (int i = 0; i < text.length(); i++) {
             if (text.charAt(i) == '\n') {
                 lineCount++;
             }

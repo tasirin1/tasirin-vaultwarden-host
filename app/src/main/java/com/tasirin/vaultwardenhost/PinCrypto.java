@@ -64,8 +64,9 @@ public final class PinCrypto {
                 byte[] got = derive(pin, salt, iter);
                 return MessageDigest.isEqual(got, want);
             }
-            // Legasi: SHA-256 tanpa salt — cocokkan lalu migrasi via hash().
-            return slowHexEquals(sha256(pin), stored);
+            // Legasi: SHA-256 tanpa salt — banding tak peka huruf agar hash
+            // lama ber-huruf besar tak mengunci user (disimpan lowercase baru).
+            return slowHexEquals(sha256(pin), stored.trim().toLowerCase(java.util.Locale.US));
         } catch (Exception e) {
             return false;
         }

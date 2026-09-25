@@ -184,8 +184,9 @@ public final class ControlServer {
                 query = path.substring(q + 1);
                 path = path.substring(0, q);
             }
-            if ((path.startsWith("/api/") || path.equals("/"))
-                    && !checkToken(query, authHeader)) {
+            // Semua path wajib token bila admin token diset (termasuk halaman
+            // HTML dan path tak dikenal), agar tak ada celah info tanpa auth.
+            if (!checkToken(query, authHeader)) {
                 respond(s, 403, "text/plain; charset=utf-8",
                         "Akses ditolak: admin token dibutuhkan (?token= / Authorization: Bearer).");
                 return;

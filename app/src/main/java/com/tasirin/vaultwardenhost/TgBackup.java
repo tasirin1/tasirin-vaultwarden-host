@@ -866,7 +866,10 @@ public final class TgBackup {
             byte[] buf = new byte[64 * 1024];
             int n;
             while ((n = fis.read(buf)) > 0) {
-                fos.write(c.update(buf, 0, n));
+                byte[] o = c.update(buf, 0, n);
+                if (o != null && o.length > 0) {
+                    fos.write(o);
+                }
             }
             fos.write(c.doFinal());
         }
@@ -918,7 +921,10 @@ public final class TgBackup {
             byte[] buf = new byte[64 * 1024];
             int n;
             while ((n = fis.read(buf)) > 0) {
-                fos.write(c.update(buf, 0, n));
+                byte[] o = c.update(buf, 0, n);
+                if (o != null && o.length > 0) {
+                    fos.write(o);
+                }
             }
             fos.write(c.doFinal());
         }
@@ -1225,9 +1231,20 @@ public final class TgBackup {
     }
 
     private static boolean diterimaEntriZip(String n) {
-        return !n.isEmpty() && !n.contains("..") && !n.contains(":")
-                && (n.equals("app-config.json") || n.startsWith("db.sqlite3")
-                        || n.startsWith("tls/") || n.equals("tls"));
+        if (n.isEmpty() || n.contains("..") || n.contains(":")) {
+            return false;
+        }
+        if (n.equals("app-config.json") || n.equals("tls")) {
+            return true;
+        }
+        // Hanya 3 file DB resmi (awalan longgar mis. db.sqlite3-evil ditolak).
+        if (n.equals("db.sqlite3") || n.equals("db.sqlite3-wal")
+                || n.equals("db.sqlite3-shm")) {
+            return true;
+        }
+        // Hanya 4 file TLS resmi; file asing di tls/ (mis. tls/evil.sh) ditolak.
+        return n.equals("tls/ca.pem") || n.equals("tls/cert.pem")
+                || n.equals("tls/key.pem") || n.equals("tls/ca-key.pem");
     }
 
     /** True bila file ber-header SQLite ("SQLite format 3\0"). */
