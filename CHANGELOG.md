@@ -6,6 +6,26 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit ulang: plaintext restore, masker log, tabrakan backup, jam NTP
+
+### Perbaikan
+- Restore Telegram: dekrip sesudah user tekan Ya (plaintext tak mengendap
+  di cache bila batal).
+- Masker log: pola token/chat_id samarkan sampai spasi/`&` (kurung siku tak
+  lagi membocorkan sisa token via bagi/clipboard).
+- Nama backup unik: stempel milidetik + kunci + suffix `-1`/`-2` agar dua
+  backup se-detik (bot vs UI, create vs pre-backup) tak saling menimpa.
+- Verifikasi zip selaras SQLite: tolak db <512 byte (termasuk entri ukuran
+  tak diketahui) sebelum diunggah ke Telegram.
+- Sertifikat hemat: daftar IP diurutkan agar `ips.txt` stabil dan leaf tak
+  diregenerasi sia-sia tiap Start.
+- PIN ringan: hash basi dibatalkan tiap ketikan (termasuk saat <4 digit).
+- Hint restart jujur: bandingkan nilai trim vs running (spasi tepi tak picu
+  peringatan palsu).
+- Timeout tahan NTP: deadline stop/wait + tunggu DB pakai `elapsedRealtime`.
+- Status web: param `?token` tak peka huruf (selaras skema Bearer).
+- Checksum tahan BOM: kupas `\uFEFF` sebelum validasi 64 hex.
+
 ## [Belum rilis] — Audit bug 3: unduh campur, tombol Telegram, auth web, zip TLS
 
 ### Perbaikan

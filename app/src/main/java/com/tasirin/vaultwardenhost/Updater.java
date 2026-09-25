@@ -1012,7 +1012,7 @@ public final class Updater {
                 if (line == null) {
                     return null;
                 }
-                String hex = line.trim().split("\\s+")[0];
+                String hex = line.replace("\uFEFF", "").trim().split("\\s+")[0];
                 return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
             } catch (Exception e) {
                 if (coba >= 2) {

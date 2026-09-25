@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -387,8 +388,8 @@ public class ServerService extends Service {
             return;
         }
         stop(context);
-        long deadline = System.currentTimeMillis() + timeoutMs;
-        while (System.currentTimeMillis() < deadline && isProcessAlive()) {
+        long deadline = SystemClock.elapsedRealtime() + timeoutMs;
+        while (SystemClock.elapsedRealtime() < deadline && isProcessAlive()) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -1587,6 +1588,9 @@ public class ServerService extends Service {
                 }
             } catch (Exception ignored) {
             }
+            // Urutkan: urutan enumerasi interface tak stabil sehingga string
+            // ips.txt bisa beda tiap Start dan memicu regen sertifikat sia-sia.
+            Collections.sort(ips);
             // Tak-berubah: pemanggil hanya membaca (kecuali prepareTls, ia menyalin
             // sendiri) sehingga cache-hit tanpa alokasi salinan per panggilan.
             collectCache = Collections.unmodifiableList(ips);
@@ -2030,8 +2034,8 @@ public class ServerService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
         }
-        long deadline = System.currentTimeMillis() + timeoutMillis;
-        while (System.currentTimeMillis() < deadline) {
+        long deadline = SystemClock.elapsedRealtime() + timeoutMillis;
+        while (SystemClock.elapsedRealtime() < deadline) {
             if (!alive(p)) {
                 return true;
             }

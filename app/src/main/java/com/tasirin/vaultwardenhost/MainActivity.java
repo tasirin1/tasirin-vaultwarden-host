@@ -338,10 +338,10 @@ public class MainActivity extends Activity {
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
-            changed = !d.equals(rd)
-                    || !p.equals(rp)
+            changed = !d.trim().equals(rd.trim())
+                    || !p.trim().equals(rp.trim())
                     || h != ServerService.runningHttps
-                    || !a.equals(ra);
+                    || !a.trim().equals(ra.trim());
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 

@@ -97,6 +97,33 @@ public class TgBackupTest {
     }
 
     @Test
+    public void verifikasiZip_tolakDbBuntung() throws Exception {
+        File zip = File.createTempFile("vwzip", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+            zos.putNextEntry(new ZipEntry("db.sqlite3"));
+            zos.write("SQLite format 3\0sampel".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNotNull(TgBackup.verifikasiZip(zip));
+        zip.delete();
+    }
+
+    @Test
+    public void backupTimestamp_unikPerMilidetik() {
+        assertTrue(TgBackup.backupTimestamp().matches("\\d{8}-\\d{6}-\\d{3}"));
+    }
+
+    @Test
+    public void namaBackupUnik_tambahSuffixBilaDipakai() {
+        java.util.Set<String> kosong = new java.util.HashSet<>();
+        assertEquals("a.zip", TgBackup.namaBackupUnik("a.zip", kosong));
+        assertEquals("a.zip", TgBackup.namaBackupUnik("a.zip", null));
+        java.util.Set<String> ada = new java.util.HashSet<>(
+                java.util.Arrays.asList("a.zip", "a-1.zip"));
+        assertEquals("a-2.zip", TgBackup.namaBackupUnik("a.zip", ada));
+    }
+
+    @Test
     public void pinAktif_butuhHash() {
         assertTrue(TgBackup.pinAktif(true, "PBKDF2$120000$aa$bb"));
         assertFalse(TgBackup.pinAktif(true, ""));

@@ -305,12 +305,20 @@ public class SettingsActivity extends Activity {
             public void onTextChanged(CharSequence s, int a, int b, int c) {
                 if (s.length() < 4) {
                     pinSeq++;
+                    java.util.concurrent.Future<?> basi = pinPending;
+                    if (basi != null && !basi.isDone()) {
+                        basi.cancel(true);
+                    }
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                             .edit().remove(KEY_PIN).apply();
                     return;
                 }
                 final String pin = s.toString();
                 final int seq = ++pinSeq;
+                java.util.concurrent.Future<?> lama = pinPending;
+                if (lama != null && !lama.isDone()) {
+                    lama.cancel(true);
+                }
                 pinPending = pinExec.submit(() -> {
                     String h = PinCrypto.hash(pin);
                     if (seq == pinSeq) {
@@ -514,10 +522,10 @@ public class SettingsActivity extends Activity {
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
-            changed = !d.equals(rd)
-                    || !p.equals(rp)
+            changed = !d.trim().equals(rd.trim())
+                    || !p.trim().equals(rp.trim())
                     || h != ServerService.runningHttps
-                    || !a.equals(ra);
+                    || !a.trim().equals(ra.trim());
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
@@ -1181,46 +1189,57 @@ public class SettingsActivity extends Activity {
                     .putString(ServerService.KEY_DATA_DIR, inputDir).apply();
         }
         runBusy(() -> {
+            File tmp = new File(getCacheDir(), "vwtg-restore.zip");
             try {
-                File tmp = new File(getCacheDir(), "vwtg-restore.zip");
                 String name = TgBackup.downloadLastBackup(SettingsActivity.this, tmp);
-
-                File zip = tmp;
-                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
-                if (TgBackup.isEncrypted(tmp)) {
-                    if (pass == null || pass.trim().isEmpty()) {
-                        toast("Backup terenkripsi \u2014 isi password backup dulu.");
-                        return;
-                    }
-                    File plain = new File(getCacheDir(), "vwtg-restore-dec.zip");
-                    TgBackup.decryptFile(tmp, plain, pass.trim());
-                    tmp.delete();
-                    zip = plain;
-                }
-                final File finalZip = zip;
-                final File tmpEnc = tmp;
                 final String fname = name;
+                // Arsip terenkripsi tetap utuh sampai user menekan Ya; dekrip
+                // dikerjakan sesudah konfirmasi agar plaintext tak mengendap
+                // di cache bila dialog tak jadi dijawab.
                 ui.post(() -> confirm("Restore dari Telegram",
                         "Gunakan backup '" + fname + "'? Server akan dihentikan dulu. Lanjutkan?",
-                        () -> runBusy(() -> {
-                            try {
-                                restoreFromZip(finalZip);
-                            } finally {
-                                // Jangan sisakan plaintext dekrip di cache bila restore gagal.
-                                try {
-                                    if (!finalZip.equals(tmpEnc)) {
-                                        finalZip.delete();
-                                    }
-                                } catch (Exception ignored) {
-                                }
-                            }
-                        })));
+                        () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp))));
             } catch (Exception e) {
+                try {
+                    tmp.delete();
+                } catch (Exception ignored) {
+                }
                 toast("Gagal ambil backup: " + e.getMessage());
                 appendUiLog("[tg] Gagal ambil backup: " + e);
             }
         });
+    }
+
+    // Dekrip (bila perlu) + restore sesudah user konfirmasi; arsip unduhan
+    // maupun plaintext selalu dibersihkan dari cache sesudahnya.
+    private void restoreTelegramTerkonfirmasi(File unduhan) {
+        File plain = new File(getCacheDir(), "vwtg-restore-dec.zip");
+        try {
+            File zip = unduhan;
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+            if (TgBackup.isEncrypted(unduhan)) {
+                if (pass == null || pass.trim().isEmpty()) {
+                    toast("Backup terenkripsi \u2014 isi password backup dulu.");
+                    return;
+                }
+                TgBackup.decryptFile(unduhan, plain, pass.trim());
+                zip = plain;
+            }
+            restoreFromZip(zip);
+        } catch (Exception e) {
+            toast("Gagal restore: " + e.getMessage());
+            appendUiLog("[app] Gagal restore: " + e);
+        } finally {
+            try {
+                unduhan.delete();
+            } catch (Exception ignored) {
+            }
+            try {
+                plain.delete();
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     // Restore Telegram didelegasikan ke TgBackup agar satu implementasi:

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.StatFs;
+import android.os.SystemClock;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -90,6 +91,38 @@ public final class TgBackup {
     private TgBackup() {
     }
 
+    /** Kunci penamaan backup: dua backup se-milidetik (bot vs UI, create vs
+     *  pre-backup) tak boleh memakai nama file yang sama. */
+    private static final Object KUNCI_NAMA_BACKUP = new Object();
+
+    /** Nama bebas tabrakan: tambah -1, -2 bila dasar sudah dipakai. */
+    static String namaBackupUnik(String dasar, java.util.Set<String> dipakai) {
+        if (dipakai == null || !dipakai.contains(dasar)) {
+            return dasar;
+        }
+        int titik = dasar.lastIndexOf('.');
+        String awal = titik < 0 ? dasar : dasar.substring(0, titik);
+        String akhir = titik < 0 ? "" : dasar.substring(titik);
+        int i = 1;
+        String nama;
+        do {
+            nama = awal + "-" + (i++) + akhir;
+        } while (dipakai.contains(nama));
+        return nama;
+    }
+
+    /** Daftar nama file di folder (kunci unik butuh tahu yang sudah ada). */
+    static java.util.Set<String> namaFileDi(File dir) {
+        java.util.Set<String> ada = new java.util.HashSet<>();
+        File[] isi = dir == null ? null : dir.listFiles();
+        if (isi != null) {
+            for (File f : isi) {
+                ada.add(f.getName());
+            }
+        }
+        return ada;
+    }
+
     /** True bila file DB siap di-backup (ada + berisi + header SQLite valid). */
     static boolean dbSiap(File f) {
         return f != null && f.isFile() && f.length() > 0 && isSqliteFile(f);
@@ -107,9 +140,9 @@ public final class TgBackup {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }
         File db = new File(dataDir, "db.sqlite3");
-        long batas = System.currentTimeMillis() + 30_000;
+        long batas = SystemClock.elapsedRealtime() + 30_000;
         while (!dbSiap(db)) {
-            if (System.currentTimeMillis() >= batas) {
+            if (SystemClock.elapsedRealtime() >= batas) {
                 throw new IOException("Database belum siap 30 dtk setelah Start"
                         + " - backup otomatis dilewati.");
             }
@@ -469,20 +502,31 @@ public final class TgBackup {
             if (db.getSize() == 0) {
                 return "db.sqlite3 kosong (0 byte)";
             }
-            byte[] head = new byte[16];
+            // Selaras isSqliteFile(): DB buntung bermagic valid wajib ditolak
+            // sebelum diunggah, bukan baru gagal saat restore.
+            if (db.getSize() >= 0 && db.getSize() < 512) {
+                return "db.sqlite3 terpotong (<512 byte)";
+            }
+            // Baca 512 byte pertama: ukuran entri bisa -1 (tak diketahui,
+            // zip streaming) sehingga cek <512 di atas lolos — hitung langsung
+            // dari stream agar DB buntung bermagic valid tetap ditolak.
+            byte[] head = new byte[512];
+            int off = 0;
             try (InputStream in = zf.getInputStream(db)) {
-                int off = 0;
-                while (off < head.length) {
-                    int n = in.read(head, off, head.length - off);
-                    if (n < 0) {
-                        return "db.sqlite3 terpotong";
-                    }
+                int n;
+                while (off < head.length
+                        && (n = in.read(head, off, head.length - off)) > 0) {
                     off += n;
                 }
             }
+            if (off < 512) {
+                return "db.sqlite3 terpotong (<512 byte)";
+            }
             byte[] want = "SQLite format 3\0".getBytes(StandardCharsets.UTF_8);
-            if (!Arrays.equals(head, want)) {
-                return "db.sqlite3 bukan database SQLite valid";
+            for (int i = 0; i < want.length; i++) {
+                if (head[i] != want[i]) {
+                    return "db.sqlite3 bukan database SQLite valid";
+                }
             }
             return null;
         } catch (Exception e) {
@@ -503,11 +547,37 @@ public final class TgBackup {
             throw new IOException("Gagal membuat folder backup");
         }
         String ts = backupTimestamp();
-        File zip = new File(backupDir, "backup-telegram-" + ts + ".zip");
+        File zip;
+        File tmp;
+        synchronized (KUNCI_NAMA_BACKUP) {
+            // Nama unik + klaim .tmp di dalam kunci agar thread lain (bot vs UI)
+            // tak memilih nama yang sama dalam milidetik yang sama; .tmp yang
+            // diklaim langsung dibuat agar pemegang lain melihatnya.
+            java.util.Set<String> ada = namaFileDi(backupDir);
+            File z = null;
+            File t = null;
+            for (int coba = 0; coba < 100 && z == null; coba++) {
+                String nama = namaBackupUnik("backup-telegram-" + ts + ".zip", ada);
+                ada.add(nama);
+                ada.add(nama + ".tmp");
+                File candTmp = new File(backupDir, nama + ".tmp");
+                try {
+                    if (candTmp.createNewFile()) {
+                        z = new File(backupDir, nama);
+                        t = candTmp;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            if (z == null || t == null) {
+                throw new IOException("Gagal menyiapkan file backup unik");
+            }
+            zip = z;
+            tmp = t;
+        }
         // Tulis ke tmp + rename agar zip parsial (disk penuh/crash) tak masuk
         // retensi dan mengusir backup bagus via cleanupOldBackups().
         String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
-        File tmp = new File(backupDir, zip.getName() + ".tmp");
         try {
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp))) {
                 byte[] buf = new byte[64 * 1024];
@@ -1005,9 +1075,13 @@ public final class TgBackup {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            String ts = backupTimestamp() + "-pre";
-            preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
-            copyFile(dbFile, preBackup);
+            synchronized (KUNCI_NAMA_BACKUP) {
+                String ts = backupTimestamp() + "-pre";
+                String nama = namaBackupUnik("db-backup-" + ts + ".sqlite3",
+                        namaFileDi(backupDir));
+                preBackup = new File(backupDir, nama);
+                copyFile(dbFile, preBackup);
+            }
             cleanupOldBackups(backupDir);
         }
 
@@ -1378,7 +1452,7 @@ public final class TgBackup {
 
     /** Stamp "yyyyMMdd-HHmmss" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
-        return new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+        return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */

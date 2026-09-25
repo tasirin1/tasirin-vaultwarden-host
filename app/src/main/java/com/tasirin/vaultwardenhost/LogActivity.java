@@ -260,10 +260,10 @@ public class LogActivity extends Activity {
         }
         // Samarkan token, chat_id, dan token bot agar tak bocor via bagi/clipboard.
         String r = log;
-        r = r.replaceAll("(?i)(token=)[^&\\s\\]]+", "$1***");
+        r = r.replaceAll("(?i)(token=)[^&\\s]+", "$1***");
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
         r = r.replaceAll("(?i)(\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\"\\s*:\\s*\")[^\"]*\"", "$1***\"");
-        r = r.replaceAll("(?i)(chat_id=)[^&\\s\\]]+", "$1***");
+        r = r.replaceAll("(?i)(chat_id=)[^&\\s]+", "$1***");
         r = r.replaceAll("bot\\d+:[A-Za-z0-9_-]{10,}", "bot***:***");
         return r;
     }

@@ -291,7 +291,7 @@ public final class ControlServer {
             int amp = query.indexOf('&', start);
             int end = amp < 0 ? query.length() : amp;
             int eq = query.indexOf('=', start);
-            if (eq > start && eq < end && query.regionMatches(start, "token", 0, eq - start)
+            if (eq > start && eq < end && query.regionMatches(true, start, "token", 0, eq - start)
                     && eq - start == 5) {
                 try {
                     String got = java.net.URLDecoder.decode(
