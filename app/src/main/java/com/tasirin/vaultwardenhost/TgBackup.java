@@ -374,13 +374,7 @@ public final class TgBackup {
                             ? conn.getInputStream() : conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
                     if (is != null) {
-                        try (BufferedReader br = new BufferedReader(
-                                new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                            String line;
-                            while ((line = br.readLine()) != null) {
-                                sb.append(line);
-                            }
-                        }
+                        sb.append(bacaResponsBatas(is));
                     }
                     if (code != 200 || !sb.toString().contains("\"ok\":true")) {
                         logTgFailure("kirim pesan", code, sb.toString());
@@ -772,12 +766,7 @@ public final class TgBackup {
             InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
             StringBuilder sb = new StringBuilder();
             if (is != null) {
-                try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = r.readLine()) != null) {
-                        sb.append(line);
-                    }
-                }
+                sb.append(bacaResponsBatas(is));
             }
             if (code != 200 || !sb.toString().contains("\"ok\":true")) {
                 String body = sb.toString();
@@ -852,9 +841,22 @@ public final class TgBackup {
                  FileOutputStream fos = new FileOutputStream(dest)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
+                long total = 0;
                 while ((n = in.read(buf)) > 0) {
+                    total += n;
+                    // Backup DB wajar puluhan MB; tolak file jumbo agar storage tak penuh.
+                    if (total > Util.BATAS_UNZIP_RESTORE) {
+                        throw new IOException("Backup terlalu besar (>200 MB)"
+                                + " - unduhan dibatalkan.");
+                    }
                     fos.write(buf, 0, n);
                 }
+            } catch (Exception e) {
+                try {
+                    dest.delete();
+                } catch (Exception ignored) {
+                }
+                throw e;
             }
         } finally {
             if (conn != null) {
@@ -882,13 +884,7 @@ public final class TgBackup {
             if (code != 200) {
                 throw new IOException("getFile gagal (HTTP " + code + ")");
             }
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    sb.append(line);
-                }
-            }
+            sb.append(bacaResponsBatas(conn.getInputStream()));
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -1420,6 +1416,16 @@ public final class TgBackup {
 
     static byte[] readAllBytes(InputStream in) throws Exception {
         return bacaTerbatas(in, BATAS_CONFIG_JSON);
+    }
+
+    /** Baca respons HTTP kecil (maks 1 MB, kosong bila lebih): anti OOM bila
+     *  proksi nakal membanjiri respons JSON Telegram/GitHub di STB 1 GB. */
+    static String bacaResponsBatas(InputStream in) {
+        try {
+            return new String(bacaTerbatas(in, 1024 * 1024), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /** Baca stream sampai habis; lempar IOException bila melebihi batas byte. */

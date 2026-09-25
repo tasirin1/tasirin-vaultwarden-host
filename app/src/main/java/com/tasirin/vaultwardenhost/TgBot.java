@@ -12,11 +12,9 @@ import android.os.SystemClock;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -163,17 +161,8 @@ public final class TgBot {
                 int code = c.getResponseCode();
                 InputStream is = (code >= 200 && code < 300)
                         ? c.getInputStream() : c.getErrorStream();
-                StringBuilder sb = new StringBuilder();
-                if (is != null) {
-                    try (BufferedReader r = new BufferedReader(
-                            new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                        String baris;
-                        while ((baris = r.readLine()) != null) {
-                            sb.append(baris);
-                        }
-                    }
-                }
-                if (code == 200 && sb.toString().contains("\"ok\":true")) {
+                String balasan = is != null ? TgBackup.bacaResponsBatas(is) : "";
+                if (code == 200 && balasan.contains("\"ok\":true")) {
                     app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                             .edit().putInt(KEY_TG_MENU_HASH, hash).apply();
                 }
@@ -918,15 +907,7 @@ public final class TgBot {
             if (is == null) {
                 return null;
             }
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader r = new BufferedReader(
-                    new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    sb.append(line);
-                }
-            }
-            return sb.toString();
+            return TgBackup.bacaResponsBatas(is);
         } catch (Exception e) {
             return null;
         } finally {

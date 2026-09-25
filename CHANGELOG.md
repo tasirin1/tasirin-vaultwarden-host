@@ -6,6 +6,19 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: restore lokal, health-spam, update, backup, provider
+
+### Perbaikan
+- Restore lokal: hentikan server dulu, checkpoint WAL + buang -wal/-shm basi,
+  rollback salinan pengaman juga saat gagal di tengah tulis.
+- Health: tick dimatikan setelah stop terminal agar tak spam Telegram/log.
+- Update: `--version` dibatasi 10 detik; respons HTTP kecil dibatasi 1 MB.
+- Web-vault: tukar via `.bak` agar versi lama selamat bila gagal pasang.
+- Backup lokal: tolak DB korup + tulis via tmp+rename; unduhan restore
+  dibatasi 200 MB.
+- Provider: `.enc` boleh dibagikan agar export terenkripsi tidak rusak.
+- Health TLS loopback: gagal tertutup bila CA hilang (tanpa trust-all).
+
 ## [Belum rilis] — Audit bug: restore DB, smoke test binary, PIN, shim, CI
 
 ### Perbaikan

@@ -378,15 +378,8 @@ public final class Updater {
             conn = open(ctx, OFFICIAL_API, 10000, 10000);
             int code = conn.getResponseCode();
             if (code == 200) {
-                StringBuilder sb = new StringBuilder();
-                try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                        conn.getInputStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = r.readLine()) != null) {
-                        sb.append(line);
-                    }
-                }
-                String v = normVersion(extractTag(sb.toString()));
+                String v = normVersion(extractTag(
+                        TgBackup.bacaResponsBatas(conn.getInputStream())));
                 if (v != null && !v.isEmpty()) {
                     sLatestVersion = v;
                     sLatestAt = now;
@@ -880,12 +873,23 @@ public final class Updater {
             throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                     + " - versi lama dipertahankan.");
         }
-        deleteRecursive(targetDir);
+        // Tukar via .bak agar crash di tengah tak menghilangkan web-vault lama.
+        File bakDir = new File(dataFolder, "web-vault.bak");
+        deleteRecursive(bakDir);
+        boolean adaLama = targetDir.exists();
+        if (adaLama && !targetDir.renameTo(bakDir)) {
+            deleteRecursive(targetDir);
+            adaLama = false;
+        }
         if (!newDir.renameTo(targetDir)) {
             deleteRecursive(newDir);
+            if (adaLama) {
+                bakDir.renameTo(targetDir);
+            }
             throw new IOException("Gagal memasang web vault baru"
                     + " - versi lama dipertahankan.");
         }
+        deleteRecursive(bakDir);
         if (latest != null && !wvFallback) {
             sp.edit().putString(KEY_WV_FROM, latest).apply();
         }
@@ -995,16 +999,52 @@ public final class Updater {
                     break;
                 }
             }
+            // Batas 10 detik: binary macet tak boleh menggantung thread update
+            // selamanya (di Settings itu mengunci semua tombol berat).
+            if (!tungguAtauBunuh(p, 10_000)) {
+                try {
+                    p.destroy();
+                } catch (Exception ignored) {
+                }
+                return null;
+            }
             try {
-                p.waitFor();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } finally {
                 p.destroy();
+            } catch (Exception ignored) {
             }
             return parseBinaryVersion(first);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /** Tunggu proses --version maks timeout lalu bunuh bila macet; true bila sudah mati.
+     *  waitFor(timeout) hanya API 26+, jadi polling exitValue agar API 21 aman. */
+    static boolean tungguAtauBunuh(Process p, long timeoutMs) {
+        long batas = SystemClock.elapsedRealtime() + timeoutMs;
+        while (SystemClock.elapsedRealtime() < batas) {
+            try {
+                p.exitValue();
+                return true;
+            } catch (IllegalThreadStateException e) {
+                // Masih hidup: tunggu sebentar lagi.
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        try {
+            p.destroy();
+        } catch (Exception ignored) {
+        }
+        try {
+            p.exitValue();
+            return true;
+        } catch (IllegalThreadStateException e) {
+            return false;
         }
     }
 

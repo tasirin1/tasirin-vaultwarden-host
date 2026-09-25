@@ -935,26 +935,53 @@ public class SettingsActivity extends Activity {
                 backupDir.mkdirs();
             }
 
+            // Tolak backup DB korup diam-diam seperti jalur Telegram.
+            try {
+                String rusakDb = TgBackup.cekIntegritasDb(dbFile);
+                if (rusakDb != null) {
+                    toast("Database korup (" + rusakDb + ") - backup dibatalkan.");
+                    appendUiLog("[app] Backup dibatalkan: DB korup (" + rusakDb + ").");
+                    return;
+                }
+            } catch (Throwable abaikan) {
+                // JVM unit test tanpa SQLite Android: lanjut tanpa cek.
+            }
             String timestamp = TgBackup.backupTimestamp();
             File backup = new File(backupDir, "db-backup-" + timestamp + ".zip");
+            // Tulis ke tmp + rename agar zip parsial tak masuk retensi.
+            File tmpZip = new File(backupDir, backup.getName() + ".tmp");
 
             // Zip DB + WAL/SHM agar konsisten walau server sedang berjalan.
             String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(backup))) {
-                byte[] buf = new byte[64 * 1024];
-                for (String name : names) {
-                    File f = new File(dataDir, name);
-                    if (f.exists() && f.length() > 0) {
-                        zos.putNextEntry(new ZipEntry(name));
-                        try (InputStream in = new java.io.FileInputStream(f)) {
-                            int n;
-                            while ((n = in.read(buf)) > 0) {
-                                zos.write(buf, 0, n);
+            try {
+                try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmpZip))) {
+                    byte[] buf = new byte[64 * 1024];
+                    for (String name : names) {
+                        File f = new File(dataDir, name);
+                        if (f.exists() && f.length() > 0) {
+                            zos.putNextEntry(new ZipEntry(name));
+                            try (InputStream in = new java.io.FileInputStream(f)) {
+                                int n;
+                                while ((n = in.read(buf)) > 0) {
+                                    zos.write(buf, 0, n);
+                                }
                             }
+                            zos.closeEntry();
                         }
-                        zos.closeEntry();
                     }
                 }
+                if (backup.exists() && !backup.delete()) {
+                    throw new java.io.IOException("Gagal mengganti backup lama.");
+                }
+                if (!tmpZip.renameTo(backup)) {
+                    throw new java.io.IOException("Gagal memasang backup.");
+                }
+            } catch (Exception e) {
+                try {
+                    tmpZip.delete();
+                } catch (Exception ignored) {
+                }
+                throw e;
             }
             TgBackup.cleanupOldBackups(backupDir);
             toast("Backup tersimpan:\n" + backup.getAbsolutePath());
@@ -1008,18 +1035,34 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreDatabase(Uri uri, String dataDir) {
+        File dbFile = new File(dataDir, "db.sqlite3");
+        File preBackup = null;
         try {
-            File dbFile = new File(dataDir, "db.sqlite3");
-            File preBackup = null;
+            // Hentikan server dulu: menimpa SQLite yang hidup merusak DB.
+            if (ServerService.isProcessAlive()
+                    && !ServerService.stopAndWait(SettingsActivity.this, 8000)) {
+                toast("Server gagal berhenti - restore dibatalkan agar DB tidak korup.");
+                appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
+                return;
+            }
+            if (ServerService.isProcessAlive()) {
+                toast("Server masih berjalan - restore dibatalkan agar DB tidak korup.");
+                appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
+                return;
+            }
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
                     backupDir.mkdirs();
                 }
+                // Satukan WAL ke DB utama agar salinan pengaman tak basi.
+                TgBackup.checkpointWal(dbFile);
                 String ts = TgBackup.backupTimestamp() + "-pre";
                 preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
                 TgBackup.copyFile(dbFile, preBackup);
                 TgBackup.cleanupOldBackups(backupDir);
+                // Buang -wal/-shm lama: milik DB lama, korup bila ditempel ke DB baru.
+                TgBackup.hapusWalShm(new File(dataDir));
             }
 
             boolean restored = false;
@@ -1161,6 +1204,8 @@ public class SettingsActivity extends Activity {
                     if (salin < 512) {
                         throw new java.io.IOException("File database terpotong (bukan SQLite utuh).");
                     }
+                    // WAL lama milik DB lama: buang agar tak ditempel ke DB baru.
+                    TgBackup.hapusWalShm(new File(dataDir));
                     restored = true;
                 }
             }
@@ -1171,6 +1216,7 @@ public class SettingsActivity extends Activity {
             }
             if (!TgBackup.isSqliteFile(dbFile)) {
                 if (preBackup != null && preBackup.exists()) {
+                    TgBackup.hapusWalShm(new File(dataDir));
                     TgBackup.copyFile(preBackup, dbFile);
                 } else {
                     dbFile.delete();
@@ -1183,6 +1229,7 @@ public class SettingsActivity extends Activity {
                 String rusak = TgBackup.cekIntegritasDb(dbFile);
                 if (rusak != null) {
                     if (preBackup != null && preBackup.exists()) {
+                        TgBackup.hapusWalShm(new File(dataDir));
                         TgBackup.copyFile(preBackup, dbFile);
                     } else {
                         dbFile.delete();
@@ -1197,6 +1244,15 @@ public class SettingsActivity extends Activity {
             toast("Database direstore. Restart server untuk memakai.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
+            // Tulis parsial (mis. batas ukuran) wajib dikembalikan dari salinan pengaman.
+            try {
+                if (preBackup != null && preBackup.exists()) {
+                    TgBackup.hapusWalShm(new File(dataDir));
+                    TgBackup.copyFile(preBackup, dbFile);
+                    appendUiLog("[app] Restore gagal: database lama dikembalikan.");
+                }
+            } catch (Exception ignored) {
+            }
             toast("Gagal restore: " + e.getMessage());
             appendUiLog("[app] Gagal restore: " + e);
         }

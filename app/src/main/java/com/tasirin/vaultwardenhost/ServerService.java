@@ -28,7 +28,6 @@ import java.net.NetworkInterface;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +38,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 public class ServerService extends Service {
 
@@ -1207,6 +1204,10 @@ public class ServerService extends Service {
                 return;
             }
             autoRestart = false;
+            // Terminal: hentikan tick agar tak spam Telegram/log tiap interval selamanya.
+            healthActive = false;
+            mainHandler.removeCallbacks(healthTick);
+            healthFails.set(0);
             setStatus("Server tidak sehat - berhenti.");
             appendLog("[health] 3x gagal beruntun - server dihentikan.");
             writeCrashLog("health 3x");
@@ -1231,9 +1232,9 @@ public class ServerService extends Service {
     /** Cap CA aktif (mtime+ukuran+hash isi); cache factory gugur bila CA regenerasi. */
     private static volatile long sslCaCap = -1L;
 
-    /** Trust khusus health-check loopback: pin CA milik app bila ada,
-     *  fallback trust-all hanya untuk 127.0.0.1/localhost (verifier di atas
-     *  sudah membatasi host). Tak dipakai untuk koneksi luar. */
+    /** Trust khusus health-check loopback: pin CA milik app; gagal tertutup
+     *  bila CA tak tersedia (tanpa fallback trust-all agar server 200 palsu
+     *  milik app lokal lain tak menutupi outage). Tak dipakai koneksi luar. */
     private static javax.net.ssl.SSLSocketFactory loopbackSslFactory(Context ctx) throws Exception {
         long cap = capCaAktif(ctx);
         javax.net.ssl.SSLSocketFactory f = sslFactory;
@@ -1242,27 +1243,11 @@ public class ServerService extends Service {
                 f = sslFactory;
                 if (f == null || cap != sslCaCap) {
                     javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
-                    if (pinned != null) {
-                        sslFactory = pinned;
-                    } else {
-                TrustManager[] tm = new TrustManager[]{new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                    if (pinned == null) {
+                        throw new java.io.IOException(
+                                "CA lokal tidak tersedia untuk health check.");
                     }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
-                    }
-
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-                }};
-                        SSLContext sc = SSLContext.getInstance("TLS");
-                        sc.init(null, tm, new SecureRandom());
-                        sslFactory = sc.getSocketFactory();
-                    }
+                    sslFactory = pinned;
                     sslCaCap = cap;
                     f = sslFactory;
                 }

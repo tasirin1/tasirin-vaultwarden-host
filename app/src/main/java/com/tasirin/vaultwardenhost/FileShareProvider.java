@@ -87,14 +87,15 @@ public class FileShareProvider extends ContentProvider {
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
-    /** Ekstensi file yang aman dibagikan (cert, backup, export, log). */
+    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi). */
     private static boolean namaBolehDibagikan(String name) {
         if (name == null) {
             return false;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);
         return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
-                || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt");
+                || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt")
+                || rendah.endsWith(".enc");
     }
 
     /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
