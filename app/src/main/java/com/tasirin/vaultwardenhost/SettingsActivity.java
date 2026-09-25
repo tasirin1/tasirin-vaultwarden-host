@@ -1215,12 +1215,20 @@ public class SettingsActivity extends Activity {
             final String mime;
             if (pass != null && !pass.trim().isEmpty()) {
                 File plain = new File(backupDir, "app-config-" + ts + ".json");
-                try (FileOutputStream fos = new FileOutputStream(plain)) {
-                    fos.write(bytes);
+                File enc = new File(backupDir, "app-config-" + ts + ".json.enc");
+                try {
+                    try (FileOutputStream fos = new FileOutputStream(plain)) {
+                        fos.write(bytes);
+                    }
+                    TgBackup.encryptFile(plain, enc, pass.trim());
+                } finally {
+                    // Jangan sisakan config plaintext di storage publik bila enkripsi gagal.
+                    try {
+                        plain.delete();
+                    } catch (Exception ignored) {
+                    }
                 }
-                out = new File(backupDir, "app-config-" + ts + ".json.enc");
-                TgBackup.encryptFile(plain, out, pass.trim());
-                plain.delete();
+                out = enc;
                 mime = "application/octet-stream";
             } else {
                 out = new File(backupDir, "app-config-" + ts + ".json");

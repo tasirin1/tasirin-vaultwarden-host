@@ -36,6 +36,8 @@ public final class TgBot {
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
+    /** Kunci tugas berat bot agar backup/restore/update tak jalan bersamaan. */
+    private static final AtomicBoolean TUGAS_BERAT = new AtomicBoolean(false);
 
     private static final String TG_API = "https://api.telegram.org/bot";
 
@@ -433,7 +435,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
-                runWithWakeLock(ctx, () -> {
+                runBeratDenganKunci(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
                     } catch (Exception e) {
@@ -447,7 +449,7 @@ public final class TgBot {
                     break;
                 }
                 if (isRestoreConfirm(cleanRestore)) {
-                    runWithWakeLock(ctx, () -> {
+                    runBeratDenganKunci(ctx, () -> {
                         try {
                             TgBackup.sendMessage(ctx, "Mengunduh backup terakhir...");
                             TgBackup.sendMessage(ctx, doRestore(ctx));
@@ -495,7 +497,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
-                runWithWakeLock(ctx, () -> {
+                runBeratDenganKunci(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
                         String msg = Updater.tryUpdate(ctx);
@@ -528,7 +530,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
-                runWithWakeLock(ctx, () -> {
+                runBeratDenganKunci(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
                         String msg = Updater.updateWebVault(ctx);
@@ -662,6 +664,21 @@ public final class TgBot {
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
                 + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
         return null;
+    }
+
+    /** Jalankan tugas berat bot saling-menunggu; tolak halus bila sibuk. */
+    private static void runBeratDenganKunci(Context ctx, Runnable task) {
+        if (!TUGAS_BERAT.compareAndSet(false, true)) {
+            TgBackup.sendMessage(ctx, "Tugas lain masih berjalan, coba lagi sebentar.");
+            return;
+        }
+        runWithWakeLock(ctx, () -> {
+            try {
+                task.run();
+            } finally {
+                TUGAS_BERAT.set(false);
+            }
+        });
     }
 
     /** Jalankan tugas berat di pool + partial wake lock. */

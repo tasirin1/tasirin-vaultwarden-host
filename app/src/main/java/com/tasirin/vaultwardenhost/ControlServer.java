@@ -150,9 +150,14 @@ public final class ControlServer {
             // Baca header dengan batas (cegah slowloris / header raksasa).
             int headerTotal = line.length();
             String authHeader = "";
+            boolean headerTuntas = false;
             for (int i = 0; i < MAX_HEADER_LINES; i++) {
                 String h = in.readLine();
-                if (h == null || h.isEmpty()) {
+                if (h == null) {
+                    return;
+                }
+                if (h.isEmpty()) {
+                    headerTuntas = true;
                     break;
                 }
                 headerTotal += h.length();
@@ -163,6 +168,10 @@ public final class ControlServer {
                 if (h.regionMatches(true, 0, "Authorization:", 0, 14)) {
                     authHeader = h.substring(14).trim();
                 }
+            }
+            if (!headerTuntas) {
+                respond(s, 431, "text/plain; charset=utf-8", "Header terlalu besar");
+                return;
             }
             if (!"GET".equals(method)) {
                 respond(s, 405, "text/plain; charset=utf-8", "Method not allowed");

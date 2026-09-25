@@ -504,12 +504,16 @@ public final class TgBackup {
         }
         String ts = backupTimestamp();
         File zip = new File(backupDir, "backup-telegram-" + ts + ".zip");
+        // Tulis ke tmp + rename agar zip parsial (disk penuh/crash) tak masuk
+        // retensi dan mengusir backup bagus via cleanupOldBackups().
         String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
-            byte[] buf = new byte[64 * 1024];
-            for (String name : names) {
-                addFileEntry(zos, buf, new File(dataFolder, name), name);
-            }
+        File tmp = new File(backupDir, zip.getName() + ".tmp");
+        try {
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp))) {
+                byte[] buf = new byte[64 * 1024];
+                for (String name : names) {
+                    addFileEntry(zos, buf, new File(dataFolder, name), name);
+                }
             if (full) {
                 if (configJson != null) {
                     zos.putNextEntry(new ZipEntry("app-config.json"));
@@ -524,6 +528,19 @@ public final class TgBackup {
                     addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
                 }
             }
+            }
+            if (zip.exists() && !zip.delete()) {
+                throw new IOException("Gagal mengganti backup lama");
+            }
+            if (!tmp.renameTo(zip)) {
+                throw new IOException("Gagal memasang backup");
+            }
+        } catch (Exception e) {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
         }
         cleanupOldBackups(backupDir);
         return zip;

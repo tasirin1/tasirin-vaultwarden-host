@@ -6,6 +6,22 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug 2: biner parsial, zip parsial, balap bot
+
+### Perbaikan
+- Biner manual korup ditolak: `copyBinary()` tulis ke `.tmp` + `sync` + rename,
+  parsial dihapus (sebelumnya lolos cek ukuran+magic ELF).
+- Backup jujur: `createBackupZip()` tulis `.tmp` + rename agar zip parsial tak
+  mengusir backup bagus via retensi.
+- Bot tak balapan: tugas berat (`/backup`, `/restore`, `/update`, `/webvault`)
+  saling-menunggu via `TUGAS_BERAT` (sebelumnya 3 thread bebas tumpang tindih).
+- Export config aman: plaintext sementara selalu dihapus via `finally` walau
+  enkripsi gagal (sebelumnya tertinggal di `/sdcard` publik).
+- Status web ketat: header >64 baris tanpa tuntas ditolak `431` (sebelumnya
+  diproses seolah lengkap).
+- Log anti-bocor: `samarkanLog()` juga mask kredensial format JSON
+  (`"tg_token": "..."`).
+
 ## [Belum rilis] — Audit bug: NPE prefs, auth, TLS, backup
 
 ### Perbaikan

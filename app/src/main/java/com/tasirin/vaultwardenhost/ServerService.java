@@ -1424,18 +1424,36 @@ public class ServerService extends Service {
     }
 
     private void copyBinary(File src, File dst) throws IOException {
-        try (InputStream in = new java.io.FileInputStream(src);
-             FileOutputStream fos = new FileOutputStream(dst)) {
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            while ((n = in.read(buf)) > 0) {
-                fos.write(buf, 0, n);
+        // Tulis ke tmp + rename agar biner parsial (storage penuh/crash) tak
+        // lolos isValidBinary() yang hanya cek ukuran + magic ELF.
+        File tmp = new File(dst.getParentFile(), dst.getName() + ".tmp");
+        try {
+            try (InputStream in = new java.io.FileInputStream(src);
+                 FileOutputStream fos = new FileOutputStream(tmp)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    fos.write(buf, 0, n);
+                }
+                fos.getFD().sync();
             }
+            // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
+            // sebagai UID sama) — tidak perlu world-readable.
+            tmp.setReadable(true, true);
+            tmp.setExecutable(true, true);
+            if (dst.exists() && !dst.delete()) {
+                throw new IOException("Gagal mengganti binary lama");
+            }
+            if (!tmp.renameTo(dst)) {
+                throw new IOException("Gagal memasang binary");
+            }
+        } catch (IOException | RuntimeException e) {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
         }
-        // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
-        // sebagai UID sama) — tidak perlu world-readable.
-        dst.setReadable(true, true);
-        dst.setExecutable(true, true);
     }
 
     private File extractWebVault() {
