@@ -178,7 +178,10 @@ public class TgBackupTest {
         File zip = File.createTempFile("vwbaik", ".zip");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
             zos.putNextEntry(new ZipEntry("db.sqlite3"));
-            zos.write("SQLite format 3\0isi-palsu".getBytes("UTF-8"));
+            // verifikasiZip menolak DB <512 byte: fixture valid wajib berukuran penuh
+            byte[] magic = "SQLite format 3\0isi-palsu".getBytes("UTF-8");
+            zos.write(magic);
+            zos.write(new byte[1024 - magic.length]);
             zos.closeEntry();
         }
         assertNull(TgBackup.verifikasiZip(zip));

@@ -1093,8 +1093,10 @@ public final class Updater {
                 || n.contains("/../") || n.endsWith("/..")) {
             return false;
         }
-        // Tolak entri "." atau "./" (current dir) yang bisa berbahaya saat diekstrak
-        if (n.equals(".") || n.startsWith("./")) {
+        // Tolak entri "." atau "./" (current dir) yang bisa berbahaya saat diekstrak,
+        // termasuk segmen "/./" di tengah ("dir/./file.txt").
+        if (n.equals(".") || n.startsWith("./")
+                || n.contains("/./") || n.endsWith("/.")) {
             return false;
         }
         return true;
