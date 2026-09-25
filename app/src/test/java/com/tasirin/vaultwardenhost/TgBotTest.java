@@ -67,6 +67,12 @@ public class TgBotTest {
     }
 
     @Test
+    public void webVaultBerubah_markerMesin() {
+        assertTrue(TgBot.webVaultBerubah("Web vault updated di /x " + Updater.WV_UPDATED_MARKER));
+        assertTrue(TgBot.webVaultBerubah("Web vault updated di /sdcard/vaultwarden/web-vault"));
+    }
+
+    @Test
     public void keyboardPerintah_memuatSemuaTombol() {
         String json = TgBot.keyboardPerintah();
         assertTrue(json.startsWith("{\"inline_keyboard\":["));

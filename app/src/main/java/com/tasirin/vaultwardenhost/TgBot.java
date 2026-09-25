@@ -97,9 +97,16 @@ public final class TgBot {
         };
     }
 
-    /** True bila pesan hasil update web-vault berarti file berubah (perlu restart). */
+    /** True bila pesan hasil update web-vault berarti file berubah (perlu restart).
+     *  Cek marker mesin dulu, fallback substring lama untuk pesan versi lama. */
     static boolean webVaultBerubah(String msg) {
-        return msg != null && msg.contains("updated");
+        if (msg == null) {
+            return false;
+        }
+        if (msg.contains(Updater.WV_UPDATED_MARKER)) {
+            return true;
+        }
+        return msg.contains("updated");
     }
 
     /** Payload JSON setMyCommands (string manual agar bisa di-unit-test JVM). */
@@ -189,6 +196,7 @@ public final class TgBot {
                 return;
             }
             long newOffset = offset;
+            int rollbackDitolak = 0;
             try {
                 JSONObject root = new JSONObject(body);
                 JSONArray arr = root.optJSONArray("result");
@@ -222,6 +230,7 @@ public final class TgBot {
                                 long dateMs = msg.optLong("date", 0) * 1000L;
                                 long kini = System.currentTimeMillis();
                                 if (jamMundur(kini)) {
+                                    rollbackDitolak++;
                                     continue;
                                 }
                                 catatWall(kini);
@@ -235,6 +244,11 @@ public final class TgBot {
                         } catch (Exception ignored) {
                         }
                     }
+                }
+                if (rollbackDitolak > 0) {
+                    TgBackup.sendMessage(ctx, "Jam STB mundur drastis terdeteksi;"
+                            + " " + rollbackDitolak + " perintah diabaikan demi keamanan."
+                            + " Periksa tanggal & jam STB, lalu kirim ulang perintah.");
                 }
             } finally {
                 if (newOffset != offset) {

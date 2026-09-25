@@ -595,6 +595,7 @@ public final class ControlServer {
             <html lang="id">
             <head>
             <meta charset="utf-8">
+            <meta name="referrer" content="no-referrer">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Tasirin Vaultwarden Host - Status Web</title>
             <style>
@@ -644,6 +645,11 @@ public final class ControlServer {
             </div>
             <script>
             var QS = location.search || "";
+            try {
+              // Kupas ?token= dari address bar/riwayat seusai dibaca: EventSource
+              // tak bisa mengirim header auth sehingga token terpaksa via URL.
+              if (location.search) history.replaceState(null, "", location.pathname);
+            } catch (e) {}
             var buf = ""; var lastKey = null;
             function esc(s){ return s.replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
             function render(){

@@ -1294,7 +1294,9 @@ public class SettingsActivity extends Activity {
             final File out;
             final String mime;
             if (pass != null && !pass.trim().isEmpty()) {
-                File plain = new File(backupDir, "app-config-" + ts + ".json");
+                // Plaintext sementara di cache internal (bukan storage publik)
+                // agar pemindai media/app lain tak sempat membacanya.
+                File plain = new File(getCacheDir(), "app-config-" + ts + ".json");
                 File enc = new File(backupDir, "app-config-" + ts + ".json.enc");
                 try {
                     try (FileOutputStream fos = new FileOutputStream(plain)) {
@@ -1302,7 +1304,7 @@ public class SettingsActivity extends Activity {
                     }
                     TgBackup.encryptFile(plain, enc, pass.trim());
                 } finally {
-                    // Jangan sisakan config plaintext di storage publik bila enkripsi gagal.
+                    // Jangan sisakan config plaintext sementara bila enkripsi gagal.
                     try {
                         plain.delete();
                     } catch (Exception ignored) {

@@ -678,6 +678,11 @@ public final class Updater {
         }
     }
 
+    /** Penanda mesin di pesan sukses web-vault (jangan diubah tanpa update
+     *  TgBot.webVaultBerubah + AutoUpdate): API pesan-string rapuh bila hanya
+     *  mengandalkan kata "updated". */
+    static final String WV_UPDATED_MARKER = "[wv-updated]";
+
     /** Unduh & ekstrak web-vault ke folder data; return pesan hasil. */
     public static String updateWebVault(Context ctx) throws Exception {
         try {
@@ -878,7 +883,7 @@ public final class Updater {
         if (latest != null && !wvFallback) {
             sp.edit().putString(KEY_WV_FROM, latest).apply();
         }
-        return "Web vault updated di " + targetDir.getAbsolutePath();
+        return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER;
     }
 
     private static volatile String sBundledVersion;

@@ -42,6 +42,13 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void kunciWallBasiDianggapKedaluwarsa() {
+        long wallBasi = 1_700_000_000_000L;
+        long elapsed = 1_000_000L;
+        assertTrue(PinCrypto.sisaKunciMs(5, wallBasi, elapsed) == 0);
+    }
+
+    @Test
     public void inputRusakDitolak() {
         assertFalse(PinCrypto.verify(null, "1"));
         assertFalse(PinCrypto.verify("", "1"));

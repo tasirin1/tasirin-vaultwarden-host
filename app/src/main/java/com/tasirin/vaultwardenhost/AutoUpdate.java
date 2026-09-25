@@ -91,7 +91,7 @@ public final class AutoUpdate {
                             String marker = Updater.webVaultFromVersion(ctx);
                             if (marker == null || !marker.equals(latest)) {
                                 String msg = Updater.updateWebVault(ctx);
-                                if (msg.contains("updated")) {
+                                if (TgBot.webVaultBerubah(msg)) {
                                     adaTerpasang = true;
                                 }
                                 aksi.toast(msg);

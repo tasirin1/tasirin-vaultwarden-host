@@ -6,6 +6,19 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: kunci PIN, rollback Telegram, export, marker, token URL
+
+### Perbaikan
+- Kunci PIN: nilai wall-clock basi dianggap kedaluwarsa, cegah kunci permanen
+  pasca-migrasi ke jam monoton.
+- Telegram: perintah terbuang karena jam mundur kini dibalas notifikasi
+  diagnostik sekali per batch, tak lagi hilang diam-diam.
+- Export config: plaintext sementara pindah ke cache internal.
+- Web-vault: penanda mesin `[wv-updated]` + satu pintu deteksi via
+  `TgBot.webVaultBerubah` (AutoUpdate ikut).
+- Status web: `no-referrer` + kupas `?token=` dari address bar via
+  `history.replaceState`.
+
 ## [Belum rilis] — Audit bug: masker export, pool status, SSL, jam, unduh, dekrip, PIN
 
 ### Perbaikan

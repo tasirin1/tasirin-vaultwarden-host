@@ -72,9 +72,18 @@ public final class PinCrypto {
         }
     }
 
-    /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni. */
+    /** Batas pisah wall-clock vs jam monoton: uptime tak pernah capai 1e11 ms
+     *  (~3 tahun tanpa reboot), sedangkan wall-clock kini ~1,7e12. */
+    static final long AMBANG_WALL_MS = 100_000_000_000L;
+
+    /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni.
+     *  Nilai wall-clock basi (era currentTimeMillis sebelum migrasi ke
+     *  elapsedRealtime) dianggap kedaluwarsa agar tak mengunci permanen. */
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
         if (gagal < MAX_GAGAL || sekarang >= terkunciSampai) {
+            return 0;
+        }
+        if (terkunciSampai > AMBANG_WALL_MS && sekarang <= AMBANG_WALL_MS) {
             return 0;
         }
         return terkunciSampai - sekarang;
