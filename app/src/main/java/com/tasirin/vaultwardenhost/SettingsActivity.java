@@ -138,9 +138,9 @@ public class SettingsActivity extends Activity {
     private long lastBatteryCheck = 0;
     private boolean needBatteryCached = false;
 
-    private static boolean unlocked = false;
+    private static volatile boolean unlocked = false;
     /** Kapan MainActivity terakhir pause; kunci PIN baru muncul bila >60 detik. */
-    private static long pauseStamp = 0;
+    private static volatile long pauseStamp = 0;
     private static final long PIN_GRACE_MS = 60_000;
 
     @Override
@@ -421,22 +421,23 @@ public class SettingsActivity extends Activity {
             return;
         }
 
-        SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
-        ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
-        ed.putString(ServerService.KEY_PORT, TextUtils.isEmpty(port) ? DEFAULT_PORT : port);
-        ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
-        ed.apply();
-
+        String portEfektif = TextUtils.isEmpty(port) ? DEFAULT_PORT : port.trim();
         int portNum = -1;
         try {
-            portNum = Integer.parseInt(port.trim());
+            portNum = Integer.parseInt(portEfektif);
         } catch (Exception ignored) {
         }
-        if (!port.isEmpty() && (portNum < 1 || portNum > 65535)) {
+        if (portNum < 1 || portNum > 65535) {
             toast("Port harus angka 1-65535.");
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
+
+        SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
+        ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
+        ed.putString(ServerService.KEY_PORT, portEfektif);
+        ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
+        ed.apply();
         if (portNum > 0 && ServerService.isPortBusy(portNum)) {
             new AlertDialog.Builder(this)
                     .setTitle("Port " + portNum + " sedang dipakai")

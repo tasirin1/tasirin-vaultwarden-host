@@ -72,9 +72,17 @@ public final class LogExport {
                         resolver.delete(uri, null, null);
                     }
                     if (ok) {
-                        ContentValues done = new ContentValues();
-                        done.put(MediaStore.Downloads.IS_PENDING, 0);
-                        resolver.update(uri, done, null, null);
+                        try {
+                            ContentValues done = new ContentValues();
+                            done.put(MediaStore.Downloads.IS_PENDING, 0);
+                            resolver.update(uri, done, null, null);
+                        } catch (Exception e) {
+                            try {
+                                resolver.delete(uri, null, null);
+                            } catch (Exception ignored) {
+                            }
+                            ok = false;
+                        }
                     }
                 }
             } catch (Exception ignored) {

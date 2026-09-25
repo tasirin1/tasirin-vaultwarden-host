@@ -765,11 +765,11 @@ public final class TgBot {
     static final long TOMBOL_KEDALUWARSA_MS = 24L * 3600 * 1000;
     static final long TOLERANSI_JAM_MS = 5 * 60_000;
 
-    /** True bila tombol inline sudah tak berlaku: terlalu tua, atau bertanggal
-     *  masa depan tak wajar (jam STB ngaco / replay) — fail-closed. Murni. */
+    /** True bila tombol inline sudah tak berlaku: terlalu tua, tanpa tanggal,
+     *  atau bertanggal masa depan tak wajar (jam STB ngaco / replay) — fail-closed. Murni. */
     static boolean tombolKedaluwarsa(long tglMs, long sekarang) {
         if (tglMs <= 0) {
-            return false;
+            return true;
         }
         if (tglMs > sekarang + TOLERANSI_JAM_MS) {
             return true;

@@ -1088,7 +1088,7 @@ public final class Updater {
             return false;
         }
         String n = nama.replace('\\', '/');
-        if (n.isEmpty() || n.charAt(0) == '/' || n.contains(":")
+        if (n.isEmpty() || n.charAt(0) == '/' || n.contains(":") || n.contains("//")
                 || n.equals("..") || n.startsWith("../")
                 || n.contains("/../") || n.endsWith("/..")) {
             return false;
@@ -1103,6 +1103,9 @@ public final class Updater {
     }
 
     private static void deleteRecursive(File file) {
+        if (file == null || !file.exists()) {
+            return;
+        }
         if (file.isDirectory()) {
             File[] children = file.listFiles();
             if (children != null) {

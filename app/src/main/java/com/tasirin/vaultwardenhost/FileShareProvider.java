@@ -25,15 +25,20 @@ public class FileShareProvider extends ContentProvider {
         try {
             String path = uri.getPath();
             File f = path == null ? null : new File(path);
-            if (f == null || !f.isFile()) {
+            if (f == null) {
                 return null;
             }
-            if (!isShareable(f.getCanonicalPath())) {
+            String kanon = f.getCanonicalPath();
+            if (!isShareable(kanon)) {
+                return null;
+            }
+            File cf = new File(kanon);
+            if (!cf.isFile()) {
                 return null;
             }
             android.database.MatrixCursor c = new android.database.MatrixCursor(
                     new String[]{"_display_name", "_size"});
-            c.addRow(new Object[]{f.getName(), f.length()});
+            c.addRow(new Object[]{cf.getName(), cf.length()});
             return c;
         } catch (Exception e) {
             return null;

@@ -21,7 +21,7 @@ public class TgBotTest {
     @Test
     public void tombolKedaluwarsa_batas24Jam() {
         long kini = 1_000_000_000L;
-        assertFalse(TgBot.tombolKedaluwarsa(0, kini));
+        assertTrue(TgBot.tombolKedaluwarsa(0, kini));
         assertFalse(TgBot.tombolKedaluwarsa(kini, kini));
         assertFalse(TgBot.tombolKedaluwarsa(kini - 23L * 3600 * 1000, kini));
         assertTrue(TgBot.tombolKedaluwarsa(kini - 25L * 3600 * 1000, kini));

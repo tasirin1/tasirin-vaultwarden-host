@@ -503,7 +503,9 @@ public final class ControlServer {
 
             int sent = -1;
             long lastWrite = System.currentTimeMillis();
-            while (!stop && !s.isClosed()) {
+            long batasAkhir = System.currentTimeMillis() + 10L * 60 * 1000;
+            while (!stop && !s.isClosed() && s.isConnected()
+                    && System.currentTimeMillis() < batasAkhir) {
                 String text = null;
                 int len;
                 synchronized (ServerService.logBuffer) {
