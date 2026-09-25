@@ -133,7 +133,7 @@ public class ServerService extends Service {
     private int restartAttempt = 0;
     private static volatile long lastStartTime = 0;
     private ControlServer controlServer;
-    private volatile int healthFails = 0;
+    private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
 
     private volatile boolean healthActive = false;
     private final Runnable healthTick = new Runnable() {
@@ -719,7 +719,7 @@ public class ServerService extends Service {
             process = pb.start();
             acquireWakeLock();
             running = true;
-            healthFails = 0;
+            healthFails.set(0);
             lastStartTime = System.currentTimeMillis();
             restartAttempt = 0;
 
@@ -1105,16 +1105,16 @@ public class ServerService extends Service {
     private void checkHealthOnce() {
         HasilPing h = pingRinci(this);
         if (h.sehat) {
-            healthFails = 0;
+            healthFails.set(0);
             return;
         }
         healthFail("tidak merespon (" + h.rincian + ")");
     }
 
     private void healthFail(String reason) {
-        healthFails++;
-        appendLog("[health] /alive gagal: " + reason + " (ke-" + healthFails + "/3)");
-        if (healthFails >= 3) {
+        int gagal = healthFails.incrementAndGet();
+        appendLog("[health] /alive gagal: " + reason + " (ke-" + gagal + "/3)");
+        if (gagal >= 3) {
             // Pengaman positif-palsu: /alive butuh DB sehingga di STB lambat
             // bisa gagal sementara server tetap melayani (/api/config 200 di log).
             // Bila proses hidup dan port masih menerima TCP, jangan bunuh server.
@@ -1123,7 +1123,7 @@ public class ServerService extends Service {
             if (prosesHidup && tcpOk) {
                 appendLog("[health] 3x gagal tapi port masih tersambung"
                         + " - server TIDAK dihentikan, coba lagi.");
-                healthFails = 2;
+                healthFails.set(2);
                 return;
             }
             autoRestart = false;

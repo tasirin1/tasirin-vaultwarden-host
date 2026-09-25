@@ -502,13 +502,22 @@ public class SettingsActivity extends Activity {
         if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            if (d == null || d.trim().isEmpty()) {
+                d = DEFAULT_DATA_DIR;
+            }
             String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-            changed = !d.equals(ServerService.runningDataDir)
-                    || !p.equals(ServerService.runningPort)
+            if (a == null) {
+                a = "";
+            }
+            String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
+            String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
+            String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
+            changed = !d.equals(rd)
+                    || !p.equals(rp)
                     || h != ServerService.runningHttps
-                    || !a.equals(ServerService.runningAdminToken);
+                    || !a.equals(ra);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
@@ -714,7 +723,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
-                    + cert.getAbsolutePath());
+                    + Uri.encode(cert.getAbsolutePath(), "/"));
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(uri, "application/x-x509-ca-cert");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -742,7 +751,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
-                    + cert.getAbsolutePath());
+                    + Uri.encode(cert.getAbsolutePath(), "/"));
             Intent send = new Intent(Intent.ACTION_SEND);
             send.setType("application/x-x509-ca-cert");
             send.putExtra(Intent.EXTRA_STREAM, uri);
@@ -1056,7 +1065,9 @@ public class SettingsActivity extends Activity {
                             }
                         }
                         zis.closeEntry();
-                        restored = true;
+                        if (!entry.isDirectory() && name.startsWith("db.sqlite3")) {
+                            restored = true;
+                        }
                     }
                     if (zipCfg != null) {
                         TgBackup.applyPrefsFromJson(SettingsActivity.this,
@@ -1104,12 +1115,21 @@ public class SettingsActivity extends Activity {
                         appendUiLog("[app] Restore gagal: header SQLite tidak cocok");
                         return;
                     }
+                    long salin = off;
                     try (FileOutputStream fos = new FileOutputStream(dbFile)) {
                         fos.write(head, 0, off);
                         int len;
                         while ((len = in.read(buf)) > 0) {
+                            salin += len;
+                            if (salin > Util.BATAS_UNZIP_RESTORE) {
+                                throw new java.io.IOException("File database melebihi batas "
+                                        + Util.BATAS_UNZIP_RESTORE + " byte.");
+                            }
                             fos.write(buf, 0, len);
                         }
+                    }
+                    if (salin < 512) {
+                        throw new java.io.IOException("File database terpotong (bukan SQLite utuh).");
                     }
                     restored = true;
                 }
@@ -1128,6 +1148,21 @@ public class SettingsActivity extends Activity {
                 toast("Backup rusak (bukan SQLite) - database lama dikembalikan.");
                 appendUiLog("[app] Restore gagal: header SQLite tidak cocok, rollback.");
                 return;
+            }
+            try {
+                String rusak = TgBackup.cekIntegritasDb(dbFile);
+                if (rusak != null) {
+                    if (preBackup != null && preBackup.exists()) {
+                        TgBackup.copyFile(preBackup, dbFile);
+                    } else {
+                        dbFile.delete();
+                    }
+                    toast("Backup rusak (DB korup) - database lama dikembalikan.");
+                    appendUiLog("[app] Restore gagal: quick_check korup (" + rusak + "), rollback.");
+                    return;
+                }
+            } catch (Throwable abaikan) {
+                // Unit test JVM tanpa SQLite Android: lewati quick_check.
             }
             toast("Database direstore. Restart server untuk memakai.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
@@ -1164,10 +1199,23 @@ public class SettingsActivity extends Activity {
                     zip = plain;
                 }
                 final File finalZip = zip;
+                final File tmpEnc = tmp;
                 final String fname = name;
                 ui.post(() -> confirm("Restore dari Telegram",
                         "Gunakan backup '" + fname + "'? Server akan dihentikan dulu. Lanjutkan?",
-                        () -> runBusy(() -> restoreFromZip(finalZip))));
+                        () -> runBusy(() -> {
+                            try {
+                                restoreFromZip(finalZip);
+                            } finally {
+                                // Jangan sisakan plaintext dekrip di cache bila restore gagal.
+                                try {
+                                    if (!finalZip.equals(tmpEnc)) {
+                                        finalZip.delete();
+                                    }
+                                } catch (Exception ignored) {
+                                }
+                            }
+                        })));
             } catch (Exception e) {
                 toast("Gagal ambil backup: " + e.getMessage());
                 appendUiLog("[tg] Gagal ambil backup: " + e);
@@ -1239,7 +1287,7 @@ public class SettingsActivity extends Activity {
             }
             final String path = out.getAbsolutePath();
             ui.post(() -> {
-                Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + path);
+                Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + Uri.encode(path, "/"));
                 Intent send = new Intent(Intent.ACTION_SEND);
                 send.setType(mime);
                 send.putExtra(Intent.EXTRA_STREAM, uri);

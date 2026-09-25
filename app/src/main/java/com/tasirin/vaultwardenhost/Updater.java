@@ -221,7 +221,7 @@ public final class Updater {
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
      *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
      *  Return hex SHA-256; lempar IOException terakhir bila gagal. */
-    static String unduhKeTmp(Context ctx, String url, File tmp, String label,
+    static synchronized String unduhKeTmp(Context ctx, String url, File tmp, String label,
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws IOException {
         Exception gagal = null;

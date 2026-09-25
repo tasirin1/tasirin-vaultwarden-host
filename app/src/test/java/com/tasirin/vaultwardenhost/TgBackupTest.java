@@ -53,11 +53,19 @@ public class TgBackupTest {
         assertFalse(TgBackup.dbSiap(kosong));
         File valid = File.createTempFile("dbvalid", ".sqlite3");
         try (FileOutputStream o = new FileOutputStream(valid)) {
-            o.write("SQLite format 3\0sampel".getBytes("UTF-8"));
+            byte[] magic = "SQLite format 3\0".getBytes("UTF-8");
+            o.write(magic);
+            o.write(new byte[1024 - magic.length]);
         }
         assertTrue(TgBackup.dbSiap(valid));
+        File buntung = File.createTempFile("dbbuntung", ".sqlite3");
+        try (FileOutputStream o = new FileOutputStream(buntung)) {
+            o.write("SQLite format 3\0sampel".getBytes("UTF-8"));
+        }
+        assertFalse(TgBackup.dbSiap(buntung));
         kosong.delete();
         valid.delete();
+        buntung.delete();
     }
 
     @Test

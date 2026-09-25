@@ -1070,6 +1070,22 @@ public final class TgBackup {
             throw new IOException("Backup rusak (bukan SQLite)"
                     + " - database lama dikembalikan.");
         }
+        try {
+            String rusak = cekIntegritasDb(dbFile);
+            if (rusak != null) {
+                if (preBackup != null && preBackup.exists()) {
+                    copyFile(preBackup, dbFile);
+                } else {
+                    dbFile.delete();
+                }
+                throw new IOException("Backup rusak (DB korup: " + rusak + ")"
+                        + " - database lama dikembalikan.");
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable abaikan) {
+            // Lingkungan unit test JVM tanpa SQLite Android: lewati quick_check.
+        }
         boolean lengkap = false;
         if (cfg != null) {
             applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
@@ -1249,6 +1265,15 @@ public final class TgBackup {
 
     /** True bila file ber-header SQLite ("SQLite format 3\0"). */
     static boolean isSqliteFile(File f) {
+        // Header saja tak cukup: DB terpotong 16 byte tetap bermagic valid.
+        // SQLite terkecil (1 page) ratusan byte; tolak yang jelas buntung.
+        try {
+            if (f == null || f.length() < 512) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
         byte[] head = new byte[16];
         try (FileInputStream in = new FileInputStream(f)) {
             int off = 0;

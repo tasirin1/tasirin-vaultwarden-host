@@ -332,10 +332,18 @@ public final class TgBot {
                     && !chatResmi.equals(dari)) {
                 return;
             }
-            // Tombol inline sengaja berumur panjang: jangan pakai message.date
-            // (tanggal pesan keyboard lama) untuk cek basi, kalau tidak semua
-            // tombol mati setelah 5 menit dan ketukan hilang diam-diam.
-            // Cek basi tetap berlaku untuk pesan ketik di pollOnce().
+            // Tombol inline diberi umur 24 jam: tanpa batas, keyboard lama yang
+            // bocor bisa di-replay selamanya. Batas 5 menit (seperti pesan ketik)
+            // terlalu pendek untuk tombol, 24 jam komprominya.
+            if (pesan != null) {
+                long tgl = pesan.optLong("date", 0) * 1000L;
+                if (tgl > 0 && System.currentTimeMillis() - tgl > 24L * 3600 * 1000) {
+                    jawabCallback(ctx, cb.optString("id", ""));
+                    TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
+                            + " Minta keyboard baru dengan /help lalu coba lagi.");
+                    return;
+                }
+            }
             jawabCallback(ctx, cb.optString("id", ""));
             String data = cb.optString("data", "").trim();
             if (callbackDataValid(data)) {
@@ -645,17 +653,29 @@ public final class TgBot {
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
         TgBackup.downloadLastBackup(ctx, tmp);
         File zip = tmp;
+        File plain = null;
         if (TgBackup.isEncrypted(tmp)) {
             if (pass == null || pass.trim().isEmpty()) {
                 throw new IOException("Backup terenkripsi"
                         + " - isi password backup di pengaturan dulu.");
             }
-            File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
+            plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
             TgBackup.decryptFile(tmp, plain, pass.trim());
             tmp.delete();
             zip = plain;
         }
-        return TgBackup.restoreFromZip(ctx, zip);
+        try {
+            return TgBackup.restoreFromZip(ctx, zip);
+        } finally {
+            // Jangan sisakan plaintext dekrip di cache bila restore gagal
+            // (jalur sukses sudah dihapus restoreFromZip via bolehHapusFile).
+            try {
+                if (plain != null && plain.exists()) {
+                    plain.delete();
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /** Otorisasi perintah berbahaya (/stop, /update, /restore).

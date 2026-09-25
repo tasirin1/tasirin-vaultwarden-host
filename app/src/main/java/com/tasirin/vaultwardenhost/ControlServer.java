@@ -517,8 +517,8 @@ public final class ControlServer {
                     }
                 }
                 if (text != null) {
-                    sent = len;
                     kirimSse(out, LogActivity.samarkanLog(text));
+                    sent = len;
                     lastWrite = System.currentTimeMillis();
                     out.flush();
                 } else {

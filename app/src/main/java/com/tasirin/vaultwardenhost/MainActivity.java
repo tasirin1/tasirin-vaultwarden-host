@@ -326,13 +326,22 @@ public class MainActivity extends Activity {
         if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            if (d == null || d.trim().isEmpty()) {
+                d = DEFAULT_DATA_DIR;
+            }
             String p = ServerService.effectivePort(sp);
             boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-            changed = !d.equals(ServerService.runningDataDir)
-                    || !p.equals(ServerService.runningPort)
+            if (a == null) {
+                a = "";
+            }
+            String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
+            String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
+            String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
+            changed = !d.equals(rd)
+                    || !p.equals(rp)
                     || h != ServerService.runningHttps
-                    || !a.equals(ServerService.runningAdminToken);
+                    || !a.equals(ra);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 

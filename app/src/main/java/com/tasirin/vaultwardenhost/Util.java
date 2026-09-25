@@ -84,7 +84,7 @@ public final class Util {
             return dasar;
         }
         String l = lokasi.trim();
-        if (l.startsWith("http://") || l.startsWith("https://")) {
+        if (l.regionMatches(true, 0, "http://", 0, 7) || l.regionMatches(true, 0, "https://", 0, 8)) {
             return l;
         }
         if (l.startsWith("/")) {

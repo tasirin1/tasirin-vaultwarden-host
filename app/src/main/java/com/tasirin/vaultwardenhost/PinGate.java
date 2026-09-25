@@ -22,7 +22,7 @@ public final class PinGate {
     }
 
     /** Catat hasil satu percobaan (true = cocok, gagal di-reset). */
-    public static void catatHasil(Context ctx, boolean cocok, long sekarang) {
+    public static synchronized void catatHasil(Context ctx, boolean cocok, long sekarang) {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
         if (cocok) {

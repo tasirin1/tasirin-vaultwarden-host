@@ -16,7 +16,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         try {
             ServerService.backupNow(context);
         } catch (Exception ignored) {
-            // Batasan start service versi Android baru - jadwal berikutnya coba lagi.
+            // Android 12+ bisa menolak start dari background: tandai agar
+            // MainActivity menjalankan susulan saat dibuka berikutnya.
+            try {
+                context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                        .edit().putBoolean("tg_backup_tertunda", true).apply();
+            } catch (Exception ignored2) {
+            }
         }
     }
 

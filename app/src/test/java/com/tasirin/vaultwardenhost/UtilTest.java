@@ -42,6 +42,7 @@ public class UtilTest {
     public void sambungRedirectRelatif() {
         assertEquals("https://h:1/x", Util.sambungRedirect("https://h:1/a", "/x"));
         assertEquals("https://c/d", Util.sambungRedirect("https://a/b", "https://c/d"));
+        assertEquals("HTTPS://c/d", Util.sambungRedirect("https://a/b", "HTTPS://c/d"));
     }
 
     @Test
