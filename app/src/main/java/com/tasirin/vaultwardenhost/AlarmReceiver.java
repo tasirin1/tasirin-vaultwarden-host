@@ -33,8 +33,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             // Hitung ulang tengah malam berikutnya setelah jam berubah.
             TgBackup.schedule(context, true);
-            String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
-            String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+            String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }

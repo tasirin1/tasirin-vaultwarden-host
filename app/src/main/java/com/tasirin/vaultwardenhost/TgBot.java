@@ -60,7 +60,7 @@ public final class TgBot {
         PendingIntent pi = pendingIntent(ctx);
         am.cancel(pi);
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+        String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         if (token.isEmpty()) {
             return;
         }
@@ -117,7 +117,7 @@ public final class TgBot {
         final Context app = ctx.getApplicationContext();
         SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        final String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+        final String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         if (token.isEmpty()) {
             return;
         }
@@ -170,8 +170,8 @@ public final class TgBot {
         }
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-            String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
-            String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+            String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
@@ -354,7 +354,7 @@ public final class TgBot {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
+                String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
                 if (token.isEmpty()) {
                     return;
                 }

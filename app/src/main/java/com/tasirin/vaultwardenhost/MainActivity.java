@@ -80,9 +80,9 @@ public class MainActivity extends Activity {
     private volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
 
-    private static boolean unlocked = false;
+    private static volatile boolean unlocked = false;
     /** Kapan MainActivity terakhir pause; kunci PIN baru muncul bila >60 detik. */
-    private static long pauseStamp = 0;
+    private static volatile long pauseStamp = 0;
     private static final long PIN_GRACE_MS = 60_000;
 
     /** Berbagi status buka PIN dengan Settings agar tidak diminta dua kali. */

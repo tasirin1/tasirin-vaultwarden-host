@@ -18,6 +18,11 @@ public final class Util {
     private Util() {
     }
 
+    /** Trim aman untuk hasil prefs yang bisa null (tanpa NPE). Murni. */
+    public static String amanTrim(String s) {
+        return s == null ? "" : s.trim();
+    }
+
     /** True bila pesan Telegram berasal dari chat resmi.
      *  Dukung ID numerik ("123456") dan username ("@nama" / "nama",
      *  tanpa peka huruf). Murni agar bisa unit test. */

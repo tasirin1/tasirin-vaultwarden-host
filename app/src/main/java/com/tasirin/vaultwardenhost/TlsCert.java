@@ -267,8 +267,8 @@ public final class TlsCert {
         byte[] sigAlg = sha256RsaAlgorithmId();
         byte[] issuer = nameCn(issuerCn);
         byte[] validity = der(b -> {
-            b.utcTime(notBefore);
-            b.utcTime(notAfter);
+            b.waktu(notBefore);
+            b.waktu(notAfter);
         }, 0x30);
         byte[] subject = nameCn(subjectCn);
         byte[] spki = subjectPub.getEncoded();
@@ -529,6 +529,28 @@ public final class TlsCert {
             out.write(0x0C);
             len(data.length, out);
             out.write(data, 0, data.length);
+        }
+
+        /** UTCTime (<2050) atau GeneralizedTime (>=2050) agar CA 10 tahun tetap valid. */
+        void waktu(Date d) throws IOException {
+            java.util.Calendar c = java.util.Calendar.getInstance(
+                    java.util.TimeZone.getTimeZone("UTC"), Locale.US);
+            c.setTime(d);
+            if (c.get(java.util.Calendar.YEAR) >= 2050) {
+                String s = String.format(Locale.US, "%04d%02d%02d%02d%02d%02dZ",
+                        c.get(java.util.Calendar.YEAR),
+                        c.get(java.util.Calendar.MONTH) + 1,
+                        c.get(java.util.Calendar.DAY_OF_MONTH),
+                        c.get(java.util.Calendar.HOUR_OF_DAY),
+                        c.get(java.util.Calendar.MINUTE),
+                        c.get(java.util.Calendar.SECOND));
+                byte[] data = s.getBytes(StandardCharsets.US_ASCII);
+                out.write(0x18);
+                len(data.length, out);
+                out.write(data, 0, data.length);
+                return;
+            }
+            utcTime(d);
         }
 
         void utcTime(Date d) throws IOException {

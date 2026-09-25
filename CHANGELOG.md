@@ -6,6 +6,23 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: NPE prefs, auth, TLS, backup
+
+### Perbaikan
+- Anti-crash NPE: baca token/chat prefs lewat `Util.amanTrim()` (null-safe) di
+  TgBackup, TgBot, BootReceiver, dan AlarmReceiver.
+- Status web fail-closed: `checkToken()` menolak akses bila prefs tak terbaca
+  (sebelumnya terbuka tanpa auth); guard query null.
+- Health-check loopback segar setelah regenerasi CA: cache `SSLSocketFactory`
+  gugur bila `tls/ca.pem` berubah (mtime+ukuran), cegah stop palsu sehabis ganti IP.
+- Backup jujur: `PRAGMA quick_check` sebelum unggah (tolak DB robek tersalin
+  saat server menulis); file verifikasi enkripsi pindah ke cache internal
+  (bukan `/sdcard` publik).
+- Alarm Android 12+: cek `canScheduleExactAlarms()` + izin
+  `SCHEDULE_EXACT_ALARM`, fallback inexact bila ditolak.
+- PIN `unlocked`/`pauseStamp` jadi `volatile` (visibilitas antar-activity).
+- Sertifikat tahan 2050+: waktu DER pakai GeneralizedTime bila tahun >= 2050.
+
 ## [Belum rilis] — Perintah Telegram /ca kirim CA
 
 ### Ditambahkan

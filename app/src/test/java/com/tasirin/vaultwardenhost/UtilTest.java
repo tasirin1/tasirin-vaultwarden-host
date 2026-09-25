@@ -61,6 +61,13 @@ public class UtilTest {
     }
 
     @Test
+    public void amanTrimTanpaNpe() {
+        assertEquals("", Util.amanTrim(null));
+        assertEquals("", Util.amanTrim("   "));
+        assertEquals("abc", Util.amanTrim("  abc  "));
+    }
+
+    @Test
     public void hapusHanyaTempInternal() throws Exception {
         File base = new File(System.getProperty("java.io.tmpdir"), "uji-util-" + System.nanoTime());
         File cache = new File(base, "cache");

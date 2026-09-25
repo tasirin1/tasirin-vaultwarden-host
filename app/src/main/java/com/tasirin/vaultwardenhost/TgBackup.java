@@ -138,8 +138,8 @@ public final class TgBackup {
         if (!sp.getBoolean(KEY_TG_AUTO, false)) {
             return;
         }
-        String token = sp.getString(KEY_TG_TOKEN, "").trim();
-        String chat = sp.getString(KEY_TG_CHAT, "").trim();
+        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             ui.catat("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
             return;
@@ -167,8 +167,8 @@ public final class TgBackup {
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
     public static String backupNow(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = sp.getString(KEY_TG_TOKEN, "").trim();
-        String chat = sp.getString(KEY_TG_CHAT, "").trim();
+        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
@@ -190,6 +190,12 @@ public final class TgBackup {
         // Kunci konsistensi: pindahkan isi WAL ke DB utama dulu supaya salinan
         // file tidak menangkap transaksi setengah jalan saat server sedang jalan.
         checkpointWal(db);
+        // Integritas SQLite penuh (bukan cuma magic header): tolak DB robek
+        // akibat salin saat server menulis, sebelum diunggah ke Telegram.
+        String cekDb = cekIntegritasDb(db);
+        if (cekDb != null) {
+            throw new IOException("Database korup (" + cekDb + ") - backup dibatalkan.");
+        }
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
         String passAwal = sp.getString(KEY_TG_PASS, "");
@@ -209,7 +215,9 @@ public final class TgBackup {
             File enc = new File(zip.getParentFile(), zip.getName() + ".enc");
             encryptFile(zip, enc, pass.trim());
             // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
-            File tmpDec = new File(zip.getParentFile(), "verifikasi-tmp.zip");
+            // Round-trip di cache internal (bukan /sdcard) agar plaintext
+            // sementara tak terekspos ke app lain di storage publik.
+            File tmpDec = new File(ctx.getCacheDir(), "verifikasi-tmp.zip");
             try {
                 decryptFile(enc, tmpDec, pass.trim());
                 String galat2 = verifikasiZip(tmpDec);
@@ -308,8 +316,8 @@ public final class TgBackup {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                String token = sp.getString(KEY_TG_TOKEN, "").trim();
-                String chat = sp.getString(KEY_TG_CHAT, "").trim();
+                String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
+                String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
                 if (token.isEmpty() || chat.isEmpty()) {
                     return;
                 }
@@ -374,6 +382,35 @@ public final class TgBackup {
                     db.close();
                 } catch (Exception ignored) {
                 }
+            }
+        }
+    }
+
+    /** PRAGMA quick_check baca-saja; null bila OK, pesan singkat bila korup. */
+    static String cekIntegritasDb(File dbFile) {
+        SQLiteDatabase db = null;
+        android.database.Cursor c = null;
+        try {
+            db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
+                    SQLiteDatabase.OPEN_READONLY);
+            c = db.rawQuery("PRAGMA quick_check;", null);
+            if (c != null && c.moveToFirst()) {
+                String hasil = c.getString(0);
+                if (hasil != null && !hasil.equalsIgnoreCase("ok")) {
+                    return hasil;
+                }
+                return null;
+            }
+            return "quick_check tanpa hasil";
+        } catch (Exception e) {
+            String m = e.getMessage();
+            return m == null || m.isEmpty() ? e.toString() : m;
+        } finally {
+            if (c != null) {
+                try { c.close(); } catch (Exception ignored) {}
+            }
+            if (db != null && db.isOpen()) {
+                try { db.close(); } catch (Exception ignored) {}
             }
         }
     }
@@ -587,8 +624,8 @@ public final class TgBackup {
     public static String kirimCa(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String token = sp.getString(KEY_TG_TOKEN, "").trim();
-        String chat = sp.getString(KEY_TG_CHAT, "").trim();
+        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
@@ -708,7 +745,7 @@ public final class TgBackup {
     /** Unduh backup terakhir yang pernah dikirim dari app ini. */
     public static String downloadLastBackup(Context ctx, File dest) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = sp.getString(KEY_TG_TOKEN, "").trim();
+        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
         String fileId = sp.getString(KEY_TG_LAST_FILE, "");
         String name = sp.getString(KEY_TG_LAST_NAME, "backup.zip");
         if (token.isEmpty() || fileId.isEmpty()) {
@@ -1364,17 +1401,35 @@ public final class TgBackup {
         PendingIntent pi = PendingIntent.getBroadcast(ctx, 0, intent, flags);
         if (enable) {
             long trigger = nextMidnight(System.currentTimeMillis());
+            boolean exact = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+            if (exact && Build.VERSION.SDK_INT >= 31) {
+                // Android 12+: exact alarm butuh izin/kuota; cek dulu agar
+                // tak lempar SecurityException tiap pasang jadwal.
+                try {
+                    exact = am.canScheduleExactAlarms();
+                } catch (Exception ignored) {
+                    exact = false;
+                }
+            }
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // Tepat waktu walau dalam Doze; tanpa permission khusus karena targetSdk 28.
-                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                if (exact) {
+                    // Tepat waktu walau dalam Doze.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                    } else {
+                        am.set(AlarmManager.RTC_WAKEUP, trigger, pi);
+                    }
                 } else {
-                    am.set(AlarmManager.RTC_WAKEUP, trigger, pi);
+                    am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
+                            AlarmManager.INTERVAL_DAY, pi);
                 }
             } catch (Exception e) {
                 // Fallback aman bila perangkat menolak exact alarm.
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
-                        AlarmManager.INTERVAL_DAY, pi);
+                try {
+                    am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
+                            AlarmManager.INTERVAL_DAY, pi);
+                } catch (Exception ignored) {
+                }
             }
         } else {
             am.cancel(pi);

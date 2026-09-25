@@ -261,7 +261,8 @@ public final class ControlServer {
             need = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .getString(ServerService.KEY_ADMIN_TOKEN, "");
         } catch (Exception e) {
-            return true;
+            // Fail-closed: bila prefs tak terbaca, tolak akses (jangan buka tanpa auth).
+            return false;
         }
         if (need == null || need.trim().isEmpty()) {
             return true;
@@ -270,6 +271,9 @@ public final class ControlServer {
             if (tokenCocok(need, authHeader.substring(7).trim())) {
                 return true;
             }
+        }
+        if (query == null) {
+            return false;
         }
         // Tanpa regex: pindai pasangan kunci=nilai satu per satu.
         int start = 0;

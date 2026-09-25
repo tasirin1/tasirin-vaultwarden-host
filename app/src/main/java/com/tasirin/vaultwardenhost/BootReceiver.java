@@ -27,8 +27,8 @@ public class BootReceiver extends BroadcastReceiver {
             if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
                 try {
-                    String token = sp.getString(TgBackup.KEY_TG_TOKEN, "").trim();
-                    String chat = sp.getString(TgBackup.KEY_TG_CHAT, "").trim();
+                    String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+                    String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
                     String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
                             ServerService.DEFAULT_DATA_DIR);
                     long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);

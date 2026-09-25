@@ -1134,12 +1134,15 @@ public class ServerService extends Service {
     }
 
     private static javax.net.ssl.SSLSocketFactory sslFactory;
+    /** Cap CA aktif (mtime+ukuran); cache factory gugur bila CA regenerasi. */
+    private static volatile long sslCaCap = -1L;
 
     /** Trust khusus health-check loopback: pin CA milik app bila ada,
      *  fallback trust-all hanya untuk 127.0.0.1/localhost (verifier di atas
      *  sudah membatasi host). Tak dipakai untuk koneksi luar. */
     private static javax.net.ssl.SSLSocketFactory loopbackSslFactory(Context ctx) throws Exception {
-        if (sslFactory == null) {
+        long cap = capCaAktif(ctx);
+        if (sslFactory == null || cap != sslCaCap) {
             javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
             if (pinned != null) {
                 sslFactory = pinned;
@@ -1162,8 +1165,36 @@ public class ServerService extends Service {
                 sc.init(null, tm, new SecureRandom());
                 sslFactory = sc.getSocketFactory();
             }
+            sslCaCap = cap;
         }
         return sslFactory;
+    }
+
+    /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
+    private static long capCaAktif(Context ctx) {
+        try {
+            java.io.File ca = null;
+            try {
+                ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
+            } catch (Exception ignored) {
+            }
+            if ((ca == null || !ca.isFile()) && ctx != null) {
+                try {
+                    android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                    String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                    if (dataDir == null || dataDir.trim().isEmpty()) {
+                        dataDir = DEFAULT_DATA_DIR;
+                    }
+                    ca = new java.io.File(dataDir, "tls/ca.pem");
+                } catch (Exception ignored) {
+                }
+            }
+            if (ca != null && ca.isFile()) {
+                return ca.lastModified() * 1000000L + ca.length();
+            }
+        } catch (Exception ignored) {
+        }
+        return 0L;
     }
 
     /** Muat tls/ca.pem milik app sebagai trust anchor bila tersedia. */
