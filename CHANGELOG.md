@@ -6,6 +6,15 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Izin penyimpanan semua Android
+
+### Perbaikan
+- Izin storage berlaku di semua Android: hapus `maxSdkVersion` di manifest,
+  tambah `READ_EXTERNAL_STORAGE` + `MANAGE_EXTERNAL_STORAGE` +
+  `requestLegacyExternalStorage`, dan alur izin runtime terpusat (`StoragePerm`).
+  Android 11+ diarahkan ke All files access agar `/sdcard/vaultwarden` writable;
+  Start dibatalkan dengan pesan jelas bila izin belum diberikan.
+
 ## [Belum rilis] — Audit ulang: plaintext restore, masker log, tabrakan backup, jam NTP
 
 ### Perbaikan

@@ -91,7 +91,7 @@ The home screen is minimal: **server status**, **Start/Stop** button,
 **realtime log**, and **Save .txt**. Everything else lives under
 **three-dot (⋮) → Settings** at the top right.
 
-1. Install the APK, open the app, grant **Storage** permission if asked.
+1. Install the APK, open the app, grant **Storage** permission if asked (on Android 11+ choose **Allow access to manage all files** so `/sdcard/vaultwarden` stays writable).
 2. Open **⋮ → Settings**, fill **Data folder** (e.g. `/sdcard/vaultwarden`)
    and **Port** (default `8088`). Access always uses the LAN IP.
 3. Back on the home screen, press **Start**. On first run the binary

@@ -52,6 +52,12 @@
     <string name="pin_label">PIN kunci app</string>
     <string name="pin_hint">PIN 4–6 digit</string>
     <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
+    <string name="izin_storage_judul">Izin penyimpanan dibutuhkan</string>
+    <string name="izin_storage_pesan">Folder data (/sdcard/vaultwarden) ada di storage bersama. Di Android 11+ pilih “Izinkan akses untuk mengelola semua file” agar folder bisa dibuat dan ditulis. Tanpa ini Start gagal dengan pesan “Folder tidak bisa ditulis”.</string>
+    <string name="izin_storage_buka">Buka Pengaturan</string>
+    <string name="izin_storage_nanti">Nanti</string>
+    <string name="izin_storage_belum">Izin penyimpanan belum diberikan — Start dibatalkan.</string>
+    <string name="izin_storage_ditolak">Izin penyimpanan ditolak — folder /sdcard/vaultwarden tidak bisa ditulis. Izinkan di Pengaturan HP → Aplikasi → Izin.</string>
     <string name="maintenance">Pemeliharaan</string>
     <string name="auto_update_binary">Auto-update binary saat ada versi baru (jaringan rumah)</string>
     <string name="auto_update_webvault">Auto-update web vault mengikuti binary (jaringan rumah)</string>

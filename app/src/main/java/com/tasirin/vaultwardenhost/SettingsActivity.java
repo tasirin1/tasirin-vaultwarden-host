@@ -1,6 +1,5 @@
 package com.tasirin.vaultwardenhost;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -361,13 +360,8 @@ public class SettingsActivity extends Activity {
             sp2.edit().putBoolean(KEY_PIN_ON, true).apply();
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_WRITE);
-            }
-        }
+        // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
+        StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
         bundledVersion = readBundledVersion();
         bundledRaw = Updater.readBundledVersionRaw(this);
@@ -405,13 +399,32 @@ public class SettingsActivity extends Activity {
         pauseStamp = System.currentTimeMillis();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (requestCode == REQ_WRITE) {
+            boolean diizinkan = grantResults.length > 0
+                    && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            if (!diizinkan) {
+                StoragePerm.tanganiPenolakan(this);
+            }
+        }
+    }
+
     private void saveAndStart() {
         String dataDir = dataDirInput.getText().toString().trim();
         String port = portInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();
 
+        String dataDirEfektif = TextUtils.isEmpty(dataDir) ? DEFAULT_DATA_DIR : dataDir;
+        // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
+        if (!StoragePerm.siapStart(this, dataDirEfektif, REQ_WRITE)) {
+            appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
+            return;
+        }
+
         SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
-        ed.putString(ServerService.KEY_DATA_DIR, TextUtils.isEmpty(dataDir) ? DEFAULT_DATA_DIR : dataDir);
+        ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
         ed.putString(ServerService.KEY_PORT, TextUtils.isEmpty(port) ? DEFAULT_PORT : port);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();

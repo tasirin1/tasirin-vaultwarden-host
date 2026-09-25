@@ -1,6 +1,5 @@
 package com.tasirin.vaultwardenhost;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -138,13 +137,8 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class)));
         logToggleBtn.setOnClickListener(v -> setHomeLogExpanded(!homeLogExpanded));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_WRITE);
-            }
-        }
+        // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
+        StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
         try {
             appVersion = getPackageManager()
@@ -192,6 +186,18 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (requestCode == REQ_WRITE) {
+            boolean diizinkan = grantResults.length > 0
+                    && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            if (!diizinkan) {
+                StoragePerm.tanganiPenolakan(this);
+            }
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         refreshActive = false;
@@ -226,6 +232,11 @@ public class MainActivity extends Activity {
         String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
+        }
+        // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
+        if (!StoragePerm.siapStart(this, dataDir, REQ_WRITE)) {
+            appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
+            return;
         }
         String port = ServerService.effectivePort(sp);
         final String finalDataDir = dataDir;

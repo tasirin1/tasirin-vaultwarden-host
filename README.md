@@ -92,7 +92,7 @@ Layar awal kini sederhana: hanya **status server**, tombol **Start/Stop**,
 **log realtime**, dan tombol **Simpan .txt**. Semua pengaturan pindah ke
 **titik tiga (⋮) → Settings** di kanan atas.
 
-1. Install APK, buka app, beri izin **Storage** bila diminta.
+1. Install APK, buka app, beri izin **Storage** bila diminta (di Android 11+ pilih **Izinkan akses untuk mengelola semua file** agar `/sdcard/vaultwarden` bisa ditulis).
 2. Buka **⋮ → Settings**, isi **Folder data** (mis. `/sdcard/vaultwarden`)
    dan **Port** (default `8088`). Akses selalu memakai IP LAN.
 3. Kembali ke layar awal, tekan **Start**. Pertama kali binary diunduh

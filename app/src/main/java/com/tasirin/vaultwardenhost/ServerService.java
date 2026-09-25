@@ -580,7 +580,8 @@ public class ServerService extends Service {
         }
         if (!dataFolder.canWrite()) {
             setStatus("Folder tidak bisa ditulis: " + dataDir);
-            appendLog("[app] Folder data tidak writable: " + dataDir);
+            appendLog("[app] Folder data tidak writable: " + dataDir
+                    + " - beri izin Storage/Semua file di Pengaturan HP, lalu Start ulang.");
             return;
         }
 
