@@ -1160,8 +1160,8 @@ public class ServerService extends Service {
         return;
     }
 
-    private static javax.net.ssl.SSLSocketFactory sslFactory;
-    /** Cap CA aktif (mtime+ukuran); cache factory gugur bila CA regenerasi. */
+    private static volatile javax.net.ssl.SSLSocketFactory sslFactory;
+    /** Cap CA aktif (mtime+ukuran+hash isi); cache factory gugur bila CA regenerasi. */
     private static volatile long sslCaCap = -1L;
 
     /** Trust khusus health-check loopback: pin CA milik app bila ada,
@@ -1169,11 +1169,15 @@ public class ServerService extends Service {
      *  sudah membatasi host). Tak dipakai untuk koneksi luar. */
     private static javax.net.ssl.SSLSocketFactory loopbackSslFactory(Context ctx) throws Exception {
         long cap = capCaAktif(ctx);
-        if (sslFactory == null || cap != sslCaCap) {
-            javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
-            if (pinned != null) {
-                sslFactory = pinned;
-            } else {
+        javax.net.ssl.SSLSocketFactory f = sslFactory;
+        if (f == null || cap != sslCaCap) {
+            synchronized (ServerService.class) {
+                f = sslFactory;
+                if (f == null || cap != sslCaCap) {
+                    javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
+                    if (pinned != null) {
+                        sslFactory = pinned;
+                    } else {
                 TrustManager[] tm = new TrustManager[]{new X509TrustManager() {
                     @Override
                     public void checkClientTrusted(X509Certificate[] chain, String authType) {
@@ -1188,13 +1192,16 @@ public class ServerService extends Service {
                         return new X509Certificate[0];
                     }
                 }};
-                SSLContext sc = SSLContext.getInstance("TLS");
-                sc.init(null, tm, new SecureRandom());
-                sslFactory = sc.getSocketFactory();
+                        SSLContext sc = SSLContext.getInstance("TLS");
+                        sc.init(null, tm, new SecureRandom());
+                        sslFactory = sc.getSocketFactory();
+                    }
+                    sslCaCap = cap;
+                    f = sslFactory;
+                }
             }
-            sslCaCap = cap;
         }
-        return sslFactory;
+        return f;
     }
 
     /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
@@ -1217,7 +1224,15 @@ public class ServerService extends Service {
                 }
             }
             if (ca != null && ca.isFile()) {
-                return ca.lastModified() * 1000000L + ca.length();
+                long h = ca.lastModified() * 1000000L + ca.length();
+                try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
+                    byte[] buf = new byte[4096];
+                    int n = in.read(buf);
+                    int hc = n > 0 ? java.util.Arrays.hashCode(java.util.Arrays.copyOf(buf, n)) : 0;
+                    h = h * 31 + (hc & 0xffffffffL);
+                } catch (Exception ignored) {
+                }
+                return h;
             }
         } catch (Exception ignored) {
         }

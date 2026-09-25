@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -86,13 +87,13 @@ public class MainActivity extends Activity {
 
     /** Berbagi status buka PIN dengan Settings agar tidak diminta dua kali. */
     static boolean pinBaruSajaDibuka() {
-        return unlocked && System.currentTimeMillis() - pauseStamp < PIN_GRACE_MS;
+        return unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS;
     }
 
     /** Catat buka PIN dari layar lain sebagai milik bersama. */
     static void catatPinDibuka() {
         unlocked = true;
-        pauseStamp = System.currentTimeMillis();
+        pauseStamp = SystemClock.elapsedRealtime();
     }
 
     @Override
@@ -201,7 +202,7 @@ public class MainActivity extends Activity {
         refreshActive = false;
         // Jangan kunci langsung (pindah ke Settings/Log bukan keluar app);
         // maybeShowPinLock mengunci bila jeda > PIN_GRACE_MS.
-        pauseStamp = System.currentTimeMillis();
+        pauseStamp = SystemClock.elapsedRealtime();
     }
 
     @Override
@@ -641,7 +642,7 @@ public class MainActivity extends Activity {
         if (!sp.getBoolean(KEY_PIN_ON, false)) {
             return;
         }
-        if (unlocked && System.currentTimeMillis() - pauseStamp < PIN_GRACE_MS) {
+        if (unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS) {
             return;
         }
         unlocked = false;
@@ -663,7 +664,7 @@ public class MainActivity extends Activity {
                 .setOnClickListener(v -> {
                     final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                     long sisa = PinGate.sisaKunciMs(MainActivity.this,
-                            System.currentTimeMillis());
+                            SystemClock.elapsedRealtime());
                     if (sisa > 0) {
                         input.setError("Terkunci, coba lagi "
                                 + ((sisa + 59000) / 60000) + " menit.");
@@ -675,7 +676,7 @@ public class MainActivity extends Activity {
                     new Thread(() -> {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
                         PinGate.catatHasil(MainActivity.this, cocok,
-                                System.currentTimeMillis());
+                                SystemClock.elapsedRealtime());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();

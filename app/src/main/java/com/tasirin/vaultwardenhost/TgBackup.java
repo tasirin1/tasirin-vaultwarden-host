@@ -961,8 +961,10 @@ public final class TgBackup {
     private static void decryptToFile(File in, File out, String pass) throws Exception {
         try {
             decryptWithKdf(in, out, pass, true);
-        } catch (Exception e) {
-            // Fallback: backup lama memakai PBKDF2-HMAC-SHA1.
+        } catch (javax.crypto.BadPaddingException e) {
+            // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
+            // autentikasi (password salah/KDF beda); galat I/O (disk penuh/hilang)
+            // langsung dilempar agar tak 2x PBKDF2 sia-sia dan sebab asli tak tertutup.
             try {
                 out.delete();
             } catch (Exception ignored) {

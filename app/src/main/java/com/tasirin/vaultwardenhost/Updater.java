@@ -218,10 +218,42 @@ public final class Updater {
         String ganti(String url, int kode) throws IOException;
     }
 
+    /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
+     *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan. */
+    private static final java.util.Map<String, Object> KUNCI_UNDUH =
+            new java.util.HashMap<String, Object>();
+
+    /** Ambil kunci untuk satu file tmp (kanonik bila bisa, absolut bila gagal). */
+    private static Object kunciUnduh(File tmp) {
+        String k;
+        try {
+            k = tmp.getCanonicalPath();
+        } catch (Exception e) {
+            k = tmp.getAbsolutePath();
+        }
+        synchronized (KUNCI_UNDUH) {
+            Object o = KUNCI_UNDUH.get(k);
+            if (o == null) {
+                o = new Object();
+                KUNCI_UNDUH.put(k, o);
+            }
+            return o;
+        }
+    }
+
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
      *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
      *  Return hex SHA-256; lempar IOException terakhir bila gagal. */
-    static synchronized String unduhKeTmp(Context ctx, String url, File tmp, String label,
+    static String unduhKeTmp(Context ctx, String url, File tmp, String label,
+                              int connectMs, int readMs, UrlCadangan cadangan)
+            throws IOException {
+        synchronized (kunciUnduh(tmp)) {
+            return unduhKeTmpTerkunci(ctx, url, tmp, label, connectMs, readMs, cadangan);
+        }
+    }
+
+    /** Isi unduhan dengan asumsi kunci per-file sudah dipegang. */
+    private static String unduhKeTmpTerkunci(Context ctx, String url, File tmp, String label,
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws IOException {
         Exception gagal = null;

@@ -14,7 +14,10 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Status web ringan di port terpisah dari vaultwarden: JSON status + log realtime
@@ -39,13 +42,16 @@ public final class ControlServer {
     private static volatile long jsonCacheAt = 0;
     private static final long JSON_CACHE_MS = 10_000;
 
-    // Pool tetap (bukan thread baru per koneksi): halaman status polling tiap
+    // Pool tetap berbatas (bukan thread baru per koneksi): halaman status polling tiap
     // 2 dtk sehingga thread churn boros. Statis agar tak bocor tiap restart.
-    private static final ExecutorService POOL = Executors.newFixedThreadPool(6, r -> {
+    // Antrean dibatasi 24 agar serbuan koneksi LAN tak menumpuk antrean
+    // tak terbatas (FixedThreadPool = OOM di STB 1 GB); lebihnya ditolak cepat.
+    private static final ExecutorService POOL = new ThreadPoolExecutor(6, 6,
+            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(24), r -> {
         Thread t = new Thread(r, "vw-status-conn");
         t.setDaemon(true);
         return t;
-    });
+    }, new ThreadPoolExecutor.AbortPolicy());
 
     private final Context context;
     private ServerSocket serverSocket;
@@ -100,8 +106,28 @@ public final class ControlServer {
         while (!stop) {
             try {
                 Socket s = serverSocket.accept();
+                if (conns.get() >= MAX_CONNS) {
+                    try {
+                        respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        s.close();
+                    } catch (Exception ignored) {
+                    }
+                    continue;
+                }
                 try {
                     POOL.execute(() -> handle(s));
+                } catch (RejectedExecutionException re) {
+                    try {
+                        respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        s.close();
+                    } catch (Exception ignored) {
+                    }
                 } catch (Exception e) {
                     try {
                         s.close();

@@ -38,6 +38,9 @@ public final class TgBot {
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
     /** Kunci tugas berat bot agar backup/restore/update tak jalan bersamaan. */
     private static final AtomicBoolean TUGAS_BERAT = new AtomicBoolean(false);
+    /** Wall-clock terbesar yang pernah terlihat (deteksi jam mundur/NTP).
+     *  Bila jam mundur jauh, tombol/pesan basi diperlakukan kedaluwarsa (fail-closed). */
+    private static volatile long wallMaksTelegram = 0;
 
     private static final String TG_API = "https://api.telegram.org/bot";
 
@@ -217,7 +220,12 @@ public final class TgBot {
                                 // offline) wajib diabaikan; offset tetap maju.
                                 // Pesan masa depan (jam STB lambat) jangan dibuang.
                                 long dateMs = msg.optLong("date", 0) * 1000L;
-                                if (!Util.pesanSegar(dateMs, System.currentTimeMillis(),
+                                long kini = System.currentTimeMillis();
+                                if (jamMundur(kini)) {
+                                    continue;
+                                }
+                                catatWall(kini);
+                                if (!Util.pesanSegar(dateMs, kini,
                                         STALE_MSG_MS)) {
                                     continue;
                                 }
@@ -337,7 +345,15 @@ public final class TgBot {
             // terlalu pendek untuk tombol, 24 jam komprominya.
             if (pesan != null) {
                 long tgl = pesan.optLong("date", 0) * 1000L;
-                if (tombolKedaluwarsa(tgl, System.currentTimeMillis())) {
+                long kini = System.currentTimeMillis();
+                if (jamMundur(kini)) {
+                    jawabCallback(ctx, cb.optString("id", ""));
+                    TgBackup.sendMessage(ctx, "Tombol ditolak: jam STB mundur drastis."
+                            + " Minta keyboard baru dengan /help lalu coba lagi.");
+                    return;
+                }
+                catatWall(kini);
+                if (tombolKedaluwarsa(tgl, kini)) {
                     jawabCallback(ctx, cb.optString("id", ""));
                     TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
                             + " Minta keyboard baru dengan /help lalu coba lagi.");
@@ -691,7 +707,7 @@ public final class TgBot {
         if (!need) {
             return t;
         }
-        long sekarang = System.currentTimeMillis();
+        long sekarang = SystemClock.elapsedRealtime();
         long sisa = PinGate.sisaKunciMs(ctx, sekarang);
         if (sisa > 0) {
             TgBackup.sendMessage(ctx, "PIN terkunci sementara (kebanyakan gagal)."
@@ -764,6 +780,20 @@ public final class TgBot {
     /** Batas umur tombol inline (24 jam) + toleransi jam miring (5 menit). Murni. */
     static final long TOMBOL_KEDALUWARSA_MS = 24L * 3600 * 1000;
     static final long TOLERANSI_JAM_MS = 5 * 60_000;
+
+    /** True bila jam mundur jauh dari yang pernah terlihat (rollback/NTP) — fail-closed. */
+    static boolean jamMundur(long kini) {
+        long maks = wallMaksTelegram;
+        return maks > 0 && kini < maks - TOLERANSI_JAM_MS;
+    }
+
+    /** Catat wall-clock monoton naik untuk deteksi rollback berikutnya. */
+    static void catatWall(long kini) {
+        long m = wallMaksTelegram;
+        if (kini > m) {
+            wallMaksTelegram = kini;
+        }
+    }
 
     /** True bila tombol inline sudah tak berlaku: terlalu tua, tanpa tanggal,
      *  atau bertanggal masa depan tak wajar (jam STB ngaco / replay) — fail-closed. Murni. */

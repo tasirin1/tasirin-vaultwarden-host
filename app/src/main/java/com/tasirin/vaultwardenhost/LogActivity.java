@@ -310,7 +310,7 @@ public class LogActivity extends Activity {
     private void exportLogTxt() {
         String log;
         synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
+            log = samarkanLog(ServerService.logBuffer.toString());
         }
         String nama = LogExport.simpanKeDownload(this, log);
         toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");

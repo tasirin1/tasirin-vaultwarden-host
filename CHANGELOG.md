@@ -6,6 +6,17 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: masker export, pool status, SSL, jam, unduh, dekrip, PIN
+
+### Perbaikan
+- Export log kini dimasker seperti bagi/salin, token tak bocor ke Download publik.
+- Status web: pool koneksi berbatas + tolak cepat 503, antrean serbuan LAN tak OOM.
+- Health TLS: factory volatile + double-checked locking, cap CA pakai hash isi.
+- Telegram: jam mundur drastis ditolak fail-closed; grace PIN + kunci brute-force
+  pakai jam monoton agar mundur/maju jam tak membuka kunci.
+- Unduhan: kunci per-file agar binary/shim/web-vault tak saling blokir.
+- Restore: fallback PBKDF2-SHA1 hanya untuk galat autentikasi, hemat CPU.
+
 ## [Belum rilis] — Audit kode: akses storage 11+, latch bot, migrasi port
 
 ### Perbaikan
