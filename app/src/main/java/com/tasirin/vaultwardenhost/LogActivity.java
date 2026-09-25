@@ -265,6 +265,11 @@ public class LogActivity extends Activity {
         r = r.replaceAll("(?i)(\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\"\\s*:\\s*\")[^\"]*\"", "$1***\"");
         r = r.replaceAll("(?i)(chat_id=)[^&\\s]+", "$1***");
         r = r.replaceAll("bot\\d+:[A-Za-z0-9_-]{10,}", "bot***:***");
+        // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
+        // di pesan galat) + secret admin via env/query/Bearer.
+        r = r.replaceAll("(?i)(api\\.telegram\\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}", "$1***:***");
+        r = r.replaceAll("(?i)(ADMIN_TOKEN\\s*=\\s*)[^\\s]+", "$1***");
+        r = r.replaceAll("(?i)(Authorization\\s*:\\s*Bearer\\s+)\\S+", "$1***");
         return r;
     }
 

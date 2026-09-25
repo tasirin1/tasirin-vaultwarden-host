@@ -221,7 +221,7 @@ public final class Updater {
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan. */
     private static final java.util.Map<String, Object> KUNCI_UNDUH =
-            new java.util.HashMap<String, Object>();
+            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<String, Object>());
 
     /** Ambil kunci untuk satu file tmp (kanonik bila bisa, absolut bila gagal). */
     private static Object kunciUnduh(File tmp) {

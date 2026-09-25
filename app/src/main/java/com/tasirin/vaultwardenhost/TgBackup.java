@@ -1009,11 +1009,13 @@ public final class TgBackup {
     /** KDF backup: SHA256 untuk file baru, SHA1 hanya fallback baca file lama. */
     private static byte[] deriveKey(String pass, byte[] salt, boolean sha256) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(pass.toCharArray(), salt, 100000, 256);
-        SecretKeyFactory f = SecretKeyFactory.getInstance(
-                sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
-        byte[] key = f.generateSecret(spec).getEncoded();
-        spec.clearPassword();
-        return key;
+        try {
+            SecretKeyFactory f = SecretKeyFactory.getInstance(
+                    sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
+            return f.generateSecret(spec).getEncoded();
+        } finally {
+            spec.clearPassword();
+        }
     }
 
     private static void readFully(FileInputStream fis, byte[] out) throws IOException {
@@ -1221,6 +1223,16 @@ public final class TgBackup {
                 keepWv.put(e.getKey(), (Boolean) e.getValue());
             }
         }
+        // Kunci pengaturan yang boleh dipulihkan dari zip tak tepercaya.
+        // State perangkat (jadwal, offset, notifikasi, UI) selalu dipertahankan.
+        java.util.Set<String> bolehImpor = new java.util.HashSet<String>(
+                java.util.Arrays.asList(ServerService.KEY_PORT,
+                        ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
+                        ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
+                        ServerService.KEY_AUTO_UPDATE_WV,
+                        ServerService.KEY_AUTO_RESTART_UPDATE,
+                        ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
+                        KEY_TG_AUTO, "advanced_open", "domain_lokal"));
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
         // tak menghapus seluruh pengaturan perangkat. Folder data selalu
@@ -1229,6 +1241,9 @@ public final class TgBackup {
         while (keys.hasNext()) {
             String k = keys.next();
             if (ServerService.KEY_DATA_DIR.equals(k)) {
+                continue;
+            }
+            if (!bolehImpor.contains(k)) {
                 continue;
             }
             Object v = prefs.get(k);
