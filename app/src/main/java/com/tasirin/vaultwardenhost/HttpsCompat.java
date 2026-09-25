@@ -79,7 +79,8 @@ public final class HttpsCompat {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
-            SSLContext sc = SSLContext.getInstance("TLSv1.2");
+            // "TLS" umum agar negosiasi 1.2 di Android 5/6 dan 1.3 di HP baru.
+            SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, tmf.getTrustManagers(), new SecureRandom());
             cached = sc.getSocketFactory();
         }

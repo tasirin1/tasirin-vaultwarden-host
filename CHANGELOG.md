@@ -6,6 +6,17 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: provider kunci, alarm, offset, unduh, TLS, port
+
+### Perbaikan
+- Provider: tolak kunci privat (*key*.pem, *.key) agar tak terbagi via URI.
+- Alarm: jadwal ulang backup dulu di tiap pemicu agar alarm exact sekali-tembak tak putus.
+- Bot: offset getUpdates ditulis commit() sinkron agar perintah tak replay.
+- Unduh: kunci per-file ConcurrentHashMap (ganti WeakHashMap) + panjang konten long.
+- HTTPS: negosiasi TLS umum (1.2+1.3) agar cepat di HP baru, tetap jalan di Android 5/6.
+- Port: SO_REUSEADDR agar TIME_WAIT tak dikira sibuk; jadwal bot tanpa cancel-buta.
+- Test: FileShareProviderTest + panjangKonten di UpdaterTest.
+
 ## [Belum rilis] — Audit bug: restore lokal, health-spam, update, backup, provider
 
 ### Perbaikan

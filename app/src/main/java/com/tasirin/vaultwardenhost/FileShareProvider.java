@@ -87,12 +87,17 @@ public class FileShareProvider extends ContentProvider {
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
-    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi). */
-    private static boolean namaBolehDibagikan(String name) {
+    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
+     *  Kunci privat (*key*.pem, *.key) tidak boleh dibagikan walau ekstensinya
+     *  terlihat aman — hanya sertifikat publik yang boleh lewat. */
+    static boolean namaBolehDibagikan(String name) {
         if (name == null) {
             return false;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);
+        if (rendah.contains("key") || rendah.endsWith(".key")) {
+            return false;
+        }
         return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
                 || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt")
                 || rendah.endsWith(".enc");
@@ -108,8 +113,14 @@ public class FileShareProvider extends ContentProvider {
                     || canon.startsWith(cache + File.separator)) {
                 // Jangan bagikan binary server / file decrypt sementara dari
                 // files/cache: hanya ekstensi aman yang boleh lewat.
+                // Kunci privat TLS (key.pem/ca-key.pem) juga ditolak di sini
+                // sebagai lapis kedua selain namaBolehDibagikan().
                 String nama = new File(canon).getName();
                 if (nama.startsWith("db.sqlite3")) {
+                    return false;
+                }
+                String rendahNama = nama.toLowerCase(java.util.Locale.US);
+                if (rendahNama.contains("key")) {
                     return false;
                 }
                 return namaBolehDibagikan(nama);
@@ -124,6 +135,9 @@ public class FileShareProvider extends ContentProvider {
             String data = new File(dataDir).getCanonicalPath();
             String name = new File(canon).getName();
             if (name.startsWith("db.sqlite3")) {
+                return false;
+            }
+            if (name.toLowerCase(java.util.Locale.US).contains("key")) {
                 return false;
             }
             boolean diTls = canon.startsWith(data + File.separator + "tls" + File.separator);

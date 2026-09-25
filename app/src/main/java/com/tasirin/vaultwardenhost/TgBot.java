@@ -72,11 +72,11 @@ public final class TgBot {
         if (am == null) {
             return;
         }
-        PendingIntent pi = pendingIntent(ctx);
-        am.cancel(pi);
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+        PendingIntent pi = pendingIntent(ctx);
         if (token.isEmpty()) {
+            am.cancel(pi);
             return;
         }
         long trigger = SystemClock.elapsedRealtime() + 10_000;
@@ -253,7 +253,10 @@ public final class TgBot {
                 }
             } finally {
                 if (newOffset != offset) {
-                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+                    // commit() sinkron: offset wajib awet sebelum perintah
+                    // berikutnya dibaca agar /stop-restore tak replay bila
+                    // proses mati tepat setelah polling.
+                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
                 }
             }
         } catch (Exception ignored) {

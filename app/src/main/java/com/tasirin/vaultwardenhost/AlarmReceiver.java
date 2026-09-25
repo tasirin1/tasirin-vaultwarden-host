@@ -14,6 +14,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private static void mulaiBackup(Context context) {
         try {
+            SharedPreferences cek = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (cek.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                TgBackup.schedule(context, true);
+            }
+        } catch (Exception ignored) {
+        }
+        try {
             ServerService.backupNow(context);
         } catch (Exception ignored) {
             // Android 12+ bisa menolak start dari background: tandai agar

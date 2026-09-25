@@ -2038,6 +2038,10 @@ public class ServerService extends Service {
             return true;
         }
         try (ServerSocket s = new ServerSocket()) {
+            try {
+                s.setReuseAddress(true);
+            } catch (Exception ignored) {
+            }
             s.bind(new InetSocketAddress(port));
             return false;
         } catch (Exception e) {

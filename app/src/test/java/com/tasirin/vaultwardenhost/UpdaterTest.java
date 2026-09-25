@@ -241,6 +241,32 @@ public class UpdaterTest {
         assertTrue(true); // Placeholder - test integrasi di CI
     }
 
+    @Test
+    public void panjangKonten_bacaHeaderLong() throws Exception {
+        java.net.HttpURLConnection c = new java.net.HttpURLConnection(
+                new java.net.URL("http://127.0.0.1/")) {
+            @Override public void connect() { }
+            @Override public void disconnect() { }
+            @Override public boolean usingProxy() { return false; }
+            @Override public String getHeaderField(String n) {
+                return "Content-Length".equalsIgnoreCase(n) ? "3221225472" : null;
+            }
+        };
+        assertEquals(3221225472L, Updater.panjangKonten(c));
+    }
+
+    @Test
+    public void panjangKonten_tanpaHeaderPakaiInt() throws Exception {
+        java.net.HttpURLConnection c = new java.net.HttpURLConnection(
+                new java.net.URL("http://127.0.0.1/")) {
+            @Override public void connect() { }
+            @Override public void disconnect() { }
+            @Override public boolean usingProxy() { return false; }
+        };
+        assertEquals(-1, c.getContentLength());
+        assertEquals(-1L, Updater.panjangKonten(c));
+    }
+
     private static java.io.File buatBerkasElf(int ukuran) throws Exception {
         java.io.File f = java.io.File.createTempFile("shim", ".so");
         java.io.FileOutputStream o = new java.io.FileOutputStream(f);

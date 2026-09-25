@@ -220,8 +220,8 @@ public final class Updater {
 
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan. */
-    private static final java.util.Map<String, Object> KUNCI_UNDUH =
-            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<String, Object>());
+    private static final java.util.concurrent.ConcurrentHashMap<String, Object> KUNCI_UNDUH =
+            new java.util.concurrent.ConcurrentHashMap<String, Object>();
 
     /** Ambil kunci untuk satu file tmp (kanonik bila bisa, absolut bila gagal). */
     private static Object kunciUnduh(File tmp) {
@@ -231,14 +231,9 @@ public final class Updater {
         } catch (Exception e) {
             k = tmp.getAbsolutePath();
         }
-        synchronized (KUNCI_UNDUH) {
-            Object o = KUNCI_UNDUH.get(k);
-            if (o == null) {
-                o = new Object();
-                KUNCI_UNDUH.put(k, o);
-            }
-            return o;
-        }
+        Object baru = new Object();
+        Object lama = KUNCI_UNDUH.putIfAbsent(k, baru);
+        return lama != null ? lama : baru;
     }
 
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
@@ -328,7 +323,7 @@ public final class Updater {
      *  (dipakai binary & shim agar tak baca ulang file ~15 MB). Return hex digest. */
     static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
                                   long lanjutDari, String label) throws IOException {
-        long total = dl.getContentLength();
+        long total = panjangKonten(dl);
         if (kodeHttp == 206 && total >= 0) {
             total += lanjutDari;
         }
@@ -1127,6 +1122,26 @@ public final class Updater {
             out[i * 2 + 1] = HEX_DIGITS[v & 0x0F];
         }
         return new String(out);
+    }
+
+    /** Panjang body dari header Content-Length sebagai long (mendukung
+     *  file >2 GB dan chunked tanpa getContentLengthLong agar aman API 21). */
+    static long panjangKonten(HttpURLConnection dl) {
+        try {
+            String v = dl.getHeaderField("Content-Length");
+            if (v != null) {
+                long n = Long.parseLong(v.trim());
+                if (n >= 0) {
+                    return n;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            return dl.getContentLength();
+        } catch (Exception ignored) {
+            return -1;
+        }
     }
 
     /** Hash awalan file yang sudah terunduh (untuk unduhan lanjutan/Range). */
