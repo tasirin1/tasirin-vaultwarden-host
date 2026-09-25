@@ -415,7 +415,11 @@ public class SettingsActivity extends Activity {
         String port = portInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();
 
-        String dataDirEfektif = TextUtils.isEmpty(dataDir) ? DEFAULT_DATA_DIR : dataDir;
+        String dataDirEfektif = ServerService.amankanDataDir(dataDir);
+        if (!ServerService.dataDirAman(dataDir) && !TextUtils.isEmpty(dataDir)) {
+            toast("Folder data tidak valid, pakai bawaan.");
+            appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
+        }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDirEfektif, REQ_WRITE)) {
             appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");

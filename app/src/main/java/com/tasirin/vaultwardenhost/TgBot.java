@@ -46,12 +46,24 @@ public final class TgBot {
 
     // Satu pool kecil untuk tugas bot (perintah, callback, menu): hemat thread
     // dibanding new Thread per ketukan/perintah di STB 1 GB.
+    // Antrean dibatasi agar spam update tak menumpuk OOM di STB 1 GB.
     private static final java.util.concurrent.ExecutorService BG =
-            java.util.concurrent.Executors.newFixedThreadPool(3, r -> {
+            new java.util.concurrent.ThreadPoolExecutor(3, 3, 0L,
+                    java.util.concurrent.TimeUnit.MILLISECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(32), r -> {
                 Thread t = new Thread(r, "vw-tgbot-bg");
                 t.setDaemon(true);
                 return t;
-            });
+            }, new java.util.concurrent.ThreadPoolExecutor.DiscardPolicy());
+
+    /** Kirim tugas bot tanpa lempar bila antrean penuh (fail-safe STB). */
+    static void jalankanBg(Runnable r) {
+        try {
+            BG.execute(r);
+        } catch (java.util.concurrent.RejectedExecutionException ignored) {
+        } catch (Exception ignored) {
+        }
+    }
 
     private TgBot() {
     }
@@ -138,7 +150,7 @@ public final class TgBot {
             return;
         }
         final String payload = menuPayload();
-        BG.execute(() -> {
+        jalankanBg(() -> {
             HttpURLConnection c = null;
             try {
                 byte[] body = payload.getBytes(StandardCharsets.UTF_8);
@@ -420,7 +432,7 @@ public final class TgBot {
             return;
         }
         final Context app = ctx.getApplicationContext();
-        BG.execute(() -> {
+        jalankanBg(() -> {
             HttpURLConnection c = null;
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
@@ -767,7 +779,7 @@ public final class TgBot {
      *  boleh menggagalkan task — flag TUGAS_BERAT milik pemanggil selalu
      *  direset lewat finally task itu sendiri. */
     private static void runWithWakeLock(Context ctx, Runnable task) {
-        BG.execute(() -> {
+        jalankanBg(() -> {
             PowerManager.WakeLock wl = null;
             try {
                 try {

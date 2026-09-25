@@ -382,6 +382,10 @@ public final class TlsCert {
         if (ip == null) {
             return null;
         }
+        ip = ip.trim();
+        if (ip.isEmpty()) {
+            return null;
+        }
         String[] parts = ip.split("\\.");
         if (parts.length != 4) {
             return null;

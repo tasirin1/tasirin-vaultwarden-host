@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <dlfcn.h>
+#include <pthread.h>
 
 // Nomor syscall getrandom bila header NDK (API 21) tak menyediakannya.
 // Target rilis: ARM 32-bit (armeabi-v7a) = 384; sisanya untuk uji host CI.
@@ -47,6 +48,8 @@
 
 // fd /dev/urandom dipakai ulang antar panggilan (hemat open/close saat TLS sibuk).
 static int fd_urandom = -1;
+static pthread_mutex_t kunci_urandom = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t kunci_syscall = PTHREAD_MUTEX_INITIALIZER;
 
 // Isi buf dari /dev/urandom; 0 bila len 0, -1 + errno bila gagal.
 static ssize_t isi_urandom(void *buf, size_t len) {
@@ -58,11 +61,16 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         return -1;
     }
     if (fd_urandom < 0) {
-        int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-        if (fd < 0) {
-            return -1; // errno sudah diisi open().
+        pthread_mutex_lock(&kunci_urandom);
+        if (fd_urandom < 0) {
+            int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+            if (fd < 0) {
+                pthread_mutex_unlock(&kunci_urandom);
+                return -1; // errno sudah diisi open().
+            }
+            fd_urandom = fd;
         }
-        fd_urandom = fd;
+        pthread_mutex_unlock(&kunci_urandom);
     }
     size_t sudah = 0;
     while (sudah < len) {
@@ -124,7 +132,11 @@ long syscall(long n, ...) {
     }
     static long (*nyata)(long, long, long, long, long, long, long) = 0;
     if (!nyata) {
-        *(void **) (&nyata) = dlsym(RTLD_NEXT, "syscall");
+        pthread_mutex_lock(&kunci_syscall);
+        if (!nyata) {
+            *(void **) (&nyata) = dlsym(RTLD_NEXT, "syscall");
+        }
+        pthread_mutex_unlock(&kunci_syscall);
         if (!nyata) {
             errno = 38; // ENOSYS bila penerusan tak ditemukan.
             return -1;

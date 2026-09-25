@@ -806,8 +806,15 @@ public final class Updater {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
                     String namaEntri = entry.getName();
+                    jumlahEntri++;
+                    try {
+                        Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_WEBVAULT, jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
+                    } catch (java.io.IOException e) {
+                        throw e;
+                    }
                     // Cek zip-slip leksikal tanpa syscall canonical per entri.
                     if (!amanEntriZip(namaEntri)) {
+                        zis.closeEntry();
                         continue;
                     }
                     File outFile = new File(newDir, namaEntri);
@@ -825,7 +832,6 @@ public final class Updater {
                         }
                         continue;
                     }
-                    jumlahEntri++;
                     if (entry.isDirectory()) {
                         outFile.mkdirs();
                     } else {

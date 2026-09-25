@@ -127,7 +127,7 @@ public class ServerService extends Service {
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private static volatile Process process;
-    private static volatile boolean starting = false;
+    private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
     private boolean autoRestart = false;
@@ -514,6 +514,29 @@ public class ServerService extends Service {
         startForeground(NOTIF_ID, n);
     }
 
+    /** True bila folder data aman dipakai: absolut, tanpa kutip/baris baru (sintaks ROCKET_TLS). Murni. */
+    public static boolean dataDirAman(String d) {
+        if (d == null) {
+            return false;
+        }
+        String t = d.trim();
+        if (t.isEmpty() || !t.startsWith("/")) {
+            return false;
+        }
+        if (t.contains("\"") || t.contains("\n") || t.contains("\r") || t.contains("\0")) {
+            return false;
+        }
+        if (t.equals("/") || t.equals("/system") || t.equals("/data")) {
+            return false;
+        }
+        return true;
+    }
+
+    /** Kembalikan folder data aman atau bawaan bila input berbahaya. Murni. */
+    public static String amankanDataDir(String d) {
+        return dataDirAman(d) ? d.trim() : DEFAULT_DATA_DIR;
+    }
+
     /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
      *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat. */
     public static String effectivePort(SharedPreferences sp) {
@@ -561,16 +584,15 @@ public class ServerService extends Service {
      *  di main thread Android memblokir dengan NetworkOnMainThreadException).
      *  Guard mencegah Start ganda saat unduh binary masih berjalan. */
     private void startServerAsync() {
-        if (starting) {
+        if (!starting.compareAndSet(false, true)) {
             appendLog("[app] Start masih berjalan (unduh binary?), dilewati.");
             return;
         }
-        starting = true;
         new Thread(() -> {
             try {
                 startServer();
             } finally {
-                starting = false;
+                starting.set(false);
             }
         }, "vw-start").start();
     }
@@ -578,8 +600,12 @@ public class ServerService extends Service {
     private void startServer() {
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
-        if (dataDir == null || dataDir.trim().isEmpty()) {
+        if (!dataDirAman(dataDir)) {
+            appendLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
             dataDir = DEFAULT_DATA_DIR;
+            sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
+        } else {
+            dataDir = dataDir.trim();
         }
         String port = currentPort();
 
@@ -744,6 +770,9 @@ public class ServerService extends Service {
             controlServer = new ControlServer(this);
             boolean ctrlOk = false;
             for (int cp = portNum + 1; cp <= portNum + 10 && !ctrlOk; cp++) {
+                if (cp < 1 || cp > 65535) {
+                    continue;
+                }
                 ctrlOk = controlServer.start(cp);
             }
             String ctrlUrl = "";
@@ -1109,13 +1138,42 @@ public class ServerService extends Service {
             if (old.exists()) {
                 old.delete();
             }
-            f.renameTo(old);
+            if (!f.renameTo(old)) {
+                try {
+                    new FileOutputStream(f, false).close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
     // ─── Health check (/alive) ─────────────────────────────────────────
 
     private void checkHealthOnce() {
+        try {
+            if (controlServer != null && controlServer.perluRebind()) {
+                int ulang = ControlServer.listeningPort;
+                try {
+                    controlServer.stop();
+                } catch (Exception ignored) {
+                }
+                controlServer = new ControlServer(this);
+                int dasar = portLoopback();
+                boolean ok = false;
+                for (int cp = dasar + 1; cp <= dasar + 10 && !ok; cp++) {
+                    if (cp < 1 || cp > 65535) {
+                        continue;
+                    }
+                    ok = controlServer.start(cp);
+                }
+                if (!ok && ulang >= 1 && ulang <= 65535) {
+                    controlServer = new ControlServer(this);
+                    controlServer.start(ulang);
+                }
+                appendLog("[app] Status web rebind mengikuti admin token.");
+            }
+        } catch (Exception ignored) {
+        }
         HasilPing h = pingRinci(this);
         if (h.sehat) {
             healthFails.set(0);
@@ -1942,8 +2000,10 @@ public class ServerService extends Service {
 
     /** True bila port sedang dipakai proses lain (listening). */
     public static boolean isPortBusy(int port) {
+        if (port < 1 || port > 65535) {
+            return true;
+        }
         try (ServerSocket s = new ServerSocket()) {
-            s.setReuseAddress(true);
             s.bind(new InetSocketAddress(port));
             return false;
         } catch (Exception e) {

@@ -157,6 +157,20 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakKutipDanRoot() {
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
+        assertFalse(ServerService.dataDirAman(null));
+        assertFalse(ServerService.dataDirAman(""));
+        assertFalse(ServerService.dataDirAman("sdcard/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/a\"b"));
+        assertFalse(ServerService.dataDirAman("/"));
+        assertFalse(ServerService.dataDirAman("/system"));
+        assertEquals(ServerService.DEFAULT_DATA_DIR,
+                ServerService.amankanDataDir("/sdcard/a\"b"));
+    }
+
+    @Test
     public void ringkasKodeTampilKodeAtauAlasan() {
         assertEquals("200", ServerService.ringkasKode(200, ""));
         assertEquals("500", ServerService.ringkasKode(500, "x"));

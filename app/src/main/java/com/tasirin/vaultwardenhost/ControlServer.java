@@ -54,6 +54,7 @@ public final class ControlServer {
     }, new ThreadPoolExecutor.AbortPolicy());
 
     private final Context context;
+    private volatile boolean boundLoopback = true;
     private ServerSocket serverSocket;
     private Thread acceptThread;
     private volatile boolean stop;
@@ -67,12 +68,14 @@ public final class ControlServer {
             // Bila admin token kosong, /api/* terbuka tanpa auth: ikat ke
             // loopback saja agar tak terekspos ke satu LAN. Bila token ada,
             // ikat normal agar status LAN tetap bisa diakses.
-            if (adminTokenKosong()) {
+            boolean loopback = adminTokenKosong();
+            if (loopback) {
                 serverSocket = new ServerSocket(port, 50,
                         java.net.InetAddress.getByName("127.0.0.1"));
             } else {
                 serverSocket = new ServerSocket(port);
             }
+            boundLoopback = loopback;
             listeningPort = serverSocket.getLocalPort();
             jsonCache = null;
             jsonCacheAt = 0;
@@ -85,6 +88,15 @@ public final class ControlServer {
         } catch (Exception e) {
             running = false;
             listeningPort = 0;
+            return false;
+        }
+    }
+
+    /** True bila mode bind kedaluwarsa karena admin token diganti saat jalan. */
+    public boolean perluRebind() {
+        try {
+            return adminTokenKosong() != boundLoopback;
+        } catch (Exception ignored) {
             return false;
         }
     }

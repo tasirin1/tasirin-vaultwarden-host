@@ -52,8 +52,20 @@ public final class HttpsCompat {
                 sys.load(null, null);
                 Enumeration<String> aliases = sys.aliases();
                 while (aliases.hasMoreElements()) {
-                    String a = aliases.nextElement();
-                    ks.setCertificateEntry(a, sys.getCertificate(a));
+                    String a;
+                    try {
+                        a = aliases.nextElement();
+                    } catch (Exception ignored) {
+                        continue;
+                    }
+                    try {
+                        java.security.cert.Certificate c = sys.getCertificate(a);
+                        if (c == null) {
+                            continue;
+                        }
+                        ks.setCertificateEntry(a, c);
+                    } catch (Exception ignored) {
+                    }
                 }
             } catch (Exception ignored) {
             }

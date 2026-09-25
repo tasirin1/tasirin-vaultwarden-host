@@ -1095,18 +1095,29 @@ public final class TgBackup {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
+                jumlahEntri++;
+                totalUnzip = Util.tambahUkuranUnzip(totalUnzip, 0,
+                        Util.BATAS_UNZIP_RESTORE, jumlahEntri,
+                        Util.BATAS_JUMLAH_ENTRI);
                 // Allowlist sama seperti restore UI lokal: hanya db.sqlite3*,
                 // tls/*, dan app-config.json (diterapkan langsung, tak ditulis).
                 String nama = normalisasiEntriZip(entry.getName());
                 if (nama == null || "app-config.json".equals(nama)) {
+                    try {
+                        zis.closeEntry();
+                    } catch (Exception ignored) {
+                    }
                     continue;
                 }
                 File outFile = new File(dataFolder, nama);
                 String kanon = outFile.getCanonicalPath();
                 if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
+                    try {
+                        zis.closeEntry();
+                    } catch (Exception ignored) {
+                    }
                     continue; // cegah zip-slip (mis. basePath-evil tanpa separator)
                 }
-                jumlahEntri++;
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
                 } else {
