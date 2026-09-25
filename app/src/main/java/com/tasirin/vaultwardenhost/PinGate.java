@@ -29,10 +29,12 @@ public final class PinGate {
             sp.edit().remove(KEY_GAGAL).remove(KEY_KUNCI_SAMPAI).apply();
             return;
         }
+        // commit() sinkron (bukan apply()): hitungan gagal wajib awet di disk
+        // sebelum penyerang sempat membunuh app (metode sudah synchronized).
         int gagal = sp.getInt(KEY_GAGAL, 0) + 1;
         sp.edit().putInt(KEY_GAGAL, gagal)
                 .putLong(KEY_KUNCI_SAMPAI,
                         PinCrypto.kunciBerikutnyaMs(gagal, sekarang))
-                .apply();
+                .commit();
     }
 }

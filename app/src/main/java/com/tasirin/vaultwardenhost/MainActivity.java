@@ -642,6 +642,12 @@ public class MainActivity extends Activity {
         if (!sp.getBoolean(KEY_PIN_ON, false)) {
             return;
         }
+        // Sudah dibuka di Settings dalam 60 detik: jangan minta lagi.
+        if (SettingsActivity.pinBaruSajaDibuka()) {
+            unlocked = true;
+            pauseStamp = SystemClock.elapsedRealtime();
+            return;
+        }
         if (unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS) {
             return;
         }

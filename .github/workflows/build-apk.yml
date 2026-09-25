@@ -30,9 +30,9 @@ jobs:
     steps:
       - id: vw
         run: |
-          TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq .tag_name 2>/dev/null \
-            || curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r .tag_name)
-          test -n "$TAG" || { echo "Gagal ambil versi Vaultwarden terbaru"; exit 1; }
+          TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
+            || curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
+          case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "schedule" ]; then

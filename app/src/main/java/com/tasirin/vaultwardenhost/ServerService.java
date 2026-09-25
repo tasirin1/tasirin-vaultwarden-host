@@ -382,10 +382,12 @@ public class ServerService extends Service {
         }
     }
 
-    /** Stop server dan tunggu proses benar-benar mati. */
-    public static void stopAndWait(Context context, long timeoutMs) {
+    /** Stop server dan tunggu proses benar-benar mati.
+     *  True bila proses sudah mati; false bila masih hidup (pemanggil wajib
+     *  membatalkan operasi file DB agar SQLite tidak korup). */
+    public static boolean stopAndWait(Context context, long timeoutMs) {
         if (!isProcessAlive()) {
-            return;
+            return true;
         }
         stop(context);
         long deadline = SystemClock.elapsedRealtime() + timeoutMs;
@@ -393,9 +395,11 @@ public class ServerService extends Service {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
-                return;
+                Thread.currentThread().interrupt();
+                return false;
             }
         }
+        return !isProcessAlive();
     }
 
     @Override
@@ -640,7 +644,12 @@ public class ServerService extends Service {
             if (shim == null) {
                 return;
             }
-            detectBinaryVersion(binary);
+            if (!detectBinaryVersion(binary)) {
+                appendLog("[app] FATAL: binary gagal --version walau shim terpasang"
+                        + " - start dibatalkan.");
+                setStatus("Binary tidak jalan di perangkat ini - cek log.");
+                return;
+            }
             appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
         }
 
@@ -1437,9 +1446,11 @@ public class ServerService extends Service {
             String updated = sp.getString(KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
                 try {
-                    detectBinaryVersion(out);
-                    appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
-                    return out;
+                    if (detectBinaryVersion(out)) {
+                        appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                        return out;
+                    }
+                    appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
                 } catch (Exception ignored) {
                 }
             }
@@ -1460,8 +1471,12 @@ public class ServerService extends Service {
                         copyBinary(userBin, out);
                         writeText(verFile, Updater.appVersionName(this));
                         appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
-                        detectBinaryVersion(out);
-                        return out;
+                        if (!detectBinaryVersion(out)) {
+                            appendLog("[app] Binary manual GAGAL smoke test --version"
+                                    + " (arsitektur salah/rusak?) - diabaikan, coba unduh rilis.");
+                        } else {
+                            return out;
+                        }
                     } catch (Exception e) {
                         appendLog("[app] Gagal memakai binary dari folder data: " + e);
                     }
@@ -1478,8 +1493,10 @@ public class ServerService extends Service {
         if (!butuhRefresh && isValidBinary(out) && verFile.exists()) {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
-                    detectBinaryVersion(out);
-                    return out;
+                    if (detectBinaryVersion(out)) {
+                        return out;
+                    }
+                    appendLog("[app] Binary cache gagal smoke test --version - diunduh ulang.");
                 }
             } catch (Exception ignored) {
             }
@@ -1494,7 +1511,17 @@ public class ServerService extends Service {
             }
             sp.edit().putString(KEY_BIN_PATCH, String.valueOf(BIN_PATCH_REV)).apply();
             writeText(verFile, Updater.appVersionName(this));
-            detectBinaryVersion(out);
+            if (!detectBinaryVersion(out)) {
+                appendLog("[app] FATAL: binary hasil unduh gagal smoke test --version"
+                        + " (arsitektur salah/rusak?) - tidak dipakai.");
+                setStatus("Binary hasil unduh rusak - coba Start ulang.");
+                try {
+                    out.delete();
+                    verFile.delete();
+                } catch (Exception ignored) {
+                }
+                return null;
+            }
             return out;
         } catch (Exception e) {
             // Pesan Updater sudah ramah (isi saran koneksi); jangan ditimpa pesan generik.
@@ -1514,10 +1541,23 @@ public class ServerService extends Service {
             return false;
         }
         try (InputStream in = new java.io.FileInputStream(f)) {
-            byte[] magic = new byte[4];
-            int n = in.read(magic);
-            return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
-                    && magic[2] == 'L' && magic[3] == 'F';
+            // Header ELF 20 byte: magic (0-3) + e_machine little-endian (18-19).
+            // 40 = ARM; tolak x86_64 (62)/AArch64 (183) yang lolos cek magic.
+            byte[] h = new byte[20];
+            int off = 0;
+            while (off < h.length) {
+                int n = in.read(h, off, h.length - off);
+                if (n <= 0) {
+                    break;
+                }
+                off += n;
+            }
+            if (off < h.length || h[0] != 0x7F || h[1] != 'E'
+                    || h[2] != 'L' || h[3] != 'F') {
+                return false;
+            }
+            int machine = (h[18] & 0xFF) | ((h[19] & 0xFF) << 8);
+            return machine == 40;
         } catch (Exception e) {
             return false;
         }
@@ -1525,7 +1565,7 @@ public class ServerService extends Service {
 
     private void copyBinary(File src, File dst) throws IOException {
         // Tulis ke tmp + rename agar biner parsial (storage penuh/crash) tak
-        // lolos isValidBinary() yang hanya cek ukuran + magic ELF.
+        // lolos isValidBinary() yang cek ukuran + magic + e_machine ARM.
         File tmp = new File(dst.getParentFile(), dst.getName() + ".tmp");
         try {
             try (InputStream in = new java.io.FileInputStream(src);
@@ -1588,7 +1628,8 @@ public class ServerService extends Service {
         }
     }
 
-    private void detectBinaryVersion(File binary) {
+    /** Smoke test --version; false bila binary tak bisa dieksekusi. */
+    private boolean detectBinaryVersion(File binary) {
         Process p = null;
         BufferedReader r = null;
         try {
@@ -1632,9 +1673,17 @@ public class ServerService extends Service {
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
-            binaryVersion = (first == null || first.trim().isEmpty()) ? "?" : first.trim();
+            if (first == null || first.trim().isEmpty()) {
+                binaryVersion = "?";
+                lastVersionOutput = "";
+                return false;
+            }
+            binaryVersion = first.trim();
+            return true;
         } catch (Exception e) {
             binaryVersion = "?";
+            lastVersionOutput = "";
+            return false;
         } finally {
             if (r != null) {
                 try {

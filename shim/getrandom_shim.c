@@ -80,14 +80,23 @@ static ssize_t isi_urandom(void *buf, size_t len) {
             if (e == 4) { // EINTR: coba lagi, bukan gagal.
                 continue;
             }
-            if (e == 9) { // EBADF: fd rusak, buka ulang sekali.
-                close(fd_urandom);
-                fd_urandom = -1;
-                int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-                if (fd < 0) {
-                    return -1;
+            if (e == 9) { // EBADF: fd rusak, buka ulang di dalam kunci.
+                int fd_lama = fd_urandom;
+                pthread_mutex_lock(&kunci_urandom);
+                // Hanya thread pertama yang menutup/membuka ulang; thread lain
+                // yang antre memakai fd baru di iterasi berikut (tanpa
+                // double-close fd yang sudah ditutup thread pertama).
+                if (fd_urandom == fd_lama) {
+                    close(fd_urandom);
+                    fd_urandom = -1;
+                    int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+                    if (fd < 0) {
+                        pthread_mutex_unlock(&kunci_urandom);
+                        return -1; // errno sudah diisi open().
+                    }
+                    fd_urandom = fd;
                 }
-                fd_urandom = fd;
+                pthread_mutex_unlock(&kunci_urandom);
                 continue;
             }
             errno = e;

@@ -6,6 +6,19 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: restore DB, smoke test binary, PIN, shim, CI
+
+### Perbaikan
+- Restore Telegram: batalkan bila server tak mau berhenti (cegah timpa SQLite
+  hidup), checkpoint WAL sebelum salinan pengaman, dan singkirkan -wal/-shm
+  basi saat rollback.
+- Binary: tolak ELF bukan ARM (cek e_machine), smoke test `--version` kini
+  menggugurkan (cache diunduh ulang, hasil unduh rusak dibuang).
+- PIN: grace buka-kunci simetris Main ↔ Settings; counter gagal ditulis
+  sinkron agar tak hilang bila app dibunuh.
+- Shim getrandom: buka-ulang EBADF dikunci + cegah double-close antar thread.
+- CI: tolak tag `null`/kosong dari `jq` agar gagal dengan pesan jelas.
+
 ## [Belum rilis] — Audit bug: kunci PIN, rollback Telegram, export, marker, token URL
 
 ### Perbaikan

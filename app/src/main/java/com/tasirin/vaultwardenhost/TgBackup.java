@@ -1068,13 +1068,22 @@ public final class TgBackup {
             dataFolder.mkdirs();
         }
 
+        if (ServerService.isProcessAlive()
+                && !ServerService.stopAndWait(ctx, 8000)) {
+            throw new IOException("Server gagal berhenti - restore dibatalkan"
+                    + " agar database tidak korup. Stop manual lalu ulangi.");
+        }
         if (ServerService.isProcessAlive()) {
-            ServerService.stopAndWait(ctx, 8000);
+            throw new IOException("Server masih berjalan - restore dibatalkan"
+                    + " agar database tidak korup. Stop manual lalu ulangi.");
         }
 
         File dbFile = new File(dataFolder, "db.sqlite3");
         File preBackup = null;
         if (dbFile.exists()) {
+            // Satukan isi WAL ke DB utama dulu; tanpa ini salinan pengaman
+            // tertinggal bila ada transaksi di -wal (rollback kehilangan data).
+            checkpointWal(dbFile);
             File backupDir = new File(dataFolder, "backups");
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
@@ -1152,6 +1161,7 @@ public final class TgBackup {
         }
         if (!isSqliteFile(dbFile)) {
             if (preBackup != null && preBackup.exists()) {
+                hapusWalShm(dataFolder);
                 copyFile(preBackup, dbFile);
             } else {
                 dbFile.delete();
@@ -1163,6 +1173,7 @@ public final class TgBackup {
             String rusak = cekIntegritasDb(dbFile);
             if (rusak != null) {
                 if (preBackup != null && preBackup.exists()) {
+                    hapusWalShm(dataFolder);
                     copyFile(preBackup, dbFile);
                 } else {
                     dbFile.delete();
@@ -1303,6 +1314,12 @@ public final class TgBackup {
             }
         }
         ed.apply();
+    }
+
+    /** Hapus -wal/-shm basi agar tak ditempel ke DB hasil rollback. */
+    static void hapusWalShm(File dataFolder) {
+        new File(dataFolder, "db.sqlite3-wal").delete();
+        new File(dataFolder, "db.sqlite3-shm").delete();
     }
 
     /** Salin file (dipakai juga restore/backup UI agar satu implementasi). */

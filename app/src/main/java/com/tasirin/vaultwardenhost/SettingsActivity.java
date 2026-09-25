@@ -144,6 +144,11 @@ public class SettingsActivity extends Activity {
     private static volatile long pauseStamp = 0;
     private static final long PIN_GRACE_MS = 60_000;
 
+    /** Status buka PIN untuk MainActivity agar grace 60 detik simetris. */
+    static boolean pinBaruSajaDibuka() {
+        return unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS;
+    }
+
     @Override
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32 (varian Flags butuh API 33+).
     @SuppressWarnings("deprecation")
