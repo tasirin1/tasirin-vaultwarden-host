@@ -403,9 +403,7 @@ public class SettingsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode == REQ_WRITE) {
-            boolean diizinkan = grantResults.length > 0
-                    && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
-            if (!diizinkan) {
+            if (!StoragePerm.tulisDiizinkan(permissions, grantResults)) {
                 StoragePerm.tanganiPenolakan(this);
             }
         }
@@ -450,7 +448,7 @@ public class SettingsActivity extends Activity {
             return;
         }
 
-        if (!webVaultReady(dataDir)) {
+        if (!webVaultReady(dataDirEfektif)) {
             // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
             // unduh sekali saat Start pertama bila diizinkan.
             new AlertDialog.Builder(this)

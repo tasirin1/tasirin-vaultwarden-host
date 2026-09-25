@@ -93,13 +93,16 @@ public final class Util {
                 return u.getProtocol() + "://" + u.getHost()
                         + (u.getPort() < 0 ? "" : ":" + u.getPort()) + l;
             } catch (Exception e) {
-                return l;
+                // Dasar rusak: jangan kembalikan path relatif mentah (pemanggil
+                // gagal "no protocol" membingungkan) — tahan di URL terakhir
+                // yang baik agar loop redirect berakhir "Terlalu banyak redirect".
+                return dasar;
             }
         }
         try {
             return new java.net.URL(new java.net.URL(dasar), l).toString();
         } catch (Exception e) {
-            return l;
+            return dasar;
         }
     }
 

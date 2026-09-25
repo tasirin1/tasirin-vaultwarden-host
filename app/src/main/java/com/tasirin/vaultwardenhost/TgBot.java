@@ -337,7 +337,7 @@ public final class TgBot {
             // terlalu pendek untuk tombol, 24 jam komprominya.
             if (pesan != null) {
                 long tgl = pesan.optLong("date", 0) * 1000L;
-                if (tgl > 0 && System.currentTimeMillis() - tgl > 24L * 3600 * 1000) {
+                if (tombolKedaluwarsa(tgl, System.currentTimeMillis())) {
                     jawabCallback(ctx, cb.optString("id", ""));
                     TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
                             + " Minta keyboard baru dengan /help lalu coba lagi.");
@@ -732,21 +732,49 @@ public final class TgBot {
         });
     }
 
-    /** Jalankan tugas berat di pool + partial wake lock. */
+    /** Jalankan tugas berat di pool + partial wake lock.
+     *  Wake lock best-effort: gagal pasang (pm null / ditolak sistem) tidak
+     *  boleh menggagalkan task — flag TUGAS_BERAT milik pemanggil selalu
+     *  direset lewat finally task itu sendiri. */
     private static void runWithWakeLock(Context ctx, Runnable task) {
         BG.execute(() -> {
             PowerManager.WakeLock wl = null;
             try {
-                PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
-                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
-                wl.acquire(10 * 60 * 1000L);
+                try {
+                    PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+                    if (pm != null) {
+                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
+                        wl.acquire(10 * 60 * 1000L);
+                    }
+                } catch (Exception ignored) {
+                    wl = null;
+                }
                 task.run();
             } finally {
-                if (wl != null && wl.isHeld()) {
-                    wl.release();
+                try {
+                    if (wl != null && wl.isHeld()) {
+                        wl.release();
+                    }
+                } catch (Exception ignored) {
                 }
             }
         });
+    }
+
+    /** Batas umur tombol inline (24 jam) + toleransi jam miring (5 menit). Murni. */
+    static final long TOMBOL_KEDALUWARSA_MS = 24L * 3600 * 1000;
+    static final long TOLERANSI_JAM_MS = 5 * 60_000;
+
+    /** True bila tombol inline sudah tak berlaku: terlalu tua, atau bertanggal
+     *  masa depan tak wajar (jam STB ngaco / replay) — fail-closed. Murni. */
+    static boolean tombolKedaluwarsa(long tglMs, long sekarang) {
+        if (tglMs <= 0) {
+            return false;
+        }
+        if (tglMs > sekarang + TOLERANSI_JAM_MS) {
+            return true;
+        }
+        return sekarang - tglMs > TOMBOL_KEDALUWARSA_MS;
     }
 
     /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */

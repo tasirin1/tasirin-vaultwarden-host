@@ -35,6 +35,39 @@ public class StoragePermTest {
     }
 
     @Test
+    public void cukupAkses_api30HanyaKelolaSemuaFile() {
+        assertTrue(StoragePerm.cukupAkses(30, true, false));
+        assertTrue(StoragePerm.cukupAkses(34, true, true));
+        assertFalse(StoragePerm.cukupAkses(30, false, true));
+        assertFalse(StoragePerm.cukupAkses(33, false, false));
+    }
+
+    @Test
+    public void cukupAkses_apiLamaPakaiIzinRuntime() {
+        assertTrue(StoragePerm.cukupAkses(29, false, true));
+        assertFalse(StoragePerm.cukupAkses(29, false, false));
+        assertTrue(StoragePerm.cukupAkses(23, false, true));
+        assertFalse(StoragePerm.cukupAkses(28, false, false));
+        assertTrue(StoragePerm.cukupAkses(21, false, false));
+        assertTrue(StoragePerm.cukupAkses(22, false, false));
+    }
+
+    @Test
+    public void tulisDiizinkan_cekNamaIzinBukanIndeks() {
+        String tulis = "android.permission.WRITE_EXTERNAL_STORAGE";
+        String baca = "android.permission.READ_EXTERNAL_STORAGE";
+        assertTrue(StoragePerm.tulisDiizinkan(
+                new String[]{baca, tulis}, new int[]{-1, 0}));
+        assertFalse(StoragePerm.tulisDiizinkan(
+                new String[]{tulis, baca}, new int[]{-1, 0}));
+        assertFalse(StoragePerm.tulisDiizinkan(
+                new String[]{baca}, new int[]{0}));
+        assertFalse(StoragePerm.tulisDiizinkan(null, new int[]{0}));
+        assertFalse(StoragePerm.tulisDiizinkan(new String[]{tulis}, null));
+        assertFalse(StoragePerm.tulisDiizinkan(new String[0], new int[0]));
+    }
+
+    @Test
     public void folderInternalTakButuhIzin() {
         assertFalse(StoragePerm.butuhIzinEksternal("/data/data/com.tasirin.vaultwardenhost/files"));
         assertFalse(StoragePerm.butuhIzinEksternal("/data/user/0/com.tasirin.vaultwardenhost/files"));

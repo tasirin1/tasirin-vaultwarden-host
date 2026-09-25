@@ -19,6 +19,22 @@ public class TgBotTest {
     }
 
     @Test
+    public void tombolKedaluwarsa_batas24Jam() {
+        long kini = 1_000_000_000L;
+        assertFalse(TgBot.tombolKedaluwarsa(0, kini));
+        assertFalse(TgBot.tombolKedaluwarsa(kini, kini));
+        assertFalse(TgBot.tombolKedaluwarsa(kini - 23L * 3600 * 1000, kini));
+        assertTrue(TgBot.tombolKedaluwarsa(kini - 25L * 3600 * 1000, kini));
+    }
+
+    @Test
+    public void tombolKedaluwarsa_tanggalMasaDepanDitolak() {
+        long kini = 1_000_000_000L;
+        assertFalse(TgBot.tombolKedaluwarsa(kini + 60_000L, kini));
+        assertTrue(TgBot.tombolKedaluwarsa(kini + 3600_000L, kini));
+    }
+
+    @Test
     public void restoreConfirm_terimaVarianYa() {
         assertTrue(TgBot.isRestoreConfirm("YA"));
         assertTrue(TgBot.isRestoreConfirm("ya"));

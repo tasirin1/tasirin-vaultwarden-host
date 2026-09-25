@@ -189,9 +189,7 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode == REQ_WRITE) {
-            boolean diizinkan = grantResults.length > 0
-                    && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
-            if (!diizinkan) {
+            if (!StoragePerm.tulisDiizinkan(permissions, grantResults)) {
                 StoragePerm.tanganiPenolakan(this);
             }
         }

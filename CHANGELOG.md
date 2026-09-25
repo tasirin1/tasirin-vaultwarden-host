@@ -6,6 +6,17 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit kode: akses storage 11+, latch bot, migrasi port
+
+### Perbaikan
+- Storage Android 11+: akses dinilai dari All files access saja (izin runtime
+  biasa tak lagi dianggap cukup), cegah Start gagal berulang.
+- Bot Telegram: wake lock best-effort agar kunci tugas berat tak macet selamanya;
+  tombol inline bertanggal masa depan tak wajar kini ditolak.
+- Migrasi port 8080→8088 sekali jalan pakai flag (port 8080 pilihan user aman).
+- Hasil izin runtime dibaca per nama izin; Start pakai folder efektif;
+  redirect rusak bertahan di URL terakhir yang baik.
+
 ## [Belum rilis] — Izin penyimpanan semua Android
 
 ### Perbaikan

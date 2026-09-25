@@ -39,6 +39,15 @@ public class UtilTest {
     }
 
     @Test
+    public void sambungRedirectDasarRusakTahanDiDasar() {
+        String rusak = "::bukan-url::";
+        assertEquals(rusak, Util.sambungRedirect(rusak, "/x"));
+        assertEquals(rusak, Util.sambungRedirect(rusak, "relatif"));
+        assertEquals("https://c/d", Util.sambungRedirect(rusak, "https://c/d"));
+        assertEquals("https://h:1/a", Util.sambungRedirect("https://h:1/a", null));
+    }
+
+    @Test
     public void sambungRedirectRelatif() {
         assertEquals("https://h:1/x", Util.sambungRedirect("https://h:1/a", "/x"));
         assertEquals("https://c/d", Util.sambungRedirect("https://a/b", "https://c/d"));

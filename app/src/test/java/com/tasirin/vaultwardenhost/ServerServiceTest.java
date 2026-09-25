@@ -10,6 +10,15 @@ import org.junit.Test;
 /** Unit test deteksi binary tak cocok kernel lama (tanpa Android runtime). */
 public class ServerServiceTest {
     @Test
+    public void migrasiPort_hanyaSekaliUntuk8080() {
+        assertTrue(ServerService.perluMigrasiPort("8080", false));
+        assertFalse(ServerService.perluMigrasiPort("8080", true));
+        assertFalse(ServerService.perluMigrasiPort("8088", false));
+        assertFalse(ServerService.perluMigrasiPort(null, false));
+        assertFalse(ServerService.perluMigrasiPort("", false));
+    }
+
+    @Test
     public void barisKosong_tanpaAlokasiTrim() {
         assertTrue(ServerService.barisKosong(null));
         assertTrue(ServerService.barisKosong(""));

@@ -51,25 +51,51 @@ public final class StoragePerm {
                 || d.startsWith("/mnt");
     }
 
+    /** Keputusan akses murni (mudah diuji): di API 30+ hanya All files access
+     *  yang cukup untuk /storage/emulated/0 — izin runtime biasa tidak berlaku. */
+    static boolean cukupAkses(int sdk, boolean kelolaSemuaFile, boolean tulisDiberikan) {
+        if (sdk >= 30) {
+            return kelolaSemuaFile;
+        }
+        if (sdk >= 23) {
+            return tulisDiberikan;
+        }
+        return true;
+    }
+
     /** True bila app sudah boleh tulis ke folder eksternal pada SDK ini. */
     public static boolean sudahPunyaAkses(Context ctx) {
+        boolean kelola = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
-                if (Environment.isExternalStorageManager()) {
-                    return true;
-                }
+                kelola = Environment.isExternalStorageManager();
             } catch (Exception ignored) {
             }
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
+        boolean tulis = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                tulis = ctx.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED;
+            } catch (Exception ignored) {
+            }
         }
-        try {
-            return ctx.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED;
-        } catch (Exception ignored) {
+        return cukupAkses(Build.VERSION.SDK_INT, kelola, tulis);
+    }
+
+    /** True bila hasil request izin mengandung persetujuan tulis (murni, mudah diuji).
+     *  Jangan cek grantResults[0] buta: urutan izin yang diminta bisa berubah. */
+    static boolean tulisDiizinkan(String[] permissions, int[] grantResults) {
+        if (permissions == null || grantResults == null) {
             return false;
         }
+        int n = Math.min(permissions.length, grantResults.length);
+        for (int i = 0; i < n; i++) {
+            if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) {
+                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
+            }
+        }
+        return false;
     }
 
     /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */

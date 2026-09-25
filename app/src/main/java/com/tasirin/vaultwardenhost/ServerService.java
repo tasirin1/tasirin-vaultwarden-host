@@ -521,12 +521,23 @@ public class ServerService extends Service {
         return (p == null || p.trim().isEmpty()) ? DEFAULT_PORT : p.trim();
     }
 
-    /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start). */
+    /** Penanda migrasi port selesai (agar port 8080 pilihan user tak ditimpa). */
+    public static final String KEY_PORT_MIGRATED = "port_migrated_8088";
+
+    /** True bila migrasi 8080 -> default perlu jalan (murni, mudah diuji). */
+    static boolean perluMigrasiPort(String tersimpan, boolean sudahMigrasi) {
+        return !sudahMigrasi && "8080".equals(tersimpan);
+    }
+
+    /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start).
+     *  Flag mencegah port 8080 yang disengaja user ikut tergusur di start berikutnya. */
     public static void migrasiPortSekali(SharedPreferences sp) {
         try {
-            if ("8080".equals(sp.getString(KEY_PORT, DEFAULT_PORT))) {
+            if (perluMigrasiPort(sp.getString(KEY_PORT, DEFAULT_PORT),
+                    sp.getBoolean(KEY_PORT_MIGRATED, false))) {
                 sp.edit().putString(KEY_PORT, DEFAULT_PORT).apply();
             }
+            sp.edit().putBoolean(KEY_PORT_MIGRATED, true).apply();
         } catch (Exception ignored) {
         }
     }
