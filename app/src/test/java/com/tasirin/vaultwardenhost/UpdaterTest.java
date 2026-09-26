@@ -169,8 +169,12 @@ public class UpdaterTest {
             h[5] = 1;
             // e_type ET_DYN=3 di 16-17: guard agar implementasi tak tertukar
             // membaca e_type (3 != 40 sehingga binary valid akan ditolak).
-            h[16] = 3;
-            h[17] = 0;
+            if (total > 16) {
+                h[16] = 3;
+            }
+            if (total > 17) {
+                h[17] = 0;
+            }
             if (total >= 20) {
                 h[18] = em0;
                 h[19] = em1;
@@ -360,11 +364,23 @@ public class UpdaterTest {
         java.io.File f = java.io.File.createTempFile("shim", ".so");
         java.io.FileOutputStream o = new java.io.FileOutputStream(f);
         try {
-            byte[] magic = new byte[]{0x7F, (byte) 'E', (byte) 'L', (byte) 'F'};
-            o.write(magic);
-            for (int i = 4; i < ukuran; i++) {
-                o.write(0);
+            // Header ELF ARM 32-bit valid (magic + EI_DATA little-endian +
+            // e_type ET_DYN=3 + e_machine EM_ARM=40) agar isElf() menerimanya.
+            byte[] kepala = new byte[ukuran];
+            kepala[0] = 0x7F;
+            kepala[1] = (byte) 'E';
+            kepala[2] = (byte) 'L';
+            kepala[3] = (byte) 'F';
+            if (ukuran > 5) {
+                kepala[5] = 1;
             }
+            if (ukuran > 16) {
+                kepala[16] = 3;
+            }
+            if (ukuran > 18) {
+                kepala[18] = 40;
+            }
+            o.write(kepala);
         } finally {
             o.close();
         }
