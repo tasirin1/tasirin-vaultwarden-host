@@ -257,7 +257,7 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_TOKEN_URL =
             java.util.regex.Pattern.compile("(?i)(token=)[^&\\s]+");
     private static final java.util.regex.Pattern POLA_TOKEN_JSON =
-            java.util.regex.Pattern.compile("(?i)(\\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\\"\\s*:\\s*\\")[^\\"]*\\"");
+            java.util.regex.Pattern.compile("(?i)(\\\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\\\"\\s*:\\s*\\\")[^\\\"]*\\\"");
     private static final java.util.regex.Pattern POLA_CHAT_ID =
             java.util.regex.Pattern.compile("(?i)(chat_id=)[^&\\s]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
