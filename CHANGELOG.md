@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Audit keamanan & jam: 8 perbaikan
+
+### Perbaikan
+- Status web: batas 10 menit + heartbeat SSE pakai jam monotonik
+  (`elapsedRealtime`); jam STB mundur/maju tak lagi memperpanjang SSE
+  berjam-jam atau mematikannya prematur.
+- Status web: slot koneksi direservasi atomik di `acceptLoop` (tutup race
+  cek-lalu-tambah); `handle()` tak lagi menghitung sendiri.
+- Unduhan: redirect protokol-relatif (`//host/...`) hanya boleh se-host
+  dengan asal; lintas host ditolak.
+- Bot Telegram: auth tombol inline satu pintu via `cocokChat` (ruang atau
+  pengirim); banding String mentah yang redundan dibuang.
+- PIN: salinan char kerja PBKDF2 dinolkan di `finally` (tak mengendap di heap).
+- Server: folder data divalidasi ulang tepat sebelum `exec` (tutup jendela
+  TOCTOU symlink selama unduh binary/web-vault).
+- Trust anchor: checksum `.sha256` pendamping dicek bila diterbitkan di rilis
+  (fail-open: tanpa sidecar tetap mengandalkan TLS seperti sebelumnya).
+- Backup terjadwal: jam mundur tak lagi melewatkan backup (guard + dedup
+  harian yang memutuskan).
+
 ## [Belum rilis] — README ditulis ulang total (lebih ringkas)
 
 ### Dokumentasi

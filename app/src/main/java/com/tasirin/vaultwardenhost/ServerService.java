@@ -823,6 +823,14 @@ public class ServerService extends Service {
             runningHttps = https;
             runningAdminToken = adminToken == null ? "" : adminToken.trim();
 
+            // Validasi ulang tepat sebelum exec: unduh binary/web-vault di atas
+            // makan waktu bermenit-menit; symlink folder data yang ditukar di
+            // tengah jalan (TOCTOU) wajib menggagalkan start, bukan meluncurkan
+            // server di folder asing.
+            if (!dataDirKanonisAman(dataDir)) {
+                throw new IOException("Folder data berubah/tak valid saat start;"
+                        + " dibatalkan agar server tak jalan di folder asing.");
+            }
             process = pb.start();
             acquireWakeLock();
             running = true;

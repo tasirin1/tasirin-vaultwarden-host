@@ -40,8 +40,19 @@ public class UtilTest {
 
     @Test
     public void redirectProtokolRelatifTetapHttps() {
-        assertTrue(Util.bolehIkutiRedirect("https://a/b", "//c/d"));
+        assertTrue(Util.bolehIkutiRedirect("https://a/b", "//a/d"));
         assertEquals("https://c/d", Util.sambungRedirect("https://a/b", "//c/d"));
+    }
+
+    @Test
+    public void redirectProtokolRelatifHanyaSehost() {
+        assertTrue(Util.bolehIkutiRedirect("https://a/b", "//a/d"));
+        assertTrue(Util.bolehIkutiRedirect("https://a/b", "//A:443/d?x=1"));
+        assertFalse(Util.bolehIkutiRedirect("https://a/b", "//c/d"));
+        assertFalse(Util.bolehIkutiRedirect("https://a/b", "//evil-a.com/d"));
+        assertFalse(Util.bolehIkutiRedirect("::bukan-url::", "//a/d"));
+        assertTrue(Util.hostSama("https://a/b", "a/d"));
+        assertFalse(Util.hostSama("https://a/b", "c/d"));
     }
 
     @Test

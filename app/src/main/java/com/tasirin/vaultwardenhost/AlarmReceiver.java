@@ -61,7 +61,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             long kini = System.currentTimeMillis();
             // Abaikan utak-atik jam/zona manual yang memicu siaran beruntun:
             // backup <1 jam lalu tak perlu diulang hanya karena jam diutak-atik.
-            if (last > 0 && kini - last < 3600_000L) {
+            // Jam mundur (kini < last) tak boleh melewatkan backup: biarkan
+            // sudahGantiHari + dedup harian yang memutuskan.
+            if (last > 0 && kini >= last && kini - last < 3600_000L) {
                 return;
             }
             if (TgBackup.sudahGantiHari(last, kini)) {

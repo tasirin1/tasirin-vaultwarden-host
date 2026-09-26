@@ -68,7 +68,10 @@ public final class Util {
         }
         String l = lokasi.trim();
         if (l.startsWith("//")) {
-            return true;
+            // Protokol-relatif ganti host: hanya boleh se-host dengan asal
+            // (mis. CDN), bukan host sembarang. Mutlak https tetap dicek
+            // di sambungRedirect via warisan skema dasar.
+            return hostSama(asal, l.substring(2));
         }
         if (l.startsWith("/")) {
             return true;
@@ -79,6 +82,37 @@ public final class Util {
         }
         String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
         return "https".equals(skema);
+    }
+
+    /** True bila sisa lokasi "//host/..." menunjuk host yang sama dengan asal.
+     *  Murni agar bisa unit test. */
+    static boolean hostSama(String asal, String sisa) {
+        if (asal == null || sisa == null || sisa.isEmpty()) {
+            return false;
+        }
+        try {
+            String hostAsal = new java.net.URL(asal.trim()).getHost();
+            if (hostAsal == null || hostAsal.isEmpty()) {
+                return false;
+            }
+            int ujung = sisa.length();
+            for (int i = 0; i < sisa.length(); i++) {
+                char c = sisa.charAt(i);
+                if (c == '/' || c == '?' || c == '#') {
+                    ujung = i;
+                    break;
+                }
+            }
+            String host = sisa.substring(0, ujung);
+            int port = host.indexOf(':');
+            if (port >= 0) {
+                host = host.substring(0, port);
+            }
+            return !host.isEmpty()
+                    && host.equalsIgnoreCase(hostAsal.replaceFirst(":\\d+$", ""));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /** Selesaikan URL redirect relatif terhadap URL dasar. Murni. */

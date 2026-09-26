@@ -367,21 +367,17 @@ public final class TgBot {
     /** Balas ketukan tombol inline: hanya dari chat resmi yang dijalankan. */
     private static void tanganiCallback(Context ctx, JSONObject cb, String chatResmi) {
         try {
-            String dari = "";
             JSONObject pesan = cb.optJSONObject("message");
             JSONObject ruang = pesan != null ? pesan.optJSONObject("chat") : null;
-            if (ruang != null) {
-                dari = String.valueOf(ruang.optLong("id", -1));
-            } else {
-                JSONObject pengirim = cb.optJSONObject("from");
-                if (pengirim != null) {
-                    dari = String.valueOf(pengirim.optLong("id", -1));
-                }
-            }
+            JSONObject pengirim = cb.optJSONObject("from");
+            long idRuang = ruang != null ? ruang.optLong("id", -1) : -1;
             String namaRuang = ruang != null ? ruang.optString("username", "") : "";
-            if (!Util.cocokChat(chatResmi, ruang != null ? ruang.optLong("id", -1) : -1,
-                    namaRuang)
-                    && !chatResmi.equals(dari)) {
+            long idKirim = pengirim != null ? pengirim.optLong("id", -1) : -1;
+            String namaKirim = pengirim != null ? pengirim.optString("username", "") : "";
+            // Satu pintu auth (cocokChat: trim + tanpa peka huruf): ruang atau
+            // pengirim resmi boleh; banding String mentah tak lagi dipakai.
+            if (!Util.cocokChat(chatResmi, idRuang, namaRuang)
+                    && !Util.cocokChat(chatResmi, idKirim, namaKirim)) {
                 return;
             }
             // Tombol inline diberi umur 24 jam: tanpa batas, keyboard lama yang

@@ -125,7 +125,11 @@ public final class ControlServer {
         while (!stop) {
             try {
                 Socket s = serverSocket.accept();
-                if (conns.get() >= MAX_CONNS) {
+                // Reservasi slot dulu (atomik): cek-lalu-tambah yang terpisah
+                // membiarkan serbuan koneksi lolos berlebih sebelum handle()
+                // sempat menghitung. handle() tak lagi menambah sendiri.
+                if (conns.incrementAndGet() > MAX_CONNS) {
+                    conns.decrementAndGet();
                     try {
                         respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
                     } catch (Exception ignored) {
@@ -139,6 +143,7 @@ public final class ControlServer {
                 try {
                     POOL.execute(() -> handle(s));
                 } catch (RejectedExecutionException re) {
+                    conns.decrementAndGet();
                     try {
                         respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
                     } catch (Exception ignored) {
@@ -148,6 +153,7 @@ public final class ControlServer {
                     } catch (Exception ignored) {
                     }
                 } catch (Exception e) {
+                    conns.decrementAndGet();
                     try {
                         s.close();
                     } catch (Exception ignored) {
@@ -171,14 +177,7 @@ public final class ControlServer {
     }
 
     private void handle(Socket s) {
-        if (conns.incrementAndGet() > MAX_CONNS) {
-            try {
-                respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak koneksi");
-            } catch (Exception ignored) {
-            }
-            conns.decrementAndGet();
-            return;
-        }
+        // Slot sudah direservasi di acceptLoop; cukup bebaskan di finally.
         // Scope method (bukan dalam try): dipakai finally untuk tahu
         // socket diserahkan ke thread SSE atau harus ditutup di sini.
         boolean serahkan = false;
@@ -571,10 +570,12 @@ public final class ControlServer {
             out.flush();
 
             int sent = -1;
-            long lastWrite = System.currentTimeMillis();
-            long batasAkhir = System.currentTimeMillis() + 10L * 60 * 1000;
+            // Jam monotonik: wall-clock STB bisa mundur/maju (1970/NTP) dan
+            // membuat SSE hidup berjam-jam atau mati prematur.
+            long lastWrite = SystemClock.elapsedRealtime();
+            long batasAkhir = lastWrite + 10L * 60 * 1000;
             while (!stop && !s.isClosed() && s.isConnected()
-                    && System.currentTimeMillis() < batasAkhir) {
+                    && SystemClock.elapsedRealtime() < batasAkhir) {
                 String text = null;
                 int len;
                 synchronized (ServerService.logBuffer) {
@@ -590,10 +591,10 @@ public final class ControlServer {
                 if (text != null) {
                     kirimSse(out, LogActivity.samarkanLog(text));
                     sent = len;
-                    lastWrite = System.currentTimeMillis();
+                    lastWrite = SystemClock.elapsedRealtime();
                     out.flush();
                 } else {
-                    long now = System.currentTimeMillis();
+                    long now = SystemClock.elapsedRealtime();
                     if (now - lastWrite >= 15_000) {
                         out.write(": ping\n\n".getBytes(StandardCharsets.UTF_8));
                         lastWrite = now;

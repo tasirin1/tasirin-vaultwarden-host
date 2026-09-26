@@ -653,6 +653,22 @@ public final class Updater {
             if (validasiRantai(blob) < 1) {
                 return false;
             }
+            // Bila rilis menyertakan .sha256 pendamping, wajib cocok (lapis
+            // integritas di luar TLS); bila belum diterbitkan (404), TLS saja
+            // yang menjamin seperti sebelumnya.
+            String sisi = fetchChecksum(ctx,
+                    RELEASE_LATEST_URL + TRUST_CHAIN_ASSET + ".sha256", 10000, 10000);
+            if (sisi != null) {
+                String dapat;
+                try {
+                    dapat = toHex(MessageDigest.getInstance("SHA-256").digest(blob));
+                } catch (Exception e) {
+                    return false;
+                }
+                if (!expectedHexEquals(sisi, dapat)) {
+                    return false;
+                }
+            }
             File dir = new File(ctx.getFilesDir(), "certs");
             if (!dir.exists() && !dir.mkdirs()) {
                 return false;

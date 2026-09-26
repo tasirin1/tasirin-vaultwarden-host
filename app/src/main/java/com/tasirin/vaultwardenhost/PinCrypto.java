@@ -123,7 +123,10 @@ public final class PinCrypto {
     }
 
     private static byte[] derive(String pin, byte[] salt, int iter) {
-        PBEKeySpec spec = new PBEKeySpec(pin.toCharArray(), salt, iter, HASH_BITS);
+        // Salinan char dinolkan di finally: String PIN tak bisa dihapus, tapi
+        // salinan kerja ini jangan mengendap di heap sampai GC.
+        char[] chars = pin == null ? new char[0] : pin.toCharArray();
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, HASH_BITS);
         try {
             SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             return f.generateSecret(spec).getEncoded();
@@ -133,6 +136,7 @@ public final class PinCrypto {
             throw new IllegalStateException("PBKDF2 tidak tersedia", e);
         } finally {
             spec.clearPassword();
+            java.util.Arrays.fill(chars, '\0');
         }
     }
 
