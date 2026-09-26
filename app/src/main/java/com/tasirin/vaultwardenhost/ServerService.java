@@ -407,6 +407,7 @@ public class ServerService extends Service {
     public void onCreate() {
         super.onCreate();
         try {
+            TgBackup.healkanStringPrefs(this);
             migrasiPortSekali(getSharedPreferences(PREFS, MODE_PRIVATE));
         } catch (Exception ignored) {
         }

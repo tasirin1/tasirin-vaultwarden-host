@@ -114,6 +114,23 @@ public class LogActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Sesi melewati grace PIN: tutup log dan kembalikan ke MainActivity
+        // (yang meminta PIN). Tanpa ini log penuh terlihat tanpa kunci.
+        try {
+            android.content.SharedPreferences sp =
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            if (sp.getBoolean("pin_on", false)
+                    && !MainActivity.pinBaruSajaDibuka()
+                    && !SettingsActivity.pinBaruSajaDibuka()) {
+                finish();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);

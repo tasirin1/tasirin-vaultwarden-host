@@ -1275,6 +1275,40 @@ public final class TgBackup {
      *  tak pernah diimpor dari file (termasuk backup lama yang masih
      *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
      *  perangkat memang tak punya. */
+    /** Sembuhkan prefs string yang telanjur tersimpan bukan-String (impor lama /
+     *  config edit manual berisi angka): baca via getAll (tak lempar CCE),
+     *  tulis ulang sebagai String. Dipanggil di awal onCreate agar pembaca
+     *  getString tak crash sebelum sempat sanitasi. */
+    static void healkanStringPrefs(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            java.util.Map<String, ?> semua;
+            try {
+                semua = sp.getAll();
+            } catch (Exception ignored) {
+                return;
+            }
+            if (semua == null) {
+                return;
+            }
+            SharedPreferences.Editor ed = sp.edit();
+            boolean ubah = false;
+            for (String k : new String[]{ServerService.KEY_PORT,
+                    ServerService.KEY_UPDATE_VERSION, ServerService.KEY_BIN_SHA}) {
+                Object v = semua.get(k);
+                if (v != null && !(v instanceof String)) {
+                    ed.putString(k, String.valueOf(v));
+                    ubah = true;
+                }
+            }
+            if (ubah) {
+                ed.apply();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
         if (prefs == null) {
             return;
@@ -1322,6 +1356,15 @@ public final class TgBackup {
                 continue;
             }
             Object v = prefs.get(k);
+            // Kunci string yang ditulis angka di JSON edit manual (mis. port:
+            // 8088) wajib dikoersi ke String: pembaca memakai getString dan
+            // putInt membuat ClassCastException tiap buka Settings/Start.
+            if (v instanceof Number && (ServerService.KEY_PORT.equals(k)
+                    || ServerService.KEY_UPDATE_VERSION.equals(k)
+                    || ServerService.KEY_BIN_SHA.equals(k))) {
+                ed.putString(k, String.valueOf(v));
+                continue;
+            }
             if (v instanceof String) {
                 ed.putString(k, (String) v);
             } else if (v instanceof Boolean) {

@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Kunci PIN anti-Back, gate log, impor angka aman
+
+### Perbaikan
+- Kunci PIN: dialog tak lagi bisa ditutup tombol Back/sentuh-luar
+  (`setCancelable(false)`); sebelumnya Back melewatkan kunci sepenuhnya.
+  Berlaku di layar utama dan Settings; keluar hanya via PIN atau "Keluar".
+- Log layar penuh: gate PIN di `onResume` — sesi melewati grace 60 detik
+  dikembalikan ke layar utama (yang meminta PIN).
+- Impor config: nilai angka JSON (`port: 8088`) dikoersi ke String saat
+  impor; prefs lama yang telanjur bukan-String disembuhkan tiap startup
+  (`healkanStringPrefs`) agar `getString` tak `ClassCastException` tiap
+  buka Settings/Start.
+
 ## [Belum rilis] — Audit keamanan & jam: 8 perbaikan
 
 ### Perbaikan

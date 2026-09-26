@@ -119,6 +119,7 @@ public class MainActivity extends Activity {
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
         TgBackup.migrateAutoPref(this);
+        TgBackup.healkanStringPrefs(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
@@ -685,6 +686,11 @@ public class MainActivity extends Activity {
                 .setPositiveButton("Buka", null)
                 .setNegativeButton("Keluar", (d, w) -> finish())
                 .create();
+        // Kunci dialog: Back/sentuh-luar tak boleh menutup tanpa PIN
+        // (sebelumnya tombol Back melewatkan kunci app sepenuhnya).
+        // Satu-satunya jalan keluar selain PIN: "Keluar" (finish).
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
