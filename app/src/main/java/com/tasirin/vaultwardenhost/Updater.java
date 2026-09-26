@@ -185,6 +185,34 @@ public final class Updater {
         return lanjutDari > 0 && (kodeHttp == 416 || kodeHttp == 200);
     }
 
+    /** True bila respons 206 benar melanjutkan dari byte yang diminta: awal
+     *  Content-Range wajib sama dengan ukuran file parsial. Tanpa cek ini,
+     *  proksi menyimpang bisa mencampur byte dan baru ketahuan di checksum
+     *  setelah kuota terbuang. Murni agar bisa unit test. */
+    static boolean rangeCocok(HttpURLConnection dl, long lanjutDari) {
+        if (lanjutDari <= 0) {
+            return true;
+        }
+        try {
+            String v = dl.getHeaderField("Content-Range");
+            if (v == null) {
+                return false;
+            }
+            String rendah = v.trim().toLowerCase(Locale.US);
+            if (!rendah.startsWith("bytes ")) {
+                return false;
+            }
+            String sisa = rendah.substring(6).trim();
+            int strip = sisa.indexOf('-');
+            if (strip <= 0) {
+                return false;
+            }
+            return Long.parseLong(sisa.substring(0, strip).trim()) == lanjutDari;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     /** Klasifikasi galat unduh yang layak dicoba ulang (dipakai binary & shim).
      *  Murni agar bisa unit test. */
     static boolean bolehCobaLagiUnduh(Exception e) {
@@ -272,6 +300,16 @@ public final class Updater {
                 if (perluResetResume(code, resumeFrom)) {
                     // HTTP 416 = Range ditolak; HTTP 200 = server mengabaikan
                     // Range. Ulang dari nol agar file tidak korup.
+                    dl.disconnect();
+                    tmp.delete();
+                    resumeFrom = 0;
+                    dl = open(ctx, url, connectMs, readMs);
+                    code = dl.getResponseCode();
+                }
+                if (code == 206 && resumeFrom > 0 && !rangeCocok(dl, resumeFrom)) {
+                    // Klaim 206 tapi awal Content-Range tak cocok dengan bytes
+                    // lanjutan (proksi menyimpang): buang parsial dan ulang
+                    // dari nol sebelum kuota terbuang sia-sia.
                     dl.disconnect();
                     tmp.delete();
                     resumeFrom = 0;
@@ -486,6 +524,18 @@ public final class Updater {
             tmp.delete();
             throw new IOException("File update tidak valid.");
         }
+        // Uji asap di file tmp dulu (--version wajib jalan): binary bagus yang
+        // sedang terpasang baru diganti bila unduhan terbukti bisa dieksekusi.
+        // Sebelumnya out dihapus sebelum uji sehingga unduhan rusak tetap
+        // dilapor "terpasang" (+ marker) dan auto-restart menendang server
+        // ke binary rusak.
+        tmp.setReadable(true, true);
+        tmp.setExecutable(true, true);
+        String asap = detectVersion(ctx, tmp);
+        if (asap == null) {
+            tmp.delete();
+            throw new IOException("File update tidak valid (gagal uji jalan --version).");
+        }
         if (out.exists()) {
             out.delete();
         }
@@ -497,7 +547,7 @@ public final class Updater {
         out.setReadable(true, true);
         out.setExecutable(true, true);
         writeVersionTag(binDir, appVersionName(ctx));
-        String installed = detectVersion(ctx, out);
+        String installed = asap;
         String effective = installed != null ? installed
                 : (!fallback ? latest : null);
         if (effective != null && !effective.isEmpty()) {
@@ -1198,12 +1248,32 @@ public final class Updater {
         return body.substring(s + 1, e);
     }
 
-    private static boolean isElf(File f) {
+    /** True bila file ELF ARM 32-bit (magic + e_machine == EM_ARM).
+     *  Cek magic saja meloloskan binary x86/acak; STB butuh ARM.
+     *  Package-private agar bisa diuji unit. */
+    static boolean isElf(File f) {
         try (InputStream in = new java.io.FileInputStream(f)) {
-            byte[] magic = new byte[4];
-            int n = in.read(magic);
-            return n == 4 && magic[0] == 0x7F && magic[1] == 'E'
-                    && magic[2] == 'L' && magic[3] == 'F';
+            byte[] h = new byte[20];
+            int baca = 0;
+            while (baca < h.length) {
+                int n = in.read(h, baca, h.length - baca);
+                if (n < 0) {
+                    break;
+                }
+                baca += n;
+            }
+            if (baca < 20 || h[0] != 0x7F || h[1] != 'E'
+                    || h[2] != 'L' || h[3] != 'F') {
+                return false;
+            }
+            // e_machine di offset 16 (EM_ARM = 40); endianness ikut EI_DATA.
+            int mesin;
+            if (h[5] == 2) {
+                mesin = ((h[16] & 0xFF) << 8) | (h[17] & 0xFF);
+            } else {
+                mesin = (h[16] & 0xFF) | ((h[17] & 0xFF) << 8);
+            }
+            return mesin == 40;
         } catch (Exception e) {
             return false;
         }

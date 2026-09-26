@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — Audit bug: uji asap binary, jam mundur bot, resume 206, deadline header, encrypt parsial
+
+### Perbaikan
+- Binary: uji jalan `--version` di file `.tmp` sebelum tukar; unduhan rusak
+  tak lagi menggantikan binary bagus + dilapor "terpasang" (pemicu
+  auto-restart tak lagi menendang server ke binary rusak).
+- ELF: cek diperketat (magic + `e_machine` ARM), bukan magic saja.
+- Bot: jam mundur tak lagi menolak perintah/tombol membabi buta (jepit maks
+  + tetap proses); peringatan dibatasi 1x/jam via jam monotonik; maks
+  wall-clock persisten lintas restart.
+- Unduh: respons 206 dicek `Content-Range` cocok dengan bytes lanjutan; bila
+  menyimpang, ulang dari nol sebelum kuota terbuang.
+- Status web: baca header dibatasi deadline total 20 detik sejak accept
+  (slowloris tak menghabiskan pool hingga status legit balas 503).
+- Backup: TTL cache ukuran folder pakai jam monotonik; `encryptFile` hapus
+  output parsial saat gagal seperti `decryptFile`.
+
 Semua perubahan penting dicatat di sini. Format mengikuti
 [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Versi aplikasi
 mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi

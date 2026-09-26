@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +26,14 @@ public class ControlServerTest {
         assertFalse(ControlServer.tokenCocok("rahasia123", ""));
         assertFalse(ControlServer.tokenCocok("rahasia123", null));
         assertFalse(ControlServer.tokenCocok(null, "rahasia123"));
+    }
+
+    @Test
+    public void timeoutSisa_dibatasiDeadlineTotal() {
+        assertEquals(8000, ControlServer.timeoutSisaMs(1000, 21000, 8000));
+        assertEquals(2000, ControlServer.timeoutSisaMs(19000, 21000, 8000));
+        assertEquals(0, ControlServer.timeoutSisaMs(21000, 21000, 8000));
+        assertEquals(0, ControlServer.timeoutSisaMs(22000, 21000, 8000));
     }
 
     @Test

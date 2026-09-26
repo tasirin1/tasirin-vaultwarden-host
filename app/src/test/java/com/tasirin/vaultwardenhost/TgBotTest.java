@@ -35,6 +35,15 @@ public class TgBotTest {
     }
 
     @Test
+    public void peringatanMundur_maksSatuKaliSejam() {
+        assertTrue(TgBot.peringatanMundurJatuhTempo(1000, 0));
+        assertFalse(TgBot.peringatanMundurJatuhTempo(1000, 1000));
+        assertFalse(TgBot.peringatanMundurJatuhTempo(1000 + 3599_999L, 1000));
+        assertTrue(TgBot.peringatanMundurJatuhTempo(1000 + 3600_000L, 1000));
+        assertTrue(TgBot.peringatanMundurJatuhTempo(500, 1000));
+    }
+
+    @Test
     public void restoreConfirm_terimaVarianYa() {
         assertTrue(TgBot.isRestoreConfirm("YA"));
         assertTrue(TgBot.isRestoreConfirm("ya"));

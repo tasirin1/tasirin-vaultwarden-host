@@ -40,6 +40,12 @@ public final class TgBot {
     /** Wall-clock terbesar yang pernah terlihat (deteksi jam mundur/NTP).
      *  Bila jam mundur jauh, tombol/pesan basi diperlakukan kedaluwarsa (fail-closed). */
     private static volatile long wallMaksTelegram = 0;
+    /** Kunci prefs maks wall-clock agar deteksi rollback selamat dari restart. */
+    static final String KEY_TG_WALL_MAKS = "tg_wall_maks";
+    /** Peringatan jam-mundur dibatasi 1x/jam (jam monotonik): tiap poll 20 dtk
+     *  mengirim pesan = spam + self-DoS bila maks macet di masa depan. */
+    static final long PERINGATAN_MUNDUR_MS = 3600_000;
+    static volatile long peringatanMundurPada = 0;
 
     private static final String TG_API = "https://api.telegram.org/bot";
 
@@ -202,6 +208,7 @@ public final class TgBot {
             }
             long offset = sp.getLong(KEY_TG_OFFSET, 0);
             String chatResmi = chat.trim();
+            muatWallMaks(ctx);
             // POST (bukan GET): token bot tidak bocor ke log URL/proxy.
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
                     "offset=" + offset + "&timeout=15&limit=10");
@@ -243,10 +250,17 @@ public final class TgBot {
                                 long dateMs = msg.optLong("date", 0) * 1000L;
                                 long kini = System.currentTimeMillis();
                                 if (jamMundur(kini)) {
-                                    rollbackDitolak++;
-                                    continue;
+                                    // Jangan tolak membabi buta: jepit maks
+                                    // kembali ke kini agar glitch NTP maju
+                                    // sesaat tak mengunci perintah legit sampai
+                                    // jam mengejar masa depan; perintah tetap
+                                    // diproses normal di bawah.
+                                    if (catatMundurDanBolehIngatkan(kini)) {
+                                        rollbackDitolak++;
+                                    }
+                                } else {
+                                    catatWall(kini);
                                 }
-                                catatWall(kini);
                                 if (!Util.pesanSegar(dateMs, kini,
                                         STALE_MSG_MS)) {
                                     continue;
@@ -259,9 +273,8 @@ public final class TgBot {
                     }
                 }
                 if (rollbackDitolak > 0) {
-                    TgBackup.sendMessage(ctx, "Jam STB mundur drastis terdeteksi;"
-                            + " " + rollbackDitolak + " perintah diabaikan demi keamanan."
-                            + " Periksa tanggal & jam STB, lalu kirim ulang perintah.");
+                    TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
+                            + " perintah tetap diproses. Periksa tanggal & jam STB.");
                 }
             } finally {
                 if (newOffset != offset) {
@@ -273,6 +286,7 @@ public final class TgBot {
             }
         } catch (Exception ignored) {
         } finally {
+            simpanWallMaks(ctx);
             POLLING.set(false);
         }
     }
@@ -384,12 +398,17 @@ public final class TgBot {
                 long tgl = pesan.optLong("date", 0) * 1000L;
                 long kini = System.currentTimeMillis();
                 if (jamMundur(kini)) {
+                    // Sama seperti pesan: jepit maks lalu lanjut proses tombol
+                    // (peringatan dibatasi 1x/jam agar tak spam tiap ketukan).
+                    boolean ingatkan = catatMundurDanBolehIngatkan(kini);
                     jawabCallback(ctx, cb.optString("id", ""));
-                    TgBackup.sendMessage(ctx, "Tombol ditolak: jam STB mundur drastis."
-                            + " Minta keyboard baru dengan /help lalu coba lagi.");
-                    return;
+                    if (ingatkan) {
+                        TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
+                                + " tombol tetap diproses. Periksa tanggal & jam STB.");
+                    }
+                } else {
+                    catatWall(kini);
                 }
-                catatWall(kini);
                 if (tombolKedaluwarsa(tgl, kini)) {
                     jawabCallback(ctx, cb.optString("id", ""));
                     TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
@@ -847,6 +866,59 @@ public final class TgBot {
         if (kini > m) {
             wallMaksTelegram = kini;
         }
+    }
+
+    /** Muat maks wall-clock dari prefs (deteksi rollback lintas restart). */
+    static void muatWallMaks(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            long s = sp.getLong(KEY_TG_WALL_MAKS, 0);
+            if (s > wallMaksTelegram) {
+                wallMaksTelegram = s;
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Simpan maks wall-clock ke prefs. */
+    static void simpanWallMaks(Context ctx) {
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(KEY_TG_WALL_MAKS, wallMaksTelegram).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Murni: true bila peringatan jam-mundur boleh dikirim (maks 1x/jam).
+     *  kiniElapsed wajib monotonik (elapsedRealtime); reboot (kini < terakhir)
+     *  dianggap jatuh tempo agar tak bisu selamanya. */
+    static boolean peringatanMundurJatuhTempo(long kiniElapsed, long terakhir) {
+        if (terakhir == 0) {
+            return true;
+        }
+        if (kiniElapsed < terakhir) {
+            return true;
+        }
+        return kiniElapsed - terakhir >= PERINGATAN_MUNDUR_MS;
+    }
+
+    /** Tangani jam mundur tanpa mengunci bot: jepit maks kembali ke kini
+     *  (pulih sendiri saat poll berikut), lalu true bila peringatan boleh
+     *  dikirim (dibatasi 1x/jam via jam monotonik). */
+    static boolean catatMundurDanBolehIngatkan(long kini) {
+        wallMaksTelegram = kini;
+        long e;
+        try {
+            e = SystemClock.elapsedRealtime();
+        } catch (RuntimeException ex) {
+            return true;
+        }
+        if (peringatanMundurJatuhTempo(e, peringatanMundurPada)) {
+            peringatanMundurPada = e;
+            return true;
+        }
+        return false;
     }
 
     /** True bila tombol inline sudah tak berlaku: terlalu tua, tanpa tanggal,

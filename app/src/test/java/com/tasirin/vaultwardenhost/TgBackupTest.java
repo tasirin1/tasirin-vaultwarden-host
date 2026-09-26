@@ -18,6 +18,43 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void encryptFile_hapusParsialSaatGagal() {
+        java.io.File hilang = new java.io.File("/tidak/ada/masuk.bin");
+        java.io.File keluar = new java.io.File(
+                System.getProperty("java.io.tmpdir"),
+                "vw-enc-gagal-" + System.nanoTime() + ".enc");
+        try {
+            TgBackup.encryptFile(hilang, keluar, "rahasia");
+            org.junit.Assert.fail("wajib lempar bila masukan tak ada");
+        } catch (Exception diharapkan) {
+        }
+        assertFalse(keluar.exists());
+    }
+
+    @Test
+    public void encryptDecryptFile_rondtripUtuh() throws Exception {
+        java.io.File asli = java.io.File.createTempFile("vw-asli", ".bin");
+        java.io.File enc = java.io.File.createTempFile("vw-enc", ".enc");
+        java.io.File pulih = new java.io.File(
+                enc.getParentFile(), "vw-pulih-" + System.nanoTime() + ".bin");
+        byte[] data = "data rahasia vaultwarden".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8);
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(asli)) {
+            o.write(data);
+        }
+        try {
+            TgBackup.encryptFile(asli, enc, "katasandi");
+            TgBackup.decryptFile(enc, pulih, "katasandi");
+            byte[] hasil = java.nio.file.Files.readAllBytes(pulih.toPath());
+            org.junit.Assert.assertArrayEquals(data, hasil);
+        } finally {
+            asli.delete();
+            enc.delete();
+            pulih.delete();
+        }
+    }
+
+    @Test
     public void humanBytes_skalaBenar() {
         assertEquals("0 B", TgBackup.humanBytes(0));
         assertEquals("512 B", TgBackup.humanBytes(512));

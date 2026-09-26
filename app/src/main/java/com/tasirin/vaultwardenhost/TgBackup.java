@@ -950,7 +950,21 @@ public final class TgBackup {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
+    /** Enkripsi + hapus output bila gagal (jangan sisakan .enc parsial di
+     *  cache saat mis. disk penuh), simetris dengan decryptFile. */
     public static void encryptFile(File in, File out, String pass) throws Exception {
+        try {
+            tulisTerenkripsi(in, out, pass);
+        } catch (Exception e) {
+            try {
+                out.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
+        }
+    }
+
+    private static void tulisTerenkripsi(File in, File out, String pass) throws Exception {
         byte[] salt = new byte[16];
         byte[] iv = new byte[12];
         SECURE_RANDOM.nextBytes(salt);
@@ -1515,7 +1529,9 @@ public final class TgBackup {
         // Kunci absolute path (tanpa I/O): getCanonicalPath() memanggil syscall
         // sehingga cache-hit pun tetap mahal bila dipakai sebagai kunci.
         String key = dir.getAbsolutePath();
-        long now = System.currentTimeMillis();
+        // Jam monotonik: currentTimeMillis yang mundur (NTP/pengguna) membekukan
+        // angka ukuran sampai jam mengejar TTL; elapsedRealtime kebal jam.
+        long now = SystemClock.elapsedRealtime();
         synchronized (FOLDER_SIZE_CACHE) {
             long[] hit = FOLDER_SIZE_CACHE.get(key);
             if (hit != null && now - hit[1] < FOLDER_SIZE_TTL_MS) {

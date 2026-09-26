@@ -123,6 +123,82 @@ public class UpdaterTest {
         assertTrue(!Updater.isDnsHijackKeIpLokal(null));
     }
 
+    private static java.net.HttpURLConnection koneksiPalsu(final String contentRange)
+            throws Exception {
+        return new java.net.HttpURLConnection(
+                new java.net.URL("https://contoh.invalid/f")) {
+            @Override
+            public void connect() {
+            }
+
+            @Override
+            public void disconnect() {
+            }
+
+            @Override
+            public boolean usingProxy() {
+                return false;
+            }
+
+            @Override
+            public String getHeaderField(String name) {
+                return "Content-Range".equalsIgnoreCase(name) ? contentRange : null;
+            }
+        };
+    }
+
+    @Test
+    public void rangeCocok_hanyaTerimaAwalSesuaiParsial() throws Exception {
+        assertTrue(Updater.rangeCocok(koneksiPalsu("bytes 1024-2047/4096"), 1024));
+        assertFalse(Updater.rangeCocok(koneksiPalsu("bytes 0-1023/4096"), 1024));
+        assertFalse(Updater.rangeCocok(koneksiPalsu(null), 1024));
+        assertFalse(Updater.rangeCocok(koneksiPalsu("bytes */4096"), 1024));
+        assertFalse(Updater.rangeCocok(koneksiPalsu("items 1024-2047/4096"), 1024));
+        assertTrue(Updater.rangeCocok(koneksiPalsu(null), 0));
+    }
+
+    private static java.io.File berkasElf(byte em0, byte em1, int total) throws Exception {
+        java.io.File f = java.io.File.createTempFile("elfuji", ".bin");
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(f)) {
+            byte[] h = new byte[total];
+            h[0] = 0x7F;
+            h[1] = 'E';
+            h[2] = 'L';
+            h[3] = 'F';
+            h[4] = 1;
+            h[5] = 1;
+            if (total >= 20) {
+                h[16] = em0;
+                h[17] = em1;
+            }
+            o.write(h);
+        }
+        return f;
+    }
+
+    @Test
+    public void isElf_hanyaArm32Bit() throws Exception {
+        java.io.File arm = berkasElf((byte) 40, (byte) 0, 20);
+        java.io.File x86 = berkasElf((byte) 62, (byte) 0, 20);
+        java.io.File pendek = berkasElf((byte) 40, (byte) 0, 10);
+        java.io.File acak = java.io.File.createTempFile("bukanelf", ".bin");
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(acak)) {
+            o.write("MZpaijo".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        }
+        try {
+            assertTrue(Updater.isElf(arm));
+            assertFalse(Updater.isElf(x86));
+            assertFalse(Updater.isElf(pendek));
+            assertFalse(Updater.isElf(acak));
+            assertFalse(Updater.isElf(new java.io.File("/tidak/ada/elf.bin")));
+        } finally {
+            arm.delete();
+            x86.delete();
+            pendek.delete();
+            acak.delete();
+        }
+    }
+
     @Test
     public void perluResetResume_416Atau200DenganParsialMintaUlangDariNol() {
         assertTrue(Updater.perluResetResume(416, 1024));

@@ -37,6 +37,10 @@ public final class ControlServer {
     private static final int MAX_HEADER_LINES = 64;
     private static final int MAX_HEADER_LINE = 8192;
     private static final int MAX_HEADER_TOTAL = 65536;
+    /** Deadline total baca header sejak accept: SoTimeout per baris tanpa batas
+     *  total membuat segelintir koneksi slowloris menahan pool (~8 menit) dan
+     *  status legit balas 503. Header legit tiba dalam milidetik. */
+    static final int BATAS_HEADER_TOTAL_MS = 20_000;
     // Cache JSON status 10 dtk: halaman polling tiap 2 dtk, isinya mahal
     // (jalan rekursif folder web-vault + baca /proc).
     private static volatile String jsonCache = null;
@@ -155,6 +159,15 @@ public final class ControlServer {
         }
     }
 
+    /** Murni: sisa timeout baca (ms) dibatasi deadline total; <= 0 = habis. */
+    static int timeoutSisaMs(long kiniElapsed, long batasElapsed, int maksMs) {
+        long sisa = batasElapsed - kiniElapsed;
+        if (sisa <= 0) {
+            return 0;
+        }
+        return sisa > maksMs ? maksMs : (int) sisa;
+    }
+
     private void handle(Socket s) {
         if (conns.incrementAndGet() > MAX_CONNS) {
             try {
@@ -168,7 +181,8 @@ public final class ControlServer {
         // socket diserahkan ke thread SSE atau harus ditutup di sini.
         boolean serahkan = false;
         try {
-            s.setSoTimeout(8000);
+            long batasHeader = SystemClock.elapsedRealtime() + BATAS_HEADER_TOTAL_MS;
+            s.setSoTimeout(timeoutSisaMs(SystemClock.elapsedRealtime(), batasHeader, 8000));
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8));
             String line = in.readLine();
@@ -191,6 +205,14 @@ public final class ControlServer {
             String authHeader = "";
             boolean headerTuntas = false;
             for (int i = 0; i < MAX_HEADER_LINES; i++) {
+                int sisa = timeoutSisaMs(SystemClock.elapsedRealtime(), batasHeader, 8000);
+                if (sisa <= 0) {
+                    return;
+                }
+                try {
+                    s.setSoTimeout(sisa);
+                } catch (Exception ignored) {
+                }
                 String h = in.readLine();
                 if (h == null) {
                     return;
