@@ -548,7 +548,7 @@ public final class TgBot {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Backup gagal: " + e.getMessage());
+                        TgBackup.sendMessage(ctx, TgBackup.pesanGalatBackup(e));
                     }
                 });
                 break;

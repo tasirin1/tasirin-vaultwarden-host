@@ -13,6 +13,11 @@
   "lanjut" tak lagi memicu timpa database).
 - Baca `AutoUpdate` tahan `ClassCastException` via `amanString`/`amanBoolean`
   baru (gagal satu siklus diam-diam bila prefs korup sebelum heal).
+- Backup Telegram gagal karena jam STB reset (mis. `Certificate not valid until ... 2025
+  (compared to ... 2015)`) kini lapor jelas: tanggal terbaca + suruh aktifkan
+  Tanggal & waktu otomatis / atur manual. Guard jam (< 1 Jan 2024) gagal cepat
+  sebelum TLS; semua jalur backup (jadwal, saat Start, tombol, `/backup`, susulan
+  boot) pakai pesan ramah yang sama.
 
 ## [Belum rilis] — Batas SSE per-IP benar, migrasi anti-crash, receiver heal, start tahan Android 12+
 

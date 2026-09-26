@@ -343,6 +343,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void jamStbWajar_tolakReset2015() {
+        assertFalse(TgBackup.jamStbWajar(1420070424000L));
+        assertTrue(TgBackup.jamStbWajar(TgBackup.BATAS_JAM_WAJAR_MS));
+        assertTrue(TgBackup.jamStbWajar(System.currentTimeMillis()));
+    }
+
+    @Test
+    public void pesanJamStbSalah_sebutCaraBetulkan() {
+        String pesan = TgBackup.pesanJamStbSalah(1420070424000L);
+        assertTrue(pesan.contains("Tanggal & jam STB salah"));
+        assertTrue(pesan.contains("otomatis"));
+        assertTrue(pesan.contains("2015"));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

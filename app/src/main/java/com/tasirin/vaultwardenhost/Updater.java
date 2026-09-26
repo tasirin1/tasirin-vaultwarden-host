@@ -109,13 +109,69 @@ public final class Updater {
         throw new IOException("Terlalu banyak redirect.");
     }
 
+    /** Gabungan pesan + seluruh cause direndahkan: bungkus SSL sering
+     *  menyembunyikan inti (mis. ExtCertPathValidatorException) di cause. */
+    static String rantaiGalat(Exception e) {
+        StringBuilder sb = new StringBuilder();
+        java.util.Set<Object> jumpa = new java.util.HashSet<>();
+        for (Throwable t = e; t != null && jumpa.add(t); t = t.getCause()) {
+            try {
+                sb.append(String.valueOf(t.getClass().getSimpleName())).append(' ');
+                sb.append(String.valueOf(t.getMessage())).append(' ');
+            } catch (Exception ignored) {
+            }
+        }
+        return sb.toString().toLowerCase(Locale.US);
+    }
+
+    /** True bila galat TLS disebabkan jam STB salah (sertifikat belum berlaku /
+     *  sudah kadaluarsa menurut jam perangkat). Murni lewat rantai pesan. */
+    static boolean galatJamSertifikat(Exception e) {
+        if (e == null) {
+            return false;
+        }
+        String rantai = rantaiGalat(e);
+        return rantai.contains("not valid until")
+                || rantai.contains("not yet valid")
+                || rantai.contains("not valid after")
+                || rantai.contains("certificate_expired")
+                || rantai.contains("certificate expired")
+                || (rantai.contains("certpathvalidatorexception")
+                        && rantai.contains("certificate"));
+    }
+
+    /** Tanggal jam STB terbaca saat ini (untuk pesan galat jam salah). */
+    static String tanggalStbTerbaca() {
+        try {
+            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
+                    "d MMM yyyy HH:mm", new Locale("in", "ID"));
+            return f.format(new java.util.Date(System.currentTimeMillis()));
+        } catch (Exception ignored) {
+            return String.valueOf(System.currentTimeMillis());
+        }
+    }
+
     /** Saran perbaikan koneksi (Bahasa Indonesia) berdasarkan jenis galat. */
     static String saranKoneksi(Exception e) {
         if (e == null) {
             return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
         }
-        String gabung = (e.getClass().getSimpleName() + " " + String.valueOf(e.getMessage()))
-                .toLowerCase(Locale.US);
+        String gabung = rantaiGalat(e);
+        if (galatJamSertifikat(e)) {
+            boolean terlaluLama = gabung.contains("not valid until")
+                    || gabung.contains("not yet valid");
+            String terbaca = tanggalStbTerbaca();
+            if (terlaluLama) {
+                return "Tanggal & jam STB terlalu lama (terbaca " + terbaca + ")."
+                        + " Sertifikat server belum berlaku menurut jam itu."
+                        + " Aktifkan Tanggal & waktu otomatis di Pengaturan STB"
+                        + " (butuh internet), atau atur manual ke hari ini, lalu ulangi.";
+            }
+            return "Tanggal & jam STB salah (terbaca " + terbaca + ")."
+                    + " Sertifikat server ditolak menurut jam itu."
+                    + " Aktifkan Tanggal & waktu otomatis di Pengaturan STB"
+                    + " (butuh internet), atau atur manual ke hari ini, lalu ulangi.";
+        }
         if (gabung.contains("unknownhost") || gabung.contains("no address")
                 || gabung.contains("unable to resolve")) {
             return "DNS gagal (nama github.com tidak ketemu). Cek internet STB,"

@@ -251,8 +251,9 @@ public class SettingsActivity extends Activity {
                 toast(msg);
                 appendUiLog("[tg] " + msg);
             } catch (Exception e) {
-                toast("Backup gagal: " + e.getMessage());
-                appendUiLog("[tg] Gagal backup: " + e);
+                String ramah = TgBackup.pesanGalatBackup(e);
+                toast(ramah);
+                appendUiLog("[tg] " + ramah + " (" + e + ")");
             }
         }));
         Button settingsBackBtn = findViewById(R.id.settingsBack);

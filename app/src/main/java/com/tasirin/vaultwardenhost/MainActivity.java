@@ -187,7 +187,7 @@ public class MainActivity extends Activity {
                     String msg = TgBackup.backupNow(app);
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
                 } catch (Exception e) {
-                    ServerService.catatLog("[tg] Backup susulan boot gagal: " + e.getMessage());
+                    ServerService.catatLog("[tg] " + TgBackup.pesanGalatBackup(e) + " (susulan boot).");
                 }
             }, "vw-boot-susulan").start();
         }

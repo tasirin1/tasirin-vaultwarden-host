@@ -109,6 +109,9 @@ public final class TgBackup {
 
     private static final String TG_API = "https://api.telegram.org/bot";
     private static final int KEEP_BACKUPS = 10;
+    /** Batas bawah jam wajar (1 Jan 2024 UTC): STB tanpa RTC/baterai sering
+     *  reset ke 2015 saat listrik mati; TLS Telegram pasti gagal sebelum ini. */
+    static final long BATAS_JAM_WAJAR_MS = 1704067200000L;
 
     private TgBackup() {
     }
@@ -185,6 +188,36 @@ public final class TgBackup {
         void jalankanUi(Runnable r);
     }
 
+    /** True bila jam STB wajar (tak reset ke tahun lama). Murni agar bisa unit test. */
+    static boolean jamStbWajar(long kiniMs) {
+        return kiniMs >= BATAS_JAM_WAJAR_MS;
+    }
+
+    /** Pesan jam STB salah untuk backup (sertakan tanggal terbaca + cara betulkan). */
+    static String pesanJamStbSalah(long kiniMs) {
+        String terbaca;
+        try {
+            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
+                    "d MMM yyyy HH:mm", new Locale("in", "ID"));
+            terbaca = f.format(new Date(kiniMs));
+        } catch (Exception ignored) {
+            terbaca = String.valueOf(kiniMs);
+        }
+        return "Tanggal & jam STB salah (terbaca " + terbaca + ")."
+                + " Sertifikat Telegram belum berlaku menurut jam itu sehingga backup GAGAL."
+                + " Aktifkan Tanggal & waktu otomatis di Pengaturan STB"
+                + " (butuh internet), atau atur manual ke hari ini, lalu ulangi backup.";
+    }
+
+    /** Bungkus galat backup jadi pesan tindak-lanjut (jam salah dijelaskan khusus). */
+    static String pesanGalatBackup(Exception e) {
+        String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
+        if (!jamStbWajar(System.currentTimeMillis()) || Updater.galatJamSertifikat(e)) {
+            return "Backup gagal: " + pesanJamStbSalah(System.currentTimeMillis());
+        }
+        return "Backup gagal: " + inti + ". " + Updater.saranKoneksi(e);
+    }
+
     /** Backup Telegram otomatis saat Start (sekali sehari, bila hari berganti).
      *  Satu implementasi untuk Main & Settings (dulu duplikat). */
     public static void maybeAutoBackup(Context ctx, BackupStartUi ui) {
@@ -214,7 +247,7 @@ public final class TgBackup {
                 });
             } catch (InterruptedException ignored) {
             } catch (Exception e) {
-                ui.catat("[tg] Gagal backup otomatis saat Start: " + e);
+                ui.catat("[tg] " + pesanGalatBackup(e));
             }
         }, "vw-tg-onstart").start();
     }
@@ -226,6 +259,9 @@ public final class TgBackup {
         String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
+        }
+        if (!jamStbWajar(System.currentTimeMillis())) {
+            throw new IOException(pesanJamStbSalah(System.currentTimeMillis()));
         }
         String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {

@@ -40,6 +40,9 @@ Auto-update of binary & web vault, status web on port+1, encrypted backups (loca
 - **`failed to generate random data` / HTTPS error?** Old STB kernel — press **Check Update**, Start again.
 - **Web UI unreachable?** Same WiFi required, use the local IP.
 - **Download fails?** Check STB internet & clock, Start again (auto-resumes).
+- **Telegram backup fails with `Certificate not valid until`?** STB clock reset to 2015
+  (power loss / no RTC). Enable Automatic date & time in STB Settings
+  (needs internet), or set it manually to today, then retry backup.
 
 ## Developers & license
 

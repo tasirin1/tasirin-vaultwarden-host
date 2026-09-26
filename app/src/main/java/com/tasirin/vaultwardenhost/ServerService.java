@@ -483,8 +483,9 @@ public class ServerService extends Service {
                         TgBackup.sendMessage(this, "Backup otomatis: " + msg);
                     }
                 } catch (Exception e) {
-                    appendLog("[tg] Gagal backup terjadwal: " + e);
-                    TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + e.getMessage());
+                    String ramah = TgBackup.pesanGalatBackup(e);
+                    appendLog("[tg] " + ramah + " (" + e + ")");
+                    TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + ramah);
                 } finally {
                     // Jadwalkan ulang ke tengah malam berikutnya, selama masih aktif.
                     SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);

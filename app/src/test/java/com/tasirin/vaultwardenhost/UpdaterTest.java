@@ -445,6 +445,33 @@ public class UpdaterTest {
     }
 
     @Test
+    public void galatJamSertifikat_kenalNotValidUntilDiCause() {
+        Exception inti = new javax.security.cert.CertificateException(
+                "Could not validate certificate: Certificate not valid until"
+                        + " Tue Nov 11 22:14:09 GMT+07:00 2025"
+                        + " (compared to Thu Jan 01 07:00:24 GMT+07:00 2015)");
+        Exception bungkus = new javax.net.ssl.SSLHandshakeException("Handshake failed");
+        bungkus.initCause(inti);
+        assertTrue(Updater.galatJamSertifikat(bungkus));
+    }
+
+    @Test
+    public void galatJamSertifikat_tolakGalatLain() {
+        assertFalse(Updater.galatJamSertifikat(
+                new java.net.SocketTimeoutException("failed to connect")));
+        assertFalse(Updater.galatJamSertifikat(null));
+    }
+
+    @Test
+    public void saranKoneksi_jamSalahSebutTanggalOtomatis() {
+        Exception e = new javax.net.ssl.SSLHandshakeException(
+                "Certificate not valid until Tue Nov 11 2025 (compared to Thu Jan 01 2015)");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Tanggal & jam STB"));
+        assertTrue(saran.contains("otomatis"));
+    }
+
+    @Test
     public void validasiRantai_tolakSampahFailClosed() {
         assertEquals(0, Updater.validasiRantai(null));
         assertEquals(0, Updater.validasiRantai(new byte[0]));

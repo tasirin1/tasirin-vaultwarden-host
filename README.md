@@ -40,6 +40,9 @@ Auto-update binary & web vault, status web di port+1, backup terenkripsi (lokal 
 - **`failed to generate random data` / HTTPS error?** Kernel STB lama — tekan **Cek Update**, Start lagi.
 - **Web UI tak bisa dibuka?** Harus satu WiFi, pakai IP lokal.
 - **Gagal unduh?** Cek internet & jam STB, Start lagi (otomatis dilanjutkan).
+- **Backup Telegram GAGAL `Certificate not valid until`?** Jam STB reset ke 2015
+  (STB mati total / tanpa RTC). Aktifkan Tanggal & waktu otomatis di Pengaturan
+  STB (butuh internet), atau atur manual ke hari ini, lalu ulangi backup.
 
 ## Pengembang & lisensi
 
