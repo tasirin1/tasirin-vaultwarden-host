@@ -18,8 +18,13 @@ public class AlarmReceiver extends BroadcastReceiver {
                     ServerService.PREFS, Context.MODE_PRIVATE);
             if (cek.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
+            } else {
+                // Auto dimatikan: alarm yang telanjur terjadwal tak boleh mengunggah.
+                return;
             }
         } catch (Exception ignored) {
+            // Prefs tak terbaca: gagal tertutup, jangan backup buta.
+            return;
         }
         try {
             ServerService.backupNow(context);

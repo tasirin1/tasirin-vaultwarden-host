@@ -1135,12 +1135,14 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
-                        // Ketat seperti restore Telegram: hanya 3 file DB resmi.
-                        // Awalan longgar menulis sampah (mis. db.sqlite3-evil).
+                        // Ketat seperti restore Telegram: hanya 3 file DB resmi + 4 file TLS resmi.
+                        // Awalan longgar menulis sampah (mis. db.sqlite3-evil, tls/ips.txt).
                         boolean dbPart = name.equals("db.sqlite3")
                                 || name.equals("db.sqlite3-wal")
                                 || name.equals("db.sqlite3-shm");
-                        boolean tlsPart = name.startsWith("tls/") || name.equals("tls");
+                        boolean tlsPart = name.equals("tls")
+                                || name.equals("tls/ca.pem") || name.equals("tls/cert.pem")
+                                || name.equals("tls/key.pem") || name.equals("tls/ca-key.pem");
                         if (!dbPart && !tlsPart) {
                             zis.closeEntry();
                             continue;
@@ -1279,11 +1281,16 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
             // Tulis parsial (mis. batas ukuran) wajib dikembalikan dari salinan pengaman.
+            // Tanpa salinan (install baru), buang DB parsial agar tak dipakai saat Start.
             try {
                 if (preBackup != null && preBackup.exists()) {
                     TgBackup.hapusWalShm(new File(dataDir));
                     TgBackup.copyFile(preBackup, dbFile);
                     appendUiLog("[app] Restore gagal: database lama dikembalikan.");
+                } else {
+                    TgBackup.hapusWalShm(new File(dataDir));
+                    dbFile.delete();
+                    appendUiLog("[app] Restore gagal: file parsial dibuang.");
                 }
             } catch (Exception ignored) {
             }

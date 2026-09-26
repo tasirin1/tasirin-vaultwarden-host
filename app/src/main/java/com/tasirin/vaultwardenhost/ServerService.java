@@ -132,6 +132,8 @@ public class ServerService extends Service {
     private boolean autoRestart = false;
     private int restartAttempt = 0;
     private static volatile long lastStartTime = 0;
+    /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
+    private static volatile long lastStartElapsed = 0;
     private ControlServer controlServer;
     private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
 
@@ -146,8 +148,8 @@ public class ServerService extends Service {
             // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
             // ketahuan), lalu tiap 2 menit setelah server stabil.
             long delay = HEALTH_INTERVAL_MS;
-            long up = System.currentTimeMillis() - lastStartTime;
-            if (lastStartTime > 0 && up < HEALTH_FAST_MS) {
+            long up = SystemClock.elapsedRealtime() - lastStartElapsed;
+            if (lastStartElapsed > 0 && up < HEALTH_FAST_MS) {
                 delay = HEALTH_FAST_INTERVAL_MS;
             }
             mainHandler.postDelayed(this, delay);
@@ -228,13 +230,13 @@ public class ServerService extends Service {
         }
     }
 
-    /** Lama server sudah berjalan (ms); 0 bila sedang berhenti. */
+    /** Lama server sudah berjalan (ms, jam monotonik); 0 bila sedang berhenti. */
     public static long uptimeMs() {
         if (!running) {
             return 0;
         }
-        long t = lastStartTime;
-        return t == 0 ? 0 : System.currentTimeMillis() - t;
+        long t = lastStartElapsed;
+        return t == 0 ? 0 : Math.max(0, SystemClock.elapsedRealtime() - t);
     }
 
     /** Cek sehat sekali tanpa efek samping; true bila HTTP 200 di /alive atau /api/config. */
@@ -825,6 +827,7 @@ public class ServerService extends Service {
             running = true;
             healthFails.set(0);
             lastStartTime = System.currentTimeMillis();
+            lastStartElapsed = SystemClock.elapsedRealtime();
             restartAttempt = 0;
 
             // Siram buffer milik folder lama dulu agar log tak tecampur ke file baru.
@@ -979,7 +982,7 @@ public class ServerService extends Service {
     }
 
     private void scheduleRestart() {
-        long uptime = System.currentTimeMillis() - lastStartTime;
+        long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
             restartAttempt = 0;
         }
@@ -1416,7 +1419,7 @@ public class ServerService extends Service {
     /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama).
      *  Di-cache 3 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - ipCacheTime < 3000 && !ipCache.isEmpty()) {
             return ipCache;
         }
@@ -1780,7 +1783,8 @@ public class ServerService extends Service {
 
     private static List<String> collectIps() {
         synchronized (COLLECT_LOCK) {
-            long now = System.currentTimeMillis();
+            // Monotonik: wall-clock mundur membuat now-cache negatif dan cache basi beku.
+            long now = SystemClock.elapsedRealtime();
             if (now - collectCacheTime < 5000 && !collectCache.isEmpty()) {
                 return collectCache;
             }
@@ -1890,9 +1894,10 @@ public class ServerService extends Service {
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips,
             List<String> dns, String cur) throws Exception {
         String saved = readText(ipFile);
-        if (saved != null && !saved.equals(cur)) {
+        if (saved == null || !saved.equals(cur)) {
             // Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan agar HP lain
             // tak perlu install ulang, jadi version.txt jangan dihapus.
+            // Penanda hilang (saved null) ikut regen: daun lama bisa berisi SAN basi.
             appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
             new File(tlsDir, "cert.pem").delete();
             new File(tlsDir, "key.pem").delete();
@@ -1989,7 +1994,7 @@ public class ServerService extends Service {
             pid = pidOf(p);
         }
         if (pid < 0) {
-            long now = System.currentTimeMillis();
+            long now = SystemClock.elapsedRealtime();
             int cached = cachedChildPid;
             if (cached >= 0 && now - cachedChildPidAt < CHILD_PID_TTL_MS) {
                 pid = cached;
