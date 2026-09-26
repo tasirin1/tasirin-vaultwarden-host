@@ -126,6 +126,8 @@ public class ServerService extends Service {
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private static volatile Process process;
+    /** True bila stop diminta sengaja: watchProcess wajib abaikan exit agar status tetap "Stopped". */
+    private static volatile boolean stopDisengaja = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
@@ -434,7 +436,7 @@ public class ServerService extends Service {
                 appendLog("[app] Restart diminta via Telegram.");
                 if (process != null) {
                     final Process p = process;
-                    process = null;
+                    stopDisengaja = true;
                     running = false;
                     releaseWakeLock();
                     p.destroy();
@@ -445,8 +447,17 @@ public class ServerService extends Service {
                             } else {
                                 p.destroy();
                             }
+                            try {
+                                waitForOrKill(p, 3000);
+                            } catch (Exception ignored) {
+                            }
                         }
                     } catch (Exception ignored) {
+                    } finally {
+                        if (process == p) {
+                            process = null;
+                        }
+                        stopDisengaja = false;
                     }
                 }
                 mainHandler.post(() -> {
@@ -815,7 +826,7 @@ public class ServerService extends Service {
                 appendLog("[app] LD_PRELOAD shim getrandom aktif.");
             }
             // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
-            String domain = scheme + "://" + lanHost() + ":" + port;
+            String domain = scheme + "://" + formatHostUntukUrl(lanHost()) + ":" + port;
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
@@ -857,7 +868,7 @@ public class ServerService extends Service {
             }
             String ctrlUrl = "";
             if (ctrlOk) {
-                ctrlUrl = scheme + "://" + lanHost() + ":" + ControlServer.listeningPort;
+                ctrlUrl = scheme + "://" + formatHostUntukUrl(lanHost()) + ":" + ControlServer.listeningPort;
                 appendLog("[app] Status web (log realtime): " + ctrlUrl);
             } else {
                 appendLog("[app] Status web tidak start: port " + (portNum + 1)
@@ -908,9 +919,10 @@ public class ServerService extends Service {
     private void stopServer() {
         if (process != null) {
             final Process p = process;
-            // Kosongkan dulu agar watchProcess mengabaikan exit yang disengaja
-            // (status tetap "Stopped", tidak ditimpa "Stopped (exit code...)").
-            process = null;
+            // Tandai stop sengaja agar watchProcess abaikan exit (status tetap
+            // "Stopped"). Proses dipertahankan sampai benar-benar mati agar
+            // stopAndWait()/restore tak menimpa DB selagi proses lama hidup.
+            stopDisengaja = true;
             setStatus("Stopped");
             p.destroy();
             Thread stopper = new Thread(() -> {
@@ -921,14 +933,24 @@ public class ServerService extends Service {
                         } else {
                             p.destroy();
                         }
+                        try {
+                            waitForOrKill(p, 3000);
+                        } catch (Exception ignored) {
+                        }
                     }
                 } catch (Exception ignored) {
+                } finally {
+                    if (process == p) {
+                        process = null;
+                    }
+                    stopDisengaja = false;
                 }
             }, "vw-stop");
             stopper.setDaemon(true);
             stopper.start();
         } else {
             setStatus("Stopped");
+            stopDisengaja = false;
         }
         running = false;
         runningDataDir = "";
@@ -947,6 +969,13 @@ public class ServerService extends Service {
     private void watchProcess(Process p) {
         try {
             int code = p.waitFor();
+            if (stopDisengaja || process != p) {
+                // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
+                if (process == p) {
+                    process = null;
+                }
+                return;
+            }
             if (process == p) {
                 process = null;
                 running = false;
@@ -1333,12 +1362,35 @@ public class ServerService extends Service {
             writeCrashLog("health 3x");
             TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - dihentikan.\n"
                     + shorten(tailLog(15), 500));
-            if (process != null) {
-                final Process p = process;
-                process = null;
+            final Process p = process;
+            if (p != null) {
+                stopDisengaja = true;
                 running = false;
                 releaseWakeLock();
                 p.destroy();
+                Thread killer = new Thread(() -> {
+                    try {
+                        if (!waitForOrKill(p, 5000)) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                p.destroyForcibly();
+                            } else {
+                                p.destroy();
+                            }
+                            try {
+                                waitForOrKill(p, 3000);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    } catch (Exception ignored) {
+                    } finally {
+                        if (process == p) {
+                            process = null;
+                        }
+                        stopDisengaja = false;
+                    }
+                }, "vw-health-stop");
+                killer.setDaemon(true);
+                killer.start();
             }
             return;
         }
@@ -1469,7 +1521,17 @@ public class ServerService extends Service {
             return ipCache;
         }
         List<String> ips = collectIps();
-        ipCache = ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+        String pilih = "127.0.0.1";
+        if (!ips.isEmpty()) {
+            pilih = ips.get(0);
+            for (String ip : ips) {
+                if (ip != null && !ip.isEmpty() && ip.indexOf(':') < 0) {
+                    pilih = ip;
+                    break;
+                }
+            }
+        }
+        ipCache = pilih;
         ipCacheTime = now;
         return ipCache;
     }
@@ -1489,7 +1551,7 @@ public class ServerService extends Service {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         boolean https = sp.getBoolean(KEY_HTTPS, false);
         String port = effectivePort(sp);
-        return (https ? "https" : "http") + "://" + localIp() + ":" + port.trim();
+        return (https ? "https" : "http") + "://" + formatHostUntukUrl(localIp()) + ":" + port.trim();
     }
 
     private void setStatus(String text) {
@@ -1846,7 +1908,28 @@ public class ServerService extends Service {
 
     private static String lanHost() {
         List<String> ips = collectIps();
-        return ips.isEmpty() ? "127.0.0.1" : ips.get(0);
+        if (ips.isEmpty()) {
+            return "127.0.0.1";
+        }
+        // Prefer IPv4 untuk DOMAIN/URL: IPv6 tanpa kurung merusak parsing port.
+        for (String ip : ips) {
+            if (ip != null && !ip.isEmpty() && ip.indexOf(':') < 0) {
+                return ip;
+            }
+        }
+        return ips.get(0);
+    }
+
+    /** Format host untuk URL: IPv6 dibungkus kurung agar port tak ambigu. Murni. */
+    static String formatHostUntukUrl(String host) {
+        if (host == null || host.isEmpty()) {
+            return "127.0.0.1";
+        }
+        String h = host.trim();
+        if (h.indexOf(':') >= 0 && !(h.startsWith("[") && h.endsWith("]"))) {
+            return "[" + h + "]";
+        }
+        return h;
     }
 
     private static List<String> collectIps() {

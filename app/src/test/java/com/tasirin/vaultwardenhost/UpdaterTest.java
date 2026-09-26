@@ -412,6 +412,22 @@ public class UpdaterTest {
     }
 
     @Test
+    public void angkaAwalan_tahanSufiks() {
+        assertEquals(37, Updater.angkaAwalan("37"));
+        assertEquals(37, Updater.angkaAwalan("37-beta"));
+        assertEquals(3, Updater.angkaAwalan(" 3a "));
+        assertEquals(-1, Updater.angkaAwalan("beta"));
+        assertEquals(-1, Updater.angkaAwalan(""));
+        assertEquals(-1, Updater.angkaAwalan(null));
+    }
+
+    @Test
+    public void bandingVersi_sufiksDiabaikan() {
+        assertTrue(Updater.bandingVersi("1.37.3-beta", "1.37.3") == 0);
+        assertTrue(Updater.bandingVersi("1.37.3", "1.37.3-beta") == 0);
+    }
+
+    @Test
     public void bandingVersi_takDikenalDianggapTertua() {
         assertTrue(Updater.bandingVersi(null, "1.37.1") < 0);
         assertTrue(Updater.bandingVersi("", "1.37.1") < 0);

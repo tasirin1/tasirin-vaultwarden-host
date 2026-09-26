@@ -1148,7 +1148,9 @@ public final class Updater {
         return 0;
     }
 
-    /** Urai "1.37.3" jadi {1,37,3}; rusak/null jadi array kosong (paling tua). */
+    /** Urai "1.37.3" jadi {1,37,3}; rusak/null jadi array kosong (paling tua).
+     *  Tahan sufiks ("1.37.3-beta", "3a" -> angka awalan) agar versi beta tak
+     *  dianggap paling tua lalu memicu unduh ulang sia-sia. */
     private static int[] uraiVersi(String v) {
         if (v == null) {
             return new int[0];
@@ -1163,13 +1165,34 @@ public final class Updater {
         String[] bagian = t.split("\\.");
         int[] keluar = new int[bagian.length];
         for (int i = 0; i < bagian.length; i++) {
-            try {
-                keluar[i] = Math.max(0, Integer.parseInt(bagian[i].trim()));
-            } catch (Exception e) {
+            keluar[i] = angkaAwalan(bagian[i]);
+            if (keluar[i] < 0) {
                 return new int[0];
             }
         }
         return keluar;
+    }
+
+    /** Angka desimal di awal segmen ("37-beta" -> 37, " 3a " -> 3); -1 bila tanpa digit. Murni. */
+    static int angkaAwalan(String segmen) {
+        if (segmen == null) {
+            return -1;
+        }
+        String t = segmen.trim();
+        int n = 0;
+        boolean ada = false;
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c < '0' || c > '9') {
+                break;
+            }
+            ada = true;
+            n = n * 10 + (c - '0');
+            if (n > 1000000) {
+                return 1000000;
+            }
+        }
+        return ada ? n : -1;
     }
 
     // Pola versi di-compile sekali (dipanggil tiap detik dari UI & status web).

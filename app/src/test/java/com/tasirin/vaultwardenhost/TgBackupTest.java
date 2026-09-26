@@ -106,6 +106,19 @@ public class TgBackupTest {
     }
 
     @Test
+    public void koersiBoolean_terimaStringAngka() {
+        assertEquals(Boolean.TRUE, TgBackup.koersiBoolean(Boolean.TRUE));
+        assertEquals(Boolean.TRUE, TgBackup.koersiBoolean("true"));
+        assertEquals(Boolean.TRUE, TgBackup.koersiBoolean(" 1 "));
+        assertEquals(Boolean.FALSE, TgBackup.koersiBoolean("false"));
+        assertEquals(Boolean.FALSE, TgBackup.koersiBoolean(0));
+        assertEquals(Boolean.TRUE, TgBackup.koersiBoolean(1));
+        assertEquals(null, TgBackup.koersiBoolean("ya"));
+        assertEquals(null, TgBackup.koersiBoolean(2));
+        assertEquals(null, TgBackup.koersiBoolean(null));
+    }
+
+    @Test
     public void sudahGantiHari_bedaHariKalender() {
         java.util.Calendar c = java.util.Calendar.getInstance();
         c.set(2026, java.util.Calendar.SEPTEMBER, 21, 23, 59, 0);

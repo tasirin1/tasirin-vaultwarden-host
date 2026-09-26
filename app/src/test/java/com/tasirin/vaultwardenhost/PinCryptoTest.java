@@ -59,7 +59,13 @@ public class PinCryptoTest {
     public void kunciWallBasiDianggapKedaluwarsa() {
         long wallBasi = 1_700_000_000_000L;
         long elapsed = 1_000_000L;
-        assertTrue(PinCrypto.sisaKunciMs(5, wallBasi, elapsed) == 0);
+        assertTrue(PinCrypto.sisaKunciMs(5, wallBasi, elapsed) == PinCrypto.KUNCI_MS);
+    }
+
+    @Test
+    public void jamMundurTetapKunci() {
+        long sampai = 1_700_000_000_000L + PinCrypto.KUNCI_MS;
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, 1_000_000L) == PinCrypto.KUNCI_MS);
     }
 
     @Test

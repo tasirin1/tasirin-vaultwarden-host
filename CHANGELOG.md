@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Stop tunggu mati, PIN fail-closed, impor anti-crash, DOMAIN IPv6
+
+### Perbaikan
+- Stop/health/restart kini tunggu proses benar-benar mati sebelum null
+  (`stopDisengaja`); `stopAndWait` tak lagi lolos palsu sehingga restore tak
+  menimpa DB selagi proses lama hidup.
+- PIN fail-closed saat jam mundur ke 1970 (kunci penuh, bukan bypass);
+  PIN kosong Telegram tak lagi dihitung gagal (tak ada lockout sendiri).
+- Impor config per-tipe (String/Boolean dikoersi, salah diabaikan) +
+  heal Boolean; offset bot impor diabaikan agar zip jahat tak brick bot.
+- DOMAIN/URL kini prefer IPv4 dan kurung IPv6 (`[::1]`); versi tahan sufiks
+  (`1.37.3-beta` tak lagi dianggap tertua).
+
+
 ## [Belum rilis] — Binary manual aman: uji di tmp + log saat dilewati
 
 ### Perbaikan

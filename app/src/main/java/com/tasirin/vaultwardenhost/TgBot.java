@@ -778,7 +778,12 @@ public final class TgBot {
         int i = t.lastIndexOf(' ');
         String pin = i < 0 ? t : t.substring(i + 1);
         String rest = i < 0 ? "" : t.substring(0, i).trim();
-        boolean cocok = !pin.isEmpty() && PinCrypto.verify(hash, pin);
+        if (pin.isEmpty()) {
+            TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
+                    + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
+            return null;
+        }
+        boolean cocok = PinCrypto.verify(hash, pin);
         PinGate.catatHasil(ctx, cocok, sekarang);
         if (cocok) {
             if (!PinCrypto.isNewFormat(hash)) {

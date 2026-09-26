@@ -45,6 +45,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void formatHostUntukUrl_kurungIpv6() {
+        assertEquals("192.168.1.5", ServerService.formatHostUntukUrl("192.168.1.5"));
+        assertEquals("127.0.0.1", ServerService.formatHostUntukUrl(""));
+        assertEquals("127.0.0.1", ServerService.formatHostUntukUrl(null));
+        assertEquals("[::1]", ServerService.formatHostUntukUrl("::1"));
+        assertEquals("[2001:db8::1]", ServerService.formatHostUntukUrl("2001:db8::1"));
+        assertEquals("[2001:db8::1]", ServerService.formatHostUntukUrl("[2001:db8::1]"));
+    }
+
+    @Test
     public void logNormalBukanPanicKernel() {
         assertFalse(ServerService.isKernelRandomPanic("Running (PID 123)\nURL lokal: http://127.0.0.1:8088"));
         assertFalse(ServerService.isKernelRandomPanic(""));

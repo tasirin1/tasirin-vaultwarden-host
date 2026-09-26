@@ -1278,10 +1278,52 @@ public final class TgBackup {
      *  tak pernah diimpor dari file (termasuk backup lama yang masih
      *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
      *  perangkat memang tak punya. */
-    /** Sembuhkan prefs string yang telanjur tersimpan bukan-String (impor lama /
-     *  config edit manual berisi angka): baca via getAll (tak lempar CCE),
-     *  tulis ulang sebagai String. Dipanggil di awal onCreate agar pembaca
-     *  getString tak crash sebelum sempat sanitasi. */
+    /** Kunci String yang wajib String (pembaca memakai getString). */
+    static final java.util.Set<String> KUNCI_STRING = new java.util.HashSet<>(
+            java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
+                    ServerService.KEY_UPDATE_VERSION, ServerService.KEY_ADMIN_TOKEN,
+                    ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
+                    KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,
+                    KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
+                    "tg_notified_version", "wv_from_version", "domain_lokal",
+                    "pin_hash"));
+
+    /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
+    static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
+            java.util.Arrays.asList(ServerService.KEY_AUTO_START, ServerService.KEY_HTTPS,
+                    ServerService.KEY_AUTO_UPDATE, ServerService.KEY_AUTO_UPDATE_WV,
+                    ServerService.KEY_AUTO_RESTART_UPDATE, ServerService.KEY_PORT_MIGRATED,
+                    KEY_TG_AUTO, "advanced_open", "pin_on", "tg_backup_tertunda",
+                    "tg_low_storage_notified", "home_log_expanded"));
+
+    /** Koersi nilai Boolean dari String/Number edit manual ("true"/1 -> true). Null bila tak jelas. Murni. */
+    static Boolean koersiBoolean(Object v) {
+        if (v instanceof Boolean) {
+            return (Boolean) v;
+        }
+        if (v instanceof Number) {
+            long n = ((Number) v).longValue();
+            if (n == 0 || n == 1) {
+                return n == 1;
+            }
+            return null;
+        }
+        if (v instanceof String) {
+            String t = ((String) v).trim().toLowerCase(java.util.Locale.US);
+            if ("true".equals(t) || "1".equals(t)) {
+                return Boolean.TRUE;
+            }
+            if ("false".equals(t) || "0".equals(t)) {
+                return Boolean.FALSE;
+            }
+        }
+        return null;
+    }
+
+    /** Sembuhkan prefs bertipe salah (impor lama / config edit manual berisi
+     *  angka): baca via getAll (tak lempar CCE), tulis ulang sesuai tipe yang
+     *  diharapkan pembaca. Dipanggil di awal onCreate agar getString/getBoolean
+     *  tak crash sebelum sempat sanitasi. */
     static void healkanStringPrefs(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -1297,12 +1339,27 @@ public final class TgBackup {
             }
             SharedPreferences.Editor ed = sp.edit();
             boolean ubah = false;
-            for (String k : new String[]{ServerService.KEY_PORT,
-                    ServerService.KEY_UPDATE_VERSION, ServerService.KEY_BIN_SHA}) {
-                Object v = semua.get(k);
-                if (v != null && !(v instanceof String)) {
-                    ed.putString(k, String.valueOf(v));
-                    ubah = true;
+            for (Map.Entry<String, ?> e : semua.entrySet()) {
+                String k = e.getKey();
+                Object v = e.getValue();
+                if (v == null) {
+                    continue;
+                }
+                if (KUNCI_STRING.contains(k)) {
+                    if (!(v instanceof String)) {
+                        ed.putString(k, String.valueOf(v));
+                        ubah = true;
+                    }
+                } else if (KUNCI_BOOLEAN.contains(k)) {
+                    if (!(v instanceof Boolean)) {
+                        Boolean b = koersiBoolean(v);
+                        if (b == null) {
+                            ed.remove(k);
+                        } else {
+                            ed.putBoolean(k, b);
+                        }
+                        ubah = true;
+                    }
                 }
             }
             if (ubah) {
@@ -1359,13 +1416,27 @@ public final class TgBackup {
                 continue;
             }
             Object v = prefs.get(k);
-            // Kunci string yang ditulis angka di JSON edit manual (mis. port:
-            // 8088) wajib dikoersi ke String: pembaca memakai getString dan
-            // putInt membuat ClassCastException tiap buka Settings/Start.
-            if (v instanceof Number && (ServerService.KEY_PORT.equals(k)
-                    || ServerService.KEY_UPDATE_VERSION.equals(k)
-                    || ServerService.KEY_BIN_SHA.equals(k))) {
-                ed.putString(k, String.valueOf(v));
+            // Tipe mengikuti pembaca, bukan tipe JSON: String yang ditulis angka
+            // dikoersi ke String, Boolean yang ditulis String/angka dikoersi ke
+            // Boolean. Tipe salah diabaikan agar tak jadi ClassCastException
+            // permanen tiap buka Settings/Start.
+            if (KUNCI_STRING.contains(k)) {
+                if (v instanceof String) {
+                    ed.putString(k, (String) v);
+                } else if (v instanceof Number) {
+                    ed.putString(k, String.valueOf(v));
+                }
+                continue;
+            }
+            if (KUNCI_BOOLEAN.contains(k)) {
+                if (v instanceof Boolean) {
+                    ed.putBoolean(k, (Boolean) v);
+                } else {
+                    Boolean b = koersiBoolean(v);
+                    if (b != null) {
+                        ed.putBoolean(k, b);
+                    }
+                }
                 continue;
             }
             if (v instanceof String) {
@@ -1411,9 +1482,10 @@ public final class TgBackup {
         ed.putLong("pin_kunci_sampai", keepKunci);
         ed.putBoolean("pin_on",
                 pinOnHasilRestore(cur.getBoolean("pin_on", false), keepPinHash));
-        long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
-                ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
-        ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));
+        // Offset bot selalu milik perangkat: zip jahat dengan offset raksasa
+        // bisa membrick bot (semua update dilewati). Impor diabaikan; pesan basi
+        // tetap ditolak via umur 5 menit sehingga replay tak lolos.
+        ed.putLong(TgBot.KEY_TG_OFFSET, keepOffset);
         if (!prefs.has("tg_notified_version") && !keepNotified.isEmpty()) {
             ed.putString("tg_notified_version", keepNotified);
         }
