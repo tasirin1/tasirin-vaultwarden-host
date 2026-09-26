@@ -1053,13 +1053,16 @@ public final class TgBackup {
 
     /** KDF backup: SHA256 untuk file baru, SHA1 hanya fallback baca file lama. */
     private static byte[] deriveKey(String pass, byte[] salt, boolean sha256) throws Exception {
-        PBEKeySpec spec = new PBEKeySpec(pass.toCharArray(), salt, 100000, 256);
+        // Salinan char dinolkan di finally agar password tak mengendap di heap.
+        char[] chars = pass == null ? new char[0] : pass.toCharArray();
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, 100000, 256);
         try {
             SecretKeyFactory f = SecretKeyFactory.getInstance(
                     sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
             return f.generateSecret(spec).getEncoded();
         } finally {
             spec.clearPassword();
+            java.util.Arrays.fill(chars, '\0');
         }
     }
 

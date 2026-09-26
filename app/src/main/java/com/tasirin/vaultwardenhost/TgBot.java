@@ -931,7 +931,8 @@ public final class TgBot {
 
     /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */
     private static String tailLog() {
-        String log = ServerService.tailLog(30);
+        // Samarkan dulu (baru potong): /log keluar perangkat via Telegram.
+        String log = LogActivity.samarkanLog(ServerService.tailLog(30));
         if (log.isEmpty()) {
             return "Log kosong.";
         }

@@ -672,7 +672,17 @@ public final class TlsCert {
         }
 
         void utcTime(Date d) throws IOException {
-            String s = String.format(Locale.US, "%1$ty%1$tm%1$td%1$tH%1$tM%1$tSZ", d);
+            // Wajib UTC: format lama memakai zona perangkat tapi berlabel Z.
+            java.util.Calendar c = java.util.Calendar.getInstance(
+                    java.util.TimeZone.getTimeZone("UTC"), Locale.US);
+            c.setTime(d);
+            String s = String.format(Locale.US, "%02d%02d%02d%02d%02d%02dZ",
+                    c.get(java.util.Calendar.YEAR) % 100,
+                    c.get(java.util.Calendar.MONTH) + 1,
+                    c.get(java.util.Calendar.DAY_OF_MONTH),
+                    c.get(java.util.Calendar.HOUR_OF_DAY),
+                    c.get(java.util.Calendar.MINUTE),
+                    c.get(java.util.Calendar.SECOND));
             byte[] data = s.getBytes(StandardCharsets.US_ASCII);
             out.write(0x17);
             len(data.length, out);

@@ -1152,7 +1152,10 @@ public class ServerService extends Service {
             synchronized (LOG_TS) {
                 stamp = LOG_TS.format(new Date());
             }
-            String body = "=== " + stamp + " [" + reason + "] ===\n" + tailLog(100) + "\n";
+            // Samarkan dulu: file ini dibaca dialog crash + dikirim /crashlog
+            // ke Telegram (keluar perangkat), seperti jalur share/clipboard.
+            String body = "=== " + stamp + " [" + reason + "] ===\n"
+                    + LogActivity.samarkanLog(tailLog(100)) + "\n";
             try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                     new FileOutputStream(new File(getFilesDir(), CRASH_LOG_NAME), false),
                     StandardCharsets.UTF_8)) {

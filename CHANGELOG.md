@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Masking log konsisten, UTCTime UTC, KDF bersih
+
+### Perbaikan
+- Masking token kini konsisten di semua jalur keluar: file crash ditulis
+  tersamarkan (menutup `/crashlog` + dialog crash) dan `/log` Telegram
+  disamarkan sebelum dipotong.
+- Sertifikat: `UTCTime` memakai zona UTC (sebelumnya zona perangkat
+  berlabel `Z`).
+- KDF backup: salinan char password dinolkan seusai derive (seperti PIN).
+
 ## [Belum rilis] — Kunci PIN anti-Back, gate log, impor angka aman
 
 ### Perbaikan
