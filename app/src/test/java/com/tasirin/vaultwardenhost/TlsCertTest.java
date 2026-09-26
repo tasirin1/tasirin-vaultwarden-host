@@ -127,4 +127,17 @@ public class TlsCertTest {
         Files.write(key.toPath(), "bukan-kunci".getBytes(StandardCharsets.US_ASCII));
         assertFalse(TlsCert.caOk(ca, key, dir));
     }
+
+    @Test
+    public void daysLeftBedakanBelumValidDanRusak() throws Exception {
+        File hilang = new File(System.getProperty("java.io.tmpdir"),
+                "tak-ada-" + System.nanoTime() + ".pem");
+        assertEquals(-1, TlsCert.daysLeft(hilang));
+        assertFalse(TlsCert.masaBelumTiba(hilang));
+        File sampah = File.createTempFile("sampah", ".pem");
+        Files.write(sampah.toPath(), "bukan-sertifikat".getBytes(StandardCharsets.US_ASCII));
+        assertEquals(-1, TlsCert.daysLeft(sampah));
+        assertFalse(TlsCert.masaBelumTiba(sampah));
+        sampah.delete();
+    }
 }

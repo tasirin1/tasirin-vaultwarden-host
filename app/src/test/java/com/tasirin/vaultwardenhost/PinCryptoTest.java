@@ -70,4 +70,23 @@ public class PinCryptoTest {
         assertFalse(PinCrypto.verify("PBKDF2$xxx", "1"));
         assertFalse(PinCrypto.verify("PBKDF2$0$zz$zz", "1"));
     }
+
+    @Test
+    public void kunciElapsedTahanResetJam() {
+        // Jam di-reset ke 1970 setelah 5 gagal: wall lolos tapi elapsed tetap kunci.
+        long elapsed = 500_000L;
+        long sampai = PinCrypto.kunciElapsedBerikutnyaMs(5, elapsed);
+        assertTrue(sampai == elapsed + PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, elapsed + 60_000L) > 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai) == 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai + 1) == 0);
+        assertTrue(PinCrypto.kunciElapsedBerikutnyaMs(4, elapsed) == 0);
+    }
+
+    @Test
+    public void kunciElapsedBasiSehabisRebootTakMengunci() {
+        // Reboot me-reset elapsed: selisih meledak di atas KUNCI_MS -> dianggap basi.
+        assertTrue(PinCrypto.sisaKunciElapsed(500_000L, 10_000L) == 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L) == 0);
+    }
 }

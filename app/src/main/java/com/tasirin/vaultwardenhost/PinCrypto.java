@@ -101,6 +101,27 @@ public final class PinCrypto {
         return sekarang + KUNCI_MS;
     }
 
+    /** Sisa kunci monotonik (ms) dari jam elapsed; 0 bila boleh coba. Murni.
+     *  Pendamping wall-clock untuk jam STB rusak (1970) dan reset jam oleh
+     *  penyerang: elapsed tak bisa dimundurkan tanpa reboot, dan reboot
+     *  ditutup wall-clock. Sisa di atas KUNCI_MS dianggap basi (reboot
+     *  me-reset elapsed sehingga selisih meledak) agar tak mengunci permanen. */
+    public static long sisaKunciElapsed(long terkunciElapsed, long sekarangElapsed) {
+        long sisa = terkunciElapsed - sekarangElapsed;
+        if (sisa <= 0 || sisa > KUNCI_MS) {
+            return 0;
+        }
+        return sisa;
+    }
+
+    /** Kunci elapsed baru sesudah satu kegagalan. Murni. */
+    public static long kunciElapsedBerikutnyaMs(int gagalSesudah, long sekarangElapsed) {
+        if (gagalSesudah < MAX_GAGAL) {
+            return 0;
+        }
+        return sekarangElapsed + KUNCI_MS;
+    }
+
     private static byte[] derive(String pin, byte[] salt, int iter) {
         PBEKeySpec spec = new PBEKeySpec(pin.toCharArray(), salt, iter, HASH_BITS);
         try {

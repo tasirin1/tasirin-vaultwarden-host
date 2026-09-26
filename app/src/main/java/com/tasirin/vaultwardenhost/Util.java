@@ -90,6 +90,15 @@ public final class Util {
         if (l.regionMatches(true, 0, "http://", 0, 7) || l.regionMatches(true, 0, "https://", 0, 8)) {
             return l;
         }
+        if (l.startsWith("//")) {
+            // Protokol-relatif: warisi skema dasar (tetap https), ganti host.
+            try {
+                java.net.URL u = new java.net.URL(dasar);
+                return u.getProtocol() + ":" + l;
+            } catch (Exception e) {
+                return dasar;
+            }
+        }
         if (l.startsWith("/")) {
             try {
                 java.net.URL u = new java.net.URL(dasar);

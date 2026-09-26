@@ -219,21 +219,16 @@ public final class Updater {
     }
 
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
-     *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan. */
-    private static final java.util.concurrent.ConcurrentHashMap<String, Object> KUNCI_UNDUH =
-            new java.util.concurrent.ConcurrentHashMap<String, Object>();
-
-    /** Ambil kunci untuk satu file tmp (kanonik bila bisa, absolut bila gagal). */
-    private static Object kunciUnduh(File tmp) {
-        String k;
+     *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan.
+     *  Kunci = string path ter-intern (bukan map yang tumbuh): path tmp tetap
+     *  (~3: binary/shim/web-vault) sehingga intern terbatas dan saling
+     *  mengecualikan per file tetap benar tanpa entri map yang bocor. */
+    private static String kunciUnduh(File tmp) {
         try {
-            k = tmp.getCanonicalPath();
+            return tmp.getCanonicalPath().intern();
         } catch (Exception e) {
-            k = tmp.getAbsolutePath();
+            return tmp.getAbsolutePath().intern();
         }
-        Object baru = new Object();
-        Object lama = KUNCI_UNDUH.putIfAbsent(k, baru);
-        return lama != null ? lama : baru;
     }
 
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,

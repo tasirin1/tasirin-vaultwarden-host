@@ -94,6 +94,11 @@ public class MainActivity extends Activity {
     static void catatPinDibuka() {
         unlocked = true;
         pauseStamp = SystemClock.elapsedRealtime();
+        // Sebarkan ke Settings (set miliknya saja, tanpa panggil balik).
+        try {
+            SettingsActivity.catatPinDibuka();
+        } catch (Exception ignored) {
+        }
     }
 
     @Override

@@ -200,6 +200,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirKanonisTolakSistemDanTerimaBiasa() throws Exception {
+        assertFalse(ServerService.dataDirKanonisAman(null));
+        assertFalse(ServerService.dataDirKanonisAman("/data"));
+        assertFalse(ServerService.dataDirKanonisAman("/system/fonts"));
+        java.io.File biasa = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "uji-kanon-" + System.nanoTime());
+        assertTrue(ServerService.dataDirKanonisAman(biasa.getAbsolutePath()));
+    }
+
+    @Test
     public void ringkasKodeTampilKodeAtauAlasan() {
         assertEquals("200", ServerService.ringkasKode(200, ""));
         assertEquals("500", ServerService.ringkasKode(500, "x"));

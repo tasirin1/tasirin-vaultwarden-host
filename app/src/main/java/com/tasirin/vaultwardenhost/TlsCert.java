@@ -56,14 +56,16 @@ public final class TlsCert {
     static final String CA_CN = "Vaultwarden Android CA";
     static final String LEAF_CN = "Vaultwarden Android";
 
-    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa/belum valid
-     *  (termasuk jam STB miring), -1 bila tidak bisa dibaca. */
+    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa, -2 bila belum
+     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca. */
     public static long daysLeft(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
                     .getInstance("X.509").generateCertificate(in);
             try {
                 cert.checkValidity();
+            } catch (java.security.cert.CertificateNotYetValidException belum) {
+                return -2;
             } catch (Exception tidakValid) {
                 return 0;
             }
@@ -72,6 +74,11 @@ public final class TlsCert {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    /** True bila sertifikat belum valid karena jam perangkat miring. Murni. */
+    static boolean masaBelumTiba(File certFile) {
+        return daysLeft(certFile) == -2;
     }
 
     /** Pastikan CA + cert server ada di {@code dir}; buat bila belum. Return null bila gagal. */

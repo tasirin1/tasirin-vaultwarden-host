@@ -6,6 +6,25 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: flag bot macet, lockout jam miring, grace PIN, symlink, redirect //
+
+### Perbaikan
+- Bot: antrean pool pakai `AbortPolicy` + `runBeratDenganKunci` melepas kunci
+  bila submit ditolak agar perintah berat berikut tak ditolak selamanya.
+- PIN: kunci elapsed pendamping wall-clock (`pin_kunci_elapsed`) — reset jam
+  tak lagi membuka lockout, jam STB rusak tetap mengunci 5 menit normal, dan
+  reboot tak mengunci permanen (sisa di atas durasi dianggap basi).
+- PIN: status buka disebar dua arah (Main <-> Settings) agar grace 60 detik
+  benar-benar tak meminta dua kali.
+- Folder data: validasi path kanonis menutup celah symlink ke area sistem.
+- Log: siram buffer sebelum ganti file log folder baru; export menyamarkan
+  token sekali saja di `LogExport`.
+- Redirect: `//host/path` kini warisi skema https + ganti host (test
+  `redirectProtokolRelatifTetapHttps` kini lolos).
+- TLS: `daysLeft` bedakan belum-valid (-2, jam miring) dari kedaluwarsa agar
+  log memberi petunjuk betulkan tanggal & jam.
+- Unduh: kunci per-file pakai string ter-intern tanpa map yang tumbuh.
+
 ## [Belum rilis] — Audit bug: PIN reboot, port, masker token, rebind, callback, kuota, TLS
 
 ### Perbaikan

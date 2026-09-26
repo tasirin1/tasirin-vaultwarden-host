@@ -53,14 +53,23 @@ public final class TgBot {
                 Thread t = new Thread(r, "vw-tgbot-bg");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardPolicy());
+            }, new java.util.concurrent.ThreadPoolExecutor.AbortPolicy());
 
     /** Kirim tugas bot tanpa lempar bila antrean penuh (fail-safe STB). */
     static void jalankanBg(Runnable r) {
+        cobaJalankanBg(r);
+    }
+
+    /** Tawarkan tugas ke pool; false bila antrean penuh (agar kunci tugas
+     *  berat bisa dilepas pemanggil, bukan macet selamanya). Murni alur. */
+    static boolean cobaJalankanBg(Runnable r) {
         try {
             BG.execute(r);
+            return true;
         } catch (java.util.concurrent.RejectedExecutionException ignored) {
+            return false;
         } catch (Exception ignored) {
+            return false;
         }
     }
 
@@ -768,21 +777,29 @@ public final class TgBot {
             TgBackup.sendMessage(ctx, "Tugas lain masih berjalan, coba lagi sebentar.");
             return;
         }
-        runWithWakeLock(ctx, () -> {
+        boolean masuk = runWithWakeLock(ctx, () -> {
             try {
                 task.run();
             } finally {
                 TUGAS_BERAT.set(false);
             }
         });
+        if (!masuk) {
+            // Antrean pool penuh: tugas tak pernah jalan sehingga finally di atas
+            // tak tercapai — lepas kunci di sini agar perintah berikut tak
+            // ditolak selamanya.
+            TUGAS_BERAT.set(false);
+            TgBackup.sendMessage(ctx, "Sistem sibuk, coba lagi sebentar.");
+        }
     }
 
     /** Jalankan tugas berat di pool + partial wake lock.
      *  Wake lock best-effort: gagal pasang (pm null / ditolak sistem) tidak
      *  boleh menggagalkan task — flag TUGAS_BERAT milik pemanggil selalu
-     *  direset lewat finally task itu sendiri. */
-    private static void runWithWakeLock(Context ctx, Runnable task) {
-        jalankanBg(() -> {
+     *  direset lewat finally task itu sendiri bila submit berhasil.
+     *  Return false bila antrean pool penuh (pemanggil wajib melepas kuncinya). */
+    private static boolean runWithWakeLock(Context ctx, Runnable task) {
+        return cobaJalankanBg(() -> {
             PowerManager.WakeLock wl = null;
             try {
                 try {

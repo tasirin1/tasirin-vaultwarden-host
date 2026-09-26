@@ -149,6 +149,13 @@ public class SettingsActivity extends Activity {
         return unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS;
     }
 
+    /** Catat buka PIN agar MainActivity tak meminta lagi dalam grace.
+     *  Hanya set milik sendiri (tanpa panggil balik) agar tak rekursi. */
+    static void catatPinDibuka() {
+        unlocked = true;
+        pauseStamp = SystemClock.elapsedRealtime();
+    }
+
     @Override
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32 (varian Flags butuh API 33+).
     @SuppressWarnings("deprecation")

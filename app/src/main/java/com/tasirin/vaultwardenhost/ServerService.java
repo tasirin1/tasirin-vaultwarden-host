@@ -564,6 +564,20 @@ public class ServerService extends Service {
         return dataDirAman(d) ? d.trim() : DEFAULT_DATA_DIR;
     }
 
+    /** True bila path kanonis folder data lolos aturan yang sama. Murni I/O.
+     *  Menutup celah symlink (/sdcard/vault -> /data/...) yang lolos cek string:
+     *  symlink di-resolve dulu via getCanonicalPath baru dinilai. */
+    static boolean dataDirKanonisAman(String d) {
+        if (d == null) {
+            return false;
+        }
+        try {
+            return dataDirAman(new File(d.trim()).getCanonicalPath());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
      *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat.
      *  Nilai rusak (huruf/kosong/di luar 1-65535) jatuh ke default agar health
@@ -643,7 +657,7 @@ public class ServerService extends Service {
     private void startServer() {
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
-        if (!dataDirAman(dataDir)) {
+        if (!dataDirAman(dataDir) || !dataDirKanonisAman(dataDir)) {
             appendLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
             dataDir = DEFAULT_DATA_DIR;
             sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
@@ -744,6 +758,9 @@ public class ServerService extends Service {
                     if (certDays >= 0 && certDays < 30) {
                         appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
                                 + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
+                    } else if (certDays == -2) {
+                        appendLog("[app] PERINGATAN: jam STB miring (sertifikat belum valid)."
+                                + " Betulkan tanggal & jam agar HTTPS stabil.");
                     }
                 }
             }
@@ -810,6 +827,8 @@ public class ServerService extends Service {
             lastStartTime = System.currentTimeMillis();
             restartAttempt = 0;
 
+            // Siram buffer milik folder lama dulu agar log tak tecampur ke file baru.
+            flushLogFile();
             logFile = new File(dataFolder, "vaultwarden.log");
 
             if (controlServer != null) {

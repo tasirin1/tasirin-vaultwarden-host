@@ -336,7 +336,9 @@ public class LogActivity extends Activity {
     private void exportLogTxt() {
         String log;
         synchronized (ServerService.logBuffer) {
-            log = samarkanLog(ServerService.logBuffer.toString());
+            // Mentah saja: penyamaran token sekali di LogExport agar regex
+            // berat tak jalan dua kali per export di STB 1 GB.
+            log = ServerService.logBuffer.toString();
         }
         String nama = LogExport.simpanKeDownload(this, log);
         toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
