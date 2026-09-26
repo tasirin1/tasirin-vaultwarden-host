@@ -31,7 +31,7 @@ public class BootReceiver extends BroadcastReceiver {
                     String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
                     String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
                             ServerService.DEFAULT_DATA_DIR);
-                    long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+                    long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
                     boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
                             && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
                     if (!token.isEmpty() && !chat.isEmpty() && dbAda

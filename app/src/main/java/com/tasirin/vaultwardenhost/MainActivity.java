@@ -266,17 +266,35 @@ public class MainActivity extends Activity {
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
-        if (ServerService.isPortBusy(portNum)) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Port " + portNum + " sedang dipakai")
-                    .setMessage("Port utama (" + portNum + ") sudah dipakai proses lain.\n"
-                            + "Stop aplikasi lain yang memakainya, ganti port di Settings, "
-                            + "atau restart HP dulu.")
-                    .setPositiveButton("Oke", null)
-                    .show();
-            return;
-        }
+        // Cek bind di worker thread: bind ServerSocket di UI thread rawan ANR/
+        // StrictMode, dan hasilnya tetap TOCTOU (service cek ulang sebelum start).
+        final int portFix = portNum;
+        setBusy(true);
+        new Thread(() -> {
+            final boolean busy = ServerService.isPortBusy(portFix);
+            ui.post(() -> {
+                setBusy(false);
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (busy) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Port " + portFix + " sedang dipakai")
+                            .setMessage("Port utama (" + portFix + ") sudah dipakai proses lain.\n"
+                                    + "Stop aplikasi lain yang memakainya, ganti port di Settings, "
+                                    + "atau restart HP dulu.")
+                            .setPositiveButton("Oke", null)
+                            .show();
+                    return;
+                }
+                lanjutStart(finalDataDir);
+            });
+        }, "vw-port-check").start();
+    }
 
+    /** Lanjutan Start setelah cek port selesai (berjalan di UI thread). */
+    private void lanjutStart(String dataDir) {
+        final String finalDataDir = dataDir;
         if (!webVaultReady(finalDataDir)) {
             // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
             new AlertDialog.Builder(this)

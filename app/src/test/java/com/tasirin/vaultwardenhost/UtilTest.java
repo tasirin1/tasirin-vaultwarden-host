@@ -88,6 +88,36 @@ public class UtilTest {
     }
 
     @Test
+    public void hostSamaDukungIpv6KurungSiku() {
+        assertTrue(Util.hostSama("http://[2001:db8::1]:8080/a", "[2001:db8::1]/b"));
+        assertTrue(Util.hostSama("http://[2001:db8::1]/a", "[2001:db8::1]:8080/b?x=1"));
+        assertTrue(Util.hostSama("http://[::1]/a", "[::1]/b"));
+        assertFalse(Util.hostSama("http://[2001:db8::1]/a", "[2001:db8::2]/b"));
+        assertFalse(Util.hostSama("http://[2001:db8::1]/a", "[2001:db8::1"));
+        assertTrue(Util.hostSama("https://a/b", "a:443/d"));
+        assertFalse(Util.hostSama("https://a/b", ":443/d"));
+    }
+
+    @Test
+    public void kupasHostPortPisahPortTanpaRusakIpv6() {
+        assertEquals("contoh.com", Util.kupasHostPort("contoh.com"));
+        assertEquals("contoh.com", Util.kupasHostPort("contoh.com:8080"));
+        assertEquals("2001:db8::1", Util.kupasHostPort("[2001:db8::1]"));
+        assertEquals("2001:db8::1", Util.kupasHostPort("[2001:db8::1]:8080"));
+        assertEquals("2001:db8::1", Util.kupasHostPort("2001:db8::1"));
+        assertEquals(null, Util.kupasHostPort("[2001:db8::1"));
+        assertEquals(null, Util.kupasHostPort(""));
+        assertEquals(null, Util.kupasHostPort(null));
+    }
+
+    @Test
+    public void normalisasiHostBuangKurungSiku() {
+        assertEquals("::1", Util.normalisasiHost("[::1]"));
+        assertEquals("a", Util.normalisasiHost("a"));
+        assertEquals("", Util.normalisasiHost(null));
+    }
+
+    @Test
     public void amanTrimTanpaNpe() {
         assertEquals("", Util.amanTrim(null));
         assertEquals("", Util.amanTrim("   "));

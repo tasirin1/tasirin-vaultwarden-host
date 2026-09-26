@@ -18,14 +18,17 @@ public final class PinGate {
     private PinGate() {
     }
 
-    /** Sisa kunci (ms); 0 bila boleh coba. Nilai terbesar wall-clock vs elapsed. */
+    /** Sisa kunci (ms); 0 bila boleh coba. Nilai terbesar wall-clock vs elapsed.
+     *  Baca via TgBackup.amanInt/amanLong agar prefs korup bertipe String tak
+     *  ClassCastException berulang (disembuhkan sekali, lalu default). */
     public static long sisaKunciMs(Context ctx, long sekarang) {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
-        long sisaWall = PinCrypto.sisaKunciMs(sp.getInt(KEY_GAGAL, 0),
-                sp.getLong(KEY_KUNCI_SAMPAI, 0), sekarang);
+        long sisaWall = PinCrypto.sisaKunciMs(TgBackup.amanInt(sp, KEY_GAGAL, 0),
+                TgBackup.amanLong(sp, KEY_KUNCI_SAMPAI, 0), sekarang);
         long sisaElapsed = PinCrypto.sisaKunciElapsed(
-                sp.getLong(KEY_KUNCI_ELAPSED, 0), SystemClock.elapsedRealtime());
+                TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0),
+                SystemClock.elapsedRealtime());
         return Math.max(sisaWall, sisaElapsed);
     }
 
@@ -42,7 +45,7 @@ public final class PinGate {
         }
         // commit() sinkron (bukan apply()): hitungan gagal wajib awet di disk
         // sebelum penyerang sempat membunuh app (metode sudah synchronized).
-        int gagal = sp.getInt(KEY_GAGAL, 0) + 1;
+        int gagal = TgBackup.amanInt(sp, KEY_GAGAL, 0) + 1;
         sp.edit().putInt(KEY_GAGAL, gagal)
                 .putLong(KEY_KUNCI_SAMPAI,
                         PinCrypto.kunciBerikutnyaMs(gagal, sekarang))

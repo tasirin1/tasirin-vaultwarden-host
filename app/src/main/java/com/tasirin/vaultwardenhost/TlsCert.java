@@ -56,9 +56,11 @@ public final class TlsCert {
     static final String CA_CN = "Vaultwarden Android CA";
     static final String LEAF_CN = "Vaultwarden Android";
 
-    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa, -2 bila belum
-     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca. */
-    public static long daysLeft(File certFile) {
+    /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
+     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
+     *  Dipakai keputusan regenerasi agar sisa hitungan jam tak disangka
+     *  kedaluwarsa (pembagian hari integer membuat sisa 5 jam jadi 0). */
+    public static long sisaMs(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
                     .getInstance("X.509").generateCertificate(in);
@@ -70,10 +72,21 @@ public final class TlsCert {
                 return 0;
             }
             long ms = cert.getNotAfter().getTime() - System.currentTimeMillis();
-            return ms > 0 ? ms / (24L * 3600 * 1000) : 0;
+            return Math.max(0, ms);
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa, -2 bila belum
+     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
+     *  Hanya untuk tampilan; keputusan regenerasi memakai sisaMs. */
+    public static long daysLeft(File certFile) {
+        long ms = sisaMs(certFile);
+        if (ms < 0) {
+            return ms;
+        }
+        return ms / (24L * 3600 * 1000);
     }
 
     /** True bila sertifikat belum valid karena jam perangkat miring. Murni. */
@@ -109,7 +122,7 @@ public final class TlsCert {
             }
             if (certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
-                    && daysLeft(certFile) > 0) {
+                    && sisaMs(certFile) > 0) {
                 return dir;
             }
             // Leaf hilang / rusak / kedaluwarsa / IP atau domain berubah: buat ulang, CA tetap.
@@ -129,7 +142,7 @@ public final class TlsCert {
     static boolean caOk(File caCert, File caKey, File dir) {
         return caCert.exists() && caKey.exists()
                 && caCert.length() > 100 && caKey.length() > 100
-                && certVersionOk(dir) && daysLeft(caCert) > 0;
+                && certVersionOk(dir) && sisaMs(caCert) > 0;
     }
 
     /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */

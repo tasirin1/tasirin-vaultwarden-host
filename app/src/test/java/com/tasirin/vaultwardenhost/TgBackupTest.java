@@ -119,6 +119,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void koersiLong_terimaStringAngka() {
+        assertEquals(Long.valueOf(123), TgBackup.koersiLong(123));
+        assertEquals(Long.valueOf(123), TgBackup.koersiLong(" 123 "));
+        assertEquals(Long.valueOf(5_000_000_000L), TgBackup.koersiLong(5_000_000_000L));
+        assertEquals(Long.valueOf(7), TgBackup.koersiLong(7.9));
+        assertEquals(null, TgBackup.koersiLong("abc"));
+        assertEquals(null, TgBackup.koersiLong(Boolean.TRUE));
+        assertEquals(null, TgBackup.koersiLong(null));
+    }
+
+    @Test
+    public void kunciIntLongTerdaftar() {
+        assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
+        assertTrue(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));
+        assertTrue(TgBackup.KUNCI_LONG.contains("pin_kunci_sampai"));
+        assertTrue(TgBackup.KUNCI_LONG.contains("pin_kunci_elapsed"));
+        assertTrue(TgBackup.KUNCI_LONG.contains(TgBackup.KEY_TG_LAST));
+        assertTrue(TgBackup.KUNCI_LONG.contains(TgBot.KEY_TG_OFFSET));
+        assertTrue(TgBackup.KUNCI_LONG.contains(TgBot.KEY_TG_WALL_MAKS));
+    }
+
+    @Test
     public void sudahGantiHari_bedaHariKalender() {
         java.util.Calendar c = java.util.Calendar.getInstance();
         c.set(2026, java.util.Calendar.SEPTEMBER, 21, 23, 59, 0);

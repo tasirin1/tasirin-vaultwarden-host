@@ -103,16 +103,63 @@ public final class Util {
                     break;
                 }
             }
-            String host = sisa.substring(0, ujung);
-            int port = host.indexOf(':');
-            if (port >= 0) {
-                host = host.substring(0, port);
-            }
-            return !host.isEmpty()
-                    && host.equalsIgnoreCase(hostAsal.replaceFirst(":\\d+$", ""));
+            String host = kupasHostPort(sisa.substring(0, ujung));
+            return host != null && !host.isEmpty()
+                    && host.equalsIgnoreCase(normalisasiHost(hostAsal));
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** Kupas "host", "host:port", "[v6]", "[v6]:port", atau literal IPv6 tanpa
+     *  kurung-siku menjadi nama host (tanpa port/kurung). Null bila tak jelas.
+     *  Potong-di-':'-pertama merusak IPv6 (isinya banyak ':') sehingga redirect
+     *  se-host "[2001:db8::1]" dulu ditolak walau sah. Murni. */
+    static String kupasHostPort(String hostPort) {
+        if (hostPort == null || hostPort.isEmpty()) {
+            return null;
+        }
+        if (hostPort.charAt(0) == '[') {
+            int tutup = hostPort.indexOf(']');
+            if (tutup < 0) {
+                return null;
+            }
+            String ekor = hostPort.substring(tutup + 1);
+            if (!ekor.isEmpty() && !ekor.matches(":[0-9]+")) {
+                return null;
+            }
+            String dalam = hostPort.substring(1, tutup);
+            return dalam.isEmpty() ? null : dalam;
+        }
+        int titikDua = 0;
+        for (int i = 0; i < hostPort.length(); i++) {
+            if (hostPort.charAt(i) == ':') {
+                titikDua++;
+            }
+        }
+        if (titikDua > 1) {
+            return hostPort;
+        }
+        if (titikDua == 1) {
+            String h = hostPort.substring(0, hostPort.indexOf(':'));
+            return h.isEmpty() ? null : h;
+        }
+        return hostPort;
+    }
+
+    /** Samakan bentuk host: buang kurung-siku IPv6 ("[::1]" -> "::1").
+     *  getHost() tak pernah membawa port sehingga replaceFirst hapus-port
+     *  yang lama mati (malah menggerogoti IPv6). Murni. */
+    static String normalisasiHost(String host) {
+        if (host == null) {
+            return "";
+        }
+        String h = host.trim();
+        if (h.length() >= 2 && h.charAt(0) == '['
+                && h.charAt(h.length() - 1) == ']') {
+            return h.substring(1, h.length() - 1);
+        }
+        return h;
     }
 
     /** Selesaikan URL redirect relatif terhadap URL dasar. Murni. */

@@ -160,7 +160,7 @@ public final class TgBot {
             return;
         }
         final int hash = token.hashCode() * 31 + MENU_REV;
-        if (sp.getInt(KEY_TG_MENU_HASH, 0) == hash) {
+        if (TgBackup.amanInt(sp, KEY_TG_MENU_HASH, 0) == hash) {
             return;
         }
         final String payload = menuPayload();
@@ -206,7 +206,7 @@ public final class TgBot {
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
-            long offset = sp.getLong(KEY_TG_OFFSET, 0);
+            long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
             String chatResmi = chat.trim();
             muatWallMaks(ctx);
             // POST (bukan GET): token bot tidak bocor ke log URL/proxy.
@@ -698,7 +698,7 @@ public final class TgBot {
                 Context.MODE_PRIVATE);
         String name = sp.getString(TgBackup.KEY_TG_LAST_NAME, "");
         String fileId = sp.getString(TgBackup.KEY_TG_LAST_FILE, "");
-        long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+        long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
         if ((name == null || name.isEmpty()) && (fileId == null || fileId.isEmpty())) {
             return "Belum ada backup terkirim dari app ini. Kirim /backup dulu.";
         }
@@ -874,7 +874,7 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            long s = sp.getLong(KEY_TG_WALL_MAKS, 0);
+            long s = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
             if (s > wallMaksTelegram) {
                 wallMaksTelegram = s;
             }
@@ -968,7 +968,7 @@ public final class TgBot {
                 ? "?" : ServerService.binaryVersion;
         File db = new File(dataDir, "db.sqlite3");
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
-        long lastBackup = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+        long lastBackup = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
         String backupInfo = lastBackup > 0
                 ? new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(lastBackup))
                 : "belum pernah";

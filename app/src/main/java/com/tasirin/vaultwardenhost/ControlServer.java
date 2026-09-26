@@ -30,6 +30,25 @@ public final class ControlServer {
 
     private static final int MAX_SSE_CLIENTS = 3;
     private static final AtomicInteger sseClients = new AtomicInteger();
+    /** Batas SSE per IP: satu HP LAN tak boleh menahan semua slot log (3 koneksi
+     *  dari satu IP = status legit 503 sampai SSE 10 menit mati). Murni via
+     *  ssePerIpBoleh agar bisa unit test. */
+    static final int MAX_SSE_PER_IP = 1;
+    private static final java.util.Map<String, Integer> ssePerIp =
+            new java.util.HashMap<>();
+    /** Umur SSE maks: EventSource reconnect otomatis (retry: 1000), jadi 3 menit
+     *  cukup dan slot cepat bebas untuk status legit. */
+    private static final long SSE_MAKS_MS = 3L * 60 * 1000;
+
+    /** True bila IP boleh buka SSE baru (hitung < batas). Murni. */
+    static boolean ssePerIpBoleh(java.util.Map<String, Integer> hitung,
+            String ip, int batas) {
+        if (hitung == null || ip == null || ip.isEmpty() || batas < 1) {
+            return false;
+        }
+        Integer n = hitung.get(ip);
+        return n == null || n < batas;
+    }
     private static final int LOG_TAIL_CHARS = 20_000;
     // Batas DoS LAN: koneksi konkuren + ukuran header HTTP.
     private static final int MAX_CONNS = 12;
@@ -388,6 +407,8 @@ public final class ControlServer {
             status = "Method Not Allowed";
         } else if (code == 404) {
             status = "Not Found";
+        } else if (code == 429) {
+            status = "Too Many Requests";
         } else if (code == 431) {
             status = "Request Header Fields Too Large";
         } else if (code == 503) {
@@ -559,7 +580,24 @@ public final class ControlServer {
             respond(s, 503, "text/plain; charset=utf-8", "Terlalu banyak client log");
             return;
         }
+        String ip = ipJarakJauh(s);
+        boolean catatIp = false;
+        synchronized (ssePerIp) {
+            if (!ssePerIpBoleh(ssePerIp, ip, MAX_SSE_PER_IP)) {
+                sseClients.decrementAndGet();
+                respond(s, 429, "text/plain; charset=utf-8",
+                        "Terlalu banyak log dari IP ini");
+                return;
+            }
+            ssePerIp.put(ip, Integer.valueOf(
+                    ssePerIp.containsKey(ip) ? ssePerIp.get(ip) + 1 : 1));
+            catatIp = true;
+        }
         try {
+            try {
+                s.setKeepAlive(true);
+            } catch (Exception ignored) {
+            }
             OutputStream out = new java.io.BufferedOutputStream(
                     s.getOutputStream(), 8192);
             out.write("HTTP/1.1 200 OK\r\n".getBytes(StandardCharsets.UTF_8));
@@ -573,9 +611,20 @@ public final class ControlServer {
             // Jam monotonik: wall-clock STB bisa mundur/maju (1970/NTP) dan
             // membuat SSE hidup berjam-jam atau mati prematur.
             long lastWrite = SystemClock.elapsedRealtime();
-            long batasAkhir = lastWrite + 10L * 60 * 1000;
+            long batasAkhir = lastWrite + SSE_MAKS_MS;
+            java.io.InputStream masuk = null;
+            try {
+                masuk = s.getInputStream();
+            } catch (Exception ignored) {
+            }
             while (!stop && !s.isClosed() && s.isConnected()
                     && SystemClock.elapsedRealtime() < batasAkhir) {
+                // Deteksi putus cepat: isClosed/isConnected tak tahu klien yang
+                // pergi diam-diam; baca sisi-masuk mengembalikan -1 segera bila
+                // klien menutup (tanpa menunggu heartbeat 15 dtk).
+                if (putusDiam(masuk)) {
+                    break;
+                }
                 String text = null;
                 int len;
                 synchronized (ServerService.logBuffer) {
@@ -605,7 +654,48 @@ public final class ControlServer {
             }
         } finally {
             sseClients.decrementAndGet();
+            if (catatIp) {
+                synchronized (ssePerIp) {
+                    Integer n = ssePerIp.get(ip);
+                    if (n == null || n <= 1) {
+                        ssePerIp.remove(ip);
+                    } else {
+                        ssePerIp.put(ip, Integer.valueOf(n - 1));
+                    }
+                }
+            }
         }
+    }
+
+    /** IP ujung jauh untuk batas per-IP (tak pernah null/kosong). */
+    private static String ipJarakJauh(Socket s) {
+        try {
+            java.net.SocketAddress a = s.getRemoteSocketAddress();
+            if (a != null) {
+                String t = a.toString();
+                if (t != null && !t.isEmpty()) {
+                    return t;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "tak-dikenal";
+    }
+
+    /** True bila klien sudah menutup koneksi (baca tak-blokir dapat -1).
+     *  available() tak memblokir; read() hanya dipanggil bila ada byte
+     *  menunggu sehingga loop 1 dtk tak tertahan. */
+    private static boolean putusDiam(java.io.InputStream masuk) {
+        if (masuk == null) {
+            return false;
+        }
+        try {
+            if (masuk.available() > 0 && masuk.read() == -1) {
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     private static final byte[] SSE_AWAL =

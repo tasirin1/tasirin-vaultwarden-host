@@ -473,7 +473,7 @@ public class ServerService extends Service {
             new Thread(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    long last = cek.getLong(TgBackup.KEY_TG_LAST, 0);
+                    long last = TgBackup.amanLong(cek, TgBackup.KEY_TG_LAST, 0);
                     if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
                         appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
                     } else {

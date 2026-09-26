@@ -37,6 +37,17 @@ public class ControlServerTest {
     }
 
     @Test
+    public void ssePerIpDibatasiSatu() {
+        java.util.Map<String, Integer> hitung = new java.util.HashMap<>();
+        assertTrue(ControlServer.ssePerIpBoleh(hitung, "10.0.0.2", 1));
+        hitung.put("10.0.0.2", 1);
+        assertFalse(ControlServer.ssePerIpBoleh(hitung, "10.0.0.2", 1));
+        assertTrue(ControlServer.ssePerIpBoleh(hitung, "10.0.0.3", 1));
+        assertFalse(ControlServer.ssePerIpBoleh(hitung, null, 1));
+        assertFalse(ControlServer.ssePerIpBoleh(null, "10.0.0.2", 1));
+    }
+
+    @Test
     public void tokenKosongTakCocok() {
         assertFalse(ControlServer.tokenCocok("", ""));
         assertFalse(ControlServer.tokenCocok("   ", "   "));

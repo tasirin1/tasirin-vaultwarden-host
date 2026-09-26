@@ -47,6 +47,18 @@ public class LogActivity extends Activity {
     private TextView logCount;
     private String logSearch = "";
     private boolean logAutoScroll = false;
+    /** Polling log tiap detik; dihentikan di onPause agar tak sedot CPU/baterai
+     *  saat layar log tak terlihat (Home), jalan lagi di onResume. */
+    private final Runnable logTick = new Runnable() {
+        @Override
+        public void run() {
+            if (isDestroyed() || isFinishing()) {
+                return;
+            }
+            refreshLog();
+            ui.postDelayed(this, 1000);
+        }
+    };
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private long lastLogVer = -1;
@@ -101,16 +113,7 @@ public class LogActivity extends Activity {
         });
 
         refreshLog();
-        ui.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isDestroyed() || isFinishing()) {
-                    return;
-                }
-                refreshLog();
-                ui.postDelayed(this, 1000);
-            }
-        }, 1000);
+        ui.postDelayed(logTick, 1000);
     }
 
     @Override
@@ -125,9 +128,19 @@ public class LogActivity extends Activity {
                     && !MainActivity.pinBaruSajaDibuka()
                     && !SettingsActivity.pinBaruSajaDibuka()) {
                 finish();
+                return;
             }
         } catch (Exception ignored) {
         }
+        refreshLog();
+        ui.removeCallbacks(logTick);
+        ui.postDelayed(logTick, 1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ui.removeCallbacks(logTick);
     }
 
     @Override

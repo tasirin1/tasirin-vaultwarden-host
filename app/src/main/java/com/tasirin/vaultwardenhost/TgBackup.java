@@ -182,7 +182,7 @@ public final class TgBackup {
             ui.catat("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
             return;
         }
-        long last = sp.getLong(KEY_TG_LAST, 0);
+        long last = amanLong(sp, KEY_TG_LAST, 0);
         if (last > 0 && !sudahGantiHari(last, System.currentTimeMillis())) {
             return;
         }
@@ -1296,6 +1296,15 @@ public final class TgBackup {
                     KEY_TG_AUTO, "advanced_open", "pin_on", "tg_backup_tertunda",
                     "tg_low_storage_notified", "home_log_expanded"));
 
+    /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
+    static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
+            java.util.Arrays.asList("pin_gagal", TgBot.KEY_TG_MENU_HASH));
+
+    /** Kunci Long yang wajib Long (pembaca memakai getLong). */
+    static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
+            java.util.Arrays.asList("pin_kunci_sampai", "pin_kunci_elapsed",
+                    KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS));
+
     /** Koersi nilai Boolean dari String/Number edit manual ("true"/1 -> true). Null bila tak jelas. Murni. */
     static Boolean koersiBoolean(Object v) {
         if (v instanceof Boolean) {
@@ -1320,10 +1329,77 @@ public final class TgBackup {
         return null;
     }
 
+    /** Koersi nilai Long dari String/Number edit manual ("123"/123 -> 123).
+     *  Null bila tak jelas (termasuk Boolean agar tak jadi 0/1). Murni. */
+    static Long koersiLong(Object v) {
+        if (v instanceof Long) {
+            return (Long) v;
+        }
+        if (v instanceof Number) {
+            return ((Number) v).longValue();
+        }
+        if (v instanceof String) {
+            try {
+                return Long.parseLong(((String) v).trim());
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Baca int tahan ClassCastException (prefs korup bertipe String): kembalikan
+     *  default dan hapus kunci rusak agar tak lempar berulang. */
+    static int amanInt(SharedPreferences sp, String kunci, int bawaan) {
+        try {
+            return sp.getInt(kunci, bawaan);
+        } catch (ClassCastException e) {
+            Long n = null;
+            try {
+                Object v = sp.getAll().get(kunci);
+                n = koersiLong(v);
+            } catch (Exception ignored) {
+            }
+            try {
+                if (n != null && n >= Integer.MIN_VALUE && n <= Integer.MAX_VALUE) {
+                    sp.edit().putInt(kunci, n.intValue()).apply();
+                    return n.intValue();
+                }
+                sp.edit().remove(kunci).apply();
+            } catch (Exception ignored) {
+            }
+            return bawaan;
+        }
+    }
+
+    /** Baca long tahan ClassCastException (prefs korup bertipe String): kembalikan
+     *  default dan sembuhkan/hapus kunci rusak agar tak lempar berulang. */
+    static long amanLong(SharedPreferences sp, String kunci, long bawaan) {
+        try {
+            return sp.getLong(kunci, bawaan);
+        } catch (ClassCastException e) {
+            Long n = null;
+            try {
+                n = koersiLong(sp.getAll().get(kunci));
+            } catch (Exception ignored) {
+            }
+            try {
+                if (n != null) {
+                    sp.edit().putLong(kunci, n).apply();
+                    return n;
+                }
+                sp.edit().remove(kunci).apply();
+            } catch (Exception ignored) {
+            }
+            return bawaan;
+        }
+    }
+
     /** Sembuhkan prefs bertipe salah (impor lama / config edit manual berisi
      *  angka): baca via getAll (tak lempar CCE), tulis ulang sesuai tipe yang
-     *  diharapkan pembaca. Dipanggil di awal onCreate agar getString/getBoolean
-     *  tak crash sebelum sempat sanitasi. */
+     *  diharapkan pembaca. Mencakup String/Boolean/int/long agar getInt/getLong
+     *  (PinGate, TgBot) tak ClassCastException berulang. Dipanggil di awal
+     *  onCreate agar getString/getBoolean tak crash sebelum sempat sanitasi. */
     static void healkanStringPrefs(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -1360,6 +1436,27 @@ public final class TgBackup {
                         }
                         ubah = true;
                     }
+                } else if (KUNCI_INT.contains(k)) {
+                    if (!(v instanceof Integer)) {
+                        Long n = koersiLong(v);
+                        if (n == null || n < Integer.MIN_VALUE
+                                || n > Integer.MAX_VALUE) {
+                            ed.remove(k);
+                        } else {
+                            ed.putInt(k, n.intValue());
+                        }
+                        ubah = true;
+                    }
+                } else if (KUNCI_LONG.contains(k)) {
+                    if (!(v instanceof Long)) {
+                        Long n = koersiLong(v);
+                        if (n == null) {
+                            ed.remove(k);
+                        } else {
+                            ed.putLong(k, n);
+                        }
+                        ubah = true;
+                    }
                 }
             }
             if (ubah) {
@@ -1380,9 +1477,9 @@ public final class TgBackup {
         String keepPass = cur.getString(KEY_TG_PASS, "");
         String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
         String keepPinHash = cur.getString("pin_hash", "");
-        int keepGagal = cur.getInt("pin_gagal", 0);
-        long keepKunci = cur.getLong("pin_kunci_sampai", 0);
-        long keepOffset = cur.getLong(TgBot.KEY_TG_OFFSET, 0);
+        int keepGagal = amanInt(cur, "pin_gagal", 0);
+        long keepKunci = amanLong(cur, "pin_kunci_sampai", 0);
+        long keepOffset = amanLong(cur, TgBot.KEY_TG_OFFSET, 0);
         String keepNotified = cur.getString("tg_notified_version", "");
         String keepWvFrom = cur.getString("wv_from_version", "");
         java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();

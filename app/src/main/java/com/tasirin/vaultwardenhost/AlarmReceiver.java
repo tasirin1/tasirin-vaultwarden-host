@@ -57,7 +57,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
-            long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
+            long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
             long kini = System.currentTimeMillis();
             // Abaikan utak-atik jam/zona manual yang memicu siaran beruntun:
             // backup <1 jam lalu tak perlu diulang hanya karena jam diutak-atik.

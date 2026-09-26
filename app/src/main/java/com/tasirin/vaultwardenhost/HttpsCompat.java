@@ -46,12 +46,25 @@ public final class HttpsCompat {
         }
     }
 
-    /** Cap file override anchor (0 bila tak ada): kunci invalidasi cache. */
-    private static long capOverride(Context ctx) {
+    /** Cap file override anchor (0 bila tak ada): kunci invalidasi cache.
+     *  Memakai mtime+ukuran+hash isi seperti ServerService.capCaAktif agar
+     *  refresh se-detik berukuran sama tak memakai factory basi. */
+    static long capOverride(Context ctx) {
         try {
             File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
             if (ov.isFile()) {
-                return ov.lastModified() * 1000000L + ov.length();
+                long cap = ov.lastModified() * 1000000L + ov.length();
+                try (InputStream in = new java.io.FileInputStream(ov)) {
+                    byte[] buf = new byte[4096];
+                    int n = in.read(buf);
+                    int hc = n > 0
+                            ? java.util.Arrays.hashCode(
+                                    java.util.Arrays.copyOf(buf, n))
+                            : 0;
+                    cap = cap * 31 + (hc & 0xffffffffL);
+                } catch (Exception ignored) {
+                }
+                return cap;
             }
         } catch (Exception ignored) {
         }

@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Heal int/long, Start tanpa ANR, log hemat baterai, SSE adil, TLS presisi, IPv6
+
+### Perbaikan
+- Heal prefs diperluas ke int/long (`pin_gagal`, `pin_kunci_*`,
+  `tg_last_backup`, `tg_bot_offset`, ...); baca int/long kini tahan
+  `ClassCastException` (disembuhkan sekali, lalu default) di PinGate, TgBot,
+  receiver, dan restore.
+- Cek port Start pindah ke worker thread (tak lagi bind di UI thread);
+  service tetap cek ulang sebelum start.
+- Polling log berhenti di `onPause` (tak sedot CPU/baterai saat Home),
+  jalan lagi di `onResume`.
+- SSE log: batas 1 koneksi per IP (429 bila lebih), umur maks 3 menit
+  (EventSource reconnect otomatis), deteksi putus cepat, keepalive aktif.
+- Regenerasi sertifikat memakai sisa milidetik: CA/leaf bersisa hitungan jam
+  tak lagi dianggap kedaluwarsa (tak perlu install ulang CA).
+- Cache trust HTTPS kini hash isi anchor (refresh se-detik ukuran sama tak
+  pakai factory basi).
+- Redirect se-host kini dukung IPv6 kurung-siku (`[2001:db8::1]`, `[::1]:port`).
+
 ## [Belum rilis] — Stop tunggu mati, PIN fail-closed, impor anti-crash, DOMAIN IPv6
 
 ### Perbaikan
