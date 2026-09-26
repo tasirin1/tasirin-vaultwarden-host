@@ -52,6 +52,8 @@ public class ServerService extends Service {
      *  kini ikut Environment dengan fallback lama agar tetap bisa start. */
     public static final String DEFAULT_DATA_DIR = defaultDataDir();
 
+    // getExternalStorageDirectory lawas sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
     private static String defaultDataDir() {
         try {
             java.io.File ext = android.os.Environment.getExternalStorageDirectory();

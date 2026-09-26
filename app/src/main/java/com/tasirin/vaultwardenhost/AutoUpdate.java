@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -139,6 +140,10 @@ public final class AutoUpdate {
     }
 
     // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
+    // POST_NOTIFICATIONS tak dicek runtime: targetSdk 28 exempt (izin runtime
+    // notifikasi hanya untuk targetSdk 33+); notify dibungkus try/catch untuk
+    // forward-compat bila targetSdk naik.
+    @SuppressLint("MissingPermission")
     @SuppressWarnings("deprecation")
     public static void tampilkanNotifikasi(Context ctx, String version) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -172,7 +177,10 @@ public final class AutoUpdate {
         NotificationManager nm = (NotificationManager)
                 ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
-            nm.notify(2, n);
+            try {
+                nm.notify(2, n);
+            } catch (SecurityException ignored) {
+            }
         }
     }
 }

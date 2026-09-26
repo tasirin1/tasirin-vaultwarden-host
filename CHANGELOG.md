@@ -6,6 +6,14 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Bersih: 3 warning anotasi CI
+
+### Perbaikan
+- Suppress deprecation `defaultDataDir()` (satu jalur API 21-32).
+- Hapus flag deprecated `android.nonTransitiveRClass` (default AGP 8+).
+- Notifikasi update: SuppressLint MissingPermission (targetSdk 28 exempt) +
+  try/catch SecurityException untuk forward-compat.
+
 ## [Belum rilis] — Audit bug: provider kunci, alarm, offset, unduh, TLS, port
 
 ### Perbaikan
