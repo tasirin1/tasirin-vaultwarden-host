@@ -5,362 +5,44 @@
 
 <p align="center"><b>&#127760; Bahasa: <a href="README.md">Indonesia</a> &middot; <a href="README.en.md">English</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
 
-> **Untuk AI/agent yang mengelola repo ini: baca [AGENTS.md](AGENTS.md) dulu** —
-> berisi struktur, arsitektur, aturan pengembangan, dan alur build/release.
-> Agent wajib membacanya sebelum mengubah atau mengelola kode.
+Server **Vaultwarden** (kompatibel Bitwarden) di Android — buat STB/TV box dan HP lama. **Android 5.0+**, ARM 32-bit (`armeabi-v7a`). APK ~0,1 MB; binary & web vault diunduh otomatis dan dicek SHA-256.
 
-Menjalankan server **Vaultwarden** (Bitwarden-compatible, Rust) langsung di
-Android, dibangun otomatis lewat **GitHub Actions**. Mendukung **Android 5.0
-(API 21) ke atas** — termasuk STB/TV box 32-bit (ARM `armeabi-v7a`).
+## Cara pakai
 
-Repo ini **bukan cuma README**: dokumen ini panduan pemakaian & gambaran
-teknis; panduan pengelolaan lengkap ada di
-[AGENTS.md](AGENTS.md) dan riwayat perubahan di [CHANGELOG.md](CHANGELOG.md).
+1. Unduh APK di [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install.
+2. Buka app → **&#8942; → Settings**: isi **Folder data** dan **Port**.
+3. Tekan **Start** (unduhan pertama otomatis, ada progress).
+4. Buka `http://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
 
-## Daftar isi
+Semua pengaturan ada di **Settings**; layar utama cuma status, Start/Stop, dan log.
 
-- [Fitur](#fitur)
-- [Cara kerja](#cara-kerja)
-- [Download & instal](#download--instal)
-- [Pemakaian](#pemakaian)
-- [Instal tanpa internet (offline)](#instal-tanpa-internet-offline)
-- [Status web & log realtime](#status-web--log-realtime)
-- [Remote via Telegram](#remote-via-telegram)
-- [Data, backup & restart](#data-backup--restart)
-- [HTTPS (self-signed)](#https-self-signed)
-- [Update otomatis](#update-otomatis)
-- [Troubleshooting](#troubleshooting)
-- [Struktur repository](#struktur-repository)
-- [Arsitektur ringkas](#arsitektur-ringkas)
-- [Panduan pengelolaan repo (untuk manusia & AI)](#panduan-pengelolaan-repo-untuk-manusia--ai)
-- [Lisensi](#lisensi)
+## Tanpa internet
+
+Unduh dari HP lain, taruh di folder data, tekan **Start**:
+
+- `vaultwarden-armeabi-v7a` → folder data
+- `libgetrandom-shim-armeabi-v7a.so` → folder yang sama (buat STB lama)
+- `web-vault.zip` → ekstrak ke `web-vault/` (harus ada `index.html`)
 
 ## Fitur
 
-- Server Vaultwarden asli (binary Rust resmi, bukan tiruan), versi mengikuti
-  rilis resmi `dani-garcia/vaultwarden`.
-- APK super kecil (~0,1 MB): binary & web vault **tidak dibundel**, diunduh
-  dari GitHub Release saat Start pertama (diverifikasi SHA-256).
-- Auto-update binary & web vault di jaringan rumah (WiFi/ethernet), plus
-  restart otomatis setelah update — semua bisa diatur lewat checkbox.
-- Status web ringan (JSON + log realtime via SSE) di port terpisah — kini
-  menampilkan juga **versi web vault + ukurannya, ukuran DB, riwayat restart**.
-- Remote & backup via **Telegram bot** (command + backup AES-256-GCM), termasuk
-  `/crashlog` untuk mengirim crash log terakhir.
-- **Crash log** tersimpan otomatis, bisa dibuka lewat tombol **Crash** di
-  layar Log (dialog + salin) atau dikirim ke Telegram dengan `/crashlog`.
-- **Progress unduh realtime** di chip status: persen + ukuran saat mengunduh
-  binary/web-vault (update atau Start pertama).
-- **Rincian storage** di layar utama: ukuran DB, backup lokal (jumlah + total),
-  web-vault, dan binary.
-- HTTPS self-signed, PIN kunci app, auto-start saat boot, restart otomatis
-  saat crash (dengan **anti-loop**: berhenti total bila restart beruntun 3×
-  dalam 5 menit), deteksi port bentrok, export/import config.
-- UI ramah remote TV (navigasi D-pad) maupun layar sentuh HP.
+Auto-update binary & web vault, status web di port+1, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
 
-## Cara kerja
+**Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/crashlog` `/help`. Kalau PIN aktif: `/stop 123456`.
 
-1. **GitHub Actions** mengambil versi Vaultwarden terbaru dari rilis resmi,
-   melakukan *cross-compile* untuk **`armeabi-v7a`** (ARM 32-bit, target
-   Android API 21) — satu-satunya ABI yang didukung.
-2. **APK + binary + web-vault.zip** di-publish ke **GitHub Release** repo ini.
-   Binary server & web vault **tidak dibundel di dalam APK**; app mengunduhnya
-   dari release saat Start pertama. DNS resolver kustom Vaultwarden
-   (`hickory`/`ndk-context`) dinonaktifkan di Android karena butuh konteks JNI
-   yang tidak tersedia di proses *standalone* (lihat [Panduan pengelolaan](#panduan-pengelolaan-repo-untuk-manusia--ai)).
-3. Saat tombol **Start** ditekan, app menjalankan binary dengan `DATA_FOLDER`
-   sesuai pilihan (default `/sdcard/vaultwarden`) — database SQLite & data
-   lain tersimpan di sana, tidak hilang saat update app/restart device.
+**Backup:** database di `<folder-data>/db.sqlite3`. Backup lokal di Settings → Pemeliharaan; backup Telegram via `/backup`; restore via `/restore` atau file `.zip`/`.sqlite3`.
 
-> `targetSdk 28` dipilih dengan sengaja: Android 10+ memblokir eksekusi binary
-> dari app data untuk app dengan `targetSdk >= 29` (perilaku W^X). `targetSdk 28`
-> juga mempertahankan akses storage lama (`/sdcard/...`) di Android 11+.
+**HTTPS:** centang HTTPS → Start → install `ca.pem` (tombol Bagikan CA / `/ca`). Untuk app Bitwarden, pakai HTTP di jaringan lokal.
 
-## Download & instal
+## Kalau error
 
-- **GitHub Release** → `tasirin-vaultwarden-host-armeabi-v7a.apk`
-  (ARM 32-bit — jalan di STB & HP lama; HP arm64 tetap bisa via compat mode).
-- **Tab Actions** → run terbaru → artifact `tasirin-vaultwarden-host-apk-armeabi-v7a`.
-- APK rilis ditandatangani **keystore Tasirin** (sama dengan Tasirin Download
-  Manager) — tinggal install (aktifkan *install from unknown sources*).
-- Versi APK = tanggal build (`2026.08.08`); versi release = versi Vaultwarden
-  (`v1.37.x`).
+- **Port dipakai?** Ganti Port di Settings.
+- **`failed to generate random data` / HTTPS error?** Kernel STB lama — tekan **Cek Update**, Start lagi.
+- **Web UI tak bisa dibuka?** Harus satu WiFi, pakai IP lokal.
+- **Gagal unduh?** Cek internet & jam STB, Start lagi (otomatis dilanjutkan).
 
-## Pemakaian
+## Pengembang & lisensi
 
-Layar awal kini sederhana: hanya **status server**, tombol **Start/Stop**,
-**log realtime**, dan tombol **Simpan .txt**. Semua pengaturan pindah ke
-**titik tiga (⋮) → Settings** di kanan atas.
+Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (push ke `main`); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
 
-1. Install APK, buka app, beri izin **Storage** bila diminta (di Android 11+ pilih **Izinkan akses untuk mengelola semua file** agar `/sdcard/vaultwarden` bisa ditulis).
-2. Buka **⋮ → Settings**, isi **Folder data** (mis. `/sdcard/vaultwarden`)
-   dan **Port** (default `8088`). Akses selalu memakai IP LAN.
-3. Kembali ke layar awal, tekan **Start**. Pertama kali binary diunduh
-   otomatis (SHA-256, tersimpan di internal, tidak diunduh ulang). Bila web
-   vault belum ada, pilih **Unduh & Start** di dialog. Status menampilkan
-   server berjalan + URL.
-4. Buka `http://127.0.0.1:8088` lewat tombol **Buka Web UI** di Settings
-   (browser HP), atau dari PC/laptop pakai `http://<IP-lokal-android>:8088`.
-   Dari HP lain: salin URL dari Settings (tombol **Salin URL**) lalu buka
-   di browser.
-5. Klien: install app **Bitwarden** resmi → Settings → Server URL →
-   `http://<IP-lokal-android>:8088`.
-
-## Instal tanpa internet (offline)
-
-APK tidak membundel binary & web vault supaya ukurannya kecil, jadi Start
-pertama biasanya butuh internet. Bila perangkat tidak punya akses internet
-(khususnya STB/TV), siapkan dua file ini **sekali** lewat perangkat lain:
-
-1. Unduh dari halaman **Release** repo ini:
-   - `vaultwarden-armeabi-v7a` (binary server, ~20 MB)
-   - `libgetrandom-shim-armeabi-v7a.so` (wajib untuk STB Android 5/6 kernel lama)
-   - `web-vault.zip` (halaman web vault, ~36 MB)
-2. Letakkan dengan nama persis: binary di
-   `/sdcard/vaultwarden/vaultwarden-armeabi-v7a` dan (untuk STB kernel lama)
-   shim di `/sdcard/vaultwarden/libgetrandom-shim-armeabi-v7a.so`.
-3. Ekstrak `web-vault.zip` sehingga muncul file
-   `/sdcard/vaultwarden/web-vault/index.html` (isi zip diekstrak langsung ke
-   folder `web-vault`).
-4. Buka app, isi **Folder data** = `/sdcard/vaultwarden`, tekan **Start** —
-   app memakai binary & web vault yang sudah ada **tanpa internet**.
-
-Catatan: binary di `/sdcard` tidak bisa dieksekusi langsung (storage FAT),
-karena itu app menyalinnya ke internal dulu saat Start — otomatis, tanpa unduh.
-File lain (`web-vault`, database, config) dipakai langsung dari folder data.
-
-## Status web & log realtime
-
-- Saat server berjalan, app juga menjalankan **status web** di **port server + 1**
-  (default `8088` → `8089`): `http://<IP-lokal-android>:8089`. Bila port itu
-  dipakai, app otomatis mencari port bebas berikutnya (sampai +10).
-- Halaman menampilkan status server (jalan/berhenti, versi app/binary, versi
-  web vault + ukurannya, ukuran DB, jumlah backup, port, HTTPS, uptime, RAM
-  proses, sisa storage, riwayat restart, folder data) plus **log realtime**
-  (SSE) dengan pencarian & auto-scroll.
-- Endpoint JSON: `GET /api/status` (termasuk `dbHuman`, `wvHuman`,
-  `binaryHuman`, `backupCount`, `restartHistory`), log teks: `GET /api/log`,
-  stream: `GET /api/events`.
-- Bila **Admin Token** diisi, endpoint `/api/*` butuh `?token=<admin-token>`
-  (token disematkan otomatis bila dibuka dari jaringan lokal) — orang lain di jaringan
-  yang sama tidak bisa mengintip log tanpa token.
-- Halaman itu bisa dibuka dari browser; tombol **Buka** di panel
-  Log membuka **Log Realtime layar penuh** (cari + highlight `GAGAL/ERROR`,
-  hitungan baris, salin, bagikan, **Simpan .txt** ke `Download`, dan tombol
-  **Crash** untuk melihat crash log terakhir).
-
-## Remote via Telegram
-
-Hubungkan **Bot token** + **Chat ID** di pengaturan, lalu kirim perintah ke bot:
-
-| Perintah      | Fungsi                                              |
-|---------------|-----------------------------------------------------|
-| `/status`     | Status lengkap: versi, web vault, DB, backup terakhir, RAM, uptime, sisa, riwayat restart |
-| `/log`        | Potongan log terakhir (3500 karakter)               |
-| `/uptime`     | Lama server berjalan                                |
-| `/alive`      | Cek sehat via HTTP `/alive`                         |
-| `/backup`     | Backup database sekarang (terenkripsi)              |
-| `/restore`    | Restore backup terakhir (`/restore YA` konfirmasi)   |
-| `/ca`         | Kirim CA HTTPS aktif (`ca.pem`) ke chat ini — teruskan ke HP lain lalu install sebagai CA |
-| `/crashlog`   | Kirim crash log terakhir (bila ada)                 |
-| `/update`     | Update binary + restart otomatis                    |
-| `/webvault`   | Update web vault + restart otomatis bila server jalan |
-| `/start` `/stop` `/restart` | Kontrol server                        |
-| `/help`       | Daftar perintah                                     |
-
-Bila **PIN app aktif**, perintah `/stop`, `/update`, dan `/restore` wajib
-diakhiri PIN (contoh: `/stop 123456`) agar sesi Telegram curian tidak bisa
-merusak server.
-
-Menu perintah (tombol `/`) didaftarkan otomatis via `setMyCommands` setiap
-token bot disimpan — tidak perlu setting manual di @BotFather. Bila menu
-belum muncul, ganti token lalu simpan ulang, atau kirim `/help` manual.
-
-Perintah dibaca tiap ~20 detik (long-poll 15 detik). Kirim `/help` untuk
-mendapat **tombol inline** — ketuk tombol (Status, Backup, Restart, ...)
-tanpa mengetik. Perintah berbahaya via tombol tetap butuh PIN di akhir bila
-PIN aktif (ketik manual, mis. `/stop 123456`).
-
-## Data, backup & restart
-
-- Database: `DATA_FOLDER/db.sqlite3` (default `/sdcard/vaultwarden/`). Karena di
-  storage eksternal, data tidak hilang saat update app/restart device.
-- **Backup Lokal** (tombol di Pemeliharaan): zip `db.sqlite3` + WAL/SHM
-  ber-timestamp ke `<data>/backups/` (maks 10, tertua otomatis dihapus).
-  **Backup ke Telegram**: zip sama, disimpan juga di `<data>/backups/`, opsional
-  terenkripsi **AES-256-GCM** (password wajib sama saat restore), bisa otomatis
-  setiap tanggal berganti (tengah malam 00:01, jalan walau app tidak dibuka)
-  atau saat Start bila hari sudah berganti, dan menyertakan config + sertifikat. Setiap
-  backup **diverifikasi otomatis** sebelum diunggah (wajib ada `db.sqlite3`
-  ber-header SQLite valid; backup terenkripsi diuji buka dengan passwordnya
-  dulu) — backup korup dibatalkan, tidak dikirim. Baris
-  storage di layar utama menampilkan ukuran DB, backup (jumlah + total),
-  web-vault, dan binary.
-- **Restore**: dari backup Telegram (tombol di app atau perintah `/restore` +
-  konfirmasi `/restore YA`), file `.zip` lokal, atau `.sqlite3` mentah
-  (backup lama); server dihentikan otomatis saat restore. Identitas bot
-  (token/chat/password) dipertahankan agar bot tetap terhubung.
-- **Keamanan**: update binary/web-vault dibatalkan bila checksum SHA-256 tidak
-  ditemukan/cocok; binary manual butuh SHA-256 yang diisi di pengaturan;
-  export config terenkripsi bila password backup diisi; PIN memakai
-  PBKDF2+salt; sertifikat TLS kini end-entity (bukan CA).
-- **Auto start saat boot** (foreground service + wake lock). **Restart otomatis
-  saat crash**: jeda bertingkat 2→5→10→20→40 dtk (maks 5×; reset bila stabil >1
-  menit). **Anti-loop**: 3× restart dalam 5 menit → auto-restart dimatikan,
-  status & Telegram diberi tahu. **Riwayat restart** (jumlah + waktu terakhir)
-  tampil di layar utama dan `/status`. **Crash log** (~100 baris terakhir)
-  tersimpan di `crash-last.log` (internal) saat server crash/health gagal —
-  bisa dibuka lewat tombol **Crash** di layar Log (dialog + salin) atau
-  dikirim ke Telegram dengan `/crashlog`. Health check `/alive` adaptif (fallback `/api/config` + cek TCP agar server sehat tak dibunuh saat DB lambat).
-- Catatan: jika app di-**force-stop**, Android memblokir broadcast boot sampai
-  app dibuka sekali lagi (swipe dari recents tidak memengaruhi service).
-
-## HTTPS (self-signed)
-
-- Centang **HTTPS (self-signed)** lalu Start. App membuat CA lokal
-  (`tls/ca.pem`, 10 tahun) + sertifikat server (`tls/cert.pem` + `key.pem`,
-  RSA 2048, 5 tahun, dibuat ulang otomatis saat IP berubah). Layar menampilkan
-  sisa hari berlaku.
-- Browser menampilkan peringatan self-signed; hilangkan dengan install
-  `ca.pem` (bukan `cert.pem`) sebagai CA di HP lain: tekan **Install Cert**
-  di Settings → Security → Install CA certificate (tanpa private key).
-  CA aktif ada di internal app (folder data lama hanya arsip). CA stabil
-  walau IP berubah, jadi cukup install sekali — kecuali setelah update
-  yang regenerasi CA (mis. versi cert naik): bila **dulu bisa lalu gagal**,
-  hapus CA lama di HP lalu install ulang CA baru.
-- **Transfer ke HP lain**: di HP server tekan **Bagikan CA (ke HP lain)**
-  lalu kirim via Bluetooth/WhatsApp/Telegram, atau kirim perintah Telegram
-  **`/ca`** ke bot (file terkirim ke chat, teruskan ke HP lain); di HP tujuan
-  simpan file-nya lalu install sebagai CA certificate. Tombol **Install Cert**
-  hanya memasang di HP server itu sendiri.
-- App **Bitwarden** resmi umumnya menolak self-signed — untuk klien non-web
-  vault sebaiknya pakai HTTP di jaringan lokal yang tepercaya.
-
-## Update otomatis
-
-- **Cek versi diambil dari sumber resmi** (`dani-garcia/vaultwarden`), bukan
-  repo ini. Notifikasi "Update tersedia" muncul otomatis saat app dibuka.
-- Di layar utama muncul peringatan `⚠ Update vX tersedia — tekan Cek Update`
-  (hilang otomatis setelah terpasang atau saat server berjalan).
-- Checkbox di **Settings → Pemeliharaan**:
-  - *Auto-update binary* — pasang binary terbaru otomatis (jaringan rumah).
-  - *Auto-update web vault* — ikutkan web vault mengikuti binary.
-  - *Restart otomatis setelah update* — restart server sekali bila update
-    terpasang saat server jalan.
-- Tombol **Cek Update** memasang binary terbaru (dipakai saat Start berikutnya,
-  tanpa install ulang APK). **Update Web Vault** mengunduh `web-vault.zip` dari
-  release (isinya dari image web vault resmi) ke `<data>/web-vault`. Selama
-  mengunduh, chip status menampilkan **progress realtime** (persen + ukuran).
-- Semua unduhan **diverifikasi SHA-256** terhadap file `.sha256` di release;
-  bila tidak cocok, update dibatalkan (aman diulang).
-- **Reset Binary** menghapus binary tersimpan — versi terbaru diunduh ulang
-  otomatis saat Start berikutnya.
-
-## Troubleshooting
-
-**"Port 8088 sedang dipakai" saat Start**
-- Ada aplikasi lain yang memakai port tersebut. Ganti **Port** di app, stop
-  aplikasi lain, atau restart HP. Status web otomatis memakai port bebas
-  (8089 → 8098) bila port defaultnya bentrok.
-
-**Server start terus gagal / looping**
-- Bisa ada proses `vaultwarden` lama yang nyangkut. Restart HP, lalu Start lagi
-  (app juga membersihkan proses lama se-UID otomatis saat Start).
-
-**Server langsung crash: `failed to generate random data` (exit 101)**
-- Binary Vaultwarden terbaru butuh `getrandom()` kernel baru; di kernel STB
-  Android 5/6 (mis. ZTE B860H, kernel 3.14.x) selalu panic (`errno=22`) saat
-  start. Ini bukan salah TLS/web-vault (baris `WARNING: linker ... DT_FLAGS_1`
-  tidak fatal — otomatis disaring dari log realtime & deteksi versi). App mendeteksi kernel lama otomatis
-  (log `kernel 3.x | ... | channel legacy`) dan memakai shim getrandom
-  (`libgetrandom-shim-armeabi-v7a.so`, diunduh otomatis + terverifikasi
-  SHA-256 saat Start/Cek Update) via `LD_PRELOAD` — binary terbaru tetap jalan
-  tanpa setting tambahan. Bila shim belum terunduh (rilis baru ~6 jam), tekan
-  **Cek Update** lalu Start lagi; atau jalankan di perangkat Android 7+.
-
-**HTTPS crash: `bad TLS ticketer: failed to get random bytes` (exit 1)**
-- Varian khusus HTTPS di kernel STB lama: HTTP jalan normal, tapi saat HTTPS
-  aktif Rocket gagal membuat ticketer TLS (jalur acak `ring`/`rustls` memakai
-  `syscall(SYS_getrandom)` mentah yang juga `EINVAL` di kernel 3.14).
-  Shim terbaru mencegat kedua jalur (`getrandom` + `syscall`) — tekan
-  **Cek Update** agar shim baru terunduh, lalu Start lagi. Sementara itu bisa
-  pakai HTTP dulu. App mengenali pesan ini sebagai masalah kernel lama
-  (auto-restart dimatikan + saran di log), bukan salah sertifikat.
-
-**Web UI tidak bisa dibuka dari perangkat lain**
-- Pastikan status **Running**, perangkat lain di jaringan yang sama, dan URL
-  memakai IP lokal (`http://<IP>:8088`). Bila memakai HTTPS, install sertifikat
-  dulu (lihat seksi HTTPS).
-
-**Peringatan sertifikat di browser**
-- Normal untuk self-signed. Install `ca.pem` sebagai CA agar peringatan hilang.
-
-**Ikon website (favicon) tidak muncul / `/icons/...` 500 di log**
-- Pastikan binary terbaru: **Cek Update** lalu Start (perbaikan verifier TLS
-  ikut binary, tanpa install ulang APK). Ikon diunduh STB dari internet, jadi
-  STB wajib online; hasil gagal di-cache sementara, tunggu lalu refresh.
-
-**Auto start saat boot tidak jalan**
-- Jika app pernah di-**force-stop**, Android memblokir broadcast boot sampai
-  app dibuka sekali lagi. Buka app setelah reboot.
-
-**Backup Telegram gagal**
-- Cek **Bot token** & **Chat ID** (lihat seksi Remote via Telegram), sisa
-  storage, dan koneksi. Backup terenkripsi wajib memakai password yang sama
-  saat restore.
-
-**Update web-vault gagal (checksum/unduhan)**
-- Koneksi Android lama kadang putus-putus; app mencoba ulang 3x otomatis.
-  Unduhan diverifikasi SHA-256 dan dibatalkan bila tidak cocok — aman diulang.
-  Bila unduhan belum selesai (3x timeout), app melaporkan galat koneksi +
-  saran dan file parsial dipertahankan agar Start berikutnya melanjutkan
-  (bukan pesan checksum).
-
-**Gagal unduh binary/web-vault (`failed to connect to github.com`, timeout)**
-- Artinya STB tidak tembus ke GitHub (TCP connect timeout, mis. ke
-  `20.205.243.166:443`), bukan salah TLS. App mencoba ulang 3x lalu menampilkan
-  saran di log. Cek berurutan: WiFi ada internet (buka `github.com` di browser
-  STB), cek tanggal & jam STB sudah benar, coba hotspot HP / ganti DNS, lalu
-  tekan **Start** lagi (unduhan parsial dilanjutkan otomatis via Range, bahkan
-  antar-Start; file `.tmp` tidak lagi dihapus saat Start).
-- Bila STB memang offline/blokir, pakai cara manual di seksi
-  [Instal tanpa internet](#instal-tanpa-internet-offline): taruh binary
-  `vaultwarden-armeabi-v7a` di folder data, ekstrak `web-vault.zip` ke
-  `web-vault/`, lalu Start tanpa internet.
-- Khusus `github.com/192.168.x.x ... ECONNREFUSED` (github.com mengarah ke IP
-  lokal/router, bukan IP GitHub asli): DNS dibajak / WiFi pakai portal login /
-  proxy ISP. Buka `github.com` di browser STB (login dulu bila diminta), coba
-  hotspot HP / ganti DNS, lalu Start lagi.
-
-**Unduhan gagal HTTP 416 / `ZipException: invalid stored block lengths`**
-- HTTP 416 = server menolak resume (file berubah / parsial lebih besar); app
-  kini membuang parsial dan mengulang dari nol otomatis (sebelumnya gagal terus
-  dengan Range yang sama). Zip korup saat ekstrak dilaporkan jujur sebagai
-  "file zip korup ... aman diulang" dan versi web-vault lama dipertahankan.
-
----
-
-# Panduan pengelolaan repo
-
-Panduan pengelolaan lengkap (struktur, arsitektur, aturan pengembangan, alur
-CI, secrets, troubleshooting, dan pemetaan fitur → file) sudah dipindah ke
-**[AGENTS.md](AGENTS.md)** — baca itu dulu sebelum mengubah apa pun.
-
-Ringkasan aturan paling penting:
-
-1. **Build HANYA via GitHub Actions** — jangan build lokal.
-2. **Jangan menaikkan `targetSdk` ≥ 29** (Android 10+ memblokir eksekusi
-   binary dari app home; `targetSdk 28` dipilih dengan sengaja).
-3. **Jangan menambah ABI lain** — repo ini `armeabi-v7a` saja (STB 32-bit).
-4. **Jangan membundel binary/web-vault ke APK** — keduanya diunduh dari
-   release agar APK tetap ~0,1 MB.
-5. **Jaga kompatibilitas Android 5 (API 21)** — semua tugas jaringan di
-   thread, UI ramah D-pad.
-6. **Versi app mengikuti tanggal build** (`yyyy.MM.dd` / `yyyyMMdd`) — jangan
-   diubah manual di `app/build.gradle.kts`.
-
-## Lisensi
-
-- Wrapper app: GPL-3.0 (lihat `LICENSE`).
-- Vaultwarden: AGPL-3.0 (lihat `LICENSE.vaultwarden`; sumber:
-  https://github.com/dani-garcia/vaultwarden).
+App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

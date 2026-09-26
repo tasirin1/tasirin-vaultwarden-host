@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — README ditulis ulang total (lebih ringkas)
+
+### Dokumentasi
+- `README.md` / `README.en.md` dipangkas (~370 → ~50 baris): cara pakai, offline, fitur, Telegram, backup/HTTPS,
+  error umum, dan info pengembang — tanpa duplikasi isi `AGENTS.md`.
+
 ## [Belum rilis] — Audit penuh: swap web-vault, restart yatim, jam monotonik, TIME_WAIT, dialog PIN
 
 ### Perbaikan
