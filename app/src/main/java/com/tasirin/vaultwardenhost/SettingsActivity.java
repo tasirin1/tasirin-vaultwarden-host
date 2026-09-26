@@ -1078,7 +1078,14 @@ public class SettingsActivity extends Activity {
                 // semua restore .zip gagal walau berisi db.sqlite3.
                 PushbackInputStream in = new PushbackInputStream(raw, 2);
                 byte[] magic = new byte[2];
-                int n = in.read(magic);
+                int n = 0;
+                while (n < 2) {
+                    int r = in.read(magic, n, 2 - n);
+                    if (r < 0) {
+                        break;
+                    }
+                    n += r;
+                }
                 boolean isZip = n == 2 && magic[0] == 'P' && magic[1] == 'K';
                 if (isZip) {
                     in.unread(magic, 0, n);
@@ -1093,6 +1100,15 @@ public class SettingsActivity extends Activity {
                     ZipInputStream zis = new ZipInputStream(in);
                     ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
+                        // Hitung semua entri sejak awal agar zip berisi ribuan
+                        // entri sampah tetap kena batas anti zip-bomb.
+                        jumlahEntri++;
+                        try {
+                            Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_RESTORE, jumlahEntri,
+                                    Util.BATAS_JUMLAH_ENTRI);
+                        } catch (java.io.IOException e) {
+                            throw e;
+                        }
                         String name = TgBackup.normalisasiEntriZip(entry.getName());
                         if (name == null) {
                             zis.closeEntry();
@@ -1119,7 +1135,6 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
-                        jumlahEntri++;
                         if (entry.isDirectory()) {
                             out.mkdirs();
                         } else {

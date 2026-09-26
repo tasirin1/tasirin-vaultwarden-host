@@ -254,22 +254,38 @@ public class LogActivity extends Activity {
                 .show();
     }
 
+    private static final java.util.regex.Pattern POLA_TOKEN_URL =
+            java.util.regex.Pattern.compile("(?i)(token=)[^&\s]+");
+    private static final java.util.regex.Pattern POLA_TOKEN_JSON =
+            java.util.regex.Pattern.compile("(?i)(\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\"\s*:\s*\")[^\"]*\"");
+    private static final java.util.regex.Pattern POLA_CHAT_ID =
+            java.util.regex.Pattern.compile("(?i)(chat_id=)[^&\s]+");
+    private static final java.util.regex.Pattern POLA_BOT_TOKEN =
+            java.util.regex.Pattern.compile("bot\d+:[A-Za-z0-9_-]{10,}");
+    private static final java.util.regex.Pattern POLA_BOT_URL =
+            java.util.regex.Pattern.compile("(?i)(api\.telegram\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}");
+    private static final java.util.regex.Pattern POLA_ADMIN_ENV =
+            java.util.regex.Pattern.compile("(?i)(ADMIN_TOKEN\s*=\s*)[^\s]+");
+    private static final java.util.regex.Pattern POLA_BEARER =
+            java.util.regex.Pattern.compile("(?i)(Authorization\s*:\s*Bearer\s+)\S+");
+
     static String samarkanLog(String log) {
         if (log == null) {
             return "";
         }
         // Samarkan token, chat_id, dan token bot agar tak bocor via bagi/clipboard.
+        // Pola dikompilasi sekali (polling log tiap detik di STB 1 GB).
         String r = log;
-        r = r.replaceAll("(?i)(token=)[^&\\s]+", "$1***");
+        r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
-        r = r.replaceAll("(?i)(\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\"\\s*:\\s*\")[^\"]*\"", "$1***\"");
-        r = r.replaceAll("(?i)(chat_id=)[^&\\s]+", "$1***");
-        r = r.replaceAll("bot\\d+:[A-Za-z0-9_-]{10,}", "bot***:***");
+        r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
+        r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
+        r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
         // di pesan galat) + secret admin via env/query/Bearer.
-        r = r.replaceAll("(?i)(api\\.telegram\\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}", "$1***:***");
-        r = r.replaceAll("(?i)(ADMIN_TOKEN\\s*=\\s*)[^\\s]+", "$1***");
-        r = r.replaceAll("(?i)(Authorization\\s*:\\s*Bearer\\s+)\\S+", "$1***");
+        r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
+        r = POLA_ADMIN_ENV.matcher(r).replaceAll("$1***");
+        r = POLA_BEARER.matcher(r).replaceAll("$1***");
         return r;
     }
 

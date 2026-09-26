@@ -6,6 +6,23 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: datadir, restore, TLS IPv6, log, status
+
+### Perbaikan
+- Folder data: tolak traversal `..`, slash ganda, dan area sistem
+  (`/system`, `/vendor`, `/proc`, `/sys`, `/dev`, `/data` kecuali
+  `/data/data`) agar salah ketik tak menulis ke lokasi berbahaya.
+- Start: pulihkan sisa swap web-vault terpotong crash (`.bak` yatim
+  dikembalikan bila folder aktif hilang, dibuang bila aktif sehat).
+- Restore lokal: baca 2 byte magic dengan loop (anti salah kira ZIP),
+  hitung semua entri zip sejak awal agar batas anti zip-bomb tak lolos.
+- TLS: SAN sertifikat dukung IPv6 (termasuk `::` dan `[::1]`) agar HTTPS
+  LAN IPv6 lolos verifikasi hostname.
+- Log: pola samaran dikompilasi sekali (hemat CPU polling tiap detik).
+- HTTPS: kegagalan trust tambahan dicatat ke logcat (tidak lagi bungkam).
+- Status web: path tak dikenal balas 404 (halaman status tetap di `/`).
+- Test: dataDir traversal/sistem + parsing IPv6.
+
 ## [Belum rilis] — Bersih: 3 warning lint CI (jelas)
 
 ### Perbaikan

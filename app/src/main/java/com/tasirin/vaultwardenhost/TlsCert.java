@@ -138,7 +138,7 @@ public final class TlsCert {
         if (host == null || host.isEmpty() || host.length() > 253) {
             return false;
         }
-        if (ipv4(host) != null) {
+        if (ipv4(host) != null || ipv6(host) != null) {
             return false;
         }
         String[] label = host.split("\\.", -1);
@@ -323,6 +323,9 @@ public final class TlsCert {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
+                if (octets == null) {
+                    octets = ipv6(ip);
+                }
                 if (octets != null) {
                     b.raw(new byte[]{(byte) 0x87, (byte) octets.length});
                     b.raw(octets);
@@ -401,6 +404,88 @@ public final class TlsCert {
             }
             return out;
         } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /** Urai literal IPv6 (termasuk kompresi ::) jadi 16 byte; null bila bukan IPv6. Murni. */
+    static byte[] ipv6(String ip) {
+        if (ip == null) {
+            return null;
+        }
+        String t = ip.trim();
+        if (t.isEmpty() || !t.contains(":")) {
+            return null;
+        }
+        // Kupas zona (%wlan0) dan kurung ([::1]) bila ada.
+        int persen = t.indexOf('%');
+        if (persen >= 0) {
+            t = t.substring(0, persen);
+        }
+        if (t.startsWith("[") && t.endsWith("]") && t.length() > 2) {
+            t = t.substring(1, t.length() - 1);
+        }
+        if (t.isEmpty() || t.contains(" ") || t.contains("/")) {
+            return null;
+        }
+        try {
+            int pecah = t.indexOf("::");
+            String[] kiri;
+            String[] kanan;
+            if (pecah >= 0) {
+                if (t.indexOf("::", pecah + 2) >= 0) {
+                    return null;
+                }
+                kiri = t.substring(0, pecah).isEmpty()
+                        ? new String[0] : t.substring(0, pecah).split(":", -1);
+                kanan = t.substring(pecah + 2).isEmpty()
+                        ? new String[0] : t.substring(pecah + 2).split(":", -1);
+                if (kiri.length + kanan.length > 7) {
+                    return null;
+                }
+            } else {
+                String[] semua = t.split(":", -1);
+                if (semua.length != 8) {
+                    return null;
+                }
+                kiri = semua;
+                kanan = new String[0];
+            }
+            int[] grup = new int[8];
+            int pos = 0;
+            for (String g : kiri) {
+                if (g.isEmpty()) {
+                    return null;
+                }
+                grup[pos++] = Integer.parseInt(g, 16);
+            }
+            int ekor = kanan.length;
+            int awalKanan = 8 - ekor;
+            if (pecah < 0 && pos != 8) {
+                return null;
+            }
+            if (pecah >= 0 && pos > awalKanan) {
+                return null;
+            }
+            int q = awalKanan;
+            for (String g : kanan) {
+                if (g.isEmpty()) {
+                    return null;
+                }
+                grup[q++] = Integer.parseInt(g, 16);
+            }
+            for (int v : grup) {
+                if (v < 0 || v > 0xFFFF) {
+                    return null;
+                }
+            }
+            byte[] out = new byte[16];
+            for (int i = 0; i < 8; i++) {
+                out[i * 2] = (byte) (grup[i] >> 8);
+                out[i * 2 + 1] = (byte) grup[i];
+            }
+            return out;
+        } catch (Exception e) {
             return null;
         }
     }

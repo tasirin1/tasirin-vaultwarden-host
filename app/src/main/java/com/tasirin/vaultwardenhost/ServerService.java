@@ -517,7 +517,7 @@ public class ServerService extends Service {
         startForeground(NOTIF_ID, n);
     }
 
-    /** True bila folder data aman dipakai: absolut, tanpa kutip/baris baru (sintaks ROCKET_TLS). Murni. */
+    /** True bila folder data aman dipakai: absolut, kanonis sederhana, di luar area sistem. Murni. */
     public static boolean dataDirAman(String d) {
         if (d == null) {
             return false;
@@ -529,7 +529,27 @@ public class ServerService extends Service {
         if (t.contains("\"") || t.contains("\n") || t.contains("\r") || t.contains("\0")) {
             return false;
         }
-        if (t.equals("/") || t.equals("/system") || t.equals("/data")) {
+        // Tolak traversal dan pemisah ganda agar /sdcard/../data tak lolos.
+        if (t.contains("..") || t.contains("//") || t.contains("\\")) {
+            return false;
+        }
+        // Kupas slash akhir agar /data/ tak lolos dari cek persis.
+        String n = t;
+        while (n.length() > 1 && n.endsWith("/")) {
+            n = n.substring(0, n.length() - 1);
+        }
+        if (n.equals("/") || n.equals("/system") || n.equals("/data") || n.equals("/vendor")
+                || n.equals("/proc") || n.equals("/sys") || n.equals("/dev")) {
+            return false;
+        }
+        // Tolak seluruh isi area sistem; kecuali /data/data (privat milik app).
+        if (n.equals("/system") || n.startsWith("/system/") || n.equals("/vendor")
+                || n.startsWith("/vendor/") || n.equals("/proc") || n.startsWith("/proc/")
+                || n.equals("/sys") || n.startsWith("/sys/") || n.equals("/dev")
+                || n.startsWith("/dev/")) {
+            return false;
+        }
+        if ((n.equals("/data") || n.startsWith("/data/")) && !n.startsWith("/data/data/")) {
             return false;
         }
         return true;
@@ -1385,6 +1405,25 @@ public class ServerService extends Service {
         // Updater menghapusnya sendiri bila korup/checksum tak cocok.
         // Hanya folder ekstrak yatim yang dibersihkan di sini.
         deleteRecursive(new File(dataDir, "web-vault.new"));
+        // Pulihkan sisa swap web-vault yang terpotong crash: bila folder aktif
+        // hilang/rusak tapi .bak ada, kembalikan; bila aktif sehat, buang .bak.
+        try {
+            java.io.File target = new java.io.File(dataDir, "web-vault");
+            java.io.File bak = new java.io.File(dataDir, "web-vault.bak");
+            if (bak.exists()) {
+                boolean aktifSehat = target.exists()
+                        && new java.io.File(target, "index.html").exists();
+                if (!aktifSehat) {
+                    deleteRecursive(target);
+                    if (!bak.renameTo(target)) {
+                        deleteRecursive(bak);
+                    }
+                } else {
+                    deleteRecursive(bak);
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private static void deleteRecursive(File file) {

@@ -157,6 +157,24 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakTraversalDanSistem() {
+        assertFalse(ServerService.dataDirAman("/sdcard/../data"));
+        assertFalse(ServerService.dataDirAman("/sdcard/vaultwarden/../../etc"));
+        assertFalse(ServerService.dataDirAman("/data/"));
+        assertFalse(ServerService.dataDirAman("/system/"));
+        assertFalse(ServerService.dataDirAman("/system/fonts"));
+        assertFalse(ServerService.dataDirAman("/vendor"));
+        assertFalse(ServerService.dataDirAman("/proc/self"));
+        assertFalse(ServerService.dataDirAman("/sys/kernel"));
+        assertFalse(ServerService.dataDirAman("/dev/null"));
+        assertFalse(ServerService.dataDirAman("/data/local/tmp"));
+        assertFalse(ServerService.dataDirAman("/sdcard//vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/data/data/com.tasirin.vaultwardenhost/files"));
+    }
+
+    @Test
     public void dataDirAmanTolakKutipDanRoot() {
         assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));

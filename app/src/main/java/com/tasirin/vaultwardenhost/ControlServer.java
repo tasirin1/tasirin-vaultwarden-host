@@ -242,8 +242,11 @@ public final class ControlServer {
                     serahkan = true;
                     sseDiThread(s);
                     break;
-                default:
+                case "/":
                     respond(s, 200, "text/html; charset=utf-8", PAGE);
+                    break;
+                default:
+                    respond(s, 404, "text/plain; charset=utf-8", "Tidak ditemukan");
             }
         } catch (Exception ignored) {
         } finally {
@@ -359,6 +362,8 @@ public final class ControlServer {
             status = "Forbidden";
         } else if (code == 405) {
             status = "Method Not Allowed";
+        } else if (code == 404) {
+            status = "Not Found";
         } else if (code == 431) {
             status = "Request Header Fields Too Large";
         } else if (code == 503) {

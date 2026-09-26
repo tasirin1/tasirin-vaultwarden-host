@@ -44,6 +44,30 @@ public class TlsCertTest {
     }
 
     @Test
+    public void ipv6ValidDiuraiBenar() {
+        assertEquals(16, TlsCert.ipv6("::1").length);
+        assertEquals(16, TlsCert.ipv6("fe80::1").length);
+        assertEquals(16, TlsCert.ipv6("2001:db8:0:0:0:0:2:1").length);
+        assertEquals(16, TlsCert.ipv6("[fe80::1]").length);
+    }
+
+    @Test
+    public void ipv6TakValidHasilNull() {
+        assertNull(TlsCert.ipv6(null));
+        assertNull(TlsCert.ipv6(""));
+        assertNull(TlsCert.ipv6("192.168.1.1"));
+        assertNull(TlsCert.ipv6("bukan-ip"));
+        assertNull(TlsCert.ipv6("1::2::3"));
+        assertNull(TlsCert.ipv6("gggg::1"));
+    }
+
+    @Test
+    public void namaDnsTolakIpv6() {
+        assertFalse(TlsCert.namaDnsValid("::1"));
+        assertFalse(TlsCert.namaDnsValid("fe80::1"));
+    }
+
+    @Test
     public void versiLamaDitolakVersiBaruDiterima() throws Exception {
         File dir = Files.createTempDirectory("tlscert").toFile();
         assertFalse(TlsCert.certVersionOk(dir));

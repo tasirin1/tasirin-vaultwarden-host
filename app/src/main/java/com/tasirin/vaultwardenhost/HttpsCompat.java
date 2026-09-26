@@ -32,7 +32,13 @@ public final class HttpsCompat {
         if (c instanceof HttpsURLConnection) {
             try {
                 ((HttpsURLConnection) c).setSSLSocketFactory(socketFactory(ctx));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                // Jangan bungkam: tanpa root tambahan Android 5/6 gagal SSL
+                // dengan pesan generik. Catat agar log jelas aset mana rusak.
+                try {
+                    android.util.Log.w("HttpsCompat", "Gagal pasang trust tambahan: " + e);
+                } catch (Exception ignored) {
+                }
             }
         }
     }
