@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -22,6 +23,8 @@ public final class PinGate {
     }
 
     /** Catat hasil satu percobaan (true = cocok, gagal di-reset). */
+    // commit() di bawah disengaja (sinkron, lihat komentar) — bukan apply().
+    @SuppressLint("ApplySharedPref")
     public static synchronized void catatHasil(Context ctx, boolean cocok, long sekarang) {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);

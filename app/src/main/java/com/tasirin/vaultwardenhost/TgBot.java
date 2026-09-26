@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -176,6 +177,8 @@ public final class TgBot {
     }
 
     /** Cek perintah baru dari bot & balas; silent bila bot/chat belum diisi. */
+    // commit() offset di bawah disengaja (sinkron anti-replay, lihat komentar) — bukan apply().
+    @SuppressLint("ApplySharedPref")
     public static void pollOnce(Context ctx) {
         // Long-poll vs alarm bisa tumpang tindih: satu saja jalan.
         if (!POLLING.compareAndSet(false, true)) {

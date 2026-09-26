@@ -6,6 +6,13 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Bersih: 3 warning lint CI (jelas)
+
+### Perbaikan
+- Suppress ApplySharedPref di PinGate + TgBot (commit() sinkron disengaja:
+  anti brute-force & anti replay perintah bot).
+- Disable check ScopedStorage (All-files access disengaja; rilis via GitHub).
+
 ## [Belum rilis] — Bersih: 3 warning anotasi CI
 
 ### Perbaikan

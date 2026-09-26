@@ -70,6 +70,7 @@ android {
             "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)
             "ExpiredTargetSdkVersion", // targetSdk 28 sengaja (W^X); bukan untuk Play Store
             "SdCardPath",     // /sdcard/vaultwarden memang folder data publik bawaan
+            "ScopedStorage",  // All-files access disengaja (Android 11+); rilis via GitHub, bukan Play Store
             "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna
             "UnusedAttribute", // usesCleartextTraffic untuk Android 6+ (API 23)
             "TrustAllX509TrustManager",   // trust-all sengaja: HTTPS self-signed untuk Android 5/6
