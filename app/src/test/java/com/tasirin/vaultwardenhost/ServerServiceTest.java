@@ -189,6 +189,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void normalisasiPortRusakJatuhKeDefault() {
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(null));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(""));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("abc"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("0"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999"));
+        assertEquals("8088", ServerService.normalisasiPort("8088"));
+        assertEquals("8088", ServerService.normalisasiPort(" 8088 "));
+    }
+
+    @Test
     public void ringkasKodeTampilKodeAtauAlasan() {
         assertEquals("200", ServerService.ringkasKode(200, ""));
         assertEquals("500", ServerService.ringkasKode(500, "x"));

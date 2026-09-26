@@ -255,19 +255,23 @@ public class LogActivity extends Activity {
     }
 
     private static final java.util.regex.Pattern POLA_TOKEN_URL =
-            java.util.regex.Pattern.compile("(?i)(token=)[^&\s]+");
+            java.util.regex.Pattern.compile("(?i)(token=)[^&\\s]+");
     private static final java.util.regex.Pattern POLA_TOKEN_JSON =
-            java.util.regex.Pattern.compile("(?i)(\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\"\s*:\s*\")[^\"]*\"");
+            java.util.regex.Pattern.compile("(?i)(\\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\\"\\s*:\\s*\\")[^\\"]*\\"");
     private static final java.util.regex.Pattern POLA_CHAT_ID =
-            java.util.regex.Pattern.compile("(?i)(chat_id=)[^&\s]+");
+            java.util.regex.Pattern.compile("(?i)(chat_id=)[^&\\s]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
-            java.util.regex.Pattern.compile("bot\d+:[A-Za-z0-9_-]{10,}");
+            java.util.regex.Pattern.compile("bot\\d+:[A-Za-z0-9_-]{10,}");
+    /** Token bot mentah tanpa awalan "bot" (mis. "123456:AAEc..." di pesan galat).
+     *  Minimal 6 digit + 30 karakter agar jam "12:30" tak ikut tersamarkan. */
+    private static final java.util.regex.Pattern POLA_TOKEN_MENTAH =
+            java.util.regex.Pattern.compile("(?<!\\w)\\d{6,12}:[A-Za-z0-9_-]{30,}");
     private static final java.util.regex.Pattern POLA_BOT_URL =
-            java.util.regex.Pattern.compile("(?i)(api\.telegram\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}");
+            java.util.regex.Pattern.compile("(?i)(api\\.telegram\\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}");
     private static final java.util.regex.Pattern POLA_ADMIN_ENV =
-            java.util.regex.Pattern.compile("(?i)(ADMIN_TOKEN\s*=\s*)[^\s]+");
+            java.util.regex.Pattern.compile("(?i)(ADMIN_TOKEN\\s*=\\s*)[^\\s]+");
     private static final java.util.regex.Pattern POLA_BEARER =
-            java.util.regex.Pattern.compile("(?i)(Authorization\s*:\s*Bearer\s+)\S+");
+            java.util.regex.Pattern.compile("(?i)(Authorization\\s*:\\s*Bearer\\s+)\\S+");
 
     static String samarkanLog(String log) {
         if (log == null) {
@@ -281,6 +285,7 @@ public class LogActivity extends Activity {
         r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
         r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
         r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
+        r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
         // di pesan galat) + secret admin via env/query/Bearer.
         r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");

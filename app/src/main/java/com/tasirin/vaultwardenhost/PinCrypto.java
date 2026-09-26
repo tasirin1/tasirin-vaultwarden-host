@@ -77,10 +77,14 @@ public final class PinCrypto {
     static final long AMBANG_WALL_MS = 100_000_000_000L;
 
     /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni.
-     *  Nilai wall-clock basi (era currentTimeMillis sebelum migrasi ke
-     *  elapsedRealtime) dianggap kedaluwarsa agar tak mengunci permanen. */
+     *  Batas waktu wajib wall-clock (currentTimeMillis) agar reboot tak mereset
+     *  lockout brute-force. Nilai lama era elapsedRealtime (kecil, di bawah
+     *  ambang) dianggap kedaluwarsa agar tak mengunci permanen. */
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
         if (gagal < MAX_GAGAL || sekarang >= terkunciSampai) {
+            return 0;
+        }
+        if (terkunciSampai <= AMBANG_WALL_MS) {
             return 0;
         }
         if (terkunciSampai > AMBANG_WALL_MS && sekarang <= AMBANG_WALL_MS) {

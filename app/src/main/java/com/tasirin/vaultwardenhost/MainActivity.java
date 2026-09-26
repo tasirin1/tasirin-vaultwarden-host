@@ -669,8 +669,9 @@ public class MainActivity extends Activity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    // Wall-clock agar reboot tak mereset lockout brute-force.
                     long sisa = PinGate.sisaKunciMs(MainActivity.this,
-                            SystemClock.elapsedRealtime());
+                            System.currentTimeMillis());
                     if (sisa > 0) {
                         input.setError("Terkunci, coba lagi "
                                 + ((sisa + 59000) / 60000) + " menit.");
@@ -682,7 +683,7 @@ public class MainActivity extends Activity {
                     new Thread(() -> {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
                         PinGate.catatHasil(MainActivity.this, cocok,
-                                SystemClock.elapsedRealtime());
+                                System.currentTimeMillis());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
                             sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();

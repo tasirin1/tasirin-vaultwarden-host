@@ -484,6 +484,10 @@ public class ServerService extends Service {
         autoRestart = true;
         healthActive = true;
         startForegroundCompat();
+        // Rebind segera bila admin token diubah saat jalan: jangan tunggu
+        // health tick (30 dtk-2 mnt) agar status web tak terbuka tanpa auth
+        // di 0.0.0.0 atau nyangkut di loopback.
+        rebindControlJikaPerlu();
         if (process == null || !alive(process)) {
             startServerAsync();
         }
@@ -561,10 +565,26 @@ public class ServerService extends Service {
     }
 
     /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
-     *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat. */
+     *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat.
+     *  Nilai rusak (huruf/kosong/di luar 1-65535) jatuh ke default agar health
+     *  check tak membangun URL invalid lalu restart beruntun. */
     public static String effectivePort(SharedPreferences sp) {
-        String p = sp.getString(KEY_PORT, DEFAULT_PORT);
-        return (p == null || p.trim().isEmpty()) ? DEFAULT_PORT : p.trim();
+        String p = sp == null ? null : sp.getString(KEY_PORT, DEFAULT_PORT);
+        return normalisasiPort(p);
+    }
+
+    /** Port valid 1-65535, selain itu pakai default (murni agar bisa diuji). */
+    static String normalisasiPort(String p) {
+        if (p != null) {
+            try {
+                int n = Integer.parseInt(p.trim());
+                if (n >= 1 && n <= 65535) {
+                    return String.valueOf(n);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return DEFAULT_PORT;
     }
 
     /** Penanda migrasi port selesai (agar port 8080 pilihan user tak ditimpa). */
@@ -1183,7 +1203,8 @@ public class ServerService extends Service {
 
     // ─── Health check (/alive) ─────────────────────────────────────────
 
-    private void checkHealthOnce() {
+    /** Rebind status web bila mode bind kedaluwarsa (token diubah saat jalan). */
+    private void rebindControlJikaPerlu() {
         try {
             if (controlServer != null && controlServer.perluRebind()) {
                 int ulang = ControlServer.listeningPort;
@@ -1208,6 +1229,10 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private void checkHealthOnce() {
+        rebindControlJikaPerlu();
         HasilPing h = pingRinci(this);
         if (h.sehat) {
             healthFails.set(0);

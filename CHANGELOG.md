@@ -6,6 +6,27 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: PIN reboot, port, masker token, rebind, callback, kuota, TLS
+
+### Perbaikan
+- PIN: lockout brute-force pakai wall-clock agar reboot tak mereset hitungan;
+  nilai lama era elapsed dianggap kedaluwarsa agar tak mengunci permanen.
+- Port: nilai rusak (huruf/kosong/di luar 1-65535) jatuh ke default agar health
+  check tak membangun URL invalid lalu restart beruntun.
+- Log: perbaiki escape regex pola penyamaran (escape tunggal `\d`/`\.`/`\S`
+  tidak valid di Java hingga file tak bisa dikompilasi) + samarkan token bot
+  mentah tanpa awalan "bot" agar tak bocor via
+  bagi/salin/simpan/SSE; jam biasa tak ikut tersamarkan.
+- Status web: rebind segera saat service start bila mode bind kedaluwarsa
+  (token diubah saat jalan), tak menunggu health tick.
+- Bot: tombol inline tanpa message ditolak (fail-closed) agar tak bisa
+  di-replay selamanya.
+- Provider: kunci privat yang dibungkus zip/enc/txt tetap ditolak, file biasa
+  seperti monkey.zip/monkey.pem tetap lolos.
+- Auto-update: VPN/WiMAX di Android 5/6 dianggap non-kuota seperti WiFi.
+- TLS: hormati masa berlaku sertifikat (jam STB miring picu regenerasi).
+- Redirect: protokol-relatif `//` eksplisit mewarisi https.
+
 ## [Belum rilis] — Audit bug: start basi, IPv6 LAN, PIN restore, provider, embedded-IPv4
 
 ### Perbaikan

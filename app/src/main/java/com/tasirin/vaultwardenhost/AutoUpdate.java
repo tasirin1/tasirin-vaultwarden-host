@@ -132,8 +132,14 @@ public final class AutoUpdate {
                 return !cm.isActiveNetworkMetered();
             }
             NetworkInfo ni = cm.getActiveNetworkInfo();
-            return ni != null && (ni.getType() == ConnectivityManager.TYPE_WIFI
-                    || ni.getType() == ConnectivityManager.TYPE_ETHERNET);
+            if (ni == null) {
+                return false;
+            }
+            int t = ni.getType();
+            return t == ConnectivityManager.TYPE_WIFI
+                    || t == ConnectivityManager.TYPE_ETHERNET
+                    || t == ConnectivityManager.TYPE_VPN
+                    || t == ConnectivityManager.TYPE_WIMAX;
         } catch (Exception e) {
             return false;
         }

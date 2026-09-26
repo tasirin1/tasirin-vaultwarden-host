@@ -56,11 +56,17 @@ public final class TlsCert {
     static final String CA_CN = "Vaultwarden Android CA";
     static final String LEAF_CN = "Vaultwarden Android";
 
-    /** Sisa hari masa berlaku cert.pem; -1 bila tidak bisa dibaca. */
+    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa/belum valid
+     *  (termasuk jam STB miring), -1 bila tidak bisa dibaca. */
     public static long daysLeft(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
                     .getInstance("X.509").generateCertificate(in);
+            try {
+                cert.checkValidity();
+            } catch (Exception tidakValid) {
+                return 0;
+            }
             long ms = cert.getNotAfter().getTime() - System.currentTimeMillis();
             return ms > 0 ? ms / (24L * 3600 * 1000) : 0;
         } catch (Exception e) {

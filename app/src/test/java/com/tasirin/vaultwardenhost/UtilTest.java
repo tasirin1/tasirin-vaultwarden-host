@@ -39,6 +39,12 @@ public class UtilTest {
     }
 
     @Test
+    public void redirectProtokolRelatifTetapHttps() {
+        assertTrue(Util.bolehIkutiRedirect("https://a/b", "//c/d"));
+        assertEquals("https://c/d", Util.sambungRedirect("https://a/b", "//c/d"));
+    }
+
+    @Test
     public void sambungRedirectDasarRusakTahanDiDasar() {
         String rusak = "::bukan-url::";
         assertEquals(rusak, Util.sambungRedirect(rusak, "/x"));

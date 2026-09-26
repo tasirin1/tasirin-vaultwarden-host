@@ -25,6 +25,14 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void kunciBerbungkusZipTetapDitolak() {
+        assertFalse(FileShareProvider.namaBolehDibagikan("key.pem.zip"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.enc"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("server.key.zip"));
+        assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
+    }
+
+    @Test
     public void namaBiasaBerisiKeyTakIkutDitolak() {
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.pem"));

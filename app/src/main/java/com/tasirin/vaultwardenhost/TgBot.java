@@ -364,6 +364,13 @@ public final class TgBot {
             // Tombol inline diberi umur 24 jam: tanpa batas, keyboard lama yang
             // bocor bisa di-replay selamanya. Batas 5 menit (seperti pesan ketik)
             // terlalu pendek untuk tombol, 24 jam komprominya.
+            // Tanpa message tak ada tanggal: tolak agar tak bisa di-replay selamanya.
+            if (pesan == null) {
+                jawabCallback(ctx, cb.optString("id", ""));
+                TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
+                        + " Minta keyboard baru dengan /help lalu coba lagi.");
+                return;
+            }
             if (pesan != null) {
                 long tgl = pesan.optLong("date", 0) * 1000L;
                 long kini = System.currentTimeMillis();
@@ -728,7 +735,8 @@ public final class TgBot {
         if (!need) {
             return t;
         }
-        long sekarang = SystemClock.elapsedRealtime();
+        // Wall-clock agar reboot tak mereset lockout PIN bot.
+        long sekarang = System.currentTimeMillis();
         long sisa = PinGate.sisaKunciMs(ctx, sekarang);
         if (sisa > 0) {
             TgBackup.sendMessage(ctx, "PIN terkunci sementara (kebanyakan gagal)."

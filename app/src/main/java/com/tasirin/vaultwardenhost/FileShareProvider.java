@@ -87,17 +87,32 @@ public class FileShareProvider extends ContentProvider {
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
-    /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key).
+    /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,
+     *  termasuk yang dibungkus zip/enc mis. key.pem.zip).
      *  Murni agar bisa unit test; presisi agar monkey.zip tak ikut ditolak. */
     static boolean kunciPrivat(String name) {
         if (name == null) {
             return false;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);
-        return rendah.endsWith(".key")
-                || rendah.equals("ca-key.pem")
-                || rendah.equals("key.pem")
-                || rendah.contains("ca-key");
+        // Kupas pembungkus (zip/enc/txt) agar key.pem.zip tak lolos;
+        // monkey.pem/monkey.zip tetap lolos karena intinya bukan kunci.
+        String inti = rendah;
+        boolean kupas = true;
+        while (kupas) {
+            kupas = false;
+            for (String ext : new String[]{".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"}) {
+                if (inti.endsWith(ext) && inti.length() > ext.length()) {
+                    inti = inti.substring(0, inti.length() - ext.length());
+                    kupas = true;
+                    break;
+                }
+            }
+        }
+        if (inti.contains("ca-key")) {
+            return true;
+        }
+        return inti.equals("ca-key.pem") || inti.equals("key.pem") || inti.endsWith(".key");
     }
 
     /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).

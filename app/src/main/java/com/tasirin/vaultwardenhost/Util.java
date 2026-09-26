@@ -67,6 +67,9 @@ public final class Util {
             return false;
         }
         String l = lokasi.trim();
+        if (l.startsWith("//")) {
+            return true;
+        }
         if (l.startsWith("/")) {
             return true;
         }

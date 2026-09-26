@@ -28,6 +28,20 @@ public class LogActivityTest {
     }
 
     @Test
+    public void tokenMentahTanpaBotDisamarkan() {
+        String mentah = "gagal kirim 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 lanjut";
+        String r = LogActivity.samarkanLog(mentah);
+        assertFalse(r.contains("AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"));
+        assertTrue(r.contains("***"));
+    }
+
+    @Test
+    public void jamBiasaTakIkutDisamarkan() {
+        String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
+        assertTrue(r.contains("12:30"));
+    }
+
+    @Test
     public void logNormalTakBerubah() {
         String r = LogActivity.samarkanLog("server jalan di port 8088");
         assertTrue(r.contains("8088"));

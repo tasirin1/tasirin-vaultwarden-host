@@ -32,13 +32,27 @@ public class PinCryptoTest {
 
     @Test
     public void kunciLimaGagalBeruntun() {
-        long sekarang = 1_000_000L;
+        // Wall-clock agar reboot tak mereset lockout.
+        long sekarang = 1_700_000_000_000L;
         assertTrue(PinCrypto.sisaKunciMs(4, 0, sekarang) == 0);
         long sampai = PinCrypto.kunciBerikutnyaMs(5, sekarang);
         assertTrue(sampai == sekarang + PinCrypto.KUNCI_MS);
         assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang) == PinCrypto.KUNCI_MS);
         assertTrue(PinCrypto.sisaKunciMs(5, sampai, sampai) == 0);
         assertTrue(PinCrypto.sisaKunciMs(5, sampai, sampai + 1) == 0);
+    }
+
+    @Test
+    public void kunciElapsedLamaDianggapKedaluwarsa() {
+        // Format lama era elapsedRealtime tak boleh mengunci permanen.
+        assertTrue(PinCrypto.sisaKunciMs(5, 1_300_000L, 1_700_000_000_000L) == 0);
+    }
+
+    @Test
+    public void kunciWallBertahanSeolahReboot() {
+        // Simulasi reboot: jam monoton reset tapi wall-clock jalan terus.
+        long terkunci = 1_700_000_000_000L + PinCrypto.KUNCI_MS;
+        assertTrue(PinCrypto.sisaKunciMs(5, terkunci, 1_700_000_000_000L + 60_000L) > 0);
     }
 
     @Test
