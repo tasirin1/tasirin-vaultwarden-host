@@ -664,7 +664,8 @@ public final class TgBackup {
      *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
-                    "tg_pass", "pin_hash", "pin_gagal", "pin_kunci_sampai"));
+                    "tg_pass", "pin_hash", "pin_gagal", "pin_kunci_sampai",
+                    "pin_kunci_elapsed"));
 
     /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {

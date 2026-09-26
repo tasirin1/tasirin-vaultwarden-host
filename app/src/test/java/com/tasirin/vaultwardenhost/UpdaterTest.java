@@ -204,6 +204,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void gagalBaruSaja_batasiHantamanApi() {
+        assertFalse(Updater.gagalBaruSaja(1000, 0, 60_000));
+        assertTrue(Updater.gagalBaruSaja(1000, 1000, 60_000));
+        assertTrue(Updater.gagalBaruSaja(1000 + 59_999, 1000, 60_000));
+        assertFalse(Updater.gagalBaruSaja(1000 + 60_000, 1000, 60_000));
+        assertFalse(Updater.gagalBaruSaja(500, 1000, 60_000));
+    }
+
+    @Test
     public void perluResetResume_416Atau200DenganParsialMintaUlangDariNol() {
         assertTrue(Updater.perluResetResume(416, 1024));
         assertTrue(Updater.perluResetResume(200, 1024));

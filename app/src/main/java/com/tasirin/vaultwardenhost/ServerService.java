@@ -420,6 +420,7 @@ public class ServerService extends Service {
             autoRestart = false;
             healthActive = false;
             mainHandler.removeCallbacks(healthTick);
+            mainHandler.removeCallbacks(restartTunda);
             stopServer();
             stopForeground(true);
             stopSelf();
@@ -875,6 +876,14 @@ public class ServerService extends Service {
         } catch (Exception e) {
             process = null;
             running = false;
+            // Bila gagal setelah status web sempat start, jangan biarkan jalan yatim.
+            if (controlServer != null) {
+                try {
+                    controlServer.stop();
+                } catch (Exception ignored) {
+                }
+                controlServer = null;
+            }
             // Bersihkan penanda jalan agar status web/health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
             runningDataDir = "";
@@ -981,6 +990,17 @@ public class ServerService extends Service {
         }
     }
 
+    /** Restart tertunda sebagai field (bukan anonim) agar onDestroy/STOP bisa
+     *  membatalkannya; tanpa ini restart jalan di service yang sudah mati. */
+    private final Runnable restartTunda = new Runnable() {
+        @Override
+        public void run() {
+            if (autoRestart && (process == null || !alive(process))) {
+                startServerAsync();
+            }
+        }
+    };
+
     private void scheduleRestart() {
         long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
@@ -999,11 +1019,8 @@ public class ServerService extends Service {
         long delay = RESTART_DELAYS[restartAttempt++];
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + restartAttempt + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
-        mainHandler.postDelayed(() -> {
-            if (autoRestart && (process == null || !alive(process))) {
-                startServerAsync();
-            }
-        }, delay);
+        mainHandler.removeCallbacks(restartTunda);
+        mainHandler.postDelayed(restartTunda, delay);
     }
 
     /** Saran spesifik untuk exit code proses (logika murni agar bisa diuji).
@@ -1052,7 +1069,9 @@ public class ServerService extends Service {
      *  (≥3 restart dalam 5 menit): matikan auto-restart, tulis crash log,
      *  beri tahu via status & Telegram. */
     private boolean recordRestart(String reason) {
-        long now = System.currentTimeMillis();
+        // Monotonik: wall-clock yang melompat (NTP/user) memicu "restart berulang"
+        // palsu atau menyembunyikan loop asli; stempel tampil tetap wall-clock.
+        long now = SystemClock.elapsedRealtime();
         String stamp;
         synchronized (LOG_TS) {
             stamp = LOG_TS.format(new Date());
@@ -1282,7 +1301,21 @@ public class ServerService extends Service {
             // Terminal: hentikan tick agar tak spam Telegram/log tiap interval selamanya.
             healthActive = false;
             mainHandler.removeCallbacks(healthTick);
+            mainHandler.removeCallbacks(restartTunda);
             healthFails.set(0);
+            // Konsisten dengan stopServer: status web tak boleh jalan dengan
+            // info basi (port/folder/token lama) setelah server dihentikan.
+            if (controlServer != null) {
+                try {
+                    controlServer.stop();
+                } catch (Exception ignored) {
+                }
+                controlServer = null;
+            }
+            runningDataDir = "";
+            runningPort = "";
+            runningHttps = false;
+            runningAdminToken = "";
             setStatus("Server tidak sehat - berhenti.");
             appendLog("[health] 3x gagal beruntun - server dihentikan.");
             writeCrashLog("health 3x");
@@ -2146,9 +2179,11 @@ public class ServerService extends Service {
             return true;
         }
         try (ServerSocket s = new ServerSocket()) {
-            // Tanpa REUSEADDR: reuse=true membuat bind lolos palsu padahal port masih dipakai.
+            // REUSEADDR aktif: socket TIME_WAIT sisa (koneksi klien tepat sebelum
+            // Stop) tak lagi dituduh "port dipakai"; socket yang benar-benar
+            // LISTEN tetap menggagalkan bind (EADDRINUSE) sehingga tetap terdeteksi.
             try {
-                s.setReuseAddress(false);
+                s.setReuseAddress(true);
             } catch (Exception ignored) {
             }
             s.bind(new InetSocketAddress("0.0.0.0", port));
@@ -2308,7 +2343,9 @@ public class ServerService extends Service {
     @Override
     public void onDestroy() {
         healthActive = false;
+        autoRestart = false;
         mainHandler.removeCallbacks(healthTick);
+        mainHandler.removeCallbacks(restartTunda);
         flushLogFile();
         super.onDestroy();
         releaseWakeLock();

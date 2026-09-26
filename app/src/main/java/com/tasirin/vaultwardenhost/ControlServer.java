@@ -116,6 +116,8 @@ public final class ControlServer {
             }
         } catch (Exception ignored) {
         }
+        serverSocket = null;
+        listeningPort = 0;
         running = false;
     }
 

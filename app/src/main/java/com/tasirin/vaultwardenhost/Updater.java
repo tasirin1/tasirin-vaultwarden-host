@@ -393,6 +393,18 @@ public final class Updater {
     private static final long VERSION_TTL_MS = 15 * 60 * 1000L;
     private static volatile String sLatestVersion;
     private static volatile long sLatestAt;
+    /** Jeda ulang cek versi sesudah gagal (rate-limit/offline): 60 dtk. */
+    static final long VERSION_GAGAL_TTL_MS = 60_000;
+    private static volatile long sLatestGagalAt = 0;
+
+    /** Murni: true bila cek terakhir gagal dan masih dalam jeda (jangan hantam API).
+     *  kini<gagalAt (reboot me-reset elapsed) dianggap basi agar tetap coba. */
+    static boolean gagalBaruSaja(long kiniElapsed, long gagalAt, long jedaMs) {
+        if (gagalAt == 0 || kiniElapsed < gagalAt) {
+            return false;
+        }
+        return kiniElapsed - gagalAt < jedaMs;
+    }
 
     /** Versi resmi terbaru (tanpa huruf v) atau null bila belum pernah dapat. */
     public static String latestVersion(Context ctx) {
@@ -400,6 +412,9 @@ public final class Updater {
         String cached = sLatestVersion;
         if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
             return cached;
+        }
+        if (cached == null && gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
+            return null;
         }
         HttpURLConnection conn = null;
         try {
@@ -421,6 +436,7 @@ public final class Updater {
                 conn.disconnect();
             }
         }
+        sLatestGagalAt = now;
         return cached;
     }
 
@@ -1019,8 +1035,11 @@ public final class Updater {
         deleteRecursive(bakDir);
         boolean adaLama = targetDir.exists();
         if (adaLama && !targetDir.renameTo(bakDir)) {
-            deleteRecursive(targetDir);
-            adaLama = false;
+            // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
+            // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
+            deleteRecursive(newDir);
+            throw new IOException("Gagal mencadangkan web vault lama"
+                    + " - versi lama dipertahankan.");
         }
         if (!newDir.renameTo(targetDir)) {
             deleteRecursive(newDir);

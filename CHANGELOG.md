@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Audit penuh: swap web-vault, restart yatim, jam monotonik, TIME_WAIT, dialog PIN
+
+### Perbaikan
+- Web-vault: bila rename ke `.bak` gagal, update dibatalkan (versi lama
+  dipertahankan), bukan malah menghapus versi lama.
+- Health terminal: status web dihentikan + penanda jalan dibersihkan seperti
+  `stopServer` (tak lagi melayani info basi); restart tertunda dibatalkan.
+- Restart: runnable tertunda jadi field agar `STOP`/`onDestroy` bisa
+  membatalkannya (tak lagi start di service yang sudah mati).
+- Restart loop: deteksi memakai jam monotonik (lompatan jam tak lagi memicu
+  "restart berulang" palsu atau menyembunyikan loop asli).
+- Port: `isPortBusy` pakai `REUSEADDR` agar `TIME_WAIT` sisa tak dituduh
+  "port dipakai"; listener aktif tetap terdeteksi via `EADDRINUSE`.
+- PIN: dialog tak lagi menumpuk bila `onResume` beruntun (guard tampil).
+- Status web: `stop()` me-reset `listeningPort` (tak ada `ctrlPort` basi).
+- Cek versi: gagal (rate-limit/offline) di-cache 60 dtk agar tak hantam API
+  tiap Start; `pin_kunci_elapsed` masuk daftar rahasia export.
+- Start: status web yatim dibersihkan bila gagal setelah sempat start.
+
 ## [Belum rilis] — Audit bug: uji asap binary, jam mundur bot, resume 206, deadline header, encrypt parsial
 
 ### Perbaikan

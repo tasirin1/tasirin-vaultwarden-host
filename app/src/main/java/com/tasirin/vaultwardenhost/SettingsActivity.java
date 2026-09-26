@@ -145,6 +145,8 @@ public class SettingsActivity extends Activity {
     /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
     private static final long PIN_GRACE_MS = 60_000;
+    /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
+    private boolean pinDialogTampil = false;
 
     /** Status buka PIN untuk MainActivity agar grace 60 detik simetris. */
     static boolean pinBaruSajaDibuka() {
@@ -1610,6 +1612,10 @@ public class SettingsActivity extends Activity {
         if (pinHash == null || pinHash.isEmpty()) {
             return;
         }
+        if (pinDialogTampil) {
+            return;
+        }
+        pinDialogTampil = true;
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         input.setMaxLines(1);
@@ -1656,6 +1662,7 @@ public class SettingsActivity extends Activity {
                         });
                     }, "vw-pin-check").start();
                 }));
+        dialog.setOnDismissListener(d -> pinDialogTampil = false);
         dialog.show();
     }
 
