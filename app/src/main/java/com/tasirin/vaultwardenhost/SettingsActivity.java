@@ -140,20 +140,28 @@ public class SettingsActivity extends Activity {
     private boolean needBatteryCached = false;
 
     private static volatile boolean unlocked = false;
-    /** Kapan MainActivity terakhir pause; kunci PIN baru muncul bila >60 detik. */
+    /** Kapan PIN terakhir cocok (jangkar grace); pindah activity tak memperpanjang. */
+    private static volatile long unlockAt = 0;
+    /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
     private static final long PIN_GRACE_MS = 60_000;
 
     /** Status buka PIN untuk MainActivity agar grace 60 detik simetris. */
     static boolean pinBaruSajaDibuka() {
-        return unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS;
+        return unlocked && SystemClock.elapsedRealtime() - unlockAt < PIN_GRACE_MS;
+    }
+
+    /** Kapan PIN dibuka (untuk salin grace antar activity tanpa perpanjangan). */
+    static long kapanDibuka() {
+        return unlockAt;
     }
 
     /** Catat buka PIN agar MainActivity tak meminta lagi dalam grace.
      *  Hanya set milik sendiri (tanpa panggil balik) agar tak rekursi. */
     static void catatPinDibuka() {
         unlocked = true;
-        pauseStamp = SystemClock.elapsedRealtime();
+        unlockAt = SystemClock.elapsedRealtime();
+        pauseStamp = unlockAt;
     }
 
     @Override
@@ -1581,13 +1589,13 @@ public class SettingsActivity extends Activity {
         if (!sp.getBoolean(KEY_PIN_ON, false)) {
             return;
         }
-        // Sudah dibuka di layar awal dalam 60 detik: jangan minta lagi.
+        // Sudah dibuka di layar awal dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
         if (MainActivity.pinBaruSajaDibuka()) {
             unlocked = true;
-            pauseStamp = SystemClock.elapsedRealtime();
+            unlockAt = MainActivity.kapanDibuka();
             return;
         }
-        if (unlocked && SystemClock.elapsedRealtime() - pauseStamp < PIN_GRACE_MS) {
+        if (unlocked && SystemClock.elapsedRealtime() - unlockAt < PIN_GRACE_MS) {
             return;
         }
         unlocked = false;
@@ -1632,6 +1640,7 @@ public class SettingsActivity extends Activity {
                             ok.setEnabled(true);
                             if (hasil) {
                                 unlocked = true;
+                                unlockAt = SystemClock.elapsedRealtime();
                                 MainActivity.catatPinDibuka();
                                 dialog.dismiss();
                             } else {

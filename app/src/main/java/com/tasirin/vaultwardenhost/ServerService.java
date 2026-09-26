@@ -1968,7 +1968,8 @@ public class ServerService extends Service {
             if (m == null) {
                 return -1;
             }
-            return (Integer) m.invoke(p);
+            // Process.pid() mengembalikan long (bukan int): pakai Number agar tak ClassCastException.
+            return ((Number) m.invoke(p)).intValue();
         } catch (Throwable t) {
             return -1;
         }
@@ -2140,11 +2141,12 @@ public class ServerService extends Service {
             return true;
         }
         try (ServerSocket s = new ServerSocket()) {
+            // Tanpa REUSEADDR: reuse=true membuat bind lolos palsu padahal port masih dipakai.
             try {
-                s.setReuseAddress(true);
+                s.setReuseAddress(false);
             } catch (Exception ignored) {
             }
-            s.bind(new InetSocketAddress(port));
+            s.bind(new InetSocketAddress("0.0.0.0", port));
             return false;
         } catch (Exception e) {
             return true;

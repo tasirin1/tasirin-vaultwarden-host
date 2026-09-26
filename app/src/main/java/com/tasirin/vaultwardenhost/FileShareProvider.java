@@ -131,6 +131,16 @@ public class FileShareProvider extends ContentProvider {
                 || rendah.endsWith(".enc");
     }
 
+    /** True bila nama file sementara restore/dekrip yang tak boleh dibagikan (murni). */
+    static boolean berkasSementara(String nama) {
+        if (nama == null) {
+            return false;
+        }
+        String rendah = nama.toLowerCase(java.util.Locale.US);
+        return rendah.startsWith("vwtg-restore") || rendah.startsWith("vwtg-")
+                || rendah.startsWith("verifikasi-tmp");
+    }
+
     /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
      *  di folder data. Database mentah (db.sqlite3*) dan binary tidak ikut. */
     private boolean isShareable(String canon) {
@@ -145,6 +155,10 @@ public class FileShareProvider extends ContentProvider {
                 // sebagai lapis kedua selain namaBolehDibagikan().
                 String nama = new File(canon).getName();
                 if (nama.startsWith("db.sqlite3")) {
+                    return false;
+                }
+                // Plaintext sementara restore (vwtg-restore-bot-dec.zip) tak boleh bocor via grant URI.
+                if (berkasSementara(nama)) {
                     return false;
                 }
                 if (kunciPrivat(nama)) {

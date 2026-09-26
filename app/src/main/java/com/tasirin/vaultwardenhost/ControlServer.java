@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.SystemClock;
 
 import org.json.JSONObject;
 
@@ -423,7 +424,8 @@ public final class ControlServer {
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private String statusJson() {
-        long now = System.currentTimeMillis();
+        // Jam monotonik: wall-clock bisa mundur (NTP/STB 1970) dan membekukan cache selamanya.
+        long now = SystemClock.elapsedRealtime();
         String cached = jsonCache;
         if (cached != null && now - jsonCacheAt < JSON_CACHE_MS) {
             return cached;
@@ -484,7 +486,7 @@ public final class ControlServer {
             o.put("restartHistory", restarts == null ? "" : restarts);
             String json = o.toString();
             jsonCache = json;
-            jsonCacheAt = System.currentTimeMillis();
+            jsonCacheAt = SystemClock.elapsedRealtime();
             return json;
         } catch (Exception e) {
             return "{\"error\":\"" + escJson(e.getMessage()) + "\"}";

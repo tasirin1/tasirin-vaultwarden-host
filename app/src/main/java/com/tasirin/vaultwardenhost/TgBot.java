@@ -704,27 +704,35 @@ public final class TgBot {
                 Context.MODE_PRIVATE);
         String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
-        TgBackup.downloadLastBackup(ctx, tmp);
-        File zip = tmp;
-        File plain = null;
-        if (TgBackup.isEncrypted(tmp)) {
-            if (pass == null || pass.trim().isEmpty()) {
-                throw new IOException("Backup terenkripsi"
-                        + " - isi password backup di pengaturan dulu.");
-            }
-            plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
-            TgBackup.decryptFile(tmp, plain, pass.trim());
-            tmp.delete();
-            zip = plain;
-        }
+        File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
         try {
+            TgBackup.downloadLastBackup(ctx, tmp);
+            File zip = tmp;
+            if (TgBackup.isEncrypted(tmp)) {
+                if (pass == null || pass.trim().isEmpty()) {
+                    throw new IOException("Backup terenkripsi"
+                            + " - isi password backup di pengaturan dulu.");
+                }
+                TgBackup.decryptFile(tmp, plain, pass.trim());
+                try {
+                    tmp.delete();
+                } catch (Exception ignored) {
+                }
+                zip = plain;
+            }
             return TgBackup.restoreFromZip(ctx, zip);
         } finally {
-            // Jangan sisakan plaintext dekrip di cache bila restore gagal
-            // (jalur sukses sudah dihapus restoreFromZip via bolehHapusFile).
+            // Bersihkan sisa cache (termasuk potongan unduhan gagal) agar isi DB tak tertinggal.
+            // Jalur sukses sudah dihapus restoreFromZip via bolehHapusFile; hapus ulang aman (no-op).
             try {
-                if (plain != null && plain.exists()) {
+                if (plain.exists()) {
                     plain.delete();
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                if (tmp.exists()) {
+                    tmp.delete();
                 }
             } catch (Exception ignored) {
             }
