@@ -71,6 +71,7 @@ public class TgBotTest {
         assertTrue(TgBot.webVaultBerubah("Web vault updated di /sdcard/vaultwarden/web-vault"));
         assertFalse(TgBot.webVaultBerubah("Web vault sudah versi terbaru: v1.37.3"));
         assertFalse(TgBot.webVaultBerubah("Web vault v1.37.2 terpasang; cek versi gagal."));
+        assertFalse(TgBot.webVaultBerubah("Database updated di /sdcard/vaultwarden"));
         assertFalse(TgBot.webVaultBerubah(null));
         assertFalse(TgBot.webVaultBerubah(""));
     }

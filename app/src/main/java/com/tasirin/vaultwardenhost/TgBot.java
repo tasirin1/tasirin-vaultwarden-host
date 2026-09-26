@@ -132,7 +132,9 @@ public final class TgBot {
         if (msg.contains(Updater.WV_UPDATED_MARKER)) {
             return true;
         }
-        return msg.contains("updated");
+        // Fallback legacy untuk pesan versi lama ("Web vault updated di ...");
+        // kata "updated" bebas terlalu longgar (false-positive bila redaksi berubah).
+        return msg.contains("Web vault updated");
     }
 
     /** Payload JSON setMyCommands (string manual agar bisa di-unit-test JVM). */

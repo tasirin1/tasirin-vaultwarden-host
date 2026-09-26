@@ -48,6 +48,22 @@ public class ControlServerTest {
     }
 
     @Test
+    public void hostDariAlamatBuangPortSumber() throws Exception {
+        java.net.SocketAddress a1 = new java.net.InetSocketAddress("10.0.0.2", 54321);
+        java.net.SocketAddress a2 = new java.net.InetSocketAddress("10.0.0.2", 59999);
+        assertEquals("10.0.0.2", ControlServer.hostDariAlamat(a1));
+        assertEquals(ControlServer.hostDariAlamat(a1), ControlServer.hostDariAlamat(a2));
+        assertEquals("tak-dikenal", ControlServer.hostDariAlamat(null));
+    }
+
+    @Test
+    public void hostDariAlamatDukungIpv6() throws Exception {
+        java.net.SocketAddress a = new java.net.InetSocketAddress(
+                java.net.InetAddress.getByName("::1"), 1234);
+        assertEquals("0:0:0:0:0:0:0:1", ControlServer.hostDariAlamat(a));
+    }
+
+    @Test
     public void tokenKosongTakCocok() {
         assertFalse(ControlServer.tokenCocok("", ""));
         assertFalse(ControlServer.tokenCocok("   ", "   "));

@@ -163,11 +163,22 @@ public class ServerService extends Service {
     };
 
     public static void start(Context context) {
-        Intent i = new Intent(context, ServerService.class).setAction(ACTION_START);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(i);
-        } else {
-            context.startService(i);
+        mulaiService(context, ACTION_START);
+    }
+
+    /** Start service tahan penolakan background Android 12+
+     *  (ForegroundServiceStartNotAllowedException): catat ke log, jangan crash
+     *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah). */
+    private static void mulaiService(Context context, String aksi) {
+        try {
+            Intent i = new Intent(context, ServerService.class).setAction(aksi);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(i);
+            } else {
+                context.startService(i);
+            }
+        } catch (Exception e) {
+            catatLog("[app] Gagal start service (" + aksi + "): " + e);
         }
     }
 
@@ -183,22 +194,12 @@ public class ServerService extends Service {
     /** Kirim aksi ke service lewat foreground API di Android 8+ agar tidak
      *  IllegalStateException saat dipanggil dari background (bot/alarm). */
     private static void mulaiAksi(Context context, String aksi) {
-        Intent i = new Intent(context, ServerService.class).setAction(aksi);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(i);
-        } else {
-            context.startService(i);
-        }
+        mulaiService(context, aksi);
     }
 
     /** Jalankan backup Telegram terjadwal (via AlarmReceiver). */
     public static void backupNow(Context context) {
-        Intent i = new Intent(context, ServerService.class).setAction(ACTION_TG_BACKUP);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(i);
-        } else {
-            context.startService(i);
-        }
+        mulaiService(context, ACTION_TG_BACKUP);
     }
 
     /** Apakah proses vaultwarden masih hidup (dipakai sebelum restore DB). */

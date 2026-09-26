@@ -670,14 +670,36 @@ public final class ControlServer {
     /** IP ujung jauh untuk batas per-IP (tak pernah null/kosong). */
     private static String ipJarakJauh(Socket s) {
         try {
-            java.net.SocketAddress a = s.getRemoteSocketAddress();
-            if (a != null) {
-                String t = a.toString();
-                if (t != null && !t.isEmpty()) {
-                    return t;
-                }
-            }
+            return hostDariAlamat(s.getRemoteSocketAddress());
         } catch (Exception ignored) {
+            return "tak-dikenal";
+        }
+    }
+
+    /** Host IP dari alamat soket TANPA port sumber: toString() InetSocketAddress
+     *  memuat port ephemeral ("/10.0.0.2:54321") sehingga tiap koneksi dari HP
+     *  yang sama terbaca sebagai IP beda dan batas per-IP tak pernah jalan.
+     *  getAddress/getHostString tak memicu resolusi DNS balik. Murni. */
+    static String hostDariAlamat(java.net.SocketAddress a) {
+        if (a instanceof java.net.InetSocketAddress) {
+            java.net.InetSocketAddress isa = (java.net.InetSocketAddress) a;
+            try {
+                java.net.InetAddress ia = isa.getAddress();
+                if (ia != null) {
+                    String h = ia.getHostAddress();
+                    if (h != null && !h.isEmpty()) {
+                        return h;
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                String h = isa.getHostString();
+                if (h != null && !h.isEmpty()) {
+                    return h;
+                }
+            } catch (Exception ignored) {
+            }
         }
         return "tak-dikenal";
     }

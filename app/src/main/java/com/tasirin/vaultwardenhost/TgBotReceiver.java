@@ -13,6 +13,7 @@ public class TgBotReceiver extends BroadcastReceiver {
         if (intent == null || !TgBot.ACTION_POLL.equals(intent.getAction())) {
             return;
         }
+        TgBackup.healkanStringPrefs(context);
         final PowerManager.WakeLock wl = acquire(context);
         final PendingResult pr = goAsync();
         new Thread(() -> {

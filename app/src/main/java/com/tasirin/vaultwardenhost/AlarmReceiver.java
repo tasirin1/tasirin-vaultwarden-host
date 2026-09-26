@@ -41,6 +41,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // Proses receiver bisa hidup tanpa Activity/Service: sembuhkan prefs
+        // bertipe salah dulu agar baca mentah di bawah tak ClassCastException.
+        TgBackup.healkanStringPrefs(context);
         String action = intent != null ? intent.getAction() : null;
         if (Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)

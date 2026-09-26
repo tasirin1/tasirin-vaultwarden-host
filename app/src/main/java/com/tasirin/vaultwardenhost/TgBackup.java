@@ -58,18 +58,35 @@ public final class TgBackup {
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
 
-    /** Migrasi sekali jalan: gabungan toggle lama ke KEY_TG_AUTO. */
+    /** Migrasi sekali jalan: gabungan toggle lama ke KEY_TG_AUTO.
+     *  Baca via getAll+koersi (tak lempar ClassCastException): kunci legacy tak
+     *  ada di himpunan heal, dan migrasi jalan sebelum heal — getBoolean mentah
+     *  di sini dulu bikin crash-loop tiap onCreate bila korup jadi String. */
     public static void migrateAutoPref(Context ctx) {
-        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        if (sp.contains("tg_backup_on_start")) {
-            boolean lama = sp.getBoolean("tg_backup_on_start", false);
-            if (lama && !sp.getBoolean(KEY_TG_AUTO, false)) {
-                sp.edit().putBoolean(KEY_TG_AUTO, true).apply();
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            java.util.Map<String, ?> semua;
+            try {
+                semua = sp.getAll();
+            } catch (Exception ignored) {
+                return;
             }
-            sp.edit().remove("tg_backup_on_start").apply();
-        }
-        if (sp.contains("tg_full")) {
-            sp.edit().remove("tg_full").apply();
+            if (semua == null) {
+                return;
+            }
+            if (semua.containsKey("tg_backup_on_start")) {
+                Boolean lama = koersiBoolean(semua.get("tg_backup_on_start"));
+                if (Boolean.TRUE.equals(lama)
+                        && !Boolean.TRUE.equals(koersiBoolean(semua.get(KEY_TG_AUTO)))) {
+                    sp.edit().putBoolean(KEY_TG_AUTO, true).apply();
+                }
+                sp.edit().remove("tg_backup_on_start").apply();
+            }
+            if (semua.containsKey("tg_full")) {
+                sp.edit().remove("tg_full").apply();
+            }
+        } catch (Exception ignored) {
         }
     }
 

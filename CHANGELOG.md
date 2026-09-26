@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Batas SSE per-IP benar, migrasi anti-crash, receiver heal, start tahan Android 12+
+
+### Perbaikan
+- Batas SSE per-IP kini pakai host tanpa port sumber (sebelumnya
+  `SocketAddress.toString()` memuat port ephemeral sehingga tiap koneksi
+  terbaca beda IP dan batas tak pernah jalan).
+- Migrasi prefs legacy tahan `ClassCastException` (baca via getAll+koersi,
+  bungkus try/catch) dan jalan setelah heal; receiver (boot/alarm/bot)
+  heal dulu di `onReceive` agar tak crash sebelum Activity/Service hidup.
+- `start`/`stop`/`restart`/`backupNow` tahan penolakan background Android 12+
+  (catat ke log, tak crash pemanggil; bot sudah memberi tahu user).
+- Banding checksum SHA-256 constant-time (`MessageDigest.isEqual`).
+- Deteksi web-vault berubah: marker + frasa legacy "Web vault updated"
+  (kata "updated" bebas pensiun agar tak false-positive).
+
 ## [Belum rilis] — Heal int/long, Start tanpa ANR, log hemat baterai, SSE adil, TLS presisi, IPv6
 
 ### Perbaikan

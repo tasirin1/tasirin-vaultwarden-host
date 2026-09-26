@@ -118,8 +118,8 @@ public class MainActivity extends Activity {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
-        TgBackup.migrateAutoPref(this);
         TgBackup.healkanStringPrefs(this);
+        TgBackup.migrateAutoPref(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
