@@ -1572,6 +1572,13 @@ public class ServerService extends Service {
                 try {
                     if (detectBinaryVersion(out)) {
                         appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                        // Visibilitas: file manual tak dipakai selama cache update
+                        // aktif (bukan diabaikan diam-diam seperti sebelumnya).
+                        File manualLewat = new File(dataDir, "vaultwarden-" + ABI);
+                        if (isValidBinary(manualLewat)) {
+                            appendLog("[app] Binary manual di folder data dilewati:"
+                                    + " cache update (" + updated + ") sedang aktif.");
+                        }
                         return out;
                     }
                     appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
@@ -1591,18 +1598,34 @@ public class ServerService extends Service {
                             + " dengan pengaturan. Cek kembali file/SHA-nya.");
                     TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
                 } else {
+                    // Uji di file sementara dulu: binary manual korup tak boleh
+                    // menghancurkan cache yang sedang jalan (STB offline tak bisa
+                    // unduh ulang). Penimpaan hanya bila smoke test lolos.
+                    File tmpManual = new File(binDir, "vaultwarden-" + ABI + ".manual-tmp");
                     try {
-                        copyBinary(userBin, out);
-                        writeText(verFile, Updater.appVersionName(this));
-                        appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
-                        if (!detectBinaryVersion(out)) {
+                        copyBinary(userBin, tmpManual);
+                        if (!detectBinaryVersion(tmpManual)) {
                             appendLog("[app] Binary manual GAGAL smoke test --version"
-                                    + " (arsitektur salah/rusak?) - diabaikan, coba unduh rilis.");
+                                    + " (arsitektur salah/rusak?) - diabaikan,"
+                                    + " cache lama dipertahankan.");
                         } else {
+                            if (out.exists() && !out.delete()) {
+                                throw new IOException("Gagal mengganti binary lama.");
+                            }
+                            if (!tmpManual.renameTo(out)) {
+                                throw new IOException("Gagal memasang binary manual.");
+                            }
+                            writeText(verFile, Updater.appVersionName(this));
+                            appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
                             return out;
                         }
                     } catch (Exception e) {
                         appendLog("[app] Gagal memakai binary dari folder data: " + e);
+                    } finally {
+                        try {
+                            tmpManual.delete();
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             } else {

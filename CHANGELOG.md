@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Binary manual aman: uji di tmp + log saat dilewati
+
+### Perbaikan
+- Binary manual diuji smoke test di file sementara dulu; cache yang sedang
+  jalan tak lagi tertimpa file korup (penting untuk STB offline).
+- Bila cache update aktif, file manual yang dilewati kini dicatat di log
+  (sebelumnya diabaikan diam-diam).
+
 ## [Belum rilis] — Masking log konsisten, UTCTime UTC, KDF bersih
 
 ### Perbaikan
