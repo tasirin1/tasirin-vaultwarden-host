@@ -428,6 +428,22 @@ public final class TlsCert {
         if (t.isEmpty() || t.contains(" ") || t.contains("/")) {
             return null;
         }
+        // Bentuk embedded-IPv4 (::ffff:192.168.1.1): ubah ekor desimal
+        // jadi dua grup heksa agar parser di bawah tetap murni heksa.
+        if (t.contains(".")) {
+            int titikDua = t.lastIndexOf(':');
+            if (titikDua < 0) {
+                return null;
+            }
+            byte[] oktet = ipv4(t.substring(titikDua + 1));
+            if (oktet == null) {
+                return null;
+            }
+            int tinggi = ((oktet[0] & 0xFF) << 8) | (oktet[1] & 0xFF);
+            int rendah = ((oktet[2] & 0xFF) << 8) | (oktet[3] & 0xFF);
+            t = t.substring(0, titikDua + 1)
+                    + Integer.toHexString(tinggi) + ":" + Integer.toHexString(rendah);
+        }
         try {
             int pecah = t.indexOf("::");
             String[] kiri;

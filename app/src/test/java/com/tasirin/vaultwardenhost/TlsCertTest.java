@@ -62,6 +62,18 @@ public class TlsCertTest {
     }
 
     @Test
+    public void ipv6EmbeddedIpv4DiuraiBenar() {
+        byte[] b = TlsCert.ipv6("::ffff:192.168.1.1");
+        assertEquals(16, b.length);
+        assertEquals((byte) 0xFF, b[10]);
+        assertEquals((byte) 0xFF, b[11]);
+        assertEquals((byte) 192, b[12]);
+        assertEquals((byte) 168, b[13]);
+        assertEquals((byte) 1, b[14]);
+        assertEquals((byte) 1, b[15]);
+    }
+
+    @Test
     public void namaDnsTolakIpv6() {
         assertFalse(TlsCert.namaDnsValid("::1"));
         assertFalse(TlsCert.namaDnsValid("fe80::1"));

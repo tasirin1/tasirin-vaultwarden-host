@@ -1202,6 +1202,12 @@ public final class TgBackup {
         return pinOn && pinHash != null && !pinHash.isEmpty();
     }
 
+    /** Status PIN hasil restore: selalu ikut perangkat, tak pernah ikut zip.
+     *  Mencegah zip tak tepercaya mematikan PIN perangkat. Murni. */
+    static boolean pinOnHasilRestore(boolean pinPerangkat, String hashPerangkat) {
+        return pinAktif(pinPerangkat, hashPerangkat);
+    }
+
     /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
      *  dipertahankan agar bot tetap terhubung setelah restore. Kredensial
      *  tak pernah diimpor dari file (termasuk backup lama yang masih
@@ -1291,10 +1297,12 @@ public final class TgBackup {
         }
         // Konsistensi PIN: tanpa hash, kunci PIN wajib mati agar tak fail-open
         // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
-        // Counter brute-force selalu milik perangkat (backup tak boleh reset kunci).
+        // Status PIN selalu milik perangkat: zip tak tepercaya tak boleh
+        // mematikan PIN perangkat (downgrade pengaman). Murni via pinOnHasilRestore.
         ed.putInt("pin_gagal", keepGagal);
         ed.putLong("pin_kunci_sampai", keepKunci);
-        ed.putBoolean("pin_on", pinAktif(prefs.optBoolean("pin_on", false), keepPinHash));
+        ed.putBoolean("pin_on",
+                pinOnHasilRestore(cur.getBoolean("pin_on", false), keepPinHash));
         long importedOffset = prefs.has(TgBot.KEY_TG_OFFSET)
                 ? prefs.optLong(TgBot.KEY_TG_OFFSET, 0) : 0;
         ed.putLong(TgBot.KEY_TG_OFFSET, Math.max(keepOffset, importedOffset));

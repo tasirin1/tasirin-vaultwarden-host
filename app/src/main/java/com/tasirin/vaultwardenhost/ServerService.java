@@ -833,6 +833,12 @@ public class ServerService extends Service {
         } catch (Exception e) {
             process = null;
             running = false;
+            // Bersihkan penanda jalan agar status web/health tak menunjuk
+            // port/folder basi walau status sudah "Gagal start".
+            runningDataDir = "";
+            runningPort = "";
+            runningHttps = false;
+            runningAdminToken = "";
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
@@ -1743,6 +1749,16 @@ public class ServerService extends Service {
                     for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
                         if (addr instanceof java.net.Inet4Address) {
                             ips.add(addr.getHostAddress());
+                        } else if (addr instanceof java.net.Inet6Address) {
+                            // Kupas zona (%wlan0) agar stabil sebagai SAN sertifikat.
+                            String mentah = addr.getHostAddress();
+                            int persen = mentah.indexOf('%');
+                            String bersih = persen < 0 ? mentah : mentah.substring(0, persen);
+                            if (!bersih.isEmpty() && !bersih.equalsIgnoreCase("::1")
+                                    && !bersih.startsWith("fe80:")
+                                    && !bersih.startsWith("FE80:")) {
+                                ips.add(bersih);
+                            }
                         }
                     }
                 }
@@ -1763,6 +1779,7 @@ public class ServerService extends Service {
         try {
             List<String> ips = new ArrayList<>(collectIps());
             ips.add(0, "127.0.0.1");
+            ips.add("::1");
             List<String> dns = new ArrayList<>();
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
 

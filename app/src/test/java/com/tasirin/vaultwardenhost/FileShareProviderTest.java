@@ -23,4 +23,12 @@ public class FileShareProviderTest {
         assertTrue(FileShareProvider.namaBolehDibagikan("backup.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("app-config.json"));
     }
+
+    @Test
+    public void namaBiasaBerisiKeyTakIkutDitolak() {
+        assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
+        assertTrue(FileShareProvider.namaBolehDibagikan("monkey.pem"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
+    }
 }

@@ -6,6 +6,20 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: start basi, IPv6 LAN, PIN restore, provider, embedded-IPv4
+
+### Perbaikan
+- Start gagal: penanda jalan (`runningDataDir/Port/Https/AdminToken`)
+  ikut dibersihkan agar status web/health tak menunjuk port/folder basi.
+- TLS: kumpulkan IPv6 LAN (tanpa zona, tanpa link-local) + SAN `::1`
+  agar dukungan IPv6 benar jalan (sebelumnya dead code IPv4 saja).
+- Restore: status PIN selalu ikut perangkat, zip tak tepercaya tak bisa
+  mematikan PIN (anti downgrade pengaman).
+- Provider: pola kunci privat presisi (`ca-key.pem`, `key.pem`, `*.key`)
+  agar `monkey.zip` tak ikut ditolak.
+- TLS: dukung IPv6 embedded-IPv4 (`::ffff:192.168.1.1`) di SAN.
+- Test: `pinOnHasilRestore`, `kunciPrivat`, IPv6 embedded.
+
 ## [Belum rilis] — Audit bug: datadir, restore, TLS IPv6, log, status
 
 ### Perbaikan

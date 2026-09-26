@@ -133,6 +133,14 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pinOnHasilRestoreIkutPerangkat() {
+        assertTrue(TgBackup.pinOnHasilRestore(true, "PBKDF2$120000$aa$bb"));
+        assertFalse(TgBackup.pinOnHasilRestore(false, "PBKDF2$120000$aa$bb"));
+        assertFalse(TgBackup.pinOnHasilRestore(true, ""));
+        assertFalse(TgBackup.pinOnHasilRestore(true, null));
+    }
+
+    @Test
     public void secretTakIkutBackup() {
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("admin_token"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_token"));

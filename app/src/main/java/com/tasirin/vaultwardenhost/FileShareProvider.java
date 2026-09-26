@@ -87,17 +87,30 @@ public class FileShareProvider extends ContentProvider {
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
-    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
-     *  Kunci privat (*key*.pem, *.key) tidak boleh dibagikan walau ekstensinya
-     *  terlihat aman — hanya sertifikat publik yang boleh lewat. */
-    static boolean namaBolehDibagikan(String name) {
+    /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key).
+     *  Murni agar bisa unit test; presisi agar monkey.zip tak ikut ditolak. */
+    static boolean kunciPrivat(String name) {
         if (name == null) {
             return false;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);
-        if (rendah.contains("key") || rendah.endsWith(".key")) {
+        return rendah.endsWith(".key")
+                || rendah.equals("ca-key.pem")
+                || rendah.equals("key.pem")
+                || rendah.contains("ca-key");
+    }
+
+    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
+     *  Kunci privat (ca-key.pem, key.pem, *.key) tidak boleh dibagikan walau
+     *  ekstensinya terlihat aman — hanya sertifikat publik yang boleh lewat. */
+    static boolean namaBolehDibagikan(String name) {
+        if (name == null) {
             return false;
         }
+        if (kunciPrivat(name)) {
+            return false;
+        }
+        String rendah = name.toLowerCase(java.util.Locale.US);
         return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
                 || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt")
                 || rendah.endsWith(".enc");
@@ -119,8 +132,7 @@ public class FileShareProvider extends ContentProvider {
                 if (nama.startsWith("db.sqlite3")) {
                     return false;
                 }
-                String rendahNama = nama.toLowerCase(java.util.Locale.US);
-                if (rendahNama.contains("key")) {
+                if (kunciPrivat(nama)) {
                     return false;
                 }
                 return namaBolehDibagikan(nama);
@@ -137,7 +149,7 @@ public class FileShareProvider extends ContentProvider {
             if (name.startsWith("db.sqlite3")) {
                 return false;
             }
-            if (name.toLowerCase(java.util.Locale.US).contains("key")) {
+            if (kunciPrivat(name)) {
                 return false;
             }
             boolean diTls = canon.startsWith(data + File.separator + "tls" + File.separator);
