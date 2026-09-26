@@ -167,9 +167,13 @@ public class UpdaterTest {
             h[3] = 'F';
             h[4] = 1;
             h[5] = 1;
+            // e_type ET_DYN=3 di 16-17: guard agar implementasi tak tertukar
+            // membaca e_type (3 != 40 sehingga binary valid akan ditolak).
+            h[16] = 3;
+            h[17] = 0;
             if (total >= 20) {
-                h[16] = em0;
-                h[17] = em1;
+                h[18] = em0;
+                h[19] = em1;
             }
             o.write(h);
         }

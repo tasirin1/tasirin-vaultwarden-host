@@ -1266,12 +1266,13 @@ public final class Updater {
                     || h[2] != 'L' || h[3] != 'F') {
                 return false;
             }
-            // e_machine di offset 16 (EM_ARM = 40); endianness ikut EI_DATA.
+            // e_machine di offset 18 (EM_ARM = 40); offset 16 adalah e_type.
+            // Endianness ikut EI_DATA (offset 5): 1 = little, 2 = big.
             int mesin;
             if (h[5] == 2) {
-                mesin = ((h[16] & 0xFF) << 8) | (h[17] & 0xFF);
+                mesin = ((h[18] & 0xFF) << 8) | (h[19] & 0xFF);
             } else {
-                mesin = (h[16] & 0xFF) | ((h[17] & 0xFF) << 8);
+                mesin = (h[18] & 0xFF) | ((h[19] & 0xFF) << 8);
             }
             return mesin == 40;
         } catch (Exception e) {
