@@ -50,7 +50,7 @@ public final class AutoUpdate {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+            String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
             String current = real != null ? real : Updater.normVersion(
                     updated != null && !updated.isEmpty()
                             ? updated : Updater.readBundledVersionRaw(ctx));
@@ -59,7 +59,7 @@ public final class AutoUpdate {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pending.atur(null);
             } else if (Updater.bandingVersi(current, latest) < 0) {
-                if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
+                if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
                     try {
                         String msg = Updater.tryUpdate(ctx);
                         pending.atur(null);
@@ -77,7 +77,7 @@ public final class AutoUpdate {
                     pending.atur(latest);
                     aksi.kabariTersedia(latest);
                     // Notifikasi sistem + Telegram cukup sekali per versi.
-                    if (!latest.equals(sp.getString("tg_notified_version", ""))) {
+                    if (!latest.equals(TgBackup.amanString(sp, "tg_notified_version", ""))) {
                         sp.edit().putString("tg_notified_version", latest).apply();
                         tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
@@ -88,10 +88,10 @@ public final class AutoUpdate {
             if (lengkap) {
                 // Web-vault selalu mengikuti versi resmi (bukan channel legacy);
                 // lewati bila versi resmi tak terbaca (offline/rate-limit).
-                if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false)
+                if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false)
                         && tanpaKuota(ctx)) {
                     try {
-                        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                                 ServerService.DEFAULT_DATA_DIR);
                         if (aksi.webVaultSiap(dataDir)) {
                             String marker = Updater.webVaultFromVersion(ctx);
@@ -110,7 +110,7 @@ public final class AutoUpdate {
                 }
                 // Opsi: restart sekali bila ada update terpasang & server sedang jalan.
                 if (adaTerpasang && ServerService.running
-                        && sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
+                        && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
                     aksi.catat("[app] Auto-restart setelah update...");
                     aksi.restartServer();
                 }

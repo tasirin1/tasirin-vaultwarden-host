@@ -785,7 +785,10 @@ public final class TgBackup {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setConnectTimeout(20000);
-            conn.setReadTimeout(180000);
+            // 60 dtk (bukan 180): read timeout = jeda idle maks antar byte,
+            // bukan total waktu — upload lambat namun jalan tetap lolos,
+            // sementara upload macet tak menahan slot pool/kunci tugas 3 menit.
+            conn.setReadTimeout(60000);
             conn.setInstanceFollowRedirects(false);
             // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
             conn.setChunkedStreamingMode(0);
@@ -1363,6 +1366,56 @@ public final class TgBackup {
             }
         }
         return null;
+    }
+
+    /** Baca String tahan ClassCastException: kembalikan default dan sembuhkan
+     *  (koersi ke String) agar tak lempar berulang. */
+    static String amanString(SharedPreferences sp, String kunci, String bawaan) {
+        try {
+            String v = sp.getString(kunci, bawaan);
+            return v == null ? bawaan : v;
+        } catch (ClassCastException e) {
+            String sembuh = null;
+            try {
+                Object v = sp.getAll().get(kunci);
+                if (v != null) {
+                    sembuh = String.valueOf(v);
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                if (sembuh != null) {
+                    sp.edit().putString(kunci, sembuh).apply();
+                    return sembuh;
+                }
+                sp.edit().remove(kunci).apply();
+            } catch (Exception ignored) {
+            }
+            return bawaan;
+        }
+    }
+
+    /** Baca boolean tahan ClassCastException: kembalikan default dan sembuhkan
+     *  (koersi "true"/1) atau hapus bila tak jelas. */
+    static boolean amanBoolean(SharedPreferences sp, String kunci, boolean bawaan) {
+        try {
+            return sp.getBoolean(kunci, bawaan);
+        } catch (ClassCastException e) {
+            Boolean b = null;
+            try {
+                b = koersiBoolean(sp.getAll().get(kunci));
+            } catch (Exception ignored) {
+            }
+            try {
+                if (b != null) {
+                    sp.edit().putBoolean(kunci, b).apply();
+                    return b;
+                }
+                sp.edit().remove(kunci).apply();
+            } catch (Exception ignored) {
+            }
+            return bawaan;
+        }
     }
 
     /** Baca int tahan ClassCastException (prefs korup bertipe String): kembalikan

@@ -263,10 +263,7 @@ public class SettingsActivity extends Activity {
         advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
-        exportCfgBtn.setOnClickListener(v -> confirm("Export Pengaturan",
-                "File tidak membawa token/PIN/password (tetap di perangkat ini)."
-                        + " Tetap jangan bagikan ke orang lain. Lanjutkan?",
-                () -> runBusy(this::exportConfig)));
+        exportCfgBtn.setOnClickListener(v -> mintaExport());
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
@@ -1384,6 +1381,21 @@ public class SettingsActivity extends Activity {
     }
 
     // ─── Export / Import pengaturan ─────────────────────────────────────
+
+    /** Konfirmasi export: tanpa password backup, file berupa plaintext di folder
+     *  backups (terbaca app lain) — ingatkan eksplisit sebelum tulis. */
+    private void mintaExport() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+        boolean terkunci = pass != null && !pass.trim().isEmpty();
+        confirm("Export Pengaturan",
+                "File tidak membawa token/PIN/password (tetap di perangkat ini)."
+                        + (terkunci ? " File terenkripsi dengan password backup."
+                                : " Tanpa password backup file ini PLAINTEXT dan terbaca"
+                                        + " aplikasi lain — simpan hati-hati.")
+                        + " Tetap jangan bagikan ke orang lain. Lanjutkan?",
+                () -> runBusy(this::exportConfig));
+    }
 
     private void exportConfig() {
         try {

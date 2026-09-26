@@ -48,10 +48,8 @@ public class TgBotTest {
         assertTrue(TgBot.isRestoreConfirm("YA"));
         assertTrue(TgBot.isRestoreConfirm("ya"));
         assertTrue(TgBot.isRestoreConfirm(" yes "));
-        assertTrue(TgBot.isRestoreConfirm("Y"));
-        assertTrue(TgBot.isRestoreConfirm("ok"));
         assertTrue(TgBot.isRestoreConfirm("konfirmasi"));
-        assertTrue(TgBot.isRestoreConfirm("lanjut"));
+        assertTrue(TgBot.isRestoreConfirm(" Konfirmasi "));
     }
 
     @Test
@@ -122,5 +120,9 @@ public class TgBotTest {
         assertFalse(TgBot.isRestoreConfirm("tidak"));
         assertFalse(TgBot.isRestoreConfirm("backup"));
         assertFalse(TgBot.isRestoreConfirm("YA sekarang"));
+        // Kata umum yang dulu diterima kini ditolak (anti-restore nyasar).
+        assertFalse(TgBot.isRestoreConfirm("ok"));
+        assertFalse(TgBot.isRestoreConfirm("Y"));
+        assertFalse(TgBot.isRestoreConfirm("lanjut"));
     }
 }

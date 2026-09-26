@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Upload tak tahan antrean, export ingatkan plaintext, konfirmasi restore sempit
+
+### Perbaikan
+- Koreksi audit lalu: upload Telegram tak pernah jalan di antrean pesan
+  (teks 15/30 dtk mandiri) — yang benar: upload macet menahan slot pool BG +
+  kunci tugas-berat. Timeout baca upload 180→60 dtk (jeda idle antar byte,
+  upload lambat tetap lolos).
+- Dialog export kini ingatkan eksplisit bila tanpa password backup file
+  berupa plaintext di folder backups.
+- Konfirmasi `/restore` dipersempit ke "ya"/"yes"/"konfirmasi" ("ok"/"y"/
+  "lanjut" tak lagi memicu timpa database).
+- Baca `AutoUpdate` tahan `ClassCastException` via `amanString`/`amanBoolean`
+  baru (gagal satu siklus diam-diam bila prefs korup sebelum heal).
+
 ## [Belum rilis] — Batas SSE per-IP benar, migrasi anti-crash, receiver heal, start tahan Android 12+
 
 ### Perbaikan

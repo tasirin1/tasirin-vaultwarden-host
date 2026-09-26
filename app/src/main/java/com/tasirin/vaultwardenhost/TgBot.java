@@ -685,13 +685,15 @@ public final class TgBot {
     }
 
     /** True bila argumen /restore adalah kata konfirmasi (YA/YES/Y/OK/KONFIRMASI/LANJUT). */
+    /** True bila argumen /restore adalah konfirmasi eksplisit. Sengaja sempit
+     *  ("ya"/"yes"/"konfirmasi"): kata umum seperti "ok"/"y"/"lanjut" yang nyasar
+     *  tepat setelah info restore tak boleh memicu timpa database. Murni. */
     static boolean isRestoreConfirm(String arg) {
         if (arg == null) {
             return false;
         }
         String a = arg.trim().toLowerCase(Locale.US);
-        return a.equals("ya") || a.equals("yes") || a.equals("y")
-                || a.equals("ok") || a.equals("konfirmasi") || a.equals("lanjut");
+        return a.equals("ya") || a.equals("yes") || a.equals("konfirmasi");
     }
 
     /** Teks konfirmasi /restore: info backup terakhir + cara konfirmasi. */
