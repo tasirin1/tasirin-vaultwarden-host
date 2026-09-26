@@ -269,4 +269,13 @@ public class TgBackupTest {
         assertNotNull(TgBackup.verifikasiZip(sampah));
         sampah.delete();
     }
+
+    @Test
+    public void dbSibuk_bedakanKunciSesaatDariKorup() {
+        assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
+        assertFalse(TgBackup.dbSibuk("no such table: main"));
+        assertFalse(TgBackup.dbSibuk("file is not a database"));
+        assertFalse(TgBackup.dbSibuk(null));
+        assertFalse(TgBackup.dbSibuk(""));
+    }
 }

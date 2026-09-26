@@ -42,6 +42,11 @@ public final class AutoUpdate {
             if (latest == null) {
                 return;
             }
+            // Segarkan anchor TLS maksimal 1x sehari (best-effort, gagal diam).
+            try {
+                Updater.segarkanTrustAnchor(ctx);
+            } catch (Exception ignored) {
+            }
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
@@ -50,15 +55,15 @@ public final class AutoUpdate {
                     updated != null && !updated.isEmpty()
                             ? updated : Updater.readBundledVersionRaw(ctx));
             boolean adaTerpasang = false;
-            if (real != null && real.equals(latest)) {
+            if (Updater.bandingVersi(real, latest) >= 0) {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pending.atur(null);
-            } else if (current != null && !current.equals(latest)) {
+            } else if (Updater.bandingVersi(current, latest) < 0) {
                 if (sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
                     try {
                         String msg = Updater.tryUpdate(ctx);
                         pending.atur(null);
-                        if (msg.startsWith("Update v")) {
+                        if (Updater.binaryBerubah(msg)) {
                             adaTerpasang = true;
                         }
                         aksi.toast(msg);

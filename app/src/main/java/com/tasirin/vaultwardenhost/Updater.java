@@ -398,7 +398,9 @@ public final class Updater {
         boolean butuhRefresh = ServerService.perluRefreshPatch(
                 sp.getString(ServerService.KEY_BIN_PATCH, ""));
         String real = parseBinaryVersion(ServerService.binaryVersion);
-        if (!butuhRefresh && real != null && real.equals(latest)) {
+        // Banding terurut: binary lebih baru dari rilis (mis. build lokal) tak
+        // ikut di-downgrade; hanya versi lebih lama yang diunduh ulang.
+        if (!butuhRefresh && bandingVersi(real, latest) >= 0) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             return "Sudah versi terbaru: v" + latest;
@@ -406,7 +408,7 @@ public final class Updater {
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (!butuhRefresh && current != null && current.equals(latest)) {
+        if (!butuhRefresh && bandingVersi(current, latest) >= 0) {
             return "Sudah versi terbaru: v" + latest;
         }
 
@@ -504,11 +506,110 @@ public final class Updater {
         }
         ServerService.binaryVersion = "";
         if (installed != null) {
-            return "Update v" + installed + " terpasang.";
+            return "Update v" + installed + " terpasang. " + BINARY_UPDATED_MARKER;
         }
         return fallback
                 ? "Binary rilis terbaru terpasang (v" + latest + " belum tersedia di repo)."
-                : "Update v" + (latest != null ? latest : "?") + " terpasang.";
+                : "Update v" + (latest != null ? latest : "?") + " terpasang. "
+                        + BINARY_UPDATED_MARKER;
+    }
+
+    /** Penanda mesin "binary benar-benar diganti" (seperti WV_UPDATED_MARKER).
+     *  Pemanggil (UI/bot) wajib pakai binaryBerubah(), bukan startsWith,
+     *  agar perubahan redaksi pesan tak membunuh auto-restart diam-diam. */
+    static final String BINARY_UPDATED_MARKER = "[bin-updated]";
+
+    /** True bila pesan hasil tryUpdate berarti binary diganti (perlu restart).
+     *  Cek marker mesin dulu, fallback awalan lama untuk pesan versi lama. Murni. */
+    static boolean binaryBerubah(String msg) {
+        if (msg == null) {
+            return false;
+        }
+        if (msg.contains(BINARY_UPDATED_MARKER)) {
+            return true;
+        }
+        return msg.startsWith("Update v");
+    }
+
+    /** Nama asset rantai trust GitHub bila kelak diterbitkan di rilis repo. */
+    static final String TRUST_CHAIN_ASSET = "github-chain.pem";
+    /** Batas ukuran rantai (bawaan ~4 KB; 64 KB longgar anti OOM di STB). */
+    static final int BATAS_RANTAI_TRUST = 64 * 1024;
+    /** Penanda hari refresh anchor terakhir (agar maks 1x sehari). */
+    static final String KEY_TRUST_TGL = "trust_anchor_tgl";
+
+    /** Hitung sertifikat X.509 dalam blob PEM/DER; 0 bila sampah. Murni. */
+    static int validasiRantai(byte[] blob) {
+        if (blob == null || blob.length == 0 || blob.length > BATAS_RANTAI_TRUST) {
+            return 0;
+        }
+        try {
+            java.security.cert.CertificateFactory cf =
+                    java.security.cert.CertificateFactory.getInstance("X.509");
+            int n = 0;
+            for (Object o : cf.generateCertificates(
+                    new java.io.ByteArrayInputStream(blob))) {
+                if (o != null) {
+                    n++;
+                }
+            }
+            return n;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Segarkan anchor TLS dari rilis repo (best-effort, maks 1x sehari).
+     *  Return true bila override baru terpasang. Gagal diam (404/validasi):
+     *  anchor bawaan tetap dipakai sehingga tak ada regresi sebelum asset
+     *  diterbitkan. Dipasang atomik (tmp + rename) agar crash tak merusak. */
+    static boolean segarkanTrustAnchor(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String hari = String.valueOf(System.currentTimeMillis() / 86400000L);
+            if (hari.equals(sp.getString(KEY_TRUST_TGL, ""))) {
+                return false;
+            }
+            HttpURLConnection c = null;
+            byte[] blob;
+            try {
+                c = open(ctx, RELEASE_LATEST_URL + TRUST_CHAIN_ASSET, 10000, 10000);
+                if (c.getResponseCode() != 200) {
+                    return false;
+                }
+                blob = TgBackup.bacaTerbatas(c.getInputStream(), BATAS_RANTAI_TRUST + 1);
+            } finally {
+                if (c != null) {
+                    c.disconnect();
+                }
+            }
+            if (validasiRantai(blob) < 1) {
+                return false;
+            }
+            File dir = new File(ctx.getFilesDir(), "certs");
+            if (!dir.exists() && !dir.mkdirs()) {
+                return false;
+            }
+            File tmp = new File(dir, TRUST_CHAIN_ASSET + ".tmp");
+            File dst = new File(dir, TRUST_CHAIN_ASSET);
+            try (FileOutputStream fos = new FileOutputStream(tmp)) {
+                fos.write(blob);
+                fos.getFD().sync();
+            }
+            if (dst.exists() && !dst.delete()) {
+                tmp.delete();
+                return false;
+            }
+            if (!tmp.renameTo(dst)) {
+                tmp.delete();
+                return false;
+            }
+            sp.edit().putString(KEY_TRUST_TGL, hari).apply();
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /** True bila file shim valid (ELF + ukuran wajar). */
@@ -943,6 +1044,47 @@ public final class Updater {
             return null;
         }
         return v.startsWith("v") ? v.substring(1) : v;
+    }
+
+    /** Banding versi numerik per segmen ("1.9" < "1.10", "1.37" = "1.37.0").
+     *  Tak dikenal (null/kosong) dianggap paling tua agar jalur update tetap
+     *  jalan. Murni agar bisa unit test. */
+    static int bandingVersi(String a, String b) {
+        int[] va = uraiVersi(a);
+        int[] vb = uraiVersi(b);
+        int n = Math.max(va.length, vb.length);
+        for (int i = 0; i < n; i++) {
+            int x = i < va.length ? va[i] : 0;
+            int y = i < vb.length ? vb[i] : 0;
+            if (x != y) {
+                return x < y ? -1 : 1;
+            }
+        }
+        return 0;
+    }
+
+    /** Urai "1.37.3" jadi {1,37,3}; rusak/null jadi array kosong (paling tua). */
+    private static int[] uraiVersi(String v) {
+        if (v == null) {
+            return new int[0];
+        }
+        String t = v.trim();
+        if (t.startsWith("v") || t.startsWith("V")) {
+            t = t.substring(1);
+        }
+        if (t.isEmpty()) {
+            return new int[0];
+        }
+        String[] bagian = t.split("\\.");
+        int[] keluar = new int[bagian.length];
+        for (int i = 0; i < bagian.length; i++) {
+            try {
+                keluar[i] = Math.max(0, Integer.parseInt(bagian[i].trim()));
+            } catch (Exception e) {
+                return new int[0];
+            }
+        }
+        return keluar;
     }
 
     // Pola versi di-compile sekali (dipanggil tiap detik dari UI & status web).

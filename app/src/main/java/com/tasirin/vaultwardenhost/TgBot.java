@@ -601,7 +601,7 @@ public final class TgBot {
                                 msg += " Shim gagal: " + se.getMessage();
                             }
                         }
-                        if (msg.startsWith("Update v")) {
+                        if (Updater.binaryBerubah(msg)) {
                             if (was) {
                                 TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
                                 ServerService.restart(ctx);

@@ -295,4 +295,40 @@ public class UpdaterTest {
         }
         return f;
     }
+
+    @Test
+    public void bandingVersi_terurutNumerik() {
+        assertTrue(Updater.bandingVersi("1.37.3", "1.37.3") == 0);
+        assertTrue(Updater.bandingVersi("1.37", "1.37.0") == 0);
+        assertTrue(Updater.bandingVersi("1.9", "1.10") < 0);
+        assertTrue(Updater.bandingVersi("1.38", "1.37.9") > 0);
+        assertTrue(Updater.bandingVersi("v1.37.1", "1.37.1") == 0);
+        assertTrue(Updater.bandingVersi("2.0", "1.99.99") > 0);
+    }
+
+    @Test
+    public void bandingVersi_takDikenalDianggapTertua() {
+        assertTrue(Updater.bandingVersi(null, "1.37.1") < 0);
+        assertTrue(Updater.bandingVersi("", "1.37.1") < 0);
+        assertTrue(Updater.bandingVersi("rusak", "1.37.1") < 0);
+    }
+
+    @Test
+    public void binaryBerubah_markerDuluFallbackLama() {
+        assertTrue(Updater.binaryBerubah("Update v1.37.1 terpasang. [bin-updated]"));
+        assertTrue(Updater.binaryBerubah("Update v1.37.1 terpasang."));
+        assertFalse(Updater.binaryBerubah("Sudah versi terbaru: v1.37.1"));
+        assertFalse(Updater.binaryBerubah("Binary rilis terbaru terpasang (v1.0 belum tersedia di repo)."));
+        assertFalse(Updater.binaryBerubah(null));
+        assertFalse(Updater.binaryBerubah(""));
+    }
+
+    @Test
+    public void validasiRantai_tolakSampahFailClosed() {
+        assertEquals(0, Updater.validasiRantai(null));
+        assertEquals(0, Updater.validasiRantai(new byte[0]));
+        assertEquals(0, Updater.validasiRantai("bukan-sertifikat".getBytes(
+                java.nio.charset.StandardCharsets.US_ASCII)));
+        assertEquals(0, Updater.validasiRantai(new byte[Updater.BATAS_RANTAI_TRUST + 1]));
+    }
 }

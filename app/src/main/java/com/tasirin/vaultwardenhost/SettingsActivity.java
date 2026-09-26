@@ -1127,7 +1127,11 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
-                        boolean dbPart = name.startsWith("db.sqlite3");
+                        // Ketat seperti restore Telegram: hanya 3 file DB resmi.
+                        // Awalan longgar menulis sampah (mis. db.sqlite3-evil).
+                        boolean dbPart = name.equals("db.sqlite3")
+                                || name.equals("db.sqlite3-wal")
+                                || name.equals("db.sqlite3-shm");
                         boolean tlsPart = name.startsWith("tls/") || name.equals("tls");
                         if (!dbPart && !tlsPart) {
                             zis.closeEntry();
@@ -1160,7 +1164,7 @@ public class SettingsActivity extends Activity {
                             }
                         }
                         zis.closeEntry();
-                        if (!entry.isDirectory() && name.startsWith("db.sqlite3")) {
+                        if (!entry.isDirectory() && name.equals("db.sqlite3")) {
                             restored = true;
                         }
                     }
@@ -1865,11 +1869,11 @@ public class SettingsActivity extends Activity {
                     msg += " Shim gagal: " + se.getMessage();
                 }
             }
-            if (msg.startsWith("Update v")) {
+            if (Updater.binaryBerubah(msg)) {
                 pendingVersion = null;
             }
             appendUiLog("[app] " + msg);
-            toast(msg.startsWith("Update v")
+            toast(Updater.binaryBerubah(msg)
                     ? msg + " Tekan Start untuk memakai."
                     : msg);
         } catch (Exception e) {

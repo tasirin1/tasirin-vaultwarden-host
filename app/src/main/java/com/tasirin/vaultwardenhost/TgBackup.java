@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -77,11 +76,17 @@ public final class TgBackup {
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
     // Satu worker berantre untuk pesan Telegram: hemat thread (sebelumnya satu
     // thread baru per pesan) sekaligus menjaga urutan pengiriman.
-    private static final ExecutorService TG_MSG_EXEC = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "vw-tgmsg");
-        t.setDaemon(true);
-        return t;
-    });
+    // Antrean dibatasi 20 + buang tertua: saat Telegram lama tak terjangkau,
+    // pesan basi (mis. "Server jalan" berjam-jam lalu) tak menumpuk OOM di
+    // STB 1 GB dan tak terkirim menyesatkan; pesan terbaru selalu diprioritaskan.
+    private static final ExecutorService TG_MSG_EXEC =
+            new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
+                    java.util.concurrent.TimeUnit.MILLISECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20), r -> {
+                Thread t = new Thread(r, "vw-tgmsg");
+                t.setDaemon(true);
+                return t;
+            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
 
     private static final String ENC_MAGIC = "VWB1";
 
@@ -225,7 +230,22 @@ public final class TgBackup {
         checkpointWal(db);
         // Integritas SQLite penuh (bukan cuma magic header): tolak DB robek
         // akibat salin saat server menulis, sebelum diunggah ke Telegram.
+        // Terkunci sesaat (SIBUK) bukan korup: coba ulang 3x selang 1 detik
+        // sebelum menyerah agar backup tak gugur oleh tulis sesaat server.
         String cekDb = cekIntegritasDb(db);
+        for (int tunggu = 0; dbSibuk(cekDb) && tunggu < 2; tunggu++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Backup otomatis dibatalkan.");
+            }
+            cekDb = cekIntegritasDb(db);
+        }
+        if (dbSibuk(cekDb)) {
+            throw new IOException("Database sibuk (server sedang menulis)"
+                    + " - backup dibatalkan, coba lagi sebentar.");
+        }
         if (cekDb != null) {
             throw new IOException("Database korup (" + cekDb + ") - backup dibatalkan.");
         }
@@ -394,8 +414,10 @@ public final class TgBackup {
     static void checkpointWal(File dbFile) {
         SQLiteDatabase db = null;
         try {
+            // READWRITE disengaja: wal_checkpoint(TRUNCATE) butuh tulis sehingga
+            // mode READONLY selalu gagal diam-diam dan WAL tak pernah disatukan.
             db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
-                    SQLiteDatabase.OPEN_READONLY);
+                    SQLiteDatabase.OPEN_READWRITE);
             android.database.Cursor c = db.rawQuery(
                     "PRAGMA wal_checkpoint(TRUNCATE);", null);
             if (c != null) {
@@ -413,7 +435,8 @@ public final class TgBackup {
         }
     }
 
-    /** PRAGMA quick_check baca-saja; null bila OK, pesan singkat bila korup. */
+    /** PRAGMA quick_check baca-saja; null bila OK, pesan singkat bila korup,
+     *  "SIBUK: ..." bila DB terkunci sesaat (server sedang menulis). */
     static String cekIntegritasDb(File dbFile) {
         SQLiteDatabase db = null;
         android.database.Cursor c = null;
@@ -431,6 +454,11 @@ public final class TgBackup {
             return "quick_check tanpa hasil";
         } catch (Exception e) {
             String m = e.getMessage();
+            String rendah = (e.toString() + " " + String.valueOf(m))
+                    .toLowerCase(java.util.Locale.US);
+            if (rendah.contains("busy") || rendah.contains("locked")) {
+                return "SIBUK: " + (m == null || m.isEmpty() ? e.toString() : m);
+            }
             return m == null || m.isEmpty() ? e.toString() : m;
         } finally {
             if (c != null) {
@@ -440,6 +468,12 @@ public final class TgBackup {
                 try { db.close(); } catch (Exception ignored) {}
             }
         }
+    }
+
+    /** True bila hasil cek berarti terkunci sesaat (layak coba ulang),
+     *  bukan korup. Murni agar bisa unit test. */
+    static boolean dbSibuk(String hasilCek) {
+        return hasilCek != null && hasilCek.startsWith("SIBUK:");
     }
 
     /** Catat kegagalan Telegram ke log app (isi respons dipotong 200 char). */
@@ -1099,6 +1133,11 @@ public final class TgBackup {
         int jumlahEntri = 0;
         String basePath = dataFolder.getCanonicalPath();
         String awalanAman = basePath + File.separator;
+        // Lacak -wal/-shm dari zip: bila zip hanya berisi db.sqlite3, sisa
+        // -wal/-shm basi milik DB lama wajib dibuang agar tak ditempel ke DB
+        // baru (backup bagus bisa ditolak "korup" atau DB jadi cacat).
+        boolean adaWal = false;
+        boolean adaShm = false;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -1115,6 +1154,11 @@ public final class TgBackup {
                     } catch (Exception ignored) {
                     }
                     continue;
+                }
+                if ("db.sqlite3-wal".equals(nama)) {
+                    adaWal = true;
+                } else if ("db.sqlite3-shm".equals(nama)) {
+                    adaShm = true;
                 }
                 File outFile = new File(dataFolder, nama);
                 String kanon = outFile.getCanonicalPath();
@@ -1151,6 +1195,9 @@ public final class TgBackup {
                 }
             } catch (Exception ignored) {
             }
+        }
+        if (!adaWal || !adaShm) {
+            hapusWalShm(dataFolder);
         }
         if (!dbFile.exists()) {
             throw new IOException("Backup tidak berisi db.sqlite3.");

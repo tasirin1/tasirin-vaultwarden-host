@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.security.KeyStore;
@@ -23,6 +24,8 @@ import javax.net.ssl.TrustManagerFactory;
 public final class HttpsCompat {
 
     private static volatile SSLSocketFactory cached;
+    /** Cap override anchor (mtime+ukuran); gugur bila file disegarkan. */
+    private static volatile long cachedCap = -1L;
 
     private HttpsCompat() {
     }
@@ -43,12 +46,26 @@ public final class HttpsCompat {
         }
     }
 
+    /** Cap file override anchor (0 bila tak ada): kunci invalidasi cache. */
+    private static long capOverride(Context ctx) {
+        try {
+            File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
+            if (ov.isFile()) {
+                return ov.lastModified() * 1000000L + ov.length();
+            }
+        } catch (Exception ignored) {
+        }
+        return 0L;
+    }
+
     private static SSLSocketFactory socketFactory(Context ctx) throws Exception {
-        if (cached != null) {
-            return cached;
+        long cap = capOverride(ctx);
+        SSLSocketFactory f = cached;
+        if (f != null && cap == cachedCap) {
+            return f;
         }
         synchronized (HttpsCompat.class) {
-            if (cached != null) {
+            if (cached != null && cap == cachedCap) {
                 return cached;
             }
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -76,11 +93,32 @@ public final class HttpsCompat {
             } catch (Exception ignored) {
             }
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            // Override hasil segarkanTrustAnchor diutamakan bila valid; bila
+            // rusak, jatuh ke bawaan (fail-safe, bukan gagal total).
+            boolean pakaiBawaan = true;
+            try {
+                File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
+                if (ov.isFile()) {
+                    try (InputStream in = new java.io.FileInputStream(ov)) {
+                        int i = 0;
+                        for (Certificate cert : cf.generateCertificates(in)) {
+                            ks.setCertificateEntry("ov-" + (i++), cert);
+                        }
+                        if (i > 0) {
+                            pakaiBawaan = false;
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            if (pakaiBawaan) {
             try (InputStream in = ctx.getAssets().open("certs/github-chain.pem")) {
                 int i = 0;
                 for (Certificate cert : cf.generateCertificates(in)) {
                     ks.setCertificateEntry("extra-" + (i++), cert);
                 }
+            }
             }
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());
@@ -89,6 +127,7 @@ public final class HttpsCompat {
             SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, tmf.getTrustManagers(), new SecureRandom());
             cached = sc.getSocketFactory();
+            cachedCap = cap;
         }
         return cached;
     }

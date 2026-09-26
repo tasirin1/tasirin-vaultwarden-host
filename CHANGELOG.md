@@ -6,6 +6,24 @@ mengikuti tanggal build UTC (`yyyy.MM.dd`); release GitHub mengikuti versi
 Vaultwarden (`v<versi>`). APK, binary, dan web-vault terbaru selalu ada di
 [GitHub Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases).
 
+## [Belum rilis] — Audit bug: WAL restore, antre pesan, anchor TLS, versi, swap, checkpoint
+
+### Perbaikan
+- Restore Telegram: buang `-wal`/`-shm` basi bila zip hanya berisi
+  `db.sqlite3` agar backup bagus tak ditolak "korup".
+- Pesan Telegram: antrean dibatasi 20 + buang tertua agar outage lama tak
+  menumpuk OOM dan tak mengirim status basi berjam-jam kemudian.
+- TLS: anchor dukung override (`filesDir/certs/github-chain.pem`, validasi
+  PEM) + segar otomatis 1x sehari dari rilis (gagal diam sebelum asset ada).
+- Update: banding versi semver terurut (tak lagi downgrade bila binary lebih
+  baru) + marker mesin `[bin-updated]` gantikan `startsWith` di UI/bot.
+- Web-vault: batalkan tanpa hapus bila rename `.bak` gagal (versi lama utuh).
+- Backup: checkpoint WAL pakai mode tulis (sebelumnya READONLY selalu gagal
+  diam); kunci sesaat (`SIBUK`) dicoba ulang 3x, bukan divonis korup.
+- Restore lokal: nama DB diketatkan ke 3 file resmi (`db.sqlite3-evil`
+  tak lagi ditulis sebagai sampah).
+- Alarm: siaran ubah jam/zona tak memicu backup ulang bila backup <1 jam lalu.
+
 ## [Belum rilis] — Audit bug: flag bot macet, lockout jam miring, grace PIN, symlink, redirect //
 
 ### Perbaikan

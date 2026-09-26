@@ -53,7 +53,13 @@ public class AlarmReceiver extends BroadcastReceiver {
                 return;
             }
             long last = sp.getLong(TgBackup.KEY_TG_LAST, 0);
-            if (TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
+            long kini = System.currentTimeMillis();
+            // Abaikan utak-atik jam/zona manual yang memicu siaran beruntun:
+            // backup <1 jam lalu tak perlu diulang hanya karena jam diutak-atik.
+            if (last > 0 && kini - last < 3600_000L) {
+                return;
+            }
+            if (TgBackup.sudahGantiHari(last, kini)) {
                 mulaiBackup(context);
             }
             return;
