@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Start STB kernel lama gagal uji --version padahal binary bagus
+
+### Perbaikan
+- Start di STB kernel lama (mis. ZTE B860H 3.14.29) gagal dengan
+  "File update tidak valid (gagal uji jalan --version)" padahal binary bagus:
+  uji asap `--version` butuh shim `LD_PRELOAD` tapi shim baru diunduh sesudah
+  binary (ayam-telur saat folder bin masih kosong). Kini shim dipastikan dulu
+  sebelum uji asap di `Updater.downloadBinary`, di awal `ensureBinary`, serta
+  sebelum `tryUpdate` di Settings dan `/update` Telegram. Pesan gagal uji di
+  kernel lama tanpa shim kini menyebut shim + langkah (cek internet, Start lagi).
+
 ## [Belum rilis] — Upload tak tahan antrean, export ingatkan plaintext, konfirmasi restore sempit
 
 ### Perbaikan

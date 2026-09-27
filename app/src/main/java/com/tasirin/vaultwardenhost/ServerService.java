@@ -1615,6 +1615,18 @@ public class ServerService extends Service {
             appendLog("[app] Gagal membuat folder binary.");
             return null;
         }
+        // STB kernel lama: pastikan shim duluan agar semua smoke test --version
+        // di bawah (cache, manual, unduhan) menilai kondisi start sebenarnya.
+        // Tanpa ini binary bagus gagal uji saat shim belum ada (bin kosong).
+        // Murah bila shim sudah valid (tanpa jaringan).
+        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            try {
+                Updater.ensureShimFile(this);
+            } catch (Exception abaikan) {
+                // Gagal unduh shim (mis. offline): smoke test di bawah yang
+                // menentukan, lalu pesan unduh binary yang menjelaskan.
+            }
+        }
         File out = new File(binDir, "vaultwarden-" + ABI);
         File verFile = new File(binDir, "version.txt");
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);

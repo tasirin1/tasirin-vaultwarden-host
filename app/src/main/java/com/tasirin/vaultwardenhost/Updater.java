@@ -603,10 +603,26 @@ public final class Updater {
         // ke binary rusak.
         tmp.setReadable(true, true);
         tmp.setExecutable(true, true);
+        // STB kernel lama (mis. 3.14): binary butuh shim LD_PRELOAD agar uji
+        // --version lolos. Shim wajib dipastikan ADA SEBELUM uji asap, bukan
+        // sesudah (dulu folder bin kosong selalu gagal di sini karena shim
+        // belum terpasang, padahal binary-nya bagus).
+        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            try {
+                ensureShimFile(ctx);
+            } catch (Exception abaikan) {
+                // Bila shim lama masih ada, detectVersion tetap memakainya.
+                // Bila tak ada sama sekali, uji di bawah gagal dengan pesan
+                // yang menyebut shim agar langkah user jelas.
+            }
+        }
         String asap = detectVersion(ctx, tmp);
         if (asap == null) {
+            boolean shimAda = shimValid(new File(ctx.getFilesDir(),
+                    "bin/" + KernelCompat.SHIM_ASSET));
             tmp.delete();
-            throw new IOException("File update tidak valid (gagal uji jalan --version).");
+            throw new IOException(pesanUjiAsapGagal(
+                    KernelCompat.kernelSekarang(), shimAda));
         }
         if (out.exists()) {
             out.delete();
@@ -651,6 +667,17 @@ public final class Updater {
             return true;
         }
         return msg.startsWith("Update v");
+    }
+
+    /** Pesan gagal uji asap --version; di kernel lama tanpa shim sebut shim
+     *  agar langkah user jelas (murni agar bisa diuji unit). */
+    static String pesanUjiAsapGagal(String kernel, boolean shimAda) {
+        if (KernelCompat.isLegacyDevice(kernel == null ? "" : kernel) && !shimAda) {
+            return "File update tidak valid (gagal uji jalan --version;"
+                    + " shim getrandom belum terpasang)."
+                    + " Cek internet lalu tekan Start lagi agar shim ikut terunduh.";
+        }
+        return "File update tidak valid (gagal uji jalan --version).";
     }
 
     /** Nama asset rantai trust GitHub bila kelak diterbitkan di rilis repo. */

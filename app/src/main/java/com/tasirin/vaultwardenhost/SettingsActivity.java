@@ -1910,15 +1910,17 @@ public class SettingsActivity extends Activity {
     private void checkForUpdate() {
         try {
             appendUiLog("[app] Mengecek update dari sumber resmi...");
-            String msg = Updater.tryUpdate(this);
+            // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
+            String imbuhShim = "";
             if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
                 try {
                     Updater.ensureShimFile(this);
-                    msg += " Shim getrandom siap.";
+                    imbuhShim = " Shim getrandom siap.";
                 } catch (Exception se) {
-                    msg += " Shim gagal: " + se.getMessage();
+                    imbuhShim = " Shim gagal: " + se.getMessage();
                 }
             }
+            String msg = Updater.tryUpdate(this) + imbuhShim;
             if (Updater.binaryBerubah(msg)) {
                 pendingVersion = null;
             }

@@ -472,6 +472,27 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pesanUjiAsapGagal_legacyTanpaShimSebutShim() {
+        String pesan = Updater.pesanUjiAsapGagal("3.14.29", false);
+        assertTrue(pesan.contains("gagal uji jalan"));
+        assertTrue(pesan.contains("shim"));
+    }
+
+    @Test
+    public void pesanUjiAsapGagal_legacyDenganShimSingkat() {
+        String pesan = Updater.pesanUjiAsapGagal("3.14.29", true);
+        assertTrue(pesan.contains("gagal uji jalan"));
+        assertFalse(pesan.contains("shim"));
+    }
+
+    @Test
+    public void pesanUjiAsapGagal_modernTakSebutShim() {
+        assertFalse(Updater.pesanUjiAsapGagal("4.4.126", false).contains("shim"));
+        assertFalse(Updater.pesanUjiAsapGagal(null, false).contains("shim"));
+        assertFalse(Updater.pesanUjiAsapGagal("", true).contains("shim"));
+    }
+
+    @Test
     public void validasiRantai_tolakSampahFailClosed() {
         assertEquals(0, Updater.validasiRantai(null));
         assertEquals(0, Updater.validasiRantai(new byte[0]));
