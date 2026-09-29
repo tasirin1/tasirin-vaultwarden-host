@@ -1134,7 +1134,7 @@ public class SettingsActivity extends Activity {
                 int n = 0;
                 while (n < 2) {
                     int r = in.read(magic, n, 2 - n);
-                    if (r < 0) {
+                    if (r <= 0) {
                         break;
                     }
                     n += r;
@@ -1255,7 +1255,7 @@ public class SettingsActivity extends Activity {
                     int off = n;
                     while (off < head.length) {
                         int r = in.read(head, off, head.length - off);
-                        if (r < 0) {
+                        if (r <= 0) {
                             break;
                         }
                         off += r;

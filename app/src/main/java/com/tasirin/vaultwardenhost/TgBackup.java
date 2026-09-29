@@ -1380,8 +1380,14 @@ public final class TgBackup {
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
             byte[] magic = new byte[4];
-            if (fis.read(magic) != 4
-                    || !ENC_MAGIC.equals(new String(magic, StandardCharsets.US_ASCII))) {
+            // read() boleh short-read (<4 byte walau belum EOF): baca sampai
+            // penuh agar file terenkripsi tak dikira plaintext.
+            try {
+                readFully(fis, magic);
+            } catch (IOException e) {
+                throw new IOException("File bukan backup terenkripsi");
+            }
+            if (!ENC_MAGIC.equals(new String(magic, StandardCharsets.US_ASCII))) {
                 throw new IOException("File bukan backup terenkripsi");
             }
             byte[] salt = new byte[16];
@@ -1427,7 +1433,7 @@ public final class TgBackup {
         int off = 0;
         while (off < out.length) {
             int n = fis.read(out, off, out.length - off);
-            if (n < 0) {
+            if (n <= 0) {
                 throw new IOException("File terenkripsi rusak");
             }
             off += n;
@@ -2098,7 +2104,7 @@ public final class TgBackup {
             int off = 0;
             while (off < head.length) {
                 int n = in.read(head, off, head.length - off);
-                if (n < 0) {
+                if (n <= 0) {
                     return false;
                 }
                 off += n;
