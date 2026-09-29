@@ -42,14 +42,19 @@
 #elif defined(__riscv) && __riscv_xlen == 64
 #define SYS_getrandom 278
 #else
-#define SYS_getrandom 0
+#error "Nomor syscall getrandom tak dikenal untuk arsitektur ini"
 #endif
 #endif
 
 // fd /dev/urandom dipakai ulang antar panggilan (hemat open/close saat TLS sibuk).
 static int fd_urandom = -1;
 static pthread_mutex_t kunci_urandom = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t kunci_syscall = PTHREAD_MUTEX_INITIALIZER;
+static pthread_once_t sekali_syscall = PTHREAD_ONCE_INIT;
+static long (*nyata_syscall)(long, long, long, long, long, long, long) = 0;
+
+static void init_syscall_nyata(void) {
+    *(void **) (&nyata_syscall) = dlsym(RTLD_NEXT, "syscall");
+}
 
 // Isi buf dari /dev/urandom; 0 bila len 0, -1 + errno bila gagal.
 static ssize_t isi_urandom(void *buf, size_t len) {
@@ -123,6 +128,9 @@ ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
 // LP32/LP64); register ekstra yang terbaca untuk panggilan argumen
 // sedikit diabaikan kernel/penerusan, jadi aman diteruskan apa adanya.
 long syscall(long n, ...) {
+    // Baca register/stack argumen apa adanya seperti implementasi libc:
+    // kernel dan syscall asli mengabaikan kelebihan argumen, jadi nomor
+    // lain aman diteruskan walau pemanggil mengirim <6 argumen.
     va_list ap;
     va_start(ap, n);
     long a = va_arg(ap, long);
@@ -139,17 +147,12 @@ long syscall(long n, ...) {
     ) {
         return (long) isi_urandom((void *) a, (size_t) b);
     }
-    static long (*nyata)(long, long, long, long, long, long, long) = 0;
-    if (!nyata) {
-        pthread_mutex_lock(&kunci_syscall);
-        if (!nyata) {
-            *(void **) (&nyata) = dlsym(RTLD_NEXT, "syscall");
-        }
-        pthread_mutex_unlock(&kunci_syscall);
-        if (!nyata) {
-            errno = 38; // ENOSYS bila penerusan tak ditemukan.
-            return -1;
-        }
+    // Sekali saja (thread-safe): double-checked locking mentah diganti
+    // pthread_once agar tak ada race publikasi pointer antar thread.
+    pthread_once(&sekali_syscall, init_syscall_nyata);
+    if (!nyata_syscall) {
+        errno = 38; // ENOSYS bila penerusan tak ditemukan.
+        return -1;
     }
-    return nyata(n, a, b, c, d, e, f);
+    return nyata_syscall(n, a, b, c, d, e, f);
 }

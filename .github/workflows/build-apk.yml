@@ -303,7 +303,7 @@ jobs:
 
       - name: Fetch web-vault (matching Vaultwarden version)
         run: |
-          DIGEST=$(curl -s "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
+          DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
             | grep 'vault_image_digest' | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
           test -n "$DIGEST" || { echo "Digest web-vault tidak ditemukan"; exit 1; }
           echo "Web-vault digest: $DIGEST"
@@ -352,7 +352,7 @@ jobs:
       - name: Verify APK contents
         run: |
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
-          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
+          test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           echo "== $APK"
           unzip -l "$APK" | grep -E 'vw_version|classes.dex|AndroidManifest'
           ls -lh "$APK"
@@ -360,7 +360,7 @@ jobs:
       - name: Cek ukuran APK (jaga APK tetap kecil)
         run: |
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
-          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
+          test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           SIZE=$(stat -c %s "$APK")
           echo "Ukuran APK (${APK##*/}): $SIZE bytes"
           # APK desain ~0,1 MB (binary & web-vault tidak dibundel); batas 2 MB
@@ -375,7 +375,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
-          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk -name '*.apk' | head -1); fi
+          test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           cp /tmp/vw-bin/vaultwarden vaultwarden-armeabi-v7a
           cp /tmp/vw-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so

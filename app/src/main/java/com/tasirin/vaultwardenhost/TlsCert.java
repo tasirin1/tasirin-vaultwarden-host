@@ -255,7 +255,7 @@ public final class TlsCert {
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             byte[] tmp = new byte[1024];
             int n;
-            while ((n = in.read(tmp)) > 0) {
+            while ((n = in.read(tmp)) != -1) {
                 buf.write(tmp, 0, n);
             }
             String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);

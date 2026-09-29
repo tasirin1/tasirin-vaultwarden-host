@@ -683,7 +683,7 @@ public final class TgBackup {
             try (InputStream in = zf.getInputStream(db)) {
                 int n;
                 while (off < head.length
-                        && (n = in.read(head, off, head.length - off)) > 0) {
+                        && (n = in.read(head, off, head.length - off)) != -1) {
                     off += n;
                 }
             }
@@ -1291,7 +1291,15 @@ public final class TgBackup {
     public static boolean isEncrypted(File f) {
         try (FileInputStream fis = new FileInputStream(f)) {
             byte[] magic = new byte[4];
-            return fis.read(magic) == 4
+            int off = 0;
+            while (off < magic.length) {
+                int n = fis.read(magic, off, magic.length - off);
+                if (n <= 0) {
+                    break;
+                }
+                off += n;
+            }
+            return off == 4
                     && ENC_MAGIC.equals(new String(magic, StandardCharsets.US_ASCII));
         } catch (Exception e) {
             return false;
@@ -1516,6 +1524,15 @@ public final class TgBackup {
                 // tls/*, dan app-config.json (diterapkan langsung, tak ditulis).
                 String nama = normalisasiEntriZip(entry.getName());
                 if (nama == null || "app-config.json".equals(nama)) {
+                    try {
+                        zis.closeEntry();
+                    } catch (Exception ignored) {
+                    }
+                    continue;
+                }
+                if ("tls".equals(nama) && !entry.isDirectory()) {
+                    // "tls" hanya sah sebagai direktori; file bernama sama
+                    // akan merusak folder tls lalu menggagalkan entri berikut.
                     try {
                         zis.closeEntry();
                     } catch (Exception ignored) {

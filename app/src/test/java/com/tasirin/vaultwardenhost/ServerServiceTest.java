@@ -19,6 +19,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bolehBunuhBasi_lewatiSmokeTest() {
+        assertTrue(ServerService.bolehBunuhBasi(
+                "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a"));
+        assertFalse(ServerService.bolehBunuhBasi(
+                "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a --version"));
+        assertFalse(ServerService.bolehBunuhBasi(null));
+        assertFalse(ServerService.bolehBunuhBasi("/system/bin/sh"));
+    }
+
+    @Test
     public void barisKosong_tanpaAlokasiTrim() {
         assertTrue(ServerService.barisKosong(null));
         assertTrue(ServerService.barisKosong(""));

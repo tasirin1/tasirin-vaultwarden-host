@@ -134,6 +134,14 @@ public final class AutoUpdate {
                 return false;
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Tanpa network aktif isActiveNetworkMetered() false sehingga
+                // offline dulu dianggap "tanpa kuota": pastikan ada network dulu.
+                try {
+                    if (cm.getActiveNetwork() == null) {
+                        return false;
+                    }
+                } catch (Exception ignored) {
+                }
                 return !cm.isActiveNetworkMetered();
             }
             NetworkInfo ni = cm.getActiveNetworkInfo();

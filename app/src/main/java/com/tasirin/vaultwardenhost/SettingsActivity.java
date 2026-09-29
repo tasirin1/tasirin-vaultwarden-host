@@ -1185,6 +1185,11 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
+                        if ("tls".equals(name) && !entry.isDirectory()) {
+                            // "tls" hanya sah sebagai direktori (lihat restore Telegram).
+                            zis.closeEntry();
+                            continue;
+                        }
                         File out = new File(dataFolder, name);
                         // Cegah zip-slip: entri licik (mis. db.sqlite3/../../x)
                         // tidak boleh keluar dari folder data (cek pakai separator

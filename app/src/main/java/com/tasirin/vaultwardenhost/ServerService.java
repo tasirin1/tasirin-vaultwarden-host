@@ -872,6 +872,9 @@ public class ServerService extends Service {
                         + " dibatalkan agar server tak jalan di folder asing.");
             }
             process = pb.start();
+            // Proses baru milik start ini: hapus tanda stop lama agar crash
+            // dini tak dianggap "stop disengaja" (race stopper 5-8 dtk).
+            stopDisengaja = false;
             acquireWakeLock();
             running = true;
             healthFails.set(0);
@@ -2332,7 +2335,7 @@ public class ServerService extends Service {
                         continue;
                     }
                     String cmd = readProcCmdline(d);
-                    if (cmd != null && cmd.contains("bin/vaultwarden")) {
+                    if (bolehBunuhBasi(cmd)) {
                         android.os.Process.killProcess(pid);
                         appendLog("[app] Proses vaultwarden lama (pid " + pid + ") dibersihkan.");
                     }
@@ -2341,6 +2344,14 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    /** True bila cmdline milik server basi yang boleh dibunuh: binary app
+     *  yang nyangkut, BUKAN smoke-test "--version" milik flow update/start
+     *  konkuren. Murni agar bisa unit test. */
+    static boolean bolehBunuhBasi(String cmd) {
+        return cmd != null && cmd.contains("bin/vaultwarden")
+                && !cmd.contains("--version");
     }
 
     private int runningChildPid() {
