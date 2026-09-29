@@ -45,8 +45,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 6 kelas test JVM (junit4): Updater, ServerService,
-                                      # TgBot, TgBackup, PinCrypto, KernelCompat — jalan di CI
+├── app/src/test/                     # 12 kelas test JVM (junit4): Updater, ServerService,
+                                      # TgBot, TgBackup, PinCrypto, KernelCompat, Util,
+                                      # TlsCert, StoragePerm, LogActivity, FileShareProvider,
+                                      # SettingsActivity — jalan di CI
 └── gradle wrapper                    # HANYA dipakai CI; AI dilarang menjalankannya (lihat Aturan No. 1)
 ```
 
@@ -179,8 +181,9 @@ seamless (beda signature) — backup keystore di tempat aman.
   `impl CustomDnsResolver { fn new()` / rantai `Client::builder()`): sesuaikan
   polanya; bila `ndk-context`/platform-verifier sudah tidak dipakai, patch
   terkait bisa dihapus.
-- **Unit test**: 6 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
-  `PinCrypto`, `KernelCompat`) menguji logika murni; tambahkan
+- **Unit test**: 12 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+  `PinCrypto`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`, `LogActivity`,
+  `FileShareProvider`, `SettingsActivity`) menguji logika murni; tambahkan
   test untuk logika murni baru (versi, path, parse, crypto) — jangan test
   yang butuh Android runtime/network. Test hanya jalan di CI, bukan lokal.
 

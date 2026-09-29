@@ -13,34 +13,34 @@ public class SettingsActivityTest {
 
     @Test
     public void galatPortTerimaKosongDanRentang() {
-        assertNull(SettingsActivity.galatPort(null));
-        assertNull(SettingsActivity.galatPort(""));
-        assertNull(SettingsActivity.galatPort("1"));
-        assertNull(SettingsActivity.galatPort("8088"));
-        assertNull(SettingsActivity.galatPort("65535"));
+        assertNull(SettingsActivity.galatPort(null, "SALAH"));
+        assertNull(SettingsActivity.galatPort("", "SALAH"));
+        assertNull(SettingsActivity.galatPort("1", "SALAH"));
+        assertNull(SettingsActivity.galatPort("8088", "SALAH"));
+        assertNull(SettingsActivity.galatPort("65535", "SALAH"));
     }
 
     @Test
     public void galatPortTolakDiLuarRentang() {
-        assertNotNull(SettingsActivity.galatPort("0"));
-        assertNotNull(SettingsActivity.galatPort("65536"));
-        assertNotNull(SettingsActivity.galatPort("abc"));
-        assertNotNull(SettingsActivity.galatPort("-5"));
-        assertNotNull(SettingsActivity.galatPort("80.8"));
+        assertEquals("SALAH", SettingsActivity.galatPort("0", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("65536", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("abc", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("-5", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("80.8", "SALAH"));
     }
 
     @Test
     public void galatFolderTerimaKosongDanBawaan() {
-        assertNull(SettingsActivity.galatFolder(null));
-        assertNull(SettingsActivity.galatFolder(""));
-        assertNull(SettingsActivity.galatFolder(ServerService.DEFAULT_DATA_DIR));
+        assertNull(SettingsActivity.galatFolder(null, "SALAH"));
+        assertNull(SettingsActivity.galatFolder("", "SALAH"));
+        assertNull(SettingsActivity.galatFolder(ServerService.DEFAULT_DATA_DIR, "SALAH"));
     }
 
     @Test
     public void galatFolderTolakTraversalDanRelatif() {
-        assertNotNull(SettingsActivity.galatFolder("/sdcard/../data"));
-        assertNotNull(SettingsActivity.galatFolder("relatif/folder"));
-        assertNotNull(SettingsActivity.galatFolder("/data"));
+        assertEquals("SALAH", SettingsActivity.galatFolder("/sdcard/../data", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatFolder("relatif/folder", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatFolder("/data", "SALAH"));
     }
 
     @Test
@@ -55,41 +55,43 @@ public class SettingsActivityTest {
 
     @Test
     public void badgeHttpsBerjalanDanBerhenti() {
-        assertEquals("HTTPS aktif",
-                SettingsActivity.teksBadgeHttps(true, ""));
-        assertEquals("HTTPS aktif \u2022 Sertifikat TLS: 10 hari",
-                SettingsActivity.teksBadgeHttps(true, "Sertifikat TLS: 10 hari"));
+        assertEquals("AKTIF",
+                SettingsActivity.teksBadgeHttps(true, "", "AKTIF", "BELUM"));
+        assertEquals("AKTIF \u2022 Sertifikat TLS: 10 hari",
+                SettingsActivity.teksBadgeHttps(true, "Sertifikat TLS: 10 hari", "AKTIF", "BELUM"));
         assertEquals("Sertifikat TLS: 10 hari",
-                SettingsActivity.teksBadgeHttps(false, "Sertifikat TLS: 10 hari"));
-        assertTrue(SettingsActivity.teksBadgeHttps(false, "").contains("Start"));
-        assertTrue(SettingsActivity.teksBadgeHttps(false, null).contains("Start"));
+                SettingsActivity.teksBadgeHttps(false, "Sertifikat TLS: 10 hari", "AKTIF", "BELUM"));
+        assertEquals("BELUM",
+                SettingsActivity.teksBadgeHttps(false, "", "AKTIF", "BELUM"));
+        assertEquals("BELUM",
+                SettingsActivity.teksBadgeHttps(false, null, "AKTIF", "BELUM"));
     }
 
     @Test
     public void galatAdminKosongBolehIsiMinimal8() {
-        assertNull(SettingsActivity.galatAdmin(null));
-        assertNull(SettingsActivity.galatAdmin(""));
-        assertNull(SettingsActivity.galatAdmin("12345678"));
-        assertNotNull(SettingsActivity.galatAdmin("pendek"));
+        assertNull(SettingsActivity.galatAdmin(null, "SALAH"));
+        assertNull(SettingsActivity.galatAdmin("", "SALAH"));
+        assertNull(SettingsActivity.galatAdmin("12345678", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("pendek", "SALAH"));
     }
 
     @Test
     public void galatTgTokenFormatBot() {
-        assertNull(SettingsActivity.galatTgToken(null));
-        assertNull(SettingsActivity.galatTgToken(""));
-        assertNull(SettingsActivity.galatTgToken("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"));
-        assertNotNull(SettingsActivity.galatTgToken("tanpa-kolon"));
-        assertNotNull(SettingsActivity.galatTgToken("123:pendek"));
+        assertNull(SettingsActivity.galatTgToken(null, "SALAH"));
+        assertNull(SettingsActivity.galatTgToken("", "SALAH"));
+        assertNull(SettingsActivity.galatTgToken("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatTgToken("tanpa-kolon", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatTgToken("123:pendek", "SALAH"));
     }
 
     @Test
     public void galatChatHarusAngka() {
-        assertNull(SettingsActivity.galatChat(null));
-        assertNull(SettingsActivity.galatChat(""));
-        assertNull(SettingsActivity.galatChat("123456789"));
-        assertNull(SettingsActivity.galatChat("-1001234567890"));
-        assertNotNull(SettingsActivity.galatChat("abc"));
-        assertNotNull(SettingsActivity.galatChat("12.5"));
+        assertNull(SettingsActivity.galatChat(null, "SALAH"));
+        assertNull(SettingsActivity.galatChat("", "SALAH"));
+        assertNull(SettingsActivity.galatChat("123456789", "SALAH"));
+        assertNull(SettingsActivity.galatChat("-1001234567890", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("abc", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("12.5", "SALAH"));
     }
 
     @Test

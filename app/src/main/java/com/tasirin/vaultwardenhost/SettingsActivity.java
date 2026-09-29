@@ -783,7 +783,8 @@ public class SettingsActivity extends Activity {
         if (!cert.isEmpty()) {
             full += "\n" + cert;
         }
-        httpsBadge.setText(teksBadgeHttps(running, cert));
+        httpsBadge.setText(teksBadgeHttps(running, cert,
+                getString(R.string.https_badge_on), getString(R.string.https_badge_none)));
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
             lastShownVersion = full;
@@ -2228,21 +2229,26 @@ public class SettingsActivity extends Activity {
 
     /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     private void validasiInline() {
-        String gData = galatFolder(dataDirInput.getText().toString());
+        String gData = galatFolder(dataDirInput.getText().toString(),
+                getString(R.string.folder_error));
         dataDirError.setText(gData == null ? "" : gData);
         dataDirError.setVisibility(gData == null ? View.GONE : View.VISIBLE);
-        String gPort = galatPort(portInput.getText().toString());
+        String gPort = galatPort(portInput.getText().toString(),
+                getString(R.string.port_error));
         portError.setText(gPort == null ? "" : gPort);
         portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
-        String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString()) : null;
+        String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
+                getString(R.string.admin_error)) : null;
         if (adminError != null) {
             adminError.setVisibility(gAdmin == null ? View.GONE : View.VISIBLE);
         }
-        String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString()) : null;
+        String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString(),
+                getString(R.string.token_error)) : null;
         if (tokenError != null) {
             tokenError.setVisibility(gTok == null ? View.GONE : View.VISIBLE);
         }
-        String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString()) : null;
+        String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
+                getString(R.string.chat_error)) : null;
         if (chatError != null) {
             chatError.setVisibility(gChat == null ? View.GONE : View.VISIBLE);
         }
@@ -2321,8 +2327,10 @@ public class SettingsActivity extends Activity {
                     dataDirInput.setText(folderInput.getText().toString().trim());
                     portInput.setText(portInputWiz.getText().toString().trim());
                     validasiInline();
-                    String g1 = galatFolder(dataDirInput.getText().toString());
-                    String g2 = galatPort(portInput.getText().toString());
+                    String g1 = galatFolder(dataDirInput.getText().toString(),
+                            getString(R.string.folder_error));
+                    String g2 = galatPort(portInput.getText().toString(),
+                            getString(R.string.port_error));
                     if (g1 != null) {
                         toast(g1);
                         tampilWizardGabungan();
@@ -2346,8 +2354,9 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
-    /** Galat inline untuk kolom port; null bila valid (kosong = bawaan). Murni. */
-    static String galatPort(String port) {
+    /** Galat inline untuk kolom port; null bila valid (kosong = bawaan). Murni.
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String galatPort(String port, String msgSalah) {
         if (port == null || port.trim().isEmpty()) {
             return null;
         }
@@ -2358,42 +2367,44 @@ public class SettingsActivity extends Activity {
             }
         } catch (Exception ignored) {
         }
-        return "Port harus angka 1–65535.";
+        return msgSalah;
     }
 
-    /** Galat inline untuk kolom folder; null bila valid (kosong = bawaan). Murni. */
-    static String galatFolder(String folder) {
+    /** Galat inline untuk kolom folder; null bila valid (kosong = bawaan). Murni.
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String galatFolder(String folder, String msgSalah) {
         if (folder == null || folder.trim().isEmpty()) {
             return null;
         }
-        return ServerService.dataDirAman(folder) ? null : "Folder data tidak valid.";
+        return ServerService.dataDirAman(folder) ? null : msgSalah;
     }
 
-    /** Galat Admin Token; null bila valid (kosong = boleh, isi = minimal 8). Murni. */
-    static String galatAdmin(String token) {
+    /** Galat Admin Token; null bila valid (kosong = boleh, isi = minimal 8). Murni.
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String galatAdmin(String token, String msgSalah) {
         if (token == null || token.trim().isEmpty()) {
             return null;
         }
-        return token.trim().length() >= 8 ? null : "Token minimal 8 karakter bila diisi (boleh kosong).";
+        return token.trim().length() >= 8 ? null : msgSalah;
     }
 
-    /** Galat token bot Telegram; null bila valid (kosong = boleh). Murni. */
-    static String galatTgToken(String token) {
+    /** Galat token bot Telegram; null bila valid (kosong = boleh). Murni.
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String galatTgToken(String token, String msgSalah) {
         if (token == null || token.trim().isEmpty()) {
             return null;
         }
         String isi = token.trim();
-        return isi.contains(":") && isi.length() >= 20 ? null
-                : "Format token: angka:id — contoh 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.";
+        return isi.contains(":") && isi.length() >= 20 ? null : msgSalah;
     }
 
-    /** Galat Chat ID; null bila valid (kosong = boleh). Murni. */
-    static String galatChat(String chat) {
+    /** Galat Chat ID; null bila valid (kosong = boleh). Murni.
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String galatChat(String chat, String msgSalah) {
         if (chat == null || chat.trim().isEmpty()) {
             return null;
         }
-        return chat.trim().matches("-?\\d+") ? null
-                : "Chat ID harus angka (boleh minus, contoh -1001234567890).";
+        return chat.trim().matches("-?\\d+") ? null : msgSalah;
     }
 
     /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */
@@ -2406,13 +2417,15 @@ public class SettingsActivity extends Activity {
         return sb.toString();
     }
 
-    /** Teks badge HTTPS inline; barisSert dari certInfoLine (kosong bila belum ada). Murni. */
-    static String teksBadgeHttps(boolean berjalan, String barisSert) {
+    /** Teks badge HTTPS inline; barisSert dari certInfoLine (kosong bila belum ada). Murni.
+     *  Pesan (msgAktif/msgBelumAda) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    static String teksBadgeHttps(boolean berjalan, String barisSert,
+            String msgAktif, String msgBelumAda) {
         boolean ada = barisSert != null && !barisSert.isEmpty();
         if (berjalan) {
-            return ada ? "HTTPS aktif \u2022 " + barisSert : "HTTPS aktif";
+            return ada ? msgAktif + " \u2022 " + barisSert : msgAktif;
         }
-        return ada ? barisSert : "CA belum ada \u2014 tekan Start untuk membuat.";
+        return ada ? barisSert : msgBelumAda;
     }
 
     /** True bila wizard perlu tampil: belum selesai dan belum pernah di-setup. Murni. */
