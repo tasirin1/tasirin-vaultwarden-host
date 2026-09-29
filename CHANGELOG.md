@@ -14,6 +14,12 @@
 - Menu bot, keyboard inline, dan teks `/help` diperbarui; `MENU_REV` naik agar
   daftar perintah baru terdaftar ulang ke Telegram.
 
+### Perbaikan
+- `/ca` kini mengirim file bernama unik `ca-cadangan-<timestamp>.pem` (sama
+  seperti backup storage) agar tak tertukar dengan CA lama di riwayat chat
+  setelah reset. Pesan balasan menyebut nama file terbaru dan menegaskan file
+  lama tak berlaku lagi.
+
 
 ## [Belum rilis] — Log realtime jelaskan kenapa aplikasi Bitwarden gagal login
 

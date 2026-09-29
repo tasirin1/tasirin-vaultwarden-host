@@ -79,6 +79,31 @@ public class TgBackupTest {
     }
 
     @Test
+    public void siapkanFileKirimCa_namaUnikDanIsiSama() throws Exception {
+        File ca = File.createTempFile("ca-asli", ".pem");
+        File cache = new File(System.getProperty("java.io.tmpdir"),
+                "vw-ca-cache-" + System.nanoTime());
+        cache.mkdirs();
+        try (FileOutputStream o = new FileOutputStream(ca)) {
+            o.write("isi-ca-publik".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try {
+            File hasil = TgBackup.siapkanFileKirimCa(ca, cache, "20260929-120000-001");
+            assertEquals("ca-cadangan-20260929-120000-001.pem", hasil.getName());
+            assertTrue(hasil.isFile());
+            byte[] asli = java.nio.file.Files.readAllBytes(ca.toPath());
+            byte[] kirim = java.nio.file.Files.readAllBytes(hasil.toPath());
+            org.junit.Assert.assertArrayEquals(asli, kirim);
+        } finally {
+            ca.delete();
+            for (File f : cache.listFiles()) {
+                f.delete();
+            }
+            cache.delete();
+        }
+    }
+
+    @Test
     public void dbSiap_butuhFileBerisiDanBerheader() throws Exception {
         assertFalse(TgBackup.dbSiap(null));
         assertFalse(TgBackup.dbSiap(new File("/tidak/ada/db.sqlite3")));

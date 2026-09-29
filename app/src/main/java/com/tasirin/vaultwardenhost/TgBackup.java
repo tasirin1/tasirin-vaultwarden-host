@@ -788,8 +788,10 @@ public final class TgBackup {
         return lama;
     }
 
-    /** Kirim CA HTTPS aktif (ca.pem publik, tanpa kunci privat) ke chat Telegram
-     *  resmi. Di HP tujuan: simpan lalu install sebagai “CA certificate”. */
+    /** Kirim CA HTTPS aktif (publik, tanpa kunci privat) ke chat Telegram resmi.
+     *  Nama file diberi timestamp unik (sama seperti backup storage) agar tak
+     *  tertukar dengan CA lama di riwayat chat setelah reset. Di HP tujuan:
+     *  pakai file terbaru lalu install sebagai “CA certificate”. */
     public static String kirimCa(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -808,9 +810,36 @@ public final class TgBackup {
         if (ca == null || !ca.isFile()) {
             throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
         }
-        uploadTelegram(ctx, token, chat, ca);
-        return "CA terkirim (ca.pem). Di HP tujuan: simpan lalu install"
-                + " sebagai CA certificate (tanpa private key).";
+        File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), backupTimestamp());
+        try {
+            uploadTelegram(ctx, token, chat, tmp);
+        } finally {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
+        }
+        return "CA terkirim (" + tmp.getName() + "). Di HP tujuan: pakai file"
+                + " TERBARU ini lalu install sebagai CA certificate (tanpa private key)."
+                + " File ca lama di riwayat chat tak berlaku lagi setelah reset.";
+    }
+
+    /** Salin CA ke folder cache dengan nama unik bertimestamp agar berkas
+     *  Telegram tak tertukar dengan CA lama. Murni agar bisa unit test JVM. */
+    static File siapkanFileKirimCa(File caAktif, File dirCache, String timestamp)
+            throws Exception {
+        if (caAktif == null || !caAktif.isFile()) {
+            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+        }
+        if (dirCache == null) {
+            throw new IOException("Folder cache tak valid.");
+        }
+        if (!dirCache.exists() && !dirCache.mkdirs()) {
+            throw new IOException("Folder cache tak bisa dibuat.");
+        }
+        File tujuan = new File(dirCache, TlsCert.namaBackupCa(timestamp));
+        copyFile(caAktif, tujuan);
+        return tujuan;
     }
 
     /** Backup CA publik (ca.pem) ke folder data di storage agar bisa diambil
