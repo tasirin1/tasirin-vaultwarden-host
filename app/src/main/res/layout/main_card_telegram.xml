@@ -7,11 +7,17 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/accent_telegram" />
+
                 <TextView
                     style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/backup_telegram" />
+                    android:text="@string/card_title_telegram" />
 
                 <TextView
                     style="@style/TasirinSub"
@@ -131,7 +137,7 @@
 
                 <CheckBox
                     android:id="@+id/tgAuto"
-                    android:nextFocusDown="@id/backupTg"
+                    android:nextFocusDown="@id/restoreTg"
                     android:nextFocusUp="@id/binSha"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
@@ -158,18 +164,9 @@
                     android:orientation="vertical">
 
                     <Button
-                        android:id="@+id/backupTg"
-                        android:nextFocusDown="@id/restoreTg"
-                        android:nextFocusUp="@id/tgAuto"
-                        style="@style/TasirinBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/backup_to_tg" />
-
-                    <Button
                         android:id="@+id/restoreTg"
                         android:nextFocusDown="@id/logOpen"
-                        android:nextFocusUp="@id/backupTg"
+                        android:nextFocusUp="@id/tgAuto"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

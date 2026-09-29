@@ -10,7 +10,7 @@ A **Vaultwarden** (Bitwarden-compatible) server on Android — for STB/TV boxes 
 ## Usage
 
 1. Download the APK from [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install it.
-2. Open the app → **&#8942; → Settings**: set **Data folder** and **Port**.
+2. Open the app → **&#8942; → Settings**: follow the 3-step wizard (Folder → Port → Start). Simple mode shows only the essentials.
 3. Press **Start** (first download is automatic, with progress).
 4. Open `https://<PHONE-IP>:<port>` in a browser / Bitwarden app (Server URL).
 

@@ -7,57 +7,17 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/accent_pengaturan" />
+
                 <TextView
                     style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings" />
-
-                <TextView
-                    style="@style/TasirinSub"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sub_akses" />
-
-                <TextView
-                    style="@style/TasirinLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/admin_token" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/adminToken"
-                        android:nextFocusDown="@id/showAdmin"
-                        android:nextFocusUp="@id/advancedToggle"
-                        style="@style/TasirinInput"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/admin_token_hint"
-                        android:inputType="textPassword" />
-
-                    <Button
-                        android:id="@+id/showAdmin"
-                        android:nextFocusDown="@id/autoStart"
-                        android:nextFocusUp="@id/adminToken"
-                        style="@style/TasirinBtnSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/show" />
-                </LinearLayout>
-
-                
-                <View android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@color/card_stroke" />
+                    android:text="@string/card_title_settings" />
 
                 <TextView
                     style="@style/TasirinSub"
@@ -68,7 +28,7 @@
                 <CheckBox
                     android:id="@+id/autoStart"
                     android:nextFocusDown="@id/https"
-                    android:nextFocusUp="@id/showAdmin"
+                    android:nextFocusUp="@id/advancedToggle"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -77,58 +37,19 @@
 
                 <CheckBox
                     android:id="@+id/https"
-                    android:nextFocusDown="@id/pinInput"
+                    android:nextFocusDown="@id/batteryBtn"
                     android:nextFocusUp="@id/autoStart"
                     android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/https_self_signed" />
 
-                
-                <View android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@color/card_stroke" />
-
                 <TextView
-                    style="@style/TasirinSub"
+                    android:id="@+id/httpsBadge"
+                    style="@style/TasirinHint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/sub_keamanan" />
-
-                <TextView
-                    style="@style/TasirinLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/pin_label" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/pinInput"
-                        android:nextFocusDown="@id/pinEnabled"
-                        android:nextFocusUp="@id/https"
-                        style="@style/TasirinInput"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/pin_hint"
-                        android:inputType="numberPassword" />
-
-                    <CheckBox
-                        android:id="@+id/pinEnabled"
-                        android:nextFocusDown="@id/batteryBtn"
-                        android:nextFocusUp="@id/pinInput"
-                        android:background="@drawable/item_focus_bg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="@string/active" />
-                </LinearLayout>
+                    android:layout_marginTop="4dp" />
 
                 <LinearLayout
                     android:id="@+id/batteryRow"

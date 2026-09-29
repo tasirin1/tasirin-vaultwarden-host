@@ -895,6 +895,24 @@ public final class Updater {
         }
     }
 
+    /** Persen (0-100) dari status "Unduh ... (NN%)"; -1 bila tak ada angka persen. Murni. */
+    static int persenUnduhan(String status) {
+        if (status == null) {
+            return -1;
+        }
+        int buka = status.lastIndexOf('(');
+        int tutup = status.lastIndexOf("%)");
+        if (buka < 0 || tutup < 0 || tutup <= buka + 1) {
+            return -1;
+        }
+        try {
+            int p = Integer.parseInt(status.substring(buka + 1, tutup).trim());
+            return (p >= 0 && p <= 100) ? p : -1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     /** Perbarui status unduhan untuk UI (persen + ukuran bila total diketahui). */
     private static void reportDownload(String label, long done, long total) {
         if (total > 0) {

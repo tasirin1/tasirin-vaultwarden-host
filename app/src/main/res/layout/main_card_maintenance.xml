@@ -7,11 +7,17 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/accent_rawat" />
+
                 <TextView
                     style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/maintenance" />
+                    android:text="@string/card_title_maintenance" />
 
                 <TextView
                     style="@style/TasirinSub"
@@ -189,28 +195,19 @@
 
                     <Button
                         android:id="@+id/updateWv"
-                        android:nextFocusDown="@id/backupDb"
+                        android:nextFocusDown="@id/restoreDb"
                         android:nextFocusUp="@id/importCfg"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/update_web_vault" />
 
-                    <Button
-                        android:id="@+id/backupDb"
-                        android:nextFocusDown="@id/restoreDb"
-                        android:nextFocusUp="@id/updateWv"
-                        style="@style/TasirinBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/backup_local" />
                 </LinearLayout>
 
                 <Button
                     android:id="@+id/restoreDb"
                     android:nextFocusDown="@id/tgToken"
-                    android:nextFocusUp="@id/backupDb"
+                    android:nextFocusUp="@id/updateWv"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

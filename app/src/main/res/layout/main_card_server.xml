@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Kartu utama: status + kontrol server. ID dan rantai nextFocus* dijaga
+<!-- Kartu utama: status + kontrol server + pengaturan esensial (folder, port,
+     admin token, PIN, cadangan cepat). ID dan rantai nextFocus* dijaga
      agar navigasi D-pad TV tidak berubah. -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
@@ -9,15 +10,31 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/accent_server" />
+
             <TextView
                 style="@style/TasirinSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/server_title" />
+                android:text="@string/card_title_server" />
+
+            <CheckBox
+                android:id="@+id/simpleMode"
+                android:nextFocusDown="@id/startStop"
+                android:nextFocusUp="@id/aboutBtn"
+                android:background="@drawable/item_focus_bg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_simple" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -38,7 +55,7 @@
                 <Button
                     android:id="@+id/startStop"
                     android:nextFocusDown="@id/copyUrl"
-                    android:nextFocusUp="@id/aboutBtn"
+                    android:nextFocusUp="@id/simpleMode"
                     style="@style/TasirinBtnPrimary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -46,6 +63,15 @@
                     android:layout_weight="1"
                     android:text="@string/start" />
             </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/unduhBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/restartHint"
@@ -91,13 +117,22 @@
 
                 <Button
                     android:id="@+id/copyUrl"
-                    android:nextFocusDown="@id/dataDir"
+                    android:nextFocusDown="@id/copyLoopback"
                     android:nextFocusUp="@id/startStop"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/copy_url" />
+                    android:text="@string/copy_url_lan" />
 
+                <Button
+                    android:id="@+id/copyLoopback"
+                    android:nextFocusDown="@id/dataDir"
+                    android:nextFocusUp="@id/copyUrl"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/copy_url_hp" />
 
             </LinearLayout>
 
@@ -114,6 +149,7 @@
                 android:text="@string/sub_koneksi" />
 
             <TextView
+                android:id="@+id/labelDataDir"
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,7 +159,7 @@
             <EditText
                 android:id="@+id/dataDir"
                 android:nextFocusDown="@id/port"
-                android:nextFocusUp="@id/copyUrl"
+                android:nextFocusUp="@id/copyLoopback"
                 style="@style/TasirinInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,6 +167,15 @@
                 android:inputType="text" />
 
             <TextView
+                android:id="@+id/dataDirError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/status_off"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/labelPort"
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -138,7 +183,7 @@
 
             <EditText
                 android:id="@+id/port"
-                android:nextFocusDown="@id/open"
+                android:nextFocusDown="@id/adminToken"
                 android:nextFocusUp="@id/dataDir"
                 style="@style/TasirinInput"
                 android:layout_width="match_parent"
@@ -146,10 +191,141 @@
                 android:hint="@string/default_port"
                 android:inputType="number" />
 
+            <TextView
+                android:id="@+id/portError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/status_off"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:background="@color/card_stroke" />
+
+            <TextView
+                style="@style/TasirinSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sub_akses_cepat" />
+
+            <TextView
+                android:id="@+id/labelAdmin"
+                style="@style/TasirinLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/admin_token" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/adminToken"
+                    android:nextFocusDown="@id/showAdmin"
+                    android:nextFocusUp="@id/port"
+                    style="@style/TasirinInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/admin_token_hint"
+                    android:inputType="textPassword" />
+
+                <Button
+                    android:id="@+id/showAdmin"
+                    android:nextFocusDown="@id/pinInput"
+                    android:nextFocusUp="@id/adminToken"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/show" />
+
+                <Button
+                    android:id="@+id/randomAdmin"
+                    android:nextFocusDown="@id/pinInput"
+                    android:nextFocusUp="@id/adminToken"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/acak" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/TasirinLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/pin_label" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/pinInput"
+                    android:nextFocusDown="@id/pinEnabled"
+                    android:nextFocusUp="@id/adminToken"
+                    style="@style/TasirinInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/pin_hint"
+                    android:inputType="numberPassword" />
+
+                <CheckBox
+                    android:id="@+id/pinEnabled"
+                    android:nextFocusDown="@id/backupDb"
+                    android:nextFocusUp="@id/pinInput"
+                    android:background="@drawable/item_focus_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/active" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:background="@color/card_stroke" />
+
+            <TextView
+                style="@style/TasirinSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sub_cadang_cepat" />
+
+            <Button
+                android:id="@+id/backupDb"
+                android:nextFocusDown="@id/backupTg"
+                android:nextFocusUp="@id/pinEnabled"
+                style="@style/TasirinBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/backup_local" />
+
+            <Button
+                android:id="@+id/backupTg"
+                android:nextFocusDown="@id/open"
+                android:nextFocusUp="@id/backupDb"
+                style="@style/TasirinBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/backup_to_tg" />
+
             <Button
                 android:id="@+id/open"
                 android:nextFocusDown="@id/advancedToggle"
-                android:nextFocusUp="@id/port"
+                android:nextFocusUp="@id/backupTg"
                 style="@style/TasirinBtnPrimary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

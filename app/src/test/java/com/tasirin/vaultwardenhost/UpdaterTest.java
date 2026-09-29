@@ -29,6 +29,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void persenUnduhanAmbilAngkaPersen() {
+        assertEquals(34, Updater.persenUnduhan("Unduh binary 12 MB/35 MB (34%)"));
+        assertEquals(100, Updater.persenUnduhan("Unduh web-vault 35 MB/35 MB (100%)"));
+        assertEquals(0, Updater.persenUnduhan("Unduh x (0%)"));
+        assertEquals(-1, Updater.persenUnduhan("Unduh binary 12 MB..."));
+        assertEquals(-1, Updater.persenUnduhan("Bekerja\u2026"));
+        assertEquals(-1, Updater.persenUnduhan(""));
+        assertEquals(-1, Updater.persenUnduhan(null));
+        assertEquals(-1, Updater.persenUnduhan("Unduh x (120%)"));
+    }
+
+    @Test
     public void parseBinaryVersion_ambilXyzDariOutputVersion() {
         assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3"));
         assertEquals("1.37.3", Updater.parseBinaryVersion("1.37.3"));

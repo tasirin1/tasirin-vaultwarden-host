@@ -7,11 +7,17 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/accent_log" />
+
                 <TextView
                     style="@style/TasirinSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/log_realtime" />
+                    android:text="@string/card_title_log" />
 
                 <TextView
                     style="@style/TasirinHint"
@@ -21,7 +27,7 @@
 
                 <Button
                     android:id="@+id/logOpen"
-                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusDown="@id/startStopBawah"
                     android:nextFocusUp="@id/restoreTg"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"

@@ -1668,7 +1668,8 @@ public final class TgBackup {
             java.util.Arrays.asList(ServerService.KEY_AUTO_START, ServerService.KEY_HTTPS,
                     ServerService.KEY_AUTO_UPDATE, ServerService.KEY_AUTO_UPDATE_WV,
                     ServerService.KEY_AUTO_RESTART_UPDATE, ServerService.KEY_PORT_MIGRATED,
-                    KEY_TG_AUTO, "advanced_open", "pin_on", "tg_backup_tertunda",
+                    KEY_TG_AUTO, "advanced_open", "mode_sederhana", "wizard_selesai",
+                    "pin_on", "tg_backup_tertunda",
                     "tg_low_storage_notified", "home_log_expanded"));
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
@@ -1923,7 +1924,7 @@ public final class TgBackup {
                         ServerService.KEY_AUTO_UPDATE_WV,
                         ServerService.KEY_AUTO_RESTART_UPDATE,
                         ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
-                        KEY_TG_AUTO, "advanced_open", "domain_lokal"));
+                        KEY_TG_AUTO, "advanced_open", "mode_sederhana", "domain_lokal"));
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
         // tak menghapus seluruh pengaturan perangkat. Folder data selalu

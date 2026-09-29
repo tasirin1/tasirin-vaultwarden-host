@@ -24,6 +24,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,10 @@ public class SettingsActivity extends Activity {
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
     private static final String KEY_ADVANCED_OPEN = "advanced_open";
+    /** Mode sederhana: hanya kartu Server (esensial) yang tampil. */
+    private static final String KEY_SIMPLE_MODE = "mode_sederhana";
+    /** Wizard setup 3 langkah sudah pernah tampil/selesai. */
+    private static final String KEY_WIZARD_DONE = "wizard_selesai";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
@@ -100,6 +105,17 @@ public class SettingsActivity extends Activity {
     private Button restoreDbBtn;
     private Button backupTgBtn;
     private Button aboutBtn;
+    private CheckBox simpleCheck;
+    private Button startStopBawah;
+    private TextView httpsBadge;
+    private TextView dataDirError;
+    private TextView portError;
+    private TextView labelDataDir;
+    private TextView labelPort;
+    private TextView labelAdmin;
+    private ProgressBar unduhBar;
+    private android.content.res.ColorStateList warnaLabelBawaan;
+    private boolean simpleMode = true;
 
     private String bundledVersion = "?";
     private String bundledRaw = null;
@@ -224,14 +240,21 @@ public class SettingsActivity extends Activity {
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
         aboutBtn = findViewById(R.id.aboutBtn);
+        simpleCheck = findViewById(R.id.simpleMode);
+        startStopBawah = findViewById(R.id.startStopBawah);
+        httpsBadge = findViewById(R.id.httpsBadge);
+        dataDirError = findViewById(R.id.dataDirError);
+        portError = findViewById(R.id.portError);
+        labelDataDir = findViewById(R.id.labelDataDir);
+        labelPort = findViewById(R.id.labelPort);
+        labelAdmin = findViewById(R.id.labelAdmin);
+        unduhBar = findViewById(R.id.unduhBar);
+        warnaLabelBawaan = labelDataDir.getTextColors();
+        Button randomAdminBtn = findViewById(R.id.randomAdmin);
+        Button copyLoopbackBtn = findViewById(R.id.copyLoopback);
 
-        startStopBtn.setOnClickListener(v -> {
-            if (ServerService.running) {
-                ServerService.stop(this);
-            } else {
-                saveAndStart();
-            }
-        });
+        startStopBtn.setOnClickListener(v -> aksiStartStop());
+        startStopBawah.setOnClickListener(v -> aksiStartStop());
         openBtn.setOnClickListener(v -> openWebUi());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm("Reset Binary",
@@ -277,6 +300,12 @@ public class SettingsActivity extends Activity {
         advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
+        copyLoopbackBtn.setOnClickListener(v -> salinTeks("https://127.0.0.1:"
+                + portEfektifUntukSalin(), "URL lokal disalin"));
+        randomAdminBtn.setOnClickListener(v -> {
+            adminTokenInput.setText(buatTokenAcak(new java.security.SecureRandom()));
+            toast("Token acak dibuat — tekan Start agar berlaku.");
+        });
         exportCfgBtn.setOnClickListener(v -> mintaExport());
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
@@ -303,6 +332,9 @@ public class SettingsActivity extends Activity {
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
         setAdvancedOpen(sp.getBoolean(KEY_ADVANCED_OPEN, true));
+        setSimpleMode(sp.getBoolean(KEY_SIMPLE_MODE, true));
+        simpleCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
+                setSimpleMode(checked));
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -337,6 +369,9 @@ public class SettingsActivity extends Activity {
         tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
+        dataDirInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        portInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        validasiInline();
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {
@@ -380,9 +415,18 @@ public class SettingsActivity extends Activity {
                 return;
             }
             if (!checked) {
-                // Mematikan PIN tak butuh hash: langsung simpan tanpa blokir UI.
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putBoolean(KEY_PIN_ON, false).apply();
+                // Kembalikan centang dulu; lepas hanya bila user menekan Ya.
+                pinCentangProgram = true;
+                b.setChecked(true);
+                pinCentangProgram = false;
+                confirm(getString(R.string.pin_off_judul), getString(R.string.pin_off_pesan),
+                        () -> {
+                            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                    .edit().putBoolean(KEY_PIN_ON, false).apply();
+                            pinCentangProgram = true;
+                            b.setChecked(false);
+                            pinCentangProgram = false;
+                        });
                 return;
             }
             java.util.concurrent.Future<?> antre = pinPending;
@@ -422,6 +466,9 @@ public class SettingsActivity extends Activity {
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
+        // Wizard 3 langkah untuk instalasi baru; pengguna lama yang sudah
+        // setup tak diganggu (ditandai selesai diam-diam).
+        ui.post(this::maybeShowWizard);
 
     }
 
@@ -542,6 +589,11 @@ public class SettingsActivity extends Activity {
             statusView.setText(dl.isEmpty() ? getString(R.string.busy_work) : dl);
             statusView.setBackgroundResource(R.drawable.bg_status_busy);
             lastShownStatus = "";
+            int persen = Updater.persenUnduhan(dl);
+            unduhBar.setVisibility(persen >= 0 ? View.VISIBLE : View.GONE);
+            if (persen >= 0) {
+                unduhBar.setProgress(persen);
+            }
             if (refreshActive) {
                 ui.postDelayed(this::refreshFromService, 500);
             }
@@ -559,10 +611,12 @@ public class SettingsActivity extends Activity {
                     ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
             lastShownStatus = key;
         }
+        unduhBar.setVisibility(View.GONE);
         String btnText = running ? getString(R.string.stop)
                 : getString(R.string.start);
         if (!btnText.equals(startStopBtn.getText().toString())) {
             startStopBtn.setText(btnText);
+            startStopBawah.setText(btnText);
         }
 
         // Peringatan bila setting diubah tapi server belum di-restart
@@ -581,9 +635,17 @@ public class SettingsActivity extends Activity {
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
-            changed = !d.trim().equals(rd.trim())
-                    || !p.trim().equals(rp.trim())
-                    || !a.trim().equals(ra.trim());
+            boolean bedaData = !d.trim().equals(rd.trim());
+            boolean bedaPort = !p.trim().equals(rp.trim());
+            boolean bedaAdmin = !a.trim().equals(ra.trim());
+            changed = bedaData || bedaPort || bedaAdmin;
+            tandaiLabel(labelDataDir, R.string.folder_data, bedaData);
+            tandaiLabel(labelPort, R.string.port, bedaPort);
+            tandaiLabel(labelAdmin, R.string.admin_token, bedaAdmin);
+        } else {
+            tandaiLabel(labelDataDir, R.string.folder_data, false);
+            tandaiLabel(labelPort, R.string.port, false);
+            tandaiLabel(labelAdmin, R.string.admin_token, false);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
@@ -663,6 +725,7 @@ public class SettingsActivity extends Activity {
         if (!cert.isEmpty()) {
             full += "\n" + cert;
         }
+        httpsBadge.setText(teksBadgeHttps(running, cert));
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
             lastShownVersion = full;
@@ -1587,6 +1650,7 @@ public class SettingsActivity extends Activity {
             ui.post(() -> {
                 reloadSettingsFromPrefs();
                 SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
                 TgBackup.schedule(SettingsActivity.this,
                         sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
                 TgBot.schedule(SettingsActivity.this);
@@ -1604,6 +1668,7 @@ public class SettingsActivity extends Activity {
     /** Muat ulang isi form dari prefs (dipakai setelah import config). */
     private void reloadSettingsFromPrefs() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        setSimpleMode(sp.getBoolean(KEY_SIMPLE_MODE, true));
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
@@ -1618,17 +1683,26 @@ public class SettingsActivity extends Activity {
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
+        validasiInline();
     }
 
     private void copyLocalUrl() {
-        String url = ServerService.localUrl(this);
+        salinTeks(ServerService.localUrl(this), "URL jaringan disalin");
+    }
+
+    /** Salin teks apa pun ke clipboard + toast. */
+    private void salinTeks(String teks, String pesan) {
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
-            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", url));
-            toast("URL disalin: " + url);
-        } else {
-            toast(url);
+            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden", teks));
         }
+        toast(pesan + ": " + teks);
+    }
+
+    /** Port dari form (atau bawaan bila kosong) untuk tombol salin URL lokal. */
+    private String portEfektifUntukSalin() {
+        String p = portInput.getText().toString().trim();
+        return p.isEmpty() ? DEFAULT_PORT : p;
     }
 
     /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */
@@ -2037,6 +2111,221 @@ public class SettingsActivity extends Activity {
         });
     }
 
+    /** Start bila berhenti, Stop bila berjalan (tombol atas + bilah bawah memakai ini). */
+    private void aksiStartStop() {
+        // Wizard dianggap selesai begitu user menekan Start/Stop pertama kali.
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                .putBoolean(KEY_WIZARD_DONE, true).apply();
+        if (ServerService.running) {
+            ServerService.stop(this);
+        } else {
+            saveAndStart();
+        }
+    }
+
+    /** Mode sederhana: hanya kartu Server; Lanjutan disembunyikan seluruhnya. */
+    private void setSimpleMode(boolean simple) {
+        simpleMode = simple;
+        if (simpleCheck.isChecked() != simple) {
+            simpleCheck.setChecked(simple);
+        }
+        advancedToggleBtn.setVisibility(simple ? View.GONE : View.VISIBLE);
+        advancedPanel.setVisibility(!simple && advancedOpen ? View.VISIBLE : View.GONE);
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                .putBoolean(KEY_SIMPLE_MODE, simple).apply();
+    }
+
+    /** Validasi inline folder+port setiap ketikan (tanpa toast agar tak berisik). */
+    private void validasiInline() {
+        String gData = galatFolder(dataDirInput.getText().toString());
+        dataDirError.setText(gData == null ? "" : gData);
+        dataDirError.setVisibility(gData == null ? View.GONE : View.VISIBLE);
+        String gPort = galatPort(portInput.getText().toString());
+        portError.setText(gPort == null ? "" : gPort);
+        portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
+    }
+
+    /** Titik "●" + warna merah pada label yang nilainya beda dari server berjalan. */
+    // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
+    private void tandaiLabel(TextView label, int stringId, boolean kotor) {
+        if (kotor) {
+            label.setText(getString(stringId) + " \u25CF");
+            label.setTextColor(getResources().getColor(R.color.status_off));
+        } else {
+            label.setText(getString(stringId));
+            label.setTextColor(warnaLabelBawaan);
+        }
+    }
+
+    /** Tampilkan wizard bila instalasi baru; tandai selesai agar sekali saja. */
+    private void maybeShowWizard() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        if (sp.getBoolean(KEY_WIZARD_DONE, false)) {
+            return;
+        }
+        String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
+        String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
+        String uv = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        if (!perluWizard(false, d, p, a, uv) || ServerService.running
+                || !ServerService.binaryVersion.isEmpty()) {
+            sp.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
+            return;
+        }
+        tampilWizardFolder();
+    }
+
+    private void wizardSelesai() {
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                .putBoolean(KEY_WIZARD_DONE, true).apply();
+    }
+
+    private android.widget.EditText inputWizard(String isi, String hint, int tipe) {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(tipe);
+        input.setText(isi);
+        input.setHint(hint);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(pad, pad, pad, pad);
+        return input;
+    }
+
+    private void tampilWizardFolder() {
+        final android.widget.EditText input = inputWizard(
+                dataDirInput.getText().toString(), getString(R.string.default_data_dir),
+                android.text.InputType.TYPE_CLASS_TEXT);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.wiz_t1))
+                .setMessage(getString(R.string.wiz_t1_pesan))
+                .setView(input)
+                .setPositiveButton(getString(R.string.wiz_lanjut), (d, w) -> {
+                    dataDirInput.setText(input.getText().toString().trim());
+                    validasiInline();
+                    String g = galatFolder(dataDirInput.getText().toString());
+                    if (g != null) {
+                        toast(g);
+                        tampilWizardFolder();
+                        return;
+                    }
+                    tampilWizardPort();
+                })
+                .setNegativeButton(getString(R.string.wiz_lewati), (d, w) -> wizardSelesai())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void tampilWizardPort() {
+        final android.widget.EditText input = inputWizard(
+                portInput.getText().toString(), getString(R.string.default_port),
+                android.text.InputType.TYPE_CLASS_NUMBER);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.wiz_t2))
+                .setMessage(getString(R.string.wiz_t2_pesan))
+                .setView(input)
+                .setPositiveButton(getString(R.string.wiz_lanjut), (d, w) -> {
+                    portInput.setText(input.getText().toString().trim());
+                    validasiInline();
+                    String g = galatPort(portInput.getText().toString());
+                    if (g != null) {
+                        toast(g);
+                        tampilWizardPort();
+                        return;
+                    }
+                    tampilWizardSiap();
+                })
+                .setNeutralButton(getString(R.string.wiz_kembali), (d, w) -> tampilWizardFolder())
+                .setNegativeButton(getString(R.string.wiz_lewati), (d, w) -> wizardSelesai())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void tampilWizardSiap() {
+        String folder = dataDirInput.getText().toString().trim();
+        if (folder.isEmpty()) {
+            folder = DEFAULT_DATA_DIR;
+        }
+        String port = portInput.getText().toString().trim();
+        if (port.isEmpty()) {
+            port = DEFAULT_PORT;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.wiz_t3))
+                .setMessage("Folder: " + folder + "\nPort: " + port
+                        + "\nURL tampil di kartu Server setelah Start."
+                        + "\n\nAdmin Token, PIN, dan backup bisa diatur nanti.")
+                .setPositiveButton(getString(R.string.wiz_mulai), (d, w) -> {
+                    wizardSelesai();
+                    aksiStartStop();
+                })
+                .setNegativeButton(getString(R.string.wiz_nanti), (d, w) -> {
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                            .putString(ServerService.KEY_DATA_DIR, folder)
+                            .putString(ServerService.KEY_PORT, port)
+                            .apply();
+                    wizardSelesai();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    /** Galat inline untuk kolom port; null bila valid (kosong = bawaan). Murni. */
+    static String galatPort(String port) {
+        if (port == null || port.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            int p = Integer.parseInt(port.trim());
+            if (p >= 1 && p <= 65535) {
+                return null;
+            }
+        } catch (Exception ignored) {
+        }
+        return "Port harus angka 1–65535.";
+    }
+
+    /** Galat inline untuk kolom folder; null bila valid (kosong = bawaan). Murni. */
+    static String galatFolder(String folder) {
+        if (folder == null || folder.trim().isEmpty()) {
+            return null;
+        }
+        return ServerService.dataDirAman(folder) ? null : "Folder data tidak valid.";
+    }
+
+    /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */
+    static String buatTokenAcak(java.util.Random rnd) {
+        String abjad = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder(24);
+        for (int i = 0; i < 24; i++) {
+            sb.append(abjad.charAt(rnd.nextInt(abjad.length())));
+        }
+        return sb.toString();
+    }
+
+    /** Teks badge HTTPS inline; barisSert dari certInfoLine (kosong bila belum ada). Murni. */
+    static String teksBadgeHttps(boolean berjalan, String barisSert) {
+        boolean ada = barisSert != null && !barisSert.isEmpty();
+        if (berjalan) {
+            return ada ? "HTTPS aktif \u2022 " + barisSert : "HTTPS aktif";
+        }
+        return ada ? barisSert : "CA belum ada \u2014 tekan Start untuk membuat.";
+    }
+
+    /** True bila wizard perlu tampil: belum selesai dan belum pernah di-setup. Murni. */
+    static boolean perluWizard(boolean sudahSelesai, String dataDir, String port,
+            String admin, String versiTersimpan) {
+        if (sudahSelesai) {
+            return false;
+        }
+        boolean ubahan = (dataDir != null && !dataDir.trim().isEmpty()
+                && !dataDir.trim().equals(ServerService.DEFAULT_DATA_DIR))
+                || (port != null && !port.trim().isEmpty()
+                && !port.trim().equals(ServerService.DEFAULT_PORT))
+                || (admin != null && !admin.trim().isEmpty())
+                || (versiTersimpan != null && !versiTersimpan.isEmpty());
+        return !ubahan;
+    }
+
     private void confirm(String title, String message, final Runnable action) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
@@ -2049,7 +2338,7 @@ public class SettingsActivity extends Activity {
     /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
     private void setAdvancedOpen(boolean open) {
         advancedOpen = open;
-        advancedPanel.setVisibility(open ? View.VISIBLE : View.GONE);
+        advancedPanel.setVisibility(open && !simpleMode ? View.VISIBLE : View.GONE);
         advancedToggleBtn.setText(getString(open
                 ? R.string.advanced_open : R.string.advanced_closed));
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()

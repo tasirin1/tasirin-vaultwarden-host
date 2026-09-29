@@ -71,6 +71,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   `tryUpdate()`/`downloadBinary()` (verifikasi SHA-256), `updateWebVault()`
   (butuh ≥150 MB sisa storage, penanda `KEY_WV_FROM` agar tidak unduh ulang).
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
+  `mode_sederhana` (default aktif, UI lokal ikut diimpor), `wizard_selesai` (UI lokal, tak diimpor),
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
@@ -185,7 +186,9 @@ seamless (beda signature) — backup keystore di tempat aman.
 
 ## Pemetaan fitur → file
 
-- **Pengaturan baru (checkbox/input)** → `main_card_*.xml` yang sesuai
+- **Pengaturan baru (checkbox/input)** → kartu esensial (Folder, Port, Admin Token, PIN, cadangan cepat)
+  ada di `main_card_server.xml` (selalu tampil, termasuk mode sederhana); sisanya di
+  `main_card_*.xml` yang sesuai dalam panel Lanjutan
   (`activity_settings.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
   `SettingsActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
   konstanta `KEY_*` di `ServerService.java`. Layar awal (`MainActivity.java` +

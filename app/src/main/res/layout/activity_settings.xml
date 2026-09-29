@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Kerangka utama: tiap kartu dipecah ke main_card_*.xml agar lint TooManyViews bersih
-     (satu layout >80 view). findViewById tetap bekerja karena <include> di-inflate sama. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+     (satu layout >80 view). findViewById tetap bekerja karena <include> di-inflate sama.
+     Bilah Start/Stop menempel di bawah agar tak perlu scroll setelah ubah pengaturan. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp"
-        android:paddingStart="@dimen/side_padding"
-        android:paddingEnd="@dimen/side_padding">
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp"
+            android:paddingStart="@dimen/side_padding"
+            android:paddingEnd="@dimen/side_padding">
 
         <Button
             android:id="@+id/settingsBack"
@@ -66,7 +73,7 @@
 
             <Button
                 android:id="@+id/aboutBtn"
-                android:nextFocusDown="@id/startStop"
+                android:nextFocusDown="@id/simpleMode"
                 android:nextFocusUp="@id/logOpen"
                 style="@style/TasirinBtnHero"
                 android:layout_width="wrap_content"
@@ -90,7 +97,7 @@
         <!-- ===================== LANJUTAN (collapsible) ===================== -->
         <Button
             android:id="@+id/advancedToggle"
-            android:nextFocusDown="@id/adminToken"
+            android:nextFocusDown="@id/autoStart"
             android:nextFocusUp="@id/open"
             style="@style/TasirinBtn"
             android:layout_width="match_parent"
@@ -117,5 +124,30 @@
             <!-- Log -->
             <include layout="@layout/main_card_log" />
         </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/card_stroke" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/window_bg"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
+
+        <Button
+            android:id="@+id/startStopBawah"
+            android:nextFocusUp="@id/logOpen"
+            style="@style/TasirinBtnPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/start" />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

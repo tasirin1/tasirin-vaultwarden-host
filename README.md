@@ -10,7 +10,7 @@ Server **Vaultwarden** (kompatibel Bitwarden) di Android — buat STB/TV box dan
 ## Cara pakai
 
 1. Unduh APK di [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install.
-2. Buka app → **&#8942; → Settings**: isi **Folder data** dan **Port**.
+2. Buka app → **&#8942; → Settings**: ikuti wizard 3 langkah (Folder → Port → Start). Mode sederhana hanya menampilkan yang penting.
 3. Tekan **Start** (unduhan pertama otomatis, ada progress).
 4. Buka `https://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
 
