@@ -88,34 +88,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:orientation="vertical">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/copyUrl"
                     android:nextFocusDown="@id/copyLoopback"
+                    android:nextFocusLeft="@id/copyUrl"
+                    android:nextFocusRight="@id/copyLoopback"
                     android:nextFocusUp="@id/startStop"
                     style="@style/TasirinBtn"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/copy_url_lan" />
 
                 <Button
                     android:id="@+id/copyLoopback"
                     android:nextFocusDown="@id/dataDir"
+                    android:nextFocusLeft="@id/copyUrl"
+                    android:nextFocusRight="@id/copyLoopback"
                     android:nextFocusUp="@id/copyUrl"
                     style="@style/TasirinBtn"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
                     android:text="@string/copy_url_hp" />
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="14dp"
-                android:background="@color/card_stroke" />
+            <View style="@style/TasirinDivider" />
 
             <TextView
                 style="@style/TasirinSub"

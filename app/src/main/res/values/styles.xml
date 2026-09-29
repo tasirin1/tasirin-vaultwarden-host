@@ -96,4 +96,20 @@
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/text_secondary</item>
     </style>
+    <!-- Kotak centang: teks seukuran tombol, area sentuh 48dp, fokus D-pad jelas. -->
+    <style name="TasirinCheck">
+        <item name="android:background">@drawable/item_focus_bg</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+    </style>
+
+    <!-- Pemisah grup: garis 1dp konsisten di semua kartu Settings. -->
+    <style name="TasirinDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:background">@color/card_stroke</item>
+    </style>
 </resources>

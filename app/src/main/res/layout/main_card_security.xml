@@ -146,10 +146,10 @@
                     android:inputType="numberPassword" />
 
                 <CheckBox
+                    style="@style/TasirinCheck"
                     android:id="@+id/pinEnabled"
                     android:nextFocusDown="@id/autoStart"
                     android:nextFocusUp="@id/pinInput"
-                    android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"

@@ -20,8 +20,8 @@
     <color name="chip_busy">#E8710A</color>
     <!-- Aksen tiap kartu Settings agar mudah dibedakan via remote TV. -->
     <color name="accent_server">#1B5FD9</color>
-    <color name="accent_pengaturan">#1B5FD9</color>
-    <color name="accent_rawat">#1B5FD9</color>
-    <color name="accent_telegram">#1B5FD9</color>
-    <color name="accent_log">#1B5FD9</color>
+    <color name="accent_pengaturan">#0E7C5B</color>
+    <color name="accent_rawat">#6D28D9</color>
+    <color name="accent_telegram">#0288D1</color>
+    <color name="accent_log">#546E7A</color>
 </resources>

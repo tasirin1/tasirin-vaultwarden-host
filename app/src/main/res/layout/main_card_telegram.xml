@@ -176,10 +176,7 @@
                     android:hint="@string/bin_sha_hint"
                     android:inputType="text" />
 
-                <View android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@color/card_stroke" />
+                <View style="@style/TasirinDivider" />
 
                 <TextView
                     style="@style/TasirinSub"
@@ -188,20 +185,16 @@
                     android:text="@string/sub_tg_otomatis" />
 
                 <CheckBox
+                    style="@style/TasirinCheck"
                     android:id="@+id/tgAuto"
                     android:nextFocusDown="@id/backupDb"
                     android:nextFocusUp="@id/binSha"
-                    android:background="@drawable/item_focus_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
                     android:text="@string/backup_auto_24h" />
 
 
-                <View android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@color/card_stroke" />
+                <View style="@style/TasirinDivider" />
 
                 <TextView
                     style="@style/TasirinSub"
@@ -224,25 +217,38 @@
                         android:layout_height="wrap_content"
                         android:text="@string/backup_local" />
 
-                    <Button
-                        android:id="@+id/backupTg"
-                        android:nextFocusDown="@id/restoreTg"
-                        android:nextFocusUp="@id/backupDb"
-                        style="@style/TasirinBtn"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/backupTg"
+                        android:nextFocusDown="@id/restoreTg"
+                        android:nextFocusLeft="@id/backupTg"
+                        android:nextFocusRight="@id/restoreTg"
+                        android:nextFocusUp="@id/backupDb"
+                        style="@style/TasirinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="@string/backup_to_tg" />
 
                     <Button
                         android:id="@+id/restoreTg"
                         android:nextFocusDown="@id/logOpen"
+                        android:nextFocusLeft="@id/backupTg"
+                        android:nextFocusRight="@id/restoreTg"
                         android:nextFocusUp="@id/backupTg"
                         style="@style/TasirinBtn"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
                         android:text="@string/restore_from_tg" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <TextView
