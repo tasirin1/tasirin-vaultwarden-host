@@ -1015,7 +1015,7 @@ public class SettingsActivity extends Activity {
                             zos.putNextEntry(new ZipEntry(name));
                             try (InputStream in = new java.io.FileInputStream(f)) {
                                 int n;
-                                while ((n = in.read(buf)) > 0) {
+                                while ((n = in.read(buf)) != -1) {
                                     zos.write(buf, 0, n);
                                 }
                             }
@@ -1203,7 +1203,7 @@ public class SettingsActivity extends Activity {
                             }
                             try (FileOutputStream fos = new FileOutputStream(out)) {
                                 int len;
-                                while ((len = zis.read(buf)) > 0) {
+                                while ((len = zis.read(buf)) != -1) {
                                     totalUnzip = Util.tambahUkuranUnzip(totalUnzip, len,
                                             Util.BATAS_UNZIP_RESTORE, jumlahEntri,
                                             Util.BATAS_JUMLAH_ENTRI);
@@ -1271,7 +1271,7 @@ public class SettingsActivity extends Activity {
                     try (FileOutputStream fos = new FileOutputStream(dbFile)) {
                         fos.write(head, 0, off);
                         int len;
-                        while ((len = in.read(buf)) > 0) {
+                        while ((len = in.read(buf)) != -1) {
                             salin += len;
                             if (salin > Util.BATAS_UNZIP_RESTORE) {
                                 throw new java.io.IOException("File database melebihi batas "
@@ -1533,7 +1533,7 @@ public class SettingsActivity extends Activity {
                 byte[] buf = new byte[8192];
                 int total = 0;
                 int n;
-                while ((n = in.read(buf)) > 0) {
+                while ((n = in.read(buf)) != -1) {
                     total += n;
                     if (total > 512 * 1024) {
                         throw new java.io.IOException(
@@ -1628,7 +1628,7 @@ public class SettingsActivity extends Activity {
         byte[] buf = new byte[8192];
         int total = 0;
         int n;
-        while ((n = in.read(buf)) > 0) {
+        while ((n = in.read(buf)) != -1) {
             total += n;
             if (total > max) {
                 throw new java.io.IOException("File terlalu besar (>512 KB) - bukan config valid.");

@@ -1537,7 +1537,7 @@ public class ServerService extends Service {
                 try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
                     byte[] buf = new byte[8192];
                     int n;
-                    while ((n = in.read(buf)) > 0) {
+                    while ((n = in.read(buf)) != -1) {
                         h = h * 31 + (java.util.Arrays.hashCode(
                                 java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
                     }
@@ -1747,6 +1747,7 @@ public class ServerService extends Service {
                 if (gotSha == null || !gotSha.equalsIgnoreCase(wantSha.trim())) {
                     appendLog("[app] Binary manual DITOLAK: SHA-256 tidak cocok"
                             + " dengan pengaturan. Cek kembali file/SHA-nya.");
+                    setStatus("Binary manual ditolak: SHA-256 tidak cocok.");
                     TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
                 } else {
                     // Uji di file sementara dulu: binary manual korup tak boleh
@@ -1782,6 +1783,7 @@ public class ServerService extends Service {
             } else {
                 appendLog("[app] Binary manual DITOLAK: SHA-256 belum diisi"
                         + " di pengaturan. Isi SHA-256 dulu demi keamanan.");
+                setStatus("Binary manual ditolak: SHA-256 belum diisi di pengaturan.");
                 TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 belum diisi.");
             }
         }
@@ -1870,7 +1872,7 @@ public class ServerService extends Service {
                  FileOutputStream fos = new FileOutputStream(tmp)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
-                while ((n = in.read(buf)) > 0) {
+                while ((n = in.read(buf)) != -1) {
                     fos.write(buf, 0, n);
                 }
                 fos.getFD().sync();

@@ -751,7 +751,7 @@ public final class TlsCert {
              FileOutputStream out = new FileOutputStream(tujuan)) {
             byte[] buf = new byte[8192];
             int n;
-            while ((n = in.read(buf)) > 0) {
+            while ((n = in.read(buf)) != -1) {
                 out.write(buf, 0, n);
             }
         }

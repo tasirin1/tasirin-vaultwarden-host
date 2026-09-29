@@ -59,7 +59,7 @@ public final class HttpsCompat {
                 try (InputStream in = new java.io.FileInputStream(ov)) {
                     byte[] buf = new byte[8192];
                     int n;
-                    while ((n = in.read(buf)) > 0) {
+                    while ((n = in.read(buf)) != -1) {
                         cap = cap * 31 + (java.util.Arrays.hashCode(
                                 java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
                     }

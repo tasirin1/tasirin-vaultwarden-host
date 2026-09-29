@@ -852,7 +852,7 @@ public final class TgBackup {
         zos.putNextEntry(new ZipEntry(name));
         try (FileInputStream fis = new FileInputStream(f)) {
             int n;
-            while ((n = fis.read(buf)) > 0) {
+            while ((n = fis.read(buf)) != -1) {
                 zos.write(buf, 0, n);
             }
         }
@@ -1068,7 +1068,7 @@ public final class TgBackup {
                 try (FileInputStream fis = new FileInputStream(file)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
-                    while ((n = fis.read(buf)) > 0) {
+                    while ((n = fis.read(buf)) != -1) {
                         dos.write(buf, 0, n);
                     }
                 }
@@ -1157,7 +1157,7 @@ public final class TgBackup {
                 byte[] buf = new byte[64 * 1024];
                 int n;
                 long total = 0;
-                while ((n = in.read(buf)) > 0) {
+                while ((n = in.read(buf)) != -1) {
                     total += n;
                     // Backup DB wajar puluhan MB; tolak file jumbo agar storage tak penuh.
                     if (total > Util.BATAS_UNZIP_RESTORE) {
@@ -1329,7 +1329,7 @@ public final class TgBackup {
             fos.write(iv);
             byte[] buf = new byte[64 * 1024];
             int n;
-            while ((n = fis.read(buf)) > 0) {
+            while ((n = fis.read(buf)) != -1) {
                 byte[] o = c.update(buf, 0, n);
                 if (o != null && o.length > 0) {
                     fos.write(o);
@@ -1386,7 +1386,7 @@ public final class TgBackup {
                     new GCMParameterSpec(128, iv));
             byte[] buf = new byte[64 * 1024];
             int n;
-            while ((n = fis.read(buf)) > 0) {
+            while ((n = fis.read(buf)) != -1) {
                 byte[] o = c.update(buf, 0, n);
                 if (o != null && o.length > 0) {
                     fos.write(o);
@@ -1545,7 +1545,7 @@ public final class TgBackup {
                     }
                     try (FileOutputStream fos = new FileOutputStream(outFile)) {
                         int n;
-                        while ((n = zis.read(buf)) > 0) {
+                        while ((n = zis.read(buf)) != -1) {
                             totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
                                     Util.BATAS_UNZIP_RESTORE, jumlahEntri,
                                     Util.BATAS_JUMLAH_ENTRI);
@@ -2011,7 +2011,7 @@ public final class TgBackup {
              FileOutputStream fos = new FileOutputStream(dst)) {
             byte[] buf = new byte[64 * 1024];
             int n;
-            while ((n = fis.read(buf)) > 0) {
+            while ((n = fis.read(buf)) != -1) {
                 fos.write(buf, 0, n);
             }
         }
@@ -2121,7 +2121,7 @@ public final class TgBackup {
         byte[] buf = new byte[64 * 1024];
         int n;
         long total = 0;
-        while ((n = in.read(buf)) > 0) {
+        while ((n = in.read(buf)) != -1) {
             total += n;
             if (total > batas) {
                 throw new IOException("Ukuran data melebihi batas " + batas + " byte.");

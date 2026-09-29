@@ -43,6 +43,16 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void kunciTanpaStempelFailClosed() {
+        // Hitungan gagal tanpa stempel (prefs korup/kunci dihapus) tak boleh
+        // membuka lockout: fail-closed dengan kunci penuh.
+        long sekarang = 1_700_000_000_000L;
+        assertTrue(PinCrypto.sisaKunciMs(5, 0, sekarang) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(6, -1, sekarang) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(4, 0, sekarang) == 0);
+    }
+
+    @Test
     public void kunciElapsedLamaDianggapKedaluwarsa() {
         // Format lama era elapsedRealtime tak boleh mengunci permanen.
         assertTrue(PinCrypto.sisaKunciMs(5, 1_300_000L, 1_700_000_000_000L) == 0);

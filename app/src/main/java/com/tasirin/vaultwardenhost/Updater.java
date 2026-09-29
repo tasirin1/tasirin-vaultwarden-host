@@ -431,7 +431,7 @@ public final class Updater {
             int n;
             long done = lanjutDari;
             long lastReport = done;
-            while ((n = in.read(buf)) > 0) {
+            while ((n = in.read(buf)) != -1) {
                 fos.write(buf, 0, n);
                 md.update(buf, 0, n);
                 done += n;
@@ -725,6 +725,10 @@ public final class Updater {
             try {
                 c = open(ctx, RELEASE_LATEST_URL + TRUST_CHAIN_ASSET, 10000, 10000);
                 if (c.getResponseCode() != 200) {
+                    // Negatif definitif (mis. 404 sebelum asset diterbitkan):
+                    // tandai hari agar tak menghantam jaringan tiap Start
+                    // (sesuai janji "maks 1x sehari" di atas).
+                    sp.edit().putString(KEY_TRUST_TGL, hari).apply();
                     return false;
                 }
                 blob = TgBackup.bacaTerbatas(c.getInputStream(), BATAS_RANTAI_TRUST + 1);
@@ -734,6 +738,7 @@ public final class Updater {
                 }
             }
             if (validasiRantai(blob) < 1) {
+                sp.edit().putString(KEY_TRUST_TGL, hari).apply();
                 return false;
             }
             // Bila rilis menyertakan .sha256 pendamping, wajib cocok (lapis
@@ -749,6 +754,7 @@ public final class Updater {
                     return false;
                 }
                 if (!expectedHexEquals(sisi, dapat)) {
+                    sp.edit().putString(KEY_TRUST_TGL, hari).apply();
                     return false;
                 }
             }
@@ -1090,7 +1096,7 @@ public final class Updater {
                         }
                         try (FileOutputStream fos = new FileOutputStream(outFile)) {
                             int n;
-                            while ((n = zis.read(buf)) > 0) {
+                            while ((n = zis.read(buf)) != -1) {
                                 totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
                                         Util.BATAS_UNZIP_WEBVAULT, jumlahEntri,
                                         Util.BATAS_JUMLAH_ENTRI);
@@ -1503,7 +1509,7 @@ public final class Updater {
             byte[] buf = new byte[64 * 1024];
             long left = len;
             int n;
-            while (left > 0 && (n = in.read(buf, 0, (int) Math.min(buf.length, left))) > 0) {
+            while (left > 0 && (n = in.read(buf, 0, (int) Math.min(buf.length, left))) != -1) {
                 md.update(buf, 0, n);
                 left -= n;
             }
@@ -1529,7 +1535,7 @@ public final class Updater {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] buf = new byte[64 * 1024];
             int n;
-            while ((n = in.read(buf)) > 0) {
+            while ((n = in.read(buf)) != -1) {
                 md.update(buf, 0, n);
             }
             return toHex(md.digest());

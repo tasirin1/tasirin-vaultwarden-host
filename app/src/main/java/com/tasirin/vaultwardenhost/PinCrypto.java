@@ -78,18 +78,26 @@ public final class PinCrypto {
 
     /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni.
      *  Batas waktu wajib wall-clock (currentTimeMillis) agar reboot tak mereset
-     *  lockout brute-force. Nilai lama era elapsedRealtime (kecil, di bawah
-     *  ambang) dianggap kedaluwarsa agar tak mengunci permanen. Jam perangkat
-     *  yang mundur ke 1970 (sekarang kecil) fail-closed dengan kunci penuh agar
-     *  penyerang tak bisa bypass via utak-atik tanggal. */
+     *  lockout brute-force. Stempel hilang (prefs korup/kunci dihapus) fail-closed
+     *  dengan kunci penuh agar lockout tak bisa di-bypass; nilai lama era
+     *  elapsedRealtime (kecil tapi non-nol, di bawah ambang) tetap dianggap
+     *  kedaluwarsa agar tak mengunci permanen. Jam perangkat yang mundur ke
+     *  1970 (sekarang kecil) fail-closed dengan kunci penuh agar penyerang tak
+     *  bisa bypass via utak-atik tanggal. */
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
-        if (gagal < MAX_GAGAL || sekarang >= terkunciSampai) {
+        if (gagal < MAX_GAGAL) {
+            return 0;
+        }
+        if (terkunciSampai <= 0) {
+            return KUNCI_MS;
+        }
+        if (sekarang >= terkunciSampai) {
             return 0;
         }
         if (terkunciSampai <= AMBANG_WALL_MS) {
             return 0;
         }
-        if (terkunciSampai > AMBANG_WALL_MS && sekarang <= AMBANG_WALL_MS) {
+        if (sekarang <= AMBANG_WALL_MS) {
             return KUNCI_MS;
         }
         return terkunciSampai - sekarang;
