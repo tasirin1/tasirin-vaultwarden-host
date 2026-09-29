@@ -1013,6 +1013,13 @@ public final class TgBackup {
     /** Reset sertifikat (hapus CA + leaf) agar CA baru dibuat saat Start berikut.
      *  Wajib install ulang CA di semua HP setelahnya. */
     public static String resetSertifikat(Context ctx) throws Exception {
+        // Reset saat server HTTPS jalan menembak kaki sendiri: Rocket memegang
+        // cert di memori, tapi health check loopback kehilangan CA → 3x gagal →
+        // server dibunuh sebagai "tidak sehat". Tolak dengan pesan jelas.
+        if (ServerService.isProcessAlive() && ServerService.runningHttps) {
+            throw new IOException("Server masih berjalan (HTTPS) - Stop dulu,"
+                    + " lalu reset agar health check tak salah menilai.");
+        }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
@@ -1207,7 +1214,76 @@ public final class TgBackup {
         if (end < 0) {
             throw new IOException("file_path rusak");
         }
-        return sb.substring(start, end);
+        String hasil = sb.substring(start, end);
+        if (!filePathTelegramAman(hasil)) {
+            throw new IOException("file_path tidak aman - unduhan dibatalkan.");
+        }
+        // Cek storage di depan (bukan di tengah unduhan): getFile menyertakan
+        // file_size sehingga STB sesak gagal cepat dengan pesan jelas.
+        long ukuran = fileSizeDariRespons(sb.toString());
+        if (ukuran > 0) {
+            try {
+                java.io.File cache = ctx.getCacheDir();
+                if (cache != null) {
+                    long sisa = freeBytes(cache.getAbsolutePath());
+                    if (sisa >= 0 && ukuran > sisa) {
+                        throw new IOException("Storage kurang (butuh "
+                                + humanBytes(ukuran) + ", sisa " + humanBytes(sisa)
+                                + ") - unduhan dibatalkan.");
+                    }
+                }
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception ignored) {
+            }
+        }
+        return hasil;
+    }
+
+    /** True bila file_path Telegram aman ditempel ke URL unduh (tanpa I/O).
+     *  Respons datang via HTTPS terotentikasi, tapi tolak pola traversal /
+     *  absolut agar respons menyimpang tak bisa mengarahkan unduhan. Murni. */
+    static boolean filePathTelegramAman(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        if (path.startsWith("/") || path.contains("..") || path.contains("\\")) {
+            return false;
+        }
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c < 0x20 || c == 0x7F) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni. */
+    static long fileSizeDariRespons(String body) {
+        if (body == null) {
+            return -1;
+        }
+        int f = body.indexOf("\"file_size\":");
+        if (f < 0) {
+            return -1;
+        }
+        int i = f + "\"file_size\":".length();
+        while (i < body.length() && (body.charAt(i) == ' ' || body.charAt(i) == '\t')) {
+            i++;
+        }
+        int j = i;
+        while (j < body.length() && Character.isDigit(body.charAt(j))) {
+            j++;
+        }
+        if (j == i) {
+            return -1;
+        }
+        try {
+            return Long.parseLong(body.substring(i, j));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     // ─── Enkripsi AES-GCM (PBKDF2) ──────────────────────────────────────

@@ -89,8 +89,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 2. **Bahasa**: kode, komentar, pesan UI, dan commit memakai **Bahasa Indonesia**.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
    singkat (contoh di `git log`). Satu commit satu tujuan logis. Setiap push
-   ke `main` memicu full rebuild (~15 menit), jadi gabungkan perubahan kecil
-   dalam satu commit.
+   ke `main` yang menyentuh kode memicu full rebuild (~15 menit), jadi gabungkan
+   perubahan kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).
 4. **Jangan menaikkan `targetSdk` ≥ 29** tanpa solusi eksekusi binary:
    Android 10+ memblokir `execve` dari app home untuk targetSdk ≥ 29 (W^X).
 5. **Jangan menambah ABI lain** — repo ini sengaja `armeabi-v7a` saja
@@ -114,8 +114,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ## Alur build & rilis (CI, build-apk.yml)
 
-Pipeline 4 job. Pemicu: `push` ke `main` (selalu build + terbitkan ulang
-rilis), `schedule` tiap 6 jam (cek versi upstream; skip bila rilis untuk tag
+Pipeline 4 job. Pemicu: `push` ke `main` (build + terbitkan ulang rilis;
+commit dokumen `*.md`/`.gitignore` saja dilewati via `paths-ignore`),
+`schedule` tiap 6 jam (cek versi upstream; skip bila rilis untuk tag
 tersebut sudah ada), dan `workflow_dispatch` (manual). `concurrency:
 vw-release` mencegah dua run berebut rilis yang sama; cache cargo dipakai
 ulang antar run:

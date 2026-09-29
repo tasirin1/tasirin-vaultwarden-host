@@ -1528,12 +1528,19 @@ public class ServerService extends Service {
                 }
             }
             if (ca != null && ca.isFile()) {
-                long h = ca.lastModified() * 1000000L + ca.length();
+                // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
+                // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos
+                // (sama seperti HttpsCompat.capOverride; mtime FAT 2 detik saja
+                // tak cukup membedakan CA hasil regenerasi cepat — factory basi
+                // bikin health HTTPS gagal + restart beruntun).
+                long h = ca.lastModified() * 31 + ca.length();
                 try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
-                    byte[] buf = new byte[4096];
-                    int n = in.read(buf);
-                    int hc = n > 0 ? java.util.Arrays.hashCode(java.util.Arrays.copyOf(buf, n)) : 0;
-                    h = h * 31 + (hc & 0xffffffffL);
+                    byte[] buf = new byte[8192];
+                    int n;
+                    while ((n = in.read(buf)) > 0) {
+                        h = h * 31 + (java.util.Arrays.hashCode(
+                                java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+                    }
                 } catch (Exception ignored) {
                 }
                 return h;

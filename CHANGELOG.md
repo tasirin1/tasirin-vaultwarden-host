@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit keamanan (putaran 2)
+- Reset sertifikat ditolak saat server HTTPS jalan (Stop dulu): sebelumnya file CA dihapus di bawah server hidup lalu health check membunuhnya sebagai "tidak sehat".
+- `file_path` Telegram divalidasi (tolak traversal/absolut) + cek storage dari `file_size` sebelum unduh backup.
+- Cap cache TLS loopback hash seluruh isi (seperti `HttpsCompat`) agar factory tak basi setelah regenerasi cepat.
+- CI melewati build untuk commit dokumen saja (`paths-ignore`: `*.md`, `.gitignore`).
+
 ## [Belum rilis] — Perbaikan hasil audit keamanan
 - `/status` Telegram kini wajib PIN bila PIN aktif (seperti `/log`); tombol Status memberi tahu agar ketik manual saat PIN aktif.
 - Pesan perintah ber-PIN dihapus otomatis dari chat (best-effort, butuh izin hapus) agar PIN tak menempel di riwayat.

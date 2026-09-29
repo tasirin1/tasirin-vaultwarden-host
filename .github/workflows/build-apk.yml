@@ -3,6 +3,10 @@ name: Build Tasirin Vaultwarden Host APK
 on:
   push:
     branches: [ main ]
+    # Commit dokumen saja tak mengubah binary/APK: hemat satu full rebuild (~15 mnt).
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
   workflow_dispatch:
   # Auto-rebuild beberapa jam setelah Vaultwarden rilis versi baru
   schedule:

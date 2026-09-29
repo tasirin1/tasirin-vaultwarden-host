@@ -18,6 +18,24 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void filePathTelegram_tolakTraversal() {
+        assertTrue(TgBackup.filePathTelegramAman("documents/backup-telegram-abc.zip"));
+        assertTrue(TgBackup.filePathTelegramAman("f/1.zip"));
+        assertFalse(TgBackup.filePathTelegramAman("../../etc/passwd"));
+        assertFalse(TgBackup.filePathTelegramAman("/absolut.zip"));
+        assertFalse(TgBackup.filePathTelegramAman("a\\b.zip"));
+        assertFalse(TgBackup.filePathTelegramAman(""));
+        assertFalse(TgBackup.filePathTelegramAman(null));
+    }
+
+    @Test
+    public void fileSizeDariRespons_bacaAngkaAman() {
+        assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_path\":\"d/f.zip\",\"file_size\":12345}}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons(null));
+    }
+
+    @Test
     public void encryptFile_hapusParsialSaatGagal() {
         java.io.File hilang = new java.io.File("/tidak/ada/masuk.bin");
         java.io.File keluar = new java.io.File(
