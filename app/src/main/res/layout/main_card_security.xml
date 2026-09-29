@@ -23,6 +23,8 @@
 
                     <Button
                         android:id="@+id/secUbah"
+                        android:drawableStart="@drawable/ic_edit"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/rawatUbah"
                         android:nextFocusUp="@id/port"
                         style="@style/TasirinBtnSmall"
@@ -70,6 +72,8 @@
 
                 <Button
                     android:id="@+id/showAdmin"
+                    android:drawableStart="@drawable/ic_eye"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/copyAdmin"
                     android:nextFocusUp="@id/adminToken"
                     style="@style/TasirinBtnSmall"
@@ -87,6 +91,8 @@
 
                 <Button
                     android:id="@+id/copyAdmin"
+                    android:drawableStart="@drawable/ic_copy"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/randomAdmin"
                     android:nextFocusUp="@id/showAdmin"
                     style="@style/TasirinBtnSmall"
@@ -97,6 +103,8 @@
 
                 <Button
                     android:id="@+id/randomAdmin"
+                    android:drawableStart="@drawable/ic_dice"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/pinInput"
                     android:nextFocusUp="@id/copyAdmin"
                     style="@style/TasirinBtnSmall"

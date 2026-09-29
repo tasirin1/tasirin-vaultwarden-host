@@ -21,6 +21,8 @@
 
                     <Button
                         android:id="@+id/tgUbah"
+                        android:drawableStart="@drawable/ic_edit"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/logOpen"
                         android:nextFocusUp="@id/rawatUbah"
                         style="@style/TasirinBtnSmall"
@@ -68,6 +70,8 @@
 
                     <Button
                         android:id="@+id/showTg"
+                        android:drawableStart="@drawable/ic_eye"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/copyTg"
                         android:nextFocusUp="@id/tgToken"
                         style="@style/TasirinBtnSmall"
@@ -79,6 +83,8 @@
 
                 <Button
                     android:id="@+id/copyTg"
+                    android:drawableStart="@drawable/ic_copy"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/tgChat"
                     android:nextFocusUp="@id/showTg"
                     style="@style/TasirinBtnSmall"
@@ -210,6 +216,8 @@
 
                     <Button
                         android:id="@+id/backupDb"
+                        android:drawableStart="@drawable/ic_save"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/backupTg"
                         android:nextFocusUp="@id/tgAuto"
                         style="@style/TasirinBtn"
@@ -226,6 +234,8 @@
 
                     <Button
                         android:id="@+id/backupTg"
+                        android:drawableStart="@drawable/ic_send"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/restoreTg"
                         android:nextFocusLeft="@id/backupTg"
                         android:nextFocusRight="@id/restoreTg"
@@ -238,6 +248,8 @@
 
                     <Button
                         android:id="@+id/restoreTg"
+                        android:drawableStart="@drawable/ic_history"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/logOpen"
                         android:nextFocusLeft="@id/backupTg"
                         android:nextFocusRight="@id/restoreTg"

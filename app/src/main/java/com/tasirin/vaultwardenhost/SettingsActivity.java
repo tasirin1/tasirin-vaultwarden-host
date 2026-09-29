@@ -673,6 +673,8 @@ public class SettingsActivity extends Activity {
                 : getString(R.string.start);
         if (!btnText.equals(startStopBawah.getText().toString())) {
             startStopBawah.setText(btnText);
+            startStopBawah.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    running ? R.drawable.ic_stop : R.drawable.ic_play, 0, 0, 0);
         }
 
         // Peringatan bila setting diubah tapi server belum di-restart

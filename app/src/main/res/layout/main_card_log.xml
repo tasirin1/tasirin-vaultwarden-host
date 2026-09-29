@@ -12,7 +12,9 @@
 
                 <Button
                     android:id="@+id/logOpen"
-                    android:nextFocusDown="@id/startStopBawah"
+                    android:drawableStart="@drawable/ic_list"
+                    android:drawablePadding="8dp"
+                    android:nextFocusDown="@id/aboutBtn"
                     android:nextFocusUp="@id/restoreTg"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"

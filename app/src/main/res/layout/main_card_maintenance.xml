@@ -21,6 +21,8 @@
 
                     <Button
                         android:id="@+id/rawatUbah"
+                        android:drawableStart="@drawable/ic_edit"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/tgUbah"
                         android:nextFocusUp="@id/secUbah"
                         style="@style/TasirinBtnSmall"
@@ -78,6 +80,8 @@
 
                     <Button
                         android:id="@+id/batteryBtn"
+                        android:drawableStart="@drawable/ic_check"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/autoUpdate"
                         android:nextFocusUp="@id/autoStart"
                         style="@style/TasirinBtnSmall"
@@ -130,6 +134,8 @@
 
                     <Button
                         android:id="@+id/update"
+                        android:drawableStart="@drawable/ic_refresh"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/revert"
                         android:nextFocusLeft="@id/update"
                         android:nextFocusRight="@id/revert"
@@ -142,6 +148,8 @@
 
                     <Button
                         android:id="@+id/revert"
+                        android:drawableStart="@drawable/ic_history"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/installCert"
                         android:nextFocusLeft="@id/update"
                         android:nextFocusRight="@id/revert"
@@ -170,6 +178,8 @@
 
                 <Button
                     android:id="@+id/certInfoToggle"
+                    android:drawableStart="@drawable/ic_info"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/installCert"
                     android:nextFocusUp="@id/revert"
                     style="@style/TasirinBtnSmall"
@@ -195,6 +205,8 @@
 
                     <Button
                         android:id="@+id/installCert"
+                        android:drawableStart="@drawable/ic_shield"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/shareCa"
                         android:nextFocusLeft="@id/installCert"
                         android:nextFocusRight="@id/shareCa"
@@ -207,6 +219,8 @@
 
                     <Button
                         android:id="@+id/shareCa"
+                        android:drawableStart="@drawable/ic_share"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/resetCert"
                         android:nextFocusLeft="@id/installCert"
                         android:nextFocusRight="@id/shareCa"
@@ -221,6 +235,8 @@
 
                 <Button
                     android:id="@+id/resetCert"
+                    android:drawableStart="@drawable/ic_trash"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/exportCfg"
                     android:nextFocusUp="@id/shareCa"
                     style="@style/TasirinBtn"
@@ -245,6 +261,8 @@
 
                     <Button
                         android:id="@+id/exportCfg"
+                        android:drawableStart="@drawable/ic_upload"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/importCfg"
                         android:nextFocusLeft="@id/exportCfg"
                         android:nextFocusRight="@id/importCfg"
@@ -257,6 +275,8 @@
 
                     <Button
                         android:id="@+id/importCfg"
+                        android:drawableStart="@drawable/ic_download"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/updateWv"
                         android:nextFocusLeft="@id/exportCfg"
                         android:nextFocusRight="@id/importCfg"
@@ -285,6 +305,8 @@
 
                     <Button
                         android:id="@+id/updateWv"
+                        android:drawableStart="@drawable/ic_globe"
+                        android:drawablePadding="8dp"
                         android:nextFocusDown="@id/restoreDb"
                         android:nextFocusLeft="@id/updateWv"
                         android:nextFocusRight="@id/restoreDb"

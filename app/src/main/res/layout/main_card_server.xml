@@ -75,6 +75,8 @@
 
                 <Button
                     android:id="@+id/copyUrl"
+                    android:drawableStart="@drawable/ic_globe"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/copyLoopback"
                     android:nextFocusLeft="@id/copyUrl"
                     android:nextFocusRight="@id/copyLoopback"
@@ -87,6 +89,8 @@
 
                 <Button
                     android:id="@+id/copyLoopback"
+                    android:drawableStart="@drawable/ic_phone"
+                    android:drawablePadding="8dp"
                     android:nextFocusDown="@id/dataDir"
                     android:nextFocusLeft="@id/copyUrl"
                     android:nextFocusRight="@id/copyLoopback"
