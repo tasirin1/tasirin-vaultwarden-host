@@ -48,7 +48,14 @@ public class AlarmReceiver extends BroadcastReceiver {
         // tunda sampai 5 menit agar sistem stabil, lalu nilai ulang.
         if (TgBackup.sisaTungguBootMs(
                 android.os.SystemClock.elapsedRealtime()) > 0) {
-            TgBackup.jadwalTundaBoot(context);
+            try {
+                SharedPreferences cekAwal = context.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                if (cekAwal.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                    TgBackup.jadwalTundaBoot(context);
+                }
+            } catch (Exception ignored) {
+            }
             return;
         }
         // Alarm susulan boot: putuskan SEKARANG dengan jam yang sudah stabil —

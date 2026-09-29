@@ -55,6 +55,8 @@ public final class TlsCert {
 
     static final String CA_CN = "Vaultwarden Android CA";
     static final String LEAF_CN = "Vaultwarden Android";
+    /** Regen dini leaf bila sisa < 30 hari agar tak kedaluwarsa di tengah jalan. */
+    static final long BATAS_REGEN_MS = 30L * 24 * 3600 * 1000;
 
     /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
      *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
@@ -122,7 +124,7 @@ public final class TlsCert {
             }
             if (certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
-                    && sisaMs(certFile) > 0) {
+                    && sisaMs(certFile) > BATAS_REGEN_MS) {
                 return dir;
             }
             // Leaf hilang / rusak / kedaluwarsa / IP atau domain berubah: buat ulang, CA tetap.
@@ -282,6 +284,17 @@ public final class TlsCert {
         byte[] serialBytes = new byte[16];
         rnd.nextBytes(serialBytes);
         serialBytes[0] &= 0x7F; // positif
+        // Serial nol tidak valid (RFC 5280): paksa non-nol bila kebetulan semua nol.
+        boolean nolSemua = true;
+        for (byte b : serialBytes) {
+            if (b != 0) {
+                nolSemua = false;
+                break;
+            }
+        }
+        if (nolSemua) {
+            serialBytes[serialBytes.length - 1] = 1;
+        }
 
         Date now = new Date();
         Date notBefore = new Date(now.getTime() - TimeUnit.DAYS.toMillis(1));

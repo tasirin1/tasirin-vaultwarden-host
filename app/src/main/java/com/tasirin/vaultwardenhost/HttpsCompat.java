@@ -53,15 +53,16 @@ public final class HttpsCompat {
         try {
             File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
             if (ov.isFile()) {
-                long cap = ov.lastModified() * 1000000L + ov.length();
+                // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
+                // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos.
+                long cap = ov.lastModified() * 31 + ov.length();
                 try (InputStream in = new java.io.FileInputStream(ov)) {
-                    byte[] buf = new byte[4096];
-                    int n = in.read(buf);
-                    int hc = n > 0
-                            ? java.util.Arrays.hashCode(
-                                    java.util.Arrays.copyOf(buf, n))
-                            : 0;
-                    cap = cap * 31 + (hc & 0xffffffffL);
+                    byte[] buf = new byte[8192];
+                    int n;
+                    while ((n = in.read(buf)) > 0) {
+                        cap = cap * 31 + (java.util.Arrays.hashCode(
+                                java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+                    }
                 } catch (Exception ignored) {
                 }
                 return cap;

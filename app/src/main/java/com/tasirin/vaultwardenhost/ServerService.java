@@ -522,6 +522,11 @@ public class ServerService extends Service {
             }, "vw-tg-sched").start();
             return START_NOT_STICKY;
         }
+        // Aksi tak dikenal (termasuk intent null dari sistem) bukan perintah start:
+        // abaikan agar service tak menyala sendiri tanpa persetujuan user.
+        if (!ACTION_START.equals(action)) {
+            return START_NOT_STICKY;
+        }
         autoRestart = true;
         healthActive = true;
         startForegroundCompat();
@@ -587,14 +592,16 @@ public class ServerService extends Service {
                 || n.equals("/proc") || n.equals("/sys") || n.equals("/dev")) {
             return false;
         }
-        // Tolak seluruh isi area sistem; kecuali /data/data (privat milik app).
+        // Tolak seluruh isi area sistem; kecuali privat milik app
+        // (/data/data dan /data/user yang merupakan path kanonis sama).
         if (n.equals("/system") || n.startsWith("/system/") || n.equals("/vendor")
                 || n.startsWith("/vendor/") || n.equals("/proc") || n.startsWith("/proc/")
                 || n.equals("/sys") || n.startsWith("/sys/") || n.equals("/dev")
                 || n.startsWith("/dev/")) {
             return false;
         }
-        if ((n.equals("/data") || n.startsWith("/data/")) && !n.startsWith("/data/data/")) {
+        if ((n.equals("/data") || n.startsWith("/data/"))
+                && !n.startsWith("/data/data/") && !n.startsWith("/data/user/")) {
             return false;
         }
         return true;
@@ -2437,13 +2444,9 @@ public class ServerService extends Service {
     /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */
     static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
-            // REUSEADDR aktif: socket TIME_WAIT sisa (koneksi klien tepat sebelum
-            // Stop) tak lagi dituduh "port dipakai"; socket yang benar-benar
-            // LISTEN tetap menggagalkan bind (EADDRINUSE) sehingga tetap terdeteksi.
-            try {
-                s.setReuseAddress(true);
-            } catch (Exception ignored) {
-            }
+            // Tanpa REUSEADDR: TIME_WAIT ikut terbaca "sibuk" (konservatif) agar
+            // tak ada false-negative yang berujung crash-loop Rocket EADDRINUSE.
+            // Cek dual-stack tetap lewat dua panggilan IPv4 + IPv6 oleh isPortBusy.
             s.bind(new InetSocketAddress(host, port));
             return true;
         } catch (Exception e) {

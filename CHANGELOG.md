@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit kode (putaran 2)
+- Status web (`ControlServer`) kini menutup soket SSE/klien saat stop dan
+  membersihkan hitungan per-IP agar instance baru tak mewarisi 503/429 basi.
+- Folder privat kanonis `/data/user/0/...` diterima sebagai folder data sah
+  (sebelumnya hanya `/data/data/...`).
+- Service mengabaikan intent tanpa aksi START agar tak menyala sendiri.
+- Alarm boot menunda jadwal susulan hanya bila backup otomatis aktif.
+- Deteksi port tanpa `REUSEADDR` (konservatif, cegah crash-loop EADDRINUSE).
+- Serial sertifikat dijamin non-nol; leaf diregen dini saat sisa < 30 hari.
+- Cap trust anchor dihitung dari seluruh isi file tanpa overflow.
+
 ## [Belum rilis] — Perbaikan hasil audit kode
 - Backup otomatis (catch-up boot, susulan, saat Start, tengah malam) menunggu
   5 menit setelah STB hidup agar sistem stabil sebelum beban backup+upload.

@@ -182,6 +182,7 @@ public class ServerServiceTest {
         assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/data/data/com.tasirin.vaultwardenhost/files"));
+        assertTrue(ServerService.dataDirAman("/data/user/0/com.tasirin.vaultwardenhost/files"));
     }
 
     @Test

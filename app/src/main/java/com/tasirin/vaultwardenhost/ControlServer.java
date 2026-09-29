@@ -82,6 +82,10 @@ public final class ControlServer {
     private ServerSocket serverSocket;
     private Thread acceptThread;
     private volatile boolean stop;
+    /** Soket klien yang sedang dilayani (handle/SSE) agar stop() bisa menutupnya.
+     *  Tanpa ini soket SSE lama hidup sampai 3 menit dan menahan slot statis. */
+    private final java.util.Set<Socket> klienAktif =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<Socket>());
 
     public ControlServer(Context context) {
         this.context = context.getApplicationContext();
@@ -136,6 +140,25 @@ public final class ControlServer {
         } catch (Exception ignored) {
         }
         serverSocket = null;
+        // Tutup soket klien/SSE yang masih hidup agar slot statis cepat bebas
+        // untuk instance berikutnya; salin dulu agar tak ConcurrentModification.
+        try {
+            java.util.ArrayList<Socket> salin;
+            synchronized (klienAktif) {
+                salin = new java.util.ArrayList<>(klienAktif);
+            }
+            for (Socket k : salin) {
+                try {
+                    k.close();
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        // Bersihkan hitungan per-IP agar instance baru tak mewarisi 429 basi.
+        synchronized (ssePerIp) {
+            ssePerIp.clear();
+        }
         listeningPort = 0;
         running = false;
     }
@@ -196,6 +219,7 @@ public final class ControlServer {
     }
 
     private void handle(Socket s) {
+        klienAktif.add(s);
         // Slot sudah direservasi di acceptLoop; cukup bebaskan di finally.
         // Scope method (bukan dalam try): dipakai finally untuk tahu
         // socket diserahkan ke thread SSE atau harus ditutup di sini.
@@ -295,6 +319,7 @@ public final class ControlServer {
         } finally {
             if (!serahkan) {
                 conns.decrementAndGet();
+                klienAktif.remove(s);
                 try {
                     s.close();
                 } catch (Exception ignored) {
@@ -311,6 +336,10 @@ public final class ControlServer {
             } catch (Exception ignored) {
             } finally {
                 conns.decrementAndGet();
+                try {
+                    klienAktif.remove(s);
+                } catch (Exception ignored) {
+                }
                 try {
                     s.close();
                 } catch (Exception ignored) {
