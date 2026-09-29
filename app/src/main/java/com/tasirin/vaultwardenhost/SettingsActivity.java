@@ -101,7 +101,6 @@ public class SettingsActivity extends Activity {
     private Button backupTgBtn;
     private Button aboutBtn;
     private Button startStopBawah;
-    private Button bukaBawah;
     private Button copyAdminBtn;
     private Button copyTgBtn;
     private TextView adminStatus;
@@ -239,7 +238,6 @@ public class SettingsActivity extends Activity {
         settingsScroll = findViewById(R.id.settingsScroll);
         batteryRow = findViewById(R.id.batteryRow);
 
-        bukaBawah = findViewById(R.id.bukaBawah);
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
         updateWvBtn = findViewById(R.id.updateWv);
@@ -285,9 +283,6 @@ public class SettingsActivity extends Activity {
         tgRingkasan = findViewById(R.id.tgRingkasan);
 
         startStopBawah.setOnClickListener(v -> aksiStartStop());
-        if (bukaBawah != null) {
-            bukaBawah.setOnClickListener(v -> openWebUi());
-        }
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm("Reset Binary",
                 "Hapus binary tersimpan. Versi terbaru akan diunduh ulang "
@@ -836,19 +831,6 @@ public class SettingsActivity extends Activity {
             return (v == null || v.trim().isEmpty()) ? "?" : "Versi: " + v.trim();
         } catch (Exception e) {
             return "Versi: ?";
-        }
-    }
-
-    private void openWebUi() {
-        String port = portInput.getText().toString().trim();
-        if (TextUtils.isEmpty(port)) {
-            port = DEFAULT_PORT;
-        }
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://127.0.0.1:" + port)));
-        } catch (Exception e) {
-            toast("Tidak bisa membuka browser: " + e.getMessage());
         }
     }
 

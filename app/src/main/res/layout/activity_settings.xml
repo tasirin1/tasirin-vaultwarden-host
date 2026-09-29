@@ -473,21 +473,9 @@
         <Button
             android:id="@+id/startStopBawah"
             android:nextFocusUp="@id/logOpen"
-            android:nextFocusRight="@id/bukaBawah"
             style="@style/TasirinBtnPrimary"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/start" />
-
-        <Button
-            android:id="@+id/bukaBawah"
-            android:nextFocusUp="@id/logOpen"
-            android:nextFocusLeft="@id/startStopBawah"
-            style="@style/TasirinBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/open_web_ui" />
     </LinearLayout>
 </LinearLayout>
