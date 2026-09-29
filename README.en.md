@@ -26,7 +26,7 @@ Download from another phone, put in the data folder, press **Start**:
 
 ## Features
 
-Auto-update of binary & web vault, status web on port+1, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
+Auto-update of binary & web vault, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
 **Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. With PIN: `/stop 123456` (also `/careset 123456`).
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Hapus status web port+1
+- Status web `ControlServer` (port+1, JSON + log SSE) dihapus total beserta test dan seluruh rujukannya di `ServerService`, `MainActivity`, `SettingsActivity`, string, dan README; pemantauan tetap via log realtime di aplikasi + `/status`/`/log` Telegram sehingga tak ada port tambahan yang terbuka.
+
 ## [Belum rilis] — Perbaikan hasil audit kode (putaran 3)
 - PIN fail-open ditutup: PIN pendek menghapus hash sekaligus mematikan PIN;
   kunci otomatis mematikan PIN yatim (tanpa hash) dengan catatan log.

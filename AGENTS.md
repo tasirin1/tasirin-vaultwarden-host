@@ -36,9 +36,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │   └── java/com/tasirin/vaultwardenhost/
 │       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, simpan .txt, titik tiga
 │       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
-│       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS, ControlServer
+│       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS
 │       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
-│       ├── ControlServer.java        # status web ringan (JSON + log SSE) di port+1
 │       ├── TgBot.java / TgBackup.java / TgBotReceiver.java  # remote & backup Telegram
 │       ├── KernelCompat.java         # deteksi kernel lama + pasang shim getrandom via LD_PRELOAD
 │       ├── PinCrypto.java              # PIN PBKDF2+salt (format PBKDF2$...)
@@ -68,7 +67,6 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
      `ADMIN_TOKEN`, `WEB_VAULT_ENABLED/FOLDER`, `ROCKET_TLS`, `RUST_LOG`, `DOMAIN`.
   3. `healthTick` → `checkHealthOnce()` (GET `/alive`); restart backoff
      `{2,5,10,20,40}s` maks 5×.
-  4. `ControlServer` di `port+1` (auto fallback sampai +10).
 - **Updater**: `latestVersion()` (cache 15 mnt, fallback saat rate-limit/TLS),
   `tryUpdate()`/`downloadBinary()` (verifikasi SHA-256), `updateWebVault()`
   (butuh ≥150 MB sisa storage, penanda `KEY_WV_FROM` agar tidak unduh ulang).
@@ -179,8 +177,6 @@ seamless (beda signature) — backup keystore di tempat aman.
   `impl CustomDnsResolver { fn new()` / rantai `Client::builder()`): sesuaikan
   polanya; bila `ndk-context`/platform-verifier sudah tidak dipakai, patch
   terkait bisa dihapus.
-- **`ControlServer` bukan web vault** — itu status web ringan (JSON + SSE)
-  di port `port+1`; web vault asli dilayani binary Vaultwarden di port utama.
 - **Unit test**: 6 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
   `PinCrypto`, `KernelCompat`) menguji logika murni; tambahkan
   test untuk logika murni baru (versi, path, parse, crypto) — jangan test
@@ -203,7 +199,6 @@ seamless (beda signature) — backup keystore di tempat aman.
 - **Update/unduhan (versi, URL, checksum)** → `Updater.java` (URL asset di-host
   repo ini; versi diambil dari `dani-garcia/vaultwarden`; STB kernel lama
   otomatis memakai shim getrandom via `KernelCompat.java` + `LD_PRELOAD`).
-- **Status web/API JSON** → `ControlServer.java`.
 - **Telegram bot/backup** → `TgBot.java`, `TgBackup.java`.
 - **UI log** → `LogActivity.java` + `activity_log.xml`.
 

@@ -1278,7 +1278,7 @@ public final class Updater {
         return ada ? n : -1;
     }
 
-    // Pola versi di-compile sekali (dipanggil tiap detik dari UI & status web).
+    // Pola versi di-compile sekali (dipanggil tiap detik dari UI).
     private static final java.util.regex.Pattern VERSION_PATTERN =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+");
 

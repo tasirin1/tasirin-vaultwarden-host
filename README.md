@@ -26,7 +26,7 @@ Unduh dari HP lain, taruh di folder data, tekan **Start**:
 
 ## Fitur
 
-Auto-update binary & web vault, status web di port+1, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
+Auto-update binary & web vault, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
 
 **Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. Kalau PIN aktif: `/stop 123456` (juga `/careset 123456`).
 

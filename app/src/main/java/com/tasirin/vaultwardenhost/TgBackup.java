@@ -2058,7 +2058,7 @@ public final class TgBackup {
     // ─── Util ───────────────────────────────────────────────────────────
 
     // Cache ukuran folder (TTL 60 dtk): jalan rekursif web-vault (~35 MB,
-    // ribuan file) terlalu mahal untuk diulang tiap 5-10 detik oleh UI/status web.
+    // ribuan file) terlalu mahal untuk diulang tiap 5-10 detik oleh UI.
     private static final java.util.Map<String, long[]> FOLDER_SIZE_CACHE =
             new java.util.HashMap<>();
     private static final long FOLDER_SIZE_TTL_MS = 60_000;

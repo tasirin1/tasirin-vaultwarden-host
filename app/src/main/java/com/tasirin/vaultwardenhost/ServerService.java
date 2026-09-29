@@ -140,7 +140,6 @@ public class ServerService extends Service {
     private static volatile long lastStartTime = 0;
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
-    private ControlServer controlServer;
     private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
 
     private volatile boolean healthActive = false;
@@ -530,10 +529,6 @@ public class ServerService extends Service {
         autoRestart = true;
         healthActive = true;
         startForegroundCompat();
-        // Rebind segera bila admin token diubah saat jalan: jangan tunggu
-        // health tick (30 dtk-2 mnt) agar status web tak terbuka tanpa auth
-        // di 0.0.0.0 atau nyangkut di loopback.
-        rebindControlJikaPerlu();
         if (process == null || !alive(process)) {
             startServerAsync();
         }
@@ -888,29 +883,9 @@ public class ServerService extends Service {
             flushLogFile();
             logFile = new File(dataFolder, "vaultwarden.log");
 
-            if (controlServer != null) {
-                controlServer.stop();
-            }
-            controlServer = new ControlServer(this);
-            boolean ctrlOk = false;
-            for (int cp = portNum + 1; cp <= portNum + 10 && !ctrlOk; cp++) {
-                if (cp < 1 || cp > 65535) {
-                    continue;
-                }
-                ctrlOk = controlServer.start(cp);
-            }
-            String ctrlUrl = "";
-            if (ctrlOk) {
-                ctrlUrl = scheme + "://" + formatHostUntukUrl(lanHost()) + ":" + ControlServer.listeningPort;
-                appendLog("[app] Status web (log realtime): " + ctrlUrl);
-            } else {
-                appendLog("[app] Status web tidak start: port " + (portNum + 1)
-                        + "-" + (portNum + 10) + " semuanya dipakai.");
-            }
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
-                    + "\nURL jaringan (dari PC/laptop): " + domain
-                    + (ctrlOk ? "\nStatus web: " + ctrlUrl : ""));
+                    + "\nURL jaringan (dari PC/laptop): " + domain);
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
             TgBackup.notifyLowStorage(this);
 
@@ -932,15 +907,7 @@ public class ServerService extends Service {
         } catch (Exception e) {
             process = null;
             running = false;
-            // Bila gagal setelah status web sempat start, jangan biarkan jalan yatim.
-            if (controlServer != null) {
-                try {
-                    controlServer.stop();
-                } catch (Exception ignored) {
-                }
-                controlServer = null;
-            }
-            // Bersihkan penanda jalan agar status web/health tak menunjuk
+            // Bersihkan penanda jalan agar health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
             runningDataDir = "";
             runningPort = "";
@@ -994,10 +961,6 @@ public class ServerService extends Service {
         runningHttps = false;
         runningAdminToken = "";
         releaseWakeLock();
-        if (controlServer != null) {
-            controlServer.stop();
-            controlServer = null;
-        }
         flushLogFile();
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
@@ -1166,7 +1129,7 @@ public class ServerService extends Service {
         boolean https = "https".equalsIgnoreCase(scheme == null ? "" : scheme.trim());
         String urlBenar = (https ? "https" : "http") + "://" + ip + ":" + p;
         out.add("[login] Server URL di aplikasi Bitwarden: " + urlBenar
-                + " (satu WiFi, tanpa /#/ di belakang; bukan port+1 status web, "
+                + " (satu WiFi, tanpa /#/ di belakang; "
                 + "bukan 127.0.0.1 dari HP lain).");
         if (https) {
             out.add("[login] HTTPS AKTIF: aplikasi Bitwarden resmi MENOLAK sertifikat self-signed "
@@ -1413,36 +1376,7 @@ public class ServerService extends Service {
 
     // ─── Health check (/alive) ─────────────────────────────────────────
 
-    /** Rebind status web bila mode bind kedaluwarsa (token diubah saat jalan). */
-    private void rebindControlJikaPerlu() {
-        try {
-            if (controlServer != null && controlServer.perluRebind()) {
-                int ulang = ControlServer.listeningPort;
-                try {
-                    controlServer.stop();
-                } catch (Exception ignored) {
-                }
-                controlServer = new ControlServer(this);
-                int dasar = portLoopback();
-                boolean ok = false;
-                for (int cp = dasar + 1; cp <= dasar + 10 && !ok; cp++) {
-                    if (cp < 1 || cp > 65535) {
-                        continue;
-                    }
-                    ok = controlServer.start(cp);
-                }
-                if (!ok && ulang >= 1 && ulang <= 65535) {
-                    controlServer = new ControlServer(this);
-                    controlServer.start(ulang);
-                }
-                appendLog("[app] Status web rebind mengikuti admin token.");
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
     private void checkHealthOnce() {
-        rebindControlJikaPerlu();
         HasilPing h = pingRinci(this);
         if (h.sehat) {
             healthFails.set(0);
@@ -1472,15 +1406,6 @@ public class ServerService extends Service {
             mainHandler.removeCallbacks(healthTick);
             mainHandler.removeCallbacks(restartTunda);
             healthFails.set(0);
-            // Konsisten dengan stopServer: status web tak boleh jalan dengan
-            // info basi (port/folder/token lama) setelah server dihentikan.
-            if (controlServer != null) {
-                try {
-                    controlServer.stop();
-                } catch (Exception ignored) {
-                }
-                controlServer = null;
-            }
             runningDataDir = "";
             runningPort = "";
             runningHttps = false;
@@ -1662,16 +1587,6 @@ public class ServerService extends Service {
         ipCache = pilih;
         ipCacheTime = now;
         return ipCache;
-    }
-
-    /** Peringatan bila Admin Token kosong: status web & log LAN terbuka. */
-    public static String netWarning(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        String at = sp.getString(KEY_ADMIN_TOKEN, "");
-        if (at == null || at.trim().isEmpty()) {
-            return context.getString(R.string.no_admin_token_warn);
-        }
-        return "";
     }
 
     /** URL akses lengkap dari perangkat lain, mengikuti setting port & HTTPS. */
@@ -2272,7 +2187,7 @@ public class ServerService extends Service {
     }
 
     // PID anak vaultwarden di-cache 30 dtk agar info RAM (dipanggil UI tiap
-    // 5 dtk & status web tiap 10 dtk) tidak memindai /proc terus-menerus.
+    // 5 dtk) tidak memindai /proc terus-menerus.
     private static volatile int cachedChildPid = -1;
     private static volatile long cachedChildPidAt = 0;
     private static final long CHILD_PID_TTL_MS = 30_000;
@@ -2542,17 +2457,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** N karakter terakhir log: satu salinan kecil tanpa split (untuk SSE/log API). */
-    public static String logTailChars(int maxChars) {
-        synchronized (logBuffer) {
-            int len = logBuffer.length();
-            if (len <= maxChars) {
-                return logBuffer.toString();
-            }
-            return logBuffer.substring(len - maxChars, len);
-        }
-    }
-
     private static String shorten(String s, int max) {
         if (s == null || s.length() <= max) {
             return s == null ? "" : s;
@@ -2610,9 +2514,5 @@ public class ServerService extends Service {
         flushLogFile();
         super.onDestroy();
         releaseWakeLock();
-        if (controlServer != null) {
-            controlServer.stop();
-            controlServer = null;
-        }
     }
 }
