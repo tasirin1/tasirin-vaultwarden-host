@@ -43,6 +43,15 @@ public final class Util {
         if (norm.isEmpty() || username == null) {
             return false;
         }
+        // Username murni angka (mis. "@12345") diperlakukan sebagai ID agar
+        // tak bisa diklaim lewat username; config numerik wajib cocok ID.
+        if (norm.matches("[0-9]+")) {
+            try {
+                return id == Long.parseLong(norm);
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
         return norm.equalsIgnoreCase(username.trim().replaceFirst("^@", ""));
     }
 

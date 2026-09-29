@@ -440,14 +440,16 @@ public final class TgBot {
     }
 
     /** True bila teks adalah perintah berbahaya (wajib PIN bila PIN aktif).
-     *  Murni agar bisa unit test; dipakai tombol inline & hapus pesan PIN. */
+     *  Hanya perintah yang mengubah keadaan (start/stop/backup/restore/update).
+     *  Perintah baca (status/log/uptime/alive/crashlog/help/ca) cukup auth chat
+     *  agar tombol inline tetap bisa dipakai saat PIN aktif (tombol tak bisa
+     *  membawa PIN). Murni agar bisa unit test; dipakai tombol inline & hapus pesan PIN. */
     static boolean perintahBerbahaya(String text) {
         String cmd = namaPerintah(text);
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
-                || cmd.equals("backup") || cmd.equals("restore") || cmd.equals("log")
-                || cmd.equals("status")
-                || cmd.equals("crashlog") || cmd.equals("update")
-                || cmd.equals("webvault") || cmd.equals("careset");
+                || cmd.equals("backup") || cmd.equals("restore")
+                || cmd.equals("update") || cmd.equals("webvault")
+                || cmd.equals("careset");
     }
 
     /** True bila perintah tombol wajib PIN tapi tak bisa dibawa tombol.
@@ -775,7 +777,8 @@ public final class TgBot {
             return false;
         }
         String a = arg.trim().toLowerCase(Locale.US);
-        return a.equals("ya") || a.equals("yes") || a.equals("konfirmasi");
+        return a.equals("ya") || a.equals("yes") || a.equals("konfirmasi")
+                || a.equals("confirm");
     }
 
     /** Teks konfirmasi /restore: info backup terakhir + cara konfirmasi. */

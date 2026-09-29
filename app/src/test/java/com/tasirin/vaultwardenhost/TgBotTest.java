@@ -49,6 +49,7 @@ public class TgBotTest {
         assertTrue(TgBot.isRestoreConfirm("ya"));
         assertTrue(TgBot.isRestoreConfirm(" yes "));
         assertTrue(TgBot.isRestoreConfirm("konfirmasi"));
+        assertTrue(TgBot.isRestoreConfirm("confirm"));
         assertTrue(TgBot.isRestoreConfirm(" Konfirmasi "));
     }
 
@@ -123,10 +124,17 @@ public class TgBotTest {
     }
 
     @Test
-    public void perintahBerbahaya_statusIkutButuhPin() {
-        assertTrue(TgBot.perintahBerbahaya("/status"));
-        assertTrue(TgBot.perintahBerbahaya("/status 123456"));
-        assertTrue(TgBot.perintahBerbahayaTombol("/status"));
+    public void perintahBerbahaya_hanyaUbahKeadaan() {
+        assertTrue(TgBot.perintahBerbahaya("/stop"));
+        assertTrue(TgBot.perintahBerbahaya("/stop 123456"));
+        assertTrue(TgBot.perintahBerbahaya("/restore YA 123456"));
+        assertTrue(TgBot.perintahBerbahayaTombol("/stop"));
+        // Perintah baca cukup auth chat agar tombol inline jalan saat PIN aktif.
+        assertFalse(TgBot.perintahBerbahaya("/status"));
+        assertFalse(TgBot.perintahBerbahaya("/status 123456"));
+        assertFalse(TgBot.perintahBerbahayaTombol("/status"));
+        assertFalse(TgBot.perintahBerbahaya("/log"));
+        assertFalse(TgBot.perintahBerbahaya("/crashlog"));
         assertFalse(TgBot.perintahBerbahaya("/uptime"));
         assertFalse(TgBot.perintahBerbahaya("/alive"));
         assertFalse(TgBot.perintahBerbahaya("/help"));

@@ -103,7 +103,25 @@ public final class TgBackup {
                 Thread t = new Thread(r, "vw-tgmsg");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+            }, (tugas, eksekutor) -> {
+                // Tetap anti-OOM (buang tertua) tapi jangan bungkam: pesan kritis
+                // (PIN terkunci, restore gagal, crash) yang gugur wajib jejak di log.
+                try {
+                    if (!eksekutor.isShutdown()) {
+                        eksekutor.getQueue().poll();
+                        eksekutor.execute(tugas);
+                    }
+                } catch (Exception ignored) {
+                }
+                try {
+                    android.util.Log.w("TgBackup", "Antrean pesan Telegram penuh, pesan tertua dibuang.");
+                } catch (Exception ignored) {
+                }
+                try {
+                    ServerService.catatLog("[tg] Antrean pesan penuh, pesan tertua dibuang.");
+                } catch (Exception ignored) {
+                }
+            });
 
     private static final String ENC_MAGIC = "VWB1";
 

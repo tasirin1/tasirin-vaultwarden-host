@@ -574,9 +574,15 @@ public class ServerService extends Service {
         if (t.contains("\"") || t.contains("\n") || t.contains("\r") || t.contains("\0")) {
             return false;
         }
-        // Tolak traversal dan pemisah ganda agar /sdcard/../data tak lolos.
-        if (t.contains("..") || t.contains("//") || t.contains("\\")) {
+        // Tolak traversal per segmen agar /sdcard/../data tak lolos, tapi
+        // folder sah bernama "my..folder" tetap diterima.
+        if (t.contains("//") || t.contains("\\")) {
             return false;
+        }
+        for (String segmen : t.split("/")) {
+            if (segmen.equals("..")) {
+                return false;
+            }
         }
         // Kupas slash akhir agar /data/ tak lolos dari cek persis.
         String n = t;
@@ -2394,12 +2400,25 @@ public class ServerService extends Service {
     /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */
     static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
-            // Tanpa REUSEADDR: TIME_WAIT ikut terbaca "sibuk" (konservatif) agar
-            // tak ada false-negative yang berujung crash-loop Rocket EADDRINUSE.
-            // Cek dual-stack tetap lewat dua panggilan IPv4 + IPv6 oleh isPortBusy.
+            // REUSEADDR agar Start langsung setelah Stop tak dikira "port sibuk"
+            // (TIME_WAIT). Cek dual-stack tetap lewat dua panggilan IPv4 + IPv6
+            // oleh isPortBusy.
+            try {
+                s.setReuseAddress(true);
+            } catch (Exception ignored) {
+            }
             s.bind(new InetSocketAddress(host, port));
             return true;
         } catch (Exception e) {
+            // Perangkat tanpa stack IPv6 gagal bind "::" walau IPv4 bebas:
+            // kegagalan keluarga protokol bukan berarti port sibuk.
+            if (host.contains(":")) {
+                String rendah = String.valueOf(e.getMessage()).toLowerCase(java.util.Locale.US);
+                if (rendah.contains("family") || rendah.contains("protonosupport")
+                        || rendah.contains("eafnosupport") || rendah.contains("not supported")) {
+                    return true;
+                }
+            }
             return false;
         }
     }

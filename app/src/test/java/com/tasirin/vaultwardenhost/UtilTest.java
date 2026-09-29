@@ -14,6 +14,11 @@ public class UtilTest {
     }
 
     @Test
+    public void cocokChatUsernameNumerikDiperlakukanSebagaiId() {
+        assertTrue(Util.cocokChat("@12345", 12345, "penyerang"));
+        assertFalse(Util.cocokChat("@12345", 999, "12345"));
+    }
+
     public void cocokChatUsername() {
         assertTrue(Util.cocokChat("@nama", 999, "nama"));
         assertTrue(Util.cocokChat("nama", 999, "@NAMA"));
