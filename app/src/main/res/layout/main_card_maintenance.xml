@@ -46,20 +46,11 @@
                 <CheckBox
                     style="@style/TasirinCheck"
                     android:id="@+id/autoStart"
-                    android:nextFocusDown="@id/https"
+                    android:nextFocusDown="@id/batteryBtn"
                     android:nextFocusUp="@id/pinEnabled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/auto_start_boot" />
-
-                <CheckBox
-                    style="@style/TasirinCheck"
-                    android:id="@+id/https"
-                    android:nextFocusDown="@id/batteryBtn"
-                    android:nextFocusUp="@id/autoStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/https_self_signed" />
 
                 <TextView
                     android:id="@+id/httpsBadge"
@@ -88,7 +79,7 @@
                     <Button
                         android:id="@+id/batteryBtn"
                         android:nextFocusDown="@id/autoUpdate"
-                        android:nextFocusUp="@id/https"
+                        android:nextFocusUp="@id/autoStart"
                         style="@style/TasirinBtnSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

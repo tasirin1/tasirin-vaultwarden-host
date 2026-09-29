@@ -61,7 +61,6 @@ public class SettingsActivity extends Activity {
     private EditText portInput;
     private EditText adminTokenInput;
     private CheckBox autoStartCheck;
-    private CheckBox httpsCheck;
     private CheckBox tgAutoCheck;
     private EditText tgTokenInput;
     private EditText tgChatInput;
@@ -218,7 +217,6 @@ public class SettingsActivity extends Activity {
         portInput = findViewById(R.id.port);
         adminTokenInput = findViewById(R.id.adminToken);
         autoStartCheck = findViewById(R.id.autoStart);
-        httpsCheck = findViewById(R.id.https);
         tgTokenInput = findViewById(R.id.tgToken);
         tgChatInput = findViewById(R.id.tgChat);
         tgAutoCheck = findViewById(R.id.tgAuto);
@@ -378,8 +376,6 @@ public class SettingsActivity extends Activity {
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
         sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
-        httpsCheck.setChecked(true);
-        httpsCheck.setEnabled(false);
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
@@ -407,14 +403,6 @@ public class SettingsActivity extends Activity {
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
-        // HTTPS-only: saklar dikunci aktif; paksa true bila diubah programatik.
-        httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putBoolean(ServerService.KEY_HTTPS, true).apply();
-            if (!checked) {
-                b.setChecked(true);
-            }
-        });
         tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
@@ -1715,7 +1703,6 @@ public class SettingsActivity extends Activity {
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
-        httpsCheck.setChecked(true);
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));

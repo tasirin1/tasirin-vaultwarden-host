@@ -47,7 +47,6 @@
     <string name="admin_token">Admin Token</string>
     <string name="admin_token_hint">kosongkan jika tidak perlu</string>
     <string name="auto_start_boot">Auto start saat boot</string>
-    <string name="https_self_signed">HTTPS selalu aktif (self-signed)</string>
     <string name="pin_label">PIN kunci app</string>
     <string name="pin_hint">PIN 4–6 digit</string>
     <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
