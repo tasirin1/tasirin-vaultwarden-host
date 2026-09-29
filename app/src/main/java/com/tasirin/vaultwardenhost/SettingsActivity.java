@@ -85,7 +85,6 @@ public class SettingsActivity extends Activity {
     private CheckBox autoRestartCb;
     private volatile String pendingVersion = null;
     private Button logOpenBtn;
-    private Button startStopBtn;
     private android.widget.ScrollView settingsScroll;
     private LinearLayout batteryRow;
     private Button copyUrlBtn;
@@ -94,7 +93,6 @@ public class SettingsActivity extends Activity {
     private Button installCertBtn;
     private Button shareCaBtn;
     private Button resetCertBtn;
-    private Button backupCaBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -238,7 +236,6 @@ public class SettingsActivity extends Activity {
         autoUpdateWvCb = findViewById(R.id.autoUpdateWv);
         autoRestartCb = findViewById(R.id.autoRestart);
         logOpenBtn = findViewById(R.id.logOpen);
-        startStopBtn = findViewById(R.id.startStop);
         settingsScroll = findViewById(R.id.settingsScroll);
         batteryRow = findViewById(R.id.batteryRow);
 
@@ -287,7 +284,6 @@ public class SettingsActivity extends Activity {
         tgDetail = findViewById(R.id.tgDetail);
         tgRingkasan = findViewById(R.id.tgRingkasan);
 
-        startStopBtn.setOnClickListener(v -> aksiStartStop());
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         if (bukaBawah != null) {
             bukaBawah.setOnClickListener(v -> openWebUi());
@@ -308,10 +304,6 @@ public class SettingsActivity extends Activity {
                     "Hapus CA + sertifikat lama dan buat CA baru saat Start berikutnya. "
                             + "Semua HP wajib install ulang CA baru. Lanjutkan?",
                     () -> runBusy(this::resetSertifikat)));
-        }
-        backupCaBtn = findViewById(R.id.backupCa);
-        if (backupCaBtn != null) {
-            backupCaBtn.setOnClickListener(v -> runBusy(this::backupCaKeStorage));
         }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
@@ -696,8 +688,7 @@ public class SettingsActivity extends Activity {
         unduhBar.setVisibility(View.GONE);
         String btnText = running ? getString(R.string.stop)
                 : getString(R.string.start);
-        if (!btnText.equals(startStopBtn.getText().toString())) {
-            startStopBtn.setText(btnText);
+        if (!btnText.equals(startStopBawah.getText().toString())) {
             startStopBawah.setText(btnText);
         }
 
@@ -983,18 +974,6 @@ public class SettingsActivity extends Activity {
         } catch (Exception e) {
             toast("Reset sertifikat gagal: " + e.getMessage());
             appendUiLog("[app] Reset sertifikat gagal: " + e.getMessage());
-        }
-    }
-
-    /** Backup ca.pem publik ke folder data di storage via tombol Settings. */
-    private void backupCaKeStorage() {
-        try {
-            String msg = TgBackup.backupCaKeStorage(this);
-            toast(msg);
-            appendUiLog("[app] " + msg);
-        } catch (Exception e) {
-            toast("Backup CA gagal: " + e.getMessage());
-            appendUiLog("[app] Backup CA gagal: " + e.getMessage());
         }
     }
 
@@ -2297,9 +2276,6 @@ public class SettingsActivity extends Activity {
             chatError.setVisibility(gChat == null ? View.GONE : View.VISIBLE);
         }
         boolean blokirStart = gData != null || gPort != null;
-        if (startStopBtn != null) {
-            startStopBtn.setEnabled(!blokirStart);
-        }
         if (startStopBawah != null) {
             startStopBawah.setEnabled(!blokirStart);
         }

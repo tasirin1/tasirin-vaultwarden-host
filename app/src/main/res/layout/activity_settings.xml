@@ -166,7 +166,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:nextFocusDown="@id/startStop"
+                android:nextFocusDown="@id/copyUrl"
                 android:nextFocusUp="@id/navServer"
                 android:orientation="horizontal">
 

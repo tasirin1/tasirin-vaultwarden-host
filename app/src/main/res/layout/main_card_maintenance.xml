@@ -228,38 +228,15 @@
                         android:text="@string/share_ca" />
                 </LinearLayout>
 
-                <LinearLayout
+                <Button
+                    android:id="@+id/resetCert"
+                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusUp="@id/shareCa"
+                    style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/resetCert"
-                        android:nextFocusDown="@id/backupCa"
-                        android:nextFocusLeft="@id/resetCert"
-                        android:nextFocusRight="@id/backupCa"
-                        android:nextFocusUp="@id/shareCa"
-                        style="@style/TasirinBtn"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/reset_cert" />
-
-                    <Button
-                        android:id="@+id/backupCa"
-                        android:nextFocusDown="@id/exportCfg"
-                        android:nextFocusLeft="@id/resetCert"
-                        android:nextFocusRight="@id/backupCa"
-                        android:nextFocusUp="@id/resetCert"
-                        style="@style/TasirinBtn"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="@string/backup_ca_storage" />
-                </LinearLayout>
+                    android:text="@string/reset_cert" />
 
                 <View style="@style/TasirinDivider" />
 
@@ -280,7 +257,7 @@
                         android:nextFocusDown="@id/importCfg"
                         android:nextFocusLeft="@id/exportCfg"
                         android:nextFocusRight="@id/importCfg"
-                        android:nextFocusUp="@id/backupCa"
+                        android:nextFocusUp="@id/resetCert"
                         style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

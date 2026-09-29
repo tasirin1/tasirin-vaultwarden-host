@@ -67,7 +67,6 @@
         <string name="install_cert">Install Cert</string>
         <string name="share_ca">Bagikan CA (ke HP lain)</string>
         <string name="reset_cert">Reset Sertifikat (CA baru)</string>
-        <string name="backup_ca_storage">Backup CA ke Storage</string>
     <string name="export_config">Export Config</string>
     <string name="import_config">Import Config</string>
     <string name="update_web_vault">Update Web Vault</string>
