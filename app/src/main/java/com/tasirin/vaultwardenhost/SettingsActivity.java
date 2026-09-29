@@ -2,8 +2,6 @@ package com.tasirin.vaultwardenhost;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -1766,15 +1764,6 @@ public class SettingsActivity extends Activity {
 
     private void copyLocalUrl() {
         salinTeks(ServerService.localUrl(this), "URL jaringan disalin");
-    }
-
-    /** Salin teks apa pun ke clipboard + toast. */
-    private void salinTeks(String teks, String pesan) {
-        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        if (cm != null) {
-            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden", teks));
-        }
-        toast(pesan + ": " + teks);
     }
 
     /** Port dari form (atau bawaan bila kosong) untuk tombol salin URL lokal. */
