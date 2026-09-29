@@ -38,6 +38,7 @@ Auto-update binary & web vault, status web di port+1, backup terenkripsi (lokal 
 
 - **Port dipakai?** Ganti Port di Settings.
 - **`failed to generate random data` / HTTPS error?** Kernel STB lama — tekan **Cek Update**, Start lagi.
+- **Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]` (URL benar, HTTPS self-signed ditolak app → pakai HTTP, daftar akun dulu di web-vault).
 - **Web UI tak bisa dibuka?** Harus satu WiFi, pakai IP lokal.
 - **Gagal unduh?** Cek internet & jam STB, Start lagi (otomatis dilanjutkan).
 - **Backup Telegram GAGAL `Certificate not valid until`?** Jam STB reset ke 2015

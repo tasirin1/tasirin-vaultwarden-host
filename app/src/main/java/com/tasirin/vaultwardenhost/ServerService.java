@@ -83,6 +83,10 @@ public class ServerService extends Service {
     /** 3 = binary pasca-patch DNS+TLS favicon (tanpa ndk-context/platform-verifier). */
     public static final int BIN_PATCH_REV = 3;
 
+    /** Throttle hint [login]: jeda antar hint agar brute-force tak membanjiri log (60 dtk). */
+    private static volatile long loginHintTerakhirElapsed = 0;
+    static final long LOGIN_HINT_JEDA_MS = 60 * 1000;
+
     /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
@@ -895,6 +899,9 @@ public class ServerService extends Service {
             appendLog("[app] start: " + binary.getAbsolutePath()
                     + " | versi: " + binaryVersion
                     + " | data=" + dataDir + " | port=" + port);
+            for (String panduan : panduanLoginBitwarden(scheme, port, formatHostUntukUrl(lanHost()))) {
+                appendLog(panduan);
+            }
         } catch (Exception e) {
             process = null;
             running = false;
@@ -1075,6 +1082,78 @@ public class ServerService extends Service {
         return "";
     }
 
+    /** Saran [login] untuk satu baris output Vaultwarden; null bila baris tak terkait login.
+     *  Murni agar bisa diuji unit (tanpa runtime Android). */
+    static String saranLoginUntukBaris(String baris, boolean httpsAktif) {
+        if (baris == null || baris.isEmpty()) {
+            return null;
+        }
+        String r = baris.toLowerCase(Locale.US);
+        if (r.contains("invalid username or password")
+                || r.contains("invalid credentials")
+                || r.contains("username or password is incorrect")
+                || r.contains("wrong password")
+                || r.contains("incorrect password")
+                || r.contains("login failed")
+                || r.contains("failed login")
+                || r.contains("failed log-in")
+                || (r.contains("/identity/connect/token") && r.contains("401"))
+                || (r.contains("invalid") && (r.contains("credential") || r.contains("password")))) {
+            return "[login] Login aplikasi Bitwarden gagal: email/password salah atau akun belum "
+                    + "terdaftar. Daftar dulu di web-vault (Create Account), lalu login di aplikasi "
+                    + "dengan email+password itu (bukan admin token).";
+        }
+        if (r.contains("two-factor") || r.contains("two factor")
+                || r.contains("2fa") || r.contains("totp")) {
+            return "[login] Login butuh kode 2FA: buka aplikasi authenticator lalu masukkan "
+                    + "kode 6 digit di aplikasi Bitwarden.";
+        }
+        boolean tls = r.contains("certificate") || r.contains("handshake")
+                || r.contains("tls") || r.contains("ssl");
+        boolean gagal = r.contains("unknown") || r.contains("alert") || r.contains("fail")
+                || r.contains("error") || r.contains("abort") || r.contains("refus")
+                || r.contains("ditolak") || r.contains("verify");
+        if (tls && gagal) {
+            if (httpsAktif) {
+                return "[login] Koneksi aman (TLS) gagal: aplikasi Bitwarden resmi MENOLAK "
+                        + "sertifikat self-signed. Matikan HTTPS di Settings (tak dicentang), "
+                        + "Start ulang, lalu isi Server URL http://IP:port di aplikasi.";
+            }
+            return "[login] Koneksi aman (TLS) gagal padahal server HTTP: di aplikasi Bitwarden "
+                    + "isi Server URL http:// (bukan https://) sesuai log [login] saat start.";
+        }
+        return null;
+    }
+
+    /** True bila hint [login] boleh tampil (throttle 60 dtk). Murni agar bisa diuji. */
+    static boolean bolehHintLogin(long kiniElapsed, long terakhirElapsed) {
+        return kiniElapsed - terakhirElapsed >= LOGIN_HINT_JEDA_MS;
+    }
+
+    /** Baris panduan [login] aplikasi Bitwarden saat start (URL benar + HTTPS + akun).
+     *  Murni agar bisa diuji unit (tanpa runtime Android). */
+    static java.util.List<String> panduanLoginBitwarden(String scheme, String port, String lanIp) {
+        java.util.ArrayList<String> out = new java.util.ArrayList<String>();
+        String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
+        String p = (port == null || port.isEmpty()) ? DEFAULT_PORT : port.trim();
+        boolean https = "https".equalsIgnoreCase(scheme == null ? "" : scheme.trim());
+        String urlBenar = (https ? "https" : "http") + "://" + ip + ":" + p;
+        out.add("[login] Server URL di aplikasi Bitwarden: " + urlBenar
+                + " (satu WiFi, tanpa /#/ di belakang; bukan port+1 status web, "
+                + "bukan 127.0.0.1 dari HP lain).");
+        if (https) {
+            out.add("[login] HTTPS AKTIF: aplikasi Bitwarden resmi MENOLAK sertifikat self-signed "
+                    + "sehingga login pasti gagal. Matikan HTTPS di Settings, Start ulang, "
+                    + "lalu isi Server URL http://" + ip + ":" + p + " di aplikasi.");
+        } else {
+            out.add("[login] Web-vault bisa dibuka tapi aplikasi gagal login? Cek Server URL "
+                    + "http:// (bukan https://), pastikan satu WiFi dan IP STB belum berubah (DHCP).");
+        }
+        out.add("[login] Belum punya akun? Buka web-vault di browser > Create Account dulu, "
+                + "baru login di aplikasi dengan email+password itu (bukan admin token).");
+        return out;
+    }
+
     /** True bila log mengandung gagal acak kernel lama: panic getrandom Rust
      *  ("failed to generate random data" dari std::sys::random) atau gagal
      *  ticketer TLS Rocket ("bad TLS ticketer: failed to get random bytes"
@@ -1201,14 +1280,34 @@ public class ServerService extends Service {
                 new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Redam log bising yang tidak berguna: handshake TLS lokal
-                // (cert self-signed), peringatan HSTS bawaan Vaultwarden, dan
-                // warning linker DT_FLAGS_1 di STB lama (tidak fatal).
-                if (line.contains("CertificateUnknown")
+                // Hint [login]: jelaskan ke log realtime mengapa aplikasi Bitwarden
+                // gagal login (kredensial salah, 2FA, atau TLS self-signed ditolak app).
+                // Dihitung SEBELUM filter noise agar handshake gagal tetap bersaran.
+                String hintLogin = saranLoginUntukBaris(line, runningHttps);
+                boolean noise = line.contains("CertificateUnknown")
                         || line.contains("tls handshake with 127.0.0.1")
                         || line.contains("Detected TLS-enabled liftoff")
                         || line.contains("unsupported flags DT_FLAGS_1")
-                        || line.contains("Shield has enabled a default HSTS policy")) {
+                        || line.contains("Shield has enabled a default HSTS policy");
+                if (hintLogin != null) {
+                    long kini = SystemClock.elapsedRealtime();
+                    if (bolehHintLogin(kini, loginHintTerakhirElapsed)) {
+                        loginHintTerakhirElapsed = kini;
+                        if (noise) {
+                            appendLog(hintLogin);
+                        } else {
+                            appendLog(line);
+                            appendLog(hintLogin);
+                        }
+                    } else if (!noise) {
+                        appendLog(line);
+                    }
+                    continue;
+                }
+                // Redam log bising yang tidak berguna: handshake TLS lokal
+                // (cert self-signed), peringatan HSTS bawaan Vaultwarden, dan
+                // warning linker DT_FLAGS_1 di STB lama (tidak fatal).
+                if (noise) {
                     continue;
                 }
                 appendLog(line);

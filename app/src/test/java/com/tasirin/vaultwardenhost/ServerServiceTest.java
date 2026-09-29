@@ -220,6 +220,56 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void saranLoginKredensialSalah() {
+        String s = ServerService.saranLoginUntukBaris(
+                "POST /identity/connect/token => 400, Invalid username or password", false);
+        assertTrue(s != null && s.startsWith("[login]"));
+    }
+
+    @Test
+    public void saranLoginTlsHttpsMenyebutMatikanHttps() {
+        String s = ServerService.saranLoginUntukBaris(
+                "tls handshake failed: certificate unknown", true);
+        assertTrue(s != null && s.contains("Matikan HTTPS"));
+    }
+
+    @Test
+    public void saranLoginTlsHttpMenyebutPakaiHttp() {
+        String s = ServerService.saranLoginUntukBaris(
+                "ssl handshake failure: alert unknown", false);
+        assertTrue(s != null && s.contains("http://"));
+    }
+
+    @Test
+    public void saranLogin2fa() {
+        String s = ServerService.saranLoginUntukBaris("two-factor required 2fa totp", false);
+        assertTrue(s != null && s.contains("2FA"));
+    }
+
+    @Test
+    public void saranLoginNullUntukBarisBiasa() {
+        assertNull(ServerService.saranLoginUntukBaris("Rocket has launched", false));
+        assertNull(ServerService.saranLoginUntukBaris(null, false));
+        assertNull(ServerService.saranLoginUntukBaris("", false));
+    }
+
+    @Test
+    public void throttleHintLogin60Detik() {
+        assertTrue(ServerService.bolehHintLogin(61000, 0));
+        assertFalse(ServerService.bolehHintLogin(59000, 0));
+    }
+
+    @Test
+    public void panduanLoginMemuatUrlDanAkun() {
+        java.util.List<String> p1 = ServerService.panduanLoginBitwarden("http", "8088", "192.168.1.5");
+        assertEquals(3, p1.size());
+        assertTrue(p1.get(0).contains("http://192.168.1.5:8088"));
+        assertTrue(p1.get(2).contains("Create Account"));
+        java.util.List<String> p2 = ServerService.panduanLoginBitwarden("https", "8088", "192.168.1.5");
+        assertTrue(p2.get(1).contains("HTTPS AKTIF"));
+    }
+
+    @Test
     public void ringkasKodeTampilKodeAtauAlasan() {
         assertEquals("200", ServerService.ringkasKode(200, ""));
         assertEquals("500", ServerService.ringkasKode(500, "x"));

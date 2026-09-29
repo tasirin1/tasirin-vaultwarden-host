@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Log realtime jelaskan kenapa aplikasi Bitwarden gagal login
+
+### Fitur
+- Tiap start kini mencatat 3 baris panduan `[login]`: Server URL yang benar
+  untuk aplikasi Bitwarden (satu WiFi, bukan port+1/bukan 127.0.0.1 dari HP
+  lain), peringatan bila HTTPS aktif (aplikasi resmi menolak self-signed →
+  matikan HTTPS, pakai HTTP), dan pengingat daftar akun dulu di web-vault
+  (login app memakai email+password, bukan admin token).
+- Output server dipindai saat jalan: kredensial salah / 401
+  `/identity/connect/token`, butuh 2FA, dan gagal handshake TLS otomatis
+  menambah satu baris saran `[login]` (throttle 60 dtk agar tak spam).
+
 ## [Belum rilis] — Start STB kernel lama gagal uji --version padahal binary bagus
 
 ### Perbaikan
