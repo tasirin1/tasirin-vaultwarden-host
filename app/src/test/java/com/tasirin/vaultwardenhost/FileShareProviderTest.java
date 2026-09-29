@@ -39,4 +39,13 @@ public class FileShareProviderTest {
         assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
     }
+
+    @org.junit.Test
+    public void modeBacaSaja_tolakTulis() {
+        assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja(null));
+        assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("r"));
+        assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("rt"));
+        assertFalse(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("w"));
+        assertFalse(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("rw"));
+    }
 }

@@ -59,6 +59,14 @@ public class LogActivity extends Activity {
             ui.postDelayed(this, 1000);
         }
     };
+    /** Tunda refresh pencarian 300 ms: tiap ketikan menyalin buffer 300 KB
+     *  di UI thread sehingga mengetik di STB 1 GB tersendat tanpa jeda ini. */
+    private final Runnable refreshCari = new Runnable() {
+        @Override
+        public void run() {
+            refreshLog();
+        }
+    };
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private long lastLogVer = -1;
@@ -108,7 +116,8 @@ public class LogActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 logSearch = s == null ? "" : s.toString();
-                refreshLog();
+                ui.removeCallbacks(refreshCari);
+                ui.postDelayed(refreshCari, 300);
             }
         });
 

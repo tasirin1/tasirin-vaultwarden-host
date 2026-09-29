@@ -469,8 +469,10 @@ public final class Updater {
         if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
             return cached;
         }
-        if (cached == null && gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
-            return null;
+        // Throttle berlaku juga saat cache basi ada: tiap Start saat offline
+        // tak menghantam API (kembalikan cache basi selama jeda gagal).
+        if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
+            return cached;
         }
         HttpURLConnection conn = null;
         try {

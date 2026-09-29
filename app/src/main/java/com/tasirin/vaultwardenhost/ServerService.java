@@ -1431,6 +1431,9 @@ public class ServerService extends Service {
             mainHandler.removeCallbacks(healthTick);
             mainHandler.removeCallbacks(restartTunda);
             healthFails.set(0);
+            // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
+            // proses bisa mati tepat di jeda cek-vs-eksekusi sehingga p null.
+            running = false;
             runningDataDir = "";
             runningPort = "";
             runningHttps = false;
@@ -1443,7 +1446,6 @@ public class ServerService extends Service {
             final Process p = process;
             if (p != null) {
                 stopDisengaja = true;
-                running = false;
                 releaseWakeLock();
                 p.destroy();
                 Thread killer = new Thread(() -> {

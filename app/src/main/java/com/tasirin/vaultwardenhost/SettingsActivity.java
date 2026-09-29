@@ -2410,13 +2410,23 @@ public class SettingsActivity extends Activity {
         return isi.contains(":") && isi.length() >= 20 ? null : msgSalah;
     }
 
-    /** Galat Chat ID; null bila valid (kosong = boleh). Murni.
+    /** Galat Chat ID; null bila valid (kosong = boleh). ID numerik atau
+     *  username ("@nama", selaras dengan Util.cocokChat). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
     static String galatChat(String chat, String msgSalah) {
         if (chat == null || chat.trim().isEmpty()) {
             return null;
         }
-        return chat.trim().matches("-?\\d+") ? null : msgSalah;
+        String isi = chat.trim();
+        if (isi.matches("-?\\d+")) {
+            return null;
+        }
+        String nama = isi.startsWith("@") ? isi.substring(1) : isi;
+        if (!nama.isEmpty() && !nama.matches("[0-9]+")
+                && nama.matches("[A-Za-z0-9_]{5,}")) {
+            return null;
+        }
+        return msgSalah;
     }
 
     /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */

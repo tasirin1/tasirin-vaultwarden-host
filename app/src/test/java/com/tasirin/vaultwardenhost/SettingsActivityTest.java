@@ -92,6 +92,11 @@ public class SettingsActivityTest {
         assertNull(SettingsActivity.galatChat("-1001234567890", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("abc", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("12.5", "SALAH"));
+        // Username selaras Util.cocokChat (huruf/angka/garis-bawah, min 5).
+        assertNull(SettingsActivity.galatChat("@namabot", "SALAH"));
+        assertNull(SettingsActivity.galatChat("namabot123", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("@12345", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("@ab", "SALAH"));
     }
 
     @Test

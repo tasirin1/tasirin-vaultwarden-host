@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit kode (putaran 8)
+- Update versi: jeda gagal API berlaku juga saat cache basi ada (kembalikan cache basi, tiap Start saat offline tak menghantam API).
+- Health check: flag `running` dimatikan tanpa syarat di cabang terminal agar tak macet true bila proses mati di jeda cek-vs-eksekusi.
+- Log: pencarian di-debounce 300 ms agar tak salin buffer 300 KB per ketikan di UI thread.
+- Berbagi file: `openFile` menolak mode tulis eksplisit (berbagi hanya baca).
+- Validasi chat: terima `@username` selaras auth bot (ID numerik tetap utama).
+
 ## [Belum rilis] — Perbaikan hasil audit kode (putaran 7)
 - Bot Telegram: perintah baca (`status`/`log`/`crashlog`/`uptime`/`alive`/`help`) tak lagi butuh PIN (cukup auth chat) agar tombol inline tetap jalan saat PIN aktif; perintah ubah keadaan (`start`/`stop`/`backup`/`restore`/`update`/`webvault`/`careset`) tetap wajib PIN.
 - Bot Telegram: `/restore confirm` ikut diterima selain `YA`/`yes`/`konfirmasi`.

@@ -65,8 +65,21 @@ public class FileShareProvider extends ContentProvider {
         return 0;
     }
 
+    /** True bila mode buka hanya-baca ("r"/"rt"); tolak tulis agar berkas
+     *  berbagi tak bisa diubah pemegang URI. Murni agar bisa unit test. */
+    static boolean modeBacaSaja(String mode) {
+        if (mode == null || mode.isEmpty()) {
+            return true;
+        }
+        String m = mode.trim().toLowerCase(java.util.Locale.US);
+        return m.equals("r") || m.equals("rt");
+    }
+
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        if (!modeBacaSaja(mode)) {
+            throw new FileNotFoundException("Mode tulis ditolak: " + mode);
+        }
         String path = uri.getPath();
         File f = path == null ? null : new File(path);
         if (f == null || !f.exists() || !f.isFile()) {
