@@ -2241,14 +2241,10 @@ public class SettingsActivity extends Activity {
     }
 
     private void tampilWizardSiap() {
-        String folder = dataDirInput.getText().toString().trim();
-        if (folder.isEmpty()) {
-            folder = DEFAULT_DATA_DIR;
-        }
-        String port = portInput.getText().toString().trim();
-        if (port.isEmpty()) {
-            port = DEFAULT_PORT;
-        }
+        String folderIsi = dataDirInput.getText().toString().trim();
+        final String folder = folderIsi.isEmpty() ? DEFAULT_DATA_DIR : folderIsi;
+        String portIsi = portInput.getText().toString().trim();
+        final String port = portIsi.isEmpty() ? DEFAULT_PORT : portIsi;
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.wiz_t3))
                 .setMessage("Folder: " + folder + "\nPort: " + port
