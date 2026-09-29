@@ -57,11 +57,11 @@ public class TgBotTest {
         String json = TgBot.menuPayload();
         assertTrue(json.startsWith("{\"commands\":["));
         for (String c : new String[]{"status", "log", "uptime", "alive", "backup",
-                "restore", "ca", "crashlog", "update", "webvault", "start", "stop",
+                "restore", "ca", "cabackup", "careset", "crashlog", "update", "webvault", "start", "stop",
                 "restart", "help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
-        assertEquals(14, TgBot.daftarPerintahMenu().length);
+        assertEquals(16, TgBot.daftarPerintahMenu().length);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class TgBotTest {
         String json = TgBot.keyboardPerintah();
         assertTrue(json.startsWith("{\"inline_keyboard\":["));
         for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
-                "/restore", "/ca", "/crashlog", "/update", "/webvault", "/start", "/stop",
+                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/update", "/webvault", "/start", "/stop",
                 "/restart", "/help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
@@ -104,6 +104,8 @@ public class TgBotTest {
     public void callbackDataValid_hanyaPerintahDikenal() {
         assertTrue(TgBot.callbackDataValid("/status"));
         assertTrue(TgBot.callbackDataValid("/ca"));
+        assertTrue(TgBot.callbackDataValid("/cabackup"));
+        assertTrue(TgBot.callbackDataValid("/careset"));
         assertTrue(TgBot.callbackDataValid("/stop 123456"));
         assertTrue(TgBot.callbackDataValid("/ca@NamaBot"));
         assertTrue(TgBot.callbackDataValid("/stop@Bot 123456"));
@@ -111,6 +113,13 @@ public class TgBotTest {
         assertFalse(TgBot.callbackDataValid("status"));
         assertFalse(TgBot.callbackDataValid(""));
         assertFalse(TgBot.callbackDataValid(null));
+    }
+
+    @Test
+    public void perintahBerbahayaTombol_caresetButuhPin() {
+        assertTrue(TgBot.perintahBerbahayaTombol("/careset"));
+        assertFalse(TgBot.perintahBerbahayaTombol("/ca"));
+        assertFalse(TgBot.perintahBerbahayaTombol("/cabackup"));
     }
 
     @Test

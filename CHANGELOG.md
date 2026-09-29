@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Reset + backup sertifikat (Telegram & Settings)
+
+### Fitur
+- Perintah Telegram baru `/cabackup` (tanpa PIN, seperti `/ca`): salin ca.pem
+  publik ke folder data (`ca-cadangan-<timestamp>.pem`) agar bisa diambil via
+  file manager tanpa Telegram. `/careset` (wajib PIN bila aktif): hapus CA +
+  leaf lama agar CA baru dibuat saat Start berikut; semua HP wajib install
+  ulang CA baru sesudahnya.
+- Settings → Pemeliharaan → Sertifikat: tombol baru Reset Sertifikat (CA baru,
+  dialog konfirmasi) dan Backup CA ke Storage (salin ca.pem publik ke folder
+  data). Hanya file publik yang disalin; kunci privat tak pernah ke storage.
+- Menu bot, keyboard inline, dan teks `/help` diperbarui; `MENU_REV` naik agar
+  daftar perintah baru terdaftar ulang ke Telegram.
+
+
 ## [Belum rilis] — Log realtime jelaskan kenapa aplikasi Bitwarden gagal login
 
 ### Fitur

@@ -31,7 +31,7 @@ public final class TgBot {
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
-    static final int MENU_REV = 3;
+    static final int MENU_REV = 4;
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
@@ -113,6 +113,8 @@ public final class TgBot {
                 {"backup", "Backup database sekarang"},
                 {"restore", "Restore backup terakhir"},
                 {"ca", "Kirim CA HTTPS ke chat ini"},
+                {"cabackup", "Backup CA ke storage STB"},
+                {"careset", "Reset sertifikat (CA baru)"},
                 {"crashlog", "Kirim crash log terakhir"},
                 {"update", "Update binary + restart"},
                 {"webvault", "Update web vault + restart"},
@@ -316,6 +318,7 @@ public final class TgBot {
                 {"Web vault", "/webvault"}, {"Start", "/start"},
                 {"Stop", "/stop"}, {"Restart", "/restart"},
                 {"Bantuan", "/help"}, {"CA", "/ca"},
+                {"Backup CA", "/cabackup"}, {"Reset CA", "/careset"},
         };
         StringBuilder sb = new StringBuilder("{\"inline_keyboard\":[");
         for (int i = 0; i < tombol.length; i += 2) {
@@ -436,7 +439,7 @@ public final class TgBot {
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
                 || cmd.equals("backup") || cmd.equals("restore") || cmd.equals("log")
                 || cmd.equals("crashlog") || cmd.equals("update")
-                || cmd.equals("webvault");
+                || cmd.equals("webvault") || cmd.equals("careset");
     }
 
     /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
@@ -580,6 +583,28 @@ public final class TgBot {
                     }
                 });
                 break;
+            case "/cabackup":
+                // File publik (tanpa kunci privat): tanpa PIN seperti /ca.
+                runWithWakeLock(ctx, () -> {
+                    try {
+                        TgBackup.sendMessage(ctx, TgBackup.backupCaKeStorage(ctx));
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Backup CA gagal: " + e.getMessage());
+                    }
+                });
+                break;
+            case "/careset":
+                if (authDangerous(ctx, arg) == null) {
+                    break;
+                }
+                runWithWakeLock(ctx, () -> {
+                    try {
+                        TgBackup.sendMessage(ctx, TgBackup.resetSertifikat(ctx));
+                    } catch (Exception e) {
+                        TgBackup.sendMessage(ctx, "Reset sertifikat gagal: " + e.getMessage());
+                    }
+                });
+                break;
             case "/status":
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
@@ -676,9 +701,9 @@ public final class TgBot {
                 break;
             case "/help":
                 TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
-                        + "/crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
+                        + "/cabackup  /careset  /crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /log /crashlog /update /webvault /restore wajib diakhiri PIN"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /log /crashlog /update /webvault /restore /careset wajib diakhiri PIN"
                         + " (mis. /stop 123456).", keyboardPerintah());
                 break;
             default:

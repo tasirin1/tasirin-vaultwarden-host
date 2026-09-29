@@ -715,4 +715,52 @@ public final class TlsCert {
         }
 
     }
+
+    /** Nama file cadangan CA publik di storage: ca-cadangan-<timestamp>.pem. Murni. */
+    static String namaBackupCa(String timestamp) {
+        String ts = (timestamp == null || timestamp.trim().isEmpty()) ? "tanpa-waktu" : timestamp.trim();
+        return "ca-cadangan-" + ts + ".pem";
+    }
+
+    /** Salin ca.pem aktif ke folder backup (storage). Hanya file publik, tanpa kunci privat. Murni. */
+    static File salinCaKeStorage(File caAktif, File dirBackup, String timestamp) throws IOException {
+        if (caAktif == null || !caAktif.isFile()) {
+            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+        }
+        if (dirBackup == null) {
+            throw new IOException("Folder tujuan tak valid.");
+        }
+        if (!dirBackup.exists() && !dirBackup.mkdirs()) {
+            throw new IOException("Folder tujuan tak bisa dibuat: " + dirBackup.getAbsolutePath());
+        }
+        File tujuan = new File(dirBackup, namaBackupCa(timestamp));
+        try (FileInputStream in = new FileInputStream(caAktif);
+             FileOutputStream out = new FileOutputStream(tujuan)) {
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                out.write(buf, 0, n);
+            }
+        }
+        return tujuan;
+    }
+
+    /** Hapus semua file TLS (ca, leaf, ips, versi) agar CA baru dibuat saat Start. Murni. */
+    static int resetTls(File tlsDir) {
+        if (tlsDir == null || !tlsDir.isDirectory()) {
+            return 0;
+        }
+        int hapus = 0;
+        for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
+                LEAF_KEY_FILE, "ips.txt", "version.txt"}) {
+            try {
+                File f = new File(tlsDir, nama);
+                if (f.isFile() && f.delete()) {
+                    hapus++;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return hapus;
+    }
 }

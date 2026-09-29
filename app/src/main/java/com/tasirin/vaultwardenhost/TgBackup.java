@@ -813,6 +813,47 @@ public final class TgBackup {
                 + " sebagai CA certificate (tanpa private key).";
     }
 
+    /** Backup CA publik (ca.pem) ke folder data di storage agar bisa diambil
+     *  via file manager tanpa Telegram. Hanya file publik, tanpa kunci privat. */
+    public static String backupCaKeStorage(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                ServerService.DEFAULT_DATA_DIR);
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = ServerService.DEFAULT_DATA_DIR;
+        }
+        File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
+                new File(dataDir, "tls/ca.pem"));
+        if (ca == null || !ca.isFile()) {
+            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+        }
+        File tujuan = TlsCert.salinCaKeStorage(ca, new File(dataDir), backupTimestamp());
+        return "CA dibackup ke storage: " + tujuan.getAbsolutePath()
+                + " (file publik, tanpa private key). Salin ke HP lain lalu install"
+                + " sebagai CA certificate.";
+    }
+
+    /** Reset sertifikat (hapus CA + leaf) agar CA baru dibuat saat Start berikut.
+     *  Wajib install ulang CA di semua HP setelahnya. */
+    public static String resetSertifikat(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                ServerService.DEFAULT_DATA_DIR);
+        if (dataDir == null || dataDir.trim().isEmpty()) {
+            dataDir = ServerService.DEFAULT_DATA_DIR;
+        }
+        int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
+                + TlsCert.resetTls(new File(dataDir, "tls"));
+        if (hapus == 0) {
+            throw new IOException("Sertifikat belum ada, tak ada yang di-reset.");
+        }
+        return "Sertifikat di-reset (" + hapus + " file dihapus)."
+                + " Tekan Start untuk membuat CA baru, lalu install ulang CA"
+                + " di semua HP (Bagikan CA / /ca / backup storage).";
+    }
+
     private static String uploadTelegram(Context ctx, String token, String chatId, File file)
             throws Exception {
         HttpURLConnection conn = null;

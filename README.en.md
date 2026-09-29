@@ -28,11 +28,11 @@ Download from another phone, put in the data folder, press **Start**:
 
 Auto-update of binary & web vault, status web on port+1, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
-**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/crashlog` `/help`. With PIN: `/stop 123456`.
+**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. With PIN: `/stop 123456` (also `/careset 123456`).
 
 **Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.
 
-**HTTPS:** check HTTPS → Start → install `ca.pem` (Share CA button / `/ca`). For the Bitwarden app, use HTTP on the local network.
+**HTTPS:** check HTTPS → Start → install `ca.pem` (Share CA button / `/ca`, or Backup CA to Storage `/cabackup` without Telegram). If it worked before then fails: Reset Certificate (`/careset`, new CA) then reinstall the CA on every phone. For the Bitwarden app, use HTTP on the local network.
 
 ## Troubleshooting
 

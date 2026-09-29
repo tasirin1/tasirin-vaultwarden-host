@@ -28,11 +28,11 @@ Unduh dari HP lain, taruh di folder data, tekan **Start**:
 
 Auto-update binary & web vault, status web di port+1, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
 
-**Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/crashlog` `/help`. Kalau PIN aktif: `/stop 123456`.
+**Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. Kalau PIN aktif: `/stop 123456` (juga `/careset 123456`).
 
 **Backup:** database di `<folder-data>/db.sqlite3`. Backup lokal di Settings → Pemeliharaan; backup Telegram via `/backup`; restore via `/restore` atau file `.zip`/`.sqlite3`.
 
-**HTTPS:** centang HTTPS → Start → install `ca.pem` (tombol Bagikan CA / `/ca`). Untuk app Bitwarden, pakai HTTP di jaringan lokal.
+**HTTPS:** centang HTTPS → Start → install `ca.pem` (tombol Bagikan CA / `/ca`, atau Backup CA ke Storage `/cabackup` bila tanpa Telegram). Bila dulu bisa lalu gagal: Reset Sertifikat (`/careset`, CA baru) lalu install ulang CA di semua HP. Untuk app Bitwarden, pakai HTTP di jaringan lokal.
 
 ## Kalau error
 

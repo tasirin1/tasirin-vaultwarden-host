@@ -91,6 +91,8 @@ public class SettingsActivity extends Activity {
     private Button importCfgBtn;
     private Button installCertBtn;
     private Button shareCaBtn;
+    private Button resetCertBtn;
+    private Button backupCaBtn;
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
@@ -240,6 +242,17 @@ public class SettingsActivity extends Activity {
         shareCaBtn = findViewById(R.id.shareCa);
         if (shareCaBtn != null) {
             shareCaBtn.setOnClickListener(v -> bagikanCa());
+        }
+        resetCertBtn = findViewById(R.id.resetCert);
+        if (resetCertBtn != null) {
+            resetCertBtn.setOnClickListener(v -> confirm("Reset Sertifikat",
+                    "Hapus CA + sertifikat lama dan buat CA baru saat Start berikutnya. "
+                            + "Semua HP wajib install ulang CA baru. Lanjutkan?",
+                    () -> runBusy(this::resetSertifikat)));
+        }
+        backupCaBtn = findViewById(R.id.backupCa);
+        if (backupCaBtn != null) {
+            backupCaBtn.setOnClickListener(v -> runBusy(this::backupCaKeStorage));
         }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
         backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
@@ -809,6 +822,32 @@ public class SettingsActivity extends Activity {
             }
         } catch (Exception e) {
             toast("Gagal berbagi CA: " + e.getMessage());
+        }
+    }
+
+    /** Reset sertifikat via tombol Settings: hapus CA + leaf, lapor ke log UI. */
+    private void resetSertifikat() {
+        try {
+            String msg = TgBackup.resetSertifikat(this);
+            lastCertCheck = 0;
+            certLine = "";
+            toast(msg);
+            appendUiLog("[app] " + msg);
+        } catch (Exception e) {
+            toast("Reset sertifikat gagal: " + e.getMessage());
+            appendUiLog("[app] Reset sertifikat gagal: " + e.getMessage());
+        }
+    }
+
+    /** Backup ca.pem publik ke folder data di storage via tombol Settings. */
+    private void backupCaKeStorage() {
+        try {
+            String msg = TgBackup.backupCaKeStorage(this);
+            toast(msg);
+            appendUiLog("[app] " + msg);
+        } catch (Exception e) {
+            toast("Backup CA gagal: " + e.getMessage());
+            appendUiLog("[app] Backup CA gagal: " + e.getMessage());
         }
     }
 

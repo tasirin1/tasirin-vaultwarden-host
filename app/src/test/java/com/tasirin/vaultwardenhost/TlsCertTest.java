@@ -142,4 +142,33 @@ public class TlsCertTest {
         assertFalse(TlsCert.masaBelumTiba(sampah));
         sampah.delete();
     }
+
+    @Test
+    public void namaBackupCa_pakaiTimestamp() {
+        assertEquals("ca-cadangan-20260929-120000.pem", TlsCert.namaBackupCa("20260929-120000"));
+        assertEquals("ca-cadangan-tanpa-waktu.pem", TlsCert.namaBackupCa(""));
+        assertEquals("ca-cadangan-tanpa-waktu.pem", TlsCert.namaBackupCa(null));
+    }
+
+    @Test
+    public void salinCaKeStorage_hanyaPublik() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsbak");
+        File ca = new File(dir.toFile(), "ca.pem");
+        Files.write(ca.toPath(), "ISI-CA".getBytes(StandardCharsets.UTF_8));
+        File tujuan = TlsCert.salinCaKeStorage(ca, new File(dir.toFile(), "out"), "20260929-120000");
+        assertTrue(tujuan.isFile());
+        assertEquals("ca-cadangan-20260929-120000.pem", tujuan.getName());
+        assertEquals("ISI-CA", new String(Files.readAllBytes(tujuan.toPath()), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void resetTls_hapusEnamFile() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsreset");
+        for (String n : new String[]{"ca.pem", "ca-key.pem", "cert.pem", "key.pem", "ips.txt", "version.txt"}) {
+            Files.write(new File(dir.toFile(), n).toPath(), "x".getBytes(StandardCharsets.UTF_8));
+        }
+        assertEquals(6, TlsCert.resetTls(dir.toFile()));
+        assertEquals(0, TlsCert.resetTls(dir.toFile()));
+        assertEquals(0, TlsCert.resetTls(new File(dir.toFile(), "tak-ada")));
+    }
 }

@@ -99,13 +99,33 @@
 
                 <Button
                     android:id="@+id/shareCa"
-                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusDown="@id/resetCert"
                     android:nextFocusUp="@id/installCert"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/share_ca" />
+
+                <Button
+                    android:id="@+id/resetCert"
+                    android:nextFocusDown="@id/backupCa"
+                    android:nextFocusUp="@id/shareCa"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/reset_cert" />
+
+                <Button
+                    android:id="@+id/backupCa"
+                    android:nextFocusDown="@id/exportCfg"
+                    android:nextFocusUp="@id/resetCert"
+                    style="@style/TasirinBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/backup_ca_storage" />
 
                 <TextView
                     style="@style/TasirinHint"
@@ -133,7 +153,7 @@
                     <Button
                         android:id="@+id/exportCfg"
                         android:nextFocusDown="@id/importCfg"
-                        android:nextFocusUp="@id/shareCa"
+                        android:nextFocusUp="@id/backupCa"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
