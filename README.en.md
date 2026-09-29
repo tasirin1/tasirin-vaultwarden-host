@@ -28,7 +28,7 @@ Download from another phone, put in the data folder, press **Start**:
 
 Auto-update of binary & web vault, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
-**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. With PIN: `/stop 123456` (also `/careset 123456`).
+**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. With PIN: `/status` `/log` `/stop` etc. must end with the PIN (e.g. `/stop 123456`); PIN command messages are auto-deleted from the chat when the bot has delete permission.
 
 **Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.
 

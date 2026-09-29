@@ -74,17 +74,24 @@ public class FileShareProvider extends ContentProvider {
         }
         // Hanya file di lokasi yang memang perlu dibagikan (cert, backup,
         // export config, cache): tolak yang lain meski provider internal.
+        // Buka file KANONIS yang lolos cek (bukan path asli) agar symlink
+        // yang ditukar di jeda cek-vs-buka tak bisa mengalihkan ke file lain.
+        final File target;
         try {
             String canon = f.getCanonicalPath();
             if (!isShareable(canon)) {
                 throw new FileNotFoundException("Lokasi tidak diizinkan: " + uri);
             }
+            target = new File(canon);
         } catch (FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new FileNotFoundException(String.valueOf(uri));
         }
-        return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
+        if (!target.isFile()) {
+            throw new FileNotFoundException(String.valueOf(uri));
+        }
+        return ParcelFileDescriptor.open(target, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
     /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,

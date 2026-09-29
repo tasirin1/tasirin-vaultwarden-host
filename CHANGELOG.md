@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit keamanan
+- `/status` Telegram kini wajib PIN bila PIN aktif (seperti `/log`); tombol Status memberi tahu agar ketik manual saat PIN aktif.
+- Pesan perintah ber-PIN dihapus otomatis dari chat (best-effort, butuh izin hapus) agar PIN tak menempel di riwayat.
+- `FileShareProvider` membuka file kanonis hasil cek (tutup celah symlink cek-vs-buka).
+- Bind gagal karena port direbut (`EADDRINUSE`) langsung berhenti + saran jelas, tanpa restart beruntun.
+- Export plaintext tanpa password memang sudah ada dialog peringatan — tidak diubah.
+
 ## [Belum rilis] — Hapus status web port+1
 - Status web `ControlServer` (port+1, JSON + log SSE) dihapus total beserta test dan seluruh rujukannya di `ServerService`, `MainActivity`, `SettingsActivity`, string, dan README; pemantauan tetap via log realtime di aplikasi + `/status`/`/log` Telegram sehingga tak ada port tambahan yang terbuka.
 

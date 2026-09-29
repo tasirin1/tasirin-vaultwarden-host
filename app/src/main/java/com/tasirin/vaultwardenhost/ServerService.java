@@ -997,6 +997,21 @@ public class ServerService extends Service {
                             + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
                     return;
                 }
+                if (portDirebut(tail)) {
+                    // Port direbut proses lain di jeda cek-vs-start (TOCTOU):
+                    // restart tak ada gunanya — langsung berhenti + beri saran.
+                    autoRestart = false;
+                    int portNyata = portLoopback();
+                    setStatus("Port " + portNyata + " direbut proses lain - dihentikan.\n"
+                            + "Stop server lain / ganti port di Settings, lalu Start lagi.");
+                    appendLog("[app] FATAL: bind gagal, port " + portNyata
+                            + " direbut proses lain - auto-restart dimatikan.");
+                    writeCrashLog("port direbut (bind gagal)");
+                    TgBackup.sendMessage(this, "Gagal start: port " + portNyata
+                            + " direbut proses lain. Stop server lain / ganti port"
+                            + " lalu Start lagi.");
+                    return;
+                }
                 if (autoRestart) {
                     writeCrashLog("crash (exit " + code + ")");
                     if (recordRestart("crash (exit " + code + ")")) {
@@ -1164,6 +1179,18 @@ public class ServerService extends Service {
         }
         String rendah = logTail.toLowerCase(Locale.US);
         return rendah.contains("panicked") && rendah.contains("getrandom");
+    }
+
+    /** True bila ekor log menunjukkan bind gagal karena port direbut proses
+     *  lain (EADDRINUSE): restart tak ada gunanya, langsung berhenti + saran.
+     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
+    static boolean portDirebut(String logTail) {
+        if (logTail == null || logTail.isEmpty()) {
+            return false;
+        }
+        String r = logTail.toLowerCase(Locale.US);
+        return r.contains("address already in use") || r.contains("address in use")
+                || r.contains("eaddrinuse") || r.contains("os error 98");
     }
 
     /** True bila baris output binary hanya noise linker STB lama

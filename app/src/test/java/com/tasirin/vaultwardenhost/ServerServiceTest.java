@@ -287,6 +287,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void portDirebut_kenaliBindGagal() {
+        assertTrue(ServerService.portDirebut("Rocket failed to bind: Address already in use (os error 98)"));
+        assertTrue(ServerService.portDirebut("ERROR: bind 0.0.0.0:8088: EADDRINUSE"));
+        assertFalse(ServerService.portDirebut("Running (PID 123)\nURL lokal: http://127.0.0.1:8088"));
+        assertFalse(ServerService.portDirebut(""));
+        assertFalse(ServerService.portDirebut(null));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {

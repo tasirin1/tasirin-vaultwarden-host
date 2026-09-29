@@ -123,6 +123,17 @@ public class TgBotTest {
     }
 
     @Test
+    public void perintahBerbahaya_statusIkutButuhPin() {
+        assertTrue(TgBot.perintahBerbahaya("/status"));
+        assertTrue(TgBot.perintahBerbahaya("/status 123456"));
+        assertTrue(TgBot.perintahBerbahayaTombol("/status"));
+        assertFalse(TgBot.perintahBerbahaya("/uptime"));
+        assertFalse(TgBot.perintahBerbahaya("/alive"));
+        assertFalse(TgBot.perintahBerbahaya("/help"));
+        assertFalse(TgBot.perintahBerbahaya(null));
+    }
+
+    @Test
     public void restoreConfirm_tolakKosongDanAsing() {
         assertFalse(TgBot.isRestoreConfirm(null));
         assertFalse(TgBot.isRestoreConfirm(""));
