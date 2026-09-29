@@ -691,6 +691,11 @@ public class MainActivity extends Activity {
         unlocked = false;
         final String pinHash = sp.getString(KEY_PIN, "");
         if (pinHash == null || pinHash.isEmpty()) {
+            try {
+                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
+            } catch (Exception ignored) {
+            }
+            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
             return;
         }
         if (pinDialogTampil) {

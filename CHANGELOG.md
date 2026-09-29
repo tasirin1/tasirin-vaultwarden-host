@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit kode (putaran 3)
+- PIN fail-open ditutup: PIN pendek menghapus hash sekaligus mematikan PIN;
+  kunci otomatis mematikan PIN yatim (tanpa hash) dengan catatan log.
+- Restore dari Telegram memakai folder data tersanitasi seperti Start.
+- Checksum `.sha256` wajib 64 digit heksadesimal (pesan galat lebih jelas).
+
 ## [Belum rilis] — Perbaikan hasil audit kode (putaran 2)
 - Status web (`ControlServer`) kini menutup soket SSE/klien saat stop dan
   membersihkan hitungan per-IP agar instance baru tak mewarisi 503/429 basi.

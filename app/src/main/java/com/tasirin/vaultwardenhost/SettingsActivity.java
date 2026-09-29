@@ -343,8 +343,10 @@ public class SettingsActivity extends Activity {
                     if (basi != null && !basi.isDone()) {
                         basi.cancel(true);
                     }
+                    // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
+                    // tak ada status pin_on=true tanpa hash (fail-open di kunci).
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                            .edit().remove(KEY_PIN).apply();
+                            .edit().remove(KEY_PIN).putBoolean(KEY_PIN_ON, false).apply();
                     return;
                 }
                 final String pin = s.toString();
@@ -1349,8 +1351,14 @@ public class SettingsActivity extends Activity {
     private void restoreFromTelegram() {
         String inputDir = dataDirInput.getText().toString().trim();
         if (!TextUtils.isEmpty(inputDir)) {
+            // Sanitasi seperti saveAndStart: path berbahaya jatuh ke bawaan agar
+            // prefs tak keracunan sebelum restore berjalan.
+            String aman = ServerService.amankanDataDir(inputDir);
+            if (!ServerService.dataDirAman(inputDir)) {
+                toast("Folder data tidak valid, pakai bawaan.");
+            }
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putString(ServerService.KEY_DATA_DIR, inputDir).apply();
+                    .putString(ServerService.KEY_DATA_DIR, aman).apply();
         }
         runBusy(() -> {
             File tmp = new File(getCacheDir(), "vwtg-restore.zip");
@@ -1676,6 +1684,13 @@ public class SettingsActivity extends Activity {
         unlocked = false;
         final String pinHash = sp.getString(KEY_PIN, "");
         if (pinHash == null || pinHash.isEmpty()) {
+            // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat agar
+            // tak terbuka diam-diam tanpa kunci (fail-open).
+            try {
+                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
+            } catch (Exception ignored) {
+            }
+            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
             return;
         }
         if (pinDialogTampil) {

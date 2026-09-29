@@ -1440,7 +1440,10 @@ public final class Updater {
                     return null;
                 }
                 String hex = line.replace("\uFEFF", "").trim().split("\\s+")[0];
-                return hex.length() == 64 ? hex.toLowerCase(Locale.US) : null;
+                if (hex.length() != 64 || !hex.matches("[0-9a-fA-F]{64}")) {
+                    return null;
+                }
+                return hex.toLowerCase(Locale.US);
             } catch (Exception e) {
                 if (coba >= 2) {
                     return null;
