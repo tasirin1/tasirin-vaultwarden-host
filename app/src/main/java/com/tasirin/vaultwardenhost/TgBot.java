@@ -660,15 +660,11 @@ public final class TgBot {
                 });
                 break;
             case "/status":
-                if (authDangerous(ctx, arg) == null) {
-                    break;
-                }
+                // Perintah baca cukup auth chat (tanpa PIN) agar tombol inline
+                // tetap jalan saat PIN aktif; tulis tetap lewat authDangerous.
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
             case "/log":
-                if (authDangerous(ctx, arg) == null) {
-                    break;
-                }
                 TgBackup.sendMessage(ctx, tailLog());
                 break;
             case "/uptime":
@@ -745,22 +741,19 @@ public final class TgBot {
                 });
                 break;
             case "/crashlog":
-                if (authDangerous(ctx, arg) == null) {
-                    break;
-                }
+                // Perintah baca cukup auth chat (tanpa PIN), seperti /status & /log.
                 String crash = ServerService.crashLogText(ctx);
                 if (crash == null || crash.trim().isEmpty()) {
                     TgBackup.sendMessage(ctx, "Belum ada crash log tersimpan.");
                 } else {
-                    TgBackup.sendMessage(ctx, crash.length() > 3500
-                            ? crash.substring(crash.length() - 3500) : crash);
+                    TgBackup.sendMessage(ctx, potongEkor(crash, 3500));
                 }
                 break;
             case "/help":
                 TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
                         + "/cabackup  /careset  /crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /status /log /crashlog /update /webvault /restore /careset wajib diakhiri PIN"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset wajib diakhiri PIN"
                         + " (mis. /stop 123456).", keyboardPerintah());
                 break;
             default:
@@ -1030,7 +1023,21 @@ public final class TgBot {
         if (log.isEmpty()) {
             return "Log kosong.";
         }
-        return log.length() > 3500 ? "..." + log.substring(log.length() - 3500) : log;
+        return potongEkor(log, 3500);
+    }
+
+    /** Potong ekor teks maks N char di batas baris (tak memenggal tengah baris).
+     *  Murni agar bisa unit test. */
+    static String potongEkor(String teks, int maks) {
+        if (teks == null || teks.length() <= maks) {
+            return teks == null ? "" : teks;
+        }
+        int mulai = teks.length() - maks;
+        int nl = teks.indexOf('\n', mulai);
+        if (nl >= 0 && nl + 1 < teks.length()) {
+            return "..." + teks.substring(nl + 1);
+        }
+        return "..." + teks.substring(mulai);
     }
 
     static String durationText(long ms) {

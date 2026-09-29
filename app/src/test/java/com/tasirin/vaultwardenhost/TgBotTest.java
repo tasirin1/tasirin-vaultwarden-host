@@ -153,4 +153,17 @@ public class TgBotTest {
         assertFalse(TgBot.isRestoreConfirm("Y"));
         assertFalse(TgBot.isRestoreConfirm("lanjut"));
     }
+
+    @Test
+    public void potongEkor_takMemenggalTengahBaris() {
+        assertEquals("", TgBot.potongEkor(null, 10));
+        assertEquals("abc", TgBot.potongEkor("abc", 10));
+        // Potong di batas baris: sisa mulai setelah newline pertama di jendela.
+        String panjang = "baris-satu-panjang\ndua\ntiga";
+        String potong = TgBot.potongEkor(panjang, 8);
+        assertTrue(potong.startsWith("..."));
+        assertFalse(potong.contains("baris-satu-panjang"));
+        // Tanpa newline di jendela: fallback potong persis.
+        assertEquals("...cdef", TgBot.potongEkor("abcdef", 4));
+    }
 }

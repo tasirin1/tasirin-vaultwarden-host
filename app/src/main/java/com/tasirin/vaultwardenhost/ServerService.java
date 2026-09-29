@@ -882,6 +882,12 @@ public class ServerService extends Service {
             stopDisengaja = false;
             acquireWakeLock();
             running = true;
+            // Riwayat restart milik kejadian lama: bersihkan agar /status tak
+            // menampilkan "Restart: Nx" basi setelah start bersih yang sukses.
+            synchronized (RESTART_TIMES) {
+                RESTART_TIMES.clear();
+                RESTART_REASONS.clear();
+            }
             healthFails.set(0);
             lastStartTime = System.currentTimeMillis();
             lastStartElapsed = SystemClock.elapsedRealtime();

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit kode (putaran 9)
+- Bot Telegram: tuntaskan putaran 7 — `/status`/`/log`/`/crashlog` cukup auth chat (gate PIN sisa + teks `/help` diselaraskan) agar tombol inline jalan saat PIN aktif.
+- Status: riwayat restart dibersihkan saat server berhasil start agar tak tampil basi.
+- Bot Telegram: potong ekor `/log`/`/crashlog` di batas baris (+ unit test).
+
 ## [Belum rilis] — Perbaikan hasil audit kode (putaran 8)
 - Update versi: jeda gagal API berlaku juga saat cache basi ada (kembalikan cache basi, tiap Start saat offline tak menghantam API).
 - Health check: flag `running` dimatikan tanpa syarat di cabang terminal agar tak macet true bila proses mati di jeda cek-vs-eksekusi.
