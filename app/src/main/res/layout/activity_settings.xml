@@ -1,13 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Kerangka utama: tiap kartu dipecah ke main_card_*.xml agar lint TooManyViews bersih
-     (satu layout >80 view). findViewById tetap bekerja karena <include> di-inflate sama.
-     Bilah Start/Stop + Buka menempel di bawah agar tak perlu scroll setelah ubah pengaturan. -->
+<!-- Gaya Tasirin Download Manager: bilah atas ramping (tanpa hero) + chip
+     navigasi + 5 seksi lipat (Server, Keamanan, Perawatan, Telegram, Log).
+     Semua ID fungsional dipertahankan; findViewById tetap bekerja via <include>.
+     Tiap header bisa difokus D-pad (@drawable/item_focus_bg). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- Bilah atas: kembali + judul + tentang -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/side_padding"
+        android:paddingEnd="@dimen/side_padding"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp">
+
+        <Button
+            android:id="@+id/settingsBack"
+            android:nextFocusDown="@id/navServer"
+            android:nextFocusRight="@id/aboutBtn"
+            style="@style/TasirinBtnSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/settings"
+            android:textColor="@color/text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/aboutBtn"
+            android:nextFocusDown="@id/navServer"
+            android:nextFocusLeft="@id/settingsBack"
+            style="@style/TasirinBtnSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about" />
+    </LinearLayout>
+
+    <!-- Chip navigasi ala Download Manager: ketuk = buka + gulir ke seksi -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/side_padding"
+            android:paddingEnd="@dimen/side_padding"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp">
+
+            <Button
+                android:id="@+id/navServer"
+                android:nextFocusDown="@id/headerServer"
+                android:nextFocusRight="@id/navKeamanan"
+                android:nextFocusUp="@id/settingsBack"
+                style="@style/TasirinBtnSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/card_title_server" />
+
+            <Button
+                android:id="@+id/navKeamanan"
+                android:nextFocusDown="@id/headerKeamanan"
+                android:nextFocusLeft="@id/navServer"
+                android:nextFocusRight="@id/navRawat"
+                android:nextFocusUp="@id/settingsBack"
+                style="@style/TasirinBtnSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/card_title_security" />
+
+            <Button
+                android:id="@+id/navRawat"
+                android:nextFocusDown="@id/headerRawat"
+                android:nextFocusLeft="@id/navKeamanan"
+                android:nextFocusRight="@id/navTelegram"
+                android:nextFocusUp="@id/settingsBack"
+                style="@style/TasirinBtnSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/card_title_maintenance" />
+
+            <Button
+                android:id="@+id/navTelegram"
+                android:nextFocusDown="@id/headerTelegram"
+                android:nextFocusLeft="@id/navRawat"
+                android:nextFocusRight="@id/navLog"
+                android:nextFocusUp="@id/settingsBack"
+                style="@style/TasirinBtnSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/card_title_telegram" />
+
+            <Button
+                android:id="@+id/navLog"
+                android:nextFocusDown="@id/headerLog"
+                android:nextFocusLeft="@id/navTelegram"
+                android:nextFocusUp="@id/settingsBack"
+                style="@style/TasirinBtnSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_title_log" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
     <ScrollView
+        android:id="@+id/settingsScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -16,124 +133,323 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="16dp"
+            android:paddingTop="8dp"
             android:paddingBottom="24dp"
             android:paddingStart="@dimen/side_padding"
             android:paddingEnd="@dimen/side_padding">
 
-        <Button
-            android:id="@+id/settingsBack"
-            android:nextFocusDown="@id/aboutBtn"
-            style="@style/TasirinBtnSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="0dp"
-            android:text="@string/back" />
-
-        <!-- Hero: identitas app di atas gradien brand -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_hero"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="14dp">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="@string/app_name"
-                android:focusable="false"
-                android:src="@drawable/ic_launcher" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/appTitle"
-                    style="@style/TasirinHeroTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name" />
-
-                <TextView
-                    style="@style/TasirinHeroSub"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/app_tagline" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/aboutBtn"
-                android:nextFocusDown="@id/simpleMode"
-                android:nextFocusUp="@id/settingsBack"
-                style="@style/TasirinBtnHero"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/about" />
-        </LinearLayout>
-
-        <!-- Filter global: bukan pengaturan server, jadi di luar kartu Server -->
-        <CheckBox
-            android:id="@+id/simpleMode"
-            android:nextFocusDown="@id/startStop"
-            android:nextFocusUp="@id/aboutBtn"
-            android:background="@drawable/item_focus_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/mode_simple" />
-
-        <!-- Rincian versi, DB & storage (teks panjang dari MainActivity) -->
+        <!-- Rincian versi, DB & storage -->
         <TextView
             android:id="@+id/version"
             style="@style/TasirinInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:background="@drawable/bg_info_box"
             android:padding="12dp" />
 
-        <!-- ===================== SERVER (esensial saja) ===================== -->
-        <include layout="@layout/main_card_server" />
-
-        <!-- ===================== LANJUTAN (collapsible) ===================== -->
-        <Button
-            android:id="@+id/advancedToggle"
-            android:nextFocusDown="@id/pinInput"
-            android:nextFocusUp="@id/port"
-            style="@style/TasirinBtn"
+        <!-- ===================== SEKSI: SERVER ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/advanced_open" />
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="12dp">
 
+            <LinearLayout
+                android:id="@+id/headerServer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_focus_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:nextFocusDown="@id/startStop"
+                android:nextFocusUp="@id/navServer"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/accent_server" />
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/card_title_server" />
+
+                <TextView
+                    android:id="@+id/chevronServer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:text="&#x25BE;"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bodyServer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/main_card_server"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SEKSI: KEAMANAN ===================== -->
         <LinearLayout
-            android:id="@+id/advancedPanel"
+            android:id="@+id/sectionKeamanan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:padding="12dp">
 
-            <!-- Keamanan: Admin Token + PIN -->
-            <include layout="@layout/main_card_security" />
+            <LinearLayout
+                android:id="@+id/headerKeamanan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_focus_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:nextFocusDown="@id/adminToken"
+                android:nextFocusUp="@id/navKeamanan"
+                android:orientation="horizontal">
 
-            <!-- Pembaruan & Sertifikat (gabungan Pengaturan + Pemeliharaan) -->
-            <include layout="@layout/main_card_maintenance" />
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/accent_pengaturan" />
 
-            <!-- Backup Telegram -->
-            <include layout="@layout/main_card_telegram" />
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/card_title_security" />
 
-            <!-- Log -->
-            <include layout="@layout/main_card_log" />
+                <TextView
+                    android:id="@+id/chevronKeamanan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:text="&#x25BE;"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bodyKeamanan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/main_card_security"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SEKSI: PERAWATAN ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionRawat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:id="@+id/headerRawat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_focus_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:nextFocusDown="@id/autoUpdate"
+                android:nextFocusUp="@id/navRawat"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/accent_rawat" />
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/card_title_maintenance" />
+
+                <TextView
+                    android:id="@+id/chevronRawat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:text="&#x25BE;"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bodyRawat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/main_card_maintenance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SEKSI: TELEGRAM ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionTelegram"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:id="@+id/headerTelegram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_focus_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:nextFocusDown="@id/tgToken"
+                android:nextFocusUp="@id/navTelegram"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/accent_telegram" />
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/card_title_telegram" />
+
+                <TextView
+                    android:id="@+id/chevronTelegram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:text="&#x25BE;"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bodyTelegram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/main_card_telegram"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SEKSI: LOG ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:id="@+id/headerLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_focus_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:nextFocusDown="@id/logOpen"
+                android:nextFocusUp="@id/navLog"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/accent_log" />
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/card_title_log" />
+
+                <TextView
+                    android:id="@+id/chevronLog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:text="&#x25BE;"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bodyLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/main_card_log"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
         </LinearLayout>
         </LinearLayout>
     </ScrollView>

@@ -86,8 +86,7 @@ public class SettingsActivity extends Activity {
     private volatile String pendingVersion = null;
     private Button logOpenBtn;
     private Button startStopBtn;
-    private Button advancedToggleBtn;
-    private LinearLayout advancedPanel;
+    private android.widget.ScrollView settingsScroll;
     private LinearLayout batteryRow;
     private Button copyUrlBtn;
     private Button exportCfgBtn;
@@ -103,7 +102,6 @@ public class SettingsActivity extends Activity {
     private Button restoreDbBtn;
     private Button backupTgBtn;
     private Button aboutBtn;
-    private CheckBox simpleCheck;
     private Button startStopBawah;
     private Button bukaBawah;
     private Button copyAdminBtn;
@@ -133,7 +131,12 @@ public class SettingsActivity extends Activity {
     private TextView labelAdmin;
     private ProgressBar unduhBar;
     private android.content.res.ColorStateList warnaLabelBawaan;
-    private boolean simpleMode = true;
+    /** Status buka tiap seksi (gaya Download Manager, tersimpan di prefs). */
+    private static final String KEY_SEC_SERVER = "sec_buka_server";
+    private static final String KEY_SEC_KEAMANAN = "sec_buka_keamanan";
+    private static final String KEY_SEC_RAWAT = "sec_buka_rawat";
+    private static final String KEY_SEC_TELEGRAM = "sec_buka_telegram";
+    private static final String KEY_SEC_LOG = "sec_buka_log";
 
     private String bundledVersion = "?";
     private String bundledRaw = null;
@@ -141,7 +144,6 @@ public class SettingsActivity extends Activity {
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
-    private boolean advancedOpen = false;
     private boolean refreshActive = true;
     private volatile boolean uiBusy = false;
     /** Cegah dua tugas berat (update/backup/restore) tumpang tindih. */
@@ -237,8 +239,7 @@ public class SettingsActivity extends Activity {
         autoRestartCb = findViewById(R.id.autoRestart);
         logOpenBtn = findViewById(R.id.logOpen);
         startStopBtn = findViewById(R.id.startStop);
-        advancedToggleBtn = findViewById(R.id.advancedToggle);
-        advancedPanel = findViewById(R.id.advancedPanel);
+        settingsScroll = findViewById(R.id.settingsScroll);
         batteryRow = findViewById(R.id.batteryRow);
 
         bukaBawah = findViewById(R.id.bukaBawah);
@@ -258,7 +259,6 @@ public class SettingsActivity extends Activity {
         Button showTgBtn = findViewById(R.id.showTg);
         Button showPassBtn = findViewById(R.id.showPass);
         aboutBtn = findViewById(R.id.aboutBtn);
-        simpleCheck = findViewById(R.id.simpleMode);
         startStopBawah = findViewById(R.id.startStopBawah);
         httpsBadge = findViewById(R.id.httpsBadge);
         dataDirError = findViewById(R.id.dataDirError);
@@ -333,7 +333,6 @@ public class SettingsActivity extends Activity {
             settingsBackBtn.setOnClickListener(v -> finish());
         }
         logOpenBtn.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
-        advancedToggleBtn.setOnClickListener(v -> setAdvancedOpen(!advancedOpen));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
         copyLoopbackBtn.setOnClickListener(v -> salinTeks("https://127.0.0.1:"
@@ -368,20 +367,20 @@ public class SettingsActivity extends Activity {
         if (secUbah != null) {
             secUbah.setOnClickListener(v -> {
                 secExpanded = true;
-                terapkanModeSederhana();
+                tampilkanDetailPenuh();
             });
         }
         if (rawatUbah != null) {
             rawatUbah.setOnClickListener(v -> {
                 rawatExpanded = true;
-                terapkanModeSederhana();
+                tampilkanDetailPenuh();
             });
         }
         Button tgUbah = findViewById(R.id.tgUbah);
         if (tgUbah != null) {
             tgUbah.setOnClickListener(v -> {
                 tgExpanded = true;
-                terapkanModeSederhana();
+                tampilkanDetailPenuh();
             });
         }
         aboutBtn.setOnClickListener(v -> showAboutDialog());
@@ -404,10 +403,19 @@ public class SettingsActivity extends Activity {
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
         pinInput.setText("");
         pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
-        setAdvancedOpen(sp.getBoolean(KEY_ADVANCED_OPEN, true));
-        setSimpleMode(sp.getBoolean(KEY_SIMPLE_MODE, true));
-        simpleCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
-                setSimpleMode(checked));
+        pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
+        pasangSeksi(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan, KEY_SEC_KEAMANAN);
+        pasangSeksi(R.id.headerRawat, R.id.bodyRawat, R.id.chevronRawat, KEY_SEC_RAWAT);
+        pasangSeksi(R.id.headerTelegram, R.id.bodyTelegram, R.id.chevronTelegram, KEY_SEC_TELEGRAM);
+        pasangSeksi(R.id.headerLog, R.id.bodyLog, R.id.chevronLog, KEY_SEC_LOG);
+        pasangChip(R.id.navServer, R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
+        pasangChip(R.id.navKeamanan, R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan,
+                KEY_SEC_KEAMANAN);
+        pasangChip(R.id.navRawat, R.id.headerRawat, R.id.bodyRawat, R.id.chevronRawat, KEY_SEC_RAWAT);
+        pasangChip(R.id.navTelegram, R.id.headerTelegram, R.id.bodyTelegram, R.id.chevronTelegram,
+                KEY_SEC_TELEGRAM);
+        pasangChip(R.id.navLog, R.id.headerLog, R.id.bodyLog, R.id.chevronLog, KEY_SEC_LOG);
+        tampilkanDetailPenuh();
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -542,9 +550,7 @@ public class SettingsActivity extends Activity {
         TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
-        // Wizard 3 langkah untuk instalasi baru; pengguna lama yang sudah
-        // setup tak diganggu (ditandai selesai diam-diam).
-        ui.post(this::maybeShowWizard);
+        // Tanpa wizard awal (gaya Download Manager: bawaan langsung benar).
 
     }
 
@@ -1744,7 +1750,6 @@ public class SettingsActivity extends Activity {
     /** Muat ulang isi form dari prefs (dipakai setelah import config). */
     private void reloadSettingsFromPrefs() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        setSimpleMode(sp.getBoolean(KEY_SIMPLE_MODE, true));
         dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
@@ -2190,39 +2195,15 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Mode sederhana: kartu lanjutan tampil sebagai ringkasan + tombol Ubah. */
-    private void setSimpleMode(boolean simple) {
-        simpleMode = simple;
-        if (simpleCheck.isChecked() != simple) {
-            simpleCheck.setChecked(simple);
-        }
-        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                .putBoolean(KEY_SIMPLE_MODE, simple).apply();
-        terapkanModeSederhana();
-    }
-
-    /** Terapkan visibilitas panel + ringkasan sesuai mode dan lipatan. */
-    private void terapkanModeSederhana() {
+    /** Semua detail selalu tampil penuh (lipatan hanya per seksi, bukan mode). */
+    private void tampilkanDetailPenuh() {
         refreshRingkasan();
-        if (!simpleMode) {
-            advancedToggleBtn.setVisibility(View.VISIBLE);
-            advancedPanel.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
-            aturDetail(secDetail, null, true);
-            aturDetail(rawatDetail, null, true);
-            aturDetail(tgDetail, null, true);
-            aturRingkasan(secRingkasan, R.id.secUbah, false);
-            aturRingkasan(rawatRingkasan, R.id.rawatUbah, false);
-            aturRingkasan(tgRingkasan, R.id.tgUbah, false);
-            return;
-        }
-        advancedToggleBtn.setVisibility(View.GONE);
-        advancedPanel.setVisibility(View.VISIBLE);
-        aturDetail(secDetail, null, secExpanded);
-        aturDetail(rawatDetail, null, rawatExpanded);
-        aturDetail(tgDetail, null, tgExpanded);
-        aturRingkasan(secRingkasan, R.id.secUbah, !secExpanded);
-        aturRingkasan(rawatRingkasan, R.id.rawatUbah, !rawatExpanded);
-        aturRingkasan(tgRingkasan, R.id.tgUbah, !tgExpanded);
+        aturDetail(secDetail, null, true);
+        aturDetail(rawatDetail, null, true);
+        aturDetail(tgDetail, null, true);
+        aturRingkasan(secRingkasan, R.id.secUbah, false);
+        aturRingkasan(rawatRingkasan, R.id.rawatUbah, false);
+        aturRingkasan(tgRingkasan, R.id.tgUbah, false);
     }
 
     private void aturDetail(LinearLayout wadah, Object takDipakai, boolean tampil) {
@@ -2511,18 +2492,68 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
-    /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
-    private void setAdvancedOpen(boolean open) {
-        advancedOpen = open;
-        if (!simpleMode) {
-            advancedPanel.setVisibility(open ? View.VISIBLE : View.GONE);
+    /** Pasang lipatan seksi ala Download Manager (status buka tersimpan di prefs). */
+    private void pasangSeksi(int idHeader, final int idBadan, final int idChevron, final String kunci) {
+        View header = findViewById(idHeader);
+        if (header == null) {
+            return;
         }
-        advancedToggleBtn.setText(getString(open
-                ? R.string.advanced_open : R.string.advanced_closed));
-        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                .putBoolean(KEY_ADVANCED_OPEN, open).apply();
+        boolean buka = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getBoolean(kunci, true);
+        terapkanSeksi(idBadan, idChevron, buka);
+        header.setOnClickListener(v -> {
+            boolean kini = !seksiTerbuka(idBadan);
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().putBoolean(kunci, kini).apply();
+            terapkanSeksi(idBadan, idChevron, kini);
+        });
     }
 
+    /** Chip navigasi: buka seksi lalu gulir ke judulnya. */
+    private void pasangChip(int idChip, final int idHeader, final int idBadan,
+            final int idChevron, final String kunci) {
+        View chip = findViewById(idChip);
+        if (chip == null) {
+            return;
+        }
+        chip.setOnClickListener(v -> loncatKeSeksi(idHeader, idBadan, idChevron, kunci));
+    }
+
+    private boolean seksiTerbuka(int idBadan) {
+        View badan = findViewById(idBadan);
+        return badan != null && badan.getVisibility() == View.VISIBLE;
+    }
+
+    private void terapkanSeksi(int idBadan, int idChevron, boolean buka) {
+        View badan = findViewById(idBadan);
+        if (badan != null) {
+            badan.setVisibility(buka ? View.VISIBLE : View.GONE);
+        }
+        TextView chev = findViewById(idChevron);
+        if (chev != null) {
+            chev.setText(buka ? "\u25B4" : "\u25BE");
+        }
+    }
+
+    private void loncatKeSeksi(final int idHeader, final int idBadan,
+            final int idChevron, final String kunci) {
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().putBoolean(kunci, true).apply();
+        terapkanSeksi(idBadan, idChevron, true);
+        final View jangkar = findViewById(idHeader);
+        if (settingsScroll == null || jangkar == null) {
+            return;
+        }
+        jangkar.requestFocus();
+        settingsScroll.post(() -> {
+            try {
+                android.graphics.Rect kotak = new android.graphics.Rect();
+                jangkar.getDrawingRect(kotak);
+                settingsScroll.offsetDescendantRectToMyCoords(jangkar, kotak);
+                settingsScroll.smoothScrollTo(0, kotak.top);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
     private void setBusy(final boolean busy) {
         uiBusy = busy;
         ui.post(() -> {

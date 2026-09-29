@@ -2,24 +2,9 @@
 <!-- Kartu Server (esensial): status + Start + URL + folder/port.
      Admin Token/PIN pindah ke main_card_security; cadangan ke Telegram. -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginBottom="8dp"
-                android:background="@color/accent_server" />
-
-            <TextView
-                style="@style/TasirinSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/card_title_server" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,7 +30,7 @@
                 <Button
                     android:id="@+id/startStop"
                     android:nextFocusDown="@id/copyUrl"
-                    android:nextFocusUp="@id/simpleMode"
+                    android:nextFocusUp="@id/headerServer"
                     style="@style/TasirinBtnPrimary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
