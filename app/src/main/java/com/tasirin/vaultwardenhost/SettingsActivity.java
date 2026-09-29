@@ -1218,6 +1218,11 @@ public class SettingsActivity extends Activity {
                             restored = true;
                         }
                     }
+                    // Runtime membaca TLS internal dulu: sinkronkan hasil restore
+                    // agar identitas server benar-benar berganti (bukan memakai
+                    // CA lama diam-diam). Best-effort, tak menggagalkan restore.
+                    TgBackup.sinkronTlsKeInternal(SettingsActivity.this,
+                            new File(dataDir));
                     if (zipCfg != null) {
                         TgBackup.applyPrefsFromJson(SettingsActivity.this,
                                 zipCfg.optJSONObject("prefs"));

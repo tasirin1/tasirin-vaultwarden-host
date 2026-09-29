@@ -7,6 +7,8 @@ plugins {
 
 // Versi aplikasi mengikuti tanggal build (UTC, konsisten dengan CI).
 // versionName "yyyy.MM.dd", versionCode "yyyyMMdd" — jangan ubah manual.
+// Dua build di hari yang sama berbagi versionCode: disengaja (rilis GitHub
+// menimpa asset, bukan Play Store yang butuh versionCode selalu naik).
 val now = LocalDate.now(ZoneOffset.UTC)
 val buildDate = "%04d.%02d.%02d".format(now.year, now.monthValue, now.dayOfMonth)
 val buildCode = now.year * 10000 + now.monthValue * 100 + now.dayOfMonth

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 
-/** Pemicu polling perintah Telegram bot (AlarmManager tiap 60 detik). */
+/** Pemicu polling perintah Telegram bot (AlarmManager tiap 20 detik). */
 public class TgBotReceiver extends BroadcastReceiver {
 
     @Override

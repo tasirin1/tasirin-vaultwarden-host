@@ -308,7 +308,7 @@ public final class TgBackup {
         boolean terenkripsi = passAwal != null && !passAwal.trim().isEmpty();
         // Tanpa password, backup melenggang plaintext ke cloud Telegram:
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
-        File zip = createBackupZip(dataDir, true, configJson(sp), terenkripsi);
+        File zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi);
         // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
         String galat = verifikasiZip(zip);
         if (galat != null) {
@@ -616,10 +616,69 @@ public final class TgBackup {
         }
     }
 
+    /** Folder TLS sumber backup: internal dulu (CA aktif sejak migrasi TLS
+     *  internal), folder data hanya fallback. Tanpa ini backup berisi salinan
+     *  basi / tanpa CA lalu restore diam-diam tak mengganti identitas server.
+     *  Murni I/O agar bisa unit test JVM. */
+    static File tlsAktifUntukBackup(File internalTls, File dataTls) {
+        if (internalTls != null && new File(internalTls, "ca.pem").isFile()) {
+            return internalTls;
+        }
+        return dataTls;
+    }
+
+    /** Pilih folder TLS aktif milik perangkat ini (internal-first). */
+    private static File tlsAktifUntukBackup(Context ctx, File dataFolder) {
+        File dataTls = new File(dataFolder, "tls");
+        try {
+            return tlsAktifUntukBackup(new File(ctx.getFilesDir(), "tls"), dataTls);
+        } catch (Exception ignored) {
+            return dataTls;
+        }
+    }
+
+    /** Nama-nama berkas TLS yang disinkronkan antara folder data & internal. */
+    static final String[] BERKAS_TLS = {"ca.pem", "ca-key.pem", "cert.pem",
+            "key.pem", "ips.txt", "version.txt"};
+
+    /** Salin berkas TLS asal -> tujuan (timpa). Kembalikan jumlah tersalin.
+     *  Murni I/O agar bisa unit test JVM. */
+    static int salinTls(File asal, File tujuan) throws Exception {
+        if (asal == null || tujuan == null) {
+            return 0;
+        }
+        if (!tujuan.exists() && !tujuan.mkdirs()) {
+            return 0;
+        }
+        int n = 0;
+        for (String nama : BERKAS_TLS) {
+            File dari = new File(asal, nama);
+            if (dari.isFile()) {
+                copyFile(dari, new File(tujuan, nama));
+                n++;
+            }
+        }
+        return n;
+    }
+
+    /** Sinkronkan tls/* hasil restore dari folder data ke internal (best-effort).
+     *  Runtime membaca internal dulu (lihat caAktif): tanpa ini CA hasil restore
+     *  diabaikan dan server tetap memakai identitas lama. */
+    static void sinkronTlsKeInternal(Context ctx, File dataFolder) {
+        try {
+            File asal = new File(dataFolder, "tls");
+            if (!new File(asal, "ca.pem").isFile()) {
+                return;
+            }
+            salinTls(asal, new File(ctx.getFilesDir(), "tls"));
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Zip db + WAL (opsional config & sertifikat) ke <data>/backups/,
      *  lalu bersihkan backup lama (sisakan 10). Kunci privat hanya ikut bila
      *  backup terenkripsi (denganKunci=true); tanpa itu plaintext ke cloud. */
-    private static File createBackupZip(String dataDir, boolean full,
+    private static File createBackupZip(Context ctx, String dataDir, boolean full,
                                         String configJson, boolean denganKunci)
             throws Exception {
         File dataFolder = new File(dataDir);
@@ -671,12 +730,13 @@ public final class TgBackup {
                     zos.write(configJson.getBytes(StandardCharsets.UTF_8));
                     zos.closeEntry();
                 }
-                addFileEntry(zos, buf, new File(dataFolder, "tls/ca.pem"), "tls/ca.pem");
-                addFileEntry(zos, buf, new File(dataFolder, "tls/cert.pem"), "tls/cert.pem");
+                File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
+                addFileEntry(zos, buf, new File(tlsSrc, "ca.pem"), "tls/ca.pem");
+                addFileEntry(zos, buf, new File(tlsSrc, "cert.pem"), "tls/cert.pem");
                 if (denganKunci) {
-                    addFileEntry(zos, buf, new File(dataFolder, "tls/ca-key.pem"),
+                    addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),
                             "tls/ca-key.pem");
-                    addFileEntry(zos, buf, new File(dataFolder, "tls/key.pem"), "tls/key.pem");
+                    addFileEntry(zos, buf, new File(tlsSrc, "key.pem"), "tls/key.pem");
                 }
             }
             }
@@ -1373,6 +1433,9 @@ public final class TgBackup {
         } catch (Throwable abaikan) {
             // Lingkungan unit test JVM tanpa SQLite Android: lewati quick_check.
         }
+        // Runtime membaca TLS internal dulu: sinkronkan hasil restore agar
+        // identitas server benar-benar berganti (bukan diam-diam memakai CA lama).
+        sinkronTlsKeInternal(ctx, dataFolder);
         boolean lengkap = false;
         if (cfg != null) {
             applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
@@ -1940,22 +2003,32 @@ public final class TgBackup {
         return size;
     }
 
-    private static long folderBytesWalk(File file) {
-        return folderBytesWalk(file, 0);
+    /** Total byte rekursif (tanpa cache); package-private agar bisa unit test. */
+    static long folderBytesWalk(File file) {
+        return folderBytesWalk(file, 0, new java.util.HashSet<String>());
     }
 
-    private static long folderBytesWalk(File file, int dalam) {
-        // Batas 32 tingkat: symlink melingkar di folder data tak boleh
-        // meledak jadi StackOverflowError (tak tertangkap catch Exception).
+    private static long folderBytesWalk(File file, int dalam,
+            java.util.Set<String> kunjung) {
+        // Batas 32 tingkat + jejak kanonis: symlink melingkar di folder data
+        // tak boleh meledak jadi StackOverflowError (tak tertangkap catch
+        // Exception) atau menghitung ulang folder yang sama berulang kali.
         if (dalam > 32) {
             return 0;
         }
         if (file.isDirectory()) {
+            try {
+                String kanon = file.getCanonicalPath();
+                if (!kunjung.add(kanon)) {
+                    return 0;
+                }
+            } catch (Exception ignored) {
+            }
             File[] children = file.listFiles();
             if (children != null) {
                 long sum = 0;
                 for (File c : children) {
-                    sum += folderBytesWalk(c, dalam + 1);
+                    sum += folderBytesWalk(c, dalam + 1, kunjung);
                 }
                 return sum;
             }

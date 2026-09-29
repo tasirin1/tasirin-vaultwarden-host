@@ -277,4 +277,21 @@ public class ServerServiceTest {
         assertTrue(ServerService.ringkasKode(-1, "").contains("tak tersambung"));
         assertTrue(ServerService.ringkasKode(-1, "SSLHandshakeException").contains("SSLHandshakeException"));
     }
+
+    @Test
+    public void portTakValid_dianggapSibuk() {
+        assertTrue(ServerService.isPortBusy(0));
+        assertTrue(ServerService.isPortBusy(-1));
+        assertTrue(ServerService.isPortBusy(99999));
+    }
+
+    @Test
+    public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
+        java.net.ServerSocket tahan = new java.net.ServerSocket(0);
+        try {
+            assertTrue(ServerService.isPortBusy(tahan.getLocalPort()));
+        } finally {
+            tahan.close();
+        }
+    }
 }

@@ -144,6 +144,11 @@ public class ServerService extends Service {
     private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
 
     private volatile boolean healthActive = false;
+    /** Cek health yang sedang jalan: tiap tick hanya satu (timeout total
+     *  worst-case 32 dtk > interval cepat 30 dtk sehingga thread bisa
+     *  menumpuk bila server macet). */
+    private final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
     private final Runnable healthTick = new Runnable() {
         @Override
         public void run() {
@@ -162,7 +167,16 @@ public class ServerService extends Service {
             if (process == null || !alive(process) || !running) {
                 return;
             }
-            new Thread(ServerService.this::checkHealthOnce, "vw-health").start();
+            if (!healthBerjalan.compareAndSet(false, true)) {
+                return;
+            }
+            new Thread(() -> {
+                try {
+                    checkHealthOnce();
+                } finally {
+                    healthBerjalan.set(false);
+                }
+            }, "vw-health").start();
         }
     };
 
@@ -2404,11 +2418,18 @@ public class ServerService extends Service {
         return -1;
     }
 
-    /** True bila port sedang dipakai proses lain (listening). */
+    /** True bila port sedang dipakai proses lain (listening).
+     *  Cek IPv4 dan IPv6: pendengar IPv6-only lolos cek IPv4 lalu membuat
+     *  Rocket gagal bind (crash-loop) bila hanya satu sisi diperiksa. */
     public static boolean isPortBusy(int port) {
         if (port < 1 || port > 65535) {
             return true;
         }
+        return !bisaBind("0.0.0.0", port) || !bisaBind("::", port);
+    }
+
+    /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */
+    static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
             // REUSEADDR aktif: socket TIME_WAIT sisa (koneksi klien tepat sebelum
             // Stop) tak lagi dituduh "port dipakai"; socket yang benar-benar
@@ -2417,10 +2438,10 @@ public class ServerService extends Service {
                 s.setReuseAddress(true);
             } catch (Exception ignored) {
             }
-            s.bind(new InetSocketAddress("0.0.0.0", port));
-            return false;
-        } catch (Exception e) {
+            s.bind(new InetSocketAddress(host, port));
             return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

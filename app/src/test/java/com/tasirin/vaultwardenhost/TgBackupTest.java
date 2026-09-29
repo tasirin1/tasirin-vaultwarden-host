@@ -79,6 +79,99 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tlsAktifUntukBackup_utamakanInternal() throws Exception {
+        java.io.File internal = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-int-" + System.nanoTime());
+        java.io.File data = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-data-" + System.nanoTime());
+        internal.mkdirs();
+        data.mkdirs();
+        try (FileOutputStream o = new FileOutputStream(new File(internal, "ca.pem"))) {
+            o.write("ca-internal".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try (FileOutputStream o = new FileOutputStream(new File(data, "ca.pem"))) {
+            o.write("ca-basi".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try {
+            assertEquals(internal, TgBackup.tlsAktifUntukBackup(internal, data));
+            assertEquals(data, TgBackup.tlsAktifUntukBackup(
+                    new File("/tidak/ada/tls"), data));
+        } finally {
+            new File(internal, "ca.pem").delete();
+            new File(data, "ca.pem").delete();
+            internal.delete();
+            data.delete();
+        }
+    }
+
+    @Test
+    public void salinTls_menyalinEnamBerkas() throws Exception {
+        java.io.File asal = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-asal-" + System.nanoTime());
+        java.io.File tujuan = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-tuj-" + System.nanoTime());
+        asal.mkdirs();
+        for (String nama : new String[]{"ca.pem", "ca-key.pem", "cert.pem",
+                "key.pem", "ips.txt", "version.txt"}) {
+            try (FileOutputStream o = new FileOutputStream(new File(asal, nama))) {
+                o.write(("isi-" + nama).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+        }
+        try {
+            assertEquals(6, TgBackup.salinTls(asal, tujuan));
+            for (String nama : new String[]{"ca.pem", "cert.pem"}) {
+                byte[] a = java.nio.file.Files.readAllBytes(new File(asal, nama).toPath());
+                byte[] b = java.nio.file.Files.readAllBytes(new File(tujuan, nama).toPath());
+                org.junit.Assert.assertArrayEquals(a, b);
+            }
+        } finally {
+            for (java.io.File d : new java.io.File[]{asal, tujuan}) {
+                java.io.File[] isi = d.listFiles();
+                if (isi != null) {
+                    for (java.io.File f : isi) {
+                        f.delete();
+                    }
+                }
+                d.delete();
+            }
+        }
+    }
+
+    @Test
+    public void folderBytesWalk_symlinkMelingkarTakMeledak() throws Exception {
+        java.nio.file.Path dasar = java.nio.file.Files.createTempDirectory("vw-walk-");
+        java.nio.file.Path sub = java.nio.file.Files.createDirectory(dasar.resolve("sub"));
+        java.nio.file.Files.write(sub.resolve("data.bin"), new byte[100]);
+        try {
+            java.nio.file.Files.createSymbolicLink(
+                    dasar.resolve("loop"), dasar);
+        } catch (Exception abaikan) {
+            return;
+        }
+        try {
+            long total = TgBackup.folderBytesWalk(dasar.toFile());
+            assertTrue("hitung berlebih: " + total, total >= 100 && total < 100000);
+        } finally {
+            try {
+                java.nio.file.Files.deleteIfExists(dasar.resolve("loop"));
+            } catch (Exception ignored) {
+            }
+            try {
+                java.nio.file.Files.deleteIfExists(sub.resolve("data.bin"));
+            } catch (Exception ignored) {
+            }
+            try {
+                java.nio.file.Files.deleteIfExists(sub);
+            } catch (Exception ignored) {
+            }
+            try {
+                java.nio.file.Files.deleteIfExists(dasar);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    @Test
     public void siapkanFileKirimCa_namaUnikDanIsiSama() throws Exception {
         File ca = File.createTempFile("ca-asli", ".pem");
         File cache = new File(System.getProperty("java.io.tmpdir"),

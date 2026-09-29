@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan hasil audit kode
+
+### Perbaikan
+- Backup Telegram kini mengambil TLS dari folder internal aktif (bukan salinan
+  basi di folder data); restore (bot + Settings) menyinkronkan `tls/*` ke
+  internal agar identitas server benar-benar berganti.
+- Health check dibatasi satu thread dalam penerbangan (cegah penumpukan saat
+  server macet); cek port mencakup IPv6-only; hitung ukuran folder kebal
+  symlink melingkar; komentar interval polling bot diluruskan (20 dtk).
+
 ## [Belum rilis] — Reset + backup sertifikat (Telegram & Settings)
 
 ### Fitur
