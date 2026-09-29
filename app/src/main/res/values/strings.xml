@@ -110,11 +110,11 @@
     <string name="log_lines_initial">Baris: 0</string>
 
     <!-- Judul kartu bernomor langkah (mode sederhana) -->
-    <string name="card_title_server">1 · Server</string>
-    <string name="card_title_settings">2 · Pengaturan</string>
-    <string name="card_title_maintenance">3 · Pemeliharaan</string>
-    <string name="card_title_telegram">4 · Telegram</string>
-    <string name="card_title_log">5 · Log</string>
+    <string name="card_title_server">Server</string>
+    <string name="card_title_settings">Pengaturan</string>
+    <string name="card_title_maintenance">Pembaruan &amp; Sertifikat</string>
+    <string name="card_title_telegram">Telegram</string>
+    <string name="card_title_log">Log</string>
     <string name="mode_simple">Mode sederhana (hanya yang penting)</string>
     <string name="copy_url_lan">Salin URL jaringan</string>
     <string name="copy_url_hp">Salin URL lokal (HP ini)</string>
@@ -137,4 +137,20 @@
     <string name="wiz_lewati">Lewati</string>
     <string name="wiz_nanti">Nanti</string>
     <string name="wiz_mulai">Simpan &amp; Start</string>
+    <string name="card_title_security">Keamanan</string>
+    <string name="ubah">Ubah</string>
+    <string name="disalin">disalin</string>
+    <string name="terisi">tersimpan ✓</string>
+    <string name="belum_diisi">belum diisi</string>
+    <string name="cert_info_buka">Pelajari sertifikat ▾</string>
+    <string name="cert_info_tutup">Sembunyikan ▴</string>
+    <string name="cert_hint_singkat">HTTPS selalu aktif. Install CA di tiap HP agar Bitwarden percaya.</string>
+    <string name="admin_error">Token minimal 8 karakter bila diisi (boleh kosong).</string>
+    <string name="token_error">Format token: angka:id — contoh 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.</string>
+    <string name="chat_error">Chat ID harus angka (boleh minus, contoh -1001234567890).</string>
+    <string name="ringkas_keamanan">Keamanan: %1$s</string>
+    <string name="ringkas_rawat">Pembaruan: %1$s</string>
+    <string name="ringkas_telegram">Telegram: %1$s</string>
+    <string name="wiz_judul">Pengaturan awal</string>
+    <string name="wiz_pesan">Bawaan sudah benar untuk kebanyakan perangkat. Ubah bila perlu, lalu Simpan &amp; Start.</string>
 </resources>

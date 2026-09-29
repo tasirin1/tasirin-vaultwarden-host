@@ -66,6 +66,33 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatAdminKosongBolehIsiMinimal8() {
+        assertNull(SettingsActivity.galatAdmin(null));
+        assertNull(SettingsActivity.galatAdmin(""));
+        assertNull(SettingsActivity.galatAdmin("12345678"));
+        assertNotNull(SettingsActivity.galatAdmin("pendek"));
+    }
+
+    @Test
+    public void galatTgTokenFormatBot() {
+        assertNull(SettingsActivity.galatTgToken(null));
+        assertNull(SettingsActivity.galatTgToken(""));
+        assertNull(SettingsActivity.galatTgToken("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"));
+        assertNotNull(SettingsActivity.galatTgToken("tanpa-kolon"));
+        assertNotNull(SettingsActivity.galatTgToken("123:pendek"));
+    }
+
+    @Test
+    public void galatChatHarusAngka() {
+        assertNull(SettingsActivity.galatChat(null));
+        assertNull(SettingsActivity.galatChat(""));
+        assertNull(SettingsActivity.galatChat("123456789"));
+        assertNull(SettingsActivity.galatChat("-1001234567890"));
+        assertNotNull(SettingsActivity.galatChat("abc"));
+        assertNotNull(SettingsActivity.galatChat("12.5"));
+    }
+
+    @Test
     public void wizardHanyaUntukInstalasiBaru() {
         assertFalse(SettingsActivity.perluWizard(true, "", "", "", ""));
         assertTrue(SettingsActivity.perluWizard(false, "", "", "", ""));

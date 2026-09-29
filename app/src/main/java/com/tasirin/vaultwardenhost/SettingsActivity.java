@@ -107,6 +107,26 @@ public class SettingsActivity extends Activity {
     private Button aboutBtn;
     private CheckBox simpleCheck;
     private Button startStopBawah;
+    private Button bukaBawah;
+    private Button copyAdminBtn;
+    private Button copyTgBtn;
+    private TextView adminStatus;
+    private TextView tgStatus;
+    private TextView adminError;
+    private TextView tokenError;
+    private TextView chatError;
+    private Button certInfoToggle;
+    private TextView certHintView;
+    private LinearLayout secDetail;
+    private TextView secRingkasan;
+    private LinearLayout rawatDetail;
+    private TextView rawatRingkasan;
+    private Button rawatUbah;
+    private LinearLayout tgDetail;
+    private TextView tgRingkasan;
+    private boolean secExpanded = false;
+    private boolean rawatExpanded = false;
+    private boolean tgExpanded = false;
     private TextView httpsBadge;
     private TextView dataDirError;
     private TextView portError;
@@ -223,7 +243,7 @@ public class SettingsActivity extends Activity {
         advancedPanel = findViewById(R.id.advancedPanel);
         batteryRow = findViewById(R.id.batteryRow);
 
-        Button openBtn = findViewById(R.id.open);
+        bukaBawah = findViewById(R.id.bukaBawah);
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
         updateWvBtn = findViewById(R.id.updateWv);
@@ -252,10 +272,28 @@ public class SettingsActivity extends Activity {
         warnaLabelBawaan = labelDataDir.getTextColors();
         Button randomAdminBtn = findViewById(R.id.randomAdmin);
         Button copyLoopbackBtn = findViewById(R.id.copyLoopback);
+        copyAdminBtn = findViewById(R.id.copyAdmin);
+        copyTgBtn = findViewById(R.id.copyTg);
+        adminStatus = findViewById(R.id.adminStatus);
+        tgStatus = findViewById(R.id.tgStatus);
+        adminError = findViewById(R.id.adminError);
+        tokenError = findViewById(R.id.tokenError);
+        chatError = findViewById(R.id.chatError);
+        certInfoToggle = findViewById(R.id.certInfoToggle);
+        certHintView = findViewById(R.id.certHint);
+        secDetail = findViewById(R.id.secDetail);
+        secRingkasan = findViewById(R.id.secRingkasan);
+        rawatDetail = findViewById(R.id.rawatDetail);
+        rawatRingkasan = findViewById(R.id.rawatRingkasan);
+        rawatUbah = findViewById(R.id.rawatUbah);
+        tgDetail = findViewById(R.id.tgDetail);
+        tgRingkasan = findViewById(R.id.tgRingkasan);
 
         startStopBtn.setOnClickListener(v -> aksiStartStop());
         startStopBawah.setOnClickListener(v -> aksiStartStop());
-        openBtn.setOnClickListener(v -> openWebUi());
+        if (bukaBawah != null) {
+            bukaBawah.setOnClickListener(v -> openWebUi());
+        }
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm("Reset Binary",
                 "Hapus binary tersimpan. Versi terbaru akan diunduh ulang "
@@ -311,6 +349,43 @@ public class SettingsActivity extends Activity {
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
+        if (copyAdminBtn != null) {
+            copyAdminBtn.setOnClickListener(v -> salinTeks(adminTokenInput.getText().toString(), "Admin Token"));
+        }
+        if (copyTgBtn != null) {
+            copyTgBtn.setOnClickListener(v -> salinTeks(tgTokenInput.getText().toString(), "Bot token"));
+        }
+        if (certInfoToggle != null) {
+            certInfoToggle.setOnClickListener(v -> {
+                boolean buka = certHintView != null
+                        && certHintView.getVisibility() != View.VISIBLE;
+                if (certHintView != null) {
+                    certHintView.setVisibility(buka ? View.VISIBLE : View.GONE);
+                }
+                certInfoToggle.setText(getString(buka
+                        ? R.string.cert_info_tutup : R.string.cert_info_buka));
+            });
+        }
+        Button secUbah = findViewById(R.id.secUbah);
+        if (secUbah != null) {
+            secUbah.setOnClickListener(v -> {
+                secExpanded = true;
+                terapkanModeSederhana();
+            });
+        }
+        if (rawatUbah != null) {
+            rawatUbah.setOnClickListener(v -> {
+                rawatExpanded = true;
+                terapkanModeSederhana();
+            });
+        }
+        Button tgUbah = findViewById(R.id.tgUbah);
+        if (tgUbah != null) {
+            tgUbah.setOnClickListener(v -> {
+                tgExpanded = true;
+                terapkanModeSederhana();
+            });
+        }
         aboutBtn.setOnClickListener(v -> showAboutDialog());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -371,6 +446,9 @@ public class SettingsActivity extends Activity {
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
         dataDirInput.addTextChangedListener(onTextChanged(this::validasiInline));
         portInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        adminTokenInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        tgTokenInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        tgChatInput.addTextChangedListener(onTextChanged(this::validasiInline));
         validasiInline();
         pinInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -2123,19 +2201,112 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Mode sederhana: hanya kartu Server; Lanjutan disembunyikan seluruhnya. */
+    /** Mode sederhana: kartu lanjutan tampil sebagai ringkasan + tombol Ubah. */
     private void setSimpleMode(boolean simple) {
         simpleMode = simple;
         if (simpleCheck.isChecked() != simple) {
             simpleCheck.setChecked(simple);
         }
-        advancedToggleBtn.setVisibility(simple ? View.GONE : View.VISIBLE);
-        advancedPanel.setVisibility(!simple && advancedOpen ? View.VISIBLE : View.GONE);
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                 .putBoolean(KEY_SIMPLE_MODE, simple).apply();
+        terapkanModeSederhana();
     }
 
-    /** Validasi inline folder+port setiap ketikan (tanpa toast agar tak berisik). */
+    /** Terapkan visibilitas panel + ringkasan sesuai mode dan lipatan. */
+    private void terapkanModeSederhana() {
+        refreshRingkasan();
+        if (!simpleMode) {
+            advancedToggleBtn.setVisibility(View.VISIBLE);
+            advancedPanel.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
+            aturDetail(secDetail, null, true);
+            aturDetail(rawatDetail, null, true);
+            aturDetail(tgDetail, null, true);
+            aturRingkasan(secRingkasan, R.id.secUbah, false);
+            aturRingkasan(rawatRingkasan, R.id.rawatUbah, false);
+            aturRingkasan(tgRingkasan, R.id.tgUbah, false);
+            return;
+        }
+        advancedToggleBtn.setVisibility(View.GONE);
+        advancedPanel.setVisibility(View.VISIBLE);
+        aturDetail(secDetail, null, secExpanded);
+        aturDetail(rawatDetail, null, rawatExpanded);
+        aturDetail(tgDetail, null, tgExpanded);
+        aturRingkasan(secRingkasan, R.id.secUbah, !secExpanded);
+        aturRingkasan(rawatRingkasan, R.id.rawatUbah, !rawatExpanded);
+        aturRingkasan(tgRingkasan, R.id.tgUbah, !tgExpanded);
+    }
+
+    private void aturDetail(LinearLayout wadah, Object takDipakai, boolean tampil) {
+        if (wadah != null) {
+            wadah.setVisibility(tampil ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void aturRingkasan(TextView ringkas, int idUbah, boolean tampil) {
+        if (ringkas != null) {
+            ringkas.setVisibility(tampil ? View.VISIBLE : View.GONE);
+        }
+        Button ubah = findViewById(idUbah);
+        if (ubah != null) {
+            ubah.setVisibility(tampil ? View.VISIBLE : View.GONE);
+        }
+        android.view.View baris = ringkas != null ? (android.view.View) ringkas.getParent() : null;
+        if (baris != null) {
+            try {
+                if (baris.getId() != View.NO_ID) {
+                    baris.setVisibility(tampil ? View.VISIBLE : View.GONE);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /** Teks ringkasan per kartu dari prefs + input saat ini. */
+    private void refreshRingkasan() {
+        if (pinEnabledCheck == null || adminTokenInput == null) {
+            return;
+        }
+        String pinAktif = pinEnabledCheck.isChecked() ? "PIN aktif" : "PIN mati";
+        String admin = !adminTokenInput.getText().toString().trim().isEmpty()
+                ? getString(R.string.terisi) : getString(R.string.belum_diisi);
+        if (secRingkasan != null) {
+            secRingkasan.setText(getString(R.string.ringkas_keamanan, pinAktif + ", token " + admin));
+        }
+        boolean au = autoUpdateCb != null && autoUpdateCb.isChecked();
+        if (rawatRingkasan != null) {
+            rawatRingkasan.setText(getString(R.string.ringkas_rawat,
+                    au ? "auto-update aktif" : "auto-update mati"));
+        }
+        boolean botIsi = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
+                && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
+        if (tgRingkasan != null) {
+            tgRingkasan.setText(getString(R.string.ringkas_telegram,
+                    botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
+        }
+        if (adminStatus != null) {
+            adminStatus.setText("Admin Token: " + (adminTokenInput.getText().toString().trim().isEmpty()
+                    ? getString(R.string.belum_diisi) : getString(R.string.terisi)));
+        }
+        if (tgStatus != null) {
+            tgStatus.setText("Bot: " + (botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
+        }
+    }
+
+    /** Salin teks ke clipboard dengan toast ramah. */
+    private void salinTeks(String isi, String label) {
+        if (isi == null || isi.trim().isEmpty()) {
+            toast(label + " " + getString(R.string.belum_diisi));
+            return;
+        }
+        android.content.ClipboardManager cm =
+                (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm != null) {
+            cm.setPrimaryClip(android.content.ClipData.newPlainText(label, isi));
+        }
+        toast(label + " " + getString(R.string.disalin));
+    }
+
+    /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     private void validasiInline() {
         String gData = galatFolder(dataDirInput.getText().toString());
         dataDirError.setText(gData == null ? "" : gData);
@@ -2143,6 +2314,26 @@ public class SettingsActivity extends Activity {
         String gPort = galatPort(portInput.getText().toString());
         portError.setText(gPort == null ? "" : gPort);
         portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
+        String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString()) : null;
+        if (adminError != null) {
+            adminError.setVisibility(gAdmin == null ? View.GONE : View.VISIBLE);
+        }
+        String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString()) : null;
+        if (tokenError != null) {
+            tokenError.setVisibility(gTok == null ? View.GONE : View.VISIBLE);
+        }
+        String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString()) : null;
+        if (chatError != null) {
+            chatError.setVisibility(gChat == null ? View.GONE : View.VISIBLE);
+        }
+        boolean blokirStart = gData != null || gPort != null;
+        if (startStopBtn != null) {
+            startStopBtn.setEnabled(!blokirStart);
+        }
+        if (startStopBawah != null) {
+            startStopBawah.setEnabled(!blokirStart);
+        }
+        refreshRingkasan();
     }
 
     /** Titik "●" + warna merah pada label yang nilainya beda dari server berjalan. */
@@ -2173,7 +2364,7 @@ public class SettingsActivity extends Activity {
             sp.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
             return;
         }
-        tampilWizardFolder();
+        tampilWizardGabungan();
     }
 
     private void wizardSelesai() {
@@ -2191,76 +2382,49 @@ public class SettingsActivity extends Activity {
         return input;
     }
 
-    private void tampilWizardFolder() {
-        final android.widget.EditText input = inputWizard(
+    /** Wizard sekali dialog: folder + port dalam satu layar. */
+    private void tampilWizardGabungan() {
+        android.widget.LinearLayout wadah = new android.widget.LinearLayout(this);
+        wadah.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        wadah.setPadding(pad, pad / 2, pad, pad / 2);
+        final android.widget.EditText folderInput = inputWizard(
                 dataDirInput.getText().toString(), getString(R.string.default_data_dir),
                 android.text.InputType.TYPE_CLASS_TEXT);
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.wiz_t1))
-                .setMessage(getString(R.string.wiz_t1_pesan))
-                .setView(input)
-                .setPositiveButton(getString(R.string.wiz_lanjut), (d, w) -> {
-                    dataDirInput.setText(input.getText().toString().trim());
-                    validasiInline();
-                    String g = galatFolder(dataDirInput.getText().toString());
-                    if (g != null) {
-                        toast(g);
-                        tampilWizardFolder();
-                        return;
-                    }
-                    tampilWizardPort();
-                })
-                .setNegativeButton(getString(R.string.wiz_lewati), (d, w) -> wizardSelesai())
-                .setCancelable(false)
-                .show();
-    }
-
-    private void tampilWizardPort() {
-        final android.widget.EditText input = inputWizard(
+        final android.widget.EditText portInputWiz = inputWizard(
                 portInput.getText().toString(), getString(R.string.default_port),
                 android.text.InputType.TYPE_CLASS_NUMBER);
+        wadah.addView(folderInput);
+        wadah.addView(portInputWiz);
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.wiz_t2))
-                .setMessage(getString(R.string.wiz_t2_pesan))
-                .setView(input)
-                .setPositiveButton(getString(R.string.wiz_lanjut), (d, w) -> {
-                    portInput.setText(input.getText().toString().trim());
+                .setTitle(getString(R.string.wiz_judul))
+                .setMessage(getString(R.string.wiz_pesan))
+                .setView(wadah)
+                .setPositiveButton(getString(R.string.wiz_mulai), (d, w) -> {
+                    dataDirInput.setText(folderInput.getText().toString().trim());
+                    portInput.setText(portInputWiz.getText().toString().trim());
                     validasiInline();
-                    String g = galatPort(portInput.getText().toString());
-                    if (g != null) {
-                        toast(g);
-                        tampilWizardPort();
+                    String g1 = galatFolder(dataDirInput.getText().toString());
+                    String g2 = galatPort(portInput.getText().toString());
+                    if (g1 != null) {
+                        toast(g1);
+                        tampilWizardGabungan();
                         return;
                     }
-                    tampilWizardSiap();
-                })
-                .setNeutralButton(getString(R.string.wiz_kembali), (d, w) -> tampilWizardFolder())
-                .setNegativeButton(getString(R.string.wiz_lewati), (d, w) -> wizardSelesai())
-                .setCancelable(false)
-                .show();
-    }
-
-    private void tampilWizardSiap() {
-        String folderIsi = dataDirInput.getText().toString().trim();
-        final String folder = folderIsi.isEmpty() ? DEFAULT_DATA_DIR : folderIsi;
-        String portIsi = portInput.getText().toString().trim();
-        final String port = portIsi.isEmpty() ? DEFAULT_PORT : portIsi;
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.wiz_t3))
-                .setMessage("Folder: " + folder + "\nPort: " + port
-                        + "\nURL tampil di kartu Server setelah Start."
-                        + "\n\nAdmin Token, PIN, dan backup bisa diatur nanti.")
-                .setPositiveButton(getString(R.string.wiz_mulai), (d, w) -> {
+                    if (g2 != null) {
+                        toast(g2);
+                        tampilWizardGabungan();
+                        return;
+                    }
                     wizardSelesai();
                     aksiStartStop();
                 })
                 .setNegativeButton(getString(R.string.wiz_nanti), (d, w) -> {
-                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                            .putString(ServerService.KEY_DATA_DIR, folder)
-                            .putString(ServerService.KEY_PORT, port)
-                            .apply();
+                    dataDirInput.setText(folderInput.getText().toString().trim());
+                    portInput.setText(portInputWiz.getText().toString().trim());
                     wizardSelesai();
                 })
+                .setNeutralButton(getString(R.string.wiz_lewati), (d, w) -> wizardSelesai())
                 .setCancelable(false)
                 .show();
     }
@@ -2286,6 +2450,33 @@ public class SettingsActivity extends Activity {
             return null;
         }
         return ServerService.dataDirAman(folder) ? null : "Folder data tidak valid.";
+    }
+
+    /** Galat Admin Token; null bila valid (kosong = boleh, isi = minimal 8). Murni. */
+    static String galatAdmin(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        return token.trim().length() >= 8 ? null : "Token minimal 8 karakter bila diisi (boleh kosong).";
+    }
+
+    /** Galat token bot Telegram; null bila valid (kosong = boleh). Murni. */
+    static String galatTgToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        String isi = token.trim();
+        return isi.contains(":") && isi.length() >= 20 ? null
+                : "Format token: angka:id — contoh 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.";
+    }
+
+    /** Galat Chat ID; null bila valid (kosong = boleh). Murni. */
+    static String galatChat(String chat) {
+        if (chat == null || chat.trim().isEmpty()) {
+            return null;
+        }
+        return chat.trim().matches("-?\\d+") ? null
+                : "Chat ID harus angka (boleh minus, contoh -1001234567890).";
     }
 
     /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */
@@ -2334,7 +2525,9 @@ public class SettingsActivity extends Activity {
     /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
     private void setAdvancedOpen(boolean open) {
         advancedOpen = open;
-        advancedPanel.setVisibility(open && !simpleMode ? View.VISIBLE : View.GONE);
+        if (!simpleMode) {
+            advancedPanel.setVisibility(open ? View.VISIBLE : View.GONE);
+        }
         advancedToggleBtn.setText(getString(open
                 ? R.string.advanced_open : R.string.advanced_closed));
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()

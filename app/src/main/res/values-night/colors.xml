@@ -18,9 +18,9 @@
     <color name="chip_stopped">#5F6B7A</color>
     <color name="chip_busy">#E8710A</color>
     <!-- Aksen tiap kartu Settings (versi malam, dicerahkan). -->
-    <color name="accent_server">#66BB6A</color>
-    <color name="accent_pengaturan">#FFA726</color>
-    <color name="accent_rawat">#64B5F6</color>
-    <color name="accent_telegram">#4FC3F7</color>
-    <color name="accent_log">#BA68C8</color>
+    <color name="accent_server">#90CAF9</color>
+    <color name="accent_pengaturan">#90CAF9</color>
+    <color name="accent_rawat">#90CAF9</color>
+    <color name="accent_telegram">#90CAF9</color>
+    <color name="accent_log">#90CAF9</color>
 </resources>
