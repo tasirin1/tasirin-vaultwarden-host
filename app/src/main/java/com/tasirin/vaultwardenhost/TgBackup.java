@@ -153,6 +153,69 @@ public final class TgBackup {
         return f != null && f.isFile() && f.length() > 0 && isSqliteFile(f);
     }
 
+    /** Jeda backup otomatis setelah STB hidup (5 menit): beri waktu sistem
+     *  stabil (I/O, jam, jaringan) sebelum beban backup+upload Telegram. */
+    public static final long TUNGGU_BOOT_MS = 5L * 60 * 1000;
+    /** Request code alarm tunda-boot (beda dari jadwal harian agar tak tertimpa). */
+    static final int REQ_TUNDA_BOOT = 101;
+
+    /** Sisa tunggu (ms) agar uptime mencapai 5 menit; 0 bila sudah lewat. Murni. */
+    public static long sisaTungguBootMs(long elapsedMs) {
+        long sisa = TUNGGU_BOOT_MS - Math.max(0, elapsedMs);
+        return sisa > 0 ? sisa : 0;
+    }
+
+    /** Tunggu (interruptible) sampai 5 menit setelah boot. Untuk worker thread
+     *  backup otomatis; jangan dipanggil dari receiver/activity thread. */
+    public static void tungguBootStabil() throws InterruptedException {
+        for (;;) {
+            long sisa = sisaTungguBootMs(SystemClock.elapsedRealtime());
+            if (sisa <= 0) {
+                return;
+            }
+            Thread.sleep(Math.min(sisa, 10_000));
+        }
+    }
+
+    /** Jadwalkan satu tembakan backup susulan tepat saat 5 menit setelah boot.
+     *  Dipakai BootReceiver (catch-up) dan AlarmReceiver bila alarm menyala
+     *  saat uptime < 5 menit. Tak menyentuh jadwal tengah malam. */
+    public static boolean jadwalTundaBoot(Context ctx) {
+        try {
+            AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) {
+                return false;
+            }
+            Intent intent = new Intent(ctx, AlarmReceiver.class);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT
+                    | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE : 0);
+            PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_TUNDA_BOOT, intent, flags);
+            long trigger = SystemClock.elapsedRealtime() + sisaTungguBootMs(
+                    SystemClock.elapsedRealtime());
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()) {
+                            throw new SecurityException("exact alarm tak diizinkan");
+                        }
+                        am.setExactAndAllowWhileIdle(
+                                AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                    } catch (Exception e) {
+                        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                    }
+                } else {
+                    am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                }
+                return true;
+            } catch (Exception ignored) {
+                return false;
+            }
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     /** Tunggu DB terbentuk setelah Start (cek tiap 500 ms, maks 30 dtk) lalu backup.
      *  Pengganti sleep(5000) tebakan: di STB lambat DB belum tentu jadi dalam 5 dtk,
      *  di HP cepat tak perlu menunggu selama itu. */
@@ -177,6 +240,12 @@ public final class TgBackup {
                 Thread.currentThread().interrupt();
                 throw new IOException("Backup otomatis dibatalkan.");
             }
+        }
+        // STB baru hidup: tunggu 5 menit agar sistem stabil sebelum backup.
+        if (sisaTungguBootMs(SystemClock.elapsedRealtime()) > 0) {
+            ServerService.catatLog("[tg] STB baru hidup - backup otomatis menunggu"
+                    + " 5 menit agar sistem stabil...");
+            tungguBootStabil();
         }
         return backupNow(ctx);
     }

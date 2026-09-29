@@ -496,6 +496,12 @@ public class ServerService extends Service {
                     if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
                         appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
                     } else {
+                        try {
+                            TgBackup.tungguBootStabil();
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
                         String msg = TgBackup.backupNow(this);
                         appendLog("[tg] " + msg);
                         TgBackup.sendMessage(this, "Backup otomatis: " + msg);

@@ -172,6 +172,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sisaTungguBootMs_limaMenitSetelahHidup() {
+        assertEquals(5L * 60 * 1000, TgBackup.sisaTungguBootMs(0));
+        assertEquals(1, TgBackup.sisaTungguBootMs(5L * 60 * 1000 - 1));
+        assertEquals(0, TgBackup.sisaTungguBootMs(5L * 60 * 1000));
+        assertEquals(0, TgBackup.sisaTungguBootMs(3600_000L));
+        assertEquals(5L * 60 * 1000, TgBackup.sisaTungguBootMs(-100));
+    }
+
+    @Test
     public void siapkanFileKirimCa_namaUnikDanIsiSama() throws Exception {
         File ca = File.createTempFile("ca-asli", ".pem");
         File cache = new File(System.getProperty("java.io.tmpdir"),

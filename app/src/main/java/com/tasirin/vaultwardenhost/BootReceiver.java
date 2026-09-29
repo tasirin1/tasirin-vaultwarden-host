@@ -37,7 +37,11 @@ public class BootReceiver extends BroadcastReceiver {
                             && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
                     if (!token.isEmpty() && !chat.isEmpty() && dbAda
                             && TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
-                        ServerService.backupNow(context);
+                        // Jangan backup saat boot storm: satu tembakan 5 menit
+                        // setelah hidup (jadwal harian tak tersentuh).
+                        if (!TgBackup.jadwalTundaBoot(context)) {
+                            sp.edit().putBoolean("tg_backup_tertunda", true).apply();
+                        }
                     }
                 } catch (Exception ignored) {
                     // Android 12+ bisa menolak start dari background: tandai agar

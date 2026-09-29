@@ -184,8 +184,11 @@ public class MainActivity extends Activity {
             final android.content.Context app = getApplicationContext();
             new Thread(() -> {
                 try {
+                    TgBackup.tungguBootStabil();
                     String msg = TgBackup.backupNow(app);
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     ServerService.catatLog("[tg] " + TgBackup.pesanGalatBackup(e) + " (susulan boot).");
                 }

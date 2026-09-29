@@ -44,6 +44,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         // Proses receiver bisa hidup tanpa Activity/Service: sembuhkan prefs
         // bertipe salah dulu agar baca mentah di bawah tak ClassCastException.
         TgBackup.healkanStringPrefs(context);
+        // STB baru hidup (mis. alarm tengah malam menyala sesaat setelah boot):
+        // tunda sampai 5 menit agar sistem stabil, lalu backup sekali.
+        if (TgBackup.sisaTungguBootMs(
+                android.os.SystemClock.elapsedRealtime()) > 0) {
+            TgBackup.jadwalTundaBoot(context);
+            return;
+        }
         String action = intent != null ? intent.getAction() : null;
         if (Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
