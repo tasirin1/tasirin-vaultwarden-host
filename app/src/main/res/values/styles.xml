@@ -86,11 +86,6 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TasirinHeroSub">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">#D6E4FF</item>
-    </style>
-
     <!-- Teks info (URL, rincian versi) di kotak info. -->
     <style name="TasirinInfo">
         <item name="android:textSize">11sp</item>

@@ -2205,11 +2205,11 @@ public class SettingsActivity extends Activity {
                     botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
         }
         if (adminStatus != null) {
-            adminStatus.setText("Admin Token: " + (adminTokenInput.getText().toString().trim().isEmpty()
+            adminStatus.setText(getString(R.string.status_admin, adminTokenInput.getText().toString().trim().isEmpty()
                     ? getString(R.string.belum_diisi) : getString(R.string.terisi)));
         }
         if (tgStatus != null) {
-            tgStatus.setText("Bot: " + (botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
+            tgStatus.setText(getString(R.string.status_bot, botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
         }
     }
 
@@ -2264,7 +2264,7 @@ public class SettingsActivity extends Activity {
     @SuppressWarnings("deprecation")
     private void tandaiLabel(TextView label, int stringId, boolean kotor) {
         if (kotor) {
-            label.setText(getString(stringId) + " \u25CF");
+            label.setText(getString(R.string.label_kotor, getString(stringId)));
             label.setTextColor(getResources().getColor(R.color.status_off));
         } else {
             label.setText(getString(stringId));

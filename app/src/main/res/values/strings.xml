@@ -40,7 +40,6 @@
     <string name="settings_changed_hint">⚠ Setting diubah — restart server agar berlaku</string>
     <string name="update_available_hint">⚠ Update tersedia — tekan Cek Update</string>
     <string name="update_available">⚠ Update v%1$s tersedia — tekan Cek Update</string>
-    <string name="advanced_open">Lanjutan ▾</string>
     <string name="settings">Pengaturan</string>
     <string name="admin_token">Admin Token</string>
     <string name="admin_token_hint">kosongkan jika tidak perlu</string>
@@ -54,7 +53,6 @@
     <string name="izin_storage_nanti">Nanti</string>
     <string name="izin_storage_belum">Izin penyimpanan belum diberikan — Start dibatalkan.</string>
     <string name="izin_storage_ditolak">Izin penyimpanan ditolak — folder /sdcard/vaultwarden tidak bisa ditulis. Izinkan di Pengaturan HP → Aplikasi → Izin.</string>
-    <string name="maintenance">Pemeliharaan</string>
     <string name="auto_update_binary">Auto-update binary saat ada versi baru (jaringan rumah)</string>
     <string name="auto_update_webvault">Auto-update web vault mengikuti binary (jaringan rumah)</string>
     <string name="auto_restart_update">Restart server otomatis setelah update (bila sedang jalan)</string>
@@ -137,4 +135,8 @@
     <string name="ringkas_telegram">Telegram: %1$s</string>
     <string name="wiz_judul">Pengaturan awal</string>
     <string name="wiz_pesan">Bawaan sudah benar untuk kebanyakan perangkat. Ubah bila perlu, lalu Simpan &amp; Start.</string>
+    <string name="chevron">\u25BE</string>
+    <string name="status_admin">Admin Token: %1$s</string>
+    <string name="status_bot">Bot: %1$s</string>
+    <string name="label_kotor">%1$s \u25CF</string>
 </resources>

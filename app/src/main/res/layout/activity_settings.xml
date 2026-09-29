@@ -192,7 +192,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="&#x25BE;"
+                    android:text="@string/chevron"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -253,7 +253,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="&#x25BE;"
+                    android:text="@string/chevron"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -314,7 +314,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="&#x25BE;"
+                    android:text="@string/chevron"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -375,7 +375,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="&#x25BE;"
+                    android:text="@string/chevron"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -436,7 +436,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="&#x25BE;"
+                    android:text="@string/chevron"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
