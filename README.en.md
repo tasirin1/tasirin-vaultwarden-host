@@ -12,7 +12,7 @@ A **Vaultwarden** (Bitwarden-compatible) server on Android — for STB/TV boxes 
 1. Download the APK from [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install it.
 2. Open the app → **&#8942; → Settings**: set **Data folder** and **Port**.
 3. Press **Start** (first download is automatic, with progress).
-4. Open `http://<PHONE-IP>:<port>` in a browser / Bitwarden app (Server URL).
+4. Open `https://<PHONE-IP>:<port>` in a browser / Bitwarden app (Server URL).
 
 All settings live in **Settings**; home is just status, Start/Stop, and log.
 
@@ -32,7 +32,7 @@ Auto-update of binary & web vault, encrypted backups (local + Telegram), self-si
 
 **Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.
 
-**HTTPS:** check HTTPS → Start → install `ca.pem` (Share CA button / `/ca`, or Backup CA to Storage `/cabackup` without Telegram). If it worked before then fails: Reset Certificate (`/careset`, new CA) then reinstall the CA on every phone. For the Bitwarden app, use HTTP on the local network.
+**HTTPS (mandatory, always on):** press Start (the server only serves HTTPS) → install `ca.pem` on each phone (Share CA button / `/ca`, or Backup CA to Storage `/cabackup` without Telegram). If it worked before then fails: Reset Certificate (`/careset`, new CA) then reinstall the CA on every phone.
 
 ## Troubleshooting
 

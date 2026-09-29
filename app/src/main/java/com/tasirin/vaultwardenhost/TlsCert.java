@@ -738,7 +738,7 @@ public final class TlsCert {
     /** Salin ca.pem aktif ke folder backup (storage). Hanya file publik, tanpa kunci privat. Murni. */
     static File salinCaKeStorage(File caAktif, File dirBackup, String timestamp) throws IOException {
         if (caAktif == null || !caAktif.isFile()) {
-            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+            throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
         if (dirBackup == null) {
             throw new IOException("Folder tujuan tak valid.");

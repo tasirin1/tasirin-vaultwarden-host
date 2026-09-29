@@ -377,7 +377,6 @@ public class MainActivity extends Activity {
                 d = DEFAULT_DATA_DIR;
             }
             String p = ServerService.effectivePort(sp);
-            boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
             if (a == null) {
                 a = "";
@@ -387,7 +386,6 @@ public class MainActivity extends Activity {
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
             changed = !d.trim().equals(rd.trim())
                     || !p.trim().equals(rp.trim())
-                    || h != ServerService.runningHttps
                     || !a.trim().equals(ra.trim());
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);

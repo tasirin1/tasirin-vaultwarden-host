@@ -109,7 +109,7 @@ public final class TgBot {
                 {"status", "Status lengkap server"},
                 {"log", "Potongan log terakhir"},
                 {"uptime", "Lama server berjalan"},
-                {"alive", "Cek sehat HTTP /alive"},
+                {"alive", "Cek sehat HTTPS /alive"},
                 {"backup", "Backup database sekarang"},
                 {"restore", "Restore backup terakhir"},
                 {"ca", "Kirim CA HTTPS ke chat ini"},
@@ -679,7 +679,7 @@ public final class TgBot {
                 break;
             case "/alive":
                 TgBackup.sendMessage(ctx, ServerService.pingAlive(ctx)
-                        ? "Server sehat (HTTP 200 /alive)."
+                        ? "Server sehat (HTTPS 200 /alive)."
                         : "Server TIDAK merespon /alive!");
                 break;
             case "/update":

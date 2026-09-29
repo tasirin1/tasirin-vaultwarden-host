@@ -48,7 +48,7 @@
     <string name="admin_token">Admin Token</string>
     <string name="admin_token_hint">kosongkan jika tidak perlu</string>
     <string name="auto_start_boot">Auto start saat boot</string>
-    <string name="https_self_signed">HTTPS (self-signed)</string>
+    <string name="https_self_signed">HTTPS selalu aktif (self-signed)</string>
     <string name="pin_label">PIN kunci app</string>
     <string name="pin_hint">PIN 4–6 digit</string>
     <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
@@ -100,7 +100,7 @@
     <string name="sub_tg_kredensial">Kredensial bot</string>
     <string name="sub_tg_otomatis">Backup otomatis</string>
     <string name="sub_tg_aksi">Aksi</string>
-    <string name="cert_hint">Tombol Install Cert memasang CA aktif di HP ini; tombol Bagikan CA mengirim file-nya ke HP lain; Backup CA menyalin ca.pem ke folder data agar bisa diambil via file manager. Reset membuat CA baru — wajib install ulang di semua HP. Pilih jenis “CA certificate”, tanpa private key. Bila dulu bisa lalu gagal setelah update/IP berubah: hapus CA lama di HP lalu install ulang CA baru. Aplikasi Bitwarden resmi umumnya menolak self-signed — pakai HTTP di LAN tepercaya atau web-vault browser.</string>
+    <string name="cert_hint">Tombol Install Cert memasang CA aktif di HP ini; tombol Bagikan CA mengirim file-nya ke HP lain; Backup CA menyalin ca.pem ke folder data agar bisa diambil via file manager. Reset membuat CA baru — wajib install ulang di semua HP. Pilih jenis “CA certificate”, tanpa private key. Bila dulu bisa lalu gagal setelah update/IP berubah: hapus CA lama di HP lalu install ulang CA baru. Server hanya melayani HTTPS — install CA di tiap HP agar aplikasi Bitwarden percaya; web-vault browser ikut memakai HTTPS.</string>
     <string name="log_hint">Lihat, cari, dan simpan log server di layar penuh.</string>
 
     <!-- Halaman log -->

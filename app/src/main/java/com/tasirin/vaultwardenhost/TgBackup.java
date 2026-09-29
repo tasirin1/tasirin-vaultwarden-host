@@ -955,7 +955,7 @@ public final class TgBackup {
         File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
         if (ca == null || !ca.isFile()) {
-            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+            throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
         File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), backupTimestamp());
         try {
@@ -976,7 +976,7 @@ public final class TgBackup {
     static File siapkanFileKirimCa(File caAktif, File dirCache, String timestamp)
             throws Exception {
         if (caAktif == null || !caAktif.isFile()) {
-            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+            throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
         if (dirCache == null) {
             throw new IOException("Folder cache tak valid.");
@@ -1002,7 +1002,7 @@ public final class TgBackup {
         File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
         if (ca == null || !ca.isFile()) {
-            throw new IOException("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+            throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
         File tujuan = TlsCert.salinCaKeStorage(ca, new File(dataDir), backupTimestamp());
         return "CA dibackup ke storage: " + tujuan.getAbsolutePath()

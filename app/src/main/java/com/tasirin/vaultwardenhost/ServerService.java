@@ -71,6 +71,8 @@ public class ServerService extends Service {
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
     public static final String KEY_UPDATE_VERSION = "update_version";
+    /** Selalu true (HTTPS-only: HTTP tak bisa dipakai). Dipertahankan agar
+     *  config/backup lama tetap bisa dibaca. */
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
@@ -259,7 +261,7 @@ public class ServerService extends Service {
         return t == 0 ? 0 : Math.max(0, SystemClock.elapsedRealtime() - t);
     }
 
-    /** Cek sehat sekali tanpa efek samping; true bila HTTP 200 di /alive atau /api/config. */
+    /** Cek sehat sekali tanpa efek samping; true bila HTTPS 200 di /alive atau /api/config. */
     public static boolean pingAlive(Context ctx) {
         return pingRinci(ctx).sehat;
     }
@@ -287,21 +289,19 @@ public class ServerService extends Service {
 
     /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200. */
     static HasilPing pingRinci(Context ctx) {
-        boolean https;
+        boolean https = true;
         String port;
         try {
             if (!runningPort.isEmpty()) {
-                https = runningHttps;
                 port = runningPort;
             } else {
                 SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                https = sp.getBoolean(KEY_HTTPS, false);
                 port = effectivePort(sp);
             }
         } catch (Exception e) {
             return new HasilPing(false, -1, -1, "baca prefs gagal");
         }
-        String scheme = https ? "https" : "http";
+        String scheme = "https";
         String p = port == null ? "" : port.trim();
         int alive = cobaKode(ctx, scheme, p, "/alive", https);
         String aliveErr = aliveErrTerakhir;
@@ -787,25 +787,26 @@ public class ServerService extends Service {
         }
 
         try {
-            boolean https = sp.getBoolean(KEY_HTTPS, false);
-            String scheme = "http";
-            File tlsDir = null;
-            if (https) {
-                tlsDir = prepareTls(dataFolder);
-                if (tlsDir == null) {
-                    appendLog("[app] HTTPS diaktifkan tapi sertifikat gagal dibuat; pakai HTTP.");
-                    setStatus("Gagal buat sertifikat - lanjut HTTP");
-                } else {
-                    scheme = "https";
-                    long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
-                    if (certDays >= 0 && certDays < 30) {
-                        appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
-                                + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
-                    } else if (certDays == -2) {
-                        appendLog("[app] PERINGATAN: jam STB miring (sertifikat belum valid)."
-                                + " Betulkan tanggal & jam agar HTTPS stabil.");
-                    }
-                }
+            // HTTPS-only: HTTP tak bisa dipakai, server selalu TLS (fail-closed).
+            sp.edit().putBoolean(KEY_HTTPS, true).apply();
+            boolean https = true;
+            String scheme = "https";
+            File tlsDir = prepareTls(dataFolder);
+            if (tlsDir == null) {
+                appendLog("[app] FATAL: sertifikat TLS gagal dibuat - server TIDAK start.");
+                setStatus("Gagal buat sertifikat TLS - server tidak start.\n"
+                        + "Cek sisa storage & tanggal/jam STB, lalu Start lagi.");
+                TgBackup.sendMessage(this, "Gagal start: sertifikat TLS gagal dibuat. "
+                        + "Cek sisa storage & tanggal/jam STB lalu coba lagi.");
+                return;
+            }
+            long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
+            if (certDays >= 0 && certDays < 30) {
+                appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
+                        + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
+            } else if (certDays == -2) {
+                appendLog("[app] PERINGATAN: jam STB miring (sertifikat belum valid)."
+                        + " Betulkan tanggal & jam agar HTTPS stabil.");
             }
 
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath());
@@ -841,13 +842,11 @@ public class ServerService extends Service {
                 }
             }
 
-            if (tlsDir != null) {
-                String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
-                String tlsKey = new File(tlsDir, "key.pem").getAbsolutePath();
-                pb.environment().put("ROCKET_TLS", "{certs=\"" + tlsCert + "\",key=\"" + tlsKey + "\"}");
-                appendLog("[app] TLS cert: " + tlsCert);
-                appendLog("[app] TLS key:  " + tlsKey);
-            }
+            String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
+            String tlsKey = new File(tlsDir, "key.pem").getAbsolutePath();
+            pb.environment().put("ROCKET_TLS", "{certs=\"" + tlsCert + "\",key=\"" + tlsKey + "\"}");
+            appendLog("[app] TLS cert: " + tlsCert);
+            appendLog("[app] TLS key:  " + tlsKey);
             pb.environment().put("RUST_LOG", "info");
             if (shim != null) {
                 pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
@@ -1122,13 +1121,9 @@ public class ServerService extends Service {
                 || r.contains("error") || r.contains("abort") || r.contains("refus")
                 || r.contains("ditolak") || r.contains("verify");
         if (tls && gagal) {
-            if (httpsAktif) {
-                return "[login] Koneksi aman (TLS) gagal: aplikasi Bitwarden resmi MENOLAK "
-                        + "sertifikat self-signed. Matikan HTTPS di Settings (tak dicentang), "
-                        + "Start ulang, lalu isi Server URL http://IP:port di aplikasi.";
-            }
-            return "[login] Koneksi aman (TLS) gagal padahal server HTTP: di aplikasi Bitwarden "
-                    + "isi Server URL http:// (bukan https://) sesuai log [login] saat start.";
+            return "[login] Koneksi aman (TLS) gagal: install dulu CA lewat tombol Install Cert "
+                    + "/ Bagikan CA di Settings (jenis \"CA certificate\"), lalu login lagi. "
+                    + "Bila dulu bisa lalu gagal: Reset Sertifikat lalu install ulang CA di semua HP.";
         }
         return null;
     }
@@ -1144,19 +1139,13 @@ public class ServerService extends Service {
         java.util.ArrayList<String> out = new java.util.ArrayList<String>();
         String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
         String p = (port == null || port.isEmpty()) ? DEFAULT_PORT : port.trim();
-        boolean https = "https".equalsIgnoreCase(scheme == null ? "" : scheme.trim());
-        String urlBenar = (https ? "https" : "http") + "://" + ip + ":" + p;
+        String urlBenar = "https://" + ip + ":" + p;
         out.add("[login] Server URL di aplikasi Bitwarden: " + urlBenar
                 + " (satu WiFi, tanpa /#/ di belakang; "
                 + "bukan 127.0.0.1 dari HP lain).");
-        if (https) {
-            out.add("[login] HTTPS AKTIF: aplikasi Bitwarden resmi MENOLAK sertifikat self-signed "
-                    + "sehingga login pasti gagal. Matikan HTTPS di Settings, Start ulang, "
-                    + "lalu isi Server URL http://" + ip + ":" + p + " di aplikasi.");
-        } else {
-            out.add("[login] Web-vault bisa dibuka tapi aplikasi gagal login? Cek Server URL "
-                    + "http:// (bukan https://), pastikan satu WiFi dan IP STB belum berubah (DHCP).");
-        }
+        out.add("[login] HTTPS WAJIB: install dulu CA lewat tombol Install Cert / Bagikan CA "
+                + "di Settings (jenis \"CA certificate\") agar HP percaya ke server ini. "
+                + "Bila IP STB berubah (DHCP): Start ulang lalu install ulang CA.");
         out.add("[login] Belum punya akun? Buka web-vault di browser > Create Account dulu, "
                 + "baru login di aplikasi dengan email+password itu (bukan admin token).");
         return out;
@@ -1166,8 +1155,8 @@ public class ServerService extends Service {
      *  ("failed to generate random data" dari std::sys::random) atau gagal
      *  ticketer TLS Rocket ("bad TLS ticketer: failed to get random bytes"
      *  dari ring/rustls) — tanda binary tidak cocok dengan kernel Android
-     *  lama (STB Android 5/6, errno=22). Varian TLS hanya muncul saat HTTPS
-     *  aktif; HTTP tetap jalan karena hanya jalur std yang dipakai.
+     *  lama (STB Android 5/6, errno=22). Server selalu HTTPS sehingga kedua
+     *  varian sama-sama fatal saat start.
      *  Package-private agar bisa diuji unit (tanpa runtime Android). */
     static boolean isKernelRandomPanic(String logTail) {
         if (logTail == null) {
@@ -1626,12 +1615,11 @@ public class ServerService extends Service {
         return ipCache;
     }
 
-    /** URL akses lengkap dari perangkat lain, mengikuti setting port & HTTPS. */
+    /** URL akses lengkap dari perangkat lain (selalu HTTPS; HTTP tak bisa dipakai). */
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        boolean https = sp.getBoolean(KEY_HTTPS, false);
         String port = effectivePort(sp);
-        return (https ? "https" : "http") + "://" + formatHostUntukUrl(localIp()) + ":" + port.trim();
+        return "https://" + formatHostUntukUrl(localIp()) + ":" + port.trim();
     }
 
     private void setStatus(String text) {

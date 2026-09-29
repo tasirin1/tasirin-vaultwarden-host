@@ -238,17 +238,18 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void saranLoginTlsHttpsMenyebutMatikanHttps() {
+    public void saranLoginTlsMenyebutInstallCa() {
         String s = ServerService.saranLoginUntukBaris(
                 "tls handshake failed: certificate unknown", true);
-        assertTrue(s != null && s.contains("Matikan HTTPS"));
+        assertTrue(s != null && s.contains("Install Cert"));
     }
 
     @Test
-    public void saranLoginTlsHttpMenyebutPakaiHttp() {
+    public void saranLoginTlsSelaluHttpsTakSebutHttp() {
         String s = ServerService.saranLoginUntukBaris(
                 "ssl handshake failure: alert unknown", false);
-        assertTrue(s != null && s.contains("http://"));
+        assertTrue(s != null && s.contains("Install Cert"));
+        assertTrue(!s.contains("http://"));
     }
 
     @Test
@@ -274,10 +275,12 @@ public class ServerServiceTest {
     public void panduanLoginMemuatUrlDanAkun() {
         java.util.List<String> p1 = ServerService.panduanLoginBitwarden("http", "8088", "192.168.1.5");
         assertEquals(3, p1.size());
-        assertTrue(p1.get(0).contains("http://192.168.1.5:8088"));
+        assertTrue(p1.get(0).contains("https://192.168.1.5:8088"));
+        assertTrue(p1.get(1).contains("HTTPS WAJIB"));
         assertTrue(p1.get(2).contains("Create Account"));
         java.util.List<String> p2 = ServerService.panduanLoginBitwarden("https", "8088", "192.168.1.5");
-        assertTrue(p2.get(1).contains("HTTPS AKTIF"));
+        assertTrue(p2.get(0).contains("https://192.168.1.5:8088"));
+        assertTrue(p2.get(1).contains("HTTPS WAJIB"));
     }
 
     @Test

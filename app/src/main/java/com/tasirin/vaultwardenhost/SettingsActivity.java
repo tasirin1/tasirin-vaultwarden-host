@@ -289,7 +289,9 @@ public class SettingsActivity extends Activity {
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
-        httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
+        sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
+        httpsCheck.setChecked(true);
+        httpsCheck.setEnabled(false);
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
@@ -305,9 +307,14 @@ public class SettingsActivity extends Activity {
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
-        httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                        .putBoolean(ServerService.KEY_HTTPS, checked).apply());
+        // HTTPS-only: saklar dikunci aktif; paksa true bila diubah programatik.
+        httpsCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putBoolean(ServerService.KEY_HTTPS, true).apply();
+            if (!checked) {
+                b.setChecked(true);
+            }
+        });
         tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
@@ -567,7 +574,6 @@ public class SettingsActivity extends Activity {
                 d = DEFAULT_DATA_DIR;
             }
             String p = ServerService.effectivePort(sp);
-            boolean h = sp.getBoolean(ServerService.KEY_HTTPS, false);
             String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
             if (a == null) {
                 a = "";
@@ -577,7 +583,6 @@ public class SettingsActivity extends Activity {
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
             changed = !d.trim().equals(rd.trim())
                     || !p.trim().equals(rp.trim())
-                    || h != ServerService.runningHttps
                     || !a.trim().equals(ra.trim());
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
@@ -703,10 +708,9 @@ public class SettingsActivity extends Activity {
         if (TextUtils.isEmpty(port)) {
             port = DEFAULT_PORT;
         }
-        String scheme = httpsCheck.isChecked() ? "https" : "http";
         try {
             startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse(scheme + "://127.0.0.1:" + port)));
+                    Uri.parse("https://127.0.0.1:" + port)));
         } catch (Exception e) {
             toast("Tidak bisa membuka browser: " + e.getMessage());
         }
@@ -776,7 +780,7 @@ public class SettingsActivity extends Activity {
                 cert = new File(dataDir, "tls/ca.pem");
             }
             if (!cert.exists()) {
-                toast("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+                toast("CA belum ada. Tekan Start dulu agar CA dibuat.");
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
@@ -804,7 +808,7 @@ public class SettingsActivity extends Activity {
                 cert = new File(dataDir, "tls/ca.pem");
             }
             if (!cert.exists()) {
-                toast("CA belum ada. Aktifkan HTTPS lalu tekan Start dulu.");
+                toast("CA belum ada. Tekan Start dulu agar CA dibuat.");
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
@@ -1604,7 +1608,7 @@ public class SettingsActivity extends Activity {
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
-        httpsCheck.setChecked(sp.getBoolean(ServerService.KEY_HTTPS, false));
+        httpsCheck.setChecked(true);
         tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));

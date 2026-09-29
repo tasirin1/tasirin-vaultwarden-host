@@ -70,7 +70,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 - **Updater**: `latestVersion()` (cache 15 mnt, fallback saat rate-limit/TLS),
   `tryUpdate()`/`downloadBinary()` (verifikasi SHA-256), `updateWebVault()`
   (butuh ≥150 MB sisa storage, penanda `KEY_WV_FROM` agar tidak unduh ulang).
-- **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https`,
+- **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,

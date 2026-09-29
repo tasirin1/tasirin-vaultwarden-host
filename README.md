@@ -12,7 +12,7 @@ Server **Vaultwarden** (kompatibel Bitwarden) di Android — buat STB/TV box dan
 1. Unduh APK di [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install.
 2. Buka app → **&#8942; → Settings**: isi **Folder data** dan **Port**.
 3. Tekan **Start** (unduhan pertama otomatis, ada progress).
-4. Buka `http://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
+4. Buka `https://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
 
 Semua pengaturan ada di **Settings**; layar utama cuma status, Start/Stop, dan log.
 
@@ -32,13 +32,13 @@ Auto-update binary & web vault, backup terenkripsi (lokal + Telegram), HTTPS sel
 
 **Backup:** database di `<folder-data>/db.sqlite3`. Backup lokal di Settings → Pemeliharaan; backup Telegram via `/backup`; restore via `/restore` atau file `.zip`/`.sqlite3`.
 
-**HTTPS:** centang HTTPS → Start → install `ca.pem` (tombol Bagikan CA / `/ca`, atau Backup CA ke Storage `/cabackup` bila tanpa Telegram). Bila dulu bisa lalu gagal: Reset Sertifikat (`/careset`, CA baru) lalu install ulang CA di semua HP. Untuk app Bitwarden, pakai HTTP di jaringan lokal.
+**HTTPS (wajib, selalu aktif):** tekan Start (server hanya melayani HTTPS) → install `ca.pem` di tiap HP (tombol Bagikan CA / `/ca`, atau Backup CA ke Storage `/cabackup` bila tanpa Telegram). Bila dulu bisa lalu gagal: Reset Sertifikat (`/careset`, CA baru) lalu install ulang CA di semua HP.
 
 ## Kalau error
 
 - **Port dipakai?** Ganti Port di Settings.
 - **`failed to generate random data` / HTTPS error?** Kernel STB lama — tekan **Cek Update**, Start lagi.
-- **Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]` (URL benar, HTTPS self-signed ditolak app → pakai HTTP, daftar akun dulu di web-vault).
+- **Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]` (URL benar `https://`, CA sudah di-install di HP, daftar akun dulu di web-vault).
 - **Web UI tak bisa dibuka?** Harus satu WiFi, pakai IP lokal.
 - **Gagal unduh?** Cek internet & jam STB, Start lagi (otomatis dilanjutkan).
 - **Backup Telegram GAGAL `Certificate not valid until`?** Jam STB reset ke 2015
