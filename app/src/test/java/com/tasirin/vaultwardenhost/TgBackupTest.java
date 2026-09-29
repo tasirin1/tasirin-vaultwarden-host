@@ -181,6 +181,22 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bolehBackupSusulanBoot_hanyaHariBaruDanJamWajar() {
+        long sehari = 24L * 3600 * 1000;
+        long wajar = TgBackup.BATAS_JAM_WAJAR_MS + 10L * sehari;
+        // Belum pernah backup + jam wajar: jalan (backup pertama).
+        assertTrue(TgBackup.bolehBackupSusulanBoot(0, wajar));
+        // Hari yang sama: jangan backup.
+        assertFalse(TgBackup.bolehBackupSusulanBoot(wajar, wajar + 3600_000L));
+        // Sudah ganti hari: langsung backup.
+        assertTrue(TgBackup.bolehBackupSusulanBoot(wajar, wajar + sehari));
+        // Jam reset ke 1999: jangan backup walau beda hari kalender.
+        assertFalse(TgBackup.bolehBackupSusulanBoot(wajar, 915_148_800_000L));
+        // Jam mundur di bawah backup terakhir: jangan backup.
+        assertFalse(TgBackup.bolehBackupSusulanBoot(wajar + sehari, wajar));
+    }
+
+    @Test
     public void siapkanFileKirimCa_namaUnikDanIsiSama() throws Exception {
         File ca = File.createTempFile("ca-asli", ".pem");
         File cache = new File(System.getProperty("java.io.tmpdir"),

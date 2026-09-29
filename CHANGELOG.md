@@ -3,6 +3,8 @@
 ## [Belum rilis] — Perbaikan hasil audit kode
 - Backup otomatis (catch-up boot, susulan, saat Start, tengah malam) menunggu
   5 menit setelah STB hidup agar sistem stabil sebelum beban backup+upload.
+- Susulan boot diputuskan setelah 5 menit dengan jam stabil: jalan hanya bila
+  sudah ganti hari; jam reset/mundur (mis. tahun 1999) tak memicu backup.
 
 ### Perbaikan
 - Backup Telegram kini mengambil TLS dari folder internal aktif (bukan salinan

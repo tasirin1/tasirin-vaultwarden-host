@@ -32,13 +32,13 @@ public class BootReceiver extends BroadcastReceiver {
                     String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
                     String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
                             ServerService.DEFAULT_DATA_DIR);
-                    long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
                     boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
                             && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
-                    if (!token.isEmpty() && !chat.isEmpty() && dbAda
-                            && TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
-                        // Jangan backup saat boot storm: satu tembakan 5 menit
-                        // setelah hidup (jadwal harian tak tersentuh).
+                    // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):
+                    // hanya jadwalkan tembakan 5 menit setelah hidup; keputusan
+                    // backup (ganti hari + jam wajar) diambil AlarmReceiver
+                    // saat menyala. Jadwal harian tak tersentuh.
+                    if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
                         if (!TgBackup.jadwalTundaBoot(context)) {
                             sp.edit().putBoolean("tg_backup_tertunda", true).apply();
                         }

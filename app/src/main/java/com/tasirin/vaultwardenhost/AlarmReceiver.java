@@ -45,10 +45,42 @@ public class AlarmReceiver extends BroadcastReceiver {
         // bertipe salah dulu agar baca mentah di bawah tak ClassCastException.
         TgBackup.healkanStringPrefs(context);
         // STB baru hidup (mis. alarm tengah malam menyala sesaat setelah boot):
-        // tunda sampai 5 menit agar sistem stabil, lalu backup sekali.
+        // tunda sampai 5 menit agar sistem stabil, lalu nilai ulang.
         if (TgBackup.sisaTungguBootMs(
                 android.os.SystemClock.elapsedRealtime()) > 0) {
             TgBackup.jadwalTundaBoot(context);
+            return;
+        }
+        // Alarm susulan boot: putuskan SEKARANG dengan jam yang sudah stabil —
+        // jalan hanya bila sudah ganti hari; tolak jam reset/mundur (1999).
+        if (intent != null && intent.getBooleanExtra(TgBackup.EXTRA_TUNDA_BOOT, false)) {
+            SharedPreferences sp = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
+            long kini = System.currentTimeMillis();
+            if (TgBackup.bolehBackupSusulanBoot(last, kini)) {
+                mulaiBackup(context);
+            } else {
+                // Jaga jadwal harian tetap ada walau susulan dilewati.
+                try {
+                    if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                        TgBackup.schedule(context, true);
+                    }
+                } catch (Exception ignored) {
+                }
+                if (!TgBackup.jamStbWajar(kini)
+                        || (last > 0 && kini < last)) {
+                    ServerService.catatLog("[tg] Backup susulan boot dilewati:"
+                            + " tanggal & jam STB salah. Betulkan agar backup jalan.");
+                    TgBackup.sendMessage(context, "Backup otomatis dilewati: tanggal & jam STB"
+                            + " salah (terbaca "
+                            + Updater.tanggalStbTerbaca() + "). Aktifkan Tanggal & waktu"
+                            + " otomatis di Pengaturan STB, lalu backup manual.");
+                } else {
+                    ServerService.catatLog("[tg] Backup susulan boot dilewati:"
+                            + " belum ganti hari.");
+                }
+            }
             return;
         }
         String action = intent != null ? intent.getAction() : null;

@@ -158,6 +158,23 @@ public final class TgBackup {
     public static final long TUNGGU_BOOT_MS = 5L * 60 * 1000;
     /** Request code alarm tunda-boot (beda dari jadwal harian agar tak tertimpa). */
     static final int REQ_TUNDA_BOOT = 101;
+    /** Penanda intent alarm tunda-boot: keputusan backup diambil saat menyala
+     *  (jam sudah stabil), bukan saat dijadwalkan. */
+    static final String EXTRA_TUNDA_BOOT = "tunda_boot";
+
+    /** Boleh backup susulan boot sekarang? Jalan hanya bila jam wajar
+     *  (>= 2024), tidak mundur di bawah backup terakhir, dan sudah ganti hari.
+     *  Menolak jam reset (mis. tahun 1999) yang oleh sudahGantiHari saja
+     *  terbaca sebagai beda hari. Murni agar bisa unit test. */
+    static boolean bolehBackupSusulanBoot(long lastBackupMs, long sekarangMs) {
+        if (!jamStbWajar(sekarangMs)) {
+            return false;
+        }
+        if (lastBackupMs > 0 && sekarangMs < lastBackupMs) {
+            return false;
+        }
+        return sudahGantiHari(lastBackupMs, sekarangMs);
+    }
 
     /** Sisa tunggu (ms) agar uptime mencapai 5 menit; 0 bila sudah lewat. Murni. */
     public static long sisaTungguBootMs(long elapsedMs) {
@@ -186,7 +203,8 @@ public final class TgBackup {
             if (am == null) {
                 return false;
             }
-            Intent intent = new Intent(ctx, AlarmReceiver.class);
+            Intent intent = new Intent(ctx, AlarmReceiver.class)
+                    .putExtra(EXTRA_TUNDA_BOOT, true);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
