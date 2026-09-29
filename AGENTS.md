@@ -112,7 +112,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    .txt, titik tiga); kontrol baru selalu masuk `SettingsActivity`.
 9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai tanggal
    build UTC (`yyyy.MM.dd` / `yyyyMMdd`); konsisten dengan CI.
-10. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
+10. **Format path vektor harus `0.x`** — tulis `0.9`/`-0.9`, bukan `.9`/`-.9`
+    (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
+11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
     lewat workflow; jangan edit asset release lewat web/UI manual.
 
 ## Alur build & rilis (CI, build-apk.yml)

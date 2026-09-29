@@ -18,8 +18,11 @@ import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -45,10 +48,15 @@ public class MainActivity extends Activity {
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
     private static final String KEY_HOME_LOG_EXPANDED = "home_log_expanded";
+    /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
+    private static final int MAKS_BARIS_LOG = 150;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private TextView statusView;
+    private View statusBanner;
+    private View statusDot;
+    private View heroBar;
     private TextView versionView;
     private TextView netInfoView;
     private TextView uptimeView;
@@ -75,6 +83,11 @@ public class MainActivity extends Activity {
     private boolean homeLogExpanded = true;
     private int lastLogLen = 0;
     private int lineCount = 0;
+    /** Ikuti ekor log otomatis; mati saat pengguna menggulir manual (saran 6). */
+    private boolean ikutiLog = true;
+    /** Status tombol Start/Stop yang sedang tampil (hindari set tiap tick). */
+    private boolean tombolJalan = false;
+    private boolean tombolSelaras = false;
     private boolean hintShown = false;
     private boolean refreshActive = true;
     private volatile boolean uiBusy = false;
@@ -125,6 +138,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         statusView = findViewById(R.id.status);
+        statusBanner = findViewById(R.id.statusBanner);
+        statusDot = findViewById(R.id.statusDot);
+        heroBar = findViewById(R.id.heroBar);
         versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
         uptimeView = findViewById(R.id.uptimeInfo);
@@ -153,6 +169,13 @@ public class MainActivity extends Activity {
         updateBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
         logToggleBtn.setOnClickListener(v -> setHomeLogExpanded(!homeLogExpanded));
+        // Pengguna menggulir manual = berhenti mengikuti ekor; kembali ke
+        // bawah = ikuti lagi. Hemat CPU: cukup dengar perubahan gulir.
+        homeLogScroll.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            if (homeLogExpanded && homeLogScroll.getChildCount() > 0) {
+                ikutiLog = sedangDiBawah();
+            }
+        });
 
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
@@ -342,7 +365,8 @@ public class MainActivity extends Activity {
         if (uiBusy) {
             String dl = Updater.downloadStatus;
             statusView.setText(dl.isEmpty() ? getString(R.string.busy_work) : dl);
-            statusView.setBackgroundResource(R.drawable.bg_status_busy);
+            statusBanner.setBackgroundResource(R.drawable.bg_status_busy);
+            statusDot.setBackgroundResource(R.drawable.bg_dot_busy);
             lastShownStatus = "";
             refreshHomeLog();
             if (refreshActive) {
@@ -358,14 +382,23 @@ public class MainActivity extends Activity {
         String key = statusText + "|" + (running ? "on" : "off");
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
-            statusView.setBackgroundResource(running
+            statusBanner.setBackgroundResource(running
                     ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
+            statusDot.setBackgroundResource(running
+                    ? R.drawable.bg_dot_running : R.drawable.bg_dot_stopped);
+            heroBar.setBackgroundResource(running
+                    ? R.drawable.bg_hero_running : R.drawable.bg_hero);
             lastShownStatus = key;
         }
-        String btnText = running ? getString(R.string.stop)
-                : getString(R.string.start);
-        if (!btnText.equals(startStopBtn.getText().toString())) {
-            startStopBtn.setText(btnText);
+        // Tombol Stop merah + deskripsi aksesibilitas (saran 4)
+        if (!tombolSelaras || tombolJalan != running) {
+            tombolJalan = running;
+            tombolSelaras = true;
+            startStopBtn.setText(getString(running ? R.string.stop : R.string.start));
+            startStopBtn.setBackgroundResource(running
+                    ? R.drawable.bg_btn_stop : R.drawable.bg_btn_primary);
+            startStopBtn.setContentDescription(
+                    getString(running ? R.string.stop_desc : R.string.start_desc));
         }
 
         // Peringatan bila setting diubah di Settings tapi server belum di-restart
@@ -492,14 +525,9 @@ public class MainActivity extends Activity {
             homeLogView.setText("");
             hintShown = false;
         }
-        for (int i = 0; i < delta.length(); i++) {
-            if (delta.charAt(i) == '\n') {
-                lineCount++;
-            }
-        }
         lastLogLen += delta.length();
-        homeLogView.append(delta);
-        // TextView 300 KB + fullScroll tiap 500 ms bikin STB patah: tampilkan ekor saja.
+        tempelLogBerwarna(delta);
+        // Pengaman memori STB: tampilkan ekor saja bila teks membengkak.
         if (homeLogView.length() > 40000) {
             CharSequence penuh = homeLogView.getText();
             int potong = penuh.length() - 30000;
@@ -512,8 +540,99 @@ public class MainActivity extends Activity {
             }
             homeLogView.setText(penuh.subSequence(nl < 0 ? potong : nl, penuh.length()));
         }
+        // Batas 150 baris tampil: buang baris tertua dari depan.
+        int total = hitungBaris(homeLogView.getText());
+        if (total > MAKS_BARIS_LOG) {
+            homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
+            total = MAKS_BARIS_LOG;
+        }
+        lineCount = total;
         homeLogCount.setText(getString(R.string.log_lines, lineCount));
-        homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
+        // Gulir otomatis hanya bila pengguna tidak sedang membaca atas (saran 6).
+        if (ikutiLog) {
+            homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
+        }
+    }
+
+    /** Ekor ScrollView sudah di bawah (toleransi 8px untuk pembulatan). */
+    private boolean sedangDiBawah() {
+        if (homeLogScroll.getChildCount() == 0) {
+            return true;
+        }
+        View anak = homeLogScroll.getChildAt(0);
+        int sisa = anak.getBottom() - (homeLogScroll.getHeight() + homeLogScroll.getScrollY());
+        return sisa <= 8;
+    }
+
+    /** Jumlah baris = jumlah '\n' (satu baris terakhir tanpa newline ikut dihitung). */
+    private int hitungBaris(CharSequence teks) {
+        if (teks == null || teks.length() == 0) {
+            return 0;
+        }
+        int n = 0;
+        for (int i = 0; i < teks.length(); i++) {
+            if (teks.charAt(i) == '\n') {
+                n++;
+            }
+        }
+        return teks.charAt(teks.length() - 1) == '\n' ? n : n + 1;
+    }
+
+    /** Buang sejumlah baris dari depan, span warna ikut terjaga. */
+    private CharSequence buangBarisDepan(CharSequence teks, int buang) {
+        int pos = 0;
+        int ketemu = 0;
+        while (pos < teks.length() && ketemu < buang) {
+            if (teks.charAt(pos) == '\n') {
+                ketemu++;
+            }
+            pos++;
+        }
+        return teks.subSequence(pos, teks.length());
+    }
+
+    // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
+    private void tempelLogBerwarna(String delta) {
+        int warnaGalat = getResources().getColor(R.color.log_error);
+        int warnaAwas = getResources().getColor(R.color.log_warn);
+        SpannableStringBuilder tempel = new SpannableStringBuilder();
+        int mulai = 0;
+        for (int i = 0; i <= delta.length(); i++) {
+            if (i == delta.length() || delta.charAt(i) == '\n') {
+                String baris = delta.substring(mulai, i);
+                // Sisa tanpa newline di ujung (baris parsial) ditempel apa adanya
+                // agar chunk berikut menyambung; bukan baris kosong baru.
+                if (i < delta.length() || !baris.isEmpty()) {
+                    int awal = tempel.length();
+                    tempel.append(baris);
+                    if (i < delta.length()) {
+                        tempel.append("\n");
+                    }
+                    String kecil = baris.toLowerCase(java.util.Locale.ROOT);
+                    if (mengandung(kecil, "error", "exception", "panic", "gagal",
+                            "fatal", "traceback")) {
+                        tempel.setSpan(new ForegroundColorSpan(warnaGalat), awal,
+                                awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else if (mengandung(kecil, "warn", "peringatan", "deprecated", "awas")) {
+                        tempel.setSpan(new ForegroundColorSpan(warnaAwas), awal,
+                                awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                }
+                mulai = i + 1;
+            }
+        }
+        homeLogView.append(tempel);
+    }
+
+    /** Salah satu kata kunci muncul di baris (cocok sederhana, tanpa regex). */
+    private boolean mengandung(String kecil, String... kata) {
+        for (String k : kata) {
+            if (kecil.contains(k)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL). */
@@ -531,6 +650,9 @@ public class MainActivity extends Activity {
     /** Ciutkan/bentangkan pratinjau log; pilihan disimpan di prefs. */
     private void setHomeLogExpanded(boolean expanded) {
         homeLogExpanded = expanded;
+        if (expanded) {
+            ikutiLog = true;
+        }
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                 .putBoolean(KEY_HOME_LOG_EXPANDED, expanded).apply();
         applyHomeLogExpanded();

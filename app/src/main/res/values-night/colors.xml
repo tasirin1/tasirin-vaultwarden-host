@@ -23,4 +23,8 @@
     <color name="accent_rawat">#C4B5FD</color>
     <color name="accent_telegram">#7DD3FC</color>
     <color name="accent_log">#B0BEC5</color>
+    <color name="log_error">#F0554D</color>
+    <color name="log_warn">#FFB74D</color>
+    <color name="hero_run_start">#237A3B</color>
+    <color name="hero_run_end">#0B3B20</color>
 </resources>

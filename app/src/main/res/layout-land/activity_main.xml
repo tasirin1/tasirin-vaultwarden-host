@@ -16,6 +16,7 @@
 
     <!-- Hero ringkas satu baris -->
     <LinearLayout
+        android:id="@+id/heroBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_hero"
@@ -76,9 +77,9 @@
                 android:paddingBottom="8dp">
 
                 <LinearLayout
+                    style="@style/TasirinCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_card"
                     android:orientation="vertical"
                     android:padding="12dp">
 
@@ -102,6 +103,8 @@
                         android:clickable="true"
                         android:contentDescription="@string/copy_url"
                         android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
                         android:padding="10dp" />
 
                     <TextView
@@ -114,10 +117,10 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    style="@style/TasirinCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_card"
                     android:orientation="vertical"
                     android:padding="12dp">
 
@@ -127,19 +130,36 @@
                         android:layout_height="wrap_content"
                         android:text="@string/server_title" />
 
-                    <TextView
-                        android:id="@+id/status"
+                    <LinearLayout
+                        android:id="@+id/statusBanner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/bg_status_stopped"
-                        android:gravity="center"
+                        android:focusable="false"
+                        android:gravity="center_vertical|center_horizontal"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
-                        android:text="@string/stopped"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal">
+
+                        <View
+                            android:id="@+id/statusDot"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_dot_stopped"
+                            android:focusable="false" />
+
+                        <TextView
+                            android:id="@+id/status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:focusable="false"
+                            android:text="@string/stopped"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/restartHint"
@@ -169,11 +189,11 @@
 
         <!-- Kolom kanan: log penuh -->
         <LinearLayout
+            style="@style/TasirinCard"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_card"
             android:orientation="vertical"
             android:padding="12dp">
 
@@ -195,12 +215,24 @@
                     android:id="@+id/logToggle"
                     android:nextFocusDown="@id/homeSaveLog"
                     android:nextFocusLeft="@id/netInfo"
-                    android:nextFocusRight="@id/netInfo"
+                    android:nextFocusRight="@id/homeSaveLog"
                     android:nextFocusUp="@id/updateBtn"
                     style="@style/TasirinBtnSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/collapse" />
+
+                <Button
+                    android:id="@+id/homeSaveLog"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusLeft="@id/logToggle"
+                    android:nextFocusRight="@id/netInfo"
+                    android:nextFocusUp="@id/logToggle"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/save_txt" />
             </LinearLayout>
 
             <TextView
@@ -225,20 +257,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="monospace"
                     android:padding="8dp"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp" />
             </ScrollView>
 
-            <Button
-                android:id="@+id/homeSaveLog"
-                android:nextFocusDown="@id/startStop"
-                android:nextFocusLeft="@id/netInfo"
-                android:nextFocusRight="@id/netInfo"
-                android:nextFocusUp="@id/logToggle"
-                style="@style/TasirinBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/save_txt" />
         </LinearLayout>
     </LinearLayout>
 

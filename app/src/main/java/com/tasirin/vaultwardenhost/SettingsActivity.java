@@ -270,6 +270,9 @@ public class SettingsActivity extends Activity {
         adminError = findViewById(R.id.adminError);
         tokenError = findViewById(R.id.tokenError);
         chatError = findViewById(R.id.chatError);
+        awaliGalat(adminError, R.string.admin_error);
+        awaliGalat(tokenError, R.string.token_error);
+        awaliGalat(chatError, R.string.chat_error);
         certInfoToggle = findViewById(R.id.certInfoToggle);
         certHintView = findViewById(R.id.certHint);
         secDetail = findViewById(R.id.secDetail);
@@ -2227,15 +2230,24 @@ public class SettingsActivity extends Activity {
         toast(label + " " + getString(R.string.disalin));
     }
 
+    /** Bubuhkan ikon peringatan di depan pesan galat (saran 11). */
+    private void awaliGalat(TextView baris, int stringId) {
+        if (baris != null) {
+            baris.setText(getString(R.string.galat_awalan, getString(stringId)));
+        }
+    }
+
     /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     private void validasiInline() {
         String gData = galatFolder(dataDirInput.getText().toString(),
                 getString(R.string.folder_error));
-        dataDirError.setText(gData == null ? "" : gData);
+        dataDirError.setText(gData == null ? ""
+                : getString(R.string.galat_awalan, gData));
         dataDirError.setVisibility(gData == null ? View.GONE : View.VISIBLE);
         String gPort = galatPort(portInput.getText().toString(),
                 getString(R.string.port_error));
-        portError.setText(gPort == null ? "" : gPort);
+        portError.setText(gPort == null ? ""
+                : getString(R.string.galat_awalan, gPort));
         portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
         String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
                 getString(R.string.admin_error)) : null;

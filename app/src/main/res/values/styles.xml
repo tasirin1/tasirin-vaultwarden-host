@@ -22,7 +22,7 @@
     </style>
 
     <style name="TasirinBtnSmall" parent="TasirinBtn">
-        <item name="android:minHeight">44dp</item>
+        <item name="android:minHeight">48dp</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -106,5 +106,12 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginTop">14dp</item>
         <item name="android:background">@color/card_stroke</item>
+    </style>
+
+    <!-- Kartu baku semua layar (radius+elevasi satu pintu via bg_card).
+         Varian ramping (pengaturan/landscape) pakai gaya ini + padding 12dp. -->
+    <style name="TasirinCard">
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:padding">16dp</item>
     </style>
 </resources>

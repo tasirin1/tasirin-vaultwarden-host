@@ -139,4 +139,7 @@
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>
     <string name="label_kotor">%1$s \u25CF</string>
+    <string name="start_desc">Jalankan server</string>
+    <string name="stop_desc">Hentikan server</string>
+    <string name="galat_awalan">\u26A0 %1$s</string>
 </resources>

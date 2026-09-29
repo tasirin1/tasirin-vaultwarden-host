@@ -7,7 +7,7 @@
     <color name="accent">#FF6F00</color>
     <color name="white">#FFFFFF</color>
     <color name="text_primary">#16233A</color>
-    <color name="text_secondary">#5B6B84</color>
+    <color name="text_secondary">#4E5D76</color>
     <color name="window_bg">#EAF0F8</color>
     <color name="status_on">#1E8E3E</color>
     <color name="status_off">#C5221F</color>
@@ -24,4 +24,8 @@
     <color name="accent_rawat">#6D28D9</color>
     <color name="accent_telegram">#0288D1</color>
     <color name="accent_log">#546E7A</color>
+    <color name="log_error">#B3261E</color>
+    <color name="log_warn">#8A5A00</color>
+    <color name="hero_run_start">#237A3B</color>
+    <color name="hero_run_end">#0B3B20</color>
 </resources>
