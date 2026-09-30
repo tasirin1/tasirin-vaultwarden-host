@@ -364,10 +364,15 @@ public class MainActivity extends Activity {
         // Sedang sibuk (unduh web-vault)? Kunci chip status agar tidak tertimpa polling.
         if (uiBusy) {
             String dl = Updater.downloadStatus;
-            statusView.setText(dl.isEmpty() ? getString(R.string.busy_work) : dl);
-            statusBanner.setBackgroundResource(R.drawable.bg_status_busy);
-            statusDot.setBackgroundResource(R.drawable.bg_dot_busy);
-            lastShownStatus = "";
+            String sibuk = dl.isEmpty() ? getString(R.string.busy_work) : dl;
+            String kunciSibuk = "sibuk|" + sibuk;
+            if (!kunciSibuk.equals(lastShownStatus)) {
+                statusView.setText(sibuk);
+                statusView.setBackgroundResource(0);
+                statusBanner.setBackgroundResource(R.drawable.bg_status_busy);
+                statusDot.setBackgroundResource(R.drawable.bg_dot_busy);
+                lastShownStatus = kunciSibuk;
+            }
             refreshHomeLog();
             if (refreshActive) {
                 ui.postDelayed(this::refreshFromService, 500);
@@ -382,6 +387,7 @@ public class MainActivity extends Activity {
         String key = statusText + "|" + (running ? "on" : "off");
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
+            statusView.setBackgroundResource(0);
             statusBanner.setBackgroundResource(running
                     ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
             statusDot.setBackgroundResource(running
@@ -878,7 +884,7 @@ public class MainActivity extends Activity {
             homeSaveBtn.setEnabled(!busy);
             if (busy) {
                 statusView.setText(getString(R.string.busy_work));
-                statusView.setBackgroundResource(R.drawable.bg_status_busy);
+                statusView.setBackgroundResource(0);
                 lastShownStatus = "";
             } else {
                 refreshFromService();
