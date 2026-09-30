@@ -1552,6 +1552,11 @@ public final class Updater {
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
     private static String fetchChecksum(Context ctx, String url,
                                         int connectMs, int readMs) {
+        // Checksum + binary satu channel TLS: minimal tolak http polos
+        // fail-closed agar downgrade tak bisa menyuntik checksum palsu.
+        if (url == null || !url.regionMatches(true, 0, "https://", 0, 8)) {
+            return null;
+        }
         for (int coba = 1; coba <= 2; coba++) {
             HttpURLConnection c = null;
             try {

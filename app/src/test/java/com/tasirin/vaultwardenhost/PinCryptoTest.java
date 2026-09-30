@@ -34,6 +34,14 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void pinKosongSelaluDitolak() {
+        assertFalse(PinCrypto.verify(PinCrypto.hash("1234"), ""));
+        assertFalse(PinCrypto.verify(PinCrypto.sha256("1234"), ""));
+        assertTrue(PinCrypto.perluMigrasi(PinCrypto.sha256("1234")));
+        assertFalse(PinCrypto.perluMigrasi(PinCrypto.hash("1234")));
+    }
+
+    @Test
     public void hashLamaTetapDikenali() {
         String lama = PinCrypto.sha256("9999");
         assertFalse(PinCrypto.isNewFormat(lama));

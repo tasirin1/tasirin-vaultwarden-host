@@ -236,7 +236,7 @@ public final class TlsCert {
 
     private static KeyPair buatRsa2048() throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
+        kpg.initialize(2048, new SecureRandom());
         return kpg.generateKeyPair();
     }
 

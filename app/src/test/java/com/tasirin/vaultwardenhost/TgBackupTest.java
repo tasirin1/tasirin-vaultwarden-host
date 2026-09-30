@@ -29,6 +29,19 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sanitasiNamaFile_tolakKutipCrlf() {
+        assertEquals("backup.zip", TgBackup.sanitasiNamaFile(null));
+        assertEquals("backup.zip", TgBackup.sanitasiNamaFile(""));
+        assertEquals("db-backup.zip", TgBackup.sanitasiNamaFile("db-backup.zip"));
+        assertEquals("evil.zip", TgBackup.sanitasiNamaFile("a/b/../evil.zip"));
+        String licik = "a\".txt\"\r\n";
+        String bersih = TgBackup.sanitasiNamaFile(licik);
+        assertFalse(bersih.contains("\""));
+        assertFalse(bersih.contains("\r"));
+        assertFalse(bersih.contains("\n"));
+    }
+
+    @Test
     public void fileSizeDariRespons_bacaAngkaAman() {
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_path\":\"d/f.zip\",\"file_size\":12345}}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true}"));

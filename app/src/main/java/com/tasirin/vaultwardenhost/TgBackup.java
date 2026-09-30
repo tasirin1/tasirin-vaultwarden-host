@@ -1066,8 +1066,33 @@ public final class TgBackup {
                 + " di semua HP (Bagikan CA / /ca / backup storage).";
     }
 
+    /** Batas upload Bot API Telegram (50 MB): tolak lebih awal agar tak menahan slot tugas. */
+    static final long BATAS_UPLOAD_TELEGRAM = 48L * 1024 * 1024;
+
+    /** Sanitasi nama file untuk header multipart: tanpa kutip/CRLF/slash agar
+     *  nama licik tak merusak batas multipart. Murni agar bisa unit test. */
+    static String sanitasiNamaFile(String nama) {
+        if (nama == null || nama.trim().isEmpty()) {
+            return "backup.zip";
+        }
+        String n = new java.io.File(nama.trim()).getName();
+        n = n.replace("\r", "").replace("\n", "").replace("\"", "").replace(";", "");
+        n = n.replace("/", "_").replace("\\", "_");
+        if (n.isEmpty() || n.equals(".") || n.equals("..")) {
+            return "backup.zip";
+        }
+        return n.length() > 120 ? n.substring(n.length() - 120) : n;
+    }
+
     private static String uploadTelegram(Context ctx, String token, String chatId, File file)
             throws Exception {
+        if (file == null || !file.isFile()) {
+            throw new java.io.IOException("File backup tidak ditemukan.");
+        }
+        if (file.length() > BATAS_UPLOAD_TELEGRAM) {
+            throw new java.io.IOException("File backup terlalu besar untuk Telegram"
+                    + " (>48 MB). Ambil manual via Settings > Backup DB.");
+        }
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
@@ -1082,7 +1107,9 @@ public final class TgBackup {
             // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
             conn.setChunkedStreamingMode(0);
             HttpsCompat.apply(conn, ctx);
-            String boundary = "----vw" + System.currentTimeMillis() + "bound";
+            byte[] acakB = new byte[8];
+            SECURE_RANDOM.nextBytes(acakB);
+            String boundary = "----vw" + Updater.toHex(acakB) + "bound";
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
             try (OutputStream os = conn.getOutputStream();
@@ -1092,7 +1119,7 @@ public final class TgBackup {
                 dos.writeBytes(chatId + "\r\n");
                 dos.writeBytes("--" + boundary + "\r\n");
                 dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\""
-                        + file.getName() + "\"\r\n");
+                        + sanitasiNamaFile(file.getName()) + "\"\r\n");
                 dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
                 try (FileInputStream fis = new FileInputStream(file)) {
                     byte[] buf = new byte[64 * 1024];

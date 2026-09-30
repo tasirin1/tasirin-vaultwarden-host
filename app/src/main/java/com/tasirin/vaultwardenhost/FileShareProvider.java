@@ -82,9 +82,11 @@ public class FileShareProvider extends ContentProvider {
         }
         String path = uri.getPath();
         File f = path == null ? null : new File(path);
-        if (f == null || !f.exists() || !f.isFile()) {
+        if (f == null) {
             throw new FileNotFoundException(String.valueOf(uri));
         }
+        // Kanonis dulu sebelum cek exists/isFile: cek pra-kanonis membuka
+        // jendela TOCTOU symlink di jeda cek-vs-buka.
         // Hanya file di lokasi yang memang perlu dibagikan (cert, backup,
         // export config, cache): tolak yang lain meski provider internal.
         // Buka file KANONIS yang lolos cek (bukan path asli) agar symlink

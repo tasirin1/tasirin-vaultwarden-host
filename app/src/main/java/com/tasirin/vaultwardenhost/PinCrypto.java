@@ -44,9 +44,14 @@ public final class PinCrypto {
         return stored != null && stored.startsWith(PREFIX);
     }
 
+    /** True bila hash lama wajib dimigrasi ke PBKDF2 sesudah verifikasi sukses. Murni. */
+    public static boolean perluMigrasi(String stored) {
+        return stored != null && !stored.isEmpty() && !isNewFormat(stored);
+    }
+
     /** Verifikasi PIN terhadap hash lama maupun baru (perbandingan konstan). */
     public static boolean verify(String stored, String pin) {
-        if (stored == null || stored.isEmpty() || pin == null) {
+        if (stored == null || stored.isEmpty() || pin == null || pin.isEmpty()) {
             return false;
         }
         try {

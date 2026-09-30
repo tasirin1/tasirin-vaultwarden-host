@@ -1544,11 +1544,11 @@ public class ServerService extends Service {
                 appendLog("[health] /alive gagal 9x tapi TCP hidup"
                         + " - dianggap gantung, server dihentikan.");
             }
-            autoRestart = false;
-            // Terminal: hentikan tick agar tak spam Telegram/log tiap interval selamanya.
-            healthActive = false;
-            mainHandler.removeCallbacks(healthTick);
-            mainHandler.removeCallbacks(restartTunda);
+            // Jangan terminal: coba restart otomatis terbatas (maks 5x via
+            // scheduleRestart) agar gangguan sesaat tak mematikan server
+            // selamanya; spam Telegram dicegah karena tiap episode hanya
+            // kirim satu pesan di bawah + scheduleRestart membatasi percobaan.
+            autoRestart = true;
             healthFails.set(0);
             healthTcpLolos.set(0);
             // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
@@ -1558,10 +1558,10 @@ public class ServerService extends Service {
             runningPort = "";
             runningHttps = false;
             runningAdminToken = "";
-            setStatus("Server tidak sehat - berhenti.");
-            appendLog("[health] 3x gagal beruntun - server dihentikan.");
+            setStatus("Server tidak sehat - restart otomatis.");
+            appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");
-            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - dihentikan.\n"
+            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - restart otomatis.\n"
                     + shorten(tailLog(15), 500));
             final Process p = process;
             if (p != null) {
@@ -1592,6 +1592,11 @@ public class ServerService extends Service {
                 killer.setDaemon(true);
                 killer.start();
             }
+            // Lanjut restart terbatas (maks 5x, backoff di scheduleRestart).
+            // Tanda stop disengaja dipertahankan sampai killer selesai agar
+            // watchProcess tak ikut menjadwalkan restart ganda; start baru
+            // membersihkannya sendiri (prosesStopDisengaja = null).
+            scheduleRestart();
             return;
         }
         // Toleransi: gagal 1-2x hanya dicatat, tunggu cek berikutnya.
