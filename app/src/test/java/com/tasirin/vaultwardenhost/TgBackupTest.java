@@ -534,6 +534,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void verifikasiIsiDbZip_tolakTanpaDbDanSampah() throws Exception {
+        File tmp = File.createTempFile("vwisi", ".sqlite3");
+        assertNotNull(TgBackup.verifikasiIsiDbZip(null, tmp));
+        assertNotNull(TgBackup.verifikasiIsiDbZip(new File("/tidak/ada.zip"), tmp));
+        File tanpaDb = File.createTempFile("vwisitanpadb", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tanpaDb))) {
+            zos.putNextEntry(new ZipEntry("catatan.txt"));
+            zos.write("halo".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNotNull(TgBackup.verifikasiIsiDbZip(tanpaDb, tmp));
+        tanpaDb.delete();
+        File sampah = File.createTempFile("vwisisampah", ".zip");
+        try (FileOutputStream o = new FileOutputStream(sampah)) {
+            o.write("bukan zip sama sekali".getBytes("UTF-8"));
+        }
+        assertNotNull(TgBackup.verifikasiIsiDbZip(sampah, tmp));
+        sampah.delete();
+        tmp.delete();
+    }
+
+    @Test
     public void jamStbWajar_tolakReset2015() {
         assertFalse(TgBackup.jamStbWajar(1420070424000L));
         assertTrue(TgBackup.jamStbWajar(TgBackup.BATAS_JAM_WAJAR_MS));

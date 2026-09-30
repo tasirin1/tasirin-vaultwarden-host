@@ -1940,7 +1940,7 @@ public class ServerService extends Service {
             }
         }
 
-        // 2) Cache internal milik APK ini (version.txt = versi APK saat diunduh).
+        // 3) Cache internal milik APK ini (version.txt = versi APK saat diunduh).
         //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
         if (!butuhRefresh && isValidBinary(out) && verFile.exists()) {
             try {
@@ -1954,7 +1954,7 @@ public class ServerService extends Service {
             }
         }
 
-        // 3) Unduh dari release repo.
+        // 4) Unduh dari release repo.
         try {
             String msg = Updater.downloadBinary(this, out);
             appendLog("[app] " + msg);

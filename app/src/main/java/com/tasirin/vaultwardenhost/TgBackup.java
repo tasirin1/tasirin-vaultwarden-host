@@ -434,6 +434,21 @@ public final class TgBackup {
             zip.delete();
             throw new IOException("Backup gagal verifikasi: " + galat);
         }
+        // Isi DB ikut di-quick_check dari hasil ekstrak (magic saja tak cukup:
+        // salinan robek saat server menulis tetap bermagic valid).
+        File tmpIsi = new File(ctx.getCacheDir(), "verifikasi-isi-db.sqlite3");
+        try {
+            String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
+            if (galatIsi != null) {
+                zip.delete();
+                throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+            }
+        } finally {
+            try {
+                tmpIsi.delete();
+            } catch (Exception ignored) {
+            }
+        }
         File upload = zip;
         String pass = sp.getString(KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {
@@ -734,6 +749,49 @@ public final class TgBackup {
         } catch (Exception e) {
             String sebab = e.getMessage() != null ? e.getMessage() : e.toString();
             return "zip korup/tak terbaca (" + sebab + ")";
+        }
+    }
+
+    /** Verifikasi isi DB di dalam zip backup: ekstrak db.sqlite3 lalu
+     *  quick_check penuh. Magic saja tak cukup: salinan robek saat server
+     *  menulis tetap bermagic valid. Return null bila sehat, pesan galat bila
+     *  tidak. File sementara selalu dibersihkan. */
+    static String verifikasiIsiDbZip(File zip, File tmpDb) {
+        if (zip == null || tmpDb == null) {
+            return "file backup hilang";
+        }
+        try (ZipFile zf = new ZipFile(zip)) {
+            java.util.zip.ZipEntry db = zf.getEntry("db.sqlite3");
+            if (db == null) {
+                return "tidak berisi db.sqlite3";
+            }
+            try (java.io.InputStream in = zf.getInputStream(db);
+                 java.io.FileOutputStream fos = new java.io.FileOutputStream(tmpDb)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) != -1) {
+                    fos.write(buf, 0, n);
+                }
+            }
+        } catch (Exception e) {
+            try {
+                tmpDb.delete();
+            } catch (Exception ignored) {
+            }
+            String sebab = e.getMessage() != null ? e.getMessage() : e.toString();
+            return "zip tak terbaca (" + sebab + ")";
+        }
+        try {
+            String rusak = cekIntegritasDb(tmpDb);
+            if (rusak != null) {
+                return "isi DB korup (" + rusak + ")";
+            }
+            return null;
+        } finally {
+            try {
+                tmpDb.delete();
+            } catch (Exception ignored) {
+            }
         }
     }
 

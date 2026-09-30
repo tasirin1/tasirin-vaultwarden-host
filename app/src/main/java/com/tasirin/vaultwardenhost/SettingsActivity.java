@@ -1166,6 +1166,23 @@ public class SettingsActivity extends Activity {
                 }
                 throw e;
             }
+            // Verifikasi isi DB dari hasil ekstrak agar backup robek
+            // tak tersimpan diam-diam (magic saja tak cukup).
+            File tmpIsi = new File(getCacheDir(), "verifikasi-isi-db.sqlite3");
+            try {
+                String galatIsi = TgBackup.verifikasiIsiDbZip(backup, tmpIsi);
+                if (galatIsi != null) {
+                    backup.delete();
+                    toast("Backup rusak (" + galatIsi + ") - dibuang, coba lagi.");
+                    appendUiLog("[app] Backup dibuang: isi DB korup (" + galatIsi + ").");
+                    return;
+                }
+            } finally {
+                try {
+                    tmpIsi.delete();
+                } catch (Exception ignored) {
+                }
+            }
             TgBackup.cleanupOldBackups(backupDir);
             toast("Backup tersimpan:\n" + backup.getAbsolutePath());
             appendUiLog("[app] Backup DB: " + backup.getName() + " (" + backup.length() + " bytes)");
