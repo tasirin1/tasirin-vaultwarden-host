@@ -30,7 +30,9 @@ Auto-update of binary & web vault, encrypted backups (local + Telegram), self-si
 
 Single vertical column layout (portrait and landscape share the same order): links card on top, realtime log in the middle, server status below (log font scales with screen size) and every button works with a TV remote D-pad.
 
-**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/uptime` `/alive` `/backup` `/restore` `/ca` `/cabackup` `/careset` `/crashlog` `/update` `/webvault` `/restart` `/start` `/stop` `/help`. With PIN, state-changing commands (`/start` `/stop` `/restart` `/backup` `/update` `/webvault` `/restore` `/careset`) must end with the PIN (e.g. `/stop 123456`); read commands (`/status` `/log` `/uptime` `/alive` `/ca` `/crashlog` `/help`) only need chat auth. PIN command messages are auto-deleted from the chat when the bot has delete permission.
+**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/uptime` `/alive` `/backup` `/restore` `/ca` `/cabackup` `/careset` `/crashlog` `/versi` `/update` `/webvault` `/restart` `/start` `/stop` `/help`. With PIN, state-changing commands (`/start` `/stop` `/restart` `/backup` `/update` `/webvault` `/restore` `/careset`) must end with the PIN (e.g. `/stop 123456`); read commands (`/status` `/log` `/uptime` `/alive` `/ca` `/crashlog` `/versi` `/help`) only need chat auth. PIN command messages are auto-deleted from the chat when the bot has delete permission.
+
+**Version pinning (not forced to latest):** Settings → Maintenance → "Versi binary" / "Versi web vault" buttons to pick an older version (downgrade allowed) or back to "Terbaru (otomatis)". The pinned version is honored by auto-update/Start (never silently upgraded). Via bot: `/versi` (show versions + pins), `/update 1.32.0` / `/webvault 1.32.0` (pin + install), `/update terbaru` (unpin).
 
 **Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.
 

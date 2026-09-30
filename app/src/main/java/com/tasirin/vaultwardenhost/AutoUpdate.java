@@ -38,7 +38,8 @@ public final class AutoUpdate {
      *  auto-restart, dan tawaran web-vault (jalur Settings). */
     public static void cek(Context ctx, Aksi aksi, AturPending pending, boolean lengkap) {
         try {
-            String latest = Updater.latestVersion(ctx);
+            // Versi target menghormati kuncian user (pin) agar tak terpaku terbaru.
+            String latest = Updater.versiTargetBinary(ctx);
             if (latest == null) {
                 return;
             }
@@ -86,16 +87,18 @@ public final class AutoUpdate {
                 }
             }
             if (lengkap) {
-                // Web-vault selalu mengikuti versi resmi (bukan channel legacy);
-                // lewati bila versi resmi tak terbaca (offline/rate-limit).
+                // Web-vault mengikuti versi target (kuncian user atau terbaru);
+                // lewati bila versi target tak terbaca (offline/rate-limit).
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false)
                         && tanpaKuota(ctx)) {
                     try {
                         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                                 ServerService.DEFAULT_DATA_DIR);
                         if (aksi.webVaultSiap(dataDir)) {
+                            String targetWv = Updater.versiTargetWebVault(ctx);
                             String marker = Updater.webVaultFromVersion(ctx);
-                            if (marker == null || !marker.equals(latest)) {
+                            if (targetWv != null
+                                    && (marker == null || !marker.equals(targetWv))) {
                                 String msg = Updater.updateWebVault(ctx);
                                 if (TgBot.webVaultBerubah(msg)) {
                                     adaTerpasang = true;

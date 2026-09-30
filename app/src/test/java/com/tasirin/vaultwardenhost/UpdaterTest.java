@@ -588,6 +588,47 @@ public class UpdaterTest {
     }
 
     @Test
+    public void normalisasiPinVersi_validDanInvalid() {
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("v1.32.0"));
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("  V1.32.0  "));
+        assertEquals("1.32", Updater.normalisasiPinVersi("1.32"));
+        assertEquals("1.37.3-beta", Updater.normalisasiPinVersi("1.37.3-beta"));
+        assertNull(Updater.normalisasiPinVersi("terbaru"));
+        assertNull(Updater.normalisasiPinVersi("1.32.x"));
+        assertNull(Updater.normalisasiPinVersi("abc"));
+        assertNull(Updater.normalisasiPinVersi("1"));
+        assertNull(Updater.normalisasiPinVersi(""));
+        assertNull(Updater.normalisasiPinVersi(null));
+    }
+
+    @Test
+    public void parseDaftarTag_ambilSemuaTag() {
+        String body = "[{\"tag_name\":\"v1.37.3\"},{\"tag_name\":\"v1.32.0\"}]";
+        java.util.List<String> d = Updater.parseDaftarTag(body, 10);
+        assertEquals(2, d.size());
+        assertEquals("v1.37.3", d.get(0));
+        assertEquals("v1.32.0", d.get(1));
+    }
+
+    @Test
+    public void parseDaftarTag_batasiMaksDanTolakNull() {
+        String body = "[{\"tag_name\":\"v1.3\"},{\"tag_name\":\"v1.2\"}]";
+        assertEquals(1, Updater.parseDaftarTag(body, 1).size());
+        assertTrue(Updater.parseDaftarTag(null, 5).isEmpty());
+        assertTrue(Updater.parseDaftarTag(body, 0).isEmpty());
+        assertTrue(Updater.parseDaftarTag("[]", 5).isEmpty());
+    }
+
+    @Test
+    public void pilihTarget_kuncianMenangAtasTerbaru() {
+        assertEquals("1.32.0", Updater.pilihTarget("1.32.0", "1.37.3"));
+        assertEquals("1.37.3", Updater.pilihTarget(null, "1.37.3"));
+        assertEquals("1.37.3", Updater.pilihTarget("", "1.37.3"));
+        assertNull(Updater.pilihTarget("", null));
+    }
+
+    @Test
     public void validasiRantai_tolakSampahFailClosed() {
         assertEquals(0, Updater.validasiRantai(null));
         assertEquals(0, Updater.validasiRantai(new byte[0]));

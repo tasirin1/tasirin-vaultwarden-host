@@ -1820,6 +1820,7 @@ public final class TgBackup {
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
                     ServerService.KEY_UPDATE_VERSION, ServerService.KEY_ADMIN_TOKEN,
                     ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
+                    ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
                     KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
                     "tg_notified_version", "wv_from_version",
@@ -2103,6 +2104,7 @@ public final class TgBackup {
                         ServerService.KEY_AUTO_UPDATE_WV,
                         ServerService.KEY_AUTO_RESTART_UPDATE,
                         ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
+                        ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
                         KEY_TG_AUTO));
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak

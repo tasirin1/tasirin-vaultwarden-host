@@ -72,6 +72,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 - **Updater**: `latestVersion()` (cache 15 mnt, fallback saat rate-limit/TLS),
   `tryUpdate()`/`downloadBinary()` (verifikasi SHA-256), `updateWebVault()`
   (butuh ≥150 MB sisa storage, penanda `KEY_WV_FROM` agar tidak unduh ulang).
+  Semua jalur unduh memakai versi target (`versiTargetBinary()`/
+  `versiTargetWebVault()` = kuncian `bin_pin_version`/`wv_pin_version` bila
+  diisi, else terbaru); varian eksplisit `tryUpdateVersi()`/
+  `downloadBinaryVersi()`/`updateWebVaultVersi()` selalu pasang versi
+  diminta termasuk downgrade, dan versi terkunci tak fallback diam-diam
+  ke latest bila asset-nya 404.
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
   `mode_sederhana` (default aktif, UI lokal ikut diimpor), `wizard_selesai` (UI lokal, tak diimpor),
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
@@ -79,7 +85,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
   `wv_from_version`, `tg_notified_version`, `domain_lokal`, `advanced_open`,
   `bin_patch_rev` (revisi patch binary; paksa unduh ulang bila CI perbaiki
-  binary tanpa ganti versi Vaultwarden).
+  binary tanpa ganti versi Vaultwarden),
+  `bin_pin_version`/`wv_pin_version` (kuncian versi binary/web-vault pilihan
+  user; kosong = ikuti terbaru; ikut export/import config).
 
 ## Aturan pengembangan
 

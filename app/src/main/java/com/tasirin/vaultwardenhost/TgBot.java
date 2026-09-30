@@ -335,6 +335,7 @@ public final class TgBot {
                 {"Stop", "/stop"}, {"Restart", "/restart"},
                 {"Bantuan", "/help"}, {"CA", "/ca"},
                 {"Backup CA", "/cabackup"}, {"Reset CA", "/careset"},
+                {"Versi", "/versi"},
         };
         StringBuilder sb = new StringBuilder("{\"inline_keyboard\":[");
         for (int i = 0; i < tombol.length; i += 2) {
@@ -702,12 +703,25 @@ public final class TgBot {
                         : "Server TIDAK merespon /alive!");
                 break;
             case "/update":
-                if (authDangerous(ctx, arg) == null) {
+                String bersihUpdate = authDangerous(ctx, arg);
+                if (bersihUpdate == null) {
                     break;
                 }
+                if (!argumenVersiValid(bersihUpdate)) {
+                    TgBackup.sendMessage(ctx, "Versi tidak valid."
+                            + " Contoh: /update 1.32.0 atau /update terbaru");
+                    break;
+                }
+                final boolean kunciUpdate = !bersihUpdate.isEmpty();
+                final String versiUpdate = Updater.normalisasiPinVersi(bersihUpdate);
                 runBeratDenganKunci(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
+                        // Versi eksplisit ikut dikunci agar auto-update tak menaikkan lagi;
+                        // "terbaru" melepas kuncian.
+                        if (kunciUpdate) {
+                            Updater.simpanKuncianBinary(ctx, bersihUpdate);
+                        }
                         // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
                         String imbuhShim = "";
                         if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
@@ -718,7 +732,7 @@ public final class TgBot {
                                 imbuhShim = " Shim gagal: " + se.getMessage();
                             }
                         }
-                        String msg = Updater.tryUpdate(ctx) + imbuhShim;
+                        String msg = Updater.tryUpdateVersi(ctx, versiUpdate) + imbuhShim;
                         if (Updater.binaryBerubah(msg)) {
                             if (was) {
                                 if (ServerService.restart(ctx)) {
@@ -741,13 +755,24 @@ public final class TgBot {
                 });
                 break;
             case "/webvault":
-                if (authDangerous(ctx, arg) == null) {
+                String bersihWv = authDangerous(ctx, arg);
+                if (bersihWv == null) {
                     break;
                 }
+                if (!argumenVersiValid(bersihWv)) {
+                    TgBackup.sendMessage(ctx, "Versi tidak valid."
+                            + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
+                    break;
+                }
+                final boolean kunciWv = !bersihWv.isEmpty();
+                final String versiWv = Updater.normalisasiPinVersi(bersihWv);
                 runBeratDenganKunci(ctx, () -> {
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
-                        String msg = Updater.updateWebVault(ctx);
+                        if (kunciWv) {
+                            Updater.simpanKuncianWebVault(ctx, bersihWv);
+                        }
+                        String msg = Updater.updateWebVaultVersi(ctx, versiWv);
                         if (webVaultBerubah(msg)) {
                             if (was) {
                                 if (ServerService.restart(ctx)) {
@@ -769,6 +794,9 @@ public final class TgBot {
                     }
                 });
                 break;
+            case "/versi":
+                TgBackup.sendMessage(ctx, teksVersi(ctx));
+                break;
             case "/crashlog":
                 // Perintah baca cukup auth chat (tanpa PIN), seperti /status & /log.
                 String crash = ServerService.crashLogText(ctx);
@@ -780,7 +808,9 @@ public final class TgBot {
                 break;
             case "/help":
                 TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
-                        + "/cabackup  /careset  /crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
+                        + "/cabackup  /careset  /crashlog  /versi  /update  /webvault  /restart  /start  /stop  /help\n"
+                        + "Kunci versi lawas: /update 1.32.0 (binary), /webvault 1.32.0;"
+                        + " lepas kunci: /update terbaru. Lihat /versi.\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
                         + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset butuh PIN"
                         + " (mis. /stop 123456 atau /stop PIN:123456).", keyboardPerintah());
@@ -907,6 +937,47 @@ public final class TgBot {
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
                 + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
         return null;
+    }
+
+    /** True bila argumen versi perintah valid: kosong (ikut target), "terbaru"/
+     *  "latest" (lepas kunci), atau nomor versi. Murni agar bisa unit test. */
+    static boolean argumenVersiValid(String arg) {
+        if (arg == null) {
+            return true;
+        }
+        String t = arg.trim();
+        if (t.isEmpty() || t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
+            return true;
+        }
+        return Updater.normalisasiPinVersi(t) != null;
+    }
+
+    /** Ringkasan versi binary/web-vault + status kuncian (perintah /versi). */
+    static String teksVersi(Context ctx) {
+        String bin = Updater.currentServerVersion(ctx);
+        String dataDir = ServerService.DEFAULT_DATA_DIR;
+        try {
+            dataDir = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        } catch (Exception ignored) {
+        }
+        String wv = null;
+        try {
+            wv = Updater.readWvVersion(new java.io.File(dataDir, "web-vault/vw-version.json"));
+        } catch (Exception ignored) {
+        }
+        String pinB = Updater.kuncianBinary(ctx);
+        String pinW = Updater.kuncianWebVault(ctx);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Binary: ").append(bin == null || bin.isEmpty() ? "?" : "v" + bin);
+        if (pinB != null && !pinB.isEmpty()) {
+            sb.append(" (terkunci v").append(pinB).append(')');
+        }
+        sb.append("\nWeb vault: ").append(wv == null || wv.isEmpty() ? "belum terpasang" : "v" + wv);
+        if (pinW != null && !pinW.isEmpty()) {
+            sb.append(" (terkunci v").append(pinW).append(')');
+        }
+        return sb.toString();
     }
 
     /** Pisahkan PIN dari argumen perintah (murni agar bisa unit test).

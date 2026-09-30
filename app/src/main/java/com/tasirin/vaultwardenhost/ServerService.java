@@ -84,6 +84,10 @@ public class ServerService extends Service {
     public static final String KEY_BIN_PATCH = "bin_patch_rev";
     /** 3 = binary pasca-patch DNS+TLS favicon (tanpa ndk-context/platform-verifier). */
     public static final int BIN_PATCH_REV = 3;
+    /** Versi binary yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
+    public static final String KEY_BIN_PILIH = "bin_pin_version";
+    /** Versi web-vault yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
+    public static final String KEY_WV_PILIH = "wv_pin_version";
 
     /** Throttle hint [login]: jeda antar hint agar brute-force tak membanjiri log (60 dtk). */
     private static volatile long loginHintTerakhirElapsed = 0;

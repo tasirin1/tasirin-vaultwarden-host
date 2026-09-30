@@ -20,6 +20,18 @@ public class TgBotTest {
     }
 
     @Test
+    public void argumenVersiValid_terimaVersiDanTerbaru() {
+        assertTrue(TgBot.argumenVersiValid(null));
+        assertTrue(TgBot.argumenVersiValid(""));
+        assertTrue(TgBot.argumenVersiValid("1.32.0"));
+        assertTrue(TgBot.argumenVersiValid("v1.32.0"));
+        assertTrue(TgBot.argumenVersiValid("terbaru"));
+        assertTrue(TgBot.argumenVersiValid("latest"));
+        assertFalse(TgBot.argumenVersiValid("abc"));
+        assertFalse(TgBot.argumenVersiValid("1.32.x"));
+    }
+
+    @Test
     public void tombolKedaluwarsa_batas24Jam() {
         long kini = 1_000_000_000L;
         assertTrue(TgBot.tombolKedaluwarsa(0, kini));
@@ -87,7 +99,7 @@ public class TgBotTest {
         String json = TgBot.keyboardPerintah();
         assertTrue(json.startsWith("{\"inline_keyboard\":["));
         for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
-                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/update", "/webvault", "/start", "/stop",
+                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/versi", "/update", "/webvault", "/start", "/stop",
                 "/restart", "/help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }

@@ -50,6 +50,211 @@ public final class Updater {
         return RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;
     }
 
+    /** Daftar rilis repo build (sumber asset binary & web-vault Android). */
+    private static final String RELEASE_LIST_API =
+            "https://api.github.com/repos/tasirin1/tasirin-vaultwarden-host/releases?per_page=30";
+
+    /** Validasi kuncian versi user ("1.32.0", "v1.32", "1.37.3-beta");
+     *  kembalikan tanpa huruf v, atau null bila tak valid. Murni. */
+    static String normalisasiPinVersi(String v) {
+        if (v == null) {
+            return null;
+        }
+        String t = v.trim();
+        if (t.startsWith("v") || t.startsWith("V")) {
+            t = t.substring(1);
+        }
+        if (t.isEmpty()
+                || !t.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?(-[A-Za-z0-9.]+)?")) {
+            return null;
+        }
+        return t;
+    }
+
+    /** Kuncian binary user (null = ikuti terbaru). */
+    static String kuncianBinary(Context ctx) {
+        try {
+            return normalisasiPinVersi(ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_BIN_PILIH, ""));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Kuncian web-vault user (null = ikuti terbaru). */
+    static String kuncianWebVault(Context ctx) {
+        try {
+            return normalisasiPinVersi(ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE)
+                    .getString(ServerService.KEY_WV_PILIH, ""));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static boolean adaKuncianBinary(Context ctx) {
+        String k = kuncianBinary(ctx);
+        return k != null && !k.isEmpty();
+    }
+
+    static boolean adaKuncianWebVault(Context ctx) {
+        String k = kuncianWebVault(ctx);
+        return k != null && !k.isEmpty();
+    }
+
+    /** Pilih target unduhan: kuncian valid menang atas terbaru. Murni. */
+    static String pilihTarget(String kuncian, String latest) {
+        if (kuncian != null && !kuncian.isEmpty()) {
+            return kuncian;
+        }
+        return latest;
+    }
+
+    /** Versi binary yang dituju (kuncian user atau rilis resmi terbaru). */
+    public static String versiTargetBinary(Context ctx) {
+        return pilihTarget(kuncianBinary(ctx), latestVersion(ctx));
+    }
+
+    /** Versi web-vault yang dituju (kuncian user atau rilis resmi terbaru). */
+    public static String versiTargetWebVault(Context ctx) {
+        return pilihTarget(kuncianWebVault(ctx), latestVersion(ctx));
+    }
+
+    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru). */
+    public static void simpanKuncianBinary(Context ctx, String versi) {
+        simpanKuncian(ctx, ServerService.KEY_BIN_PILIH, versi);
+    }
+
+    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru). */
+    public static void simpanKuncianWebVault(Context ctx, String versi) {
+        simpanKuncian(ctx, ServerService.KEY_WV_PILIH, versi);
+    }
+
+    private static void simpanKuncian(Context ctx, String kunci, String versi) {
+        String t = versi == null ? "" : versi.trim();
+        if (t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
+            t = "";
+        }
+        String normal = t.isEmpty() ? "" : normalisasiPinVersi(t);
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (normal == null) {
+                return;
+            }
+            sp.edit().putString(kunci, normal).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Urai semua tag_name dari body JSON daftar rilis (terbaru dulu, maks N).
+     *  Struktural seperti extractTag agar literal di dalam string tak ikut.
+     *  Murni agar bisa unit test. */
+    static java.util.List<String> parseDaftarTag(String body, int maks) {
+        java.util.List<String> keluar = new java.util.ArrayList<>();
+        if (body == null || maks <= 0) {
+            return keluar;
+        }
+        String kunci = "\"tag_name\"";
+        int n = body.length();
+        boolean dalamString = false;
+        boolean escape = false;
+        for (int i = 0; i < n && keluar.size() < maks; i++) {
+            char c = body.charAt(i);
+            if (dalamString) {
+                if (escape) {
+                    escape = false;
+                } else if (c == '\\') {
+                    escape = true;
+                } else if (c == '"') {
+                    dalamString = false;
+                }
+                continue;
+            }
+            if (c != '"') {
+                continue;
+            }
+            if (!body.startsWith(kunci, i)) {
+                dalamString = true;
+                continue;
+            }
+            int j = i + kunci.length();
+            while (j < n && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= n || body.charAt(j) != ':') {
+                dalamString = true;
+                continue;
+            }
+            j++;
+            while (j < n && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= n || body.charAt(j) != '"') {
+                dalamString = true;
+                continue;
+            }
+            StringBuilder tag = new StringBuilder();
+            j++;
+            boolean esc = false;
+            while (j < n) {
+                char d = body.charAt(j);
+                if (esc) {
+                    tag.append(d);
+                    esc = false;
+                } else if (d == '\\') {
+                    esc = true;
+                } else if (d == '"') {
+                    break;
+                } else {
+                    tag.append(d);
+                }
+                j++;
+            }
+            i = j;
+            if (tag.length() > 0) {
+                keluar.add(tag.toString());
+            }
+        }
+        return keluar;
+    }
+
+    /** Daftar versi yang punya asset di repo build (terbaru dulu, maks N);
+     *  kosong bila offline/rate-limit (pemanggil pakai input manual). */
+    public static java.util.List<String> daftarVersiTersedia(Context ctx, int maks) {
+        java.util.List<String> keluar = new java.util.ArrayList<>();
+        if (maks <= 0) {
+            return keluar;
+        }
+        HttpURLConnection c = null;
+        try {
+            c = open(ctx, RELEASE_LIST_API, 10000, 15000);
+            if (c.getResponseCode() != 200) {
+                return keluar;
+            }
+            String body;
+            try (InputStream is = c.getInputStream()) {
+                body = TgBackup.bacaResponsBatas(is);
+            }
+            for (String tag : parseDaftarTag(body, maks * 2)) {
+                String v = normVersion(tag);
+                if (v != null && !v.isEmpty() && !keluar.contains(v)) {
+                    keluar.add(v);
+                }
+                if (keluar.size() >= maks) {
+                    break;
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
+        }
+        return keluar;
+    }
+
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
     // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
     // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
@@ -531,9 +736,22 @@ public final class Updater {
         return cached;
     }
 
-    /** Unduh & pasang update binary; return pesan hasil. Lempar Exception bila gagal. */
+    /** Unduh & pasang update binary ke versi target (kuncian user atau terbaru).
+     *  Return pesan hasil. Lempar Exception bila gagal. */
     public static String tryUpdate(Context ctx) throws Exception {
-        String latest = latestVersion(ctx);
+        // Tanpa kuncian teruskan null (jalur ikuti-terbaru, ada cek "sudah terbaru");
+        // teruskan versi bila dikunci agar jalur paksa tetap dipakai.
+        String pin = kuncianBinary(ctx);
+        return tryUpdateVersi(ctx, (pin == null || pin.isEmpty()) ? null : pin);
+    }
+
+    /** Unduh & pasang binary ke versi persis yang diminta (boleh lebih lama dari
+     *  rilis terbaru = downgrade). Pemanggil menyimpan kuncian dulu agar
+     *  auto-update tak langsung menaikkan lagi. Versi null = ikuti terbaru. */
+    public static String tryUpdateVersi(Context ctx, String versiDiminta) throws Exception {
+        // Versi eksplisit (pilihan user) selalu dipasang — termasuk downgrade.
+        boolean paksa = versiDiminta != null && !versiDiminta.isEmpty();
+        String latest = paksa ? versiDiminta : latestVersion(ctx);
         if (latest == null) {
             throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
@@ -542,23 +760,25 @@ public final class Updater {
         // (mis. patch TLS favicon). Versi sama tapi patch lama wajib diunduh ulang sekali.
         boolean butuhRefresh = ServerService.perluRefreshPatch(
                 sp.getString(ServerService.KEY_BIN_PATCH, ""));
+        String sebutan = (paksa || adaKuncianBinary(ctx))
+                ? "Sudah versi pilihan: v" : "Sudah versi terbaru: v";
         String real = parseBinaryVersion(ServerService.binaryVersion);
         // Banding terurut: binary lebih baru dari rilis (mis. build lokal) tak
         // ikut di-downgrade; hanya versi lebih lama yang diunduh ulang.
-        if (!butuhRefresh && bandingVersi(real, latest) >= 0) {
+        if (!paksa && !butuhRefresh && bandingVersi(real, latest) >= 0) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
-            return "Sudah versi terbaru: v" + latest;
+            return sebutan + latest;
         }
         String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (!butuhRefresh && bandingVersi(current, latest) >= 0) {
-            return "Sudah versi terbaru: v" + latest;
+        if (!paksa && !butuhRefresh && bandingVersi(current, latest) >= 0) {
+            return sebutan + latest;
         }
 
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
-        String msg = downloadBinary(ctx, out);
+        String msg = downloadBinaryVersi(ctx, out, latest);
         sp.edit().putString(ServerService.KEY_BIN_PATCH,
                 String.valueOf(ServerService.BIN_PATCH_REV)).apply();
         return msg;
@@ -567,18 +787,30 @@ public final class Updater {
     /** Unduh binary versi terbaru dari release repo ke out (verifikasi SHA-256).
      *  Dipakai saat Start bila binary belum ada (tidak lagi dibundel di APK). */
     public static String downloadBinary(Context ctx, File out) throws Exception {
+        return downloadBinaryVersi(ctx, out, versiTargetBinary(ctx));
+    }
+
+    /** Unduh binary versi persis yang diminta (null = terbaru) ke out. */
+    public static String downloadBinaryVersi(Context ctx, File out, String versi) throws Exception {
         try {
-            return downloadBinaryInner(ctx, out);
+            return downloadBinaryInner(ctx, out, versi);
         } finally {
             downloadStatus = "";
         }
     }
 
     private static String downloadBinaryInner(Context ctx, File out) throws Exception {
-        String latest = latestVersion(ctx);
+        return downloadBinaryInner(ctx, out, latestVersion(ctx));
+    }
+
+    private static String downloadBinaryInner(Context ctx, File out, String diminta) throws Exception {
+        String latest = diminta;
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
         boolean known = latest != null && !latest.isEmpty();
+        // Versi kuncian user tak boleh diam-diam diganti rilis terbaru bila
+        // asset-nya belum ada: gagal lantang agar user tahu pin-nya bermasalah.
+        boolean bolehFallback = !adaKuncianBinary(ctx);
         String assetUrl = binaryAssetUrl(latest, ServerService.ABI);
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()) {
@@ -595,7 +827,8 @@ public final class Updater {
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) throws IOException {
-                            if (known && !pakaiTerbaru[0] && url.equals(urlAkhir[0])) {
+                            if (bolehFallback && known && !pakaiTerbaru[0]
+                                    && url.equals(urlAkhir[0])) {
                                 // Rilis versi ini belum ada / sedang dibuat ulang CI -
                                 // pakai binary rilis terbaru repo agar tetap bisa Start.
                                 pakaiTerbaru[0] = true;
@@ -1001,16 +1234,27 @@ public final class Updater {
      *  mengandalkan kata "updated". */
     static final String WV_UPDATED_MARKER = "[wv-updated]";
 
-    /** Unduh & ekstrak web-vault ke folder data; return pesan hasil. */
+    /** Unduh & ekstrak web-vault ke folder data; return pesan hasil.
+     *  Mengikuti versi target (kuncian user atau terbaru). */
     public static String updateWebVault(Context ctx) throws Exception {
+        return updateWebVaultVersi(ctx, versiTargetWebVault(ctx));
+    }
+
+    /** Unduh & ekstrak web-vault versi persis yang diminta (null = terbaru).
+     *  Pemanggil menyimpan kuncian dulu agar auto-update tak langsung menaikkan lagi. */
+    public static String updateWebVaultVersi(Context ctx, String versi) throws Exception {
         try {
-            return updateWebVaultInner(ctx);
+            return updateWebVaultInner(ctx, versi);
         } finally {
             downloadStatus = "";
         }
     }
 
     private static String updateWebVaultInner(Context ctx) throws Exception {
+        return updateWebVaultInner(ctx, versiTargetWebVault(ctx));
+    }
+
+    private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
@@ -1025,7 +1269,7 @@ public final class Updater {
         File targetDir = new File(dataFolder, "web-vault");
         File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
 
-        String latest = latestVersion(ctx);
+        String latest = diminta;
 
         // Sudah terpasang versi yang sama? Jangan unduh ulang 35 MB.
         boolean wvExists = new File(targetDir, "vw-version.json").exists()
@@ -1079,7 +1323,8 @@ public final class Updater {
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) {
-                            if (latest != null && !wvLewatTerbaru[0]
+                            if (!adaKuncianWebVault(ctx) && latest != null
+                                    && !wvLewatTerbaru[0]
                                     && url.equals(urlZipAkhir[0])) {
                                 wvLewatTerbaru[0] = true;
                                 urlZipAkhir[0] = WV_UPDATE_URL;

@@ -121,11 +121,47 @@
                 <CheckBox
                     style="@style/TasirinCheck"
                     android:id="@+id/autoRestart"
-                    android:nextFocusDown="@id/update"
+                    android:nextFocusDown="@id/pilihBin"
                     android:nextFocusUp="@id/autoUpdateWv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/auto_restart_update" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/pilihBin"
+                        android:drawableStart="@drawable/ic_history"
+                        android:drawablePadding="8dp"
+                        android:nextFocusDown="@id/pilihWv"
+                        android:nextFocusUp="@id/autoRestart"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/pilihWv"
+                        android:drawableStart="@drawable/ic_globe"
+                        android:drawablePadding="8dp"
+                        android:nextFocusDown="@id/update"
+                        android:nextFocusUp="@id/pilihBin"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -140,7 +176,7 @@
                         android:drawablePadding="8dp"
                         android:nextFocusDown="@id/revert"
                         android:nextFocusRight="@id/revert"
-                        android:nextFocusUp="@id/autoRestart"
+                        android:nextFocusUp="@id/pilihWv"
                         style="@style/TasirinBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

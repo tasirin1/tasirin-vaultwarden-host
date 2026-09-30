@@ -94,6 +94,8 @@ public class SettingsActivity extends Activity {
     private Button updateBtn;
     private Button revertBtn;
     private Button updateWvBtn;
+    private Button pilihBinBtn;
+    private Button pilihWvBtn;
     private Button backupDbBtn;
     private Button restoreDbBtn;
     private Button backupTgBtn;
@@ -238,6 +240,14 @@ public class SettingsActivity extends Activity {
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
         updateWvBtn = findViewById(R.id.updateWv);
+        pilihBinBtn = findViewById(R.id.pilihBin);
+        pilihWvBtn = findViewById(R.id.pilihWv);
+        if (pilihBinBtn != null) {
+            pilihBinBtn.setOnClickListener(v -> pilihVersiDialog(true));
+        }
+        if (pilihWvBtn != null) {
+            pilihWvBtn.setOnClickListener(v -> pilihVersiDialog(false));
+        }
         backupDbBtn = findViewById(R.id.backupDb);
         restoreDbBtn = findViewById(R.id.restoreDb);
         Button batteryBtn = findViewById(R.id.batteryBtn);
@@ -285,8 +295,9 @@ public class SettingsActivity extends Activity {
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm("Reset Binary",
-                "Hapus binary tersimpan. Versi terbaru akan diunduh ulang "
-                        + "otomatis saat Start berikutnya (perlu internet). Lanjutkan?",
+                "Hapus binary tersimpan. Versi pilihan (atau terbaru bila tak dikunci)"
+                        + " akan diunduh ulang otomatis saat Start berikutnya"
+                        + " (perlu internet). Lanjutkan?",
                 () -> runBusy(this::revertToBundled)));
         installCertBtn.setOnClickListener(v -> installCertificate());
         shareCaBtn = findViewById(R.id.shareCa);
@@ -404,6 +415,7 @@ public class SettingsActivity extends Activity {
                 KEY_SEC_TELEGRAM);
         pasangChip(R.id.navLog, R.id.headerLog, R.id.bodyLog, R.id.chevronLog, KEY_SEC_LOG);
         tampilkanDetailPenuh();
+        segarkanLabelVersi();
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -2150,6 +2162,192 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    // ─── Pilih versi binary / web-vault (kunci versi) ───────────────────
+
+    /** Teks tombol pilih versi: "Terbaru (otomatis)" atau "vX (terkunci)". */
+    private void segarkanLabelVersi() {
+        ui.post(() -> {
+            try {
+                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                String b = Updater.normalisasiPinVersi(
+                        sp.getString(ServerService.KEY_BIN_PILIH, ""));
+                String w = Updater.normalisasiPinVersi(
+                        sp.getString(ServerService.KEY_WV_PILIH, ""));
+                if (pilihBinBtn != null) {
+                    pilihBinBtn.setText(getString(R.string.pilih_versi_binary, labelKuncian(b)));
+                }
+                if (pilihWvBtn != null) {
+                    pilihWvBtn.setText(
+                            getString(R.string.pilih_versi_webvault, labelKuncian(w)));
+                }
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    private String labelKuncian(String pin) {
+        if (pin == null || pin.isEmpty()) {
+            return getString(R.string.versi_terbaru_otomatis);
+        }
+        return getString(R.string.versi_terkunci, pin);
+    }
+
+    /** Sufiks ringkasan kartu rawat bila ada versi dikunci. */
+    private String teksKuncian() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String b = Updater.normalisasiPinVersi(
+                    sp.getString(ServerService.KEY_BIN_PILIH, ""));
+            String w = Updater.normalisasiPinVersi(
+                    sp.getString(ServerService.KEY_WV_PILIH, ""));
+            boolean adaB = b != null && !b.isEmpty();
+            boolean adaW = w != null && !w.isEmpty();
+            if (!adaB && !adaW) {
+                return "";
+            }
+            if (adaB && adaW && b.equals(w)) {
+                return ", terkunci v" + b;
+            }
+            return ", kunci bin:" + (adaB ? "v" + b : "terbaru")
+                    + " wv:" + (adaW ? "v" + w : "terbaru");
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Dialog pilih versi (daftar dari rilis repo + opsi terbaru + isi manual). */
+    private void pilihVersiDialog(final boolean untukBinary) {
+        runBusy(() -> {
+            try {
+                appendUiLog("[app] Memuat daftar versi...");
+                java.util.List<String> versi = new java.util.ArrayList<>();
+                for (String v : Updater.daftarVersiTersedia(this, 30)) {
+                    String normal = Updater.normalisasiPinVersi(v);
+                    if (normal != null && !versi.contains(normal)) {
+                        versi.add(normal);
+                    }
+                }
+                // Kuncian lama tetap bisa dipilih walau tak ada di daftar.
+                String pin = untukBinary ? Updater.kuncianBinary(this)
+                        : Updater.kuncianWebVault(this);
+                if (pin != null && !pin.isEmpty() && !versi.contains(pin)) {
+                    versi.add(pin);
+                }
+                final java.util.List<String> tetap = versi;
+                final String pinTetap = pin;
+                ui.post(() -> tampilDialogVersi(untukBinary, tetap, pinTetap));
+            } catch (Exception e) {
+                toast(getString(R.string.daftar_versi_gagal));
+                appendUiLog("[app] Gagal memuat daftar versi: " + e);
+            }
+        });
+    }
+
+    private void tampilDialogVersi(final boolean untukBinary,
+            final java.util.List<String> versi, String pin) {
+        final String[] nama = new String[versi.size() + 1];
+        nama[0] = getString(R.string.versi_terbaru_otomatis);
+        for (int i = 0; i < versi.size(); i++) {
+            nama[i + 1] = "v" + versi.get(i);
+        }
+        int awal = 0;
+        if (pin != null && !pin.isEmpty()) {
+            int idx = versi.indexOf(pin);
+            if (idx >= 0) {
+                awal = idx + 1;
+            }
+        }
+        final int[] pilih = {awal};
+        new AlertDialog.Builder(this)
+                .setTitle(untukBinary ? R.string.dialog_judul_versi_binary
+                        : R.string.dialog_judul_versi_webvault)
+                .setSingleChoiceItems(nama, awal, (d, which) -> pilih[0] = which)
+                .setPositiveButton(R.string.pasang, (d, w) -> {
+                    String v = pilih[0] == 0 ? "" : versi.get(pilih[0] - 1);
+                    pasangVersiDipilih(untukBinary, v);
+                })
+                .setNeutralButton(R.string.isi_manual,
+                        (d, w) -> dialogManualVersi(untukBinary))
+                .setNegativeButton(R.string.batal, null)
+                .show();
+    }
+
+    private void dialogManualVersi(final boolean untukBinary) {
+        final EditText input = new EditText(this);
+        input.setHint("mis. 1.32.0 (kosongkan = terbaru)");
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        String pin = untukBinary ? Updater.kuncianBinary(this)
+                : Updater.kuncianWebVault(this);
+        if (pin != null && !pin.isEmpty()) {
+            input.setText(pin);
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.versi_manual_judul)
+                .setView(input)
+                .setPositiveButton(R.string.pasang, (d, w) -> {
+                    String t = input.getText().toString().trim();
+                    String normal = t.isEmpty() ? "" : Updater.normalisasiPinVersi(t);
+                    if (normal == null) {
+                        toast(getString(R.string.versi_tidak_valid));
+                        return;
+                    }
+                    pasangVersiDipilih(untukBinary, normal);
+                })
+                .setNegativeButton(R.string.batal, null)
+                .show();
+    }
+
+    /** Simpan kuncian lalu pasang versi itu (downgrade pun boleh). */
+    private void pasangVersiDipilih(final boolean untukBinary, final String versi) {
+        if (untukBinary) {
+            Updater.simpanKuncianBinary(this, versi);
+        } else {
+            Updater.simpanKuncianWebVault(this, versi);
+        }
+        segarkanLabelVersi();
+        refreshRingkasan();
+        final String target = (versi == null || versi.isEmpty()) ? null : versi;
+        if (untukBinary) {
+            runBusy(() -> {
+                try {
+                    appendUiLog("[app] Memasang binary v"
+                            + (target == null ? "terbaru" : target) + "...");
+                    if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                        try {
+                            Updater.ensureShimFile(this);
+                        } catch (Exception se) {
+                            appendUiLog("[app] Shim gagal: " + se.getMessage());
+                        }
+                    }
+                    String msg = Updater.tryUpdateVersi(this, target);
+                    if (Updater.binaryBerubah(msg)) {
+                        pendingVersion = null;
+                    }
+                    appendUiLog("[app] " + msg);
+                    toast(Updater.binaryBerubah(msg)
+                            ? msg + " Tekan Start untuk memakai." : msg);
+                } catch (Exception e) {
+                    toast("Gagal pasang binary: " + e.getMessage());
+                    appendUiLog("[app] Gagal pasang binary: " + e);
+                }
+            });
+        } else {
+            runBusy(() -> {
+                try {
+                    appendUiLog("[app] Mengunduh web-vault v"
+                            + (target == null ? "terbaru" : target) + "...");
+                    String msg = Updater.updateWebVaultVersi(this, target);
+                    toast(msg);
+                    appendUiLog("[app] " + msg);
+                    lastWvCheck = 0; // paksa baca ulang info versi web-vault
+                } catch (Exception e) {
+                    toast("Gagal update web-vault: " + e.getMessage());
+                    appendUiLog("[app] Gagal update web-vault: " + e);
+                }
+            });
+        }
+    }
+
     private void revertToBundled() {
         File out = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
         new File(getFilesDir(), "bin/version.txt").delete();
@@ -2157,7 +2355,7 @@ public class SettingsActivity extends Activity {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .remove(ServerService.KEY_UPDATE_VERSION).apply();
             ServerService.binaryVersion = "";
-            toast("Binary dihapus. Akan diunduh ulang saat Start.");
+            toast("Binary dihapus. Akan diunduh ulang (versi pilihan) saat Start.");
             appendUiLog("[app] Binary di-reset; akan diunduh ulang saat Start.");
         } else {
             toast("Tidak ada binary tersimpan.");
@@ -2251,7 +2449,7 @@ public class SettingsActivity extends Activity {
         boolean au = autoUpdateCb != null && autoUpdateCb.isChecked();
         if (rawatRingkasan != null) {
             rawatRingkasan.setText(getString(R.string.ringkas_rawat,
-                    au ? "auto-update aktif" : "auto-update mati"));
+                    (au ? "auto-update aktif" : "auto-update mati") + teksKuncian()));
         }
         boolean botIsi = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
                 && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
