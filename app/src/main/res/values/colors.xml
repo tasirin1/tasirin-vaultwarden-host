@@ -26,6 +26,8 @@
     <color name="accent_log">#546E7A</color>
     <color name="log_error">#B3261E</color>
     <color name="log_warn">#8A5A00</color>
+    <!-- Sorot kata kunci pencarian di log layar penuh. -->
+    <color name="search_highlight">#FFE082</color>
     <color name="hero_run_start">#237A3B</color>
     <color name="hero_run_end">#0B3B20</color>
 </resources>

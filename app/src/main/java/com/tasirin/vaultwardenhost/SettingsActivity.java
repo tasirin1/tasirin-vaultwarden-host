@@ -870,7 +870,7 @@ public class SettingsActivity extends Activity {
             tv.setText(Html.fromHtml(html.toString()));
         }
         tv.setMovementMethod(LinkMovementMethod.getInstance());
-        tv.setLinkTextColor(0xFF1E88E5);
+        tv.setLinkTextColor(getResources().getColor(R.color.accent));
         new AlertDialog.Builder(this)
                 .setTitle("Tentang")
                 .setView(tv)

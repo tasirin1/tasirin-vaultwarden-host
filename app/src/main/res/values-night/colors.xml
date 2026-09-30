@@ -25,6 +25,8 @@
     <color name="accent_log">#B0BEC5</color>
     <color name="log_error">#F0554D</color>
     <color name="log_warn">#FFB74D</color>
+    <!-- Sorot pencarian malam: amber gelap agar teks terang tetap terbaca. -->
+    <color name="search_highlight">#7A5A00</color>
     <color name="hero_run_start">#237A3B</color>
     <color name="hero_run_end">#0B3B20</color>
 </resources>

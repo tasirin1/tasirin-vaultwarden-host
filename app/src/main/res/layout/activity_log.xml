@@ -23,6 +23,7 @@
             android:stateListAnimator="@null"
             android:id="@+id/logBack"
             android:nextFocusDown="@id/logSave"
+            android:nextFocusRight="@id/logCrash"
             android:background="@drawable/bg_btn_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,7 +35,8 @@
         <Button
             android:stateListAnimator="@null"
             android:id="@+id/logCrash"
-            android:nextFocusDown="@id/logSave"
+            android:nextFocusDown="@id/logCopy"
+            android:nextFocusLeft="@id/logBack"
             android:nextFocusUp="@id/logBack"
             android:background="@drawable/bg_btn_tv"
             android:layout_width="wrap_content"
@@ -54,6 +56,9 @@
         <Button
             android:stateListAnimator="@null"
             android:id="@+id/logSave"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
             android:background="@drawable/bg_btn_tv"
@@ -67,6 +72,9 @@
         <Button
             android:stateListAnimator="@null"
             android:id="@+id/logShare"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:nextFocusDown="@id/logSearch"
             android:nextFocusUp="@id/logBack"
             android:background="@drawable/bg_btn_tv"
@@ -80,8 +88,11 @@
         <Button
             android:stateListAnimator="@null"
             android:id="@+id/logCopy"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/logBack"
+            android:nextFocusUp="@id/logCrash"
             android:background="@drawable/bg_btn_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -93,8 +104,11 @@
         <Button
             android:stateListAnimator="@null"
             android:id="@+id/logClear"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:nextFocusDown="@id/logSearch"
-            android:nextFocusUp="@id/logBack"
+            android:nextFocusUp="@id/logCrash"
             android:background="@drawable/bg_btn_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -124,7 +138,7 @@
 
         <CheckBox
             android:id="@+id/logAutoScroll"
-            android:nextFocusDown="@id/logSearch"
+            android:nextFocusDown="@id/logBack"
             android:nextFocusUp="@id/logSearch"
             android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
@@ -152,7 +166,10 @@
             android:id="@+id/log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_info_box"
             android:fontFamily="monospace"
+            android:padding="8dp"
+            android:textColor="@color/text_primary"
             android:textSize="11sp" />
     </ScrollView>
 </LinearLayout>

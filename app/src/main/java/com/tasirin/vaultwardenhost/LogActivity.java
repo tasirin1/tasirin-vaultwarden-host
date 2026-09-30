@@ -7,7 +7,6 @@ import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -71,6 +70,9 @@ public class LogActivity extends Activity {
     private int lastLogLen = 0;
     private long lastLogVer = -1;
     private int lineCount = 0;
+    /** Warna sorot pencarian + baris galat dari tema (sinkron terang/gelap). */
+    private int warnaSorotCari = 0xFFFFE082;
+    private int warnaGalat = 0xFFFF0000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,9 @@ public class LogActivity extends Activity {
         Button copyBtn = findViewById(R.id.logCopy);
         Button clearBtn = findViewById(R.id.logClear);
         Button crashBtn = findViewById(R.id.logCrash);
+
+        warnaSorotCari = warnaTema(R.color.search_highlight);
+        warnaGalat = warnaTema(R.color.log_error);
 
         autoScrollCheck.setChecked(logAutoScroll);
         autoScrollCheck.setOnCheckedChangeListener((b, checked) -> logAutoScroll = checked);
@@ -203,7 +208,13 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Sorot baris GAGAL/ERROR/FAILED merah dan kata kunci pencarian kuning.
+    // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
+    @SuppressWarnings("deprecation")
+    private int warnaTema(int id) {
+        return getResources().getColor(id);
+    }
+
+    /** Sorot baris GAGAL/ERROR/FAILED dan kata kunci pencarian (warna tema).
      *  Tanpa toLowerCase()/substring() per baris: pencocokan case-insensitive
      *  via regionMatches agar tidak ada salinan besar tiap refresh. */
     private CharSequence highlightLog(String text, String q) {
@@ -225,7 +236,7 @@ public class LogActivity extends Activity {
                 if (idx < 0) {
                     break;
                 }
-                sb.setSpan(new BackgroundColorSpan(0xFFFFE082),
+                sb.setSpan(new BackgroundColorSpan(warnaSorotCari),
                         idx, idx + q.length(),
                         SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
                 from = idx + q.length();
@@ -241,7 +252,7 @@ public class LogActivity extends Activity {
             if (rangeIndexOf(text, "GAGAL", lineStart, lineEnd) >= 0
                     || rangeIndexOf(text, "ERROR", lineStart, lineEnd) >= 0
                     || rangeIndexOf(text, "FAILED", lineStart, lineEnd) >= 0) {
-                sb.setSpan(new ForegroundColorSpan(Color.RED),
+                sb.setSpan(new ForegroundColorSpan(warnaGalat),
                         lineStart, lineEnd,
                         SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
             }

@@ -232,8 +232,10 @@
                     android:textSize="11sp" />
 
                 <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
+                <!-- nestedScrollingEnabled agar gulir jari di pratinjau tak berebut scroll halaman. -->
                 <ScrollView
                     android:id="@+id/homeLogScroll"
+                    android:nestedScrollingEnabled="true"
                     tools:ignore="NestedScrolling"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
