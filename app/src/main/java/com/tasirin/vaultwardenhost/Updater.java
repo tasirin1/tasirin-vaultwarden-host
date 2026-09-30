@@ -121,30 +121,35 @@ public final class Updater {
         return pilihTarget(kuncianWebVault(ctx), latestVersion(ctx));
     }
 
-    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru). */
-    public static void simpanKuncianBinary(Context ctx, String versi) {
-        simpanKuncian(ctx, ServerService.KEY_BIN_PILIH, versi);
+    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru).
+     *  Kembalikan false bila versi tak valid sehingga pin lama bertahan;
+     *  pemanggil wajib memberi pesan, bukan mengira tersimpan. */
+    public static boolean simpanKuncianBinary(Context ctx, String versi) {
+        return simpanKuncian(ctx, ServerService.KEY_BIN_PILIH, versi);
     }
 
-    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru). */
-    public static void simpanKuncianWebVault(Context ctx, String versi) {
-        simpanKuncian(ctx, ServerService.KEY_WV_PILIH, versi);
+    /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru).
+     *  Kembalikan false bila versi tak valid sehingga pin lama bertahan. */
+    public static boolean simpanKuncianWebVault(Context ctx, String versi) {
+        return simpanKuncian(ctx, ServerService.KEY_WV_PILIH, versi);
     }
 
-    private static void simpanKuncian(Context ctx, String kunci, String versi) {
+    static boolean simpanKuncian(Context ctx, String kunci, String versi) {
         String t = versi == null ? "" : versi.trim();
         if (t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
             t = "";
         }
         String normal = t.isEmpty() ? "" : normalisasiPinVersi(t);
+        if (normal == null) {
+            return false;
+        }
         try {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            if (normal == null) {
-                return;
-            }
             sp.edit().putString(kunci, normal).apply();
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 
@@ -1535,14 +1540,24 @@ public final class Updater {
         return readBundledVersionRaw(ctx);
     }
 
-    /** Versi dari file vw-version.json web-vault, atau null bila tak terbaca. */
+    /** Batas baca vw-version.json (file wajar <1 KB; tolak jumbo korup). */
+    static final int BATAS_WV_VERSION = 16 * 1024;
+
+    /** Versi dari file vw-version.json web-vault, atau null bila tak terbaca.
+     *  Baca dibatasi agar file korup jumbo tak memenuhi heap STB. */
     public static String readWvVersion(File f) {
+        if (f == null || !f.isFile() || f.length() > BATAS_WV_VERSION) {
+            return null;
+        }
         try (BufferedReader r = new BufferedReader(new InputStreamReader(
                 new FileInputStream(f), StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = r.readLine()) != null) {
                 sb.append(line);
+                if (sb.length() > BATAS_WV_VERSION) {
+                    return null;
+                }
             }
             String v = new org.json.JSONObject(sb.toString()).optString("version", "");
             return v.isEmpty() ? null : v;

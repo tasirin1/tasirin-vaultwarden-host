@@ -2303,16 +2303,23 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
-    /** Simpan kuncian lalu pasang versi itu (downgrade pun boleh). */
+    /** Simpan kuncian lalu pasang versi itu (downgrade pun boleh).
+     *  Pin lama dikembalikan bila pasang gagal agar typo tak mengunci
+     *  perangkat ke versi yang tak pernah terpasang. */
     private void pasangVersiDipilih(final boolean untukBinary, final String versi) {
-        if (untukBinary) {
-            Updater.simpanKuncianBinary(this, versi);
-        } else {
-            Updater.simpanKuncianWebVault(this, versi);
+        final String pinLama = untukBinary ? Updater.kuncianBinary(this)
+                : Updater.kuncianWebVault(this);
+        boolean tersimpan = untukBinary
+                ? Updater.simpanKuncianBinary(this, versi)
+                : Updater.simpanKuncianWebVault(this, versi);
+        if (!tersimpan) {
+            toast(getString(R.string.versi_tidak_valid));
+            return;
         }
         segarkanLabelVersi();
         refreshRingkasan();
         final String target = (versi == null || versi.isEmpty()) ? null : versi;
+        final String pinLamaFinal = pinLama == null ? "" : pinLama;
         if (untukBinary) {
             runBusy(() -> {
                 try {
@@ -2333,6 +2340,15 @@ public class SettingsActivity extends Activity {
                     toast(Updater.binaryBerubah(msg)
                             ? msg + " Tekan Start untuk memakai." : msg);
                 } catch (Exception e) {
+                    if (target != null) {
+                        if (untukBinary) {
+                            Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
+                        } else {
+                            Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
+                        }
+                        segarkanLabelVersi();
+                        refreshRingkasan();
+                    }
                     toast("Gagal pasang binary: " + e.getMessage());
                     appendUiLog("[app] Gagal pasang binary: " + e);
                 }
@@ -2347,6 +2363,15 @@ public class SettingsActivity extends Activity {
                     appendUiLog("[app] " + msg);
                     lastWvCheck = 0; // paksa baca ulang info versi web-vault
                 } catch (Exception e) {
+                    if (target != null) {
+                        if (untukBinary) {
+                            Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
+                        } else {
+                            Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
+                        }
+                        segarkanLabelVersi();
+                        refreshRingkasan();
+                    }
                     toast("Gagal update web-vault: " + e.getMessage());
                     appendUiLog("[app] Gagal update web-vault: " + e);
                 }

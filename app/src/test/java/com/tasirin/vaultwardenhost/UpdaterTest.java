@@ -593,6 +593,29 @@ public class UpdaterTest {
     }
 
     @Test
+    public void readWvVersion_bacaNormalDanTolakJumbo() throws Exception {
+        java.io.File kecil = java.io.File.createTempFile("vw-ver-", ".json");
+        try {
+            java.nio.file.Files.write(kecil.toPath(),
+                    "{\"version\": \"1.32.0\"}".getBytes("UTF-8"));
+            assertEquals("1.32.0", Updater.readWvVersion(kecil));
+        } finally {
+            kecil.delete();
+        }
+        java.io.File jumbo = java.io.File.createTempFile("vw-ver-big-", ".json");
+        try {
+            byte[] isi = new byte[Updater.BATAS_WV_VERSION + 1024];
+            java.util.Arrays.fill(isi, (byte) 'x');
+            java.nio.file.Files.write(jumbo.toPath(), isi);
+            assertNull(Updater.readWvVersion(jumbo));
+        } finally {
+            jumbo.delete();
+        }
+        assertNull(Updater.readWvVersion(null));
+        assertNull(Updater.readWvVersion(new java.io.File("/tmp/vw-tidak-ada-xyz.json")));
+    }
+
+    @Test
     public void normalisasiPinVersi_validDanInvalid() {
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
         assertEquals("1.32.0", Updater.normalisasiPinVersi("v1.32.0"));

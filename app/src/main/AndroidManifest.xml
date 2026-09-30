@@ -22,8 +22,10 @@
 
     <!-- usesCleartextTraffic=true wajib untuk health check HTTP loopback di API 23
          (network_security_config baru berlaku API 24+): di API 23 flag ini juga
-         membuka cleartext WAN di level sistem, tapi app hanya memakai HTTP untuk
-         loopback + URL LAN pilihan user; Telegram/GitHub selalu HTTPS. -->
+         membuka cleartext WAN di level sistem. App tak pernah memakai HTTP untuk
+         WAN: Telegram/GitHub selalu HTTPS (https hardcode), checksum menolak
+         non-https fail-closed, redirect https->http ditolak; HTTP hanya untuk
+         loopback/URL LAN pilihan user. -->
     <application
         android:allowBackup="false"
         android:supportsRtl="true"

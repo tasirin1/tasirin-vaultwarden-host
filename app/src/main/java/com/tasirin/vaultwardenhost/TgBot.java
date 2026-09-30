@@ -716,12 +716,18 @@ public final class TgBot {
                 final boolean kunciUpdate = !bersihUpdate.isEmpty();
                 final String versiUpdate = Updater.normalisasiPinVersi(bersihUpdate);
                 runBeratDenganKunci(ctx, () -> {
+                    String pinLama = Updater.kuncianBinary(ctx);
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
                         // Versi eksplisit ikut dikunci agar auto-update tak menaikkan lagi;
-                        // "terbaru" melepas kuncian.
+                        // "terbaru" melepas kuncian. Pin lama dikembalikan bila
+                        // unduh gagal agar typo tak mengunci perangkat ke versi rusak.
                         if (kunciUpdate) {
-                            Updater.simpanKuncianBinary(ctx, bersihUpdate);
+                            if (!Updater.simpanKuncianBinary(ctx, bersihUpdate)) {
+                                TgBackup.sendMessage(ctx, "Versi tidak valid."
+                                        + " Contoh: /update 1.32.0 atau /update terbaru");
+                                return;
+                            }
                         }
                         // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
                         String imbuhShim = "";
@@ -749,6 +755,13 @@ public final class TgBot {
                             TgBackup.sendMessage(ctx, msg);
                         }
                     } catch (Exception e) {
+                        // Gagal unduh: kembalikan pin lama bila tadi mengunci versi
+                        // konkret (bukan melepas ke terbaru) agar perangkat tak
+                        // terkunci ke versi yang tak pernah terpasang.
+                        if (kunciUpdate && versiUpdate != null) {
+                            Updater.simpanKuncianBinary(ctx,
+                                    pinLama == null ? "" : pinLama);
+                        }
                         String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
                                 ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
                         TgBackup.sendMessage(ctx, "Update gagal: " + ramah);
@@ -768,10 +781,16 @@ public final class TgBot {
                 final boolean kunciWv = !bersihWv.isEmpty();
                 final String versiWv = Updater.normalisasiPinVersi(bersihWv);
                 runBeratDenganKunci(ctx, () -> {
+                    String pinLamaWv = Updater.kuncianWebVault(ctx);
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
+                        // Pin lama dikembalikan bila unduh gagal (lihat /update).
                         if (kunciWv) {
-                            Updater.simpanKuncianWebVault(ctx, bersihWv);
+                            if (!Updater.simpanKuncianWebVault(ctx, bersihWv)) {
+                                TgBackup.sendMessage(ctx, "Versi tidak valid."
+                                        + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
+                                return;
+                            }
                         }
                         String msg = Updater.updateWebVaultVersi(ctx, versiWv);
                         if (webVaultBerubah(msg)) {
@@ -789,6 +808,10 @@ public final class TgBot {
                             TgBackup.sendMessage(ctx, msg);
                         }
                     } catch (Exception e) {
+                        if (kunciWv && versiWv != null) {
+                            Updater.simpanKuncianWebVault(ctx,
+                                    pinLamaWv == null ? "" : pinLamaWv);
+                        }
                         String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
                                 ? e.getMessage() : Updater.pesanGalatUnduh("Unduh web-vault", e);
                         TgBackup.sendMessage(ctx, "Update web-vault gagal: " + ramah);
@@ -837,8 +860,8 @@ public final class TgBot {
     static String restoreInfoText(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String name = sp.getString(TgBackup.KEY_TG_LAST_NAME, "");
-        String fileId = sp.getString(TgBackup.KEY_TG_LAST_FILE, "");
+        String name = TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_NAME, "");
+        String fileId = TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_FILE, "");
         long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
         if ((name == null || name.isEmpty()) && (fileId == null || fileId.isEmpty())) {
             return "Belum ada backup terkirim dari app ini. Kirim /backup dulu.";
@@ -858,7 +881,7 @@ public final class TgBot {
     static String doRestore(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+        String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
         File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
         try {
@@ -901,8 +924,10 @@ public final class TgBot {
     static String authDangerous(Context ctx, String arg) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String hash = sp.getString(PinGate.KEY_PIN_HASH, "");
-        boolean need = sp.getBoolean(PinGate.KEY_PIN_ON, false)
+        // Baca tahan korup: prefs edit manual bertipe salah tak boleh
+        // melempar ClassCastException di thread polling bot.
+        String hash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+        boolean need = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
                 && hash != null && !hash.isEmpty();
         String t = arg == null ? "" : arg.trim();
         if (!need) {
@@ -958,8 +983,9 @@ public final class TgBot {
         String bin = Updater.currentServerVersion(ctx);
         String dataDir = ServerService.DEFAULT_DATA_DIR;
         try {
-            dataDir = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+            dataDir = TgBackup.amanString(
+                    ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE),
+                    ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         } catch (Exception ignored) {
         }
         String wv = null;
