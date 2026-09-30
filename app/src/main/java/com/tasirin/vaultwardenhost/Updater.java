@@ -1559,11 +1559,54 @@ public final class Updater {
                     return null;
                 }
             }
-            String v = new org.json.JSONObject(sb.toString()).optString("version", "");
-            return v.isEmpty() ? null : v;
+            String v = ambilNilaiJson(sb.toString(), "version");
+            return (v == null || v.isEmpty()) ? null : v;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Ambil nilai string kunci JSON datar ("kunci": "nilai") tanpa org.json
+     *  (org.json di android.jar hanya stub yang melempar di unit test JVM).
+     *  Murni agar bisa unit test. */
+    static String ambilNilaiJson(String json, String kunci) {
+        if (json == null || kunci == null || kunci.isEmpty()) {
+            return null;
+        }
+        String cari = "\"" + kunci + "\"";
+        int i = json.indexOf(cari);
+        if (i < 0) {
+            return null;
+        }
+        int titikDua = json.indexOf(':', i + cari.length());
+        if (titikDua < 0) {
+            return null;
+        }
+        int awal = titikDua + 1;
+        while (awal < json.length() && Character.isWhitespace(json.charAt(awal))) {
+            awal++;
+        }
+        if (awal >= json.length() || json.charAt(awal) != '\"') {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int j = awal + 1; j < json.length(); j++) {
+            char c = json.charAt(j);
+            if (c == '\\' && j + 1 < json.length()) {
+                char n = json.charAt(++j);
+                switch (n) {
+                    case 'n': sb.append('\n'); break;
+                    case 't': sb.append('\t'); break;
+                    case 'r': sb.append('\r'); break;
+                    default: sb.append(n); break;
+                }
+            } else if (c == '\"') {
+                return sb.toString();
+            } else {
+                sb.append(c);
+            }
+        }
+        return null;
     }
 
     public static String normVersion(String v) {
