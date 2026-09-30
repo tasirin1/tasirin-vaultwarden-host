@@ -1947,6 +1947,28 @@ public class ServerService extends Service {
                 }
             }
             p = pb.start();
+            // Watchdog 10 detik: readLine() memblokir selamanya bila binary
+            // macet tanpa output; destroy terjadwal menutup pipa sehingga
+            // baca balik EOF dan thread Start tak nyangkut "Bekerja...".
+            final Process versiProc = p;
+            final boolean[] versiSelesai = new boolean[1];
+            Thread versiWatchdog = new Thread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    if (!versiSelesai[0]) {
+                        try {
+                            versiProc.destroy();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }, "vw-version-watchdog");
+            versiWatchdog.setDaemon(true);
+            versiWatchdog.start();
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             // Cukup 2 baris versi pertama (saring noise linker STB lama), lalu
@@ -1970,6 +1992,8 @@ public class ServerService extends Service {
                     break;
                 }
             }
+            versiSelesai[0] = true;
+            versiWatchdog.interrupt();
             lastVersionOutput = first == null ? "" : first.trim();
             p.destroy();
             try {

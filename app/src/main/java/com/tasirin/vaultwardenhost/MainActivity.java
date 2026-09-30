@@ -723,6 +723,13 @@ public class MainActivity extends Activity {
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
     private void exportHomeLogTxt() {
+        // Sama seperti LogActivity: tawarkan izin ulang bila belum ada
+        // (API 29+ via MediaStore tak butuh izin).
+        if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
+            StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
+            toast(getString(R.string.izin_storage_belum));
+            return;
+        }
         String log;
         synchronized (ServerService.logBuffer) {
             log = ServerService.logBuffer.toString();

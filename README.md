@@ -28,6 +28,8 @@ Unduh dari HP lain, taruh di folder data, tekan **Start**:
 
 Auto-update binary & web vault, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
 
+Tampilan ikut orientasi: portrait satu kolom; landscape TV/tablet dua kolom (log realtime panel utama, tautan + server di bilah samping, font log ikut ukuran layar) dan semua tombol bisa dipakai D-pad remote.
+
 **Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. Kalau PIN aktif: `/status` `/log` `/stop` dkk wajib diakhiri PIN (mis. `/stop 123456`); pesan perintah ber-PIN dihapus otomatis dari chat bila bot punya izin hapus.
 
 **Backup:** database di `<folder-data>/db.sqlite3`. Backup lokal di Settings → Pemeliharaan; backup Telegram via `/backup`; restore via `/restore` atau file `.zip`/`.sqlite3`.

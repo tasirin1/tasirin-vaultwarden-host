@@ -40,6 +40,8 @@ import java.util.Locale;
 /** Halaman log server realtime layar penuh (di-port dari LogActivity download manager). */
 public class LogActivity extends Activity {
 
+    private static final int REQ_WRITE = 1002;
+    private boolean simpanUlangSetelahIzin = false;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private TextView logView;
     private ScrollView logScroll;
@@ -384,6 +386,15 @@ public class LogActivity extends Activity {
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
     private void exportLogTxt() {
+        // Android 6-9: tulis Download publik butuh izin runtime; tawarkan
+        // izin ulang di sini agar tombol Simpan tak selalu "Gagal menyimpan
+        // log" bila izin ditolak di layar utama (API 29+ via MediaStore).
+        if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
+            simpanUlangSetelahIzin = true;
+            StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
+            toast(getString(R.string.izin_storage_belum));
+            return;
+        }
         String log;
         synchronized (ServerService.logBuffer) {
             // Mentah saja: penyamaran token sekali di LogExport agar regex
@@ -392,6 +403,22 @@ public class LogActivity extends Activity {
         }
         String nama = LogExport.simpanKeDownload(this, log);
         toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (requestCode == REQ_WRITE) {
+            if (StoragePerm.tulisDiizinkan(permissions, grantResults)) {
+                if (simpanUlangSetelahIzin) {
+                    simpanUlangSetelahIzin = false;
+                    exportLogTxt();
+                }
+            } else {
+                simpanUlangSetelahIzin = false;
+                StoragePerm.tanganiPenolakan(this);
+            }
+        }
     }
 
     private void toast(String msg) {

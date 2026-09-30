@@ -28,6 +28,8 @@ Download from another phone, put in the data folder, press **Start**:
 
 Auto-update of binary & web vault, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
+Layout follows orientation: portrait is a single column; landscape on TV/tablet uses two columns (realtime log as the main panel, links + server in the side bar, log font scales with screen size) and every button works with a TV remote D-pad.
+
 **Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/backup` `/restore` `/update` `/start` `/stop` `/restart` `/ca` `/cabackup` `/careset` `/crashlog` `/help`. With PIN: `/status` `/log` `/stop` etc. must end with the PIN (e.g. `/stop 123456`); PIN command messages are auto-deleted from the chat when the bot has delete permission.
 
 **Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.

@@ -1339,6 +1339,28 @@ public final class Updater {
                 }
             }
             Process p = pb.start();
+            // Watchdog 10 detik: readLine() memblokir selamanya bila binary
+            // macet tanpa output; destroy terjadwal menutup pipa sehingga
+            // baca balik EOF (batas tungguAtauBunuh di bawah saja tak cukup).
+            final Process versiProc = p;
+            final boolean[] versiSelesai = new boolean[1];
+            Thread versiWatchdog = new Thread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    if (!versiSelesai[0]) {
+                        try {
+                            versiProc.destroy();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }, "vw-detect-watchdog");
+            versiWatchdog.setDaemon(true);
+            versiWatchdog.start();
             // Baca sampai baris bermakna: baris pertama di STB lama adalah
             // noise linker ("WARNING: linker: ..."), bukan versi.
             String first = null;
@@ -1353,6 +1375,8 @@ public final class Updater {
                     break;
                 }
             }
+            versiSelesai[0] = true;
+            versiWatchdog.interrupt();
             // Batas 10 detik: binary macet tak boleh menggantung thread update
             // selamanya (di Settings itu mengunci semua tombol berat).
             if (!tungguAtauBunuh(p, 10_000)) {
