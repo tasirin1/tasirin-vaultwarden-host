@@ -53,6 +53,8 @@ public final class TgBackup {
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
+    /** Susulan backup terjadwal yang ditolak sistem (dipakai Alarm/Boot/Main). */
+    public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
 
@@ -301,7 +303,7 @@ public final class TgBackup {
         String terbaca;
         try {
             java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
-                    "d MMM yyyy HH:mm", new Locale("in", "ID"));
+                    "d MMM yyyy HH:mm", new Locale("id", "ID"));
             terbaca = f.format(new Date(kiniMs));
         } catch (Exception ignored) {
             terbaca = String.valueOf(kiniMs);
@@ -967,7 +969,7 @@ public final class TgBackup {
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
-                    "tg_backup_tertunda", ServerService.KEY_START_TERTUNDA));
+                    KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA));
 
     /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {
@@ -1829,7 +1831,7 @@ public final class TgBackup {
                     ServerService.KEY_AUTO_UPDATE, ServerService.KEY_AUTO_UPDATE_WV,
                     ServerService.KEY_AUTO_RESTART_UPDATE, ServerService.KEY_PORT_MIGRATED,
                     KEY_TG_AUTO, "wizard_selesai",
-                    PinGate.KEY_PIN_ON, "tg_backup_tertunda",
+                    PinGate.KEY_PIN_ON, KEY_BACKUP_TERTUNDA,
                     "tg_low_storage_notified", "home_log_expanded"));
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */

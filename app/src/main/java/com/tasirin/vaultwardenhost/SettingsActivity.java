@@ -582,7 +582,8 @@ public class SettingsActivity extends Activity {
         String adminToken = adminTokenInput.getText().toString().trim();
 
         String dataDirEfektif = ServerService.amankanDataDir(dataDir);
-        if (!ServerService.dataDirAman(dataDir) && !TextUtils.isEmpty(dataDir)) {
+        if ((!ServerService.dataDirAman(dataDir) || !ServerService.dataDirKanonisAman(dataDir))
+                && !TextUtils.isEmpty(dataDir)) {
             toast("Folder data tidak valid, pakai bawaan.");
             appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
         }
@@ -1502,7 +1503,7 @@ public class SettingsActivity extends Activity {
             // Sanitasi seperti saveAndStart: path berbahaya jatuh ke bawaan agar
             // prefs tak keracunan sebelum restore berjalan.
             String aman = ServerService.amankanDataDir(inputDir);
-            if (!ServerService.dataDirAman(inputDir)) {
+            if (!ServerService.dataDirAman(inputDir) || !ServerService.dataDirKanonisAman(inputDir)) {
                 toast("Folder data tidak valid, pakai bawaan.");
             }
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()

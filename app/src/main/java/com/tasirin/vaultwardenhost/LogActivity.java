@@ -338,16 +338,10 @@ public class LogActivity extends Activity {
         r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
         r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
         r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
-        // Token mentah hanya disamarkan dalam konteks Telegram agar baris log
-        // sah berpola mirip tak ikut rusak (pola sendiri tetap luas).
-        String rendah = r.toLowerCase(java.util.Locale.US);
-        if (rendah.contains("telegram") || rendah.contains("file_id")
-                || rendah.contains("getupdates") || rendah.contains("sendmessage")
-                || rendah.contains("senddocument") || rendah.contains("deletemessage")
-                || rendah.contains("/bot")
-                || rendah.matches("(?s).*\\bbot\\b.*")) {
-            r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
-        }
+        // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 30+
+        // karakter sehingga jam "12:30" dan teks biasa tak ikut rusak,
+        // sementara token bocor di log generik tetap tertutup.
+        r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
         // di pesan galat) + secret admin via env/query/Bearer.
         r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");

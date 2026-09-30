@@ -926,9 +926,21 @@ public final class TgBot {
         }
         int i = t.lastIndexOf(' ');
         if (i < 0) {
-            return new String[]{"", t};
+            // Kata tunggal non-numerik bukan PIN (hindari lockout sia-sia):
+            // kembalikan sebagai sisa agar pemanggil minta PIN eksplisit.
+            if (t.matches("\\d{4,}")) {
+                return new String[]{"", t};
+            }
+            return new String[]{t, ""};
         }
-        return new String[]{t.substring(0, i).trim(), t.substring(i + 1)};
+        String kandidat = t.substring(i + 1);
+        // Fallback legasi "/restore YA 123456" hanya untuk PIN numerik
+        // (PIN app minimal 4 digit); kata biasa tak dimakan sebagai PIN agar
+        // argumen tak hilang dan lockout tak bertambah sia-sia.
+        if (kandidat.matches("\\d{4,}")) {
+            return new String[]{t.substring(0, i).trim(), kandidat};
+        }
+        return new String[]{t, ""};
     }
 
     /** Jalankan tugas berat bot saling-menunggu; tolak halus bila sibuk. */

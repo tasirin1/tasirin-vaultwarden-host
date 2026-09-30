@@ -36,10 +36,11 @@ public class LogActivityTest {
     }
 
     @Test
-    public void teksMiripTokenTanpaKonteksTetapUtuh() {
+    public void teksMiripTokenTanpaKonteksTetapDisamarkan() {
         String mentah = "proses 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 selesai";
         String r = LogActivity.samarkanLog(mentah);
-        assertTrue(r.contains("AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"));
+        assertFalse(r.contains("AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"));
+        assertTrue(r.contains("***:***"));
     }
 
     @Test

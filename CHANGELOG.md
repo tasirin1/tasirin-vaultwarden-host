@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit menyeluruh (token, PIN, folder, hijack, konstanta)
+- Log selalu samarkan token bot mentah (sebelumnya hanya dalam konteks Telegram).
+- `pisahkanPin` fallback kata-terakhir hanya untuk PIN numerik 4+ digit: kata biasa tak dimakan, lockout tak bertambah sia-sia.
+- Simpan folder data di Settings kini cek kanonis (symlink/`..` lolos string ditolak sebelum masuk prefs).
+- Deteksi DNS-hijack meluas ke `127.x`, `100.64/10`, `fe80`/`fd00`/`::1`; locale tanggal STB `in` -> `id` (2 lokasi).
+- Kunci `tg_backup_tertunda` disentralisasi ke `TgBackup.KEY_BACKUP_TERTUNDA` (Alarm/Boot/Main).
+- `gantiAtomik` fsync direktori best-effort agar rename awet bila STB mati tepat sesudah pasang binary.
+- Koreksi audit sebelumnya: TLS sudah backdate `notBefore -1 hari` dan port privileged sudah fail-fast sebelum exec (tidak diubah).
+
 ## [Belum rilis] — Perbaikan race /careset vs backup
 - `/careset` kini jalan di bawah kunci tugas berat (serial dengan backup/restore):
   reset menghapus file tls satu per satu sehingga backup konkuren bisa menangkap setengah set.

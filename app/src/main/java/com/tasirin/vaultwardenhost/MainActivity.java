@@ -177,9 +177,9 @@ public class MainActivity extends Activity {
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
         // Susulan backup boot yang ditolak sistem (Android 12+ batasi start background).
-        if (sp.getBoolean("tg_backup_tertunda", false)) {
+        if (sp.getBoolean(TgBackup.KEY_BACKUP_TERTUNDA, false)) {
             try {
-                sp.edit().remove("tg_backup_tertunda").apply();
+                sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).apply();
             } catch (Exception ignored) {
             }
             // Alarm basi: user mematikan auto-backup sebelum app dibuka -

@@ -39,7 +39,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             // MainActivity menjalankan susulan saat dibuka berikutnya.
             try {
                 context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                        .edit().putBoolean("tg_backup_tertunda", true).apply();
+                        .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).apply();
             } catch (Exception ignored2) {
             }
         }

@@ -306,6 +306,26 @@ public class ServerService extends Service {
                     bak.delete();
                 } catch (Exception ignored) {
                 }
+                // Best-effort: fsync direktori agar rename awet bila STB mati
+                // tepat sesudah pasang binary (tanpa ini file bisa hilang di FAT).
+                // Os.open ada sejak API 21 (minSdk repo ini) sehingga tanpa cek versi.
+                try {
+                    java.io.File dir = out.getParentFile();
+                    if (dir != null) {
+                        java.io.FileDescriptor fd = android.system.Os.open(
+                                dir.getAbsolutePath(),
+                                android.system.OsConstants.O_RDONLY, 0);
+                        try {
+                            android.system.Os.fsync(fd);
+                        } finally {
+                            try {
+                                android.system.Os.close(fd);
+                            } catch (Exception ignored2) {
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
             }
         }
     }

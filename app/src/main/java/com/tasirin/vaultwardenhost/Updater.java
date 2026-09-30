@@ -166,7 +166,7 @@ public final class Updater {
     static String tanggalStbTerbaca() {
         try {
             java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
-                    "d MMM yyyy HH:mm", new Locale("in", "ID"));
+                    "d MMM yyyy HH:mm", new Locale("id", "ID"));
             return f.format(new java.util.Date(System.currentTimeMillis()));
         } catch (Exception ignored) {
             return String.valueOf(System.currentTimeMillis());
@@ -251,6 +251,9 @@ public final class Updater {
             return false;
         }
         return pesanRendah.contains("/192.168.") || pesanRendah.contains("/10.")
+                || pesanRendah.contains("/127.") || pesanRendah.contains("/0.0.0.0")
+                || pesanRendah.contains("/100.") || pesanRendah.contains("fe80")
+                || pesanRendah.contains("fd00") || pesanRendah.contains("::1")
                 || pesanRendah.contains("/172.16.") || pesanRendah.contains("/172.17.")
                 || pesanRendah.contains("/172.18.") || pesanRendah.contains("/172.19.")
                 || pesanRendah.contains("/172.2") || pesanRendah.contains("/172.30.")

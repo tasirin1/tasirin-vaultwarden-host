@@ -201,6 +201,12 @@ public class UpdaterTest {
         assertTrue(!Updater.isDnsHijackKeIpLokal(
                 "failed to connect to github.com/20.205.243.166 (port 443)".toLowerCase(
                         java.util.Locale.US)));
+        assertTrue(Updater.isDnsHijackKeIpLokal(
+                "failed to connect to github.com/127.0.0.1 (port 443)".toLowerCase(
+                        java.util.Locale.US)));
+        assertTrue(Updater.isDnsHijackKeIpLokal(
+                "failed to connect to github.com/100.64.0.1 (port 443)".toLowerCase(
+                        java.util.Locale.US)));
         assertTrue(!Updater.isDnsHijackKeIpLokal(null));
     }
 
