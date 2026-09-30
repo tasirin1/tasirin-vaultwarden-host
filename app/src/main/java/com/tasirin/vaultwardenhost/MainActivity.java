@@ -38,7 +38,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-/** Layar awal sederhana: status server + Start/Stop + log realtime + simpan .txt.
+/** Layar awal sederhana: status server + Start/Stop + log realtime.
  *  Semua pengaturan pindah ke SettingsActivity lewat tombol titik tiga. */
 public class MainActivity extends Activity {
 
@@ -47,7 +47,6 @@ public class MainActivity extends Activity {
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
-    private static final String KEY_HOME_LOG_EXPANDED = "home_log_expanded";
     /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
     private static final int MAKS_BARIS_LOG = 150;
 
@@ -62,13 +61,10 @@ public class MainActivity extends Activity {
     private TextView uptimeView;
     private TextView restartHint;
     private Button updateBtn;
-    private Button logToggleBtn;
     private TextView homeLogView;
     private ScrollView homeLogScroll;
-    private TextView homeLogCount;
     private Button startStopBtn;
     private Button overflowBtn;
-    private Button homeSaveBtn;
 
     private volatile String pendingVersion = null;
     private String appVersion = "";
@@ -80,9 +76,7 @@ public class MainActivity extends Activity {
     private String lastShownUptime = "";
     private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
     private String lastUpdText = ""; // cegah setText+layout tiap tick saat teks sama
-    private boolean homeLogExpanded = true;
     private int lastLogLen = 0;
-    private int lineCount = 0;
     /** Ikuti ekor log otomatis; mati saat pengguna menggulir manual (saran 6). */
     private boolean ikutiLog = true;
     /** Status tombol Start/Stop yang sedang tampil (hindari set tiap tick). */
@@ -146,13 +140,10 @@ public class MainActivity extends Activity {
         uptimeView = findViewById(R.id.uptimeInfo);
         restartHint = findViewById(R.id.restartHint);
         updateBtn = findViewById(R.id.updateBtn);
-        logToggleBtn = findViewById(R.id.logToggle);
         homeLogView = findViewById(R.id.homeLog);
         homeLogScroll = findViewById(R.id.homeLogScroll);
-        homeLogCount = findViewById(R.id.homeLogCount);
         startStopBtn = findViewById(R.id.startStop);
         overflowBtn = findViewById(R.id.overflowBtn);
-        homeSaveBtn = findViewById(R.id.homeSaveLog);
 
         startStopBtn.setOnClickListener(v -> {
             if (ServerService.running) {
@@ -162,17 +153,15 @@ public class MainActivity extends Activity {
             }
         });
         overflowBtn.setOnClickListener(v -> showOverflowMenu());
-        homeSaveBtn.setOnClickListener(v -> exportHomeLogTxt());
         // Ketuk URL untuk menyalin (pengganti tombol Salin URL yang pindah ke Settings)
         netInfoView.setOnClickListener(v -> copyShownUrl());
         // Tombol update melompat ke Settings tempat Cek Update berada
         updateBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
-        logToggleBtn.setOnClickListener(v -> setHomeLogExpanded(!homeLogExpanded));
         // Pengguna menggulir manual = berhenti mengikuti ekor; kembali ke
         // bawah = ikuti lagi. Hemat CPU: cukup dengar perubahan gulir.
         homeLogScroll.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            if (homeLogExpanded && homeLogScroll.getChildCount() > 0) {
+            if (homeLogScroll.getChildCount() > 0) {
                 ikutiLog = sedangDiBawah();
             }
         });
@@ -190,8 +179,6 @@ public class MainActivity extends Activity {
         ui.post(this::refreshFromService);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        homeLogExpanded = sp.getBoolean(KEY_HOME_LOG_EXPANDED, true);
-        applyHomeLogExpanded();
         // Cek update otomatis saat dibuka
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
@@ -459,11 +446,11 @@ public class MainActivity extends Activity {
             updateBtn.setVisibility(View.GONE);
         }
         // Rantai D-pad tak boleh menunjuk ke tombol yang gone: kartu server kini
-        // di bawah log, jadi yang dialihkan adalah tetangga updateBtn (simpan log & Start)
+        // di bawah log, jadi yang dialihkan adalah tetangga updateBtn (info URL & Start)
         if (updAvail != lastUpdBtnVisible) {
             lastUpdBtnVisible = updAvail;
-            homeSaveBtn.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
-            startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.homeSaveLog);
+            netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
+            startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
         }
 
         String net = ServerService.localUrl(this);
@@ -509,7 +496,6 @@ public class MainActivity extends Activity {
         // (<=300 KB) tiap 500 ms bikin UI patah-patah saat log deras.
         int len = ServerService.logLength();
         if (len < lastLogLen) {
-            lineCount = 0;
             lastLogLen = 0;
             homeLogView.setText("");
             hintShown = false;
@@ -551,10 +537,7 @@ public class MainActivity extends Activity {
         int total = hitungBaris(homeLogView.getText());
         if (total > MAKS_BARIS_LOG) {
             homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
-            total = MAKS_BARIS_LOG;
         }
-        lineCount = total;
-        homeLogCount.setText(getString(R.string.log_lines, lineCount));
         // Gulir otomatis hanya bila pengguna tidak sedang membaca atas (saran 6).
         if (ikutiLog) {
             homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
@@ -654,24 +637,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Ciutkan/bentangkan pratinjau log; pilihan disimpan di prefs. */
-    private void setHomeLogExpanded(boolean expanded) {
-        homeLogExpanded = expanded;
-        if (expanded) {
-            ikutiLog = true;
-        }
-        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                .putBoolean(KEY_HOME_LOG_EXPANDED, expanded).apply();
-        applyHomeLogExpanded();
-    }
-
-    private void applyHomeLogExpanded() {
-        homeLogScroll.setVisibility(homeLogExpanded ? View.VISIBLE : View.GONE);
-        homeLogCount.setVisibility(homeLogExpanded ? View.VISIBLE : View.GONE);
-        logToggleBtn.setText(getString(homeLogExpanded
-                ? R.string.collapse : R.string.expand));
-    }
-
     // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
     @SuppressWarnings("deprecation")
     private void showAboutDialog() {
@@ -720,23 +685,6 @@ public class MainActivity extends Activity {
                 .setView(tv)
                 .setPositiveButton("Tutup", null)
                 .show();
-    }
-
-/** Simpan log ke .txt di Download (satu implementasi di LogExport). */
-    private void exportHomeLogTxt() {
-        // Sama seperti LogActivity: tawarkan izin ulang bila belum ada
-        // (API 29+ via MediaStore tak butuh izin).
-        if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
-            StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
-            toast(getString(R.string.izin_storage_belum));
-            return;
-        }
-        String log;
-        synchronized (ServerService.logBuffer) {
-            log = ServerService.logBuffer.toString();
-        }
-        String nama = LogExport.simpanKeDownload(this, log);
-        toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
     }
 
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
@@ -889,7 +837,6 @@ public class MainActivity extends Activity {
         uiBusy = busy;
         ui.post(() -> {
             startStopBtn.setEnabled(!busy);
-            homeSaveBtn.setEnabled(!busy);
             if (busy) {
                 statusView.setText(getString(R.string.busy_work));
                 statusView.setBackgroundResource(0);

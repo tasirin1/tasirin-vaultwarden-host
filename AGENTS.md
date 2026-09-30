@@ -34,7 +34,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
 │   ├── res/values/ (+night, sw600dp) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
-│       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, simpan .txt, titik tiga
+│       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, titik tiga
 │       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
 │       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS
 │       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
