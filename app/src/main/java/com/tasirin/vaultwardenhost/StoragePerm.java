@@ -66,7 +66,7 @@ public final class StoragePerm {
     /** True bila app sudah boleh tulis ke folder eksternal pada SDK ini. */
     public static boolean sudahPunyaAkses(Context ctx) {
         boolean kelola = false;
-        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 kelola = Environment.isExternalStorageManager();
             } catch (Exception ignored) {
@@ -100,7 +100,7 @@ public final class StoragePerm {
 
     /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
-        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             boolean kelola = false;
             try {
                 kelola = Environment.isExternalStorageManager();
@@ -157,7 +157,7 @@ public final class StoragePerm {
 
     /** Buka layar All files access untuk app ini (dengan fallback). */
     public static void bukaPengaturanKelola(Activity act) {
-        if (!butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             return;
         }
         try {
