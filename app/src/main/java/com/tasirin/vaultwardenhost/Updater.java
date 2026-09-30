@@ -507,6 +507,11 @@ public final class Updater {
         if (rendah.contains("404") || rendah.contains("belum tersedia")) {
             return false;
         }
+        // File parsial terpotong (storage disentuh saat unduh): buang lalu
+        // unduh ulang dari nol, bukan gagal fatal.
+        if (rendah.contains("parsial") || rendah.contains("kurang")) {
+            return true;
+        }
         return rendah.contains("timed out") || rendah.contains("timeout")
                 || rendah.contains("failed to connect") || rendah.contains("econn")
                 || rendah.contains("unreachable") || rendah.contains("reset")
@@ -619,6 +624,15 @@ public final class Updater {
                 return salinSambilHash(dl, tmp, code, resumeFrom, label);
             } catch (IOException e) {
                 gagal = e;
+                // Parsial rusak: buang file terpotong agar percobaan berikut
+                // unduh ulang dari nol (resume dari file rusak pasti gagal lagi).
+                try {
+                    String pesan = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
+                    if (pesan.contains("parsial")) {
+                        tmp.delete();
+                    }
+                } catch (Exception ignored) {
+                }
                 // Fallback sengaja dipertahankan untuk semua percobaan berikut:
                 // kembali ke URL asli menumpuk bytes dua asset berbeda dan membuat
                 // digest tak lagi sesuai checksum URL fallback (gagal verifikasi

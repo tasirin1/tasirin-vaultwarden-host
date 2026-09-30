@@ -119,6 +119,7 @@ public final class TgBot {
                 {"cabackup", "Backup CA ke storage STB"},
                 {"careset", "Reset sertifikat (CA baru)"},
                 {"crashlog", "Kirim crash log terakhir"},
+                {"versi", "Lihat versi binary & web-vault"},
                 {"update", "Update binary + restart"},
                 {"webvault", "Update web vault + restart"},
                 {"start", "Start server"},
@@ -982,8 +983,10 @@ public final class TgBot {
 
     /** Pisahkan PIN dari argumen perintah (murni agar bisa unit test).
      *  Format eksplisit "PIN:123456" diutamakan (tak ambigu bila argumen
-     *  berisi spasi); fallback kata terakhir dipertahankan karena alur
-     *  "/restore YA 123456" mengandalkannya (kata "YA" adalah argumen).
+     *  berisi spasi, wajib untuk PIN alfanumerik); fallback kata terakhir
+     *  dipertahankan karena alur "/restore YA 123456" mengandalkannya
+     *  (kata "YA" adalah argumen). Kata pendek (<4) tak pernah dimakan agar
+     *  argumen seperti "YA" tak hilang dan lockout tak bertambah sia-sia.
      *  Return {sisa, pin}. */
     static String[] pisahkanPin(String arg) {
         String t = arg == null ? "" : arg.trim();
@@ -997,18 +1000,16 @@ public final class TgBot {
         }
         int i = t.lastIndexOf(' ');
         if (i < 0) {
-            // Kata tunggal non-numerik bukan PIN (hindari lockout sia-sia):
-            // kembalikan sebagai sisa agar pemanggil minta PIN eksplisit.
-            if (t.matches("\\d{4,}")) {
+            // Kata tunggal pendek bukan PIN: minta PIN eksplisit agar tak lockout sia-sia.
+            if (t.matches("[A-Za-z0-9]{4,}")) {
                 return new String[]{"", t};
             }
             return new String[]{t, ""};
         }
         String kandidat = t.substring(i + 1);
-        // Fallback legasi "/restore YA 123456" hanya untuk PIN numerik
-        // (PIN app minimal 4 digit); kata biasa tak dimakan sebagai PIN agar
-        // argumen tak hilang dan lockout tak bertambah sia-sia.
-        if (kandidat.matches("\\d{4,}")) {
+        // Fallback legasi "/restore YA 123456": kata terakhir min 4 char
+        // alfanumerik dianggap PIN; kata pendek/biasa tak dimakan sebagai PIN.
+        if (kandidat.matches("[A-Za-z0-9]{4,}")) {
             return new String[]{t.substring(0, i).trim(), kandidat};
         }
         return new String[]{t, ""};

@@ -71,11 +71,11 @@ public class TgBotTest {
         String json = TgBot.menuPayload();
         assertTrue(json.startsWith("{\"commands\":["));
         for (String c : new String[]{"status", "log", "uptime", "alive", "backup",
-                "restore", "ca", "cabackup", "careset", "crashlog", "update", "webvault", "start", "stop",
+                "restore", "ca", "cabackup", "careset", "crashlog", "versi", "update", "webvault", "start", "stop",
                 "restart", "help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
-        assertEquals(16, TgBot.daftarPerintahMenu().length);
+        assertEquals(17, TgBot.daftarPerintahMenu().length);
     }
 
     @Test
@@ -142,6 +142,14 @@ public class TgBotTest {
                 TgBot.pisahkanPin("YA 123456"));
         assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(""));
         assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(null));
+    }
+
+    @Test
+    public void pisahkanPinAlfanumerikDidukung() {
+        assertArrayEquals(new String[]{"", "ab12"}, TgBot.pisahkanPin("ab12"));
+        assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
+        assertArrayEquals(new String[]{"restore", "PINku1"},
+                TgBot.pisahkanPin("restore PIN:PINku1"));
     }
 
     @Test

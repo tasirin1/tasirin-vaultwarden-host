@@ -1044,12 +1044,18 @@ public class SettingsActivity extends Activity {
                 return;
             }
             sp.edit().putBoolean(key, true).apply();
+            final String pinWvDlg = Updater.kuncianWebVault(this);
+            final boolean dikunciDlg = pinWvDlg != null && !pinWvDlg.isEmpty();
             ui.post(() -> new AlertDialog.Builder(this)
                     .setTitle("Update Web Vault tersedia")
                     .setMessage("Web vault saat ini v" + updated
                             + ", sedangkan server v" + server + ".\n\n"
-                            + "Update web vault sekarang? (unduh sekali ~35 MB, "
-                            + "berlaku setelah server di-restart)")
+                            + (dikunciDlg
+                                    ? "Versi web vault dikunci ke v" + pinWvDlg
+                                            + ": selaraskan sekarang? (unduh sekali ~35 MB, "
+                                            + "berlaku setelah server di-restart)"
+                                    : "Update web vault sekarang? (unduh sekali ~35 MB, "
+                                            + "berlaku setelah server di-restart)"))
                     .setPositiveButton("Update & Restart",
                             (d, w) -> runWebVaultUpdate(true))
                     .setNeutralButton("Update saja",

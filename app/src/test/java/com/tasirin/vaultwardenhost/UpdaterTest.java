@@ -414,6 +414,11 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bolehCobaLagiUnduh_parsialDiulangDariNol() {
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("File parsial rusak (kurang 10 byte) - unduh ulang dari nol.")));
+    }
+
     public void bolehCobaLagiUnduh_hanyaGalatJaringan() {
         assertTrue(Updater.bolehCobaLagiUnduh(
                 new java.io.IOException("failed to connect to github.com")));

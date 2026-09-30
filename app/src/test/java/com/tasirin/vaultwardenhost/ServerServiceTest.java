@@ -345,6 +345,27 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void tokenAdminValid_tolakSpasiDanKontrol() {
+        assertTrue(ServerService.tokenAdminValid("abc123-XYZ"));
+        assertFalse(ServerService.tokenAdminValid(""));
+        assertFalse(ServerService.tokenAdminValid(null));
+        assertFalse(ServerService.tokenAdminValid("ada spasi"));
+        assertFalse(ServerService.tokenAdminValid("baris\nbaru"));
+        assertFalse(ServerService.tokenAdminValid("tab\tsepi"));
+    }
+
+    @Test
+    public void cacheSesuaiPin_hormatiKuncian() {
+        assertTrue(ServerService.cacheSesuaiPin("", "vaultwarden 1.37.3"));
+        assertTrue(ServerService.cacheSesuaiPin(null, "vaultwarden 1.37.3"));
+        assertTrue(ServerService.cacheSesuaiPin("1.32.0", "vaultwarden 1.32.0"));
+        assertTrue(ServerService.cacheSesuaiPin("1.32", "vaultwarden 1.32.0"));
+        assertFalse(ServerService.cacheSesuaiPin("1.32.0", "vaultwarden 1.37.3"));
+        assertFalse(ServerService.cacheSesuaiPin("1.32.0", "tanpa-versi"));
+        assertFalse(ServerService.cacheSesuaiPin("1.32.0", null));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {

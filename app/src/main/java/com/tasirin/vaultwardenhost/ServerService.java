@@ -93,9 +93,46 @@ public class ServerService extends Service {
     private static volatile long loginHintTerakhirElapsed = 0;
     static final long LOGIN_HINT_JEDA_MS = 60 * 1000;
 
+    /** True bila admin token aman dipasang ke env (tanpa spasi/kontrol/baris baru).
+     *  Murni agar bisa unit test. */
+    static boolean tokenAdminValid(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < token.length(); i++) {
+            char c = token.charAt(i);
+            if (c <= ' ' || c == 127) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
+    }
+
+    /** Kuncian versi binary user ("" = ikuti terbaru). Murni prefs. */
+    static String pinBinaryTersimpan(SharedPreferences sp) {
+        try {
+            String pin = Updater.normalisasiPinVersi(
+                    sp == null ? null : sp.getString(KEY_BIN_PILIH, ""));
+            return pin == null ? "" : pin;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** True bila binary cache (hasil smoke test di binaryVersion) boleh dipakai:
+     *  tanpa kuncian selalu boleh; bila dikunci wajib sama dengan kuncian.
+     *  Murni agar bisa unit test. */
+    static boolean cacheSesuaiPin(String pin, String terdeteksi) {
+        if (pin == null || pin.isEmpty()) {
+            return true;
+        }
+        String real = Updater.parseBinaryVersion(terdeteksi);
+        return real != null && Updater.bandingVersi(real, pin) == 0;
     }
 
     private static final int NOTIF_ID = 1;
@@ -965,10 +1002,19 @@ public class ServerService extends Service {
             pb.environment().put("ROCKET_WORKERS", "1");
             pb.environment().put("DATABASE_MAX_CONNS", "2");
 
-            // Admin token
+            // Admin token: tolak karakter kontrol/spasi agar env Rocket tak rusak.
             String adminToken = sp.getString(KEY_ADMIN_TOKEN, "");
             if (adminToken != null && !adminToken.trim().isEmpty()) {
-                pb.environment().put("ADMIN_TOKEN", adminToken.trim());
+                String bersih = adminToken.trim();
+                if (!tokenAdminValid(bersih)) {
+                    appendLog("[app] FATAL: admin token mengandung spasi/baris baru"
+                            + " - server TIDAK start. Perbaiki di Settings.");
+                    setStatus("Admin token tak valid (spasi/baris baru) - perbaiki di Settings.");
+                    TgBackup.sendMessage(this, "Gagal start: admin token tak valid"
+                            + " (spasi/baris baru). Perbaiki di Settings.");
+                    return;
+                }
+                pb.environment().put("ADMIN_TOKEN", bersih);
                 appendLog("[app] Admin token diaktifkan.");
             }
 
@@ -1903,25 +1949,41 @@ public class ServerService extends Service {
             if (updated != null && !updated.isEmpty()) {
                 try {
                     if (detectBinaryVersion(out)) {
-                        appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
-                        // Visibilitas: file manual tak dipakai selama cache update
-                        // aktif (bukan diabaikan diam-diam seperti sebelumnya).
-                        File manualLewat = new File(dataDir, "vaultwarden-" + ABI);
-                        if (isValidBinary(manualLewat)) {
-                            appendLog("[app] Binary manual di folder data dilewati:"
-                                    + " cache update (" + updated + ") sedang aktif.");
+                        String pin = pinBinaryTersimpan(sp);
+                        if (!cacheSesuaiPin(pin, binaryVersion)) {
+                            String realCache = Updater.parseBinaryVersion(binaryVersion);
+                            appendLog("[app] Binary cache v"
+                                    + (realCache == null ? "?" : realCache)
+                                    + " bukan versi pilihan v" + pin
+                                    + " - unduh ulang versi pilihan.");
+                        } else {
+                            appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                            // Visibilitas: file manual tak dipakai selama cache update
+                            // aktif (bukan diabaikan diam-diam seperti sebelumnya).
+                            File manualLewat = new File(dataDir, "vaultwarden-" + ABI);
+                            if (isValidBinary(manualLewat)) {
+                                appendLog("[app] Binary manual di folder data dilewati:"
+                                        + " cache update (" + updated + ") sedang aktif.");
+                            }
+                            return out;
                         }
-                        return out;
+                    } else {
+                        appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
                     }
-                    appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
                 } catch (Exception ignored) {
                 }
             }
         }
 
         // 2) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
+        // Cek kanonis dini: symlink folder data yang ditukar sebelum salin
+        // wajib menggagalkan jalur manual, bukan menyalin file asing.
+        boolean dataKanonisOk = dataDirKanonisAman(dataDir);
+        if (!dataKanonisOk) {
+            appendLog("[app] Folder data tak valid/symlink asing - jalur manual dilewati.");
+        }
         File userBin = new File(dataDir, "vaultwarden-" + ABI);
-        if (isValidBinary(userBin)) {
+        if (dataKanonisOk && isValidBinary(userBin)) {
             String wantSha = sp.getString(KEY_BIN_SHA, "");
             if (wantSha != null && !wantSha.trim().isEmpty()) {
                 String gotSha = Updater.sha256Hex(userBin);
@@ -1941,11 +2003,26 @@ public class ServerService extends Service {
                             appendLog("[app] Binary manual GAGAL smoke test --version"
                                     + " (arsitektur salah/rusak?) - diabaikan,"
                                     + " cache lama dipertahankan.");
+                        } else if (!dataDirKanonisAman(dataDir)) {
+                            appendLog("[app] Binary manual DITOLAK: folder data berubah"
+                                    + " saat penyalinan (symlink asing?) - dibatalkan.");
                         } else {
-                            gantiAtomik(tmpManual, out);
-                            writeText(verFile, Updater.appVersionName(this));
-                            appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
-                            return out;
+                            String pinManual = pinBinaryTersimpan(sp);
+                            String realManual = Updater.parseBinaryVersion(binaryVersion);
+                            if (!cacheSesuaiPin(pinManual, binaryVersion)) {
+                                appendLog("[app] Binary manual DITOLAK: versi v"
+                                        + (realManual == null ? "?" : realManual)
+                                        + " bukan versi pilihan v" + pinManual + ".");
+                                setStatus("Binary manual ditolak: bukan versi pilihan v"
+                                        + pinManual + ".");
+                                TgBackup.sendMessage(this, "Binary manual ditolak:"
+                                        + " bukan versi pilihan v" + pinManual + ".");
+                            } else {
+                                gantiAtomik(tmpManual, out);
+                                writeText(verFile, Updater.appVersionName(this));
+                                appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
+                                return out;
+                            }
                         }
                     } catch (Exception e) {
                         appendLog("[app] Gagal memakai binary dari folder data: " + e);
@@ -1970,9 +2047,19 @@ public class ServerService extends Service {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
                     if (detectBinaryVersion(out)) {
-                        return out;
+                        String pinCache = pinBinaryTersimpan(sp);
+                        if (!cacheSesuaiPin(pinCache, binaryVersion)) {
+                            String realCache2 = Updater.parseBinaryVersion(binaryVersion);
+                            appendLog("[app] Binary cache v"
+                                    + (realCache2 == null ? "?" : realCache2)
+                                    + " bukan versi pilihan v" + pinCache
+                                    + " - unduh ulang versi pilihan.");
+                        } else {
+                            return out;
+                        }
+                    } else {
+                        appendLog("[app] Binary cache gagal smoke test --version - diunduh ulang.");
                     }
-                    appendLog("[app] Binary cache gagal smoke test --version - diunduh ulang.");
                 }
             } catch (Exception ignored) {
             }
@@ -2000,6 +2087,35 @@ public class ServerService extends Service {
             }
             return out;
         } catch (Exception e) {
+            // Versi pilihan gagal dipenuhi (offline/asset belum ada) tapi cache
+            // valid masih ada: pakai cache agar server tetap jalan; kuncian
+            // dicoba lagi saat Start berikutnya (bukan gagal total).
+            // Kuncian versi dihormati: cache beda versi tak boleh dipakai
+            // diam-diam agar user tak jalan di versi yang salah.
+            if (isValidBinary(out)) {
+                try {
+                    if (detectBinaryVersion(out)) {
+                        String pinDarurat = pinBinaryTersimpan(sp);
+                        if (!cacheSesuaiPin(pinDarurat, binaryVersion)) {
+                            String realTolak = Updater.parseBinaryVersion(binaryVersion);
+                            appendLog("[app] Versi pilihan v" + pinDarurat
+                                    + " gagal diunduh; cache v"
+                                    + (realTolak == null ? "?" : realTolak)
+                                    + " bukan versi pilihan - server TIDAK start.");
+                            setStatus("Versi pilihan v" + pinDarurat
+                                    + " gagal diunduh; cache beda versi ditolak.");
+                        } else {
+                            String realDarurat = Updater.parseBinaryVersion(binaryVersion);
+                            appendLog("[app] Versi pilihan gagal diunduh ("
+                                    + e.getMessage() + ") - pakai binary cache v"
+                                    + (realDarurat == null ? "?" : realDarurat)
+                                    + " sementara.");
+                            return out;
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
             // Pesan Updater sudah ramah (isi saran koneksi); jangan ditimpa pesan generik.
             String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
                     ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
