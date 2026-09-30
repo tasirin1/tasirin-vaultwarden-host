@@ -177,7 +177,6 @@ public class ServerServiceTest {
     }
 
     @Test
-    @Test
     public void dataDirAmanTolakRootStorage() {
         assertFalse(ServerService.dataDirAman("/sdcard"));
         assertFalse(ServerService.dataDirAman("/sdcard/"));
