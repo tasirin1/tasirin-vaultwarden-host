@@ -55,12 +55,17 @@ public final class Util {
         return norm.equalsIgnoreCase(username.trim().replaceFirst("^@", ""));
     }
 
-    /** True bila pesan masih segar (tidak basi). Pesan masa depan (jam STB
-     *  lambat) jangan dibuang: hanya pesan lama yang ditolak. Murni. */
+    /** True bila pesan masih segar (tidak basi). Pesan sedikit di masa depan
+     *  (jam STB lambat) tetap diterima; masa depan jauh ditolak seperti tombol
+     *  inline (toleransi selebar jendela basi) agar antrean Telegram bertanggal
+     *  menyimpang tak bisa mengeksekusi perintah kapan pun. Murni. */
     public static boolean pesanSegar(long dateMs, long sekarang, long basiMs) {
         // Tanpa tanggal = basi (fail-closed): perintah berbahaya basi
         // (mis. /stop tertunda) tak boleh lolos karena field date hilang.
         if (dateMs <= 0) {
+            return false;
+        }
+        if (dateMs > sekarang + Math.max(0, basiMs)) {
             return false;
         }
         if (dateMs > sekarang) {

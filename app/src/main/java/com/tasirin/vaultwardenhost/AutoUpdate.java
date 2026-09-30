@@ -56,8 +56,12 @@ public final class AutoUpdate {
                     updated != null && !updated.isEmpty()
                             ? updated : Updater.readBundledVersionRaw(ctx));
             boolean adaTerpasang = false;
-            if (Updater.bandingVersi(real, latest) >= 0) {
+            if (Updater.bandingVersi(real, latest) == 0) {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+                pending.atur(null);
+            } else if (Updater.bandingVersi(real, latest) > 0) {
+                // Binary lokal lebih baru dari rilis (mis. build dev): jangan
+                // tulis marker mundur; cukup bersihkan banner update.
                 pending.atur(null);
             } else if (Updater.bandingVersi(current, latest) < 0) {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {

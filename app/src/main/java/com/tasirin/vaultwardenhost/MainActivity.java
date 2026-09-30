@@ -173,18 +173,18 @@ public class MainActivity extends Activity {
         // Cek update otomatis saat dibuka
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
-        TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
         // Susulan backup boot yang ditolak sistem (Android 12+ batasi start background).
-        if (sp.getBoolean(TgBackup.KEY_BACKUP_TERTUNDA, false)) {
+        if (TgBackup.amanBoolean(sp, TgBackup.KEY_BACKUP_TERTUNDA, false)) {
             try {
                 sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).apply();
             } catch (Exception ignored) {
             }
             // Alarm basi: user mematikan auto-backup sebelum app dibuka -
             // jangan mengunggah tanpa persetujuan (selaras ACTION_TG_BACKUP).
-            if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+            if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 ServerService.catatLog("[tg] Backup susulan boot dilewati:"
                         + " auto-backup sudah dimatikan.");
             } else {
@@ -205,12 +205,13 @@ public class MainActivity extends Activity {
         // Susulan auto-start yang ditolak sistem dari background (Android 12+
         // membatasi start service): mulaiService menandainya, eksekusi di sini
         // saat app dibuka (sudah foreground sehingga diizinkan).
-        if (sp.getBoolean(ServerService.KEY_START_TERTUNDA, false)) {
+        if (TgBackup.amanBoolean(sp, ServerService.KEY_START_TERTUNDA, false)) {
             try {
                 sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
             } catch (Exception ignored) {
             }
-            if (sp.getBoolean(ServerService.KEY_AUTO_START, false) && !ServerService.running) {
+            if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)
+                    && !ServerService.running) {
                 appendUiLog("[app] Auto-start susulan: start background sempat ditolak sistem.");
                 ServerService.start(this);
             }
@@ -268,7 +269,7 @@ public class MainActivity extends Activity {
 
     private void saveAndStart() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
         }
@@ -420,12 +421,14 @@ public class MainActivity extends Activity {
         boolean changed = false;
         if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            // Baca tahan korup: tipe prefs salah tak boleh melempar
+            // ClassCastException tiap detik di UI thread (pola aman* bot).
+            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             if (d == null || d.trim().isEmpty()) {
                 d = DEFAULT_DATA_DIR;
             }
             String p = ServerService.effectivePort(sp);
-            String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
+            String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
             if (a == null) {
                 a = "";
             }
@@ -449,11 +452,12 @@ public class MainActivity extends Activity {
         if (pendingVersion != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
+            // Fallthrough aman: baca di bawah pakai amanString (lihat cur/up).
             if (real != null && real.equals(pendingVersion)) {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
-                String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
+                String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
                 if (cur != null && cur.equals(pendingVersion)) {
@@ -522,18 +526,29 @@ public class MainActivity extends Activity {
     private void refreshHomeLog() {
         // Hanya tempel selisih baris baru (delta): salin+setText seluruh buffer
         // (<=300 KB) tiap 500 ms bikin UI patah-patah saat log deras.
-        int len = ServerService.logLength();
-        if (len < lastLogLen) {
-            lastLogLen = 0;
-            homeLogView.setText("");
-            hintShown = false;
-        }
         String delta = "";
+        int mentah = 0;
         synchronized (ServerService.logBuffer) {
             int n = ServerService.logBuffer.length();
+            // Cek trim di dalam lock: snapshot di luar lock bisa basi bila
+            // catatLog memangkas buffer di jeda baca, membuat log beku
+            // sampai buffer tumbuh melewati nilai basi.
+            if (n < lastLogLen) {
+                lastLogLen = 0;
+                homeLogView.setText("");
+                hintShown = false;
+            }
             if (n > lastLogLen) {
                 delta = ServerService.logBuffer.substring(lastLogLen, n);
+                mentah = delta.length();
             }
+        }
+        // Samarkan seperti jalur LogActivity/bagi/Telegram: token bot dan
+        // rahasia di teks exception tak boleh tampil mentah di layar.
+        // Offset tetap maju pakai panjang mentah (samaran mengubah panjang).
+        if (!delta.isEmpty()) {
+            lastLogLen += mentah;
+            delta = LogActivity.samarkanLog(delta);
         }
         if (delta.isEmpty()) {
             if (!hintShown && homeLogView.length() == 0) {
@@ -546,7 +561,8 @@ public class MainActivity extends Activity {
             homeLogView.setText("");
             hintShown = false;
         }
-        lastLogLen += delta.length();
+        // lastLogLen sudah maju pakai panjang mentah di atas (samaran
+        // mengubah panjang sehingga tak boleh dipakai untuk offset).
         tempelLogBerwarna(delta);
         // Pengaman memori STB: tampilkan ekor saja bila teks membengkak.
         if (homeLogView.length() > 40000) {
@@ -669,7 +685,7 @@ public class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     private void showAboutDialog() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
         }
