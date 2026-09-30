@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Tasirin Vaultwarden Host</string>
-    <string name="server_title">Server</string>
     <string name="quick_actions">Aksi cepat</string>
 
     <!-- Umum -->
@@ -17,8 +16,6 @@
     <string name="menu">Menu</string>
     <string name="overflow">⋮</string>
     <string name="open_settings">Settings</string>
-    <string name="expand">Bentangkan</string>
-    <string name="collapse">Ciutkan</string>
     <string name="update_open_settings">⚠ Update v%1$s tersedia — buka di Settings</string>
     <string name="uptime_format">Uptime %1$s</string>
     <string name="url_copied">URL disalin: %1$s</string>
@@ -77,7 +74,6 @@
             <string name="backup_to_tg">Backup ke Telegram</string>
     <string name="restore_from_tg">Restore dari Telegram</string>
     <string name="tg_bot_info">Buat bot lewat @BotFather di Telegram</string>
-    <string name="log_realtime">Log Realtime</string>
     <string name="open_log_full">Buka Log (layar penuh)</string>
 
     <!-- Sub-judul grup di Settings -->

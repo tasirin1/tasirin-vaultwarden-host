@@ -179,9 +179,14 @@ public final class TgBot {
                 }
                 TgBackup.tolakRedirectTelegram(c);
                 int code = c.getResponseCode();
-                InputStream is = (code >= 200 && code < 300)
+                InputStream mentah = (code >= 200 && code < 300)
                         ? c.getInputStream() : c.getErrorStream();
-                String balasan = is != null ? TgBackup.bacaResponsBatas(is) : "";
+                String balasan = "";
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        balasan = TgBackup.bacaResponsBatas(is);
+                    }
+                }
                 if (code == 200 && balasan.contains("\"ok\":true")) {
                     app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                             .edit().putInt(KEY_TG_MENU_HASH, hash).apply();
@@ -1132,11 +1137,13 @@ public final class TgBot {
             }
             TgBackup.tolakRedirectTelegram(c);
             int code = c.getResponseCode();
-            InputStream is = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
-            if (is == null) {
+            InputStream mentah = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
+            if (mentah == null) {
                 return null;
             }
-            return TgBackup.bacaResponsBatas(is);
+            try (InputStream is = mentah) {
+                return TgBackup.bacaResponsBatas(is);
+            }
         } catch (Exception e) {
             return null;
         } finally {

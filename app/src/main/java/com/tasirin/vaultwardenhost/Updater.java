@@ -479,8 +479,11 @@ public final class Updater {
             conn = open(ctx, OFFICIAL_API, 10000, 10000);
             int code = conn.getResponseCode();
             if (code == 200) {
-                String v = normVersion(extractTag(
-                        TgBackup.bacaResponsBatas(conn.getInputStream())));
+                String v;
+                try (java.io.InputStream is = conn.getInputStream()) {
+                    v = normVersion(extractTag(
+                            TgBackup.bacaResponsBatas(is)));
+                }
                 if (v != null && !v.isEmpty()) {
                     sLatestVersion = v;
                     sLatestAt = now;

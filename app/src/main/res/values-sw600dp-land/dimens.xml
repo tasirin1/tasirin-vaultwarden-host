@@ -4,5 +4,4 @@
          32dp cukup agar kolom log realtime dapat ruang lebih lebar. -->
     <dimen name="side_padding">32dp</dimen>
     <dimen name="log_text_size">15sp</dimen>
-    <dimen name="log_count_size">13sp</dimen>
 </resources>

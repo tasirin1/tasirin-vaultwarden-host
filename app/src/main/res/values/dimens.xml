@@ -3,5 +3,4 @@
     <dimen name="side_padding">16dp</dimen>
     <!-- Ukuran font log realtime beranda; dibesarkan di layar lebar/TV via qualifier. -->
     <dimen name="log_text_size">11sp</dimen>
-    <dimen name="log_count_size">11sp</dimen>
 </resources>

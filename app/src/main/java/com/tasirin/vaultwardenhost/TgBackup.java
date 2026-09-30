@@ -548,11 +548,13 @@ public final class TgBackup {
                     }
                     tolakRedirectTelegram(conn);
                     int code = conn.getResponseCode();
-                    InputStream is = (code >= 200 && code < 300)
+                    InputStream mentah = (code >= 200 && code < 300)
                             ? conn.getInputStream() : conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
-                    if (is != null) {
-                        sb.append(bacaResponsBatas(is));
+                    if (mentah != null) {
+                        try (InputStream is = mentah) {
+                            sb.append(bacaResponsBatas(is));
+                        }
                     }
                     if (code != 200 || !sb.toString().contains("\"ok\":true")) {
                         logTgFailure("kirim pesan", code, sb.toString());
@@ -1107,10 +1109,12 @@ public final class TgBackup {
 
             tolakRedirectTelegram(conn);
             int code = conn.getResponseCode();
-            InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+            InputStream mentah = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
             StringBuilder sb = new StringBuilder();
-            if (is != null) {
-                sb.append(bacaResponsBatas(is));
+            if (mentah != null) {
+                try (InputStream is = mentah) {
+                    sb.append(bacaResponsBatas(is));
+                }
             }
             if (code != 200 || !sb.toString().contains("\"ok\":true")) {
                 String body = sb.toString();
@@ -1228,7 +1232,9 @@ public final class TgBackup {
             if (code != 200) {
                 throw new IOException("getFile gagal (HTTP " + code + ")");
             }
-            sb.append(bacaResponsBatas(conn.getInputStream()));
+            try (InputStream is = conn.getInputStream()) {
+                sb.append(bacaResponsBatas(is));
+            }
         } finally {
             if (conn != null) {
                 conn.disconnect();
