@@ -202,6 +202,9 @@ public class FileShareProvider extends ContentProvider {
             if (name.startsWith("db.sqlite3")) {
                 return false;
             }
+            if (berkasSementara(name)) {
+                return false;
+            }
             if (kunciPrivat(name)) {
                 return false;
             }

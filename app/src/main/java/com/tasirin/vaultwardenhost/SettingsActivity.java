@@ -1654,7 +1654,7 @@ public class SettingsActivity extends Activity {
                 out = enc;
                 mime = "application/octet-stream";
             } else {
-                out = new File(backupDir, "app-config-" + ts + ".json");
+                out = new File(getCacheDir(), "app-config-" + ts + ".json");
                 try (FileOutputStream fos = new FileOutputStream(out)) {
                     fos.write(bytes);
                 }

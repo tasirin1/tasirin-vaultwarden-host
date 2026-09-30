@@ -873,7 +873,11 @@ public class ServerService extends Service {
 
     private void startServer() {
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        try {
+            TgBackup.healkanStringPrefs(this);
+        } catch (Exception ignored) {
+        }
+        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (!dataDirAman(dataDir) || !dataDirKanonisAman(dataDir)) {
             appendLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
             dataDir = DEFAULT_DATA_DIR;
@@ -1003,7 +1007,7 @@ public class ServerService extends Service {
             pb.environment().put("DATABASE_MAX_CONNS", "2");
 
             // Admin token: tolak karakter kontrol/spasi agar env Rocket tak rusak.
-            String adminToken = sp.getString(KEY_ADMIN_TOKEN, "");
+            String adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
             if (adminToken != null && !adminToken.trim().isEmpty()) {
                 String bersih = adminToken.trim();
                 if (!tokenAdminValid(bersih)) {
