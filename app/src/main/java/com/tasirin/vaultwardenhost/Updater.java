@@ -1402,20 +1402,72 @@ public final class Updater {
         }
     }
 
-    /** Package-private agar bisa diuji unit (tanpa jaringan). */
+    /** Package-private agar bisa diuji unit (tanpa jaringan).
+     *  Cari kunci "tag_name" struktural (di luar literal string, hormati
+     *  escape) agar teks body yang memuat literal itu tak salah dibaca.
+     *  Sengaja tanpa org.json: stub android.jar di uji JVM tak memparse. */
     static String extractTag(String body) {
         if (body == null) {
             return null;
         }
-        try {
-            String tag = new org.json.JSONObject(body).optString("tag_name", null);
-            if (tag == null || tag.isEmpty()) {
+        String kunci = "\"tag_name\"";
+        int n = body.length();
+        boolean dalamString = false;
+        boolean escape = false;
+        for (int i = 0; i < n; i++) {
+            char c = body.charAt(i);
+            if (dalamString) {
+                if (escape) {
+                    escape = false;
+                } else if (c == '\\') {
+                    escape = true;
+                } else if (c == '"') {
+                    dalamString = false;
+                }
+                continue;
+            }
+            if (c != '"') {
+                continue;
+            }
+            if (!body.startsWith(kunci, i)) {
+                dalamString = true;
+                continue;
+            }
+            int j = i + kunci.length();
+            while (j < n && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= n || body.charAt(j) != ':') {
+                dalamString = true;
+                continue;
+            }
+            j++;
+            while (j < n && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= n || body.charAt(j) != '"') {
                 return null;
             }
-            return tag;
-        } catch (Exception e) {
-            return null;
+            StringBuilder tag = new StringBuilder();
+            j++;
+            boolean esc = false;
+            while (j < n) {
+                char d = body.charAt(j);
+                if (esc) {
+                    tag.append(d);
+                    esc = false;
+                } else if (d == '\\') {
+                    esc = true;
+                } else if (d == '"') {
+                    break;
+                } else {
+                    tag.append(d);
+                }
+                j++;
+            }
+            return tag.length() == 0 ? null : tag.toString();
         }
+        return null;
     }
 
     /** True bila file ELF ARM 32-bit (magic + e_machine == EM_ARM).
