@@ -181,8 +181,15 @@ public class ServerServiceTest {
         assertFalse(ServerService.dataDirAman("/sdcard"));
         assertFalse(ServerService.dataDirAman("/sdcard/"));
         assertFalse(ServerService.dataDirAman("/storage/emulated/0"));
+        assertFalse(ServerService.dataDirAman("/storage/emulated/0/"));
+        assertFalse(ServerService.dataDirAman("/storage/emulated"));
+        assertFalse(ServerService.dataDirAman("/storage/sdcard0"));
+        assertFalse(ServerService.dataDirAman("/mnt/sdcard"));
+        assertFalse(ServerService.dataDirAman("/mnt/media_rw"));
+        assertFalse(ServerService.dataDirAman("/mnt/runtime"));
         assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/mnt/media_rw/vaultwarden"));
     }
 
     @Test

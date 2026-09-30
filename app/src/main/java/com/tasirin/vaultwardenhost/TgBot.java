@@ -786,10 +786,9 @@ public final class TgBot {
         }
     }
 
-    /** True bila argumen /restore adalah kata konfirmasi (YA/YES/Y/OK/KONFIRMASI/LANJUT). */
     /** True bila argumen /restore adalah konfirmasi eksplisit. Sengaja sempit
-     *  ("ya"/"yes"/"konfirmasi"): kata umum seperti "ok"/"y"/"lanjut" yang nyasar
-     *  tepat setelah info restore tak boleh memicu timpa database. Murni. */
+     *  ("ya"/"yes"/"konfirmasi"/"confirm"): kata umum seperti "ok"/"y"/"lanjut"
+     *  yang nyasar tepat setelah info restore tak boleh memicu timpa database. Murni. */
     static boolean isRestoreConfirm(String arg) {
         if (arg == null) {
             return false;

@@ -696,10 +696,12 @@ public class ServerService extends Service {
             return false;
         }
         // Folder data wajib subfolder (mis. /sdcard/vaultwarden): root storage
-        // (/sdcard, /storage/emulated/0) membuat DB+web-vault+log tercecer di root dan rawan terhapus.
+        // (/sdcard, /storage/emulated/0, /mnt/media_rw) membuat DB+web-vault+log
+        // tercecer di root dan rawan terhapus.
         if (n.equals("/sdcard") || n.equals("/storage/emulated")
                 || n.equals("/storage/emulated/0") || n.equals("/storage/self")
-                || n.equals("/mnt/sdcard")) {
+                || n.equals("/storage/sdcard0") || n.equals("/mnt/sdcard")
+                || n.equals("/mnt/media_rw") || n.equals("/mnt/runtime")) {
             return false;
         }
         int segmenIsi = 0;

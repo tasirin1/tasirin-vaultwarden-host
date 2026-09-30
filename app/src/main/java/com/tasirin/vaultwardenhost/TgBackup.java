@@ -898,8 +898,8 @@ public final class TgBackup {
      *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
-                    "tg_pass", PinGate.KEY_PIN_HASH, "pin_gagal", "pin_kunci_sampai",
-                    "pin_kunci_elapsed"));
+                    "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
+                    PinGate.KEY_KUNCI_ELAPSED));
 
     /** Kunci milik perangkat yang tak ikut export config: folder data selalu
      *  milik perangkat (import mengabaikannya), sisanya state runtime/notifikasi
@@ -1750,11 +1750,11 @@ public final class TgBackup {
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
     static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
-            java.util.Arrays.asList("pin_gagal", TgBot.KEY_TG_MENU_HASH));
+            java.util.Arrays.asList(PinGate.KEY_GAGAL, TgBot.KEY_TG_MENU_HASH));
 
     /** Kunci Long yang wajib Long (pembaca memakai getLong). */
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
-            java.util.Arrays.asList("pin_kunci_sampai", "pin_kunci_elapsed",
+            java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,
                     KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS));
 
     /** Koersi nilai Boolean dari String/Number edit manual ("true"/1 -> true). Null bila tak jelas. Murni. */
@@ -1979,8 +1979,8 @@ public final class TgBackup {
         String keepPass = cur.getString(KEY_TG_PASS, "");
         String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
         String keepPinHash = cur.getString(PinGate.KEY_PIN_HASH, "");
-        int keepGagal = amanInt(cur, "pin_gagal", 0);
-        long keepKunci = amanLong(cur, "pin_kunci_sampai", 0);
+        int keepGagal = amanInt(cur, PinGate.KEY_GAGAL, 0);
+        long keepKunci = amanLong(cur, PinGate.KEY_KUNCI_SAMPAI, 0);
         long keepOffset = amanLong(cur, TgBot.KEY_TG_OFFSET, 0);
         String keepNotified = cur.getString("tg_notified_version", "");
         String keepWvFrom = cur.getString("wv_from_version", "");
@@ -2077,8 +2077,8 @@ public final class TgBackup {
         // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
         // Status PIN selalu milik perangkat: zip tak tepercaya tak boleh
         // mematikan PIN perangkat (downgrade pengaman). Murni via pinOnHasilRestore.
-        ed.putInt("pin_gagal", keepGagal);
-        ed.putLong("pin_kunci_sampai", keepKunci);
+        ed.putInt(PinGate.KEY_GAGAL, keepGagal);
+        ed.putLong(PinGate.KEY_KUNCI_SAMPAI, keepKunci);
         ed.putBoolean(PinGate.KEY_PIN_ON,
                 pinOnHasilRestore(cur.getBoolean(PinGate.KEY_PIN_ON, false), keepPinHash));
         // Offset bot selalu milik perangkat: zip jahat dengan offset raksasa
