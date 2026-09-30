@@ -279,11 +279,24 @@ public class LogActivity extends Activity {
 
     /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */
     private void showCrashDialog() {
-        String crash = ServerService.crashLogText(this);
-        if (crash == null || crash.trim().isEmpty()) {
-            toast("Belum ada crash log.");
-            return;
-        }
+        // Baca file di worker: storage STB lambat bisa ANR bila dibaca di UI thread.
+        new Thread(() -> {
+            final String crash = ServerService.crashLogText(LogActivity.this);
+            ui.post(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (crash == null || crash.trim().isEmpty()) {
+                    toast("Belum ada crash log.");
+                    return;
+                }
+                tampilDialogCrash(crash);
+            });
+        }, "vw-crashlog").start();
+    }
+
+    /** Bangun dialog crash-log di UI thread (dipanggil setelah baca worker selesai). */
+    private void tampilDialogCrash(final String crash) {
         float d = getResources().getDisplayMetrics().density;
         TextView tv = new TextView(this);
         tv.setText(crash);

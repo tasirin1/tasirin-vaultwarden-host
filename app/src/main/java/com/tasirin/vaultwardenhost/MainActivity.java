@@ -204,6 +204,19 @@ public class MainActivity extends Activity {
                 }
             }, "vw-boot-susulan").start();
         }
+        // Susulan auto-start yang ditolak sistem dari background (Android 12+
+        // membatasi start service): mulaiService menandainya, eksekusi di sini
+        // saat app dibuka (sudah foreground sehingga diizinkan).
+        if (sp.getBoolean(ServerService.KEY_START_TERTUNDA, false)) {
+            try {
+                sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
+            } catch (Exception ignored) {
+            }
+            if (sp.getBoolean(ServerService.KEY_AUTO_START, false) && !ServerService.running) {
+                appendUiLog("[app] Auto-start susulan: start background sempat ditolak sistem.");
+                ServerService.start(this);
+            }
+        }
     }
 
     @Override

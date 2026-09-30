@@ -885,6 +885,15 @@ public final class TgBackup {
                     "tg_pass", "pin_hash", "pin_gagal", "pin_kunci_sampai",
                     "pin_kunci_elapsed"));
 
+    /** Kunci milik perangkat yang tak ikut export config: folder data selalu
+     *  milik perangkat (import mengabaikannya), sisanya state runtime/notifikasi
+     *  yang basi bila dipindah ke perangkat lain. */
+    static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
+            java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
+                    TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
+                    "tg_notified_version", "wv_from_version",
+                    "tg_backup_tertunda", ServerService.KEY_START_TERTUNDA));
+
     /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {
         JSONObject root = new JSONObject();
@@ -892,7 +901,9 @@ public final class TgBackup {
         root.put("version", 1);
         JSONObject prefs = new JSONObject();
         for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
-            if (SECRET_PREF_KEYS.contains(e.getKey())) {
+            if (SECRET_PREF_KEYS.contains(e.getKey())
+                    || TAK_DIEKSPOR_KEYS.contains(e.getKey())
+                    || e.getKey().startsWith("wv_notified_")) {
                 continue;
             }
             Object v = e.getValue();

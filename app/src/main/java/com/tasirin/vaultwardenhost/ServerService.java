@@ -134,6 +134,9 @@ public class ServerService extends Service {
     private static volatile Process process;
     /** True bila stop diminta sengaja: watchProcess wajib abaikan exit agar status tetap "Stopped". */
     private static volatile boolean stopDisengaja = false;
+    /** True bila Stop ditekan saat start masih persiapan (unduh binary):
+     *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
+    private static volatile boolean batalStart = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
@@ -198,6 +201,15 @@ public class ServerService extends Service {
             }
         } catch (Exception e) {
             catatLog("[app] Gagal start service (" + aksi + "): " + e);
+            if (ACTION_START.equals(aksi)) {
+                // Android 12+ menolak start dari background: tandai agar
+                // MainActivity menjalankan susulan saat dibuka berikutnya.
+                try {
+                    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                            .edit().putBoolean(KEY_START_TERTUNDA, true).apply();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
@@ -209,6 +221,10 @@ public class ServerService extends Service {
     public static void restart(Context context) {
         mulaiAksi(context, ACTION_RESTART);
     }
+
+    /** Flag susulan auto-start: start dari background ditolak sistem
+     *  (Android 12+). MainActivity mengeksekusinya saat dibuka berikutnya. */
+    public static final String KEY_START_TERTUNDA = "auto_start_tertunda";
 
     /** Kirim aksi ke service lewat foreground API di Android 8+ agar tidak
      *  IllegalStateException saat dipanggil dari background (bot/alarm). */
@@ -442,6 +458,7 @@ public class ServerService extends Service {
             healthActive = false;
             mainHandler.removeCallbacks(healthTick);
             mainHandler.removeCallbacks(restartTunda);
+            batalStart = true;
             stopServer();
             stopForeground(true);
             stopSelf();
@@ -449,6 +466,7 @@ public class ServerService extends Service {
         }
         if (ACTION_RESTART.equals(action)) {
             autoRestart = true;
+            batalStart = false;
             startForegroundCompat();
             new Thread(() -> {
                 appendLog("[app] Restart diminta via Telegram.");
@@ -533,6 +551,7 @@ public class ServerService extends Service {
             return START_NOT_STICKY;
         }
         autoRestart = true;
+        batalStart = false;
         healthActive = true;
         startForegroundCompat();
         if (process == null || !alive(process)) {
@@ -890,6 +909,15 @@ public class ServerService extends Service {
             if (!dataDirKanonisAman(dataDir)) {
                 throw new IOException("Folder data berubah/tak valid saat start;"
                         + " dibatalkan agar server tak jalan di folder asing.");
+            }
+            // Stop yang ditekan selama persiapan (unduh binary ber-menit-menit)
+            // membatalkan start di sini: jangan luncurkan server tanpa diminta.
+            if (batalStart) {
+                batalStart = false;
+                appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
+                        + " - tekan Start lagi bila ingin jalan.");
+                setStatus("Stopped");
+                return;
             }
             process = pb.start();
             // Proses baru milik start ini: hapus tanda stop lama agar crash
