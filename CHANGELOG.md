@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan race /careset vs backup
+- `/careset` kini jalan di bawah kunci tugas berat (serial dengan backup/restore):
+  reset menghapus file tls satu per satu sehingga backup konkuren bisa menangkap setengah set.
+
 ## [Belum rilis] — Perbaikan 3 bug audit (fallback web-vault, symlink, callback)
 - Web-vault via fallback kini catat penanda 6 jam: cek berikutnya tak lagi unduh ulang 35 MB tiap kali.
 - `deleteRecursive` tak lagi mengikuti symlink direktori (hapus link-nya saja).

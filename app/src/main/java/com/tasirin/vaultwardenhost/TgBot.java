@@ -669,7 +669,10 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
-                runWithWakeLock(ctx, () -> {
+                // Kunci tugas berat (bukan runWithWakeLock polos): reset menghapus
+                // file tls satu per satu sehingga backup konkuren bisa menangkap
+                // setengah set (CA baru + key lama). Serial dengan backup/restore.
+                runBeratDenganKunci(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.resetSertifikat(ctx));
                     } catch (Exception e) {
