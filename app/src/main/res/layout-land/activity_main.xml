@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layar awal landscape: hero + satu kolom vertikal (tautan di atas
-     + log realtime di tengah + server di bawah) + footer Start sticky.
+     + log realtime di tengah) + footer sticky (status
+     di atas tombol Start/Stop).
      ID sama persis dengan portrait agar MainActivity tidak berubah.
-     Sengaja TIDAK dua kolom: kartu tautan/server di atas-bawah log. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
+     Sengaja TIDAK dua kolom: kartu tautan di atas, log di bawah. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
      updateBtn yang kadang gone diperbaiki dinamis di MainActivity.
      Varian landscape ada di res/layout-land/activity_main.xml (ID sama). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -152,79 +153,10 @@
                 </ScrollView>
 
             </LinearLayout>
-<!-- ===================== SERVER ===================== -->
-            <LinearLayout
-                style="@style/TasirinCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/TasirinSection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/server_title" />
-
-                <LinearLayout
-                    android:id="@+id/statusBanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_status_stopped"
-                    android:focusable="false"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:orientation="horizontal">
-
-                    <View
-                        android:id="@+id/statusDot"
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_dot_stopped"
-                        android:focusable="false" />
-
-                    <TextView
-                        android:id="@+id/status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:focusable="false"
-                        android:text="@string/stopped"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/restartHint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/settings_changed_hint"
-                    android:textColor="@color/status_off"
-                    android:textSize="11sp"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/updateBtn"
-                    android:nextFocusDown="@id/startStop"
-                    android:nextFocusUp="@id/netInfo"
-                    style="@style/TasirinBtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/update_available_hint"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-                    </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 
-    <!-- Footer sticky: Start/Stop full-width selalu terlihat -->
+    <!-- Footer sticky: banner status + Start/Stop full-width selalu terlihat -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -238,8 +170,61 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/card_stroke" />
+
+        <LinearLayout
+            android:id="@+id/statusBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_stopped"
+            android:focusable="false"
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/statusDot"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_dot_stopped"
+                android:focusable="false" />
+
+            <TextView
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:text="@string/stopped"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/restartHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/settings_changed_hint"
+            android:textColor="@color/status_off"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/updateBtn"
+            android:nextFocusDown="@id/startStop"
+            android:nextFocusUp="@id/netInfo"
+            style="@style/TasirinBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/update_available_hint"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/startStop"
@@ -248,6 +233,7 @@
             style="@style/TasirinBtnPrimary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@string/start" />
     </LinearLayout>
 </LinearLayout>

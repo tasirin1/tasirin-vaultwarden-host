@@ -456,8 +456,8 @@ public class MainActivity extends Activity {
         } else {
             updateBtn.setVisibility(View.GONE);
         }
-        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: kartu server kini
-        // di bawah log, jadi yang dialihkan adalah tetangga updateBtn (info URL & Start)
+        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: status kini
+        // di footer, jadi yang dialihkan adalah tetangga updateBtn (info URL & Start)
         if (updAvail != lastUpdBtnVisible) {
             lastUpdBtnVisible = updAvail;
             netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
