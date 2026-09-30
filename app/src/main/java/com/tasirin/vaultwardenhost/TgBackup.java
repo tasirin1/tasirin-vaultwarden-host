@@ -2074,6 +2074,17 @@ public final class TgBackup {
         }
     }
 
+    /** True bila path memuat segmen ".." (traversal); nama sah seperti
+     *  "my..folder/x" tetap lolos karena titik ganda bukan segmen utuh. */
+    static boolean adaSegmenDotDot(String n) {
+        for (String seg : n.split("/", -1)) {
+            if (seg.equals("..")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Normalisasi nama entri zip jadi path relatif di folder data; null bila ditolak.
      *  Menerima entri top-level (db.sqlite3, tls/..., app-config.json) maupun yang
      *  terbungkus folder (mis. vaultwarden/db.sqlite3 dari zip manual): folder
@@ -2089,7 +2100,7 @@ public final class TgBackup {
         while (n.startsWith("./")) {
             n = n.substring(2);
         }
-        if (n.isEmpty() || n.contains("..") || n.contains(":")) {
+        if (n.isEmpty() || adaSegmenDotDot(n) || n.contains(":")) {
             return null;
         }
         if (diterimaEntriZip(n)) {
@@ -2106,7 +2117,7 @@ public final class TgBackup {
     }
 
     private static boolean diterimaEntriZip(String n) {
-        if (n.isEmpty() || n.contains("..") || n.contains(":")) {
+        if (n.isEmpty() || adaSegmenDotDot(n) || n.contains(":")) {
             return false;
         }
         if (n.equals("app-config.json") || n.equals("tls")) {

@@ -302,17 +302,29 @@ public final class Updater {
         String ganti(String url, int kode) throws IOException;
     }
 
+    /** Kunci swap web-vault: dipakai Updater + ServerService.cleanupTempFiles
+     *  agar Start tak membuang web-vault.new yang sedang diekstrak. */
+    public static final Object KUNCI_WEBVAULT = new Object();
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan.
-     *  Kunci = string path ter-intern (bukan map yang tumbuh): path tmp tetap
-     *  (~3: binary/shim/web-vault) sehingga intern terbatas dan saling
-     *  mengecualikan per file tetap benar tanpa entri map yang bocor. */
-    private static String kunciUnduh(File tmp) {
+     *  Kunci = objek per path kanonis (tanpa String.intern global yang tak pernah GC
+     *  dan bisa kontensi lintas-JVM). */
+    private static final java.util.concurrent.ConcurrentHashMap<String, Object> KUNCI_UNDUH =
+            new java.util.concurrent.ConcurrentHashMap<>();
+    static Object kunciUnduh(File tmp) {
+        String kunci;
         try {
-            return tmp.getCanonicalPath().intern();
+            kunci = tmp.getCanonicalPath();
         } catch (Exception e) {
-            return tmp.getAbsolutePath().intern();
+            kunci = tmp.getAbsolutePath();
         }
+        Object ada = KUNCI_UNDUH.get(kunci);
+        if (ada != null) {
+            return ada;
+        }
+        Object buat = new Object();
+        Object menang = KUNCI_UNDUH.putIfAbsent(kunci, buat);
+        return menang != null ? menang : buat;
     }
 
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
@@ -629,12 +641,14 @@ public final class Updater {
             throw new IOException(pesanUjiAsapGagal(
                     KernelCompat.kernelSekarang(), shimAda));
         }
-        if (out.exists()) {
-            out.delete();
-        }
-        if (!tmp.renameTo(out)) {
-            tmp.delete();
-            throw new IOException("Gagal menyimpan update.");
+        try {
+            ServerService.gantiAtomik(tmp, out);
+        } catch (IOException e) {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
         }
         // ownerOnly=true: hanya UID app yang membaca binary — tidak world-readable.
         out.setReadable(true, true);
@@ -773,12 +787,13 @@ public final class Updater {
                 fos.write(blob);
                 fos.getFD().sync();
             }
-            if (dst.exists() && !dst.delete()) {
-                tmp.delete();
-                return false;
-            }
-            if (!tmp.renameTo(dst)) {
-                tmp.delete();
+            try {
+                ServerService.gantiAtomik(tmp, dst);
+            } catch (java.io.IOException e) {
+                try {
+                    tmp.delete();
+                } catch (Exception ignored) {
+                }
                 return false;
             }
             sp.edit().putString(KEY_TRUST_TGL, hari).apply();
@@ -867,11 +882,13 @@ public final class Updater {
             tmp.delete();
             throw new IOException("File shim tidak valid (ukuran " + ukuran + " byte).");
         }
-        if (out.exists()) {
-            out.delete();
-        }
-        if (!tmp.renameTo(out)) {
-            tmp.delete();
+        try {
+            ServerService.gantiAtomik(tmp, out);
+        } catch (IOException e) {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
             throw new IOException("Gagal menyimpan shim.");
         }
         out.setReadable(true, true);
@@ -1164,25 +1181,28 @@ public final class Updater {
                     + " - versi lama dipertahankan.");
         }
         // Tukar via .bak agar crash di tengah tak menghilangkan web-vault lama.
-        File bakDir = new File(dataFolder, "web-vault.bak");
-        deleteRecursive(bakDir);
-        boolean adaLama = targetDir.exists();
-        if (adaLama && !targetDir.renameTo(bakDir)) {
-            // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
-            // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
-            deleteRecursive(newDir);
-            throw new IOException("Gagal mencadangkan web vault lama"
-                    + " - versi lama dipertahankan.");
-        }
-        if (!newDir.renameTo(targetDir)) {
-            deleteRecursive(newDir);
-            if (adaLama) {
-                bakDir.renameTo(targetDir);
+        // Dikunci bersama cleanupTempFiles agar Start tak membuang newDir di tengah ekstrak.
+        synchronized (KUNCI_WEBVAULT) {
+            File bakDir = new File(dataFolder, "web-vault.bak");
+            deleteRecursive(bakDir);
+            boolean adaLama = targetDir.exists();
+            if (adaLama && !targetDir.renameTo(bakDir)) {
+                // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
+                // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
+                deleteRecursive(newDir);
+                throw new IOException("Gagal mencadangkan web vault lama"
+                        + " - versi lama dipertahankan.");
             }
-            throw new IOException("Gagal memasang web vault baru"
-                    + " - versi lama dipertahankan.");
+            if (!newDir.renameTo(targetDir)) {
+                deleteRecursive(newDir);
+                if (adaLama) {
+                    bakDir.renameTo(targetDir);
+                }
+                throw new IOException("Gagal memasang web vault baru"
+                        + " - versi lama dipertahankan.");
+            }
+            deleteRecursive(bakDir);
         }
-        deleteRecursive(bakDir);
         if (latest != null && !wvFallback) {
             sp.edit().putString(KEY_WV_FROM, latest).apply();
         }

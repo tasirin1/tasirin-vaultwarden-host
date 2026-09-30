@@ -11,6 +11,23 @@ import org.junit.Test;
 public class UpdaterTest {
 
     @Test
+    public void kunciUnduh_samaUntukPathSama() throws Exception {
+        java.io.File a = new java.io.File("/tmp/vw-bin-test");
+        assertTrue(Updater.kunciUnduh(a) == Updater.kunciUnduh(a));
+    }
+
+    @Test
+    public void gantiAtomik_pulihkanLamaBilaGagal() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwatom").toFile();
+        java.io.File out = new java.io.File(dir, "bin");
+        java.io.File tmp = new java.io.File(dir, "bin.tmp");
+        java.nio.file.Files.write(out.toPath(), "lama".getBytes("UTF-8"));
+        java.nio.file.Files.write(tmp.toPath(), "baru".getBytes("UTF-8"));
+        ServerService.gantiAtomik(tmp, out);
+        assertEquals("baru", new String(java.nio.file.Files.readAllBytes(out.toPath()), "UTF-8"));
+    }
+
+    @Test
     public void normVersion_hapusHurufV() {
         assertEquals("1.37.1", Updater.normVersion("v1.37.1"));
         assertEquals("1.37.1", Updater.normVersion("1.37.1"));

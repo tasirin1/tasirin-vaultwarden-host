@@ -140,11 +140,17 @@ public final class TlsCert {
         }
     }
 
-    /** True bila CA bisa dipakai: file ada, versi cocok, belum kedaluwarsa. */
+    /** True bila CA bisa dipakai: file ada, versi cocok, belum kedaluwarsa.
+     *  Jam STB miring (sisa -2 = belum valid) ikut dipakai agar tak regenerasi
+     *  tiap Start yang memaksa install ulang ca.pem di semua HP. */
     static boolean caOk(File caCert, File caKey, File dir) {
-        return caCert.exists() && caKey.exists()
-                && caCert.length() > 100 && caKey.length() > 100
-                && certVersionOk(dir) && sisaMs(caCert) > 0;
+        if (!caCert.exists() || !caKey.exists()
+                || caCert.length() <= 100 || caKey.length() <= 100
+                || !certVersionOk(dir)) {
+            return false;
+        }
+        long sisa = sisaMs(caCert);
+        return sisa > 0 || sisa == -2;
     }
 
     /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */

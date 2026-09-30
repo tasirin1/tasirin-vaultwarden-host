@@ -468,6 +468,23 @@ public class TgBackupTest {
     }
 
     @Test
+    public void adaSegmenDotDot_bedakanSubstringDanTraversal() {
+        assertTrue(TgBackup.adaSegmenDotDot(".."));
+        assertTrue(TgBackup.adaSegmenDotDot("../x"));
+        assertTrue(TgBackup.adaSegmenDotDot("a/../b"));
+        assertTrue(TgBackup.adaSegmenDotDot("a/../../evil"));
+        assertFalse(TgBackup.adaSegmenDotDot("my..folder/x"));
+        assertFalse(TgBackup.adaSegmenDotDot("db.sqlite3"));
+        assertFalse(TgBackup.adaSegmenDotDot("tls/cert.pem"));
+    }
+
+    @Test
+    public void normalisasiEntriZip_terimaNamaTitikGandaSah() {
+        assertEquals("db.sqlite3",
+                TgBackup.normalisasiEntriZip("my..folder/db.sqlite3"));
+    }
+
+    @Test
     public void normalisasiEntriZip_tolakSiblingLicik() {
         // Entri berawalan nama folder data tapi di luar folder (tanpa separator)
         // wajib ditolak di allowlist, bukan hanya di cek canonical.

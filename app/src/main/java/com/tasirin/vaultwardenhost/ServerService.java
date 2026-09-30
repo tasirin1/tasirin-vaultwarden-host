@@ -132,8 +132,13 @@ public class ServerService extends Service {
     private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private static volatile Process process;
-    /** True bila stop diminta sengaja: watchProcess wajib abaikan exit agar status tetap "Stopped". */
-    private static volatile boolean stopDisengaja = false;
+    /** Proses yang diminta berhenti sengaja (per-proses, bukan boolean global):
+     *  watchProcess hanya mengabaikan exit milik proses ini agar Stop lalu Start cepat
+     *  tak salah menandai crash proses baru sebagai stop sengaja. */
+    private static volatile Process prosesStopDisengaja = null;
+    /** Lolos TCP beruntun saat /alive gagal tapi port tersambung (anti livelock health). */
+    private final java.util.concurrent.atomic.AtomicInteger healthTcpLolos =
+            new java.util.concurrent.atomic.AtomicInteger(0);
     /** True bila Stop ditekan saat start masih persiapan (unduh binary):
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
@@ -247,6 +252,57 @@ public class ServerService extends Service {
     public static boolean isProcessAlive() {
         Process p = process;
         return alive(p);
+    }
+
+    private static boolean isStopDisengaja(Process p) {
+        return p != null && p == prosesStopDisengaja;
+    }
+
+    private static void tandaiStopDisengaja(Process p) {
+        if (p != null) {
+            prosesStopDisengaja = p;
+        }
+    }
+
+    private static void hapusTandaStop(Process p) {
+        if (p != null && prosesStopDisengaja == p) {
+            prosesStopDisengaja = null;
+        }
+    }
+
+    /** Ganti file atomik via cadangan: tanpa jendela tanpa-binary bila crash di tengah. */
+    static void gantiAtomik(File tmp, File out) throws java.io.IOException {
+        File bak = new File(out.getParentFile(), out.getName() + ".bak");
+        try {
+            if (bak.exists() && !bak.delete()) {
+                bak.delete();
+            }
+        } catch (Exception ignored) {
+        }
+        if (out.exists() && !out.renameTo(bak)) {
+            throw new java.io.IOException("Gagal mencadangkan binary lama.");
+        }
+        boolean ok = false;
+        try {
+            if (!tmp.renameTo(out)) {
+                throw new java.io.IOException("Gagal memasang binary.");
+            }
+            ok = true;
+        } finally {
+            if (!ok && bak.exists()) {
+                try {
+                    if (!out.exists()) {
+                        bak.renameTo(out);
+                    }
+                } catch (Exception ignored) {
+                }
+            } else if (ok) {
+                try {
+                    bak.delete();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     /** Process.isAlive() baru ada di API 26; fallback exitValue() untuk Android 5/6. */
@@ -478,7 +534,7 @@ public class ServerService extends Service {
                 appendLog("[app] Restart diminta via Telegram.");
                 if (process != null) {
                     final Process p = process;
-                    stopDisengaja = true;
+                    tandaiStopDisengaja(p);
                     running = false;
                     releaseWakeLock();
                     p.destroy();
@@ -499,7 +555,7 @@ public class ServerService extends Service {
                         if (process == p) {
                             process = null;
                         }
-                        stopDisengaja = false;
+                        hapusTandaStop(p);
                     }
                 }
                 mainHandler.post(() -> {
@@ -928,7 +984,8 @@ public class ServerService extends Service {
             process = pb.start();
             // Proses baru milik start ini: hapus tanda stop lama agar crash
             // dini tak dianggap "stop disengaja" (race stopper 5-8 dtk).
-            stopDisengaja = false;
+            // Tanda milik proses lama dibuang total karena generasi berganti.
+            prosesStopDisengaja = null;
             acquireWakeLock();
             running = true;
             // Riwayat restart milik kejadian lama: bersihkan agar /status tak
@@ -988,7 +1045,8 @@ public class ServerService extends Service {
             // Tandai stop sengaja agar watchProcess abaikan exit (status tetap
             // "Stopped"). Proses dipertahankan sampai benar-benar mati agar
             // stopAndWait()/restore tak menimpa DB selagi proses lama hidup.
-            stopDisengaja = true;
+            // Per-proses agar Start baru tak ikut ditandai.
+            tandaiStopDisengaja(p);
             setStatus("Stopped");
             p.destroy();
             Thread stopper = new Thread(() -> {
@@ -1009,14 +1067,14 @@ public class ServerService extends Service {
                     if (process == p) {
                         process = null;
                     }
-                    stopDisengaja = false;
+                    hapusTandaStop(p);
                 }
             }, "vw-stop");
             stopper.setDaemon(true);
             stopper.start();
         } else {
             setStatus("Stopped");
-            stopDisengaja = false;
+            prosesStopDisengaja = null;
         }
         running = false;
         runningDataDir = "";
@@ -1031,7 +1089,7 @@ public class ServerService extends Service {
     private void watchProcess(Process p) {
         try {
             int code = p.waitFor();
-            if (stopDisengaja || process != p) {
+            if (isStopDisengaja(p) || process != p) {
                 // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
                 if (process == p) {
                     process = null;
@@ -1460,6 +1518,7 @@ public class ServerService extends Service {
         HasilPing h = pingRinci(this);
         if (h.sehat) {
             healthFails.set(0);
+            healthTcpLolos.set(0);
             return;
         }
         healthFail("tidak merespon (" + h.rincian + ")");
@@ -1475,10 +1534,15 @@ public class ServerService extends Service {
             boolean prosesHidup = process != null && alive(process);
             boolean tcpOk = tcpTersambung(portLoopback());
             if (prosesHidup && tcpOk) {
-                appendLog("[health] 3x gagal tapi port masih tersambung"
-                        + " - server TIDAK dihentikan, coba lagi.");
-                healthFails.set(2);
-                return;
+                int lolos = healthTcpLolos.incrementAndGet();
+                if (lolos < 3) {
+                    appendLog("[health] 3x gagal tapi port masih tersambung"
+                            + " - server TIDAK dihentikan, coba lagi (" + lolos + "/3).");
+                    healthFails.set(2);
+                    return;
+                }
+                appendLog("[health] /alive gagal 9x tapi TCP hidup"
+                        + " - dianggap gantung, server dihentikan.");
             }
             autoRestart = false;
             // Terminal: hentikan tick agar tak spam Telegram/log tiap interval selamanya.
@@ -1486,6 +1550,7 @@ public class ServerService extends Service {
             mainHandler.removeCallbacks(healthTick);
             mainHandler.removeCallbacks(restartTunda);
             healthFails.set(0);
+            healthTcpLolos.set(0);
             // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
             // proses bisa mati tepat di jeda cek-vs-eksekusi sehingga p null.
             running = false;
@@ -1500,7 +1565,7 @@ public class ServerService extends Service {
                     + shorten(tailLog(15), 500));
             final Process p = process;
             if (p != null) {
-                stopDisengaja = true;
+                tandaiStopDisengaja(p);
                 releaseWakeLock();
                 p.destroy();
                 Thread killer = new Thread(() -> {
@@ -1521,7 +1586,7 @@ public class ServerService extends Service {
                         if (process == p) {
                             process = null;
                         }
-                        stopDisengaja = false;
+                        hapusTandaStop(p);
                     }
                 }, "vw-health-stop");
                 killer.setDaemon(true);
@@ -1689,8 +1754,16 @@ public class ServerService extends Service {
         statusLine = text;
     }
 
-    /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume. */
+    /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume.
+     *  Dikunci KUNCI_WEBVAULT bersama Updater agar Start tak membuang web-vault.new
+     *  yang sedang diekstrak update bot (balapan hemat kuota 35 MB). */
     private void cleanupTempFiles(String dataDir) {
+        synchronized (Updater.KUNCI_WEBVAULT) {
+            cleanupTempFilesTerkunci(dataDir);
+        }
+    }
+
+    private void cleanupTempFilesTerkunci(String dataDir) {
         // File .tmp unduhan (binary/web-vault) SENGAJA dipertahankan agar Start
         // berikutnya melanjutkan via HTTP Range (hemat kuota ~15/35 MB).
         // Updater menghapusnya sendiri bila korup/checksum tak cocok.
@@ -1815,12 +1888,7 @@ public class ServerService extends Service {
                                     + " (arsitektur salah/rusak?) - diabaikan,"
                                     + " cache lama dipertahankan.");
                         } else {
-                            if (out.exists() && !out.delete()) {
-                                throw new IOException("Gagal mengganti binary lama.");
-                            }
-                            if (!tmpManual.renameTo(out)) {
-                                throw new IOException("Gagal memasang binary manual.");
-                            }
+                            gantiAtomik(tmpManual, out);
                             writeText(verFile, Updater.appVersionName(this));
                             appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
                             return out;
@@ -1935,12 +2003,7 @@ public class ServerService extends Service {
             // sebagai UID sama) — tidak perlu world-readable.
             tmp.setReadable(true, true);
             tmp.setExecutable(true, true);
-            if (dst.exists() && !dst.delete()) {
-                throw new IOException("Gagal mengganti binary lama");
-            }
-            if (!tmp.renameTo(dst)) {
-                throw new IOException("Gagal memasang binary");
-            }
+            gantiAtomik(tmp, dst);
         } catch (IOException | RuntimeException e) {
             try {
                 tmp.delete();
