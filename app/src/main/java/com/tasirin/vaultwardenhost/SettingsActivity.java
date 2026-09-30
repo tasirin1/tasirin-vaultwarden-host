@@ -1645,18 +1645,20 @@ public class SettingsActivity extends Activity {
     private void importConfig(Uri uri) {
         try {
             File tmp = new File(getCacheDir(), "vwcfg-import.bin");
-            InputStream awal = getContentResolver().openInputStream(uri);
-            if (awal == null) {
-                toast("Gagal import config: file tidak bisa dibuka.");
-                appendUiLog("[app] Import ditolak: stream file null");
-                return;
-            }
-            try (InputStream in = awal;
+            // Stream dibuka langsung di try-with-resources: bila FileOutputStream
+            // gagal dibuat, stream tetap tertutup (lolos cek Recycle lint).
+            try (InputStream awal = getContentResolver().openInputStream(uri);
                  FileOutputStream fos = new FileOutputStream(tmp)) {
+                if (awal == null) {
+                    toast("Gagal import config: file tidak bisa dibuka.");
+                    appendUiLog("[app] Import ditolak: stream file null");
+                    tmp.delete();
+                    return;
+                }
                 byte[] buf = new byte[8192];
                 int total = 0;
                 int n;
-                while ((n = in.read(buf)) != -1) {
+                while ((n = awal.read(buf)) != -1) {
                     total += n;
                     if (total > 512 * 1024) {
                         throw new java.io.IOException(
