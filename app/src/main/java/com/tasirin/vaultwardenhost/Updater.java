@@ -1618,7 +1618,6 @@ public final class Updater {
         }
     }
 
-    /** Banding hex checksum tanpa alokasi string sementara (case-insensitive). */
     /** Banding hex checksum constant-time (case-insensitive); null tak cocok. */
     static boolean expectedHexEquals(String expectedHex, String gotHex) {
         if (expectedHex == null || gotHex == null) {
