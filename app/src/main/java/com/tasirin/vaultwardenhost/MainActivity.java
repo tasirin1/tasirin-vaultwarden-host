@@ -285,9 +285,20 @@ public class MainActivity extends Activity {
         setBusy(true);
         new Thread(() -> {
             final boolean busy = ServerService.isPortBusy(portFix);
+            final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
             ui.post(() -> {
                 setBusy(false);
                 if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (butuhRoot) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Port " + portFix + " butuh akses root")
+                            .setMessage("Port utama (" + portFix + ") di bawah 1024 hanya bisa"
+                                    + " dipakai dengan akses root.\n"
+                                    + "Ganti port ke >= 1024 (mis. 8088) di Settings.")
+                            .setPositiveButton("Oke", null)
+                            .show();
                     return;
                 }
                 if (busy) {

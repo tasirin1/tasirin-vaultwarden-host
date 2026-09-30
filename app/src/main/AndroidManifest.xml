@@ -81,9 +81,12 @@
             android:exported="false"
             android:grantUriPermissions="true" />
 
+        <!-- exported=true: BOOT_COMPLETED/QUICKBOOT/MY_PACKAGE_REPLACED adalah
+             protected broadcast (hanya sistem yang bisa mengirim), dan contoh
+             resmi mewajibkan exported agar sampai di Android modern. -->
         <receiver
             android:name=".BootReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

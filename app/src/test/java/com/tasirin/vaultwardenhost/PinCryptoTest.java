@@ -23,6 +23,17 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void iterasiRendahDitolak() {
+        // Hash beriterasi sangat rendah (hasil utak-atik) wajib ditolak
+        // fail-closed walau formatnya valid.
+        String palsu = "PBKDF2$100$"
+                + "00112233445566778899aabbccddeeff"
+                + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+        assertFalse(PinCrypto.verify(palsu, "1234"));
+        assertFalse(PinCrypto.verify(palsu, ""));
+    }
+
+    @Test
     public void hashLamaTetapDikenali() {
         String lama = PinCrypto.sha256("9999");
         assertFalse(PinCrypto.isNewFormat(lama));

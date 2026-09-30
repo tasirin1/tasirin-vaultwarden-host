@@ -18,6 +18,10 @@ public final class PinCrypto {
 
     private static final String PREFIX = "PBKDF2$";
     private static final int ITERATIONS = 120_000;
+    /** Iterasi minimum yang diterima saat verifikasi: hash beriterasi jauh
+     *  lebih rendah (mis. hasil utak-atik prefs) ditolak fail-closed.
+     *  Semua hash yang ditulis app ini memakai ITERATIONS di atas. */
+    static final int ITERASI_MINIMAL = 10_000;
     private static final int SALT_BYTES = 16;
     private static final int HASH_BITS = 256;
 
@@ -52,7 +56,7 @@ public final class PinCrypto {
                     return false;
                 }
                 int iter = Integer.parseInt(parts[1]);
-                if (iter <= 0 || iter > 1_000_000) {
+                if (iter < ITERASI_MINIMAL || iter > 1_000_000) {
                     return false;
                 }
                 byte[] salt = unhex(parts[2]);

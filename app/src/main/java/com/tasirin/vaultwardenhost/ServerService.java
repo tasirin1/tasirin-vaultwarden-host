@@ -491,6 +491,12 @@ public class ServerService extends Service {
             new Thread(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
+                    if (!cek.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                        // Alarm basi/duplikat yang terlanjur terjadwal tak boleh
+                        // mengunggah setelah user mematikan auto-backup.
+                        appendLog("[tg] Backup terjadwal dilewati: auto-backup sudah dimatikan.");
+                        return;
+                    }
                     long last = TgBackup.amanLong(cek, TgBackup.KEY_TG_LAST, 0);
                     if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
                         appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
@@ -784,6 +790,15 @@ public class ServerService extends Service {
             sp.edit().putString(KEY_PORT, port).apply();
         }
         if (isPortBusy(portNum)) {
+            if (portButuhRoot(portNum)) {
+                setStatus("Port " + port.trim() + " butuh akses root.\n"
+                        + "Pakai port >= 1024 (mis. 8088) di Settings, lalu Start lagi.");
+                appendLog("[app] Port " + port.trim() + " butuh root (privileged)"
+                        + " - server TIDAK start. Ganti ke port >= 1024.");
+                TgBackup.sendMessage(this, "Gagal start: port " + port.trim()
+                        + " butuh akses root. Ganti ke port >= 1024 lalu coba lagi.");
+                return;
+            }
             setStatus("Port " + port.trim() + " sedang dipakai proses lain.\n"
                     + "Stop server lain / ganti port di Settings, lalu Start lagi.");
             appendLog("[app] Port " + port.trim() + " sedang dipakai - server TIDAK start (cegah loop).");
@@ -2453,6 +2468,32 @@ public class ServerService extends Service {
             }
             return false;
         }
+    }
+
+    /** True bila bind gagal karena hak akses (port privileged <1024 tanpa
+     *  root), bukan karena dipakai proses lain. Murni I/O agar bisa diuji. */
+    static boolean gagalIzinBind(String host, int port) {
+        try (ServerSocket s = new ServerSocket()) {
+            try {
+                s.setReuseAddress(true);
+            } catch (Exception ignored) {
+            }
+            s.bind(new InetSocketAddress(host, port));
+            return false;
+        } catch (Exception e) {
+            String rendah = String.valueOf(e.getMessage())
+                    .toLowerCase(java.util.Locale.US);
+            return rendah.contains("eacces") || rendah.contains("permission denied");
+        }
+    }
+
+    /** True bila port tak bisa dipakai karena butuh root (privileged),
+     *  agar pesan galat tak menuduh "dipakai proses lain". */
+    public static boolean portButuhRoot(int port) {
+        if (port < 1 || port > 65535) {
+            return false;
+        }
+        return gagalIzinBind("0.0.0.0", port) || gagalIzinBind("::", port);
     }
 
     /** N baris terakhir log (tanpa baris kosong), untuk pesan crash.

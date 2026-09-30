@@ -597,6 +597,16 @@ public class SettingsActivity extends Activity {
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
         if (portNum > 0 && ServerService.isPortBusy(portNum)) {
+            if (ServerService.portButuhRoot(portNum)) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Port " + portNum + " butuh akses root")
+                        .setMessage("Port (" + portNum + ") di bawah 1024 hanya bisa"
+                                + " dipakai dengan akses root.\n"
+                                + "Ganti port ke >= 1024 (mis. 8088) di atas.")
+                        .setPositiveButton("Oke", null)
+                        .show();
+                return;
+            }
             new AlertDialog.Builder(this)
                     .setTitle("Port " + portNum + " sedang dipakai")
                     .setMessage("Port utama (" + portNum + ") sudah dipakai proses lain.\n"

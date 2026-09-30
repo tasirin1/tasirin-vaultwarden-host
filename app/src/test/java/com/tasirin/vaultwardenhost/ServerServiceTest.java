@@ -310,6 +310,25 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void portBebas_takButuhRoot() throws Exception {
+        java.net.ServerSocket s = new java.net.ServerSocket(0);
+        int bebas;
+        try {
+            bebas = s.getLocalPort();
+        } finally {
+            s.close();
+        }
+        assertFalse(ServerService.portButuhRoot(bebas));
+    }
+
+    @Test
+    public void portTakValid_takButuhRoot() {
+        assertFalse(ServerService.portButuhRoot(0));
+        assertFalse(ServerService.portButuhRoot(-1));
+        assertFalse(ServerService.portButuhRoot(99999));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {
