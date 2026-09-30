@@ -139,7 +139,7 @@
                     android:nestedScrollingEnabled="true"
                     tools:ignore="NestedScrolling"
                     android:layout_width="match_parent"
-                    android:layout_height="280dp"
+                    android:layout_height="360dp"
                     android:background="@drawable/bg_info_box">
 
                     <TextView
