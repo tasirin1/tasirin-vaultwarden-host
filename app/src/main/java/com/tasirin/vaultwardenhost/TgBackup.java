@@ -1143,6 +1143,25 @@ public final class TgBackup {
     /** Batas upload Bot API Telegram (50 MB): tolak lebih awal agar tak menahan slot tugas. */
     static final long BATAS_UPLOAD_TELEGRAM = 48L * 1024 * 1024;
 
+    /** True bila chat ID layak dikirim (ID numerik atau username, tanpa
+     *  whitespace/kontrol, maks 64). Murni agar bisa unit test. */
+    static boolean chatIdAman(String chat) {
+        if (chat == null) {
+            return false;
+        }
+        String t = chat.trim();
+        if (t.isEmpty() || t.length() > 64) {
+            return false;
+        }
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c <= ' ' || c == 127) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Sanitasi nama file untuk header multipart: tanpa kutip/CRLF/slash agar
      *  nama licik tak merusak batas multipart. Murni agar bisa unit test. */
     static String sanitasiNamaFile(String nama) {
@@ -1166,6 +1185,12 @@ public final class TgBackup {
         if (file.length() > BATAS_UPLOAD_TELEGRAM) {
             throw new java.io.IOException("File backup terlalu besar untuk Telegram"
                     + " (>48 MB). Ambil manual via Settings > Backup DB.");
+        }
+        // chat_id ditulis mentah ke body multipart (bukan URL-encoded seperti
+        // kirim pesan): tolak nilai aneh lebih awal dengan pesan jelas.
+        if (!chatIdAman(chatId)) {
+            throw new java.io.IOException("Chat ID Telegram tidak valid"
+                    + " - periksa pengaturan bot.");
         }
         HttpURLConnection conn = null;
         try {

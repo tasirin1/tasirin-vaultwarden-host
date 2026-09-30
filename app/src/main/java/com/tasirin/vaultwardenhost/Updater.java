@@ -1633,6 +1633,13 @@ public final class Updater {
                 md.update(buf, 0, n);
                 left -= n;
             }
+            // Parsial terpotong (cleanup/storage bersamaan): jangan hash pendek
+            // lalu append — checksum pasti gagal dengan pesan menyesatkan.
+            // Gagal lantang agar pemanggil unduh ulang dari nol.
+            if (left > 0) {
+                throw new IOException("File parsial rusak (kurang " + left
+                        + " byte) - unduh ulang dari nol.");
+            }
         }
     }
 

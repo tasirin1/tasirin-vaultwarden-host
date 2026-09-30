@@ -295,6 +295,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void chatIdAman_tolakAneh() {
+        assertTrue(TgBackup.chatIdAman("123456789"));
+        assertTrue(TgBackup.chatIdAman("-1001234567890"));
+        assertTrue(TgBackup.chatIdAman("@nama_pengguna"));
+        assertTrue(TgBackup.chatIdAman("  123456789  "));
+        assertFalse(TgBackup.chatIdAman(null));
+        assertFalse(TgBackup.chatIdAman(""));
+        assertFalse(TgBackup.chatIdAman("   "));
+        assertFalse(TgBackup.chatIdAman("123 456"));
+        assertFalse(TgBackup.chatIdAman("id\njahat"));
+        assertFalse(TgBackup.chatIdAman("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+    }
+
+    @Test
     public void koersiBoolean_terimaStringAngka() {
         assertEquals(Boolean.TRUE, TgBackup.koersiBoolean(Boolean.TRUE));
         assertEquals(Boolean.TRUE, TgBackup.koersiBoolean("true"));

@@ -90,8 +90,11 @@ public final class TgBot {
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
         PendingIntent pi = pendingIntent(ctx);
-        if (token.isEmpty()) {
+        // Chat kosong ikut membatalkan: pollOnce butuh keduanya, alarm tanpa
+        // chat hanya membangunkan perangkat tiap 20 detik tanpa hasil.
+        if (token.isEmpty() || chat.isEmpty()) {
             am.cancel(pi);
             return;
         }
