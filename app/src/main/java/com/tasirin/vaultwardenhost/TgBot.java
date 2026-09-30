@@ -565,8 +565,13 @@ public final class TgBot {
                     TgBackup.sendMessage(ctx, "Server sudah jalan.");
                 } else {
                     try {
-                        ServerService.start(ctx);
-                        TgBackup.sendMessage(ctx, "Perintah diterima: server start...");
+                        if (ServerService.start(ctx)) {
+                            TgBackup.sendMessage(ctx, "Perintah diterima: server start...");
+                        } else {
+                            TgBackup.sendMessage(ctx, "Gagal start dari background (batasan Android). "
+                                    + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
+                                    + "lalu reboot HP.");
+                        }
                     } catch (Throwable t) {
                         TgBackup.sendMessage(ctx, "Gagal start dari background (batasan Android). "
                                 + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
@@ -579,8 +584,12 @@ public final class TgBot {
                     break;
                 }
                 try {
-                    ServerService.stop(ctx);
-                    TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
+                    if (ServerService.stop(ctx)) {
+                        TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
+                    } else {
+                        TgBackup.sendMessage(ctx, "Gagal stop dari background (batasan Android). "
+                                + "Buka app lalu tekan Stop.");
+                    }
                 } catch (Throwable t) {
                     TgBackup.sendMessage(ctx, "Gagal stop dari background (batasan Android). "
                             + "Buka app lalu tekan Stop.");
@@ -591,8 +600,11 @@ public final class TgBot {
                     break;
                 }
                 try {
-                    ServerService.restart(ctx);
-                    TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
+                    if (ServerService.restart(ctx)) {
+                        TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
+                    } else {
+                        TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                    }
                 } catch (Throwable t) {
                     TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
                 }
@@ -700,8 +712,12 @@ public final class TgBot {
                         String msg = Updater.tryUpdate(ctx) + imbuhShim;
                         if (Updater.binaryBerubah(msg)) {
                             if (was) {
-                                TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
-                                ServerService.restart(ctx);
+                                if (ServerService.restart(ctx)) {
+                                    TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                } else {
+                                    TgBackup.sendMessage(ctx, msg + " Restart manual dari app"
+                                            + " (batasan background Android).");
+                                }
                             } else {
                                 TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
                             }
@@ -725,8 +741,12 @@ public final class TgBot {
                         String msg = Updater.updateWebVault(ctx);
                         if (webVaultBerubah(msg)) {
                             if (was) {
-                                TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
-                                ServerService.restart(ctx);
+                                if (ServerService.restart(ctx)) {
+                                    TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                } else {
+                                    TgBackup.sendMessage(ctx, msg + " Restart manual dari app"
+                                            + " (batasan background Android).");
+                                }
                             } else {
                                 TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
                             }

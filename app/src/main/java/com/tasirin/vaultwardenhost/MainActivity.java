@@ -191,6 +191,12 @@ public class MainActivity extends Activity {
                 sp.edit().remove("tg_backup_tertunda").apply();
             } catch (Exception ignored) {
             }
+            // Alarm basi: user mematikan auto-backup sebelum app dibuka -
+            // jangan mengunggah tanpa persetujuan (selaras ACTION_TG_BACKUP).
+            if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                ServerService.catatLog("[tg] Backup susulan boot dilewati:"
+                        + " auto-backup sudah dimatikan.");
+            } else {
             final android.content.Context app = getApplicationContext();
             new Thread(() -> {
                 try {
@@ -203,6 +209,7 @@ public class MainActivity extends Activity {
                     ServerService.catatLog("[tg] " + TgBackup.pesanGalatBackup(e) + " (susulan boot).");
                 }
             }, "vw-boot-susulan").start();
+            }
         }
         // Susulan auto-start yang ditolak sistem dari background (Android 12+
         // membatasi start service): mulaiService menandainya, eksekusi di sini

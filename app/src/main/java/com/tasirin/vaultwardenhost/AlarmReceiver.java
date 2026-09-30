@@ -26,10 +26,16 @@ public class AlarmReceiver extends BroadcastReceiver {
             // Prefs tak terbaca: gagal tertutup, jangan backup buta.
             return;
         }
+        // mulaiService menelan penolakan di dalam (return false), jadi
+        // try/catch di sini tak cukup: cek status kembalian agar susulan
+        // benar-benar terjangkau saat Android 12+ menolak start background.
+        boolean terkirim = false;
         try {
-            ServerService.backupNow(context);
+            terkirim = ServerService.backupNow(context);
         } catch (Exception ignored) {
-            // Android 12+ bisa menolak start dari background: tandai agar
+        }
+        if (!terkirim) {
+            // Android 12+ menolak start dari background: tandai agar
             // MainActivity menjalankan susulan saat dibuka berikutnya.
             try {
                 context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)

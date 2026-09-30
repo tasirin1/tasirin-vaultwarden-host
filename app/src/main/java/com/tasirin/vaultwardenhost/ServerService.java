@@ -184,14 +184,14 @@ public class ServerService extends Service {
         }
     };
 
-    public static void start(Context context) {
-        mulaiService(context, ACTION_START);
+    public static boolean start(Context context) {
+        return mulaiService(context, ACTION_START);
     }
 
     /** Start service tahan penolakan background Android 12+
      *  (ForegroundServiceStartNotAllowedException): catat ke log, jangan crash
      *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah). */
-    private static void mulaiService(Context context, String aksi) {
+    private static boolean mulaiService(Context context, String aksi) {
         try {
             Intent i = new Intent(context, ServerService.class).setAction(aksi);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -199,6 +199,7 @@ public class ServerService extends Service {
             } else {
                 context.startService(i);
             }
+            return true;
         } catch (Exception e) {
             catatLog("[app] Gagal start service (" + aksi + "): " + e);
             if (ACTION_START.equals(aksi)) {
@@ -210,16 +211,17 @@ public class ServerService extends Service {
                 } catch (Exception ignored) {
                 }
             }
+            return false;
         }
     }
 
-    public static void stop(Context context) {
-        mulaiAksi(context, ACTION_STOP);
+    public static boolean stop(Context context) {
+        return mulaiAksi(context, ACTION_STOP);
     }
 
     /** Restart proses server tanpa mematikan service (dipakai dari perintah bot). */
-    public static void restart(Context context) {
-        mulaiAksi(context, ACTION_RESTART);
+    public static boolean restart(Context context) {
+        return mulaiAksi(context, ACTION_RESTART);
     }
 
     /** Flag susulan auto-start: start dari background ditolak sistem
@@ -227,14 +229,18 @@ public class ServerService extends Service {
     public static final String KEY_START_TERTUNDA = "auto_start_tertunda";
 
     /** Kirim aksi ke service lewat foreground API di Android 8+ agar tidak
-     *  IllegalStateException saat dipanggil dari background (bot/alarm). */
-    private static void mulaiAksi(Context context, String aksi) {
-        mulaiService(context, aksi);
+     *  IllegalStateException saat dipanggil dari background (bot/alarm).
+     *  Return false bila sistem menolak (pemanggil wajib fallback/susulan,
+     *  bukan mengandalkan try/catch: penolakan sudah ditangkap di dalam). */
+    private static boolean mulaiAksi(Context context, String aksi) {
+        return mulaiService(context, aksi);
     }
 
-    /** Jalankan backup Telegram terjadwal (via AlarmReceiver). */
-    public static void backupNow(Context context) {
-        mulaiService(context, ACTION_TG_BACKUP);
+    /** Jalankan backup Telegram terjadwal (via AlarmReceiver).
+     *  Return false bila sistem menolak start background (AlarmReceiver
+     *  wajib menandai susulan agar backup tak hilang diam-diam). */
+    public static boolean backupNow(Context context) {
+        return mulaiService(context, ACTION_TG_BACKUP);
     }
 
     /** Apakah proses vaultwarden masih hidup (dipakai sebelum restore DB). */
