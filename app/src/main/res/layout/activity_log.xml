@@ -15,7 +15,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:text="@string/log_full_title"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -37,7 +40,6 @@
             android:id="@+id/logCrash"
             android:nextFocusDown="@id/logCopy"
             android:nextFocusLeft="@id/logBack"
-            android:nextFocusUp="@id/logBack"
             android:background="@drawable/bg_btn_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -65,6 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minWidth="0dp"
             android:text="@string/save_txt"
             android:textAllCaps="false"
             android:textSize="11sp" />
@@ -81,6 +84,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minWidth="0dp"
             android:text="@string/share"
             android:textAllCaps="false"
             android:textSize="11sp" />
@@ -97,6 +101,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minWidth="0dp"
             android:text="@string/copy"
             android:textAllCaps="false"
             android:textSize="11sp" />
@@ -113,6 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minWidth="0dp"
             android:text="@string/clear"
             android:textAllCaps="false"
             android:textSize="11sp" />
@@ -126,6 +132,9 @@
 
         <EditText
             android:id="@+id/logSearch"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:minHeight="48dp"
             android:nextFocusDown="@id/logAutoScroll"
             android:nextFocusUp="@id/logSave"
             android:background="@drawable/bg_input_tv"
@@ -138,6 +147,8 @@
 
         <CheckBox
             android:id="@+id/logAutoScroll"
+            android:textColor="@color/text_primary"
+            android:minHeight="48dp"
             android:nextFocusDown="@id/logBack"
             android:nextFocusUp="@id/logSearch"
             android:background="@drawable/item_focus_bg"
@@ -151,6 +162,9 @@
         android:id="@+id/logCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/text_secondary"
         android:layout_marginTop="2dp"
         android:text="@string/log_lines_initial"
         android:textSize="11sp" />

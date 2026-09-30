@@ -323,6 +323,9 @@ public class SettingsActivity extends Activity {
         logOpenBtn.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
         restoreTgBtn.setOnClickListener(v -> restoreFromTelegram());
         copyUrlBtn.setOnClickListener(v -> copyLocalUrl());
+        if (netInfoView != null) {
+            netInfoView.setOnClickListener(v -> copyLocalUrl());
+        }
         copyLoopbackBtn.setOnClickListener(v -> salinTeks("https://127.0.0.1:"
                 + portEfektifUntukSalin(), "URL lokal disalin"));
         randomAdminBtn.setOnClickListener(v -> {
@@ -2482,11 +2485,29 @@ public class SettingsActivity extends Activity {
         }
         boolean buka = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getBoolean(kunci, true);
         terapkanSeksi(idBadan, idChevron, buka);
+        perbaikiRantaiFokus();
         header.setOnClickListener(v -> {
             boolean kini = !seksiTerbuka(idBadan);
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().putBoolean(kunci, kini).apply();
             terapkanSeksi(idBadan, idChevron, kini);
+            perbaikiRantaiFokus();
         });
+    }
+
+    private void perbaikiRantaiFokus() {
+        aturFokusBawah(R.id.headerServer, R.id.bodyServer, R.id.netInfo, R.id.headerKeamanan);
+        aturFokusBawah(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.adminToken, R.id.headerRawat);
+        aturFokusBawah(R.id.headerRawat, R.id.bodyRawat, R.id.autoStart, R.id.headerTelegram);
+        aturFokusBawah(R.id.headerTelegram, R.id.bodyTelegram, R.id.tgToken, R.id.headerLog);
+        aturFokusBawah(R.id.headerLog, R.id.bodyLog, R.id.logOpen, R.id.aboutBtn);
+    }
+
+    private void aturFokusBawah(int idHeader, int idBadan, int idIsi, int idLanjut) {
+        View header = findViewById(idHeader);
+        if (header == null) {
+            return;
+        }
+        header.setNextFocusDownId(seksiTerbuka(idBadan) ? idIsi : idLanjut);
     }
 
     /** Chip navigasi: buka seksi lalu gulir ke judulnya. */
@@ -2519,6 +2540,7 @@ public class SettingsActivity extends Activity {
             final int idChevron, final String kunci) {
         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().putBoolean(kunci, true).apply();
         terapkanSeksi(idBadan, idChevron, true);
+        perbaikiRantaiFokus();
         final View jangkar = findViewById(idHeader);
         if (settingsScroll == null || jangkar == null) {
             return;

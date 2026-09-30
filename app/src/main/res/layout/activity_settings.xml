@@ -169,7 +169,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:nextFocusDown="@id/copyUrl"
+                android:nextFocusDown="@id/netInfo"
                 android:nextFocusUp="@id/navServer"
                 android:orientation="horizontal">
 
@@ -291,7 +291,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:nextFocusDown="@id/autoUpdate"
+                android:nextFocusDown="@id/autoStart"
                 android:nextFocusUp="@id/navRawat"
                 android:orientation="horizontal">
 
@@ -477,7 +477,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/window_bg"
+        android:background="@color/card_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="@dimen/side_padding"
