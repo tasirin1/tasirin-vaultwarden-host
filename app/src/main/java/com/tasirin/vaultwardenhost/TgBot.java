@@ -477,8 +477,8 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            return TgBackup.pinAktif(sp.getBoolean("pin_on", false),
-                    sp.getString("pin_hash", ""));
+            return TgBackup.pinAktif(sp.getBoolean(PinGate.KEY_PIN_ON, false),
+                    sp.getString(PinGate.KEY_PIN_HASH, ""));
         } catch (Exception e) {
             return false;
         }
@@ -867,8 +867,8 @@ public final class TgBot {
     static String authDangerous(Context ctx, String arg) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String hash = sp.getString("pin_hash", "");
-        boolean need = sp.getBoolean("pin_on", false)
+        String hash = sp.getString(PinGate.KEY_PIN_HASH, "");
+        boolean need = sp.getBoolean(PinGate.KEY_PIN_ON, false)
                 && hash != null && !hash.isEmpty();
         String t = arg == null ? "" : arg.trim();
         if (!need) {
@@ -895,7 +895,7 @@ public final class TgBot {
         if (cocok) {
             if (!PinCrypto.isNewFormat(hash)) {
                 try {
-                    sp.edit().putString("pin_hash", PinCrypto.hash(pin)).apply();
+                    sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(pin)).apply();
                 } catch (Exception ignored) {
                 }
             }

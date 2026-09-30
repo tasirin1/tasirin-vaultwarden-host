@@ -38,8 +38,6 @@ public class MainActivity extends Activity {
     private static final int REQ_WRITE = 1001;
     private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
-    private static final String KEY_PIN = "pin_hash";
-    private static final String KEY_PIN_ON = "pin_on";
     /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
     private static final int MAKS_BARIS_LOG = 150;
 
@@ -778,7 +776,7 @@ public class MainActivity extends Activity {
 
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(KEY_PIN_ON, false)) {
+        if (!sp.getBoolean(PinGate.KEY_PIN_ON, false)) {
             return;
         }
         // Sudah dibuka di Settings dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
@@ -791,10 +789,10 @@ public class MainActivity extends Activity {
             return;
         }
         unlocked = false;
-        final String pinHash = sp.getString(KEY_PIN, "");
+        final String pinHash = sp.getString(PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
             try {
-                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
+                sp.edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
             } catch (Exception ignored) {
             }
             ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
@@ -839,7 +837,7 @@ public class MainActivity extends Activity {
                                 System.currentTimeMillis());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
-                            sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
+                            sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
                         }
                         final boolean hasil = cocok;
                         ui.post(() -> {

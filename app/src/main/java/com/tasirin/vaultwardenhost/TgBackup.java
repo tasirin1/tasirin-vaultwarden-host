@@ -882,7 +882,7 @@ public final class TgBackup {
      *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
-                    "tg_pass", "pin_hash", "pin_gagal", "pin_kunci_sampai",
+                    "tg_pass", PinGate.KEY_PIN_HASH, "pin_gagal", "pin_kunci_sampai",
                     "pin_kunci_elapsed"));
 
     /** Kunci milik perangkat yang tak ikut export config: folder data selalu
@@ -1693,16 +1693,16 @@ public final class TgBackup {
                     ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
                     KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
-                    "tg_notified_version", "wv_from_version", "domain_lokal",
-                    "pin_hash"));
+                    "tg_notified_version", "wv_from_version",
+                    PinGate.KEY_PIN_HASH));
 
     /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
     static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_AUTO_START, ServerService.KEY_HTTPS,
                     ServerService.KEY_AUTO_UPDATE, ServerService.KEY_AUTO_UPDATE_WV,
                     ServerService.KEY_AUTO_RESTART_UPDATE, ServerService.KEY_PORT_MIGRATED,
-                    KEY_TG_AUTO, "advanced_open", "mode_sederhana", "wizard_selesai",
-                    "pin_on", "tg_backup_tertunda",
+                    KEY_TG_AUTO, "wizard_selesai",
+                    PinGate.KEY_PIN_ON, "tg_backup_tertunda",
                     "tg_low_storage_notified", "home_log_expanded"));
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
@@ -1935,7 +1935,7 @@ public final class TgBackup {
         String keepChat = cur.getString(KEY_TG_CHAT, "");
         String keepPass = cur.getString(KEY_TG_PASS, "");
         String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
-        String keepPinHash = cur.getString("pin_hash", "");
+        String keepPinHash = cur.getString(PinGate.KEY_PIN_HASH, "");
         int keepGagal = amanInt(cur, "pin_gagal", 0);
         long keepKunci = amanLong(cur, "pin_kunci_sampai", 0);
         long keepOffset = amanLong(cur, TgBot.KEY_TG_OFFSET, 0);
@@ -1957,7 +1957,7 @@ public final class TgBackup {
                         ServerService.KEY_AUTO_UPDATE_WV,
                         ServerService.KEY_AUTO_RESTART_UPDATE,
                         ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
-                        KEY_TG_AUTO, "advanced_open", "mode_sederhana", "domain_lokal"));
+                        KEY_TG_AUTO));
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
         // tak menghapus seluruh pengaturan perangkat. Folder data selalu
@@ -2026,9 +2026,9 @@ public final class TgBackup {
             ed.remove(ServerService.KEY_ADMIN_TOKEN);
         }
         if (!keepPinHash.isEmpty()) {
-            ed.putString("pin_hash", keepPinHash);
+            ed.putString(PinGate.KEY_PIN_HASH, keepPinHash);
         } else {
-            ed.remove("pin_hash");
+            ed.remove(PinGate.KEY_PIN_HASH);
         }
         // Konsistensi PIN: tanpa hash, kunci PIN wajib mati agar tak fail-open
         // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
@@ -2036,8 +2036,8 @@ public final class TgBackup {
         // mematikan PIN perangkat (downgrade pengaman). Murni via pinOnHasilRestore.
         ed.putInt("pin_gagal", keepGagal);
         ed.putLong("pin_kunci_sampai", keepKunci);
-        ed.putBoolean("pin_on",
-                pinOnHasilRestore(cur.getBoolean("pin_on", false), keepPinHash));
+        ed.putBoolean(PinGate.KEY_PIN_ON,
+                pinOnHasilRestore(cur.getBoolean(PinGate.KEY_PIN_ON, false), keepPinHash));
         // Offset bot selalu milik perangkat: zip jahat dengan offset raksasa
         // bisa membrick bot (semua update dilewati). Impor diabaikan; pesan basi
         // tetap ditolak via umur 5 menit sehingga replay tak lolos.

@@ -47,8 +47,6 @@ public class SettingsActivity extends Activity {
     private static final int REQ_IMPORT = 1003;
     private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
-    private static final String KEY_PIN = "pin_hash";
-    private static final String KEY_PIN_ON = "pin_on";
     /** Wizard setup 3 langkah sudah pernah tampil/selesai. */
     private static final String KEY_WIZARD_DONE = "wizard_selesai";
 
@@ -388,7 +386,7 @@ public class SettingsActivity extends Activity {
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
         pinInput.setText("");
-        pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
+        pinEnabledCheck.setChecked(sp.getBoolean(PinGate.KEY_PIN_ON, false));
         pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
         pasangSeksi(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan, KEY_SEC_KEAMANAN);
         pasangSeksi(R.id.headerRawat, R.id.bodyRawat, R.id.chevronRawat, KEY_SEC_RAWAT);
@@ -450,7 +448,7 @@ public class SettingsActivity extends Activity {
                     // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                            .edit().remove(KEY_PIN).putBoolean(KEY_PIN_ON, false).apply();
+                            .edit().remove(PinGate.KEY_PIN_HASH).putBoolean(PinGate.KEY_PIN_ON, false).apply();
                     return;
                 }
                 final String pin = s.toString();
@@ -463,7 +461,7 @@ public class SettingsActivity extends Activity {
                     String h = PinCrypto.hash(pin);
                     if (seq == pinSeq) {
                         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                .edit().putString(KEY_PIN, h).apply();
+                                .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
                     }
                 });
             }
@@ -484,7 +482,7 @@ public class SettingsActivity extends Activity {
                 confirm(getString(R.string.pin_off_judul), getString(R.string.pin_off_pesan),
                         () -> {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                    .edit().putBoolean(KEY_PIN_ON, false).apply();
+                                    .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
                             pinCentangProgram = true;
                             b.setChecked(false);
                             pinCentangProgram = false;
@@ -500,14 +498,14 @@ public class SettingsActivity extends Activity {
                 return;
             }
             SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            if (sp2.getString(KEY_PIN, "").isEmpty()) {
+            if (sp2.getString(PinGate.KEY_PIN_HASH, "").isEmpty()) {
                 toast("Isi PIN dulu (minimal 4 digit).");
                 pinCentangProgram = true;
                 b.setChecked(false);
                 pinCentangProgram = false;
                 return;
             }
-            sp2.edit().putBoolean(KEY_PIN_ON, true).apply();
+            sp2.edit().putBoolean(PinGate.KEY_PIN_ON, true).apply();
         });
 
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
@@ -1733,7 +1731,7 @@ public class SettingsActivity extends Activity {
         autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
-        pinEnabledCheck.setChecked(sp.getBoolean(KEY_PIN_ON, false));
+        pinEnabledCheck.setChecked(sp.getBoolean(PinGate.KEY_PIN_ON, false));
         validasiInline();
     }
 
@@ -1790,7 +1788,7 @@ public class SettingsActivity extends Activity {
 
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(KEY_PIN_ON, false)) {
+        if (!sp.getBoolean(PinGate.KEY_PIN_ON, false)) {
             return;
         }
         // Sudah dibuka di layar awal dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
@@ -1803,12 +1801,12 @@ public class SettingsActivity extends Activity {
             return;
         }
         unlocked = false;
-        final String pinHash = sp.getString(KEY_PIN, "");
+        final String pinHash = sp.getString(PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
             // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat agar
             // tak terbuka diam-diam tanpa kunci (fail-open).
             try {
-                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
+                sp.edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
             } catch (Exception ignored) {
             }
             ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
@@ -1853,7 +1851,7 @@ public class SettingsActivity extends Activity {
                                 System.currentTimeMillis());
                         if (cocok && !PinCrypto.isNewFormat(pinHash)) {
                             // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
-                            sp.edit().putString(KEY_PIN, PinCrypto.hash(entered)).apply();
+                            sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
                         }
                         final boolean hasil = cocok;
                         ui.post(() -> {

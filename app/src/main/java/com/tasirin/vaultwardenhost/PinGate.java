@@ -15,6 +15,11 @@ public final class PinGate {
      *  Wall-clock tahan reboot; elapsed tahan reset jam. Dipakai nilai terbesar. */
     static final String KEY_KUNCI_ELAPSED = "pin_kunci_elapsed";
 
+    /** Kunci hash PIN & status aktif: satu sumber untuk activity/bot/backup
+     *  (dulu literal "pin_hash"/"pin_on" tersebar + konstanta privat ganda). */
+    public static final String KEY_PIN_HASH = "pin_hash";
+    public static final String KEY_PIN_ON = "pin_on";
+
     private PinGate() {
     }
 

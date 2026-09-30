@@ -355,15 +355,6 @@ public class UpdaterTest {
     }
 
     @Test
-    public void unduhKeTmp_fallbackKeLatestKemudianRetryUrlAsli() throws Exception {
-        // Test ini memastikan logika fallback dan retry URL asli bekerja
-        // Kita tidak bisa test penuh tanpa mock HTTP, tapi kita bisa verifikasi
-        // struktur kode via test unit yang lain.
-        // TODO: Tambahkan mock test untuk verifikasi retry URL asli
-        assertTrue(true); // Placeholder - test integrasi di CI
-    }
-
-    @Test
     public void panjangKonten_bacaHeaderLong() throws Exception {
         java.net.HttpURLConnection c = new java.net.HttpURLConnection(
                 new java.net.URL("http://127.0.0.1/")) {
