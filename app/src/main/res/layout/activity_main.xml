@@ -244,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/log_lines_initial"
-                    android:textSize="11sp" />
+                    android:textSize="@dimen/log_count_size" />
 
                 <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
                 <!-- nestedScrollingEnabled agar gulir jari di pratinjau tak berebut scroll halaman. -->
@@ -264,7 +264,7 @@
                         android:fontFamily="monospace"
                         android:padding="8dp"
                         android:textColor="@color/text_primary"
-                        android:textSize="11sp" />
+                        android:textSize="@dimen/log_text_size" />
                 </ScrollView>
 
             </LinearLayout>

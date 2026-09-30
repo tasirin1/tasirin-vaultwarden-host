@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Landscape layar lebar (TV/STB/tablet): margin 200dp portrait
-         terlalu menjepit dua kolom; 48dp cukup agar konten lega. -->
-    <dimen name="side_padding">48dp</dimen>
+    <!-- Landscape layar lebar (tablet besar): margin 48dp terlalu menjepit dua kolom;
+         32dp cukup agar kolom log realtime dapat ruang lebih lebar. -->
+    <dimen name="side_padding">32dp</dimen>
+    <dimen name="log_text_size">15sp</dimen>
+    <dimen name="log_count_size">13sp</dimen>
 </resources>

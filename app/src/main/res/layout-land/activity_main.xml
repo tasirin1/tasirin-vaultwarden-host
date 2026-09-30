@@ -64,8 +64,7 @@
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- Kolom kiri: info + server -->
-        <!-- Kolom setengah layar: weight di dalam baris ber-weight, abaikan NestedWeights. -->
+        <!-- Kolom kiri: info + server (ramping agar log dapat ruang) -->
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -198,13 +197,13 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- Kolom kanan: log penuh -->
+        <!-- Kolom kanan: log realtime (60% lebar agar muat banyak baris di TV) -->
         <LinearLayout
             style="@style/TasirinCard"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="4dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:orientation="vertical"
             android:padding="12dp">
 
@@ -254,7 +253,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/log_lines_initial"
-                android:textSize="11sp" />
+                android:textSize="@dimen/log_count_size" />
 
             <ScrollView
                 android:id="@+id/homeLogScroll"
@@ -271,7 +270,7 @@
                     android:fontFamily="monospace"
                     android:padding="8dp"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp" />
+                    android:textSize="@dimen/log_text_size" />
             </ScrollView>
 
         </LinearLayout>

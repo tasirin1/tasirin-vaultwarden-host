@@ -2,4 +2,6 @@
 <resources>
     <!-- Tablet portrait: margin secukupnya agar konten tak melebar penuh tapi tak terjepit. -->
     <dimen name="side_padding">48dp</dimen>
+    <dimen name="log_text_size">13sp</dimen>
+    <dimen name="log_count_size">12sp</dimen>
 </resources>
