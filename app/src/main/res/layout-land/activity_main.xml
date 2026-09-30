@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal landscape: hero + dua kolom (kiri: info+server, kanan: log
-     penuh) + footer Start full-width sticky. ID sama persis dengan portrait
+<!-- Layar awal landscape: hero + dua kolom (kiri: log penuh 60%,
+     kanan: tautan di atas + server di bawah) + footer Start sticky. ID sama persis dengan portrait
      agar MainActivity tidak berubah. Rantai nextFocus*: vertikal kolom kiri
      dulu lalu kolom kanan, plus kiri/kanan antar-kolom untuk D-pad TV.
      Padding kartu 12dp (bukan 16dp) agar hemat tinggi layar; margin tepi
@@ -46,7 +46,7 @@
 
         <Button
             android:id="@+id/overflowBtn"
-            android:nextFocusDown="@id/netInfo"
+            android:nextFocusDown="@id/logToggle"
             android:nextFocusUp="@id/startStop"
             style="@style/TasirinBtnHero"
             android:layout_width="wrap_content"
@@ -55,22 +55,106 @@
             android:text="@string/overflow" />
     </LinearLayout>
 
-    <!-- Dua kolom -->
+    <!-- Dua kolom: kiri log realtime full (panel utama), kanan tautan + server -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:ignore="NestedWeights">
 
-        <!-- Kolom kiri: info + server (ramping agar log dapat ruang) -->
-        <ScrollView
+        <!-- Kolom kiri: log realtime penuh (60% lebar agar muat banyak baris di TV) -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            tools:ignore="NestedWeights">
+            android:layout_weight="1.5"
+            android:orientation="vertical">
+
+            <LinearLayout
+            style="@style/TasirinCard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/TasirinSection"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/log_realtime" />
+
+                <Button
+                    android:id="@+id/logToggle"
+                    android:nextFocusDown="@id/homeSaveLog"
+                    android:nextFocusLeft="@id/netInfo"
+                    android:nextFocusRight="@id/homeSaveLog"
+                    android:nextFocusUp="@id/overflowBtn"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/collapse" />
+
+                <Button
+                    android:id="@+id/homeSaveLog"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusLeft="@id/logToggle"
+                    android:nextFocusRight="@id/netInfo"
+                    android:nextFocusUp="@id/logToggle"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/save_txt" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/homeLogCount"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/log_lines_initial"
+                android:textSize="@dimen/log_count_size" />
+
+            <ScrollView
+                android:id="@+id/homeLogScroll"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_info_box">
+
+                <TextView
+                    android:id="@+id/homeLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:padding="8dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/log_text_size" />
+            </ScrollView>
+
+        </LinearLayout>
+        </LinearLayout>
+
+        <!-- Kolom kanan: kartu tautan di atas + status server di bawah (gulir di layar pendek) -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -78,7 +162,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="8dp">
 
-                <LinearLayout
+                    <LinearLayout
                     style="@style/TasirinCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,7 +184,6 @@
                         android:ellipsize="end"
                         android:nextFocusDown="@id/updateBtn"
                         android:nextFocusLeft="@id/logToggle"
-                        android:nextFocusRight="@id/logToggle"
                         android:nextFocusUp="@id/overflowBtn"
                         style="@style/TasirinInfo"
                         android:layout_width="match_parent"
@@ -126,7 +209,7 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <LinearLayout
+                    <LinearLayout
                     style="@style/TasirinCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -183,9 +266,8 @@
 
                     <Button
                         android:id="@+id/updateBtn"
-                        android:nextFocusDown="@id/logToggle"
+                        android:nextFocusDown="@id/startStop"
                         android:nextFocusLeft="@id/logToggle"
-                        android:nextFocusRight="@id/logToggle"
                         android:nextFocusUp="@id/netInfo"
                         style="@style/TasirinBtn"
                         android:layout_width="match_parent"
@@ -196,84 +278,6 @@
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
-
-        <!-- Kolom kanan: log realtime (60% lebar agar muat banyak baris di TV) -->
-        <LinearLayout
-            style="@style/TasirinCard"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1.5"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/TasirinSection"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/log_realtime" />
-
-                <Button
-                    android:id="@+id/logToggle"
-                    android:nextFocusDown="@id/homeSaveLog"
-                    android:nextFocusLeft="@id/netInfo"
-                    android:nextFocusRight="@id/homeSaveLog"
-                    android:nextFocusUp="@id/updateBtn"
-                    style="@style/TasirinBtnSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/collapse" />
-
-                <Button
-                    android:id="@+id/homeSaveLog"
-                    android:nextFocusDown="@id/startStop"
-                    android:nextFocusLeft="@id/logToggle"
-                    android:nextFocusRight="@id/netInfo"
-                    android:nextFocusUp="@id/logToggle"
-                    style="@style/TasirinBtnSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/save_txt" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/homeLogCount"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/log_lines_initial"
-                android:textSize="@dimen/log_count_size" />
-
-            <ScrollView
-                android:id="@+id/homeLogScroll"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_info_box">
-
-                <TextView
-                    android:id="@+id/homeLog"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="monospace"
-                    android:padding="8dp"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/log_text_size" />
-            </ScrollView>
-
-        </LinearLayout>
     </LinearLayout>
 
     <!-- Footer sticky: Start full-width selalu terlihat (wadah sama dengan portrait) -->
