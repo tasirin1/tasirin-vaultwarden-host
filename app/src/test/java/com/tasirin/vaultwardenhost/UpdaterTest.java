@@ -270,6 +270,23 @@ public class UpdaterTest {
     }
 
     @Test
+    public void extractTag_abaikanLiteralDiDalamBody() {
+        String body = "{\"body\":\"tolong abaikan \\\"tag_name\\\":\\\"v0.0.0\\\" sampah\","
+                + "\"tag_name\":\"v1.37.1\"}";
+        assertEquals("v1.37.1", Updater.extractTag(body));
+    }
+
+    @Test
+    public void reportDownload_jepitPersenNolSampaiSeratus() {
+        Updater.reportDownload("binary", 104, 100);
+        assertEquals(100, Updater.persenUnduhan(Updater.downloadStatus));
+        Updater.reportDownload("binary", -5, 100);
+        assertEquals(0, Updater.persenUnduhan(Updater.downloadStatus));
+        Updater.reportDownload("binary", 34, 100);
+        assertEquals(34, Updater.persenUnduhan(Updater.downloadStatus));
+    }
+
+    @Test
     public void extractTag_tanpaTagNameMengembalikanNull() {
         assertNull(Updater.extractTag("{\"name\":\"x\"}"));
         assertNull(Updater.extractTag(""));

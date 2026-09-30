@@ -916,9 +916,14 @@ public final class Updater {
     }
 
     /** Perbarui status unduhan untuk UI (persen + ukuran bila total diketahui). */
-    private static void reportDownload(String label, long done, long total) {
+    static void reportDownload(String label, long done, long total) {
         if (total > 0) {
             int pct = (int) (done * 100 / total);
+            if (pct < 0) {
+                pct = 0;
+            } else if (pct > 100) {
+                pct = 100;
+            }
             downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done)
                     + "/" + TgBackup.humanBytes(total) + " (" + pct + "%)";
         } else {
@@ -1402,17 +1407,15 @@ public final class Updater {
         if (body == null) {
             return null;
         }
-        String key = "\"tag_name\":";
-        int i = body.indexOf(key);
-        if (i < 0) {
+        try {
+            String tag = new org.json.JSONObject(body).optString("tag_name", null);
+            if (tag == null || tag.isEmpty()) {
+                return null;
+            }
+            return tag;
+        } catch (Exception e) {
             return null;
         }
-        int s = body.indexOf('"', i + key.length());
-        int e = body.indexOf('"', s + 1);
-        if (s < 0 || e < 0) {
-            return null;
-        }
-        return body.substring(s + 1, e);
     }
 
     /** True bila file ELF ARM 32-bit (magic + e_machine == EM_ARM).
