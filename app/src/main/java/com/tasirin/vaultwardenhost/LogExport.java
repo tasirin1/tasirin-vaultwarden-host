@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/** Simpan log ke .txt di Download (satu implementasi untuk Main & Log).
+/** Simpan log ke .txt di Download (dipakai LogActivity).
  *  Return nama file bila sukses, null bila gagal. */
 public final class LogExport {
 
