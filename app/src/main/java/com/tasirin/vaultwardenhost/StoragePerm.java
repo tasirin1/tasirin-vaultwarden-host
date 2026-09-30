@@ -54,7 +54,7 @@ public final class StoragePerm {
     /** Keputusan akses murni (mudah diuji): di API 30+ hanya All files access
      *  yang cukup untuk /storage/emulated/0 — izin runtime biasa tidak berlaku. */
     static boolean cukupAkses(int sdk, boolean kelolaSemuaFile, boolean tulisDiberikan) {
-        if (sdk >= 30) {
+        if (butuhKelolaSemuaFile(sdk)) {
             return kelolaSemuaFile;
         }
         if (sdk >= 23) {
@@ -66,7 +66,7 @@ public final class StoragePerm {
     /** True bila app sudah boleh tulis ke folder eksternal pada SDK ini. */
     public static boolean sudahPunyaAkses(Context ctx) {
         boolean kelola = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
             try {
                 kelola = Environment.isExternalStorageManager();
             } catch (Exception ignored) {
@@ -100,7 +100,7 @@ public final class StoragePerm {
 
     /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
             boolean kelola = false;
             try {
                 kelola = Environment.isExternalStorageManager();
@@ -157,7 +157,7 @@ public final class StoragePerm {
 
     /** Buka layar All files access untuk app ini (dengan fallback). */
     public static void bukaPengaturanKelola(Activity act) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        if (!butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
             return;
         }
         try {

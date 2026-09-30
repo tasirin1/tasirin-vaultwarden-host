@@ -49,9 +49,6 @@ public class SettingsActivity extends Activity {
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     private static final String KEY_PIN = "pin_hash";
     private static final String KEY_PIN_ON = "pin_on";
-    private static final String KEY_ADVANCED_OPEN = "advanced_open";
-    /** Mode sederhana: hanya kartu Server (esensial) yang tampil. */
-    private static final String KEY_SIMPLE_MODE = "mode_sederhana";
     /** Wizard setup 3 langkah sudah pernah tampil/selesai. */
     private static final String KEY_WIZARD_DONE = "wizard_selesai";
 
