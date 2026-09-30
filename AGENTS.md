@@ -116,6 +116,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
     (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
     lewat workflow; jangan edit asset release lewat web/UI manual.
+12. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
+    menunda push, jangan menunggu perintah, jangan menumpuk perubahan di
+    working tree. Alur wajib tiap selesai satu tujuan logis: `git add` →
+    `git commit` → `git push origin main` → pantau `gh run watch` (lihat
+    aturan #1 dan "Verifikasi setelah build"). Pengecualian hanya bila
+    pengguna eksplisit meminta menahan push.
 
 ## Alur build & rilis (CI, build-apk.yml)
 
