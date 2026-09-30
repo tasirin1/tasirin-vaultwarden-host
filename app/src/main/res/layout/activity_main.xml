@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal portrait: brand ringkas + kartu info + kartu server (banner
-     status full-width) + kartu log collapsible + footer Start full-width
-     sticky. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
+<!-- Layar awal portrait: brand ringkas + kartu info (tautan) di atas
+     + kartu log realtime di tengah + kartu server (banner status)
+     di bawah + footer Start full-width sticky. Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
      updateBtn yang kadang gone diperbaiki dinamis di MainActivity.
      Varian landscape ada di res/layout-land/activity_main.xml (ID sama). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -108,7 +108,7 @@
                     android:id="@+id/netInfo"
                     android:maxLines="3"
                     android:ellipsize="end"
-                    android:nextFocusDown="@id/updateBtn"
+                    android:nextFocusDown="@id/logToggle"
                     android:nextFocusUp="@id/overflowBtn"
                     style="@style/TasirinInfo"
                     android:layout_width="match_parent"
@@ -123,7 +123,83 @@
                     android:padding="10dp" />
             </LinearLayout>
 
-            <!-- ===================== SERVER ===================== -->
+            <!-- ===================== LOG REALTIME ===================== -->
+            <LinearLayout
+                style="@style/TasirinCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/TasirinSection"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/log_realtime" />
+
+                    <Button
+                        android:id="@+id/logToggle"
+                        android:nextFocusDown="@id/homeSaveLog"
+                        android:nextFocusRight="@id/homeSaveLog"
+                        android:nextFocusUp="@id/netInfo"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/collapse" />
+
+                    <Button
+                        android:id="@+id/homeSaveLog"
+                        android:nextFocusDown="@id/startStop"
+                        android:nextFocusLeft="@id/logToggle"
+                        android:nextFocusUp="@id/logToggle"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/save_txt" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/homeLogCount"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/log_lines_initial"
+                    android:textSize="@dimen/log_count_size" />
+
+                <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
+                <!-- nestedScrollingEnabled agar gulir jari di pratinjau tak berebut scroll halaman. -->
+                <ScrollView
+                    android:id="@+id/homeLogScroll"
+                    android:nestedScrollingEnabled="true"
+                    tools:ignore="NestedScrolling"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_info_box">
+
+                    <TextView
+                        android:id="@+id/homeLog"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:padding="8dp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/log_text_size" />
+                </ScrollView>
+
+            </LinearLayout>
+<!-- ===================== SERVER ===================== -->
             <LinearLayout
                 style="@style/TasirinCard"
                 android:layout_width="match_parent"
@@ -182,8 +258,8 @@
 
                 <Button
                     android:id="@+id/updateBtn"
-                    android:nextFocusDown="@id/logToggle"
-                    android:nextFocusUp="@id/netInfo"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusUp="@id/homeSaveLog"
                     style="@style/TasirinBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -192,83 +268,7 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- ===================== LOG REALTIME ===================== -->
-            <LinearLayout
-                style="@style/TasirinCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        style="@style/TasirinSection"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="0dp"
-                        android:layout_weight="1"
-                        android:text="@string/log_realtime" />
-
-                    <Button
-                        android:id="@+id/logToggle"
-                        android:nextFocusDown="@id/startStop"
-                        android:nextFocusRight="@id/homeSaveLog"
-                        android:nextFocusUp="@id/updateBtn"
-                        style="@style/TasirinBtnSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/collapse" />
-
-                    <Button
-                        android:id="@+id/homeSaveLog"
-                        android:nextFocusDown="@id/startStop"
-                        android:nextFocusLeft="@id/logToggle"
-                        android:nextFocusUp="@id/logToggle"
-                        style="@style/TasirinBtnSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/save_txt" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/homeLogCount"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/log_lines_initial"
-                    android:textSize="@dimen/log_count_size" />
-
-                <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
-                <!-- nestedScrollingEnabled agar gulir jari di pratinjau tak berebut scroll halaman. -->
-                <ScrollView
-                    android:id="@+id/homeLogScroll"
-                    android:nestedScrollingEnabled="true"
-                    tools:ignore="NestedScrolling"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_info_box">
-
-                    <TextView
-                        android:id="@+id/homeLog"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="monospace"
-                        android:padding="8dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/log_text_size" />
-                </ScrollView>
-
-            </LinearLayout>
-        </LinearLayout>
+                    </LinearLayout>
     </ScrollView>
 
     <!-- Footer sticky: Start/Stop full-width selalu terlihat -->

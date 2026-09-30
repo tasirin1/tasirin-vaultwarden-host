@@ -458,11 +458,12 @@ public class MainActivity extends Activity {
         } else {
             updateBtn.setVisibility(View.GONE);
         }
-        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: alihkan tetangga
+        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: kartu server kini
+        // di bawah log, jadi yang dialihkan adalah tetangga updateBtn (simpan log & Start)
         if (updAvail != lastUpdBtnVisible) {
             lastUpdBtnVisible = updAvail;
-            netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.logToggle);
-            logToggleBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
+            homeSaveBtn.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
+            startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.homeSaveLog);
         }
 
         String net = ServerService.localUrl(this);
