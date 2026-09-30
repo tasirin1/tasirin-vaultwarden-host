@@ -390,15 +390,13 @@ public final class TgBot {
         try {
             JSONObject pesan = cb.optJSONObject("message");
             JSONObject ruang = pesan != null ? pesan.optJSONObject("chat") : null;
-            JSONObject pengirim = cb.optJSONObject("from");
             long idRuang = ruang != null ? ruang.optLong("id", -1) : -1;
             String namaRuang = ruang != null ? ruang.optString("username", "") : "";
-            long idKirim = pengirim != null ? pengirim.optLong("id", -1) : -1;
-            String namaKirim = pengirim != null ? pengirim.optString("username", "") : "";
-            // Satu pintu auth (cocokChat: trim + tanpa peka huruf): ruang atau
-            // pengirim resmi boleh; banding String mentah tak lagi dipakai.
-            if (!Util.cocokChat(chatResmi, idRuang, namaRuang)
-                    && !Util.cocokChat(chatResmi, idKirim, namaKirim)) {
+            // Satu pintu auth (cocokChat: trim + tanpa peka huruf): wajib ruang
+            // resmi. Pengirim resmi saja tak cukup agar keyboard yang bocor /
+            // diteruskan ke chat lain tak bisa mengeksekusi perintah dari luar.
+            // (Tombol berbahaya tetap butuh PIN yang tak bisa dibawa tombol.)
+            if (!Util.cocokChat(chatResmi, idRuang, namaRuang)) {
                 return;
             }
             // Tombol inline diberi umur 24 jam: tanpa batas, keyboard lama yang

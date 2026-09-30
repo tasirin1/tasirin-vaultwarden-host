@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan 3 bug audit (fallback web-vault, symlink, callback)
+- Web-vault via fallback kini catat penanda 6 jam: cek berikutnya tak lagi unduh ulang 35 MB tiap kali.
+- `deleteRecursive` tak lagi mengikuti symlink direktori (hapus link-nya saja).
+- Callback Telegram wajib dari ruang resmi; pengirim saja tak cukup.
+- Unit test: `fallbackBaruSaja`, `tautanSimbol`.
+
 ## [Belum rilis] — Perbaikan 3 bug ringan audit (alarm bot, prefix hash, chat ID)
 - Alarm polling bot kini dibatalkan bila token atau chat kosong (sebelumnya chat kosong tetap membangunkan perangkat tiap 20 detik).
 - `digestPrefix` gagal lantang bila file parsial terpotong agar unduh ulang dari nol dengan pesan jelas (bukan gagal checksum menyesatkan).

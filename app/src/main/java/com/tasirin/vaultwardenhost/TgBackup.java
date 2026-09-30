@@ -966,6 +966,7 @@ public final class TgBackup {
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
                     "tg_notified_version", "wv_from_version",
+                    "wv_fallback_for", "wv_fallback_at",
                     "tg_backup_tertunda", ServerService.KEY_START_TERTUNDA));
 
     /** JSON pengaturan (format sama dengan export/import config di app). */

@@ -11,6 +11,44 @@ import org.junit.Test;
 public class UpdaterTest {
 
     @Test
+    public void fallbackBaruSaja_hematUnduhUlang() {
+        long at = 1000000L;
+        assertTrue(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
+                at, at + 3600_000L));
+        assertFalse(Updater.fallbackBaruSaja("1.37.4", true, "1.37.3",
+                at, at + 3600_000L));
+        assertFalse(Updater.fallbackBaruSaja("1.37.3", false, "1.37.3",
+                at, at + 3600_000L));
+        assertFalse(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
+                at, at + 6L * 3600 * 1000 + 1));
+        assertFalse(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
+                0, at + 1000));
+        assertFalse(Updater.fallbackBaruSaja(null, true, "1.37.3",
+                at, at + 1000));
+    }
+
+    @Test
+    public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"),
+                "vw-link-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        java.io.File biasa = new java.io.File(dir, "biasa.txt");
+        assertTrue(biasa.createNewFile());
+        assertFalse(Updater.tautanSimbol(biasa));
+        try {
+            java.nio.file.Path link = new java.io.File(dir, "taut").toPath();
+            java.nio.file.Files.createSymbolicLink(link, biasa.toPath());
+            assertTrue(Updater.tautanSimbol(link.toFile()));
+            link.toFile().delete();
+        } catch (UnsupportedOperationException | java.io.IOException e) {
+            // FS tanpa symlink: lewati bagian link, file biasa tetap teruji.
+        }
+        biasa.delete();
+        dir.delete();
+    }
+
+    @Test
     public void kunciUnduh_samaUntukPathSama() throws Exception {
         java.io.File a = new java.io.File("/tmp/vw-bin-test");
         assertTrue(Updater.kunciUnduh(a) == Updater.kunciUnduh(a));

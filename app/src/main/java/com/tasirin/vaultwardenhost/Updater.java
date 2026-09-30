@@ -54,6 +54,28 @@ public final class Updater {
     // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
     // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
     private static final String KEY_WV_FROM = "wv_from_version";
+    /** Versi yang dipasang via fallback rilis terbaru (asset versi belum terbit). */
+    static final String KEY_WV_FALLBACK_FOR = "wv_fallback_for";
+    /** Jangkar elapsed saat fallback dipasang (SystemClock, ms). */
+    static final String KEY_WV_FALLBACK_AT = "wv_fallback_at";
+    /** Jeda unduh ulang setelah pasang fallback (asset CI terbit ~6 jam). */
+    static final long WV_FALLBACK_TUNDA_MS = 6L * 3600 * 1000;
+
+    /** True bila fallback untuk versi ini baru dipasang dan web-vault ada:
+     *  lewati unduh ulang 35 MB agar hemat kuota. Murni agar bisa unit test. */
+    static boolean fallbackBaruSaja(String latest, boolean wvExists, String untuk,
+            long at, long kiniElapsed) {
+        if (!wvExists || latest == null || latest.isEmpty()) {
+            return false;
+        }
+        if (!latest.equals(untuk)) {
+            return false;
+        }
+        if (at <= 0 || kiniElapsed < at) {
+            return false;
+        }
+        return kiniElapsed - at < WV_FALLBACK_TUNDA_MS;
+    }
     // Status unduhan yang sedang berjalan (dibaca UI realtime); kosong = tidak ada unduhan.
     public static volatile String downloadStatus = "";
     // Unduhan di STB sering timeout TCP ke github.com; coba ulang 3x sebelum gagal.
@@ -1021,6 +1043,15 @@ public final class Updater {
             return "Web vault v" + installed
                     + " terpasang; cek versi terbaru gagal (koneksi/rate-limit). Coba lagi nanti.";
         }
+        // Fallback baru dipasang (asset versi ini belum terbit di CI):
+        // jangan unduh ulang 35 MB tiap cek; versi terpasang tetap dipakai.
+        if (fallbackBaruSaja(latest, wvExists,
+                sp.getString(KEY_WV_FALLBACK_FOR, ""),
+                TgBackup.amanLong(sp, KEY_WV_FALLBACK_AT, 0),
+                SystemClock.elapsedRealtime())) {
+            return "Web vault v" + latest + " sudah dipasang via rilis terbaru;"
+                    + " cek ulang dilewati agar hemat kuota. Coba lagi nanti.";
+        }
 
         // Cek ruang hanya bila benar-benar akan mengunduh.
         long free = TgBackup.freeBytes(dataDir);
@@ -1198,6 +1229,10 @@ public final class Updater {
         }
         if (latest != null && !wvFallback) {
             sp.edit().putString(KEY_WV_FROM, latest).apply();
+            sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_WV_FALLBACK_AT).apply();
+        } else if (latest != null && wvFallback) {
+            sp.edit().putString(KEY_WV_FALLBACK_FOR, latest)
+                    .putLong(KEY_WV_FALLBACK_AT, SystemClock.elapsedRealtime()).apply();
         }
         return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER;
     }
@@ -1691,8 +1726,28 @@ public final class Updater {
         return true;
     }
 
+    /** True bila path adalah tautan (symlink) atau memuat segmen tak-kanonis:
+     *  jangan telusuri isinya, hapus link-nya saja. Konservatif: path normal
+     *  selalu kanonis==absolut. Murni I/O agar bisa unit test JVM. */
+    static boolean tautanSimbol(File file) {
+        if (file == null) {
+            return false;
+        }
+        try {
+            return !file.getCanonicalPath().equals(file.getAbsolutePath());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static void deleteRecursive(File file) {
         if (file == null || !file.exists()) {
+            return;
+        }
+        // Symlink direktori: isDirectory() true lalu listFiles() menghapus isi
+        // TARGET di luar folder. Hapus link-nya saja.
+        if (tautanSimbol(file)) {
+            file.delete();
             return;
         }
         if (file.isDirectory()) {
