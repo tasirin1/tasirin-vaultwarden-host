@@ -119,6 +119,8 @@ public class ServerService extends Service {
     public static volatile String runningPort = "";
     public static volatile boolean runningHttps = false;
     public static volatile String runningAdminToken = "";
+    /** Penanda versi web-vault saat server start (untuk hint restart di MainActivity). */
+    public static volatile String runningWvFrom = "";
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
     // Anti-loop: berhenti total bila restart beruntun ≥3x dalam 5 menit.
@@ -981,6 +983,8 @@ public class ServerService extends Service {
             runningPort = port;
             runningHttps = https;
             runningAdminToken = adminToken == null ? "" : adminToken.trim();
+            String wvFrom = Updater.webVaultFromVersion(this);
+            runningWvFrom = wvFrom == null ? "" : wvFrom;
 
             // Validasi ulang tepat sebelum exec: unduh binary/web-vault di atas
             // makan waktu bermenit-menit; symlink folder data yang ditukar di
@@ -1051,6 +1055,7 @@ public class ServerService extends Service {
             runningPort = "";
             runningHttps = false;
             runningAdminToken = "";
+            runningWvFrom = "";
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
@@ -1099,6 +1104,7 @@ public class ServerService extends Service {
         runningPort = "";
         runningHttps = false;
         runningAdminToken = "";
+        runningWvFrom = "";
         releaseWakeLock();
         flushLogFile();
         TgBackup.sendMessage(this, "Server dihentikan.");
@@ -1576,6 +1582,7 @@ public class ServerService extends Service {
             runningPort = "";
             runningHttps = false;
             runningAdminToken = "";
+            runningWvFrom = "";
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");

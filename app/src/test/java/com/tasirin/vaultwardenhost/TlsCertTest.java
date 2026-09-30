@@ -117,6 +117,15 @@ public class TlsCertTest {
     }
 
     @Test
+    public void leafCukupTerimaSisaPanjangDanJamMiring() {
+        assertTrue(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS + 1));
+        assertTrue(TlsCert.leafCukup(-2));
+        assertFalse(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS));
+        assertFalse(TlsCert.leafCukup(0));
+        assertFalse(TlsCert.leafCukup(-1));
+    }
+
+    @Test
     public void caHilangAtauRusakDianggapTakOk() throws Exception {
         File dir = Files.createTempDirectory("tlsca").toFile();
         Files.write(new File(dir, "version.txt").toPath(), "5\n".getBytes(StandardCharsets.US_ASCII));

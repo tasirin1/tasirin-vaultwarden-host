@@ -68,6 +68,10 @@ public class SettingsActivity extends Activity {
             java.util.concurrent.Executors.newSingleThreadExecutor();
     private volatile int pinSeq;
     private volatile java.util.concurrent.Future<?> pinPending;
+    /** Hash PIN terbaru dari worker yang belum disimpan ke prefs: prefs hanya
+     *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
+     *  di tengah mengetik. */
+    private volatile String pinHashSiap = null;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -439,12 +443,16 @@ public class SettingsActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int a, int b, int c) {
+                pinSeq++;
+                java.util.concurrent.Future<?> basi = pinPending;
+                if (basi != null && !basi.isDone()) {
+                    basi.cancel(true);
+                }
+                // Hash ditahan di memori dulu: prefs hanya menerima nilai yang
+                // sudah settle (800 ms tanpa ketikan) agar app yang mati di
+                // tengah mengetik tak meninggalkan hash PIN parsial.
+                pinHashSiap = null;
                 if (s.length() < 4) {
-                    pinSeq++;
-                    java.util.concurrent.Future<?> basi = pinPending;
-                    if (basi != null && !basi.isDone()) {
-                        basi.cancel(true);
-                    }
                     // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
@@ -452,17 +460,19 @@ public class SettingsActivity extends Activity {
                     return;
                 }
                 final String pin = s.toString();
-                final int seq = ++pinSeq;
-                java.util.concurrent.Future<?> lama = pinPending;
-                if (lama != null && !lama.isDone()) {
-                    lama.cancel(true);
-                }
+                final int seq = pinSeq;
                 pinPending = pinExec.submit(() -> {
                     String h = PinCrypto.hash(pin);
-                    if (seq == pinSeq) {
-                        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                    if (seq != pinSeq) {
+                        return;
                     }
+                    pinHashSiap = h;
+                    ui.postDelayed(() -> {
+                        if (seq == pinSeq && h.equals(pinHashSiap)) {
+                            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                    .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                        }
+                    }, 800);
                 });
             }
 
@@ -498,6 +508,14 @@ public class SettingsActivity extends Activity {
                 return;
             }
             SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String fieldPin = pinInput.getText() == null ? ""
+                    : pinInput.getText().toString();
+            String siap = pinHashSiap;
+            if (siap != null && fieldPin.length() >= 4) {
+                // Tulis nilai settle sekarang tanpa menunggu debounce agar
+                // centang tak memakai hash basi di prefs.
+                sp2.edit().putString(PinGate.KEY_PIN_HASH, siap).apply();
+            }
             if (sp2.getString(PinGate.KEY_PIN_HASH, "").isEmpty()) {
                 toast("Isi PIN dulu (minimal 4 digit).");
                 pinCentangProgram = true;

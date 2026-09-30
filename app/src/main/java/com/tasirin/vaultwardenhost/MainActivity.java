@@ -432,9 +432,15 @@ public class MainActivity extends Activity {
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
+            String wv = Updater.webVaultFromVersion(this);
+            if (wv == null) {
+                wv = "";
+            }
+            String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
             changed = !d.trim().equals(rd.trim())
                     || !p.trim().equals(rp.trim())
-                    || !a.trim().equals(ra.trim());
+                    || !a.trim().equals(ra.trim())
+                    || !wv.equals(rwv);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 

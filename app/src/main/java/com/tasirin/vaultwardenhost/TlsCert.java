@@ -124,7 +124,7 @@ public final class TlsCert {
             }
             if (certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
-                    && sisaMs(certFile) > BATAS_REGEN_MS) {
+                    && leafCukup(sisaMs(certFile))) {
                 return dir;
             }
             // Leaf hilang / rusak / kedaluwarsa / IP atau domain berubah: buat ulang, CA tetap.
@@ -151,6 +151,12 @@ public final class TlsCert {
         }
         long sisa = sisaMs(caCert);
         return sisa > 0 || sisa == -2;
+    }
+
+    /** True bila leaf boleh dipakai ulang: sisa > 30 hari, atau belum valid
+     *  karena jam STB miring (-2, dipakai seperti CA agar tak regen tiap Start). Murni. */
+    static boolean leafCukup(long sisa) {
+        return sisa > BATAS_REGEN_MS || sisa == -2;
     }
 
     /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */
