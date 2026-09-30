@@ -343,7 +343,6 @@ public final class Updater {
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws IOException {
         Exception gagal = null;
-        String originalUrl = url;  // Simpan URL asli untuk retry
         boolean fallbackUsed = false;
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
@@ -390,17 +389,11 @@ public final class Updater {
                 return salinSambilHash(dl, tmp, code, resumeFrom, label);
             } catch (IOException e) {
                 gagal = e;
-                // Bila fallback sudah dipakai dan gagal, coba URL asli di percobaan berikut.
-                // Isi URL beda wajib mulai dari nol: buang parsial agar tak campur
-                // (sebelumnya resume menumpuk bytes 2 asset + hash prefix salah).
-                if (fallbackUsed && coba < MAX_COBA_UNDUH) {
-                    url = originalUrl;
-                    fallbackUsed = false;
-                    try {
-                        tmp.delete();
-                    } catch (Exception ignored) {
-                    }
-                }
+                // Fallback sengaja dipertahankan untuk semua percobaan berikut:
+                // kembali ke URL asli menumpuk bytes dua asset berbeda dan membuat
+                // digest tak lagi sesuai checksum URL fallback (gagal verifikasi
+                // palsu). URL versi yang 404 tetap 404; unduhan berikut akan
+                // mengambilnya lagi bila rilis sudah jadi.
                 if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH
                         || !tundaCobaLagiUnduh(coba)) {
                     break;

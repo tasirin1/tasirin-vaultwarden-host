@@ -40,6 +40,14 @@ public class FileShareProviderTest {
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
     }
 
+    @Test
+    public void namaBiasaBerisiCaKeyTakIkutDitolak() {
+        assertTrue(FileShareProvider.namaBolehDibagikan("backup-ca-key-info.txt"));
+        assertTrue(FileShareProvider.namaBolehDibagikan("catatan-ca-key.txt"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.zip"));
+    }
+
     @org.junit.Test
     public void modeBacaSaja_tolakTulis() {
         assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja(null));

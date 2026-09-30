@@ -1815,6 +1815,23 @@ public final class TgBackup {
             java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,
                     KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS));
 
+    /** True bila teks adalah SHA-256 hex valid (64 digit heksa). Murni. */
+    static boolean shaHexValid(String s) {
+        if (s == null) {
+            return false;
+        }
+        String t = s.trim();
+        if (t.length() != 64) {
+            return false;
+        }
+        for (int i = 0; i < t.length(); i++) {
+            if (Character.digit(t.charAt(i), 16) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Koersi nilai Boolean dari String/Number edit manual ("true"/1 -> true). Null bila tak jelas. Murni. */
     static Boolean koersiBoolean(Object v) {
         if (v instanceof Boolean) {
@@ -2078,10 +2095,27 @@ public final class TgBackup {
             // Boolean. Tipe salah diabaikan agar tak jadi ClassCastException
             // permanen tiap buka Settings/Start.
             if (KUNCI_STRING.contains(k)) {
+                String teks = null;
                 if (v instanceof String) {
-                    ed.putString(k, (String) v);
+                    teks = (String) v;
                 } else if (v instanceof Number) {
-                    ed.putString(k, String.valueOf(v));
+                    teks = String.valueOf(v);
+                }
+                if (teks != null) {
+                    if (ServerService.KEY_PORT.equals(k)) {
+                        // Port rusak ("abc"/"99999") jangan tersimpan mentah:
+                        // normalisasi ke default agar Start berikutnya tak gagal.
+                        ed.putString(k, ServerService.normalisasiPort(teks));
+                    } else if (ServerService.KEY_BIN_SHA.equals(k)) {
+                        // SHA-256 wajib 64 hex; nilai sampah diabaikan agar
+                        // binary manual tak selalu ditolak tanpa pesan jelas.
+                        if (shaHexValid(teks)) {
+                            ed.putString(k, teks.trim().toLowerCase(
+                                    java.util.Locale.US));
+                        }
+                    } else {
+                        ed.putString(k, teks);
+                    }
                 }
                 continue;
             }

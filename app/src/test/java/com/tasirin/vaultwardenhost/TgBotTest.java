@@ -126,6 +126,8 @@ public class TgBotTest {
                 TgBot.pisahkanPin("nama file.zip PIN:123456"));
         assertArrayEquals(new String[]{"nama file.zip", "123456"},
                 TgBot.pisahkanPin("nama file.zip 123456"));
+        assertArrayEquals(new String[]{"YA", "123456"},
+                TgBot.pisahkanPin("YA 123456"));
         assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(""));
         assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(null));
     }

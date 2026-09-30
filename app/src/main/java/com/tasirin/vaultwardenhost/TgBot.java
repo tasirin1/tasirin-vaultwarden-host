@@ -907,7 +907,9 @@ public final class TgBot {
 
     /** Pisahkan PIN dari argumen perintah (murni agar bisa unit test).
      *  Format eksplisit "PIN:123456" diutamakan (tak ambigu bila argumen
-     *  berisi spasi); fallback kata terakhir seperti dulu. Return {sisa, pin}. */
+     *  berisi spasi); fallback kata terakhir dipertahankan karena alur
+     *  "/restore YA 123456" mengandalkannya (kata "YA" adalah argumen).
+     *  Return {sisa, pin}. */
     static String[] pisahkanPin(String arg) {
         String t = arg == null ? "" : arg.trim();
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(

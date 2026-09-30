@@ -127,7 +127,9 @@ public final class TlsCert {
                     && leafCukup(sisaMs(certFile))) {
                 return dir;
             }
-            // Leaf hilang / rusak / kedaluwarsa / IP atau domain berubah: buat ulang, CA tetap.
+            // Leaf hilang / rusak / kedaluwarsa: buat ulang, CA tetap.
+            // Perubahan IP/domain dideteksi pemanggil (ServerService lewat
+            // ips.txt) yang menghapus leaf lebih dulu sebelum memanggil ensure.
             certFile.delete();
             keyFile.delete();
             if (!buatLeaf(caKey, certFile, keyFile, ips, dns)) {

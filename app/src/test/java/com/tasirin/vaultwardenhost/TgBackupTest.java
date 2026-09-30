@@ -280,6 +280,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void shaHexValid_hanya64Hex() {
+        assertTrue(TgBackup.shaHexValid(
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"));
+        assertTrue(TgBackup.shaHexValid(
+                "  0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF  "));
+        assertFalse(TgBackup.shaHexValid(null));
+        assertFalse(TgBackup.shaHexValid(""));
+        assertFalse(TgBackup.shaHexValid("abc"));
+        assertFalse(TgBackup.shaHexValid(
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde"));
+        assertFalse(TgBackup.shaHexValid(
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdeg"));
+    }
+
+    @Test
     public void koersiBoolean_terimaStringAngka() {
         assertEquals(Boolean.TRUE, TgBackup.koersiBoolean(Boolean.TRUE));
         assertEquals(Boolean.TRUE, TgBackup.koersiBoolean("true"));

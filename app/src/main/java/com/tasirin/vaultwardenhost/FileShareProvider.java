@@ -111,7 +111,8 @@ public class FileShareProvider extends ContentProvider {
 
     /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,
      *  termasuk yang dibungkus zip/enc mis. key.pem.zip).
-     *  Murni agar bisa unit test; presisi agar monkey.zip tak ikut ditolak. */
+     *  Murni agar bisa unit test; cocok tepat agar monkey.zip maupun
+     *  backup-ca-key-info.txt tak ikut ditolak. */
     static boolean kunciPrivat(String name) {
         if (name == null) {
             return false;
@@ -131,10 +132,11 @@ public class FileShareProvider extends ContentProvider {
                 }
             }
         }
-        if (inti.contains("ca-key")) {
+        if (inti.equals("ca-key.pem") || inti.equals("ca-key")
+                || inti.equals("key.pem") || inti.equals("key")) {
             return true;
         }
-        return inti.equals("ca-key.pem") || inti.equals("key.pem") || inti.endsWith(".key");
+        return inti.endsWith(".key");
     }
 
     /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
