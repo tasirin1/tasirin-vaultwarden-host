@@ -28,11 +28,18 @@ public class LogActivityTest {
     }
 
     @Test
-    public void tokenMentahTanpaBotDisamarkan() {
-        String mentah = "gagal kirim 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 lanjut";
+    public void tokenMentahKonteksTelegramDisamarkan() {
+        String mentah = "gagal kirim telegram 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 lanjut";
         String r = LogActivity.samarkanLog(mentah);
         assertFalse(r.contains("AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"));
         assertTrue(r.contains("***"));
+    }
+
+    @Test
+    public void teksMiripTokenTanpaKonteksTetapUtuh() {
+        String mentah = "proses 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 selesai";
+        String r = LogActivity.samarkanLog(mentah);
+        assertTrue(r.contains("AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"));
     }
 
     @Test

@@ -97,8 +97,11 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
         String action = intent != null ? intent.getAction() : null;
+        // Manifest mendaftar TIME_SET; TIME_CHANGED tak pernah dikirim sistem
+        // sehingga utak-atik jam dulu jatuh ke mulaiBackup tanpa batas 1 jam.
         if (Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
+                || Intent.ACTION_TIME_SET.equals(action)
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);

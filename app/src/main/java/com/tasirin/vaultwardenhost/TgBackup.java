@@ -356,7 +356,23 @@ public final class TgBackup {
     }
 
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
+    /** Kunci backup global: UI, jadwal, dan bot tak boleh mengunggah bareng
+     *  (hemat kuota + slot Telegram di STB). */
+    private static final java.util.concurrent.atomic.AtomicBoolean BACKUP_JALAN =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     public static String backupNow(Context ctx) throws Exception {
+        if (!BACKUP_JALAN.compareAndSet(false, true)) {
+            throw new IOException("Backup lain sedang berjalan, coba lagi sebentar.");
+        }
+        try {
+            return backupNowIsi(ctx);
+        } finally {
+            BACKUP_JALAN.set(false);
+        }
+    }
+
+    private static String backupNowIsi(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
         String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));

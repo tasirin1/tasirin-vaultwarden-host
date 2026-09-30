@@ -778,8 +778,8 @@ public final class TgBot {
                 TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
                         + "/cabackup  /careset  /crashlog  /update  /webvault  /restart  /start  /stop  /help\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset wajib diakhiri PIN"
-                        + " (mis. /stop 123456).", keyboardPerintah());
+                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset butuh PIN"
+                        + " (mis. /stop 123456 atau /stop PIN:123456).", keyboardPerintah());
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
@@ -882,12 +882,12 @@ public final class TgBot {
                     + " Coba lagi " + ((sisa + 59000) / 60000) + " menit.");
             return null;
         }
-        int i = t.lastIndexOf(' ');
-        String pin = i < 0 ? t : t.substring(i + 1);
-        String rest = i < 0 ? "" : t.substring(0, i).trim();
+        String[] pisah = pisahkanPin(t);
+        String rest = pisah[0];
+        String pin = pisah[1];
         if (pin.isEmpty()) {
-            TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
-                    + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
+            TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
+                    + " (mis. /stop 123456 atau /stop PIN:123456).");
             return null;
         }
         boolean cocok = PinCrypto.verify(hash, pin);
@@ -904,6 +904,26 @@ public final class TgBot {
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
                 + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
         return null;
+    }
+
+    /** Pisahkan PIN dari argumen perintah (murni agar bisa unit test).
+     *  Format eksplisit "PIN:123456" diutamakan (tak ambigu bila argumen
+     *  berisi spasi); fallback kata terakhir seperti dulu. Return {sisa, pin}. */
+    static String[] pisahkanPin(String arg) {
+        String t = arg == null ? "" : arg.trim();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "(?i)\\bPIN\\s*:\\s*(\\S+)").matcher(t);
+        if (m.find()) {
+            String pin = m.group(1);
+            String sisa = (t.substring(0, m.start()) + " "
+                    + t.substring(m.end())).trim().replaceAll("\\s+", " ");
+            return new String[]{sisa, pin};
+        }
+        int i = t.lastIndexOf(' ');
+        if (i < 0) {
+            return new String[]{"", t};
+        }
+        return new String[]{t.substring(0, i).trim(), t.substring(i + 1)};
     }
 
     /** Jalankan tugas berat bot saling-menunggu; tolak halus bila sibuk. */

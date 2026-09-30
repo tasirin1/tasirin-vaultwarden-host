@@ -177,6 +177,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    @Test
+    public void dataDirAmanTolakRootStorage() {
+        assertFalse(ServerService.dataDirAman("/sdcard"));
+        assertFalse(ServerService.dataDirAman("/sdcard/"));
+        assertFalse(ServerService.dataDirAman("/storage/emulated/0"));
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
+    }
+
+    @Test
     public void dataDirAmanTolakTraversalDanSistem() {
         assertFalse(ServerService.dataDirAman("/sdcard/../data"));
         assertFalse(ServerService.dataDirAman("/sdcard/vaultwarden/../../etc"));

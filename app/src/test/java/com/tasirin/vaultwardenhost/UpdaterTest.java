@@ -17,6 +17,20 @@ public class UpdaterTest {
     }
 
     @Test
+    public void gantiAtomik_tolakPathNull() {
+        try {
+            ServerService.gantiAtomik(null, new java.io.File("/tmp/x"));
+            org.junit.Assert.fail("wajib lempar bila tmp null");
+        } catch (java.io.IOException diharapkan) {
+        }
+        try {
+            ServerService.gantiAtomik(new java.io.File("/tmp/x"), null);
+            org.junit.Assert.fail("wajib lempar bila out null");
+        } catch (java.io.IOException diharapkan) {
+        }
+    }
+
+    @Test
     public void gantiAtomik_pulihkanLamaBilaGagal() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwatom").toFile();
         java.io.File out = new java.io.File(dir, "bin");

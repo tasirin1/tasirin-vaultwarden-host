@@ -272,6 +272,9 @@ public class ServerService extends Service {
 
     /** Ganti file atomik via cadangan: tanpa jendela tanpa-binary bila crash di tengah. */
     static void gantiAtomik(File tmp, File out) throws java.io.IOException {
+        if (tmp == null || out == null || out.getParentFile() == null) {
+            throw new java.io.IOException("Path binary tidak valid.");
+        }
         File bak = new File(out.getParentFile(), out.getName() + ".bak");
         try {
             if (bak.exists() && !bak.delete()) {
@@ -692,7 +695,15 @@ public class ServerService extends Service {
                 && !n.startsWith("/data/data/") && !n.startsWith("/data/user/")) {
             return false;
         }
-        return true;
+        // Folder data wajib subfolder (mis. /sdcard/vaultwarden): root storage
+        // (/sdcard) membuat DB+web-vault+log tercecer di root dan rawan terhapus.
+        int segmenIsi = 0;
+        for (String s : n.split("/")) {
+            if (!s.isEmpty()) {
+                segmenIsi++;
+            }
+        }
+        return segmenIsi >= 2;
     }
 
     /** Kembalikan folder data aman atau bawaan bila input berbahaya. Murni. */

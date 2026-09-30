@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -114,6 +115,19 @@ public class TgBotTest {
         assertFalse(TgBot.callbackDataValid("status"));
         assertFalse(TgBot.callbackDataValid(""));
         assertFalse(TgBot.callbackDataValid(null));
+    }
+
+    @Test
+    public void pisahkanPinEksplisitDanLegasi() {
+        assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("123456"));
+        assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("PIN:123456"));
+        assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("pin: 123456"));
+        assertArrayEquals(new String[]{"nama file.zip", "123456"},
+                TgBot.pisahkanPin("nama file.zip PIN:123456"));
+        assertArrayEquals(new String[]{"nama file.zip", "123456"},
+                TgBot.pisahkanPin("nama file.zip 123456"));
+        assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(""));
+        assertArrayEquals(new String[]{"", ""}, TgBot.pisahkanPin(null));
     }
 
     @Test
