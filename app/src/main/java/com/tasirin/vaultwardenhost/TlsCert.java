@@ -96,6 +96,10 @@ public final class TlsCert {
         return daysLeft(certFile) == -2;
     }
 
+    /** Kunci antar-thread untuk ensure(): Start bersamaan dari UI + perintah
+     *  Telegram /start tak boleh generate CA/leaf bersamaan (rusak ca.pem/cert.pem). */
+    private static final Object KUNCI_ENSURE = new Object();
+
     /** Pastikan CA + cert server ada di {@code dir}; buat bila belum. Return null bila gagal. */
     public static File ensure(File dir, List<String> ips) {
         return ensure(dir, ips, java.util.Collections.<String>emptyList());
@@ -103,6 +107,7 @@ public final class TlsCert {
 
     /** Varian dengan SAN DNS tambahan (domain lokal); {@code dns} boleh kosong. */
     public static File ensure(File dir, List<String> ips, List<String> dns) {
+        synchronized (KUNCI_ENSURE) {
         try {
             if (!dir.exists() && !dir.mkdirs()) {
                 return null;
@@ -165,6 +170,7 @@ public final class TlsCert {
             return dir;
         } catch (Exception e) {
             return null;
+        }
         }
     }
 

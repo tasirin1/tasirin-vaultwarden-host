@@ -1009,7 +1009,7 @@ public final class TgBot {
         long sekarang = System.currentTimeMillis();
         long sisa = PinGate.sisaKunciMs(ctx, sekarang);
         if (sisa > 0) {
-            TgBackup.sendMessage(ctx, "PIN terkunci sementara (kebanyakan gagal)."
+            TgBackup.sendPenting(ctx, "PIN terkunci sementara (kebanyakan gagal)."
                     + " Coba lagi " + ((sisa + 59000) / 60000) + " menit.");
             return null;
         }
@@ -1171,28 +1171,41 @@ public final class TgBot {
      *  direset lewat finally task itu sendiri bila submit berhasil.
      *  Return false bila antrean pool penuh (pemanggil wajib melepas kuncinya). */
     private static boolean runWithWakeLock(Context ctx, Runnable task) {
-        return cobaJalankanBg(() -> {
-            PowerManager.WakeLock wl = null;
+        // Wakelock dipasang di thread pemanggil (masih di bawah wakelock
+        // receiver 60 dtk), lalu dilepas di thread BG setelah tugas selesai.
+        // Bila dipasang di dalam BG, ada celah Doze antara submit-vs-acquire.
+        PowerManager.WakeLock wl = null;
+        try {
+            PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
+                wl.acquire(10 * 60 * 1000L);
+            }
+        } catch (Exception ignored) {
+            wl = null;
+        }
+        final PowerManager.WakeLock milik = wl;
+        boolean masuk = cobaJalankanBg(() -> {
             try {
-                try {
-                    PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
-                    if (pm != null) {
-                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
-                        wl.acquire(10 * 60 * 1000L);
-                    }
-                } catch (Exception ignored) {
-                    wl = null;
-                }
                 task.run();
             } finally {
                 try {
-                    if (wl != null && wl.isHeld()) {
-                        wl.release();
+                    if (milik != null && milik.isHeld()) {
+                        milik.release();
                     }
                 } catch (Exception ignored) {
                 }
             }
         });
+        if (!masuk) {
+            try {
+                if (milik != null && milik.isHeld()) {
+                    milik.release();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return masuk;
     }
 
     /** Batas umur tombol inline (24 jam) + toleransi jam miring (5 menit). Murni. */

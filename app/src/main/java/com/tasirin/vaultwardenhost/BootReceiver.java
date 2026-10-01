@@ -3,6 +3,7 @@ package com.tasirin.vaultwardenhost;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 public class BootReceiver extends BroadcastReceiver {
@@ -48,20 +49,30 @@ public class BootReceiver extends BroadcastReceiver {
                     // saat menyala. Jadwal harian tak tersentuh.
                     if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
                         if (!TgBackup.jadwalTundaBoot(context)) {
-                            sp.edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).apply();
+                            tandaiBackupTertunda(sp);
                         }
                     }
                 } catch (Exception ignored) {
                     // Android 12+ bisa menolak start dari background: tandai agar
                     // MainActivity menjalankan susulan saat dibuka berikutnya.
                     try {
-                        sp.edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).apply();
+                        tandaiBackupTertunda(sp);
                     } catch (Exception ignored2) {
                     }
                 }
             }
             // Remote kontrol bot tetap aktif setelah reboot
             TgBot.schedule(context);
+        }
+    }
+
+    /** Flag daya-tahan boot: commit() sinkron agar tak hilang bila
+     *  perangkat mati/kill tepat sesudah tulis (apply() async bisa lenyap). */
+    @SuppressLint("ApplySharedPref")
+    private static void tandaiBackupTertunda(SharedPreferences sp) {
+        try {
+            sp.edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
+        } catch (Exception ignored) {
         }
     }
 }

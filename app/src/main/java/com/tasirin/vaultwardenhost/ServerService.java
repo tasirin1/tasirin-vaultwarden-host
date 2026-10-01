@@ -314,9 +314,11 @@ public class ServerService extends Service {
             if (ACTION_START.equals(aksi)) {
                 // Android 12+ menolak start dari background: tandai agar
                 // MainActivity menjalankan susulan saat dibuka berikutnya.
+                // commit() sinkron (bukan apply()): flag daya-tahan wajib awet
+                // di disk sebelum reboot/kill (lihat BootReceiver).
                 try {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                            .edit().putBoolean(KEY_START_TERTUNDA, true).apply();
+                            .edit().putBoolean(KEY_START_TERTUNDA, true).commit();
                 } catch (Exception ignored) {
                 }
             }
@@ -1419,7 +1421,7 @@ public class ServerService extends Service {
             setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
             writeCrashLog("restart 5x gagal");
-            TgBackup.sendMessage(this, "Server berhenti: gagal restart 5x.\n"
+            TgBackup.sendPenting(this, "Server berhenti: gagal restart 5x.\n"
                     + shorten(tail, 600));
             return;
         }
@@ -1579,7 +1581,7 @@ public class ServerService extends Service {
                 appendLog("[app] Restart berulang (" + n
                         + "x dalam 5 mnt) - auto-restart dimatikan.");
                 writeCrashLog("restart loop (" + n + "x/5mnt)");
-                TgBackup.sendMessage(this, "Server restart berulang (" + n
+                TgBackup.sendPenting(this, "Server restart berulang (" + n
                         + "x dalam 5 menit) - auto-restart dimatikan.\n"
                         + shorten(tail, 600));
                 return true;

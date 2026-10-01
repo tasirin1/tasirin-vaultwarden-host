@@ -549,10 +549,37 @@ public final class TgBackup {
         throw new java.io.IOException("Terlalu banyak redirect Telegram.");
     }
 
+    /** Jalur prioritas untuk pesan penting (restart berulang, crash, PIN terkunci,
+     *  restore gagal): eksekutor terpisah agar tak tertahan antrean pesan biasa
+     *  saat health-check/restart spam. */
+    private static final ExecutorService TG_PENTING_EXEC =
+            new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
+                    java.util.concurrent.TimeUnit.MILLISECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20), r -> {
+                Thread t = new Thread(r, "vw-tgmsg-penting");
+                t.setDaemon(true);
+                return t;
+            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
      *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
     public static void sendMessage(Context ctx, String text) {
         kirimPesan(ctx, text, null);
+    }
+
+    /** Varian penting: lewat antrean prioritas terpisah (lihat TG_PENTING_EXEC). */
+    public static void sendPenting(Context ctx, String text) {
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception e) {
+            return;
+        }
+        final String msg = text == null ? "" : text;
+        try {
+            TG_PENTING_EXEC.execute(() -> kirimSinkron(app, msg, null));
+        } catch (Exception ignored) {
+        }
     }
 
     /** Kirim pesan + keyboard inline (mis. tombol perintah di /help). */
@@ -561,54 +588,65 @@ public final class TgBackup {
     }
 
     private static void kirimPesan(Context ctx, String text, String markupJson) {
-        final Context app = ctx.getApplicationContext();
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception e) {
+            return;
+        }
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
-        TG_MSG_EXEC.execute(() -> {
-            try {
-                SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
-                        Context.MODE_PRIVATE);
-                String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
-                String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
-                if (token.isEmpty() || chat.isEmpty()) {
-                    return;
-                }
-                // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
-                        + "&text=" + URLEncoder.encode(msg, "UTF-8");
-                if (markup != null && !markup.isEmpty()) {
-                    param += "&reply_markup=" + URLEncoder.encode(markup, "UTF-8");
-                }
-                byte[] body = param.getBytes(StandardCharsets.UTF_8);
-                HttpURLConnection conn = null;
-                try {
-                    conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
-                            "application/x-www-form-urlencoded", 15000, 30000);
-                    try (OutputStream os = conn.getOutputStream()) {
-                        os.write(body);
-                    }
-                    tolakRedirectTelegram(conn);
-                    int code = conn.getResponseCode();
-                    InputStream mentah = (code >= 200 && code < 300)
-                            ? conn.getInputStream() : conn.getErrorStream();
-                    StringBuilder sb = new StringBuilder();
-                    if (mentah != null) {
-                        try (InputStream is = mentah) {
-                            sb.append(bacaResponsBatas(is));
-                        }
-                    }
-                    if (code != 200 || !sb.toString().contains("\"ok\":true")) {
-                        logTgFailure("kirim pesan", code, sb.toString());
-                    }
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
-                }
-            } catch (Exception e) {
-                logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
+        try {
+            TG_MSG_EXEC.execute(() -> kirimSinkron(app, msg, markup));
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */
+    private static void kirimSinkron(Context app, String msg, String markup) {
+        try {
+            SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
+            if (token.isEmpty() || chat.isEmpty()) {
+                return;
             }
-        });
+            // POST (bukan GET): token tidak bocor ke log URL/proxy.
+            String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
+                    + "&text=" + URLEncoder.encode(msg, "UTF-8");
+            if (markup != null && !markup.isEmpty()) {
+                param += "&reply_markup=" + URLEncoder.encode(markup, "UTF-8");
+            }
+            byte[] body = param.getBytes(StandardCharsets.UTF_8);
+            HttpURLConnection conn = null;
+            try {
+                conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
+                        "application/x-www-form-urlencoded", 15000, 30000);
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body);
+                }
+                tolakRedirectTelegram(conn);
+                int code = conn.getResponseCode();
+                InputStream mentah = (code >= 200 && code < 300)
+                        ? conn.getInputStream() : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        sb.append(bacaResponsBatas(is));
+                    }
+                }
+                if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                    logTgFailure("kirim pesan", code, sb.toString());
+                }
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        } catch (Exception e) {
+            logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
+        }
     }
 
     /** Paksa SQLite menulis isi WAL ke DB utama (best-effort; gagal = lanjut). */

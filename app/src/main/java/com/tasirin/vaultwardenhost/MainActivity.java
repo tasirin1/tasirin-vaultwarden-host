@@ -278,9 +278,13 @@ public class MainActivity extends Activity {
         // sebelum cek port agar tak gagal start secara misterius.
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
-            toast("Folder data tidak valid - dikembalikan ke bawaan di Settings.");
-            appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - Start dibatalkan.");
-            return;
+            toast("Folder data tidak valid - dikembalikan ke bawaan.");
+            appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
+            try {
+                sp.edit().putString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR).apply();
+            } catch (Exception ignored) {
+            }
+            dataDir = DEFAULT_DATA_DIR;
         }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDir, REQ_WRITE)) {

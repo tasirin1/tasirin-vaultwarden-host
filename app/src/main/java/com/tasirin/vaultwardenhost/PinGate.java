@@ -51,8 +51,10 @@ public final class PinGate {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
         if (cocok) {
+            // commit() sinkron seperti jalur gagal: reset counter wajib awet di
+            // disk sebelum kill, bila tidak user terkunci walau PIN benar.
             sp.edit().remove(KEY_GAGAL).remove(KEY_KUNCI_SAMPAI)
-                    .remove(KEY_KUNCI_ELAPSED).apply();
+                    .remove(KEY_KUNCI_ELAPSED).commit();
             return;
         }
         // commit() sinkron (bukan apply()): hitungan gagal wajib awet di disk

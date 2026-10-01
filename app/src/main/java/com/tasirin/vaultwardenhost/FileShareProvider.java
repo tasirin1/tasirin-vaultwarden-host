@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.os.ParcelFileDescriptor;
 
 import java.io.File;
@@ -23,6 +24,9 @@ public class FileShareProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
         try {
+            if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
+                return null;
+            }
             String path = uri.getPath();
             File f = path == null ? null : new File(path);
             if (f == null) {
@@ -37,7 +41,7 @@ public class FileShareProvider extends ContentProvider {
                 return null;
             }
             android.database.MatrixCursor c = new android.database.MatrixCursor(
-                    new String[]{"_display_name", "_size"});
+                    new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE});
             c.addRow(new Object[]{cf.getName(), cf.length()});
             return c;
         } catch (Exception e) {
