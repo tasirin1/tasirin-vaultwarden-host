@@ -451,7 +451,7 @@ public class MainActivity extends Activity {
             String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
             changed = !d.trim().equals(rd.trim())
                     || !p.trim().equals(rp.trim())
-                    || !a.trim().equals(ra.trim())
+                    || !ServerService.sidikTokenAdmin(a).equals(ra.trim())
                     || !wv.equals(rwv);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);

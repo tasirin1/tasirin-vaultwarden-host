@@ -155,6 +155,24 @@ public class FileShareProvider extends ContentProvider {
                 || rendah.endsWith(".enc");
     }
 
+    /** Nama file di files/cache app yang boleh dibagikan: hanya yang memang
+     *  dibagikan app (CA + export config). Daftar sempit agar file internal
+     *  lain tak ikut terekspos bila URI grant bocor. Murni agar bisa unit test. */
+    static boolean namaCacheBolehDibagikan(String name) {
+        if (name == null) {
+            return false;
+        }
+        String rendah = name.toLowerCase(java.util.Locale.US);
+        if (rendah.equals("ca.pem") || rendah.equals("cert.pem")) {
+            return true;
+        }
+        if (rendah.startsWith("ca-cadangan-") && rendah.endsWith(".pem")) {
+            return true;
+        }
+        return rendah.startsWith("app-config-")
+                && (rendah.endsWith(".json") || rendah.endsWith(".json.enc"));
+    }
+
     /** True bila nama file sementara restore/dekrip yang tak boleh dibagikan (murni). */
     static boolean berkasSementara(String nama) {
         if (nama == null) {
@@ -188,7 +206,7 @@ public class FileShareProvider extends ContentProvider {
                 if (kunciPrivat(nama)) {
                     return false;
                 }
-                return namaBolehDibagikan(nama);
+                return namaCacheBolehDibagikan(nama);
             }
             android.content.SharedPreferences sp = getContext().getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);

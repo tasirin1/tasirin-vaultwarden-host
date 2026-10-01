@@ -118,6 +118,65 @@ public class TgBackupTest {
         }
     }
 
+
+    @Test
+    public void magicBaru_dikenaliDanKompatibelLama() throws Exception {
+        java.io.File asli = java.io.File.createTempFile("vw-magic", ".bin");
+        java.io.File enc = java.io.File.createTempFile("vw-magic", ".enc");
+        java.io.File pulih = new java.io.File(enc.getParentFile(), "vw-pulih-" + System.nanoTime() + ".bin");
+        java.io.File lawas = new java.io.File(enc.getParentFile(), "vw-lawas-" + System.nanoTime() + ".enc");
+        java.io.File pulihLawas = new java.io.File(enc.getParentFile(), "vw-pulihlawas-" + System.nanoTime() + ".bin");
+        byte[] data = "uji magic enkripsi".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(asli)) {
+                o.write(data);
+            }
+            TgBackup.encryptFile(asli, enc, "katasandi");
+            assertEquals(TgBackup.ENC_MAGIC_V2, TgBackup.magicEnkripsi(enc));
+            assertTrue(TgBackup.isEncrypted(enc));
+            TgBackup.decryptFile(enc, pulih, "katasandi");
+            org.junit.Assert.assertArrayEquals(data, java.nio.file.Files.readAllBytes(pulih.toPath()));
+            byte[] semua = java.nio.file.Files.readAllBytes(enc.toPath());
+            byte[] v1 = "VWB1".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+            System.arraycopy(v1, 0, semua, 0, 4);
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(lawas)) {
+                o.write(semua);
+            }
+            assertEquals("VWB1", TgBackup.magicEnkripsi(lawas));
+            TgBackup.decryptFile(lawas, pulihLawas, "katasandi");
+            org.junit.Assert.assertArrayEquals(data, java.nio.file.Files.readAllBytes(pulihLawas.toPath()));
+        } finally {
+            asli.delete();
+            enc.delete();
+            pulih.delete();
+            lawas.delete();
+            pulihLawas.delete();
+        }
+    }
+
+    @Test
+    public void decryptFile_passwordSalahGagal() throws Exception {
+        java.io.File asli = java.io.File.createTempFile("vw-salah", ".bin");
+        java.io.File enc = java.io.File.createTempFile("vw-salah", ".enc");
+        java.io.File pulih = new java.io.File(enc.getParentFile(), "vw-salah-pulih-" + System.nanoTime() + ".bin");
+        try {
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(asli)) {
+                o.write("data penting".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            TgBackup.encryptFile(asli, enc, "benar123");
+            try {
+                TgBackup.decryptFile(enc, pulih, "salah456");
+                org.junit.Assert.fail("password salah wajib gagal");
+            } catch (Exception e) {
+            }
+            assertFalse(pulih.exists());
+        } finally {
+            asli.delete();
+            enc.delete();
+            pulih.delete();
+        }
+    }
+
     @Test
     public void humanBytes_skalaBenar() {
         assertEquals("0 B", TgBackup.humanBytes(0));

@@ -627,6 +627,15 @@ public class UpdaterTest {
         assertNull(Updater.readWvVersion(new java.io.File("/tmp/vw-tidak-ada-xyz.json")));
     }
 
+
+    @Test
+    public void normalisasiPinVersi_kupasBuildMetadata() {
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0+build5"));
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("v1.32.0+build.1"));
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
+        assertNull(Updater.normalisasiPinVersi("1.32+aneh!"));
+    }
+
     @Test
     public void normalisasiPinVersi_validDanInvalid() {
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));

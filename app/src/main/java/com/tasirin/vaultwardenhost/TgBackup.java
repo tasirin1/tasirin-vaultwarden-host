@@ -124,6 +124,9 @@ public final class TgBackup {
             });
 
     private static final String ENC_MAGIC = "VWB1";
+    /** Magic file baru (PBKDF2-HMAC-SHA256 saja): penanda KDF agar password salah
+     *  pada file baru langsung gagal tanpa 2x PBKDF2 (fallback SHA1 hanya untuk VWB1). */
+    static final String ENC_MAGIC_V2 = "VWB2";
 
     private static final String TG_API = "https://api.telegram.org/bot";
     private static final int KEEP_BACKUPS = 10;
@@ -1493,8 +1496,11 @@ public final class TgBackup {
                 }
                 off += n;
             }
-            return off == 4
-                    && ENC_MAGIC.equals(new String(magic, StandardCharsets.US_ASCII));
+            if (off != 4) {
+                return false;
+            }
+            String magicStr = new String(magic, StandardCharsets.US_ASCII);
+            return ENC_MAGIC.equals(magicStr) || ENC_MAGIC_V2.equals(magicStr);
         } catch (Exception e) {
             return false;
         }
@@ -1526,7 +1532,7 @@ public final class TgBackup {
                 new GCMParameterSpec(128, iv));
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
-            fos.write(ENC_MAGIC.getBytes(StandardCharsets.US_ASCII));
+            fos.write(ENC_MAGIC_V2.getBytes(StandardCharsets.US_ASCII));
             fos.write(salt);
             fos.write(iv);
             byte[] buf = new byte[64 * 1024];
@@ -1554,10 +1560,32 @@ public final class TgBackup {
         }
     }
 
+    /** Magic enkripsi file ("VWB1"/"VWB2"); null bila bukan file terenkripsi. Murni. */
+    static String magicEnkripsi(File f) {
+        try (FileInputStream fis = new FileInputStream(f)) {
+            byte[] magic = new byte[4];
+            readFully(fis, magic);
+            String m = new String(magic, StandardCharsets.US_ASCII);
+            if (ENC_MAGIC.equals(m) || ENC_MAGIC_V2.equals(m)) {
+                return m;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private static void decryptToFile(File in, File out, String pass) throws Exception {
+        // File baru (VWB2) selalu SHA256: password salah langsung gagal tanpa
+        // 2x PBKDF2 100k yang boros CPU/baterai STB. Fallback SHA1 hanya untuk
+        // file lama (VWB1) yang memang memakai PBKDF2-HMAC-SHA1.
+        boolean baru = ENC_MAGIC_V2.equals(magicEnkripsi(in));
         try {
             decryptWithKdf(in, out, pass, true);
         } catch (javax.crypto.BadPaddingException e) {
+            if (baru) {
+                throw e;
+            }
             // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
             // autentikasi (password salah/KDF beda); galat I/O (disk penuh/hilang)
             // langsung dilempar agar tak 2x PBKDF2 sia-sia dan sebab asli tak tertutup.
@@ -1581,7 +1609,8 @@ public final class TgBackup {
             } catch (IOException e) {
                 throw new IOException("File bukan backup terenkripsi");
             }
-            if (!ENC_MAGIC.equals(new String(magic, StandardCharsets.US_ASCII))) {
+            String magicStr = new String(magic, StandardCharsets.US_ASCII);
+            if (!ENC_MAGIC.equals(magicStr) && !ENC_MAGIC_V2.equals(magicStr)) {
                 throw new IOException("File bukan backup terenkripsi");
             }
             byte[] salt = new byte[16];

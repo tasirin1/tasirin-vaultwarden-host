@@ -891,7 +891,7 @@ public final class TgBot {
                         + " lepas kunci: /update terbaru. Lihat /versi.\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
                         + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset butuh PIN"
-                        + " (mis. /stop 123456 atau /stop PIN:123456).", keyboardPerintah());
+                        + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").", keyboardPerintah());
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
@@ -1003,7 +1003,7 @@ public final class TgBot {
         String pin = pisah[1];
         if (pin.isEmpty()) {
             TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
-                    + " (mis. /stop 123456 atau /stop PIN:123456).");
+                    + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").");
             return null;
         }
         boolean cocok = PinCrypto.verify(hash, pin);
@@ -1018,7 +1018,7 @@ public final class TgBot {
             return rest;
         }
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
-                + " (mis. /stop 123456 atau /stop PIN:123456).");
+                + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").");
         return null;
     }
 
@@ -1065,20 +1065,30 @@ public final class TgBot {
     }
 
     /** Pisahkan PIN dari argumen perintah (murni agar bisa unit test).
-     *  Format eksplisit "PIN:123456" diutamakan (tak ambigu bila argumen
-     *  berisi spasi, wajib untuk PIN alfanumerik); fallback kata terakhir
-     *  dipertahankan karena alur "/restore YA 123456" mengandalkannya
-     *  (kata "YA" adalah argumen). Kata pendek (<4) tak pernah dimakan agar
-     *  argumen seperti "YA" tak hilang dan lockout tak bertambah sia-sia.
-     *  Return {sisa, pin}. */
+     *  Format eksplisit "PIN:..." diutamakan: menelan sisa baris sebagai PIN
+     *  (wajib di akhir argumen) sehingga PIN ber-spasi tetap bisa dipakai;
+     *  kutip mengapit penuh dikupas. Wajib untuk PIN alfanumerik; fallback
+     *  kata terakhir dipertahankan karena alur "/restore YA 123456"
+     *  mengandalkannya (kata "YA" adalah argumen). Kata pendek (<4) tak pernah
+     *  dimakan agar argumen seperti "YA" tak hilang dan lockout tak bertambah
+     *  sia-sia. Return {sisa, pin}. */
     static String[] pisahkanPin(String arg) {
         String t = arg == null ? "" : arg.trim();
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(
-                "(?i)\\bPIN\\s*:\\s*(\\S+)").matcher(t);
+                "(?i)\\bPIN\\s*:\\s*(.+)").matcher(t);
         if (m.find()) {
-            String pin = m.group(1);
-            String sisa = (t.substring(0, m.start()) + " "
-                    + t.substring(m.end())).trim().replaceAll("\\s+", " ");
+            String mentah = m.group(1).trim();
+            // Bentuk eksplisit menelan sisa baris sebagai PIN agar PIN ber-spasi
+            // tetap bisa dipakai via bot. Tanda kutip mengapit penuh dikupas.
+            String pin = mentah;
+            if (mentah.length() >= 2 && ((mentah.startsWith("\"") && mentah.endsWith("\""))
+                    || (mentah.startsWith('\'') && mentah.endsWith('\'')))) {
+                pin = mentah.substring(1, mentah.length() - 1);
+            }
+            if (pin.isEmpty()) {
+                return new String[]{t, ""};
+            }
+            String sisa = t.substring(0, m.start()).trim().replaceAll("\\s+", " ");
             return new String[]{sisa, pin};
         }
         int i = t.lastIndexOf(' ');

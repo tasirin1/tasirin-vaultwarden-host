@@ -65,10 +65,13 @@ public final class Updater {
             t = t.substring(1);
         }
         if (t.isEmpty()
-                || !t.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?(-[A-Za-z0-9.]+)?")) {
+                || !t.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?(-[A-Za-z0-9.]+)?(\\+[A-Za-z0-9.-]+)?")) {
             return null;
         }
-        return t;
+        // Metadata build semver (+build) bukan bagian rilis: kupas agar
+        // kuncian versi tetap cocok dengan tag asset tanpa fallback ke latest.
+        int plus = t.indexOf("+");
+        return plus < 0 ? t : t.substring(0, plus);
     }
 
     /** Kuncian binary user (null = ikuti terbaru). */

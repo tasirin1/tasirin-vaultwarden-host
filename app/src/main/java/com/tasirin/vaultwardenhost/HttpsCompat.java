@@ -46,6 +46,11 @@ public final class HttpsCompat {
         }
     }
 
+    /** Kunci stat murah (mtime+ukuran): cap penuh dihitung ulang hanya bila stat
+     *  berubah, agar tiap koneksi HTTPS (polling bot) tak membaca seluruh file. */
+    private static volatile long capStat = Long.MIN_VALUE;
+    private static volatile long capNilai = 0L;
+
     /** Cap file override anchor (0 bila tak ada): kunci invalidasi cache.
      *  Memakai mtime+ukuran+hash isi seperti ServerService.capCaAktif agar
      *  refresh se-detik berukuran sama tak memakai factory basi. */
@@ -53,9 +58,13 @@ public final class HttpsCompat {
         try {
             File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
             if (ov.isFile()) {
+                long stat = ov.lastModified() * 31 + ov.length();
+                if (stat == capStat) {
+                    return capNilai;
+                }
                 // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
                 // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos.
-                long cap = ov.lastModified() * 31 + ov.length();
+                long cap = stat;
                 try (InputStream in = new java.io.FileInputStream(ov)) {
                     byte[] buf = new byte[8192];
                     int n;
@@ -65,6 +74,8 @@ public final class HttpsCompat {
                     }
                 } catch (Exception ignored) {
                 }
+                capStat = stat;
+                capNilai = cap;
                 return cap;
             }
         } catch (Exception ignored) {

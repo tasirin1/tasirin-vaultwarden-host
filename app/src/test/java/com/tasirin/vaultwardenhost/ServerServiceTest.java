@@ -9,6 +9,38 @@ import org.junit.Test;
 
 /** Unit test deteksi binary tak cocok kernel lama (tanpa Android runtime). */
 public class ServerServiceTest {
+
+    @Test
+    public void migrasiPort_toleranSpasi() {
+        assertTrue(ServerService.perluMigrasiPort(" 8080 ", false));
+        assertFalse(ServerService.perluMigrasiPort(" 8088 ", false));
+    }
+
+    @Test
+    public void sidikTokenAdmin_konsistenTanpaPlaintext() {
+        String a = ServerService.sidikTokenAdmin("rahasia123");
+        assertEquals(a, ServerService.sidikTokenAdmin("  rahasia123  "));
+        assertFalse(a.isEmpty());
+        assertFalse(a.contains("rahasia123"));
+        assertFalse(a.equals(ServerService.sidikTokenAdmin("lain456")));
+        assertEquals("", ServerService.sidikTokenAdmin(""));
+        assertEquals("", ServerService.sidikTokenAdmin(null));
+    }
+
+    @Test
+    public void potongPesanGalat_takBelahSurrogate() {
+        assertEquals("abc", ServerService.potongPesanGalat("abcdef", 3));
+        assertEquals("", ServerService.potongPesanGalat(null, 80));
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < 79; i++) {
+            b.append('x');
+        }
+        b.append(Character.toChars(0x1F600)).append("ekor");
+        String r = ServerService.potongPesanGalat(b.toString(), 80);
+        assertEquals(79, r.length());
+        assertFalse(Character.isHighSurrogate(r.charAt(r.length() - 1)));
+    }
+
     @Test
     public void migrasiPort_hanyaSekaliUntuk8080() {
         assertTrue(ServerService.perluMigrasiPort("8080", false));

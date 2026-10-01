@@ -56,4 +56,18 @@ public class FileShareProviderTest {
         assertFalse(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("w"));
         assertFalse(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("rw"));
     }
+
+    @Test
+    public void cacheHanyaBerbagiApp() {
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("ca.pem"));
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("cert.pem"));
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("ca-cadangan-20240101-ab12.pem"));
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("app-config-20240101-ab12.json"));
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("app-config-20240101-ab12.json.enc"));
+        assertFalse(FileShareProvider.namaCacheBolehDibagikan("monkey.zip"));
+        assertFalse(FileShareProvider.namaCacheBolehDibagikan("backup.zip"));
+        assertFalse(FileShareProvider.namaCacheBolehDibagikan("key.pem"));
+        assertFalse(FileShareProvider.namaCacheBolehDibagikan("vwtg-restore.zip"));
+        assertFalse(FileShareProvider.namaCacheBolehDibagikan(null));
+    }
 }

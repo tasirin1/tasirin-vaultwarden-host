@@ -27,6 +27,7 @@ import java.net.ServerSocket;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,6 +114,38 @@ public class ServerService extends Service {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
     }
 
+    /** Sidik SHA-256 hex dari token admin ("" bila kosong/gagal; murni).
+     *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext. */
+    static String sidikTokenAdmin(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] h = md.digest(token.trim().getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(h.length * 2);
+            for (byte b : h) {
+                sb.append(String.format(Locale.US, "%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Potong pesan galat di batas code-point (murni). Belah pasangan surrogate
+     *  menghasilkan lone surrogate (tofu di layar / 400 Telegram). */
+    static String potongPesanGalat(String msg, int maks) {
+        if (msg == null || msg.length() <= maks || maks <= 0) {
+            return msg == null ? "" : msg;
+        }
+        String potong = msg.substring(0, maks);
+        if (Character.isHighSurrogate(potong.charAt(potong.length() - 1))) {
+            potong = potong.substring(0, potong.length() - 1);
+        }
+        return potong;
+    }
+
     /** Kuncian versi binary user ("" = ikuti terbaru). Murni prefs. */
     static String pinBinaryTersimpan(SharedPreferences sp) {
         try {
@@ -159,6 +192,9 @@ public class ServerService extends Service {
     public static volatile String runningDataDir = "";
     public static volatile String runningPort = "";
     public static volatile boolean runningHttps = false;
+    /** Sidik SHA-256 token admin saat server start (untuk hint restart).
+     *  Sengaja bukan plaintext agar rahasia tak mengendap di heap statis;
+     *  bandingkan via sidikTokenAdmin(). */
     public static volatile String runningAdminToken = "";
     /** Penanda versi web-vault saat server start (untuk hint restart di MainActivity). */
     public static volatile String runningWvFrom = "";
@@ -503,9 +539,7 @@ public class ServerService extends Service {
         } catch (Exception e) {
             String m = e.getClass().getSimpleName();
             String msg = e.getMessage();
-            if (msg != null && !msg.isEmpty() && msg.length() > 80) {
-                msg = msg.substring(0, 80);
-            }
+            msg = potongPesanGalat(msg == null ? "" : msg, 80);
             aliveErrTerakhir = msg == null || msg.isEmpty() ? m : m + ": " + msg;
             return -1;
         } finally {
@@ -868,7 +902,7 @@ public class ServerService extends Service {
 
     /** True bila migrasi 8080 -> default perlu jalan (murni, mudah diuji). */
     static boolean perluMigrasiPort(String tersimpan, boolean sudahMigrasi) {
-        return !sudahMigrasi && "8080".equals(tersimpan);
+        return !sudahMigrasi && "8080".equals(tersimpan == null ? null : tersimpan.trim());
     }
 
     /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start).
@@ -1101,7 +1135,7 @@ public class ServerService extends Service {
             runningDataDir = dataDir;
             runningPort = port;
             runningHttps = https;
-            runningAdminToken = adminToken == null ? "" : adminToken.trim();
+            runningAdminToken = sidikTokenAdmin(adminToken);
             String wvFrom = Updater.webVaultFromVersion(this);
             runningWvFrom = wvFrom == null ? "" : wvFrom;
             runningLanHost = lanHost();
@@ -1832,6 +1866,12 @@ public class ServerService extends Service {
         return f;
     }
 
+    /** Kunci stat murah (mtime+ukuran) untuk capCaAktif: bila stat tak berubah,
+     *  cap penuh dipakai ulang tanpa baca+hash seluruh isi di tiap health-check. */
+
+    private static volatile long capCaStat = Long.MIN_VALUE;
+    private static volatile long capCaNilai = 0L;
+
     /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
     private static long capCaAktif(Context ctx) {
         try {
@@ -1852,12 +1892,16 @@ public class ServerService extends Service {
                 }
             }
             if (ca != null && ca.isFile()) {
+                long stat = ca.lastModified() * 31 + ca.length();
+                if (stat == capCaStat) {
+                    return capCaNilai;
+                }
                 // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
                 // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos
                 // (sama seperti HttpsCompat.capOverride; mtime FAT 2 detik saja
                 // tak cukup membedakan CA hasil regenerasi cepat — factory basi
                 // bikin health HTTPS gagal + restart beruntun).
-                long h = ca.lastModified() * 31 + ca.length();
+                long h = stat;
                 try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
                     byte[] buf = new byte[8192];
                     int n;
@@ -1867,6 +1911,8 @@ public class ServerService extends Service {
                     }
                 } catch (Exception ignored) {
                 }
+                capCaStat = stat;
+                capCaNilai = h;
                 return h;
             }
         } catch (Exception ignored) {
@@ -2832,7 +2878,9 @@ public class ServerService extends Service {
 
     /** True bila port sedang dipakai proses lain (listening).
      *  Cek IPv4 dan IPv6: pendengar IPv6-only lolos cek IPv4 lalu membuat
-     *  Rocket gagal bind (crash-loop) bila hanya satu sisi diperiksa. */
+     *  Rocket gagal bind (crash-loop) bila hanya satu sisi diperiksa.
+     *  Saran pra-start saja (TOCTOU bind-lalu-lepas): penentu sah adalah
+     *  gagal bind Rocket saat exec + mitigasi portDirebut di watchProcess. */
     public static boolean isPortBusy(int port) {
         if (port < 1 || port > 65535) {
             return true;

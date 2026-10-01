@@ -777,7 +777,7 @@ public class SettingsActivity extends Activity {
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
             boolean bedaData = !d.trim().equals(rd.trim());
             boolean bedaPort = !p.trim().equals(rp.trim());
-            boolean bedaAdmin = !a.trim().equals(ra.trim());
+            boolean bedaAdmin = !ServerService.sidikTokenAdmin(a).equals(ra == null ? "" : ra.trim());
             changed = bedaData || bedaPort || bedaAdmin;
             tandaiLabel(labelDataDir, R.string.folder_data, bedaData);
             tandaiLabel(labelPort, R.string.port, bedaPort);

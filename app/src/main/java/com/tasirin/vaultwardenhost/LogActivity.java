@@ -333,7 +333,13 @@ public class LogActivity extends Activity {
      *  (butuh tanda kutip) maupun POLA_CHAT_ID (butuh kata chat_id) sehingga
      *  disamarkan di sini. */
     private static final java.util.regex.Pattern POLA_KREDENSIAL_NILAI =
-            java.util.regex.Pattern.compile("(?i)((?:tg_token|tg_chat|tg_pass|pin_hash|admin_token)\\s*[:=]\\s*)([^\\s&,;\"']+)");
+            java.util.regex.Pattern.compile("(?i)((?:tg_token|tg_chat|pin_hash|admin_token)\\s*[:=]\\s*)([^\\s&,;\"']+)");
+    /** Kata sandi backup boleh ber-spasi sehingga nilainya disamarkan sampai
+     *  akhir baris (bukan sampai spasi pertama) agar sisa frasa tak bocor.
+     *  Kredensial lain valid tanpa spasi sehingga pola kata-tunggal di atas
+     *  cukup dan tak menelan kata log sesudahnya. */
+    private static final java.util.regex.Pattern POLA_SANDI_SPASI =
+            java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&;\"']+)");
 
     static String samarkanLog(String log) {
         if (log == null) {
@@ -356,6 +362,7 @@ public class LogActivity extends Activity {
         r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
         r = POLA_ADMIN_ENV.matcher(r).replaceAll("$1***");
         r = POLA_BEARER.matcher(r).replaceAll("$1***");
+        r = POLA_SANDI_SPASI.matcher(r).replaceAll("$1***");
         r = POLA_KREDENSIAL_NILAI.matcher(r).replaceAll("$1***");
         return r;
     }

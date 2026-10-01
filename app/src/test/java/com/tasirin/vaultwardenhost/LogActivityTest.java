@@ -51,6 +51,15 @@ public class LogActivityTest {
         assertFalse(c.contains("987654"));
     }
 
+
+    @Test
+    public void sandiSpasiDisamarkanPenuh() {
+        String r = LogActivity.samarkanLog("cadangan tg_pass=kunci saya 9 selesai");
+        assertFalse(r.contains("kunci saya 9"));
+        assertFalse(r.contains("saya 9 selesai"));
+        assertTrue(r.contains("tg_pass=***"));
+    }
+
     @Test
     public void jamBiasaTakIkutDisamarkan() {
         String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");

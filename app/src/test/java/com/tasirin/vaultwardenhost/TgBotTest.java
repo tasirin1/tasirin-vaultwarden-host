@@ -189,6 +189,20 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"YA", "123456"}, TgBot.pisahkanPin("YA 123456"));
     }
 
+
+    @Test
+    public void pisahkanPinSpasiDidukungEksplisit() {
+        assertArrayEquals(new String[]{"", "kunci saya 9"},
+                TgBot.pisahkanPin("PIN:kunci saya 9"));
+        assertArrayEquals(new String[]{"YA", "kunci saya 9"},
+                TgBot.pisahkanPin("YA PIN:kunci saya 9"));
+        assertArrayEquals(new String[]{"", "kunci saya"},
+                TgBot.pisahkanPin("PIN:\"kunci saya\""));
+        assertArrayEquals(new String[]{"1.32.0", "kunci saya"},
+                TgBot.pisahkanPin("1.32.0 PIN:'kunci saya'"));
+        assertArrayEquals(new String[]{"PIN:", ""}, TgBot.pisahkanPin("PIN:"));
+    }
+
     @Test
     public void perintahBerbahayaTombol_caresetButuhPin() {
         assertTrue(TgBot.perintahBerbahayaTombol("/careset"));
