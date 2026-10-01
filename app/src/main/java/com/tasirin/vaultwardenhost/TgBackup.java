@@ -258,7 +258,7 @@ public final class TgBackup {
     public static String backupTungguDb(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
                 ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
@@ -376,15 +376,15 @@ public final class TgBackup {
 
     private static String backupNowIsi(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
-        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
+        String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
         if (!jamStbWajar(System.currentTimeMillis())) {
             throw new IOException(pesanJamStbSalah(System.currentTimeMillis()));
         }
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }
@@ -425,7 +425,7 @@ public final class TgBackup {
         }
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
-        String passAwal = sp.getString(KEY_TG_PASS, "");
+        String passAwal = amanString(sp, KEY_TG_PASS, "");
         boolean terenkripsi = passAwal != null && !passAwal.trim().isEmpty();
         // Tanpa password, backup melenggang plaintext ke cloud Telegram:
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
@@ -452,7 +452,7 @@ public final class TgBackup {
             }
         }
         File upload = zip;
-        String pass = sp.getString(KEY_TG_PASS, "");
+        String pass = amanString(sp, KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {
             File enc = new File(zip.getParentFile(), zip.getName() + ".enc");
             encryptFile(zip, enc, pass.trim());
@@ -558,8 +558,8 @@ public final class TgBackup {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
-                String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
+                String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+                String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
                 if (token.isEmpty() || chat.isEmpty()) {
                     return;
                 }
@@ -685,7 +685,7 @@ public final class TgBackup {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+            String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
                     ServerService.DEFAULT_DATA_DIR);
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.DEFAULT_DATA_DIR;
@@ -695,7 +695,7 @@ public final class TgBackup {
                 return;
             }
             boolean low = free < LOW_STORAGE_BYTES;
-            boolean notified = sp.getBoolean(KEY_TG_LOW_STORAGE, false);
+            boolean notified = amanBoolean(sp, KEY_TG_LOW_STORAGE, false);
             if (low && !notified) {
                 sp.edit().putBoolean(KEY_TG_LOW_STORAGE, true).apply();
                 sendMessage(ctx, "Peringatan storage: sisa " + humanBytes(free)
@@ -1048,12 +1048,12 @@ public final class TgBackup {
     public static String kirimCa(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
-        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
+        String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
                 ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
@@ -1100,7 +1100,7 @@ public final class TgBackup {
     public static String backupCaKeStorage(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
                 ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
@@ -1128,7 +1128,7 @@ public final class TgBackup {
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
                 ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
@@ -1296,9 +1296,9 @@ public final class TgBackup {
     /** Unduh backup terakhir yang pernah dikirim dari app ini. */
     public static String downloadLastBackup(Context ctx, File dest) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
-        String fileId = sp.getString(KEY_TG_LAST_FILE, "");
-        String name = sp.getString(KEY_TG_LAST_NAME, "backup.zip");
+        String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+        String fileId = amanString(sp, KEY_TG_LAST_FILE, "");
+        String name = amanString(sp, KEY_TG_LAST_NAME, "backup.zip");
         if (token.isEmpty() || fileId.isEmpty()) {
             throw new IOException("Belum ada backup terkirim dari app ini.");
         }
@@ -1918,6 +1918,9 @@ public final class TgBackup {
     /** Baca String tahan ClassCastException: kembalikan default dan sembuhkan
      *  (koersi ke String) agar tak lempar berulang. */
     static String amanString(SharedPreferences sp, String kunci, String bawaan) {
+        if (sp == null) {
+            return bawaan;
+        }
         try {
             String v = sp.getString(kunci, bawaan);
             return v == null ? bawaan : v;
@@ -1945,6 +1948,9 @@ public final class TgBackup {
     /** Baca boolean tahan ClassCastException: kembalikan default dan sembuhkan
      *  (koersi "true"/1) atau hapus bila tak jelas. */
     static boolean amanBoolean(SharedPreferences sp, String kunci, boolean bawaan) {
+        if (sp == null) {
+            return bawaan;
+        }
         try {
             return sp.getBoolean(kunci, bawaan);
         } catch (ClassCastException e) {
@@ -1968,6 +1974,9 @@ public final class TgBackup {
     /** Baca int tahan ClassCastException (prefs korup bertipe String): kembalikan
      *  default dan hapus kunci rusak agar tak lempar berulang. */
     static int amanInt(SharedPreferences sp, String kunci, int bawaan) {
+        if (sp == null) {
+            return bawaan;
+        }
         try {
             return sp.getInt(kunci, bawaan);
         } catch (ClassCastException e) {
@@ -1992,6 +2001,9 @@ public final class TgBackup {
     /** Baca long tahan ClassCastException (prefs korup bertipe String): kembalikan
      *  default dan sembuhkan/hapus kunci rusak agar tak lempar berulang. */
     static long amanLong(SharedPreferences sp, String kunci, long bawaan) {
+        if (sp == null) {
+            return bawaan;
+        }
         try {
             return sp.getLong(kunci, bawaan);
         } catch (ClassCastException e) {

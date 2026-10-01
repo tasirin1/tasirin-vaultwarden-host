@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: prefs tahan korup, PIN fallback, CA regen dini
+- Semua bacaan prefs (`TgBackup`, `TgBot`, `Updater`, `ServerService`) lewat `amanString/amanBoolean/amanInt/amanLong`; `aman*` kini null-safe agar `ClassCastException` tak crash service/bot.
+- `pisahkanPin` fallback multi-kata wajib berdigit: `YA webvault` tak lagi dimakan sebagai PIN (selaras cabang kata-tunggal), `YA ab12`/`YA 123456` tetap PIN.
+- `TlsCert.caOk` regen dini 30 hari seperti leaf agar CA tak kedaluwarsa mendadak.
+- Web-vault versi tak dikenal + cek terbaru gagal kini hemat kuota (tak unduh 35 MB membabi-buta).
+- Dialog All files access dibatasi 5 menit sekali agar tak muncul tiap buka app.
+- Unit test: `pisahkanPin` multi-kata huruf vs berdigit.
 ## [Belum rilis] — Perbaikan audit: nama file unik, shim, CHANGELOG
 - `TgBackup.stempelUnik()` (timestamp + 4 hex acak): nama `db-backup`, `app-config`, dan salinan CA tak saling timpa bila dibuat dalam milidetik yang sama.
 - Pembersih export plaintext lama kini jalan di kedua cabang (terenkripsi/plaintext).

@@ -1236,7 +1236,7 @@ public final class Updater {
     /** Versi vaultwarden pemilik web-vault yang terpasang (penanda), atau null. */
     public static String webVaultFromVersion(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String v = sp.getString(KEY_WV_FROM, "");
+        String v = TgBackup.amanString(sp, KEY_WV_FROM, "");
         return (v == null || v.isEmpty()) ? null : v;
     }
 
@@ -1277,7 +1277,7 @@ public final class Updater {
 
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }
@@ -1295,7 +1295,7 @@ public final class Updater {
         // Sudah terpasang versi yang sama? Jangan unduh ulang 35 MB.
         boolean wvExists = new File(targetDir, "vw-version.json").exists()
                 || new File(targetDir, "index.html").exists();
-        String installed = sp.getString(KEY_WV_FROM, "");
+        String installed = TgBackup.amanString(sp, KEY_WV_FROM, "");
         if (wvExists && latest != null) {
             // Penanda lama (sebelum fitur ini): pakai versi server yang terdeteksi.
             String known = !installed.isEmpty() ? installed
@@ -1310,6 +1310,11 @@ public final class Updater {
         if (wvExists && latest == null && !installed.isEmpty()) {
             return "Web vault v" + installed
                     + " terpasang; cek versi terbaru gagal (koneksi/rate-limit). Coba lagi nanti.";
+        }
+        if (wvExists && latest == null && installed.isEmpty()) {
+            return "Web vault terpasang (versi tak dikenal);"
+                    + " cek versi terbaru gagal (koneksi/rate-limit)."
+                    + " Coba lagi nanti agar hemat kuota.";
         }
         // Fallback baru dipasang (asset versi ini belum terbit di CI):
         // jangan unduh ulang 35 MB tiap cek; versi terpasang tetap dipakai.
@@ -1535,7 +1540,7 @@ public final class Updater {
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         if (updated != null && !updated.isEmpty()) {
             return updated;
         }

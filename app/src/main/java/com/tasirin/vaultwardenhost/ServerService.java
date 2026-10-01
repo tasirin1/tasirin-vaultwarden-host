@@ -117,7 +117,7 @@ public class ServerService extends Service {
     static String pinBinaryTersimpan(SharedPreferences sp) {
         try {
             String pin = Updater.normalisasiPinVersi(
-                    sp == null ? null : sp.getString(KEY_BIN_PILIH, ""));
+                    sp == null ? null : TgBackup.amanString(sp, KEY_BIN_PILIH, ""));
             return pin == null ? "" : pin;
         } catch (Exception e) {
             return "";
@@ -809,7 +809,7 @@ public class ServerService extends Service {
         // ClassCastException tiap detik UI/health (jatuh ke default).
         String p = null;
         try {
-            p = sp == null ? null : sp.getString(KEY_PORT, DEFAULT_PORT);
+            p = sp == null ? null : TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
         } catch (Exception ignored) {
         }
         return normalisasiPort(p);
@@ -841,8 +841,8 @@ public class ServerService extends Service {
      *  Flag mencegah port 8080 yang disengaja user ikut tergusur di start berikutnya. */
     public static void migrasiPortSekali(SharedPreferences sp) {
         try {
-            if (perluMigrasiPort(sp.getString(KEY_PORT, DEFAULT_PORT),
-                    sp.getBoolean(KEY_PORT_MIGRATED, false))) {
+            if (perluMigrasiPort(TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT),
+                    TgBackup.amanBoolean(sp, KEY_PORT_MIGRATED, false))) {
                 sp.edit().putString(KEY_PORT, DEFAULT_PORT).apply();
             }
             sp.edit().putBoolean(KEY_PORT_MIGRATED, true).apply();
@@ -1757,7 +1757,7 @@ public class ServerService extends Service {
             if ((ca == null || !ca.isFile()) && ctx != null) {
                 try {
                     android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                    String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                    String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
                     if (dataDir == null || dataDir.trim().isEmpty()) {
                         dataDir = DEFAULT_DATA_DIR;
                     }
@@ -1797,7 +1797,7 @@ public class ServerService extends Service {
             java.io.File ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
             if (!ca.isFile()) {
                 android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
                 if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
                 ca = new java.io.File(dataDir, "tls/ca.pem");
             }
@@ -1950,20 +1950,20 @@ public class ServerService extends Service {
         File out = new File(binDir, "vaultwarden-" + ABI);
         File verFile = new File(binDir, "version.txt");
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = DEFAULT_DATA_DIR;
         }
 
         // Revisi patch binary: bila CI memperbaiki binary tanpa ganti versi Vaultwarden
         // (mis. patch TLS favicon), cache lama wajib diunduh ulang sekali.
-        boolean butuhRefresh = perluRefreshPatch(sp.getString(KEY_BIN_PATCH, ""));
+        boolean butuhRefresh = perluRefreshPatch(TgBackup.amanString(sp, KEY_BIN_PATCH, ""));
 
         // 1) Binary update terbaru hasil tombol Perbarui (KEY_UPDATE_VERSION).
         //    Didahulukan agar Start tidak memakai binary lama selamanya.
         //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
         if (!butuhRefresh && isValidBinary(out)) {
-            String updated = sp.getString(KEY_UPDATE_VERSION, "");
+            String updated = TgBackup.amanString(sp, KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
                 try {
                     if (detectBinaryVersion(out)) {
@@ -2002,7 +2002,7 @@ public class ServerService extends Service {
         }
         File userBin = new File(dataDir, "vaultwarden-" + ABI);
         if (dataKanonisOk && isValidBinary(userBin)) {
-            String wantSha = sp.getString(KEY_BIN_SHA, "");
+            String wantSha = TgBackup.amanString(sp, KEY_BIN_SHA, "");
             if (wantSha != null && !wantSha.trim().isEmpty()) {
                 String gotSha = Updater.sha256Hex(userBin);
                 if (gotSha == null || !gotSha.equalsIgnoreCase(wantSha.trim())) {

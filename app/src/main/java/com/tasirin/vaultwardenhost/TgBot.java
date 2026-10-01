@@ -241,8 +241,8 @@ public final class TgBot {
         }
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-            String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-            String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
+            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
@@ -536,7 +536,7 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
             if (token.isEmpty()) {
                 return;
             }
@@ -568,7 +568,7 @@ public final class TgBot {
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+                String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
                 if (token.isEmpty()) {
                     return;
                 }
@@ -1084,13 +1084,15 @@ public final class TgBot {
         }
         String kandidat = t.substring(i + 1);
         // Fallback legasi "/restore YA 123456": kata terakhir min 4 char
-        // alfanumerik dianggap PIN; kata pendek/biasa tak dimakan sebagai PIN.
+        // alfanumerik berdigit dianggap PIN; kata huruf tanpa digit seperti
+        // "webvault" adalah argumen (selaras cabang kata-tunggal di atas) agar
+        // tak menambah lockout sia-sia. PIN alnum tanpa digit wajib "PIN:".
         // Kata kunci versi ("terbaru"/"latest") bukan PIN agar /update terbaru
         // + PIN tetap membawa versi ("terbaru 123456" -> sisa "terbaru").
         if (kandidat.equalsIgnoreCase("terbaru") || kandidat.equalsIgnoreCase("latest")) {
             return new String[]{t, ""};
         }
-        if (kandidat.matches("[A-Za-z0-9]{4,}")) {
+        if (kandidat.matches("[A-Za-z0-9]{4,}") && kandidat.matches(".*[0-9].*")) {
             return new String[]{t.substring(0, i).trim(), kandidat};
         }
         return new String[]{t, ""};

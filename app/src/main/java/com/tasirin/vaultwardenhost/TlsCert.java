@@ -142,7 +142,8 @@ public final class TlsCert {
         }
     }
 
-    /** True bila CA bisa dipakai: file ada, versi cocok, belum kedaluwarsa.
+    /** True bila CA bisa dipakai: file ada, versi cocok, sisa > 30 hari.
+     *  Regen dini seperti leaf agar CA tak kedaluwarsa mendadak di tengah jalan.
      *  Jam STB miring (sisa -2 = belum valid) ikut dipakai agar tak regenerasi
      *  tiap Start yang memaksa install ulang ca.pem di semua HP. */
     static boolean caOk(File caCert, File caKey, File dir) {
@@ -152,7 +153,7 @@ public final class TlsCert {
             return false;
         }
         long sisa = sisaMs(caCert);
-        return sisa > 0 || sisa == -2;
+        return sisa > BATAS_REGEN_MS || sisa == -2;
     }
 
     /** True bila leaf boleh dipakai ulang: sisa > 30 hari, atau belum valid

@@ -98,6 +98,9 @@ public final class StoragePerm {
         return false;
     }
 
+    /** Terakhir dialog kelola ditampilkan (elapsed, anti-spam tiap buka app). */
+    private static volatile long dialogKelolaTerakhirElapsed = 0;
+
     /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -107,7 +110,11 @@ public final class StoragePerm {
             } catch (Exception ignored) {
             }
             if (!kelola) {
-                tampilDialogKelola(act);
+                long kini = android.os.SystemClock.elapsedRealtime();
+                if (kini - dialogKelolaTerakhirElapsed > 5 * 60 * 1000) {
+                    dialogKelolaTerakhirElapsed = kini;
+                    tampilDialogKelola(act);
+                }
                 return true;
             }
         }

@@ -161,6 +161,10 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
         assertArrayEquals(new String[]{"foo", ""}, TgBot.pisahkanPin("foo"));
         assertArrayEquals(new String[]{"YA", ""}, TgBot.pisahkanPin("YA"));
+        assertArrayEquals(new String[]{"YA webvault", ""}, TgBot.pisahkanPin("YA webvault"));
+        assertArrayEquals(new String[]{"YA backup", ""}, TgBot.pisahkanPin("YA backup"));
+        assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
+        assertArrayEquals(new String[]{"YA", "123456"}, TgBot.pisahkanPin("YA 123456"));
     }
 
     @Test
