@@ -74,9 +74,10 @@ public final class Updater {
     /** Kuncian binary user (null = ikuti terbaru). */
     static String kuncianBinary(Context ctx) {
         try {
-            return normalisasiPinVersi(ctx.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE)
-                    .getString(ServerService.KEY_BIN_PILIH, ""));
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            return normalisasiPinVersi(TgBackup.amanString(sp,
+                    ServerService.KEY_BIN_PILIH, ""));
         } catch (Exception e) {
             return null;
         }
@@ -85,9 +86,10 @@ public final class Updater {
     /** Kuncian web-vault user (null = ikuti terbaru). */
     static String kuncianWebVault(Context ctx) {
         try {
-            return normalisasiPinVersi(ctx.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE)
-                    .getString(ServerService.KEY_WV_PILIH, ""));
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            return normalisasiPinVersi(TgBackup.amanString(sp,
+                    ServerService.KEY_WV_PILIH, ""));
         } catch (Exception e) {
             return null;
         }

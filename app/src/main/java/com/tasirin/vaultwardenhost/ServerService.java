@@ -189,7 +189,10 @@ public class ServerService extends Service {
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
     private boolean autoRestart = false;
-    private int restartAttempt = 0;
+    /** Hitungan restart beruntun: AtomicInteger karena scheduleRestart
+     *  dipanggil dari thread watch proses dan thread health/main bersamaan. */
+    private final java.util.concurrent.atomic.AtomicInteger restartAttempt =
+            new java.util.concurrent.atomic.AtomicInteger(0);
     private static volatile long lastStartTime = 0;
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
@@ -1104,7 +1107,7 @@ public class ServerService extends Service {
             healthFails.set(0);
             lastStartTime = System.currentTimeMillis();
             lastStartElapsed = SystemClock.elapsedRealtime();
-            restartAttempt = 0;
+            restartAttempt.set(0);
 
             // Siram buffer milik folder lama dulu agar log tak tecampur ke file baru.
             flushLogFile();
@@ -1283,12 +1286,12 @@ public class ServerService extends Service {
         }
     };
 
-    private void scheduleRestart() {
+    private synchronized void scheduleRestart() {
         long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
-            restartAttempt = 0;
+            restartAttempt.set(0);
         }
-        if (restartAttempt >= RESTART_DELAYS.length) {
+        if (restartAttempt.get() >= RESTART_DELAYS.length) {
             autoRestart = false;
             String tail = tailLog(18);
             setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
@@ -1298,8 +1301,9 @@ public class ServerService extends Service {
                     + shorten(tail, 600));
             return;
         }
-        long delay = RESTART_DELAYS[restartAttempt++];
-        setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + restartAttempt + ")");
+        int coba = restartAttempt.getAndIncrement();
+        long delay = RESTART_DELAYS[coba];
+        setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + (coba + 1) + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
         mainHandler.removeCallbacks(restartTunda);
         mainHandler.postDelayed(restartTunda, delay);

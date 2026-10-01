@@ -128,7 +128,7 @@ public class LogActivity extends Activity {
         try {
             android.content.SharedPreferences sp =
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            if (sp.getBoolean(PinGate.KEY_PIN_ON, false)
+            if (TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
                     && !MainActivity.pinBaruSajaDibuka()
                     && !SettingsActivity.pinBaruSajaDibuka()) {
                 finish();
