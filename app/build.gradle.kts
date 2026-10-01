@@ -1,17 +1,17 @@
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 plugins {
     id("com.android.application")
 }
 
-// Versi aplikasi mengikuti tanggal build (UTC, konsisten dengan CI).
-// versionName "yyyy.MM.dd", versionCode "yyyyMMdd" — jangan ubah manual.
-// Dua build di hari yang sama berbagi versionCode: disengaja (rilis GitHub
-// menimpa asset, bukan Play Store yang butuh versionCode selalu naik).
-val now = LocalDate.now(ZoneOffset.UTC)
+// Versi aplikasi mengikuti tanggal+jam build (UTC, konsisten dengan CI).
+// versionName "yyyy.MM.dd", versionCode "yyyyMMddHH" (jam 2 digit) — jangan ubah manual.
+// Jam ditambahkan agar dua build sehari beda versionCode: PackageManager
+// mengabaikan sideload dengan versionCode sama (dianggap versi sama).
+val now = LocalDateTime.now(ZoneOffset.UTC)
 val buildDate = "%04d.%02d.%02d".format(now.year, now.monthValue, now.dayOfMonth)
-val buildCode = now.year * 10000 + now.monthValue * 100 + now.dayOfMonth
+val buildCode = (now.year * 10000 + now.monthValue * 100 + now.dayOfMonth) * 100 + now.hour
 
 android {
     namespace = "com.tasirin.vaultwardenhost"
@@ -75,9 +75,7 @@ android {
             "ScopedStorage",  // All-files access disengaja (Android 11+); rilis via GitHub, bukan Play Store
             "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna
             "UnusedAttribute", // usesCleartextTraffic untuk Android 6+ (API 23)
-            "TrustAllX509TrustManager",   // trust-all sengaja: HTTPS self-signed untuk Android 5/6
-            "CustomX509TrustManager",     // idem (trust anchor tambahan + self-signed)
-            "WakelockTimeout",            // wakelock sengaja: server harus tetap jalan saat update
+            "CustomX509TrustManager",     // trust anchor tambahan + self-signed lokal (bukan trust-all)
             "ButtonStyle",                // tombol log pakai bg kustom agar terlihat di TV
             "Autofill"                    // kolom pengaturan LAN + PIN; autofill tidak relevan
         )

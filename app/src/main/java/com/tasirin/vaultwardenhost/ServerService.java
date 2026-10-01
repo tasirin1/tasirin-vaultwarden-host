@@ -250,8 +250,9 @@ public class ServerService extends Service {
     private final Runnable healthTick = new Runnable() {
         @Override
         public void run() {
-            // Jangan repost bila service sudah berhenti (cegah bocor handler).
-            if (!healthActive) {
+            // Jangan repost bila service sudah berhenti atau auto-restart mati
+            // (gagal 5x / Stop): cegah polling tiap 2 menit selamanya.
+            if (!healthActive || !autoRestart) {
                 return;
             }
             // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
@@ -261,13 +262,17 @@ public class ServerService extends Service {
             if (lastStartElapsed > 0 && up < HEALTH_FAST_MS) {
                 delay = HEALTH_FAST_INTERVAL_MS;
             }
-            mainHandler.postDelayed(this, delay);
             if (process == null || !alive(process) || !running) {
+                // Proses mati ditangani restartTunda; tetap jadwalkan tick
+                // berikut sekali saja (bukan sebelum cek agar tak ganda).
+                mainHandler.postDelayed(this, delay);
                 return;
             }
             if (!healthBerjalan.compareAndSet(false, true)) {
+                mainHandler.postDelayed(this, delay);
                 return;
             }
+            mainHandler.postDelayed(this, delay);
             new Thread(() -> {
                 try {
                     checkHealthOnce();
@@ -1380,6 +1385,8 @@ public class ServerService extends Service {
         }
         if (restartAttempt.get() >= RESTART_DELAYS.length) {
             autoRestart = false;
+            healthActive = false;
+            mainHandler.removeCallbacks(healthTick);
             String tail = tailLog(18);
             setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
@@ -2877,15 +2884,17 @@ public class ServerService extends Service {
     }
 
     /** True bila port sedang dipakai proses lain (listening).
-     *  Cek IPv4 dan IPv6: pendengar IPv6-only lolos cek IPv4 lalu membuat
-     *  Rocket gagal bind (crash-loop) bila hanya satu sisi diperiksa.
+     *  Hanya cek IPv4 (ROCKET_ADDRESS=0.0.0.0): cek "::" ikut menolak start
+     *  saat pendengar IPv6-only memakai port yang sama, padahal Rocket IPv4
+     *  tetap bisa bind (false-positive). Di perangkat tanpa stack IPv6,
+     *  gagal "::" juga bukan berarti sibuk.
      *  Saran pra-start saja (TOCTOU bind-lalu-lepas): penentu sah adalah
      *  gagal bind Rocket saat exec + mitigasi portDirebut di watchProcess. */
     public static boolean isPortBusy(int port) {
         if (port < 1 || port > 65535) {
             return true;
         }
-        return !bisaBind("0.0.0.0", port) || !bisaBind("::", port);
+        return !bisaBind("0.0.0.0", port);
     }
 
     /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */

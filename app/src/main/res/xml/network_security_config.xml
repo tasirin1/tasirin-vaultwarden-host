@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Cleartext hanya untuk loopback lokal (HTTP tanpa TLS saat https mati).
-         Host luar (Telegram, GitHub) wajib HTTPS. -->
+    <!-- HTTPS-only: server selalu TLS. Cleartext loopback (127.0.0.1/localhost)
+         hanya pengecualian platform untuk probe lokal; host luar
+         (Telegram, GitHub) wajib HTTPS. -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">127.0.0.1</domain>
         <domain includeSubdomains="false">localhost</domain>

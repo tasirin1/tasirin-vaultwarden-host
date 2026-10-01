@@ -25,7 +25,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── AGENTS.md                         # Panduan pengelolaan ini
 ├── CHANGELOG.md                      # Riwayat perubahan per rilis (update manual)
 ├── shim/getrandom_shim.c             # shim getrandom LD_PRELOAD untuk STB kernel lama
-├── app/build.gradle.kts              # Kotlin DSL: targetSdk 28, minSdk 21, R8, signing via -P
+├── app/build.gradle.kts              # Kotlin DSL: targetSdk 28, minSdk 21, versionCode yyyyMMddHH, R8, signing via -P
 ├── app/proguard-rules.pro            # Aturan R8 minimal (Java murni, tanpa refleksi sendiri)
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
@@ -37,12 +37,14 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, titik tiga
 │       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
 │       ├── ServerService.java        # inti: start/stop proses, health+restart, log, TLS
-│       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256
+│       ├── Updater.java              # cek versi GitHub, unduh binary/web-vault + SHA-256 (kuncian wajib x.y.z)
 │       ├── TgBot.java / TgBackup.java / TgBotReceiver.java  # remote & backup Telegram
+│       ├── AutoUpdate.java           # cek update berkala + notifikasi versi baru
 │       ├── KernelCompat.java         # deteksi kernel lama + pasang shim getrandom via LD_PRELOAD
-│       ├── PinCrypto.java              # PIN PBKDF2+salt (format PBKDF2$...)
-│       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed
-│       ├── LogActivity.java          # log realtime layar penuh (cari/simpan/bagikan)
+│       ├── PinCrypto.java / PinGate.java  # PIN PBKDF2+salt (format PBKDF2$...) + lockout brute-force
+│       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed + trust anchor Android 5/6
+│       ├── LogActivity.java / LogExport.java  # log realtime layar penuh (cari/simpan/bagikan)
+│       ├── StoragePerm.java          # izin storage / All files access
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
 ├── app/src/test/                     # 12 kelas test JVM (junit4): Updater, ServerService,
@@ -118,8 +120,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    tidak memakai gesture yang butuh sentuhan presisi. Layar awal
    (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log, simpan
    .txt, titik tiga); kontrol baru selalu masuk `SettingsActivity`.
-9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai tanggal
-   build UTC (`yyyy.MM.dd` / `yyyyMMdd`); konsisten dengan CI.
+9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai tanggal+jam
+   build UTC (`yyyy.MM.dd` / `yyyyMMddHH`); konsisten dengan CI. Jam 2 digit
+   wajib agar dua build sehari beda versionCode (sideload versi sama diabaikan).
 10. **Format path vektor harus `0.x`** — tulis `0.9`/`-0.9`, bukan `.9`/`-.9`
     (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya

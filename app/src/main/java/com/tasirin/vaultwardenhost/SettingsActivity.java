@@ -2027,8 +2027,8 @@ public class SettingsActivity extends Activity {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
                         PinGate.catatHasil(SettingsActivity.this, cocok,
                                 System.currentTimeMillis());
-                        if (cocok && !PinCrypto.isNewFormat(pinHash)) {
-                            // Migrasi hash lama (SHA-256 polos) ke PBKDF2 (sudah di worker).
+                        if (cocok && PinCrypto.perluUpgradeHash(pinHash)) {
+                            // Migrasi hash lama/lemah ke PBKDF2 120k (sudah di worker).
                             sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
                         }
                         final boolean hasil = cocok;

@@ -65,9 +65,12 @@ public final class Updater {
             t = t.substring(1);
         }
         if (t.isEmpty()
-                || !t.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?(-[A-Za-z0-9.]+)?(\\+[A-Za-z0-9.-]+)?")) {
+                || !t.matches("[0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9.]+)?(\\+[A-Za-z0-9.-]+)?")) {
             return null;
         }
+        // Wajib 3 bagian (x.y.z): kuncian 2 bagian ("1.32") lolos banding
+        // versi tapi URL asset v1.32 selalu 404. Tolak di sini agar
+        // simpanKuncian gagal lantang dan pin lama bertahan.
         // Metadata build semver (+build) bukan bagian rilis: kupas agar
         // kuncian versi tetap cocok dengan tag asset tanpa fallback ke latest.
         int plus = t.indexOf("+");

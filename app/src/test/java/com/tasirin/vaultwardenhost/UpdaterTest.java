@@ -641,7 +641,7 @@ public class UpdaterTest {
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
         assertEquals("1.32.0", Updater.normalisasiPinVersi("v1.32.0"));
         assertEquals("1.32.0", Updater.normalisasiPinVersi("  V1.32.0  "));
-        assertEquals("1.32", Updater.normalisasiPinVersi("1.32"));
+        assertNull(Updater.normalisasiPinVersi("1.32"));
         assertEquals("1.37.3-beta", Updater.normalisasiPinVersi("1.37.3-beta"));
         assertNull(Updater.normalisasiPinVersi("terbaru"));
         assertNull(Updater.normalisasiPinVersi("1.32.x"));
@@ -707,5 +707,14 @@ public class UpdaterTest {
         assertEquals(0, Updater.validasiRantai("bukan-sertifikat".getBytes(
                 java.nio.charset.StandardCharsets.US_ASCII)));
         assertEquals(0, Updater.validasiRantai(new byte[Updater.BATAS_RANTAI_TRUST + 1]));
+    }
+
+    @Test
+    public void kuncianDuaBagianDitolak() {
+        // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
+        // wajib ditolak di normalisasi agar pin lama bertahan.
+        assertNull(Updater.normalisasiPinVersi("1.32"));
+        assertNull(Updater.normalisasiPinVersi("v1.32"));
+        assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
     }
 }

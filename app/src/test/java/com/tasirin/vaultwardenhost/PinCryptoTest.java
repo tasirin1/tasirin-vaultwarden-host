@@ -124,4 +124,16 @@ public class PinCryptoTest {
         assertTrue(PinCrypto.sisaKunciElapsed(500_000L, 10_000L) == 0);
         assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L) == 0);
     }
+
+    @Test
+    public void hashLemahDimintaUpgrade() {
+        assertTrue(PinCrypto.perluUpgradeHash(PinCrypto.sha256("1234")));
+        String lemah = "PBKDF2$10000$"
+                + "00112233445566778899aabbccddeeff"
+                + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+        assertTrue(PinCrypto.perluUpgradeHash(lemah));
+        assertFalse(PinCrypto.perluUpgradeHash(PinCrypto.hash("1234")));
+        assertFalse(PinCrypto.perluUpgradeHash(null));
+        assertFalse(PinCrypto.perluUpgradeHash(""));
+    }
 }

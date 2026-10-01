@@ -1009,7 +1009,7 @@ public final class TgBot {
         boolean cocok = PinCrypto.verify(hash, pin);
         PinGate.catatHasil(ctx, cocok, sekarang);
         if (cocok) {
-            if (!PinCrypto.isNewFormat(hash)) {
+            if (PinCrypto.perluUpgradeHash(hash)) {
                 try {
                     sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(pin)).apply();
                 } catch (Exception ignored) {

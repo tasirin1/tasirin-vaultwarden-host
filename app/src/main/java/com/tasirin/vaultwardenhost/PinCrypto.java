@@ -49,6 +49,29 @@ public final class PinCrypto {
         return stored != null && !stored.isEmpty() && !isNewFormat(stored);
     }
 
+    /** True bila hash wajib di-upgrade sesudah verifikasi sukses: hash lama
+     *  maupun PBKDF2 beriterasi di bawah standar kini (mis. prefs utak-atik
+     *  10k). Tanpa ini hash lemah 10k lolos selamanya tanpa pernah naik
+     *  ke 120k. Murni agar bisa unit test. */
+    public static boolean perluUpgradeHash(String stored) {
+        if (stored == null || stored.isEmpty()) {
+            return false;
+        }
+        if (!isNewFormat(stored)) {
+            return true;
+        }
+        try {
+            String[] parts = stored.split("\\$", -1);
+            if (parts.length != 4) {
+                return true;
+            }
+            int iter = Integer.parseInt(parts[1]);
+            return iter < ITERATIONS;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
     /** Verifikasi PIN terhadap hash lama maupun baru (perbandingan konstan). */
     public static boolean verify(String stored, String pin) {
         if (stored == null || stored.isEmpty() || pin == null || pin.isEmpty()) {
