@@ -265,6 +265,7 @@ public class ServerService extends Service {
             if (!healthActive || !autoRestart) {
                 return;
             }
+            jagaWakeLock();
             // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
             // ketahuan), lalu tiap 2 menit setelah server stabil.
             long delay = HEALTH_INTERVAL_MS;
@@ -836,8 +837,36 @@ public class ServerService extends Service {
                 || n.startsWith("/dev/")) {
             return false;
         }
-        if ((n.equals("/data") || n.startsWith("/data/"))
-                && !n.startsWith("/data/data/") && !n.startsWith("/data/user/")) {
+        if (n.equals("/data") || n.startsWith("/data/")) {
+            String pkg = "com.tasirin.vaultwardenhost";
+            boolean sendiri = n.equals("/data/data/" + pkg)
+                    || n.startsWith("/data/data/" + pkg + "/");
+            if (!sendiri && n.startsWith("/data/user/")) {
+                String sisa = n.substring("/data/user/".length());
+                int slash = sisa.indexOf('/');
+                if (slash < 0) {
+                    sendiri = sisa.equals(pkg);
+                } else {
+                    String seg0 = sisa.substring(0, slash);
+                    String rest = sisa.substring(slash + 1);
+                    if (seg0.equals(pkg)) {
+                        sendiri = true;
+                    } else if (seg0.matches("[0-9]+")) {
+                        sendiri = rest.equals(pkg) || rest.startsWith(pkg + "/");
+                    }
+                }
+            }
+            if (!sendiri) {
+                return false;
+            }
+        }
+        // Mount mentah tak boleh jadi folder data walau subfolder
+        // (/mnt/media_rw/XXXX = FUSE mentah, /mnt/runtime/* = namespace,
+        // /storage/self/* = symlink primer): tolak prefix, bukan exact saja.
+        if (n.equals("/mnt/media_rw") || n.startsWith("/mnt/media_rw/")
+                || n.equals("/mnt/runtime") || n.startsWith("/mnt/runtime/")
+                || n.equals("/mnt/runtime_default") || n.startsWith("/mnt/runtime_default/")
+                || n.equals("/storage/self") || n.startsWith("/storage/self/")) {
             return false;
         }
         // Folder data wajib subfolder (mis. /sdcard/vaultwarden): root storage
@@ -3109,6 +3138,18 @@ public class ServerService extends Service {
             Thread.sleep(200);
         }
         return false;
+    }
+
+    /** Perpanjang wakelock bila server masih jalan tapi kunci lepas/kedaluwarsa.
+     *  acquire() memakai timeout 12 jam agar lint lolos; tanpa segarkan,
+     *  server jalan >12 jam kena Doze lalu health gagal. Dipanggil tiap healthTick. */
+    private void jagaWakeLock() {
+        try {
+            if (running && autoRestart && (wakeLock == null || !wakeLock.isHeld())) {
+                acquireWakeLock();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void acquireWakeLock() {

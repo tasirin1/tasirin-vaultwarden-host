@@ -99,10 +99,10 @@ public final class Util {
     }
 
     /** True bila host termasuk rilis GitHub (unduhan binary/web-vault).
-     *  Redirect asset github.com selalu ke objects.githubusercontent.com /
-     *  hosts githubusercontent lain; host lain ditolak agar 302 nakal tak bisa
-     *  mengarahkan binary + checksum ke server jahat yang SHA-nya cocok.
-     *  Murni agar bisa unit test. */
+     *  Redirect asset github.com hanya ke objects.githubusercontent.com /
+     *  release-assets.githubusercontent.com; wildcard *.githubusercontent.com
+     *  ditolak karena konten user (gist/raw) bisa menyajikan binary + sha256
+     *  palsu yang cocok bila DNS/MITM. Murni agar bisa unit test. */
     public static boolean hostGithubAman(String host) {
         if (host == null) {
             return false;
@@ -111,13 +111,10 @@ public final class Util {
         if (h.isEmpty()) {
             return false;
         }
-        if (h.equals("github.com") || h.equals("api.github.com")
+        return h.equals("github.com") || h.equals("api.github.com")
                 || h.equals("codeload.github.com")
                 || h.equals("objects.githubusercontent.com")
-                || h.equals("release-assets.githubusercontent.com")) {
-            return true;
-        }
-        return h.endsWith(".githubusercontent.com");
+                || h.equals("release-assets.githubusercontent.com");
     }
 
     /** True bila host milik Telegram (unduhan file bot).

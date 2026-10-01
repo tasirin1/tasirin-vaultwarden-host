@@ -90,11 +90,11 @@ public class SettingsActivity extends Activity {
     private Button exportCfgBtn;
     private Button importCfgBtn;
     /** File config plaintext sementara yang menunggu dibagikan: dipertahankan
-     *  hingga basi 24 jam (target async membaca setelah chooser kembali).
+     *  hingga basi 10 menit (target async membaca setelah chooser kembali).
      *  Volatile karena ditulis worker exportConfig dan dibaca UI thread. */
     private volatile File exportPlainTertunda = null;
-    /** Batas simpan file config plaintext sementara (24 jam, sapu basi). */
-    private static final long EXPORT_PLAIN_TTL_MS = 24L * 3600 * 1000;
+    /** Batas simpan file config plaintext sementara (10 menit, sapu basi). */
+    static final long EXPORT_PLAIN_TTL_MS = 10L * 60 * 1000;
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -1663,7 +1663,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu sisa config plaintext sementara di cache internal. File pending yang
-     *  masih segar (<24 jam) dilewati: target berbagi async (Gmail/Drive) membaca
+     *  masih segar (<10 menit) dilewati: target berbagi async (Gmail/Drive) membaca
      *  stream setelah chooser kembali, jadi hapus langsung membuat kirim gagal.
      *  Pembersihan mengandalkan sapu basi di onResume/onDestroy. */
     private void bersihkanExportPlainCache() {
@@ -1694,7 +1694,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
-     *  onResume/onDestroy). File pending yang masih segar dipertahankan. */
+     *  onResume/onDestroy). File pending yang masih segar (<10 menit) dipertahankan. */
     private void sapuExportPlainBasi() {
         try {
             File pending = exportPlainTertunda;
@@ -2629,7 +2629,21 @@ public class SettingsActivity extends Activity {
         android.content.ClipboardManager cm =
                 (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
-            cm.setPrimaryClip(android.content.ClipData.newPlainText(label, isi));
+            final String salin = isi;
+            cm.setPrimaryClip(android.content.ClipData.newPlainText(label, salin));
+            // Otomatis bersihkan clipboard 60 dtk agar token rahasia
+            // (admin/bot) tak mengendap dan disadap app lain.
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                try {
+                    android.content.ClipData cur = cm.getPrimaryClip();
+                    if (cur != null && cur.getItemCount() > 0
+                            && cur.getItemAt(0) != null
+                            && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText(label, ""));
+                    }
+                } catch (Exception ignored) {
+                }
+            }, 60_000);
         }
         toast(label + " " + getString(R.string.disalin));
     }

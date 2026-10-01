@@ -221,7 +221,13 @@ public class ServerServiceTest {
         assertFalse(ServerService.dataDirAman("/mnt/runtime"));
         assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));
-        assertTrue(ServerService.dataDirAman("/mnt/media_rw/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/mnt/media_rw/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/mnt/runtime/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/storage/self/primary/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/data/data/com.lain/vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/data/user/0/com.lain/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/data/data/com.tasirin.vaultwardenhost/vaultwarden"));
+        assertTrue(ServerService.dataDirAman("/data/user/0/com.tasirin.vaultwardenhost/vaultwarden"));
     }
 
     @Test

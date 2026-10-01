@@ -696,7 +696,19 @@ public class MainActivity extends Activity {
         String url = ServerService.localUrl(this);
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
-            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", url));
+            final String salin = url;
+            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", salin));
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                try {
+                    android.content.ClipData cur = cm.getPrimaryClip();
+                    if (cur != null && cur.getItemCount() > 0
+                            && cur.getItemAt(0) != null
+                            && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", ""));
+                    }
+                } catch (Exception ignored) {
+                }
+            }, 60_000);
             toast(getString(R.string.url_copied, url));
         } else {
             toast(url);

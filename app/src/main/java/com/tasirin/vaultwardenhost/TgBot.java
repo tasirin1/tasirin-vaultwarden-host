@@ -891,7 +891,13 @@ public final class TgBot {
                 TgBackup.sendMessage(ctx, teksVersi(ctx));
                 break;
             case "/crashlog":
-                // Perintah baca cukup auth chat (tanpa PIN), seperti /status & /log.
+                // Crash log memuat path folder data: wajib PIN bila PIN aktif.
+                if (pinPerangkatAktif(ctx)) {
+                    if (authDangerous(ctx, arg) == null) {
+                        break;
+                    }
+                    berbahayaTerotorisasi = true;
+                }
                 String crash = ServerService.crashLogText(ctx);
                 if (crash == null || crash.trim().isEmpty()) {
                     TgBackup.sendMessage(ctx, "Belum ada crash log tersimpan.");
@@ -905,7 +911,7 @@ public final class TgBot {
                         + "Kunci versi lawas: /update 1.32.0 (binary), /webvault 1.32.0;"
                         + " lepas kunci: /update terbaru. Lihat /versi.\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset butuh PIN"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /crashlog butuh PIN"
                         + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").", keyboardPerintah());
                 break;
             default:

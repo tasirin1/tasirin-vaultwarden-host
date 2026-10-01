@@ -61,6 +61,13 @@ public class LogActivityTest {
     }
 
     @Test
+    public void domainDisamarkan() {
+        String r = LogActivity.samarkanLog("env DOMAIN=https://192.168.1.5:8088 lanjut");
+        assertFalse(r.contains("192.168.1.5:8088"));
+        assertTrue(r.contains("DOMAIN=***"));
+    }
+
+    @Test
     public void jamBiasaTakIkutDisamarkan() {
         String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
         assertTrue(r.contains("12:30"));

@@ -62,6 +62,9 @@ public class UtilTest {
                 "https://github.com/a/b", "http://objects.githubusercontent.com/c"));
         assertTrue(Util.hostGithubAman("github.com"));
         assertTrue(Util.hostGithubAman("objects.githubusercontent.com"));
+        assertTrue(Util.hostGithubAman("release-assets.githubusercontent.com"));
+        assertFalse(Util.hostGithubAman("gist.githubusercontent.com"));
+        assertFalse(Util.hostGithubAman("raw.githubusercontent.com"));
         assertFalse(Util.hostGithubAman("jahat.example"));
         assertFalse(Util.hostGithubAman("github.com.jahat.example"));
     }

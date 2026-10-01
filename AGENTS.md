@@ -96,9 +96,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 1. **DILARANG build/test/lint di lokal — SELALU via GitHub Actions.**
    Larangan mencakup `./gradlew` (perintah apa pun: `assemble*`, `lint*`,
    `test*`), `apktool`, `adb`, emulator, dan instalasi SDK/NDK di mesin
-   kerja. Alur wajib: edit → `git commit` → `git push origin main` →
-   pantau dengan `gh run watch` → verifikasi rilis dengan `gh release view`
-   (lihat "Verifikasi setelah build"). Tidak ada pengecualian.
+   kerja. Alur wajib: edit → `git commit` → `git push origin main`
+   (lihat "Verifikasi setelah build"). Jangan memantau build dengan
+   `gh run watch` kecuali pengguna eksplisit menyuruh memantau.
+   Tidak ada pengecualian.
 2. **Bahasa**: kode, komentar, pesan UI, dan commit memakai **Bahasa Indonesia**.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
    singkat (contoh di `git log`). Satu commit satu tujuan logis. Setiap push
@@ -131,9 +132,15 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 12. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
     menunda push, jangan menunggu perintah, jangan menumpuk perubahan di
     working tree. Alur wajib tiap selesai satu tujuan logis: `git add` →
-    `git commit` → `git push origin main` → pantau `gh run watch` (lihat
-    aturan #1 dan "Verifikasi setelah build"). Pengecualian hanya bila
-    pengguna eksplisit meminta menahan push.
+    `git commit` → `git push origin main` (lihat aturan #1 dan
+    "Verifikasi setelah build"). Pengecualian hanya bila pengguna eksplisit
+    meminta menahan push.
+13. **Jangan pantau build kecuali disuruh** — setelah `push`, JANGAN
+    menjalankan `gh run watch`, `gh run view`, atau `gh release view`
+    kecuali pengguna eksplisit menyuruh memantau/memverifikasi. Push saja,
+    lalu selesai dan laporkan. Ini menghemat waktu polling CI (~15 menit)
+    dan token. Pantau hanya bila kalimat pengguna memuat kata pantau/
+    monitor/cek build/tunggu/verifikasi rilis.
 
 ## Alur build & rilis (CI, build-apk.yml)
 
@@ -232,11 +239,12 @@ seamless (beda signature) — backup keystore di tempat aman.
 ## Verifikasi setelah build
 
 ```bash
-gh run watch <run-id> --exit-status
 gh run view <run-id> --json status,conclusion
 gh release view v<versi> --json assets -q '.assets[].name'
 ```
 
+Jangan menjalankan `gh run watch` kecuali pengguna eksplisit menyuruh
+memantau (aturan #13: push-andai saja, hemat token/polling).
 Pastikan conclusion `success` dan release punya 7 asset. Ini satu-satunya
 cara verifikasi yang sah (tidak ada verifikasi lokal). Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
