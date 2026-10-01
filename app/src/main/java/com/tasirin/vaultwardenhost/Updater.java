@@ -697,7 +697,16 @@ public final class Updater {
             throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
         }
         if (lanjutDari > 0) {
+            // Kunci TOCTOU: file bisa berubah (cleanup/storage) antara baca
+            // prefix dan append sehingga hash basi + data campur. Batalkan
+            // lantang agar pemanggil unduh ulang dari nol.
+            long capPanjang = tmp.length();
+            long capUbah = tmp.lastModified();
             digestPrefix(md, tmp, lanjutDari);
+            if (tmp.length() != capPanjang || tmp.lastModified() != capUbah) {
+                throw new IOException("File parsial berubah saat di-hash"
+                        + " - unduh ulang dari nol.");
+            }
         }
         try (InputStream in = dl.getInputStream();
              FileOutputStream fos = new FileOutputStream(tmp, kodeHttp == 206)) {

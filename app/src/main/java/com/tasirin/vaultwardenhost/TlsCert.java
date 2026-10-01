@@ -657,8 +657,14 @@ public final class TlsCert {
             o.write(0x82);
             o.write(n >> 8);
             o.write(n);
-        } else {
+        } else if (n <= 0xFFFFFF) {
             o.write(0x83);
+            o.write(n >> 16);
+            o.write(n >> 8);
+            o.write(n);
+        } else {
+            o.write(0x84);
+            o.write(n >> 24);
             o.write(n >> 16);
             o.write(n >> 8);
             o.write(n);

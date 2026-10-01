@@ -747,6 +747,11 @@ public class ServerService extends Service {
         if (t.contains("//") || t.contains("\\")) {
             return false;
         }
+        // Koma/kurawal merusak parse ROCKET_TLS ({certs="...",key="..."})
+        // sehingga folder data yang memuatnya ditolak dengan pesan jelas.
+        if (t.contains(",") || t.contains("{") || t.contains("}")) {
+            return false;
+        }
         // Batas panjang: path raksasa (ketikan/ekspor rusak) membuat mkdirs gagal
         // misterius dan pesan /status Telegram jebol >4096 char (gagal 400 diam-diam).
         if (t.length() > 512) {
@@ -846,6 +851,14 @@ public class ServerService extends Service {
             }
         }
         return DEFAULT_PORT;
+    }
+
+    /** Kutip path untuk nilai ROCKET_TLS (escape backslash + kutip). Murni. */
+    static String kutipRocket(String path) {
+        if (path == null) {
+            return "";
+        }
+        return path.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     /** Penanda migrasi port selesai (agar port 8080 pilihan user tak ditimpa). */
@@ -1070,7 +1083,7 @@ public class ServerService extends Service {
 
             String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
             String tlsKey = new File(tlsDir, "key.pem").getAbsolutePath();
-            pb.environment().put("ROCKET_TLS", "{certs=\"" + tlsCert + "\",key=\"" + tlsKey + "\"}");
+            pb.environment().put("ROCKET_TLS", "{certs=\"" + kutipRocket(tlsCert) + "\",key=\"" + kutipRocket(tlsKey) + "\"}");
             appendLog("[app] TLS cert: " + tlsCert);
             appendLog("[app] TLS key:  " + tlsKey);
             pb.environment().put("RUST_LOG", "info");
@@ -1174,11 +1187,14 @@ public class ServerService extends Service {
         if (process != null) {
             final Process p = process;
             // Tandai stop sengaja agar watchProcess abaikan exit (status tetap
-            // "Stopped"). Proses dipertahankan sampai benar-benar mati agar
+            // "Menghentikan..."). Proses dipertahankan sampai benar-benar mati agar
             // stopAndWait()/restore tak menimpa DB selagi proses lama hidup.
             // Per-proses agar Start baru tak ikut ditandai.
             tandaiStopDisengaja(p);
-            setStatus("Stopped");
+            // Jangan klaim "Stopped" selagi proses lama masih dimatikan
+            // (hingga 8 dtk): status + flag dibersihkan thread stopper agar
+            // UI/bot/restore tak mengira DB sudah bebas dikunci.
+            setStatus("Menghentikan...");
             p.destroy();
             Thread stopper = new Thread(() -> {
                 try {
@@ -1197,6 +1213,17 @@ public class ServerService extends Service {
                 } finally {
                     if (process == p) {
                         process = null;
+                        running = false;
+                        runningDataDir = "";
+                        runningPort = "";
+                        runningHttps = false;
+                        runningAdminToken = "";
+                        runningWvFrom = "";
+                        runningLanHost = "";
+                        ipBerubahDiperingatkan = "";
+                        releaseWakeLock();
+                        flushLogFile();
+                        setStatus("Stopped");
                     }
                     hapusTandaStop(p);
                 }
@@ -1206,17 +1233,19 @@ public class ServerService extends Service {
         } else {
             setStatus("Stopped");
             prosesStopDisengaja = null;
+            running = false;
+            runningDataDir = "";
+            runningPort = "";
+            runningHttps = false;
+            runningAdminToken = "";
+            runningWvFrom = "";
+            runningLanHost = "";
+            ipBerubahDiperingatkan = "";
+            releaseWakeLock();
+            flushLogFile();
         }
-        running = false;
-        runningDataDir = "";
-        runningPort = "";
-        runningHttps = false;
-        runningAdminToken = "";
-        runningWvFrom = "";
-        runningLanHost = "";
-        ipBerubahDiperingatkan = "";
-        releaseWakeLock();
-        flushLogFile();
+        // Pesan tetap dikirim langsung; flag/DB dibersihkan thread stopper
+        // agar tak ada yang mengira proses lama sudah mati sebelum waktunya.
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
 

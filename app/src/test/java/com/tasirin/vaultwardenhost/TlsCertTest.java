@@ -24,6 +24,23 @@ public class TlsCertTest {
     }
 
     @Test
+    public void panjangDerBesarPakaiAwalanBenar() throws Exception {
+        java.lang.reflect.Method m = TlsCert.class.getDeclaredMethod(
+                "len", int.class, java.io.OutputStream.class);
+        m.setAccessible(true);
+        java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream();
+        m.invoke(null, 0x10000, o);
+        byte[] b = o.toByteArray();
+        assertEquals(4, b.length);
+        assertEquals((byte) 0x83, b[0]);
+        o.reset();
+        m.invoke(null, 0x1000000, o);
+        b = o.toByteArray();
+        assertEquals(5, b.length);
+        assertEquals((byte) 0x84, b[0]);
+    }
+
+    @Test
     public void ipv4ValidDiuraiBenar() {
         assertArrayEquals(new byte[]{(byte) 192, (byte) 168, 1, 10},
                 TlsCert.ipv4("192.168.1.10"));

@@ -205,6 +205,22 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakKomaKurawalUntukRocketTls() {
+        assertFalse(ServerService.dataDirAman("/sdcard/a,b/c"));
+        assertFalse(ServerService.dataDirAman("/sdcard/a{b/c"));
+        assertFalse(ServerService.dataDirAman("/sdcard/a}b/c"));
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+    }
+
+    @Test
+    public void kutipRocketEscapeBackslashDanKutip() {
+        assertEquals("", ServerService.kutipRocket(null));
+        assertEquals("/sdcard/vaultwarden", ServerService.kutipRocket("/sdcard/vaultwarden"));
+        assertEquals("a\\\\b", ServerService.kutipRocket("a\\b"));
+        assertEquals("a\\\"b", ServerService.kutipRocket("a\"b"));
+    }
+
+    @Test
     public void dataDirAmanTolakTraversalDanSistem() {
         assertFalse(ServerService.dataDirAman("/sdcard/../data"));
         assertFalse(ServerService.dataDirAman("/sdcard/vaultwarden/../../etc"));

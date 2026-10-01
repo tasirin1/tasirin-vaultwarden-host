@@ -89,10 +89,13 @@ public class SettingsActivity extends Activity {
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
-    /** File config plaintext sementara yang menunggu dibagikan: dihapus begitu
-     *  user kembali dari chooser (target sudah membaca stream saat foreground).
+    /** File config plaintext sementara yang menunggu dibagikan: dipertahankan
+     *  hingga basi 24 jam (target async membaca setelah chooser kembali).
      *  Volatile karena ditulis worker exportConfig dan dibaca UI thread. */
     private volatile File exportPlainTertunda = null;
+    /** Batas simpan file config plaintext sementara (24 jam, sapu basi). */
+    private static final long EXPORT_PLAIN_TTL_MS = 24L * 3600 * 1000;
+    private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
     private Button resetCertBtn;
@@ -598,6 +601,8 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        sapuExportPlainBasi();
+        sapuSisaImpor();
         refreshActive = true;
         ui.post(this::refreshFromService);
         // Auto-lock PIN setiap kali app kembali ke depan
@@ -1278,9 +1283,10 @@ public class SettingsActivity extends Activity {
                             + "Backup otomatis dibuat dulu. Lanjutkan?",
                     () -> runBusy(() -> restoreDatabase(uri, dataDir)));
         } else if (requestCode == REQ_SHARE_CONFIG) {
-            // Chooser selesai/dibatalkan: target sudah selesai membaca (atau
-            // tak jadi membaca) sehingga plaintext sementara wajib dihapus.
-            hapusExportPlainTertunda();
+            // Chooser kembali bukan tanda target selesai membaca: aplikasi async
+            // (Gmail/Drive) mengunggah di latar setelah kita kembali. Jangan
+            // hapus di sini; sapu basi (<24 jam dipertahankan).
+            sapuExportPlainBasi();
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
             if (uri == null) {
@@ -1656,9 +1662,10 @@ public class SettingsActivity extends Activity {
                 () -> runBusy(this::exportConfig));
     }
 
-    /** Sapu sisa config plaintext sementara di cache internal. File yang sedang
-     *  menunggu dibagikan (exportPlainTertunda) dilewati agar export ganda cepat
-     *  tak menghapus file yang chooser-nya belum terbuka. */
+    /** Sapu sisa config plaintext sementara di cache internal. File pending yang
+     *  masih segar (<24 jam) dilewati: target berbagi async (Gmail/Drive) membaca
+     *  stream setelah chooser kembali, jadi hapus langsung membuat kirim gagal.
+     *  Pembersihan mengandalkan sapu basi di onResume/onDestroy. */
     private void bersihkanExportPlainCache() {
         try {
             File pending = exportPlainTertunda;
@@ -1667,10 +1674,18 @@ public class SettingsActivity extends Activity {
             if (sisa != null) {
                 for (File f : sisa) {
                     String n = f.getName();
-                    if (n.startsWith("app-config-") && n.endsWith(".json")
-                            && (pendingPath == null
-                                || !pendingPath.equals(f.getAbsolutePath()))) {
-                        f.delete();
+                    if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                        boolean pendingSegar = pendingPath != null
+                                && pendingPath.equals(f.getAbsolutePath())
+                                && System.currentTimeMillis() - exportPlainPada < EXPORT_PLAIN_TTL_MS;
+                        if (pendingSegar) {
+                            continue;
+                        }
+                        // Hanya sapu yang basi agar target async tak kehilangan file.
+                        long umur = System.currentTimeMillis() - f.lastModified();
+                        if (umur < 0 || umur > EXPORT_PLAIN_TTL_MS) {
+                            f.delete();
+                        }
                     }
                 }
             }
@@ -1678,15 +1693,19 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Hapus file plaintext yang baru selesai dibagikan (best-effort). */
-    private void hapusExportPlainTertunda() {
+    /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
+     *  onResume/onDestroy). File pending yang masih segar dipertahankan. */
+    private void sapuExportPlainBasi() {
         try {
-            if (exportPlainTertunda != null) {
-                exportPlainTertunda.delete();
+            File pending = exportPlainTertunda;
+            if (pending != null
+                    && System.currentTimeMillis() - exportPlainPada >= EXPORT_PLAIN_TTL_MS) {
+                pending.delete();
+                exportPlainTertunda = null;
             }
         } catch (Exception ignored) {
         } finally {
-            exportPlainTertunda = null;
+            bersihkanExportPlainCache();
         }
     }
 
@@ -1740,6 +1759,7 @@ public class SettingsActivity extends Activity {
             final boolean plain = !path.endsWith(".enc");
             if (plain) {
                 exportPlainTertunda = new File(path);
+                exportPlainPada = System.currentTimeMillis();
             }
             ui.post(() -> {
                 Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + Uri.encode(path, "/"));
@@ -1784,7 +1804,8 @@ public class SettingsActivity extends Activity {
 
     private void importConfig(Uri uri) {
         try {
-            File tmp = new File(getCacheDir(), "vwcfg-import.bin");
+            String capImpor = TgBackup.stempelUnik();
+            File tmp = new File(getCacheDir(), "vwcfg-import-" + capImpor + ".bin");
             // Stream dibuka langsung di try-with-resources: bila FileOutputStream
             // gagal dibuat, stream tetap tertutup (lolos cek Recycle lint).
             try (InputStream awal = getContentResolver().openInputStream(uri);
@@ -1817,7 +1838,7 @@ public class SettingsActivity extends Activity {
                     tmp.delete();
                     return;
                 }
-                File plain = new File(getCacheDir(), "vwcfg-import-dec.json");
+                File plain = new File(getCacheDir(), "vwcfg-import-" + capImpor + "-dec.json");
                 TgBackup.decryptFile(tmp, plain, pass0.trim());
                 tmp.delete();
                 src = plain;
@@ -1851,10 +1872,25 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Config import selesai.");
             });
         } catch (Exception e) {
-            new File(getCacheDir(), "vwcfg-import.bin").delete();
-            new File(getCacheDir(), "vwcfg-import-dec.json").delete();
+            sapuSisaImpor();
             toast("Gagal import config: " + e.getMessage());
             appendUiLog("[app] Gagal import config: " + e);
+        }
+    }
+
+    /** Sapu sisa file import config (pola vwcfg-import*, termasuk nama tetap lama). */
+    private void sapuSisaImpor() {
+        try {
+            File[] sisa = getCacheDir().listFiles();
+            if (sisa != null) {
+                for (File f : sisa) {
+                    String n = f.getName();
+                    if (n.startsWith("vwcfg-import")) {
+                        f.delete();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -3031,7 +3067,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onDestroy() {
         pinHashSiap = null;
-        hapusExportPlainTertunda();
+        sapuExportPlainBasi();
         pinExec.shutdownNow();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
