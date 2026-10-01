@@ -89,8 +89,8 @@ public final class TgBot {
             return;
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-        String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
+        String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
         PendingIntent pi = pendingIntent(ctx);
         // Chat kosong ikut membatalkan: pollOnce butuh keduanya, alarm tanpa
         // chat hanya membangunkan perangkat tiap 20 detik tanpa hasil.
@@ -190,7 +190,7 @@ public final class TgBot {
         final Context app = ctx.getApplicationContext();
         SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        final String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
+        final String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
         if (token.isEmpty()) {
             return;
         }
@@ -509,8 +509,8 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            return TgBackup.pinAktif(sp.getBoolean(PinGate.KEY_PIN_ON, false),
-                    sp.getString(PinGate.KEY_PIN_HASH, ""));
+            return TgBackup.pinAktif(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
+                    TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
         } catch (Exception e) {
             return false;
         }
@@ -1063,6 +1063,8 @@ public final class TgBot {
             if (t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
                 return new String[]{t, ""};
             }
+            // Fallback alnum (PIN alfanumerik didukung): kata 4+ char
+            // dianggap PIN; alnum eksplisit PIN: tetap diutamakan di atas.
             if (t.matches("[A-Za-z0-9]{4,}")) {
                 return new String[]{"", t};
             }
@@ -1262,7 +1264,7 @@ public final class TgBot {
     /** Ringkasan status untuk dibalas ke Telegram. */
     static String statusText(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
         }

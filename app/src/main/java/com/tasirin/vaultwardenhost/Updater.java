@@ -778,7 +778,7 @@ public final class Updater {
         // Revisi patch binary: CI bisa memperbaiki binary tanpa ganti versi Vaultwarden
         // (mis. patch TLS favicon). Versi sama tapi patch lama wajib diunduh ulang sekali.
         boolean butuhRefresh = ServerService.perluRefreshPatch(
-                sp.getString(ServerService.KEY_BIN_PATCH, ""));
+                TgBackup.amanString(sp, ServerService.KEY_BIN_PATCH, ""));
         String sebutan = (paksa || adaKuncianBinary(ctx))
                 ? "Sudah versi pilihan: v" : "Sudah versi terbaru: v";
         String real = parseBinaryVersion(ServerService.binaryVersion);
@@ -789,7 +789,7 @@ public final class Updater {
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             return sebutan + latest;
         }
-        String updated = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
         if (!paksa && !butuhRefresh && bandingVersi(current, latest) >= 0) {
@@ -1006,7 +1006,7 @@ public final class Updater {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String hari = String.valueOf(System.currentTimeMillis() / 86400000L);
-            if (hari.equals(sp.getString(KEY_TRUST_TGL, ""))) {
+            if (hari.equals(TgBackup.amanString(sp, KEY_TRUST_TGL, ""))) {
                 return false;
             }
             HttpURLConnection c = null;
@@ -1312,7 +1312,7 @@ public final class Updater {
         // Fallback baru dipasang (asset versi ini belum terbit di CI):
         // jangan unduh ulang 35 MB tiap cek; versi terpasang tetap dipakai.
         if (fallbackBaruSaja(latest, wvExists,
-                sp.getString(KEY_WV_FALLBACK_FOR, ""),
+                TgBackup.amanString(sp, KEY_WV_FALLBACK_FOR, ""),
                 TgBackup.amanLong(sp, KEY_WV_FALLBACK_AT, 0),
                 SystemClock.elapsedRealtime())) {
             return "Web vault v" + latest + " sudah dipasang via rilis terbaru;"

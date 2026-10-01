@@ -328,11 +328,11 @@ public final class TgBackup {
     public static void maybeAutoBackup(Context ctx, BackupStartUi ui) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        if (!sp.getBoolean(KEY_TG_AUTO, false)) {
+        if (!amanBoolean(sp, KEY_TG_AUTO, false)) {
             return;
         }
-        String token = Util.amanTrim(sp.getString(KEY_TG_TOKEN, ""));
-        String chat = Util.amanTrim(sp.getString(KEY_TG_CHAT, ""));
+        String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+        String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
         if (token.isEmpty() || chat.isEmpty()) {
             ui.catat("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
             return;
@@ -1412,9 +1412,16 @@ public final class TgBackup {
         if (path.startsWith("/") || path.contains("..") || path.contains("\\")) {
             return false;
         }
+        // file_path sah hanya "tipe/nama-berkas" Telegram (mis. documents/file_1.pdf):
+        // tolak ? # % : @ & = + spasi agar tak mengubah makna URL unduh
+        // (query/fragment/skema semu dari respons menyimpang).
         for (int i = 0; i < path.length(); i++) {
             char c = path.charAt(i);
             if (c < 0x20 || c == 0x7F) {
+                return false;
+            }
+            if (c == '?' || c == '#' || c == '%' || c == ':' || c == '@'
+                    || c == '&' || c == '=' || c == '+' || c == ' ') {
                 return false;
             }
         }
@@ -1613,9 +1620,11 @@ public final class TgBackup {
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String curDir = sp.getString(ServerService.KEY_DATA_DIR,
+        String curDir = amanString(sp, ServerService.KEY_DATA_DIR,
                 ServerService.DEFAULT_DATA_DIR);
-        if (curDir == null || curDir.trim().isEmpty()) {
+        if (curDir == null || curDir.trim().isEmpty()
+                || !ServerService.dataDirAman(curDir)
+                || !ServerService.dataDirKanonisAman(curDir)) {
             curDir = ServerService.DEFAULT_DATA_DIR;
         }
 
@@ -1791,7 +1800,7 @@ public final class TgBackup {
         }
         SharedPreferences fresh = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        TgBackup.schedule(ctx, fresh.getBoolean(KEY_TG_AUTO, false));
+        TgBackup.schedule(ctx, amanBoolean(fresh, KEY_TG_AUTO, false));
         TgBot.schedule(ctx);
         return "Database direstore dari Telegram"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
@@ -1824,6 +1833,7 @@ public final class TgBackup {
                     KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
                     "tg_notified_version", "wv_from_version",
+                    "wv_fallback_for", Updater.KEY_TRUST_TGL,
                     PinGate.KEY_PIN_HASH));
 
     /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
@@ -1842,7 +1852,8 @@ public final class TgBackup {
     /** Kunci Long yang wajib Long (pembaca memakai getLong). */
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
             java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,
-                    KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS));
+                    KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
+                    "wv_fallback_at"));
 
     /** True bila teks adalah SHA-256 hex valid (64 digit heksa). Murni. */
     static boolean shaHexValid(String s) {
@@ -2078,16 +2089,16 @@ public final class TgBackup {
         }
         SharedPreferences cur = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        String keepToken = cur.getString(KEY_TG_TOKEN, "");
-        String keepChat = cur.getString(KEY_TG_CHAT, "");
-        String keepPass = cur.getString(KEY_TG_PASS, "");
-        String keepAdmin = cur.getString(ServerService.KEY_ADMIN_TOKEN, "");
-        String keepPinHash = cur.getString(PinGate.KEY_PIN_HASH, "");
+        String keepToken = amanString(cur, KEY_TG_TOKEN, "");
+        String keepChat = amanString(cur, KEY_TG_CHAT, "");
+        String keepPass = amanString(cur, KEY_TG_PASS, "");
+        String keepAdmin = amanString(cur, ServerService.KEY_ADMIN_TOKEN, "");
+        String keepPinHash = amanString(cur, PinGate.KEY_PIN_HASH, "");
         int keepGagal = amanInt(cur, PinGate.KEY_GAGAL, 0);
         long keepKunci = amanLong(cur, PinGate.KEY_KUNCI_SAMPAI, 0);
         long keepOffset = amanLong(cur, TgBot.KEY_TG_OFFSET, 0);
-        String keepNotified = cur.getString("tg_notified_version", "");
-        String keepWvFrom = cur.getString("wv_from_version", "");
+        String keepNotified = amanString(cur, "tg_notified_version", "");
+        String keepWvFrom = amanString(cur, "wv_from_version", "");
         java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();
         for (Map.Entry<String, ?> e : cur.getAll().entrySet()) {
             if (e.getKey().startsWith("wv_notified_")
@@ -2202,7 +2213,7 @@ public final class TgBackup {
         ed.putInt(PinGate.KEY_GAGAL, keepGagal);
         ed.putLong(PinGate.KEY_KUNCI_SAMPAI, keepKunci);
         ed.putBoolean(PinGate.KEY_PIN_ON,
-                pinOnHasilRestore(cur.getBoolean(PinGate.KEY_PIN_ON, false), keepPinHash));
+                pinOnHasilRestore(amanBoolean(cur, PinGate.KEY_PIN_ON, false), keepPinHash));
         // Offset bot selalu milik perangkat: zip jahat dengan offset raksasa
         // bisa membrick bot (semua update dilewati). Impor diabaikan; pesan basi
         // tetap ditolak via umur 5 menit sehingga replay tak lolos.

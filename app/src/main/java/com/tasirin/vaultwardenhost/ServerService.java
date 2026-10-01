@@ -637,7 +637,7 @@ public class ServerService extends Service {
             new Thread(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    if (!cek.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                    if (!TgBackup.amanBoolean(cek, TgBackup.KEY_TG_AUTO, false)) {
                         // Alarm basi/duplikat yang terlanjur terjadwal tak boleh
                         // mengunggah setelah user mematikan auto-backup.
                         appendLog("[tg] Backup terjadwal dilewati: auto-backup sudah dimatikan.");

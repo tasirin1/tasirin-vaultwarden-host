@@ -26,6 +26,11 @@ public class TgBackupTest {
         assertFalse(TgBackup.filePathTelegramAman("a\\b.zip"));
         assertFalse(TgBackup.filePathTelegramAman(""));
         assertFalse(TgBackup.filePathTelegramAman(null));
+        assertFalse(TgBackup.filePathTelegramAman("documents/f.zip?x=1"));
+        assertFalse(TgBackup.filePathTelegramAman("documents/f.zip#frag"));
+        assertFalse(TgBackup.filePathTelegramAman("documents/f%20.zip"));
+        assertFalse(TgBackup.filePathTelegramAman("documents/a:b.zip"));
+        assertTrue(TgBackup.filePathTelegramAman("photos/file_2.jpg"));
     }
 
     @Test
