@@ -269,7 +269,10 @@ public class LogActivity extends Activity {
     private void showCrashDialog() {
         // Baca file di worker: storage STB lambat bisa ANR bila dibaca di UI thread.
         new Thread(() -> {
-            final String crash = ServerService.crashLogText(LogActivity.this);
+            // Samarkan ulang di sini (bukan andalkan isi file): pola samaran
+            // bisa bertambah setelah file ditulis (mis. chat_id JSON), dan
+            // jalur tampil/salin ini tak lewat shareLog/copyLog/export.
+            final String crash = samarkanLog(ServerService.crashLogText(LogActivity.this));
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;

@@ -745,8 +745,17 @@ public class ServerService extends Service {
         if (t.contains("//") || t.contains("\\")) {
             return false;
         }
+        // Batas panjang: path raksasa (ketikan/ekspor rusak) membuat mkdirs gagal
+        // misterius dan pesan /status Telegram jebol >4096 char (gagal 400 diam-diam).
+        if (t.length() > 512) {
+            return false;
+        }
         for (String segmen : t.split("/")) {
             if (segmen.equals("..")) {
+                return false;
+            }
+            // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG).
+            if (segmen.length() > 255) {
                 return false;
             }
         }
@@ -2954,6 +2963,9 @@ public class ServerService extends Service {
     }
 
     private void acquireWakeLock() {
+        // Lepas dulu bila ada sisa (tak boleh menimpa field: kunci lama bocor
+        // sampai timeout 12 jam bila referensinya hilang).
+        releaseWakeLock();
         try {
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             if (pm != null) {

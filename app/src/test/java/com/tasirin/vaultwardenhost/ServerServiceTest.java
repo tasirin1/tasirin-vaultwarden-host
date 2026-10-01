@@ -193,6 +193,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakPathTerlaluPanjang() {
+        StringBuilder sb = new StringBuilder("/sdcard");
+        while (sb.length() <= 512) {
+            sb.append("/vaultwarden");
+        }
+        assertFalse(ServerService.dataDirAman(sb.toString()));
+        String segmen = new String(new char[256]).replace("\0", "a");
+        assertFalse(ServerService.dataDirAman("/sdcard/" + segmen));
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+    }
+
+    @Test
     public void dataDirAmanTolakTraversalDanSistem() {
         assertFalse(ServerService.dataDirAman("/sdcard/../data"));
         assertFalse(ServerService.dataDirAman("/sdcard/vaultwarden/../../etc"));

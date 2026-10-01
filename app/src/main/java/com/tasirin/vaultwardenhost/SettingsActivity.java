@@ -45,6 +45,7 @@ public class SettingsActivity extends Activity {
     private static final int REQ_WRITE = 1001;
     private static final int REQ_RESTORE = 1002;
     private static final int REQ_IMPORT = 1003;
+    private static final int REQ_SHARE_CONFIG = 1004;
     private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     /** Wizard setup 3 langkah sudah pernah tampil/selesai. */
@@ -88,6 +89,10 @@ public class SettingsActivity extends Activity {
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
+    /** File config plaintext sementara yang menunggu dibagikan: dihapus begitu
+     *  user kembali dari chooser (target sudah membaca stream saat foreground).
+     *  Volatile karena ditulis worker exportConfig dan dibaca UI thread. */
+    private volatile File exportPlainTertunda = null;
     private Button installCertBtn;
     private Button shareCaBtn;
     private Button resetCertBtn;
@@ -210,6 +215,9 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
+        // Sisa export plaintext sesi yang mati (dibunuh saat chooser terbuka)
+        // tak boleh mengendap di cache: sapu sekali saat buka.
+        bersihkanExportPlainCache();
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_settings);
@@ -1269,6 +1277,10 @@ public class SettingsActivity extends Activity {
                     "Database saat ini akan diganti dengan file yang dipilih. "
                             + "Backup otomatis dibuat dulu. Lanjutkan?",
                     () -> runBusy(() -> restoreDatabase(uri, dataDir)));
+        } else if (requestCode == REQ_SHARE_CONFIG) {
+            // Chooser selesai/dibatalkan: target sudah selesai membaca (atau
+            // tak jadi membaca) sehingga plaintext sementara wajib dihapus.
+            hapusExportPlainTertunda();
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
             if (uri == null) {
@@ -1644,6 +1656,40 @@ public class SettingsActivity extends Activity {
                 () -> runBusy(this::exportConfig));
     }
 
+    /** Sapu sisa config plaintext sementara di cache internal. File yang sedang
+     *  menunggu dibagikan (exportPlainTertunda) dilewati agar export ganda cepat
+     *  tak menghapus file yang chooser-nya belum terbuka. */
+    private void bersihkanExportPlainCache() {
+        try {
+            File pending = exportPlainTertunda;
+            String pendingPath = pending == null ? null : pending.getAbsolutePath();
+            File[] sisa = getCacheDir().listFiles();
+            if (sisa != null) {
+                for (File f : sisa) {
+                    String n = f.getName();
+                    if (n.startsWith("app-config-") && n.endsWith(".json")
+                            && (pendingPath == null
+                                || !pendingPath.equals(f.getAbsolutePath()))) {
+                        f.delete();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Hapus file plaintext yang baru selesai dibagikan (best-effort). */
+    private void hapusExportPlainTertunda() {
+        try {
+            if (exportPlainTertunda != null) {
+                exportPlainTertunda.delete();
+            }
+        } catch (Exception ignored) {
+        } finally {
+            exportPlainTertunda = null;
+        }
+    }
+
     private void exportConfig() {
         try {
             String dataDir = dataDirInput.getText().toString().trim();
@@ -1659,18 +1705,7 @@ public class SettingsActivity extends Activity {
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
             // Bersihkan export plaintext lama di kedua cabang agar cache tak
             // menumpuk (sebelumnya hanya cabang plaintext yang membersihkan).
-            try {
-                File[] sisa = getCacheDir().listFiles();
-                if (sisa != null) {
-                    for (File f : sisa) {
-                        String n = f.getName();
-                        if (n.startsWith("app-config-") && n.endsWith(".json")) {
-                            f.delete();
-                        }
-                    }
-                }
-            } catch (Exception ignored) {
-            }
+            bersihkanExportPlainCache();
             // Kredensial tak ikut export (tetap di perangkat); enkripsi bila password backup diisi.
             String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
             final File out;
@@ -1702,6 +1737,10 @@ public class SettingsActivity extends Activity {
                 mime = "application/json";
             }
             final String path = out.getAbsolutePath();
+            final boolean plain = !path.endsWith(".enc");
+            if (plain) {
+                exportPlainTertunda = new File(path);
+            }
             ui.post(() -> {
                 Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + Uri.encode(path, "/"));
                 Intent send = new Intent(Intent.ACTION_SEND);
@@ -1709,8 +1748,14 @@ public class SettingsActivity extends Activity {
                 send.putExtra(Intent.EXTRA_STREAM, uri);
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
-                    startActivity(Intent.createChooser(send, "Bagikan file konfigurasi"));
+                    // Via result: plaintext dihapus saat user kembali dari
+                    // chooser agar tak mengendap di cache (target membaca
+                    // stream saat ia foreground, sebelum kita kembali).
+                    startActivityForResult(
+                            Intent.createChooser(send, "Bagikan file konfigurasi"),
+                            REQ_SHARE_CONFIG);
                 } catch (Exception e2) {
+                    exportPlainTertunda = null;
                     toast("File tersimpan: " + path);
                 }
                 toast("Konfigurasi diekspor: " + path);
@@ -2986,6 +3031,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onDestroy() {
         pinHashSiap = null;
+        hapusExportPlainTertunda();
         pinExec.shutdownNow();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
