@@ -18,6 +18,34 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void cleanupPreTakMengusirBackupRutin() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwretensi").toFile();
+        for (int i = 0; i < 10; i++) {
+            java.io.File f = new java.io.File(dir, "backup-telegram-" + i + ".zip");
+            f.createNewFile();
+            f.setLastModified(100000L + i * 5000L);
+        }
+        for (int i = 0; i < 5; i++) {
+            java.io.File f = new java.io.File(dir, "db-backup-1-pre" + i + "-pre.sqlite3");
+            f.createNewFile();
+            f.setLastModified(900000L + i * 5000L);
+        }
+        TgBackup.cleanupOldBackups(dir);
+        int rutin = 0;
+        int pre = 0;
+        for (java.io.File f : dir.listFiles()) {
+            if (f.getName().startsWith("backup-telegram-")) {
+                rutin++;
+            }
+            if (TgBackup.isPreRestore(f.getName())) {
+                pre++;
+            }
+        }
+        assertEquals(10, rutin);
+        assertEquals(TgBackup.KEEP_PRE_RESTORE, pre);
+    }
+
+    @Test
     public void filePathTelegram_tolakTraversal() {
         assertTrue(TgBackup.filePathTelegramAman("documents/backup-telegram-abc.zip"));
         assertTrue(TgBackup.filePathTelegramAman("f/1.zip"));

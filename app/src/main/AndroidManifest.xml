@@ -20,19 +20,19 @@
     <!-- Aplikasi dipakai di TV (tanpa layar sentuh): jangan wajibkan touchscreen. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <!-- usesCleartextTraffic=true wajib untuk health check HTTP loopback di API 23
-         (network_security_config baru berlaku API 24+): di API 23 flag ini juga
-         membuka cleartext WAN di level sistem. App tak pernah memakai HTTP untuk
-         WAN: Telegram/GitHub selalu HTTPS (https hardcode), checksum menolak
-         non-https fail-closed, redirect https->http ditolak; HTTP hanya untuk
-         loopback/URL LAN pilihan user. -->
+    <!-- usesCleartextTraffic=false: server selalu HTTPS (HTTPS-only) dan
+         Telegram/GitHub selalu HTTPS (https hardcode, redirect http ditolak),
+         sehingga cleartext tak dibutuhkan sama sekali. Flag true membuka
+         cleartext WAN di API 23 (network_security_config baru berlaku API 24+).
+         Loopback HTTP tetap diizinkan eksplisit di network_security_config
+         untuk API 24+ bila sewaktu-waktu dibutuhkan. -->
     <application
         android:allowBackup="false"
         android:supportsRtl="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <activity

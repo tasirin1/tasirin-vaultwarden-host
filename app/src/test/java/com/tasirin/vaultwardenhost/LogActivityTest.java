@@ -44,6 +44,14 @@ public class LogActivityTest {
     }
 
     @Test
+    public void kredensialMentahTelegramDisamarkan() {
+        String r = LogActivity.samarkanLog("konfig tg_token=123456:ABCDEF rahasia lanjut");
+        assertFalse(r.contains("123456:ABCDEF"));
+        String c = LogActivity.samarkanLog("konfig tg_chat=987654 lanjut");
+        assertFalse(c.contains("987654"));
+    }
+
+    @Test
     public void jamBiasaTakIkutDisamarkan() {
         String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
         assertTrue(r.contains("12:30"));

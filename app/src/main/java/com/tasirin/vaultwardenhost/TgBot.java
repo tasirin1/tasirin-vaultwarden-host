@@ -1098,16 +1098,19 @@ public final class TgBot {
             return new String[]{t, ""};
         }
         String kandidat = t.substring(i + 1);
-        // Fallback legasi "/restore YA 123456": kata terakhir min 4 char
-        // alfanumerik berdigit dianggap PIN; kata huruf tanpa digit seperti
-        // "webvault" adalah argumen (selaras cabang kata-tunggal di atas) agar
-        // tak menambah lockout sia-sia. PIN alnum tanpa digit wajib "PIN:".
+        // Fallback legasi "/restore YA 123456": kata terakhir min 4 char tanpa
+        // spasi yang berdigit ATAU bersimbol dianggap PIN (UI memakai
+        // textPassword bebas simbol seperti p@ss!9); kata huruf murni tanpa
+        // digit/simbol seperti "webvault" adalah argumen (selaras cabang
+        // kata-tunggal di atas) agar tak menambah lockout sia-sia. PIN tanpa
+        // digit dan tanpa simbol wajib bentuk eksplisit "PIN:".
         // Kata kunci versi ("terbaru"/"latest") bukan PIN agar /update terbaru
         // + PIN tetap membawa versi ("terbaru 123456" -> sisa "terbaru").
         if (kandidat.equalsIgnoreCase("terbaru") || kandidat.equalsIgnoreCase("latest")) {
             return new String[]{t, ""};
         }
-        if (kandidat.matches("[A-Za-z0-9]{4,}") && kandidat.matches(".*[0-9].*")) {
+        if (kandidat.matches("\\S{4,}")
+                && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
             return new String[]{t.substring(0, i).trim(), kandidat};
         }
         return new String[]{t, ""};

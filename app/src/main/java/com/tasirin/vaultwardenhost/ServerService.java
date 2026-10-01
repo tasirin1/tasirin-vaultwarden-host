@@ -352,7 +352,9 @@ public class ServerService extends Service {
                 }
             } else if (ok) {
                 try {
-                    bak.delete();
+                    if (bak.exists() && !bak.delete()) {
+                        bak.delete();
+                    }
                 } catch (Exception ignored) {
                 }
                 // Best-effort: fsync direktori agar rename awet bila STB mati
@@ -2304,7 +2306,11 @@ public class ServerService extends Service {
             // macet tanpa output; destroy terjadwal menutup pipa sehingga
             // baca balik EOF dan thread Start tak nyangkut "Bekerja...".
             final Process versiProc = p;
-            final boolean[] versiSelesai = new boolean[1];
+            // AtomicBoolean (bukan boolean[]): tulis thread Start wajib terlihat
+            // thread watchdog tanpa synchronized, bila tidak watchdog bisa
+            // destroy proses yang sudah selesai atau melewatkan timeout.
+            final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
+                    new java.util.concurrent.atomic.AtomicBoolean(false);
             Thread versiWatchdog = new Thread(new Runnable() {
                 @Override public void run() {
                     try {
@@ -2312,7 +2318,7 @@ public class ServerService extends Service {
                     } catch (InterruptedException e) {
                         return;
                     }
-                    if (!versiSelesai[0]) {
+                    if (!versiSelesai.get()) {
                         try {
                             versiProc.destroy();
                         } catch (Exception ignored) {
@@ -2345,7 +2351,7 @@ public class ServerService extends Service {
                     break;
                 }
             }
-            versiSelesai[0] = true;
+            versiSelesai.set(true);
             versiWatchdog.interrupt();
             lastVersionOutput = first == null ? "" : first.trim();
             p.destroy();

@@ -1009,26 +1009,49 @@ public final class TgBackup {
                 || nama.startsWith("db-backup-"));
     }
 
+    /** Maks salinan pengaman pra-restore (*-pre.sqlite3) yang dipertahankan. */
+    static final int KEEP_PRE_RESTORE = 2;
+
+    /** True bila file adalah salinan pengaman pra-restore (bukan backup rutin). */
+    static boolean isPreRestore(String nama) {
+        return nama != null && nama.startsWith("db-backup-") && nama.endsWith("-pre.sqlite3");
+    }
+
     public static void cleanupOldBackups(File backupDir) {
         File[] all = backupDir.listFiles();
         if (all == null) {
             return;
         }
-        java.util.List<File> list = new java.util.ArrayList<>();
+        // Pisahkan salinan pengaman pra-restore dari backup rutin: tiap restore
+        // membuat satu *-pre.sqlite3 sehingga tanpa partisi ia mengusir backup
+        // bagus dari kuota KEEP_BACKUPS. Pre dibatasi KEEP_PRE_RESTORE sendiri.
+        java.util.List<File> biasa = new java.util.ArrayList<>();
+        java.util.List<File> pre = new java.util.ArrayList<>();
         for (File f : all) {
-            if (isFileBackup(f.getName())) {
-                list.add(f);
+            if (!isFileBackup(f.getName())) {
+                continue;
+            }
+            if (isPreRestore(f.getName())) {
+                pre.add(f);
+            } else {
+                biasa.add(f);
             }
         }
-        File[] files = list.toArray(new File[0]);
-        Arrays.sort(files, new Comparator<File>() {
+        Comparator<File> terbaruDulu = new Comparator<File>() {
             @Override
             public int compare(File a, File b) {
                 return Long.compare(b.lastModified(), a.lastModified());
             }
-        });
-        for (int i = KEEP_BACKUPS; i < files.length; i++) {
-            files[i].delete();
+        };
+        File[] rutin = biasa.toArray(new File[0]);
+        Arrays.sort(rutin, terbaruDulu);
+        for (int i = KEEP_BACKUPS; i < rutin.length; i++) {
+            rutin[i].delete();
+        }
+        File[] pengaman = pre.toArray(new File[0]);
+        Arrays.sort(pengaman, terbaruDulu);
+        for (int i = KEEP_PRE_RESTORE; i < pengaman.length; i++) {
+            pengaman[i].delete();
         }
     }
 
@@ -2159,6 +2182,12 @@ public final class TgBackup {
                         // Port rusak ("abc"/"99999") jangan tersimpan mentah:
                         // normalisasi ke default agar Start berikutnya tak gagal.
                         ed.putString(k, ServerService.normalisasiPort(teks));
+                    } else if (ServerService.KEY_BIN_PILIH.equals(k)
+                            || ServerService.KEY_WV_PILIH.equals(k)) {
+                        // Kuncian versi sampah ("../../x", "abc") jangan
+                        // mengendap di prefs: normalisasi, kosong = terbaru.
+                        String normal = Updater.normalisasiPinVersi(teks);
+                        ed.putString(k, normal == null ? "" : normal);
                     } else if (ServerService.KEY_BIN_SHA.equals(k)) {
                         // SHA-256 wajib 64 hex; nilai sampah diabaikan agar
                         // binary manual tak selalu ditolak tanpa pesan jelas.

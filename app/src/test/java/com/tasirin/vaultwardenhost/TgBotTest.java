@@ -171,6 +171,14 @@ public class TgBotTest {
     }
 
     @Test
+    public void pisahkanPinSimbolDidukungKataHurufTetapArgumen() {
+        assertArrayEquals(new String[]{"YA", "p@ss!9"}, TgBot.pisahkanPin("YA p@ss!9"));
+        assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
+        assertArrayEquals(new String[]{"YA webvault", ""}, TgBot.pisahkanPin("YA webvault"));
+        assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
+    }
+
+    @Test
     public void pisahkanPinKataBiasaTakDimakan() {
         assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
         assertArrayEquals(new String[]{"foo", ""}, TgBot.pisahkanPin("foo"));
