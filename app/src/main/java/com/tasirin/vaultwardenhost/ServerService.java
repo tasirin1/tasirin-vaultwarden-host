@@ -3109,10 +3109,12 @@ public class ServerService extends Service {
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
                 // Timeout 12 jam: bila jalur stop()/destroy terlewat, kunci
                 // tetap dilepas sistem agar baterai tak terkuras selamanya.
+                // Selalu pakai timeout agar lint WakelockTimeout lolos dan
+                // baterai tak terkuras bila release terlewat.
                 try {
                     wakeLock.acquire(12L * 3600 * 1000L);
                 } catch (Exception e) {
-                    wakeLock.acquire();
+                    wakeLock = null;
                 }
             }
         } catch (Exception ignored) {
