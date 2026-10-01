@@ -625,11 +625,14 @@ public final class Updater {
         }
     }
 
-    /** Satu percobaan unduh; wajib dipanggil dengan kunci per-file dipegang. */
+    /** Satu percobaan unduh; wajib dipanggil dengan kunci per-file dipegang.
+     *  Melempar Exception (bukan hanya IOException) karena open() TLS/proksi
+     *  melempar checked Exception umum; unduhKeTmp sudah menangkap dan
+     *  membungkusnya jadi IOException. */
     private static String unduhSatuPercobaan(Context ctx, String[] url, boolean[] fallbackUsed,
                               File tmp, String label,
                               int connectMs, int readMs, UrlCadangan cadangan)
-            throws IOException {
+            throws Exception {
         // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
         long resumeFrom = tmp.exists() ? tmp.length() : 0;
         HttpURLConnection dl = null;
