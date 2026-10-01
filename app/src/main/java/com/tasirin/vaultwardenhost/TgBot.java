@@ -143,6 +143,33 @@ public final class TgBot {
         return msg.contains("Web vault updated");
     }
 
+    /** Lolos string untuk payload JSON manual (tanpa pustaka). Murni. */
+    static String lolosJson(String s) {
+        if (s == null) {
+            return "";
+        }
+        StringBuilder o = new StringBuilder(s.length() + 8);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                o.append("\\\"");
+            } else if (c == '\\') {
+                o.append("\\\\");
+            } else if (c == '\n') {
+                o.append("\\n");
+            } else if (c == '\r') {
+                o.append("\\r");
+            } else if (c == '\t') {
+                o.append("\\t");
+            } else if (c < 0x20) {
+                o.append(String.format("\\u%04x", (int) c));
+            } else {
+                o.append(c);
+            }
+        }
+        return o.toString();
+    }
+
     /** Payload JSON setMyCommands (string manual agar bisa di-unit-test JVM). */
     static String menuPayload() {
         StringBuilder sb = new StringBuilder("{\"commands\":[");
@@ -151,8 +178,8 @@ public final class TgBot {
             if (i > 0) {
                 sb.append(',');
             }
-            sb.append("{\"command\":\"").append(daftar[i][0])
-                    .append("\",\"description\":\"").append(daftar[i][1]).append("\"}");
+            sb.append("{\"command\":\"").append(lolosJson(daftar[i][0]))
+                    .append("\",\"description\":\"").append(lolosJson(daftar[i][1])).append("\"}");
         }
         sb.append("]}");
         return sb.toString();
@@ -1193,6 +1220,11 @@ public final class TgBot {
             return teks == null ? "" : teks;
         }
         int mulai = teks.length() - maks;
+        // Jangan belah pasangan surrogate emoji: geser ke batas code-point.
+        if (mulai > 0 && Character.isLowSurrogate(teks.charAt(mulai))
+                && Character.isHighSurrogate(teks.charAt(mulai - 1))) {
+            mulai++;
+        }
         int nl = teks.indexOf('\n', mulai);
         if (nl >= 0 && nl + 1 < teks.length()) {
             return "..." + teks.substring(nl + 1);

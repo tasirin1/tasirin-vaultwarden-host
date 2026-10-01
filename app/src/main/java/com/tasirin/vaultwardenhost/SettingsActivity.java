@@ -72,6 +72,9 @@ public class SettingsActivity extends Activity {
      *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
      *  di tengah mengetik. */
     private volatile String pinHashSiap = null;
+    /** Teks PIN yang menghasilkan pinHashSiap (hash bersalt tak bisa
+     *  dibandingkan langsung; tanpa ini centang bisa memakai hash basi). */
+    private volatile String pinHashUntuk = null;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -464,6 +467,7 @@ public class SettingsActivity extends Activity {
                 // sudah settle (800 ms tanpa ketikan) agar app yang mati di
                 // tengah mengetik tak meninggalkan hash PIN parsial.
                 pinHashSiap = null;
+                pinHashUntuk = null;
                 if (s.length() < 4) {
                     // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
@@ -479,6 +483,7 @@ public class SettingsActivity extends Activity {
                         return;
                     }
                     pinHashSiap = h;
+                    pinHashUntuk = pin;
                     ui.postDelayed(() -> {
                         if (seq == pinSeq && h.equals(pinHashSiap)) {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
@@ -511,31 +516,53 @@ public class SettingsActivity extends Activity {
                         });
                 return;
             }
-            java.util.concurrent.Future<?> antre = pinPending;
-            if (antre != null && !antre.isDone()) {
-                toast("PIN masih diproses, coba lagi sebentar.");
-                pinCentangProgram = true;
-                b.setChecked(false);
-                pinCentangProgram = false;
-                return;
-            }
-            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String fieldPin = pinInput.getText() == null ? ""
                     : pinInput.getText().toString();
-            String siap = pinHashSiap;
-            if (siap != null && fieldPin.length() >= 4) {
-                // Tulis nilai settle sekarang tanpa menunggu debounce agar
-                // centang tak memakai hash basi di prefs.
-                sp2.edit().putString(PinGate.KEY_PIN_HASH, siap).apply();
-            }
-            if (sp2.getString(PinGate.KEY_PIN_HASH, "").isEmpty()) {
+            if (fieldPin.length() < 4) {
+                // Hash lama di prefs tak boleh dipakai: aktif dengan field
+                // pendek/kosong menghidupkan PIN lama yang tak terlihat user.
                 toast("Isi PIN dulu (minimal 4 digit).");
                 pinCentangProgram = true;
                 b.setChecked(false);
                 pinCentangProgram = false;
                 return;
             }
-            sp2.edit().putBoolean(PinGate.KEY_PIN_ON, true).apply();
+            // Selalu hash ulang dari field saat itu di worker (PBKDF2 berat,
+            // tak boleh di UI thread): tanpa memakai cache pinHashSiap agar
+            // centang tak pernah memakai hash basi/parsial (kunci permanen).
+            java.util.concurrent.Future<?> basiAktif = pinPending;
+            if (basiAktif != null && !basiAktif.isDone()) {
+                basiAktif.cancel(true);
+            }
+            final String pinBaru = fieldPin;
+            final int seqBaru = ++pinSeq;
+            pinHashSiap = null;
+            pinHashUntuk = null;
+            pinCentangProgram = true;
+            b.setChecked(false);
+            pinCentangProgram = false;
+            toast("PIN diproses...");
+            pinPending = pinExec.submit(() -> {
+                String h = PinCrypto.hash(pinBaru);
+                if (seqBaru != pinSeq) {
+                    return;
+                }
+                pinHashSiap = h;
+                pinHashUntuk = pinBaru;
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                ui.post(() -> {
+                    if (seqBaru != pinSeq) {
+                        return;
+                    }
+                    pinCentangProgram = true;
+                    pinEnabledCheck.setChecked(true);
+                    pinCentangProgram = false;
+                    toast("PIN aktif.");
+                });
+            });
         });
 
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).

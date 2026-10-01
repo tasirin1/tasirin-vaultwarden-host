@@ -209,4 +209,32 @@ public class TgBotTest {
         // Tanpa newline di jendela: fallback potong persis.
         assertEquals("...cdef", TgBot.potongEkor("abcdef", 4));
     }
+
+    @Test
+    public void potongEkor_takBelahSurrogate() {
+        String emoji = new String(Character.toChars(0x1F600));
+        String teks = "ab" + emoji + "cd";
+        String potong = TgBot.potongEkor(teks, 4);
+        assertFalse(potong.contains("\uFFFD"));
+        for (int i = 0; i < potong.length(); i++) {
+            char c = potong.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                assertTrue(i + 1 < potong.length()
+                        && Character.isLowSurrogate(potong.charAt(i + 1)));
+            }
+            if (Character.isLowSurrogate(c)) {
+                assertTrue(i > 0 && Character.isHighSurrogate(potong.charAt(i - 1)));
+            }
+        }
+    }
+
+    @Test
+    public void lolosJson_amankanKutipDanKontrol() {
+        assertEquals("", TgBot.lolosJson(null));
+        assertEquals("a\\\"b\\\\c", TgBot.lolosJson("a\"b\\c"));
+        assertEquals("x\\ny", TgBot.lolosJson("x\ny"));
+        String json = TgBot.menuPayload();
+        assertTrue(json.startsWith("{\"commands\":["));
+        assertTrue(json.endsWith("]}"));
+    }
 }

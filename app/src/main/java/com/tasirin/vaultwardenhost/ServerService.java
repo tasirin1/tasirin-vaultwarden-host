@@ -2859,7 +2859,13 @@ public class ServerService extends Service {
         if (s == null || s.length() <= max) {
             return s == null ? "" : s;
         }
-        return s.substring(s.length() - max);
+        int mulai = s.length() - max;
+        // Jangan belah pasangan surrogate emoji (lone surrogate = teks rusak).
+        if (mulai > 0 && Character.isLowSurrogate(s.charAt(mulai))
+                && Character.isHighSurrogate(s.charAt(mulai - 1))) {
+            mulai++;
+        }
+        return s.substring(mulai);
     }
 
     private boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
