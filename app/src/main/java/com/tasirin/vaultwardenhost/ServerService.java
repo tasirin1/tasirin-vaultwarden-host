@@ -1959,8 +1959,9 @@ public class ServerService extends Service {
     }
 
     /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume.
-     *  Dikunci KUNCI_WEBVAULT bersama Updater agar Start tak membuang web-vault.new
-     *  yang sedang diekstrak update bot (balapan hemat kuota 35 MB). */
+     *  Dikunci KUNCI_WEBVAULT bersama Updater agar sapu tak berebut rename swap.
+     *  Staging update kini unik per panggilan sehingga tak ikut tersapu saat
+     *  diekstrak; yang dibuang hanya yatim crash/versi lama. */
     private void cleanupTempFiles(String dataDir) {
         synchronized (Updater.KUNCI_WEBVAULT) {
             cleanupTempFilesTerkunci(dataDir);
@@ -1971,8 +1972,21 @@ public class ServerService extends Service {
         // File .tmp unduhan (binary/web-vault) SENGAJA dipertahankan agar Start
         // berikutnya melanjutkan via HTTP Range (hemat kuota ~15/35 MB).
         // Updater menghapusnya sendiri bila korup/checksum tak cocok.
-        // Hanya folder ekstrak yatim yang dibersihkan di sini.
-        deleteRecursive(new File(dataDir, "web-vault.new"));
+        // Hanya folder staging yatim yang dibersihkan di sini (termasuk
+        // web-vault.new lama + web-vault.new-<cap> unik yang yatim crash).
+        try {
+            File induk = new File(dataDir);
+            File[] isi = induk.listFiles();
+            if (isi != null) {
+                for (File f : isi) {
+                    if (Updater.sisaStagingWebVault(f.getName())) {
+                        deleteRecursive(f);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            deleteRecursive(new File(dataDir, "web-vault.new"));
+        }
         // Pulihkan sisa swap web-vault yang terpotong crash: bila folder aktif
         // hilang/rusak tapi .bak ada, kembalikan; bila aktif sehat, buang .bak.
         try {

@@ -547,8 +547,30 @@ public final class Updater {
     }
 
     /** Kunci swap web-vault: dipakai Updater + ServerService.cleanupTempFiles
-     *  agar Start tak membuang web-vault.new yang sedang diekstrak. */
+     *  agar Start dan dua update konkuren tak berebut folder staging yang sama.
+     *  Tiap update mengekstrak ke staging unik (stagingWebVault) lalu tukar di
+     *  bawah kunci ini; cleanup menyapu sisa staging yatim. */
     public static final Object KUNCI_WEBVAULT = new Object();
+
+    /** Folder staging unik untuk satu kali ekstrak web-vault
+     *  (mis. web-vault.new-20261001-120000-000-ab12): update UI dan bot yang
+     *  jalan bersamaan tak lagi menimpa hasil ekstrak satu sama lain, dan
+     *  cleanup Start tak bisa membuang staging yang sedang diekstrak karena
+     *  namanya tak dikenalinya sebagai web-vault.new bersama. Murni. */
+    static java.io.File stagingWebVault(java.io.File dataFolder) {
+        return new java.io.File(dataFolder, "web-vault.new-" + TgBackup.stempelUnik());
+    }
+
+    /** True bila nama file adalah sisa staging ekstrak web-vault (lama
+     *  "web-vault.new" bersama maupun unik "web-vault.new-<cap>"): yatim yang
+     *  aman disapu cleanup. "web-vault.newbie" bukan staging. Murni. */
+    static boolean sisaStagingWebVault(String nama) {
+        if (nama == null) {
+            return false;
+        }
+        return nama.equals("web-vault.new") || nama.startsWith("web-vault.new-");
+    }
+
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan.
      *  Kunci = objek per path kanonis (tanpa String.intern global yang tak pernah GC
@@ -1410,9 +1432,11 @@ public final class Updater {
                     + " aman diulang. " + saranKoneksi(null));
         }
 
-        // Ekstrak ke folder sementara dulu; web-vault lama baru diganti bila
-        // hasil ekstrak valid (hindari tanpa web UI saat unduhan korup).
-        File newDir = new File(dataFolder, "web-vault.new");
+        // Ekstrak ke folder sementara unik dulu; web-vault lama baru diganti
+        // bila hasil ekstrak valid (hindari tanpa web UI saat unduhan korup).
+        // Unik per panggilan: update bot + UI yang bersamaan dan cleanup Start
+        // tak berebut/terbuang di tengah ekstrak seperti staging bersama dulu.
+        File newDir = stagingWebVault(dataFolder);
         deleteRecursive(newDir);
         newDir.mkdirs();
         String kanonBasis;
@@ -1506,7 +1530,7 @@ public final class Updater {
                     + " - versi lama dipertahankan.");
         }
         // Tukar via .bak agar crash di tengah tak menghilangkan web-vault lama.
-        // Dikunci bersama cleanupTempFiles agar Start tak membuang newDir di tengah ekstrak.
+        // Dikunci bersama cleanupTempFiles agar swap tak berebut rename target.
         synchronized (KUNCI_WEBVAULT) {
             File bakDir = new File(dataFolder, "web-vault.bak");
             deleteRecursive(bakDir);
@@ -1647,7 +1671,10 @@ public final class Updater {
         if (v == null) {
             return null;
         }
-        return v.startsWith("v") ? v.substring(1) : v;
+        if (v.startsWith("v") || v.startsWith("V")) {
+            return v.substring(1);
+        }
+        return v;
     }
 
     /** True bila dua versi menunjuk rilis yang sama ("v"-prefix, segmen

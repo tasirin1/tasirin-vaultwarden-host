@@ -669,6 +669,29 @@ public class UpdaterTest {
     }
 
     @Test
+    public void normVersion_kupasHurufVBesarJuga() {
+        assertEquals("1.37.3", Updater.normVersion("v1.37.3"));
+        assertEquals("1.37.3", Updater.normVersion("V1.37.3"));
+        assertEquals("1.37.3", Updater.normVersion("1.37.3"));
+        assertNull(Updater.normVersion(null));
+        assertTrue(Updater.versiCocok("V1.37.3", "v1.37.3"));
+    }
+
+    @Test
+    public void stagingWebVault_unikDanDikenaliSapu() {
+        java.io.File data = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-data");
+        java.io.File a = Updater.stagingWebVault(data);
+        java.io.File b = Updater.stagingWebVault(data);
+        assertFalse(a.getAbsolutePath().equals(b.getAbsolutePath()));
+        assertTrue(Updater.sisaStagingWebVault(a.getName()));
+        assertTrue(Updater.sisaStagingWebVault("web-vault.new"));
+        assertFalse(Updater.sisaStagingWebVault("web-vault.newbie"));
+        assertFalse(Updater.sisaStagingWebVault("web-vault"));
+        assertFalse(Updater.sisaStagingWebVault(null));
+    }
+
+    @Test
     public void validasiRantai_tolakSampahFailClosed() {
         assertEquals(0, Updater.validasiRantai(null));
         assertEquals(0, Updater.validasiRantai(new byte[0]));
