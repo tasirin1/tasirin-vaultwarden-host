@@ -1618,6 +1618,16 @@ public final class Updater {
         return v.startsWith("v") ? v.substring(1) : v;
     }
 
+    /** True bila dua versi menunjuk rilis yang sama ("v"-prefix, segmen
+     *  hilang, dan sufiks beta diabaikan): banner update tak macet gara-gara
+     *  beda format tulisan. Null tak pernah cocok. Murni agar bisa unit test. */
+    static boolean versiCocok(String a, String b) {
+        if (a == null || b == null || a.trim().isEmpty() || b.trim().isEmpty()) {
+            return false;
+        }
+        return bandingVersi(normVersion(a), normVersion(b)) == 0;
+    }
+
     /** Banding versi numerik per segmen ("1.9" < "1.10", "1.37" = "1.37.0").
      *  Tak dikenal (null/kosong) dianggap paling tua agar jalur update tetap
      *  jalan. Murni agar bisa unit test. */

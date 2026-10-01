@@ -462,14 +462,16 @@ public class MainActivity extends Activity {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
             // Fallthrough aman: baca di bawah pakai amanString (lihat cur/up).
-            if (real != null && real.equals(pendingVersion)) {
+            // Banding semantik (bukan equals mentah): "v"-prefix/sufiks beta
+            // tak boleh membuat banner update macet padahal versi sama.
+            if (Updater.versiCocok(real, pendingVersion)) {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
-                if (cur != null && cur.equals(pendingVersion)) {
+                if (Updater.versiCocok(cur, pendingVersion)) {
                     pendingVersion = null; // update sudah terpasang
                 } else {
                     updAvail = !running;

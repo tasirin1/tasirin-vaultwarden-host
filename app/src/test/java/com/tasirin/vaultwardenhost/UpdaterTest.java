@@ -522,6 +522,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void versiCocok_toleranFormat() {
+        assertTrue(Updater.versiCocok("1.37.3", "1.37.3"));
+        assertTrue(Updater.versiCocok("v1.37.3", "1.37.3"));
+        assertTrue(Updater.versiCocok("1.37.3-beta", "1.37.3"));
+        assertTrue(Updater.versiCocok("1.37", "1.37.0"));
+        assertFalse(Updater.versiCocok("1.37.3", "1.37.4"));
+        assertFalse(Updater.versiCocok(null, "1.37.3"));
+        assertFalse(Updater.versiCocok("1.37.3", null));
+        assertFalse(Updater.versiCocok("", "1.37.3"));
+    }
+
+    @Test
     public void bandingVersi_sufiksDiabaikan() {
         assertTrue(Updater.bandingVersi("1.37.3-beta", "1.37.3") == 0);
         assertTrue(Updater.bandingVersi("1.37.3", "1.37.3-beta") == 0);

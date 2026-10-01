@@ -466,6 +466,9 @@ public final class TgBot {
             }
             jawabCallback(ctx, cb.optString("id", ""));
             String data = cb.optString("data", "").trim();
+            // Data tombol hanya "/perintah" tanpa PIN (tombol tak bisa membawa
+            // PIN): tak ada rahasia di riwayat yang perlu dihapus seperti
+            // pesan ketik di pollOnce (hapusPesanPerintah khusus pesan ber-PIN).
             if (callbackDataValid(data)) {
                 if (perluPinTombol(ctx, data)) {
                     TgBackup.sendMessage(ctx, "Tombol tak bisa membawa PIN."
@@ -506,7 +509,11 @@ public final class TgBot {
         return pinPerangkatAktif(ctx);
     }
 
-    /** True bila PIN perangkat aktif (pintu kedua perintah berbahaya). */
+    /** True bila PIN perangkat aktif (pintu kedua perintah berbahaya).
+     *  Fail-closed: prefs tak terbaca (penyimpanan rusak) dianggap PIN aktif
+     *  sehingga tombol berbahaya ditolak; pesan ketik pun aman karena
+     *  getSharedPreferences yang melempar membuat pollOnce melewatkan update
+     *  itu via catch, bukan mengeksekusinya tanpa PIN. */
     static boolean pinPerangkatAktif(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -514,7 +521,7 @@ public final class TgBot {
             return TgBackup.pinAktif(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
                     TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 
