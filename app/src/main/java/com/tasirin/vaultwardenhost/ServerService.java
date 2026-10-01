@@ -2563,6 +2563,10 @@ public class ServerService extends Service {
             List<String> ips = new ArrayList<>(collectIps());
             ips.add(0, "127.0.0.1");
             ips.add("::1");
+            // SAN DNS sengaja kosong: fitur domain lokal dihapus (butuh DNS
+            // sendiri di jaringan). TlsCert.daftarDns dipertahankan sebagai
+            // util teruji untuk pemakaian mendatang; format "|dns=" penanda
+            // dipertahankan agar ips.txt lama tak memicu regen massal.
             List<String> dns = new ArrayList<>();
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
 

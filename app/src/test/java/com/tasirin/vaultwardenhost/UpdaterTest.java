@@ -92,6 +92,28 @@ public class UpdaterTest {
     }
 
     @Test
+    public void normVersion_kupasSpasiDanHurufV() {
+        assertEquals("1.32.0", Updater.normVersion(" v1.32.0 "));
+        assertEquals("1.32.0", Updater.normVersion("  1.32.0"));
+        assertEquals("1.32.0", Updater.normVersion("V1.32.0"));
+        assertEquals("1.32.0", Updater.normVersion("v1.32.0+build.5"));
+    }
+
+    @Test
+    public void versiCocok_toleranSpasiDanHurufV() {
+        assertTrue(Updater.versiCocok(" v1.32.0 ", "1.32.0"));
+        assertTrue(Updater.versiCocok("v1.32.0", "1.32.0"));
+        assertTrue(Updater.versiCocok("1.32.0+build.5", "v1.32.0"));
+    }
+
+    @Test
+    public void fallbackBaruSaja_toleranHurufV() {
+        long kini = 1000000L;
+        assertTrue(Updater.fallbackBaruSaja("1.32.0", true, "v1.32.0",
+                kini - 1000, kini));
+    }
+
+    @Test
     public void extractTag_ambilTagNameDariJson() {
         String body = "{\"tag_name\":\"v1.37.1\",\"name\":\"1.37.1\"}";
         assertEquals("v1.37.1", Updater.extractTag(body));

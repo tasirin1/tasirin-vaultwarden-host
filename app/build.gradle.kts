@@ -5,13 +5,14 @@ plugins {
     id("com.android.application")
 }
 
-// Versi aplikasi mengikuti tanggal+jam build (UTC, konsisten dengan CI).
-// versionName "yyyy.MM.dd", versionCode "yyyyMMddHH" (jam 2 digit) — jangan ubah manual.
-// Jam ditambahkan agar dua build sehari beda versionCode: PackageManager
-// mengabaikan sideload dengan versionCode sama (dianggap versi sama).
+// Versi aplikasi mengikuti waktu build UTC (konsisten dengan CI).
+// versionName "yyyy.MM.dd", versionCode menit-epoch UTC — jangan ubah manual.
+// Menit-epoch monotonik dan unik per menit: dua push dalam jam yang sama tetap
+// beda versionCode (skema yyyyMMddHH lama tabrakan dalam sejam sehingga
+// PackageManager mengabaikan sideload baru). Muat int sampai tahun 6055.
 val now = LocalDateTime.now(ZoneOffset.UTC)
 val buildDate = "%04d.%02d.%02d".format(now.year, now.monthValue, now.dayOfMonth)
-val buildCode = (now.year * 10000 + now.monthValue * 100 + now.dayOfMonth) * 100 + now.hour
+val buildCode = (now.toEpochSecond(ZoneOffset.UTC) / 60).toInt()
 
 android {
     namespace = "com.tasirin.vaultwardenhost"

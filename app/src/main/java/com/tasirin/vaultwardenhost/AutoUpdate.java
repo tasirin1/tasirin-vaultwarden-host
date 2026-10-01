@@ -82,7 +82,7 @@ public final class AutoUpdate {
                     pending.atur(latest);
                     aksi.kabariTersedia(latest);
                     // Notifikasi sistem + Telegram cukup sekali per versi.
-                    if (!latest.equals(TgBackup.amanString(sp, "tg_notified_version", ""))) {
+                    if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
                         sp.edit().putString("tg_notified_version", latest).apply();
                         tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
@@ -102,7 +102,7 @@ public final class AutoUpdate {
                             String targetWv = Updater.versiTargetWebVault(ctx);
                             String marker = Updater.webVaultFromVersion(ctx);
                             if (targetWv != null
-                                    && (marker == null || !marker.equals(targetWv))) {
+                                    && (marker == null || !Updater.versiCocok(marker, targetWv))) {
                                 String msg = Updater.updateWebVault(ctx);
                                 if (TgBot.webVaultBerubah(msg)) {
                                     adaTerpasang = true;

@@ -317,13 +317,14 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_CHAT_ID =
             java.util.regex.Pattern.compile("(?i)(chat_id\\s*[\"']?\\s*[:=]\\s*[\"']?)[^&\\s,\"'}\\]]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
-            java.util.regex.Pattern.compile("bot\\d+:[A-Za-z0-9_-]{10,}");
+            java.util.regex.Pattern.compile("bot\\d+:[A-Za-z0-9_-]{6,}");
     /** Token bot mentah tanpa awalan "bot" (mis. "123456:AAEc..." di pesan galat).
-     *  Minimal 6 digit + 30 karakter agar jam "12:30" tak ikut tersamarkan. */
+     *  Minimal 6 digit + 10 karakter: jam "12:30" (2 digit) dan port "8088"
+     *  (4 digit) tetap aman karena awalan digit tak memenuhi syarat. */
     private static final java.util.regex.Pattern POLA_TOKEN_MENTAH =
-            java.util.regex.Pattern.compile("(?<!\\w)\\d{6,12}:[A-Za-z0-9_-]{30,}");
+            java.util.regex.Pattern.compile("(?<!\\w)\\d{6,12}:[A-Za-z0-9_-]{10,}");
     private static final java.util.regex.Pattern POLA_BOT_URL =
-            java.util.regex.Pattern.compile("(?i)(api\\.telegram\\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{10,}");
+            java.util.regex.Pattern.compile("(?i)(api\\.telegram\\.org/bot)[A-Za-z0-9_-]+:[A-Za-z0-9_-]{6,}");
     private static final java.util.regex.Pattern POLA_ADMIN_ENV =
             java.util.regex.Pattern.compile("(?i)(ADMIN_TOKEN\\s*=\\s*)[^\\s]+");
     private static final java.util.regex.Pattern POLA_BEARER =

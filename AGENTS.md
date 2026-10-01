@@ -85,7 +85,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
-  `wv_from_version`, `tg_notified_version`, `domain_lokal`, `advanced_open`,
+  `wv_from_version`, `tg_notified_version`, `advanced_open`,
   `bin_patch_rev` (revisi patch binary; paksa unduh ulang bila CI perbaiki
   binary tanpa ganti versi Vaultwarden),
   `bin_pin_version`/`wv_pin_version` (kuncian versi binary/web-vault pilihan
@@ -120,9 +120,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    tidak memakai gesture yang butuh sentuhan presisi. Layar awal
    (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log, simpan
    .txt, titik tiga); kontrol baru selalu masuk `SettingsActivity`.
-9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai tanggal+jam
-   build UTC (`yyyy.MM.dd` / `yyyyMMddHH`); konsisten dengan CI. Jam 2 digit
-   wajib agar dua build sehari beda versionCode (sideload versi sama diabaikan).
+9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai waktu
+   build UTC (`versionName yyyy.MM.dd`, `versionCode` menit-epoch UTC);
+   konsisten dengan CI. Menit-epoch monotonik dan unik per menit agar dua push
+   dalam jam yang sama tetap beda versionCode (sideload versi sama diabaikan).
 10. **Format path vektor harus `0.x`** — tulis `0.9`/`-0.9`, bukan `.9`/`-.9`
     (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya

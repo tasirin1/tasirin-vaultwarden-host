@@ -49,6 +49,20 @@ public class FileShareProviderTest {
     }
 
     @org.junit.Test
+    public void tipeMime_sesuaiEkstensi() {
+        assertEquals("application/json", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
+                android.net.Uri.parse("content://x/app-config.json")));
+        assertEquals("text/plain", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
+                android.net.Uri.parse("content://x/catatan.txt")));
+        assertEquals("application/zip", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
+                android.net.Uri.parse("content://x/backup.zip")));
+        assertEquals("application/x-pem-file", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
+                android.net.Uri.parse("content://x/ca.pem")));
+        assertEquals("application/octet-stream", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
+                android.net.Uri.parse("content://x/blob-takdikenal")));
+    }
+
+    @org.junit.Test
     public void modeBacaSaja_tolakTulis() {
         assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja(null));
         assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.modeBacaSaja("r"));

@@ -71,4 +71,25 @@ public class LogActivityTest {
         String r = LogActivity.samarkanLog("server jalan di port 8088");
         assertTrue(r.contains("8088"));
     }
+
+    @Test
+    public void tokenPendekTetapDisamarkan() {
+        String r = LogActivity.samarkanLog("gagal: bot123456:ABCDEF123456 lanjut");
+        assertFalse(r.contains("ABCDEF123456"));
+        String m = LogActivity.samarkanLog("proses 123456:ABCDEF1234567890 selesai");
+        assertFalse(m.contains("ABCDEF1234567890"));
+    }
+
+    @Test
+    public void urlBotPendekTetapDisamarkan() {
+        String r = LogActivity.samarkanLog("hubungi https://api.telegram.org/bot123:ABCDEF12 selesai");
+        assertFalse(r.contains("ABCDEF12"));
+    }
+
+    @Test
+    public void portDanJamTakIkutDisamarkan() {
+        String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
+        assertTrue(r.contains("8088"));
+        assertTrue(r.contains("12:30"));
+    }
 }

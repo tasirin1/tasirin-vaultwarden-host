@@ -286,7 +286,7 @@ public final class Updater {
         if (!wvExists || latest == null || latest.isEmpty()) {
             return false;
         }
-        if (!latest.equals(untuk)) {
+        if (!versiCocok(latest, untuk)) {
             return false;
         }
         if (at <= 0 || kiniElapsed < at) {
@@ -1355,7 +1355,7 @@ public final class Updater {
             // Penanda lama (sebelum fitur ini): pakai versi server yang terdeteksi.
             String known = !installed.isEmpty() ? installed
                     : parseBinaryVersion(ServerService.binaryVersion);
-            if (known != null && !known.isEmpty() && known.equals(latest)) {
+            if (known != null && !known.isEmpty() && versiCocok(known, latest)) {
                 if (installed.isEmpty()) {
                     sp.edit().putString(KEY_WV_FROM, latest).apply();
                 }
@@ -1677,10 +1677,14 @@ public final class Updater {
         if (v == null) {
             return null;
         }
-        if (v.startsWith("v") || v.startsWith("V")) {
-            return v.substring(1);
+        String t = v.trim();
+        if (t.startsWith("v") || t.startsWith("V")) {
+            t = t.substring(1);
         }
-        return v;
+        // Metadata semver (+build) bukan bagian rilis: kupas agar penanda
+        // "1.32.0+build" cocok dengan "1.32.0" (selaras normalisasiPinVersi).
+        int plus = t.indexOf("+");
+        return plus < 0 ? t : t.substring(0, plus);
     }
 
     /** True bila dua versi menunjuk rilis yang sama ("v"-prefix, segmen

@@ -47,6 +47,32 @@ public class FileShareProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
+        return tipeMime(uri);
+    }
+
+    /** MIME sesuai ekstensi agar app penerima bisa preview/handle.
+     *  Tak dikenal jatuh ke octet-stream. Murni agar bisa unit test. */
+    static String tipeMime(Uri uri) {
+        String path = uri == null ? null : uri.getPath();
+        if (path == null) {
+            return "application/octet-stream";
+        }
+        String rendah = path.toLowerCase(java.util.Locale.US);
+        if (rendah.endsWith(".json")) {
+            return "application/json";
+        }
+        if (rendah.endsWith(".txt")) {
+            return "text/plain";
+        }
+        if (rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")) {
+            return "application/x-pem-file";
+        }
+        if (rendah.endsWith(".zip")) {
+            return "application/zip";
+        }
+        if (rendah.endsWith(".enc")) {
+            return "application/octet-stream";
+        }
         return "application/octet-stream";
     }
 
