@@ -84,7 +84,11 @@ public final class PinCrypto {
                     return false;
                 }
                 int iter = Integer.parseInt(parts[1]);
-                if (iter < ITERASI_MINIMAL || iter > 1_000_000) {
+                // Batas atas = ITERATIONS (120k): hash utak-atik beriterasi
+                // raksasa (mis. 1 jt) memaksa PBKDF2 ~8x dan stall STB/polling
+                // tiap upaya verifikasi. Hash lama 10k-120k tetap diverifikasi
+                // lalu di-upgrade (lihat perluUpgradeHash).
+                if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
                     return false;
                 }
                 byte[] salt = unhex(parts[2]);

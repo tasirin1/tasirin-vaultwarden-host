@@ -156,7 +156,11 @@ public final class AutoUpdate {
                 return false;
             }
             int t = ni.getType();
-            // Tanpa VPN: underlying-nya bisa seluler berkuota dan API 21/22 tak bisa tahu.
+            // Fail-closed saat VPN: underlying-nya bisa seluler berkuota dan
+            // API 21/22 tak bisa tahu, jadi tolak auto-unduh 15-35 MB.
+            if (t == ConnectivityManager.TYPE_VPN) {
+                return false;
+            }
             return t == ConnectivityManager.TYPE_WIFI
                     || t == ConnectivityManager.TYPE_ETHERNET
                     || t == ConnectivityManager.TYPE_WIMAX;

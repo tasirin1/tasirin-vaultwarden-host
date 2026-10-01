@@ -420,7 +420,20 @@ public class LogActivity extends Activity {
             toast("Clipboard tidak tersedia.");
             return;
         }
-        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", log));
+        final String salin = log;
+        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", salin));
+        // Otomatis bersihkan 60 dtk seperti jalur salin lain (crash/URL/token).
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                android.content.ClipData cur = cm.getPrimaryClip();
+                if (cur != null && cur.getItemCount() > 0
+                        && cur.getItemAt(0) != null
+                        && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                    cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", ""));
+                }
+            } catch (Exception ignored) {
+            }
+        }, 60_000);
         toast("Log disalin ke clipboard.");
     }
 

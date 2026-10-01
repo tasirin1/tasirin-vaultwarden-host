@@ -34,6 +34,17 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void iterasiRaksasaDitolak() {
+        // Hash utak-atik beriterasi 1 jt memaksa PBKDF2 ~8x (stall STB):
+        // wajib ditolak sebelum derive, hash 120k bawaan tetap lolos.
+        String raksasa = "PBKDF2$1000000$"
+                + "00112233445566778899aabbccddeeff"
+                + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+        assertFalse(PinCrypto.verify(raksasa, "1234"));
+        assertTrue(PinCrypto.verify(PinCrypto.hash("1234"), "1234"));
+    }
+
+    @Test
     public void pinKosongSelaluDitolak() {
         assertFalse(PinCrypto.verify(PinCrypto.hash("1234"), ""));
         assertFalse(PinCrypto.verify(PinCrypto.sha256("1234"), ""));

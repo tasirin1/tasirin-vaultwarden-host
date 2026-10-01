@@ -1338,8 +1338,12 @@ public final class Updater {
         }
 
         File dataFolder = new File(dataDir);
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
+        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
+            throw new IOException("Gagal membuat folder data: " + dataDir);
+        }
+        if (!dataFolder.canWrite()) {
+            throw new IOException("Folder data tidak bisa ditulis: " + dataDir
+                    + " - beri izin Storage/Semua file, lalu ulangi.");
         }
 
         File targetDir = new File(dataFolder, "web-vault");
@@ -2004,11 +2008,14 @@ public final class Updater {
                 if (line == null) {
                     return null;
                 }
-                String hex = line.replace("\uFEFF", "").trim().split("\\s+")[0];
-                if (hex.length() != 64 || !hex.matches("[0-9a-fA-F]{64}")) {
-                    return null;
+                // Pindai semua token baris (bukan hanya token pertama):
+                // format BSD ("SHA256 (berkas) = <hex>") menaruh hex di akhir,
+                // token pertama "SHA256" selalu gagal dan update abort permanen.
+                String dapat = pindaiHexChecksum(line);
+                if (dapat != null) {
+                    return dapat;
                 }
-                return hex.toLowerCase(Locale.US);
+                return null;
             } catch (Exception e) {
                 if (coba >= 2) {
                     return null;
@@ -2023,6 +2030,28 @@ public final class Updater {
                 if (c != null) {
                     c.disconnect();
                 }
+            }
+        }
+        return null;
+    }
+
+    /** Pindai satu baris checksum dan kembalikan 64-hex pertama yang
+     *  ditemukan (mndukung format raw maupun BSD "SHA256 (f) = hex"). Murni. */
+    static String pindaiHexChecksum(String line) {
+        if (line == null) {
+            return null;
+        }
+        String bersih = line.replace("\uFEFF", "").trim();
+        if (bersih.isEmpty()) {
+            return null;
+        }
+        for (String tok : bersih.split("\\s+")) {
+            String t = tok.trim();
+            if (t.startsWith("=")) {
+                t = t.substring(1).trim();
+            }
+            if (t.length() == 64 && t.matches("[0-9a-fA-F]{64}")) {
+                return t.toLowerCase(Locale.US);
             }
         }
         return null;
