@@ -295,8 +295,8 @@ public final class TgBot {
                                     // Fail-closed: jam tak dipercaya (rollback/NTP),
                                     // perintah berbahaya tak boleh jalan dari pesan
                                     // basi yang di-replay. Offset tetap maju agar
-                                    // tak diproses ulang; jepit maks agar pulih
-                                    // sendiri saat poll berikut.
+                                    // tak diproses ulang; maks dipertahankan agar
+                                    // pulih sendiri saat jam kembali normal.
                                     if (catatMundurDanBolehIngatkan(kini)) {
                                         rollbackDitolak++;
                                     }
@@ -309,12 +309,13 @@ public final class TgBot {
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
-                                handleCommand(ctx, text);
-                                // PIN perintah berbahaya menempel di riwayat chat dan bisa
-                                // dipakai ulang pengintip: hapus best-effort (perlu izin
-                                // hapus; gagal diam-diam, sudah di poll thread sendiri).
+                                boolean terotorisasi = handleCommand(ctx, text);
+                                // PIN yang lolos menempel di riwayat dan bisa dipakai
+                                // ulang pengintip: hapus best-effort (perlu izin hapus;
+                                // gagal diam-diam, di poll thread sendiri). Upaya
+                                // GAGAL sengaja dipertahankan sebagai bukti brute-force.
                                 int idPesan = msg.optInt("message_id", 0);
-                                if (idPesan != 0 && perintahBerbahaya(text)
+                                if (idPesan != 0 && terotorisasi && perintahBerbahaya(text)
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanPerintah(ctx, c.optLong("id", -1), idPesan);
                                 }
@@ -592,9 +593,14 @@ public final class TgBot {
         });
     }
 
-    private static void handleCommand(Context ctx, String text) {
+    /** Tangani satu perintah; true bila perintah berbahaya lolos otorisasi
+     *  (PIN terverifikasi atau PIN mati) sehingga pemanggil boleh menghapus
+     *  pesan dari riwayat. False berarti PIN gagal/hilang: pesan dipertahankan
+     *  sebagai bukti forensik brute-force. */
+    private static boolean handleCommand(Context ctx, String text) {
+        boolean berbahayaTerotorisasi = false;
         if (!text.startsWith("/")) {
-            return;
+            return false;
         }
         String cmd = "/" + namaPerintah(text);
         String arg = "";
@@ -607,6 +613,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 if (ServerService.running || ServerService.isProcessAlive()) {
                     TgBackup.sendMessage(ctx, "Server sudah jalan.");
                 } else {
@@ -629,6 +636,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 try {
                     if (ServerService.stop(ctx)) {
                         TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
@@ -645,6 +653,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 try {
                     if (ServerService.restart(ctx)) {
                         TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
@@ -659,6 +668,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 runBeratDenganKunci(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
@@ -672,6 +682,7 @@ public final class TgBot {
                 if (cleanRestore == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 if (isRestoreConfirm(cleanRestore)) {
                     runBeratDenganKunci(ctx, () -> {
                         try {
@@ -709,6 +720,7 @@ public final class TgBot {
                 if (authDangerous(ctx, arg) == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 // Kunci tugas berat (bukan runWithWakeLock polos): reset menghapus
                 // file tls satu per satu sehingga backup konkuren bisa menangkap
                 // setengah set (CA baru + key lama). Serial dengan backup/restore.
@@ -746,6 +758,7 @@ public final class TgBot {
                 if (bersihUpdate == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 if (!argumenVersiValid(bersihUpdate)) {
                     TgBackup.sendMessage(ctx, "Versi tidak valid."
                             + " Contoh: /update 1.32.0 atau /update terbaru");
@@ -811,6 +824,7 @@ public final class TgBot {
                 if (bersihWv == null) {
                     break;
                 }
+                berbahayaTerotorisasi = true;
                 if (!argumenVersiValid(bersihWv)) {
                     TgBackup.sendMessage(ctx, "Versi tidak valid."
                             + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
@@ -880,6 +894,7 @@ public final class TgBot {
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
         }
+        return berbahayaTerotorisasi;
     }
 
     /** True bila argumen /restore adalah konfirmasi eksplisit. Sengaja sempit
@@ -1203,11 +1218,11 @@ public final class TgBot {
         return kiniElapsed - terakhir >= PERINGATAN_MUNDUR_MS;
     }
 
-    /** Tangani jam mundur tanpa mengunci bot: jepit maks kembali ke kini
-     *  (pulih sendiri saat poll berikut), lalu true bila peringatan boleh
-     *  dikirim (dibatasi 1x/jam via jam monotonik). */
+    /** Tangani jam mundur tanpa mengunci bot: tanda air MAKSIMUM dipertahankan
+     *  (jangan dijepit ke kini agar penyerang tak bisa menurunkannya bertahap
+     *  lewat rollback beruntun); pulih sendiri saat jam kembali melewati maks.
+     *  Lalu true bila peringatan boleh dikirim (dibatasi 1x/jam via monotonik). */
     static boolean catatMundurDanBolehIngatkan(long kini) {
-        wallMaksTelegram = kini;
         long e;
         try {
             e = SystemClock.elapsedRealtime();

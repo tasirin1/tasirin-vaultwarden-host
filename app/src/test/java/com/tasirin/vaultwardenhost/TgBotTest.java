@@ -48,6 +48,20 @@ public class TgBotTest {
     }
 
     @Test
+    public void mundurTakMenurunkanTandaAir() {
+        long maks = 1_700_000_000_000L;
+        TgBot.catatWall(maks);
+        long mundur = maks - 3600_000L;
+        assertTrue(TgBot.jamMundur(mundur));
+        TgBot.catatMundurDanBolehIngatkan(mundur);
+        // Tanda air bertahan: rollback yang sama tetap terdeteksi (tak pulih
+        // palsu), dan jam normal tak dianggap mundur.
+        assertTrue(TgBot.jamMundur(mundur));
+        assertFalse(TgBot.jamMundur(maks));
+        TgBot.catatWall(maks);
+    }
+
+    @Test
     public void peringatanMundur_maksSatuKaliSejam() {
         assertTrue(TgBot.peringatanMundurJatuhTempo(1000, 0));
         assertFalse(TgBot.peringatanMundurJatuhTempo(1000, 1000));

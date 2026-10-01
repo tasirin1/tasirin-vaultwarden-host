@@ -162,6 +162,11 @@ public class ServerService extends Service {
     public static volatile String runningAdminToken = "";
     /** Penanda versi web-vault saat server start (untuk hint restart di MainActivity). */
     public static volatile String runningWvFrom = "";
+    /** IP LAN saat server start (untuk DOMAIN); dibandingkan tiap health check
+     *  agar DHCP/WiFi yang berubah ketahuan tanpa restart membabi-buta. */
+    public static volatile String runningLanHost = "";
+    /** IP perubahan terakhir yang sudah diperingatkan (anti-spam Telegram). */
+    private static volatile String ipBerubahDiperingatkan = "";
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
     // Anti-loop: berhenti total bila restart beruntun ≥3x dalam 5 menit.
@@ -1073,6 +1078,8 @@ public class ServerService extends Service {
             runningAdminToken = adminToken == null ? "" : adminToken.trim();
             String wvFrom = Updater.webVaultFromVersion(this);
             runningWvFrom = wvFrom == null ? "" : wvFrom;
+            runningLanHost = lanHost();
+            ipBerubahDiperingatkan = "";
 
             // Validasi ulang tepat sebelum exec: unduh binary/web-vault di atas
             // makan waktu bermenit-menit; symlink folder data yang ditukar di
@@ -1144,6 +1151,8 @@ public class ServerService extends Service {
             runningHttps = false;
             runningAdminToken = "";
             runningWvFrom = "";
+            runningLanHost = "";
+            ipBerubahDiperingatkan = "";
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
@@ -1193,6 +1202,8 @@ public class ServerService extends Service {
         runningHttps = false;
         runningAdminToken = "";
         runningWvFrom = "";
+        runningLanHost = "";
+        ipBerubahDiperingatkan = "";
         releaseWakeLock();
         flushLogFile();
         TgBackup.sendMessage(this, "Server dihentikan.");
@@ -1626,6 +1637,7 @@ public class ServerService extends Service {
     // ─── Health check (/alive) ─────────────────────────────────────────
 
     private void checkHealthOnce() {
+        peringatkanIpBerubah();
         HasilPing h = pingRinci(this);
         if (h.sehat) {
             healthFails.set(0);
@@ -1633,6 +1645,32 @@ public class ServerService extends Service {
             return;
         }
         healthFail("tidak merespon (" + h.rincian + ")");
+    }
+
+    /** Bandingkan IP LAN kini dengan snapshot start: DOMAIN Vaultwarden hanya
+     *  dibaca saat start sehingga tautan reset password menunjuk IP lama bila
+     *  DHCP/WiFi berubah. Peringatkan sekali per IP baru (log + Telegram),
+     *  bukan restart otomatis: loopback tetap sehat. */
+    private void peringatkanIpBerubah() {
+        try {
+            if (!running || runningLanHost == null || runningLanHost.isEmpty()) {
+                return;
+            }
+            String kini = lanHost();
+            if (kini == null || kini.isEmpty() || kini.equals(runningLanHost)) {
+                return;
+            }
+            if (kini.equals(ipBerubahDiperingatkan)) {
+                return;
+            }
+            ipBerubahDiperingatkan = kini;
+            appendLog("[app] IP LAN berubah (" + runningLanHost + " -> " + kini + "):"
+                    + " DOMAIN server masih menunjuk IP lama."
+                    + " Restart server agar tautan ikut IP baru.");
+            TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
+                    + " Restart server agar tautan memakai IP baru.");
+        } catch (Exception ignored) {
+        }
     }
 
     private void healthFail(String reason) {
@@ -1675,6 +1713,8 @@ public class ServerService extends Service {
             runningHttps = false;
             runningAdminToken = "";
             runningWvFrom = "";
+            runningLanHost = "";
+            ipBerubahDiperingatkan = "";
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");

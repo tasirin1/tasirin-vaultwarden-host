@@ -573,97 +573,110 @@ public final class Updater {
 
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
      *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
-     *  Return hex SHA-256; lempar IOException terakhir bila gagal. */
-    static String unduhKeTmp(Context ctx, String url, File tmp, String label,
+     *  Return hex SHA-256; lempar IOException terakhir bila gagal.
+     *  Kunci per-file hanya dipegang selama percobaan jaringan; jeda 3 detik
+     *  antar percobaan jalan DI LUAR kunci agar tak menahan pemanggil lain. */
+    static String unduhKeTmp(Context ctx, String urlAwal, File tmp, String label,
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws IOException {
-        synchronized (kunciUnduh(tmp)) {
-            return unduhKeTmpTerkunci(ctx, url, tmp, label, connectMs, readMs, cadangan);
-        }
-    }
-
-    /** Isi unduhan dengan asumsi kunci per-file sudah dipegang. */
-    private static String unduhKeTmpTerkunci(Context ctx, String url, File tmp, String label,
-                              int connectMs, int readMs, UrlCadangan cadangan)
-            throws IOException {
+        final String[] url = {urlAwal};
+        final boolean[] fallbackUsed = {false};
         Exception gagal = null;
-        boolean fallbackUsed = false;
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
-            // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
-            long resumeFrom = tmp.exists() ? tmp.length() : 0;
-            HttpURLConnection dl = null;
             try {
-                dl = openRange(ctx, url, resumeFrom, connectMs, readMs);
-                int code = dl.getResponseCode();
-                if (code == 404 && cadangan != null && !fallbackUsed) {
-                    String alt = cadangan.ganti(url, code);
-                    if (alt != null && !alt.equals(url)) {
-                        dl.disconnect();
-                        dl = null;
-                        resumeFrom = 0;
-                        tmp.delete();
-                        url = alt;
-                        fallbackUsed = true;
-                        dl = open(ctx, url, connectMs, readMs);
-                        code = dl.getResponseCode();
-                    }
+                synchronized (kunciUnduh(tmp)) {
+                    return unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
+                            connectMs, readMs, cadangan);
                 }
-                if (perluResetResume(code, resumeFrom)) {
-                    // HTTP 416 = Range ditolak; HTTP 200 = server mengabaikan
-                    // Range. Ulang dari nol agar file tidak korup.
-                    dl.disconnect();
-                    tmp.delete();
-                    resumeFrom = 0;
-                    dl = open(ctx, url, connectMs, readMs);
-                    code = dl.getResponseCode();
-                }
-                if (code == 206 && resumeFrom > 0 && !rangeCocok(dl, resumeFrom)) {
-                    // Klaim 206 tapi awal Content-Range tak cocok dengan bytes
-                    // lanjutan (proksi menyimpang): buang parsial dan ulang
-                    // dari nol sebelum kuota terbuang sia-sia.
-                    dl.disconnect();
-                    tmp.delete();
-                    resumeFrom = 0;
-                    dl = open(ctx, url, connectMs, readMs);
-                    code = dl.getResponseCode();
-                }
-                if (code != 200 && code != 206) {
-                    throw new IOException("Unduhan gagal (HTTP " + code + ").");
-                }
-                return salinSambilHash(dl, tmp, code, resumeFrom, label);
             } catch (IOException e) {
                 gagal = e;
-                // Parsial rusak: buang file terpotong agar percobaan berikut
-                // unduh ulang dari nol (resume dari file rusak pasti gagal lagi).
-                try {
-                    String pesan = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
-                    if (pesan.contains("parsial")) {
-                        tmp.delete();
-                    }
-                } catch (Exception ignored) {
-                }
+                buangParsialRusak(tmp, e);
                 // Fallback sengaja dipertahankan untuk semua percobaan berikut:
                 // kembali ke URL asli menumpuk bytes dua asset berbeda dan membuat
                 // digest tak lagi sesuai checksum URL fallback (gagal verifikasi
                 // palsu). URL versi yang 404 tetap 404; unduhan berikut akan
                 // mengambilnya lagi bila rilis sudah jadi.
-                if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH
-                        || !tundaCobaLagiUnduh(coba)) {
+                if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH) {
+                    break;
+                }
+                if (!tundaCobaLagiUnduh(coba)) {
                     break;
                 }
             } catch (Exception e) {
                 gagal = e;
                 break;
-            } finally {
-                if (dl != null) {
-                    dl.disconnect();
-                }
             }
         }
         if (gagal instanceof IOException) {
             throw (IOException) gagal;
         }
         throw new IOException(gagal == null ? "koneksi gagal" : String.valueOf(gagal));
+    }
+
+    /** Buang file parsial terpotong agar percobaan berikut unduh ulang dari nol
+     *  (resume dari file rusak pasti gagal lagi). */
+    private static void buangParsialRusak(File tmp, IOException e) {
+        try {
+            String pesan = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
+            if (pesan.contains("parsial")) {
+                tmp.delete();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Satu percobaan unduh; wajib dipanggil dengan kunci per-file dipegang. */
+    private static String unduhSatuPercobaan(Context ctx, String[] url, boolean[] fallbackUsed,
+                              File tmp, String label,
+                              int connectMs, int readMs, UrlCadangan cadangan)
+            throws IOException {
+        // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
+        long resumeFrom = tmp.exists() ? tmp.length() : 0;
+        HttpURLConnection dl = null;
+        try {
+            dl = openRange(ctx, url[0], resumeFrom, connectMs, readMs);
+            int code = dl.getResponseCode();
+            if (code == 404 && cadangan != null && !fallbackUsed[0]) {
+                String alt = cadangan.ganti(url[0], code);
+                if (alt != null && !alt.equals(url[0])) {
+                    dl.disconnect();
+                    dl = null;
+                    resumeFrom = 0;
+                    tmp.delete();
+                    url[0] = alt;
+                    fallbackUsed[0] = true;
+                    dl = open(ctx, url[0], connectMs, readMs);
+                    code = dl.getResponseCode();
+                }
+            }
+            if (perluResetResume(code, resumeFrom)) {
+                // HTTP 416 = Range ditolak; HTTP 200 = server mengabaikan
+                // Range. Ulang dari nol agar file tidak korup.
+                dl.disconnect();
+                tmp.delete();
+                resumeFrom = 0;
+                dl = open(ctx, url[0], connectMs, readMs);
+                code = dl.getResponseCode();
+            }
+            if (code == 206 && resumeFrom > 0 && !rangeCocok(dl, resumeFrom)) {
+                // Klaim 206 tapi awal Content-Range tak cocok dengan bytes
+                // lanjutan (proksi menyimpang): buang parsial dan ulang
+                // dari nol sebelum kuota terbuang sia-sia.
+                dl.disconnect();
+                tmp.delete();
+                resumeFrom = 0;
+                dl = open(ctx, url[0], connectMs, readMs);
+                code = dl.getResponseCode();
+            }
+            if (code != 200 && code != 206) {
+                throw new IOException("Unduhan gagal (HTTP " + code + ").");
+            }
+            return salinSambilHash(dl, tmp, code, resumeFrom, label);
+        } finally {
+            if (dl != null) {
+                dl.disconnect();
+            }
+        }
     }
 
     /** Salin body unduhan ke file sementara sambil menghitung SHA-256
