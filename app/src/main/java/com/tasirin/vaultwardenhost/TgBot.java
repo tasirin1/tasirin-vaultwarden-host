@@ -290,14 +290,15 @@ public final class TgBot {
                                 long dateMs = msg.optLong("date", 0) * 1000L;
                                 long kini = System.currentTimeMillis();
                                 if (jamMundur(kini)) {
-                                    // Jangan tolak membabi buta: jepit maks
-                                    // kembali ke kini agar glitch NTP maju
-                                    // sesaat tak mengunci perintah legit sampai
-                                    // jam mengejar masa depan; perintah tetap
-                                    // diproses normal di bawah.
+                                    // Fail-closed: jam tak dipercaya (rollback/NTP),
+                                    // perintah berbahaya tak boleh jalan dari pesan
+                                    // basi yang di-replay. Offset tetap maju agar
+                                    // tak diproses ulang; jepit maks agar pulih
+                                    // sendiri saat poll berikut.
                                     if (catatMundurDanBolehIngatkan(kini)) {
                                         rollbackDitolak++;
                                     }
+                                    continue;
                                 } else {
                                     catatWall(kini);
                                 }
@@ -322,7 +323,7 @@ public final class TgBot {
                 }
                 if (rollbackDitolak > 0) {
                     TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
-                            + " perintah tetap diproses. Periksa tanggal & jam STB.");
+                            + " perintah ditolak sementara. Periksa tanggal & jam STB.");
                 }
             } finally {
                 if (newOffset != offset) {
@@ -442,14 +443,15 @@ public final class TgBot {
                 long tgl = pesan.optLong("date", 0) * 1000L;
                 long kini = System.currentTimeMillis();
                 if (jamMundur(kini)) {
-                    // Sama seperti pesan: jepit maks lalu lanjut proses tombol
-                    // (peringatan dibatasi 1x/jam agar tak spam tiap ketukan).
+                    // Fail-closed seperti pesan: tombol ditolak sementara saat
+                    // jam tak dipercaya (peringatan dibatasi 1x/jam).
                     boolean ingatkan = catatMundurDanBolehIngatkan(kini);
                     jawabCallback(ctx, cb.optString("id", ""));
                     if (ingatkan) {
                         TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
-                                + " tombol tetap diproses. Periksa tanggal & jam STB.");
+                                + " tombol ditolak sementara. Periksa tanggal & jam STB.");
                     }
+                    return;
                 } else {
                     catatWall(kini);
                 }
@@ -989,8 +991,8 @@ public final class TgBot {
             }
             return rest;
         }
-        TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app di akhir"
-                + " (mis. /stop 123456). Aktifkan PIN di pengaturan bila belum.");
+        TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
+                + " (mis. /stop 123456 atau /stop PIN:123456).");
         return null;
     }
 
@@ -1056,6 +1058,11 @@ public final class TgBot {
         int i = t.lastIndexOf(' ');
         if (i < 0) {
             // Kata tunggal pendek bukan PIN: minta PIN eksplisit agar tak lockout sia-sia.
+            // Kata kunci versi ("terbaru"/"latest") bukan PIN: jangan dimakan agar
+            // /update terbaru tak terkunci sia-sia saat PIN aktif.
+            if (t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
+                return new String[]{t, ""};
+            }
             if (t.matches("[A-Za-z0-9]{4,}")) {
                 return new String[]{"", t};
             }
@@ -1064,6 +1071,11 @@ public final class TgBot {
         String kandidat = t.substring(i + 1);
         // Fallback legasi "/restore YA 123456": kata terakhir min 4 char
         // alfanumerik dianggap PIN; kata pendek/biasa tak dimakan sebagai PIN.
+        // Kata kunci versi ("terbaru"/"latest") bukan PIN agar /update terbaru
+        // + PIN tetap membawa versi ("terbaru 123456" -> sisa "terbaru").
+        if (kandidat.equalsIgnoreCase("terbaru") || kandidat.equalsIgnoreCase("latest")) {
+            return new String[]{t, ""};
+        }
         if (kandidat.matches("[A-Za-z0-9]{4,}")) {
             return new String[]{t.substring(0, i).trim(), kandidat};
         }

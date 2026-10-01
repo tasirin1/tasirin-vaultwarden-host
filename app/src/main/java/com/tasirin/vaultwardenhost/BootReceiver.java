@@ -16,7 +16,7 @@ public class BootReceiver extends BroadcastReceiver {
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             TgBackup.healkanStringPrefs(context);
             TgBackup.migrateAutoPref(context);
-            if (sp.getBoolean(ServerService.KEY_AUTO_START, false)) {
+            if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
                 try {
                     ServerService.start(context);
                 } catch (Exception ignored) {
@@ -25,12 +25,12 @@ public class BootReceiver extends BroadcastReceiver {
             }
             // Pertahankan jadwal backup tengah malam setelah reboot;
             // kejar backup bila tanggal sudah berganti saat device mati.
-            if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+            if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
                 try {
-                    String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-                    String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
-                    String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+                    String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+                    String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+                    String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                             ServerService.DEFAULT_DATA_DIR);
                     boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
                             && new java.io.File(dataDir.trim(), "db.sqlite3").exists();

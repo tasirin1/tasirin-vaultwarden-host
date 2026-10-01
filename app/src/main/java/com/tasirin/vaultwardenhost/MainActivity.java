@@ -805,7 +805,7 @@ public class MainActivity extends Activity {
 
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(PinGate.KEY_PIN_ON, false)) {
+        if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)) {
             return;
         }
         // Sudah dibuka di Settings dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
@@ -818,7 +818,7 @@ public class MainActivity extends Activity {
             return;
         }
         unlocked = false;
-        final String pinHash = sp.getString(PinGate.KEY_PIN_HASH, "");
+        final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
             try {
                 sp.edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();

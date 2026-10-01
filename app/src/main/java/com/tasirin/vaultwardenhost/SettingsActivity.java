@@ -390,21 +390,21 @@ public class SettingsActivity extends Activity {
         aboutBtn.setOnClickListener(v -> showAboutDialog());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
-        adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
-        autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
+        adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
+        autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
-        tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-        tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
-        tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
-        autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
-        autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
-        autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
-        backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
-        binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
+        tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+        tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+        tgAutoCheck.setChecked(TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
+        autoUpdateCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false));
+        autoUpdateWvCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false));
+        autoRestartCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false));
+        backupPassInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""));
+        binShaInput.setText(TgBackup.amanString(sp, ServerService.KEY_BIN_SHA, ""));
         pinInput.setText("");
-        pinEnabledCheck.setChecked(sp.getBoolean(PinGate.KEY_PIN_ON, false));
+        pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
         pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
         pasangSeksi(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan, KEY_SEC_KEAMANAN);
         pasangSeksi(R.id.headerRawat, R.id.bodyRawat, R.id.chevronRawat, KEY_SEC_RAWAT);
@@ -580,7 +580,7 @@ public class SettingsActivity extends Activity {
         // Auto-update check on launch
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
         // Pastikan jadwal backup harian tetap terpasang
-        TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+        TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
         TgBot.schedule(this);
         // Tanpa wizard awal (gaya Download Manager: bawaan langsung benar).
@@ -750,12 +750,12 @@ public class SettingsActivity extends Activity {
         boolean changed = false;
         if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             if (d == null || d.trim().isEmpty()) {
                 d = DEFAULT_DATA_DIR;
             }
             String p = ServerService.effectivePort(sp);
-            String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
+            String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
             if (a == null) {
                 a = "";
             }
@@ -785,7 +785,7 @@ public class SettingsActivity extends Activity {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
-                String up = psp.getString(ServerService.KEY_UPDATE_VERSION, "");
+                String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
                 if (cur != null && cur.equals(pendingVersion)) {
@@ -1052,7 +1052,7 @@ public class SettingsActivity extends Activity {
     private void autoOfferWebVaultUpdate() {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             if (!webVaultReady(dataDir)) {
                 return;
             }
@@ -1067,7 +1067,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
             final String key = "wv_notified_" + server;
-            if (sp.getBoolean(key, false)) {
+            if (TgBackup.amanBoolean(sp, key, false)) {
                 return;
             }
             sp.edit().putBoolean(key, true).apply();
@@ -1428,7 +1428,7 @@ public class SettingsActivity extends Activity {
                             SharedPreferences sp2 = getSharedPreferences(
                                     ServerService.PREFS, MODE_PRIVATE);
                             TgBackup.schedule(SettingsActivity.this,
-                                    sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                                    TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
                             TgBot.schedule(SettingsActivity.this);
                             appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
                         });
@@ -1583,7 +1583,7 @@ public class SettingsActivity extends Activity {
         try {
             File zip = unduhan;
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+            String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
             if (TgBackup.isEncrypted(unduhan)) {
                 if (pass == null || pass.trim().isEmpty()) {
                     toast("Backup terenkripsi \u2014 isi password backup dulu.");
@@ -1633,7 +1633,7 @@ public class SettingsActivity extends Activity {
      *  backups (terbaca app lain) — ingatkan eksplisit sebelum tulis. */
     private void mintaExport() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+        String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
         boolean terkunci = pass != null && !pass.trim().isEmpty();
         confirm("Export Pengaturan",
                 "File tidak membawa token/PIN/password (tetap di perangkat ini)."
@@ -1658,7 +1658,7 @@ public class SettingsActivity extends Activity {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
             // Kredensial tak ikut export (tetap di perangkat); enkripsi bila password backup diisi.
-            String pass = sp.getString(TgBackup.KEY_TG_PASS, "");
+            String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
             final File out;
             final String mime;
             if (pass != null && !pass.trim().isEmpty()) {
@@ -1765,7 +1765,7 @@ public class SettingsActivity extends Activity {
             File src = tmp;
             if (TgBackup.isEncrypted(tmp)) {
                 SharedPreferences sp0 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                String pass0 = sp0.getString(TgBackup.KEY_TG_PASS, "");
+                String pass0 = TgBackup.amanString(sp0, TgBackup.KEY_TG_PASS, "");
                 if (pass0 == null || pass0.trim().isEmpty()) {
                     toast("Config terenkripsi - isi password backup dulu.");
                     appendUiLog("[app] Import ditolak: config terenkripsi, password kosong");
@@ -1800,7 +1800,7 @@ public class SettingsActivity extends Activity {
                 SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
                 sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
                 TgBackup.schedule(SettingsActivity.this,
-                        sp2.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
                 TgBot.schedule(SettingsActivity.this);
                 toast("Pengaturan diimpor. Tekan Start agar berlaku.");
                 appendUiLog("[app] Config import selesai.");
@@ -1816,19 +1816,19 @@ public class SettingsActivity extends Activity {
     /** Muat ulang isi form dari prefs (dipakai setelah import config). */
     private void reloadSettingsFromPrefs() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        dataDirInput.setText(sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
         portInput.setText(ServerService.effectivePort(sp));
-        adminTokenInput.setText(sp.getString(ServerService.KEY_ADMIN_TOKEN, ""));
-        autoStartCheck.setChecked(sp.getBoolean(ServerService.KEY_AUTO_START, false));
-        tgTokenInput.setText(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-        tgChatInput.setText(sp.getString(TgBackup.KEY_TG_CHAT, ""));
-        tgAutoCheck.setChecked(sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
-        autoUpdateCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE, false));
-        autoUpdateWvCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_UPDATE_WV, false));
-        autoRestartCb.setChecked(sp.getBoolean(ServerService.KEY_AUTO_RESTART_UPDATE, false));
-        backupPassInput.setText(sp.getString(TgBackup.KEY_TG_PASS, ""));
-        binShaInput.setText(sp.getString(ServerService.KEY_BIN_SHA, ""));
-        pinEnabledCheck.setChecked(sp.getBoolean(PinGate.KEY_PIN_ON, false));
+        adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
+        autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
+        tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+        tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+        tgAutoCheck.setChecked(TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
+        autoUpdateCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false));
+        autoUpdateWvCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false));
+        autoRestartCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false));
+        backupPassInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""));
+        binShaInput.setText(TgBackup.amanString(sp, ServerService.KEY_BIN_SHA, ""));
+        pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
         validasiInline();
     }
 
@@ -1863,7 +1863,7 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String p;
         try {
-            p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
+            p = TgBackup.amanString(sp, ServerService.KEY_PORT, DEFAULT_PORT);
         } catch (ClassCastException e) {
             // Port telanjur tersimpan bukan-String (impor lama/config manual):
             // kembalikan default agar Settings/Start tak crash berulang.
@@ -1885,7 +1885,7 @@ public class SettingsActivity extends Activity {
 
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!sp.getBoolean(PinGate.KEY_PIN_ON, false)) {
+        if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)) {
             return;
         }
         // Sudah dibuka di layar awal dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
@@ -1898,7 +1898,7 @@ public class SettingsActivity extends Activity {
             return;
         }
         unlocked = false;
-        final String pinHash = sp.getString(PinGate.KEY_PIN_HASH, "");
+        final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
             // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat agar
             // tak terbuka diam-diam tanpa kunci (fail-open).
@@ -1991,7 +1991,7 @@ public class SettingsActivity extends Activity {
         lastDbCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             File db = new File(dataDir, "db.sqlite3");
             if (!db.exists()) {
                 dbLine = "";
@@ -2015,7 +2015,7 @@ public class SettingsActivity extends Activity {
         lastStorageCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             File data = new File(dataDir);
             File db = new File(data, "db.sqlite3");
             File backups = new File(data, "backups");
@@ -2066,7 +2066,7 @@ public class SettingsActivity extends Activity {
         lastWvCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
             String updated = Updater.webVaultFromVersion(this);
             if (updated == null) {
                 updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
@@ -2113,7 +2113,7 @@ public class SettingsActivity extends Activity {
             }
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
         long free = TgBackup.freeBytes(dataDir);
         if (free > 0) {
             if (sb.length() > 0) {
@@ -2149,7 +2149,7 @@ public class SettingsActivity extends Activity {
             File cert = new File(getFilesDir(), "tls/cert.pem");
             if (!cert.exists()) {
                 SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                String dataDir = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
                 cert = new File(dataDir, "tls/cert.pem");
             }
             if (!cert.exists()) {
@@ -2217,9 +2217,9 @@ public class SettingsActivity extends Activity {
             try {
                 SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
                 String b = Updater.normalisasiPinVersi(
-                        sp.getString(ServerService.KEY_BIN_PILIH, ""));
+                        TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, ""));
                 String w = Updater.normalisasiPinVersi(
-                        sp.getString(ServerService.KEY_WV_PILIH, ""));
+                        TgBackup.amanString(sp, ServerService.KEY_WV_PILIH, ""));
                 if (pilihBinBtn != null) {
                     pilihBinBtn.setText(getString(R.string.pilih_versi_binary, labelKuncian(b)));
                 }
@@ -2244,9 +2244,9 @@ public class SettingsActivity extends Activity {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String b = Updater.normalisasiPinVersi(
-                    sp.getString(ServerService.KEY_BIN_PILIH, ""));
+                    TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, ""));
             String w = Updater.normalisasiPinVersi(
-                    sp.getString(ServerService.KEY_WV_PILIH, ""));
+                    TgBackup.amanString(sp, ServerService.KEY_WV_PILIH, ""));
             boolean adaB = b != null && !b.isEmpty();
             boolean adaW = w != null && !w.isEmpty();
             if (!adaB && !adaW) {
@@ -2609,13 +2609,13 @@ public class SettingsActivity extends Activity {
     /** Tampilkan wizard bila instalasi baru; tandai selesai agar sekali saja. */
     private void maybeShowWizard() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (sp.getBoolean(KEY_WIZARD_DONE, false)) {
+        if (TgBackup.amanBoolean(sp, KEY_WIZARD_DONE, false)) {
             return;
         }
-        String d = sp.getString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
-        String p = sp.getString(ServerService.KEY_PORT, DEFAULT_PORT);
-        String a = sp.getString(ServerService.KEY_ADMIN_TOKEN, "");
-        String uv = sp.getString(ServerService.KEY_UPDATE_VERSION, "");
+        String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String p = TgBackup.amanString(sp, ServerService.KEY_PORT, DEFAULT_PORT);
+        String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
+        String uv = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         if (!perluWizard(false, d, p, a, uv) || ServerService.running
                 || !ServerService.binaryVersion.isEmpty()) {
             sp.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
@@ -2802,7 +2802,7 @@ public class SettingsActivity extends Activity {
         if (header == null) {
             return;
         }
-        boolean buka = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getBoolean(kunci, true);
+        boolean buka = TgBackup.amanBoolean(getSharedPreferences(ServerService.PREFS, MODE_PRIVATE), kunci, true);
         terapkanSeksi(idBadan, idChevron, buka);
         perbaikiRantaiFokus();
         header.setOnClickListener(v -> {

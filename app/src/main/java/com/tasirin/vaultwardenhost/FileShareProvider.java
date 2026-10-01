@@ -192,7 +192,7 @@ public class FileShareProvider extends ContentProvider {
             }
             android.content.SharedPreferences sp = getContext().getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);
-            String dataDir = sp.getString(ServerService.KEY_DATA_DIR,
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                     ServerService.DEFAULT_DATA_DIR);
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.DEFAULT_DATA_DIR;

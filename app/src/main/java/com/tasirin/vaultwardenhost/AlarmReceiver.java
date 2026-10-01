@@ -16,7 +16,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         try {
             SharedPreferences cek = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            if (cek.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+            if (TgBackup.amanBoolean(cek, TgBackup.KEY_TG_AUTO, false)) {
                 TgBackup.schedule(context, true);
             } else {
                 // Auto dimatikan: alarm yang telanjur terjadwal tak boleh mengunggah.
@@ -57,7 +57,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             try {
                 SharedPreferences cekAwal = context.getSharedPreferences(
                         ServerService.PREFS, Context.MODE_PRIVATE);
-                if (cekAwal.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                if (TgBackup.amanBoolean(cekAwal, TgBackup.KEY_TG_AUTO, false)) {
                     TgBackup.jadwalTundaBoot(context);
                 }
             } catch (Exception ignored) {
@@ -76,7 +76,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             } else {
                 // Jaga jadwal harian tetap ada walau susulan dilewati.
                 try {
-                    if (sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+                    if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                         TgBackup.schedule(context, true);
                     }
                 } catch (Exception ignored) {
@@ -106,13 +106,13 @@ public class AlarmReceiver extends BroadcastReceiver {
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            if (!sp.getBoolean(TgBackup.KEY_TG_AUTO, false)) {
+            if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 return;
             }
             // Hitung ulang tengah malam berikutnya setelah jam berubah.
             TgBackup.schedule(context, true);
-            String token = Util.amanTrim(sp.getString(TgBackup.KEY_TG_TOKEN, ""));
-            String chat = Util.amanTrim(sp.getString(TgBackup.KEY_TG_CHAT, ""));
+            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }

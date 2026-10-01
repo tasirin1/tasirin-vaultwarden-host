@@ -240,6 +240,17 @@ public class TgBotTest {
         }
     }
 
+
+    @Test
+    public void pisahkanPin_janganMakanKataVersi() {
+        assertArrayEquals(new String[]{"terbaru", ""}, TgBot.pisahkanPin("terbaru"));
+        assertArrayEquals(new String[]{"latest", ""}, TgBot.pisahkanPin("latest"));
+        assertArrayEquals(new String[]{"TERBARU", ""}, TgBot.pisahkanPin("TERBARU"));
+        assertArrayEquals(new String[]{"1.32.0", "123456"}, TgBot.pisahkanPin("1.32.0 123456"));
+        assertArrayEquals(new String[]{"terbaru", "123456"}, TgBot.pisahkanPin("terbaru 123456"));
+        assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("123456"));
+    }
+
     @Test
     public void lolosJson_amankanKutipDanKontrol() {
         assertEquals("", TgBot.lolosJson(null));
