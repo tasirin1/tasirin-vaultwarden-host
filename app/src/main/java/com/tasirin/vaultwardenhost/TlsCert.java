@@ -113,11 +113,25 @@ public final class TlsCert {
             File keyFile = new File(dir, LEAF_KEY_FILE);
             if (!caOk(caCert, caKey, dir)) {
                 // CA hilang / rusak / versi lama / kedaluwarsa: buat ulang semuanya.
-                caCert.delete();
-                caKey.delete();
+                // Atomik: tulis ke .baru dulu, ganti lama hanya bila pengganti jadi.
+                // Sebelumnya file lama dihapus dulu sehingga gagal generate
+                // menghilangkan CA bagus yang masih ada.
+                File caCertBaru = new File(dir, CA_CERT_FILE + ".baru");
+                File caKeyBaru = new File(dir, CA_KEY_FILE + ".baru");
+                caCertBaru.delete();
+                caKeyBaru.delete();
+                if (!buatCa(caCertBaru, caKeyBaru)) {
+                    caCertBaru.delete();
+                    caKeyBaru.delete();
+                    return null;
+                }
                 certFile.delete();
                 keyFile.delete();
-                if (!buatCa(caCert, caKey)) {
+                caCert.delete();
+                caKey.delete();
+                if (!caCertBaru.renameTo(caCert) || !caKeyBaru.renameTo(caKey)) {
+                    caCertBaru.delete();
+                    caKeyBaru.delete();
                     return null;
                 }
                 writeVersion(dir);
@@ -130,9 +144,21 @@ public final class TlsCert {
             // Leaf hilang / rusak / kedaluwarsa: buat ulang, CA tetap.
             // Perubahan IP/domain dideteksi pemanggil (ServerService lewat
             // ips.txt) yang menghapus leaf lebih dulu sebelum memanggil ensure.
+            // Atomik seperti CA: leaf lama dipertahankan bila generate gagal.
+            File certBaru = new File(dir, LEAF_CERT_FILE + ".baru");
+            File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
+            certBaru.delete();
+            keyBaru.delete();
+            if (!buatLeaf(caKey, certBaru, keyBaru, ips, dns)) {
+                certBaru.delete();
+                keyBaru.delete();
+                return null;
+            }
             certFile.delete();
             keyFile.delete();
-            if (!buatLeaf(caKey, certFile, keyFile, ips, dns)) {
+            if (!certBaru.renameTo(certFile) || !keyBaru.renameTo(keyFile)) {
+                certBaru.delete();
+                keyBaru.delete();
                 return null;
             }
             writeVersion(dir);
@@ -786,7 +812,9 @@ public final class TlsCert {
         }
         int hapus = 0;
         for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
-                LEAF_KEY_FILE, "ips.txt", "version.txt"}) {
+                LEAF_KEY_FILE, "ips.txt", "version.txt",
+                CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
+                LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru"}) {
             try {
                 File f = new File(tlsDir, nama);
                 if (f.isFile() && f.delete()) {

@@ -983,6 +983,16 @@ public class ServerService extends Service {
             dataDir = dataDir.trim();
         }
         String port = currentPort();
+        // Transparansi fallback: currentPort() sudah menormalisasi (<1024/invalid -> default),
+        // jadi bandingkan dengan nilai mentah agar user paham port 80/443 tak bisa dipakai tanpa root.
+        try {
+            String mentah = TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
+            if (mentah != null && !port.equals(mentah.trim()) && !mentah.trim().isEmpty()) {
+                appendLog("[app] Port '" + mentah.trim() + "' tidak valid/privileged - pakai default " + port
+                        + ". Pakai port >= 1024 di Settings bila ingin port lain.");
+            }
+        } catch (Exception ignored) {
+        }
 
         File dataFolder = new File(dataDir);
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {

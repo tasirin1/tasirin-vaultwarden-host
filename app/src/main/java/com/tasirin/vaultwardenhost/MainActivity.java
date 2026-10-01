@@ -871,9 +871,10 @@ public class MainActivity extends Activity {
                     ok.setEnabled(false);
                     input.setError("Memeriksa PIN...");
                     final String entered = input.getText().toString();
+                    final android.content.Context appCtx = getApplicationContext();
                     new Thread(() -> {
                         boolean cocok = PinCrypto.verify(pinHash, entered);
-                        PinGate.catatHasil(MainActivity.this, cocok,
+                        PinGate.catatHasil(appCtx, cocok,
                                 System.currentTimeMillis());
                         if (cocok && PinCrypto.perluUpgradeHash(pinHash)) {
                             // Migrasi hash lama/lemah ke PBKDF2 120k (sudah di worker).

@@ -217,6 +217,9 @@ public class FileShareProvider extends ContentProvider {
      *  di folder data. Database mentah (db.sqlite3*) dan binary tidak ikut. */
     private boolean isShareable(String canon) {
         try {
+            if (canon == null || getContext() == null) {
+                return false;
+            }
             String files = getContext().getFilesDir().getCanonicalPath();
             String cache = getContext().getCacheDir().getCanonicalPath();
             if (canon.startsWith(files + File.separator)
