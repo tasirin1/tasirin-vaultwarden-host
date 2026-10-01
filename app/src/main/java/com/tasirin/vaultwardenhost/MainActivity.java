@@ -575,7 +575,14 @@ public class MainActivity extends Activity {
                     break;
                 }
             }
-            homeLogView.setText(penuh.subSequence(nl < 0 ? potong : nl, penuh.length()));
+            int awalTampil = nl < 0 ? potong : nl;
+            // Jangan belah pasangan surrogate emoji di titik potong.
+            if (awalTampil > 0 && awalTampil < penuh.length()
+                    && Character.isLowSurrogate(penuh.charAt(awalTampil))
+                    && Character.isHighSurrogate(penuh.charAt(awalTampil - 1))) {
+                awalTampil++;
+            }
+            homeLogView.setText(penuh.subSequence(awalTampil, penuh.length()));
         }
         // Batas 150 baris tampil: buang baris tertua dari depan.
         int total = hitungBaris(homeLogView.getText());

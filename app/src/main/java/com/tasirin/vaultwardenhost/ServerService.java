@@ -663,8 +663,11 @@ public class ServerService extends Service {
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + ramah);
                 } finally {
                     // Jadwalkan ulang ke tengah malam berikutnya, selama masih aktif.
+                    // Baca tahan korup: getBoolean mentah melempar di finally
+                    // sehingga stopForeground/stopSelf di bawah tak jalan.
                     SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    TgBackup.schedule(this, sp.getBoolean(TgBackup.KEY_TG_AUTO, false));
+                    TgBackup.schedule(this,
+                            TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
                     if (process == null || !alive(process)) {
                         stopForeground(true);
                         stopSelf();
@@ -800,7 +803,13 @@ public class ServerService extends Service {
      *  Nilai rusak (huruf/kosong/di luar 1-65535) jatuh ke default agar health
      *  check tak membangun URL invalid lalu restart beruntun. */
     public static String effectivePort(SharedPreferences sp) {
-        String p = sp == null ? null : sp.getString(KEY_PORT, DEFAULT_PORT);
+        // Baca tahan korup: prefs korup di tengah jalan tak boleh
+        // ClassCastException tiap detik UI/health (jatuh ke default).
+        String p = null;
+        try {
+            p = sp == null ? null : sp.getString(KEY_PORT, DEFAULT_PORT);
+        } catch (Exception ignored) {
+        }
         return normalisasiPort(p);
     }
 
@@ -1266,7 +1275,7 @@ public class ServerService extends Service {
     private final Runnable restartTunda = new Runnable() {
         @Override
         public void run() {
-            if (autoRestart && (process == null || !alive(process))) {
+            if (healthActive && autoRestart && (process == null || !alive(process))) {
                 startServerAsync();
             }
         }
@@ -1558,9 +1567,7 @@ public class ServerService extends Service {
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');
-            if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
-                logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
-            }
+            pangkasBufferTerkunci();
             logVer++;
         }
         if (logFile != null) {
@@ -1623,6 +1630,11 @@ public class ServerService extends Service {
     }
 
     private void healthFail(String reason) {
+        // Stop ditekan saat cek health terbang: jangan hidupkan ulang server
+        // yang baru dihentikan user (autoRestart=true di bawah membatalkannya).
+        if (!healthActive) {
+            return;
+        }
         int gagal = healthFails.incrementAndGet();
         appendLog("[health] /alive gagal: " + reason + " (ke-" + gagal + "/3)");
         if (gagal >= 3) {
@@ -2848,10 +2860,23 @@ public class ServerService extends Service {
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');
-            if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
-                logBuffer.delete(0, logBuffer.length() - MAX_LOG_CHARS / 2);
-            }
+            pangkasBufferTerkunci();
             logVer++;
+        }
+    }
+
+    /** Pangkas buffer log di batas code-point (wajib dalam lock logBuffer).
+     *  Belah pasangan surrogate emoji menghasilkan lone surrogate (tofu di
+     *  layar / 400 Telegram) sehingga titik potong digeser bila perlu. */
+    private static void pangkasBufferTerkunci() {
+        if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
+            int potongBuf = logBuffer.length() - MAX_LOG_CHARS / 2;
+            if (potongBuf > 0 && potongBuf < logBuffer.length()
+                    && Character.isLowSurrogate(logBuffer.charAt(potongBuf))
+                    && Character.isHighSurrogate(logBuffer.charAt(potongBuf - 1))) {
+                potongBuf++;
+            }
+            logBuffer.delete(0, potongBuf);
         }
     }
 

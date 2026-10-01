@@ -954,8 +954,10 @@ public final class TgBot {
         // Baca tahan korup: prefs edit manual bertipe salah tak boleh
         // melempar ClassCastException di thread polling bot.
         String hash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-        boolean need = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
-                && hash != null && !hash.isEmpty();
+        // Fail-closed: PIN aktif tanpa hash (prefs rusak) tetap minta PIN
+        // (verifikasi hash kosong selalu gagal) agar perintah berbahaya tak
+        // lolos tanpa kunci; pulihkan via buka Settings (PIN mati otomatis).
+        boolean need = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false);
         String t = arg == null ? "" : arg.trim();
         if (!need) {
             return t;

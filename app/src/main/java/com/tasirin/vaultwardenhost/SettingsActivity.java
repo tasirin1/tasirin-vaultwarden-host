@@ -1681,6 +1681,20 @@ public class SettingsActivity extends Activity {
                 out = enc;
                 mime = "application/octet-stream";
             } else {
+                // Bersihkan export plaintext lama agar cache tak menumpuk
+                // (tiap export sebelumnya meninggalkan satu file).
+                try {
+                    File[] lama = getCacheDir().listFiles();
+                    if (lama != null) {
+                        for (File f : lama) {
+                            String n = f.getName();
+                            if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                                f.delete();
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
                 out = new File(getCacheDir(), "app-config-" + ts + ".json");
                 try (FileOutputStream fos = new FileOutputStream(out)) {
                     fos.write(bytes);
