@@ -229,6 +229,18 @@ public class TgBotTest {
     }
 
     @Test
+    public void keyboardPerintah_memuatSemuaPerintah() {
+        String json = TgBot.keyboardPerintah();
+        assertTrue(json.startsWith("{\"inline_keyboard\":["));
+        assertTrue(json.endsWith("]}"));
+        for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
+                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/versi", "/update",
+                "/webvault", "/start", "/stop", "/restart", "/help"}) {
+            assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
+        }
+    }
+
+    @Test
     public void lolosJson_amankanKutipDanKontrol() {
         assertEquals("", TgBot.lolosJson(null));
         assertEquals("a\\\"b\\\\c", TgBot.lolosJson("a\"b\\c"));

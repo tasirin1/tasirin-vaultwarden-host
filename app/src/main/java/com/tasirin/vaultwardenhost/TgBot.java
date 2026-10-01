@@ -375,8 +375,8 @@ public final class TgBot {
                 if (j > i) {
                     sb.append(',');
                 }
-                sb.append("{\"text\":\"").append(tombol[j][0])
-                        .append("\",\"callback_data\":\"").append(tombol[j][1])
+                sb.append("{\"text\":\"").append(lolosJson(tombol[j][0]))
+                        .append("\",\"callback_data\":\"").append(lolosJson(tombol[j][1]))
                         .append("\"}");
             }
             sb.append(']');

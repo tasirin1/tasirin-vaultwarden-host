@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: keyboard Telegram lolos JSON
+- `keyboardPerintah` pakai `lolosJson` seperti `menuPayload` agar label perintah ber-tanda kutip tetap valid.
+- Unit test: `keyboardPerintah_memuatSemuaPerintah`.
+
 ## [Belum rilis] — Perbaikan audit: race Stop/health, fail-closed PIN bot, trim surrogate
 - Health-check yang terbang saat Stop ditekan tak lagi menghidupkan ulang server (`healthFail`/`restartTunda` hormati `healthActive`).
 - `authDangerous` fail-closed: PIN aktif tanpa hash tetap minta PIN (pulih via buka Settings).
