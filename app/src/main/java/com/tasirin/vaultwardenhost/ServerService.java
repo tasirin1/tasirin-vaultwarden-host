@@ -193,7 +193,9 @@ public class ServerService extends Service {
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
-    private boolean autoRestart = false;
+    /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
+     *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta. */
+    private volatile boolean autoRestart = false;
     /** Hitungan restart beruntun: AtomicInteger karena scheduleRestart
      *  dipanggil dari thread watch proses dan thread health/main bersamaan. */
     private final java.util.concurrent.atomic.AtomicInteger restartAttempt =
@@ -1994,6 +1996,13 @@ public class ServerService extends Service {
 
     private static void deleteRecursive(File file) {
         if (file == null || !file.exists()) {
+            return;
+        }
+        // Symlink direktori: isDirectory() true lalu listFiles() menghapus isi
+        // TARGET di luar folder data (mis. link titipan di web-vault.new/.bak
+        // yang disapu cleanupTempFiles). Hapus link-nya saja (selaras Updater).
+        if (Updater.tautanSimbol(file)) {
+            file.delete();
             return;
         }
         if (file.isDirectory()) {
