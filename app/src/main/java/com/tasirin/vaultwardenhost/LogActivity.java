@@ -351,7 +351,7 @@ public class LogActivity extends Activity {
     /** Nilai DOMAIN (https://IP:port) ikut disamarkan agar IP/port LAN
      *  tak bocor via bagi log. */
     private static final java.util.regex.Pattern POLA_DOMAIN =
-            java.util.regex.Pattern.compile("(?i)((?:\bDOMAIN\b)\s*[:=]\s*)([^\s&,;"']+)");
+            java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
     /** Kata sandi backup boleh ber-spasi sehingga nilainya disamarkan sampai
      *  akhir baris (bukan sampai spasi pertama) agar sisa frasa tak bocor.
      *  Kredensial lain valid tanpa spasi sehingga pola kata-tunggal di atas
