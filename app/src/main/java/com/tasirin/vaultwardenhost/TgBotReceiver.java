@@ -14,8 +14,20 @@ public class TgBotReceiver extends BroadcastReceiver {
             return;
         }
         TgBackup.healkanStringPrefs(context);
+        // Tanpa token/chat polling pasti nir-op: keluar sebelum pegang
+        // wakelock agar tak membangunkan perangkat sia-sia tiap 20 detik.
+        if (!adaKonfig(context)) {
+            return;
+        }
+        // goAsync dulu, wakelock kemudian: bila goAsync melempar, belum ada
+        // wakelock yang bocor.
+        final PendingResult pr;
+        try {
+            pr = goAsync();
+        } catch (Exception e) {
+            return;
+        }
         final PowerManager.WakeLock wl = acquire(context);
-        final PendingResult pr = goAsync();
         new Thread(() -> {
             try {
                 TgBot.pollOnce(context);
@@ -29,6 +41,18 @@ public class TgBotReceiver extends BroadcastReceiver {
                 }
             }
         }, "vw-tgbot").start();
+    }
+
+    private static boolean adaKonfig(Context context) {
+        try {
+            android.content.SharedPreferences sp = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+            return !token.isEmpty() && !chat.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static PowerManager.WakeLock acquire(Context context) {

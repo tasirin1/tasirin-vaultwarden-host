@@ -72,9 +72,6 @@ public class SettingsActivity extends Activity {
      *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
      *  di tengah mengetik. */
     private volatile String pinHashSiap = null;
-    /** Teks PIN yang menghasilkan pinHashSiap (hash bersalt tak bisa
-     *  dibandingkan langsung; tanpa ini centang bisa memakai hash basi). */
-    private volatile String pinHashUntuk = null;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -466,8 +463,8 @@ public class SettingsActivity extends Activity {
                 // Hash ditahan di memori dulu: prefs hanya menerima nilai yang
                 // sudah settle (800 ms tanpa ketikan) agar app yang mati di
                 // tengah mengetik tak meninggalkan hash PIN parsial.
+                // PIN mentah tak disimpan di field agar tak mengendap di heap.
                 pinHashSiap = null;
-                pinHashUntuk = null;
                 if (s.length() < 4) {
                     // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
@@ -483,9 +480,13 @@ public class SettingsActivity extends Activity {
                         return;
                     }
                     pinHashSiap = h;
-                    pinHashUntuk = pin;
                     ui.postDelayed(() -> {
-                        if (seq == pinSeq && h.equals(pinHashSiap)) {
+                        // Nomor urut cukup sebagai penanda settle; hash bersalt
+                        // tak perlu pasangan plaintext di field. Hash otomatis
+                        // hanya ditulis bila PIN aktif agar toggle mati tak
+                        // meninggalkan hash basi di prefs.
+                        if (seq == pinSeq && h.equals(pinHashSiap)
+                                && pinEnabledCheck.isChecked()) {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                     .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
                         }
@@ -537,7 +538,6 @@ public class SettingsActivity extends Activity {
             final String pinBaru = fieldPin;
             final int seqBaru = ++pinSeq;
             pinHashSiap = null;
-            pinHashUntuk = null;
             pinCentangProgram = true;
             b.setChecked(false);
             pinCentangProgram = false;
@@ -548,11 +548,11 @@ public class SettingsActivity extends Activity {
                     return;
                 }
                 pinHashSiap = h;
-                pinHashUntuk = pinBaru;
+                // Satu apply atomis: hash dan flag on ditulis bersama agar
+                // crash di antaranya tak meninggalkan hash basi tanpa flag.
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                        .edit().putString(PinGate.KEY_PIN_HASH, h)
+                        .putBoolean(PinGate.KEY_PIN_ON, true).apply();
                 ui.post(() -> {
                     if (seqBaru != pinSeq) {
                         return;
@@ -2985,6 +2985,7 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        pinHashSiap = null;
         pinExec.shutdownNow();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);

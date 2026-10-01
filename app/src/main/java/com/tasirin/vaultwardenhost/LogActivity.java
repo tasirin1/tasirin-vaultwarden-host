@@ -312,7 +312,7 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_TOKEN_JSON =
             java.util.regex.Pattern.compile("(?i)(\\\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\\\"\\s*:\\s*\\\")[^\\\"]*\\\"");
     private static final java.util.regex.Pattern POLA_CHAT_ID =
-            java.util.regex.Pattern.compile("(?i)(chat_id=)[^&\\s]+");
+            java.util.regex.Pattern.compile("(?i)(chat_id\\s*[\"']?\\s*[:=]\\s*[\"']?)[^&\\s,\"'}\\]]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
             java.util.regex.Pattern.compile("bot\\d+:[A-Za-z0-9_-]{10,}");
     /** Token bot mentah tanpa awalan "bot" (mis. "123456:AAEc..." di pesan galat).
