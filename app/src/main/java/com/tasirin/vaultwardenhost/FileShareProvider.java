@@ -53,7 +53,11 @@ public class FileShareProvider extends ContentProvider {
     /** MIME sesuai ekstensi agar app penerima bisa preview/handle.
      *  Tak dikenal jatuh ke octet-stream. Murni agar bisa unit test. */
     static String tipeMime(Uri uri) {
-        String path = uri == null ? null : uri.getPath();
+        return tipeMimeDariPath(uri == null ? null : uri.getPath());
+    }
+
+    /** Varian path polos agar bisa diuji JVM tanpa runtime Android. */
+    static String tipeMimeDariPath(String path) {
         if (path == null) {
             return "application/octet-stream";
         }

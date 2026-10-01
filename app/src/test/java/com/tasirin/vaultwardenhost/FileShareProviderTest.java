@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -50,16 +51,18 @@ public class FileShareProviderTest {
 
     @org.junit.Test
     public void tipeMime_sesuaiEkstensi() {
-        assertEquals("application/json", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
-                android.net.Uri.parse("content://x/app-config.json")));
-        assertEquals("text/plain", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
-                android.net.Uri.parse("content://x/catatan.txt")));
-        assertEquals("application/zip", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
-                android.net.Uri.parse("content://x/backup.zip")));
-        assertEquals("application/x-pem-file", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
-                android.net.Uri.parse("content://x/ca.pem")));
-        assertEquals("application/octet-stream", com.tasirin.vaultwardenhost.FileShareProvider.tipeMime(
-                android.net.Uri.parse("content://x/blob-takdikenal")));
+        assertEquals("application/json",
+                FileShareProvider.tipeMimeDariPath("/x/app-config.json"));
+        assertEquals("text/plain",
+                FileShareProvider.tipeMimeDariPath("/x/catatan.txt"));
+        assertEquals("application/zip",
+                FileShareProvider.tipeMimeDariPath("/x/backup.zip"));
+        assertEquals("application/x-pem-file",
+                FileShareProvider.tipeMimeDariPath("/x/ca.pem"));
+        assertEquals("application/octet-stream",
+                FileShareProvider.tipeMimeDariPath("/x/blob-takdikenal"));
+        assertEquals("application/octet-stream",
+                FileShareProvider.tipeMimeDariPath(null));
     }
 
     @org.junit.Test
