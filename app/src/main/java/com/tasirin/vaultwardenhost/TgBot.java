@@ -1082,7 +1082,7 @@ public final class TgBot {
             // tetap bisa dipakai via bot. Tanda kutip mengapit penuh dikupas.
             String pin = mentah;
             if (mentah.length() >= 2 && ((mentah.startsWith("\"") && mentah.endsWith("\""))
-                    || (mentah.startsWith('\'') && mentah.endsWith('\'')))) {
+                    || (mentah.startsWith("'") && mentah.endsWith("'")))) {
                 pin = mentah.substring(1, mentah.length() - 1);
             }
             if (pin.isEmpty()) {
