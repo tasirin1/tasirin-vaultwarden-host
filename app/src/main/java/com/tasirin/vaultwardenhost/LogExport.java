@@ -91,6 +91,15 @@ public final class LogExport {
             } catch (Exception ignored) {
             }
         } else {
+            // Lapis kedua (pemanggil LogActivity sudah cek dulu): tanpa izin
+            // tulis, FileOutputStream pasti gagal — tolak eksplisit agar tak
+            // dikira galat I/O misterius.
+            try {
+                if (!StoragePerm.sudahPunyaAkses(act)) {
+                    return null;
+                }
+            } catch (Exception ignored) {
+            }
             File tujuan = null;
             try {
                 File dir = Environment.getExternalStoragePublicDirectory(

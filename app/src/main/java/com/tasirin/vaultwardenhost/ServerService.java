@@ -50,8 +50,18 @@ public class ServerService extends Service {
     public static final String PREFS = "vw_prefs";
     /** Folder data bawaan: penyimpanan eksternal perangkat + vaultwarden.
      *  Dulunya hardcode "/sdcard/vaultwarden" yang tak ada di sebagian perangkat;
-     *  kini ikut Environment dengan fallback lama agar tetap bisa start. */
+     *  kini ikut Environment dengan fallback lama agar tetap bisa start.
+     *  Konstanta ini di-cache saat class-load (bisa basi bila storage belum
+     *  mount); kode baru wajib memakai {@link #dataDirBawaanSegar()} untuk
+     *  fallback agar selalu baca kondisi storage terkini. */
     public static final String DEFAULT_DATA_DIR = defaultDataDir();
+
+    /** Folder data bawaan yang dihitung ulang tiap dipanggil (anti basi:
+     *  bila class-load terjadi sebelum storage mount, konstanta di atas
+     *  menunjuk fallback lama selamanya). Murni I/O ringan. */
+    public static String dataDirBawaanSegar() {
+        return defaultDataDir();
+    }
 
     // getExternalStorageDirectory lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
@@ -846,9 +856,9 @@ public class ServerService extends Service {
         return segmenIsi >= 2;
     }
 
-    /** Kembalikan folder data aman atau bawaan bila input berbahaya. Murni. */
+    /** Kembalikan folder data aman atau bawaan segar bila input berbahaya. Murni. */
     public static String amankanDataDir(String d) {
-        return dataDirAman(d) ? d.trim() : DEFAULT_DATA_DIR;
+        return dataDirAman(d) ? d.trim() : dataDirBawaanSegar();
     }
 
     /** True bila path kanonis folder data lolos aturan yang sama. Murni I/O.
@@ -867,8 +877,9 @@ public class ServerService extends Service {
 
     /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
      *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat.
-     *  Nilai rusak (huruf/kosong/di luar 1-65535) jatuh ke default agar health
-     *  check tak membangun URL invalid lalu restart beruntun. */
+     *  Nilai rusak (huruf/kosong/di luar 1024-65535) jatuh ke default agar health
+     *  check tak membangun URL invalid lalu restart beruntun. Port privileged
+     *  (<1024) butuh root dan selalu gagal bind di STB/HP tanpa root. */
     public static String effectivePort(SharedPreferences sp) {
         // Baca tahan korup: prefs korup di tengah jalan tak boleh
         // ClassCastException tiap detik UI/health (jatuh ke default).
@@ -880,12 +891,14 @@ public class ServerService extends Service {
         return normalisasiPort(p);
     }
 
-    /** Port valid 1-65535, selain itu pakai default (murni agar bisa diuji). */
+    /** Port valid 1024-65535, selain itu pakai default (murni agar bisa diuji).
+     *  Port privileged (<1024) butuh root: sebelumnya lolos lalu FATAL tiap
+     *  Start. Kini jatuh ke default agar prefs lama berisi 80/443 tetap bisa start. */
     static String normalisasiPort(String p) {
         if (p != null) {
             try {
                 int n = Integer.parseInt(p.trim());
-                if (n >= 1 && n <= 65535) {
+                if (n >= 1024 && n <= 65535) {
                     return String.valueOf(n);
                 }
             } catch (Exception ignored) {
@@ -961,10 +974,10 @@ public class ServerService extends Service {
             TgBackup.healkanStringPrefs(this);
         } catch (Exception ignored) {
         }
-        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
         if (!dataDirAman(dataDir) || !dataDirKanonisAman(dataDir)) {
-            appendLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = dataDirBawaanSegar();
+            appendLog("[app] Folder data tidak valid, pakai bawaan: " + dataDir);
             sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
         } else {
             dataDir = dataDir.trim();
@@ -1033,8 +1046,13 @@ public class ServerService extends Service {
             portNum = Integer.parseInt(port.trim());
         } catch (Exception ignored) {
         }
-        if (portNum < 1 || portNum > 65535) {
-            appendLog("[app] Port tidak valid ('" + port + "') - pakai default " + DEFAULT_PORT + ".");
+        // Sumber kebenaran tunggal bersama normalisasiPort(): <1024 butuh root
+        // dan tak pernah bisa bind tanpa root, jadi sembuhkan ke default di sini
+        // (persist agar prefs lama berisi 80/443 tak FATAL tiap Start).
+        // Cek isPortBusy di bawah hanya saran pra-start (TOCTOU bind-lalu-lepas):
+        // penentu sah adalah gagal bind Rocket saat exec + mitigasi portDirebut.
+        if (portNum < 1024 || portNum > 65535) {
+            appendLog("[app] Port tidak valid/privileged ('" + port + "') - pakai default " + DEFAULT_PORT + ".");
             port = DEFAULT_PORT;
             portNum = Integer.parseInt(DEFAULT_PORT);
             sp.edit().putString(KEY_PORT, port).apply();

@@ -37,10 +37,17 @@ public final class PinGate {
         return Math.max(sisaWall, sisaElapsed);
     }
 
-    /** Catat hasil satu percobaan (true = cocok, gagal di-reset). */
+    /** Catat hasil satu percobaan (true = cocok, gagal di-reset).
+     *  Wajib dari worker thread: commit() sinkron memblokir hingga awet di disk
+     *  (pemanggil UI/bot kini sudah di worker). Bila tanpa sengaja dipanggil
+     *  dari UI thread, otomatis dialihkan ke worker agar tak ANR. */
     // commit() di bawah disengaja (sinkron, lihat komentar) — bukan apply().
     @SuppressLint("ApplySharedPref")
     public static synchronized void catatHasil(Context ctx, boolean cocok, long sekarang) {
+        if (ctx != null && diMainThread()) {
+            catatHasilAsync(ctx, cocok, sekarang);
+            return;
+        }
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
         if (cocok) {
@@ -57,5 +64,32 @@ public final class PinGate {
                 .putLong(KEY_KUNCI_ELAPSED, PinCrypto.kunciElapsedBerikutnyaMs(
                         gagal, SystemClock.elapsedRealtime()))
                 .commit();
+    }
+
+    /** Varian aman-UI: catat di worker agar commit() tak memblokir UI thread. */
+    public static void catatHasilAsync(final Context ctx, final boolean cocok, final long sekarang) {
+        final Context app;
+        try {
+            app = ctx == null ? null : ctx.getApplicationContext();
+        } catch (Exception ignored) {
+            return;
+        }
+        final Context pakai = app != null ? app : ctx;
+        new Thread(() -> {
+            try {
+                catatHasil(pakai, cocok, sekarang);
+            } catch (Exception ignored) {
+            }
+        }, "vw-pin-cat").start();
+    }
+
+    /** True bila dipanggil dari UI thread (uji aman di JVM: tanpa Looper = false). */
+    private static boolean diMainThread() {
+        try {
+            android.os.Looper utama = android.os.Looper.getMainLooper();
+            return utama != null && android.os.Looper.myLooper() == utama;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 }

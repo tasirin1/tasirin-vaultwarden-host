@@ -265,6 +265,8 @@ public final class TgBot {
                 JSONObject root = new JSONObject(body);
                 JSONArray arr = root.optJSONArray("result");
                 if (arr != null) {
+                    int updateRusak = 0;
+                    String contohGalatUpdate = null;
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject upd = arr.optJSONObject(i);
                         if (upd == null) {
@@ -322,8 +324,21 @@ public final class TgBot {
                                     hapusPesanPerintah(ctx, c.optLong("id", -1), idPesan);
                                 }
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception eUpdate) {
+                            updateRusak++;
+                            if (contohGalatUpdate == null) {
+                                contohGalatUpdate = String.valueOf(eUpdate);
+                            }
                         }
+                    }
+                    if (updateRusak > 0) {
+                        String contoh = contohGalatUpdate == null ? "?" : contohGalatUpdate;
+                        if (contoh.length() > 120) {
+                            contoh = contoh.substring(0, 120);
+                        }
+                        ServerService.catatLog("[tg] " + updateRusak
+                                + " update dilewati (format tak dikenal, offset tetap maju): "
+                                + contoh);
                     }
                 }
                 if (rollbackDitolak > 0) {
@@ -1350,11 +1365,17 @@ public final class TgBot {
         return sb.toString();
     }
 
+    /** RequestCode alarm polling bot. Alokasi terpusat agar tak bentrok:
+     *  0 = jadwal harian (TgBackup.REQ_HARIAN), 3 = polling bot (di sini),
+     *  101 = tunda-boot (TgBackup.REQ_TUNDA_BOOT). Nilai historis dipertahankan
+     *  agar alarm lama yang sudah terjadwal tetap bisa dibatalkan. */
+    static final int REQ_POLL = 3;
+
     private static PendingIntent pendingIntent(Context ctx) {
         Intent i = new Intent(ctx, TgBotReceiver.class).setAction(ACTION_POLL);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
-        return PendingIntent.getBroadcast(ctx, 3, i, flags);
+        return PendingIntent.getBroadcast(ctx, REQ_POLL, i, flags);
     }
 
     private static String httpPostForm(Context ctx, String url, String param) {

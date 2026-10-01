@@ -15,7 +15,7 @@ public class SettingsActivityTest {
     public void galatPortTerimaKosongDanRentang() {
         assertNull(SettingsActivity.galatPort(null, "SALAH"));
         assertNull(SettingsActivity.galatPort("", "SALAH"));
-        assertNull(SettingsActivity.galatPort("1", "SALAH"));
+        assertNull(SettingsActivity.galatPort("1024", "SALAH"));
         assertNull(SettingsActivity.galatPort("8088", "SALAH"));
         assertNull(SettingsActivity.galatPort("65535", "SALAH"));
     }
@@ -23,6 +23,10 @@ public class SettingsActivityTest {
     @Test
     public void galatPortTolakDiLuarRentang() {
         assertEquals("SALAH", SettingsActivity.galatPort("0", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("1", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("80", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("443", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatPort("1023", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatPort("65536", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatPort("abc", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatPort("-5", "SALAH"));

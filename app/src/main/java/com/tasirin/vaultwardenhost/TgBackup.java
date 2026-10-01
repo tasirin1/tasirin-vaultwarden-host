@@ -179,6 +179,11 @@ public final class TgBackup {
     public static final long TUNGGU_BOOT_MS = 5L * 60 * 1000;
     /** Request code alarm tunda-boot (beda dari jadwal harian agar tak tertimpa). */
     static final int REQ_TUNDA_BOOT = 101;
+    /** Request code jadwal backup harian (0, historis). Alokasi terpusat:
+     *  0 = harian (dipakai schedule di bawah), 3 = polling bot (TgBot.REQ_POLL),
+     *  101 = tunda-boot (di atas). Nilai historis dipertahankan agar alarm
+     *  lama yang sudah terjadwal tetap bisa dibatalkan (cancel beda kode gagal). */
+    static final int REQ_HARIAN = 0;
     /** Penanda intent alarm tunda-boot: keputusan backup diambil saat menyala
      *  (jam sudah stabil), bukan saat dijadwalkan. */
     static final String EXTRA_TUNDA_BOOT = "tunda_boot";
@@ -2606,7 +2611,7 @@ public final class TgBackup {
         Intent intent = new Intent(ctx, AlarmReceiver.class);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
-        PendingIntent pi = PendingIntent.getBroadcast(ctx, 0, intent, flags);
+        PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_HARIAN, intent, flags);
         if (enable) {
             long trigger = nextMidnight(System.currentTimeMillis());
             boolean exact = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;

@@ -2777,7 +2777,9 @@ public class SettingsActivity extends Activity {
         }
         try {
             int p = Integer.parseInt(port.trim());
-            if (p >= 1 && p <= 65535) {
+            // <1024 butuh root dan selalu gagal bind: tolak di input agar
+            // tak FATAL saat Start (selaras ServerService.normalisasiPort).
+            if (p >= 1024 && p <= 65535) {
                 return null;
             }
         } catch (Exception ignored) {

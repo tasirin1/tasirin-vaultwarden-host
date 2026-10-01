@@ -292,7 +292,11 @@ public class ServerServiceTest {
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(""));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("abc"));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("0"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("80"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("443"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("1023"));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999"));
+        assertEquals("1024", ServerService.normalisasiPort("1024"));
         assertEquals("8088", ServerService.normalisasiPort("8088"));
         assertEquals("8088", ServerService.normalisasiPort(" 8088 "));
     }
