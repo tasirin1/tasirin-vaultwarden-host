@@ -120,9 +120,67 @@ public final class Util {
         return h.endsWith(".githubusercontent.com");
     }
 
+    /** True bila host milik Telegram (unduhan file bot).
+     *  URL unduh file membawa token bot di path sehingga host sembarang wajib
+     *  ditolak: 302 nakal (MITM/CDN jahat) bisa membocorkan token. Keluarga
+     *  telegram.org + cdn-telegram.org mencakup API dan CDN resmi. Murni. */
+    public static boolean hostTelegramAman(String host) {
+        if (host == null) {
+            return false;
+        }
+        String kupas = kupasHostPort(host.trim());
+        if (kupas == null || kupas.isEmpty()) {
+            return false;
+        }
+        String h = normalisasiHost(kupas).toLowerCase(java.util.Locale.US);
+        if (h.isEmpty()) {
+            return false;
+        }
+        if (h.equals("telegram.org") || h.endsWith(".telegram.org")) {
+            return true;
+        }
+        return h.equals("cdn-telegram.org") || h.endsWith(".cdn-telegram.org");
+    }
+
+    /** True bila redirect unduhan file Telegram boleh diikuti: https + host
+     *  Telegram (lihat hostTelegramAman). Dipakai bukaFileTelegram agar token
+     *  di path URL tak bocor ke host asing via 302. Murni agar bisa unit test. */
+    public static boolean bolehIkutiRedirectTelegram(String asal, String lokasi) {
+        if (!bolehIkutiRedirect(asal, lokasi)) {
+            return false;
+        }
+        if (lokasi == null) {
+            return false;
+        }
+        String l = lokasi.trim();
+        if (l.startsWith("//")) {
+            return hostTelegramAman(l.substring(2).split("[/?#]")[0]);
+        }
+        if (l.startsWith("/")) {
+            return true;
+        }
+        int kol = l.indexOf(':');
+        if (kol < 0) {
+            try {
+                String gabung = sambungRedirect(asal, l);
+                return hostTelegramAman(new java.net.URL(gabung).getHost());
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        try {
+            String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
+            if (!"https".equals(skema)) {
+                return false;
+            }
+            return hostTelegramAman(new java.net.URL(l).getHost());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** True bila redirect unduhan GitHub boleh diikuti: https + host GitHub.
-     *  Dipakai Updater (binary/web-vault/shim); unduhan file Telegram tetap
-     *  memakai bolehIkutiRedirect umum karena CDN-nya berpindah-pindah.
+     *  Dipakai Updater (binary/web-vault/shim).
      *  Murni agar bisa unit test. */
     public static boolean bolehIkutiRedirectGithub(String asal, String lokasi) {
         if (!bolehIkutiRedirect(asal, lokasi)) {

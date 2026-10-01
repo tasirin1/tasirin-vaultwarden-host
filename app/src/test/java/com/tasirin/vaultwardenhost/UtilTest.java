@@ -67,6 +67,27 @@ public class UtilTest {
     }
 
     @Test
+    public void redirectTelegramHanyaHostTelegram() {
+        assertTrue(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "https://api.telegram.org/g"));
+        assertTrue(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "/g/h"));
+        assertTrue(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "//api.telegram.org:443/g"));
+        assertFalse(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "https://jahat.example/g"));
+        assertFalse(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "http://api.telegram.org/g"));
+        assertFalse(Util.bolehIkutiRedirectTelegram(
+                "https://api.telegram.org/f", "https://api.telegram.org.jahat.example/g"));
+        assertTrue(Util.hostTelegramAman("api.telegram.org"));
+        assertTrue(Util.hostTelegramAman("cdn1.cdn-telegram.org"));
+        assertFalse(Util.hostTelegramAman("jahat.example"));
+        assertFalse(Util.hostTelegramAman("telegram.org.jahat.example"));
+        assertFalse(Util.hostTelegramAman(null));
+    }
+
+    @Test
     public void redirectProtokolRelatifHanyaSehost() {
         assertTrue(Util.bolehIkutiRedirect("https://a/b", "//a/d"));
         assertTrue(Util.bolehIkutiRedirect("https://a/b", "//A:443/d?x=1"));

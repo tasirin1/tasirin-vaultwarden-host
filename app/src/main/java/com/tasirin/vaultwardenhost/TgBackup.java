@@ -513,7 +513,9 @@ public final class TgBackup {
         }
     }
 
-    /** Buka URL file Telegram sambil ikuti redirect hanya yang https. */
+    /** Buka URL file Telegram sambil ikuti redirect hanya yang https + host Telegram.
+     *  URL unduh membawa token bot di path sehingga 302 ke host asing wajib
+     *  ditolak (lihat bolehIkutiRedirectTelegram) agar token tak bocor. */
     static HttpURLConnection bukaFileTelegram(Context ctx, String url,
             int connectMs, int readMs) throws Exception {
         String kini = url;
@@ -528,7 +530,7 @@ public final class TgBackup {
                 String lok = c.getHeaderField("Location");
                 c.disconnect();
                 if (lok == null || lok.isEmpty()
-                        || !Util.bolehIkutiRedirect(kini, lok)) {
+                        || !Util.bolehIkutiRedirectTelegram(kini, lok)) {
                     throw new java.io.IOException("Redirect Telegram tidak aman: " + lok);
                 }
                 kini = Util.sambungRedirect(kini, lok);

@@ -162,7 +162,9 @@ public final class TgBot {
             } else if (c == '\t') {
                 o.append("\\t");
             } else if (c < 0x20) {
-                o.append(String.format("\\u%04x", (int) c));
+                // Locale.US: %x di locale berdigit non-Latin (mis. ar-EG)
+                // menghasilkan digit non-ASCII sehingga JSON invalid.
+                o.append(String.format(Locale.US, "\\u%04x", (int) c));
             } else {
                 o.append(c);
             }
@@ -1199,11 +1201,15 @@ public final class TgBot {
         }
     }
 
-    /** Simpan maks wall-clock ke prefs. */
+    /** Simpan maks wall-clock ke prefs bila berubah (poll tiap 20 dtk). */
     static void simpanWallMaks(Context ctx) {
         try {
-            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putLong(KEY_TG_WALL_MAKS, wallMaksTelegram).apply();
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0) == wallMaksTelegram) {
+                return;
+            }
+            sp.edit().putLong(KEY_TG_WALL_MAKS, wallMaksTelegram).apply();
         } catch (Exception ignored) {
         }
     }

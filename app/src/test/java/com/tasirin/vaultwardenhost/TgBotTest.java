@@ -286,6 +286,14 @@ public class TgBotTest {
         assertEquals("", TgBot.lolosJson(null));
         assertEquals("a\\\"b\\\\c", TgBot.lolosJson("a\"b\\c"));
         assertEquals("x\\ny", TgBot.lolosJson("x\ny"));
+        // Escape \\uXXXX wajib digit ASCII walau locale berdigit non-Latin.
+        java.util.Locale semula = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(new java.util.Locale("ar", "EG"));
+            assertEquals("\\u0001", TgBot.lolosJson("\u0001"));
+        } finally {
+            java.util.Locale.setDefault(semula);
+        }
         String json = TgBot.menuPayload();
         assertTrue(json.startsWith("{\"commands\":["));
         assertTrue(json.endsWith("]}"));

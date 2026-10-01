@@ -1749,7 +1749,10 @@ public final class Updater {
             // macet tanpa output; destroy terjadwal menutup pipa sehingga
             // baca balik EOF (batas tungguAtauBunuh di bawah saja tak cukup).
             final Process versiProc = p;
-            final boolean[] versiSelesai = new boolean[1];
+            // AtomicBoolean (bukan boolean[]): tulis thread update wajib terlihat
+            // thread watchdog tanpa synchronized (duplikat pola ServerService).
+            final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
+                    new java.util.concurrent.atomic.AtomicBoolean(false);
             Thread versiWatchdog = new Thread(new Runnable() {
                 @Override public void run() {
                     try {
@@ -1757,7 +1760,7 @@ public final class Updater {
                     } catch (InterruptedException e) {
                         return;
                     }
-                    if (!versiSelesai[0]) {
+                    if (!versiSelesai.get()) {
                         try {
                             versiProc.destroy();
                         } catch (Exception ignored) {
@@ -1781,7 +1784,7 @@ public final class Updater {
                     break;
                 }
             }
-            versiSelesai[0] = true;
+            versiSelesai.set(true);
             versiWatchdog.interrupt();
             // Batas 10 detik: binary macet tak boleh menggantung thread update
             // selamanya (di Settings itu mengunci semua tombol berat).
