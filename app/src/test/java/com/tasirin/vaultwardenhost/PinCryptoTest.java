@@ -53,6 +53,36 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void bungkusDiniKuatkanHashLegasi() {
+        String lama = PinCrypto.sha256("9999");
+        String bungkus = PinCrypto.bungkusLegasi(lama);
+        assertTrue(bungkus.startsWith("PBKDF2W$120000$"));
+        // Hasil bungkusan lolos verifikasi PIN benar, tolak yang salah.
+        assertTrue(PinCrypto.verify(bungkus, "9999"));
+        assertFalse(PinCrypto.verify(bungkus, "0000"));
+        assertFalse(PinCrypto.verify(bungkus, ""));
+        // Bungkusan dinormalkan ke format standar saat login sukses.
+        assertTrue(PinCrypto.perluUpgradeHash(bungkus));
+        assertFalse(PinCrypto.perluMigrasi(bungkus));
+        // Bukan hash legasi = tak ada yang dibungkus.
+        assertTrue(PinCrypto.bungkusLegasi(null) == null);
+        assertTrue(PinCrypto.bungkusLegasi("") == null);
+        assertTrue(PinCrypto.bungkusLegasi("xyz") == null);
+        assertTrue(PinCrypto.bungkusLegasi(PinCrypto.hash("9999")) == null);
+    }
+
+    @Test
+    public void bungkusDiniTolakUtakAtik() {
+        String bungkus = PinCrypto.bungkusLegasi(PinCrypto.sha256("9999"));
+        // Iterasi raksasa/mini hasil utak-atik ditolak seperti format standar.
+        assertFalse(PinCrypto.verify(
+                bungkus.replace("PBKDF2W$120000$", "PBKDF2W$1000000$"), "9999"));
+        assertFalse(PinCrypto.verify(
+                bungkus.replace("PBKDF2W$120000$", "PBKDF2W$100$"), "9999"));
+        assertFalse(PinCrypto.verify("PBKDF2W$xxx", "9999"));
+    }
+
+    @Test
     public void hashLamaTetapDikenali() {
         String lama = PinCrypto.sha256("9999");
         assertFalse(PinCrypto.isNewFormat(lama));

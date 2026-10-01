@@ -51,7 +51,24 @@ public class FileShareProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        return tipeMime(uri);
+        // Tanpa cek isShareable, getType menjadi oracle ekstensi path
+        // privat (beda MIME untuk ada/tak-ada). Samakan dengan query().
+        try {
+            if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
+                return null;
+            }
+            String path = uri.getPath();
+            File f = path == null ? null : new File(path);
+            if (f == null) {
+                return null;
+            }
+            if (!isShareable(f.getCanonicalPath())) {
+                return null;
+            }
+            return tipeMime(uri);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** MIME sesuai ekstensi agar app penerima bisa preview/handle.

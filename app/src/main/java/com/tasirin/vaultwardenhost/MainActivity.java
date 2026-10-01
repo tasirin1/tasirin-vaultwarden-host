@@ -172,6 +172,10 @@ public class MainActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         // Cek update otomatis saat dibuka
         new Thread(this::autoUpdateCheck, "vw-auto-check").start();
+        // Keraskan hash PIN legasi di rest (tanpa menunggu login) agar prefs
+        // bocor tak memberi SHA-256 tanpa salt yang retak dalam detik.
+        final android.content.Context appPin = getApplicationContext();
+        new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot

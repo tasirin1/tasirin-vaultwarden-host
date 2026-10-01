@@ -68,6 +68,36 @@ public final class PinGate {
                 .commit();
     }
 
+    /** Keraskan hash PIN legasi di rest tanpa menunggu login sukses.
+     *  Tanpa ini SHA-256 tanpa salt bertahan selamanya bagi user yang jarang
+     *  login dan retak offline dalam detik bila prefs bocor. Wajib dari worker
+     *  thread (PBKDF2 120k); dipanggil sekali tiap app dibuka. Tulis best-effort
+     *  via apply (gagal tertunda dicoba lagi saat buka berikut); cek-ulang
+     *  sebelum tulis agar tak menimpa hash standar hasil login di thread lain. */
+    public static void kuatkanHashDini(Context ctx) {
+        try {
+            if (ctx == null) {
+                return;
+            }
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            String simpan = TgBackup.amanString(sp, KEY_PIN_HASH, "");
+            if (!PinCrypto.perluMigrasi(simpan)) {
+                return;
+            }
+            String bungkus = PinCrypto.bungkusLegasi(simpan);
+            if (bungkus == null) {
+                return;
+            }
+            String kini = TgBackup.amanString(sp, KEY_PIN_HASH, "");
+            if (!simpan.equals(kini)) {
+                return;
+            }
+            sp.edit().putString(KEY_PIN_HASH, bungkus).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Varian aman-UI: catat di worker agar commit() tak memblokir UI thread. */
     public static void catatHasilAsync(final Context ctx, final boolean cocok, final long sekarang) {
         final Context app;

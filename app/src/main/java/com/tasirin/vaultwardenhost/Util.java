@@ -107,7 +107,14 @@ public final class Util {
         if (host == null) {
             return false;
         }
-        String h = normalisasiHost(host).toLowerCase(java.util.Locale.US);
+        // Kupas ":port" dulu seperti hostTelegramAman: cabang "//host"
+        // memberi otoritas mentah sehingga redirect sah berport eksplisit
+        // ("//github.com:443/...") tertolak tanpa ini.
+        String kupas = kupasHostPort(host.trim());
+        if (kupas == null || kupas.isEmpty()) {
+            return false;
+        }
+        String h = normalisasiHost(kupas).toLowerCase(java.util.Locale.US);
         if (h.isEmpty()) {
             return false;
         }
@@ -270,8 +277,15 @@ public final class Util {
             return hostPort;
         }
         if (titikDua == 1) {
-            String h = hostPort.substring(0, hostPort.indexOf(':'));
-            return h.isEmpty() ? null : h;
+            int i = hostPort.indexOf(':');
+            String h = hostPort.substring(0, i);
+            String port = hostPort.substring(i + 1);
+            // Port wajib angka: "host:abc" bukan otoritas valid sehingga
+            // null (ditolak) alih-alih terkupas jadi host telanjang.
+            if (h.isEmpty() || port.isEmpty() || !port.matches("[0-9]+")) {
+                return null;
+            }
+            return h;
         }
         return hostPort;
     }

@@ -1833,48 +1833,122 @@ public class SettingsActivity extends Activity {
                 SharedPreferences sp0 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
                 String pass0 = TgBackup.amanString(sp0, TgBackup.KEY_TG_PASS, "");
                 if (pass0 == null || pass0.trim().isEmpty()) {
-                    toast("Config terenkripsi - isi password backup dulu.");
-                    appendUiLog("[app] Import ditolak: config terenkripsi, password kosong");
-                    tmp.delete();
+                    // Tanpa password perangkat, langsung tanya password asal
+                    // (file bisa dari password mana pun, bukan harus kini).
+                    tanyaPasswordImpor(tmp, capImpor,
+                            "Config terenkripsi - masukkan password saat file dibuat.");
                     return;
                 }
                 File plain = new File(getCacheDir(), "vwcfg-import-" + capImpor + "-dec.json");
-                TgBackup.decryptFile(tmp, plain, pass0.trim());
+                try {
+                    TgBackup.decryptFile(tmp, plain, pass0.trim());
+                } catch (Exception e) {
+                    // Password perangkat tak cocok (file terenkripsi password
+                    // lama): tanya password asal tanpa mengubah password perangkat.
+                    appendUiLog("[app] Import: password perangkat tak cocok, tanya password asal");
+                    tanyaPasswordImpor(tmp, capImpor,
+                            "Password perangkat tak cocok - masukkan password saat file dibuat.");
+                    return;
+                }
                 tmp.delete();
                 src = plain;
             }
-            String json;
-            try (InputStream in = new java.io.FileInputStream(src)) {
-                json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
-            }
-            src.delete();
-            JSONObject root = new JSONObject(json);
-            if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
-                toast("File config tidak valid (bukan export app ini).");
-                appendUiLog("[app] Import ditolak: marker app tidak cocok");
-                return;
-            }
-            JSONObject prefs = root.optJSONObject("prefs");
-            if (prefs == null) {
-                toast("File config tidak valid.");
-                return;
-            }
-            TgBackup.applyPrefsFromJson(this, prefs);
-            sanitizePortPref();
-            ui.post(() -> {
-                reloadSettingsFromPrefs();
-                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
-                TgBackup.schedule(SettingsActivity.this,
-                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-                TgBot.schedule(SettingsActivity.this);
-                toast("Pengaturan diimpor. Tekan Start agar berlaku.");
-                appendUiLog("[app] Config import selesai.");
-            });
+            terapkanImporJson(src);
         } catch (Exception e) {
             sapuSisaImpor();
             toast("Gagal import config: " + e.getMessage());
             appendUiLog("[app] Gagal import config: " + e);
+        }
+    }
+
+    /** Terapkan berkas config plaintext hasil impor/dekrip. */
+    private void terapkanImporJson(File src) {
+        try {
+        String json;
+        try (InputStream in = new java.io.FileInputStream(src)) {
+            json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
+        }
+        src.delete();
+        JSONObject root = new JSONObject(json);
+        if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
+            toast("File config tidak valid (bukan export app ini).");
+            appendUiLog("[app] Import ditolak: marker app tidak cocok");
+            return;
+        }
+        JSONObject prefs = root.optJSONObject("prefs");
+        if (prefs == null) {
+            toast("File config tidak valid.");
+            return;
+        }
+        TgBackup.applyPrefsFromJson(this, prefs);
+        sanitizePortPref();
+        ui.post(() -> {
+            reloadSettingsFromPrefs();
+            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
+            TgBackup.schedule(SettingsActivity.this,
+                    TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+            TgBot.schedule(SettingsActivity.this);
+            toast("Pengaturan diimpor. Tekan Start agar berlaku.");
+            appendUiLog("[app] Config import selesai.");
+        });
+        } catch (Exception e) {
+            sapuSisaImpor();
+            toast("Gagal import config: " + e.getMessage());
+            appendUiLog("[app] Gagal import config: " + e);
+        }
+    }
+
+    /** Minta password asal file config terenkripsi lalu coba impor.
+     *  File dari password lama tak bisa dibuka password perangkat kini.
+     *  Password asal hanya dipakai dekrip; password perangkat tak diubah
+     *  (applyPrefsFromJson mempertahankan tg_pass perangkat). */
+    private void tanyaPasswordImpor(final File tmpEnkrip, final String capImpor,
+            String alasan) {
+        try {
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT
+                    | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            input.setMaxLines(1);
+            final AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Password file config")
+                    .setMessage(alasan)
+                    .setView(input)
+                    .setPositiveButton("Coba impor", null)
+                    .setNegativeButton("Batal", (d, w) -> {
+                        try {
+                            tmpEnkrip.delete();
+                        } catch (Exception ignored) {
+                        }
+                    })
+                    .create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener(v -> {
+                        String coba = input.getText().toString();
+                        if (coba == null || coba.trim().isEmpty()) {
+                            input.setError("Isi password dulu");
+                            return;
+                        }
+                        try {
+                            File plain = new File(getCacheDir(),
+                                    "vwcfg-import-" + capImpor + "-dec.json");
+                            TgBackup.decryptFile(tmpEnkrip, plain, coba.trim());
+                            tmpEnkrip.delete();
+                            dialog.dismiss();
+                            terapkanImporJson(plain);
+                        } catch (Exception e) {
+                            input.setError("Password salah / file rusak");
+                            appendUiLog("[app] Import ditolak: password asal tak cocok");
+                        }
+                    }));
+            dialog.show();
+        } catch (Exception e) {
+            try {
+                tmpEnkrip.delete();
+            } catch (Exception ignored) {
+            }
+            toast("Gagal import config: " + e.getMessage());
         }
     }
 

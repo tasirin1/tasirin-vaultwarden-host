@@ -17,6 +17,9 @@ public final class PinCrypto {
     public static final long KUNCI_MS = 5 * 60_000;
 
     private static final String PREFIX = "PBKDF2$";
+    /** Awalan hash "bungkus-dini": PBKDF2 atas hash legasi (bukan PIN langsung).
+     *  Lihat bungkusLegasi. */
+    static final String PREFIX_BUNGKUS = "PBKDF2W$";
     private static final int ITERATIONS = 120_000;
     /** Iterasi minimum yang diterima saat verifikasi: hash beriterasi jauh
      *  lebih rendah (mis. hasil utak-atik prefs) ditolak fail-closed.
@@ -44,18 +47,65 @@ public final class PinCrypto {
         return stored != null && stored.startsWith(PREFIX);
     }
 
-    /** True bila hash lama wajib dimigrasi ke PBKDF2 sesudah verifikasi sukses. Murni. */
+    /** True bila hash lama wajib dibungkus/dimigrasi: bukan format standar
+     *  maupun bungkusan dini. Murni. */
     public static boolean perluMigrasi(String stored) {
-        return stored != null && !stored.isEmpty() && !isNewFormat(stored);
+        return stored != null && !stored.isEmpty()
+                && !isNewFormat(stored) && !isFormatBungkus(stored);
     }
 
-    /** True bila hash wajib di-upgrade sesudah verifikasi sukses: hash lama
-     *  maupun PBKDF2 beriterasi di bawah standar kini (mis. prefs utak-atik
-     *  10k). Tanpa ini hash lemah 10k lolos selamanya tanpa pernah naik
-     *  ke 120k. Murni agar bisa unit test. */
+    /** True bila hash legasi valid (64 hex) yang bisa dibungkus. Murni. */
+    static boolean hashLegasiValid(String stored) {
+        if (stored == null) {
+            return false;
+        }
+        String l = stored.trim().toLowerCase(java.util.Locale.US);
+        if (l.length() != 64) {
+            return false;
+        }
+        for (int i = 0; i < l.length(); i++) {
+            char c = l.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Bungkus hash legasi ke format ber-salt + stretch 120k tanpa perlu PIN.
+     *  Tanpa ini SHA-256 tanpa salt bertahan di disk sampai login sukses
+     *  berikutnya dan retak offline dalam detik bila prefs bocor (PIN 4-6
+     *  digit). Tiap tebakan atas hasil bungkusan memaksa PBKDF2 120k penuh
+     *  karena inputnya bukan PIN melainkan hash legasi. Null bila bukan
+     *  hash legasi valid (tak ada yang boleh ditulis). Murni CPU — panggil
+     *  dari worker thread (lihat PinGate.kuatkanHashDini). */
+    static String bungkusLegasi(String stored) {
+        if (!hashLegasiValid(stored)) {
+            return null;
+        }
+        String dalam = stored.trim().toLowerCase(java.util.Locale.US);
+        byte[] salt = new byte[SALT_BYTES];
+        new SecureRandom().nextBytes(salt);
+        byte[] dk = derive(dalam, salt, ITERATIONS);
+        return PREFIX_BUNGKUS + ITERATIONS + "$" + hex(salt) + "$" + hex(dk);
+    }
+
+    /** True bila tersimpan dalam format bungkus-dini. Murni. */
+    static boolean isFormatBungkus(String stored) {
+        return stored != null && stored.startsWith(PREFIX_BUNGKUS);
+    }
+
+    /** True bila hash wajib di-upgrade sesudah verifikasi sukses: hash lama,
+     *  bungkusan dini (normalisasi ke format standar), maupun PBKDF2
+     *  beriterasi di bawah standar kini (mis. prefs utak-atik 10k). Tanpa
+     *  ini hash lemah 10k lolos selamanya tanpa pernah naik ke 120k.
+     *  Murni agar bisa unit test. */
     public static boolean perluUpgradeHash(String stored) {
         if (stored == null || stored.isEmpty()) {
             return false;
+        }
+        if (isFormatBungkus(stored)) {
+            return true;
         }
         if (!isNewFormat(stored)) {
             return true;
@@ -98,6 +148,31 @@ public final class PinCrypto {
                     return false;
                 }
                 byte[] got = derive(pin, salt, iter);
+                return MessageDigest.isEqual(got, want);
+            }
+            if (isFormatBungkus(stored)) {
+                String[] parts = stored.split("\\$", -1);
+                if (parts.length != 4) {
+                    return false;
+                }
+                int iter;
+                try {
+                    iter = Integer.parseInt(parts[1]);
+                } catch (Exception e) {
+                    return false;
+                }
+                // Batas sama seperti format standar: iterasi raksasa = DoS,
+                // iterasi mini = prefs utak-atik.
+                if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
+                    return false;
+                }
+                byte[] salt = unhex(parts[2]);
+                byte[] want = unhex(parts[3]);
+                if (salt == null || want == null || salt.length == 0
+                        || want.length != HASH_BITS / 8) {
+                    return false;
+                }
+                byte[] got = derive(sha256(pin), salt, iter);
                 return MessageDigest.isEqual(got, want);
             }
             // Legasi: SHA-256 tanpa salt — banding tak peka huruf agar hash
