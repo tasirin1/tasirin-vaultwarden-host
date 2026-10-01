@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: nama file unik, shim, CHANGELOG
+- `TgBackup.stempelUnik()` (timestamp + 4 hex acak): nama `db-backup`, `app-config`, dan salinan CA tak saling timpa bila dibuat dalam milidetik yang sama.
+- Pembersih export plaintext lama kini jalan di kedua cabang (terenkripsi/plaintext).
+- Shim getrandom: buka-ulang `/dev/urandom` usai `EBADF` dibatasi 3x lalu gagal tertutup (sebelumnya berpotensi berputar selamanya).
+- Unit test: format + keunikan `stempelUnik`.
+
+## [Belum rilis] — Perbaikan 7 temuan audit (PIN bot, redirect, folder, notif, export, token, PIN alnum)
+- `pisahkanPin` kata-tunggal hanya numerik 4+ digit: argumen salah ketik (mis. `webvault`) tak lagi dimakan sebagai PIN dan menambah lockout.
+- Redirect unduhan binary/web-vault dibatasi host GitHub (`bolehIkutiRedirectGithub`); unduhan file Telegram tetap umum.
+- `MainActivity.saveAndStart` validasi `dataDirAman` lebih awal dengan pesan jelas.
+- Notifikasi foreground jujur saat tugas latar jalan tanpa server.
+- Nama file export log tambah akhiran acak anti-timpa; komentar token bot diluruskan.
+- UI PIN dukung huruf/angka seperti bot (`textPassword`, hint diperbarui).
+- Unit test: `pisahkanPin` kata-tunggal huruf, `bolehIkutiRedirectGithub`.
+
 ## [Belum rilis] — Perbaikan audit: keyboard Telegram lolos JSON
 - `keyboardPerintah` pakai `lolosJson` seperti `menuPayload` agar label perintah ber-tanda kutip tetap valid.
 - Unit test: `keyboardPerintah_memuatSemuaPerintah`.

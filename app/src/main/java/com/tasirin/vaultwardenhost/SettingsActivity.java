@@ -1175,7 +1175,7 @@ public class SettingsActivity extends Activity {
             } catch (Throwable abaikan) {
                 // JVM unit test tanpa SQLite Android: lanjut tanpa cek.
             }
-            String timestamp = TgBackup.backupTimestamp();
+            String timestamp = TgBackup.stempelUnik();
             File backup = new File(backupDir, "db-backup-" + timestamp + ".zip");
             // Tulis ke tmp + rename agar zip parsial tak masuk retensi.
             File tmpZip = new File(backupDir, backup.getName() + ".tmp");
@@ -1303,7 +1303,7 @@ public class SettingsActivity extends Activity {
                 }
                 // Satukan WAL ke DB utama agar salinan pengaman tak basi.
                 TgBackup.checkpointWal(dbFile);
-                String ts = TgBackup.backupTimestamp() + "-pre";
+                String ts = TgBackup.stempelUnik() + "-pre";
                 preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
                 TgBackup.copyFile(dbFile, preBackup);
                 TgBackup.cleanupOldBackups(backupDir);
@@ -1654,9 +1654,23 @@ public class SettingsActivity extends Activity {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            String ts = TgBackup.backupTimestamp();
+            String ts = TgBackup.stempelUnik();
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             byte[] bytes = TgBackup.configJson(sp).getBytes(StandardCharsets.UTF_8);
+            // Bersihkan export plaintext lama di kedua cabang agar cache tak
+            // menumpuk (sebelumnya hanya cabang plaintext yang membersihkan).
+            try {
+                File[] sisa = getCacheDir().listFiles();
+                if (sisa != null) {
+                    for (File f : sisa) {
+                        String n = f.getName();
+                        if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                            f.delete();
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
             // Kredensial tak ikut export (tetap di perangkat); enkripsi bila password backup diisi.
             String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
             final File out;
@@ -1681,20 +1695,6 @@ public class SettingsActivity extends Activity {
                 out = enc;
                 mime = "application/octet-stream";
             } else {
-                // Bersihkan export plaintext lama agar cache tak menumpuk
-                // (tiap export sebelumnya meninggalkan satu file).
-                try {
-                    File[] lama = getCacheDir().listFiles();
-                    if (lama != null) {
-                        for (File f : lama) {
-                            String n = f.getName();
-                            if (n.startsWith("app-config-") && n.endsWith(".json")) {
-                                f.delete();
-                            }
-                        }
-                    }
-                } catch (Exception ignored) {
-                }
                 out = new File(getCacheDir(), "app-config-" + ts + ".json");
                 try (FileOutputStream fos = new FileOutputStream(out)) {
                     fos.write(bytes);

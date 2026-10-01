@@ -78,6 +78,7 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         pthread_mutex_unlock(&kunci_urandom);
     }
     size_t sudah = 0;
+    int coba_ebadf = 0;
     while (sudah < len) {
         ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
         if (n < 0) {
@@ -86,6 +87,14 @@ static ssize_t isi_urandom(void *buf, size_t len) {
                 continue;
             }
             if (e == 9) { // EBADF: fd rusak, buka ulang di dalam kunci.
+                // Batas percobaan: bila /dev/urandom gagal dibuka permanen,
+                // pulang -1 (gagal tertutup) alih-alih berputar selamanya.
+                // Tanpa batas, dua thread yang kena EBADF bersamaan bisa
+                // saling memicu buka-ulang tanpa henti.
+                if (++coba_ebadf > 3) {
+                    errno = 5; // EIO.
+                    return -1;
+                }
                 int fd_lama = fd_urandom;
                 pthread_mutex_lock(&kunci_urandom);
                 // Hanya thread pertama yang menutup/membuka ulang; thread lain

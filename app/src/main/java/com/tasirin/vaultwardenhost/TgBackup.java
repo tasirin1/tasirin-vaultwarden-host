@@ -1063,7 +1063,7 @@ public final class TgBackup {
         if (ca == null || !ca.isFile()) {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
-        File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), backupTimestamp());
+        File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), stempelUnik());
         try {
             uploadTelegram(ctx, token, chat, tmp);
         } finally {
@@ -1110,7 +1110,7 @@ public final class TgBackup {
         if (ca == null || !ca.isFile()) {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
-        File tujuan = TlsCert.salinCaKeStorage(ca, new File(dataDir), backupTimestamp());
+        File tujuan = TlsCert.salinCaKeStorage(ca, new File(dataDir), stempelUnik());
         return "CA dibackup ke storage: " + tujuan.getAbsolutePath()
                 + " (file publik, tanpa private key). Salin ke HP lain lalu install"
                 + " sebagai CA certificate.";
@@ -2447,6 +2447,15 @@ public final class TgBackup {
     /** Stamp "yyyyMMdd-HHmmss" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
         return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
+    }
+
+    /** Stempel nama file anti-timpa (timestamp + 4 hex acak): dua backup/export
+     *  dalam milidetik yang sama (ketuk ganda, bot + UI) tak saling menimpa.
+     *  Dipakai semua nama file berbasis waktu kecuali jalur yang sudah punya
+     *  klaim unik sendiri (createBackupZip via createNewFile). */
+    public static String stempelUnik() {
+        int acak = SECURE_RANDOM.nextInt() & 0xFFFF;
+        return backupTimestamp() + "-" + String.format(Locale.US, "%04x", acak);
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
