@@ -249,7 +249,9 @@ public final class TgBot {
             long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
             String chatResmi = chat.trim();
             muatWallMaks(ctx);
-            // POST (bukan GET): token bot tidak bocor ke log URL/proxy.
+            // Token bot selalu ada di path URL (desain API Telegram
+            // "bot<token>/metode" tak bisa dihindari); POST hanya menjaga
+            // parameter offset/timeout tak ikut nangkring di URL/proxy-log.
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
                     "offset=" + offset + "&timeout=15&limit=10");
             if (body == null) {
@@ -1063,9 +1065,12 @@ public final class TgBot {
             if (t.equalsIgnoreCase("terbaru") || t.equalsIgnoreCase("latest")) {
                 return new String[]{t, ""};
             }
-            // Fallback alnum (PIN alfanumerik didukung): kata 4+ char
-            // dianggap PIN; alnum eksplisit PIN: tetap diutamakan di atas.
-            if (t.matches("[A-Za-z0-9]{4,}")) {
+            // Kata tunggal hanya numerik 4+ digit yang dimakan sebagai PIN
+            // (legasi "/stop 123456"): kata huruf seperti "webvault" adalah
+            // argumen salah ketik, bukan PIN — makan sebagai PIN menambah
+            // hitungan lockout sia-sia. PIN alfanumerik kata tunggal wajib
+            // bentuk eksplisit "PIN:ab12" (diutamakan di atas).
+            if (t.matches("[0-9]{4,}")) {
                 return new String[]{"", t};
             }
             return new String[]{t, ""};

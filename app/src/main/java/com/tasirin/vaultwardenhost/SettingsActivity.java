@@ -521,7 +521,7 @@ public class SettingsActivity extends Activity {
             if (fieldPin.length() < 4) {
                 // Hash lama di prefs tak boleh dipakai: aktif dengan field
                 // pendek/kosong menghidupkan PIN lama yang tak terlihat user.
-                toast("Isi PIN dulu (minimal 4 digit).");
+                toast("Isi PIN dulu (minimal 4 karakter huruf/angka).");
                 pinCentangProgram = true;
                 b.setChecked(false);
                 pinCentangProgram = false;
@@ -1914,7 +1914,7 @@ public class SettingsActivity extends Activity {
         }
         pinDialogTampil = true;
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setMaxLines(1);
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Masukkan PIN")

@@ -708,8 +708,10 @@ public class ServerService extends Service {
         Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
+        boolean jalan = running || alive(process);
         Notification n = b.setContentTitle("Vaultwarden Host")
-                .setContentText("Server aktif di port " + currentPort())
+                .setContentText(jalan ? "Server aktif di port " + currentPort()
+                        : "Menjalankan tugas latar...")
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setOngoing(true)

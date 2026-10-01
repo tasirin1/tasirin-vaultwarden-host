@@ -98,6 +98,66 @@ public final class Util {
         return "https".equals(skema);
     }
 
+    /** True bila host termasuk rilis GitHub (unduhan binary/web-vault).
+     *  Redirect asset github.com selalu ke objects.githubusercontent.com /
+     *  hosts githubusercontent lain; host lain ditolak agar 302 nakal tak bisa
+     *  mengarahkan binary + checksum ke server jahat yang SHA-nya cocok.
+     *  Murni agar bisa unit test. */
+    public static boolean hostGithubAman(String host) {
+        if (host == null) {
+            return false;
+        }
+        String h = normalisasiHost(host).toLowerCase(java.util.Locale.US);
+        if (h.isEmpty()) {
+            return false;
+        }
+        if (h.equals("github.com") || h.equals("api.github.com")
+                || h.equals("codeload.github.com")
+                || h.equals("objects.githubusercontent.com")
+                || h.equals("release-assets.githubusercontent.com")) {
+            return true;
+        }
+        return h.endsWith(".githubusercontent.com");
+    }
+
+    /** True bila redirect unduhan GitHub boleh diikuti: https + host GitHub.
+     *  Dipakai Updater (binary/web-vault/shim); unduhan file Telegram tetap
+     *  memakai bolehIkutiRedirect umum karena CDN-nya berpindah-pindah.
+     *  Murni agar bisa unit test. */
+    public static boolean bolehIkutiRedirectGithub(String asal, String lokasi) {
+        if (!bolehIkutiRedirect(asal, lokasi)) {
+            return false;
+        }
+        if (lokasi == null) {
+            return false;
+        }
+        String l = lokasi.trim();
+        if (l.startsWith("//")) {
+            return hostGithubAman(l.substring(2).split("[/?#]")[0]);
+        }
+        if (l.startsWith("/")) {
+            return true;
+        }
+        int kol = l.indexOf(':');
+        if (kol < 0) {
+            try {
+                String gabung = sambungRedirect(asal, l);
+                return hostGithubAman(new java.net.URL(gabung).getHost());
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        try {
+            String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
+            if (!"https".equals(skema)) {
+                return false;
+            }
+            return hostGithubAman(new java.net.URL(l).getHost());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** True bila sisa lokasi "//host/..." menunjuk host yang sama dengan asal.
      *  Murni agar bisa unit test. */
     static boolean hostSama(String asal, String sisa) {

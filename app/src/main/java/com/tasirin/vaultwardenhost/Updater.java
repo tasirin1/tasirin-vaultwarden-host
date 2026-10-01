@@ -310,7 +310,9 @@ public final class Updater {
         return bukaIkutiRedirect(ctx, url, connectMs, readMs, resumeFrom);
     }
 
-    /** Ikuti redirect manual maks 5x, hanya ke https (cegah downgrade http). */
+    /** Ikuti redirect manual maks 5x, hanya https + host GitHub.
+     *  Checksum (.sha256) diambil dari host yang sama sehingga redirect ke
+     *  host sembarang = penyerang bisa menyajikan binary + SHA cocok. */
     private static HttpURLConnection bukaIkutiRedirect(Context ctx, String url,
             int connectMs, int readMs, long resumeFrom) throws Exception {
         String kini = url;
@@ -330,7 +332,7 @@ public final class Updater {
                 String lok = c.getHeaderField("Location");
                 c.disconnect();
                 if (lok == null || lok.isEmpty()
-                        || !Util.bolehIkutiRedirect(kini, lok)) {
+                        || !Util.bolehIkutiRedirectGithub(kini, lok)) {
                     throw new IOException("Redirect tidak aman/ditolak: " + lok);
                 }
                 kini = Util.sambungRedirect(kini, lok);

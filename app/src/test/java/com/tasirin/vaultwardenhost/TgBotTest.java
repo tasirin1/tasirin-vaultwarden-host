@@ -146,7 +146,11 @@ public class TgBotTest {
 
     @Test
     public void pisahkanPinAlfanumerikDidukung() {
-        assertArrayEquals(new String[]{"", "ab12"}, TgBot.pisahkanPin("ab12"));
+        // Kata tunggal huruf bukan PIN (argumen salah ketik tak boleh makan
+        // lockout): PIN alnum kata tunggal wajib bentuk eksplisit PIN:.
+        assertArrayEquals(new String[]{"ab12", ""}, TgBot.pisahkanPin("ab12"));
+        assertArrayEquals(new String[]{"", "ab12"}, TgBot.pisahkanPin("PIN:ab12"));
+        assertArrayEquals(new String[]{"webvault", ""}, TgBot.pisahkanPin("webvault"));
         assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
         assertArrayEquals(new String[]{"restore", "PINku1"},
                 TgBot.pisahkanPin("restore PIN:PINku1"));

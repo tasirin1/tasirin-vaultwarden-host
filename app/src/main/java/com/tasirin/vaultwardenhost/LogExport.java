@@ -47,9 +47,12 @@ public final class LogExport {
         header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
         header.append('\n');
 
-        // Milidetik: dua export dalam sedetik tak saling timpa/hapus.
+        // Milidetik + akhiran acak: dua export dalam ms yang sama (ketuk
+        // ganda) tak saling timpa/hapus di jalur legacy yang menimpa file.
         String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
-        String name = "tasirin-vaultwarden-host-log-" + stamp + ".txt";
+        int acak = (new java.security.SecureRandom().nextInt() & 0xFFFF);
+        String name = "tasirin-vaultwarden-host-log-" + stamp + "-"
+                + String.format(Locale.US, "%04x", acak) + ".txt";
         boolean ok = false;
         if (Build.VERSION.SDK_INT >= 29) {
             try {

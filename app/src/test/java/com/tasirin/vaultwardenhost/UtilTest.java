@@ -51,6 +51,22 @@ public class UtilTest {
     }
 
     @Test
+    public void redirectGithubHanyaHostGithub() {
+        assertTrue(Util.bolehIkutiRedirectGithub(
+                "https://github.com/a/b", "https://objects.githubusercontent.com/c"));
+        assertTrue(Util.bolehIkutiRedirectGithub(
+                "https://github.com/a/b", "/c/d"));
+        assertFalse(Util.bolehIkutiRedirectGithub(
+                "https://github.com/a/b", "https://jahat.example/c"));
+        assertFalse(Util.bolehIkutiRedirectGithub(
+                "https://github.com/a/b", "http://objects.githubusercontent.com/c"));
+        assertTrue(Util.hostGithubAman("github.com"));
+        assertTrue(Util.hostGithubAman("objects.githubusercontent.com"));
+        assertFalse(Util.hostGithubAman("jahat.example"));
+        assertFalse(Util.hostGithubAman("github.com.jahat.example"));
+    }
+
+    @Test
     public void redirectProtokolRelatifHanyaSehost() {
         assertTrue(Util.bolehIkutiRedirect("https://a/b", "//a/d"));
         assertTrue(Util.bolehIkutiRedirect("https://a/b", "//A:443/d?x=1"));

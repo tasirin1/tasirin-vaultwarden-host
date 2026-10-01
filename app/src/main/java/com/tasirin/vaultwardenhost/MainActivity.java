@@ -273,6 +273,15 @@ public class MainActivity extends Activity {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
         }
+        // Tolak folder berbahaya lebih awal (traversal, root storage, area
+        // sistem): service juga menolak, tapi UI wajib memberi tahu jelas
+        // sebelum cek port agar tak gagal start secara misterius.
+        if (!ServerService.dataDirAman(dataDir)
+                || !ServerService.dataDirKanonisAman(dataDir)) {
+            toast("Folder data tidak valid - dikembalikan ke bawaan di Settings.");
+            appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - Start dibatalkan.");
+            return;
+        }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDir, REQ_WRITE)) {
             appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
@@ -832,7 +841,7 @@ public class MainActivity extends Activity {
         }
         pinDialogTampil = true;
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setMaxLines(1);
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Masukkan PIN")
