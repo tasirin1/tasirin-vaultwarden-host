@@ -500,10 +500,14 @@ public final class TgBot {
     }
 
     /** True bila teks adalah perintah berbahaya (wajib PIN bila PIN aktif).
-     *  Hanya perintah yang mengubah keadaan (start/stop/backup/restore/update).
-     *  Perintah baca (status/log/uptime/alive/crashlog/help/ca) cukup auth chat
-     *  agar tombol inline tetap bisa dipakai saat PIN aktif (tombol tak bisa
-     *  membawa PIN). Murni agar bisa unit test; dipakai tombol inline & hapus pesan PIN. */
+     *  Perintah yang mengubah keadaan (start/stop/restart/backup/restore/
+     *  update/webvault/careset). Perintah baca (status/log/uptime/alive/
+     *  help/ca/cabackup/versi) cukup auth chat agar tombol inline tetap
+     *  bisa dipakai saat PIN aktif (tombol tak bisa membawa PIN).
+     *  /crashlog tak ada di daftar ini tapi tetap wajib PIN bila PIN aktif
+     *  (memuat path folder data; diperiksa sendiri di handleCommand) —
+     *  jangan anggap cukup auth chat. Murni agar bisa unit test; dipakai
+     *  tombol inline & hapus pesan PIN. */
     static boolean perintahBerbahaya(String text) {
         String cmd = namaPerintah(text);
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")

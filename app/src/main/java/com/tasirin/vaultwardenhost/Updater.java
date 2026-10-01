@@ -1333,8 +1333,14 @@ public final class Updater {
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
-        if (dataDir == null || dataDir.trim().isEmpty()) {
+        // Validasi seperti restore/startServer: prefs utak-atik tak boleh
+        // mengarahkan unduhan+ekstrak 35 MB ke folder arbitrer/sistem.
+        if (dataDir == null || dataDir.trim().isEmpty()
+                || !ServerService.dataDirAman(dataDir)
+                || !ServerService.dataDirKanonisAman(dataDir)) {
             dataDir = ServerService.DEFAULT_DATA_DIR;
+        } else {
+            dataDir = dataDir.trim();
         }
 
         File dataFolder = new File(dataDir);

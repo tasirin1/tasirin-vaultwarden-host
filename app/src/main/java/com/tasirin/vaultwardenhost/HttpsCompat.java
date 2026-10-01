@@ -5,6 +5,8 @@ import android.content.Context;
 import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -13,6 +15,7 @@ import java.util.Enumeration;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -118,9 +121,15 @@ public final class HttpsCompat {
             } catch (Exception ignored) {
             }
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            // Override hasil segarkanTrustAnchor diutamakan bila valid; bila
-            // rusak, jatuh ke bawaan (fail-safe, bukan gagal total).
-            boolean pakaiBawaan = true;
+            // Union (bukan ganti): bawaan selalu dimuat, berkas segar hasil
+            // segarkanTrustAnchor ditumpuk di atasnya. Override valid tapi tak
+            // lengkap tak boleh memutus rantai root lama sampai refresh berikut.
+            try (InputStream in = ctx.getAssets().open("certs/github-chain.pem")) {
+                int i = 0;
+                for (Certificate cert : cf.generateCertificates(in)) {
+                    ks.setCertificateEntry("extra-" + (i++), cert);
+                }
+            }
             try {
                 File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
                 if (ov.isFile()) {
@@ -129,31 +138,105 @@ public final class HttpsCompat {
                         for (Certificate cert : cf.generateCertificates(in)) {
                             ks.setCertificateEntry("ov-" + (i++), cert);
                         }
-                        if (i > 0) {
-                            pakaiBawaan = false;
-                        }
                     } catch (Exception ignored) {
                     }
                 }
             } catch (Exception ignored) {
             }
-            if (pakaiBawaan) {
-            try (InputStream in = ctx.getAssets().open("certs/github-chain.pem")) {
-                int i = 0;
-                for (Certificate cert : cf.generateCertificates(in)) {
-                    ks.setCertificateEntry("extra-" + (i++), cert);
-                }
-            }
-            }
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
-            // "TLS" umum agar negosiasi 1.2 di Android 5/6 dan 1.3 di HP baru.
-            SSLContext sc = SSLContext.getInstance("TLS");
+            // Paksa TLSv1.2 di API 21/22: konteks "TLS" bawaan hanya
+            // mengaktifkan TLSv1 di sana sehingga HTTPS GitHub (wajib
+            // >=1.2) gagal; di HP baru 1.3 tetap dirundingkan bila ada.
+            SSLContext sc;
+            try {
+                sc = SSLContext.getInstance("TLSv1.2");
+            } catch (Exception e12) {
+                sc = SSLContext.getInstance("TLS");
+            }
             sc.init(null, tmf.getTrustManagers(), new SecureRandom());
-            cached = sc.getSocketFactory();
+            cached = new PabrikTls12(sc.getSocketFactory());
             cachedCap = cap;
         }
         return cached;
+    }
+
+    /** Pembungkus factory yang menyalakan TLSv1.2 (+1.1) di tiap soket.
+     *  API 21/22 mendukung TLSv1.2 tapi tak mengaktifkannya by default;
+     *  tanpa ini handshake ke GitHub (wajib >=1.2) gagal di Android 5.0/5.1.
+     *  Murni delegasi + setEnabledProtocols (API 1, aman untuk minSdk 21). */
+    private static final class PabrikTls12 extends SSLSocketFactory {
+        private final SSLSocketFactory bawaan;
+
+        PabrikTls12(SSLSocketFactory bawaan) {
+            this.bawaan = bawaan;
+        }
+
+        private Socket nyalakan(Socket s) {
+            if (s instanceof SSLSocket) {
+                try {
+                    SSLSocket ssl = (SSLSocket) s;
+                    java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
+                    for (String p : ssl.getSupportedProtocols()) {
+                        if ("TLSv1.2".equals(p) || "TLSv1.1".equals(p)) {
+                            mau.add(p);
+                        }
+                    }
+                    if (!mau.isEmpty()) {
+                        ssl.setEnabledProtocols(mau.toArray(new String[0]));
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            return s;
+        }
+
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return bawaan.getDefaultCipherSuites();
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return bawaan.getSupportedCipherSuites();
+        }
+
+        @Override
+        public Socket createSocket() throws java.io.IOException {
+            return nyalakan(bawaan.createSocket());
+        }
+
+        @Override
+        public Socket createSocket(String host, int port)
+                throws java.io.IOException {
+            return nyalakan(bawaan.createSocket(host, port));
+        }
+
+        @Override
+        public Socket createSocket(String host, int port,
+                InetAddress localHost, int localPort)
+                throws java.io.IOException {
+            return nyalakan(bawaan.createSocket(host, port, localHost, localPort));
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port)
+                throws java.io.IOException {
+            return nyalakan(bawaan.createSocket(host, port));
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port,
+                InetAddress localAddress, int localPort)
+                throws java.io.IOException {
+            return nyalakan(bawaan.createSocket(address, port, localAddress, localPort));
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host,
+                int port, boolean autoClose) throws java.io.IOException {
+            return nyalakan(bawaan.createSocket(s, host, port, autoClose));
+        }
     }
 }

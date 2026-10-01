@@ -33,9 +33,15 @@ jobs:
       skip: ${{ steps.vw.outputs.skip }}
     steps:
       - id: vw
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Fallback curl membawa token (limit 5000/jam, bukan 60/jam anonim)
+          # agar resolve tak gagal spurios saat cron + push berdekatan.
+          HDR=()
+          if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
           TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
-            || curl -sf --retry 3 --retry-delay 5 https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
+            || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
           case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
