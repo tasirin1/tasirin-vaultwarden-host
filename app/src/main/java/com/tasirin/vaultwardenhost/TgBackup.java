@@ -2174,6 +2174,7 @@ public final class TgBackup {
                     ServerService.KEY_AUTO_RESTART_UPDATE, ServerService.KEY_PORT_MIGRATED,
                     KEY_TG_AUTO, "wizard_selesai",
                     PinGate.KEY_PIN_ON, KEY_BACKUP_TERTUNDA,
+                    ServerService.KEY_START_TERTUNDA,
                     "tg_low_storage_notified", "home_log_expanded"));
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
