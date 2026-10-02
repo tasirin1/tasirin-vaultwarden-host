@@ -54,6 +54,7 @@ public final class LogExport {
         java.security.SecureRandom rnd = new java.security.SecureRandom();
         String name = namaLog(stamp, rnd);
         boolean ok = false;
+        android.net.Uri pendingUri = null;
         if (Build.VERSION.SDK_INT >= 29) {
             try {
                 ContentResolver resolver = act.getContentResolver();
@@ -63,6 +64,7 @@ public final class LogExport {
                 values.put(MediaStore.Downloads.RELATIVE_PATH, "Download/");
                 values.put(MediaStore.Downloads.IS_PENDING, 1);
                 Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                pendingUri = uri;
                 if (uri != null) {
                     try (OutputStream out = resolver.openOutputStream(uri)) {
                         if (out != null) {
@@ -89,6 +91,15 @@ public final class LogExport {
                     }
                 }
             } catch (Exception ignored) {
+                // Lempar di jeda insert-vs-tulis (mis. openOutputStream melempar
+                // sebelum masuk try dalam): hapus pending agar tak jadi orphan
+                // tak terlihat di Download.
+                try {
+                    if (!ok && pendingUri != null) {
+                        act.getContentResolver().delete(pendingUri, null, null);
+                    }
+                } catch (Exception ignored2) {
+                }
             }
         } else {
             // Lapis kedua (pemanggil LogActivity sudah cek dulu): tanpa izin

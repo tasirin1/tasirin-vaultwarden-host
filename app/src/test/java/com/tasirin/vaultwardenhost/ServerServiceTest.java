@@ -65,6 +65,8 @@ public class ServerServiceTest {
                 "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a --version"));
         assertFalse(ServerService.bolehBunuhBasi(null));
         assertFalse(ServerService.bolehBunuhBasi("/system/bin/sh"));
+        assertFalse(ServerService.bolehBunuhBasi("bin/vaultwarden-tanpa-slash"));
+        assertFalse(ServerService.bolehBunuhBasi("/data/app/bin/vaultwarden --version"));
     }
 
 

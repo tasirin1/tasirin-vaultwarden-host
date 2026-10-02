@@ -453,6 +453,8 @@ public class UpdaterTest {
         assertFalse(Updater.amanEntriZip("."));
         assertFalse(Updater.amanEntriZip("./file.txt"));
         assertFalse(Updater.amanEntriZip("dir/./file.txt"));
+        assertFalse(Updater.amanEntriZip("js/app\u0000.js"));
+        assertFalse(Updater.amanEntriZip("js/app\u001F.js"));
     }
 
     @Test

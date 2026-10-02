@@ -357,17 +357,31 @@ public class MainActivity extends Activity {
                             + "Tanpa web vault, server dan aplikasi Bitwarden tetap jalan normal.")
                     .setPositiveButton("Unduh & Start", (d, w) -> {
                         setBusy(true);
+                        // Pakai app context di worker agar tekan back saat unduh
+                        // 35 MB tak menahan Activity yang sudah destroy (bocor).
+                        final android.content.Context appCtx = getApplicationContext();
                         new Thread(() -> {
+                            String msg;
+                            boolean gagal = false;
                             try {
-                                String msg = Updater.updateWebVault(this);
-                                appendUiLog("[app] " + msg);
+                                msg = Updater.updateWebVault(appCtx);
                             } catch (Exception e) {
-                                toast("Gagal unduh web-vault: " + e.getMessage());
-                                appendUiLog("[app] Gagal unduh web-vault: " + e);
-                            } finally {
-                                setBusy(false);
+                                gagal = true;
+                                msg = "Gagal unduh web-vault: " + e;
                             }
-                            ServerService.start(this);
+                            final String info = "[app] " + msg;
+                            final boolean gagalFinal = gagal;
+                            ui.post(() -> {
+                                if (isFinishing() || isDestroyed()) {
+                                    return;
+                                }
+                                appendUiLog(info);
+                                if (gagalFinal) {
+                                    toast("Gagal unduh web-vault.");
+                                }
+                                setBusy(false);
+                            });
+                            ServerService.start(appCtx);
                         }, "vw-task").start();
                         maybeAutoBackup();
                     })

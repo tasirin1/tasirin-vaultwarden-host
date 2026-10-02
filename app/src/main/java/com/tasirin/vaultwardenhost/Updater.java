@@ -2309,6 +2309,14 @@ public final class Updater {
                 || n.contains("/./") || n.endsWith("/.")) {
             return false;
         }
+        // Tolak karakter kontrol/NUL/DEL di nama zip (licik di log/listing,
+        // atau memecah header saat diekstrak di tool lain).
+        for (int i = 0; i < n.length(); i++) {
+            char c = n.charAt(i);
+            if (c < 0x20 || c == 0x7F) {
+                return false;
+            }
+        }
         return true;
     }
 

@@ -3046,7 +3046,10 @@ public class ServerService extends Service {
      *  yang nyangkut, BUKAN smoke-test "--version" milik flow update/start
      *  konkuren. Murni agar bisa unit test. */
     static boolean bolehBunuhBasi(String cmd) {
-        return cmd != null && cmd.contains("bin/vaultwarden")
+        // Ketat: path internal selalu ".../bin/vaultwarden-armeabi-v7a".
+        // Substring longgar "bin/vaultwarden" berisiko menjodohkan file
+        // asing se-UID bila skema exec bertambah nanti.
+        return cmd != null && cmd.contains("/bin/vaultwarden-")
                 && !cmd.contains("--version");
     }
 

@@ -1488,9 +1488,18 @@ public final class TgBackup {
             // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
             conn.setChunkedStreamingMode(0);
             HttpsCompat.apply(conn, ctx);
-            byte[] acakB = new byte[8];
-            SECURE_RANDOM.nextBytes(acakB);
-            String boundary = "----vw" + Updater.toHex(acakB) + "bound";
+            String boundary;
+            try {
+                byte[] acakB = new byte[8];
+                SECURE_RANDOM.nextBytes(acakB);
+                boundary = "----vw" + Updater.toHex(acakB) + "bound";
+            } catch (Exception e) {
+                // STB tua yang SecureRandom-nya gagal: fallback UUID agar
+                // upload tetap jalan dengan boundary unik, bukan gagal total.
+                boundary = "----vw"
+                        + java.util.UUID.randomUUID().toString().replace("-", "")
+                        + "bound";
+            }
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
             try (OutputStream os = conn.getOutputStream();
