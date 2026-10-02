@@ -57,51 +57,24 @@ jobs:
             echo "skip=yes" >> "$GITHUB_OUTPUT"
           fi
 
-  deteksi:
-    name: Deteksi perlu binary
-    runs-on: ubuntu-24.04
-    outputs:
-      bin: ${{ steps.c.outputs.bin }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 2
-      - id: c
-        run: |
-          # Push ke workflow ini sudah difilter paths (workflow/shim saja).
-          # Binary (~15 mnt) hanya dibangun ulang bila workflow-nya berubah;
-          # bila cuma shim/** yang berubah, binary lama dipakai ulang dari rilis.
-          BIN=true
-          if [ "${{ github.event_name }}" = "push" ]; then
-            if git diff --name-only HEAD~1 HEAD > /tmp/ubah.txt 2>/dev/null; then
-              if grep -qx '.github/workflows/build-binary.yml' /tmp/ubah.txt; then
-                BIN=true
-              else
-                BIN=false
-              fi
-            fi
-          fi
-          echo "bin=$BIN"
-          echo "bin=$BIN" >> "$GITHUB_OUTPUT"
-
   build-binary:
-    name: Build vaultwarden (armeabi-v7a)
-    needs: [resolve, deteksi]
-    # Binary hanya tergantung versi upstream + patch workflow: lewati bila
-    # rilis tag ini sudah ada dan push tak menyentuh workflow-binary.
-    if: needs.resolve.outputs.skip != 'yes' && (needs.resolve.outputs.ada != 'yes' || github.event_name != 'push' || needs.deteksi.outputs.bin == 'true')
+    name: Build binary + shim (armeabi-v7a)
+    needs: resolve
+    # Satu job untuk binary Rust (~15 mnt) + shim (detik) agar NDK (~500 MB)
+    # cukup diunduh sekali. Push ke workflow ini sudah difilter paths.
+    if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install rustup (tanpa toolchain)
+        run: |
+          # Hanya rustup-nya (~10 MB); toolchain yang diunduh cukup SATU:
+          # versi pinned Vaultwarden (langkah khusus di bawah). Menghemat
+          # satu unduhan toolchain stable yang tak dipakai.
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal --default-toolchain none
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Install Android NDK
         uses: android-actions/setup-android@v4
@@ -264,19 +237,6 @@ jobs:
           path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
           if-no-files-found: error
 
-  build-shim:
-    name: Build shim getrandom (armeabi-v7a)
-    needs: resolve
-    if: needs.resolve.outputs.skip != 'yes'
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install Android NDK
-        uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
-
       - name: Compile shim getrandom (API 21, armv7)
         run: |
           SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
@@ -305,21 +265,17 @@ jobs:
 
   publish-binary:
     name: Publish binary & web-vault
-    needs: [resolve, build-binary, build-shim]
-    # build-binary bisa dilewati (push shim-only): tetap publish bila
-    # minimal satu dari binary/shim sukses dibangun.
-    if: ${{ always() && !cancelled() && !failure() && needs.resolve.outputs.skip != 'yes' && (needs.build-binary.result == 'success' || needs.build-shim.result == 'success') }}
+    needs: [resolve, build-binary]
+    if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
     steps:
       - name: Download binary hasil build
-        if: needs.build-binary.result == 'success'
         uses: actions/download-artifact@v7
         with:
           name: vw-binary-armeabi-v7a
           path: /tmp/baru-bin
 
       - name: Download shim hasil build
-        if: needs.build-shim.result == 'success'
         uses: actions/download-artifact@v7
         with:
           name: vw-shim
@@ -333,17 +289,9 @@ jobs:
           TAG="v${{ needs.resolve.outputs.vw }}"
           mkdir -p /tmp/pub
           cd /tmp/pub
-          # Binary: hasil build baru bila ada, else pakai ulang dari rilis (push shim-only).
-          if [ -f /tmp/baru-bin/vaultwarden ]; then
-            cp /tmp/baru-bin/vaultwarden vaultwarden-armeabi-v7a
-          else
-            gh release download "$TAG" -p "vaultwarden-armeabi-v7a" -O vaultwarden-armeabi-v7a
-          fi
-          if [ -f /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so ]; then
-            cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
-          else
-            gh release download "$TAG" -p "libgetrandom-shim-armeabi-v7a.so" -O libgetrandom-shim-armeabi-v7a.so
-          fi
+          # Binary + shim selalu hasil build baru dari job di atas.
+          cp /tmp/baru-bin/vaultwarden vaultwarden-armeabi-v7a
+          cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
           # Web-vault hanya tergantung versi upstream: pakai ulang dari rilis
           # bila sudah ada (hemat Docker + kuota pada push shim-only).
           if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "web-vault.zip"; then

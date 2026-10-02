@@ -156,20 +156,22 @@ coba ulang). Cache cargo dipakai ulang antar run binary.
 skip bila rilis untuk tag tersebut sudah ada), dan `workflow_dispatch`:
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
-2. **deteksi** — binary dibangun ulang hanya bila workflow-nya berubah;
-   push shim-only memakai ulang binary dari rilis.
-3. **build-binary** — clone source Vaultwarden, terapkan **patch DNS Android**
-   (nonaktifkan `hickory`/`ndk-context` di `vaultwarden/src/http_client.rs` —
-   anchor `impl CustomDnsResolver { fn new()`), cross-compile `armeabi-v7a`
-   (NDK 25, target `armv7-linux-androideabi`), strip, upload artifact.
-4. **build-shim** — kompilasi `shim/getrandom_shim.c` (NDK, API 21, armv7,
-   detik) + uji interposisi `LD_PRELOAD` di host.
+2. **build-binary** — satu job untuk binary + shim agar NDK (~500 MB) cukup
+   diunduh sekali (tanpa JDK: Rust tak membutuhkannya; toolchain Rust cukup
+   versi pinned via rustup minimal): clone source Vaultwarden, terapkan
+   **patch DNS Android** (nonaktifkan `hickory`/`ndk-context` di
+   `vaultwarden/src/http_client.rs` — anchor
+   `impl CustomDnsResolver { fn new()`), cross-compile `armeabi-v7a`
+   (NDK 25, target `armv7-linux-androideabi`), strip, kompilasi
+   `shim/getrandom_shim.c` (API 21, armv7, detik) + uji interposisi
+   `LD_PRELOAD` di host, upload kedua artifact.
    Shim ini dipakai app (via `LD_PRELOAD`) agar binary terbaru tetap jalan
    di kernel STB lama (getrandom/EINVAL).
-5. **publish-binary** — terbitkan 6 asset non-APK (binary+shim+web-vault
+3. **publish-binary** — terbitkan 6 asset non-APK (binary+shim+web-vault
    beserta `.sha256`); web-vault diambil dari **Docker digest resmi**
    (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`)
-   hanya bila belum ada di rilis (hemat Docker pada push shim-only).
+   hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
+   ganti versi upstream).
 
 **B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` (kecuali dokumen,
 `shim/`, `build-binary.yml`), `workflow_dispatch`, dan `workflow_run` setelah
