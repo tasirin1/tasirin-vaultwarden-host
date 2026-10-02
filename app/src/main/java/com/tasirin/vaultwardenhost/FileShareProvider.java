@@ -176,6 +176,9 @@ public class FileShareProvider extends ContentProvider {
             if (!canonUlang.equals(canon) || !isShareable(canonUlang)) {
                 throw new FileNotFoundException("Akses ditolak.");
             }
+            if (adaSymlinkInduk(canonUlang)) {
+                throw new FileNotFoundException("Akses ditolak.");
+            }
             File buka = new File(canonUlang);
             if (!buka.isFile()) {
                 throw new FileNotFoundException("Berkas tidak ditemukan.");
@@ -185,6 +188,34 @@ public class FileShareProvider extends ContentProvider {
             throw e;
         } catch (Exception e) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
+        }
+    }
+
+    /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
+     *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
+     *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
+    static boolean adaSymlinkInduk(String canon) {
+        try {
+            Class<?> os = Class.forName("android.system.Os");
+            Class<?> konst = Class.forName("android.system.OsConstants");
+            java.lang.reflect.Method lstat = os.getMethod("lstat", String.class);
+            java.lang.reflect.Method cekLink = konst.getMethod("S_ISLNK", int.class);
+            File induk = new File(canon).getParentFile();
+            for (int i = 0; i < 32 && induk != null; i++) {
+                try {
+                    Object st = lstat.invoke(null, induk.getAbsolutePath());
+                    int mode = st.getClass().getField("st_mode").getInt(st);
+                    if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
+                        return true;
+                    }
+                } catch (Exception ignored) {
+                    break;
+                }
+                induk = induk.getParentFile();
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 

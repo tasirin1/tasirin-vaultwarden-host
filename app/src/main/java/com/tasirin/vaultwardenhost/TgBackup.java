@@ -3035,6 +3035,10 @@ public final class TgBackup {
                     exact = false;
                 }
             }
+            if (!exact) {
+                ServerService.catatLog("[tg] Backup harian tidak tepat waktu: izin exact alarm"
+                        + " ditolak - beri izin Alarms & reminders agar backup tengah malam pas.");
+            }
             try {
                 if (exact) {
                     // Tepat waktu walau dalam Doze.

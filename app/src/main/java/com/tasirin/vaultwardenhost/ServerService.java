@@ -1162,6 +1162,12 @@ public class ServerService extends Service {
                     + " - beri izin Storage/Semua file di Pengaturan HP, lalu Start ulang.");
             return;
         }
+        if (dataDir.startsWith("/sdcard/")
+                || dataDir.startsWith("/storage/") || dataDir.equals("/sdcard")) {
+            appendLog("[app] PERINGATAN: folder data di storage bersama - DB plaintext"
+                    + " bisa dibaca app lain berizin storage. PIN hanya mengunci UI/bot,"
+                    + " bukan mengenkripsi database.");
+        }
 
         // Bersihkan sisa unduhan gagal agar tidak memakan storage.
         cleanupTempFiles(dataDir);
@@ -3160,15 +3166,16 @@ public class ServerService extends Service {
         if (port < 1 || port > 65535) {
             return true;
         }
-        return !bisaBind("0.0.0.0", port);
+        // Rocket melayani dua tumpukan; sibuk bila salah satu tak bisa bind.
+        // Perangkat tanpa stack IPv6 mengembalikan bebas untuk "::" di bisaBind.
+        return !bisaBind("0.0.0.0", port) || !bisaBind("::", port);
     }
 
     /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */
     static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
             // REUSEADDR agar Start langsung setelah Stop tak dikira "port sibuk"
-            // (TIME_WAIT). Sengaja IPv4-only mengikuti isPortBusy (ROCKET_ADDRESS
-            // 0.0.0.0); tidak ada cek dual-stack di sini.
+            // (TIME_WAIT). Dipanggil per tumpukan oleh isPortBusy (0.0.0.0 dan ::).
             try {
                 s.setReuseAddress(true);
             } catch (Exception ignored) {

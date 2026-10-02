@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * Digunakan untuk HTTPS lokal (ROCKET_TLS_*).
  *
  * <p>Skema: CA self-signed (ca.pem, CA:TRUE, 10 tahun) menandatangani sertifikat
- * server (cert.pem, CA:FALSE + SAN IP/DNS, 5 tahun). Yang dipasang di HP lain cukup
+ * server (cert.pem, CA:FALSE + SAN IP/DNS, 825 hari). Yang dipasang di HP lain cukup
  * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP/domain berubah
  * sehingga tidak perlu install ulang, hanya cert.pem yang dibuat ulang.</p>
  */
@@ -57,6 +57,8 @@ public final class TlsCert {
     static final String LEAF_CN = "Vaultwarden Android";
     /** Regen dini leaf bila sisa < 30 hari agar tak kedaluwarsa di tengah jalan. */
     static final long BATAS_REGEN_MS = 30L * 24 * 3600 * 1000;
+    /** Umur leaf maksimal 825 hari agar klien modern tak menolak (398+ hari ditolak Chrome/Android baru). */
+    static final long LEAF_MAX_MS = 825L * 24 * 3600 * 1000;
 
     /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
      *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
@@ -136,9 +138,10 @@ public final class TlsCert {
                 keyFile.delete();
                 writeVersion(dir);
             }
+            long sisaLeaf = sisaMs(certFile);
             if (certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
-                    && leafCukup(sisaMs(certFile))) {
+                    && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
                 return dir;
             }
             // Leaf hilang / rusak / kedaluwarsa: buat ulang, CA tetap.
@@ -250,6 +253,12 @@ public final class TlsCert {
         return sisa > BATAS_REGEN_MS || sisa == -2;
     }
 
+    /** True bila leaf warisan kepanjangan (>825 hari) wajib diregen agar klien
+     *  modern tak menolak walau belum kedaluwarsa. Murni. */
+    static boolean leafTerlaluLama(long sisa) {
+        return sisa > LEAF_MAX_MS;
+    }
+
     /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */
     private static boolean buatCa(File caCert, File caKey) {
         try {
@@ -322,7 +331,7 @@ public final class TlsCert {
             }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips, dns), 365 * 5);
+                    extensionsBlock(ips, dns), 825);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;

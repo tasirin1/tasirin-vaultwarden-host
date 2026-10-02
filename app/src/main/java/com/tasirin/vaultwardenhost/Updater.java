@@ -2086,12 +2086,16 @@ public final class Updater {
                 java.util.List<String> baris = new java.util.ArrayList<>();
                 try (BufferedReader r = new BufferedReader(new InputStreamReader(
                         c.getInputStream(), StandardCharsets.UTF_8))) {
-                    // Cap 20 baris: file checksum semestinya 1 baris; tanpa cap
-                    // respons raksasa tanpa newline menumpuk di memori STB 1 GB.
-                    for (int i = 0; i < 20; i++) {
+                    // Cap 200 baris x 4 KB: file checksum multi-asset bisa
+                    // puluhan baris; baris tanpa newline dipotong agar tak
+                    // menumpuk di memori STB 1 GB.
+                    for (int i = 0; i < 200; i++) {
                         String b = r.readLine();
                         if (b == null) {
                             break;
+                        }
+                        if (b.length() > 4096) {
+                            b = b.substring(0, 4096);
                         }
                         baris.add(b);
                     }

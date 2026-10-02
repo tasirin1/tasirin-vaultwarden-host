@@ -89,11 +89,11 @@ public class SettingsActivity extends Activity {
     private Button exportCfgBtn;
     private Button importCfgBtn;
     /** File config plaintext sementara yang menunggu dibagikan: dipertahankan
-     *  hingga basi 10 menit (target async membaca setelah chooser kembali).
+     *  hingga basi 5 menit (target async membaca setelah chooser kembali).
      *  Volatile karena ditulis worker exportConfig dan dibaca UI thread. */
     private volatile File exportPlainTertunda = null;
-    /** Batas simpan file config plaintext sementara (10 menit, sapu basi). */
-    static final long EXPORT_PLAIN_TTL_MS = 10L * 60 * 1000;
+    /** Batas simpan file config plaintext sementara (5 menit, sapu basi). */
+    static final long EXPORT_PLAIN_TTL_MS = 5L * 60 * 1000;
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -1275,6 +1275,28 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /** Sisakan 10 export terenkripsi terbaru agar folder backups tak penuh export lama. */
+    private void sapuExportEnkripLama(File backupDir) {
+        try {
+            File[] semua = backupDir == null ? null : backupDir.listFiles();
+            if (semua == null) {
+                return;
+            }
+            java.util.ArrayList<File> daftar = new java.util.ArrayList<>();
+            for (File f : semua) {
+                String n = f.getName();
+                if (n.startsWith("app-config-") && n.endsWith(".json.enc")) {
+                    daftar.add(f);
+                }
+            }
+            java.util.Collections.sort(daftar, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+            for (int i = 10; i < daftar.size(); i++) {
+                daftar.get(i).delete();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     // File picker klasik tanpa androidx agar APK tetap kecil + kompatibel API 21.
     @SuppressWarnings("deprecation")
     private void pickRestoreFile() {
@@ -1310,7 +1332,7 @@ public class SettingsActivity extends Activity {
         } else if (requestCode == REQ_SHARE_CONFIG) {
             // Chooser kembali bukan tanda target selesai membaca: aplikasi async
             // (Gmail/Drive) mengunggah di latar setelah kita kembali. Jangan
-            // hapus di sini; sapu basi (<10 menit dipertahankan, lihat EXPORT_PLAIN_TTL_MS).
+            // hapus di sini; sapu basi (<5 menit dipertahankan, lihat EXPORT_PLAIN_TTL_MS).
             sapuExportPlainBasi();
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
@@ -1734,7 +1756,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu sisa config plaintext sementara di cache internal. File pending yang
-     *  masih segar (<10 menit) dilewati: target berbagi async (Gmail/Drive) membaca
+     *  masih segar (<5 menit) dilewati: target berbagi async (Gmail/Drive) membaca
      *  stream setelah chooser kembali, jadi hapus langsung membuat kirim gagal.
      *  Pembersihan mengandalkan sapu basi di onResume/onDestroy. */
     private void bersihkanExportPlainCache() {
@@ -1765,7 +1787,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
-     *  onResume/onDestroy). File pending yang masih segar (<10 menit) dipertahankan. */
+     *  onResume/onDestroy). File pending yang masih segar (<5 menit) dipertahankan. */
     private void sapuExportPlainBasi() {
         try {
             File pending = exportPlainTertunda;
@@ -1832,6 +1854,7 @@ public class SettingsActivity extends Activity {
                 }
                 mime = "application/json";
             }
+            sapuExportEnkripLama(backupDir);
             final String path = out.getAbsolutePath();
             final boolean plain = !path.endsWith(".enc");
             if (plain) {
@@ -1845,8 +1868,8 @@ public class SettingsActivity extends Activity {
                 send.putExtra(Intent.EXTRA_STREAM, uri);
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
-                    // Via result: plaintext dihapus saat user kembali dari
-                    // chooser agar tak mengendap di cache (target membaca
+                    // Via result: plaintext disapu saat user kembali (TTL 5 menit)
+                    // agar tak mengendap di cache (target membaca
                     // stream saat ia foreground, sebelum kita kembali).
                     startActivityForResult(
                             Intent.createChooser(send, "Bagikan file konfigurasi"),
