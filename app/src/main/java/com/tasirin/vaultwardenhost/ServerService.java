@@ -1934,6 +1934,10 @@ public class ServerService extends Service {
         javax.net.ssl.SSLSocketFactory f = sslFactory;
         if (f == null || cap != sslCaCap) {
             synchronized (ServerService.class) {
+                // Hitung ulang di dalam kunci (reentrant): cap di luar bisa basi bila
+                // ca.pem regenerasi antar baca-cap dan masuk-kunci, lalu factory basi
+                // menimpa factory segar milik thread lain (cermin HttpsCompat).
+                cap = capCaAktif(ctx);
                 f = sslFactory;
                 if (f == null || cap != sslCaCap) {
                     javax.net.ssl.SSLSocketFactory pinned = cobaPinnedCa(ctx);
@@ -1958,6 +1962,10 @@ public class ServerService extends Service {
 
     /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
     private static long capCaAktif(Context ctx) {
+        // Sinkron (reentrant, cermin HttpsCompat.capOverride): dua thread
+        // (health-tick + ping UI) tak boleh berlomba baca-tulis capCaStat/
+        // capCaNilai — satu bisa menimpa hasil segar dengan nilai basi.
+        synchronized (ServerService.class) {
         try {
             java.io.File ca = null;
             try {
@@ -2002,6 +2010,7 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         return 0L;
+        }
     }
 
     /** Muat tls/ca.pem milik app sebagai trust anchor bila tersedia. */
