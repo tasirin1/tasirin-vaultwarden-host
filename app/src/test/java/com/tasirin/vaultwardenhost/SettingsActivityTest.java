@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -49,12 +50,21 @@ public class SettingsActivityTest {
 
     @Test
     public void buatTokenAcak24Alfanumerik() {
-        String t = SettingsActivity.buatTokenAcak(new java.util.Random(7));
+        String t = SettingsActivity.buatTokenAcak(new java.security.SecureRandom());
         assertEquals(24, t.length());
         assertTrue(t.matches("[A-Za-z0-9]+"));
-        String lain = SettingsActivity.buatTokenAcak(new java.util.Random(8));
+        String lain = SettingsActivity.buatTokenAcak(new java.security.SecureRandom());
         assertTrue(lain.matches("[A-Za-z0-9]+"));
         assertFalse(t.equals(lain));
+    }
+
+    @Test
+    public void buatTokenAcakTolakRandomLemah() {
+        try {
+            SettingsActivity.buatTokenAcak(new java.util.Random(7));
+            fail("Random biasa wajib ditolak");
+        } catch (IllegalArgumentException diharapkan) {
+        }
     }
 
     @Test

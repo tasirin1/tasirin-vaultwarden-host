@@ -1829,6 +1829,8 @@ public class SettingsActivity extends Activity {
                 } catch (Exception e2) {
                     exportPlainTertunda = null;
                     toast("File tersimpan: " + path);
+                    appendUiLog("[app] Config tersimpan (bagi gagal): " + path);
+                    return;
                 }
                 toast("Konfigurasi diekspor: " + path);
                 appendUiLog("[app] Config export: " + path);
@@ -2643,6 +2645,14 @@ public class SettingsActivity extends Activity {
     }
 
     private void revertToBundled() {
+        // Jangan cabut binary dari bawah proses yang hidup: proses tetap jalan
+        // dengan inode lama tapi penanda versi ikut terhapus sehingga restart
+        // berikut gagal sebelum unduh ulang selesai.
+        if (ServerService.running || ServerService.isProcessAlive()) {
+            toast("Stop server dulu sebelum reset binary.");
+            appendUiLog("[app] Reset binary ditolak: server masih berjalan - Stop dulu.");
+            return;
+        }
         File out = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
         new File(getFilesDir(), "bin/version.txt").delete();
         if (out.exists() && out.delete()) {
@@ -2991,6 +3001,12 @@ public class SettingsActivity extends Activity {
 
     /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */
     static String buatTokenAcak(java.util.Random rnd) {
+        // Fail-fast: token admin adalah rahasia sehingga java.util.Random biasa
+        // (seed 48-bit, bisa ditebak) dilarang; pemanggil produksi memakai
+        // SecureRandom, overload Random hanya untuk uji format.
+        if (!(rnd instanceof java.security.SecureRandom)) {
+            throw new IllegalArgumentException("Token acak wajib SecureRandom.");
+        }
         String abjad = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(24);
         for (int i = 0; i < 24; i++) {
