@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   # Auto-rebuild beberapa jam setelah Vaultwarden rilis versi baru
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'
 
 permissions:
   contents: write
