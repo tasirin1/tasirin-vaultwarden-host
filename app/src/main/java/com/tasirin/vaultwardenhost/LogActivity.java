@@ -357,7 +357,7 @@ public class LogActivity extends Activity {
      *  Kredensial lain valid tanpa spasi sehingga pola kata-tunggal di atas
      *  cukup dan tak menelan kata log sesudahnya. */
     private static final java.util.regex.Pattern POLA_SANDI_SPASI =
-            java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&;\"']+)");
+            java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+)");
 
     static String samarkanLog(String log) {
         if (log == null) {

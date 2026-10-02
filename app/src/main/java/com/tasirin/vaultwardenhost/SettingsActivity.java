@@ -46,7 +46,6 @@ public class SettingsActivity extends Activity {
     private static final int REQ_RESTORE = 1002;
     private static final int REQ_IMPORT = 1003;
     private static final int REQ_SHARE_CONFIG = 1004;
-    private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     /** Wizard setup 3 langkah sudah pernah tampil/selesai. */
     private static final String KEY_WIZARD_DONE = "wizard_selesai";
@@ -406,7 +405,7 @@ public class SettingsActivity extends Activity {
         aboutBtn.setOnClickListener(v -> showAboutDialog());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
@@ -646,7 +645,7 @@ public class SettingsActivity extends Activity {
         if ((!ServerService.dataDirAman(dataDir) || !ServerService.dataDirKanonisAman(dataDir))
                 && !TextUtils.isEmpty(dataDir)) {
             toast("Folder data tidak valid, pakai bawaan.");
-            appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + DEFAULT_DATA_DIR);
+            appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + ServerService.dataDirBawaanSegar());
         }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDirEfektif, REQ_WRITE)) {
@@ -772,9 +771,9 @@ public class SettingsActivity extends Activity {
         boolean changed = false;
         if (running) {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             if (d == null || d.trim().isEmpty()) {
-                d = DEFAULT_DATA_DIR;
+                d = ServerService.dataDirBawaanSegar();
             }
             String p = ServerService.effectivePort(sp);
             String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
@@ -921,7 +920,7 @@ public class SettingsActivity extends Activity {
     private void showAboutDialog() {
         String dataDir = dataDirInput.getText().toString().trim();
         if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         String bin = currentServerVersion();
         String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
@@ -975,7 +974,7 @@ public class SettingsActivity extends Activity {
             if (!cert.exists()) {
                 String dataDir = dataDirInput.getText().toString().trim();
                 if (TextUtils.isEmpty(dataDir)) {
-                    dataDir = DEFAULT_DATA_DIR;
+                    dataDir = ServerService.dataDirBawaanSegar();
                 }
                 cert = new File(dataDir, "tls/ca.pem");
             }
@@ -1003,7 +1002,7 @@ public class SettingsActivity extends Activity {
             if (!cert.exists()) {
                 String dataDir = dataDirInput.getText().toString().trim();
                 if (TextUtils.isEmpty(dataDir)) {
-                    dataDir = DEFAULT_DATA_DIR;
+                    dataDir = ServerService.dataDirBawaanSegar();
                 }
                 cert = new File(dataDir, "tls/ca.pem");
             }
@@ -1074,7 +1073,7 @@ public class SettingsActivity extends Activity {
     private void autoOfferWebVaultUpdate() {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             if (!webVaultReady(dataDir)) {
                 return;
             }
@@ -1165,13 +1164,13 @@ public class SettingsActivity extends Activity {
         try {
             String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
             if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
+                dataDir = ServerService.dataDirBawaanSegar();
             }
             if (!ServerService.dataDirAman(dataDir)
                     || !ServerService.dataDirKanonisAman(dataDir)) {
                 toast("Folder data tidak valid - dikembalikan ke bawaan.");
                 appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
-                dataDir = DEFAULT_DATA_DIR;
+                dataDir = ServerService.dataDirBawaanSegar();
             }
 
             File dbFile = new File(dataDir, "db.sqlite3");
@@ -1291,7 +1290,7 @@ public class SettingsActivity extends Activity {
             String dir = dataDirInput.getText() == null ? ""
                     : dataDirInput.getText().toString().trim();
             if (TextUtils.isEmpty(dir)) {
-                dir = DEFAULT_DATA_DIR;
+                dir = ServerService.dataDirBawaanSegar();
             }
             final String dataDir = dir;
             confirm("Restore Database",
@@ -1332,13 +1331,13 @@ public class SettingsActivity extends Activity {
     private void restoreDatabaseIsi(Uri uri, String dataDirMentah) {
         String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
         if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
             toast("Folder data tidak valid - dikembalikan ke bawaan.");
             appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         File dbFile = new File(dataDir, "db.sqlite3");
         File preBackup = null;
@@ -1781,13 +1780,13 @@ public class SettingsActivity extends Activity {
         try {
             String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
             if (TextUtils.isEmpty(dataDir)) {
-                dataDir = DEFAULT_DATA_DIR;
+                dataDir = ServerService.dataDirBawaanSegar();
             }
             if (!ServerService.dataDirAman(dataDir)
                     || !ServerService.dataDirKanonisAman(dataDir)) {
                 toast("Folder data tidak valid - dikembalikan ke bawaan.");
                 appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
-                dataDir = DEFAULT_DATA_DIR;
+                dataDir = ServerService.dataDirBawaanSegar();
             }
             File backupDir = new File(dataDir, "backups");
             if (!backupDir.exists()) {
@@ -2056,7 +2055,7 @@ public class SettingsActivity extends Activity {
     /** Muat ulang isi form dari prefs (dipakai setelah import config). */
     private void reloadSettingsFromPrefs() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR));
+        dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
@@ -2237,7 +2236,7 @@ public class SettingsActivity extends Activity {
         lastDbCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             File db = new File(dataDir, "db.sqlite3");
             if (!db.exists()) {
                 dbLine = "";
@@ -2261,7 +2260,7 @@ public class SettingsActivity extends Activity {
         lastStorageCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             File data = new File(dataDir);
             File db = new File(data, "db.sqlite3");
             File backups = new File(data, "backups");
@@ -2312,7 +2311,7 @@ public class SettingsActivity extends Activity {
         lastWvCheck = now;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             String updated = Updater.webVaultFromVersion(this);
             if (updated == null) {
                 updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
@@ -2359,7 +2358,7 @@ public class SettingsActivity extends Activity {
             }
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         long free = TgBackup.freeBytes(dataDir);
         if (free > 0) {
             if (sb.length() > 0) {
@@ -2395,7 +2394,7 @@ public class SettingsActivity extends Activity {
             File cert = new File(getFilesDir(), "tls/cert.pem");
             if (!cert.exists()) {
                 SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
                 cert = new File(dataDir, "tls/cert.pem");
             }
             if (!cert.exists()) {
@@ -2880,7 +2879,7 @@ public class SettingsActivity extends Activity {
         if (TgBackup.amanBoolean(sp, KEY_WIZARD_DONE, false)) {
             return;
         }
-        String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         String p = TgBackup.amanString(sp, ServerService.KEY_PORT, DEFAULT_PORT);
         String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
         String uv = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
@@ -3055,7 +3054,7 @@ public class SettingsActivity extends Activity {
             return false;
         }
         boolean ubahan = (dataDir != null && !dataDir.trim().isEmpty()
-                && !dataDir.trim().equals(ServerService.DEFAULT_DATA_DIR))
+                && !dataDir.trim().equals(ServerService.ServerService.dataDirBawaanSegar()))
                 || (port != null && !port.trim().isEmpty()
                 && !port.trim().equals(ServerService.DEFAULT_PORT))
                 || (admin != null && !admin.trim().isEmpty())

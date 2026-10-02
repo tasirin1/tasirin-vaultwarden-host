@@ -97,7 +97,7 @@ public final class AutoUpdate {
                         && tanpaKuota(ctx)) {
                     try {
                         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
-                                ServerService.DEFAULT_DATA_DIR);
+                                ServerService.dataDirBawaanSegar());
                         if (aksi.webVaultSiap(dataDir)) {
                             String targetWv = Updater.versiTargetWebVault(ctx);
                             String marker = Updater.webVaultFromVersion(ctx);

@@ -1082,11 +1082,11 @@ public final class TgBot {
     /** Ringkasan versi binary/web-vault + status kuncian (perintah /versi). */
     static String teksVersi(Context ctx) {
         String bin = Updater.currentServerVersion(ctx);
-        String dataDir = ServerService.DEFAULT_DATA_DIR;
+        String dataDir = ServerService.dataDirBawaanSegar();
         try {
             dataDir = TgBackup.amanString(
                     ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE),
-                    ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+                    ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         } catch (Exception ignored) {
         }
         String wv = null;
@@ -1376,9 +1376,9 @@ public final class TgBot {
     /** Ringkasan status untuk dibalas ke Telegram. */
     static String statusText(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         String version = ServerService.binaryVersion.isEmpty()
                 ? "?" : ServerService.binaryVersion;

@@ -267,9 +267,9 @@ public final class TgBackup {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.DEFAULT_DATA_DIR);
+                ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         File db = new File(dataDir, "db.sqlite3");
         long batas = SystemClock.elapsedRealtime() + 30_000;
@@ -392,9 +392,9 @@ public final class TgBackup {
         if (!jamStbWajar(System.currentTimeMillis())) {
             throw new IOException(pesanJamStbSalah(System.currentTimeMillis()));
         }
-        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR, ServerService.DEFAULT_DATA_DIR);
+        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         File db = new File(dataDir, "db.sqlite3");
         if (!db.exists()) {
@@ -785,9 +785,9 @@ public final class TgBackup {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                    ServerService.DEFAULT_DATA_DIR);
+                    ServerService.dataDirBawaanSegar());
             if (dataDir == null || dataDir.trim().isEmpty()) {
-                dataDir = ServerService.DEFAULT_DATA_DIR;
+                dataDir = ServerService.dataDirBawaanSegar();
             }
             long free = freeBytes(dataDir);
             if (free < 0) {
@@ -1248,9 +1248,9 @@ public final class TgBackup {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
         String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.DEFAULT_DATA_DIR);
+                ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
@@ -1295,9 +1295,9 @@ public final class TgBackup {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.DEFAULT_DATA_DIR);
+                ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
@@ -1323,9 +1323,9 @@ public final class TgBackup {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.DEFAULT_DATA_DIR);
+                ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
                 + TlsCert.resetTls(new File(dataDir, "tls"));

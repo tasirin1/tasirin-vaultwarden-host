@@ -2008,9 +2008,9 @@ public class ServerService extends Service {
             if ((ca == null || !ca.isFile()) && ctx != null) {
                 try {
                     android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                    String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
+                    String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
                     if (dataDir == null || dataDir.trim().isEmpty()) {
-                        dataDir = DEFAULT_DATA_DIR;
+                        dataDir = dataDirBawaanSegar();
                     }
                     ca = new java.io.File(dataDir, "tls/ca.pem");
                 } catch (Exception ignored) {
@@ -2055,8 +2055,8 @@ public class ServerService extends Service {
             java.io.File ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
             if (!ca.isFile()) {
                 android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
-                if (dataDir == null || dataDir.trim().isEmpty()) dataDir = DEFAULT_DATA_DIR;
+                String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
+                if (dataDir == null || dataDir.trim().isEmpty()) dataDir = dataDirBawaanSegar();
                 ca = new java.io.File(dataDir, "tls/ca.pem");
             }
             if (!ca.isFile()) return null;
@@ -2207,9 +2207,9 @@ public class ServerService extends Service {
         File out = new File(binDir, "vaultwarden-" + ABI);
         File verFile = new File(binDir, "version.txt");
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = dataDirBawaanSegar();
         }
 
         // Revisi patch binary: bila CI memperbaiki binary tanpa ganti versi Vaultwarden

@@ -40,7 +40,7 @@ public class BootReceiver extends BroadcastReceiver {
                     String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
                     String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
                     String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
-                            ServerService.DEFAULT_DATA_DIR);
+                            ServerService.dataDirBawaanSegar());
                     boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
                             && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
                     // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):

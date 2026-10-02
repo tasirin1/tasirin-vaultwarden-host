@@ -37,7 +37,6 @@ import java.nio.charset.StandardCharsets;
 public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
-    private static final String DEFAULT_DATA_DIR = ServerService.DEFAULT_DATA_DIR;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
     private static final int MAKS_BARIS_LOG = 150;
@@ -281,9 +280,9 @@ public class MainActivity extends Activity {
 
     private void saveAndStart() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         // Tolak folder berbahaya lebih awal (traversal, root storage, area
         // sistem): service juga menolak, tapi UI wajib memberi tahu jelas
@@ -293,10 +292,10 @@ public class MainActivity extends Activity {
             toast("Folder data tidak valid - dikembalikan ke bawaan.");
             appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
             try {
-                sp.edit().putString(ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR).apply();
+                sp.edit().putString(ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()).apply();
             } catch (Exception ignored) {
             }
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDir, REQ_WRITE)) {
@@ -448,9 +447,9 @@ public class MainActivity extends Activity {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             // Baca tahan korup: tipe prefs salah tak boleh melempar
             // ClassCastException tiap detik di UI thread (pola aman* bot).
-            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             if (d == null || d.trim().isEmpty()) {
-                d = DEFAULT_DATA_DIR;
+                d = ServerService.dataDirBawaanSegar();
             }
             String p = ServerService.effectivePort(sp);
             String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
@@ -731,9 +730,9 @@ public class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     private void showAboutDialog() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, DEFAULT_DATA_DIR);
+        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (TextUtils.isEmpty(dataDir)) {
-            dataDir = DEFAULT_DATA_DIR;
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         String bin = currentServerVersion();
         String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
