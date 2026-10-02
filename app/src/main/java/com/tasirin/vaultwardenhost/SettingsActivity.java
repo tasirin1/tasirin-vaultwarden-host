@@ -1325,6 +1325,11 @@ public class SettingsActivity extends Activity {
         }
         File dbFile = new File(dataDir, "db.sqlite3");
         File preBackup = null;
+        // Scope method (bukan dalam try): dipakai juga di catch-all rollback.
+        // Diisi jalur zip di bawah; null di jalur non-zip (rollback TLS = no-op,
+        // prefs tak ada yang diterapkan).
+        java.util.Map<String, byte[]> tlsAsal = null;
+        JSONObject zipCfg = null;
         try {
             // Hentikan server dulu: menimpa SQLite yang hidup merusak DB.
             if (ServerService.isProcessAlive()
@@ -1355,10 +1360,6 @@ public class SettingsActivity extends Activity {
 
             boolean restored = false;
             byte[] buf = new byte[64 * 1024];
-            // Diisi jalur zip di bawah; null di jalur non-zip (rollback TLS = no-op,
-            // prefs tak ada yang diterapkan).
-            java.util.Map<String, byte[]> tlsAsal = null;
-            JSONObject zipCfg = null;
             try (InputStream raw = getContentResolver().openInputStream(uri)) {
                 if (raw == null) {
                     toast("Gagal restore: file tidak bisa dibuka.");
@@ -1697,7 +1698,12 @@ public class SettingsActivity extends Activity {
                                 : " Tanpa password backup file ini PLAINTEXT dan terbaca"
                                         + " aplikasi lain — simpan hati-hati.")
                         + " Tetap jangan bagikan ke orang lain. Lanjutkan?",
-                () -> runBusy(this::exportConfig));
+                () -> {
+                    // Baca widget di UI thread (bukan di worker runBusy).
+                    String dir = dataDirInput.getText() == null ? ""
+                            : dataDirInput.getText().toString();
+                    runBusy(() -> exportConfig(dir));
+                });
     }
 
     /** Sapu sisa config plaintext sementara di cache internal. File pending yang
@@ -1747,10 +1753,16 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    private void exportConfig() {
+    private void exportConfig(String dataDirMentah) {
         try {
-            String dataDir = dataDirInput.getText().toString().trim();
+            String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
             if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            if (!ServerService.dataDirAman(dataDir)
+                    || !ServerService.dataDirKanonisAman(dataDir)) {
+                toast("Folder data tidak valid - dikembalikan ke bawaan.");
+                appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
                 dataDir = DEFAULT_DATA_DIR;
             }
             File backupDir = new File(dataDir, "backups");
