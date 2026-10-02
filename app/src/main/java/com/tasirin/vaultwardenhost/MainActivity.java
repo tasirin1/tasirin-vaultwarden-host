@@ -83,7 +83,6 @@ public class MainActivity extends Activity {
     private static volatile long unlockAt = 0;
     /** Kapan MainActivity terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
-    private static final long PIN_GRACE_MS = 60_000;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinDialogTampil = false;
 
@@ -247,7 +246,7 @@ public class MainActivity extends Activity {
         super.onPause();
         refreshActive = false;
         // Jangan kunci langsung (pindah ke Settings/Log bukan keluar app);
-        // maybeShowPinLock mengunci bila jeda > PIN_GRACE_MS.
+        // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
         pauseStamp = SystemClock.elapsedRealtime();
     }
 
@@ -857,10 +856,10 @@ public class MainActivity extends Activity {
             unlockAt = PinGate.kapanBukaBersama();
             return;
         }
-        long deltaGrace = SystemClock.elapsedRealtime() - unlockAt;
-        if (unlocked && deltaGrace >= 0 && deltaGrace < PIN_GRACE_MS) {
-            return;
-        }
+        // Satu-satunya sumber grace adalah PinGate (jangkar bersama antar-activity).
+        // Fallback lokal (unlocked/unlockAt sendiri) dihapus: bisa drift dari
+        // PinGate (mis. PIN dimatikan lalu dinyalakan lagi) dan membuka app
+        // tanpa PIN (fail-open). Bila sampai sini, grace sudah habis.
         unlocked = false;
         final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {

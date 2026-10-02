@@ -186,7 +186,6 @@ public class SettingsActivity extends Activity {
     private static volatile long unlockAt = 0;
     /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
-    private static final long PIN_GRACE_MS = 60_000;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinDialogTampil = false;
 
@@ -620,7 +619,7 @@ public class SettingsActivity extends Activity {
         siramTulisTertunda();
         refreshActive = false;
         // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
-        // maybeShowPinLock mengunci bila jeda > PIN_GRACE_MS.
+        // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
         pauseStamp = SystemClock.elapsedRealtime();
     }
 
@@ -2136,10 +2135,10 @@ public class SettingsActivity extends Activity {
             unlockAt = PinGate.kapanBukaBersama();
             return;
         }
-        long deltaGrace = SystemClock.elapsedRealtime() - unlockAt;
-        if (unlocked && deltaGrace >= 0 && deltaGrace < PIN_GRACE_MS) {
-            return;
-        }
+        // Satu-satunya sumber grace adalah PinGate (jangkar bersama antar-activity).
+        // Fallback lokal (unlocked/unlockAt sendiri) dihapus: bisa drift dari
+        // PinGate dan membuka app tanpa PIN (fail-open). Bila sampai sini,
+        // grace sudah habis.
         unlocked = false;
         final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
@@ -3322,6 +3321,16 @@ public class SettingsActivity extends Activity {
         }
         pinHashSiap = null;
         sapuExportPlainBasi();
+        // Batalkan hash PIN yang masih antre agar thread PBKDF2 tak terus
+        // jalan setelah activity hancur; shutdownNow saja tak mematikan
+        // Future yang sudah disubmit.
+        try {
+            java.util.concurrent.Future<?> gantung = pinPending;
+            if (gantung != null && !gantung.isDone()) {
+                gantung.cancel(true);
+            }
+        } catch (Exception ignored) {
+        }
         pinExec.shutdownNow();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);

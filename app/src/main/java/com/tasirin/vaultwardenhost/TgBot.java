@@ -1234,7 +1234,9 @@ public final class TgBot {
             PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
             if (pm != null) {
                 wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
-                wl.acquire(10 * 60 * 1000L);
+                // 3 menit cukup untuk backup/restore/update; 10 menit menahan
+                // perangkat tetap menyala dan menguras baterai bila tugas gantung.
+                wl.acquire(3 * 60 * 1000L);
             }
         } catch (Exception ignored) {
             wl = null;

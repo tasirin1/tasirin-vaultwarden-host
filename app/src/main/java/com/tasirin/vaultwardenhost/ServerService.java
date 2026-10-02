@@ -244,8 +244,10 @@ public class ServerService extends Service {
     private PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
     /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
-     *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta. */
-    private volatile boolean autoRestart = false;
+     *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta.
+     *  Statis agar selamat dari recreate instance service oleh sistem
+     *  (batas 5x di restartAttempt juga statis). */
+    private static volatile boolean autoRestart = false;
     /** Hitungan restart beruntun: statis agar tetap berlaku bila sistem membuat
      *  ulang instance service (batas 5x tak bisa di-reset oleh recreate).
      *  AtomicInteger karena scheduleRestart dipanggil dari thread watch proses
@@ -260,7 +262,9 @@ public class ServerService extends Service {
     private static volatile long lastStartElapsed = 0;
     private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
 
-    private volatile boolean healthActive = false;
+    /** Statis seperti autoRestart: recreate instance tak boleh mematikan
+     *  health-check diam-diam. */
+    private static volatile boolean healthActive = false;
     /** Cek health yang sedang jalan: tiap tick hanya satu (timeout total
      *  worst-case 32 dtk > interval cepat 30 dtk sehingga thread bisa
      *  menumpuk bila server macet). */
