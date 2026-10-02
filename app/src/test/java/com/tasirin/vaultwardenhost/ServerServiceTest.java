@@ -241,6 +241,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakKontrolDanFormatTakTerlihat() {
+        assertFalse(ServerService.dataDirAman("/sdcard/vault\u202Ewarden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/vault\u200Bwarden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/vault\uFEFFwarden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/vault\u0007warden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/vault\u007Fwarden"));
+        assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
+    }
+
+    @Test
     public void dataDirAmanTolakKomaKurawalUntukRocketTls() {
         assertFalse(ServerService.dataDirAman("/sdcard/a,b/c"));
         assertFalse(ServerService.dataDirAman("/sdcard/a{b/c"));

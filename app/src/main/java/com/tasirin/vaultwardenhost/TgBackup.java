@@ -784,6 +784,9 @@ public final class TgBackup {
             if (db == null) {
                 return "tidak berisi db.sqlite3";
             }
+            if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
+                return "terlalu banyak entri zip (" + zf.size() + ")";
+            }
             if (db.getSize() == 0) {
                 return "db.sqlite3 kosong (0 byte)";
             }
@@ -829,6 +832,9 @@ public final class TgBackup {
             return "file backup hilang";
         }
         try (ZipFile zf = new ZipFile(zip)) {
+            if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
+                return "terlalu banyak entri zip (" + zf.size() + ")";
+            }
             java.util.zip.ZipEntry db = zf.getEntry("db.sqlite3");
             if (db == null) {
                 return "tidak berisi db.sqlite3";
@@ -1456,16 +1462,10 @@ public final class TgBackup {
                 conn.disconnect();
             }
         }
-        int start = sb.indexOf("\"file_path\":\"");
-        if (start < 0) {
+        String hasil = parseFilePathTelegram(sb.toString());
+        if (hasil == null || hasil.isEmpty()) {
             throw new IOException("file_path tidak ditemukan");
         }
-        start += "\"file_path\":\"".length();
-        int end = sb.indexOf("\"", start);
-        if (end < 0) {
-            throw new IOException("file_path rusak");
-        }
-        String hasil = sb.substring(start, end);
         if (!filePathTelegramAman(hasil)) {
             throw new IOException("file_path tidak aman - unduhan dibatalkan.");
         }
@@ -1515,6 +1515,29 @@ public final class TgBackup {
             }
         }
         return true;
+    }
+
+    /** Ambil file_path dari respons getFile Telegram; "" bila tak ada.
+     *  Pakai JSONObject agar spasi ("file_path" : ...) dan escape (\/)
+     *  yang sah tetap terbaca; indexOf manual gagal untuk keduanya. Murni. */
+    static String parseFilePathTelegram(String body) {
+        if (body == null || body.isEmpty()) {
+            return "";
+        }
+        try {
+            JSONObject resp = new JSONObject(body);
+            if (!resp.optBoolean("ok", false)) {
+                return "";
+            }
+            JSONObject res = resp.optJSONObject("result");
+            if (res == null) {
+                return "";
+            }
+            String path = res.optString("file_path", "");
+            return path == null ? "" : path;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni. */
@@ -1805,6 +1828,7 @@ public final class TgBackup {
         // baru (backup bagus bisa ditolak "korup" atau DB jadi cacat).
         boolean adaWal = false;
         boolean adaShm = false;
+        boolean adaDb = false;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -1831,7 +1855,9 @@ public final class TgBackup {
                     }
                     continue;
                 }
-                if ("db.sqlite3-wal".equals(nama)) {
+                if ("db.sqlite3".equals(nama)) {
+                    adaDb = true;
+                } else if ("db.sqlite3-wal".equals(nama)) {
                     adaWal = true;
                 } else if ("db.sqlite3-shm".equals(nama)) {
                     adaShm = true;
@@ -1874,6 +1900,13 @@ public final class TgBackup {
         }
         if (!adaWal || !adaShm) {
             hapusWalShm(dataFolder);
+        }
+        // Zip berisi -wal/-shm tanpa db.sqlite3 wajib ditolak tegas: tanpa ini
+        // WAL asing menempel ke DB lama (adaWal+adaShm lolos hapus di atas)
+        // lalu lolos cek SQLite karena DB lama memang valid.
+        if (!adaDb) {
+            hapusWalShm(dataFolder);
+            throw new IOException("Backup tidak berisi db.sqlite3.");
         }
         if (!dbFile.exists()) {
             throw new IOException("Backup tidak berisi db.sqlite3.");
@@ -2380,6 +2413,18 @@ public final class TgBackup {
             while ((n = fis.read(buf)) != -1) {
                 fos.write(buf, 0, n);
             }
+            fos.getFD().sync();
+        }
+        // Salinan pengaman pra-restore/rollback wajib utuh: storage penuh di
+        // tengah salin menghasilkan file parsial yang lalu dipakai rollback
+        // sehingga DB bagus ikut rusak. Buang + gagalkan bila tak sama.
+        if (src.length() != dst.length()) {
+            try {
+                dst.delete();
+            } catch (Exception ignored) {
+            }
+            throw new IOException("Salin file tak lengkap (" + src.getName()
+                    + ": " + src.length() + " -> " + dst.length() + ").");
         }
     }
 

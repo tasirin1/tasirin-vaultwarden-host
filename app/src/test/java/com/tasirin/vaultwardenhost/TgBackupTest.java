@@ -706,6 +706,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void copyFile_menyalinUtuhDenganPanjangSama() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwcopy").toFile();
+        java.io.File asal = new java.io.File(dir, "asal.bin");
+        java.io.File salin = new java.io.File(dir, "salin.bin");
+        byte[] isi = new byte[70000];
+        new java.util.Random(7).nextBytes(isi);
+        java.io.FileOutputStream fos = new java.io.FileOutputStream(asal);
+        fos.write(isi);
+        fos.close();
+        TgBackup.copyFile(asal, salin);
+        assertEquals(asal.length(), salin.length());
+        assertEquals(isi.length, (int) salin.length());
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

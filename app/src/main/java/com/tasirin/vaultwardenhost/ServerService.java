@@ -822,6 +822,17 @@ public class ServerService extends Service {
         if (t.contains("\"") || t.contains("\n") || t.contains("\r") || t.contains("\0")) {
             return false;
         }
+        // Karakter kontrol/format tak terlihat (RTL override U+202E dkk.)
+        // membuat nama folder menipu di UI; tolak eksplisit.
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c < 0x20 || c == 0x7F || c == 0xFEFF
+                    || (c >= 0x200B && c <= 0x200F)
+                    || (c >= 0x202A && c <= 0x202E)
+                    || (c >= 0x2066 && c <= 0x2069)) {
+                return false;
+            }
+        }
         // Tolak traversal per segmen agar /sdcard/../data tak lolos, tapi
         // folder sah bernama "my..folder" tetap diterima.
         if (t.contains("//") || t.contains("\\")) {
