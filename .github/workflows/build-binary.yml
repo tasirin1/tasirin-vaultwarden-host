@@ -286,6 +286,9 @@ jobs:
       - name: Siapkan & publish 6 asset non-APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Wajib: langkah ini cd ke /tmp/pub (di luar repo git) sehingga
+          # gh tak bisa menebak owner/repo dari remote — pin eksplisit.
+          GH_REPO: ${{ github.repository }}
         run: |
           set -e
           TAG="v${{ needs.resolve.outputs.vw }}"

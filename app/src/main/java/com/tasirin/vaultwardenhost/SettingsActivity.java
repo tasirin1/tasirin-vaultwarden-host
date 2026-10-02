@@ -3054,7 +3054,7 @@ public class SettingsActivity extends Activity {
             return false;
         }
         boolean ubahan = (dataDir != null && !dataDir.trim().isEmpty()
-                && !dataDir.trim().equals(ServerService.ServerService.dataDirBawaanSegar()))
+                && !dataDir.trim().equals(ServerService.dataDirBawaanSegar()))
                 || (port != null && !port.trim().isEmpty()
                 && !port.trim().equals(ServerService.DEFAULT_PORT))
                 || (admin != null && !admin.trim().isEmpty())
