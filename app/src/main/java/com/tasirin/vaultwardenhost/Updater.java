@@ -2041,22 +2041,28 @@ public final class Updater {
                 if (c.getResponseCode() != 200) {
                     return null;
                 }
-                String line;
+                java.util.List<String> baris = new java.util.ArrayList<>();
                 try (BufferedReader r = new BufferedReader(new InputStreamReader(
                         c.getInputStream(), StandardCharsets.UTF_8))) {
-                    line = r.readLine();
+                    // Cap 20 baris: file checksum semestinya 1 baris; tanpa cap
+                    // respons raksasa tanpa newline menumpuk di memori STB 1 GB.
+                    for (int i = 0; i < 20; i++) {
+                        String b = r.readLine();
+                        if (b == null) {
+                            break;
+                        }
+                        baris.add(b);
+                    }
                 }
-                if (line == null) {
+                if (baris.isEmpty()) {
                     return null;
                 }
-                // Pindai semua token baris (bukan hanya token pertama):
+                // Pindai semua token tiap baris (bukan hanya token pertama):
                 // format BSD ("SHA256 (berkas) = <hex>") menaruh hex di akhir,
                 // token pertama "SHA256" selalu gagal dan update abort permanen.
-                String dapat = pindaiHexChecksum(line);
-                if (dapat != null) {
-                    return dapat;
-                }
-                return null;
+                // Kecocokan final tetap diverifikasi caller (mismatch = batal,
+                // fail-closed) sehingga baris asing tak bisa lolos diam-diam.
+                return pindaiHexDariBaris(baris);
             } catch (Exception e) {
                 if (coba >= 2) {
                     return null;
@@ -2071,6 +2077,22 @@ public final class Updater {
                 if (c != null) {
                     c.disconnect();
                 }
+            }
+        }
+        return null;
+    }
+
+    /** Pindai daftar baris checksum, kembalikan 64-hex valid pertama.
+     *  Baris tanpa hex dilewati (komentar/kosong); null bila tak ada yang
+     *  valid. Murni agar bisa unit test. */
+    static String pindaiHexDariBaris(java.util.List<String> baris) {
+        if (baris == null) {
+            return null;
+        }
+        for (String b : baris) {
+            String dapat = pindaiHexChecksum(b);
+            if (dapat != null) {
+                return dapat;
             }
         }
         return null;

@@ -1545,6 +1545,23 @@ public final class TgBackup {
         if (body == null) {
             return -1;
         }
+        // Jalur utama JSONObject (seperti parseFilePathTelegram): tahan spasi
+        // ("file_size" : 123), baris baru, dan escape yang gagal dibaca
+        // indexOf mentah di bawah sehingga pre-check storage tak dilewati diam-diam.
+        try {
+            JSONObject resp = new JSONObject(body);
+            if (resp.optBoolean("ok", false)) {
+                JSONObject res = resp.optJSONObject("result");
+                if (res != null && res.has("file_size")) {
+                    long v = res.optLong("file_size", -1);
+                    if (v >= 0) {
+                        return v;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        // Fallback indexOf untuk respons terpotong yang masih memuat angka.
         int f = body.indexOf("\"file_size\":");
         if (f < 0) {
             return -1;

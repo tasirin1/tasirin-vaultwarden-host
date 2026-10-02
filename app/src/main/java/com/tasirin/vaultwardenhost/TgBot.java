@@ -165,6 +165,22 @@ public final class TgBot {
                 // Locale.US: %x di locale berdigit non-Latin (mis. ar-EG)
                 // menghasilkan digit non-ASCII sehingga JSON invalid.
                 o.append(String.format(Locale.US, "\\u%04x", (int) c));
+            } else if (c == '\u2028' || c == '\u2029') {
+                // Pemisah baris Unicode memutus string di parser JS lawas —
+                // escape agar payload tetap satu string valid.
+                o.append(String.format(Locale.US, "\\u%04x", (int) c));
+            } else if (Character.isHighSurrogate(c)) {
+                if (i + 1 < s.length() && Character.isLowSurrogate(s.charAt(i + 1))) {
+                    // Pasangan surrogate valid (emoji): biarkan utuh.
+                    o.append(c).append(s.charAt(i + 1));
+                    i++;
+                } else {
+                    // Surrogate yatim tak bisa di-encode UTF-8/JSON valid.
+                    o.append(String.format(Locale.US, "\\u%04x", (int) c));
+                }
+            } else if (Character.isLowSurrogate(c)) {
+                // Low surrogate yatim (tanpa high sebelumnya).
+                o.append(String.format(Locale.US, "\\u%04x", (int) c));
             } else {
                 o.append(c);
             }
@@ -1086,8 +1102,10 @@ public final class TgBot {
      *  sia-sia. Return {sisa, pin}. */
     static String[] pisahkanPin(String arg) {
         String t = arg == null ? "" : arg.trim();
+        // Flag s (DOTALL): '.' menelan newline sehingga PIN/argumen
+        // multi-baris tak terpotong di baris pertama.
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(
-                "(?i)\\bPIN\\s*:\\s*(.+)").matcher(t);
+                "(?is)\\bPIN\\s*:\\s*(.+)").matcher(t);
         if (m.find()) {
             String mentah = m.group(1).trim();
             // Bentuk eksplisit menelan sisa baris sebagai PIN agar PIN ber-spasi

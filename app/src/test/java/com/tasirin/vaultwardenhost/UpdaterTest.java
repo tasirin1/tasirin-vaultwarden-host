@@ -751,6 +751,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pindaiHexDariBaris_lewatiBarisSampah() {
+        String hex = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        assertNull(Updater.pindaiHexDariBaris(null));
+        assertNull(Updater.pindaiHexDariBaris(java.util.Collections.<String>emptyList()));
+        assertNull(Updater.pindaiHexDariBaris(java.util.Arrays.asList("", "# komentar", "bukanhex")));
+        assertEquals(hex, Updater.pindaiHexDariBaris(java.util.Arrays.asList(
+                "# komentar", "SHA256 (lama.zip) = bukanhex", hex + "  baru.zip")));
+    }
+
+    @Test
     public void kuncianDuaBagianDitolak() {
         // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
         // wajib ditolak di normalisasi agar pin lama bertahan.

@@ -310,4 +310,20 @@ public class TgBotTest {
         assertTrue(json.startsWith("{\"commands\":["));
         assertTrue(json.endsWith("]}"));
     }
+
+    @Test
+    public void lolosJson_amankanUnicodeKhususDanSurrogate() {
+        assertEquals("\\u2028", TgBot.lolosJson("\u2028"));
+        assertEquals("\\u2029", TgBot.lolosJson("\u2029"));
+        // Surrogate yatim di-escape, pasangan valid (emoji) dibiarkan utuh.
+        assertEquals("\\ud800", TgBot.lolosJson("\ud800"));
+        assertEquals("\\udc00", TgBot.lolosJson("\udc00"));
+        assertEquals("\ud83d\ude00", TgBot.lolosJson("\ud83d\ude00"));
+    }
+
+    @Test
+    public void pisahkanPin_dukungMultiBaris() {
+        assertArrayEquals(new String[]{"", "baris1\nbaris2"},
+                TgBot.pisahkanPin("PIN:baris1\nbaris2"));
+    }
 }
