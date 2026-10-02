@@ -999,6 +999,9 @@ public class ServerService extends Service {
     /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start).
      *  Flag mencegah port 8080 yang disengaja user ikut tergusur di start berikutnya. */
     public static void migrasiPortSekali(SharedPreferences sp) {
+        if (sp == null) {
+            return;
+        }
         try {
             if (perluMigrasiPort(TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT),
                     TgBackup.amanBoolean(sp, KEY_PORT_MIGRATED, false))) {
@@ -2443,8 +2446,9 @@ public class ServerService extends Service {
             }
             // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
             // sebagai UID sama) — tidak perlu world-readable.
-            tmp.setReadable(true, true);
-            tmp.setExecutable(true, true);
+            if (!tmp.setReadable(true, true) || !tmp.setExecutable(true, true)) {
+                throw new IOException("Gagal pasang izin eksekusi binary (storage tak dukung exec).");
+            }
             gantiAtomik(tmp, dst);
         } catch (IOException | RuntimeException e) {
             try {

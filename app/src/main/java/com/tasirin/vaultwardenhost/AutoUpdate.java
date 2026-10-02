@@ -143,9 +143,19 @@ public final class AutoUpdate {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // Tanpa network aktif isActiveNetworkMetered() false sehingga
                 // offline dulu dianggap "tanpa kuota": pastikan ada network dulu.
+                // VPN juga ditolak: underlying-nya bisa seluler berkuota.
                 try {
-                    if (cm.getActiveNetwork() == null) {
+                    android.net.Network aktif = cm.getActiveNetwork();
+                    if (aktif == null) {
                         return false;
+                    }
+                    try {
+                        android.net.NetworkCapabilities cap = cm.getNetworkCapabilities(aktif);
+                        if (cap != null && cap.hasTransport(
+                                android.net.NetworkCapabilities.TRANSPORT_VPN)) {
+                            return false;
+                        }
+                    } catch (Exception ignored) {
                     }
                 } catch (Exception ignored) {
                 }

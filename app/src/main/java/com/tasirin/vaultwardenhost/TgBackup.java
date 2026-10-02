@@ -1896,11 +1896,11 @@ public final class TgBackup {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String curDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.DEFAULT_DATA_DIR);
+                ServerService.dataDirBawaanSegar());
         if (curDir == null || curDir.trim().isEmpty()
                 || !ServerService.dataDirAman(curDir)
                 || !ServerService.dataDirKanonisAman(curDir)) {
-            curDir = ServerService.DEFAULT_DATA_DIR;
+            curDir = ServerService.dataDirBawaanSegar();
         }
 
         // Selalu pulihkan ke folder data perangkat saat ini. Nilai data_dir
