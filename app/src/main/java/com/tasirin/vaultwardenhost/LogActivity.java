@@ -69,6 +69,9 @@ public class LogActivity extends Activity {
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan (sama dengan MainActivity).
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         super.onCreate(savedInstanceState);
+        // Sisa salinan clipboard yang penghapus 60 dtk-nya tak sempat jalan
+        // karena proses mati dibersihkan (atau dipasang ulang) di sini.
+        bersihkanClipBasiJikaAda();
         setContentView(R.layout.activity_log);
 
         logView = findViewById(R.id.log);
@@ -302,21 +305,7 @@ public class LogActivity extends Activity {
                 .setTitle("Crash Log")
                 .setView(sv)
                 .setPositiveButton("Salin", (dlg, w) -> {
-                    ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                    if (cm != null) {
-                        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-crash", crash));
-                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                            try {
-                                android.content.ClipData cur = cm.getPrimaryClip();
-                                if (cur != null && cur.getItemCount() > 0
-                                        && cur.getItemAt(0) != null
-                                        && crash.equals(String.valueOf(cur.getItemAt(0).getText()))) {
-                                    cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-crash", ""));
-                                }
-                            } catch (Exception ignored) {
-                            }
-                        }, 60_000);
-                    }
+                    salinClipboardBersihOtomatis("vaultwarden-crash", crash);
                     toast("Crash log disalin ke clipboard.");
                 })
                 .setNegativeButton(getString(R.string.close), null)
@@ -406,6 +395,125 @@ public class LogActivity extends Activity {
         }
     }
 
+    /** Kunci penanda salinan clipboard agar penghapus 60 dtk selamat dari mati proses. */
+    static final String KEY_CLIP_HASH = "clip_hash";
+    static final String KEY_CLIP_KEDALUWARSA = "clip_kedaluwarsa";
+    static final long CLIP_BERSIH_MS = 60_000;
+
+    /** Sidik SHA-256 isi clipboard (heks). Murni agar bisa unit test. */
+    static String sidikClip(String s) {
+        if (s == null) {
+            return "";
+        }
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] h = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(h.length * 2);
+            for (byte x : h) {
+                sb.append("0123456789abcdef".charAt((x >> 4) & 15));
+                sb.append("0123456789abcdef".charAt(x & 15));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Salin ke clipboard + jadwalkan bersih 60 dtk yang tahan mati proses:
+     *  sidik + kedaluwarsa disimpan di prefs; bila proses mati sebelum penghapus
+     *  jalan, buka LogActivity berikutnya memasang ulang sisa timer atau
+     *  langsung membersihkan sisa salinan yang masih basi. */
+    private void salinClipboardBersihOtomatis(String label, String isi) {
+        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm == null || isi == null) {
+            return;
+        }
+        final String salin = isi;
+        try {
+            cm.setPrimaryClip(ClipData.newPlainText(label, salin));
+        } catch (Exception e) {
+            return;
+        }
+        final long kedaluwarsa = System.currentTimeMillis() + CLIP_BERSIH_MS;
+        try {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putString(KEY_CLIP_HASH, sidikClip(salin))
+                    .putLong(KEY_CLIP_KEDALUWARSA, kedaluwarsa).apply();
+        } catch (Exception ignored) {
+        }
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                android.content.ClipData cur = cm.getPrimaryClip();
+                if (cur != null && cur.getItemCount() > 0
+                        && cur.getItemAt(0) != null
+                        && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                    cm.setPrimaryClip(ClipData.newPlainText(label, ""));
+                }
+            } catch (Exception ignored) {
+            } finally {
+                hapusPenandaClip();
+            }
+        }, CLIP_BERSIH_MS);
+    }
+
+    /** Pasang ulang sisa timer bila masih dalam jendela, atau langsung bersihkan
+     *  sisa salinan basi bila kedaluwarsa sudah lewat saat dibuka kembali. */
+    private void bersihkanClipBasiJikaAda() {
+        final String sidik;
+        final long kedaluwarsa;
+        try {
+            android.content.SharedPreferences sp =
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            sidik = sp.getString(KEY_CLIP_HASH, "");
+            kedaluwarsa = sp.getLong(KEY_CLIP_KEDALUWARSA, 0);
+        } catch (Exception e) {
+            return;
+        }
+        if (sidik == null || sidik.isEmpty() || kedaluwarsa <= 0) {
+            return;
+        }
+        long sisa = kedaluwarsa - System.currentTimeMillis();
+        if (sisa > 0) {
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                bersihkanClipBilaIsiKita();
+            }, sisa);
+            return;
+        }
+        bersihkanClipBilaIsiKita();
+    }
+
+    /** Bersihkan clipboard hanya bila isinya masih salinan kita (cocok sidik). */
+    private void bersihkanClipBilaIsiKita() {
+        try {
+            android.content.SharedPreferences sp =
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            String sidik = sp.getString(KEY_CLIP_HASH, "");
+            if (sidik == null || sidik.isEmpty()) {
+                return;
+            }
+            ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (cm == null) {
+                return;
+            }
+            android.content.ClipData cur = cm.getPrimaryClip();
+            if (cur != null && cur.getItemCount() > 0 && cur.getItemAt(0) != null
+                    && sidik.equals(sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
+                cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", ""));
+            }
+        } catch (Exception ignored) {
+        } finally {
+            hapusPenandaClip();
+        }
+    }
+
+    private void hapusPenandaClip() {
+        try {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .remove(KEY_CLIP_HASH).remove(KEY_CLIP_KEDALUWARSA).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
     private void copyLog() {
         String log;
         synchronized (ServerService.logBuffer) {
@@ -420,20 +528,7 @@ public class LogActivity extends Activity {
             toast("Clipboard tidak tersedia.");
             return;
         }
-        final String salin = log;
-        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", salin));
-        // Otomatis bersihkan 60 dtk seperti jalur salin lain (crash/URL/token).
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                android.content.ClipData cur = cm.getPrimaryClip();
-                if (cur != null && cur.getItemCount() > 0
-                        && cur.getItemAt(0) != null
-                        && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
-                    cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-log", ""));
-                }
-            } catch (Exception ignored) {
-            }
-        }, 60_000);
+        salinClipboardBersihOtomatis("vaultwarden-log", log);
         toast("Log disalin ke clipboard.");
     }
 

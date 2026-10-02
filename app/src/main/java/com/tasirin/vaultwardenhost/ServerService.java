@@ -675,6 +675,23 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         createChannel();
+        // Recreate transien oleh sistem tanpa intent baru: pasang ulang
+        // health-check/wakelock/restart bila server masih diminta jalan.
+        // Tanpa ini monitoring berhenti diam-diam selagi binary masih hidup.
+        try {
+            if (autoRestart && healthActive) {
+                if (isProcessAlive()) {
+                    jagaWakeLock();
+                    mainHandler.removeCallbacks(healthTick);
+                    mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
+                } else if (running) {
+                    scheduleRestart();
+                    mainHandler.removeCallbacks(healthTick);
+                    mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -749,9 +766,12 @@ public class ServerService extends Service {
                         hapusTandaStop(p);
                     }
                 }
-                mainHandler.post(() -> {
+                // Lewat konteks aplikasi + aksi START agar instance hidup yang
+                // mengeksekusi, bukan runnable berkonteks instance mati ini.
+                final android.content.Context appCtx = getApplicationContext();
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     if (autoRestart) {
-                        startServerAsync();
+                        ServerService.start(appCtx);
                     }
                 });
             }, "vw-restart").start();
@@ -3319,12 +3339,18 @@ public class ServerService extends Service {
 
     @Override
     public void onDestroy() {
-        healthActive = false;
-        autoRestart = false;
+        // Jangan nol-kan autoRestart/healthActive: keduanya statis agar selamat
+        // dari recreate transien tanpa intent baru. Jalur STOP eksplisit sudah
+        // mematikannya sebelum stopSelf; membersihkan di sini menghentikan
+        // monitoring diam-diam selagi binary mungkin masih jalan.
         mainHandler.removeCallbacks(healthTick);
         mainHandler.removeCallbacks(restartTunda);
         flushLogFile();
         super.onDestroy();
-        releaseWakeLock();
+        // WakeLock hanya dilepas bila proses benar-benar mati; recreate transien
+        // saat server jalan mempertahankannya (dipasang ulang di onCreate).
+        if (!isProcessAlive()) {
+            releaseWakeLock();
+        }
     }
 }

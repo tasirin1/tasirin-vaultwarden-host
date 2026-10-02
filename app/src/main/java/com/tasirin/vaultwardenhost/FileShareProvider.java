@@ -153,22 +153,39 @@ public class FileShareProvider extends ContentProvider {
         // export config, cache): tolak yang lain meski provider internal.
         // Buka file KANONIS yang lolos cek (bukan path asli) agar symlink
         // yang ditukar di jeda cek-vs-buka tak bisa mengalihkan ke file lain.
-        final File target;
+        final String canon;
         try {
-            String canon = f.getCanonicalPath();
+            canon = f.getCanonicalPath();
             if (!isShareable(canon)) {
                 throw new FileNotFoundException("Akses ditolak.");
             }
-            target = new File(canon);
         } catch (FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
+        final File target = new File(canon);
         if (!target.isFile()) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
-        return ParcelFileDescriptor.open(target, ParcelFileDescriptor.MODE_READ_ONLY);
+        // Cek ulang kanonis tepat sebelum open: symlink induk yang ditukar app
+        // lain di jeda cek-vs-buka mengubah kanonis kedua sehingga open batal.
+        // Tanpa ini jendela TOCTOU bisa mengarahkan open keluar folder.
+        try {
+            String canonUlang = target.getCanonicalPath();
+            if (!canonUlang.equals(canon) || !isShareable(canonUlang)) {
+                throw new FileNotFoundException("Akses ditolak.");
+            }
+            File buka = new File(canonUlang);
+            if (!buka.isFile()) {
+                throw new FileNotFoundException("Berkas tidak ditemukan.");
+            }
+            return ParcelFileDescriptor.open(buka, ParcelFileDescriptor.MODE_READ_ONLY);
+        } catch (FileNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FileNotFoundException("Berkas tidak ditemukan.");
+        }
     }
 
     /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,

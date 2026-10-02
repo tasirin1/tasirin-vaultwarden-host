@@ -94,6 +94,21 @@ public class LogActivityTest {
     }
 
     @Test
+    public void sidikClip_konsistenDanBeda() {
+        String a = LogActivity.sidikClip("salinan log");
+        String b = LogActivity.sidikClip("salinan log");
+        String c = LogActivity.sidikClip("salinan lain");
+        assertFalse(a.isEmpty());
+        assertTrue(a.equals(b));
+        assertFalse(a.equals(c));
+    }
+
+    @Test
+    public void sidikClip_nullKosong() {
+        assertTrue(LogActivity.sidikClip(null).isEmpty());
+    }
+
+    @Test
     public void portDanJamTakIkutDisamarkan() {
         String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
         assertTrue(r.contains("8088"));
