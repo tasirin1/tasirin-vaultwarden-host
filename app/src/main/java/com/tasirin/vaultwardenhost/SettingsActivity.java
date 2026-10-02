@@ -1355,6 +1355,10 @@ public class SettingsActivity extends Activity {
 
             boolean restored = false;
             byte[] buf = new byte[64 * 1024];
+            // Diisi jalur zip di bawah; null di jalur non-zip (rollback TLS = no-op,
+            // prefs tak ada yang diterapkan).
+            java.util.Map<String, byte[]> tlsAsal = null;
+            JSONObject zipCfg = null;
             try (InputStream raw = getContentResolver().openInputStream(uri)) {
                 if (raw == null) {
                     toast("Gagal restore: file tidak bisa dibuka.");
@@ -1380,9 +1384,9 @@ public class SettingsActivity extends Activity {
                     // Backup lokal .zip berisi db.sqlite3 (+wal/shm);
                     // backup lengkap juga memuat tls/* + app-config.json.
                     File dataFolder = new File(dataDir);
+                    tlsAsal = TgBackup.potretTls(new File(dataFolder, "tls"));
                     String canonBase = dataFolder.getCanonicalPath();
                     String awalanAman = canonBase + File.separator;
-                    JSONObject zipCfg = null;
                     long totalUnzip = 0;
                     int jumlahEntri = 0;
                     ZipInputStream zis = new ZipInputStream(in);
@@ -1456,25 +1460,8 @@ public class SettingsActivity extends Activity {
                             restored = true;
                         }
                     }
-                    // Runtime membaca TLS internal dulu: sinkronkan hasil restore
-                    // agar identitas server benar-benar berganti (bukan memakai
-                    // CA lama diam-diam). Best-effort, tak menggagalkan restore.
-                    TgBackup.sinkronTlsKeInternal(SettingsActivity.this,
-                            new File(dataDir));
-                    if (zipCfg != null) {
-                        TgBackup.applyPrefsFromJson(SettingsActivity.this,
-                                zipCfg.optJSONObject("prefs"));
-                        sanitizePortPref();
-                        ui.post(() -> {
-                            reloadSettingsFromPrefs();
-                            SharedPreferences sp2 = getSharedPreferences(
-                                    ServerService.PREFS, MODE_PRIVATE);
-                            TgBackup.schedule(SettingsActivity.this,
-                                    TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-                            TgBot.schedule(SettingsActivity.this);
-                            appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
-                        });
-                    }
+                    // Efek-samping (sinkron TLS + prefs) dikerjakan SETELAH
+                    // validasi di bawah: restore ditolak tak boleh mengubah apa pun.
                 } else {
                     // File .sqlite3 mentah (backup lama) - wajib header SQLite.
                     if (n <= 0) {
@@ -1529,10 +1516,12 @@ public class SettingsActivity extends Activity {
                 }
             }
             if (!restored) {
-                // Zip berisi -wal/-shm tanpa db.sqlite3: WAL asing sudah
+                // Zip berisi -wal/-shm/tls tanpa db.sqlite3: WAL asing sudah
                 // tertulis menimpa milik DB lama — buang agar tak ditempel
-                // ke DB lama saat Start (selaras restore Telegram).
+                // ke DB lama saat Start (selaras restore Telegram). TLS
+                // yang ikut tertimpa dikembalikan dari potret.
                 TgBackup.hapusWalShm(new File(dataDir));
+                TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast("File backup tidak berisi db.sqlite3.");
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
                 return;
@@ -1544,6 +1533,7 @@ public class SettingsActivity extends Activity {
                 } else {
                     dbFile.delete();
                 }
+                TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast("Backup rusak (bukan SQLite) - database lama dikembalikan.");
                 appendUiLog("[app] Restore gagal: header SQLite tidak cocok, rollback.");
                 return;
@@ -1557,6 +1547,7 @@ public class SettingsActivity extends Activity {
                     } else {
                         dbFile.delete();
                     }
+                    TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                     toast("Backup rusak (DB korup) - database lama dikembalikan.");
                     appendUiLog("[app] Restore gagal: quick_check korup (" + rusak + "), rollback.");
                     return;
@@ -1564,12 +1555,31 @@ public class SettingsActivity extends Activity {
             } catch (Throwable abaikan) {
                 // Unit test JVM tanpa SQLite Android: lewati quick_check.
             }
+            // Restore valid: baru sekarang identitas + pengaturan ikut berganti.
+            // Runtime membaca TLS internal dulu: sinkronkan hasil restore agar
+            // identitas server benar-benar berganti (bukan memakai CA lama diam-diam).
+            TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
+            if (zipCfg != null) {
+                TgBackup.applyPrefsFromJson(SettingsActivity.this,
+                        zipCfg.optJSONObject("prefs"));
+                sanitizePortPref();
+                ui.post(() -> {
+                    reloadSettingsFromPrefs();
+                    SharedPreferences sp2 = getSharedPreferences(
+                            ServerService.PREFS, MODE_PRIVATE);
+                    TgBackup.schedule(SettingsActivity.this,
+                            TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+                    TgBot.schedule(SettingsActivity.this);
+                    appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
+                });
+            }
             toast("Database direstore. Restart server untuk memakai.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
             // Tulis parsial (mis. batas ukuran) wajib dikembalikan dari salinan pengaman.
             // Tanpa salinan (install baru), buang DB parsial agar tak dipakai saat Start.
             try {
+                TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 if (preBackup != null && preBackup.exists()) {
                     TgBackup.hapusWalShm(new File(dataDir));
                     TgBackup.copyFile(preBackup, dbFile);

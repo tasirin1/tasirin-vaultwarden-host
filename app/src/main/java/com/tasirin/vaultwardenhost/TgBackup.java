@@ -675,11 +675,19 @@ public final class TgBackup {
             // mode READONLY selalu gagal diam-diam dan WAL tak pernah disatukan.
             db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
                     SQLiteDatabase.OPEN_READWRITE);
-            android.database.Cursor c = db.rawQuery(
-                    "PRAGMA wal_checkpoint(TRUNCATE);", null);
-            if (c != null) {
-                c.moveToFirst();
-                c.close();
+            android.database.Cursor c = null;
+            try {
+                c = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE);", null);
+                if (c != null) {
+                    c.moveToFirst();
+                }
+            } finally {
+                if (c != null) {
+                    try {
+                        c.close();
+                    } catch (Exception ignored2) {
+                    }
+                }
             }
         } catch (Exception ignored) {
         } finally {
@@ -912,6 +920,72 @@ public final class TgBackup {
             }
         }
         return n;
+    }
+
+    /** Potret isi berkas TLS resmi sebelum restore (murni I/O, bisa unit test).
+     *  Peta nama -> isi; berkas yang tak ada tak masuk peta. Dipakai rollback
+     *  bila restore ditolak/gagal setelah ekstraksi menimpa tls/*. */
+    static java.util.Map<String, byte[]> potretTls(File tlsDir) {
+        java.util.Map<String, byte[]> m = new java.util.LinkedHashMap<>();
+        if (tlsDir == null) {
+            return m;
+        }
+        for (String nama : BERKAS_TLS) {
+            File f = new File(tlsDir, nama);
+            if (!f.isFile()) {
+                continue;
+            }
+            java.io.InputStream in = null;
+            try {
+                in = new java.io.FileInputStream(f);
+                m.put(nama, readAllBytes(in));
+            } catch (Exception ignored) {
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (Exception ignored2) {
+                    }
+                }
+            }
+        }
+        return m;
+    }
+
+    /** Kembalikan berkas TLS ke potret (rollback restore ditolak/gagal).
+     *  Berkas resmi yang tak ada di potret (buatan zip) dihapus; potret null
+     *  = no-op agar aman dipanggil dari jalur non-zip. Murni I/O. */
+    static void kembalikanTls(File tlsDir, java.util.Map<String, byte[]> potret) {
+        if (tlsDir == null || potret == null) {
+            return;
+        }
+        for (String nama : BERKAS_TLS) {
+            try {
+                File f = new File(tlsDir, nama);
+                byte[] isi = potret.get(nama);
+                if (isi == null) {
+                    try {
+                        f.delete();
+                    } catch (Exception ignored) {
+                    }
+                } else {
+                    java.io.FileOutputStream fos = null;
+                    try {
+                        fos = new java.io.FileOutputStream(f);
+                        fos.write(isi);
+                        fos.getFD().sync();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                fos.close();
+                            } catch (Exception ignored2) {
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /** Sinkronkan tls/* hasil restore dari folder data ke internal (best-effort).
@@ -1834,6 +1908,10 @@ public final class TgBackup {
             cleanupOldBackups(backupDir);
         }
 
+        // Potret TLS dulu: ekstraksi di bawah menimpa tls/* sebelum tahu
+        // zip berisi db.sqlite3; tanpa ini restore ditolak meninggalkan
+        // identitas TLS baru tanpa DB (split-brain vs internal).
+        java.util.Map<String, byte[]> tlsAsal = potretTls(new File(dataFolder, "tls"));
         byte[] buf = new byte[64 * 1024];
         long totalUnzip = 0;
         int jumlahEntri = 0;
@@ -1906,6 +1984,9 @@ public final class TgBackup {
                 }
                 zis.closeEntry();
             }
+        } catch (Exception eEkstrak) {
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+            throw eEkstrak;
         } finally {
             try {
                 if (Util.bolehHapusFile(ctx.getCacheDir(), ctx.getFilesDir(), zip)) {
@@ -1922,9 +2003,11 @@ public final class TgBackup {
         // lalu lolos cek SQLite karena DB lama memang valid.
         if (!adaDb) {
             hapusWalShm(dataFolder);
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
         if (!dbFile.exists()) {
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
         if (!isSqliteFile(dbFile)) {
@@ -1934,6 +2017,7 @@ public final class TgBackup {
             } else {
                 dbFile.delete();
             }
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup rusak (bukan SQLite)"
                     + " - database lama dikembalikan.");
         }
@@ -1946,6 +2030,7 @@ public final class TgBackup {
                 } else {
                     dbFile.delete();
                 }
+                kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
                 throw new IOException("Backup rusak (DB korup: " + rusak + ")"
                         + " - database lama dikembalikan.");
             }

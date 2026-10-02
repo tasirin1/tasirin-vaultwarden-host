@@ -727,6 +727,38 @@ public class TgBackupTest {
     }
 
     @Test
+    public void potretKembalikanTls_bulatkembali() throws Exception {
+        java.io.File tls = java.nio.file.Files.createTempDirectory("vwtls").toFile();
+        tulisTeks(new java.io.File(tls, "ca.pem"), "CA-LAMA");
+        tulisTeks(new java.io.File(tls, "key.pem"), "KEY-LAMA");
+        java.util.Map<String, byte[]> potret = TgBackup.potretTls(tls);
+        // Simulasi ekstraksi zip: timpa yang ada + buat berkas baru.
+        tulisTeks(new java.io.File(tls, "ca.pem"), "CA-ZIP");
+        tulisTeks(new java.io.File(tls, "cert.pem"), "CERT-ZIP");
+        TgBackup.kembalikanTls(tls, potret);
+        assertEquals("CA-LAMA", bacaTeks(new java.io.File(tls, "ca.pem")));
+        assertEquals("KEY-LAMA", bacaTeks(new java.io.File(tls, "key.pem")));
+        assertFalse(new java.io.File(tls, "cert.pem").exists());
+        // Potret null = no-op (jalur non-zip).
+        TgBackup.kembalikanTls(tls, null);
+        assertEquals("CA-LAMA", bacaTeks(new java.io.File(tls, "ca.pem")));
+    }
+
+    private static void tulisTeks(java.io.File f, String isi) throws Exception {
+        java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+        try {
+            fos.write(isi.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        } finally {
+            fos.close();
+        }
+    }
+
+    private static String bacaTeks(java.io.File f) throws Exception {
+        byte[] b = java.nio.file.Files.readAllBytes(f.toPath());
+        return new String(b, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));
