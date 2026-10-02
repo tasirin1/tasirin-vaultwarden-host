@@ -1868,6 +1868,22 @@ public final class TgBackup {
         }
     }
 
+    /** Kunci restore global (UI + bot): dua restore bersamaan mengekstrak
+     *  interleave ke folder data yang sama dan salinan pengaman kedua bisa
+     *  menangkap parsial pertama. Kunci bot (TUGAS_BERAT) tak mencakup jalur UI. */
+    private static final java.util.concurrent.atomic.AtomicBoolean RESTORE_JALAN =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
+    /** Coba kunci restore; false bila restore lain sedang berjalan. */
+    public static boolean kunciRestore() {
+        return RESTORE_JALAN.compareAndSet(false, true);
+    }
+
+    /** Lepas kunci restore (wajib di finally pemegang). */
+    public static void lepasRestore() {
+        RESTORE_JALAN.set(false);
+    }
+
     // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
 
     /** Restore database dari file zip backup Telegram.

@@ -2668,7 +2668,8 @@ public class ServerService extends Service {
             // migrasi sekali dari folder data lama agar CA tetap sama (HP lain
             // tak perlu install ulang), lalu pakai internal seterusnya.
             File internal = new File(getFilesDir(), "tls");
-            migrasiTlsKeInternal(new File(dataFolder, "tls"), internal);
+            File tlsLama = new File(dataFolder, "tls");
+            migrasiTlsKeInternal(tlsLama, internal);
             File ipFile = new File(internal, "ips.txt");
             File dir = ensureCertWithIps(internal, ipFile, ips, dns, cur);
             if (dir == null) {
@@ -2676,6 +2677,7 @@ public class ServerService extends Service {
                 dir = ensureCertWithIps(lama, new File(lama, "ips.txt"), ips, dns, cur);
             }
             if (dir != null) {
+                bersihKunciTlsLama(tlsLama, dir, internal);
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
                 appendLog("[app] CA untuk HP lain: " + new File(dir, "ca.pem").getAbsolutePath());
                 try {
@@ -2720,6 +2722,40 @@ public class ServerService extends Service {
                 }
             }
             appendLog("[app] TLS dimigrasi ke internal (kunci tak lagi di /sdcard).");
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Hapus kunci privat lama di folder data publik setelah internal terbukti jadi.
+     *  Hanya ca-key.pem/key.pem; sertifikat publik dibiarkan untuk fallback bila
+     *  suatu saat internal gagal. Best-effort: kunci di /sdcard (FAT) bisa dibaca
+     *  app berizin storage sehingga tak boleh mengendap pasca-migrasi. */
+    private void bersihKunciTlsLama(File lama, File dirAktif, File internal) {
+        try {
+            if (lama == null || dirAktif == null || internal == null) {
+                return;
+            }
+            String kanonAktif = dirAktif.getCanonicalPath();
+            String kanonInternal = internal.getCanonicalPath();
+            // Fallback folder lama: kunci masih dipakai, jangan hapus.
+            if (!kanonAktif.equals(kanonInternal)) {
+                return;
+            }
+            String kanonLama = lama.getCanonicalPath();
+            // Folder data memang di internal: tak ada yang perlu dibersihkan.
+            if (kanonLama.equals(kanonInternal)) {
+                return;
+            }
+            for (String nama : new String[]{"ca-key.pem", "key.pem"}) {
+                try {
+                    File kunci = new File(lama, nama);
+                    if (kunci.isFile() && !kunci.delete()) {
+                        appendLog("[app] PERINGATAN: kunci lama " + nama
+                                + " tak terhapus dari storage publik - hapus manual.");
+                    }
+                } catch (Exception ignored) {
+                }
+            }
         } catch (Exception ignored) {
         }
     }

@@ -775,6 +775,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void kunciRestoreSalingMengesampingkan() {
+        assertTrue(TgBackup.kunciRestore());
+        try {
+            assertFalse(TgBackup.kunciRestore());
+        } finally {
+            TgBackup.lepasRestore();
+        }
+        assertTrue(TgBackup.kunciRestore());
+        TgBackup.lepasRestore();
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

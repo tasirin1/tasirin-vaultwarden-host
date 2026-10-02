@@ -977,6 +977,9 @@ public final class TgBot {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
+        if (!TgBackup.kunciRestore()) {
+            throw new IOException("Restore lain sedang berjalan, coba lagi sebentar.");
+        }
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
         File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
         try {
@@ -996,6 +999,7 @@ public final class TgBot {
             }
             return TgBackup.restoreFromZip(ctx, zip);
         } finally {
+            TgBackup.lepasRestore();
             // Bersihkan sisa cache (termasuk potongan unduhan gagal) agar isi DB tak tertinggal.
             // Jalur sukses sudah dihapus restoreFromZip via bolehHapusFile; hapus ulang aman (no-op).
             try {

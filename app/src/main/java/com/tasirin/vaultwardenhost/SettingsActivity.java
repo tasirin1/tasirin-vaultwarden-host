@@ -1315,6 +1315,21 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreDatabase(Uri uri, String dataDirMentah) {
+        // Satu restore dalam satu waktu (lihat kunciRestore): bot /restore dan
+        // tombol UI menulis folder data yang sama.
+        if (!TgBackup.kunciRestore()) {
+            toast("Restore lain sedang berjalan, coba lagi sebentar.");
+            appendUiLog("[app] Restore ditolak: restore lain sedang berjalan.");
+            return;
+        }
+        try {
+            restoreDatabaseIsi(uri, dataDirMentah);
+        } finally {
+            TgBackup.lepasRestore();
+        }
+    }
+
+    private void restoreDatabaseIsi(Uri uri, String dataDirMentah) {
         String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = DEFAULT_DATA_DIR;
@@ -1672,6 +1687,11 @@ public class SettingsActivity extends Activity {
     // dan jaga identitas bot. Folder yang diketik (belum di-Start) disimpan
     // dulu ke prefs di UI thread agar dipakai sebagai folder tujuan.
     private void restoreFromZip(File zip) {
+        if (!TgBackup.kunciRestore()) {
+            toast("Restore lain sedang berjalan, coba lagi sebentar.");
+            appendUiLog("[app] Restore ditolak: restore lain sedang berjalan.");
+            return;
+        }
         try {
             appendUiLog("[app] Menghentikan server sebelum restore...");
             String msg = TgBackup.restoreFromZip(this, zip);
@@ -1683,6 +1703,8 @@ public class SettingsActivity extends Activity {
         } catch (Exception e) {
             toast("Gagal restore: " + e.getMessage());
             appendUiLog("[app] Gagal restore: " + e);
+        } finally {
+            TgBackup.lepasRestore();
         }
     }
 
