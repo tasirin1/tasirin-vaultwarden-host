@@ -367,6 +367,12 @@ public final class Updater {
                     throw new IOException("Redirect tidak aman/ditolak: " + lok);
                 }
                 String berikut = Util.sambungRedirect(kini, lok);
+                // sambungRedirect fail-closed menahan downgrade http:// di URL dasar
+                // (berikut == kini): laporkan sebagai penolakan downgrade yang jelas,
+                // bukan "Terlalu banyak redirect" yang menyesatkan.
+                if (berikut == null || berikut.equals(kini)) {
+                    throw new IOException("Redirect tidak aman/ditolak (downgrade?): " + lok);
+                }
                 if (hostBerubah(kini, berikut)) {
                     // Lintas host (github.com -> CDN): offset resume milik file
                     // host lama tak berlaku di host baru (campur dua asset lalu

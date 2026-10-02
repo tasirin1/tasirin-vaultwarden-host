@@ -25,7 +25,9 @@ public final class PinGate {
 
     /** Grace buka PIN antar-activity (satu sumber agar Main/Settings tak drift).
      *  Jangkar elapsed (bukan wall-clock) agar utak-atik tanggal tak memperpanjang. */
-    public static final long PIN_GRACE_MS = 60_000;
+    /** Grace 30 dtk: cukup untuk pindah Main <-> Settings tanpa PIN ulang,
+     *  tapi sempit untuk penyalahgunaan akses fisik. */
+    public static final long PIN_GRACE_MS = 30_000;
     private static volatile boolean bukaBersama = false;
     private static volatile long bukaBersamaAt = 0;
 

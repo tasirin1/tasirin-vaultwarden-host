@@ -69,6 +69,8 @@ public class UtilTest {
         assertFalse(Util.hostGithubAman("github.com.jahat.example"));
         // Otoritas "//host" membawa ":port" mentah: redirect sah berport
         // eksplisit wajib diterima, bukan ditolak.
+        assertTrue(Util.hostGithubAman("github-production-release-asset-abc123.githubusercontent.com"));
+        assertFalse(Util.hostGithubAman("evil-github-production-release-asset-abc.githubusercontent.com.evil.example"));
         assertTrue(Util.hostGithubAman("github.com:443"));
         assertTrue(Util.hostGithubAman("objects.githubusercontent.com:443"));
         assertFalse(Util.hostGithubAman("github.com:abc"));

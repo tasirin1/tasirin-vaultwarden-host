@@ -687,8 +687,34 @@ public class ServerService extends Service {
             mainHandler.removeCallbacks(restartTunda);
             batalStart = true;
             stopServer();
-            stopForeground(true);
-            stopSelf();
+            // stopper di stopServer() butuh hingga ~8 dtk (destroy + destroyForcibly):
+            // stopForeground/stopSelf langsung di sini mematikan service sebelum
+            // proses mati sehingga watcher bocor dan restore mengira DB bebas.
+            // Tunda sampai proses benar-benar mati, maks ~9 dtk.
+            final int stopId = startId;
+            new Thread(() -> {
+                try {
+                    long tenggat = SystemClock.elapsedRealtime() + 9000;
+                    while (SystemClock.elapsedRealtime() < tenggat && isProcessAlive()) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    try {
+                        stopForeground(true);
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        stopSelf(stopId);
+                    } catch (Exception ignored) {
+                    }
+                }
+            }, "vw-stop-clean").start();
             return START_NOT_STICKY;
         }
         if (ACTION_RESTART.equals(action)) {
@@ -765,11 +791,21 @@ public class ServerService extends Service {
                     // Baca tahan korup: getBoolean mentah melempar di finally
                     // sehingga stopForeground/stopSelf di bawah tak jalan.
                     SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    TgBackup.schedule(this,
-                            TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
-                    if (process == null || !alive(process)) {
+                    boolean autoAktif = TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false);
+                    TgBackup.schedule(this, autoAktif);
+                    // Service yang dimatikan di sini memaksa alarm berikutnya
+                    // startForegroundService dari background (Android 12+ bisa
+                    // ditolak). Pertahankan hidup bila server jalan atau
+                    // auto-backup masih aktif; hanya berhenti total bila idle.
+                    boolean serverJalan = process != null && alive(process);
+                    if (!serverJalan && !autoAktif) {
                         stopForeground(true);
                         stopSelf();
+                    } else if (!serverJalan) {
+                        try {
+                            stopForeground(false);
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             }, "vw-tg-sched").start();

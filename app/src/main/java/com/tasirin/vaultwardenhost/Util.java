@@ -118,10 +118,20 @@ public final class Util {
         if (h.isEmpty()) {
             return false;
         }
-        return h.equals("github.com") || h.equals("api.github.com")
+        if (h.equals("github.com") || h.equals("api.github.com")
                 || h.equals("codeload.github.com")
                 || h.equals("objects.githubusercontent.com")
-                || h.equals("release-assets.githubusercontent.com");
+                || h.equals("release-assets.githubusercontent.com")) {
+            return true;
+        }
+        // CDN produksi lama (github-production-release-asset-*.s3 / *.githubusercontent.com):
+        // wildcard umum *.githubusercontent.com tetap ditolak (konten user bisa
+        // menyajikan binary + sha256 palsu), hanya prefix produksi resmi yang lolos.
+        if (h.startsWith("github-production-release-asset-")
+                && h.endsWith(".githubusercontent.com")) {
+            return true;
+        }
+        return false;
     }
 
     /** True bila host milik Telegram (unduhan file bot).

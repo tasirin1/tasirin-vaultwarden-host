@@ -137,15 +137,15 @@ public class FileShareProvider extends ContentProvider {
         // Samakan dengan query()/getType(): tolak otoritas asing sebelum
         // menyentuh filesystem agar tak jadi oracle/confused-deputy.
         if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
-            throw new FileNotFoundException("Otoritas tak dikenal: " + uri);
+            throw new FileNotFoundException("Akses ditolak.");
         }
         if (!modeBacaSaja(mode)) {
-            throw new FileNotFoundException("Mode tulis ditolak: " + mode);
+            throw new FileNotFoundException("Akses ditolak.");
         }
         String path = uri.getPath();
         File f = path == null ? null : new File(path);
         if (f == null) {
-            throw new FileNotFoundException(String.valueOf(uri));
+            throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
         // Kanonis dulu sebelum cek exists/isFile: cek pra-kanonis membuka
         // jendela TOCTOU symlink di jeda cek-vs-buka.
@@ -157,16 +157,16 @@ public class FileShareProvider extends ContentProvider {
         try {
             String canon = f.getCanonicalPath();
             if (!isShareable(canon)) {
-                throw new FileNotFoundException("Lokasi tidak diizinkan: " + uri);
+                throw new FileNotFoundException("Akses ditolak.");
             }
             target = new File(canon);
         } catch (FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new FileNotFoundException(String.valueOf(uri));
+            throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
         if (!target.isFile()) {
-            throw new FileNotFoundException(String.valueOf(uri));
+            throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
         return ParcelFileDescriptor.open(target, ParcelFileDescriptor.MODE_READ_ONLY);
     }

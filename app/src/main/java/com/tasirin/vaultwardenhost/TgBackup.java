@@ -525,6 +525,18 @@ public final class TgBackup {
      *  mengikuti redirect bisa bocorkan token bot ke host lain). */
     static HttpURLConnection bukaPostTelegram(Context ctx, String url, byte[] body,
             String contentType, int connectMs, int readMs) throws Exception {
+        // URL POST membawa token bot di path: kunci ke host Telegram resmi agar
+        // bug pemanggil tak mengirim token ke host asing via MITM/typo.
+        try {
+            String host = new java.net.URL(url).getHost();
+            if (!Util.hostTelegramAman(host)) {
+                throw new java.io.IOException("Host Telegram tidak aman: " + host);
+            }
+        } catch (java.io.IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new java.io.IOException("URL Telegram tidak valid.");
+        }
         HttpURLConnection c = (HttpURLConnection) new java.net.URL(url).openConnection();
         c.setRequestMethod("POST");
         c.setDoOutput(true);
@@ -566,7 +578,11 @@ public final class TgBackup {
                         || !Util.bolehIkutiRedirectTelegram(kini, lok)) {
                     throw new java.io.IOException("Redirect Telegram tidak aman: " + lok);
                 }
-                kini = Util.sambungRedirect(kini, lok);
+                String berikut = Util.sambungRedirect(kini, lok);
+                if (berikut == null || berikut.equals(kini)) {
+                    throw new java.io.IOException("Redirect Telegram tidak aman (downgrade?): " + lok);
+                }
+                kini = berikut;
                 continue;
             }
             return c;
