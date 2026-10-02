@@ -36,11 +36,11 @@ public final class Updater {
     /** URL asset binary untuk versi resmi tertentu; fallback latest bila versi tak dikenal.
      *  Package-private agar bisa diuji unit (regresi slash hilang = HTTP 404 terus). */
     static String binaryAssetUrl(String latest, String abi) {
-        if (latest != null && !latest.isEmpty()) {
-            String t = latest.trim();
-            if (t.startsWith("v") || t.startsWith("V")) {
-                t = t.substring(1);
-            }
+        String t = latest == null ? "" : latest.trim();
+        if (t.startsWith("v") || t.startsWith("V")) {
+            t = t.substring(1);
+        }
+        if (!t.isEmpty()) {
             return RELEASE_URL + "v" + t + "/vaultwarden-" + abi;
         }
         return RELEASE_LATEST_URL + "vaultwarden-" + abi;
@@ -48,11 +48,11 @@ public final class Updater {
 
     /** URL asset shim getrandom untuk versi resmi tertentu; fallback latest bila tak dikenal. */
     static String shimAssetUrl(String latest) {
-        if (latest != null && !latest.isEmpty()) {
-            String t = latest.trim();
-            if (t.startsWith("v") || t.startsWith("V")) {
-                t = t.substring(1);
-            }
+        String t = latest == null ? "" : latest.trim();
+        if (t.startsWith("v") || t.startsWith("V")) {
+            t = t.substring(1);
+        }
+        if (!t.isEmpty()) {
             return RELEASE_URL + "v" + t + "/" + KernelCompat.SHIM_ASSET;
         }
         return RELEASE_LATEST_URL + KernelCompat.SHIM_ASSET;

@@ -369,6 +369,8 @@ public class UpdaterTest {
         assertTrue(!bin.contains("vv"));
         String shim = Updater.shimAssetUrl("V1.37.3");
         assertTrue(!shim.contains("vv") && !shim.contains("vV"));
+        assertTrue(Updater.binaryAssetUrl("   ", "armeabi-v7a").contains("/latest/download/"));
+        assertTrue(Updater.shimAssetUrl(" v ").contains("/latest/download/"));
     }
 
     @Test
