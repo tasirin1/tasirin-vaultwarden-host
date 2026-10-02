@@ -269,6 +269,8 @@ jobs:
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v7
+
       - name: Download binary hasil build
         uses: actions/download-artifact@v7
         with:
