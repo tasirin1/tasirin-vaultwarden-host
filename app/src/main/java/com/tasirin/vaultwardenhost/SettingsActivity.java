@@ -734,9 +734,15 @@ public class SettingsActivity extends Activity {
             statusView.setBackgroundResource(R.drawable.bg_status_busy);
             lastShownStatus = "";
             int persen = Updater.persenUnduhan(dl);
-            unduhBar.setVisibility(persen >= 0 ? View.VISIBLE : View.GONE);
+            // Bar ganda fungsi: progress download bila persen diketahui,
+            // loading berjalan (indeterminate) bila sibuk tanpa persen
+            // (total tak diketahui / kerja non-unduh seperti backup/restore).
+            unduhBar.setVisibility(View.VISIBLE);
             if (persen >= 0) {
+                unduhBar.setIndeterminate(false);
                 unduhBar.setProgress(persen);
+            } else {
+                unduhBar.setIndeterminate(true);
             }
             if (refreshActive) {
                 ui.postDelayed(this::refreshFromService, 500);
@@ -756,6 +762,7 @@ public class SettingsActivity extends Activity {
             lastShownStatus = key;
         }
         unduhBar.setVisibility(View.GONE);
+        unduhBar.setIndeterminate(false);
         String btnText = running ? getString(R.string.stop)
                 : getString(R.string.start);
         if (!btnText.equals(startStopBawah.getText().toString())) {
