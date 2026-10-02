@@ -69,14 +69,6 @@ public class ServerServiceTest {
         assertFalse(ServerService.bolehBunuhBasi("/system/bin/sh"));
     }
 
-    @Test
-    public void barisKosong_tanpaAlokasiTrim() {
-        assertTrue(ServerService.barisKosong(null));
-        assertTrue(ServerService.barisKosong(""));
-        assertTrue(ServerService.barisKosong("   \t "));
-        assertFalse(ServerService.barisKosong("log"));
-        assertFalse(ServerService.barisKosong("  x "));
-    }
 
 
     @Test
@@ -123,7 +115,6 @@ public class ServerServiceTest {
         assertTrue(ServerService.isKernelRandomPanic(
                 "thread 'main' panicked at src/random.rs:10:\nfailed getrandom syscall"));
     }
-
 
     @Test
     public void gagalTicketerTlsTerdeteksiSebagaiPanicKernel() {

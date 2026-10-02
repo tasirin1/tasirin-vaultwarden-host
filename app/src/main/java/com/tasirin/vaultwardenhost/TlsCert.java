@@ -91,11 +91,6 @@ public final class TlsCert {
         return ms / (24L * 3600 * 1000);
     }
 
-    /** True bila sertifikat belum valid karena jam perangkat miring. Murni. */
-    static boolean masaBelumTiba(File certFile) {
-        return daysLeft(certFile) == -2;
-    }
-
     /** Kunci antar-thread untuk ensure(): Start bersamaan dari UI + perintah
      *  Telegram /start tak boleh generate CA/leaf bersamaan (rusak ca.pem/cert.pem). */
     private static final Object KUNCI_ENSURE = new Object();

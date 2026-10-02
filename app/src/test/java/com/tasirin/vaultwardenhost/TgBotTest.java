@@ -10,14 +10,6 @@ import org.junit.Test;
 /** Unit test logika murni perintah Telegram (tanpa Android runtime). */
 public class TgBotTest {
 
-    @Test
-    public void parseChatId_numerikSekali() {
-        assertEquals(123456789L, TgBot.parseChatId("123456789"));
-        assertEquals(123456789L, TgBot.parseChatId("  123456789  "));
-        assertEquals(Long.MIN_VALUE, TgBot.parseChatId("bukan-angka"));
-        assertEquals(Long.MIN_VALUE, TgBot.parseChatId(""));
-        assertEquals(Long.MIN_VALUE, TgBot.parseChatId(null));
-    }
 
     @Test
     public void argumenVersiValid_terimaVersiDanTerbaru() {
@@ -199,7 +191,6 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"YA", "123456"}, TgBot.pisahkanPin("YA 123456"));
     }
 
-
     @Test
     public void pisahkanPinSpasiDidukungEksplisit() {
         assertArrayEquals(new String[]{"", "kunci saya 9"},
@@ -293,7 +284,6 @@ public class TgBotTest {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
     }
-
 
     @Test
     public void pisahkanPin_janganMakanKataVersi() {

@@ -2210,7 +2210,8 @@ public final class Updater {
         }
     }
 
-    private static void deleteRecursive(File file) {
+    /** Hapus rekursif aman-symlink (milik bersama, dipakai ServerService juga). */
+    static void deleteRecursive(File file) {
         if (file == null || !file.exists()) {
             return;
         }

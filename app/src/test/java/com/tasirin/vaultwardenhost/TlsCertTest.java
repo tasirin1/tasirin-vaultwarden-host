@@ -159,13 +159,11 @@ public class TlsCertTest {
         File hilang = new File(System.getProperty("java.io.tmpdir"),
                 "tak-ada-" + System.nanoTime() + ".pem");
         assertEquals(-1, TlsCert.daysLeft(hilang));
-        assertFalse(TlsCert.masaBelumTiba(hilang));
         File sampah = File.createTempFile("sampah", ".pem");
         Files.write(sampah.toPath(), "bukan-sertifikat".getBytes(StandardCharsets.US_ASCII));
         assertEquals(-1, TlsCert.sisaMs(hilang));
         assertEquals(-1, TlsCert.sisaMs(sampah));
         assertEquals(-1, TlsCert.daysLeft(sampah));
-        assertFalse(TlsCert.masaBelumTiba(sampah));
         sampah.delete();
     }
 

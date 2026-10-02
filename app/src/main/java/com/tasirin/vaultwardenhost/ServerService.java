@@ -2110,12 +2110,12 @@ public class ServerService extends Service {
             if (isi != null) {
                 for (File f : isi) {
                     if (Updater.sisaStagingWebVault(f.getName())) {
-                        deleteRecursive(f);
+                        Updater.deleteRecursive(f);
                     }
                 }
             }
         } catch (Exception ignored) {
-            deleteRecursive(new File(dataDir, "web-vault.new"));
+            Updater.deleteRecursive(new File(dataDir, "web-vault.new"));
         }
         // Pulihkan sisa swap web-vault yang terpotong crash: bila folder aktif
         // hilang/rusak tapi .bak ada, kembalikan; bila aktif sehat, buang .bak.
@@ -2126,38 +2126,16 @@ public class ServerService extends Service {
                 boolean aktifSehat = target.exists()
                         && new java.io.File(target, "index.html").exists();
                 if (!aktifSehat) {
-                    deleteRecursive(target);
+                    Updater.deleteRecursive(target);
                     if (!bak.renameTo(target)) {
-                        deleteRecursive(bak);
+                        Updater.deleteRecursive(bak);
                     }
                 } else {
-                    deleteRecursive(bak);
+                    Updater.deleteRecursive(bak);
                 }
             }
         } catch (Exception ignored) {
         }
-    }
-
-    private static void deleteRecursive(File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-        // Symlink direktori: isDirectory() true lalu listFiles() menghapus isi
-        // TARGET di luar folder data (mis. link titipan di web-vault.new/.bak
-        // yang disapu cleanupTempFiles). Hapus link-nya saja (selaras Updater).
-        if (Updater.tautanSimbol(file)) {
-            file.delete();
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                for (File c : children) {
-                    deleteRecursive(c);
-                }
-            }
-        }
-        file.delete();
     }
 
     /** Pastikan binary vaultwarden siap dipakai. Prioritas:
@@ -3066,19 +3044,6 @@ public class ServerService extends Service {
     /** True bila rentang buffer hanya whitespace (tanpa alokasi substring). Murni. */
     static boolean rentangKosong(CharSequence s, int start, int end) {
         for (int i = start; i < end; i++) {
-            if (!Character.isWhitespace(s.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** True bila string hanya berisi whitespace (tanpa alokasi trim). Murni. */
-    static boolean barisKosong(String s) {
-        if (s == null || s.isEmpty()) {
-            return true;
-        }
-        for (int i = 0; i < s.length(); i++) {
             if (!Character.isWhitespace(s.charAt(i))) {
                 return false;
             }

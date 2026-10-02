@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Bersihkan kode mati dan duplikat
+- Hapus `ServerService.barisKosong`, `TlsCert.masaBelumTiba`, `TgBot.parseChatId` yang mati di produksi (hanya dipakai uji sendiri) beserta ujinya; `daysLeft`/`sisaMs`/`cocokChat` tetap menutup kebutuhan.
+- Gabung `deleteRecursive` duplikat: salinan `ServerService` dihapus, 5 call-site memakai milik bersama `Updater.deleteRecursive`.
+
 ## [Belum rilis] — Perbaikan audit: stempel unik, flag susulan boot
 - `TgBackup.stempelUnik`: acak 16-bit jadi 48-bit agar export/staging sejawat dalam ms sama tak saling menimpa (tabrakan lama 1/65536, termasuk staging unik web-vault); komen format `backupTimestamp` diluruskan (`-SSS`).
 - `TgBackupTest`: regex format stempel menyesuaikan 12 hex.

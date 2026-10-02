@@ -360,19 +360,6 @@ public final class TgBot {
         }
     }
 
-    /** Parse chat ID konfigurasi sekali; Long.MIN_VALUE bila tak numerik
-     *  (= tak ada pesan yang cocok, aman). Murni agar bisa unit test. */
-    static long parseChatId(String chat) {
-        if (chat == null) {
-            return Long.MIN_VALUE;
-        }
-        try {
-            return Long.parseLong(chat.trim());
-        } catch (NumberFormatException e) {
-            return Long.MIN_VALUE;
-        }
-    }
-
     /** Keyboard inline agar tak perlu mengetik perintah (logika murni). */
     static String keyboardPerintah() {
         String[][] tombol = {
