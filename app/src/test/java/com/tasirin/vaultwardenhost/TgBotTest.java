@@ -326,4 +326,19 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"", "baris1\nbaris2"},
                 TgBot.pisahkanPin("PIN:baris1\nbaris2"));
     }
+
+    @Test
+    public void pesanPinWajibHapus_crashlogIkutDihapus() {
+        // /crashlog + PIN yang lolos wajib dihapus dari riwayat (bawa PIN asli),
+        // walau crashlog bukan perintahBerbahaya (tombol inline tetap jalan).
+        assertTrue(TgBot.pesanPinWajibHapus("/crashlog 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/stop 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/careset 123456"));
+        assertFalse(TgBot.pesanPinWajibHapus("/status"));
+        assertFalse(TgBot.pesanPinWajibHapus("/log"));
+        assertFalse(TgBot.pesanPinWajibHapus("/help"));
+        assertFalse(TgBot.pesanPinWajibHapus(null));
+        assertFalse(TgBot.pesanPinWajibHapus(""));
+        assertFalse(TgBot.perintahBerbahaya("/crashlog"));
+    }
 }

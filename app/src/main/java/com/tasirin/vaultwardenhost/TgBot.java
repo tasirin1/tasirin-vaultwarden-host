@@ -335,7 +335,7 @@ public final class TgBot {
                                 // gagal diam-diam, di poll thread sendiri). Upaya
                                 // GAGAL sengaja dipertahankan sebagai bukti brute-force.
                                 int idPesan = msg.optInt("message_id", 0);
-                                if (idPesan != 0 && terotorisasi && perintahBerbahaya(text)
+                                if (idPesan != 0 && terotorisasi && pesanPinWajibHapus(text)
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanPerintah(ctx, c.optLong("id", -1), idPesan);
                                 }
@@ -524,6 +524,18 @@ public final class TgBot {
      *  "/perintah" tanpa PIN sehingga selalu ditolak bila PIN aktif. */
     static boolean perintahBerbahayaTombol(String data) {
         return perintahBerbahaya(data);
+    }
+
+    /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
+     *  (anti intip PIN): semua perintah berbahaya + /crashlog. Crashlog
+     *  sengaja tak masuk perintahBerbahaya (tombol inline-nya tetap boleh
+     *  dipakai saat PIN aktif — ditolak halus di handleCommand), tapi pesan
+     *  ketik "/crashlog 123456" yang lolos membawa PIN asli sehingga wajib
+     *  dihapus seperti perintah berbahaya lain. Upaya GAGAL tak dihapus
+     *  (bukti brute-force) — pemanggil yang memutuskan via hasil otorisasi.
+     *  Murni agar bisa unit test. */
+    static boolean pesanPinWajibHapus(String text) {
+        return perintahBerbahaya(text) || "crashlog".equals(namaPerintah(text));
     }
 
     /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
