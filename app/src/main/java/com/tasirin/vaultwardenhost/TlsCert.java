@@ -125,15 +125,15 @@ public final class TlsCert {
                     caKeyBaru.delete();
                     return null;
                 }
-                certFile.delete();
-                keyFile.delete();
-                caCert.delete();
-                caKey.delete();
-                if (!caCertBaru.renameTo(caCert) || !caKeyBaru.renameTo(caKey)) {
+                if (!tukarPasanganAtomik(dir, CA_CERT_FILE, CA_KEY_FILE,
+                        caCertBaru, caKeyBaru)) {
                     caCertBaru.delete();
                     caKeyBaru.delete();
                     return null;
                 }
+                // CA berganti: leaf lama wajib dibuat ulang (ditandatangani CA baru).
+                certFile.delete();
+                keyFile.delete();
                 writeVersion(dir);
             }
             if (certFile.exists() && keyFile.exists()
@@ -154,9 +154,8 @@ public final class TlsCert {
                 keyBaru.delete();
                 return null;
             }
-            certFile.delete();
-            keyFile.delete();
-            if (!certBaru.renameTo(certFile) || !keyBaru.renameTo(keyFile)) {
+            if (!tukarPasanganAtomik(dir, LEAF_CERT_FILE, LEAF_KEY_FILE,
+                    certBaru, keyBaru)) {
                 certBaru.delete();
                 keyBaru.delete();
                 return null;
@@ -167,6 +166,68 @@ public final class TlsCert {
             return null;
         }
         }
+    }
+
+    /** Tukar pasangan cert+key (.baru -> aktif) dengan cadangan `.cad`.
+     *  Tanpa ini gagal rename kedua mencampur cert baru + key lama (server
+     *  gagal TLS), atau menghilangkan key CA (paksa regen CA + install ulang
+     *  di semua HP). Bila gagal, pasangan lama dikembalikan sebisa mungkin.
+     *  Murni I/O agar bisa unit test JVM. */
+    static boolean tukarPasanganAtomik(File dir, String namaCert, String namaKey,
+            File certBaru, File keyBaru) {
+        if (dir == null || namaCert == null || namaKey == null
+                || certBaru == null || keyBaru == null) {
+            return false;
+        }
+        File certFile = new File(dir, namaCert);
+        File keyFile = new File(dir, namaKey);
+        File certCad = new File(dir, namaCert + ".cad");
+        File keyCad = new File(dir, namaKey + ".cad");
+        try {
+            certCad.delete();
+        } catch (Exception ignored) {
+        }
+        try {
+            keyCad.delete();
+        } catch (Exception ignored) {
+        }
+        boolean adaCertLama = certFile.exists();
+        boolean adaKeyLama = keyFile.exists();
+        if (adaCertLama && !certFile.renameTo(certCad)) {
+            return false;
+        }
+        if (adaKeyLama && !keyFile.renameTo(keyCad)) {
+            if (adaCertLama) {
+                certCad.renameTo(certFile);
+            }
+            return false;
+        }
+        if (!certBaru.renameTo(certFile) || !keyBaru.renameTo(keyFile)) {
+            try {
+                certFile.delete();
+            } catch (Exception ignored) {
+            }
+            try {
+                keyFile.delete();
+            } catch (Exception ignored) {
+            }
+            if (adaCertLama) {
+                certCad.renameTo(certFile);
+            }
+            if (adaKeyLama) {
+                keyCad.renameTo(keyFile);
+            }
+            return false;
+        }
+        try {
+            certCad.delete();
+        } catch (Exception ignored) {
+        }
+        try {
+            keyCad.delete();
+        } catch (Exception ignored) {
+        }
+        return true;
     }
 
     /** True bila CA bisa dipakai: file ada, versi cocok, sisa > 30 hari.

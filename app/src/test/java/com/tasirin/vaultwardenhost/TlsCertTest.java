@@ -186,6 +186,25 @@ public class TlsCertTest {
     }
 
     @Test
+    public void tukarPasanganAtomik_pasangBaruBersihCadangan() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlstukar");
+        File d = dir.toFile();
+        Files.write(new File(d, "cert.pem").toPath(), "LAMA-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "key.pem").toPath(), "LAMA-K".getBytes(StandardCharsets.UTF_8));
+        File cb = new File(d, "cert.pem.baru");
+        File kb = new File(d, "key.pem.baru");
+        Files.write(cb.toPath(), "BARU-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(kb.toPath(), "BARU-K".getBytes(StandardCharsets.UTF_8));
+        assertTrue(TlsCert.tukarPasanganAtomik(d, "cert.pem", "key.pem", cb, kb));
+        assertEquals("BARU-C", new String(Files.readAllBytes(new File(d, "cert.pem").toPath()), StandardCharsets.UTF_8));
+        assertEquals("BARU-K", new String(Files.readAllBytes(new File(d, "key.pem").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "cert.pem.cad").exists());
+        assertFalse(new File(d, "key.pem.cad").exists());
+        assertFalse(TlsCert.tukarPasanganAtomik(null, "cert.pem", "key.pem", cb, kb));
+        assertFalse(TlsCert.tukarPasanganAtomik(d, "cert.pem", "key.pem", null, kb));
+    }
+
+    @Test
     public void resetTls_hapusEnamFile() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsreset");
         for (String n : new String[]{"ca.pem", "ca-key.pem", "cert.pem", "key.pem", "ips.txt", "version.txt"}) {

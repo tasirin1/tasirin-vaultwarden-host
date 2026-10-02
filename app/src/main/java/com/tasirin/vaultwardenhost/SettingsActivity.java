@@ -1505,6 +1505,10 @@ public class SettingsActivity extends Activity {
                 }
             }
             if (!restored) {
+                // Zip berisi -wal/-shm tanpa db.sqlite3: WAL asing sudah
+                // tertulis menimpa milik DB lama — buang agar tak ditempel
+                // ke DB lama saat Start (selaras restore Telegram).
+                TgBackup.hapusWalShm(new File(dataDir));
                 toast("File backup tidak berisi db.sqlite3.");
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
                 return;

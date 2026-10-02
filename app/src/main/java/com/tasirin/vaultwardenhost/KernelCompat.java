@@ -64,9 +64,8 @@ public final class KernelCompat {
     public static String saranShimGagal(String osVersion) {
         return "Binary tetap crash di kernel STB lama (kernel " + osVersion
                 + ", getrandom/syscall errno=22) walau shim dipasang."
-                + " Coba tekan Cek Update (shim diunduh ulang), lalu Start lagi."
-                + " Cara manual: taruh " + SHIM_ASSET + " dari halaman Release"
-                + " ke folder data dengan nama yang sama, lalu Start lagi.";
+                + " Coba tekan Cek Update (" + SHIM_ASSET + " diunduh otomatis,"
+                + " butuh internet), lalu Start lagi.";
     }
 
     /** Parse "3.14.29-gabc" -> {3,14}; null bila tak terpola. Package-private agar bisa diuji. */
