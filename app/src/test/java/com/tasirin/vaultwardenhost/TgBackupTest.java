@@ -787,6 +787,40 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pecahPesan_batasiPanjangDanJagaSurrogate() {
+        java.util.List<String> satu = TgBackup.pecahPesan("halo", 4000);
+        assertEquals(1, satu.size());
+        assertEquals("halo", satu.get(0));
+        StringBuilder panjang = new StringBuilder();
+        for (int i = 0; i < 9000; i++) {
+            panjang.append('a');
+        }
+        java.util.List<String> bagian = TgBackup.pecahPesan(
+                panjang.toString(), TgBackup.BATAS_PESAN_TELEGRAM);
+        assertEquals(3, bagian.size());
+        assertEquals(4000, bagian.get(0).length());
+        assertEquals(4000, bagian.get(1).length());
+        assertEquals(1000, bagian.get(2).length());
+        StringBuilder gabung = new StringBuilder();
+        for (String b : bagian) {
+            gabung.append(b);
+        }
+        assertEquals(panjang.toString(), gabung.toString());
+        // Emoji di batas potong tak boleh terbelah (high surrogate ikut pindah).
+        StringBuilder emoji = new StringBuilder();
+        for (int i = 0; i < 3999; i++) {
+            emoji.append('x');
+        }
+        emoji.append("\uD83D\uDE00rest");
+        java.util.List<String> e = TgBackup.pecahPesan(emoji.toString(), 4000);
+        assertEquals(2, e.size());
+        assertEquals(3999, e.get(0).length());
+        assertTrue(e.get(1).startsWith("\uD83D\uDE00"));
+        assertEquals(1, TgBackup.pecahPesan("", 4000).size());
+        assertEquals(1, TgBackup.pecahPesan(null, 4000).size());
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

@@ -645,6 +645,33 @@ public final class TgBackup {
                 || rendah.contains("darurat");
     }
 
+    /** Batas aman teks per pesan Telegram (limit API 4096 char; margin 96). */
+    static final int BATAS_PESAN_TELEGRAM = 4000;
+
+    /** Pecah teks panjang jadi potongan <= batas char tanpa membelah surrogate
+     *  pair (emoji). Murni agar bisa unit test. */
+    static java.util.List<String> pecahPesan(String msg, int batas) {
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        String s = msg == null ? "" : msg;
+        if (batas <= 0) {
+            batas = BATAS_PESAN_TELEGRAM;
+        }
+        int i = 0;
+        while (i < s.length()) {
+            int akhir = Math.min(i + batas, s.length());
+            if (akhir < s.length() && Character.isHighSurrogate(s.charAt(akhir - 1))
+                    && Character.isLowSurrogate(s.charAt(akhir))) {
+                akhir--;
+            }
+            out.add(s.substring(i, akhir));
+            i = akhir;
+        }
+        if (out.isEmpty()) {
+            out.add("");
+        }
+        return out;
+    }
+
     /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */
     private static void kirimSinkron(Context app, String msg, String markup) {
         try {
@@ -655,36 +682,44 @@ public final class TgBackup {
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
-            // POST (bukan GET): token tidak bocor ke log URL/proxy.
-            String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
-                    + "&text=" + URLEncoder.encode(msg, "UTF-8");
-            if (markup != null && !markup.isEmpty()) {
-                param += "&reply_markup=" + URLEncoder.encode(markup, "UTF-8");
-            }
-            byte[] body = param.getBytes(StandardCharsets.UTF_8);
-            HttpURLConnection conn = null;
-            try {
-                conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
-                        "application/x-www-form-urlencoded", 15000, 30000);
-                try (OutputStream os = conn.getOutputStream()) {
-                    os.write(body);
+            // Limit API Telegram 4096 char: pecah agar /status & /log panjang
+            // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
+            java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
+            for (int bi = 0; bi < bagian.size(); bi++) {
+                String potong = bagian.get(bi);
+                String mk = (bi == bagian.size() - 1) ? markup : null;
+                // POST (bukan GET): token tidak bocor ke log URL/proxy.
+                String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
+                        + "&text=" + URLEncoder.encode(potong, "UTF-8");
+                if (mk != null && !mk.isEmpty()) {
+                    param += "&reply_markup=" + URLEncoder.encode(mk, "UTF-8");
                 }
-                tolakRedirectTelegram(conn);
-                int code = conn.getResponseCode();
-                InputStream mentah = (code >= 200 && code < 300)
-                        ? conn.getInputStream() : conn.getErrorStream();
-                StringBuilder sb = new StringBuilder();
-                if (mentah != null) {
-                    try (InputStream is = mentah) {
-                        sb.append(bacaResponsBatas(is));
+                byte[] body = param.getBytes(StandardCharsets.UTF_8);
+                HttpURLConnection conn = null;
+                try {
+                    conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
+                            "application/x-www-form-urlencoded", 15000, 30000);
+                    try (OutputStream os = conn.getOutputStream()) {
+                        os.write(body);
                     }
-                }
-                if (code != 200 || !sb.toString().contains("\"ok\":true")) {
-                    logTgFailure("kirim pesan", code, sb.toString());
-                }
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
+                    tolakRedirectTelegram(conn);
+                    int code = conn.getResponseCode();
+                    InputStream mentah = (code >= 200 && code < 300)
+                            ? conn.getInputStream() : conn.getErrorStream();
+                    StringBuilder sb = new StringBuilder();
+                    if (mentah != null) {
+                        try (InputStream is = mentah) {
+                            sb.append(bacaResponsBatas(is));
+                        }
+                    }
+                    if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                        logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
+                                code, sb.toString());
+                    }
+                } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
                 }
             }
         } catch (Exception e) {

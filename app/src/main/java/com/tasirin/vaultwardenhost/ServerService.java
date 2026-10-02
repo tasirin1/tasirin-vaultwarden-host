@@ -873,9 +873,8 @@ public class ServerService extends Service {
         }
         // Tolak seluruh isi area sistem; kecuali privat milik app
         // (/data/data dan /data/user yang merupakan path kanonis sama).
-        if (n.equals("/system") || n.startsWith("/system/") || n.equals("/vendor")
-                || n.startsWith("/vendor/") || n.equals("/proc") || n.startsWith("/proc/")
-                || n.equals("/sys") || n.startsWith("/sys/") || n.equals("/dev")
+        if (n.startsWith("/system/") || n.startsWith("/vendor/")
+                || n.startsWith("/proc/") || n.startsWith("/sys/")
                 || n.startsWith("/dev/")) {
             return false;
         }

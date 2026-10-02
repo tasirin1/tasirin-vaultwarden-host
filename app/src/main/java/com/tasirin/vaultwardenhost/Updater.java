@@ -276,7 +276,7 @@ public final class Updater {
     static final String KEY_WV_FALLBACK_FOR = "wv_fallback_for";
     /** Jangkar elapsed saat fallback dipasang (SystemClock, ms). */
     static final String KEY_WV_FALLBACK_AT = "wv_fallback_at";
-    /** Jeda unduh ulang setelah pasang fallback (asset CI terbit ~6 jam). */
+    /** Jeda unduh ulang setelah pasang fallback (asset CI terbit ~12 jam). */
     static final long WV_FALLBACK_TUNDA_MS = 6L * 3600 * 1000;
 
     /** True bila fallback untuk versi ini baru dipasang dan web-vault ada:
@@ -473,7 +473,7 @@ public final class Updater {
                     + " lalu coba lagi.";
         }
         if (gabung.contains("404") || gabung.contains("belum tersedia")) {
-            return "File belum tersedia di rilis (build +-6 jam). Coba lagi nanti.";
+            return "File belum tersedia di rilis (build +-12 jam). Coba lagi nanti.";
         }
         return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
     }
@@ -959,7 +959,7 @@ public final class Updater {
                             }
                             throw new IOException(known
                                     ? "Build Android v" + latest + " belum tersedia"
-                                            + " (build otomatis ~6 jam). Coba lagi nanti."
+                                            + " (build otomatis ~12 jam). Coba lagi nanti."
                                     : "Release binary Android belum tersedia. Coba lagi nanti.");
                         }
                     });
@@ -1233,7 +1233,7 @@ public final class Updater {
                                 return null;
                             }
                             throw new IOException("Shim getrandom belum tersedia di rilis v"
-                                    + latest + " (build CI ~6 jam). Coba lagi nanti.");
+                                    + latest + " (build CI ~12 jam). Coba lagi nanti.");
                         }
                     });
         } catch (IOException e) {

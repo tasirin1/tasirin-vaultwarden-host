@@ -152,7 +152,7 @@ Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
 coba ulang). Cache cargo dipakai ulang antar run binary.
 
 **A. `build-binary.yml` (berat, ~15 mnt)** — `push` yang menyentuh
-`build-binary.yml`/`shim/**` saja, `schedule` tiap 6 jam (cek versi upstream;
+`build-binary.yml`/`shim/**` saja, `schedule` tiap 12 jam (cek versi upstream;
 skip bila rilis untuk tag tersebut sudah ada), dan `workflow_dispatch`:
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
