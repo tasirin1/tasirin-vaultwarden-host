@@ -2988,8 +2988,8 @@ public class ServerService extends Service {
     static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
             // REUSEADDR agar Start langsung setelah Stop tak dikira "port sibuk"
-            // (TIME_WAIT). Cek dual-stack tetap lewat dua panggilan IPv4 + IPv6
-            // oleh isPortBusy.
+            // (TIME_WAIT). Sengaja IPv4-only mengikuti isPortBusy (ROCKET_ADDRESS
+            // 0.0.0.0); tidak ada cek dual-stack di sini.
             try {
                 s.setReuseAddress(true);
             } catch (Exception ignored) {

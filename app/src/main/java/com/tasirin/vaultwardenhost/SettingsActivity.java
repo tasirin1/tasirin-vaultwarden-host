@@ -323,7 +323,13 @@ public class SettingsActivity extends Activity {
                     () -> runBusy(this::resetSertifikat)));
         }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
-        backupDbBtn.setOnClickListener(v -> runBusy(this::backupDatabase));
+        backupDbBtn.setOnClickListener(v -> {
+            // Baca widget di UI thread (bukan di worker runBusy) lalu validasi
+            // seperti saveAndStart agar path berbahaya jatuh ke bawaan.
+            String dir = dataDirInput.getText() == null ? ""
+                    : dataDirInput.getText().toString();
+            runBusy(() -> backupDatabase(dir));
+        });
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
         backupTgBtn.setOnClickListener(v -> runBusy(() -> {
@@ -612,6 +618,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        siramTulisTertunda();
         refreshActive = false;
         // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
         // maybeShowPinLock mengunci bila jeda > PIN_GRACE_MS.
@@ -1152,10 +1159,16 @@ public class SettingsActivity extends Activity {
 
     // ─── Backup & Restore database lokal ────────────────────────────────
 
-    private void backupDatabase() {
+    private void backupDatabase(String dataDirMentah) {
         try {
-            String dataDir = dataDirInput.getText().toString().trim();
+            String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
             if (TextUtils.isEmpty(dataDir)) {
+                dataDir = DEFAULT_DATA_DIR;
+            }
+            if (!ServerService.dataDirAman(dataDir)
+                    || !ServerService.dataDirKanonisAman(dataDir)) {
+                toast("Folder data tidak valid - dikembalikan ke bawaan.");
+                appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
                 dataDir = DEFAULT_DATA_DIR;
             }
 
@@ -1273,7 +1286,8 @@ public class SettingsActivity extends Activity {
             if (uri == null) {
                 return;
             }
-            String dir = dataDirInput.getText().toString().trim();
+            String dir = dataDirInput.getText() == null ? ""
+                    : dataDirInput.getText().toString().trim();
             if (TextUtils.isEmpty(dir)) {
                 dir = DEFAULT_DATA_DIR;
             }
@@ -1298,7 +1312,17 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    private void restoreDatabase(Uri uri, String dataDir) {
+    private void restoreDatabase(Uri uri, String dataDirMentah) {
+        String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
+        if (TextUtils.isEmpty(dataDir)) {
+            dataDir = DEFAULT_DATA_DIR;
+        }
+        if (!ServerService.dataDirAman(dataDir)
+                || !ServerService.dataDirKanonisAman(dataDir)) {
+            toast("Folder data tidak valid - dikembalikan ke bawaan.");
+            appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
+            dataDir = DEFAULT_DATA_DIR;
+        }
         File dbFile = new File(dataDir, "db.sqlite3");
         File preBackup = null;
         try {
@@ -3116,11 +3140,17 @@ public class SettingsActivity extends Activity {
         ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
-    private final Runnable scheduleBotRunnable = () -> TgBot.schedule(SettingsActivity.this);
+    private boolean jadwalBotTertunda = false;
+
+    private final Runnable scheduleBotRunnable = () -> {
+        jadwalBotTertunda = false;
+        TgBot.schedule(SettingsActivity.this);
+    };
 
     /** Pasang ulang jadwal bot maksimal 1x/detik saat token/chat diketik. */
     private void scheduleBotDebounced() {
         ui.removeCallbacks(scheduleBotRunnable);
+        jadwalBotTertunda = true;
         ui.postDelayed(scheduleBotRunnable, 1000);
     }
 
@@ -3142,6 +3172,44 @@ public class SettingsActivity extends Activity {
         };
     }
 
+    /** Antrean tulis prefs debounce agar bisa disiram saat pause (lihat siramTulisTertunda). */
+    private final java.util.List<Runnable> tulisTundaAktif = new java.util.ArrayList<>();
+
+    /** Tulis prefs debounce yang masih antre agar ketikan terakhir tak hilang
+     *  saat pause/destroy (ui.removeCallbacks membatalkannya). Tulis prefs
+     *  kecil sehingga aman sinkron di UI thread. */
+    private void siramTulisTertunda() {
+        java.util.List<Runnable> salin;
+        synchronized (tulisTundaAktif) {
+            if (tulisTundaAktif.isEmpty() && !jadwalBotTertunda) {
+                return;
+            }
+            salin = new java.util.ArrayList<>(tulisTundaAktif);
+            tulisTundaAktif.clear();
+        }
+        for (Runnable r : salin) {
+            try {
+                ui.removeCallbacks(r);
+            } catch (Exception ignored) {
+            }
+            try {
+                r.run();
+            } catch (Exception ignored) {
+            }
+        }
+        if (jadwalBotTertunda) {
+            jadwalBotTertunda = false;
+            try {
+                ui.removeCallbacks(scheduleBotRunnable);
+            } catch (Exception ignored) {
+            }
+            try {
+                scheduleBotRunnable.run();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     /** Simpan nilai EditText ke prefs begitu berubah. */
     private class SimpleTextWatcher implements android.text.TextWatcher {
         private final String key;
@@ -3161,9 +3229,22 @@ public class SettingsActivity extends Activity {
             final String nilai = s.toString();
             if (tugasTunda != null) {
                 ui.removeCallbacks(tugasTunda);
+                synchronized (tulisTundaAktif) {
+                    tulisTundaAktif.remove(tugasTunda);
+                }
             }
-            tugasTunda = () -> getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                    .edit().putString(key, nilai).apply();
+            final Runnable[] wadah = new Runnable[1];
+            wadah[0] = () -> {
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putString(key, nilai).apply();
+                synchronized (tulisTundaAktif) {
+                    tulisTundaAktif.remove(wadah[0]);
+                }
+            };
+            tugasTunda = wadah[0];
+            synchronized (tulisTundaAktif) {
+                tulisTundaAktif.add(tugasTunda);
+            }
             ui.postDelayed(tugasTunda, 400);
         }
 
@@ -3174,6 +3255,10 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        try {
+            siramTulisTertunda();
+        } catch (Exception ignored) {
+        }
         pinHashSiap = null;
         sapuExportPlainBasi();
         pinExec.shutdownNow();

@@ -79,10 +79,12 @@ public class TgBackupTest {
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_path\":\"d/f.zip\",\"file_size\":12345}}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons(null));
-        // Spasi / baris baru di sekitar titik-dua wajib tetap terbaca (JSONObject).
+        // Spasi / baris baru di sekitar titik-dua wajib tetap terbaca.
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\" : true, \"result\" : {\"file_path\" : \"d/f.zip\", \"file_size\" : 12345}}"));
         assertEquals(99L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":99}}"));
-        assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":false,\"result\":{\"file_size\":99}}"));
+        assertEquals(7L, TgBackup.fileSizeDariRespons("{\"file_size\"\n:\n7}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size2\":99}}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":}}"));
     }
 
     @Test

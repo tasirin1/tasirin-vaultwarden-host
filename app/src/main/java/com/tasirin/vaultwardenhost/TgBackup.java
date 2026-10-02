@@ -1540,41 +1540,40 @@ public final class TgBackup {
         }
     }
 
-    /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni. */
+    /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni.
+     *  Parse manual tahan spasi/baris-baru di sekitar ':' (pretty-print),
+     *  tanpa JSONObject: stub android.jar di unit test JVM melempar untuk
+     *  org.json sehingga jalur JSONObject mustahil diuji CI (dan di produksi
+     *  pun parse manual ini identik). Hanya pre-check storage; gerbang
+     *  "ok" tetap di parseFilePathTelegram/getFilePath pemanggil. */
     static long fileSizeDariRespons(String body) {
         if (body == null) {
             return -1;
         }
-        // Jalur utama JSONObject (seperti parseFilePathTelegram): tahan spasi
-        // ("file_size" : 123), baris baru, dan escape yang gagal dibaca
-        // indexOf mentah di bawah sehingga pre-check storage tak dilewati diam-diam.
-        try {
-            JSONObject resp = new JSONObject(body);
-            if (resp.optBoolean("ok", false)) {
-                JSONObject res = resp.optJSONObject("result");
-                if (res != null && res.has("file_size")) {
-                    long v = res.optLong("file_size", -1);
-                    if (v >= 0) {
-                        return v;
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        // Fallback indexOf untuk respons terpotong yang masih memuat angka.
-        int f = body.indexOf("\"file_size\":");
-        if (f < 0) {
+        String kunci = "\"file_size\"";
+        int k = body.indexOf(kunci);
+        if (k < 0) {
             return -1;
         }
-        int i = f + "\"file_size\":".length();
-        while (i < body.length() && (body.charAt(i) == ' ' || body.charAt(i) == '\t')) {
+        int n = body.length();
+        int i = k + kunci.length();
+        while (i < n && (body.charAt(i) == ' ' || body.charAt(i) == '\t'
+                || body.charAt(i) == '\n' || body.charAt(i) == '\r')) {
+            i++;
+        }
+        if (i >= n || body.charAt(i) != ':') {
+            return -1;
+        }
+        i++;
+        while (i < n && (body.charAt(i) == ' ' || body.charAt(i) == '\t'
+                || body.charAt(i) == '\n' || body.charAt(i) == '\r')) {
             i++;
         }
         int j = i;
-        while (j < body.length() && Character.isDigit(body.charAt(j))) {
+        while (j < n && body.charAt(j) >= '0' && body.charAt(j) <= '9') {
             j++;
         }
-        if (j == i) {
+        if (j == i || j - i > 19) {
             return -1;
         }
         try {
