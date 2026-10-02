@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,8 @@ import android.content.SharedPreferences;
  *  dihitung ulang lalu backup susulan bila hari sudah berganti. */
 public class AlarmReceiver extends BroadcastReceiver {
 
+    /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
+    @SuppressLint("ApplySharedPref")
     private static void mulaiBackup(Context context) {
         try {
             SharedPreferences cek = context.getSharedPreferences(

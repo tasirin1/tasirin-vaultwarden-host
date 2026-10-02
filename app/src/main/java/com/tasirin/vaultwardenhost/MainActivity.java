@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -112,6 +113,8 @@ public class MainActivity extends Activity {
     @Override
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
+    // commit() susulan di bawah disengaja (sinkron anti-ganda, lihat komentar) — bukan apply().
+    @SuppressLint("ApplySharedPref")
     protected void onCreate(Bundle savedInstanceState) {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);

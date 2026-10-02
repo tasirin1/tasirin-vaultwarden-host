@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -304,6 +305,8 @@ public class ServerService extends Service {
     /** Start service tahan penolakan background Android 12+
      *  (ForegroundServiceStartNotAllowedException): catat ke log, jangan crash
      *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah). */
+    /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
+    @SuppressLint("ApplySharedPref")
     private static boolean mulaiService(Context context, String aksi) {
         try {
             Intent i = new Intent(context, ServerService.class).setAction(aksi);
