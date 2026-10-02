@@ -171,6 +171,19 @@ public class TgBotTest {
     }
 
     @Test
+    public void pisahkanPinVersiBukanPin() {
+        // Nomor versi di posisi akhir bukan PIN: salah ketik versi tak boleh
+        // membakar lockout; PIN numerik murni tetap dimakan sebagai PIN.
+        assertArrayEquals(new String[]{"1.32.0", ""}, TgBot.pisahkanPin("1.32.0"));
+        assertArrayEquals(new String[]{"terbaru 1.32.0", ""},
+                TgBot.pisahkanPin("terbaru 1.32.0"));
+        assertArrayEquals(new String[]{"v1.32.0", ""}, TgBot.pisahkanPin("v1.32.0"));
+        assertArrayEquals(new String[]{"1.32.0", "123456"},
+                TgBot.pisahkanPin("1.32.0 123456"));
+        assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("123456"));
+    }
+
+    @Test
     public void pisahkanPinTelanjangBukanPin() {
         // Token "PIN:" tanpa isi bukan PIN: salah ketik tak boleh dimakan
         // agar tak menambah hitungan lockout sia-sia.

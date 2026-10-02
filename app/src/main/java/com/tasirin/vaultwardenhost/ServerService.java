@@ -261,6 +261,15 @@ public class ServerService extends Service {
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
     private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
+    /** Episode beruntun "server melayani tapi DB rusak" (/alive 5xx + /api/config 200):
+     *  pingRinci() menganggapnya sehat sehingga DB korup tak pernah restart.
+     *  Dihitung terpisah dari healthFails agar 500 sesaat (backup/migrasi di
+     *  STB lambat) tak langsung membunuh server. */
+    private final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
+            new java.util.concurrent.atomic.AtomicInteger(0);
+    /** Batas episode config-saja sebelum dianggap gantung lalu restart: 10x tick
+     *  (~5 mnt mode cepat / ~20 mnt mode normal) — jauh di atas 500 sesaat. */
+    static final int BATAS_CONFIG_SAJA_BERUNTUN = 10;
 
     /** Statis seperti autoRestart: recreate instance tak boleh mematikan
      *  health-check diam-diam. */
@@ -527,6 +536,12 @@ public class ServerService extends Service {
         return aliveCode == 200 || configCode == 200;
     }
 
+    /** True bila server melayani tapi DB rusak: /alive galat server (5xx) sementara
+     *  /api/config 200. Murni agar bisa unit test. */
+    static boolean aliveRusakTapiConfigSehat(int aliveCode, int configCode) {
+        return aliveCode >= 500 && aliveCode < 600 && configCode == 200;
+    }
+
     /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200. */
     static HasilPing pingRinci(Context ctx) {
         boolean https = true;
@@ -791,6 +806,11 @@ public class ServerService extends Service {
                     long last = TgBackup.amanLong(cek, TgBackup.KEY_TG_LAST, 0);
                     if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
                         appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
+                    } else if (!TgBackup.bolehBackupOtomatis(
+                            TgBackup.amanString(cek, TgBackup.KEY_TG_PASS, ""))) {
+                        String tolak = TgBackup.pesanTolakPlainOtomatis();
+                        appendLog("[tg] " + tolak);
+                        TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + tolak);
                     } else {
                         try {
                             TgBackup.tungguBootStabil();
@@ -798,7 +818,8 @@ public class ServerService extends Service {
                             Thread.currentThread().interrupt();
                             return;
                         }
-                        String msg = TgBackup.backupNow(this);
+                        // Terjadwal = otomatis: wajib terenkripsi (fail-closed).
+                        String msg = TgBackup.backupOtomatis(this);
                         appendLog("[tg] " + msg);
                         TgBackup.sendMessage(this, "Backup otomatis: " + msg);
                     }
@@ -1892,10 +1913,26 @@ public class ServerService extends Service {
         peringatkanIpBerubah();
         HasilPing h = pingRinci(this);
         if (h.sehat) {
+            // Sehat via /api/config tapi /alive 5xx beruntun = DB rusak yang
+            // tak pernah pulih sendiri: restart setelah ambang, bukan selamanya.
+            if (aliveRusakTapiConfigSehat(h.aliveCode, h.configCode)) {
+                int n = configSajaBeruntun.incrementAndGet();
+                if (n >= BATAS_CONFIG_SAJA_BERUNTUN) {
+                    configSajaBeruntun.set(0);
+                    healthFail("DB rusak beruntun (/alive 5xx tapi /api/config 200, "
+                            + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian);
+                    return;
+                }
+                appendLog("[health] /alive 5xx tapi /api/config 200 (DB mungkin rusak,"
+                        + " ke-" + n + "/" + BATAS_CONFIG_SAJA_BERUNTUN + ").");
+                return;
+            }
+            configSajaBeruntun.set(0);
             healthFails.set(0);
             healthTcpLolos.set(0);
             return;
         }
+        configSajaBeruntun.set(0);
         healthFail("tidak merespon (" + h.rincian + ")");
     }
 

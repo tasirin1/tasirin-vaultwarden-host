@@ -201,6 +201,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void configSajaSehatHanyaSaatAlive5xx() {
+        assertTrue(ServerService.aliveRusakTapiConfigSehat(500, 200));
+        assertTrue(ServerService.aliveRusakTapiConfigSehat(503, 200));
+        assertFalse(ServerService.aliveRusakTapiConfigSehat(200, 200));
+        assertFalse(ServerService.aliveRusakTapiConfigSehat(-1, 200));
+        assertFalse(ServerService.aliveRusakTapiConfigSehat(500, 500));
+        assertFalse(ServerService.aliveRusakTapiConfigSehat(500, -1));
+        assertFalse(ServerService.aliveRusakTapiConfigSehat(404, 200));
+    }
+
+    @Test
     public void tidakSehatBilaKeduanyaGagal() {
         assertFalse(ServerService.sehatDariKode(-1, -1));
         assertFalse(ServerService.sehatDariKode(500, 500));

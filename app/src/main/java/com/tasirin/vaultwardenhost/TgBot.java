@@ -1191,6 +1191,14 @@ public final class TgBot {
         if (kandidat.equalsIgnoreCase("PIN:")) {
             return new String[]{t, ""};
         }
+        // Nomor versi ("1.32.0", "v1.32.0") bukan PIN: tanpa ini argumen versi
+        // di posisi akhir (mis. "/update terbaru 1.32.0" yang lupa PIN) dimakan
+        // sebagai PIN salah dan membakar 1x lockout; lima kali salah ketik
+        // versi = PIN terkunci sia-sia. PIN numerik murni ("123456") tetap
+        // dimakan di bawah; PIN berbentuk versi wajib eksplisit "PIN:...".
+        if (Updater.normalisasiPinVersi(kandidat) != null) {
+            return new String[]{t, ""};
+        }
         if (kandidat.matches("\\S{4,}")
                 && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
             return new String[]{t.substring(0, i).trim(), kandidat};

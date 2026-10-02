@@ -195,8 +195,16 @@ public class MainActivity extends Activity {
             final android.content.Context app = getApplicationContext();
             new Thread(() -> {
                 try {
+                    // Fail-fast: tanpa password otomatis wajib ditolak.
+                    if (!TgBackup.bolehBackupOtomatis(
+                            TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""))) {
+                        ServerService.catatLog("[tg] " + TgBackup.pesanTolakPlainOtomatis()
+                                + " (susulan boot).");
+                        return;
+                    }
                     TgBackup.tungguBootStabil();
-                    String msg = TgBackup.backupNow(app);
+                    // Susulan boot = otomatis: wajib terenkripsi (fail-closed).
+                    String msg = TgBackup.backupOtomatis(app);
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
                 } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();

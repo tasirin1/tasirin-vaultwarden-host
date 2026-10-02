@@ -291,7 +291,8 @@ public final class TgBackup {
                     + " 5 menit agar sistem stabil...");
             tungguBootStabil();
         }
-        return backupNow(ctx);
+        // Jalur otomatis: wajib terenkripsi (fail-closed bila tanpa password).
+        return backupOtomatis(ctx);
     }
 
     /** Callback UI untuk backup otomatis saat Start (toast + catat + pos UI). */
@@ -349,6 +350,11 @@ public final class TgBackup {
         if (last > 0 && !sudahGantiHari(last, System.currentTimeMillis())) {
             return;
         }
+        // Fail-fast sebelum tunggu DB/boot: tanpa password otomatis wajib ditolak.
+        if (!bolehBackupOtomatis(amanString(sp, KEY_TG_PASS, ""))) {
+            ui.catat("[tg] " + pesanTolakPlainOtomatis());
+            return;
+        }
         ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
         final Context app = ctx.getApplicationContext();
         new Thread(() -> {
@@ -363,6 +369,34 @@ public final class TgBackup {
                 ui.catat("[tg] " + pesanGalatBackup(e));
             }
         }, "vw-tg-onstart").start();
+    }
+
+    /** True bila backup otomatis boleh jalan: password backup wajib diisi agar
+     *  database vault tak terkirim plaintext ke cloud Telegram. Murni. */
+    static boolean bolehBackupOtomatis(String pass) {
+        return pass != null && !pass.trim().isEmpty();
+    }
+
+    /** Backup otomatis (jadwal/saat Start/susulan boot) yang wajib terenkripsi.
+     *  Tanpa password, isi vault melenggang plaintext ke cloud Telegram dan
+     *  tersimpan di sana permanen — jalur otomatis yang sunyi (tanpa klik user)
+     *  tak boleh memicunya. Backup manual (tombol/bot) tetap lewat
+     *  {@link #backupNow} dengan peringatan plaintext di pesan hasil. */
+    /** Penjelasan penolakan backup otomatis tanpa password (murni). */
+    static String pesanTolakPlainOtomatis() {
+        return "Backup otomatis dilewati: isi password backup di"
+                + " Pengaturan agar backup ke Telegram terenkripsi. Tanpa password,"
+                + " database vault terkirim tanpa enkripsi — pakai tombol Backup"
+                + " manual bila memang mau tanpa enkripsi.";
+    }
+
+    public static String backupOtomatis(Context ctx) throws Exception {
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        if (!bolehBackupOtomatis(amanString(sp, KEY_TG_PASS, ""))) {
+            throw new IOException(pesanTolakPlainOtomatis());
+        }
+        return backupNow(ctx);
     }
 
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */

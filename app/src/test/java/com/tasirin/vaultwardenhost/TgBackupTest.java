@@ -849,6 +849,16 @@ public class TgBackupTest {
     }
 
     @Test
+    public void backupOtomatisWajibPassword() {
+        assertTrue(TgBackup.bolehBackupOtomatis("rahasia123"));
+        assertTrue(TgBackup.bolehBackupOtomatis("  rahasia  "));
+        assertFalse(TgBackup.bolehBackupOtomatis(""));
+        assertFalse(TgBackup.bolehBackupOtomatis("   "));
+        assertFalse(TgBackup.bolehBackupOtomatis(null));
+        assertTrue(TgBackup.pesanTolakPlainOtomatis().contains("password"));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));
