@@ -85,6 +85,21 @@ public final class Updater {
         return plus < 0 ? t : t.substring(0, plus);
     }
 
+    /** Saran versi stabil bila kuncian prerelease ("1.37.3-beta") tak ada assetnya:
+     *  rilis repo ini mengikuti tag stabil upstream sehingga pin beta tak pernah
+     *  resolve; kembalikan saran "; ..." atau kosong bila tak relevan. Murni. */
+    static String saranStabilPrerelease(String diminta) {
+        String t = normalisasiPinVersi(diminta);
+        if (t == null) {
+            return "";
+        }
+        int dash = t.indexOf('-');
+        if (dash <= 0) {
+            return "";
+        }
+        return "; rilis repo ini stabil - coba v" + t.substring(0, dash);
+    }
+
     /** Kuncian binary user (null = ikuti terbaru). */
     static String kuncianBinary(Context ctx) {
         try {
@@ -967,6 +982,7 @@ public final class Updater {
                             }
                             throw new IOException(known
                                     ? "Build Android v" + latest + " belum tersedia"
+                                            + saranStabilPrerelease(latest)
                                             + " (build otomatis ~12 jam). Coba lagi nanti."
                                     : "Release binary Android belum tersedia. Coba lagi nanti.");
                         }

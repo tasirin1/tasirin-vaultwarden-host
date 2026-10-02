@@ -694,6 +694,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranStabilPrerelease_sarankanStabil() {
+        assertEquals("; rilis repo ini stabil - coba v1.37.3",
+                Updater.saranStabilPrerelease("1.37.3-beta"));
+        assertEquals("", Updater.saranStabilPrerelease("1.37.3"));
+        assertEquals("", Updater.saranStabilPrerelease("v1.32.0"));
+        assertEquals("", Updater.saranStabilPrerelease("terbaru"));
+        assertEquals("", Updater.saranStabilPrerelease(null));
+    }
+
+    @Test
     public void parseDaftarTag_ambilSemuaTag() {
         String body = "[{\"tag_name\":\"v1.37.3\"},{\"tag_name\":\"v1.32.0\"}]";
         java.util.List<String> d = Updater.parseDaftarTag(body, 10);

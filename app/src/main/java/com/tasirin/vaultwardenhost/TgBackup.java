@@ -649,7 +649,10 @@ public final class TgBackup {
     static final int BATAS_PESAN_TELEGRAM = 4000;
 
     /** Pecah teks panjang jadi potongan <= batas char tanpa membelah surrogate
-     *  pair (emoji). Murni agar bisa unit test. */
+     *  pair (emoji). Utamakan belah di akhir baris agar potongan log tak
+     *  memenggal tengah baris; ekor grapheme (combining/ZWJ/variant) ikut ke
+     *  potongan ini (margin 96 char ke limit 4096 aman). Gabungan potongan
+     *  selalu sama dengan teks asli (tanpa char hilang). Murni agar bisa unit test. */
     static java.util.List<String> pecahPesan(String msg, int batas) {
         java.util.List<String> out = new java.util.ArrayList<String>();
         String s = msg == null ? "" : msg;
@@ -663,6 +666,26 @@ public final class TgBackup {
                     && Character.isLowSurrogate(s.charAt(akhir))) {
                 akhir--;
             }
+            // Belah di newline terakhir dalam jangkauan bila menyisakan isi
+            // wajar (>separuh batas) agar baris raksasa tanpa newline tak jadi
+            // potongan mungil dan progres selalu maju (akhir > i).
+            if (akhir - i > 1) {
+                int nl = s.lastIndexOf('\n', akhir - 1);
+                if (nl > i && nl - i > batas / 2) {
+                    akhir = nl + 1;
+                }
+            }
+            // Tanda lanjut grapheme di awal potongan berikut (combining mark,
+            // ZWJ, variation selector) ikut potongan ini agar emoji tak rusak.
+            int tumbuh = 0;
+            while (akhir < s.length() && tumbuh < 16 && ekorGrapheme(s.charAt(akhir))) {
+                akhir++;
+                tumbuh++;
+            }
+            // Guard progres: tanpa ini newline di i (akhir == i) mengulang selamanya.
+            if (akhir <= i) {
+                akhir = Math.min(i + batas, s.length());
+            }
             out.add(s.substring(i, akhir));
             i = akhir;
         }
@@ -670,6 +693,17 @@ public final class TgBackup {
             out.add("");
         }
         return out;
+    }
+
+    /** True bila char adalah lanjutan grapheme yang tak boleh membuka potongan:
+     *  combining mark, ZWJ, variation selector. Murni agar bisa unit test. */
+    static boolean ekorGrapheme(char c) {
+        if (c == '\u200D' || c == '\uFE0E' || c == '\uFE0F') {
+            return true;
+        }
+        int t = Character.getType(c);
+        return t == Character.NON_SPACING_MARK || t == Character.ENCLOSING_MARK
+                || t == Character.COMBINING_SPACING_MARK;
     }
 
     /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */
@@ -2031,6 +2065,14 @@ public final class TgBackup {
                     }
                     continue;
                 }
+                // Pintu allowlist bersama UI (lihat bolehTulisRestore).
+                if (!bolehTulisRestore(nama)) {
+                    try {
+                        zis.closeEntry();
+                    } catch (Exception ignored) {
+                    }
+                    continue;
+                }
                 if ("db.sqlite3".equals(nama)) {
                     adaDb = true;
                 } else if ("db.sqlite3-wal".equals(nama)) {
@@ -2658,6 +2700,23 @@ public final class TgBackup {
             }
         }
         return null;
+    }
+
+    /** True bila entri restore boleh ditulis ke folder data: 3 file DB resmi,
+     *  folder tls, + 4 file TLS resmi. "app-config.json" ditangani terpisah
+     *  (diterapkan langsung, tak ditulis). Satu pintu untuk restore Telegram
+     *  & UI agar allowlist tak drift. Murni agar bisa unit test. */
+    static boolean bolehTulisRestore(String nama) {
+        if (nama == null) {
+            return false;
+        }
+        if (nama.equals("db.sqlite3") || nama.equals("db.sqlite3-wal")
+                || nama.equals("db.sqlite3-shm")) {
+            return true;
+        }
+        return nama.equals("tls") || nama.equals("tls/ca.pem")
+                || nama.equals("tls/cert.pem") || nama.equals("tls/key.pem")
+                || nama.equals("tls/ca-key.pem");
     }
 
     private static boolean diterimaEntriZip(String n) {

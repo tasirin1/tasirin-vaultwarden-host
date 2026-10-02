@@ -821,6 +821,34 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pecahPesan_utamakanNewlineDanGabungUtuh() {
+        String msg = "baris1\nbaris2\nbaris3";
+        java.util.List<String> b = TgBackup.pecahPesan(msg, 10);
+        StringBuilder gabung = new StringBuilder();
+        for (String x : b) {
+            gabung.append(x);
+            assertTrue(x.length() <= 10 + 16);
+        }
+        assertEquals(msg, gabung.toString());
+        assertTrue(b.size() >= 2);
+        assertTrue(TgBackup.ekorGrapheme('\u0301'));
+        assertTrue(TgBackup.ekorGrapheme('\u200D'));
+        assertFalse(TgBackup.ekorGrapheme('a'));
+    }
+
+    @Test
+    public void bolehTulisRestore_hanyaDbDanTlsResmi() {
+        assertTrue(TgBackup.bolehTulisRestore("db.sqlite3"));
+        assertTrue(TgBackup.bolehTulisRestore("db.sqlite3-wal"));
+        assertTrue(TgBackup.bolehTulisRestore("tls/cert.pem"));
+        assertTrue(TgBackup.bolehTulisRestore("tls"));
+        assertFalse(TgBackup.bolehTulisRestore("app-config.json"));
+        assertFalse(TgBackup.bolehTulisRestore("db.sqlite3-evil"));
+        assertFalse(TgBackup.bolehTulisRestore("tls/evil.sh"));
+        assertFalse(TgBackup.bolehTulisRestore(null));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

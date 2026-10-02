@@ -1304,7 +1304,7 @@ public class SettingsActivity extends Activity {
         } else if (requestCode == REQ_SHARE_CONFIG) {
             // Chooser kembali bukan tanda target selesai membaca: aplikasi async
             // (Gmail/Drive) mengunggah di latar setelah kita kembali. Jangan
-            // hapus di sini; sapu basi (<24 jam dipertahankan).
+            // hapus di sini; sapu basi (<10 menit dipertahankan, lihat EXPORT_PLAIN_TTL_MS).
             sapuExportPlainBasi();
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
@@ -1433,15 +1433,9 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
-                        // Ketat seperti restore Telegram: hanya 3 file DB resmi + 4 file TLS resmi.
-                        // Awalan longgar menulis sampah (mis. db.sqlite3-evil, tls/ips.txt).
-                        boolean dbPart = name.equals("db.sqlite3")
-                                || name.equals("db.sqlite3-wal")
-                                || name.equals("db.sqlite3-shm");
-                        boolean tlsPart = name.equals("tls")
-                                || name.equals("tls/ca.pem") || name.equals("tls/cert.pem")
-                                || name.equals("tls/key.pem") || name.equals("tls/ca-key.pem");
-                        if (!dbPart && !tlsPart) {
+                        // Allowlist satu pintu bersama restore Telegram
+                        // (TgBackup.bolehTulisRestore) agar tak drift.
+                        if (!TgBackup.bolehTulisRestore(name)) {
                             zis.closeEntry();
                             continue;
                         }
