@@ -2490,6 +2490,17 @@ public class ServerService extends Service {
         }
     }
 
+    /** Kapan smoke test --version terakhir gagal (elapsed; anti unduh ulang tiap Start). */
+    private static volatile long smokeGagalAt = 0;
+    /** Jeda ulang smoke test sesudah gagal (hemat proses di STB lambat). */
+    static final long SMOKE_GAGAL_TTL_MS = 60_000;
+    /** True bila smoke test gagal belum lama (murni agar bisa unit test). */
+    static boolean smokeGagalBaruSaja(long kiniElapsed, long gagalAt, long jedaMs) {
+        if (gagalAt == 0 || kiniElapsed < gagalAt) {
+            return false;
+        }
+        return kiniElapsed - gagalAt < jedaMs;
+    }
     /** Smoke test --version; false bila binary tak bisa dieksekusi. */
     private boolean detectBinaryVersion(File binary) {
         Process p = null;
@@ -2556,6 +2567,7 @@ public class ServerService extends Service {
             versiSelesai.set(true);
             versiWatchdog.interrupt();
             lastVersionOutput = first == null ? "" : first.trim();
+            smokeGagalAt = 0;
             p.destroy();
             try {
                 // Timeout 2 detik di SEMUA API (waitFor(timeout) hanya API 26+).
@@ -2566,13 +2578,25 @@ public class ServerService extends Service {
             if (first == null || first.trim().isEmpty()) {
                 binaryVersion = "?";
                 lastVersionOutput = "";
+                smokeGagalAt = SystemClock.elapsedRealtime();
                 return false;
             }
             binaryVersion = first.trim();
             return true;
         } catch (Exception e) {
+            // Hentikan watchdog yang menunggu 10 detik agar thread Start gagal
+            // tak menyisakan thread daemon tiap Start (bocor saat exec ditolak).
+            try {
+                versiSelesai.set(true);
+            } catch (Exception ignored) {
+            }
+            try {
+                versiWatchdog.interrupt();
+            } catch (Exception ignored) {
+            }
             binaryVersion = "?";
             lastVersionOutput = "";
+            smokeGagalAt = SystemClock.elapsedRealtime();
             return false;
         } finally {
             if (r != null) {

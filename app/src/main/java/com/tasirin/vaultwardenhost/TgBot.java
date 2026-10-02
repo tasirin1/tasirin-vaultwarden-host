@@ -635,7 +635,7 @@ public final class TgBot {
      *  sebagai bukti forensik brute-force. */
     private static boolean handleCommand(Context ctx, String text) {
         boolean berbahayaTerotorisasi = false;
-        if (!text.startsWith("/")) {
+        if (text == null || !text.startsWith("/")) {
             return false;
         }
         String cmd = "/" + namaPerintah(text);
@@ -1047,7 +1047,8 @@ public final class TgBot {
         String pin = pisah[1];
         if (pin.isEmpty()) {
             TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
-                    + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").");
+                    + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
+                    + " PIN huruf wajib bentuk PIN:ab12).");
             return null;
         }
         boolean cocok = PinCrypto.verify(hash, pin);
@@ -1062,7 +1063,8 @@ public final class TgBot {
             return rest;
         }
         TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
-                + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").");
+                + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
+                + " PIN huruf wajib bentuk PIN:ab12).");
         return null;
     }
 
@@ -1124,17 +1126,34 @@ public final class TgBot {
                 "(?is)\\bPIN\\s*:\\s*(.+)").matcher(t);
         if (m.find()) {
             String mentah = m.group(1).trim();
-            // Bentuk eksplisit menelan sisa baris sebagai PIN agar PIN ber-spasi
-            // tetap bisa dipakai via bot. Tanda kutip mengapit penuh dikupas.
-            String pin = mentah;
-            if (mentah.length() >= 2 && ((mentah.startsWith("\"") && mentah.endsWith("\""))
-                    || (mentah.startsWith("'") && mentah.endsWith("'")))) {
-                pin = mentah.substring(1, mentah.length() - 1);
+            // Bentuk eksplisit: kutip mengapit diambil tepat (sisa sesudah
+            // kutip tutup kembali jadi argumen), tanpa kutip menelan sisa
+            // baris agar PIN ber-spasi tetap bisa dipakai via bot.
+            String sebelum = t.substring(0, m.start()).trim().replaceAll("\\s+", " ");
+            String pin;
+            String sisa;
+            if (mentah.length() >= 2 && (mentah.startsWith("\"") || mentah.startsWith("'"))) {
+                char kutip = mentah.charAt(0);
+                int tutup = mentah.indexOf(kutip, 1);
+                if (tutup > 0) {
+                    pin = mentah.substring(1, tutup);
+                    String ekstra = mentah.substring(tutup + 1).trim();
+                    sisa = sebelum;
+                    if (!ekstra.isEmpty()) {
+                        sisa = (sebelum.isEmpty() ? ekstra
+                                : (sebelum + " " + ekstra)).replaceAll("\\s+", " ");
+                    }
+                } else {
+                    pin = mentah;
+                    sisa = sebelum;
+                }
+            } else {
+                pin = mentah;
+                sisa = sebelum;
             }
             if (pin.isEmpty()) {
                 return new String[]{t, ""};
             }
-            String sisa = t.substring(0, m.start()).trim().replaceAll("\\s+", " ");
             return new String[]{sisa, pin};
         }
         int i = t.lastIndexOf(' ');

@@ -87,28 +87,22 @@ public class MainActivity extends Activity {
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinDialogTampil = false;
 
-    /** Berbagi status buka PIN dengan Settings agar tidak diminta dua kali. */
+    /** Berbagi status buka PIN via PinGate (satu sumber, tanpa drift antar-activity). */
     static boolean pinBaruSajaDibuka() {
-        // Fail-closed: selisih negatif (jangkar basi/lintas-boot) bukan grace.
-        long delta = SystemClock.elapsedRealtime() - unlockAt;
-        return unlocked && delta >= 0 && delta < PIN_GRACE_MS;
+        return PinGate.dalamGraceBersama();
     }
 
-    /** Kapan PIN dibuka (untuk salin grace antar activity tanpa perpanjangan). */
+    /** Kapan PIN dibuka (jangkar grace bersama, tanpa perpanjangan). */
     static long kapanDibuka() {
-        return unlockAt;
+        return PinGate.kapanBukaBersama();
     }
 
-    /** Catat buka PIN dari layar lain sebagai milik bersama. */
+    /** Catat buka PIN sebagai milik bersama (tanpa panggil balik antar-activity). */
     static void catatPinDibuka() {
+        PinGate.bukaKunciBersama();
         unlocked = true;
-        unlockAt = SystemClock.elapsedRealtime();
+        unlockAt = PinGate.kapanBukaBersama();
         pauseStamp = unlockAt;
-        // Sebarkan ke Settings (set miliknya saja, tanpa panggil balik).
-        try {
-            SettingsActivity.catatPinDibuka();
-        } catch (Exception ignored) {
-        }
     }
 
     @Override
@@ -798,8 +792,14 @@ public class MainActivity extends Activity {
             @Override public void restartServer() {
             }
         }, new AutoUpdate.AturPending() {
+            // Dipanggil dari worker thread AutoUpdate: post ke UI agar tulis
+            // terkurung di UI thread (baca banner/status juga di UI).
             @Override public void atur(String versi) {
-                pendingVersion = versi;
+                try {
+                    ui.post(() -> pendingVersion = versi);
+                } catch (Exception e) {
+                    pendingVersion = versi;
+                }
             }
         }, false);
     }
@@ -846,14 +846,15 @@ public class MainActivity extends Activity {
         if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)) {
             // PIN mati: buang status buka basi agar PIN yang diaktifkan lagi
             // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
+            PinGate.kunciBersama();
             unlocked = false;
             unlockAt = 0;
             return;
         }
-        // Sudah dibuka di Settings dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).
-        if (SettingsActivity.pinBaruSajaDibuka()) {
+        // Sudah dibuka di layar lain dalam grace: jangan minta lagi (tanpa perpanjangan).
+        if (PinGate.dalamGraceBersama()) {
             unlocked = true;
-            unlockAt = SettingsActivity.kapanDibuka();
+            unlockAt = PinGate.kapanBukaBersama();
             return;
         }
         long deltaGrace = SystemClock.elapsedRealtime() - unlockAt;

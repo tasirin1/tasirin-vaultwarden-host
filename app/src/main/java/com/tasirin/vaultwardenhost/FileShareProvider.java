@@ -43,6 +43,12 @@ public class FileShareProvider extends ContentProvider {
             android.database.MatrixCursor c = new android.database.MatrixCursor(
                     new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE});
             c.addRow(new Object[]{cf.getName(), cf.length()});
+            try {
+                if (getContext() != null) {
+                    c.setNotificationUri(getContext().getContentResolver(), uri);
+                }
+            } catch (Exception ignored) {
+            }
             return c;
         } catch (Exception e) {
             return null;

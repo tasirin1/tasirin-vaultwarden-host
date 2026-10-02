@@ -444,6 +444,14 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void smokeGagal_throttleGagalBaru() {
+        assertTrue(ServerService.smokeGagalBaruSaja(61_000, 60_000, 60_000));
+        assertFalse(ServerService.smokeGagalBaruSaja(121_000, 60_000, 60_000));
+        assertFalse(ServerService.smokeGagalBaruSaja(50_000, 0, 60_000));
+        assertFalse(ServerService.smokeGagalBaruSaja(50_000, 60_000, 60_000));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {
