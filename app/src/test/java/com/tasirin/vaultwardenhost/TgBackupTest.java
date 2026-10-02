@@ -695,6 +695,17 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pesanPenting_utamakanKabarKritis() {
+        assertTrue(TgBackup.pesanPenting("Restore gagal: file rusak."));
+        assertTrue(TgBackup.pesanPenting("PIN terkunci sementara."));
+        assertTrue(TgBackup.pesanPenting("Server berhenti: gagal restart 5x."));
+        assertFalse(TgBackup.pesanPenting("Server jalan."));
+        assertFalse(TgBackup.pesanPenting("Backup harian terunggah."));
+        assertFalse(TgBackup.pesanPenting(null));
+        assertFalse(TgBackup.pesanPenting(""));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

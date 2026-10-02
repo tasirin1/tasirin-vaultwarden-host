@@ -597,9 +597,27 @@ public final class TgBackup {
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
         try {
-            TG_MSG_EXEC.execute(() -> kirimSinkron(app, msg, markup));
+            if (markup == null && pesanPenting(msg)) {
+                TG_PENTING_EXEC.execute(() -> kirimSinkron(app, msg, null));
+            } else {
+                TG_MSG_EXEC.execute(() -> kirimSinkron(app, msg, markup));
+            }
         } catch (Exception ignored) {
         }
+    }
+
+    /** True bila pesan wajib lewat antrean prioritas (gagal/terkunci/berhenti/
+     *  crash/restore): antrean biasa membuang tertua saat penuh sehingga kabar
+     *  kritis bisa hilang tepat saat Telegram lama tak terjangkau. Murni. */
+    static boolean pesanPenting(String msg) {
+        if (msg == null || msg.isEmpty()) {
+            return false;
+        }
+        String rendah = msg.toLowerCase(java.util.Locale.US);
+        return rendah.contains("gagal") || rendah.contains("terkunci")
+                || rendah.contains("berhenti") || rendah.contains("crash")
+                || rendah.contains("restore") || rendah.contains("korup")
+                || rendah.contains("darurat");
     }
 
     /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */

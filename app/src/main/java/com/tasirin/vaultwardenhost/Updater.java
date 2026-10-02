@@ -920,8 +920,10 @@ public final class Updater {
         boolean bolehFallback = !adaKuncianBinary(ctx);
         String assetUrl = binaryAssetUrl(latest, ServerService.ABI);
         File binDir = out.getParentFile();
-        if (binDir != null && !binDir.exists()) {
-            binDir.mkdirs();
+        if (binDir != null && !binDir.exists()
+                && !binDir.mkdirs() && !binDir.exists()) {
+            throw new IOException("Gagal membuat folder binary: " + binDir
+                    + " - cek sisa storage & izin Storage, lalu ulangi.");
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
@@ -1196,8 +1198,10 @@ public final class Updater {
         boolean known = latest != null && !latest.isEmpty();
         String assetUrl = shimAssetUrl(latest);
         File binDir = out.getParentFile();
-        if (binDir != null && !binDir.exists()) {
-            binDir.mkdirs();
+        if (binDir != null && !binDir.exists()
+                && !binDir.mkdirs() && !binDir.exists()) {
+            throw new IOException("Gagal membuat folder binary: " + binDir
+                    + " - cek sisa storage & izin Storage, lalu ulangi.");
         }
         File tmp = new File(binDir, out.getName() + ".tmp");
         final String[] urlShimAkhir = {assetUrl};

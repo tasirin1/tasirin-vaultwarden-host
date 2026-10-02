@@ -37,7 +37,7 @@ public class FileShareProvider extends ContentProvider {
                 return null;
             }
             File cf = new File(kanon);
-            if (!cf.isFile()) {
+            if (!cf.isFile() || !cf.canRead()) {
                 return null;
             }
             android.database.MatrixCursor c = new android.database.MatrixCursor(

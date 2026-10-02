@@ -534,36 +534,41 @@ public class ServerService extends Service {
         }
         String scheme = "https";
         String p = port == null ? "" : port.trim();
-        int alive = cobaKode(ctx, scheme, p, "/alive", https);
-        String aliveErr = aliveErrTerakhir;
-        int config = -1;
-        String configErr = "";
+        HasilCoba alive = cobaKode(ctx, scheme, p, "/alive", https);
+        HasilCoba config = new HasilCoba(-1, "");
         // /alive butuh DB; fallback ringan /api/config memastikan server
         // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
-        if (alive != 200) {
+        if (alive.kode != 200) {
             config = cobaKode(ctx, scheme, p, "/api/config", https);
-            configErr = aliveErrTerakhir;
         } else {
-            config = -2;
+            config = new HasilCoba(-2, "");
         }
-        boolean sehat = sehatDariKode(alive, config);
+        boolean sehat = sehatDariKode(alive.kode, config.kode);
         String rincian;
         if (sehat) {
-            rincian = alive == 200 ? "alive 200" : "config 200 (alive " + ringkasKode(alive, aliveErr) + ")";
+            rincian = alive.kode == 200 ? "alive 200" : "config 200 (alive " + ringkasKode(alive.kode, alive.galat) + ")";
         } else {
-            rincian = "alive " + ringkasKode(alive, aliveErr)
-                    + ", config " + ringkasKode(config, configErr);
+            rincian = "alive " + ringkasKode(alive.kode, alive.galat)
+                    + ", config " + ringkasKode(config.kode, config.galat);
         }
-        return new HasilPing(sehat, alive, config, rincian);
+        return new HasilPing(sehat, alive.kode, config.kode, rincian);
     }
 
-    private static volatile String aliveErrTerakhir = "";
+    /** Hasil satu request GET loopback (kode + pesan galat lokal tanpa field
+     *  statis bersama agar panggilan konkuren health/bot tak tukar pesan error). */
+    static final class HasilCoba {
+        final int kode;
+        final String galat;
+        HasilCoba(int kode, String galat) {
+            this.kode = kode;
+            this.galat = galat == null ? "" : galat;
+        }
+    }
 
     /** Satu request GET loopback; balas kode HTTP atau -1 bila gagal jaring/TLS. */
-    private static int cobaKode(Context ctx, String scheme, String port, String path, boolean https) {
+    private static HasilCoba cobaKode(Context ctx, String scheme, String port, String path, boolean https) {
         HttpURLConnection c = null;
         try {
-            aliveErrTerakhir = "";
             c = (HttpURLConnection) new URL(
                     scheme + "://127.0.0.1:" + port + path).openConnection();
             c.setConnectTimeout(8000);
@@ -574,13 +579,13 @@ public class ServerService extends Service {
                 hc.setHostnameVerifier((host, session) ->
                         "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host));
             }
-            return c.getResponseCode();
+            return new HasilCoba(c.getResponseCode(), "");
         } catch (Exception e) {
             String m = e.getClass().getSimpleName();
             String msg = e.getMessage();
             msg = potongPesanGalat(msg == null ? "" : msg, 80);
-            aliveErrTerakhir = msg == null || msg.isEmpty() ? m : m + ": " + msg;
-            return -1;
+            String galat = msg == null || msg.isEmpty() ? m : m + ": " + msg;
+            return new HasilCoba(-1, galat);
         } finally {
             if (c != null) {
                 c.disconnect();

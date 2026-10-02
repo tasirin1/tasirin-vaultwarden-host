@@ -44,7 +44,10 @@ public final class PinGate {
     // commit() di bawah disengaja (sinkron, lihat komentar) — bukan apply().
     @SuppressLint("ApplySharedPref")
     public static synchronized void catatHasil(Context ctx, boolean cocok, long sekarang) {
-        if (ctx != null && diMainThread()) {
+        if (ctx == null) {
+            return;
+        }
+        if (diMainThread()) {
             catatHasilAsync(ctx, cocok, sekarang);
             return;
         }
