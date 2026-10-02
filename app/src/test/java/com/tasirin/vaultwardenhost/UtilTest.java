@@ -128,6 +128,14 @@ public class UtilTest {
     }
 
     @Test
+    public void sambungRedirectTolakDowngradeHttp() {
+        // Absolut http:// fail-closed ke dasar (anti downgrade cleartext),
+        // bukan diteruskan seperti https://.
+        assertEquals("https://a/b", Util.sambungRedirect("https://a/b", "http://c/d"));
+        assertEquals("https://a/b", Util.sambungRedirect("https://a/b", "HTTP://c/d"));
+    }
+
+    @Test
     public void batasUnzip() throws Exception {
         long t = Util.tambahUkuranUnzip(0, 10, 100, 1, 10);
         assertEquals(10, t);

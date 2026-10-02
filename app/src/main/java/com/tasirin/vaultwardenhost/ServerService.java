@@ -2145,7 +2145,7 @@ public class ServerService extends Service {
 
     private void cleanupTempFilesTerkunci(String dataDir) {
         // File .tmp unduhan (binary/web-vault) SENGAJA dipertahankan agar Start
-        // berikutnya melanjutkan via HTTP Range (hemat kuota ~15/35 MB).
+        // berikutnya melanjutkan via rentang byte HTTPS (Range, hemat kuota ~15/35 MB).
         // Updater menghapusnya sendiri bila korup/checksum tak cocok.
         // Hanya folder staging yatim yang dibersihkan di sini (termasuk
         // web-vault.new lama + web-vault.new-<cap> unik yang yatim crash).

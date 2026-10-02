@@ -311,8 +311,15 @@ public final class Util {
             return dasar;
         }
         String l = lokasi.trim();
-        if (l.regionMatches(true, 0, "http://", 0, 7) || l.regionMatches(true, 0, "https://", 0, 8)) {
+        if (l.regionMatches(true, 0, "https://", 0, 8)) {
             return l;
+        }
+        // Fail-closed: absolut http:// tak pernah diteruskan (downgrade
+        // cleartext). Pemanggil memvalidasi via bolehIkutiRedirect* dulu,
+        // tapi pemanggil langsung yang lupa validasi tetap aman: tahan di
+        // URL dasar agar loop redirect berakhir "Terlalu banyak redirect".
+        if (l.regionMatches(true, 0, "http://", 0, 7)) {
+            return dasar;
         }
         if (l.startsWith("//")) {
             // Protokol-relatif: warisi skema dasar (tetap https), ganti host.
