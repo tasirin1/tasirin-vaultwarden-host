@@ -2505,6 +2505,11 @@ public class ServerService extends Service {
     private boolean detectBinaryVersion(File binary) {
         Process p = null;
         BufferedReader r = null;
+        // Di luar try agar terlihat di catch: lokal di dalam try tak tampak
+        // di catch (gagal kompilasi cannot find symbol).
+        final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread versiWatchdog = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
@@ -2522,9 +2527,7 @@ public class ServerService extends Service {
             // AtomicBoolean (bukan boolean[]): tulis thread Start wajib terlihat
             // thread watchdog tanpa synchronized, bila tidak watchdog bisa
             // destroy proses yang sudah selesai atau melewatkan timeout.
-            final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
-                    new java.util.concurrent.atomic.AtomicBoolean(false);
-            Thread versiWatchdog = new Thread(new Runnable() {
+            versiWatchdog = new Thread(new Runnable() {
                 @Override public void run() {
                     try {
                         Thread.sleep(10000);
@@ -2591,7 +2594,9 @@ public class ServerService extends Service {
             } catch (Exception ignored) {
             }
             try {
-                versiWatchdog.interrupt();
+                if (versiWatchdog != null) {
+                    versiWatchdog.interrupt();
+                }
             } catch (Exception ignored) {
             }
             binaryVersion = "?";
