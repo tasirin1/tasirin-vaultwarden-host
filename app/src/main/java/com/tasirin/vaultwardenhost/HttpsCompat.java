@@ -186,8 +186,9 @@ public final class HttpsCompat {
                 try {
                     SSLSocket ssl = (SSLSocket) s;
                     java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
+                    // Hanya TLS modern (1.2/1.3): 1.0/1.1 usang dan GitHub wajib 1.2+.
                     for (String p : ssl.getSupportedProtocols()) {
-                        if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p) || "TLSv1.1".equals(p)) {
+                        if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p)) {
                             mau.add(p);
                         }
                     }

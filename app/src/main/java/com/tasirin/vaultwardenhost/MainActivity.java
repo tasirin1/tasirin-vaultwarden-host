@@ -932,11 +932,20 @@ public class MainActivity extends Activity {
                                 System.currentTimeMillis());
                         if (cocok && PinCrypto.perluUpgradeHash(pinHash)) {
                             // Migrasi hash lama/lemah ke PBKDF2 120k (sudah di worker).
-                            sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
+                            // Baca ulang: PIN bisa diganti activity lain saat verifikasi
+                            // jalan; jangan timpa hash baru dengan hasil PIN lama.
+                            String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                            if (pinHash.equals(kini)) {
+                                sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
+                            }
                         }
                         final boolean hasil = cocok;
                         ui.post(() -> {
                             ok.setEnabled(true);
+                            try {
+                                input.setText("");
+                            } catch (Exception ignored) {
+                            }
                             if (hasil) {
                                 catatPinDibuka();
                                 dialog.dismiss();
@@ -946,7 +955,14 @@ public class MainActivity extends Activity {
                         });
                     }, "vw-pin-check").start();
                 }));
-        dialog.setOnDismissListener(d -> pinDialogTampil = false);
+        dialog.setOnDismissListener(d -> {
+            pinDialogTampil = false;
+            // Bersihkan sisa PIN dari tampilan agar tak mengendap di hierarki view.
+            try {
+                input.setText("");
+            } catch (Exception ignored) {
+            }
+        });
         dialog.show();
     }
 

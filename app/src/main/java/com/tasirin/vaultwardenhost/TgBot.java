@@ -450,6 +450,8 @@ public final class TgBot {
             // diteruskan ke chat lain tak bisa mengeksekusi perintah dari luar.
             // (Tombol berbahaya tetap butuh PIN yang tak bisa dibawa tombol.)
             if (!Util.cocokChat(chatResmi, idRuang, namaRuang)) {
+                // Tetap jawab agar spinner tak jadi oracle resmi/tidak resmi.
+                jawabCallback(ctx, cb.optString("id", ""));
                 return;
             }
             // Tombol inline diberi umur 24 jam: tanpa batas, keyboard lama yang
