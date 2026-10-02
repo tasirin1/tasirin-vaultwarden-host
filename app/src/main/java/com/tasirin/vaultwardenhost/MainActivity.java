@@ -182,8 +182,11 @@ public class MainActivity extends Activity {
         TgBot.schedule(this);
         // Susulan backup boot yang ditolak sistem (Android 12+ batasi start background).
         if (TgBackup.amanBoolean(sp, TgBackup.KEY_BACKUP_TERTUNDA, false)) {
+            // commit() sinkron (bukan apply()): flag wajib hilang sebelum backup
+            // susulan jalan agar kill tepat sesudahnya tak memicu backup ganda
+            // di buka berikutnya, selaras AlarmReceiver/BootReceiver.
             try {
-                sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).apply();
+                sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).commit();
             } catch (Exception ignored) {
             }
             // Alarm basi: user mematikan auto-backup sebelum app dibuka -

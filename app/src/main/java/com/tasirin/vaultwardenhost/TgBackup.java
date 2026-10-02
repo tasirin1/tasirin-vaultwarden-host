@@ -2559,18 +2559,20 @@ public final class TgBackup {
         return file.length();
     }
 
-    /** Stamp "yyyyMMdd-HHmmss" untuk nama file backup/export (satu format). */
+    /** Stamp "yyyyMMdd-HHmmss-SSS" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
         return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
     }
 
-    /** Stempel nama file anti-timpa (timestamp + 4 hex acak): dua backup/export
+    /** Stempel nama file anti-timpa (timestamp + 12 hex acak): dua backup/export
      *  dalam milidetik yang sama (ketuk ganda, bot + UI) tak saling menimpa.
-     *  Dipakai semua nama file berbasis waktu kecuali jalur yang sudah punya
-     *  klaim unik sendiri (createBackupZip via createNewFile). */
+     *  Acak 16-bit lama tabrakan 1/65536 dan menimpa export/staging sejawat
+     *  (termasuk staging unik web-vault). Dipakai semua nama file berbasis
+     *  waktu kecuali jalur yang sudah punya klaim unik sendiri
+     *  (createBackupZip via createNewFile). */
     public static String stempelUnik() {
-        int acak = SECURE_RANDOM.nextInt() & 0xFFFF;
-        return backupTimestamp() + "-" + String.format(Locale.US, "%04x", acak);
+        long acak = SECURE_RANDOM.nextLong() & 0xFFFFFFFFFFFFL;
+        return backupTimestamp() + "-" + String.format(Locale.US, "%012x", acak);
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
