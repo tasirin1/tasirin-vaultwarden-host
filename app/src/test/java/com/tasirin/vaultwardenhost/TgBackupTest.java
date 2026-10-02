@@ -759,6 +759,22 @@ public class TgBackupTest {
     }
 
     @Test
+    public void normalisasiEntriZip_tolakBungkusBersarang() {
+        // Satu pembungkus tetap diterima (kompatibel zip manual).
+        assertEquals("db.sqlite3",
+                TgBackup.normalisasiEntriZip("vaultwarden/db.sqlite3"));
+        assertEquals("tls/cert.pem",
+                TgBackup.normalisasiEntriZip("vaultwarden/tls/cert.pem"));
+        // Sarang dua tingkat ditolak walau ujungnya nama sah.
+        assertEquals(null, TgBackup.normalisasiEntriZip("a/b/db.sqlite3"));
+        assertEquals(null,
+                TgBackup.normalisasiEntriZip("vaultwarden/sub/tls/cert.pem"));
+        // Awalan "./" dikupas (jinak), "../" tetap ditolak.
+        assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("./db.sqlite3"));
+        assertEquals(null, TgBackup.normalisasiEntriZip("../db.sqlite3"));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

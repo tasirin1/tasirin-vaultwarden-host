@@ -761,6 +761,41 @@ public class UpdaterTest {
     }
 
     @Test
+    public void namaAssetDariUrl_kupasVersiDanSha256() {
+        assertEquals("web-vault.zip", Updater.namaAssetDariUrl(
+                "https://github.com/x/y/releases/download/v1.2.3/web-vault.zip"));
+        assertEquals("vaultwarden-armeabi-v7a", Updater.namaAssetDariUrl(
+                "https://github.com/x/y/releases/download/v1.2.3/vaultwarden-armeabi-v7a.sha256"));
+        assertEquals("web-vault.zip", Updater.namaAssetDariUrl(
+                "https://example.com/a/web-vault.zip?foo=1#bar"));
+        assertEquals("", Updater.namaAssetDariUrl(null));
+        assertEquals("", Updater.namaAssetDariUrl(""));
+    }
+
+    @Test
+    public void pindaiHexDariBaris_utamakanNamaAsset() {
+        String hexLama = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        String hexBaru = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        java.util.List<String> baris = java.util.Arrays.asList(
+                hexLama + "  vaultwarden-armeabi-v7a", hexBaru + "  web-vault.zip");
+        assertEquals(hexBaru, Updater.pindaiHexDariBaris(baris, "web-vault.zip"));
+        assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, "vaultwarden-armeabi-v7a"));
+        // Tanpa nama: fallback hex pertama (kompatibel perilaku lama).
+        assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, null));
+        assertEquals(hexLama, Updater.pindaiHexDariBaris(baris));
+    }
+
+    @Test
+    public void bolehCobaLagiUnduh_checksumCampuranDiulangDariNol() {
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Checksum SHA-256 tidak cocok; update dibatalkan.")));
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("File parsial rusak (kurang 10 byte) - unduh ulang dari nol.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Unduhan gagal (HTTP 404).")));
+    }
+
+    @Test
     public void kuncianDuaBagianDitolak() {
         // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
         // wajib ditolak di normalisasi agar pin lama bertahan.

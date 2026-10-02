@@ -553,9 +553,15 @@ public final class Updater {
         if (rendah.contains("404") || rendah.contains("belum tersedia")) {
             return false;
         }
-        // File parsial terpotong (storage disentuh saat unduh): buang lalu
-        // unduh ulang dari nol, bukan gagal fatal.
-        if (rendah.contains("parsial") || rendah.contains("kurang")) {
+        // File parsial terpotong (storage disentuh saat unduh) atau campuran
+        // byte resume salah (Content-Range tak cocok, checksum gagal): buang
+        // lalu unduh ulang dari nol, bukan gagal fatal.
+        if (rendah.contains("parsial") || rendah.contains("kurang")
+                || rendah.contains("terpotong") || rendah.contains("truncat")
+                || rendah.contains("content-range") || rendah.contains("416")
+                || rendah.contains("checksum") || rendah.contains("tidak cocok")
+                || rendah.contains("mismatch") || rendah.contains("corrupt")
+                || rendah.contains("rusak")) {
             return true;
         }
         return rendah.contains("timed out") || rendah.contains("timeout")
@@ -672,12 +678,18 @@ public final class Updater {
         throw new IOException(gagal == null ? "koneksi gagal" : String.valueOf(gagal));
     }
 
-    /** Buang file parsial terpotong agar percobaan berikut unduh ulang dari nol
-     *  (resume dari file rusak pasti gagal lagi). */
+    /** Buang file parsial terpotong/campuran agar percobaan berikut unduh ulang
+     *  dari nol (resume dari file rusak pasti gagal lagi, termasuk campuran
+     *  byte resume salah yang baru ketahuan di checksum). */
     private static void buangParsialRusak(File tmp, IOException e) {
         try {
             String pesan = String.valueOf(e.getMessage()).toLowerCase(Locale.US);
-            if (pesan.contains("parsial")) {
+            if (pesan.contains("parsial") || pesan.contains("kurang")
+                    || pesan.contains("terpotong") || pesan.contains("truncat")
+                    || pesan.contains("content-range") || pesan.contains("416")
+                    || pesan.contains("checksum") || pesan.contains("tidak cocok")
+                    || pesan.contains("mismatch") || pesan.contains("corrupt")
+                    || pesan.contains("rusak")) {
                 tmp.delete();
             }
         } catch (Exception ignored) {
@@ -2060,9 +2072,12 @@ public final class Updater {
                 // Pindai semua token tiap baris (bukan hanya token pertama):
                 // format BSD ("SHA256 (berkas) = <hex>") menaruh hex di akhir,
                 // token pertama "SHA256" selalu gagal dan update abort permanen.
+                // Baris diutamakan yang menyebut nama asset yang diminta agar
+                // file multi-baris tak tertukar antar asset; fallback hex
+                // pertama untuk file checksum mentah satu baris.
                 // Kecocokan final tetap diverifikasi caller (mismatch = batal,
                 // fail-closed) sehingga baris asing tak bisa lolos diam-diam.
-                return pindaiHexDariBaris(baris);
+                return pindaiHexDariBaris(baris, namaAssetDariUrl(url));
             } catch (Exception e) {
                 if (coba >= 2) {
                     return null;
@@ -2086,8 +2101,26 @@ public final class Updater {
      *  Baris tanpa hex dilewati (komentar/kosong); null bila tak ada yang
      *  valid. Murni agar bisa unit test. */
     static String pindaiHexDariBaris(java.util.List<String> baris) {
+        return pindaiHexDariBaris(baris, null);
+    }
+
+    /** Varian yang mengutamakan baris berisi nama asset yang diminta.
+     *  Bila tak ada baris yang menyebut nama (checksum mentah satu baris),
+     *  jatuh ke hex valid pertama. Murni agar bisa unit test. */
+    static String pindaiHexDariBaris(java.util.List<String> baris, String namaAsset) {
         if (baris == null) {
             return null;
+        }
+        String kunci = namaAsset == null ? "" : namaAsset.trim().toLowerCase(java.util.Locale.US);
+        if (!kunci.isEmpty()) {
+            for (String b : baris) {
+                if (b != null && b.toLowerCase(java.util.Locale.US).contains(kunci)) {
+                    String dapat = pindaiHexChecksum(b);
+                    if (dapat != null) {
+                        return dapat;
+                    }
+                }
+            }
         }
         for (String b : baris) {
             String dapat = pindaiHexChecksum(b);
@@ -2096,6 +2129,33 @@ public final class Updater {
             }
         }
         return null;
+    }
+
+    /** Nama asset dari URL rilis (".../v1.2.3/web-vault.zip" -> "web-vault.zip").
+     *  Query/fragment dikupas; "" bila tak terpola. Murni agar bisa unit test. */
+    static String namaAssetDariUrl(String url) {
+        if (url == null) {
+            return "";
+        }
+        String u = url.trim();
+        int potong = u.length();
+        for (int i = 0; i < u.length(); i++) {
+            char c = u.charAt(i);
+            if (c == '?' || c == '#') {
+                potong = i;
+                break;
+            }
+        }
+        u = u.substring(0, potong);
+        while (u.endsWith("/")) {
+            u = u.substring(0, u.length() - 1);
+        }
+        int miring = u.lastIndexOf('/');
+        String nama = miring < 0 ? u : u.substring(miring + 1);
+        if (nama.endsWith(".sha256")) {
+            nama = nama.substring(0, nama.length() - ".sha256".length());
+        }
+        return nama;
     }
 
     /** Pindai satu baris checksum dan kembalikan 64-hex pertama yang

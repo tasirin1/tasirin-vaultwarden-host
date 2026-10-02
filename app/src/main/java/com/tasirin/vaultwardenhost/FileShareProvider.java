@@ -128,6 +128,11 @@ public class FileShareProvider extends ContentProvider {
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        // Samakan dengan query()/getType(): tolak otoritas asing sebelum
+        // menyentuh filesystem agar tak jadi oracle/confused-deputy.
+        if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
+            throw new FileNotFoundException("Otoritas tak dikenal: " + uri);
+        }
         if (!modeBacaSaja(mode)) {
             throw new FileNotFoundException("Mode tulis ditolak: " + mode);
         }

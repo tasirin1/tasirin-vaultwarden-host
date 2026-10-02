@@ -437,27 +437,52 @@ public final class TgBackup {
         boolean terenkripsi = passAwal != null && !passAwal.trim().isEmpty();
         // Tanpa password, backup melenggang plaintext ke cloud Telegram:
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
-        File zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi);
-        // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
-        String galat = verifikasiZip(zip);
-        if (galat != null) {
-            zip.delete();
-            throw new IOException("Backup gagal verifikasi: " + galat);
-        }
-        // Isi DB ikut di-quick_check dari hasil ekstrak (magic saja tak cukup:
-        // salinan robek saat server menulis tetap bermagic valid).
-        File tmpIsi = new File(ctx.getCacheDir(), "verifikasi-isi-db.sqlite3");
-        try {
-            String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
-            if (galatIsi != null) {
+        // Bangun + verifikasi dengan satu kali ulangan: server tetap jalan saat
+        // backup sehingga salinan bisa robek di tengah tulis; ulangan diawali
+        // checkpoint WAL segar agar percobaan kedua membaca DB yang tenang.
+        // Gagal dua kali = dilempar (bukan loop) agar storage/STB tak terkuras.
+        File zip = null;
+        for (int percobaan = 1; percobaan <= 2; percobaan++) {
+            if (zip != null) {
+                try {
+                    zip.delete();
+                } catch (Exception ignored) {
+                }
+                zip = null;
+                checkpointWal(db);
+            }
+            zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi);
+            // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
+            String galat = verifikasiZip(zip);
+            if (galat != null) {
+                if (percobaan < 2) {
+                    continue;
+                }
                 zip.delete();
-                throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+                throw new IOException("Backup gagal verifikasi: " + galat);
             }
-        } finally {
+            // Isi DB ikut di-quick_check dari hasil ekstrak (magic saja tak cukup:
+            // salinan robek saat server menulis tetap bermagic valid).
+            File tmpIsi = new File(ctx.getCacheDir(), "verifikasi-isi-db.sqlite3");
             try {
-                tmpIsi.delete();
-            } catch (Exception ignored) {
+                String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
+                if (galatIsi != null) {
+                    if (percobaan < 2) {
+                        continue;
+                    }
+                    zip.delete();
+                    throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+                }
+            } finally {
+                try {
+                    tmpIsi.delete();
+                } catch (Exception ignored) {
+                }
             }
+            break;
+        }
+        if (zip == null || !zip.exists()) {
+            throw new IOException("Backup gagal dibuat.");
         }
         File upload = zip;
         String pass = amanString(sp, KEY_TG_PASS, "");
@@ -1758,6 +1783,12 @@ public final class TgBackup {
             decryptWithKdf(in, out, pass, true);
         } catch (javax.crypto.BadPaddingException e) {
             if (baru) {
+                // Bersihkan di lapis ini juga (decryptFile menghapus di lapis
+                // luar, tapi pemanggil masa depan tak boleh mewarisi parsial).
+                try {
+                    out.delete();
+                } catch (Exception ignored) {
+                }
                 throw e;
             }
             // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
@@ -2561,11 +2592,17 @@ public final class TgBackup {
         if (diterimaEntriZip(n)) {
             return n;
         }
-        int i;
-        while ((i = n.indexOf('/')) >= 0) {
-            n = n.substring(i + 1);
-            if (diterimaEntriZip(n)) {
-                return n;
+        // Kupas maksimal satu folder pembungkus (mis. "vaultwarden/db.sqlite3"
+        // atau "vaultwarden/tls/cert.pem"): kupas berulang menerima sarang
+        // dalam "a/b/db.sqlite3" dari zip asing yang menyuntik DB. Pembungkus
+        // wajib satu segmen jinak (tak kosong, bukan "." / "..").
+        int i = n.indexOf('/');
+        if (i > 0) {
+            String bungkus = n.substring(0, i);
+            String sisa = n.substring(i + 1);
+            if (!bungkus.isEmpty() && !bungkus.equals(".") && !bungkus.equals("..")
+                    && !sisa.isEmpty() && diterimaEntriZip(sisa)) {
+                return sisa;
             }
         }
         return null;

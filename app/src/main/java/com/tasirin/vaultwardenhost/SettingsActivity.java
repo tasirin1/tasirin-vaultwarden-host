@@ -193,7 +193,9 @@ public class SettingsActivity extends Activity {
 
     /** Status buka PIN untuk MainActivity agar grace 60 detik simetris. */
     static boolean pinBaruSajaDibuka() {
-        return unlocked && SystemClock.elapsedRealtime() - unlockAt < PIN_GRACE_MS;
+        // Fail-closed: selisih negatif (jangkar basi/lintas-boot) bukan grace.
+        long delta = SystemClock.elapsedRealtime() - unlockAt;
+        return unlocked && delta >= 0 && delta < PIN_GRACE_MS;
     }
 
     /** Kapan PIN dibuka (untuk salin grace antar activity tanpa perpanjangan). */
@@ -2112,7 +2114,8 @@ public class SettingsActivity extends Activity {
             unlockAt = MainActivity.kapanDibuka();
             return;
         }
-        if (unlocked && SystemClock.elapsedRealtime() - unlockAt < PIN_GRACE_MS) {
+        long deltaGrace = SystemClock.elapsedRealtime() - unlockAt;
+        if (unlocked && deltaGrace >= 0 && deltaGrace < PIN_GRACE_MS) {
             return;
         }
         unlocked = false;

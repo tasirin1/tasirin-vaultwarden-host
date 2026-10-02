@@ -246,10 +246,15 @@ public class ServerService extends Service {
     /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
      *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta. */
     private volatile boolean autoRestart = false;
-    /** Hitungan restart beruntun: AtomicInteger karena scheduleRestart
-     *  dipanggil dari thread watch proses dan thread health/main bersamaan. */
-    private final java.util.concurrent.atomic.AtomicInteger restartAttempt =
+    /** Hitungan restart beruntun: statis agar tetap berlaku bila sistem membuat
+     *  ulang instance service (batas 5x tak bisa di-reset oleh recreate).
+     *  AtomicInteger karena scheduleRestart dipanggil dari thread watch proses
+     *  dan thread health/main bersamaan. */
+    private static final java.util.concurrent.atomic.AtomicInteger restartAttempt =
             new java.util.concurrent.atomic.AtomicInteger(0);
+    /** Kunci statis pendamping restartAttempt (sinkron instance tak
+     *  melindungi antar instance hasil recreate). */
+    private static final Object KUNCI_RESTART = new Object();
     private static volatile long lastStartTime = 0;
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
@@ -1474,7 +1479,13 @@ public class ServerService extends Service {
         }
     };
 
-    private synchronized void scheduleRestart() {
+    private void scheduleRestart() {
+        synchronized (KUNCI_RESTART) {
+            scheduleRestartTerkunci();
+        }
+    }
+
+    private void scheduleRestartTerkunci() {
         long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
             restartAttempt.set(0);
