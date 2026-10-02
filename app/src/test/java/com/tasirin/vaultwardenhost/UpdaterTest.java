@@ -363,6 +363,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void assetUrl_awalanVTakGanda() {
+        String bin = Updater.binaryAssetUrl("v1.37.3", "armeabi-v7a");
+        assertTrue(bin.endsWith("/v1.37.3/vaultwarden-armeabi-v7a"));
+        assertTrue(!bin.contains("vv"));
+        String shim = Updater.shimAssetUrl("V1.37.3");
+        assertTrue(!shim.contains("vv") && !shim.contains("vV"));
+    }
+
+    @Test
     public void assetUrl_tanpaVersiPakaiLatestDownload() {
         assertTrue(Updater.binaryAssetUrl(null, "armeabi-v7a").contains("/latest/download/"));
         assertTrue(Updater.shimAssetUrl("").contains("/latest/download/"));

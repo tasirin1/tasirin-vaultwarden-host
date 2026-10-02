@@ -170,7 +170,7 @@ public final class HttpsCompat {
         return cached;
     }
 
-    /** Pembungkus factory yang menyalakan TLSv1.2 (+1.1) di tiap soket.
+    /** Pembungkus factory yang menyalakan TLSv1.2+ di tiap soket.
      *  API 21/22 mendukung TLSv1.2 tapi tak mengaktifkannya by default;
      *  tanpa ini handshake ke GitHub (wajib >=1.2) gagal di Android 5.0/5.1.
      *  Murni delegasi + setEnabledProtocols (API 1, aman untuk minSdk 21). */
@@ -187,7 +187,7 @@ public final class HttpsCompat {
                     SSLSocket ssl = (SSLSocket) s;
                     java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
                     for (String p : ssl.getSupportedProtocols()) {
-                        if ("TLSv1.2".equals(p) || "TLSv1.1".equals(p)) {
+                        if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p) || "TLSv1.1".equals(p)) {
                             mau.add(p);
                         }
                     }
