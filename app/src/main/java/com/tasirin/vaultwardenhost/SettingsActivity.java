@@ -1923,6 +1923,15 @@ public class SettingsActivity extends Activity {
                     })
                     .create();
             dialog.setCanceledOnTouchOutside(false);
+            // Back menutup dialog tanpa lewat tombol Batal: sapu tmp terenkripsi
+            // juga di sini agar vwcfg-import-*.bin tak mengendap di cache.
+            // Aman: jalur sukses/Batal sudah menghapusnya duluan (no-op ganda).
+            dialog.setOnDismissListener(d -> {
+                try {
+                    tmpEnkrip.delete();
+                } catch (Exception ignored) {
+                }
+            });
             dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
                         String coba = input.getText().toString();
