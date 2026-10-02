@@ -50,8 +50,6 @@ public class ServerServiceTest {
 
     @Test
     public void migrasiPort_hanyaSekaliUntuk8080() {
-    @Test
-    public void migrasiPort_hanyaSekaliUntuk8080() {
         assertTrue(ServerService.perluMigrasiPort("8080", false));
         assertFalse(ServerService.perluMigrasiPort("8080", true));
         assertFalse(ServerService.perluMigrasiPort("8088", false));

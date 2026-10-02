@@ -180,8 +180,6 @@ public class TgBotTest {
 
     @Test
     public void pisahkanPinKataBiasaTakDimakan() {
-    @Test
-    public void pisahkanPinKataBiasaTakDimakan() {
         assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
         assertArrayEquals(new String[]{"foo", ""}, TgBot.pisahkanPin("foo"));
         assertArrayEquals(new String[]{"YA", ""}, TgBot.pisahkanPin("YA"));

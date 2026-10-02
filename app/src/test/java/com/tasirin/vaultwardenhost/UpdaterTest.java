@@ -38,8 +38,6 @@ public class UpdaterTest {
 
     @Test
     public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
-    @Test
-    public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),
                 "vw-link-" + System.nanoTime());
