@@ -146,7 +146,10 @@ public class ServerService extends Service {
     /** Potong pesan galat di batas code-point (murni). Belah pasangan surrogate
      *  menghasilkan lone surrogate (tofu di layar / 400 Telegram). */
     static String potongPesanGalat(String msg, int maks) {
-        if (msg == null || msg.length() <= maks || maks <= 0) {
+        if (maks <= 0) {
+            return "";
+        }
+        if (msg == null || msg.length() <= maks) {
             return msg == null ? "" : msg;
         }
         String potong = msg.substring(0, maks);
@@ -394,6 +397,21 @@ public class ServerService extends Service {
         }
         boolean ok = false;
         try {
+            // fsync isi file dulu (best-effort): rename hanya mengawetkan nama
+            // di direktori; tanpa ini isi binary bisa nol/terpotong bila STB
+            // mati tepat sesudah pasang (FAT). getFD().sync() ada sejak API 1.
+            try {
+                java.io.FileInputStream fis = new java.io.FileInputStream(tmp);
+                try {
+                    fis.getFD().sync();
+                } finally {
+                    try {
+                        fis.close();
+                    } catch (Exception ignored2) {
+                    }
+                }
+            } catch (Exception ignored) {
+            }
             if (!tmp.renameTo(out)) {
                 throw new java.io.IOException("Gagal memasang binary.");
             }

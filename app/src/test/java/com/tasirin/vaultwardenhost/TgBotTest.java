@@ -179,6 +179,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void pisahkanPinTelanjangBukanPin() {
+        // Token "PIN:" tanpa isi bukan PIN: salah ketik tak boleh dimakan
+        // agar tak menambah hitungan lockout sia-sia.
+        assertArrayEquals(new String[]{"foo PIN:", ""}, TgBot.pisahkanPin("foo PIN:"));
+        assertArrayEquals(new String[]{"PIN:", ""}, TgBot.pisahkanPin("PIN:"));
+    }
+
+    @Test
+    public void pisahkanPinKataBiasaTakDimakan() {
+    @Test
     public void pisahkanPinKataBiasaTakDimakan() {
         assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
         assertArrayEquals(new String[]{"foo", ""}, TgBot.pisahkanPin("foo"));

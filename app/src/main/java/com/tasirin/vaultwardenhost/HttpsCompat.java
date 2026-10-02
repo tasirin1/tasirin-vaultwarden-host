@@ -58,32 +58,36 @@ public final class HttpsCompat {
      *  Memakai mtime+ukuran+hash isi seperti ServerService.capCaAktif agar
      *  refresh se-detik berukuran sama tak memakai factory basi. */
     static long capOverride(Context ctx) {
-        try {
-            File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
-            if (ov.isFile()) {
-                long stat = ov.lastModified() * 31 + ov.length();
-                if (stat == capStat) {
-                    return capNilai;
-                }
-                // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
-                // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos.
-                long cap = stat;
-                try (InputStream in = new java.io.FileInputStream(ov)) {
-                    byte[] buf = new byte[8192];
-                    int n;
-                    while ((n = in.read(buf)) != -1) {
-                        cap = cap * 31 + (java.util.Arrays.hashCode(
-                                java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+        // Sinkron agar dua thread polling tak berlomba baca-tulis capStat/capNilai
+        // (satu bisa menimpa hasil segar dengan nilai basi). I/O kecil (chain KB).
+        synchronized (HttpsCompat.class) {
+            try {
+                File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
+                if (ov.isFile()) {
+                    long stat = ov.lastModified() * 31 + ov.length();
+                    if (stat == capStat) {
+                        return capNilai;
                     }
-                } catch (Exception ignored) {
+                    // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
+                    // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos.
+                    long cap = stat;
+                    try (InputStream in = new java.io.FileInputStream(ov)) {
+                        byte[] buf = new byte[8192];
+                        int n;
+                        while ((n = in.read(buf)) != -1) {
+                            cap = cap * 31 + (java.util.Arrays.hashCode(
+                                    java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    capStat = stat;
+                    capNilai = cap;
+                    return cap;
                 }
-                capStat = stat;
-                capNilai = cap;
-                return cap;
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
+            return 0L;
         }
-        return 0L;
     }
 
     private static SSLSocketFactory socketFactory(Context ctx) throws Exception {
@@ -93,6 +97,10 @@ public final class HttpsCompat {
             return f;
         }
         synchronized (HttpsCompat.class) {
+            // Hitung ulang di dalam kunci (reentrant): cap di luar bisa basi bila
+            // berkas disegarkan antar baca-cap dan masuk-kunci, lalu factory basi
+            // menimpa factory segar milik thread lain.
+            cap = capOverride(ctx);
             if (cached != null && cap == cachedCap) {
                 return cached;
             }

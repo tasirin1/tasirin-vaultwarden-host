@@ -1146,6 +1146,11 @@ public final class TgBot {
         if (kandidat.equalsIgnoreCase("terbaru") || kandidat.equalsIgnoreCase("latest")) {
             return new String[]{t, ""};
         }
+        // Token "PIN:" telanjang (tanpa isi) bukan PIN: jangan dimakan agar
+        // salah ketik "/stop PIN:" tak menambah hitungan lockout sia-sia.
+        if (kandidat.equalsIgnoreCase("PIN:")) {
+            return new String[]{t, ""};
+        }
         if (kandidat.matches("\\S{4,}")
                 && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
             return new String[]{t.substring(0, i).trim(), kandidat};

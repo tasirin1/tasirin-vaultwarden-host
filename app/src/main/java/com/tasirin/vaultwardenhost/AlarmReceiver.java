@@ -37,9 +37,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (!terkirim) {
             // Android 12+ menolak start dari background: tandai agar
             // MainActivity menjalankan susulan saat dibuka berikutnya.
+            // commit() sinkron (bukan apply()): flag daya-tahan wajib awet di
+            // disk sebelum reboot/kill, selaras BootReceiver/offset bot.
             try {
                 context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                        .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).apply();
+                        .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
             } catch (Exception ignored2) {
             }
         }

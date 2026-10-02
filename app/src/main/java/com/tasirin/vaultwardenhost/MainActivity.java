@@ -837,6 +837,10 @@ public class MainActivity extends Activity {
     private void maybeShowPinLock() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)) {
+            // PIN mati: buang status buka basi agar PIN yang diaktifkan lagi
+            // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
+            unlocked = false;
+            unlockAt = 0;
             return;
         }
         // Sudah dibuka di Settings dalam 60 detik: jangan minta lagi (salin jangkar, tanpa perpanjangan).

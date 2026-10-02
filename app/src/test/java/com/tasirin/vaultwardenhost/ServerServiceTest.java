@@ -42,6 +42,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void potongPesanGalat_batasNolKosong() {
+        assertEquals("", ServerService.potongPesanGalat("abcdef", 0));
+        assertEquals("", ServerService.potongPesanGalat("abcdef", -5));
+        assertEquals("", ServerService.potongPesanGalat(null, 0));
+    }
+
+    @Test
+    public void migrasiPort_hanyaSekaliUntuk8080() {
+    @Test
     public void migrasiPort_hanyaSekaliUntuk8080() {
         assertTrue(ServerService.perluMigrasiPort("8080", false));
         assertFalse(ServerService.perluMigrasiPort("8080", true));

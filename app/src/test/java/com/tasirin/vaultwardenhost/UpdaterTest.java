@@ -28,6 +28,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void hostBerubah_deteksiLintasHost() {
+        assertFalse(Updater.hostBerubah("https://github.com/a/b", "https://github.com/c/d"));
+        assertFalse(Updater.hostBerubah("https://github.com:443/a", "https://github.com/b"));
+        assertTrue(Updater.hostBerubah("https://github.com/a", "https://objects.githubusercontent.com/b"));
+        assertTrue(Updater.hostBerubah("https://github.com/a", "http://github.com/a"));
+        assertTrue(Updater.hostBerubah("https://github.com/a", "bukan-url"));
+    }
+
+    @Test
+    public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
+    @Test
     public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),

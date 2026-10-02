@@ -47,12 +47,12 @@ public final class LogExport {
         header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
         header.append('\n');
 
-        // Milidetik + akhiran acak: dua export dalam ms yang sama (ketuk
-        // ganda) tak saling timpa/hapus di jalur legacy yang menimpa file.
+        // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama
+        // (ketuk ganda) tak saling timpa; acak 16-bit lama tabrakan 1/65536
+        // dan jalur legacy menimpa file yang sudah ada.
         String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
-        int acak = (new java.security.SecureRandom().nextInt() & 0xFFFF);
-        String name = "tasirin-vaultwarden-host-log-" + stamp + "-"
-                + String.format(Locale.US, "%04x", acak) + ".txt";
+        java.security.SecureRandom rnd = new java.security.SecureRandom();
+        String name = namaLog(stamp, rnd);
         boolean ok = false;
         if (Build.VERSION.SDK_INT >= 29) {
             try {
@@ -105,7 +105,24 @@ public final class LogExport {
                 File dir = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    tujuan = new File(dir, name);
+                    // createNewFile atomik (bukan timpa): nama yang sudah ada
+                    // (tabrakan acak / file lama) tak akan ditimpa atau dihapus.
+                    for (int coba = 0; coba < 5 && tujuan == null; coba++) {
+                        if (coba > 0) {
+                            name = namaLog(stamp, rnd);
+                        }
+                        try {
+                            File cand = new File(dir, name);
+                            if (cand.createNewFile()) {
+                                tujuan = cand;
+                            }
+                        } catch (Exception ignored) {
+                            break; // I/O gagal (penuh/ditolak): jangan putar sia-sia.
+                        }
+                    }
+                    if (tujuan == null) {
+                        return null;
+                    }
                     try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                             new FileOutputStream(tujuan, false),
                             StandardCharsets.UTF_8)) {
@@ -120,5 +137,12 @@ public final class LogExport {
             }
         }
         return ok ? name : null;
+    }
+
+    /** Nama file log unik (acak 48-bit agar ketuk ganda dalam ms sama tak tabrakan). */
+    private static String namaLog(String stamp, java.security.SecureRandom rnd) {
+        long acak = rnd.nextLong() & 0xFFFFFFFFFFFFL;
+        return "tasirin-vaultwarden-host-log-" + stamp + "-"
+                + String.format(Locale.US, "%012x", acak) + ".txt";
     }
 }
