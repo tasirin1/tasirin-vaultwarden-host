@@ -1,0 +1,419 @@
+name: Build Binary & Web-Vault
+
+on:
+  push:
+    branches: [ main ]
+    # Hanya jalur berat yang memicu workflow ini (patch workflow/shim).
+    # Perbaikan aplikasi (app/**) TIDAK ikut membangun ulang binary (~15 mnt).
+    paths:
+      - '.github/workflows/build-binary.yml'
+      - 'shim/**'
+  workflow_dispatch:
+  # Auto-rebuild beberapa jam setelah Vaultwarden rilis versi baru
+  schedule:
+    - cron: '0 */6 * * *'
+
+permissions:
+  contents: write
+
+# Grup sendiri agar bisa jalan paralel dengan workflow APK (unggahan asset
+# ke rilis yang sama sudah idempoten: hapus duplikat per ID + coba ulang).
+concurrency:
+  group: vw-binary
+  cancel-in-progress: false
+
+env:
+  NDK_VERSION: 25.2.9519653
+
+jobs:
+  resolve:
+    name: Resolve latest Vaultwarden
+    runs-on: ubuntu-24.04
+    outputs:
+      vw: ${{ steps.vw.outputs.tag }}
+      skip: ${{ steps.vw.outputs.skip }}
+      ada: ${{ steps.vw.outputs.ada }}
+    steps:
+      - id: vw
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fallback curl membawa token (limit 5000/jam, bukan 60/jam anonim)
+          # agar resolve tak gagal spurios saat cron + push berdekatan.
+          HDR=()
+          if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
+          TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
+            || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
+          case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
+          echo "Latest Vaultwarden: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          EXISTING=$(gh api "repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
+          if [ "$EXISTING" = "v$TAG" ]; then
+            echo "ada=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "ada=no" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$EXISTING" = "v$TAG" ]; then
+            echo "skip=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+  deteksi:
+    name: Deteksi perlu binary
+    runs-on: ubuntu-24.04
+    outputs:
+      bin: ${{ steps.c.outputs.bin }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - id: c
+        run: |
+          # Push ke workflow ini sudah difilter paths (workflow/shim saja).
+          # Binary (~15 mnt) hanya dibangun ulang bila workflow-nya berubah;
+          # bila cuma shim/** yang berubah, binary lama dipakai ulang dari rilis.
+          BIN=true
+          if [ "${{ github.event_name }}" = "push" ]; then
+            if git diff --name-only HEAD~1 HEAD > /tmp/ubah.txt 2>/dev/null; then
+              if grep -qx '.github/workflows/build-binary.yml' /tmp/ubah.txt; then
+                BIN=true
+              else
+                BIN=false
+              fi
+            fi
+          fi
+          echo "bin=$BIN"
+          echo "bin=$BIN" >> "$GITHUB_OUTPUT"
+
+  build-binary:
+    name: Build vaultwarden (armeabi-v7a)
+    needs: [resolve, deteksi]
+    # Binary hanya tergantung versi upstream + patch workflow: lewati bila
+    # rilis tag ini sudah ada dan push tak menyentuh workflow-binary.
+    if: needs.resolve.outputs.skip != 'yes' && (needs.resolve.outputs.ada != 'yes' || github.event_name != 'push' || needs.deteksi.outputs.bin == 'true')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Android NDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
+
+      - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw }})
+        run: |
+          git clone --depth 1 --branch ${{ needs.resolve.outputs.vw }} \
+            https://github.com/dani-garcia/vaultwarden.git
+
+      - name: Unduh bundel CA Mozilla (verifier TLS Android)
+        run: |
+          curl -fsSL --retry 3 https://curl.se/ca/cacert.pem \
+            -o vaultwarden/mozilla-cacert.pem
+          grep -q "BEGIN CERTIFICATE" vaultwarden/mozilla-cacert.pem
+
+      - name: Patch DNS resolver untuk Android (tanpa ndk-context)
+        run: |
+          python3 - <<'PYEOF'
+          import re
+          p = 'vaultwarden/src/http_client.rs'
+          src = open(p).read()
+          m = re.search(
+              r'(impl CustomDnsResolver \{\n\s*fn new\(\) -> Arc<Self> \{\n)(\s*)', src)
+          if m:
+              indent = m.group(2)
+              guard = (indent +
+                  '// Hickory butuh konteks JNI Android (ndk-context) untuk baca DNS\n' +
+                  indent + '// sistem; proses standalone tidak punya JavaVM -> panic saat\n' +
+                  indent + '// request keluar (mis. ikon vault). Pakai DNS sistem default.\n' +
+                  indent + 'if cfg!(target_os = "android") {\n' +
+                  indent + '    return Arc::new(Self::Default());\n' +
+                  indent + '}\n')
+              # Jangan tulis dulu: patch TLS di bawah memakai variabel src yang sama.
+              # Tulis sekali di akhir agar patch tidak saling menimpa.
+              src = src[:m.end(1)] + guard + src[m.end(1):]
+              print('Patch DNS Android diterapkan.')
+          elif 'ndk-context' not in open('vaultwarden/Cargo.lock').read():
+              print('ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
+          else:
+              raise SystemExit('Anchor patch tidak ditemukan tapi ndk-context masih dipakai!')
+
+          # Patch TLS verifier Android: rustls-platform-verifier (bawaan reqwest)
+          # wajib di-init dari JavaVM; proses standalone tak punya JVM sehingga
+          # tiap HTTPS keluar (ikon vault) panic 'to be initialized' -> 500.
+          # Di Android pakai bundel root Mozilla + verifier webpki murni.
+          old_builder = ('    Client::builder()\n'
+              '        .default_headers(headers)\n'
+              '        .redirect(redirect_policy)\n'
+              '        .dns_resolver(CustomDns::instance(enforce_block))\n'
+              '        .timeout(Duration::from_secs(10))\n'
+              '}')
+          new_builder = ('    let mut builder = Client::builder()\n'
+              '        .default_headers(headers)\n'
+              '        .redirect(redirect_policy)\n'
+              '        .dns_resolver(CustomDns::instance(enforce_block))\n'
+              '        .timeout(Duration::from_secs(10));\n'
+              '    // rustls-platform-verifier (bawaan reqwest) wajib di-init dari JavaVM\n'
+              '    // Android; proses standalone tak punya JVM sehingga tiap HTTPS keluar\n'
+              '    // (mis. ikon vault) panic. Di Android pakai bundel root Mozilla + verifier\n'
+              '    // webpki murni.\n'
+              '    if cfg!(target_os = "android") {\n'
+              '        builder = builder.tls_certs_only(mozilla_roots());\n'
+              '    }\n'
+              '    builder\n'
+              '}\n'
+              '\n'
+              '/// Akar CA Mozilla (dibundel saat build CI) untuk verifier webpki di Android.\n'
+              'fn mozilla_roots() -> Vec<reqwest::Certificate> {\n'
+              '    const BUNDLE: &str = include_str!("../mozilla-cacert.pem");\n'
+              '    match reqwest::Certificate::from_pem_bundle(BUNDLE.as_bytes()) {\n'
+              '        Ok(certs) => certs,\n'
+              '        Err(e) => {\n'
+              '            warn!("Bundel CA Mozilla rusak, TLS keluar akan gagal: {e:?}");\n'
+              '            Vec::new()\n'
+              '        }\n'
+              '    }\n'
+              '}')
+          if old_builder not in src:
+              raise SystemExit('Anchor patch TLS tidak ditemukan, periksa http_client.rs upstream!')
+          src = src.replace(old_builder, new_builder, 1)
+          open(p, 'w').write(src)
+          # Verifikasi kedua patch benar-benar ada di file hasil (anti saling menimpa).
+          hasil = open(p).read()
+          if 'ndk-context' in open('vaultwarden/Cargo.lock').read():
+              assert 'return Arc::new(Self::Default());' in hasil, \
+                  'Patch DNS hilang setelah patch TLS!'
+          assert 'tls_certs_only(mozilla_roots())' in hasil, 'Patch TLS hilang!'
+          print('Patch TLS Android diterapkan + verifikasi DNS/TLS OK.')
+          PYEOF
+
+
+
+      - name: Install pinned Vaultwarden toolchain with Android target
+        run: |
+          RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' vaultwarden/rust-toolchain.toml)
+          echo "Toolchain: $RUST_VERSION"
+          rustup toolchain install "$RUST_VERSION" --profile minimal \
+            --target armv7-linux-androideabi
+
+      - name: Cache cargo build
+        uses: actions/cache@v6
+        with:
+          path: |
+            vaultwarden/target
+            ~/.cargo/registry
+          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}
+          restore-keys: |
+            vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-
+
+      - name: Cross-compile vaultwarden for Android (armv7)
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          NDK="$SDK/ndk/${{ env.NDK_VERSION }}"
+          test -d "$NDK" || { echo "NDK not found at $NDK"; exit 1; }
+          TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          export CC_armv7_linux_androideabi="$TOOLCHAIN/armv7a-linux-androideabi21-clang"
+          export AR_armv7_linux_androideabi="$TOOLCHAIN/llvm-ar"
+          export AR="$TOOLCHAIN/llvm-ar"
+          export RANLIB="$TOOLCHAIN/llvm-ranlib"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$TOOLCHAIN/armv7a-linux-androideabi21-clang"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_AR="$TOOLCHAIN/llvm-ar"
+          TOOLCHAIN_BIN="$RUNNER_TEMP/toolchain-bin"
+          mkdir -p "$TOOLCHAIN_BIN"
+          for prefix in armv7-linux-androideabi armv7a-linux-androideabi; do
+            ln -sf "$TOOLCHAIN/llvm-ar"      "$TOOLCHAIN_BIN/${prefix}-ar"
+            ln -sf "$TOOLCHAIN/llvm-ranlib"  "$TOOLCHAIN_BIN/${prefix}-ranlib"
+            ln -sf "$TOOLCHAIN/llvm-nm"      "$TOOLCHAIN_BIN/${prefix}-nm"
+            ln -sf "$TOOLCHAIN/llvm-strip"   "$TOOLCHAIN_BIN/${prefix}-strip"
+            ln -sf "$TOOLCHAIN/llvm-objcopy" "$TOOLCHAIN_BIN/${prefix}-objcopy"
+          done
+          export PATH="$TOOLCHAIN_BIN:$PATH"
+          cd vaultwarden
+          RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' rust-toolchain.toml)
+          export RUSTUP_TOOLCHAIN="$RUST_VERSION"
+          # Profil ukuran: strip simbol + LTO + 1 codegen unit + optimasi ukuran.
+          export CARGO_PROFILE_RELEASE_STRIP=true
+          export CARGO_PROFILE_RELEASE_LTO=thin
+          export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+          export CARGO_PROFILE_RELEASE_OPT_LEVEL=s
+          cargo build --release --target armv7-linux-androideabi \
+            --features sqlite,vendored_openssl
+          BIN=target/armv7-linux-androideabi/release/vaultwarden
+          ls -lh "$BIN"
+          # Strip ganda demi keamanan (llvm-strip dari NDK).
+          "$TOOLCHAIN/llvm-strip" -s "$BIN" || true
+          mkdir -p ../app/src/main/assets/bin/armeabi-v7a
+          cp "$BIN" ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
+
+      - name: Inspect binary
+        run: |
+          file app/src/main/assets/bin/armeabi-v7a/vaultwarden
+          ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: vw-binary-armeabi-v7a
+          path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
+          if-no-files-found: error
+
+  build-shim:
+    name: Build shim getrandom (armeabi-v7a)
+    needs: resolve
+    if: needs.resolve.outputs.skip != 'yes'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Android NDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
+
+      - name: Compile shim getrandom (API 21, armv7)
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          TOOLCHAIN="$SDK/ndk/${{ env.NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          "$TOOLCHAIN/armv7a-linux-androideabi21-clang" -shared -fPIC -Os \
+            -o libgetrandom-shim-armeabi-v7a.so shim/getrandom_shim.c
+          "$TOOLCHAIN/llvm-strip" -s libgetrandom-shim-armeabi-v7a.so || true
+          file libgetrandom-shim-armeabi-v7a.so
+          ls -lh libgetrandom-shim-armeabi-v7a.so
+
+      - name: Uji interposisi shim (host)
+        run: |
+          gcc -shared -fPIC -Os -o /tmp/libshim-host.so shim/getrandom_shim.c
+          gcc -Os -o /tmp/test_interpose shim/test_interpose.c
+          echo "--- tanpa shim (wajar gagal/EINVAL) ---"
+          /tmp/test_interpose || true
+          echo "--- dengan LD_PRELOAD shim (wajib OK) ---"
+          LD_PRELOAD=/tmp/libshim-host.so /tmp/test_interpose
+
+      - name: Upload shim artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: vw-shim
+          path: libgetrandom-shim-armeabi-v7a.so
+          if-no-files-found: error
+
+  publish-binary:
+    name: Publish binary & web-vault
+    needs: [resolve, build-binary, build-shim]
+    # build-binary bisa dilewati (push shim-only): tetap publish bila
+    # minimal satu dari binary/shim sukses dibangun.
+    if: ${{ always() && !cancelled() && !failure() && needs.resolve.outputs.skip != 'yes' && (needs.build-binary.result == 'success' || needs.build-shim.result == 'success') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download binary hasil build
+        if: needs.build-binary.result == 'success'
+        uses: actions/download-artifact@v7
+        with:
+          name: vw-binary-armeabi-v7a
+          path: /tmp/baru-bin
+
+      - name: Download shim hasil build
+        if: needs.build-shim.result == 'success'
+        uses: actions/download-artifact@v7
+        with:
+          name: vw-shim
+          path: /tmp/baru-shim
+
+      - name: Siapkan & publish 6 asset non-APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          TAG="v${{ needs.resolve.outputs.vw }}"
+          mkdir -p /tmp/pub
+          cd /tmp/pub
+          # Binary: hasil build baru bila ada, else pakai ulang dari rilis (push shim-only).
+          if [ -f /tmp/baru-bin/vaultwarden ]; then
+            cp /tmp/baru-bin/vaultwarden vaultwarden-armeabi-v7a
+          else
+            gh release download "$TAG" -p "vaultwarden-armeabi-v7a" -O vaultwarden-armeabi-v7a
+          fi
+          if [ -f /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so ]; then
+            cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
+          else
+            gh release download "$TAG" -p "libgetrandom-shim-armeabi-v7a.so" -O libgetrandom-shim-armeabi-v7a.so
+          fi
+          # Web-vault hanya tergantung versi upstream: pakai ulang dari rilis
+          # bila sudah ada (hemat Docker + kuota pada push shim-only).
+          if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "web-vault.zip"; then
+            echo "web-vault.zip sudah ada di $TAG — pakai ulang dari rilis."
+            gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip
+          else
+            DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
+              | grep 'vault_image_digest' | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
+            test -n "$DIGEST" || { echo "Digest web-vault tidak ditemukan"; exit 1; }
+            echo "Web-vault digest: $DIGEST"
+            docker create --name vwweb "vaultwarden/web-vault@$DIGEST"
+            docker cp vwweb:/web-vault /tmp/web-vault
+            docker rm vwweb
+            (cd /tmp/web-vault && zip -qr /tmp/pub/web-vault.zip .)
+            ls -lh /tmp/pub/web-vault.zip
+          fi
+          sha256sum vaultwarden-armeabi-v7a > vaultwarden-armeabi-v7a.sha256
+          sha256sum libgetrandom-shim-armeabi-v7a.so > libgetrandom-shim-armeabi-v7a.so.sha256
+          sha256sum web-vault.zip > web-vault.zip.sha256
+          ls -lh vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip
+          # Buat rilis bila belum ada (upload APK menyusul via workflow APK;
+          # '|| true' agar tak gagal bila workflow APK membuatnya bersamaan).
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" \
+              --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
+              --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
+          gh release view "$TAG" >/dev/null 2>&1
+          unggah_asset() {
+            berkas="$1"
+            percobaan=1
+            while [ "$percobaan" -le 6 ]; do
+              for id in $(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
+                  --jq '.assets[] | select(.name=="'"$berkas"'") | .id' 2>/dev/null); do
+                gh api -X DELETE \
+                  "repos/$GITHUB_REPOSITORY/releases/assets/$id" >/dev/null 2>&1 || true
+              done
+              sleep 5
+              if gh release upload "$TAG" "$berkas" 2>"$berkas.gagal.log"; then
+                rm -f "$berkas.gagal.log"
+                return 0
+              fi
+              if ! grep -q "already exists" "$berkas.gagal.log"; then
+                cat "$berkas.gagal.log"
+                return 1
+              fi
+              echo "percobaan $percobaan: $berkas masih 'already exists', tunggu 15 dtk..."
+              sleep 15
+              percobaan=$((percobaan + 1))
+            done
+            cat "$berkas.gagal.log"
+            return 1
+          }
+          for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
+              libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
+              web-vault.zip web-vault.zip.sha256; do
+            unggah_asset "$a"
+          done
+          # Verifikasi: 6 asset non-APK wajib ada (APK diterbitkan workflow APK).
+          # Daftar asset API kadang basi sesaat setelah unggah, jadi coba ulang.
+          OK=false
+          for t in 1 2 3; do
+            OK=true
+            DAFTAR=$(gh release view "$TAG" --json assets -q '.assets[].name')
+            for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
+                libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
+                web-vault.zip web-vault.zip.sha256; do
+              echo "$DAFTAR" | grep -qx "$a" || OK=false
+            done
+            echo "Cek 6 asset non-APK di $TAG: $OK (cek $t/3)"
+            [ "$OK" = true ] && break
+            sleep 10
+          done
+          [ "$OK" = true ]

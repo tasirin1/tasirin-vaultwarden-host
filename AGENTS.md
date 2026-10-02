@@ -21,7 +21,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ```
 .
-├── .github/workflows/build-apk.yml  # CI: resolve versi → build binary → build APK → release
+├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): resolve versi → build APK → upload APK
+├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): resolve versi → build binary+shim+web-vault → rilis
 ├── AGENTS.md                         # Panduan pengelolaan ini
 ├── CHANGELOG.md                      # Riwayat perubahan per rilis (update manual)
 ├── shim/getrandom_shim.c             # shim getrandom LD_PRELOAD untuk STB kernel lama
@@ -102,9 +103,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    Tidak ada pengecualian.
 2. **Bahasa**: kode, komentar, pesan UI, dan commit memakai **Bahasa Indonesia**.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
-   singkat (contoh di `git log`). Satu commit satu tujuan logis. Setiap push
-   ke `main` yang menyentuh kode memicu full rebuild (~15 menit), jadi gabungkan
-   perubahan kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).
+   singkat (contoh di `git log`). Satu commit satu tujuan logis. Push kode aplikasi
+   hanya memicu build APK ringan (~4 menit); build binary berat (~15 menit) hanya
+   jalan bila `shim/`/`build-binary.yml` berubah atau ada versi upstream baru — jadi
+   gabungkan perubahan kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).
 4. **Jangan menaikkan `targetSdk` ≥ 29** tanpa solusi eksekusi binary:
    Android 10+ memblokir `execve` dari app home untuk targetSdk ≥ 29 (W^X).
 5. **Jangan menambah ABI lain** — repo ini sengaja `armeabi-v7a` saja
@@ -142,35 +144,49 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
     dan token. Pantau hanya bila kalimat pengguna memuat kata pantau/
     monitor/cek build/tunggu/verifikasi rilis.
 
-## Alur build & rilis (CI, build-apk.yml)
+## Alur build & rilis (CI terpisah: binary vs APK)
 
-Pipeline 4 job. Pemicu: `push` ke `main` (build + terbitkan ulang rilis;
-commit dokumen `*.md`/`.gitignore` saja dilewati via `paths-ignore`),
-`schedule` tiap 6 jam (cek versi upstream; skip bila rilis untuk tag
-tersebut sudah ada), dan `workflow_dispatch` (manual). `concurrency:
-vw-release` mencegah dua run berebut rilis yang sama; cache cargo dipakai
-ulang antar run:
+Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
+(~15 menit) dan sebaliknya. Keduanya boleh jalan paralel (`vw-binary` vs
+`vw-apk`); unggahan ke rilis yang sama idempoten (hapus duplikat per ID +
+coba ulang). Cache cargo dipakai ulang antar run binary.
+
+**A. `build-binary.yml` (berat, ~15 mnt)** — `push` yang menyentuh
+`build-binary.yml`/`shim/**` saja, `schedule` tiap 6 jam (cek versi upstream;
+skip bila rilis untuk tag tersebut sudah ada), dan `workflow_dispatch`:
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
-2. **build-binary** — clone source Vaultwarden, terapkan **patch DNS Android**
+2. **deteksi** — binary dibangun ulang hanya bila workflow-nya berubah;
+   push shim-only memakai ulang binary dari rilis.
+3. **build-binary** — clone source Vaultwarden, terapkan **patch DNS Android**
    (nonaktifkan `hickory`/`ndk-context` di `vaultwarden/src/http_client.rs` —
    anchor `impl CustomDnsResolver { fn new()`), cross-compile `armeabi-v7a`
    (NDK 25, target `armv7-linux-androideabi`), strip, upload artifact.
-3. **build-shim** — kompilasi `shim/getrandom_shim.c` (NDK, API 21, armv7,
-   detik) + uji interposisi `LD_PRELOAD` di host, publish asset
-   `libgetrandom-shim-armeabi-v7a.so` + `.sha256` di rilis yang sama.
+4. **build-shim** — kompilasi `shim/getrandom_shim.c` (NDK, API 21, armv7,
+   detik) + uji interposisi `LD_PRELOAD` di host.
    Shim ini dipakai app (via `LD_PRELOAD`) agar binary terbaru tetap jalan
    di kernel STB lama (getrandom/EINVAL).
-4. **build-apk** — unduh binary + shim, ambil **web-vault dari Docker digest resmi**
-   (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`),
-   tulis `app/src/main/assets/vw_version.txt`, `assembleDebug` +
-   `lintDebug` + `testDebugUnitTest` + `assembleRelease` (signed bila secrets
-   ada), cek ukuran APK, publish release, upload artifact APK.
+5. **publish-binary** — terbitkan 6 asset non-APK (binary+shim+web-vault
+   beserta `.sha256`); web-vault diambil dari **Docker digest resmi**
+   (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`)
+   hanya bila belum ada di rilis (hemat Docker pada push shim-only).
 
-Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed,
-`vaultwarden-armeabi-v7a` + `.sha256`, `libgetrandom-shim-armeabi-v7a.so` +
-`.sha256` (shim `LD_PRELOAD` untuk STB kernel lama, dibangun dari `shim/`),
-`web-vault.zip` + `.sha256`.
+**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` (kecuali dokumen,
+`shim/`, `build-binary.yml`), `workflow_dispatch`, dan `workflow_run` setelah
+workflow binary sukses (untuk tag upstream baru; dilewati bila APK sudah ada
+di rilis agar `versionCode` tak churn sia-sia):
+
+1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
+2. **perlu** — putuskan perlu bangun atau lewati (lihat di atas).
+3. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
+   `assembleDebug` + `lintDebug` + `testDebugUnitTest` + `assembleRelease`
+   (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.
+
+Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed
+(dari workflow APK), `vaultwarden-armeabi-v7a` + `.sha256`,
+`libgetrandom-shim-armeabi-v7a.so` + `.sha256` (shim `LD_PRELOAD` untuk STB
+kernel lama, dibangun dari `shim/`), `web-vault.zip` + `.sha256` (6 terakhir
+dari workflow binary).
 **Jangan edit asset release secara manual** — selalu lewat workflow.
 
 ## Secrets yang dibutuhkan (Settings → Secrets and variables → Actions)

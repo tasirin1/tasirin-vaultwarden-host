@@ -1,6 +1,7 @@
 # Tasirin Vaultwarden Host (Android)
 
-[![Build](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
+[![Build APK](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
+[![Build Binary](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-binary.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
 [![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host/releases)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
 
 <p align="center"><b>&#127760; Language: <a href="README.md">Indonesia</a> &middot; <a href="README.en.md">English</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
@@ -50,6 +51,6 @@ Single vertical column layout (portrait and landscape share the same order): lin
 
 ## Developers & license
 
-See [AGENTS.md](AGENTS.md). Build only via GitHub Actions (push to `main`); `targetSdk 28` is intentional; binary never bundled in the APK.
+See [AGENTS.md](AGENTS.md). Build only via GitHub Actions (push to `main`, split: binary vs APK); `targetSdk 28` is intentional; binary never bundled in the APK.
 
 App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

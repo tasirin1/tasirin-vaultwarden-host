@@ -1,6 +1,7 @@
 # Tasirin Vaultwarden Host
 
-[![Build](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
+[![Build APK](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
+[![Build Binary](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-binary.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
 [![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
 
 <p align="center"><b>&#127760; Bahasa: <a href="README.md">Indonesia</a> &middot; <a href="README.en.md">English</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
@@ -51,6 +52,6 @@ Tampilan satu kolom vertikal (portrait + landscape sama): kartu tautan di atas, 
 
 ## Pengembang & lisensi
 
-Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (push ke `main`); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
+Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (push ke `main`, terpisah: binary vs APK); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
 
 App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).
