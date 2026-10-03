@@ -134,6 +134,20 @@ public final class LogExport {
                     if (tujuan == null) {
                         return null;
                     }
+                    // Tutup TOCTOU cek-vs-buka: pastikan file baru masih di
+                    // dalam Download dan bukan symlink yang ditukar app lain
+                    // di jeda createNewFile-vs-tulis.
+                    try {
+                        String kanonDir = dir.getCanonicalPath();
+                        String kanonTujuan = tujuan.getCanonicalPath();
+                        if (!kanonTujuan.equals(kanonDir + File.separator + tujuan.getName())) {
+                            try { tujuan.delete(); } catch (Exception ignored2) { }
+                            return null;
+                        }
+                    } catch (Exception e) {
+                        try { tujuan.delete(); } catch (Exception ignored2) { }
+                        return null;
+                    }
                     try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                             new FileOutputStream(tujuan, false),
                             StandardCharsets.UTF_8)) {

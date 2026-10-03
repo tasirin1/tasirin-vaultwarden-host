@@ -17,7 +17,11 @@ public class BootReceiver extends BroadcastReceiver {
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             TgBackup.healkanStringPrefs(context);
             TgBackup.migrateAutoPref(context);
-            if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
+            // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
+            // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
+            // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
+            boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
+            if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
                 // mulaiService tak melempar: penolakan background dicatat di
                 // dalam + ditandai KEY_START_TERTUNDA untuk susulan MainActivity.
                 // Cek boolean agar boot yang ditolak tercatat di log.

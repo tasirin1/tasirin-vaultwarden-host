@@ -68,6 +68,14 @@ public class StoragePermTest {
     }
 
     @Test
+    public void awalanMiripBukanEksternal() {
+        assertFalse(StoragePerm.butuhIzinEksternal("/sdcard2evil/vault"));
+        assertFalse(StoragePerm.butuhIzinEksternal("/storagex"));
+        assertTrue(StoragePerm.butuhIzinEksternal("/sdcard"));
+        assertTrue(StoragePerm.butuhIzinEksternal("/sdcard/"));
+    }
+
+    @Test
     public void folderInternalTakButuhIzin() {
         assertFalse(StoragePerm.butuhIzinEksternal("/data/data/com.tasirin.vaultwardenhost/files"));
         assertFalse(StoragePerm.butuhIzinEksternal("/data/user/0/com.tasirin.vaultwardenhost/files"));

@@ -63,9 +63,14 @@
             android:name=".ServerService"
             android:exported="false" />
 
+        <!-- exported=true: DATE_CHANGED/TIME_SET/TIMEZONE_CHANGED adalah
+             protected broadcast (hanya sistem yang bisa mengirim); dengan
+             exported=false sistem tak bisa menyampaikan di Android 12+.
+             Alarm eksplisit milik app (explicit intent) tetap sampai apa pun
+             nilainya. Pemicu asing aman: mulaiBackup cek auto + token/chat. -->
         <receiver
             android:name=".AlarmReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DATE_CHANGED" />
                 <action android:name="android.intent.action.TIME_SET" />

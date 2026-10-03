@@ -2835,7 +2835,7 @@ public class SettingsActivity extends Activity {
         if (cm != null) {
             final String salin = isi;
             cm.setPrimaryClip(android.content.ClipData.newPlainText(label, salin));
-            // Otomatis bersihkan clipboard 60 dtk agar token rahasia
+            // Otomatis bersihkan clipboard 30 dtk agar token rahasia
             // (admin/bot) tak mengendap dan disadap app lain.
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 try {
@@ -2847,7 +2847,7 @@ public class SettingsActivity extends Activity {
                     }
                 } catch (Exception ignored) {
                 }
-            }, 60_000);
+            }, 30_000);
         }
         toast(label + " " + getString(R.string.disalin));
     }

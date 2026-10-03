@@ -316,6 +316,8 @@ public class LogActivity extends Activity {
             java.util.regex.Pattern.compile("(?i)(token=)[^&\\s]+");
     private static final java.util.regex.Pattern POLA_TOKEN_JSON =
             java.util.regex.Pattern.compile("(?i)(\\\"(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)\\\"\\s*:\\s*\\\")[^\\\"]*\\\"");
+    private static final java.util.regex.Pattern POLA_TOKEN_JSON_SQ =
+            java.util.regex.Pattern.compile("(?i)('(?:admin_token|tg_token|tg_chat|tg_pass|pin_hash|token)'\\s*:\\s*')[^']*'");
     private static final java.util.regex.Pattern POLA_CHAT_ID =
             java.util.regex.Pattern.compile("(?i)(chat_id\\s*[\"']?\\s*[:=]\\s*[\"']?)[^&\\s,\"'}\\]]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
@@ -358,6 +360,7 @@ public class LogActivity extends Activity {
         r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
         r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
+        r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
         r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
         r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
         // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 30+
@@ -395,10 +398,10 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Kunci penanda salinan clipboard agar penghapus 60 dtk selamat dari mati proses. */
+    /** Kunci penanda salinan clipboard agar penghapus 30 dtk selamat dari mati proses. */
     static final String KEY_CLIP_HASH = "clip_hash";
     static final String KEY_CLIP_KEDALUWARSA = "clip_kedaluwarsa";
-    static final long CLIP_BERSIH_MS = 60_000;
+    static final long CLIP_BERSIH_MS = 30_000;
 
     /** Sidik SHA-256 isi clipboard (heks). Murni agar bisa unit test. */
     static String sidikClip(String s) {
@@ -419,7 +422,7 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Salin ke clipboard + jadwalkan bersih 60 dtk yang tahan mati proses:
+    /** Salin ke clipboard + jadwalkan bersih 30 dtk yang tahan mati proses:
      *  sidik + kedaluwarsa disimpan di prefs; bila proses mati sebelum penghapus
      *  jalan, buka LogActivity berikutnya memasang ulang sisa timer atau
      *  langsung membersihkan sisa salinan yang masih basi. */

@@ -61,6 +61,12 @@ public class LogActivityTest {
     }
 
     @Test
+    public void tokenJsonKutipTunggalDisamarkan() {
+        String r = LogActivity.samarkanLog("konfig 'tg_token': '123456:ABCDEF' lanjut");
+        assertFalse(r.contains("123456:ABCDEF"));
+    }
+
+    @Test
     public void domainDisamarkan() {
         String r = LogActivity.samarkanLog("env DOMAIN=https://192.168.1.5:8088 lanjut");
         assertFalse(r.contains("192.168.1.5:8088"));

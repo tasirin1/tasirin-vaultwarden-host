@@ -46,9 +46,9 @@ public final class StoragePerm {
         if (d.isEmpty()) {
             return true;
         }
-        return d.startsWith("/sdcard")
-                || d.startsWith("/storage")
-                || d.startsWith("/mnt");
+        return d.equals("/sdcard") || d.startsWith("/sdcard/")
+                || d.equals("/storage") || d.startsWith("/storage/")
+                || d.equals("/mnt") || d.startsWith("/mnt/");
     }
 
     /** Keputusan akses murni (mudah diuji): di API 30+ hanya All files access
