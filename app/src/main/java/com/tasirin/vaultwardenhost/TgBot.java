@@ -1222,13 +1222,23 @@ public final class TgBot {
         // Flag s (DOTALL): '.' menelan newline sehingga PIN/argumen
         // multi-baris tak terpotong di baris pertama.
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(
-                "(?is)\\bPIN\\s*:\\s*(.+)").matcher(t);
-        if (m.find()) {
-            String mentah = m.group(1).trim();
+                "(?is)\\bPIN\\s*:").matcher(t);
+        // Kemunculan TERAKHIR yang dipakai: tempelan "PIN:lama ... PIN:baru"
+        // memakai yang baru; kemunculan tunggal tak berubah perilaku.
+        // (Greedy (.+) selalu menelan sampai akhir sehingga find() pertama
+        //  menutup peluang kemunculan berikut terbaca.)
+        int awalMatch = -1;
+        int akhirMarker = -1;
+        while (m.find()) {
+            awalMatch = m.start();
+            akhirMarker = m.end();
+        }
+        if (awalMatch >= 0) {
+            String mentah = t.substring(akhirMarker).trim();
             // Bentuk eksplisit: kutip mengapit diambil tepat (sisa sesudah
             // kutip tutup kembali jadi argumen), tanpa kutip menelan sisa
             // baris agar PIN ber-spasi tetap bisa dipakai via bot.
-            String sebelum = t.substring(0, m.start()).trim().replaceAll("\\s+", " ");
+            String sebelum = t.substring(0, awalMatch).trim().replaceAll("\\s+", " ");
             String pin;
             String sisa;
             if (mentah.length() >= 2 && (mentah.startsWith("\"") || mentah.startsWith("'"))) {

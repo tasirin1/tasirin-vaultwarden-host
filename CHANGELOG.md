@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: pin beta, PIN ganda, impor, komentar TTL
+- `ServerService.cacheSesuaiPin`: sufiks prerelease wajib sama (`1.37.3-beta` beda dengan `1.37.3`) agar selaras jalur unduh yang menolak beta lantang; uji baru.
+- `TgBot.pisahkanPin`: kemunculan `PIN:` terakhir yang dipakai agar tempelan `PIN:lama ... PIN:baru` memakai yang baru; uji baru.
+- `SettingsActivity`: dialog password impor dibatasi 5x salah (selaras lockout PIN) lalu batal + hapus sisa file.
+- `SettingsActivity`: betulkan komentar TTL sapu export plaintext 5 menit menjadi 2 menit (sesuai `EXPORT_PLAIN_TTL_MS`).
+
 ## [Belum rilis] — Perbaikan audit: leaf 397 hari, DNS huruf besar
 - `TlsCert`: umur leaf baru 397 hari (bukan 825 hari) agar lolos batas 398 hari Chrome/Android modern; leaf warisan 825 hari otomatis diregen via `leafTerlaluLama`; uji `leafTerlaluLamaBatas397Hari` baru.
 - `TlsCert.namaDnsValid`: terima huruf besar (case-insensitive) agar konsisten dengan `daftarDns` yang sudah lower-case; uji tambah `Vault.Lan`/`VAULT`.

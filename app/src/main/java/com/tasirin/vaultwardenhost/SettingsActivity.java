@@ -1872,7 +1872,7 @@ public class SettingsActivity extends Activity {
                 send.putExtra(Intent.EXTRA_STREAM, uri);
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
-                    // Via result: plaintext disapu saat user kembali (TTL 5 menit)
+                    // Via result: plaintext disapu saat user kembali (TTL 2 menit)
                     // agar tak mengendap di cache (target membaca
                     // stream saat ia foreground, sebelum kita kembali).
                     startActivityForResult(
@@ -2038,6 +2038,7 @@ public class SettingsActivity extends Activity {
                 } catch (Exception ignored) {
                 }
             });
+            final int[] gagalImpor = {0};
             dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
                         String coba = input.getText().toString();
@@ -2053,8 +2054,20 @@ public class SettingsActivity extends Activity {
                             dialog.dismiss();
                             terapkanImporJson(plain);
                         } catch (Exception e) {
-                            input.setError("Password salah / file rusak");
-                            appendUiLog("[app] Import ditolak: password asal tak cocok");
+                            // Batas percobaan selaras lockout PIN (5x): dialog
+                            // tanpa batas memungkinkan tebak password tanpa henti.
+                            if (++gagalImpor[0] >= PinCrypto.MAX_GAGAL) {
+                                try {
+                                    tmpEnkrip.delete();
+                                } catch (Exception ignored) {
+                                }
+                                dialog.dismiss();
+                                toast("Terlalu banyak salah - impor dibatalkan.");
+                                appendUiLog("[app] Import dibatalkan: password salah 5x");
+                            } else {
+                                input.setError("Password salah / file rusak (" + gagalImpor[0] + "/5)");
+                                appendUiLog("[app] Import ditolak: password asal tak cocok");
+                            }
                         }
                     }));
             dialog.show();

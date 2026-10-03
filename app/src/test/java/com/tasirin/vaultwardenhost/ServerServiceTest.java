@@ -455,6 +455,9 @@ public class ServerServiceTest {
         assertFalse(ServerService.cacheSesuaiPin("1.32.0", "vaultwarden 1.37.3"));
         assertFalse(ServerService.cacheSesuaiPin("1.32.0", "tanpa-versi"));
         assertFalse(ServerService.cacheSesuaiPin("1.32.0", null));
+        assertFalse(ServerService.cacheSesuaiPin("1.37.3-beta", "vaultwarden 1.37.3"));
+        assertFalse(ServerService.cacheSesuaiPin("1.37.3", "vaultwarden 1.37.3-beta"));
+        assertTrue(ServerService.cacheSesuaiPin("1.37.3-beta", "vaultwarden 1.37.3-beta"));
     }
 
     @Test

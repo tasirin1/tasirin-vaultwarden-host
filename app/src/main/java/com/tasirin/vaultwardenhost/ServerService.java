@@ -171,15 +171,37 @@ public class ServerService extends Service {
         }
     }
 
+    private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
+            java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?");
+
     /** True bila binary cache (hasil smoke test di binaryVersion) boleh dipakai:
-     *  tanpa kuncian selalu boleh; bila dikunci wajib sama dengan kuncian.
+     *  tanpa kuncian selalu boleh; bila dikunci wajib sama dengan kuncian
+     *  termasuk sufiks prerelease ("1.37.3-beta" beda dengan "1.37.3"):
+     *  bandingVersi hanya banding angka sehingga tanpa ini pin beta lolos
+     *  diam-diam di cache stabil, padahal jalur unduh menolaknya lantang.
      *  Murni agar bisa unit test. */
     static boolean cacheSesuaiPin(String pin, String terdeteksi) {
         if (pin == null || pin.isEmpty()) {
             return true;
         }
         String real = Updater.parseBinaryVersion(terdeteksi);
-        return real != null && Updater.bandingVersi(real, pin) == 0;
+        if (real == null || Updater.bandingVersi(real, pin) != 0) {
+            return false;
+        }
+        return sufiksPrerelease(terdeteksi).equalsIgnoreCase(sufiksPrerelease(pin));
+    }
+
+    /** Sufiks prerelease versi ("-beta" dari "1.37.3-beta"); "" bila stabil
+     *  atau tak terpola. Murni agar bisa unit test. */
+    static String sufiksPrerelease(String v) {
+        if (v == null) {
+            return "";
+        }
+        java.util.regex.Matcher m = POLA_SUFIKS_VERSI.matcher(v.trim());
+        if (!m.find() || m.group(1) == null) {
+            return "";
+        }
+        return m.group(1);
     }
 
     private static final int NOTIF_ID = 1;
