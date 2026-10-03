@@ -10,3 +10,6 @@ local.properties
 
 # Keystore signing - jangan pernah di-commit
 keystore.jks
+
+# memori lokal antar-sesi, jangan commit
+MEMORY.md

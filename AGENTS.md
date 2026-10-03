@@ -16,6 +16,7 @@ Baca file ini **SEBELUM** mengubah, memperbaiki, atau mengelola repository ini.
 Panduan lengkap untuk pengguna ada di `README.md` (Indonesia) dan
 `README.en.md` (Inggris) — jaga keduanya sinkron dengan fitur terbaru.
 Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
+Kontinuitas antar-sesi: di awal sesi baca `MEMORY.md` (file lokal, gitignore, tidak di-commit) bila ada, lalu `git status --short` + `git log --oneline -5`; di akhir sesi update `MEMORY.md`.
 
 ## Struktur repository
 
