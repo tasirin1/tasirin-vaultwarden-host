@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: nama file emoji
+- `TgBackup.sanitasiNamaFile`: titik potong 120 char digeser ke batas code-point agar nama ber-emoji tak terbelah jadi lone surrogate di header multipart; uji `sanitasiNamaFile_takBelahEmoji` baru.
+
 ## [Belum rilis] — Perbaikan build: impor assertEquals test log
 - `LogActivityTest`: tambah `import static assertEquals` yang hilang sejak test `sisaClipMs` ditambahkan sehingga kompilasi unit test CI gagal (`cannot find symbol`).
 

@@ -75,6 +75,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sanitasiNamaFile_takBelahEmoji() {
+        StringBuilder sb = new StringBuilder("xxx").append("\uD83D\uDE00");
+        for (int i = 0; i < 119; i++) {
+            sb.append('y');
+        }
+        String r = TgBackup.sanitasiNamaFile(sb.toString());
+        assertEquals(119, r.length());
+        for (int i = 0; i < r.length(); i++) {
+            assertFalse(Character.isLowSurrogate(r.charAt(i))
+                    && (i == 0 || !Character.isHighSurrogate(r.charAt(i - 1))));
+        }
+    }
+
+    @Test
     public void fileSizeDariRespons_bacaAngkaAman() {
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_path\":\"d/f.zip\",\"file_size\":12345}}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true}"));

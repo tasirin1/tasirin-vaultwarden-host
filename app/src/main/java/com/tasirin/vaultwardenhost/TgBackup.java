@@ -1545,7 +1545,18 @@ public final class TgBackup {
         if (n.isEmpty() || n.equals(".") || n.equals("..")) {
             return "backup.zip";
         }
-        return n.length() > 120 ? n.substring(n.length() - 120) : n;
+        if (n.length() <= 120) {
+            return n;
+        }
+        int potong = n.length() - 120;
+        // Jangan belah pasangan surrogate emoji: geser ke batas code-point
+        // (selaras potongEkor/pangkasBufferTerkunci) agar header multipart
+        // tak membawa lone surrogate.
+        if (Character.isLowSurrogate(n.charAt(potong))
+                && Character.isHighSurrogate(n.charAt(potong - 1))) {
+            potong++;
+        }
+        return n.substring(potong);
     }
 
     private static String uploadTelegram(Context ctx, String token, String chatId, File file)
