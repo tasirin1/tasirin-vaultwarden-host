@@ -703,6 +703,13 @@ public class ServerService extends Service {
         // Tanpa ini monitoring berhenti diam-diam selagi binary masih hidup.
         try {
             if (autoRestart && healthActive) {
+                // Wajib foreground seperti action lain: tanpa ini service hasil
+                // recreate bekerja (health/wakelock) tanpa notifikasi dan bisa
+                // dibunuh sistem sebagai background.
+                try {
+                    startForegroundCompat();
+                } catch (Exception ignoredFg) {
+                }
                 if (isProcessAlive()) {
                     jagaWakeLock();
                     mainHandler.removeCallbacks(healthTick);
@@ -721,6 +728,13 @@ public class ServerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
+            // Foreground dulu seperti action lain: STOP datang via
+            // startForegroundService sehingga wajib startForeground() dalam
+            // ~5 dtk; stopper di bawah menunggu proses sampai ~9 dtk.
+            try {
+                startForegroundCompat();
+            } catch (Exception ignoredFg) {
+            }
             autoRestart = false;
             healthActive = false;
             mainHandler.removeCallbacks(healthTick);

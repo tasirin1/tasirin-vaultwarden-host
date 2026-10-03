@@ -363,7 +363,7 @@ public class LogActivity extends Activity {
         r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
         r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
         r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
-        // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 30+
+        // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 10+
         // karakter sehingga jam "12:30" dan teks biasa tak ikut rusak,
         // sementara token bocor di log generik tetap tertutup.
         r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
