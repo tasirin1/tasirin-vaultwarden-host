@@ -19,6 +19,10 @@ public class AlarmReceiver extends BroadcastReceiver {
     /** Action tunda-boot milik app (lihat TgBackup.jadwalTundaBoot). */
     public static final String ACTION_TUNDA =
             "com.tasirin.vaultwardenhost.ALARM_TUNDA_BOOT";
+    /** Extra rahasia anti-spoof untuk action milik app (lihat TgBackup.rahasiaAlarm).
+     *  Siaran sistem (DATE_CHANGED/TIME_SET/TIMEZONE_CHANGED) tak membawa ini. */
+    public static final String EXTRA_RAHASIA =
+            "com.tasirin.vaultwardenhost.ALARM_SECRET";
     /** Throttle spam explicit-intent: service sudah dedup harian, tapi tiap
      *  siaran palsu tetap membangunkan perangkat + start service. Jeda ini
      *  hanya untuk jalur alarm umum; susulan boot & ganti tanggal tak ikut. */
@@ -89,6 +93,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         // Alarm susulan boot: putuskan SEKARANG dengan jam yang sudah stabil —
         // jalan hanya bila sudah ganti hari; tolak jam reset/mundur (1999).
         if (intent != null && intent.getBooleanExtra(TgBackup.EXTRA_TUNDA_BOOT, false)) {
+            // Action milik app wajib membawa rahasia alarm: tanpa ini app lain
+            // bisa memicu backup+upload via explicit-intent spoof.
+            if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
+                return;
+            }
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
@@ -156,7 +165,14 @@ public class AlarmReceiver extends BroadcastReceiver {
         // (transisi satu siklus alarm). Action asing diabaikan. Throttle
         // 60 dtk menumpulkan spam explicit-intent: jadwal tetap disegar
         // oleh mulaiBackup, service sudah dedup harian di dalamnya.
-        if (action != null && !ACTION_HARIAN.equals(action)) {
+        // Hanya action milik app yang diterima (bare intent lawas + action asing
+        // ditolak: alarm baru selalu ber-action + ber-rahasia, dan pembatalan
+        // alarm lawas tak butuh receiver ini). Rahasia menutup spoof explicit-intent
+        // dari app lain yang sebelumnya bisa memicu backup+upload tiap 60 detik.
+        if (!ACTION_HARIAN.equals(action) && !ACTION_TUNDA.equals(action)) {
+            return;
+        }
+        if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
             return;
         }
         long kiniElapsed = android.os.SystemClock.elapsedRealtime();

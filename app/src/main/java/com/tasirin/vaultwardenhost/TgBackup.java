@@ -187,6 +187,56 @@ public final class TgBackup {
     /** Penanda intent alarm tunda-boot: keputusan backup diambil saat menyala
      *  (jam sudah stabil), bukan saat dijadwalkan. */
     static final String EXTRA_TUNDA_BOOT = "tunda_boot";
+    /** Kunci rahasia alarm milik app (anti-spoof explicit-intent dari app lain).
+     *  Nilai acak per install, disimpan di prefs dan dibawa tiap PendingIntent
+     *  alarm; receiver menolak action milik app tanpa extra ini. */
+    static final String KEY_ALARM_SECRET = "alarm_secret";
+
+    /** Rahasia alarm milik app (heks 128-bit, dibuat sekali per install). Murni I/O prefs. */
+    static String rahasiaAlarm(android.content.Context ctx) {
+        try {
+            android.content.SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, android.content.Context.MODE_PRIVATE);
+            String ada = amanString(sp, KEY_ALARM_SECRET, "");
+            if (ada != null && ada.matches("[0-9a-f]{32}")) {
+                return ada;
+            }
+            byte[] b = new byte[16];
+            new SecureRandom().nextBytes(b);
+            StringBuilder sb = new StringBuilder(32);
+            for (byte x : b) {
+                sb.append("0123456789abcdef".charAt((x >> 4) & 15));
+                sb.append("0123456789abcdef".charAt(x & 15));
+            }
+            String buat = sb.toString();
+            try {
+                sp.edit().putString(KEY_ALARM_SECRET, buat).apply();
+            } catch (Exception ignored) {
+            }
+            return buat;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** True bila extra rahasia alarm pada intent cocok dengan milik app. Murni. */
+    static boolean rahasiaAlarmCocok(android.content.Context ctx, android.content.Intent intent) {
+        if (intent == null) {
+            return false;
+        }
+        try {
+            String got = intent.getStringExtra(AlarmReceiver.EXTRA_RAHASIA);
+            String want = rahasiaAlarm(ctx);
+            if (got == null || want == null || got.isEmpty() || want.isEmpty()) {
+                return false;
+            }
+            return java.security.MessageDigest.isEqual(
+                    got.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                    want.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /** Boleh backup susulan boot sekarang? Jalan hanya bila jam wajar
      *  (>= 2024), tidak mundur di bawah backup terakhir, dan sudah ganti hari.
@@ -231,7 +281,8 @@ public final class TgBackup {
             }
             Intent intent = new Intent(ctx, AlarmReceiver.class)
                     .setAction(AlarmReceiver.ACTION_TUNDA)
-                    .putExtra(EXTRA_TUNDA_BOOT, true);
+                    .putExtra(EXTRA_TUNDA_BOOT, true)
+                    .putExtra(AlarmReceiver.EXTRA_RAHASIA, rahasiaAlarm(ctx));
             int flags = PendingIntent.FLAG_UPDATE_CURRENT
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -3058,7 +3109,8 @@ public final class TgBackup {
             return;
         }
         Intent intent = new Intent(ctx, AlarmReceiver.class)
-                .setAction(AlarmReceiver.ACTION_HARIAN);
+                .setAction(AlarmReceiver.ACTION_HARIAN)
+                .putExtra(AlarmReceiver.EXTRA_RAHASIA, rahasiaAlarm(ctx));
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_HARIAN, intent, flags);

@@ -437,7 +437,7 @@ public class LogActivity extends Activity {
         } catch (Exception e) {
             return;
         }
-        final long kedaluwarsa = System.currentTimeMillis() + CLIP_BERSIH_MS;
+        final long kedaluwarsa = android.os.SystemClock.elapsedRealtime() + CLIP_BERSIH_MS;
         try {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putString(KEY_CLIP_HASH, sidikClip(salin))
@@ -475,7 +475,7 @@ public class LogActivity extends Activity {
         if (sidik == null || sidik.isEmpty() || kedaluwarsa <= 0) {
             return;
         }
-        long sisa = kedaluwarsa - System.currentTimeMillis();
+        long sisa = sisaClipMs(kedaluwarsa);
         if (sisa > 0) {
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 bersihkanClipBilaIsiKita();
@@ -483,6 +483,31 @@ public class LogActivity extends Activity {
             return;
         }
         bersihkanClipBilaIsiKita();
+    }
+
+    /** Sisa timer clipboard (ms); 0 bila kedaluwarsa. Nilai lawas era wall-clock
+     *  (>1e11) dimigrasi dengan jam dinding, nilai baru memakai elapsedRealtime
+     *  agar utak-atik tanggal tak memperpanjang sensitif log di clipboard. Murni. */
+    static long sisaClipMs(long kedaluwarsa) {
+        if (kedaluwarsa <= 0) {
+            return 0;
+        }
+        if (kedaluwarsa > 100_000_000_000L) {
+            return Math.max(0, kedaluwarsa - System.currentTimeMillis());
+        }
+        try {
+            return sisaClipMs(kedaluwarsa, android.os.SystemClock.elapsedRealtime());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Varian murni 2-arg agar bisa unit test JVM (tanpa SystemClock). */
+    static long sisaClipMs(long kedaluwarsa, long kiniElapsed) {
+        if (kedaluwarsa <= 0) {
+            return 0;
+        }
+        return Math.max(0, kedaluwarsa - kiniElapsed);
     }
 
     /** Bersihkan clipboard hanya bila isinya masih salinan kita (cocok sidik). */

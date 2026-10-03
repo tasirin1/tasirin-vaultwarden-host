@@ -115,6 +115,14 @@ public class LogActivityTest {
     }
 
     @Test
+    public void sisaClip_hitungElapsedMurni() {
+        assertEquals(5000, LogActivity.sisaClipMs(35000, 30000));
+        assertEquals(0, LogActivity.sisaClipMs(30000, 30000));
+        assertEquals(0, LogActivity.sisaClipMs(20000, 30000));
+        assertEquals(0, LogActivity.sisaClipMs(0, 30000));
+    }
+
+    @Test
     public void portDanJamTakIkutDisamarkan() {
         String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
         assertTrue(r.contains("8088"));

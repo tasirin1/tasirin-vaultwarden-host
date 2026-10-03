@@ -1164,6 +1164,24 @@ public class ServerService extends Service {
             appendLog("[app] Gagal membuat folder data: " + dataDir);
             return;
         }
+        // Symlink folder data yang ditukar sesudah cek awal (TOCTOU) membuat
+        // unduhan web-vault/tls tertulis ke lokasi asing: kunci ke kanonis
+        // dan pakai kanonis ke depannya, bukan string mentah prefs.
+        try {
+            String kanonAwal = dataFolder.getCanonicalPath();
+            if (!dataDirAman(kanonAwal)) {
+                throw new IOException("Folder data menunjuk lokasi tak valid.");
+            }
+            dataDir = kanonAwal;
+            dataFolder = new File(kanonAwal);
+            sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
+        } catch (IOException e) {
+            setStatus("Folder data tidak valid - server TIDAK start.");
+            appendLog("[app] FATAL: folder data berubah/tak valid sesudah dibuat;"
+                    + " dibatalkan agar tak menulis ke folder asing.");
+            return;
+        } catch (Exception ignored) {
+        }
         if (!dataFolder.canWrite()) {
             setStatus("Folder tidak bisa ditulis: " + dataDir);
             appendLog("[app] Folder data tidak writable: " + dataDir
@@ -1274,8 +1292,18 @@ public class ServerService extends Service {
                 appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
                         + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
             } else if (certDays == -2) {
-                appendLog("[app] PERINGATAN: jam STB miring (sertifikat belum valid)."
-                        + " Betulkan tanggal & jam agar HTTPS stabil.");
+                // Fail-closed: sertifikat belum valid (jam STB miring ke masa lalu)
+                // membuat semua klien menolak TLS; start hanya membuang health-check
+                // dan restart beruntun. Minta betulkan jam dulu.
+                appendLog("[app] FATAL: jam STB miring (sertifikat belum valid)"
+                        + " - server TIDAK start. Aktifkan Tanggal & waktu otomatis,"
+                        + " lalu Start lagi.");
+                setStatus("Jam STB salah (sertifikat belum valid) - server tidak start.\n"
+                        + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
+                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                        + " (sertifikat TLS belum valid). Aktifkan Tanggal & waktu"
+                        + " otomatis lalu coba lagi.");
+                return;
             }
 
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath());

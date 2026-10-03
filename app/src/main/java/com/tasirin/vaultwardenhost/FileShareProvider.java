@@ -36,7 +36,14 @@ public class FileShareProvider extends ContentProvider {
             if (!isShareable(kanon)) {
                 return null;
             }
-            File cf = new File(kanon);
+            // Samakan dengan openFile(): cek ulang kanonis + tolak symlink induk
+            // agar tukar symlink di jeda cek-vs-baca tak membocorkan nama/ukuran.
+            String kanonUlang = new File(kanon).getCanonicalPath();
+            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
+                    || adaSymlinkInduk(kanonUlang)) {
+                return null;
+            }
+            File cf = new File(kanonUlang);
             if (!cf.isFile() || !cf.canRead()) {
                 return null;
             }
@@ -68,7 +75,13 @@ public class FileShareProvider extends ContentProvider {
             if (f == null) {
                 return null;
             }
-            if (!isShareable(f.getCanonicalPath())) {
+            String kanon = f.getCanonicalPath();
+            if (!isShareable(kanon)) {
+                return null;
+            }
+            // Tanpa cek keberadaan, getType membedakan folder shareable vs tidak
+            // walau file tak ada (oracle struktur). Samakan dengan query().
+            if (!new File(kanon).isFile()) {
                 return null;
             }
             return tipeMime(uri);

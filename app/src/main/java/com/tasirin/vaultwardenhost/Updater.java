@@ -977,6 +977,19 @@ public final class Updater {
             throw new IOException("Gagal membuat folder binary: " + binDir
                     + " - cek sisa storage & izin Storage, lalu ulangi.");
         }
+        // Fail-fast ruang bebas: unduh binary ~20 MB tanpa cek mengulang
+        // gagal-checksum (file terpotong) dan membakar kuota tiap Start.
+        try {
+            File cekDir = (binDir != null && binDir.exists()) ? binDir : ctx.getFilesDir();
+            long bebas = cekDir.getUsableSpace();
+            if (bebas > 0 && bebas < 50L * 1024 * 1024) {
+                throw new IOException("Ruang storage kurang dari 50 MB"
+                        + " - kosongkan dulu lalu tekan Start lagi.");
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception ignored) {
+        }
         File tmp = new File(binDir, out.getName() + ".tmp");
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
