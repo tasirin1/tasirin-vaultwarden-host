@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: port privileged
+- `SettingsActivity.sanitizePortPref`: terima hanya 1024-65535 selaras `normalisasiPort` service dan pesan MainActivity; port privileged hasil impor dikembalikan ke bawaan dengan log jelas (plus buang catch mati).
+
 ## [Belum rilis] — Perbaikan audit: nama file emoji
 - `TgBackup.sanitasiNamaFile`: titik potong 120 char digeser ke batas code-point agar nama ber-emoji tak terbelah jadi lone surrogate di header multipart; uji `sanitasiNamaFile_takBelahEmoji` baru.
 

@@ -2149,24 +2149,19 @@ public class SettingsActivity extends Activity {
     /** Kembalikan port ke default bila hasil import bukan angka 1-65535. */
     private void sanitizePortPref() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String p;
-        try {
-            p = TgBackup.amanString(sp, ServerService.KEY_PORT, DEFAULT_PORT);
-        } catch (ClassCastException e) {
-            // Port telanjur tersimpan bukan-String (impor lama/config manual):
-            // kembalikan default agar Settings/Start tak crash berulang.
-            sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
-            return;
-        }
+        // Selaras normalisasiPort service (1024-65535): port privileged (<1024)
+        // butuh root dan selalu gagal bind, jadi jangan dipertahankan diam-diam.
+        // (amanString tak pernah lempar ClassCastException: sembuh sendiri.)
+        String p = TgBackup.amanString(sp, ServerService.KEY_PORT, DEFAULT_PORT);
         try {
             int pn = Integer.parseInt(p.trim());
-            if (pn >= 1 && pn <= 65535) {
+            if (pn >= 1024 && pn <= 65535) {
                 return;
             }
         } catch (Exception ignored) {
         }
         sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
-        appendUiLog("[app] Port hasil import tidak valid - kembali ke " + DEFAULT_PORT + ".");
+        appendUiLog("[app] Port hasil import tidak valid/privileged - kembali ke " + DEFAULT_PORT + ".");
     }
 
     // ─── PIN lock ───────────────────────────────────────────────────────
