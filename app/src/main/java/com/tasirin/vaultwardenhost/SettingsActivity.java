@@ -181,9 +181,6 @@ public class SettingsActivity extends Activity {
     private long lastBatteryCheck = 0;
     private boolean needBatteryCached = false;
 
-    private static volatile boolean unlocked = false;
-    /** Kapan PIN terakhir cocok (jangkar grace); pindah activity tak memperpanjang. */
-    private static volatile long unlockAt = 0;
     /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
@@ -199,12 +196,11 @@ public class SettingsActivity extends Activity {
         return PinGate.kapanBukaBersama();
     }
 
-    /** Catat buka PIN sebagai milik bersama (tanpa panggil balik) agar tak rekursi. */
+    /** Catat buka PIN sebagai milik bersama (tanpa panggil balik) agar tak rekursi.
+     *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
         PinGate.bukaKunciBersama();
-        unlocked = true;
-        unlockAt = PinGate.kapanBukaBersama();
-        pauseStamp = unlockAt;
+        pauseStamp = PinGate.kapanBukaBersama();
     }
 
     @Override
@@ -2155,21 +2151,15 @@ public class SettingsActivity extends Activity {
             // PIN mati: buang status buka basi agar PIN yang diaktifkan lagi
             // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
             PinGate.kunciBersama();
-            unlocked = false;
-            unlockAt = 0;
             return;
         }
         // Sudah dibuka di layar lain dalam grace: jangan minta lagi (tanpa perpanjangan).
         if (PinGate.dalamGraceBersama()) {
-            unlocked = true;
-            unlockAt = PinGate.kapanBukaBersama();
             return;
         }
-        // Satu-satunya sumber grace adalah PinGate (jangkar bersama antar-activity).
-        // Fallback lokal (unlocked/unlockAt sendiri) dihapus: bisa drift dari
-        // PinGate dan membuka app tanpa PIN (fail-open). Bila sampai sini,
-        // grace sudah habis.
-        unlocked = false;
+        // Satu-satunya sumber grace adalah PinGate (jangkar bersama antar-activity);
+        // cermin lokal sengaja tak ada agar tak ada baca basi yang fail-open.
+        // Bila sampai sini, grace sudah habis.
         final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
             // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat agar
@@ -2236,9 +2226,7 @@ public class SettingsActivity extends Activity {
                             } catch (Exception ignored) {
                             }
                             if (hasil) {
-                                PinGate.bukaKunciBersama();
-                                unlocked = true;
-                                unlockAt = PinGate.kapanBukaBersama();
+                                catatPinDibuka();
                                 dialog.dismiss();
                             } else {
                                 input.setError("PIN salah");

@@ -42,6 +42,10 @@ public final class TgBot {
     private static volatile long wallMaksTelegram = 0;
     /** Kunci prefs maks wall-clock agar deteksi rollback selamat dari restart. */
     static final String KEY_TG_WALL_MAKS = "tg_wall_maks";
+    /** Sudah diperingatkan sekali bahwa bot tak bisa hapus pesan ber-PIN. */
+    static final String KEY_TG_HAPUS_WARN = "tg_hapus_warn";
+    /** Uji hapus sekali lolos (bot punya hak hapus di chat). */
+    static final String KEY_TG_HAPUS_OK = "tg_hapus_ok";
     /** Peringatan jam-mundur dibatasi 1x/jam (jam monotonik): tiap poll 20 dtk
      *  mengirim pesan = spam + self-DoS bila maks macet di masa depan. */
     static final long PERINGATAN_MUNDUR_MS = 3600_000;
@@ -331,13 +335,25 @@ public final class TgBot {
                                 String text = msg.optString("text", "").trim();
                                 boolean terotorisasi = handleCommand(ctx, text);
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
-                                // ulang pengintip: hapus best-effort (perlu izin hapus;
-                                // gagal diam-diam, di poll thread sendiri). Upaya
-                                // GAGAL sengaja dipertahankan sebagai bukti brute-force.
+                                // ulang pengintip: hapus best-effort (perlu izin hapus,
+                                // di poll thread sendiri); gagal sekali diperingatkan
+                                // agar pemilik tahu PIN masih nangkring di cloud.
+                                // Upaya GAGAL sengaja dipertahankan sebagai bukti
+                                // brute-force.
                                 int idPesan = msg.optInt("message_id", 0);
                                 if (idPesan != 0 && terotorisasi && pesanPinWajibHapus(text)
                                         && pinPerangkatAktif(ctx)) {
-                                    hapusPesanPerintah(ctx, c.optLong("id", -1), idPesan);
+                                    boolean terhapus = hapusPesanPerintah(ctx,
+                                            c.optLong("id", -1), idPesan);
+                                    peringatkanBilaTakBisaHapus(ctx, terhapus);
+                                } else if (idPesan != 0 && "help".equals(namaPerintah(text))
+                                        && pinPerangkatAktif(ctx)
+                                        && !sudahUjiHapus(ctx)) {
+                                    // Uji hapus sekali saat /help (tanpa PIN di riwayat):
+                                    // hapus pesan /help sendiri sebagai proba hak hapus.
+                                    boolean terhapus = hapusPesanPerintah(ctx,
+                                            c.optLong("id", -1), idPesan);
+                                    peringatkanBilaTakBisaHapus(ctx, terhapus);
                                 }
                             }
                         } catch (Exception eUpdate) {
@@ -506,13 +522,13 @@ public final class TgBot {
 
     /** True bila teks adalah perintah berbahaya (wajib PIN bila PIN aktif).
      *  Perintah yang mengubah keadaan (start/stop/restart/backup/restore/
-     *  update/webvault/careset). Perintah baca (status/log/uptime/alive/
+     *  update/webvault/careset). Perintah baca (status/uptime/alive/
      *  help/ca/cabackup/versi) cukup auth chat agar tombol inline tetap
      *  bisa dipakai saat PIN aktif (tombol tak bisa membawa PIN).
-     *  /crashlog tak ada di daftar ini tapi tetap wajib PIN bila PIN aktif
-     *  (memuat path folder data; diperiksa sendiri di handleCommand) —
-     *  jangan anggap cukup auth chat. Murni agar bisa unit test; dipakai
-     *  tombol inline & hapus pesan PIN. */
+     *  /log dan /crashlog tak ada di daftar ini tapi tetap wajib PIN bila
+     *  PIN aktif (memuat path folder data, port, versi binary, URL LAN;
+     *  diperiksa sendiri di handleCommand) — jangan anggap cukup auth chat.
+     *  Murni agar bisa unit test; dipakai tombol inline & hapus pesan PIN. */
     static boolean perintahBerbahaya(String text) {
         String cmd = namaPerintah(text);
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
@@ -529,15 +545,16 @@ public final class TgBot {
     }
 
     /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
-     *  (anti intip PIN): semua perintah berbahaya + /crashlog. Crashlog
+     *  (anti intip PIN): semua perintah berbahaya + /log + /crashlog. Keduanya
      *  sengaja tak masuk perintahBerbahaya (tombol inline-nya tetap boleh
      *  dipakai saat PIN aktif — ditolak halus di handleCommand), tapi pesan
-     *  ketik "/crashlog 123456" yang lolos membawa PIN asli sehingga wajib
+     *  ketik "/log 123456" yang lolos membawa PIN asli sehingga wajib
      *  dihapus seperti perintah berbahaya lain. Upaya GAGAL tak dihapus
      *  (bukti brute-force) — pemanggil yang memutuskan via hasil otorisasi.
      *  Murni agar bisa unit test. */
     static boolean pesanPinWajibHapus(String text) {
-        return perintahBerbahaya(text) || "crashlog".equals(namaPerintah(text));
+        String cmd = namaPerintah(text);
+        return perintahBerbahaya(text) || "crashlog".equals(cmd) || "log".equals(cmd);
     }
 
     /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
@@ -565,11 +582,13 @@ public final class TgBot {
     }
 
     /** Hapus pesan perintah ber-PIN dari chat (anti intip riwayat).
-     *  Best-effort: butuh hak hapus (di grup bot harus admin); gagal
-     *  diam-diam, keamanan tak bergantung padanya (lockout + PIN tetap jalan). */
-    private static void hapusPesanPerintah(Context ctx, long chatId, int messageId) {
+     *  Best-effort: butuh hak hapus (di grup bot harus admin); keamanan tak
+     *  bergantung padanya (lockout + PIN tetap jalan). Kembalikan true bila
+     *  Telegram menjawab ok agar pemanggil bisa memperingatkan pemilik bila
+     *  PIN lolos tetap nangkring di riwayat cloud. */
+    static boolean hapusPesanPerintah(Context ctx, long chatId, int messageId) {
         if (chatId <= 0 || messageId == 0) {
-            return;
+            return false;
         }
         HttpURLConnection c = null;
         try {
@@ -577,7 +596,7 @@ public final class TgBot {
                     Context.MODE_PRIVATE);
             String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
             if (token.isEmpty()) {
-                return;
+                return false;
             }
             byte[] body = ("chat_id=" + chatId + "&message_id=" + messageId)
                     .getBytes(StandardCharsets.UTF_8);
@@ -587,12 +606,63 @@ public final class TgBot {
             try (OutputStream os = c.getOutputStream()) {
                 os.write(body);
             }
-            c.getResponseCode();
+            TgBackup.tolakRedirectTelegram(c);
+            int kode = c.getResponseCode();
+            if (kode != 200) {
+                return false;
+            }
+            try (InputStream in = c.getInputStream()) {
+                return TgBackup.bacaResponsBatas(in).contains("\"ok\":true");
+            }
         } catch (Exception ignored) {
+            return false;
         } finally {
             if (c != null) {
                 c.disconnect();
             }
+        }
+    }
+
+    /** Peringatkan sekali bila bot tak bisa menghapus pesan ber-PIN (tanpa hak
+     *  hapus di chat): PIN yang lolos tetap bisa dibaca ulang dari riwayat
+     *  cloud. Murni efek prefs + kirim; dipanggil dari poll thread sendiri. */
+    static void peringatkanBilaTakBisaHapus(Context ctx, boolean berhasil) {
+        if (berhasil) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)) {
+                    sp.edit().putBoolean(KEY_TG_HAPUS_OK, true).apply();
+                }
+            } catch (Exception ignored) {
+            }
+            return;
+        }
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            if (TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+                return;
+            }
+            sp.edit().putBoolean(KEY_TG_HAPUS_WARN, true).apply();
+        } catch (Exception ignored) {
+            return;
+        }
+        TgBackup.sendMessage(ctx, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
+                + " dari riwayat chat (tanpa hak hapus; di grup jadikan bot admin)."
+                + " Hapus manual pesan berisi PIN agar tak dipakai ulang pengintip.");
+    }
+
+    /** True bila uji hapus sudah tuntas (lolos sekali atau sudah diperingatkan).
+     *  Murni agar bisa unit test: uji ulang berhenti setelah salah satunya tercatat. */
+    static boolean sudahUjiHapus(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            return TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)
+                    || TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false);
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -631,10 +701,10 @@ public final class TgBot {
         });
     }
 
-    /** Tangani satu perintah; true bila perintah berbahaya lolos otorisasi
-     *  (PIN terverifikasi atau PIN mati) sehingga pemanggil boleh menghapus
-     *  pesan dari riwayat. False berarti PIN gagal/hilang: pesan dipertahankan
-     *  sebagai bukti forensik brute-force. */
+    /** Tangani satu perintah; true bila perintah ber-PIN (/berbahaya + /log +
+     *  /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
+     *  pemanggil boleh menghapus pesan dari riwayat. False berarti PIN
+     *  gagal/hilang: pesan dipertahankan sebagai bukti forensik brute-force. */
     private static boolean handleCommand(Context ctx, String text) {
         boolean berbahayaTerotorisasi = false;
         if (text == null || !text.startsWith("/")) {
@@ -776,6 +846,14 @@ public final class TgBot {
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
             case "/log":
+                // Log memuat path folder data, port, versi binary, URL LAN:
+                // wajib PIN bila PIN aktif, sama seperti /crashlog.
+                if (pinPerangkatAktif(ctx)) {
+                    if (authDangerous(ctx, arg) == null) {
+                        break;
+                    }
+                    berbahayaTerotorisasi = true;
+                }
                 TgBackup.sendMessage(ctx, tailLog());
                 break;
             case "/uptime":
@@ -932,7 +1010,7 @@ public final class TgBot {
                         + "Kunci versi lawas: /update 1.32.0 (binary), /webvault 1.32.0;"
                         + " lepas kunci: /update terbaru. Lihat /versi.\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /crashlog butuh PIN"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /log /crashlog butuh PIN"
                         + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").", keyboardPerintah());
                 break;
             default:

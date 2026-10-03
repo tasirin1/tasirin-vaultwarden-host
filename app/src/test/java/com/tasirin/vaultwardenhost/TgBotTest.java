@@ -352,13 +352,14 @@ public class TgBotTest {
 
     @Test
     public void pesanPinWajibHapus_crashlogIkutDihapus() {
-        // /crashlog + PIN yang lolos wajib dihapus dari riwayat (bawa PIN asli),
-        // walau crashlog bukan perintahBerbahaya (tombol inline tetap jalan).
+        // /log + /crashlog ber-PIN yang lolos wajib dihapus dari riwayat
+        // (bawa PIN asli + isi sensitif), walau keduanya bukan
+        // perintahBerbahaya (tombol inline tetap jalan, ditolak halus).
         assertTrue(TgBot.pesanPinWajibHapus("/crashlog 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/log 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/stop 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/careset 123456"));
         assertFalse(TgBot.pesanPinWajibHapus("/status"));
-        assertFalse(TgBot.pesanPinWajibHapus("/log"));
         assertFalse(TgBot.pesanPinWajibHapus("/help"));
         assertFalse(TgBot.pesanPinWajibHapus(null));
         assertFalse(TgBot.pesanPinWajibHapus(""));

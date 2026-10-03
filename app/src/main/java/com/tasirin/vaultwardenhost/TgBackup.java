@@ -1257,6 +1257,7 @@ public final class TgBackup {
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
+                    TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA));
@@ -2276,7 +2277,8 @@ public final class TgBackup {
                     KEY_TG_AUTO, "wizard_selesai",
                     PinGate.KEY_PIN_ON, KEY_BACKUP_TERTUNDA,
                     ServerService.KEY_START_TERTUNDA,
-                    "tg_low_storage_notified", "home_log_expanded"));
+                    "tg_low_storage_notified", "home_log_expanded",
+                    TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN));
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
     static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
