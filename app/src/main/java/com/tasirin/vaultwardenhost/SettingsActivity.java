@@ -1193,7 +1193,7 @@ public class SettingsActivity extends Activity {
             }
             // Tulis WAL ke DB utama dulu agar backup konsisten seperti backup Telegram.
             TgBackup.checkpointWal(dbFile);
-            long free = TgBackup.freeBytes(dataDir);
+            long free = TgBackup.freeBytes(this, dataDir);
             if (free >= 0 && free < 50L * 1024 * 1024) {
                 toast("Peringatan: sisa penyimpanan tinggal " + TgBackup.humanBytes(free));
                 appendUiLog("[app] Peringatan storage tinggal " + TgBackup.humanBytes(free));
@@ -2412,7 +2412,7 @@ public class SettingsActivity extends Activity {
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-        long free = TgBackup.freeBytes(dataDir);
+        long free = TgBackup.freeBytes(this, dataDir);
         if (free > 0) {
             if (sb.length() > 0) {
                 sb.append(" \u00B7 ");

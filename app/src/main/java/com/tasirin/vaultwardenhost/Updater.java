@@ -981,7 +981,7 @@ public final class Updater {
         // gagal-checksum (file terpotong) dan membakar kuota tiap Start.
         try {
             File cekDir = (binDir != null && binDir.exists()) ? binDir : ctx.getFilesDir();
-            long bebas = cekDir.getUsableSpace();
+            long bebas = TgBackup.freeBytes(ctx, cekDir.getAbsolutePath());
             if (bebas > 0 && bebas < 50L * 1024 * 1024) {
                 throw new IOException("Ruang storage kurang dari 50 MB"
                         + " - kosongkan dulu lalu tekan Start lagi.");
@@ -1493,7 +1493,7 @@ public final class Updater {
         }
 
         // Cek ruang hanya bila benar-benar akan mengunduh.
-        long free = TgBackup.freeBytes(dataDir);
+        long free = TgBackup.freeBytes(ctx, dataDir);
         if (free >= 0 && free < MIN_FREE_FOR_WEBVAULT) {
             throw new IOException("Sisa penyimpanan tinggal " + TgBackup.humanBytes(free)
                     + " - butuh minimal 150 MB untuk update web-vault.");

@@ -5,9 +5,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.annotation.SuppressLint;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.StatFs;
+import android.os.storage.StorageManager;
 import android.os.SystemClock;
 
 import java.io.DataOutputStream;
@@ -26,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
@@ -483,7 +486,7 @@ public final class TgBackup {
             throw new IOException("Database belum ada.");
         }
 
-        long free = freeBytes(dataDir);
+        long free = freeBytes(ctx, dataDir);
         if (free >= 0 && free < 10L * 1024 * 1024) {
             throw new IOException("Sisa penyimpanan tinggal " + (free / 1048576)
                     + " MB - backup dibatalkan.");
@@ -962,7 +965,7 @@ public final class TgBackup {
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.dataDirBawaanSegar();
             }
-            long free = freeBytes(dataDir);
+            long free = freeBytes(ctx, dataDir);
             if (free < 0) {
                 return;
             }
@@ -1777,7 +1780,7 @@ public final class TgBackup {
             try {
                 java.io.File cache = ctx.getCacheDir();
                 if (cache != null) {
-                    long sisa = freeBytes(cache.getAbsolutePath());
+                    long sisa = freeBytes(ctx, cache.getAbsolutePath());
                     if (sisa >= 0 && ukuran > sisa) {
                         throw new IOException("Storage kurang (butuh "
                                 + humanBytes(ukuran) + ", sisa " + humanBytes(sisa)
@@ -3047,6 +3050,7 @@ public final class TgBackup {
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
+    @SuppressLint("UsableSpace")
     public static long freeBytes(String dirPath) {
         try {
             StatFs sf = new StatFs(dirPath);
@@ -3054,6 +3058,26 @@ public final class TgBackup {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar
+     *  cache yang bisa dibersihkan ikut dihitung, fallback ke StatFs di
+     *  Android 5/6/7. */
+    public static long freeBytes(Context ctx, String dirPath) {
+        if (ctx != null && dirPath != null && Build.VERSION.SDK_INT >= 26) {
+            try {
+                StorageManager sm = (StorageManager) ctx.getSystemService(
+                        Context.STORAGE_SERVICE);
+                if (sm != null) {
+                    UUID uuid = sm.getUuidForPath(new File(dirPath));
+                    if (uuid != null) {
+                        return sm.getAllocatableBytes(uuid);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return freeBytes(dirPath);
     }
 
     public static String humanBytes(long bytes) {

@@ -1532,7 +1532,7 @@ public final class TgBot {
         String ram = rss > 0 ? TgBackup.humanBytes(rss * 1024) : "?";
         long up = ServerService.uptimeMs();
         String uptime = up > 0 ? durationText(up) : "-";
-        long free = TgBackup.freeBytes(dataDir);
+        long free = TgBackup.freeBytes(ctx, dataDir);
         String restarts = ServerService.restartSummary();
         StringBuilder sb = new StringBuilder();
         sb.append("Vaultwarden Host\n")
