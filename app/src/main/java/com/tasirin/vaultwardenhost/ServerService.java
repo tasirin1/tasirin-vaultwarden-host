@@ -935,7 +935,7 @@ public class ServerService extends Service {
             return false;
         }
         for (String segmen : t.split("/")) {
-            if (segmen.equals("..")) {
+            if (segmen.equals("..") || segmen.equals(".")) {
                 return false;
             }
             // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG).

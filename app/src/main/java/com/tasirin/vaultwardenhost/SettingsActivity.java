@@ -89,11 +89,11 @@ public class SettingsActivity extends Activity {
     private Button exportCfgBtn;
     private Button importCfgBtn;
     /** File config plaintext sementara yang menunggu dibagikan: dipertahankan
-     *  hingga basi 5 menit (target async membaca setelah chooser kembali).
+     *  hingga basi 2 menit (target async membaca setelah chooser kembali).
      *  Volatile karena ditulis worker exportConfig dan dibaca UI thread. */
     private volatile File exportPlainTertunda = null;
-    /** Batas simpan file config plaintext sementara (5 menit, sapu basi). */
-    static final long EXPORT_PLAIN_TTL_MS = 5L * 60 * 1000;
+    /** Batas simpan file config plaintext sementara (2 menit, sapu basi). */
+    static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -411,7 +411,7 @@ public class SettingsActivity extends Activity {
         autoRestartCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(TgBackup.amanString(sp, ServerService.KEY_BIN_SHA, ""));
-        pinInput.setText("");
+        bersihkanPin(pinInput);
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
         pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
         pasangSeksi(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan, KEY_SEC_KEAMANAN);
@@ -1328,7 +1328,7 @@ public class SettingsActivity extends Activity {
         } else if (requestCode == REQ_SHARE_CONFIG) {
             // Chooser kembali bukan tanda target selesai membaca: aplikasi async
             // (Gmail/Drive) mengunggah di latar setelah kita kembali. Jangan
-            // hapus di sini; sapu basi (<5 menit dipertahankan, lihat EXPORT_PLAIN_TTL_MS).
+            // hapus di sini; sapu basi (<2 menit dipertahankan, lihat EXPORT_PLAIN_TTL_MS).
             sapuExportPlainBasi();
         } else if (requestCode == REQ_IMPORT && resultCode == RESULT_OK && data != null) {
             final Uri uri = data.getData();
@@ -1753,7 +1753,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu sisa config plaintext sementara di cache internal. File pending yang
-     *  masih segar (<5 menit) dilewati: target berbagi async (Gmail/Drive) membaca
+     *  masih segar (<2 menit) dilewati: target berbagi async (Gmail/Drive) membaca
      *  stream setelah chooser kembali, jadi hapus langsung membuat kirim gagal.
      *  Pembersihan mengandalkan sapu basi di onResume/onDestroy. */
     private void bersihkanExportPlainCache() {
@@ -1784,7 +1784,7 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
-     *  onResume/onDestroy). File pending yang masih segar (<5 menit) dipertahankan. */
+     *  onResume/onDestroy). File pending yang masih segar (<2 menit) dipertahankan. */
     private void sapuExportPlainBasi() {
         try {
             File pending = exportPlainTertunda;
@@ -2223,7 +2223,7 @@ public class SettingsActivity extends Activity {
                         ui.post(() -> {
                             ok.setEnabled(true);
                             try {
-                                input.setText("");
+                                bersihkanPin(input);
                             } catch (Exception ignored) {
                             }
                             if (hasil) {
@@ -2239,7 +2239,7 @@ public class SettingsActivity extends Activity {
             pinDialogTampil = false;
             // Bersihkan sisa PIN dari tampilan agar tak mengendap di hierarki view.
             try {
-                input.setText("");
+                bersihkanPin(input);
             } catch (Exception ignored) {
             }
         });
@@ -3228,6 +3228,21 @@ public class SettingsActivity extends Activity {
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
             ui.post(this::refreshFromService);
+        }
+    }
+
+    /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
+     *  clear() dulu (buang buffer), setText("") sebagai fallback. */
+    private void bersihkanPin(android.widget.EditText v) {
+        try {
+            if (v.getText() != null) {
+                v.getText().clear();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            v.setText("");
+        } catch (Exception ignored) {
         }
     }
 

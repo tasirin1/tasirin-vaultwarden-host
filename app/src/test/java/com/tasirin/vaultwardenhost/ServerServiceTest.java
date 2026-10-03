@@ -292,6 +292,7 @@ public class ServerServiceTest {
         assertFalse(ServerService.dataDirAman("/dev/null"));
         assertFalse(ServerService.dataDirAman("/data/local/tmp"));
         assertFalse(ServerService.dataDirAman("/sdcard//vaultwarden"));
+        assertFalse(ServerService.dataDirAman("/sdcard/./vaultwarden"));
         assertTrue(ServerService.dataDirAman("/sdcard/my..folder"));
         assertTrue(ServerService.dataDirAman("/sdcard/vaultwarden"));
         assertTrue(ServerService.dataDirAman("/storage/emulated/0/vaultwarden"));

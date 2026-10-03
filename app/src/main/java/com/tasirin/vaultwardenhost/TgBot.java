@@ -1137,7 +1137,8 @@ public final class TgBot {
         String[] pisah = pisahkanPin(t);
         String rest = pisah[0];
         String pin = pisah[1];
-        if (pin.isEmpty()) {
+        // PIN valid min 4 karakter: tolak dini tanpa PBKDF2 agar spam bot tak DoS CPU/bakar lockout.
+        if (pin.length() < 4) {
             TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
                     + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
                     + " PIN huruf wajib bentuk PIN:ab12).");

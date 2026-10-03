@@ -723,6 +723,7 @@ public class MainActivity extends Activity {
         if (cm != null) {
             final String salin = url;
             cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", salin));
+            // Jendela 30 dtk: cukup untuk tempel sekali, tak lama nangkring di riwayat clipboard.
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 try {
                     android.content.ClipData cur = cm.getPrimaryClip();
@@ -733,7 +734,7 @@ public class MainActivity extends Activity {
                     }
                 } catch (Exception ignored) {
                 }
-            }, 60_000);
+            }, 30_000);
             toast(getString(R.string.url_copied, url));
         } else {
             toast(url);
@@ -936,7 +937,7 @@ public class MainActivity extends Activity {
                         ui.post(() -> {
                             ok.setEnabled(true);
                             try {
-                                input.setText("");
+                                bersihkanPin(input);
                             } catch (Exception ignored) {
                             }
                             if (hasil) {
@@ -952,7 +953,7 @@ public class MainActivity extends Activity {
             pinDialogTampil = false;
             // Bersihkan sisa PIN dari tampilan agar tak mengendap di hierarki view.
             try {
-                input.setText("");
+                bersihkanPin(input);
             } catch (Exception ignored) {
             }
         });
@@ -983,6 +984,21 @@ public class MainActivity extends Activity {
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
             ui.post(this::refreshFromService);
+        }
+    }
+
+    /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
+     *  clear() dulu (buang buffer), setText("") sebagai fallback. */
+    private void bersihkanPin(android.widget.EditText v) {
+        try {
+            if (v.getText() != null) {
+                v.getText().clear();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            v.setText("");
+        } catch (Exception ignored) {
         }
     }
 
