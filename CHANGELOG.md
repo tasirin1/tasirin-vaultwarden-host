@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: impor assertEquals test log
+- `LogActivityTest`: tambah `import static assertEquals` yang hilang sejak test `sisaClipMs` ditambahkan sehingga kompilasi unit test CI gagal (`cannot find symbol`).
+
 ## [Belum rilis] — Perbaikan audit: pin beta, PIN ganda, impor, komentar TTL
 - `ServerService.cacheSesuaiPin`: sufiks prerelease wajib sama (`1.37.3-beta` beda dengan `1.37.3`) agar selaras jalur unduh yang menolak beta lantang; uji baru.
 - `TgBot.pisahkanPin`: kemunculan `PIN:` terakhir yang dipakai agar tempelan `PIN:lama ... PIN:baru` memakai yang baru; uji baru.
