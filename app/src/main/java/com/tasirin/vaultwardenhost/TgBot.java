@@ -522,13 +522,14 @@ public final class TgBot {
 
     /** True bila teks adalah perintah berbahaya (wajib PIN bila PIN aktif).
      *  Perintah yang mengubah keadaan (start/stop/restart/backup/restore/
-     *  update/webvault/careset). Perintah baca (status/uptime/alive/
+     *  update/webvault/careset). Perintah baca (uptime/alive/
      *  help/ca/cabackup/versi) cukup auth chat agar tombol inline tetap
      *  bisa dipakai saat PIN aktif (tombol tak bisa membawa PIN).
-     *  /log dan /crashlog tak ada di daftar ini tapi tetap wajib PIN bila
-     *  PIN aktif (memuat path folder data, port, versi binary, URL LAN;
-     *  diperiksa sendiri di handleCommand) — jangan anggap cukup auth chat.
-     *  Murni agar bisa unit test; dipakai tombol inline & hapus pesan PIN. */
+     *  /status, /log, dan /crashlog tak ada di daftar ini tapi tetap wajib
+     *  PIN bila PIN aktif (memuat folder data, port, versi binary/web-vault,
+     *  waktu backup, URL LAN; diperiksa sendiri di handleCommand) — jangan
+     *  anggap cukup auth chat. Murni agar bisa unit test; dipakai
+     *  tombol inline & hapus pesan PIN. */
     static boolean perintahBerbahaya(String text) {
         String cmd = namaPerintah(text);
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
@@ -545,16 +546,17 @@ public final class TgBot {
     }
 
     /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
-     *  (anti intip PIN): semua perintah berbahaya + /log + /crashlog. Keduanya
-     *  sengaja tak masuk perintahBerbahaya (tombol inline-nya tetap boleh
-     *  dipakai saat PIN aktif — ditolak halus di handleCommand), tapi pesan
-     *  ketik "/log 123456" yang lolos membawa PIN asli sehingga wajib
-     *  dihapus seperti perintah berbahaya lain. Upaya GAGAL tak dihapus
-     *  (bukti brute-force) — pemanggil yang memutuskan via hasil otorisasi.
-     *  Murni agar bisa unit test. */
+     *  (anti intip PIN): semua perintah berbahaya + /status + /log +
+     *  /crashlog. Ketiganya sengaja tak masuk perintahBerbahaya (tombol
+     *  inline-nya tetap boleh dipakai saat PIN aktif — ditolak halus di
+     *  handleCommand), tapi pesan ketik "/status 123456" yang lolos membawa
+     *  PIN asli sehingga wajib dihapus seperti perintah berbahaya lain.
+     *  Upaya GAGAL tak dihapus (bukti brute-force) — pemanggil yang
+     *  memutuskan via hasil otorisasi. Murni agar bisa unit test. */
     static boolean pesanPinWajibHapus(String text) {
         String cmd = namaPerintah(text);
-        return perintahBerbahaya(text) || "crashlog".equals(cmd) || "log".equals(cmd);
+        return perintahBerbahaya(text) || "crashlog".equals(cmd) || "log".equals(cmd)
+                || "status".equals(cmd);
     }
 
     /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
@@ -701,8 +703,8 @@ public final class TgBot {
         });
     }
 
-    /** Tangani satu perintah; true bila perintah ber-PIN (/berbahaya + /log +
-     *  /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
+    /** Tangani satu perintah; true bila perintah ber-PIN (/berbahaya + /status +
+     *  /log + /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
      *  pemanggil boleh menghapus pesan dari riwayat. False berarti PIN
      *  gagal/hilang: pesan dipertahankan sebagai bukti forensik brute-force. */
     private static boolean handleCommand(Context ctx, String text) {
@@ -841,8 +843,15 @@ public final class TgBot {
                 });
                 break;
             case "/status":
-                // Perintah baca cukup auth chat (tanpa PIN) agar tombol inline
-                // tetap jalan saat PIN aktif; tulis tetap lewat authDangerous.
+                // Status memuat folder data, versi binary/web-vault, waktu
+                // backup, dan URL LAN: wajib PIN bila PIN aktif, sama seperti
+                // /log dan /crashlog.
+                if (pinPerangkatAktif(ctx)) {
+                    if (authDangerous(ctx, arg) == null) {
+                        break;
+                    }
+                    berbahayaTerotorisasi = true;
+                }
                 TgBackup.sendMessage(ctx, statusText(ctx));
                 break;
             case "/log":
@@ -1010,7 +1019,9 @@ public final class TgBot {
                         + "Kunci versi lawas: /update 1.32.0 (binary), /webvault 1.32.0;"
                         + " lepas kunci: /update terbaru. Lihat /versi.\n"
                         + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /log /crashlog butuh PIN"
+                        + "Catatan: pesan /help pertamamu bisa dihapus bot"
+                        + " sebagai uji sekali izin hapus pesan ber-PIN.\n"
+                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /status /log /crashlog butuh PIN"
                         + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").", keyboardPerintah());
                 break;
             default:
@@ -1058,7 +1069,8 @@ public final class TgBot {
                 Context.MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
         if (!TgBackup.kunciRestore()) {
-            throw new IOException("Restore lain sedang berjalan, coba lagi sebentar.");
+            throw new IOException("Tugas backup/restore lain sedang berjalan,"
+                    + " coba lagi sebentar.");
         }
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
         File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");

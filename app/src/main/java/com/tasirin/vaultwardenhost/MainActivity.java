@@ -307,8 +307,11 @@ public class MainActivity extends Activity {
             portNum = Integer.parseInt(port.trim());
         } catch (Exception ignored) {
         }
-        if (portNum < 1 || portNum > 65535) {
-            toast("Port harus angka 1-65535. Ubah di Settings.");
+        // effectivePort() sudah menormalisasi ke 1024-65535 (selaras
+        // ServerService.normalisasiPort); penolakan di sini hanya jaring
+        // pengaman dengan pesan yang sama agar tak menyesatkan.
+        if (portNum < 1024 || portNum > 65535) {
+            toast("Port harus angka 1024-65535 (<1024 butuh root). Ubah di Settings.");
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }

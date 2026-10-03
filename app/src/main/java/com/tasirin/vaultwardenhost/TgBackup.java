@@ -400,19 +400,15 @@ public final class TgBackup {
     }
 
     /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
-    /** Kunci backup global: UI, jadwal, dan bot tak boleh mengunggah bareng
-     *  (hemat kuota + slot Telegram di STB). */
-    private static final java.util.concurrent.atomic.AtomicBoolean BACKUP_JALAN =
-            new java.util.concurrent.atomic.AtomicBoolean(false);
-
     public static String backupNow(Context ctx) throws Exception {
-        if (!BACKUP_JALAN.compareAndSet(false, true)) {
-            throw new IOException("Backup lain sedang berjalan, coba lagi sebentar.");
+        if (!kunciBackup()) {
+            throw new IOException("Tugas backup/restore lain sedang berjalan,"
+                    + " coba lagi sebentar.");
         }
         try {
             return backupNowIsi(ctx);
         } finally {
-            BACKUP_JALAN.set(false);
+            lepasBackup();
         }
     }
 
@@ -550,8 +546,14 @@ public final class TgBackup {
         String peringatan = terenkripsi ? ""
                 : " (TANPA enkripsi: kunci privat tak ikut; isi password backup"
                         + " agar terenkripsi penuh)";
+        // File >20 MB tak bisa diunduh kembali via bot (batas Bot API):
+        // peringatkan sekarang agar user menyimpan salinan manual dari chat.
+        String batas = upload.length() > BATAS_UNDUH_TELEGRAM
+                ? " (CATATAN: >20 MB sehingga tak bisa direstore via bot"
+                        + " - unduh manual dari chat bila perlu restore)"
+                : "";
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
-                + upload.length() + " bytes)" + peringatan;
+                + upload.length() + " bytes)" + peringatan + batas;
     }
 
     /** Siapkan POST Telegram tanpa ikuti redirect otomatis.
@@ -1699,7 +1701,15 @@ public final class TgBackup {
         }
         // Cek storage di depan (bukan di tengah unduhan): getFile menyertakan
         // file_size sehingga STB sesak gagal cepat dengan pesan jelas.
+        // Sekalian tolak file >20 MB: Bot API tak bisa mengunduhnya kembali
+        // sehingga restore via bot mustahil — arahkan ke restore manual.
         long ukuran = fileSizeDariRespons(sb.toString());
+        if (!bolehUnduhUlangTelegram(ukuran)) {
+            throw new IOException("Backup terlalu besar (" + humanBytes(ukuran)
+                    + " > 20 MB) - Bot API Telegram tak bisa mengunduhnya kembali."
+                    + " Unduh file backup manual dari chat Telegram, lalu restore"
+                    + " lokal via Settings.");
+        }
         if (ukuran > 0) {
             try {
                 java.io.File cache = ctx.getCacheDir();
@@ -1766,6 +1776,18 @@ public final class TgBackup {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    /** Batas unduh file Bot API Telegram (20 MB): backup lebih besar berhasil
+     *  diunggah (batas 50 MB) tapi tak bisa diunduh kembali via getFile,
+     *  sehingga /restore selalu gagal. Tolak di depan dengan pesan jelas. */
+    static final long BATAS_UNDUH_TELEGRAM = 20L * 1024 * 1024;
+
+    /** True bila ukuran file masih bisa diunduh kembali via Bot API (murni).
+     *  Tak-terbaca (-1) dianggap boleh: gerbang "ok"/path tetap di pemanggil,
+     *  dan unduhan streaming tetap dibatasi 200 MB. */
+    static boolean bolehUnduhUlangTelegram(long ukuran) {
+        return ukuran < 0 || ukuran <= BATAS_UNDUH_TELEGRAM;
     }
 
     /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni.
@@ -1997,20 +2019,33 @@ public final class TgBackup {
         }
     }
 
-    /** Kunci restore global (UI + bot): dua restore bersamaan mengekstrak
-     *  interleave ke folder data yang sama dan salinan pengaman kedua bisa
-     *  menangkap parsial pertama. Kunci bot (TUGAS_BERAT) tak mencakup jalur UI. */
-    private static final java.util.concurrent.atomic.AtomicBoolean RESTORE_JALAN =
+    /** Kunci tugas data global (backup + restore, UI + bot + jadwal): satu
+     *  boolean bersama agar backup tak jalan bersamaan dengan restore
+     *  (zip backup / salinan pengaman bisa menangkap DB tengah-restore) dan
+     *  dua backup tak mengunggah bareng (hemat kuota + slot Telegram di STB).
+     *  Urutan kunci selalu luar-dalam (TUGAS_BERAT/runBusy dulu, kunci ini
+     *  kemudian) sehingga tak ada inversi yang deadlock. */
+    private static final java.util.concurrent.atomic.AtomicBoolean TUGAS_DATA_JALAN =
             new java.util.concurrent.atomic.AtomicBoolean(false);
 
-    /** Coba kunci restore; false bila restore lain sedang berjalan. */
+    /** Coba kunci backup; false bila tugas backup/restore lain sedang berjalan. */
+    public static boolean kunciBackup() {
+        return TUGAS_DATA_JALAN.compareAndSet(false, true);
+    }
+
+    /** Lepas kunci backup (wajib di finally pemegang). */
+    public static void lepasBackup() {
+        TUGAS_DATA_JALAN.set(false);
+    }
+
+    /** Coba kunci restore; false bila tugas backup/restore lain sedang berjalan. */
     public static boolean kunciRestore() {
-        return RESTORE_JALAN.compareAndSet(false, true);
+        return TUGAS_DATA_JALAN.compareAndSet(false, true);
     }
 
     /** Lepas kunci restore (wajib di finally pemegang). */
     public static void lepasRestore() {
-        RESTORE_JALAN.set(false);
+        TUGAS_DATA_JALAN.set(false);
     }
 
     // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──

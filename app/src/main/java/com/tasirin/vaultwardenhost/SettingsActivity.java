@@ -1342,11 +1342,12 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreDatabase(Uri uri, String dataDirMentah) {
-        // Satu restore dalam satu waktu (lihat kunciRestore): bot /restore dan
-        // tombol UI menulis folder data yang sama.
+        // Satu tugas data dalam satu waktu (lihat kunciRestore/kunciBackup):
+        // bot /restore, tombol UI, dan backup terjadwal menulis/membaca
+        // folder data yang sama sehingga tak boleh tumpang tindih.
         if (!TgBackup.kunciRestore()) {
-            toast("Restore lain sedang berjalan, coba lagi sebentar.");
-            appendUiLog("[app] Restore ditolak: restore lain sedang berjalan.");
+            toast("Tugas backup/restore lain sedang berjalan, coba lagi sebentar.");
+            appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
         }
         try {
@@ -1709,8 +1710,8 @@ public class SettingsActivity extends Activity {
     // dulu ke prefs di UI thread agar dipakai sebagai folder tujuan.
     private void restoreFromZip(File zip) {
         if (!TgBackup.kunciRestore()) {
-            toast("Restore lain sedang berjalan, coba lagi sebentar.");
-            appendUiLog("[app] Restore ditolak: restore lain sedang berjalan.");
+            toast("Tugas backup/restore lain sedang berjalan, coba lagi sebentar.");
+            appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
         }
         try {

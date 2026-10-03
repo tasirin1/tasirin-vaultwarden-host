@@ -775,6 +775,32 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bolehUnduhUlangTelegram_batas20MB() {
+        assertTrue(TgBackup.bolehUnduhUlangTelegram(-1));
+        assertTrue(TgBackup.bolehUnduhUlangTelegram(0));
+        assertTrue(TgBackup.bolehUnduhUlangTelegram(20L * 1024 * 1024));
+        assertFalse(TgBackup.bolehUnduhUlangTelegram(20L * 1024 * 1024 + 1));
+    }
+
+    @Test
+    public void kunciBackupDanRestoreSalingMengesampingkan() {
+        // Satu kunci bersama: backup tak boleh jalan bersamaan dengan restore.
+        assertTrue(TgBackup.kunciBackup());
+        try {
+            assertFalse(TgBackup.kunciRestore());
+            assertFalse(TgBackup.kunciBackup());
+        } finally {
+            TgBackup.lepasBackup();
+        }
+        assertTrue(TgBackup.kunciRestore());
+        try {
+            assertFalse(TgBackup.kunciBackup());
+        } finally {
+            TgBackup.lepasRestore();
+        }
+    }
+
+    @Test
     public void kunciRestoreSalingMengesampingkan() {
         assertTrue(TgBackup.kunciRestore());
         try {

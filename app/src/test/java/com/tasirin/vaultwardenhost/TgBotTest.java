@@ -357,9 +357,9 @@ public class TgBotTest {
         // perintahBerbahaya (tombol inline tetap jalan, ditolak halus).
         assertTrue(TgBot.pesanPinWajibHapus("/crashlog 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/log 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/status 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/stop 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/careset 123456"));
-        assertFalse(TgBot.pesanPinWajibHapus("/status"));
         assertFalse(TgBot.pesanPinWajibHapus("/help"));
         assertFalse(TgBot.pesanPinWajibHapus(null));
         assertFalse(TgBot.pesanPinWajibHapus(""));
