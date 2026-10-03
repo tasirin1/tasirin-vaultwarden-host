@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * Digunakan untuk HTTPS lokal (ROCKET_TLS_*).
  *
  * <p>Skema: CA self-signed (ca.pem, CA:TRUE, 10 tahun) menandatangani sertifikat
- * server (cert.pem, CA:FALSE + SAN IP/DNS, 825 hari). Yang dipasang di HP lain cukup
+ * server (cert.pem, CA:FALSE + SAN IP/DNS, 397 hari). Yang dipasang di HP lain cukup
  * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP/domain berubah
  * sehingga tidak perlu install ulang, hanya cert.pem yang dibuat ulang.</p>
  */
@@ -57,8 +57,8 @@ public final class TlsCert {
     static final String LEAF_CN = "Vaultwarden Android";
     /** Regen dini leaf bila sisa < 30 hari agar tak kedaluwarsa di tengah jalan. */
     static final long BATAS_REGEN_MS = 30L * 24 * 3600 * 1000;
-    /** Umur leaf maksimal 825 hari agar klien modern tak menolak (398+ hari ditolak Chrome/Android baru). */
-    static final long LEAF_MAX_MS = 825L * 24 * 3600 * 1000;
+    /** Umur leaf maksimal 397 hari agar klien modern tak menolak (398+ hari ditolak Chrome/Android baru). */
+    static final long LEAF_MAX_MS = 397L * 24 * 3600 * 1000;
 
     /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
      *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
@@ -253,7 +253,7 @@ public final class TlsCert {
         return sisa > BATAS_REGEN_MS || sisa == -2;
     }
 
-    /** True bila leaf warisan kepanjangan (>825 hari) wajib diregen agar klien
+    /** True bila leaf warisan kepanjangan (>397 hari) wajib diregen agar klien
      *  modern tak menolak walau belum kedaluwarsa. Murni. */
     static boolean leafTerlaluLama(long sisa) {
         return sisa > LEAF_MAX_MS;
@@ -289,7 +289,7 @@ public final class TlsCert {
             if (l.isEmpty() || l.length() > 63) {
                 return false;
             }
-            if (!l.matches("[a-z0-9]([a-z0-9-]*[a-z0-9])?")) {
+            if (!l.toLowerCase(java.util.Locale.US).matches("[a-z0-9]([a-z0-9-]*[a-z0-9])?")) {
                 return false;
             }
         }
@@ -331,7 +331,7 @@ public final class TlsCert {
             }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips, dns), 825);
+                    extensionsBlock(ips, dns), 397);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;

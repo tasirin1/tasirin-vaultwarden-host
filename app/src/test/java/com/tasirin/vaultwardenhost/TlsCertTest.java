@@ -114,6 +114,8 @@ public class TlsCertTest {
         assertTrue(TlsCert.namaDnsValid("server"));
         assertTrue(TlsCert.namaDnsValid("vaultwarden-rumah.home"));
         assertTrue(TlsCert.namaDnsValid("a.b.c.local"));
+        assertTrue(TlsCert.namaDnsValid("Vault.Lan"));
+        assertTrue(TlsCert.namaDnsValid("VAULT"));
         assertFalse(TlsCert.namaDnsValid(null));
         assertFalse(TlsCert.namaDnsValid(""));
         assertFalse(TlsCert.namaDnsValid("192.168.1.10"));
@@ -131,6 +133,12 @@ public class TlsCertTest {
         assertEquals(java.util.Collections.emptyList(), TlsCert.daftarDns("192.168.1.10"));
         assertEquals(java.util.Collections.singletonList("vault.lan"),
                 TlsCert.daftarDns("  VAULT.LAN. "));
+    }
+
+    @Test
+    public void leafTerlaluLamaBatas397Hari() {
+        assertFalse(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS));
+        assertTrue(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS + 1));
     }
 
     @Test

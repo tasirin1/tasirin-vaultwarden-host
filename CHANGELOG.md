@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: leaf 397 hari, DNS huruf besar
+- `TlsCert`: umur leaf baru 397 hari (bukan 825 hari) agar lolos batas 398 hari Chrome/Android modern; leaf warisan 825 hari otomatis diregen via `leafTerlaluLama`; uji `leafTerlaluLamaBatas397Hari` baru.
+- `TlsCert.namaDnsValid`: terima huruf besar (case-insensitive) agar konsisten dengan `daftarDns` yang sudah lower-case; uji tambah `Vault.Lan`/`VAULT`.
+
 ## [Belum rilis] — Perbaikan audit: clipboard sidik, wrap PIN, alarm, resume, loopback
 - `MainActivity`/`SettingsActivity`: banding bersih clipboard via sidik SHA-256 (`LogActivity.sidikClip`) agar lambda 30 dtk tak menahan plaintext di heap.
 - `ServerService`/`SettingsActivity`: `PinGate.kuatkanHashDini` juga dari jalur service + settings agar pemakaian bot-only/settings-only tak menyisakan SHA-256 tanpa salt.
