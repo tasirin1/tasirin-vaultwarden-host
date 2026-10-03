@@ -411,6 +411,13 @@ public class SettingsActivity extends Activity {
         autoRestartCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(TgBackup.amanString(sp, ServerService.KEY_BIN_SHA, ""));
+        // Keraskan hash PIN legasi di rest (tanpa menunggu login),
+        // untuk pemakaian settings-only yang tak buka MainActivity.
+        try {
+            final android.content.Context appPin = getApplicationContext();
+            new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
+        } catch (Exception ignored) {
+        }
         bersihkanPin(pinInput);
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
         pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
@@ -2096,7 +2103,12 @@ public class SettingsActivity extends Activity {
     }
 
     private void copyLocalUrl() {
-        salinTeks(ServerService.localUrl(this), "URL jaringan disalin");
+        String url = ServerService.localUrl(this);
+        if (url.contains("127.0.0.1") || url.contains("localhost")) {
+            salinTeks(url, "URL loopback disalin (IP LAN tak terdeteksi)");
+        } else {
+            salinTeks(url, "URL jaringan disalin");
+        }
     }
 
     /** Port dari form (atau bawaan bila kosong) untuk tombol salin URL lokal. */
@@ -2836,13 +2848,15 @@ public class SettingsActivity extends Activity {
             final String salin = isi;
             cm.setPrimaryClip(android.content.ClipData.newPlainText(label, salin));
             // Otomatis bersihkan clipboard 30 dtk agar token rahasia
-            // (admin/bot) tak mengendap dan disadap app lain.
+            // (admin/bot) tak mengendap dan disadap app lain. Banding via
+            // sidik agar lambda tak menahan plaintext di heap.
+            final String sidik = LogActivity.sidikClip(salin);
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 try {
                     android.content.ClipData cur = cm.getPrimaryClip();
                     if (cur != null && cur.getItemCount() > 0
                             && cur.getItemAt(0) != null
-                            && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                            && sidik.equals(LogActivity.sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
                         cm.setPrimaryClip(android.content.ClipData.newPlainText(label, ""));
                     }
                 } catch (Exception ignored) {

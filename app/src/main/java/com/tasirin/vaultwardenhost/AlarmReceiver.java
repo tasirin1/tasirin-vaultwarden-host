@@ -13,6 +13,23 @@ import android.content.SharedPreferences;
  *  dihitung ulang lalu backup susulan bila hari sudah berganti. */
 public class AlarmReceiver extends BroadcastReceiver {
 
+    /** Action alarm harian milik app (lihat TgBackup.schedule). */
+    public static final String ACTION_HARIAN =
+            "com.tasirin.vaultwardenhost.ALARM_HARIAN";
+    /** Action tunda-boot milik app (lihat TgBackup.jadwalTundaBoot). */
+    public static final String ACTION_TUNDA =
+            "com.tasirin.vaultwardenhost.ALARM_TUNDA_BOOT";
+    /** Throttle spam explicit-intent: service sudah dedup harian, tapi tiap
+     *  siaran palsu tetap membangunkan perangkat + start service. Jeda ini
+     *  hanya untuk jalur alarm umum; susulan boot & ganti tanggal tak ikut. */
+    static final long THROTTLE_ALARM_MS = 60_000;
+    private static volatile long terakhirAlarmElapsed = 0;
+
+    /** Murni waktu: true bila alarm umum boleh jalan (di luar jeda spam). */
+    static boolean bolehAlarmJalan(long kini, long terakhir, long jeda) {
+        return terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
+    }
+
     /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
     @SuppressLint("ApplySharedPref")
     private static void mulaiBackup(Context context) {
@@ -135,6 +152,19 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             return;
         }
+        // Jalur alarm umum: terima action milik app + bare intent lawas
+        // (transisi satu siklus alarm). Action asing diabaikan. Throttle
+        // 60 dtk menumpulkan spam explicit-intent: jadwal tetap disegar
+        // oleh mulaiBackup, service sudah dedup harian di dalamnya.
+        if (action != null && !ACTION_HARIAN.equals(action)) {
+            return;
+        }
+        long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+        long terakhir = terakhirAlarmElapsed;
+        if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
+            return;
+        }
+        terakhirAlarmElapsed = kiniElapsed;
         mulaiBackup(context);
     }
 }

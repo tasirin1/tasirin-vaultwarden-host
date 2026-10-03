@@ -230,6 +230,7 @@ public final class TgBackup {
                 return false;
             }
             Intent intent = new Intent(ctx, AlarmReceiver.class)
+                    .setAction(AlarmReceiver.ACTION_TUNDA)
                     .putExtra(EXTRA_TUNDA_BOOT, true);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -3056,7 +3057,8 @@ public final class TgBackup {
         if (am == null) {
             return;
         }
-        Intent intent = new Intent(ctx, AlarmReceiver.class);
+        Intent intent = new Intent(ctx, AlarmReceiver.class)
+                .setAction(AlarmReceiver.ACTION_HARIAN);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_HARIAN, intent, flags);
@@ -3098,6 +3100,15 @@ public final class TgBackup {
             }
         } else {
             am.cancel(pi);
+            // Batalkan juga varian bare-intent lawas (tanpa action, sebelum
+            // penandaan ACTION_HARIAN): PendingIntent beda action tak cocok
+            // sehingga alarm yatim terus membunyikan receiver tiap tengah malam.
+            try {
+                Intent lawas = new Intent(ctx, AlarmReceiver.class);
+                PendingIntent piLawas = PendingIntent.getBroadcast(ctx, REQ_HARIAN, lawas, flags);
+                am.cancel(piLawas);
+            } catch (Exception ignored) {
+            }
         }
     }
 }

@@ -734,7 +734,18 @@ public final class Updater {
                               int connectMs, int readMs, UrlCadangan cadangan)
             throws Exception {
         // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
-        long resumeFrom = tmp.exists() ? tmp.length() : 0;
+        // Wajib isFile: path temp yang diduduki direktori membuat
+        // FileOutputStream gagal terus sampai dibersihkan manual.
+        long resumeFrom = 0;
+        try {
+            if (tmp.isFile()) {
+                resumeFrom = tmp.length();
+            } else if (tmp.exists()) {
+                try { tmp.delete(); } catch (Exception ignoredDel) { }
+            }
+        } catch (Exception ignored) {
+            resumeFrom = 0;
+        }
         HttpURLConnection dl = null;
         try {
             dl = openRange(ctx, url[0], resumeFrom, connectMs, readMs);

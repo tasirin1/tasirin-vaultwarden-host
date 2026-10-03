@@ -690,6 +690,14 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         createChannel();
+        // Keraskan hash PIN legasi di rest (tanpa menunggu buka activity):
+        // pemakaian bot-only/boot tak pernah menyentuh MainActivity sehingga
+        // SHA-256 tanpa salt bertahan selamanya. Worker thread (PBKDF2 120k).
+        try {
+            final android.content.Context appPin = getApplicationContext();
+            new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
+        } catch (Exception ignored) {
+        }
         // Recreate transien oleh sistem tanpa intent baru: pasang ulang
         // health-check/wakelock/restart bila server masih diminta jalan.
         // Tanpa ini monitoring berhenti diam-diam selagi binary masih hidup.

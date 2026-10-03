@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: clipboard sidik, wrap PIN, alarm, resume, loopback
+- `MainActivity`/`SettingsActivity`: banding bersih clipboard via sidik SHA-256 (`LogActivity.sidikClip`) agar lambda 30 dtk tak menahan plaintext di heap.
+- `ServerService`/`SettingsActivity`: `PinGate.kuatkanHashDini` juga dari jalur service + settings agar pemakaian bot-only/settings-only tak menyisakan SHA-256 tanpa salt.
+- `AlarmReceiver`/`TgBackup`: alarm milik app ditandai action (`ACTION_HARIAN`/`ACTION_TUNDA`, bare intent lawas tetap diterima transisi) + throttle 60 dtk di jalur umum agar spam explicit-intent tak membangunkan perangkat beruntun; uji `AlarmReceiverTest` baru.
+- `Updater`: resume lanjut hanya bila temp `isFile`; direktori nyasar dihapus best-effort agar unduhan tak gagal permanen.
+- `MainActivity`/`SettingsActivity`: salin URL loopback ditandai jelas agar tak dikira URL LAN.
+
 ## [Belum rilis] — Perbaikan audit: receiver, update, export, samarkan, izin
 - `AndroidManifest AlarmReceiver`: `exported=true` agar `DATE_CHANGED`/`TIME_SET`/`TIMEZONE_CHANGED` sampai di Android 12+; alarm eksplisit tetap aman karena `mulaiBackup` cek auto + token/chat.
 - `BootReceiver`: `MY_PACKAGE_REPLACED` tak lagi auto-start server; hanya BOOT yang boleh start, selepas update cukup jadwalkan ulang alarm/bot.

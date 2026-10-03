@@ -723,19 +723,25 @@ public class MainActivity extends Activity {
         if (cm != null) {
             final String salin = url;
             cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", salin));
-            // Jendela 30 dtk: cukup untuk tempel sekali, tak lama nangkring di riwayat clipboard.
+            // Banding via sidik (bukan plaintext): lambda tertunda 30 dtk tak
+            // menahan string rahasia di heap; pola sama seperti LogActivity.
+            final String sidik = LogActivity.sidikClip(salin);
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 try {
                     android.content.ClipData cur = cm.getPrimaryClip();
                     if (cur != null && cur.getItemCount() > 0
                             && cur.getItemAt(0) != null
-                            && salin.equals(String.valueOf(cur.getItemAt(0).getText()))) {
+                            && sidik.equals(LogActivity.sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
                         cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", ""));
                     }
                 } catch (Exception ignored) {
                 }
             }, 30_000);
-            toast(getString(R.string.url_copied, url));
+            if (url.contains("127.0.0.1") || url.contains("localhost")) {
+                toast(getString(R.string.url_copied, url) + " (loopback — IP LAN tak terdeteksi)");
+            } else {
+                toast(getString(R.string.url_copied, url));
+            }
         } else {
             toast(url);
         }
