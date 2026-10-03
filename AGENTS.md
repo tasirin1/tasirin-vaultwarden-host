@@ -16,7 +16,7 @@ Baca file ini **SEBELUM** mengubah, memperbaiki, atau mengelola repository ini.
 Panduan lengkap untuk pengguna ada di `README.md` (Indonesia) dan
 `README.en.md` (Inggris) — jaga keduanya sinkron dengan fitur terbaru.
 Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
-Kontinuitas antar-sesi: di awal sesi baca `MEMORY.md` (file lokal, gitignore, tidak di-commit) bila ada, lalu `git status --short` + `git log --oneline -5`; di akhir sesi update `MEMORY.md`.
+Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pull --ff-only`, lalu baca `/root/memori-agents-ai/tasirin-vaultwarden-host.md` + `git status --short` + `git log --oneline -5` di repo ini; di akhir sesi update file memori itu, lalu commit + push ke repo memori (`memory: ...`).
 
 ## Struktur repository
 
