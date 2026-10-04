@@ -3,7 +3,6 @@ package com.tasirin.vaultwardenhost;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -111,6 +110,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
+        // Sisa salinan clipboard yang penghapusnya tak sempat jalan karena
+        // proses mati dibersihkan/dipasang ulang di sini (satu pintu LogActivity).
+        LogActivity.bersihkanClipBasiJikaAda(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
@@ -716,27 +718,13 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL). */
+    /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL).
+     *  Bersih otomatis tahan mati proses via satu pintu LogActivity. */
     private void copyShownUrl() {
         String url = ServerService.localUrl(this);
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
-            final String salin = url;
-            cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", salin));
-            // Banding via sidik (bukan plaintext): lambda tertunda 30 dtk tak
-            // menahan string rahasia di heap; pola sama seperti LogActivity.
-            final String sidik = LogActivity.sidikClip(salin);
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                try {
-                    android.content.ClipData cur = cm.getPrimaryClip();
-                    if (cur != null && cur.getItemCount() > 0
-                            && cur.getItemAt(0) != null
-                            && sidik.equals(LogActivity.sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
-                        cm.setPrimaryClip(ClipData.newPlainText("vaultwarden-url", ""));
-                    }
-                } catch (Exception ignored) {
-                }
-            }, 30_000);
+            LogActivity.salinBersihOtomatis(this, "vaultwarden-url", url);
             if (url.contains("127.0.0.1") || url.contains("localhost")) {
                 toast(getString(R.string.url_copied, url) + " (loopback — IP LAN tak terdeteksi)");
             } else {

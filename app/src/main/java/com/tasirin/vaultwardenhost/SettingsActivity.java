@@ -215,6 +215,9 @@ public class SettingsActivity extends Activity {
         // Sisa export plaintext sesi yang mati (dibunuh saat chooser terbuka)
         // tak boleh mengendap di cache: sapu sekali saat buka.
         bersihkanExportPlainCache();
+        // Sisa salinan clipboard yang penghapusnya tak sempat jalan karena
+        // proses mati dibersihkan/dipasang ulang di sini (satu pintu LogActivity).
+        LogActivity.bersihkanClipBasiJikaAda(this);
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_settings);
@@ -2844,33 +2847,15 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Salin teks ke clipboard dengan toast ramah. */
+    /** Salin teks ke clipboard dengan toast ramah + bersih otomatis
+     *  yang tahan mati proses (satu pintu LogActivity agar token rahasia
+     *  tak mengendap bila app dibunuh dalam 30 dtk). */
     private void salinTeks(String isi, String label) {
         if (isi == null || isi.trim().isEmpty()) {
             toast(label + " " + getString(R.string.belum_diisi));
             return;
         }
-        android.content.ClipboardManager cm =
-                (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        if (cm != null) {
-            final String salin = isi;
-            cm.setPrimaryClip(android.content.ClipData.newPlainText(label, salin));
-            // Otomatis bersihkan clipboard 30 dtk agar token rahasia
-            // (admin/bot) tak mengendap dan disadap app lain. Banding via
-            // sidik agar lambda tak menahan plaintext di heap.
-            final String sidik = LogActivity.sidikClip(salin);
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                try {
-                    android.content.ClipData cur = cm.getPrimaryClip();
-                    if (cur != null && cur.getItemCount() > 0
-                            && cur.getItemAt(0) != null
-                            && sidik.equals(LogActivity.sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
-                        cm.setPrimaryClip(android.content.ClipData.newPlainText(label, ""));
-                    }
-                } catch (Exception ignored) {
-                }
-            }, 30_000);
-        }
+        LogActivity.salinBersihOtomatis(this, label, isi);
         toast(label + " " + getString(R.string.disalin));
     }
 
