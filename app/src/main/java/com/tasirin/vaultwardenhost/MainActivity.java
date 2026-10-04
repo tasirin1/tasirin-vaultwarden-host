@@ -931,15 +931,20 @@ public class MainActivity extends Activity {
                     final String entered = input.getText().toString();
                     final android.content.Context appCtx = getApplicationContext();
                     new Thread(() -> {
-                        boolean cocok = PinCrypto.verify(pinHash, entered);
+                        // Lawan hash segar (dibaca di worker, bukan tangkapan
+                        // saat dialog dibuat): PIN yang diganti activity lain
+                        // selagi dialog terbuka tak bisa diloloskan PIN lama.
+                        String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                        String lawan = (segar == null || segar.isEmpty()) ? pinHash : segar;
+                        boolean cocok = PinCrypto.verify(lawan, entered);
                         PinGate.catatHasil(appCtx, cocok,
                                 System.currentTimeMillis());
-                        if (cocok && PinCrypto.perluUpgradeHash(pinHash)) {
+                        if (cocok && PinCrypto.perluUpgradeHash(lawan)) {
                             // Migrasi hash lama/lemah ke PBKDF2 120k (sudah di worker).
                             // Baca ulang: PIN bisa diganti activity lain saat verifikasi
                             // jalan; jangan timpa hash baru dengan hasil PIN lama.
                             String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                            if (pinHash.equals(kini)) {
+                            if (lawan.equals(kini)) {
                                 sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
                             }
                         }

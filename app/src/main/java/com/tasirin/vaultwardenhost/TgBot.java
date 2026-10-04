@@ -1151,6 +1151,16 @@ public final class TgBot {
             return null;
         }
         boolean cocok = PinCrypto.verify(hash, pin);
+        if (cocok) {
+            // PIN bisa diganti tepat saat PBKDF2 jalan: nilai ulang lawan
+            // hash terbaru agar PIN lama tak lolos sekali. Hanya bayar 1x
+            // PBKDF2 ekstra bila hash memang berganti (sangat jarang).
+            String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+            if (segar != null && !segar.isEmpty() && !segar.equals(hash)) {
+                hash = segar;
+                cocok = PinCrypto.verify(hash, pin);
+            }
+        }
         PinGate.catatHasil(ctx, cocok, sekarang);
         if (cocok) {
             if (PinCrypto.perluUpgradeHash(hash)) {
