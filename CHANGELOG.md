@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: clipboard, PIN, port, susulan start
+- `LogActivity`/`SettingsActivity`/`MainActivity`: clipboard satu pintu tahan mati proses (`salinBersihOtomatis` + sidik/kedaluwarsa di prefs, dipasang ulang saat activity dibuka) agar token tak mengendap bila app dibunuh dalam 30 dtk.
+- `TgBot`/`MainActivity`/`SettingsActivity`: upgrade hash PIN baca-ulang sebelum tulis + verifikasi lawan hash segar agar PIN lama tak lolos/menimpa hash baru.
+- `SettingsActivity`/`MainActivity`: salin URL selalu pakai port ternormalisasi; port privileged (<1024) disembuhkan ke default saat simpan agar prefs/UI/server sepakat.
+- `MainActivity`: flag susulan auto-start hanya dihapus bila start sukses agar tak hangus sia-sia.
+
 ## [Belum rilis] — Perbaikan audit: port privileged
 - `SettingsActivity.sanitizePortPref`: terima hanya 1024-65535 selaras `normalisasiPort` service dan pesan MainActivity; port privileged hasil impor dikembalikan ke bawaan dengan log jelas (plus buang catch mati).
 
