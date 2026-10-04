@@ -1155,7 +1155,12 @@ public final class TgBot {
         if (cocok) {
             if (PinCrypto.perluUpgradeHash(hash)) {
                 try {
-                    sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(pin)).apply();
+                    // Baca ulang: PIN bisa diganti layar lain saat verifikasi
+                    // jalan; jangan timpa hash baru dengan hasil PIN lama.
+                    String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                    if (hash.equals(kini)) {
+                        sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(pin)).apply();
+                    }
                 } catch (Exception ignored) {
                 }
             }
