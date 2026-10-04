@@ -667,6 +667,19 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
+        if (portNum < 1024) {
+            // Selaras galatPort (inline) + startServer: port privileged butuh
+            // root dan selalu gagal bind. Sembuhkan ke default di depan agar
+            // prefs/UI/server sepakat (sebelumnya tersimpan mentah lalu Start
+            // jalan di port berbeda diam-diam).
+            portEfektif = ServerService.normalisasiPort(portEfektif);
+            portNum = Integer.parseInt(portEfektif);
+            portInput.setText(portEfektif);
+            validasiInline();
+            toast("Port <1024 butuh root - pakai default " + portEfektif + ".");
+            appendUiLog("[app] Port privileged '" + port + "' - pakai default "
+                    + portEfektif + ".");
+        }
 
         SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
         ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
