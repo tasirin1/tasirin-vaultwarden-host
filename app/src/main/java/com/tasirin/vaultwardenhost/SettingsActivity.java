@@ -2127,10 +2127,11 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Port dari form (atau bawaan bila kosong) untuk tombol salin URL lokal. */
+    /** Port dari form untuk tombol salin URL lokal (selaras service:
+     *  rusak/privileged jatuh ke default agar URL salinan selalu valid). */
     private String portEfektifUntukSalin() {
-        String p = portInput.getText().toString().trim();
-        return p.isEmpty() ? DEFAULT_PORT : p;
+        CharSequence cs = portInput == null ? null : portInput.getText();
+        return ServerService.normalisasiPort(cs == null ? "" : cs.toString().trim());
     }
 
     /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */
