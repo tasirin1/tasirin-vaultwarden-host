@@ -216,14 +216,30 @@ public class MainActivity extends Activity {
         // membatasi start service): mulaiService menandainya, eksekusi di sini
         // saat app dibuka (sudah foreground sehingga diizinkan).
         if (TgBackup.amanBoolean(sp, ServerService.KEY_START_TERTUNDA, false)) {
-            try {
-                sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
-            } catch (Exception ignored) {
-            }
             if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)
                     && !ServerService.running) {
                 appendUiLog("[app] Auto-start susulan: start background sempat ditolak sistem.");
-                ServerService.start(this);
+                // Hapus flag hanya bila start sukses: gagal (lempar/false)
+                // wajib dicoba lagi saat app dibuka berikutnya, bukan hilang
+                // sampai reboot. Selaras BACKUP_TERTUNDA yang tak hangus sia-sia.
+                boolean ok = false;
+                try {
+                    ok = ServerService.start(this);
+                } catch (Exception ignored) {
+                    ok = false;
+                }
+                if (ok) {
+                    try {
+                        sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
+                    } catch (Exception ignored2) {
+                    }
+                }
+            } else {
+                // Auto-start mati / server sudah jalan: flag basi, buang.
+                try {
+                    sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
+                } catch (Exception ignored) {
+                }
             }
         }
     }
