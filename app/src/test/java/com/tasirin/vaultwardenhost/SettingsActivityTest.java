@@ -149,6 +149,43 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void imporDiblokirTepatDiBatasPin() {
+        assertFalse(SettingsActivity.imporDiblokir(0));
+        assertFalse(SettingsActivity.imporDiblokir(4));
+        assertTrue(SettingsActivity.imporDiblokir(5));
+        assertTrue(SettingsActivity.imporDiblokir(99));
+    }
+
+    @Test
+    public void sidikBerkasStabilDanHeks() throws Exception {
+        java.io.File f = java.io.File.createTempFile("vwuji", ".bin");
+        try {
+            java.nio.file.Files.write(f.toPath(), "isi-uji".getBytes("UTF-8"));
+            String a = SettingsActivity.sidikBerkas(f);
+            String b = SettingsActivity.sidikBerkas(f);
+            assertEquals(64, a.length());
+            assertTrue(a.matches("[0-9a-f]+"));
+            assertEquals(a, b);
+        } finally {
+            f.delete();
+        }
+        assertEquals("", SettingsActivity.sidikBerkas(null));
+        assertEquals("", SettingsActivity.sidikBerkas(new java.io.File("/jalan/tak/ada/uji.json")));
+    }
+
+    @Test
+    public void budgetImporKumulatifDanBersih() {
+        String kunci = "uji-budget-" + System.nanoTime();
+        assertEquals(0, SettingsActivity.ambilGagalImpor(kunci));
+        SettingsActivity.simpanGagalImpor(kunci, 3);
+        assertEquals(3, SettingsActivity.ambilGagalImpor(kunci));
+        SettingsActivity.simpanGagalImpor(kunci, 5);
+        assertTrue(SettingsActivity.imporDiblokir(SettingsActivity.ambilGagalImpor(kunci)));
+        SettingsActivity.simpanGagalImpor(kunci, 0);
+        assertEquals(0, SettingsActivity.ambilGagalImpor(kunci));
+    }
+
+    @Test
     public void wizardHanyaUntukInstalasiBaru() {
         assertFalse(SettingsActivity.perluWizard(true, "", "", "", ""));
         assertTrue(SettingsActivity.perluWizard(false, "", "", "", ""));

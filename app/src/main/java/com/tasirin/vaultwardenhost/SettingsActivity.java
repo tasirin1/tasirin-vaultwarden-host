@@ -104,6 +104,66 @@ public class SettingsActivity extends Activity {
     static boolean sisaEnkripTmp(String nama) {
         return nama != null && nama.startsWith(PREFIX_ENCTMP) && nama.endsWith(".json");
     }
+
+    /** Gagal dekrip import per sidik berkas (anti buka-ulang dialog dapat jatah
+     *  5x baru: berkas yang sama dihitung kumulatif selama proses hidup).
+     *  Penahan ketuk-brute-force saja: pemegang HP bisa lihat password di
+     *  Settings, dan file curian bisa dibobol offline di mesin sendiri. */
+    private static final java.util.Map<String, Integer> GAGAL_IMPOR_DIGEST =
+            new java.util.HashMap<>();
+
+    /** Sidik SHA-256 hex isi berkas (kunci budget gagal lintas dialog);
+     *  "" bila tak terbaca (semua yang tak terbaca berbagi satu budget). */
+    static String sidikBerkas(java.io.File f) {
+        try {
+            java.security.MessageDigest md =
+                    java.security.MessageDigest.getInstance("SHA-256");
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = fis.read(buf)) != -1) {
+                    md.update(buf, 0, n);
+                }
+            }
+            byte[] d = md.digest();
+            StringBuilder sb = new StringBuilder(d.length * 2);
+            for (byte b : d) {
+                sb.append("0123456789abcdef".charAt((b >> 4) & 0xF));
+                sb.append("0123456789abcdef".charAt(b & 0xF));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** True bila budget tebak password berkas ini sudah habis. Murni. */
+    static boolean imporDiblokir(int gagal) {
+        return gagal >= PinCrypto.MAX_GAGAL;
+    }
+
+    /** Ambil gagal kumulatif sidik ini (0 bila belum ada). */
+    static synchronized int ambilGagalImpor(String sidik) {
+        try {
+            Integer v = GAGAL_IMPOR_DIGEST.get(sidik == null ? "" : sidik);
+            return v == null ? 0 : v;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Simpan gagal kumulatif sidik ini (<=0 menghapus agar map tak bocor). */
+    static synchronized void simpanGagalImpor(String sidik, int gagal) {
+        try {
+            String k = sidik == null ? "" : sidik;
+            if (gagal <= 0) {
+                GAGAL_IMPOR_DIGEST.remove(k);
+            } else {
+                GAGAL_IMPOR_DIGEST.put(k, gagal);
+            }
+        } catch (Exception ignored) {
+        }
+    }
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -2057,13 +2117,24 @@ public class SettingsActivity extends Activity {
             }
             File src = tmp;
             if (TgBackup.isEncrypted(tmp)) {
+                // Budget lintas dialog (kunci sidik isi, bukan path tmp yang unik
+                // tiap impor): buka-ulang berkas yang sama tak boleh dapat 5x baru.
+                String sidikImpor = sidikBerkas(tmp);
+                if (imporDiblokir(ambilGagalImpor(sidikImpor))) {
+                    tmp.delete();
+                    sapuSisaImpor();
+                    toast("Terlalu banyak salah - impor dibatalkan.");
+                    appendUiLog("[app] Import diblokir: password salah 5x (berkas sama)");
+                    return;
+                }
                 SharedPreferences sp0 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
                 String pass0 = TgBackup.amanString(sp0, TgBackup.KEY_TG_PASS, "");
                 if (pass0 == null || pass0.trim().isEmpty()) {
                     // Tanpa password perangkat, langsung tanya password asal
                     // (file bisa dari password mana pun, bukan harus kini).
                     tanyaPasswordImpor(tmp, capImpor,
-                            "Config terenkripsi - masukkan password saat file dibuat.");
+                            "Config terenkripsi - masukkan password saat file dibuat.",
+                            sidikImpor);
                     return;
                 }
                 File plain = new File(getCacheDir(), "vwcfg-import-" + capImpor + "-dec.json");
@@ -2074,7 +2145,8 @@ public class SettingsActivity extends Activity {
                     // lama): tanya password asal tanpa mengubah password perangkat.
                     appendUiLog("[app] Import: password perangkat tak cocok, tanya password asal");
                     tanyaPasswordImpor(tmp, capImpor,
-                            "Password perangkat tak cocok - masukkan password saat file dibuat.");
+                            "Password perangkat tak cocok - masukkan password saat file dibuat.",
+                            sidikImpor);
                     return;
                 }
                 tmp.delete();
@@ -2131,15 +2203,23 @@ public class SettingsActivity extends Activity {
      *  Password asal hanya dipakai dekrip; password perangkat tak diubah
      *  (applyPrefsFromJson mempertahankan tg_pass perangkat). */
     private void tanyaPasswordImpor(final File tmpEnkrip, final String capImpor,
-            String alasan) {
+            String alasan, final String sidikImpor) {
+        final String pesan = alasan;
+        // importConfig jalan di worker runBusy: dialog wajib dibuat di UI thread
+        // (ViewRoot tanpa Looper = crash). Seluruh alur dialog di bawah ini.
+        ui.post(() -> {
         try {
+            if (isFinishing()) {
+                tmpEnkrip.delete();
+                return;
+            }
             final EditText input = new EditText(this);
             input.setInputType(InputType.TYPE_CLASS_TEXT
                     | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             input.setMaxLines(1);
             final AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle("Password file config")
-                    .setMessage(alasan)
+                    .setMessage(pesan)
                     .setView(input)
                     .setPositiveButton("Coba impor", null)
                     .setNegativeButton("Batal", (d, w) -> {
@@ -2159,7 +2239,9 @@ public class SettingsActivity extends Activity {
                 } catch (Exception ignored) {
                 }
             });
-            final int[] gagalImpor = {0};
+            // Benih dari budget lintas dialog: buka-ulang berkas yang sama
+            // melanjutkan hitungan, bukan mengulang dari nol.
+            final int[] gagalImpor = {ambilGagalImpor(sidikImpor)};
             dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
                         String coba = input.getText().toString();
@@ -2167,29 +2249,54 @@ public class SettingsActivity extends Activity {
                             input.setError("Isi password dulu");
                             return;
                         }
-                        try {
-                            File plain = new File(getCacheDir(),
-                                    "vwcfg-import-" + capImpor + "-dec.json");
-                            TgBackup.decryptFile(tmpEnkrip, plain, coba.trim());
-                            tmpEnkrip.delete();
-                            dialog.dismiss();
-                            terapkanImporJson(plain);
-                        } catch (Exception e) {
-                            // Batas percobaan selaras lockout PIN (5x): dialog
-                            // tanpa batas memungkinkan tebak password tanpa henti.
-                            if (++gagalImpor[0] >= PinCrypto.MAX_GAGAL) {
-                                try {
-                                    tmpEnkrip.delete();
-                                } catch (Exception ignored) {
-                                }
-                                dialog.dismiss();
-                                toast("Terlalu banyak salah - impor dibatalkan.");
-                                appendUiLog("[app] Import dibatalkan: password salah 5x");
-                            } else {
-                                input.setError("Password salah / file rusak (" + gagalImpor[0] + "/5)");
-                                appendUiLog("[app] Import ditolak: password asal tak cocok");
+                        final String rahasia = coba.trim();
+                        // PBKDF2 100rb iterasi di worker (bukan UI): dialog kini
+                        // tampil di UI thread dan dekrip di sini macetkan STB.
+                        v.setEnabled(false);
+                        new Thread(() -> {
+                            try {
+                                File plain = new File(getCacheDir(),
+                                        "vwcfg-import-" + capImpor + "-dec.json");
+                                TgBackup.decryptFile(tmpEnkrip, plain, rahasia);
+                                tmpEnkrip.delete();
+                                simpanGagalImpor(sidikImpor, 0);
+                                ui.post(() -> {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (Exception ignored) {
+                                    }
+                                });
+                                terapkanImporJson(plain);
+                            } catch (Exception e) {
+                                ui.post(() -> {
+                                    try {
+                                        v.setEnabled(true);
+                                    } catch (Exception ignored) {
+                                    }
+                                    // Batas percobaan selaras lockout PIN (5x):
+                                    // hitungan kumulatif per berkas sehingga
+                                    // buka-ulang dialog tak memberi jatah baru.
+                                    int sudah = gagalImpor[0] + 1;
+                                    gagalImpor[0] = sudah;
+                                    simpanGagalImpor(sidikImpor, sudah);
+                                    if (imporDiblokir(sudah)) {
+                                        try {
+                                            tmpEnkrip.delete();
+                                        } catch (Exception ignored) {
+                                        }
+                                        try {
+                                            dialog.dismiss();
+                                        } catch (Exception ignored2) {
+                                        }
+                                        toast("Terlalu banyak salah - impor dibatalkan.");
+                                        appendUiLog("[app] Import dibatalkan: password salah 5x");
+                                    } else {
+                                        input.setError("Password salah / file rusak (" + sudah + "/5)");
+                                        appendUiLog("[app] Import ditolak: password asal tak cocok");
+                                    }
+                                });
                             }
-                        }
+                        }, "vw-import-dec").start();
                     }));
             dialog.show();
         } catch (Exception e) {
@@ -2199,6 +2306,7 @@ public class SettingsActivity extends Activity {
             }
             toast("Gagal import config: " + e.getMessage());
         }
+        });
     }
 
     /** Sapu sisa file import config (pola vwcfg-import*, termasuk nama tetap lama). */
