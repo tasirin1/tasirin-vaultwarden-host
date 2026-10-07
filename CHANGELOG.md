@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan: unduh binary berulang tiap cek
+- `Updater.downloadBinaryInner`: fail-fast shim getrandom SEBELUM mengunduh binary ~20 MB di kernel lama (dulu binary diunduh dulu lalu gagal uji asap `--version` karena shim hilang, file tmp dibuang, cek berikut mengunduh lagi dari nol).
+- `AutoUpdate.cek`: cooldown 6 jam berbagi cap `bin_dl_gagal_at` bila cache binary masih ada — sukses membersihkan cap, gagal mencatat cap, dan kegagalan tak lagi memicu notifikasi "tersedia" berulang (notifikasi sekali per versi tetap di jalur non-otomatis).
+- `ServerService.bolehCobaUnduhLagi`: tahan reboot (cap lebih besar dari waktu kini dianggap basi agar unduhan tak tertahan 6 jam).
+- `SettingsActivity` reset binary ikut membuang cap gagal agar percobaan berikut langsung jalan.
+- Uji baru: `unduhBolehDicobaBilaJamMundur`, `AutoUpdateTest` (lewati bila baru gagal + cache ada, tetap coba bila tanpa cache/belum gagal/jeda lampau).
+
 ## [Belum rilis] — Perbaikan: unduh binary berulang tanpa reset
 - `Updater.tryUpdateVersi`: nilai versi file (`versiFileBinary`) sebelum mengunduh ulang — binary yang sudah terunduh tapi belum dipakai (server jalan versi lama) tak lagi diunduh tiap cek; bila server masih jalan versi lama, pesan membawa `[bin-updated]` agar auto-restart tetap jalan. Versi eksplisit/kuncian dilewati bila file sudah persis (`unduhBolehDilewati`); downgrade tetap jalan bila file beda.
 - `ServerService.ensureBinary`: binary manual dari folder data ikut mencatat `update_version` agar tak dianggap basi; unduhan perbaikan yang gagal di-throttle 6 jam bila cache valid masih ada (`bin_dl_gagal_at`, tak ikut export config) agar tiap Start tak membakar kuota.
