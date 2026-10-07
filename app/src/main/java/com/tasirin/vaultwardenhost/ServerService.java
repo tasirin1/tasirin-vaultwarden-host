@@ -3053,16 +3053,17 @@ public class ServerService extends Service {
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips,
             List<String> dns, String cur) throws Exception {
         String saved = readText(ipFile);
-        if (saved == null || !saved.equals(cur)) {
-            // Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan agar HP lain
-            // tak perlu install ulang, jadi version.txt jangan dihapus.
-            // Penanda hilang (saved null) ikut regen: daun lama bisa berisi SAN basi.
+        // Regen dipaksa via flag (bukan hapus-dulu): TlsCert.ensure menukar
+        // atomik (.baru -> aktif) sehingga leaf lama yang masih bagus tetap
+        // dipakai bila generate gagal (mis. storage penuh) — server tak mati
+        // sia-sia. Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan
+        // agar HP lain tak perlu install ulang. Penanda hilang (saved null)
+        // ikut regen: daun lama bisa berisi SAN basi.
+        boolean ipBerubah = saved == null || !saved.equals(cur);
+        if (ipBerubah) {
             appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
-            new File(tlsDir, "cert.pem").delete();
-            new File(tlsDir, "key.pem").delete();
-            ipFile.delete();
         }
-        File dir = TlsCert.ensure(tlsDir, ips, dns);
+        File dir = TlsCert.ensure(tlsDir, ips, dns, ipBerubah);
         if (dir != null) {
             writeText(ipFile, cur);
             // Sertifikat bisa baru dibuat: buang cache SSL agar health check

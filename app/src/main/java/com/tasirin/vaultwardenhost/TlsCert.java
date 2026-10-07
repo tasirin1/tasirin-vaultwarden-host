@@ -123,6 +123,16 @@ public final class TlsCert {
 
     /** Varian dengan SAN DNS tambahan (domain lokal); {@code dns} boleh kosong. */
     public static File ensure(File dir, List<String> ips, List<String> dns) {
+        return ensure(dir, ips, dns, false);
+    }
+
+    /** Varian paksa-regen-leaf: dipakai pemanggil saat IP berubah agar SAN ikut baru.
+     *  Tanpa ini leaf valid-waktu dipakai ulang dengan SAN basi, dan pemanggil
+     *  terpaksa menghapus leaf dulu (destruktif bila generate gagal).
+     *  Atomik seperti biasa: tulis .baru dulu, tukar hanya bila jadi sehingga
+     *  leaf lama dipertahankan bila generate gagal. */
+    public static File ensure(File dir, List<String> ips, List<String> dns,
+            boolean paksaLeaf) {
         synchronized (KUNCI_ENSURE) {
         try {
             if (!dir.exists() && !dir.mkdirs()) {
@@ -158,15 +168,14 @@ public final class TlsCert {
                 writeVersion(dir);
             }
             long sisaLeaf = sisaMs(certFile);
-            if (certFile.exists() && keyFile.exists()
+            if (!paksaLeaf && certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
                 return dir;
             }
-            // Leaf hilang / rusak / kedaluwarsa: buat ulang, CA tetap.
-            // Perubahan IP/domain dideteksi pemanggil (ServerService lewat
-            // ips.txt) yang menghapus leaf lebih dulu sebelum memanggil ensure.
-            // Atomik seperti CA: leaf lama dipertahankan bila generate gagal.
+            // Leaf hilang / rusak / kedaluwarsa / dipaksa (IP berubah): buat
+            // ulang, CA tetap. Atomik seperti CA: tulis .baru dulu, tukar hanya
+            // bila jadi — leaf lama dipertahankan bila generate gagal.
             File certBaru = new File(dir, LEAF_CERT_FILE + ".baru");
             File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
             certBaru.delete();
