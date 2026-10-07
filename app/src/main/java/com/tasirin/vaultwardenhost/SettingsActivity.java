@@ -1792,14 +1792,43 @@ public class SettingsActivity extends Activity {
                 });
     }
 
+    /** Maks file export config di cache (batasi tumpukan export berulang). */
+    static final int BATAS_FILE_EXPORT = 3;
+
+    /** Pilih nama file yang wajib dihapus agar sisa tak melebihi batas:
+     *  yang terlama dibuang dulu, nama yang dikecualikan dipertahankan.
+     *  Murni agar bisa unit test (peta nama -> lastModified). */
+    static java.util.List<String> pilihHapusBatasExport(
+            java.util.Map<String, Long> namaKeWaktu, int batas, String kecualikan) {
+        java.util.List<java.util.Map.Entry<String, Long>> semua =
+                new java.util.ArrayList<>(namaKeWaktu.entrySet());
+        java.util.Collections.sort(semua,
+                (a, b) -> Long.compare(b.getValue(), a.getValue()));
+        java.util.List<String> hapus = new java.util.ArrayList<>();
+        int simpan = 0;
+        for (java.util.Map.Entry<String, Long> e : semua) {
+            if (kecualikan != null && kecualikan.equals(e.getKey())) {
+                continue;
+            }
+            simpan++;
+            if (simpan > batas) {
+                hapus.add(e.getKey());
+            }
+        }
+        return hapus;
+    }
+
     /** Sapu sisa config plaintext sementara di cache internal. File pending yang
      *  masih segar (<2 menit) dilewati: target berbagi async (Gmail/Drive) membaca
      *  stream setelah chooser kembali, jadi hapus langsung membuat kirim gagal.
-     *  Pembersihan mengandalkan sapu basi di onResume/onDestroy. */
+     *  Pembersihan mengandalkan sapu basi di onCreate/onResume/onDestroy. */
     private void bersihkanExportPlainCache() {
         try {
             File pending = exportPlainTertunda;
             String pendingPath = pending == null ? null : pending.getAbsolutePath();
+            boolean segar = pending != null
+                    && System.currentTimeMillis() - exportPlainPada < EXPORT_PLAIN_TTL_MS;
+            String pendingNamaSegar = segar && pending != null ? pending.getName() : null;
             File[] sisa = getCacheDir().listFiles();
             if (sisa != null) {
                 for (File f : sisa) {
@@ -1807,7 +1836,7 @@ public class SettingsActivity extends Activity {
                     if (n.startsWith("app-config-") && n.endsWith(".json")) {
                         boolean pendingSegar = pendingPath != null
                                 && pendingPath.equals(f.getAbsolutePath())
-                                && System.currentTimeMillis() - exportPlainPada < EXPORT_PLAIN_TTL_MS;
+                                && segar;
                         if (pendingSegar) {
                             continue;
                         }
@@ -1819,12 +1848,45 @@ public class SettingsActivity extends Activity {
                     }
                 }
             }
+            batasiFileExportCache(pendingNamaSegar);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Batasi tumpukan file export config di cache (best-effort): simpan yang
+     *  terbaru saja agar export berulang tanpa kembali tak menumpuk. Pending
+     *  yang masih segar selalu dipertahankan. */
+    private void batasiFileExportCache(String pendingNamaSegar) {
+        try {
+            File[] kini = getCacheDir().listFiles();
+            if (kini == null) {
+                return;
+            }
+            java.util.Map<String, Long> peta = new java.util.HashMap<>();
+            java.util.Map<String, File> berkas = new java.util.HashMap<>();
+            for (File f : kini) {
+                String n = f.getName();
+                if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                    peta.put(n, f.lastModified());
+                    berkas.put(n, f);
+                }
+            }
+            for (String n : pilihHapusBatasExport(peta, BATAS_FILE_EXPORT, pendingNamaSegar)) {
+                try {
+                    File t = berkas.get(n);
+                    if (t != null) {
+                        t.delete();
+                    }
+                } catch (Exception ignored) {
+                }
+            }
         } catch (Exception ignored) {
         }
     }
 
     /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
-     *  onResume/onDestroy). File pending yang masih segar (<2 menit) dipertahankan. */
+     *  onCreate/onResume/onDestroy). File pending yang masih segar (<2 menit)
+     *  dipertahankan. */
     private void sapuExportPlainBasi() {
         try {
             File pending = exportPlainTertunda;

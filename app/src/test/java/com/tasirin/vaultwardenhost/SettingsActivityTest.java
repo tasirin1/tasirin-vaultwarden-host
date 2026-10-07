@@ -35,6 +35,32 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void batasExportBuangTerlamaDulu() {
+        java.util.Map<String, Long> peta = new java.util.HashMap<>();
+        peta.put("app-config-1.json", 1000L);
+        peta.put("app-config-2.json", 2000L);
+        peta.put("app-config-3.json", 3000L);
+        peta.put("app-config-4.json", 4000L);
+        java.util.List<String> hapus =
+                SettingsActivity.pilihHapusBatasExport(peta, 3, null);
+        assertEquals(1, hapus.size());
+        assertEquals("app-config-1.json", hapus.get(0));
+    }
+
+    @Test
+    public void batasExportPertahankanPendingSegar() {
+        java.util.Map<String, Long> peta = new java.util.HashMap<>();
+        peta.put("app-config-lama.json", 1000L);
+        peta.put("app-config-a.json", 2000L);
+        peta.put("app-config-b.json", 3000L);
+        peta.put("app-config-c.json", 4000L);
+        java.util.List<String> hapus = SettingsActivity.pilihHapusBatasExport(
+                peta, 3, "app-config-lama.json");
+        assertEquals(1, hapus.size());
+        assertEquals("app-config-a.json", hapus.get(0));
+    }
+
+    @Test
     public void galatFolderTerimaKosongDanBawaan() {
         assertNull(SettingsActivity.galatFolder(null, "SALAH"));
         assertNull(SettingsActivity.galatFolder("", "SALAH"));

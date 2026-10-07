@@ -116,6 +116,16 @@ public class LogActivityTest {
     }
 
     @Test
+    public void clipPakaiWallClock_batas1982() {
+        assertTrue(LogActivity.clipPakaiWallClock(400_000_000_001L));
+        assertTrue(LogActivity.clipPakaiWallClock(System.currentTimeMillis()));
+        assertFalse(LogActivity.clipPakaiWallClock(400_000_000_000L));
+        assertFalse(LogActivity.clipPakaiWallClock(100_000_000_001L));
+        assertFalse(LogActivity.clipPakaiWallClock(60_000L));
+        assertFalse(LogActivity.clipPakaiWallClock(0L));
+    }
+
+    @Test
     public void sisaClip_hitungElapsedMurni() {
         assertEquals(5000, LogActivity.sisaClipMs(35000, 30000));
         assertEquals(0, LogActivity.sisaClipMs(30000, 30000));

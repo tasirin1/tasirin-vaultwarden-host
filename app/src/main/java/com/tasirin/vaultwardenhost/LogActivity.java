@@ -576,14 +576,24 @@ public class LogActivity extends Activity {
         bersihkanClipBasiJikaAda(this);
     }
 
+    /** Pemisah jam dinding vs elapsedRealtime (4e11 ms = tahun 1982 sebagai
+     *  wall-clock, atau 12,7 tahun uptime sebagai elapsed): STB tak mungkin
+     *  uptime belasan tahun tanpa reboot, dan app ini lahir era 2020-an. */
+    static final long BATAS_CLIP_WALL_MS = 400_000_000_000L;
+
+    /** True bila penanda clipboard memakai jam dinding (nilai lawas). Murni. */
+    static boolean clipPakaiWallClock(long kedaluwarsa) {
+        return kedaluwarsa > BATAS_CLIP_WALL_MS;
+    }
+
     /** Sisa timer clipboard (ms); 0 bila kedaluwarsa. Nilai lawas era wall-clock
-     *  (>1e11) dimigrasi dengan jam dinding, nilai baru memakai elapsedRealtime
+     *  dimigrasi dengan jam dinding, nilai baru memakai elapsedRealtime
      *  agar utak-atik tanggal tak memperpanjang sensitif log di clipboard. Murni. */
     static long sisaClipMs(long kedaluwarsa) {
         if (kedaluwarsa <= 0) {
             return 0;
         }
-        if (kedaluwarsa > 100_000_000_000L) {
+        if (clipPakaiWallClock(kedaluwarsa)) {
             return Math.max(0, kedaluwarsa - System.currentTimeMillis());
         }
         try {
