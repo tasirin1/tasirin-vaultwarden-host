@@ -1079,12 +1079,9 @@ public final class TgBot {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
-        if (!TgBackup.kunciRestore()) {
-            throw new IOException("Tugas backup/restore lain sedang berjalan,"
-                    + " coba lagi sebentar.");
-        }
         File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
         File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
+        boolean dikunci = false;
         try {
             TgBackup.downloadLastBackup(ctx, tmp);
             File zip = tmp;
@@ -1100,9 +1097,20 @@ public final class TgBot {
                 }
                 zip = plain;
             }
+            // Kunci baru dipegang di sini (bukan sejak awal): unduhan jaringan
+            // ber-menit-menit tak menyentuh folder data sehingga backup lain
+            // boleh jalan bersamaan; saling kecualian hanya untuk eksekusi
+            // restore yang menghentikan server dan menimpa database.
+            if (!TgBackup.kunciRestore()) {
+                throw new IOException("Tugas backup/restore lain sedang berjalan,"
+                        + " coba lagi sebentar.");
+            }
+            dikunci = true;
             return TgBackup.restoreFromZip(ctx, zip);
         } finally {
-            TgBackup.lepasRestore();
+            if (dikunci) {
+                TgBackup.lepasRestore();
+            }
             // Bersihkan sisa cache (termasuk potongan unduhan gagal) agar isi DB tak tertinggal.
             // Jalur sukses sudah dihapus restoreFromZip via bolehHapusFile; hapus ulang aman (no-op).
             try {
