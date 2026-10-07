@@ -491,28 +491,26 @@ public final class TgBot {
                         + " Minta keyboard baru dengan /help lalu coba lagi.");
                 return;
             }
-            if (pesan != null) {
-                long tgl = pesan.optLong("date", 0) * 1000L;
-                long kini = System.currentTimeMillis();
-                if (jamMundur(kini)) {
-                    // Fail-closed seperti pesan: tombol ditolak sementara saat
-                    // jam tak dipercaya (peringatan dibatasi 1x/jam).
-                    boolean ingatkan = catatMundurDanBolehIngatkan(kini);
-                    jawabCallback(ctx, cb.optString("id", ""));
-                    if (ingatkan) {
-                        TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
-                                + " tombol ditolak sementara. Periksa tanggal & jam STB.");
-                    }
-                    return;
-                } else {
-                    catatWall(kini);
+            long tgl = pesan.optLong("date", 0) * 1000L;
+            long kini = System.currentTimeMillis();
+            if (jamMundur(kini)) {
+                // Fail-closed seperti pesan: tombol ditolak sementara saat
+                // jam tak dipercaya (peringatan dibatasi 1x/jam).
+                boolean ingatkan = catatMundurDanBolehIngatkan(kini);
+                jawabCallback(ctx, cb.optString("id", ""));
+                if (ingatkan) {
+                    TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
+                            + " tombol ditolak sementara. Periksa tanggal & jam STB.");
                 }
-                if (tombolKedaluwarsa(tgl, kini)) {
-                    jawabCallback(ctx, cb.optString("id", ""));
-                    TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
-                            + " Minta keyboard baru dengan /help lalu coba lagi.");
-                    return;
-                }
+                return;
+            } else {
+                catatWall(kini);
+            }
+            if (tombolKedaluwarsa(tgl, kini)) {
+                jawabCallback(ctx, cb.optString("id", ""));
+                TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
+                        + " Minta keyboard baru dengan /help lalu coba lagi.");
+                return;
             }
             jawabCallback(ctx, cb.optString("id", ""));
             String data = cb.optString("data", "").trim();
