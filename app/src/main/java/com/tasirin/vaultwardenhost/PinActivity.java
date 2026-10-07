@@ -150,7 +150,7 @@ public class PinActivity extends Activity {
     /** Teks lockout brute-force ("Terkunci, coba lagi X menit.", menit ceiling).
      *  Murni agar bisa unit test. */
     static String teksSisaKunci(long sisaMs) {
-        long menit = (sisaMs + 59000) / 60000;
+        long menit = (sisaMs + 59999) / 60000;
         if (menit < 1) {
             menit = 1;
         }
