@@ -35,6 +35,8 @@ public final class TgBot {
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
+    /** Chat grup yang sudah diperingatkan (sekali per proses agar tak spam). */
+    private static volatile String grupDiperingatkan = "";
     /** Kunci tugas berat bot agar backup/restore/update tak jalan bersamaan. */
     private static final AtomicBoolean TUGAS_BERAT = new AtomicBoolean(false);
     /** Wall-clock terbesar yang pernah terlihat (deteksi jam mundur/NTP).
@@ -270,6 +272,15 @@ public final class TgBot {
             }
             long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
             String chatResmi = chat.trim();
+            // ID negatif = grup/supergrup: semua anggota bisa memerintah bot
+            // (sensitif tetap butuh PIN), jadi peringatkan sekali per proses
+            // agar pemilik pindah ke chat pribadi bila memungkinkan.
+            if (Util.chatAdalahGrup(chatResmi) && !chatResmi.equals(grupDiperingatkan)) {
+                grupDiperingatkan = chatResmi;
+                ServerService.catatLog("[tg] Chat bot menunjuk grup: semua anggota"
+                        + " bisa mengirim perintah. Pakai chat pribadi dengan bot"
+                        + " bila memungkinkan.");
+            }
             muatWallMaks(ctx);
             // Token bot selalu ada di path URL (desain API Telegram
             // "bot<token>/metode" tak bisa dihindari); POST hanya menjaga

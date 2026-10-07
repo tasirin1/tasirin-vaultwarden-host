@@ -19,6 +19,26 @@ public class UtilTest {
         assertFalse(Util.cocokChat("@12345", 999, "12345"));
     }
 
+    @Test
+    public void cocokChatIdBerawalanPlus() {
+        assertTrue(Util.cocokChat("+12345", 12345, ""));
+        assertTrue(Util.cocokChat("  +12345 ", 12345, "lain"));
+        assertFalse(Util.cocokChat("+", 12345, ""));
+        assertFalse(Util.cocokChat("+12345", 999, ""));
+    }
+
+    @Test
+    public void chatAdalahGrupHanyaIdNegatif() {
+        assertTrue(Util.chatAdalahGrup("-100123"));
+        assertTrue(Util.chatAdalahGrup("  -1 "));
+        assertFalse(Util.chatAdalahGrup("12345"));
+        assertFalse(Util.chatAdalahGrup("+12345"));
+        assertFalse(Util.chatAdalahGrup("@grup"));
+        assertFalse(Util.chatAdalahGrup("nama"));
+        assertFalse(Util.chatAdalahGrup(""));
+        assertFalse(Util.chatAdalahGrup(null));
+    }
+
     public void cocokChatUsername() {
         assertTrue(Util.cocokChat("@nama", 999, "nama"));
         assertTrue(Util.cocokChat("nama", 999, "@NAMA"));

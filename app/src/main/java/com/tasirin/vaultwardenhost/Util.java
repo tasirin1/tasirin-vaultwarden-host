@@ -34,6 +34,14 @@ public final class Util {
         if (c.isEmpty()) {
             return false;
         }
+        // ID tempel dari nomor telepon ("+628...") disamakan ke ID numerik
+        // Telegram agar bot tak diam tanpa pesan galat.
+        if (c.startsWith("+") && c.length() > 1) {
+            c = c.substring(1).trim();
+            if (c.isEmpty()) {
+                return false;
+            }
+        }
         try {
             long want = Long.parseLong(c);
             return id == want;
@@ -53,6 +61,27 @@ public final class Util {
             }
         }
         return norm.equalsIgnoreCase(username.trim().replaceFirst("^@", ""));
+    }
+
+    /** True bila config chat menunjuk grup/supergrup (ID numerik negatif).
+     *  Username (@grup) tak bisa dipastikan pemiliknya sehingga dianggap
+     *  bukan grup. Murni agar bisa unit test. */
+    public static boolean chatAdalahGrup(String config) {
+        if (config == null) {
+            return false;
+        }
+        String c = config.trim();
+        if (c.isEmpty() || c.startsWith("@")) {
+            return false;
+        }
+        if (c.startsWith("+") && c.length() > 1) {
+            c = c.substring(1).trim();
+        }
+        try {
+            return Long.parseLong(c) < 0;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 
     /** True bila pesan masih segar (tidak basi). Pesan sedikit di masa depan
