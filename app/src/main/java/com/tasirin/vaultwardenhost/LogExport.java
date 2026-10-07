@@ -128,7 +128,9 @@ public final class LogExport {
                                 tujuan = cand;
                             }
                         } catch (Exception ignored) {
-                            break; // I/O gagal (penuh/ditolak): jangan putar sia-sia.
+                            // Galat I/O bisa transient (balap nama/ledakan sesaat):
+                            // coba nama acak baru, terbatas 5x agar tak putar sia-sia.
+                            continue;
                         }
                     }
                     if (tujuan == null) {
