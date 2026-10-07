@@ -92,6 +92,10 @@ public class PinActivity extends Activity {
         sedangPeriksa = true;
         bukaBtn.setEnabled(false);
         tampilInfo(getString(R.string.pin_memeriksa));
+        // Residu sadar: String PIN tak bisa di-wipe (immutable) dan singgah di heap
+        // selama PBKDF2. Diterima: umur pendek (thread selesai → eligible GC),
+        // layar FLAG_SECURE anti-screenshot, PIN tersimpan selalu PBKDF2+salt.
+        // Editable sumber langsung dibersihkan di bawah agar tak ganda.
         final String entered = pinInput.getText() == null
                 ? "" : pinInput.getText().toString();
         bersihkanInput();
