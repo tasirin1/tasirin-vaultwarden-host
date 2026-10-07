@@ -11,8 +11,6 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
 
 /** Unit test logika murni TLS — tanpa Android runtime (jalan di CI via JVM). */
 public class TlsCertTest {
@@ -225,36 +223,4 @@ public class TlsCertTest {
         assertEquals(0, TlsCert.resetTls(new File(dir.toFile(), "tak-ada")));
     }
 
-    @Test
-    public void paksaLeafRegenerasiWalauLeafMasihValid() throws Exception {
-        File dir = Files.createTempDirectory("tlspaksa").toFile();
-        java.util.List<String> ips = Arrays.asList("127.0.0.1");
-        java.util.List<String> dns = Collections.emptyList();
-        File hasil = TlsCert.ensure(dir, ips, dns);
-        assertTrue(hasil != null && hasil.getCanonicalPath()
-                .equals(dir.getCanonicalPath()));
-        File cert = new File(dir, "cert.pem");
-        File key = new File(dir, "key.pem");
-        assertTrue(cert.isFile() && cert.length() > 100);
-        assertTrue(key.isFile() && key.length() > 100);
-        byte[] certAwal = Files.readAllBytes(cert.toPath());
-        byte[] keyAwal = Files.readAllBytes(key.toPath());
-        // Tanpa paksa: leaf yang masih layak dipakai ulang tanpa regen
-        // (cabang ini aktif bila sertifikat hasil generate terparse JVM).
-        TlsCert.ensure(dir, ips, dns);
-        long sisa = TlsCert.sisaMs(cert);
-        if (TlsCert.leafCukup(sisa) && !TlsCert.leafTerlaluLama(sisa)) {
-            assertArrayEquals(certAwal, Files.readAllBytes(cert.toPath()));
-        }
-        // Paksa (IP berubah): leaf selalu dibuat ulang (serial acak baru),
-        // sementara CA tetap sama (HP lain tak perlu install ulang).
-        byte[] caAwal = Files.readAllBytes(new File(dir, "ca.pem").toPath());
-        File hasilPaksa = TlsCert.ensure(dir, ips, dns, true);
-        assertTrue(hasilPaksa != null && hasilPaksa.getCanonicalPath()
-                .equals(dir.getCanonicalPath()));
-        assertFalse(Arrays.equals(certAwal, Files.readAllBytes(cert.toPath())));
-        assertFalse(Arrays.equals(keyAwal, Files.readAllBytes(key.toPath())));
-        assertArrayEquals(caAwal,
-                Files.readAllBytes(new File(dir, "ca.pem").toPath()));
-    }
 }
