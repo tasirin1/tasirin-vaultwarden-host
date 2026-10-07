@@ -13,8 +13,9 @@
 > Pelanggaran aturan ini = pengerjaan dianggap gagal.
 
 Baca file ini **SEBELUM** mengubah, memperbaiki, atau mengelola repository ini.
-Panduan lengkap untuk pengguna ada di `README.md` (Indonesia) dan
-`README.en.md` (Inggris) — jaga keduanya sinkron dengan fitur terbaru.
+Panduan lengkap untuk pengguna ada di `README.md` (Inggris, default),
+`README.id.md` (Indonesia), dan `README.ru.md` (Rusia) — jaga ketiganya
+sinkron dengan fitur terbaru.
 Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pull --ff-only`, lalu baca `/root/memori-agents-ai/SOUL.md` + `/root/memori-agents-ai/tasirin-vaultwarden-host.md` + `git status --short` + `git log --oneline -5` di repo ini; di akhir sesi update file memori itu, lalu commit + push ke repo memori (`memory: ...`).
 
@@ -102,7 +103,10 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
    (lihat "Verifikasi setelah build"). Jangan memantau build dengan
    `gh run watch` kecuali pengguna eksplisit menyuruh memantau.
    Tidak ada pengecualian.
-2. **Bahasa**: kode, komentar, pesan UI, dan commit memakai **Bahasa Indonesia**.
+2. **Bahasa**: kode, komentar, dan commit memakai **Bahasa Indonesia**;
+  bahasa default aplikasi (resource string + teks UI) dan README memakai
+  **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
+  Rusia); log diagnostik dan pesan bot Telegram tetap Indonesia.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
    singkat (contoh di `git log`). Satu commit satu tujuan logis. Push kode aplikasi
    hanya memicu build APK ringan (~4 menit); build binary berat (~15 menit) hanya
@@ -247,7 +251,8 @@ seamless (beda signature) — backup keystore di tempat aman.
   mendefinisikan ID yang sama persis agar `MainActivity` tak berubah.
 - **Percantik tampilan (tanpa logika)** → `colors.xml` (+ `values-night`,
   wajib sinkron) + `styles.xml` + `drawable/bg_*` + string baru di
-  `strings.xml`; jangan ubah ID/`nextFocusUp/Down` di layout.
+  `strings.xml` (default Inggris; padanan Indonesia di `values-in/strings.xml`);
+  jangan ubah ID/`nextFocusUp/Down` di layout.
 - **Perilaku server (start/stop/env/health)** → `ServerService.java`.
 - **Update/unduhan (versi, URL, checksum)** → `Updater.java` (URL asset di-host
   repo ini; versi diambil dari `dani-garcia/vaultwarden`; STB kernel lama

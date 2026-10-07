@@ -1,57 +1,56 @@
-# Tasirin Vaultwarden Host
+# Tasirin Vaultwarden Host (Android)
 
 [![Build APK](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
 [![Build Binary](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-binary.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
-[![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
+[![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host/releases)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
 
-<p align="center"><b>&#127760; Bahasa: <a href="README.md">Indonesia</a> &middot; <a href="README.en.md">English</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
+<p align="center"><b>&#127760; Language: <a href="README.md">English</a> &middot; <a href="README.id.md">Indonesia</a> &middot; <a href="README.ru.md">Русский</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
 
-Server **Vaultwarden** (kompatibel Bitwarden) di Android — buat STB/TV box dan HP lama. **Android 5.0+**, ARM 32-bit (`armeabi-v7a`). APK ~0,1 MB; binary & web vault diunduh otomatis dan dicek SHA-256.
+A **Vaultwarden** (Bitwarden-compatible) server on Android — for STB/TV boxes and old phones. **Android 5.0+**, 32-bit ARM (`armeabi-v7a`). ~0.1 MB APK; binary & web vault auto-downloaded and SHA-256 verified.
 
-## Cara pakai
+## Usage
 
-1. Unduh APK di [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install.
-2. Buka app → **&#8942; → Settings**: ikuti wizard 3 langkah (Folder → Port → Start). Mode sederhana hanya menampilkan yang penting.
-3. Tekan **Start** (unduhan pertama otomatis, ada progress).
-4. Buka `https://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
+1. Download the APK from [Releases](https://github.com/tasirin1/tasirin-vaultwarden-host/releases), install it.
+2. Open the app → **&#8942; → Settings**: follow the 3-step wizard (Folder → Port → Start). Simple mode shows only the essentials.
+3. Press **Start** (first download is automatic, with progress).
+4. Open `https://<PHONE-IP>:<port>` in a browser / Bitwarden app (Server URL).
 
-Semua pengaturan ada di **Settings**; layar utama cuma status, Start/Stop, dan log.
+All settings live in **Settings**; home is just status, Start/Stop, and log.
 
-## Tanpa internet
+## Offline
 
-Unduh dari HP lain, taruh di folder data, tekan **Start**:
+Download from another phone, put in the data folder, press **Start**:
 
-- `vaultwarden-armeabi-v7a` → folder data
-- `libgetrandom-shim-armeabi-v7a.so` → folder yang sama (buat STB lama)
-- `web-vault.zip` → ekstrak ke `web-vault/` (harus ada `index.html`)
+- `vaultwarden-armeabi-v7a` → data folder
+- `libgetrandom-shim-armeabi-v7a.so` → same folder (for old STBs)
+- `web-vault.zip` → extract to `web-vault/` (must contain `index.html`)
 
-## Fitur
+## Features
 
-Auto-update binary & web vault, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
+Auto-update of binary & web vault, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
-Tampilan satu kolom vertikal (portrait + landscape sama): kartu tautan di atas, log realtime di tengah, status server di bawah (font log ikut ukuran layar) dan semua tombol bisa dipakai D-pad remote.
+Single vertical column layout (portrait and landscape share the same order): links card on top, realtime log in the middle, server status below (log font scales with screen size) and every button works with a TV remote D-pad.
 
-**Telegram** (isi Bot token + Chat ID di Settings): `/status` `/log` `/uptime` `/alive` `/backup` `/restore` `/ca` `/cabackup` `/careset` `/crashlog` `/versi` `/update` `/webvault` `/restart` `/start` `/stop` `/help`. Kalau PIN aktif, perintah yang mengubah keadaan (`/start` `/stop` `/restart` `/backup` `/update` `/webvault` `/restore` `/careset`) plus `/status`, `/log`, dan `/crashlog` (memuat folder data, port, versi binary/web-vault, waktu backup, URL LAN) wajib diakhiri PIN (mis. `/stop 123456`); perintah baca lain (`/uptime` `/alive` `/ca` `/versi` `/help`) cukup auth chat. Pesan perintah ber-PIN dihapus otomatis dari chat bila bot punya izin hapus; kemampuan hapus diuji sekali saat `/help` (pesan `/help` pertamamu bisa ikut terhapus) dan pemilik diperingatkan satu kali bila bot tak bisa menghapus. Catatan: backup >20 MB tak bisa direstore via bot (batas unduh Bot API) — unduh manual dari chat lalu restore lokal di Settings.
+**Telegram** (set Bot token + Chat ID in Settings): `/status` `/log` `/uptime` `/alive` `/backup` `/restore` `/ca` `/cabackup` `/careset` `/crashlog` `/versi` `/update` `/webvault` `/restart` `/start` `/stop` `/help`. With PIN, state-changing commands (`/start` `/stop` `/restart` `/backup` `/update` `/webvault` `/restore` `/careset`) plus `/status`, `/log`, and `/crashlog` (they carry the data folder, port, binary/web-vault versions, backup time, and LAN URL) must end with the PIN (e.g. `/stop 123456`); other read commands (`/uptime` `/alive` `/ca` `/versi` `/help`) only need chat auth. PIN command messages are auto-deleted from the chat when the bot has delete permission; delete capability is probed once on `/help` (your first `/help` message may be deleted as part of the probe) and the owner is warned once if the bot cannot delete. Note: backups over 20 MB cannot be restored via the bot (Bot API download limit) — download manually from the chat, then restore locally in Settings.
 
-**Kunci versi (tak harus terbaru):** Settings → Pemeliharaan → tombol "Versi binary" / "Versi web vault" untuk memilih versi lama (bisa downgrade) atau kembali ke "Terbaru (otomatis)". Versi pilihan ikut tersimpan di auto-update/Start (tak dinaikkan diam-diam). Via bot: `/versi` (lihat versi + kuncian), `/update 1.32.0` / `/webvault 1.32.0` (kunci + pasang), `/update terbaru` (lepas kunci).
+**Version pinning (not forced to latest):** Settings → Maintenance → "Versi binary" / "Versi web vault" buttons to pick an older version (downgrade allowed) or back to "Terbaru (otomatis)". The pinned version is honored by auto-update/Start (never silently upgraded). Via bot: `/versi` (show versions + pins), `/update 1.32.0` / `/webvault 1.32.0` (pin + install), `/update terbaru` (unpin).
 
-**Backup:** database di `<folder-data>/db.sqlite3`. Backup lokal di Settings → Pemeliharaan; backup Telegram via `/backup`; restore via `/restore` atau file `.zip`/`.sqlite3`.
+**Backup:** database at `<data-folder>/db.sqlite3`. Local backup in Settings → Maintenance; Telegram backup via `/backup`; restore via `/restore` or a `.zip`/`.sqlite3` file.
 
-**HTTPS (wajib, selalu aktif):** tekan Start (server hanya melayani HTTPS) → install `ca.pem` di tiap HP (tombol Bagikan CA / `/ca`, atau Backup CA ke Storage `/cabackup` bila tanpa Telegram). Bila dulu bisa lalu gagal: Reset Sertifikat (`/careset`, CA baru) lalu install ulang CA di semua HP.
+**HTTPS (mandatory, always on):** press Start (the server only serves HTTPS) → install `ca.pem` on each phone (Share CA button / `/ca`, or Backup CA to Storage `/cabackup` without Telegram). If it worked before then fails: Reset Certificate (`/careset`, new CA) then reinstall the CA on every phone.
 
-## Kalau error
+## Troubleshooting
 
-- **Port dipakai?** Ganti Port di Settings.
-- **`failed to generate random data` / HTTPS error?** Kernel STB lama — tekan **Cek Update**, Start lagi.
-- **Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]` (URL benar `https://`, CA sudah di-install di HP, daftar akun dulu di web-vault).
-- **Web UI tak bisa dibuka?** Harus satu WiFi, pakai IP lokal.
-- **Gagal unduh?** Cek internet & jam STB, Start lagi (otomatis dilanjutkan).
-- **Backup Telegram GAGAL `Certificate not valid until`?** Jam STB reset ke 2015
-  (STB mati total / tanpa RTC). Aktifkan Tanggal & waktu otomatis di Pengaturan
-  STB (butuh internet), atau atur manual ke hari ini, lalu ulangi backup.
+- **Port in use?** Change Port in Settings.
+- **`failed to generate random data` / HTTPS error?** Old STB kernel — press **Check Update**, Start again.
+- **Web UI unreachable?** Same WiFi required, use the local IP.
+- **Download fails?** Check STB internet & clock, Start again (auto-resumes).
+- **Telegram backup fails with `Certificate not valid until`?** STB clock reset to 2015
+  (power loss / no RTC). Enable Automatic date & time in STB Settings
+  (needs internet), or set it manually to today, then retry backup.
 
-## Pengembang & lisensi
+## Developers & license
 
-Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (push ke `main`, terpisah: binary vs APK); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
+See [AGENTS.md](AGENTS.md). Build only via GitHub Actions (push to `main`, split: binary vs APK); `targetSdk 28` is intentional; binary never bundled in the APK.
 
 App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

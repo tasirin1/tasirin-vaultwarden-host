@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bahasa default Inggris + README Rusia
+- `README.md` kini Inggris (default); Indonesia pindah ke `README.id.md`; baru `README.ru.md` (Rusia). Ketiganya sinkron fitur.
+- Bahasa default aplikasi kini Inggris: `values/strings.xml` Inggris, Indonesia di `values-in/strings.xml`; teks UI hardcode di activity ikut Inggris (log diagnostik + pesan bot Telegram tetap Indonesia).
+- Deskripsi repo GitHub diganti Inggris.
+
 ## [Belum rilis] — Halaman login PIN layar penuh
 - `PinActivity` baru (pengganti popup dialog): brand + kolom PIN + tombol Buka/Keluar, ramah D-pad, portrait + landscape, `FLAG_SECURE`.
 - `MainActivity`/`SettingsActivity`: kunci PIN membuka halaman login via `startActivityForResult`; batal/Back = keluar (finish) agar kunci tak bisa dilewat; grace + lockout + upgrade hash tetap via `PinGate`/`PinCrypto`.
