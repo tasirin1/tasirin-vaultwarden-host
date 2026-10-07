@@ -94,6 +94,16 @@ public class SettingsActivity extends Activity {
     private volatile File exportPlainTertunda = null;
     /** Batas simpan file config plaintext sementara (2 menit, sapu basi). */
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
+    /** Prefix plaintext sementara khusus cabang terenkripsi: tak pernah
+     *  dibagikan sehingga selalu disapu tanpa pandang umur (sisa kill -9 di
+     *  jendela tulis-enkripsi-hapus tak boleh mengendap sampai basi). */
+    static final String PREFIX_ENCTMP = "app-config-enctmp-";
+
+    /** True bila nama file adalah sisa plaintext sementara cabang terenkripsi
+     *  (tak pernah jadi target bagi sehingga aman disapu kapan pun). Murni. */
+    static boolean sisaEnkripTmp(String nama) {
+        return nama != null && nama.startsWith(PREFIX_ENCTMP) && nama.endsWith(".json");
+    }
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -1841,6 +1851,13 @@ public class SettingsActivity extends Activity {
                 for (File f : sisa) {
                     String n = f.getName();
                     if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                        // Sisa plaintext cabang terenkripsi tak pernah dibagikan:
+                        // sapu tanpa pandang umur agar sisa kill di jendela
+                        // tulis-enkripsi-hapus tak mengendap sampai basi.
+                        if (sisaEnkripTmp(n)) {
+                            f.delete();
+                            continue;
+                        }
                         boolean pendingSegar = pendingPath != null
                                 && pendingPath.equals(f.getAbsolutePath())
                                 && segar;
@@ -1873,7 +1890,9 @@ public class SettingsActivity extends Activity {
             java.util.Map<String, File> berkas = new java.util.HashMap<>();
             for (File f : kini) {
                 String n = f.getName();
-                if (n.startsWith("app-config-") && n.endsWith(".json")) {
+                // Sisa enctmp sudah disapu tanpa pandang umur di atas; jangan
+                // biarkan ia memakan jatah cap milik file bagi yang pending.
+                if (n.startsWith("app-config-") && n.endsWith(".json") && !sisaEnkripTmp(n)) {
                     peta.put(n, f.lastModified());
                     berkas.put(n, f);
                 }
@@ -1937,7 +1956,7 @@ public class SettingsActivity extends Activity {
             if (pass != null && !pass.trim().isEmpty()) {
                 // Plaintext sementara di cache internal (bukan storage publik)
                 // agar pemindai media/app lain tak sempat membacanya.
-                File plain = new File(getCacheDir(), "app-config-" + ts + ".json");
+                File plain = new File(getCacheDir(), PREFIX_ENCTMP + ts + ".json");
                 File enc = new File(backupDir, "app-config-" + ts + ".json.enc");
                 try {
                     try (FileOutputStream fos = new FileOutputStream(plain)) {

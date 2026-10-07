@@ -140,6 +140,15 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void sisaEnkripTmpHanyaPrefixKhusus() {
+        assertTrue(SettingsActivity.sisaEnkripTmp("app-config-enctmp-20240101-120000-abcdef.json"));
+        assertFalse(SettingsActivity.sisaEnkripTmp("app-config-20240101-120000-abcdef.json"));
+        assertFalse(SettingsActivity.sisaEnkripTmp("app-config-enctmp-20240101-120000-abcdef.enc"));
+        assertFalse(SettingsActivity.sisaEnkripTmp(null));
+        assertFalse(SettingsActivity.sisaEnkripTmp(""));
+    }
+
+    @Test
     public void wizardHanyaUntukInstalasiBaru() {
         assertFalse(SettingsActivity.perluWizard(true, "", "", "", ""));
         assertTrue(SettingsActivity.perluWizard(false, "", "", "", ""));
