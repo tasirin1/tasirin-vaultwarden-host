@@ -1796,8 +1796,9 @@ public class SettingsActivity extends Activity {
     static final int BATAS_FILE_EXPORT = 3;
 
     /** Pilih nama file yang wajib dihapus agar sisa tak melebihi batas:
-     *  yang terlama dibuang dulu, nama yang dikecualikan dipertahankan.
-     *  Murni agar bisa unit test (peta nama -> lastModified). */
+     *  yang terlama dibuang dulu, nama yang dikecualikan dipertahankan tapi
+     *  tetap memakan jatah (tanpa ini pending basi + 3 file = 4 menumpuk
+     *  tiap siklus). Murni agar bisa unit test (peta nama -> lastModified). */
     static java.util.List<String> pilihHapusBatasExport(
             java.util.Map<String, Long> namaKeWaktu, int batas, String kecualikan) {
         java.util.List<java.util.Map.Entry<String, Long>> semua =
@@ -1807,10 +1808,10 @@ public class SettingsActivity extends Activity {
         java.util.List<String> hapus = new java.util.ArrayList<>();
         int simpan = 0;
         for (java.util.Map.Entry<String, Long> e : semua) {
+            simpan++;
             if (kecualikan != null && kecualikan.equals(e.getKey())) {
                 continue;
             }
-            simpan++;
             if (simpan > batas) {
                 hapus.add(e.getKey());
             }
