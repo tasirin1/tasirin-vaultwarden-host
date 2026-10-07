@@ -1157,13 +1157,10 @@ public final class TgBot {
         String rest = pisah[0];
         String pin = pisah[1];
         // PIN valid min 4 karakter: tolak dini tanpa PBKDF2 agar spam bot tak DoS CPU.
-        // Tebakan pendek non-kosong tetap membakar lockout agar tak bisa spam
-        // 1-3 karakter selamanya tanpa terkunci; tanpa PIN sama sekali tak dihitung
-        // agar orang iseng tak bisa mengunci pemilik sah dari jauh (lockout-DoS).
+        // Tebakan pendek tak dihitung gagal: PIN min 4 sehingga tak mungkin benar —
+        // menghitungnya hanya membuka lockout-DoS (orang iseng mengunci pemilik
+        // sah dari jauh dengan 5x spam 1 huruf); tanpa PIN sama sekali pun tak dihitung.
         if (pin.length() < 4) {
-            if (!pin.isEmpty()) {
-                PinGate.catatHasil(ctx, false, sekarang);
-            }
             TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
                     + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
                     + " PIN huruf wajib bentuk PIN:ab12).");
