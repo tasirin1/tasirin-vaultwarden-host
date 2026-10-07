@@ -1806,13 +1806,19 @@ public class SettingsActivity extends Activity {
         java.util.Collections.sort(semua,
                 (a, b) -> Long.compare(b.getValue(), a.getValue()));
         java.util.List<String> hapus = new java.util.ArrayList<>();
+        // Yang dikecualikan tetap memakan satu jatah: tanpa ini pending basi
+        // + 3 file lolos cap (+1 tiap siklus). Jatah sisa untuk yang lain.
+        int jatah = batas;
+        if (kecualikan != null && namaKeWaktu.containsKey(kecualikan) && jatah > 0) {
+            jatah--;
+        }
         int simpan = 0;
         for (java.util.Map.Entry<String, Long> e : semua) {
-            simpan++;
             if (kecualikan != null && kecualikan.equals(e.getKey())) {
                 continue;
             }
-            if (simpan > batas) {
+            simpan++;
+            if (simpan > jatah) {
                 hapus.add(e.getKey());
             }
         }
