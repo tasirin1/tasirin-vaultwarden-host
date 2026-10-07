@@ -254,6 +254,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void dataDirAmanTolakSegmenMultibyte255Byte() {
+        // 200 emoji = 200 char tapi 800 byte: wajib ditolak seperti 256 'a'.
+        StringBuilder emoji = new StringBuilder();
+        for (int i = 0; i < 200; i++) {
+            emoji.append("\uD83D\uDE00");
+        }
+        assertFalse(ServerService.dataDirAman("/sdcard/" + emoji.toString()));
+        assertTrue(ServerService.dataDirAman("/sdcard/vault\u00E9warden"));
+    }
+
+    @Test
     public void dataDirAmanTolakKontrolDanFormatTakTerlihat() {
         assertFalse(ServerService.dataDirAman("/sdcard/vault\u202Ewarden"));
         assertFalse(ServerService.dataDirAman("/sdcard/vault\u200Bwarden"));

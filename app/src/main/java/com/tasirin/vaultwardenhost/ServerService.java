@@ -1001,8 +1001,9 @@ public class ServerService extends Service {
             if (segmen.equals("..") || segmen.equals(".")) {
                 return false;
             }
-            // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG).
-            if (segmen.length() > 255) {
+            // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG):
+            // hitung byte UTF-8, bukan char (200 emoji = 800 byte lolos cek char).
+            if (segmen.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 255) {
                 return false;
             }
         }
