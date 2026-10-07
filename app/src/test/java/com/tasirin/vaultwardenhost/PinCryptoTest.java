@@ -45,6 +45,20 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void heksRaksasaDitolak() {
+        // Heks 100rb char dari prefs utak-atik/import jahat wajib ditolak
+        // sebelum unhex mengalokasi puluhan KB; hash sah tetap lolos.
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 100000; i++) {
+            sb.append('a');
+        }
+        String gede = sb.toString();
+        assertFalse(PinCrypto.verify("PBKDF2$120000$" + gede + "$" + gede, "1234"));
+        assertFalse(PinCrypto.verify("PBKDF2W$120000$" + gede + "$" + gede, "1234"));
+        assertTrue(PinCrypto.verify(PinCrypto.hash("1234"), "1234"));
+    }
+
+    @Test
     public void pinKosongSelaluDitolak() {
         assertFalse(PinCrypto.verify(PinCrypto.hash("1234"), ""));
         assertFalse(PinCrypto.verify(PinCrypto.sha256("1234"), ""));

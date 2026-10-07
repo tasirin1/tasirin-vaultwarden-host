@@ -25,6 +25,11 @@ public final class PinCrypto {
      *  lebih rendah (mis. hasil utak-atik prefs) ditolak fail-closed.
      *  Semua hash yang ditulis app ini memakai ITERATIONS di atas. */
     static final int ITERASI_MINIMAL = 10_000;
+    /** Panjang heks maksimum tiap bagian salt/hash saat verifikasi: format sah
+     *  hanya 32 (salt 16 byte) dan 64 char (hash 32 byte). Heks raksasa dari
+     *  prefs utak-atik/import jahat memaksa alokasi besar sebelum cek ukuran
+     *  byte sempat menolak — tolak dini fail-closed agar STB 1 GB tak OOM. */
+    static final int HEKS_MAKSIMAL = 128;
     private static final int SALT_BYTES = 16;
     private static final int HASH_BITS = 256;
 
@@ -141,6 +146,11 @@ public final class PinCrypto {
                 if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
                     return false;
                 }
+                // Heks raksasa ditolak sebelum unhex mengalokasi
+                // setengah panjang string di memori STB 1 GB.
+                if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
+                    return false;
+                }
                 byte[] salt = unhex(parts[2]);
                 byte[] want = unhex(parts[3]);
                 if (salt == null || want == null || salt.length == 0
@@ -164,6 +174,10 @@ public final class PinCrypto {
                 // Batas sama seperti format standar: iterasi raksasa = DoS,
                 // iterasi mini = prefs utak-atik.
                 if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
+                    return false;
+                }
+                // Batas sama seperti format standar: heks raksasa = OOM.
+                if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
                     return false;
                 }
                 byte[] salt = unhex(parts[2]);
