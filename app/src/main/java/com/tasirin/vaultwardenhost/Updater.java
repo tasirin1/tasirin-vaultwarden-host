@@ -935,7 +935,7 @@ public final class Updater {
         // atau versi pilihan yang sudah terpasang tak boleh diunduh ulang
         // tiap cek — inilah sumber unduh berulang yang hanya sembuh di-reset.
         String realBerkas = butuhRefresh ? null : versiFileBinary(ctx);
-        if (unduhBolehDilewati(paksa, realBerkas, realJalan, latest)) {
+        if (unduhBolehDilewati(paksa, butuhRefresh, realBerkas, realJalan, latest)) {
             // Penanda ikut dibetulkan agar banner update tak looping.
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             if (ServerService.running && bandingVersi(realJalan, latest) < 0) {
@@ -978,8 +978,13 @@ public final class Updater {
      *  diminta — termasuk menolak unduh ulang tiap cek saat kuncian aktif;
      *  downgrade tetap jalan bila file beda. Jalur ikuti-terbaru memakai file
      *  dulu (sudah terunduh tapi belum restart) baru versi jalan. */
-    static boolean unduhBolehDilewati(boolean paksa, String versiBerkas,
-            String versiJalan, String target) {
+    static boolean unduhBolehDilewati(boolean paksa, boolean butuhRefresh,
+            String versiBerkas, String versiJalan, String target) {
+        // Patch CI tanpa ganti versi wajib dipasang ulang sekali: lewati
+        // semua jalan pintas agar binary basi benar-benar diganti.
+        if (butuhRefresh) {
+            return false;
+        }
         if (target == null || target.isEmpty()) {
             return false;
         }

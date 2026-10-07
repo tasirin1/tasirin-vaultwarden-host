@@ -820,25 +820,31 @@ public class UpdaterTest {
 
     @Test
     public void unduhDilewatiBilaBerkasSudahTerbaru() {
-        assertTrue(Updater.unduhBolehDilewati(false, "1.37.3", "1.36.0", "1.37.3"));
-        assertTrue(Updater.unduhBolehDilewati(false, "1.38.0", "1.37.3", "1.37.3"));
-        assertTrue(Updater.unduhBolehDilewati(false, null, "1.37.3", "1.37.3"));
+        assertTrue(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.36.0", "1.37.3"));
+        assertTrue(Updater.unduhBolehDilewati(false, false, "1.38.0", "1.37.3", "1.37.3"));
+        assertTrue(Updater.unduhBolehDilewati(false, false, null, "1.37.3", "1.37.3"));
     }
 
     @Test
     public void unduhJalanBilaBerkasTertinggal() {
-        assertFalse(Updater.unduhBolehDilewati(false, "1.36.0", "1.36.0", "1.37.3"));
-        assertFalse(Updater.unduhBolehDilewati(false, null, null, "1.37.3"));
-        assertFalse(Updater.unduhBolehDilewati(false, "1.37.3", "1.37.3", null));
-        assertFalse(Updater.unduhBolehDilewati(false, "1.37.3", "1.37.3", ""));
+        assertFalse(Updater.unduhBolehDilewati(false, false, "1.36.0", "1.36.0", "1.37.3"));
+        assertFalse(Updater.unduhBolehDilewati(false, false, null, null, "1.37.3"));
+        assertFalse(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.37.3", null));
+        assertFalse(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.37.3", ""));
+    }
+
+    @Test
+    public void unduhTetapJalanBilaPatchBasi() {
+        assertFalse(Updater.unduhBolehDilewati(false, true, "1.37.3", "1.37.3", "1.37.3"));
+        assertFalse(Updater.unduhBolehDilewati(true, true, "1.32.0", "1.32.0", "1.32.0"));
     }
 
     @Test
     public void unduhPaksaDilewatiHanyaBilaBerkasCocok() {
-        assertTrue(Updater.unduhBolehDilewati(true, "1.32.0", "1.37.3", "1.32.0"));
-        assertTrue(Updater.unduhBolehDilewati(true, "v1.32.0", null, "1.32.0"));
-        assertFalse(Updater.unduhBolehDilewati(true, "1.37.3", "1.37.3", "1.32.0"));
-        assertFalse(Updater.unduhBolehDilewati(true, null, "1.32.0", "1.32.0"));
+        assertTrue(Updater.unduhBolehDilewati(true, false, "1.32.0", "1.37.3", "1.32.0"));
+        assertTrue(Updater.unduhBolehDilewati(true, false, "v1.32.0", null, "1.32.0"));
+        assertFalse(Updater.unduhBolehDilewati(true, false, "1.37.3", "1.37.3", "1.32.0"));
+        assertFalse(Updater.unduhBolehDilewati(true, false, null, "1.32.0", "1.32.0"));
     }
 
     @Test

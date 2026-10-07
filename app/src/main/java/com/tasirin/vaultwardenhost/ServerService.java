@@ -2579,12 +2579,16 @@ public class ServerService extends Service {
             }
             return out;
         } catch (Exception e) {
-            // Catat kegagalan agar Start berikut tak langsung mencoba lagi
-            // bila cache valid masih ada (throttle di atas).
-            try {
-                sp.edit().putLong(KEY_BIN_DL_GAGAL_AT,
-                        SystemClock.elapsedRealtime()).apply();
-            } catch (Exception ignored) {
+            // Catat kegagalan unduhan perbaikan agar Start berikut tak
+            // langsung mencoba lagi bila cache valid masih ada (throttle di
+            // atas). Kegagalan lain (instalasi pertama/kuncian) tak dicatat
+            // agar tetap dicoba tiap Start sesuai desain.
+            if (butuhRefresh) {
+                try {
+                    sp.edit().putLong(KEY_BIN_DL_GAGAL_AT,
+                            SystemClock.elapsedRealtime()).apply();
+                } catch (Exception ignored) {
+                }
             }
             // Versi pilihan gagal dipenuhi (offline/asset belum ada) tapi cache
             // valid masih ada: pakai cache agar server tetap jalan; kuncian
