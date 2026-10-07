@@ -25,7 +25,8 @@ android {
         targetSdk = 28
         versionCode = buildCode
         versionName = buildDate
-        // UI memakai Indonesia (default values/); locale lain dibuang — hemat ukuran.
+        // Bahasa default aplikasi Inggris (values/); Indonesia (values-in/)
+        // dipertahankan, locale lain dibuang — hemat ukuran.
         resConfigs("id")
     }
 
