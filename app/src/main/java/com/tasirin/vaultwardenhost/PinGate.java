@@ -30,28 +30,40 @@ public final class PinGate {
     public static final long PIN_GRACE_MS = 30_000;
     private static volatile boolean bukaBersama = false;
     private static volatile long bukaBersamaAt = 0;
+    /** Kunci khusus status grace: terpisah dari monitor kelas agar commit() disk
+     *  di catatHasil (synchronized, bisa ratusan ms di storage STB lambat) tak
+     *  memblokir cek grace UI. */
+    private static final Object KUNCI_GRACE = new Object();
 
     /** True bila PIN dibuka dalam grace (tanpa peka activity). Murni waktu. */
-    public static synchronized boolean dalamGraceBersama() {
-        long delta = SystemClock.elapsedRealtime() - bukaBersamaAt;
-        return bukaBersama && delta >= 0 && delta < PIN_GRACE_MS;
+    public static boolean dalamGraceBersama() {
+        synchronized (KUNCI_GRACE) {
+            long delta = SystemClock.elapsedRealtime() - bukaBersamaAt;
+            return bukaBersama && delta >= 0 && delta < PIN_GRACE_MS;
+        }
     }
 
     /** Kapan PIN bersama dibuka (jangkar grace, tanpa perpanjangan). */
-    public static synchronized long kapanBukaBersama() {
-        return bukaBersamaAt;
+    public static long kapanBukaBersama() {
+        synchronized (KUNCI_GRACE) {
+            return bukaBersamaAt;
+        }
     }
 
     /** Catat PIN cocok sebagai milik bersama (tanpa panggil balik activity). */
-    public static synchronized void bukaKunciBersama() {
-        bukaBersama = true;
-        bukaBersamaAt = SystemClock.elapsedRealtime();
+    public static void bukaKunciBersama() {
+        synchronized (KUNCI_GRACE) {
+            bukaBersama = true;
+            bukaBersamaAt = SystemClock.elapsedRealtime();
+        }
     }
 
     /** Buang status buka bersama (PIN dimatikan / grace habis). */
-    public static synchronized void kunciBersama() {
-        bukaBersama = false;
-        bukaBersamaAt = 0;
+    public static void kunciBersama() {
+        synchronized (KUNCI_GRACE) {
+            bukaBersama = false;
+            bukaBersamaAt = 0;
+        }
     }
 
     /** Sisa kunci (ms); 0 bila boleh coba. Nilai terbesar wall-clock vs elapsed.
