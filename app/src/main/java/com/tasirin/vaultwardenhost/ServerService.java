@@ -2296,6 +2296,15 @@ public class ServerService extends Service {
 
     private static volatile long ipCacheTime = 0;
     private static volatile String ipCache = "";
+    /** Kunci pasangan cache IP: dibaca UI thread tiap detik sekaligus health
+     *  worker, tulis berurutan tanpa kunci bisa memberi versi campur. */
+    private static final Object IP_LOCK = new Object();
+
+    /** True bila cache IP masih segar (umur < 3 dtk, isi tak kosong). Murni. */
+    static boolean ipCacheSegar(long kini, long cacheTime, String cache) {
+        return cache != null && !cache.isEmpty() && kini >= cacheTime
+                && kini - cacheTime < 3000;
+    }
     private static volatile long collectCacheTime = 0;
     private static volatile List<String> collectCache = new ArrayList<>();
     private static final Object COLLECT_LOCK = new Object();
@@ -2304,8 +2313,10 @@ public class ServerService extends Service {
      *  Di-cache 3 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
         long now = SystemClock.elapsedRealtime();
-        if (now - ipCacheTime < 3000 && !ipCache.isEmpty()) {
-            return ipCache;
+        synchronized (IP_LOCK) {
+            if (ipCacheSegar(now, ipCacheTime, ipCache)) {
+                return ipCache;
+            }
         }
         List<String> ips = collectIps();
         String pilih = "127.0.0.1";
@@ -2318,9 +2329,11 @@ public class ServerService extends Service {
                 }
             }
         }
-        ipCache = pilih;
-        ipCacheTime = now;
-        return ipCache;
+        synchronized (IP_LOCK) {
+            ipCache = pilih;
+            ipCacheTime = now;
+        }
+        return pilih;
     }
 
     /** URL akses lengkap dari perangkat lain (selalu HTTPS; HTTP tak bisa dipakai). */

@@ -516,6 +516,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void ipCacheSegar_tigaDetik() {
+        assertTrue(ServerService.ipCacheSegar(5000, 3000, "192.168.1.2"));
+        assertFalse(ServerService.ipCacheSegar(6000, 3000, "192.168.1.2"));
+        assertFalse(ServerService.ipCacheSegar(3000, 3000, ""));
+        assertFalse(ServerService.ipCacheSegar(3000, 3000, null));
+        assertFalse(ServerService.ipCacheSegar(2000, 3000, "192.168.1.2"));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {
