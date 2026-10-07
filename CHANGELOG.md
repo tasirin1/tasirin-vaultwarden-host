@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan: unduh binary berulang tanpa reset
+- `Updater.tryUpdateVersi`: nilai versi file (`versiFileBinary`) sebelum mengunduh ulang — binary yang sudah terunduh tapi belum dipakai (server jalan versi lama) tak lagi diunduh tiap cek; bila server masih jalan versi lama, pesan membawa `[bin-updated]` agar auto-restart tetap jalan. Versi eksplisit/kuncian dilewati bila file sudah persis (`unduhBolehDilewati`); downgrade tetap jalan bila file beda.
+- `ServerService.ensureBinary`: binary manual dari folder data ikut mencatat `update_version` agar tak dianggap basi; unduhan perbaikan yang gagal di-throttle 6 jam bila cache valid masih ada (`bin_dl_gagal_at`, tak ikut export config) agar tiap Start tak membakar kuota.
+- Uji baru: `unduhDilewatiBilaBerkasSudahTerbaru`, `unduhJalanBilaBerkasTertinggal`, `unduhPaksaDilewatiHanyaBilaBerkasCocok`, `unduhBolehDicobaBilaBelumPernahGagal`, `unduhDitundaBilaBaruGagal`.
+
 ## [Belum rilis] — Perbaikan audit: clipboard, PIN, port, susulan start
 - `LogActivity`/`SettingsActivity`/`MainActivity`: clipboard satu pintu tahan mati proses (`salinBersihOtomatis` + sidik/kedaluwarsa di prefs, dipasang ulang saat activity dibuka) agar token tak mengendap bila app dibunuh dalam 30 dtk.
 - `TgBot`/`MainActivity`/`SettingsActivity`: upgrade hash PIN baca-ulang sebelum tulis + verifikasi lawan hash segar agar PIN lama tak lolos/menimpa hash baru.
