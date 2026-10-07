@@ -100,6 +100,15 @@ public final class StoragePerm {
 
     /** Terakhir dialog kelola ditampilkan (elapsed, anti-spam tiap buka app). */
     private static volatile long dialogKelolaTerakhirElapsed = 0;
+    /** Dialog belum pernah tampil di proses ini: tampilkan sekali walau uptime
+     *  < 5 menit (throttle elapsed buta pasca-reboot karena penanda ikut reset). */
+    private static volatile boolean dialogKelolaPernahTampil = false;
+
+    /** True bila dialog boleh tampil (sekali per proses + jeda anti-spam).
+     *  Murni agar bisa unit test. */
+    static boolean bolehTampilDialogKelola(long kini, long terakhir, boolean pernah, long jeda) {
+        return !pernah || terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
+    }
 
     /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
@@ -111,8 +120,10 @@ public final class StoragePerm {
             }
             if (!kelola) {
                 long kini = android.os.SystemClock.elapsedRealtime();
-                if (kini - dialogKelolaTerakhirElapsed > 5 * 60 * 1000) {
+                if (bolehTampilDialogKelola(kini, dialogKelolaTerakhirElapsed,
+                        dialogKelolaPernahTampil, 5 * 60 * 1000)) {
                     dialogKelolaTerakhirElapsed = kini;
+                    dialogKelolaPernahTampil = true;
                     tampilDialogKelola(act);
                 }
                 return true;

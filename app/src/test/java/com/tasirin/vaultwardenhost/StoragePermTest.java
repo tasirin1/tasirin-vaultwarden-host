@@ -76,6 +76,16 @@ public class StoragePermTest {
     }
 
     @Test
+    public void dialogTampilSekaliPerProsesWalauBaruBoot() {
+        // Proses baru (belum pernah tampil): tampil walau uptime < 5 menit.
+        assertTrue(StoragePerm.bolehTampilDialogKelola(60_000, 0, false, 300_000));
+        // Sudah tampil: throttle 5 menit berlaku, reboot (kini mundur) lolos lagi.
+        assertFalse(StoragePerm.bolehTampilDialogKelola(200_000, 100_000, true, 300_000));
+        assertTrue(StoragePerm.bolehTampilDialogKelola(400_000, 100_000, true, 300_000));
+        assertTrue(StoragePerm.bolehTampilDialogKelola(50_000, 100_000, true, 300_000));
+    }
+
+    @Test
     public void folderInternalTakButuhIzin() {
         assertFalse(StoragePerm.butuhIzinEksternal("/data/data/com.tasirin.vaultwardenhost/files"));
         assertFalse(StoragePerm.butuhIzinEksternal("/data/user/0/com.tasirin.vaultwardenhost/files"));
