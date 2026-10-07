@@ -461,6 +461,22 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void unduhBolehDicobaBilaBelumPernahGagal() {
+        assertTrue(ServerService.bolehCobaUnduhLagi(0, 1000));
+        assertTrue(ServerService.bolehCobaUnduhLagi(-5, 1000));
+    }
+
+    @Test
+    public void unduhDitundaBilaBaruGagal() {
+        long sekarang = 10_000_000L;
+        assertFalse(ServerService.bolehCobaUnduhLagi(sekarang - 1000, sekarang));
+        assertTrue(ServerService.bolehCobaUnduhLagi(
+                sekarang - ServerService.TUNDA_ULANG_UNDUH_MS, sekarang));
+        assertTrue(ServerService.bolehCobaUnduhLagi(
+                sekarang - ServerService.TUNDA_ULANG_UNDUH_MS - 1, sekarang));
+    }
+
+    @Test
     public void smokeGagal_throttleGagalBaru() {
         assertTrue(ServerService.smokeGagalBaruSaja(61_000, 60_000, 60_000));
         assertFalse(ServerService.smokeGagalBaruSaja(121_000, 60_000, 60_000));

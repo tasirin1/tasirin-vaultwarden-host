@@ -100,6 +100,11 @@ public class ServerService extends Service {
     public static final String KEY_BIN_PILIH = "bin_pin_version";
     /** Versi web-vault yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
     public static final String KEY_WV_PILIH = "wv_pin_version";
+    /** Kapan unduh binary terakhir gagal (elapsedRealtime ms); 0 = belum pernah.
+     *  Perangkat-lokal saja: jangan ikut export/import config. */
+    public static final String KEY_BIN_DL_GAGAL_AT = "bin_dl_gagal_at";
+    /** Jeda coba-ulang unduh perbaikan bila cache valid masih ada (hemat kuota). */
+    static final long TUNDA_ULANG_UNDUH_MS = 6L * 60 * 60 * 1000;
 
     /** Throttle hint [login]: jeda antar hint agar brute-force tak membanjiri log (60 dtk). */
     private static volatile long loginHintTerakhirElapsed = 0;
@@ -123,6 +128,15 @@ public class ServerService extends Service {
     /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
+    }
+
+    /** True bila unduh boleh dicoba lagi (belum pernah gagal / jeda terlampaui).
+     *  Murni agar bisa unit test. */
+    static boolean bolehCobaUnduhLagi(long gagalAt, long sekarang) {
+        if (gagalAt <= 0) {
+            return true;
+        }
+        return sekarang - gagalAt >= TUNDA_ULANG_UNDUH_MS;
     }
 
     /** Sidik SHA-256 hex dari token admin ("" bila kosong/gagal; murni).
@@ -2469,6 +2483,11 @@ public class ServerService extends Service {
                             } else {
                                 gantiAtomik(tmpManual, out);
                                 writeText(verFile, Updater.appVersionName(this));
+                                // Catat versi terpasang agar cek update tak mengunduh ulang
+                                // binary manual yang memang lebih lama dari rilis.
+                                if (realManual != null && !realManual.isEmpty()) {
+                                    sp.edit().putString(KEY_UPDATE_VERSION, realManual).apply();
+                                }
                                 appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
                                 return out;
                             }
@@ -2515,13 +2534,37 @@ public class ServerService extends Service {
         }
 
         // 4) Unduh dari release repo.
+        // Throttle: unduhan perbaikan yang terakhir gagal tak dicoba tiap Start
+        // bila cache valid masih ada (hemat kuota + Start cepat); dicoba lagi
+        // setelah jeda. Instalasi pertama (tanpa cache) selalu mencoba.
+        if (butuhRefresh && isValidBinary(out)) {
+            long gagalAt = 0;
+            try {
+                gagalAt = sp.getLong(KEY_BIN_DL_GAGAL_AT, 0);
+            } catch (Exception ignored) {
+            }
+            if (!bolehCobaUnduhLagi(gagalAt, SystemClock.elapsedRealtime())) {
+                try {
+                    if (detectBinaryVersion(out)
+                            && cacheSesuaiPin(pinBinaryTersimpan(sp), binaryVersion)) {
+                        String realTunda = Updater.parseBinaryVersion(binaryVersion);
+                        appendLog("[app] Pakai binary cache v"
+                                + (realTunda == null ? "?" : realTunda)
+                                + "; unduh perbaikan dicoba lagi nanti.");
+                        return out;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
         try {
             String msg = Updater.downloadBinary(this, out);
             appendLog("[app] " + msg);
             if (butuhRefresh) {
                 appendLog("[app] Binary perbaikan (patch favicon) terpasang.");
             }
-            sp.edit().putString(KEY_BIN_PATCH, String.valueOf(BIN_PATCH_REV)).apply();
+            sp.edit().putString(KEY_BIN_PATCH, String.valueOf(BIN_PATCH_REV))
+                    .remove(KEY_BIN_DL_GAGAL_AT).apply();
             writeText(verFile, Updater.appVersionName(this));
             if (!detectBinaryVersion(out)) {
                 appendLog("[app] FATAL: binary hasil unduh gagal smoke test --version"
@@ -2536,6 +2579,13 @@ public class ServerService extends Service {
             }
             return out;
         } catch (Exception e) {
+            // Catat kegagalan agar Start berikut tak langsung mencoba lagi
+            // bila cache valid masih ada (throttle di atas).
+            try {
+                sp.edit().putLong(KEY_BIN_DL_GAGAL_AT,
+                        SystemClock.elapsedRealtime()).apply();
+            } catch (Exception ignored) {
+            }
             // Versi pilihan gagal dipenuhi (offline/asset belum ada) tapi cache
             // valid masih ada: pakai cache agar server tetap jalan; kuncian
             // dicoba lagi saat Start berikutnya (bukan gagal total).

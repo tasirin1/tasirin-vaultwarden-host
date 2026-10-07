@@ -908,7 +908,8 @@ public final class Updater {
      *  rilis terbaru = downgrade). Pemanggil menyimpan kuncian dulu agar
      *  auto-update tak langsung menaikkan lagi. Versi null = ikuti terbaru. */
     public static String tryUpdateVersi(Context ctx, String versiDiminta) throws Exception {
-        // Versi eksplisit (pilihan user) selalu dipasang — termasuk downgrade.
+        // Versi eksplisit (pilihan user) dipasang bila file belum cocok —
+        // termasuk downgrade; file yang sudah persis tak diunduh ulang.
         boolean paksa = versiDiminta != null && !versiDiminta.isEmpty();
         String latest = paksa ? versiDiminta : latestVersion(ctx);
         if (latest == null) {
@@ -921,16 +922,30 @@ public final class Updater {
                 TgBackup.amanString(sp, ServerService.KEY_BIN_PATCH, ""));
         String sebutan = (paksa || adaKuncianBinary(ctx))
                 ? "Sudah versi pilihan: v" : "Sudah versi terbaru: v";
-        String real = parseBinaryVersion(ServerService.binaryVersion);
+        String realJalan = parseBinaryVersion(ServerService.binaryVersion);
         // Banding terurut: binary lebih baru dari rilis (mis. build lokal) tak
         // ikut di-downgrade; hanya versi lebih lama yang diunduh ulang.
-        if (!paksa && !butuhRefresh && bandingVersi(real, latest) >= 0) {
+        if (!paksa && !butuhRefresh && bandingVersi(realJalan, latest) >= 0) {
             // Binary asli sudah terbaru tapi penanda basi - perbaiki agar popup tidak looping.
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             return sebutan + latest;
         }
+        // File didahulukan sebelum mengunduh ulang: binary yang sudah terunduh
+        // tapi belum dipakai (server masih jalan versi lama / belum restart)
+        // atau versi pilihan yang sudah terpasang tak boleh diunduh ulang
+        // tiap cek — inilah sumber unduh berulang yang hanya sembuh di-reset.
+        String realBerkas = butuhRefresh ? null : versiFileBinary(ctx);
+        if (unduhBolehDilewati(paksa, realBerkas, realJalan, latest)) {
+            // Penanda ikut dibetulkan agar banner update tak looping.
+            sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
+            if (ServerService.running && bandingVersi(realJalan, latest) < 0) {
+                return "Binary v" + latest + " sudah terpasang; mulai ulang server"
+                        + " agar dipakai. " + BINARY_UPDATED_MARKER;
+            }
+            return sebutan + latest;
+        }
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
-        String current = real != null ? real : normVersion(updated != null && !updated.isEmpty()
+        String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
         if (!paksa && !butuhRefresh && bandingVersi(current, latest) >= 0) {
             return sebutan + latest;
@@ -941,6 +956,40 @@ public final class Updater {
         sp.edit().putString(ServerService.KEY_BIN_PATCH,
                 String.valueOf(ServerService.BIN_PATCH_REV)).apply();
         return msg;
+    }
+
+    /** Versi binary di file internal (uji --version); null bila tak ada/gagal.
+     *  Dipakai agar cek update menilai file, bukan hanya proses yang sedang jalan. */
+    static String versiFileBinary(Context ctx) {
+        try {
+            File berkas = new File(ctx.getFilesDir(),
+                    "bin/vaultwarden-" + ServerService.ABI);
+            if (berkas == null || !berkas.isFile() || berkas.length() < 1_000_000) {
+                return null;
+            }
+            return detectVersion(ctx, berkas);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /** True bila unduh boleh dilewati tanpa jaringan. Murni agar bisa unit test.
+     *  Versi eksplisit (paksa) dilewati hanya bila file sudah persis versi
+     *  diminta — termasuk menolak unduh ulang tiap cek saat kuncian aktif;
+     *  downgrade tetap jalan bila file beda. Jalur ikuti-terbaru memakai file
+     *  dulu (sudah terunduh tapi belum restart) baru versi jalan. */
+    static boolean unduhBolehDilewati(boolean paksa, String versiBerkas,
+            String versiJalan, String target) {
+        if (target == null || target.isEmpty()) {
+            return false;
+        }
+        if (paksa) {
+            return versiBerkas != null && !versiBerkas.isEmpty()
+                    && versiCocok(versiBerkas, target);
+        }
+        String acuan = (versiBerkas != null && !versiBerkas.isEmpty())
+                ? versiBerkas : versiJalan;
+        return bandingVersi(acuan, target) >= 0;
     }
 
     /** Unduh binary versi terbaru dari release repo ke out (verifikasi SHA-256).

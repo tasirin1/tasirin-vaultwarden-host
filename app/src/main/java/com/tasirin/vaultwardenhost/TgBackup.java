@@ -1317,6 +1317,7 @@ public final class TgBackup {
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
+                    ServerService.KEY_BIN_DL_GAGAL_AT,
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA));
 
     /** JSON pengaturan (format sama dengan export/import config di app). */
