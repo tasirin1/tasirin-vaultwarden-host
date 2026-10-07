@@ -841,6 +841,7 @@ public final class Updater {
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
     // API GitHub saat Start diulang-ulang / koneksi Android 5/6 putus-putus.
     private static final long VERSION_TTL_MS = 15 * 60 * 1000L;
+    private static final Object KUNCI_VERSI = new Object();
     private static volatile String sLatestVersion;
     private static volatile long sLatestAt;
     /** Jeda ulang cek versi sesudah gagal (rate-limit/offline): 60 dtk. */
@@ -859,14 +860,17 @@ public final class Updater {
     /** Versi resmi terbaru (tanpa huruf v) atau null bila belum pernah dapat. */
     public static String latestVersion(Context ctx) {
         long now = SystemClock.elapsedRealtime();
-        String cached = sLatestVersion;
-        if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
-            return cached;
-        }
-        // Throttle berlaku juga saat cache basi ada: tiap Start saat offline
-        // tak menghantam API (kembalikan cache basi selama jeda gagal).
-        if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
-            return cached;
+        String cached;
+        synchronized (KUNCI_VERSI) {
+            cached = sLatestVersion;
+            if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
+                return cached;
+            }
+            // Throttle berlaku juga saat cache basi ada: tiap Start saat offline
+            // tak menghantam API (kembalikan cache basi selama jeda gagal).
+            if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
+                return cached;
+            }
         }
         HttpURLConnection conn = null;
         try {
@@ -879,8 +883,10 @@ public final class Updater {
                             TgBackup.bacaResponsBatas(is)));
                 }
                 if (v != null && !v.isEmpty()) {
-                    sLatestVersion = v;
-                    sLatestAt = now;
+                    synchronized (KUNCI_VERSI) {
+                        sLatestVersion = v;
+                        sLatestAt = now;
+                    }
                     return v;
                 }
             }
@@ -891,7 +897,9 @@ public final class Updater {
                 conn.disconnect();
             }
         }
-        sLatestGagalAt = now;
+        synchronized (KUNCI_VERSI) {
+            sLatestGagalAt = now;
+        }
         return cached;
     }
 
@@ -1775,8 +1783,10 @@ public final class Updater {
     /** Versi Vaultwarden yang dibundel di APK (tanpa huruf v) atau null.
      *  Dibaca sekali lalu cache (konstan selama runtime; dipanggil tiap detik UI). */
     public static String readBundledVersionRaw(Context ctx) {
-        if (sBundledLoaded) {
-            return sBundledVersion;
+        synchronized (KUNCI_VERSI) {
+            if (sBundledLoaded) {
+                return sBundledVersion;
+            }
         }
         String v = null;
         try (BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -1785,9 +1795,13 @@ public final class Updater {
             v = (baris == null || baris.trim().isEmpty()) ? null : baris.trim();
         } catch (Exception ignored) {
         }
-        sBundledVersion = v;
-        sBundledLoaded = true;
-        return v;
+        synchronized (KUNCI_VERSI) {
+            if (!sBundledLoaded) {
+                sBundledVersion = v;
+                sBundledLoaded = true;
+            }
+            return sBundledVersion;
+        }
     }
 
     /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
