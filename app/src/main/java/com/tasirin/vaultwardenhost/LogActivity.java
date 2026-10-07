@@ -380,10 +380,14 @@ public class LogActivity extends Activity {
     }
 
     private void shareLog() {
-        String log;
+        String mentah;
         synchronized (ServerService.logBuffer) {
-            log = samarkanLog(ServerService.logBuffer.toString());
+            mentah = ServerService.logBuffer.toString();
         }
+        // Penyamaran di luar kunci: belasan regex di atas 300 KB menahan
+        // thread server (pumpOutput/health) bila jalan di dalam
+        // synchronized sekaligus berisiko ANR di STB lemah.
+        String log = samarkanLog(mentah);
         if (log.isEmpty()) {
             toast("Log masih kosong.");
             return;
@@ -599,10 +603,13 @@ public class LogActivity extends Activity {
 
 
     private void copyLog() {
-        String log;
+        String mentah;
         synchronized (ServerService.logBuffer) {
-            log = samarkanLog(ServerService.logBuffer.toString());
+            mentah = ServerService.logBuffer.toString();
         }
+        // Penyamaran di luar kunci (lihat shareLog): regex berat tak boleh
+        // menahan lock log global di UI thread.
+        String log = samarkanLog(mentah);
         if (log.isEmpty()) {
             toast("Log masih kosong.");
             return;
