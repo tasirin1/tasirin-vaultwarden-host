@@ -1436,6 +1436,7 @@ public class SettingsActivity extends Activity {
                     "Database saat ini akan diganti dengan file yang dipilih. "
                             + "Backup otomatis dibuat dulu. Lanjutkan?",
                     () -> runBusy(() -> restoreDatabase(uri, dataDir)));
+        }
         if (requestCode == REQ_PIN) {
             pinBukaJalan = false;
             if (resultCode == RESULT_OK) {
