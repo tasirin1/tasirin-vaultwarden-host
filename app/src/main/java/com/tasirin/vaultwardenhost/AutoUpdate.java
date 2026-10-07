@@ -81,11 +81,10 @@ public final class AutoUpdate {
                 pending.atur(null);
             } else if (Updater.bandingVersi(current, latest) < 0) {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
-                    long gagalAt = 0;
-                    try {
-                        gagalAt = sp.getLong(ServerService.KEY_BIN_DL_GAGAL_AT, 0);
-                    } catch (Exception ignored) {
-                    }
+                    // Baca tahan korup (prefs edit manual bertipe salah sembuh
+                    // sendiri): getLong mentah melempar lalu jatuh ke 0 sehingga
+                    // unduhan besar dicoba ulang tiap buka app (bakar kuota).
+                    long gagalAt = TgBackup.amanLong(sp, ServerService.KEY_BIN_DL_GAGAL_AT, 0);
                     java.io.File berkasBin = new java.io.File(ctx.getFilesDir(),
                             "bin/vaultwarden-" + ServerService.ABI);
                     boolean adaCache = berkasBin.isFile() && berkasBin.length() >= 1000000;
