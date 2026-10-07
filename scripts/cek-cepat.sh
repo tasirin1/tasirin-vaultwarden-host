@@ -29,8 +29,10 @@ done
 if git diff --cached --name-only | rg -q '\.(apk|zip)$|/vaultwarden-armeabi|/libgetrandom-shim-'; then
   echo "GAGAL: binary/APK/zip ikut staged"; gagal=1;
 fi
-# 4. Jumlah section README Indonesia vs Inggris wajib sama (jaga sinkron).
+# 4. Jumlah section README Inggris vs Indonesia vs Rusia wajib sama (jaga sinkron).
 a=$(rg -c '^## ' README.md 2>/dev/null || grep -c '^## ' README.md)
-b=$(rg -c '^## ' README.en.md 2>/dev/null || grep -c '^## ' README.en.md)
-if [ "$a" != "$b" ]; then echo "GAGAL: jumlah ## README.md ($a) != README.en.md ($b)"; gagal=1; fi
+b=$(rg -c '^## ' README.id.md 2>/dev/null || grep -c '^## ' README.id.md)
+c=$(rg -c '^## ' README.ru.md 2>/dev/null || grep -c '^## ' README.ru.md)
+if [ "$a" != "$b" ]; then echo "GAGAL: jumlah ## README.md ($a) != README.id.md ($b)"; gagal=1; fi
+if [ "$a" != "$c" ]; then echo "GAGAL: jumlah ## README.md ($a) != README.ru.md ($c)"; gagal=1; fi
 exit $gagal

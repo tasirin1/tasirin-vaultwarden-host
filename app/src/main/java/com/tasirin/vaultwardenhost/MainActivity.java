@@ -319,7 +319,7 @@ public class MainActivity extends Activity {
         // sebelum cek port agar tak gagal start secara misterius.
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
-            toast("Folder data tidak valid - dikembalikan ke bawaan.");
+            toast("Invalid data folder — reverted to default.");
             appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
             try {
                 sp.edit().putString(ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()).apply();
@@ -344,7 +344,7 @@ public class MainActivity extends Activity {
         // ServerService.normalisasiPort); penolakan di sini hanya jaring
         // pengaman dengan pesan yang sama agar tak menyesatkan.
         if (portNum < 1024 || portNum > 65535) {
-            toast("Port harus angka 1024-65535 (<1024 butuh root). Ubah di Settings.");
+            toast("Port must be a number 1024-65535 (<1024 needs root). Change it in Settings.");
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
@@ -362,21 +362,21 @@ public class MainActivity extends Activity {
                 }
                 if (butuhRoot) {
                     new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Port " + portFix + " butuh akses root")
-                            .setMessage("Port utama (" + portFix + ") di bawah 1024 hanya bisa"
-                                    + " dipakai dengan akses root.\n"
-                                    + "Ganti port ke >= 1024 (mis. 8088) di Settings.")
-                            .setPositiveButton("Oke", null)
+                            .setTitle("Port " + portFix + " needs root access")
+                            .setMessage("Main port (" + portFix + ") below 1024 can only be"
+                                    + " used with root access.\n"
+                                    + "Change the port to >= 1024 (e.g. 8088) in Settings.")
+                            .setPositiveButton("OK", null)
                             .show();
                     return;
                 }
                 if (busy) {
                     new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Port " + portFix + " sedang dipakai")
-                            .setMessage("Port utama (" + portFix + ") sudah dipakai proses lain.\n"
-                                    + "Stop aplikasi lain yang memakainya, ganti port di Settings, "
-                                    + "atau restart HP dulu.")
-                            .setPositiveButton("Oke", null)
+                            .setTitle("Port " + portFix + " is in use")
+                            .setMessage("Main port (" + portFix + ") is already used by another process.\n"
+                                    + "Stop the other app using it, change the port in Settings, "
+                                    + "or restart the phone first.")
+                            .setPositiveButton("OK", null)
                             .show();
                     return;
                 }
@@ -391,11 +391,11 @@ public class MainActivity extends Activity {
         if (!webVaultReady(finalDataDir)) {
             // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
             new AlertDialog.Builder(this)
-                    .setTitle("Web vault belum terpasang")
-                    .setMessage("APK tidak menyertakan web vault agar ukurannya kecil.\n"
-                            + "Unduh sekali (~35 MB) supaya web UI bisa dibuka dari browser?\n\n"
-                            + "Tanpa web vault, server dan aplikasi Bitwarden tetap jalan normal.")
-                    .setPositiveButton("Unduh & Start", (d, w) -> {
+                    .setTitle("Web vault not installed")
+                    .setMessage("The APK excludes the web vault to stay small.\n"
+                            + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
+                            + "Without the web vault, the server and Bitwarden apps still work normally.")
+                    .setPositiveButton("Download & Start", (d, w) -> {
                         setBusy(true);
                         // Pakai app context di worker agar tekan back saat unduh
                         // 35 MB tak menahan Activity yang sudah destroy (bocor).
@@ -407,7 +407,7 @@ public class MainActivity extends Activity {
                                 msg = Updater.updateWebVault(appCtx);
                             } catch (Exception e) {
                                 gagal = true;
-                                msg = "Gagal unduh web-vault: " + e;
+                                msg = "Web-vault download failed: " + e;
                             }
                             final String info = "[app] " + msg;
                             final boolean gagalFinal = gagal;
@@ -417,20 +417,20 @@ public class MainActivity extends Activity {
                                 }
                                 appendUiLog(info);
                                 if (gagalFinal) {
-                                    toast("Gagal unduh web-vault"
-                                            + " - server tidak di-start.");
+                                    toast("Web-vault download failed"
+                                            + " — server was not started.");
                                 }
                                 setBusy(false);
                             });
                             // Gagal unduh tak boleh auto-start tanpa web UI:
-                            // pilihan tombolnya "Unduh & Start" satu paket.
+                            // pilihan tombolnya "Download & Start" satu paket.
                             if (!gagal) {
                                 ServerService.start(appCtx);
                             }
                         }, "vw-task").start();
                         maybeAutoBackup();
                     })
-                    .setNegativeButton("Start tanpa web vault", (d, w) -> {
+                    .setNegativeButton("Start without web vault", (d, w) -> {
                         ServerService.start(this);
                         maybeAutoBackup();
                     })
@@ -783,25 +783,25 @@ public class MainActivity extends Activity {
         String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
         StringBuilder html = new StringBuilder();
         html.append("<b>Tasirin Vaultwarden Host</b><br/>")
-                .append("Menjalankan server <b>Vaultwarden</b> (Bitwarden-compatible) "
-                        + "langsung di Android 5+ / TV.<br/><br/>")
-                .append("Versi app: <b>").append(appVersion.isEmpty() ? "?" : appVersion)
+                .append("Running a <b>Vaultwarden</b> (Bitwarden-compatible) server "
+                        + "right on Android 5+ / TV.<br/><br/>")
+                .append("App version: <b>").append(appVersion.isEmpty() ? "?" : appVersion)
                 .append("</b><br/>")
-                .append("Binary server: <b>")
+                .append("Server binary: <b>")
                 .append(bin == null ? "?" : "v" + bin).append("</b><br/>");
         if (wv != null) {
             html.append("Web vault: <b>v").append(wv).append("</b><br/>");
         }
-        html.append("Perangkat: Android ").append(Build.VERSION.RELEASE)
+        html.append("Device: Android ").append(Build.VERSION.RELEASE)
                 .append(" (API ").append(Build.VERSION.SDK_INT).append(")<br/><br/>")
-                .append("Cara pakai:<br/>")
-                .append("1. Atur folder data &amp; port di <b>Settings</b> (titik tiga)<br/>")
-                .append("2. Tekan <b>Start</b><br/>")
-                .append("3. Buka URL di layar utama lewat browser<br/><br/>")
-                .append("Sumber kode: <a href=\"https://github.com/tasirin1/"
+                .append("How to use:<br/>")
+                .append("1. Set the data folder &amp; port in <b>Settings</b> (⋮ menu)<br/>")
+                .append("2. Press <b>Start</b><br/>")
+                .append("3. Open the home-screen URL in a browser<br/><br/>")
+                .append("Source: <a href=\"https://github.com/tasirin1/"
                         + "tasirin-vaultwarden-host\">github.com/tasirin1/"
                         + "tasirin-vaultwarden-host</a><br/>")
-                .append("Lisensi: GPL-3.0 (aplikasi) \u00B7 AGPL-3.0 (Vaultwarden)");
+                .append("License: GPL-3.0 (app) \u00B7 AGPL-3.0 (Vaultwarden)");
 
         TextView tv = new TextView(this);
         float d = getResources().getDisplayMetrics().density;
@@ -815,9 +815,9 @@ public class MainActivity extends Activity {
         tv.setMovementMethod(LinkMovementMethod.getInstance());
         tv.setLinkTextColor(getResources().getColor(R.color.accent));
         new AlertDialog.Builder(this)
-                .setTitle("Tentang")
+                .setTitle("About")
                 .setView(tv)
-                .setPositiveButton("Tutup", null)
+                .setPositiveButton("Close", null)
                 .show();
     }
 
@@ -839,8 +839,8 @@ public class MainActivity extends Activity {
                         TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
                         versi)) {
                     psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
-                    MainActivity.this.toast("Update tersedia: v" + versi
-                            + " - buka Settings untuk update.");
+                    MainActivity.this.toast("Update available: v" + versi
+                            + " — open Settings to update.");
                 }
             }
             @Override public void tawarkanWebVault() {
@@ -867,9 +867,9 @@ public class MainActivity extends Activity {
         try (BufferedReader r = new BufferedReader(new InputStreamReader(
                 getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
             String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? "?" : "Versi: " + v.trim();
+            return (v == null || v.trim().isEmpty()) ? "?" : "Version: " + v.trim();
         } catch (Exception e) {
-            return "Versi: ?";
+            return "Version: ?";
         }
     }
 

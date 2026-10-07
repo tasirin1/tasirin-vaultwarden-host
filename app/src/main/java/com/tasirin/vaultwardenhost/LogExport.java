@@ -28,23 +28,23 @@ public final class LogExport {
     public static String simpanKeDownload(Activity act, String logMentah) {
         String log = LogActivity.samarkanLog(logMentah);
         StringBuilder header = new StringBuilder();
-        header.append("=== Tasirin Vaultwarden Host - Log Server (realtime) ===\n");
-        header.append("Waktu: ")
+        header.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
+        header.append("Time: ")
                 .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()))
                 .append('\n');
         try {
             android.content.pm.PackageInfo info =
                     act.getPackageManager().getPackageInfo(act.getPackageName(), 0);
-            header.append("Versi app: ").append(info.versionName)
+            header.append("App version: ").append(info.versionName)
                     .append(" (build ").append(info.versionCode).append(")\n");
         } catch (Exception ignored) {
-            header.append("Versi app: ?\n");
+            header.append("App version: ?\n");
         }
         header.append("Android: ").append(Build.VERSION.RELEASE)
                 .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        header.append("Perangkat: ").append(Build.MANUFACTURER).append(' ')
+        header.append("Device: ").append(Build.MANUFACTURER).append(' ')
                 .append(Build.MODEL).append("\n\n");
-        header.append(log.isEmpty() ? "(Belum ada aktivitas server)\n" : log);
+        header.append(log.isEmpty() ? "(No server activity yet)\n" : log);
         header.append('\n');
 
         // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama

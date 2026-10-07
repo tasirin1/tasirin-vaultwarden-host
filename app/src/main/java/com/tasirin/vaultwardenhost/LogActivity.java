@@ -282,7 +282,7 @@ public class LogActivity extends Activity {
                     return;
                 }
                 if (crash == null || crash.trim().isEmpty()) {
-                    toast("Belum ada crash log.");
+                    toast("No crash log yet.");
                     return;
                 }
                 tampilDialogCrash(crash);
@@ -305,9 +305,9 @@ public class LogActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("Crash Log")
                 .setView(sv)
-                .setPositiveButton("Salin", (dlg, w) -> {
+                .setPositiveButton("Copy", (dlg, w) -> {
                     salinClipboardBersihOtomatis("vaultwarden-crash", crash);
-                    toast("Crash log disalin ke clipboard.");
+                    toast("Crash log copied to clipboard.");
                 })
                 .setNegativeButton(getString(R.string.close), null)
                 .show();
@@ -391,7 +391,7 @@ public class LogActivity extends Activity {
         // synchronized sekaligus berisiko ANR di STB lemah.
         String log = samarkanLog(mentah);
         if (log.isEmpty()) {
-            toast("Log masih kosong.");
+            toast("Log is still empty.");
             return;
         }
         Intent send = new Intent(Intent.ACTION_SEND);
@@ -399,9 +399,9 @@ public class LogActivity extends Activity {
         send.putExtra(Intent.EXTRA_SUBJECT, "Tasirin Vaultwarden Host - Log");
         send.putExtra(Intent.EXTRA_TEXT, log);
         try {
-            startActivity(Intent.createChooser(send, "Bagikan log"));
+            startActivity(Intent.createChooser(send, "Share log"));
         } catch (Exception e) {
-            toast("Gagal membagikan log: " + e.getMessage());
+            toast("Failed to share log: " + e.getMessage());
         }
     }
 
@@ -623,16 +623,16 @@ public class LogActivity extends Activity {
         // menahan lock log global di UI thread.
         String log = samarkanLog(mentah);
         if (log.isEmpty()) {
-            toast("Log masih kosong.");
+            toast("Log is still empty.");
             return;
         }
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm == null) {
-            toast("Clipboard tidak tersedia.");
+            toast("Clipboard unavailable.");
             return;
         }
         salinClipboardBersihOtomatis("vaultwarden-log", log);
-        toast("Log disalin ke clipboard.");
+        toast("Log copied to clipboard.");
     }
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
@@ -653,7 +653,7 @@ public class LogActivity extends Activity {
             log = ServerService.logBuffer.toString();
         }
         String nama = LogExport.simpanKeDownload(this, log);
-        toast(nama != null ? "Log disimpan: Download/" + nama : "Gagal menyimpan log");
+        toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
     }
 
     @Override

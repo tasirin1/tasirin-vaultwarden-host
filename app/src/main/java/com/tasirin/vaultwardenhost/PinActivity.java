@@ -155,6 +155,7 @@ public class PinActivity extends Activity {
         if (menit < 1) {
             menit = 1;
         }
-        return "Terkunci, coba lagi " + menit + " menit.";
+        return menit == 1 ? "Locked, try again in 1 minute."
+                : "Locked, try again in " + menit + " minutes.";
     }
 }

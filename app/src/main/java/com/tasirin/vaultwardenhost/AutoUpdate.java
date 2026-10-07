@@ -244,7 +244,7 @@ public final class AutoUpdate {
             b = new android.app.Notification.Builder(ctx);
         }
         android.app.Notification n = b.setContentTitle("Vaultwarden Update")
-                .setContentText("v" + version + " tersedia")
+                .setContentText("v" + version + " available")
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
