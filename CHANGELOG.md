@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit agresif: restart, unduh, UI
+- `ServerService.healthFail`: tunggu proses mati sinkron sebelum menjadwalkan restart (restart 2 dtk yang menyala saat proses lama masih sekarat membuat restart hilang diam-diam) + rem loop `recordRestart` di jalur health (sebelumnya restart jalan selamanya + spam Telegram tiap siklus bila DB rusak permanen).
+- `ServerService`: rotasi log sebelum tulis (rename gagal tak lagi memangkas tulisan baru); cache PID RSS divalidasi ulang cmdline ketat; komentar `isPortBusy` diluruskan.
+- `Updater`: instal web-vault via redirect mencap versi dari `vw-version.json` (tak lagi unduh ulang 35 MB tiap cek).
+- `MainActivity`/`SettingsActivity`: toast update sekali per versi; "Unduh & Start" yang gagal tak auto-start; Settings pakai application context; flag start susulan dihapus hanya bila server benar-benar jalan.
+- Uji baru: `hitungRestartBaru_jendelaLimaMenit`, `cmdlineServer_ketatBukanSmokeTest`, `capWvRedirectDariJson`, `tawarkanBaruSekaliPerVersi`.
+
 ## [Belum rilis] — Perbaikan: unduh binary berulang tiap cek
 - `Updater.downloadBinaryInner`: fail-fast shim getrandom SEBELUM mengunduh binary ~20 MB di kernel lama (dulu binary diunduh dulu lalu gagal uji asap `--version` karena shim hilang, file tmp dibuang, cek berikut mengunduh lagi dari nol).
 - `AutoUpdate.cek`: cooldown 6 jam berbagi cap `bin_dl_gagal_at` bila cache binary masih ada — sukses membersihkan cap, gagal mencatat cap, dan kegagalan tak lagi memicu notifikasi "tersedia" berulang (notifikasi sekali per versi tetap di jalur non-otomatis).
