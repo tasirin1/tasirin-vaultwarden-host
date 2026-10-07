@@ -764,6 +764,19 @@ public class UpdaterTest {
     }
 
     @Test
+    public void stagingAktif_lindungiDariSapuLaluLepas() {
+        java.io.File data = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-data");
+        java.io.File a = Updater.stagingWebVault(data);
+        assertFalse(Updater.stagingAktif(a.getName()));
+        Updater.tandaiStagingAktif(a);
+        assertTrue(Updater.stagingAktif(a.getName()));
+        Updater.lepasStagingAktif(a);
+        assertFalse(Updater.stagingAktif(a.getName()));
+        assertFalse(Updater.stagingAktif(null));
+    }
+
+    @Test
     public void validasiRantai_tolakSampahFailClosed() {
         assertEquals(0, Updater.validasiRantai(null));
         assertEquals(0, Updater.validasiRantai(new byte[0]));

@@ -621,14 +621,42 @@ public final class Updater {
     /** Kunci swap web-vault: dipakai Updater + ServerService.cleanupTempFiles
      *  agar Start dan dua update konkuren tak berebut folder staging yang sama.
      *  Tiap update mengekstrak ke staging unik (stagingWebVault) lalu tukar di
-     *  bawah kunci ini; cleanup menyapu sisa staging yatim. */
+     *  bawah kunci ini; cleanup menyapu sisa staging yatim (melewati STAGING_AKTIF). */
     public static final Object KUNCI_WEBVAULT = new Object();
+
+    /** Nama staging web-vault yang sedang diekstrak/ditukar (bukan yatim).
+     *  Melindungi dari cleanup Start: pola sisaStagingWebVault cocok ke SEMUA
+     *  web-vault.new-<cap> termasuk yang aktif, jadi update menandai stagingnya
+     *  di sini dan melepas di semua titik keluar; cleanup melewati nama terdaftar.
+     *  Murni-JVM (tanpa API Android). */
+    private static final java.util.Set<String> STAGING_AKTIF =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
+
+    /** Tandai staging aktif agar cleanup tak menyapunya. Murni. */
+    static void tandaiStagingAktif(java.io.File dir) {
+        if (dir != null && dir.getName() != null) {
+            STAGING_AKTIF.add(dir.getName());
+        }
+    }
+
+    /** Lepas tanda aktif (dipanggil di semua titik keluar ekstrak/swap). Murni. */
+    static void lepasStagingAktif(java.io.File dir) {
+        if (dir != null && dir.getName() != null) {
+            STAGING_AKTIF.remove(dir.getName());
+        }
+    }
+
+    /** True bila nama staging sedang aktif (dilindungi dari cleanup). Murni. */
+    static boolean stagingAktif(String nama) {
+        return nama != null && STAGING_AKTIF.contains(nama);
+    }
 
     /** Folder staging unik untuk satu kali ekstrak web-vault
      *  (mis. web-vault.new-20261001-120000-000-ab12): update UI dan bot yang
-     *  jalan bersamaan tak lagi menimpa hasil ekstrak satu sama lain, dan
-     *  cleanup Start tak bisa membuang staging yang sedang diekstrak karena
-     *  namanya tak dikenalinya sebagai web-vault.new bersama. Murni. */
+     *  jalan bersamaan tak lagi menimpa hasil ekstrak satu sama lain.
+     *  Nama unik saja TAK cukup melawan cleanup Start (pola sisaStagingWebVault
+     *  cocok ke web-vault.new-<cap>): yang melindungi staging aktif adalah
+     *  registry STAGING_AKTIF di atas. Murni. */
     static java.io.File stagingWebVault(java.io.File dataFolder) {
         return new java.io.File(dataFolder, "web-vault.new-" + TgBackup.stempelUnik());
     }
@@ -1650,10 +1678,12 @@ public final class Updater {
         File newDir = stagingWebVault(dataFolder);
         deleteRecursive(newDir);
         newDir.mkdirs();
+        tandaiStagingAktif(newDir);
         String kanonBasis;
         try {
             kanonBasis = newDir.getCanonicalPath();
         } catch (Exception e) {
+            lepasStagingAktif(newDir);
             deleteRecursive(newDir);
             throw new IOException("Gagal menyiapkan folder web-vault: " + e.getMessage());
         }
@@ -1716,6 +1746,7 @@ public final class Updater {
             // Zip korup di tengah ekstrak (mis. "invalid stored block lengths"
             // karena unduhan terpotong): buang hasil + sisa zip agar Start
             // berikutnya unduh ulang bersih, versi lama tetap dipakai.
+            lepasStagingAktif(newDir);
             deleteRecursive(newDir);
             tmpZip.delete();
             throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
@@ -1725,10 +1756,12 @@ public final class Updater {
             if (rendah.contains("zipexception") || rendah.contains("stored block")
                     || rendah.contains("invalid block") || rendah.contains("eocd")
                     || rendah.contains("truncated") || rendah.contains("not a zip")) {
+                lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 tmpZip.delete();
                 throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
             }
+            lepasStagingAktif(newDir);
             deleteRecursive(newDir);
             throw e;
         }
@@ -1736,6 +1769,7 @@ public final class Updater {
 
         File index = new File(newDir, "index.html");
         if (!index.exists()) {
+            lepasStagingAktif(newDir);
             deleteRecursive(newDir);
             throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                     + " - versi lama dipertahankan.");
@@ -1749,11 +1783,13 @@ public final class Updater {
             if (adaLama && !targetDir.renameTo(bakDir)) {
                 // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
                 // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
+                lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 throw new IOException("Gagal mencadangkan web vault lama"
                         + " - versi lama dipertahankan.");
             }
             if (!newDir.renameTo(targetDir)) {
+                lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 if (adaLama) {
                     bakDir.renameTo(targetDir);
@@ -1762,6 +1798,7 @@ public final class Updater {
                         + " - versi lama dipertahankan.");
             }
             deleteRecursive(bakDir);
+            lepasStagingAktif(newDir);
         }
         String capWv = versiWvUntukCap(latest, wvFallback,
                 readWvVersion(new File(targetDir, "vw-version.json")));

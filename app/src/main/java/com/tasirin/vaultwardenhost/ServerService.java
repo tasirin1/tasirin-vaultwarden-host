@@ -2349,8 +2349,9 @@ public class ServerService extends Service {
 
     /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume.
      *  Dikunci KUNCI_WEBVAULT bersama Updater agar sapu tak berebut rename swap.
-     *  Staging update kini unik per panggilan sehingga tak ikut tersapu saat
-     *  diekstrak; yang dibuang hanya yatim crash/versi lama. */
+     *  Staging yang sedang diekstrak/ditukar dilindungi registry STAGING_AKTIF
+     *  (nama unik saja tak cukup: polanya cocok ke semua staging); yang dibuang
+     *  hanya yatim crash/versi lama. */
     private void cleanupTempFiles(String dataDir) {
         synchronized (Updater.KUNCI_WEBVAULT) {
             cleanupTempFilesTerkunci(dataDir);
@@ -2368,7 +2369,8 @@ public class ServerService extends Service {
             File[] isi = induk.listFiles();
             if (isi != null) {
                 for (File f : isi) {
-                    if (Updater.sisaStagingWebVault(f.getName())) {
+                    if (Updater.sisaStagingWebVault(f.getName())
+                            && !Updater.stagingAktif(f.getName())) {
                         Updater.deleteRecursive(f);
                     }
                 }
