@@ -467,6 +467,31 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void hitungRestartBaru_jendelaLimaMenit() {
+        java.util.List<Long> riwayat = new java.util.ArrayList<Long>();
+        long kini = 10_000_000L;
+        riwayat.add(kini - 1000);
+        riwayat.add(kini - 200000);
+        riwayat.add(kini - 400000);
+        assertEquals(2, ServerService.hitungRestartBaru(riwayat, kini));
+        riwayat.add(kini - 10000);
+        assertEquals(3, ServerService.hitungRestartBaru(riwayat, kini));
+        assertEquals(0, ServerService.hitungRestartBaru(
+                new java.util.ArrayList<Long>(), kini));
+    }
+
+    @Test
+    public void cmdlineServer_ketatBukanSmokeTest() {
+        assertTrue(ServerService.cmdlineServer(
+                "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a"));
+        assertFalse(ServerService.cmdlineServer(
+                "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a --version"));
+        assertFalse(ServerService.cmdlineServer(null));
+        assertFalse(ServerService.cmdlineServer("bin/vaultwarden"));
+        assertFalse(ServerService.pidMilikiServer(-1));
+    }
+
+    @Test
     public void unduhBolehDicobaBilaJamMundur() {
         // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
         assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));

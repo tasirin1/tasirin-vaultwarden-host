@@ -1824,12 +1824,7 @@ public class ServerService extends Service {
                 RESTART_TIMES.remove(0);
                 RESTART_REASONS.remove(0);
             }
-            int n = 0;
-            for (long t : RESTART_TIMES) {
-                if (now - t <= RESTART_WINDOW_MS) {
-                    n++;
-                }
-            }
+            int n = hitungRestartBaru(RESTART_TIMES, now);
             if (n >= RESTART_WINDOW_MAX) {
                 autoRestart = false;
                 String tail = tailLog(14);
@@ -1845,6 +1840,17 @@ public class ServerService extends Service {
             }
         }
         return false;
+    }
+
+    /** Hitung restart dalam jendela loop (murni agar bisa unit test). */
+    static int hitungRestartBaru(java.util.List<Long> riwayat, long kini) {
+        int n = 0;
+        for (long t : riwayat) {
+            if (kini - t <= RESTART_WINDOW_MS) {
+                n++;
+            }
+        }
+        return n;
     }
 
     /** Ringkasan riwayat restart untuk UI/Telegram; kosong bila tidak pernah restart. */
@@ -1983,14 +1989,9 @@ public class ServerService extends Service {
             logFileBuf.setLength(0);
             return;
         }
-        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                new FileOutputStream(f, true), StandardCharsets.UTF_8)) {
-            w.write(logFileBuf.toString());
-        } catch (Exception ignored) {
-        } finally {
-            logFileBuf.setLength(0);
-        }
-        if (f.length() > MAX_LOG_FILE) {
+        // Rotasi DULU bila penuh: tulis-dulu-rotasi-kemudian + rename gagal
+        // = truncate menghapus tulisan yang baru saja ditulis.
+        if (f.length() >= MAX_LOG_FILE) {
             File old = new File(f.getParentFile(), f.getName() + ".1");
             if (old.exists()) {
                 old.delete();
@@ -2001,6 +2002,13 @@ public class ServerService extends Service {
                 } catch (Exception ignored) {
                 }
             }
+        }
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(f, true), StandardCharsets.UTF_8)) {
+            w.write(logFileBuf.toString());
+        } catch (Exception ignored) {
+        } finally {
+            logFileBuf.setLength(0);
         }
     }
 
@@ -2111,34 +2119,37 @@ public class ServerService extends Service {
                 tandaiStopDisengaja(p);
                 releaseWakeLock();
                 p.destroy();
-                Thread killer = new Thread(() -> {
-                    try {
-                        if (!waitForOrKill(p, 5000)) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                p.destroyForcibly();
-                            } else {
-                                p.destroy();
-                            }
-                            try {
-                                waitForOrKill(p, 3000);
-                            } catch (Exception ignored) {
-                            }
+                // Tunggu sinkron di worker health (bukan UI): restartTunda
+                // 2 dtk yang menyala selagi proses lama masih sekarat akan
+                // dilewati sekali lalu restart hilang diam-diam. Mati dulu,
+                // baru jadwalkan.
+                try {
+                    if (!waitForOrKill(p, 5000)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            p.destroyForcibly();
+                        } else {
+                            p.destroy();
                         }
-                    } catch (Exception ignored) {
-                    } finally {
-                        if (process == p) {
-                            process = null;
+                        try {
+                            waitForOrKill(p, 3000);
+                        } catch (Exception ignored) {
                         }
-                        hapusTandaStop(p);
                     }
-                }, "vw-health-stop");
-                killer.setDaemon(true);
-                killer.start();
+                } catch (Exception ignored) {
+                } finally {
+                    if (process == p) {
+                        process = null;
+                    }
+                    hapusTandaStop(p);
+                }
+            }
+            // Rem loop seperti jalur crash: tanpa ini restart health (uptime
+            // selalu >60 dtk sehingga restartAttempt selalu di-reset)
+            // jalan selamanya + spam Telegram tiap siklus bila DB rusak permanen.
+            if (recordRestart("health 3x")) {
+                return;
             }
             // Lanjut restart terbatas (maks 5x, backoff di scheduleRestart).
-            // Tanda stop disengaja dipertahankan sampai killer selesai agar
-            // watchProcess tak ikut menjadwalkan restart ganda; start baru
-            // membersihkannya sendiri (prosesStopDisengaja = null).
             scheduleRestart();
             return;
         }
@@ -3131,7 +3142,8 @@ public class ServerService extends Service {
         if (pid < 0) {
             long now = SystemClock.elapsedRealtime();
             int cached = cachedChildPid;
-            if (cached >= 0 && now - cachedChildPidAt < CHILD_PID_TTL_MS) {
+            if (cached >= 0 && now - cachedChildPidAt < CHILD_PID_TTL_MS
+                    && pidMilikiServer(cached)) {
                 pid = cached;
             } else {
                 pid = findChildPid();
@@ -3189,7 +3201,7 @@ public class ServerService extends Service {
                         continue;
                     }
                     String cmd = readProcCmdline(d);
-                    if (cmd != null && cmd.contains("bin/vaultwarden")) {
+                    if (cmdlineServer(cmd)) {
                         return pid;
                     }
                 } catch (Exception ignored) {
@@ -3236,15 +3248,31 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila cmdline milik server basi yang boleh dibunuh: binary app
-     *  yang nyangkut, BUKAN smoke-test "--version" milik flow update/start
-     *  konkuren. Murni agar bisa unit test. */
-    static boolean bolehBunuhBasi(String cmd) {
-        // Ketat: path internal selalu ".../bin/vaultwarden-armeabi-v7a".
-        // Substring longgar "bin/vaultwarden" berisiko menjodohkan file
-        // asing se-UID bila skema exec bertambah nanti.
+    /** True bila cmdline milik binary server app (bukan smoke-test
+     *  "--version" milik flow update/start konkuren). Murni.
+     *  Ketat: path internal selalu ".../bin/vaultwarden-armeabi-v7a";
+     *  substring longgar "bin/vaultwarden" berisiko menjodohkan file
+     *  asing se-UID bila skema exec bertambah nanti. */
+    static boolean cmdlineServer(String cmd) {
         return cmd != null && cmd.contains("/bin/vaultwarden-")
                 && !cmd.contains("--version");
+    }
+
+    /** True bila cmdline milik server basi yang boleh dibunuh. Murni. */
+    static boolean bolehBunuhBasi(String cmd) {
+        return cmdlineServer(cmd);
+    }
+
+    /** True bila pid masih milik binary server (anti PID-reuse basi di cache). */
+    static boolean pidMilikiServer(int pid) {
+        if (pid < 0) {
+            return false;
+        }
+        try {
+            return cmdlineServer(readProcCmdline(new File("/proc/" + pid)));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private int runningChildPid() {
@@ -3287,10 +3315,9 @@ public class ServerService extends Service {
     }
 
     /** True bila port sedang dipakai proses lain (listening).
-     *  Hanya cek IPv4 (ROCKET_ADDRESS=0.0.0.0): cek "::" ikut menolak start
-     *  saat pendengar IPv6-only memakai port yang sama, padahal Rocket IPv4
-     *  tetap bisa bind (false-positive). Di perangkat tanpa stack IPv6,
-     *  gagal "::" juga bukan berarti sibuk.
+     *  Cek dua tumpukan (0.0.0.0 dan "::"): Rocket melayani keduanya,
+     *  jadi sibuk bila salah satu tak bisa bind. Pengecualian: di perangkat
+     *  tanpa stack IPv6, gagal "::" bukan berarti sibuk (lihat bisaBind).
      *  Saran pra-start saja (TOCTOU bind-lalu-lepas): penentu sah adalah
      *  gagal bind Rocket saat exec + mitigasi portDirebut di watchProcess. */
     public static boolean isPortBusy(int port) {
