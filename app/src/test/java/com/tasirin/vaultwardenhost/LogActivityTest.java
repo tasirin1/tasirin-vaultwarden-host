@@ -62,6 +62,15 @@ public class LogActivityTest {
     }
 
     @Test
+    public void sandiSpasiBerhentiSebelumKunciBerikut() {
+        String r = LogActivity.samarkanLog("cadangan tg_pass=kunci saya DOMAIN=https://192.168.1.5:8088 selesai");
+        assertFalse(r.contains("kunci saya"));
+        assertTrue(r.contains("tg_pass=***"));
+        assertTrue(r.contains("DOMAIN=***"));
+        assertFalse(r.contains("192.168.1.5"));
+    }
+
+    @Test
     public void tokenJsonKutipTunggalDisamarkan() {
         String r = LogActivity.samarkanLog("konfig 'tg_token': '123456:ABCDEF' lanjut");
         assertFalse(r.contains("123456:ABCDEF"));

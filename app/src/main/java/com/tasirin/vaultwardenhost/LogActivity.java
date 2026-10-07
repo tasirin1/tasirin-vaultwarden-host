@@ -346,10 +346,12 @@ public class LogActivity extends Activity {
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
     /** Kata sandi backup boleh ber-spasi sehingga nilainya disamarkan sampai
      *  akhir baris (bukan sampai spasi pertama) agar sisa frasa tak bocor.
-     *  Kredensial lain valid tanpa spasi sehingga pola kata-tunggal di atas
-     *  cukup dan tak menelan kata log sesudahnya. */
+     *  Berhenti sebelum kunci kredensial berikut (lookahead tanpa menelan) agar
+     *  sisa baris seperti DOMAIN tetap disamarkan polanya sendiri, bukan hilang
+     *  ditelan pola ini. */
     private static final java.util.regex.Pattern POLA_SANDI_SPASI =
-            java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+)");
+            java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+?)"
+                    + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
 
     static String samarkanLog(String log) {
         if (log == null) {
