@@ -34,6 +34,15 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void stubAndroidTerdeteksi() {
+        assertTrue(FileShareProvider.adaStubAndroid(new RuntimeException("Stub!")));
+        assertTrue(FileShareProvider.adaStubAndroid(
+                new java.lang.reflect.InvocationTargetException(new RuntimeException("Stub!"))));
+        assertFalse(FileShareProvider.adaStubAndroid(new java.io.IOException("EACCES")));
+        assertFalse(FileShareProvider.adaStubAndroid(null));
+    }
+
+    @Test
     public void symlinkIndukBersihDiJvm() {
         assertFalse(FileShareProvider.adaSymlinkInduk("/data/data/com.tasirin.vaultwardenhost/files/tls/cert.pem"));
     }

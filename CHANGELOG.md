@@ -2,7 +2,7 @@
 
 ## [Belum rilis] — Perbaikan audit agresif: lock log, symlink, versi, sertifikat
 - `LogActivity.shareLog/copyLog`: penyamaran token pindah ke luar `synchronized(logBuffer)` — belasan regex di atas 300 KB tak lagi menahan thread server dan memicu ANR.
-- `FileShareProvider.adaSymlinkInduk`: fail-closed bila `lstat` gagal di perangkat (sebelumnya dianggap bersih); JVM unit test tetap hijau via deteksi `Os` tak ada.
+- `FileShareProvider.adaSymlinkInduk`: fail-closed bila `lstat` gagal di perangkat (sebelumnya dianggap bersih); stub android.jar JVM (`adaStubAndroid`) dikecualikan agar unit test CI hijau.
 - `Updater.normVersion`: tag aneh (`../../x`, slash, spasi) ditolak null agar tak ditempel mentah ke URL asset; pemanggil sudah null-aman.
 - `TlsCert.sisaMs`: baca ulang sekali selang 100 ms bila -1 agar jendela tukar atomik tak dikira cert rusak.
 - Uji baru: `normVersion_tolakTagAneh`, `symlinkIndukBersihDiJvm`.

@@ -228,11 +228,28 @@ public class FileShareProvider extends ContentProvider {
                     return true;
                 }
             } catch (Exception e) {
-                // Fail-closed: lstat gagal di perangkat (izin/SELinux) = anggap
-                // mencurigakan agar tukar symlink tak lolos diam-diam.
+                // Stub android.jar di JVM (unit test CI) melempar "Stub!":
+                // itu bukan perangkat, dianggap bersih agar test hijau.
+                // Gagal lain di perangkat (izin/SELinux) = fail-closed agar
+                // tukar symlink tak lolos diam-diam.
+                if (adaStubAndroid(e)) {
+                    return false;
+                }
                 return true;
             }
             induk = induk.getParentFile();
+        }
+        return false;
+    }
+
+    /** True bila rantai exception memuat stub android.jar ("Stub!"):
+     *  tanda jalan di JVM unit test, bukan perangkat. Murni agar bisa diuji. */
+    static boolean adaStubAndroid(Throwable e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            String m = t.getMessage();
+            if (m != null && m.contains("Stub!")) {
+                return true;
+            }
         }
         return false;
     }
