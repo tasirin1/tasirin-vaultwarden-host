@@ -1334,6 +1334,12 @@ public final class TgBot {
         if (Updater.normalisasiPinVersi(kandidat) != null) {
             return new String[]{t, ""};
         }
+        // Kandidat mirip file/jalur/versi ("file.zip", "a/b", "1.32.x") bukan
+        // PIN implisit: salah ketik versi/nama file tak boleh membakar lockout;
+        // PIN bertitik/garis-miring wajib bentuk eksplisit PIN:... .
+        if (kandidat.contains(".") || kandidat.contains("/") || kandidat.contains("\\")) {
+            return new String[]{t, ""};
+        }
         if (kandidat.matches("\\S{4,}")
                 && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
             return new String[]{t.substring(0, i).trim(), kandidat};

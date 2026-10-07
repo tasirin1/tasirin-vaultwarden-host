@@ -182,6 +182,12 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"1.32.0", "123456"},
                 TgBot.pisahkanPin("1.32.0 123456"));
         assertArrayEquals(new String[]{"", "123456"}, TgBot.pisahkanPin("123456"));
+        assertArrayEquals(new String[]{"1.32.x", ""}, TgBot.pisahkanPin("1.32.x"));
+        assertArrayEquals(new String[]{"nama file.zip", ""},
+                TgBot.pisahkanPin("nama file.zip"));
+        assertArrayEquals(new String[]{"YA file.zip", ""},
+                TgBot.pisahkanPin("YA file.zip"));
+        assertArrayEquals(new String[]{"", "p@ss!9"}, TgBot.pisahkanPin("PIN:p@ss!9"));
     }
 
     @Test
