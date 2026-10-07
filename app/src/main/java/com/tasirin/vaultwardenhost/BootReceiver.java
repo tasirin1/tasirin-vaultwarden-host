@@ -8,12 +8,23 @@ import android.content.SharedPreferences;
 
 public class BootReceiver extends BroadcastReceiver {
 
+    /** Throttle spoof BOOT_COMPLETED explicit-intent (boot legit sekali jalan).
+     *  Siaran sistem tak ber-rahasia, jadi tanpa ini app lain bisa memicu
+     *  auto-start + jadwal backup berulang-ulang. */
+    static final long THROTTLE_BOOT_MS = 60_000;
+    private static volatile long terakhirBootElapsed = 0;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)
                 || "android.intent.action.QUICKBOOT_POWERON".equals(action)
                 || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
+            long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+            if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBootElapsed, THROTTLE_BOOT_MS)) {
+                return;
+            }
+            terakhirBootElapsed = kiniElapsed;
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             TgBackup.healkanStringPrefs(context);
             TgBackup.migrateAutoPref(context);

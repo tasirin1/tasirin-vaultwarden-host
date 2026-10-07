@@ -24,8 +24,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static final String EXTRA_RAHASIA =
             "com.tasirin.vaultwardenhost.ALARM_SECRET";
     /** Throttle spam explicit-intent: service sudah dedup harian, tapi tiap
-     *  siaran palsu tetap membangunkan perangkat + start service. Jeda ini
-     *  hanya untuk jalur alarm umum; susulan boot & ganti tanggal tak ikut. */
+     *  siaran palsu tetap membangunkan perangkat + start service. Berlaku
+     *  untuk jalur alarm umum dan ganti tanggal (keduanya tanpa rahasia bila
+     *  dari sistem); susulan boot punya rahasia sendiri sehingga tak ikut. */
     static final long THROTTLE_ALARM_MS = 60_000;
     private static volatile long terakhirAlarmElapsed = 0;
 
@@ -140,6 +141,14 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 return;
             }
+            // Siaran sistem tak ber-rahasia sehingga bisa dipalsu via
+            // explicit-intent: throttle 60 dtk seperti jalur alarm umum
+            // (ganti tanggal legit jarang beruntun).
+            long kiniElapsedTgl = android.os.SystemClock.elapsedRealtime();
+            if (!bolehAlarmJalan(kiniElapsedTgl, terakhirAlarmElapsed, THROTTLE_ALARM_MS)) {
+                return;
+            }
+            terakhirAlarmElapsed = kiniElapsedTgl;
             // Hitung ulang tengah malam berikutnya setelah jam berubah.
             TgBackup.schedule(context, true);
             String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
