@@ -537,6 +537,7 @@ public class TgBackupTest {
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_chat"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_pass"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("pin_hash"));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains(TgBackup.KEY_ALARM_SECRET));
     }
 
     @Test

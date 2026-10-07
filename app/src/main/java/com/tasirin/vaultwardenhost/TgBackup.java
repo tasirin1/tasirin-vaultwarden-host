@@ -1306,7 +1306,7 @@ public final class TgBackup {
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
                     "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
-                    PinGate.KEY_KUNCI_ELAPSED));
+                    PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET));
 
     /** Kunci milik perangkat yang tak ikut export config: folder data selalu
      *  milik perangkat (import mengabaikannya), sisanya state runtime/notifikasi
