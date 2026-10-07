@@ -43,6 +43,11 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void jvmUnitTestTerdeteksi() {
+        assertTrue(FileShareProvider.diJvmUnitTest());
+    }
+
+    @Test
     public void symlinkIndukBersihDiJvm() {
         assertFalse(FileShareProvider.adaSymlinkInduk("/data/data/com.tasirin.vaultwardenhost/files/tls/cert.pem"));
     }
