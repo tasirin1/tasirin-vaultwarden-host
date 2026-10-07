@@ -55,6 +55,7 @@
 
         <activity
             android:name=".PinActivity"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
