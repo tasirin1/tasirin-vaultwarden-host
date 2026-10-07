@@ -270,7 +270,9 @@ public class SettingsActivity extends Activity {
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik) agar tak rekursi.
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
-        PinGate.bukaKunciBersama();
+        if (!PinGate.dalamGraceBersama()) {
+            PinGate.bukaKunciBersama();
+        }
         pauseStamp = PinGate.kapanBukaBersama();
     }
 

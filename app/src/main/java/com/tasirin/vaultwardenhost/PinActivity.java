@@ -45,7 +45,7 @@ public class PinActivity extends Activity {
             } catch (Exception ignored) {
             }
             ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
-            setResult(RESULT_CANCELED);
+            setResult(RESULT_OK);
             finish();
             return;
         }
@@ -94,6 +94,7 @@ public class PinActivity extends Activity {
         tampilInfo(getString(R.string.pin_memeriksa));
         final String entered = pinInput.getText() == null
                 ? "" : pinInput.getText().toString();
+        bersihkanInput();
         final android.content.Context appCtx = getApplicationContext();
         new Thread(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(

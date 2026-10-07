@@ -94,7 +94,9 @@ public class MainActivity extends Activity {
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik antar-activity).
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
-        PinGate.bukaKunciBersama();
+        if (!PinGate.dalamGraceBersama()) {
+            PinGate.bukaKunciBersama();
+        }
         pauseStamp = PinGate.kapanBukaBersama();
     }
 
