@@ -65,6 +65,25 @@ public final class TlsCert {
      *  Dipakai keputusan regenerasi agar sisa hitungan jam tak disangka
      *  kedaluwarsa (pembagian hari integer membuat sisa 5 jam jadi 0). */
     public static long sisaMs(File certFile) {
+        long hasil = sisaMsSekali(certFile);
+        if (hasil == -1) {
+            // Jendela tukar atomik (.cad/.baru) membuat cert sesaat hilang:
+            // coba sekali lagi selang 100 ms agar pembaca konkuren (Start,
+            // Settings) tak mengira cert rusak. Cert yang memang tak ada
+            // tetap -1 seperti semula.
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return -1;
+            }
+            hasil = sisaMsSekali(certFile);
+        }
+        return hasil;
+    }
+
+    /** Sekali baca sisa masa berlaku (dipanggil ulang oleh sisaMs bila -1). */
+    private static long sisaMsSekali(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
                     .getInstance("X.509").generateCertificate(in);
