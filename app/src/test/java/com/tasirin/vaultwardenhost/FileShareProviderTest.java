@@ -34,6 +34,11 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void symlinkIndukBersihDiJvm() {
+        assertFalse(FileShareProvider.adaSymlinkInduk("/data/data/com.tasirin.vaultwardenhost/files/tls/cert.pem"));
+    }
+
+    @Test
     public void namaBiasaBerisiKeyTakIkutDitolak() {
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.pem"));

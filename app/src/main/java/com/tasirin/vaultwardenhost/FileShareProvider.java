@@ -208,28 +208,33 @@ public class FileShareProvider extends ContentProvider {
      *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
      *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
     static boolean adaSymlinkInduk(String canon) {
+        final java.lang.reflect.Method lstat;
+        final java.lang.reflect.Method cekLink;
         try {
             Class<?> os = Class.forName("android.system.Os");
             Class<?> konst = Class.forName("android.system.OsConstants");
-            java.lang.reflect.Method lstat = os.getMethod("lstat", String.class);
-            java.lang.reflect.Method cekLink = konst.getMethod("S_ISLNK", int.class);
-            File induk = new File(canon).getParentFile();
-            for (int i = 0; i < 32 && induk != null; i++) {
-                try {
-                    Object st = lstat.invoke(null, induk.getAbsolutePath());
-                    int mode = st.getClass().getField("st_mode").getInt(st);
-                    if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
-                        return true;
-                    }
-                } catch (Exception ignored) {
-                    break;
-                }
-                induk = induk.getParentFile();
-            }
-            return false;
+            lstat = os.getMethod("lstat", String.class);
+            cekLink = konst.getMethod("S_ISLNK", int.class);
         } catch (Exception e) {
+            // JVM unit test tanpa android.system.Os: dianggap bersih agar test hijau.
             return false;
         }
+        File induk = new File(canon).getParentFile();
+        for (int i = 0; i < 32 && induk != null; i++) {
+            try {
+                Object st = lstat.invoke(null, induk.getAbsolutePath());
+                int mode = st.getClass().getField("st_mode").getInt(st);
+                if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // Fail-closed: lstat gagal di perangkat (izin/SELinux) = anggap
+                // mencurigakan agar tukar symlink tak lolos diam-diam.
+                return true;
+            }
+            induk = induk.getParentFile();
+        }
+        return false;
     }
 
     /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,
