@@ -955,8 +955,10 @@ public class MainActivity extends Activity {
             return;
         }
         ServerService.catatLog(line);
-        // Ledakan log tidak boleh membanjiri UI thread.
-        long now = System.currentTimeMillis();
+        // Jam elapsed (bukan dinding): jam yang dimundurkan membuat selisih
+        // negatif sehingga refresh macet sampai jam menyusul. Ledakan log
+        // tidak boleh membanjiri UI thread.
+        long now = SystemClock.elapsedRealtime();
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
             ui.post(this::refreshFromService);

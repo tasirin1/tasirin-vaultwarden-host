@@ -165,6 +165,8 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
     }
+    /** Kapan export plaintext dibuat (jam elapsed monotonik, bukan jam dinding
+     *  agar jam HP yang dimundurkan tak memperpanjang pajanan secret di cache). */
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -1916,7 +1918,7 @@ public class SettingsActivity extends Activity {
             File pending = exportPlainTertunda;
             String pendingPath = pending == null ? null : pending.getAbsolutePath();
             boolean segar = pending != null
-                    && System.currentTimeMillis() - exportPlainPada < EXPORT_PLAIN_TTL_MS;
+                    && SystemClock.elapsedRealtime() - exportPlainPada < EXPORT_PLAIN_TTL_MS;
             String pendingNamaSegar = segar && pending != null ? pending.getName() : null;
             File[] sisa = getCacheDir().listFiles();
             if (sisa != null) {
@@ -1937,8 +1939,14 @@ public class SettingsActivity extends Activity {
                             continue;
                         }
                         // Hanya sapu yang basi agar target async tak kehilangan file.
+                        // mtime berbasis jam dinding: jam yang dimundurkan membuat
+                        // umur negatif — anggap segar (disapu belakangan), jangan
+                        // hapus file yang mungkin masih dibaca target berbagi.
                         long umur = System.currentTimeMillis() - f.lastModified();
-                        if (umur < 0 || umur > EXPORT_PLAIN_TTL_MS) {
+                        if (umur < 0) {
+                            umur = 0;
+                        }
+                        if (umur > EXPORT_PLAIN_TTL_MS) {
                             f.delete();
                         }
                     }
@@ -1989,7 +1997,7 @@ public class SettingsActivity extends Activity {
         try {
             File pending = exportPlainTertunda;
             if (pending != null
-                    && System.currentTimeMillis() - exportPlainPada >= EXPORT_PLAIN_TTL_MS) {
+                    && SystemClock.elapsedRealtime() - exportPlainPada >= EXPORT_PLAIN_TTL_MS) {
                 pending.delete();
                 exportPlainTertunda = null;
             }
@@ -2056,7 +2064,7 @@ public class SettingsActivity extends Activity {
             final boolean plain = !path.endsWith(".enc");
             if (plain) {
                 exportPlainTertunda = new File(path);
-                exportPlainPada = System.currentTimeMillis();
+                exportPlainPada = SystemClock.elapsedRealtime();
             }
             ui.post(() -> {
                 Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + Uri.encode(path, "/"));
@@ -3408,8 +3416,10 @@ public class SettingsActivity extends Activity {
 
     private void appendUiLog(String line) {
         ServerService.catatLog(line);
-        // Ledakan log (mis. output binary) tidak boleh membanjiri UI thread.
-        long now = System.currentTimeMillis();
+        // Jam elapsed (bukan dinding): jam yang dimundurkan membuat selisih
+        // negatif sehingga refresh macet sampai jam menyusul. Ledakan log
+        // (mis. output binary) tidak boleh membanjiri UI thread.
+        long now = SystemClock.elapsedRealtime();
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
             ui.post(this::refreshFromService);
