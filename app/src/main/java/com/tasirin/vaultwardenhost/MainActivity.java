@@ -222,13 +222,14 @@ public class MainActivity extends Activity {
                 // Hapus flag hanya bila start sukses: gagal (lempar/false)
                 // wajib dicoba lagi saat app dibuka berikutnya, bukan hilang
                 // sampai reboot. Selaras BACKUP_TERTUNDA yang tak hangus sia-sia.
-                boolean ok = false;
                 try {
-                    ok = ServerService.start(this);
+                    ServerService.start(this);
                 } catch (Exception ignored) {
-                    ok = false;
                 }
-                if (ok) {
+                // Flag dihapus hanya bila server benar-benar jalan: intent
+                // terkirim bukan jaminan exec sukses (unduh bisa gagal
+                // kemudian); gagal wajib dicoba lagi buka-berikutnya.
+                if (ServerService.running) {
                     try {
                         sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
                     } catch (Exception ignored2) {
@@ -402,11 +403,16 @@ public class MainActivity extends Activity {
                                 }
                                 appendUiLog(info);
                                 if (gagalFinal) {
-                                    toast("Gagal unduh web-vault.");
+                                    toast("Gagal unduh web-vault"
+                                            + " - server tidak di-start.");
                                 }
                                 setBusy(false);
                             });
-                            ServerService.start(appCtx);
+                            // Gagal unduh tak boleh auto-start tanpa web UI:
+                            // pilihan tombolnya "Unduh & Start" satu paket.
+                            if (!gagal) {
+                                ServerService.start(appCtx);
+                            }
                         }, "vw-task").start();
                         maybeAutoBackup();
                     })
@@ -812,8 +818,16 @@ public class MainActivity extends Activity {
                 appendUiLog(baris);
             }
             @Override public void kabariTersedia(String versi) {
-                MainActivity.this.toast("Update tersedia: v" + versi
-                        + " - buka Settings untuk update.");
+                // Toast sekali per versi: tiap buka app menawar ulang itu spam.
+                SharedPreferences psp = getSharedPreferences(ServerService.PREFS,
+                        MODE_PRIVATE);
+                if (AutoUpdate.tawarkanBaru(
+                        TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
+                        versi)) {
+                    psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
+                    MainActivity.this.toast("Update tersedia: v" + versi
+                            + " - buka Settings untuk update.");
+                }
             }
             @Override public void tawarkanWebVault() {
             }

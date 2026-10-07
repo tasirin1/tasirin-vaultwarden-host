@@ -29,6 +29,14 @@ public class AutoUpdateTest {
     }
 
     @Test
+    public void tawarkanBaruSekaliPerVersi() {
+        assertTrue(AutoUpdate.tawarkanBaru("", "1.37.4"));
+        assertFalse(AutoUpdate.tawarkanBaru("1.37.4", "1.37.4"));
+        assertFalse(AutoUpdate.tawarkanBaru("v1.37.4", "1.37.4"));
+        assertTrue(AutoUpdate.tawarkanBaru("1.37.3", "1.37.4"));
+    }
+
+    @Test
     public void tetapCobaBilaBelumPernahGagal() {
         assertFalse(AutoUpdate.bolehLewatiCobaLagi(true, 0, 10_000_000L));
     }

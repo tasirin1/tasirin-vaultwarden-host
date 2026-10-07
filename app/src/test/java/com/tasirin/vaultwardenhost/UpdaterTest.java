@@ -848,6 +848,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void capWvRedirectDariJson() {
+        assertEquals("1.37.4", Updater.versiWvUntukCap("1.37.4", false, null));
+        assertEquals("1.37.4", Updater.versiWvUntukCap(null, false, "1.37.4"));
+        assertNull(Updater.versiWvUntukCap(null, false, null));
+        assertNull(Updater.versiWvUntukCap(null, false, ""));
+        assertNull(Updater.versiWvUntukCap("1.37.4", true, "1.37.4"));
+    }
+
+    @Test
     public void kuncianDuaBagianDitolak() {
         // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
         // wajib ditolak di normalisasi agar pin lama bertahan.

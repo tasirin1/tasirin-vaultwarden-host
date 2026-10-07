@@ -1500,6 +1500,19 @@ public final class Updater {
         }
     }
 
+    /** Versi web-vault yang dicap sebagai terpasang (null = jangan cap).
+     *  Instal via redirect (latest==null) wajib cap dari vw-version.json
+     *  hasil ekstrak agar cek berikut tak unduh ulang 35 MB. Murni. */
+    static String versiWvUntukCap(String latest, boolean fallback, String dariJson) {
+        if (latest != null && !fallback) {
+            return latest;
+        }
+        if (latest == null && dariJson != null && !dariJson.isEmpty()) {
+            return dariJson;
+        }
+        return null;
+    }
+
     private static String updateWebVaultInner(Context ctx) throws Exception {
         return updateWebVaultInner(ctx, versiTargetWebVault(ctx));
     }
@@ -1742,8 +1755,12 @@ public final class Updater {
             }
             deleteRecursive(bakDir);
         }
+        String capWv = versiWvUntukCap(latest, wvFallback,
+                readWvVersion(new File(targetDir, "vw-version.json")));
+        if (capWv != null) {
+            sp.edit().putString(KEY_WV_FROM, capWv).apply();
+        }
         if (latest != null && !wvFallback) {
-            sp.edit().putString(KEY_WV_FROM, latest).apply();
             sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_WV_FALLBACK_AT).apply();
         } else if (latest != null && wvFallback) {
             sp.edit().putString(KEY_WV_FALLBACK_FOR, latest)

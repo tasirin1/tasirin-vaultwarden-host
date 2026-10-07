@@ -35,6 +35,14 @@ public final class AutoUpdate {
         void atur(String versi);
     }
 
+    /** Cap versi yang sudah ditawarkan via toast (sekali per versi). */
+    static final String KEY_TAWARAN_UPDATE = "update_ditawarkan_untuk";
+
+    /** True bila versi ini belum pernah ditawarkan (toast sekali per versi). Murni. */
+    static boolean tawarkanBaru(String sudah, String versi) {
+        return !Updater.versiCocok(versi, sudah);
+    }
+
     /** True bila auto-update boleh melewati percobaan unduh: unduhan terakhir
      *  baru gagal dan cache binary masih ada (jangan bakar kuota tiap buka
      *  app). Tanpa cache tetap coba (instalasi pertama). Murni. */

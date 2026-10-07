@@ -716,15 +716,24 @@ public class SettingsActivity extends Activity {
                             + "Unduh sekali (~35 MB) supaya web UI bisa dibuka dari browser?\n\n"
                             + "Tanpa web vault, server dan aplikasi Bitwarden tetap jalan normal.")
                     .setPositiveButton("Unduh & Start", (d, w) -> {
+                        // App context: unduh 35 MB di worker tak boleh menahan
+                        // Activity yang sudah di-back (bocor) + start dari
+                        // konteks mati (selaras MainActivity).
+                        final android.content.Context appCtx = getApplicationContext();
                         runBusy(() -> {
+                            boolean gagal = false;
                             try {
-                                String msg = Updater.updateWebVault(this);
+                                String msg = Updater.updateWebVault(appCtx);
                                 appendUiLog("[app] " + msg);
                             } catch (Exception e) {
-                                toast("Gagal unduh web-vault: " + e.getMessage());
+                                gagal = true;
+                                toast("Gagal unduh web-vault"
+                                        + " - server tidak di-start: " + e.getMessage());
                                 appendUiLog("[app] Gagal unduh web-vault: " + e);
                             }
-                            ServerService.start(this);
+                            if (!gagal) {
+                                ServerService.start(appCtx);
+                            }
                         });
                         maybeAutoBackup();
                     })
@@ -1074,7 +1083,15 @@ public class SettingsActivity extends Activity {
                 appendUiLog(baris);
             }
             @Override public void kabariTersedia(String versi) {
-                SettingsActivity.this.toast("Update tersedia: v" + versi);
+                // Toast sekali per versi (selaras MainActivity).
+                android.content.SharedPreferences psp = getSharedPreferences(
+                        ServerService.PREFS, MODE_PRIVATE);
+                if (AutoUpdate.tawarkanBaru(
+                        TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
+                        versi)) {
+                    psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
+                    SettingsActivity.this.toast("Update tersedia: v" + versi);
+                }
             }
             @Override public void tawarkanWebVault() {
                 autoOfferWebVaultUpdate();
