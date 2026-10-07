@@ -136,6 +136,11 @@ public class ServerService extends Service {
         if (gagalAt <= 0) {
             return true;
         }
+        if (gagalAt > sekarang) {
+            // Jam mundur (reboot me-reset elapsedRealtime): cap basi,
+            // izinkan coba lagi daripada menahan unduhan 6 jam.
+            return true;
+        }
         return sekarang - gagalAt >= TUNDA_ULANG_UNDUH_MS;
     }
 

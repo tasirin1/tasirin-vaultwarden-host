@@ -467,6 +467,12 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void unduhBolehDicobaBilaJamMundur() {
+        // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
+        assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));
+    }
+
+    @Test
     public void unduhDitundaBilaBaruGagal() {
         long sekarang = 10_000_000L;
         assertFalse(ServerService.bolehCobaUnduhLagi(sekarang - 1000, sekarang));

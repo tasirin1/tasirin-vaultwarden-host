@@ -1044,6 +1044,25 @@ public final class Updater {
             throw e;
         } catch (Exception ignored) {
         }
+        // Fail-fast shim (kernel lama): uji asap --version di bawah pasti
+        // gagal tanpa shim valid, jadi pastikan DULU sebelum menghabiskan
+        // ~20 MB kuota. Gagal di sini langsung lapor tanpa mengunduh —
+        // inilah yang dulu terlihat sebagai "unduh berulang tiap cek".
+        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            File shimAwal = new File(ctx.getFilesDir(),
+                    "bin/" + KernelCompat.SHIM_ASSET);
+            if (!shimValid(shimAwal)) {
+                try {
+                    ensureShimFile(ctx);
+                } catch (Exception e) {
+                    String m = e.getMessage();
+                    throw new IOException(m != null && !m.isEmpty()
+                            ? "Shim getrandom gagal: " + m
+                            : pesanUjiAsapGagal(
+                                    KernelCompat.kernelSekarang(), false));
+                }
+            }
+        }
         File tmp = new File(binDir, out.getName() + ".tmp");
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.

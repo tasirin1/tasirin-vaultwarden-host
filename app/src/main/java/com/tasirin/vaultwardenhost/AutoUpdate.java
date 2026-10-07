@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.SystemClock;
 
 /** Satu-satunya implementasi cek auto-update (dipakai MainActivity & SettingsActivity
  *  agar logika tak drift bila diubah di satu tempat). Berjalan di worker thread. */
@@ -32,6 +33,13 @@ public final class AutoUpdate {
     /** Penampung tulis pendingVersion milik activity. */
     public interface AturPending {
         void atur(String versi);
+    }
+
+    /** True bila auto-update boleh melewati percobaan unduh: unduhan terakhir
+     *  baru gagal dan cache binary masih ada (jangan bakar kuota tiap buka
+     *  app). Tanpa cache tetap coba (instalasi pertama). Murni. */
+    static boolean bolehLewatiCobaLagi(boolean adaCache, long gagalAt, long sekarang) {
+        return adaCache && !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
     }
 
     /** Cek & pasang update binary; bila lengkap=true sekalian web-vault,
@@ -65,18 +73,40 @@ public final class AutoUpdate {
                 pending.atur(null);
             } else if (Updater.bandingVersi(current, latest) < 0) {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
+                    long gagalAt = 0;
                     try {
-                        String msg = Updater.tryUpdate(ctx);
-                        pending.atur(null);
-                        if (Updater.binaryBerubah(msg)) {
-                            adaTerpasang = true;
-                        }
-                        aksi.toast(msg);
-                        aksi.catat("[app] " + msg);
-                    } catch (Exception e) {
-                        aksi.catat("[app] Auto-update gagal: " + e.getMessage());
+                        gagalAt = sp.getLong(ServerService.KEY_BIN_DL_GAGAL_AT, 0);
+                    } catch (Exception ignored) {
+                    }
+                    java.io.File berkasBin = new java.io.File(ctx.getFilesDir(),
+                            "bin/vaultwarden-" + ServerService.ABI);
+                    boolean adaCache = berkasBin.isFile() && berkasBin.length() >= 1000000;
+                    if (bolehLewatiCobaLagi(adaCache, gagalAt, SystemClock.elapsedRealtime())) {
+                        // Baru gagal + cache masih ada: tahan dulu (hemat kuota),
+                        // banner tetap menunjuk ke versi target.
                         pending.atur(latest);
-                        tampilkanNotifikasi(ctx, latest);
+                    } else {
+                        try {
+                            String msg = Updater.tryUpdate(ctx);
+                            pending.atur(null);
+                            if (Updater.binaryBerubah(msg)) {
+                                adaTerpasang = true;
+                            }
+                            aksi.toast(msg);
+                            aksi.catat("[app] " + msg);
+                            try {
+                                sp.edit().remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
+                            } catch (Exception ignored) {
+                            }
+                        } catch (Exception e) {
+                            aksi.catat("[app] Auto-update gagal: " + e.getMessage());
+                            try {
+                                sp.edit().putLong(ServerService.KEY_BIN_DL_GAGAL_AT,
+                                        SystemClock.elapsedRealtime()).apply();
+                            } catch (Exception ignored) {
+                            }
+                            pending.atur(latest);
+                        }
                     }
                 } else {
                     pending.atur(latest);

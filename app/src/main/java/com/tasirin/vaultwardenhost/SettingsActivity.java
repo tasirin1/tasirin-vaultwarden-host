@@ -2753,7 +2753,8 @@ public class SettingsActivity extends Activity {
         new File(getFilesDir(), "bin/version.txt").delete();
         if (out.exists() && out.delete()) {
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .remove(ServerService.KEY_UPDATE_VERSION).apply();
+                    .remove(ServerService.KEY_UPDATE_VERSION)
+                    .remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
             ServerService.binaryVersion = "";
             toast("Binary dihapus. Akan diunduh ulang (versi pilihan) saat Start.");
             appendUiLog("[app] Binary di-reset; akan diunduh ulang saat Start.");
