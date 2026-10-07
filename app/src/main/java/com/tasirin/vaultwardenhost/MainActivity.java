@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
+    private static final int REQ_PIN = 1002;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
     /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
     private static final int MAKS_BARIS_LOG = 150;
@@ -80,7 +81,7 @@ public class MainActivity extends Activity {
     /** Kapan MainActivity terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
-    private boolean pinDialogTampil = false;
+    private boolean pinBukaJalan = false;
 
     /** Berbagi status buka PIN via PinGate (satu sumber, tanpa drift antar-activity). */
     static boolean pinBaruSajaDibuka() {
@@ -252,6 +253,19 @@ public class MainActivity extends Activity {
         ui.post(this::refreshFromService);
         // Auto-lock PIN setiap kali app kembali ke depan
         maybeShowPinLock();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_PIN) {
+            pinBukaJalan = false;
+            if (resultCode == RESULT_OK) {
+                catatPinDibuka();
+            } else {
+                finish();
+            }
+        }
     }
 
     @Override
@@ -910,83 +924,16 @@ public class MainActivity extends Activity {
             ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
             return;
         }
-        if (pinDialogTampil) {
+        if (pinBukaJalan) {
             return;
         }
-        pinDialogTampil = true;
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        input.setMaxLines(1);
-        final AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Masukkan PIN")
-                .setMessage("App dikunci")
-                .setView(input)
-                .setPositiveButton("Buka", null)
-                .setNegativeButton("Keluar", (d, w) -> finish())
-                .create();
-        // Kunci dialog: Back/sentuh-luar tak boleh menutup tanpa PIN
-        // (sebelumnya tombol Back melewatkan kunci app sepenuhnya).
-        // Satu-satunya jalan keluar selain PIN: "Keluar" (finish).
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener(v -> {
-                    final android.widget.Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    // Wall-clock agar reboot tak mereset lockout brute-force.
-                    long sisa = PinGate.sisaKunciMs(MainActivity.this,
-                            System.currentTimeMillis());
-                    if (sisa > 0) {
-                        input.setError("Terkunci, coba lagi "
-                                + ((sisa + 59000) / 60000) + " menit.");
-                        return;
-                    }
-                    ok.setEnabled(false);
-                    input.setError("Memeriksa PIN...");
-                    final String entered = input.getText().toString();
-                    final android.content.Context appCtx = getApplicationContext();
-                    new Thread(() -> {
-                        // Lawan hash segar (dibaca di worker, bukan tangkapan
-                        // saat dialog dibuat): PIN yang diganti activity lain
-                        // selagi dialog terbuka tak bisa diloloskan PIN lama.
-                        String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                        String lawan = (segar == null || segar.isEmpty()) ? pinHash : segar;
-                        boolean cocok = PinCrypto.verify(lawan, entered);
-                        PinGate.catatHasil(appCtx, cocok,
-                                System.currentTimeMillis());
-                        if (cocok && PinCrypto.perluUpgradeHash(lawan)) {
-                            // Migrasi hash lama/lemah ke PBKDF2 120k (sudah di worker).
-                            // Baca ulang: PIN bisa diganti activity lain saat verifikasi
-                            // jalan; jangan timpa hash baru dengan hasil PIN lama.
-                            String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                            if (lawan.equals(kini)) {
-                                sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(entered)).apply();
-                            }
-                        }
-                        final boolean hasil = cocok;
-                        ui.post(() -> {
-                            ok.setEnabled(true);
-                            try {
-                                bersihkanPin(input);
-                            } catch (Exception ignored) {
-                            }
-                            if (hasil) {
-                                catatPinDibuka();
-                                dialog.dismiss();
-                            } else {
-                                input.setError("PIN salah");
-                            }
-                        });
-                    }, "vw-pin-check").start();
-                }));
-        dialog.setOnDismissListener(d -> {
-            pinDialogTampil = false;
-            // Bersihkan sisa PIN dari tampilan agar tak mengendap di hierarki view.
-            try {
-                bersihkanPin(input);
-            } catch (Exception ignored) {
-            }
-        });
-        dialog.show();
+        pinBukaJalan = true;
+        // Halaman login PIN layar penuh (bukan popup): hasil via onActivityResult.
+        try {
+            startActivityForResult(new Intent(this, PinActivity.class), REQ_PIN);
+        } catch (Exception e) {
+            pinBukaJalan = false;
+        }
     }
 
     private void setBusy(final boolean busy) {
@@ -1013,21 +960,6 @@ public class MainActivity extends Activity {
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
             ui.post(this::refreshFromService);
-        }
-    }
-
-    /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
-     *  clear() dulu (buang buffer), setText("") sebagai fallback. */
-    private void bersihkanPin(android.widget.EditText v) {
-        try {
-            if (v.getText() != null) {
-                v.getText().clear();
-            }
-        } catch (Exception ignored) {
-        }
-        try {
-            v.setText("");
-        } catch (Exception ignored) {
         }
     }
 

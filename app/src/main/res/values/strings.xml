@@ -150,4 +150,11 @@
     <string name="start_desc">Jalankan server</string>
     <string name="stop_desc">Hentikan server</string>
     <string name="galat_awalan">\u26A0 %1$s</string>
+    <string name="pin_login_judul">App dikunci</string>
+    <string name="pin_login_pesan">Masukkan PIN untuk membuka aplikasi.</string>
+    <string name="pin_hint_masuk">PIN</string>
+    <string name="pin_buka">Buka</string>
+    <string name="pin_keluar">Keluar</string>
+    <string name="pin_salah">PIN salah</string>
+    <string name="pin_memeriksa">Memeriksa PIN...</string>
 </resources>
