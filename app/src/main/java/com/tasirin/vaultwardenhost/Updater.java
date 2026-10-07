@@ -1885,7 +1885,17 @@ public final class Updater {
         // Metadata semver (+build) bukan bagian rilis: kupas agar penanda
         // "1.32.0+build" cocok dengan "1.32.0" (selaras normalisasiPinVersi).
         int plus = t.indexOf("+");
-        return plus < 0 ? t : t.substring(0, plus);
+        String hasil = plus < 0 ? t : t.substring(0, plus);
+        if (hasil.isEmpty()) {
+            return hasil;
+        }
+        // Bentuk wajib mirip versi (digit awalan, tanpa slash/spasi/kuot):
+        // tag API aneh ("../../x", "1.32/evil") ditolak null agar tak ditempel
+        // mentah ke URL asset (404 + unduh gagal). Pemanggil sudah null-aman.
+        if (!hasil.matches("[0-9][0-9A-Za-z.\\-]*")) {
+            return null;
+        }
+        return hasil;
     }
 
     /** True bila dua versi menunjuk rilis yang sama ("v"-prefix, segmen

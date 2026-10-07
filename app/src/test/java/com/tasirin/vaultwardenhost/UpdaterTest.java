@@ -101,6 +101,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void normVersion_tolakTagAneh() {
+        assertNull(Updater.normVersion("../../evil"));
+        assertNull(Updater.normVersion("1.32/evil"));
+        assertNull(Updater.normVersion("abc"));
+        assertNull(Updater.normVersion("1.32 0"));
+        assertEquals("1.37.3-beta", Updater.normVersion("v1.37.3-beta"));
+    }
+
+    @Test
     public void normVersion_kupasSpasiDanHurufV() {
         assertEquals("1.32.0", Updater.normVersion(" v1.32.0 "));
         assertEquals("1.32.0", Updater.normVersion("  1.32.0"));
