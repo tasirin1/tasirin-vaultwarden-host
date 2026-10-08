@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit agresif: clipboard, kill basi, throttle, wall-clock
+- `LogActivity.bersihkanBilaIsiKita`: finally memakai sidik asal (bukan baca ulang prefs) — timer basi tak lagi menghapus penanda salinan baru sehingga auto-hapus 30 dtk tetap jalan.
+- `ServerService.killStaleVaultwarden`: verifikasi ulang PID + cmdline tepat sebelum bunuh — server fresh dari Start konkuren tak ikut terbunuh.
+- `AlarmReceiver`/`BootReceiver`: penanda throttle disimpan di prefs (`alarm_throttle_elapsed`, `boot_throttle_elapsed`) agar tahan mati proses; uji baru `throttleTersimpanMenutupResetProses`.
+- `TgBot.catatWall`/`muatWallMaks`: baca-ubah-tulis di balik `KUNCI_WALL` agar maksimum wall-clock tak hilang saat poll tumpang tindih.
+
 ## [Belum rilis] — Bahasa default Inggris + README Rusia
 - `README.md` kini Inggris (default); Indonesia pindah ke `README.id.md`; baru `README.ru.md` (Rusia). Ketiganya sinkron fitur.
 - Bahasa default aplikasi kini Inggris: `values/strings.xml` Inggris, Indonesia di `values-in/strings.xml`; teks UI hardcode di activity ikut Inggris (log diagnostik + pesan bot Telegram tetap Indonesia).
