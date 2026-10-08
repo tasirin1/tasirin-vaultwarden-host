@@ -3255,6 +3255,16 @@ public class ServerService extends Service {
                     }
                     String cmd = readProcCmdline(d);
                     if (bolehBunuhBasi(cmd)) {
+                        // Verifikasi ulang tepat sebelum bunuh: start konkuren
+                        // (ketuk Start 2x / auto-restart vs manual) bisa lahir di
+                        // jeda cek-vs-bunuh, dan PID bisa dipakai ulang proses
+                        // lain se-UID. Tanpa ini server fresh ikut terbunuh.
+                        if (pid == myPid || pid == runningChildPid()) {
+                            continue;
+                        }
+                        if (!pidMilikiServer(pid)) {
+                            continue;
+                        }
                         android.os.Process.killProcess(pid);
                         appendLog("[app] Proses vaultwarden lama (pid " + pid + ") dibersihkan.");
                     }
