@@ -705,7 +705,10 @@ public final class TgBot {
      *  Telegram menjawab ok agar pemanggil bisa memperingatkan pemilik bila
      *  PIN lolos tetap nangkring di riwayat cloud. */
     static boolean hapusPesanPerintah(Context ctx, long chatId, int messageId) {
-        if (chatId <= 0 || messageId == 0) {
+        // ID chat grup Telegram negatif (-100...): hanya 0 yang tak valid.
+        // Guard lama (<= 0) membuat pesan ber-PIN di grup tak pernah dihapus
+        // padahal justru di grup PIN paling rawan diintip semua anggota.
+        if (chatId == 0 || messageId == 0) {
             return false;
         }
         HttpURLConnection c = null;
