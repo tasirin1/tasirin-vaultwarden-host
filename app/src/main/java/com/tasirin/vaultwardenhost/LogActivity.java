@@ -180,10 +180,17 @@ public class LogActivity extends Activity {
         synchronized (ServerService.logBuffer) {
             text = ServerService.logBuffer.toString();
         }
-        // Hitung ulang lineCount dari awal teks saat ini (handle trim dengan benar)
+        // Buffer jumbo (server aktif menambah baris tiap detik) membuat 14 regex
+        // + setText jalan penuh tiap detik di UI thread (patah/ANR di STB 1 GB).
+        // Tampilkan ekor saja; salin/bagi/simpan tetap memakai buffer penuh.
+        String tampil = text.length() > BATAS_TAMPIL_LOG
+                ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
+        // Hitung ulang lineCount dari teks yang tampil (handle trim dengan benar)
+        // agar label cocok dengan isi layar; lastLogLen tetap panjang penuh
+        // untuk deteksi trim buffer di atas.
         lineCount = 0;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '\n') {
+        for (int i = 0; i < tampil.length(); i++) {
+            if (tampil.charAt(i) == '\n') {
                 lineCount++;
             }
         }
@@ -193,11 +200,6 @@ public class LogActivity extends Activity {
         // Privasi layar: tampilkan versi tersamar (token/chat_id/IP disensor);
         // buffer internal tetap mentah agar salin/bagi/export bisa menyamarkan
         // sendiri dengan pola terbaru.
-        // Buffer jumbo (server aktif menambah baris tiap detik) membuat 14 regex
-        // + setText jalan penuh tiap detik di UI thread (patah/ANR di STB 1 GB).
-        // Tampilkan ekor saja; salin/bagi/simpan tetap memakai buffer penuh.
-        String tampil = text.length() > BATAS_TAMPIL_LOG
-                ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
         logView.setText(highlightLog(samarkanLog(tampil), logSearch));
         if (logAutoScroll) {
             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
@@ -647,20 +649,32 @@ public class LogActivity extends Activity {
     }
 
     /** Ekor teks sepanjang maks char, dipotong di batas baris agar tak ada
-     *  setengah baris di tampilan. Murni agar bisa unit test. */
+     *  setengah baris di tampilan. Newline di ujung diabaikan dulu agar
+     *  jendela yang mendarat tepat di baris terakhir tak menghasilkan ekor
+     *  kosong lalu jatuh ke tengah-baris. Murni agar bisa unit test. */
     static String potongEkorBaris(String text, int maks) {
-        if (text == null) {
+        if (text == null || maks <= 0) {
             return "";
         }
-        if (maks <= 0 || text.length() <= maks) {
-            return maks <= 0 ? "" : text;
+        if (text.length() <= maks) {
+            return text;
         }
-        int mulai = text.length() - maks;
+        int akhir = text.length();
+        while (akhir > 0 && text.charAt(akhir - 1) == '\n') {
+            akhir--;
+        }
+        if (akhir <= 0) {
+            return "";
+        }
+        if (akhir <= maks) {
+            return text.substring(0, akhir);
+        }
+        int mulai = akhir - maks;
         int nl = text.indexOf('\n', mulai);
-        if (nl >= 0 && nl + 1 < text.length()) {
-            return text.substring(nl + 1);
+        if (nl >= 0 && nl + 1 < akhir) {
+            return text.substring(nl + 1, akhir);
         }
-        return text.substring(mulai);
+        return text.substring(mulai, akhir);
     }
 
 

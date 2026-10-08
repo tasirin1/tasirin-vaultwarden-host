@@ -169,4 +169,11 @@ public class LogActivityTest {
     public void potongEkor_tanpaBarisBaru() {
         assertEquals("cde", LogActivity.potongEkorBaris("abcde", 3));
     }
+
+    @Test
+    public void potongEkor_newlineUjungTakBikinEkorKosong() {
+        assertEquals("aa\nbb", LogActivity.potongEkorBaris("aa\nbb\n", 4));
+        assertEquals("ccc", LogActivity.potongEkorBaris("aaa\nbbb\nccc\n", 5));
+        assertEquals("", LogActivity.potongEkorBaris("\n\n\n", 2));
+    }
 }
