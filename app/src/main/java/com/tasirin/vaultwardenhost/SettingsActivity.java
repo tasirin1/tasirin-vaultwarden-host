@@ -2183,34 +2183,34 @@ public class SettingsActivity extends Activity {
     /** Terapkan berkas config plaintext hasil impor/dekrip. */
     private void terapkanImporJson(File src) {
         try {
-        String json;
-        try (InputStream in = new java.io.FileInputStream(src)) {
-            json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
-        }
-        src.delete();
-        JSONObject root = new JSONObject(json);
-        if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
-            toast("Invalid config file (not this app's export).");
-            appendUiLog("[app] Import ditolak: marker app tidak cocok");
-            return;
-        }
-        JSONObject prefs = root.optJSONObject("prefs");
-        if (prefs == null) {
-            toast("Invalid config file.");
-            return;
-        }
-        TgBackup.applyPrefsFromJson(this, prefs);
-        sanitizePortPref();
-        ui.post(() -> {
-            reloadSettingsFromPrefs();
-            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
-            TgBackup.schedule(SettingsActivity.this,
-                    TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-            TgBot.schedule(SettingsActivity.this);
-            toast("Settings imported. Press Start to apply.");
-            appendUiLog("[app] Config import selesai.");
-        });
+            String json;
+            try (InputStream in = new java.io.FileInputStream(src)) {
+                json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
+            }
+            src.delete();
+            JSONObject root = new JSONObject(json);
+            if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
+                toast("Invalid config file (not this app's export).");
+                appendUiLog("[app] Import ditolak: marker app tidak cocok");
+                return;
+            }
+            JSONObject prefs = root.optJSONObject("prefs");
+            if (prefs == null) {
+                toast("Invalid config file.");
+                return;
+            }
+            TgBackup.applyPrefsFromJson(this, prefs);
+            sanitizePortPref();
+            ui.post(() -> {
+                reloadSettingsFromPrefs();
+                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
+                TgBackup.schedule(SettingsActivity.this,
+                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+                TgBot.schedule(SettingsActivity.this);
+                toast("Settings imported. Press Start to apply.");
+                appendUiLog("[app] Config import selesai.");
+            });
         } catch (Exception e) {
             sapuSisaImpor();
             toast("Config import failed: " + e.getMessage());
