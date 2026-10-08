@@ -857,12 +857,31 @@ public class ServerService extends Service {
                 }
                 // Lewat konteks aplikasi + aksi START agar instance hidup yang
                 // mengeksekusi, bukan runnable berkonteks instance mati ini.
+                // start() statis dan aman-thread sehingga fallback langsung
+                // dipakai bila Looper utama tak tersedia (praktis tak terjadi
+                // di perangkat, tapi tanpa guard ini restart hilang + crash).
                 final android.content.Context appCtx = getApplicationContext();
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                    if (autoRestart) {
-                        ServerService.start(appCtx);
+                try {
+                    android.os.Looper ui = android.os.Looper.getMainLooper();
+                    if (ui == null) {
+                        if (autoRestart) {
+                            ServerService.start(appCtx);
+                        }
+                    } else {
+                        new android.os.Handler(ui).post(() -> {
+                            if (autoRestart) {
+                                ServerService.start(appCtx);
+                            }
+                        });
                     }
-                });
+                } catch (Exception ignored) {
+                    try {
+                        if (autoRestart) {
+                            ServerService.start(appCtx);
+                        }
+                    } catch (Exception ignored2) {
+                    }
+                }
             }, "vw-restart").start();
             return START_NOT_STICKY;
         }
