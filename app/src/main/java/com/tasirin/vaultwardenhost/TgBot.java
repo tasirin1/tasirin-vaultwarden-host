@@ -1561,7 +1561,16 @@ public final class TgBot {
             }
             return new String[]{sisa, pin};
         }
-        int i = t.lastIndexOf(' ');
+        // Pemisah whitespace terakhir (spasi/tab/newline): lastIndexOf(' ')
+        // buta tab sehingga "YA<TAB>123456" tak pernah dikenali PIN-nya
+        // (sekelas bug ambilArgumen). Murni.
+        int i = -1;
+        for (int k = t.length() - 1; k >= 0; k--) {
+            if (Character.isWhitespace(t.charAt(k))) {
+                i = k;
+                break;
+            }
+        }
         if (i < 0) {
             // Kata tunggal pendek bukan PIN: minta PIN eksplisit agar tak lockout sia-sia.
             // Kata kunci versi ("terbaru"/"latest") bukan PIN: jangan dimakan agar
@@ -1612,7 +1621,9 @@ public final class TgBot {
         }
         if (kandidat.matches("\\S{4,}")
                 && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
-            return new String[]{t.substring(0, i).trim(), kandidat};
+            // Sisa dinormalisasi seperti cabang eksplisit agar "YA <TAB>" dan
+            // newline cocok isRestoreConfirm ("ya"), bukan gagal banding.
+            return new String[]{t.substring(0, i).trim().replaceAll("\\s+", " "), kandidat};
         }
         return new String[]{t, ""};
     }

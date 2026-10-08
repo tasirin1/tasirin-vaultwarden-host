@@ -50,10 +50,11 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 │       ├── StoragePerm.java          # izin storage / All files access
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 12 kelas test JVM (junit4): Updater, ServerService,
+├── app/src/test/                     # 15 kelas test JVM (junit4): Updater, ServerService,
                                       # TgBot, TgBackup, PinCrypto, KernelCompat, Util,
                                       # TlsCert, StoragePerm, LogActivity, FileShareProvider,
-                                      # SettingsActivity — jalan di CI
+                                      # SettingsActivity, PinActivity, AlarmReceiver,
+                                      # AutoUpdate — jalan di CI
 └── gradle wrapper                    # HANYA dipakai CI; AI dilarang menjalankannya (lihat Aturan No. 1)
 ```
 
@@ -231,9 +232,10 @@ seamless (beda signature) — backup keystore di tempat aman.
   `impl CustomDnsResolver { fn new()` / rantai `Client::builder()`): sesuaikan
   polanya; bila `ndk-context`/platform-verifier sudah tidak dipakai, patch
   terkait bisa dihapus.
-- **Unit test**: 12 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+- **Unit test**: 15 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
   `PinCrypto`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`, `LogActivity`,
-  `FileShareProvider`, `SettingsActivity`) menguji logika murni; tambahkan
+  `FileShareProvider`, `SettingsActivity`, `PinActivity`, `AlarmReceiver`,
+  `AutoUpdate`) menguji logika murni; tambahkan
   test untuk logika murni baru (versi, path, parse, crypto) — jangan test
   yang butuh Android runtime/network. Test hanya jalan di CI, bukan lokal.
 

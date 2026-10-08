@@ -50,6 +50,11 @@ public final class Util {
             }
         }
         try {
+            // Nol-depan ("0123") bukan format ID Telegram: tolak agar tak
+            // cocok longgar dengan ID 123 (fail-closed ke tidak-cocok).
+            if (c.length() > 1 && c.startsWith("0")) {
+                return false;
+            }
             long want = Long.parseLong(c);
             return id == want;
         } catch (NumberFormatException ignored) {
@@ -62,6 +67,9 @@ public final class Util {
         // tak bisa diklaim lewat username; config numerik wajib cocok ID.
         if (norm.matches("[0-9]+")) {
             try {
+                if (norm.length() > 1 && norm.startsWith("0")) {
+                    return false;
+                }
                 return id == Long.parseLong(norm);
             } catch (NumberFormatException e) {
                 return false;

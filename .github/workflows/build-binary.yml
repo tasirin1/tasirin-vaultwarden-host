@@ -304,8 +304,11 @@ jobs:
             gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip
           else
             DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
-              | grep 'vault_image_digest' | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
-            test -n "$DIGEST" || { echo "Digest web-vault tidak ditemukan"; exit 1; }
+              | grep 'vault_image_digest' | head -n 1 | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
+            # Format ketat: saring keluaran multi-baris/sampah bila format
+            # upstream berubah (multi-arch) agar gagal lantang di sini, bukan
+            # di docker create di tengah publish.
+            case "$DIGEST" in sha256:*) ;; *) echo "Digest web-vault tidak valid: $DIGEST"; exit 1;; esac
             echo "Web-vault digest: $DIGEST"
             docker create --name vwweb "vaultwarden/web-vault@$DIGEST"
             docker cp vwweb:/web-vault /tmp/web-vault

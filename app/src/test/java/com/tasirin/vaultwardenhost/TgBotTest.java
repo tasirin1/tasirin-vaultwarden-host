@@ -163,6 +163,18 @@ public class TgBotTest {
     }
 
     @Test
+    public void pisahkanPinPemisahWhitespaceApapun() {
+        assertArrayEquals(new String[]{"YA", "123456"},
+                TgBot.pisahkanPin("YA\t123456"));
+        assertArrayEquals(new String[]{"YA", "123456"},
+                TgBot.pisahkanPin("YA\n123456"));
+        assertArrayEquals(new String[]{"YA", "ab12"},
+                TgBot.pisahkanPin("YA\tab12"));
+        assertArrayEquals(new String[]{"YA", "123456"},
+                TgBot.pisahkanPin("YA \t 123456"));
+    }
+
+    @Test
     public void pisahkanPinAlfanumerikDidukung() {
         // Kata tunggal huruf bukan PIN (argumen salah ketik tak boleh makan
         // lockout): PIN alnum kata tunggal wajib bentuk eksplisit PIN:.

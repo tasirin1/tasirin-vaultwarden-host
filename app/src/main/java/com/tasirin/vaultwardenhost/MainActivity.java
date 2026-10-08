@@ -415,6 +415,13 @@ public class MainActivity extends Activity {
                             }
                             final String info = "[app] " + msg;
                             final boolean gagalFinal = gagal;
+                            // Gagal unduh tak boleh auto-start tanpa web UI:
+                            // pilihan tombolnya "Download & Start" satu paket.
+                            // Start dulu baru update UI agar indikator sibuk
+                            // tak mati sebelum server mulai jalan.
+                            if (!gagal) {
+                                ServerService.start(appCtx);
+                            }
                             ui.post(() -> {
                                 if (isFinishing() || isDestroyed()) {
                                     return;
@@ -425,14 +432,15 @@ public class MainActivity extends Activity {
                                             + " — server was not started.");
                                 }
                                 setBusy(false);
+                                // Backup otomatis di sini (bukan saat tekan tombol):
+                                // DB baru ada sesudah server jalan; bila di depan,
+                                // tunggu-DB 30 dtk hangus selama unduh 35 MB dan
+                                // backup dilewati diam-diam.
+                                if (!gagalFinal) {
+                                    maybeAutoBackup();
+                                }
                             });
-                            // Gagal unduh tak boleh auto-start tanpa web UI:
-                            // pilihan tombolnya "Download & Start" satu paket.
-                            if (!gagal) {
-                                ServerService.start(appCtx);
-                            }
                         }, "vw-task").start();
-                        maybeAutoBackup();
                     })
                     .setNegativeButton("Start without web vault", (d, w) -> {
                         ServerService.start(this);

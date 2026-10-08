@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: PIN whitespace, chat nol-depan, digest, start+backup
+- `TgBot.pisahkanPin`: pemisah PIN kata-terakhir kini whitespace apa pun (tab/newline), bukan `lastIndexOf(' ')` — "YA<TAB>123456" dikenali + sisa dinormalisasi agar cocok `isRestoreConfirm`; uji baru `pisahkanPinPemisahWhitespaceApapun`.
+- `Util.cocokChat`: config/username ber-nol-depan ("0123") ditolak fail-closed agar tak cocok longgar dengan ID 123; uji baru `cocokChatTolakNolDepan`.
+- `UtilTest.cocokChatUsername`: anotasi `@Test` yang hilang dipasang kembali — uji pencocokan username selama ini mati tak pernah jalan.
+- `MainActivity` (Download & Start): `ServerService.start` + `maybeAutoBackup` dipindah ke sesudah unduh di worker — backup tak lagi dilewati diam-diam saat tunggu-DB 30 dtk hangus selama unduh 35 MB.
+- `build-binary.yml`: digest web-vault divalidasi ketat (`sha256:*`, baris pertama) agar gagal lantang saat format upstream berubah.
+
 ## [Belum rilis] — Perbaikan audit: receiver, argumen bot, checksum, throttle, resConfigs
 - `TgBot.ambilArgumen` (baru, murni): argumen perintah dipisah pada whitespace apa pun (spasi/tab), bukan `indexOf(' ')` — PIN sesudah tab tak lagi ditolak misterius; dipakai `handleCommand`; uji baru `ambilArgumen_pisahWhitespaceApapun`.
 - `TgBotReceiver`: lubang kompat "alarm pra-rahasia diizinkan sekali" ditutup — intent tanpa rahasia kini ditolak + alarm langsung dijadwalkan ulang ber-rahasia (migrasi otomatis tick berikut); galat prefs fail-closed.
