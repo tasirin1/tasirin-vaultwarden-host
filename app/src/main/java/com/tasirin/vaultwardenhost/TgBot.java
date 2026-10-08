@@ -42,6 +42,9 @@ public final class TgBot {
     /** Wall-clock terbesar yang pernah terlihat (deteksi jam mundur/NTP).
      *  Bila jam mundur jauh, tombol/pesan basi diperlakukan kedaluwarsa (fail-closed). */
     private static volatile long wallMaksTelegram = 0;
+    /** Kunci tanda air wall-clock: baca-ubah-tulis wajib atomik agar update
+     *  maksimum tak hilang saat dua poll tumpang tindih. */
+    private static final Object KUNCI_WALL = new Object();
     /** Kunci prefs maks wall-clock agar deteksi rollback selamat dari restart. */
     static final String KEY_TG_WALL_MAKS = "tg_wall_maks";
     /** Sudah diperingatkan sekali bahwa bot tak bisa hapus pesan ber-PIN. */
@@ -1429,9 +1432,10 @@ public final class TgBot {
 
     /** Catat wall-clock monoton naik untuk deteksi rollback berikutnya. */
     static void catatWall(long kini) {
-        long m = wallMaksTelegram;
-        if (kini > m) {
-            wallMaksTelegram = kini;
+        synchronized (KUNCI_WALL) {
+            if (kini > wallMaksTelegram) {
+                wallMaksTelegram = kini;
+            }
         }
     }
 
@@ -1441,8 +1445,10 @@ public final class TgBot {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long s = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
-            if (s > wallMaksTelegram) {
-                wallMaksTelegram = s;
+            synchronized (KUNCI_WALL) {
+                if (s > wallMaksTelegram) {
+                    wallMaksTelegram = s;
+                }
             }
         } catch (Exception ignored) {
         }
