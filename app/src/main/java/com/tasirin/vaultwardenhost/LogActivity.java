@@ -522,6 +522,9 @@ public class LogActivity extends Activity {
 
     /** Bersihkan clipboard hanya bila isinya masih salinan kita (cocok sidik). */
     private static void bersihkanBilaIsiKita(Context ctx, String label) {
+        // Sidik asal ditangkap di sini (bukan baca ulang di finally): timer basi
+        // tak boleh menghapus penanda salinan baru dari layar lain.
+        String sidikKita = "";
         try {
             android.content.SharedPreferences sp =
                     ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
@@ -529,6 +532,7 @@ public class LogActivity extends Activity {
             if (sidik == null || sidik.isEmpty()) {
                 return;
             }
+            sidikKita = sidik;
             ClipboardManager cm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
             if (cm == null) {
                 return;
@@ -540,13 +544,7 @@ public class LogActivity extends Activity {
             }
         } catch (Exception ignored) {
         } finally {
-            try {
-                android.content.SharedPreferences sp =
-                        ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-                String kini = sp.getString(KEY_CLIP_HASH, "");
-                hapusPenandaClipJikaCocok(ctx, kini);
-            } catch (Exception ignored2) {
-            }
+            hapusPenandaClipJikaCocok(ctx, sidikKita);
         }
     }
 
