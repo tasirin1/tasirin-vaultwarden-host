@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: PIN Telegram di grup + clipboard
+- `TgBot.hapusPesanPerintah`: guard `chatId <= 0` jadi `== 0` — pesan ber-PIN di grup (ID negatif) kini ikut dihapus dari riwayat, bukan dibiarkan nangkring untuk semua anggota.
+- `Util.chatPerluAnggapGrup` (baru) dipakai `TgBot.chatResmiAdalahGrup` + peringatan grup: config chat username/tak-terurai fail-closed diperlakukan seperti grup (selalu butuh PIN) + log anjuran ganti ke ID numerik; `chatAdalahGrup` tak berubah. Uji baru `chatPerluAnggapGrupFailClosedUntukUsername`.
+- `LogActivity.salinBersihOtomatis`: kembalikan boolean + guard Looper null/exception di dua titik Handler (salin + pasang-ulang timer) — salin yang berhasil tak lagi crash di proses awal; timer tetap best-effort via penanda prefs.
+- `MainActivity.copyShownUrl`/`SettingsActivity.salinTeks`: toast sukses hanya bila salin benar masuk clipboard, gagal tampil peringatan (tanpa string baru).
+- Throttle alarm/boot selepas reboot dinilai by-design tanpa patch: sekali-lolos pasca-reboot wajib ada agar backup sah pasca-boot tak terkunci permanen (elapsed reset), dan jalur alarm ber-rahasia + dedup harian menutup spoof berulang.
+
 ## [Belum rilis] — Perbaikan audit agresif: clipboard, kill basi, throttle, wall-clock
 - `LogActivity.bersihkanBilaIsiKita`: finally memakai sidik asal (bukan baca ulang prefs) — timer basi tak lagi menghapus penanda salinan baru sehingga auto-hapus 30 dtk tetap jalan.
 - `ServerService.killStaleVaultwarden`: verifikasi ulang PID + cmdline tepat sebelum bunuh — server fresh dari Start konkuren tak ikut terbunuh.
