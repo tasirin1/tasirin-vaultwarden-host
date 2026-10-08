@@ -124,9 +124,6 @@
     <string name="acak">Random</string>
     <string name="pin_off_judul">Turn off PIN?</string>
     <string name="pin_off_pesan">Anyone holding this phone/STB can open the app. Continue?</string>
-    <string name="wiz_lewati">Skip</string>
-    <string name="wiz_nanti">Later</string>
-    <string name="wiz_mulai">Save &amp; Start</string>
     <string name="card_title_security">Security</string>
     <string name="ubah">Change</string>
     <string name="disalin">copied</string>
@@ -141,8 +138,6 @@
     <string name="ringkas_keamanan">Security: %1$s</string>
     <string name="ringkas_rawat">Updates: %1$s</string>
     <string name="ringkas_telegram">Telegram: %1$s</string>
-    <string name="wiz_judul">Initial setup</string>
-    <string name="wiz_pesan">Defaults are correct for most devices. Change if needed, then Save &amp; Start.</string>
     <string name="chevron">\u25BE</string>
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>

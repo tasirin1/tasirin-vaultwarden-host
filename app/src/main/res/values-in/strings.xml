@@ -124,9 +124,6 @@
     <string name="acak">Acak</string>
     <string name="pin_off_judul">Matikan PIN?</string>
     <string name="pin_off_pesan">Siapa pun yang memegang HP/STB ini bisa membuka aplikasi. Lanjutkan?</string>
-    <string name="wiz_lewati">Lewati</string>
-    <string name="wiz_nanti">Nanti</string>
-    <string name="wiz_mulai">Simpan &amp; Start</string>
     <string name="card_title_security">Keamanan</string>
     <string name="ubah">Ubah</string>
     <string name="disalin">disalin</string>
@@ -141,8 +138,6 @@
     <string name="ringkas_keamanan">Keamanan: %1$s</string>
     <string name="ringkas_rawat">Pembaruan: %1$s</string>
     <string name="ringkas_telegram">Telegram: %1$s</string>
-    <string name="wiz_judul">Pengaturan awal</string>
-    <string name="wiz_pesan">Bawaan sudah benar untuk kebanyakan perangkat. Ubah bila perlu, lalu Simpan &amp; Start.</string>
     <string name="chevron">\u25BE</string>
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>
