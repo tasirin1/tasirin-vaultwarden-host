@@ -447,9 +447,10 @@ public class LogActivity extends Activity {
      *  bila proses mati sebelum penghapus jalan (sidik + kedaluwarsa di prefs,
      *  dipasang ulang saat activity dibuka lagi). Banding via sidik agar
      *  lambda tak menahan plaintext di heap. */
-    public static void salinBersihOtomatis(Context ctx, String label, String isi) {
+    /** @return true bila teks berhasil masuk clipboard (timer bersih best-effort). */
+    public static boolean salinBersihOtomatis(Context ctx, String label, String isi) {
         if (ctx == null || isi == null) {
-            return;
+            return false;
         }
         final String etiket = label == null ? "vaultwarden" : label;
         final Context app;
@@ -457,28 +458,28 @@ public class LogActivity extends Activity {
             Context a = ctx.getApplicationContext();
             app = a != null ? a : ctx;
         } catch (Exception e) {
-            return;
+            return false;
         }
         final ClipboardManager cm;
         try {
             cm = (ClipboardManager) app.getSystemService(Context.CLIPBOARD_SERVICE);
         } catch (Exception e) {
-            return;
+            return false;
         }
         if (cm == null) {
-            return;
+            return false;
         }
         try {
             cm.setPrimaryClip(ClipData.newPlainText(etiket, isi));
         } catch (Exception e) {
-            return;
+            return false;
         }
         final String sidik = sidikClip(isi);
         final long kedaluwarsa;
         try {
             kedaluwarsa = android.os.SystemClock.elapsedRealtime() + CLIP_BERSIH_MS;
         } catch (Exception e) {
-            return;
+            return true;
         }
         try {
             app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE).edit()
@@ -486,14 +487,25 @@ public class LogActivity extends Activity {
                     .putLong(KEY_CLIP_KEDALUWARSA, kedaluwarsa).apply();
         } catch (Exception ignored) {
         }
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                bersihkanBilaIsiKita(app, etiket);
-            } catch (Exception ignored) {
-            } finally {
-                hapusPenandaClipJikaCocok(app, sidik);
+        // Looper utama bisa null di proses awal: tanpa guard ini salin yang
+        // sudah berhasil malah crash. Timer hanya best-effort (penanda prefs
+        // dipasang ulang oleh bersihkanClipBasiJikaAda saat activity dibuka).
+        try {
+            android.os.Looper ui = android.os.Looper.getMainLooper();
+            if (ui == null) {
+                return true;
             }
-        }, CLIP_BERSIH_MS);
+            new android.os.Handler(ui).postDelayed(() -> {
+                try {
+                    bersihkanBilaIsiKita(app, etiket);
+                } catch (Exception ignored) {
+                } finally {
+                    hapusPenandaClipJikaCocok(app, sidik);
+                }
+            }, CLIP_BERSIH_MS);
+        } catch (Exception ignored) {
+        }
+        return true;
     }
 
     /** Pasang ulang sisa timer clipboard bila masih dalam jendela, atau langsung
@@ -525,9 +537,15 @@ public class LogActivity extends Activity {
         }
         long sisa = sisaClipMs(kedaluwarsa);
         if (sisa > 0) {
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                bersihkanBilaIsiKita(app, "vaultwarden");
-            }, sisa);
+            try {
+                android.os.Looper ui = android.os.Looper.getMainLooper();
+                if (ui != null) {
+                    new android.os.Handler(ui).postDelayed(() -> {
+                        bersihkanBilaIsiKita(app, "vaultwarden");
+                    }, sisa);
+                }
+            } catch (Exception ignored) {
+            }
             return;
         }
         bersihkanBilaIsiKita(app, "vaultwarden");

@@ -772,8 +772,7 @@ public class MainActivity extends Activity {
     private void copyShownUrl() {
         String url = ServerService.localUrl(this);
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        if (cm != null) {
-            LogActivity.salinBersihOtomatis(this, "vaultwarden-url", url);
+        if (cm != null && LogActivity.salinBersihOtomatis(this, "vaultwarden-url", url)) {
             if (url.contains("127.0.0.1") || url.contains("localhost")) {
                 toast(getString(R.string.url_copied, url) + " (loopback — IP LAN tak terdeteksi)");
             } else {

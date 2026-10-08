@@ -3041,8 +3041,11 @@ public class SettingsActivity extends Activity {
             toast(label + " " + getString(R.string.belum_diisi));
             return;
         }
-        LogActivity.salinBersihOtomatis(this, label, isi);
-        toast(label + " " + getString(R.string.disalin));
+        if (LogActivity.salinBersihOtomatis(this, label, isi)) {
+            toast(label + " " + getString(R.string.disalin));
+        } else {
+            toast(getString(R.string.galat_awalan, label));
+        }
     }
 
     /** Bubuhkan ikon peringatan di depan pesan galat (saran 11). */
