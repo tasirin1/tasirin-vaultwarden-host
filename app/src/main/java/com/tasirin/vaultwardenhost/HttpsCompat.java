@@ -132,9 +132,15 @@ public final class HttpsCompat {
             // Union (bukan ganti): bawaan selalu dimuat, berkas segar hasil
             // segarkanTrustAnchor ditumpuk di atasnya. Override valid tapi tak
             // lengkap tak boleh memutus rantai root lama sampai refresh berikut.
+            // Validasi dasar: chain kosong berarti aset rusak; tolak agar tak dikira trust OK.
+            // Union (bukan ganti) agar kompatibel Android 5/6: bawaan tetap dipakai.
             try (InputStream in = ctx.getAssets().open("certs/github-chain.pem")) {
+                java.util.Collection<? extends Certificate> chain = cf.generateCertificates(in);
+                if (chain == null || chain.isEmpty()) {
+                    throw new Exception("chain kosong");
+                }
                 int i = 0;
-                for (Certificate cert : cf.generateCertificates(in)) {
+                for (Certificate cert : chain) {
                     ks.setCertificateEntry("extra-" + (i++), cert);
                 }
             }
@@ -142,8 +148,13 @@ public final class HttpsCompat {
                 File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
                 if (ov.isFile()) {
                     try (InputStream in = new java.io.FileInputStream(ov)) {
+                        // Validasi dasar seperti aset bawaan: chain kosong = berkas rusak, tolak.
+                        java.util.Collection<? extends Certificate> chain = cf.generateCertificates(in);
+                        if (chain == null || chain.isEmpty()) {
+                            throw new Exception("chain kosong");
+                        }
                         int i = 0;
-                        for (Certificate cert : cf.generateCertificates(in)) {
+                        for (Certificate cert : chain) {
                             ks.setCertificateEntry("ov-" + (i++), cert);
                         }
                     } catch (Exception ignored) {
@@ -183,19 +194,54 @@ public final class HttpsCompat {
 
         private Socket nyalakan(Socket s) {
             if (s instanceof SSLSocket) {
+                SSLSocket ssl = (SSLSocket) s;
+                java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
+                // Hanya TLS modern (1.2/1.3): 1.0/1.1 usang dan GitHub wajib 1.2+.
                 try {
-                    SSLSocket ssl = (SSLSocket) s;
-                    java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
-                    // Hanya TLS modern (1.2/1.3): 1.0/1.1 usang dan GitHub wajib 1.2+.
                     for (String p : ssl.getSupportedProtocols()) {
                         if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p)) {
                             mau.add(p);
                         }
                     }
-                    if (!mau.isEmpty()) {
-                        ssl.setEnabledProtocols(mau.toArray(new String[0]));
-                    }
                 } catch (Exception ignored) {
+                }
+                if (!mau.isEmpty()) {
+                    // Jangan fail-open diam: bila set protokol gagal, catat lalu lempar
+                    // agar pemanggil tahu handshake tak aman.
+                    try {
+                        ssl.setEnabledProtocols(mau.toArray(new String[0]));
+                    } catch (Exception e) {
+                        try {
+                            android.util.Log.w("HttpsCompat", "Gagal set protokol TLS: " + e);
+                        } catch (Exception ignored2) {
+                        }
+                        throw new RuntimeException(e);
+                    }
+                }
+                // Filter cipher lemah: hanya cipher modern agar tak negosiasi RC4/3DES.
+                // Bila hasil filter kosong (Android 5 tua), jangan set sama sekali
+                // dan pakai bawaan agar tetap kompatibel API 21.
+                try {
+                    String[] didukung = ssl.getSupportedCipherSuites();
+                    java.util.ArrayList<String> kuat = new java.util.ArrayList<String>();
+                    if (didukung != null) {
+                        for (String c : didukung) {
+                            if (c != null && (c.contains("ECDHE")
+                                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
+                                kuat.add(c);
+                            }
+                        }
+                    }
+                    if (!kuat.isEmpty()) {
+                        ssl.setEnabledCipherSuites(kuat.toArray(new String[0]));
+                    }
+                    // Bila kosong: pakai bawaan (jangan set) agar API 21 tetap bisa handshake.
+                } catch (Exception e) {
+                    try {
+                        android.util.Log.w("HttpsCompat", "Gagal filter cipher: " + e);
+                    } catch (Exception ignored) {
+                    }
+                    // Sengaja tidak throw untuk cipher agar kompatibel Android 5/6.
                 }
             }
             return s;

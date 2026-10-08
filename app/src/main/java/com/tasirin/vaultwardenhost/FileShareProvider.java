@@ -207,24 +207,19 @@ public class FileShareProvider extends ContentProvider {
     /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
      *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
      *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
-    /** True bila jalan di JVM unit test (bukan runtime Android): nama VM
-     *  di perangkat selalu Dalvik, di CI berupa HotSpot/OpenJDK. Tanpa
-     *  runtime Android, android.system.Os hanya stub (melempar atau pulang
-     *  null, tergantung versi AGP) sehingga cek symlink dilewati bersih
-     *  agar test hijau. Murni agar bisa diuji. */
+    /** True bila jalan di mode unit test eksplisit: hanya bila system property
+     *  vaultwardenhost.unittest=true. Sengaja tak fingerprint vm.name (rapuh
+     *  dan fail-open di perangkat aneh). Murni agar bisa diuji. */
     static boolean diJvmUnitTest() {
         try {
-            String vm = System.getProperty("java.vm.name");
-            if (vm == null) {
-                return false;
-            }
-            return !vm.toLowerCase(java.util.Locale.US).contains("dalvik");
+            return "true".equalsIgnoreCase(System.getProperty("vaultwardenhost.unittest"));
         } catch (Exception e) {
             return false;
         }
     }
 
     static boolean adaSymlinkInduk(String canon) {
+        // Mode unit test eksplisit boleh longgar agar test hijau; di perangkat selalu fail-closed.
         if (diJvmUnitTest()) {
             return false;
         }
@@ -235,12 +230,17 @@ public class FileShareProvider extends ContentProvider {
             Class<?> konst = Class.forName("android.system.OsConstants");
             lstat = os.getMethod("lstat", String.class);
             cekLink = konst.getMethod("S_ISLNK", int.class);
+        } catch (ClassNotFoundException e) {
+            // Kelas Os tak ada (bukan runtime Android): fail-closed, anggap ada symlink/tolak.
+            // Jangan fail-open. Unit test eksplisit sudah pulang lewat diJvmUnitTest() di atas.
+            return true;
         } catch (Exception e) {
-            // JVM unit test tanpa android.system.Os: dianggap bersih agar test hijau.
-            return false;
+            // Gagal refleksi lain: fail-closed agar tukar symlink tak lolos diam-diam.
+            return true;
         }
         File induk = new File(canon).getParentFile();
-        for (int i = 0; i < 32 && induk != null; i++) {
+        // Walk penuh hingga root (batas 256) agar symlink jauh di atas tak lolos.
+        for (int i = 0; i < 256 && induk != null; i++) {
             try {
                 Object st = lstat.invoke(null, induk.getAbsolutePath());
                 int mode = st.getClass().getField("st_mode").getInt(st);
@@ -248,16 +248,29 @@ public class FileShareProvider extends ContentProvider {
                     return true;
                 }
             } catch (Exception e) {
-                // Stub android.jar di JVM (unit test CI) melempar "Stub!":
-                // itu bukan perangkat, dianggap bersih agar test hijau.
-                // Gagal lain di perangkat (izin/SELinux) = fail-closed agar
-                // tukar symlink tak lolos diam-diam.
-                if (adaStubAndroid(e)) {
-                    return false;
+                // Fail-closed: stub android.jar di JVM maupun gagal izin/SELinux di
+                // perangkat dianggap ada symlink/tolak. Unit test eksplisit sudah
+                // pulang lewat diJvmUnitTest() di atas, jadi tak ada pengecualian Stub!.
+                return true;
+            }
+            // Cek tambahan murni-Java: canonical vs absolute menyimpang = ada symlink.
+            try {
+                if (!induk.getCanonicalPath().equals(induk.getAbsolutePath())) {
+                    return true;
                 }
+            } catch (Exception ignored) {
                 return true;
             }
             induk = induk.getParentFile();
+        }
+        // Cek tambahan akhir: canonical vs absolute path penuh menyimpang = ada symlink.
+        try {
+            File f = new File(canon);
+            if (!f.getCanonicalPath().equals(f.getAbsolutePath())) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
         }
         return false;
     }
@@ -281,6 +294,13 @@ public class FileShareProvider extends ContentProvider {
     static boolean kunciPrivat(String name) {
         if (name == null) {
             return false;
+        }
+        // Tangkal bypass pembungkus (mis. key.pem.json/.txt): inti yang mengandung
+        // key.pem/ca-key.pem tetap dianggap kunci privat dan ditolak dibagikan.
+        String intiAwal = name.toLowerCase(java.util.Locale.US);
+        if (intiAwal.contains("key.pem") || intiAwal.contains("ca-key.pem")
+                || intiAwal.equals("key.pem") || intiAwal.equals("ca-key.pem")) {
+            return true;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);
         // Kupas pembungkus (zip/enc/txt) agar key.pem.zip tak lolos;
@@ -383,7 +403,26 @@ public class FileShareProvider extends ContentProvider {
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.dataDirBawaanSegar();
             }
-            String data = new File(dataDir).getCanonicalPath();
+            // Validasi kanonis data_dir agar prefs jahat tak melebarkan area share ke sembarang path.
+            // Tolak bila kosong, "/" , atau di luar /data/ /storage/ /sdcard/; fallback ke internal.
+            String data;
+            try {
+                String kanonData = new File(dataDir).getCanonicalPath();
+                if (kanonData == null || kanonData.trim().isEmpty() || kanonData.equals("/")
+                        || (!kanonData.startsWith("/data/") && !kanonData.startsWith("/storage/")
+                        && !kanonData.startsWith("/sdcard/"))) {
+                    try {
+                        android.util.Log.w("FileShare",
+                                "[share] data_dir tak valid, pakai internal: " + dataDir);
+                    } catch (Exception ignored) {
+                    }
+                    data = files;
+                } else {
+                    data = kanonData;
+                }
+            } catch (Exception e) {
+                data = files;
+            }
             String name = new File(canon).getName();
             if (name.startsWith("db.sqlite3")) {
                 return false;

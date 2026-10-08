@@ -71,6 +71,10 @@ public final class TlsCert {
             // coba sekali lagi selang 100 ms agar pembaca konkuren (Start,
             // Settings) tak mengira cert rusak. Cert yang memang tak ada
             // tetap -1 seperti semula.
+            // Jangan tidur di thread UI agar tak ANR; panggil dari worker thread saja.
+            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                return -1;
+            }
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -133,6 +137,14 @@ public final class TlsCert {
      *  leaf lama dipertahankan bila generate gagal. */
     public static File ensure(File dir, List<String> ips, List<String> dns,
             boolean paksaLeaf) {
+        // Jangan jalankan generate berat di thread UI agar tak ANR; panggil dari worker saja.
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            try {
+                android.util.Log.w("TlsCert", "[tls] ensure dipanggil dari UI thread, batal agar tak ANR");
+            } catch (Exception ignored) {
+            }
+            return null;
+        }
         synchronized (KUNCI_ENSURE) {
         try {
             if (!dir.exists() && !dir.mkdirs()) {
@@ -272,13 +284,36 @@ public final class TlsCert {
             return false;
         }
         long sisa = sisaMs(caCert);
-        return sisa > BATAS_REGEN_MS || sisa == -2;
+        if (sisa == -2) {
+            // Sertifikat belum valid karena jam perangkat miring ke masa lalu.
+            // Dipakai sementara agar tak regen tiap Start, bukan permanen.
+            // TODO: jadwalkan regen saat jam pulih
+            try {
+                ServerService.catatLog("[tls] CA belum valid (jam miring), dipakai sementara");
+            } catch (Exception ignored) {
+            }
+            try {
+                android.util.Log.w("TlsCert", "[tls] CA notYetValid, dipakai sementara sampai jam pulih");
+            } catch (Exception ignored2) {
+            }
+            return true;
+        }
+        return sisa > BATAS_REGEN_MS;
     }
 
     /** True bila leaf boleh dipakai ulang: sisa > 30 hari, atau belum valid
      *  karena jam STB miring (-2, dipakai seperti CA agar tak regen tiap Start). Murni. */
     static boolean leafCukup(long sisa) {
-        return sisa > BATAS_REGEN_MS || sisa == -2;
+        if (sisa == -2) {
+            // Sama seperti CA: jam miring, pakai sementara agar tak regen tiap Start.
+            // TODO: jadwalkan regen saat jam pulih
+            try {
+                ServerService.catatLog("[tls] leaf belum valid (jam miring), dipakai sementara");
+            } catch (Exception ignored) {
+            }
+            return true;
+        }
+        return sisa > BATAS_REGEN_MS;
     }
 
     /** True bila leaf warisan kepanjangan (>397 hari) wajib diregen agar klien
@@ -391,12 +426,20 @@ public final class TlsCert {
     private static PrivateKey bacaPrivateKey(File pem) {
         FileInputStream in = null;
         try {
+            // Batasi ukuran kunci agar file raksasa tak bikin OOM saat dibaca ke memori.
+            if (pem != null && pem.length() > 32768) {
+                throw new java.io.IOException("kunci terlalu besar");
+            }
             in = new FileInputStream(pem);
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             byte[] tmp = new byte[1024];
             int n;
             while ((n = in.read(tmp)) != -1) {
                 buf.write(tmp, 0, n);
+                // Pengaman ganda bila berkas membesar di tengah baca.
+                if (buf.size() > 32768) {
+                    throw new java.io.IOException("kunci terlalu besar");
+                }
             }
             String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);
             s = s.replace("-----BEGIN PRIVATE KEY-----", "")
@@ -743,14 +786,23 @@ public final class TlsCert {
             }
             w.write("-----END " + type + "-----\n");
         }
-        if (type.contains("PRIVATE")) {
-            // Best-effort: batasi ke pemilik saja bila FS mendukung chmod
-            // (di /sdcard FAT tidak berpengaruh; lihat catatan tls internal).
+        if (type.contains("PRIVATE") || f.getName().contains("key")) {
+            // Best-effort: batasi kunci hanya untuk pemilik (0600) bila FS mendukung chmod.
+            // Di storage bersama (FAT/sdcard) chmod tak berpengaruh.
             try {
                 f.setReadable(false, false);
-                f.setWritable(false, false);
                 f.setReadable(true, true);
+                f.setWritable(false, false);
                 f.setWritable(true, true);
+                // Bila file kunci di luar internal storage, chmod tak melindungi.
+                try {
+                    String p = f.getCanonicalPath();
+                    if (!p.startsWith("/data/")) {
+                        android.util.Log.w("TlsCert",
+                                "[tls] kunci di storage bersama, pindahkan data_dir ke internal");
+                    }
+                } catch (Exception ignored2) {
+                }
             } catch (Exception ignored) {
             }
         }
@@ -875,9 +927,21 @@ public final class TlsCert {
 
     }
 
+    /** Sanitasi timestamp agar tak jadi path traversal (../) di nama file backup. Murni. */
+    private static String amanTs(String ts) {
+        if (ts == null) {
+            return "tanpa-waktu";
+        }
+        if (!ts.matches("[A-Za-z0-9_-]{1,64}")) {
+            return "tanpa-waktu";
+        }
+        return ts;
+    }
+
     /** Nama file cadangan CA publik di storage: ca-cadangan-<timestamp>.pem. Murni. */
     static String namaBackupCa(String timestamp) {
-        String ts = (timestamp == null || timestamp.trim().isEmpty()) ? "tanpa-waktu" : timestamp.trim();
+        // Pakai amanTs agar timestamp kiriman pemanggil tak bisa menyisip ../ atau /.
+        String ts = amanTs(timestamp == null ? null : timestamp.trim());
         return "ca-cadangan-" + ts + ".pem";
     }
 
@@ -910,10 +974,13 @@ public final class TlsCert {
             return 0;
         }
         int hapus = 0;
+        // Hapus juga sisa cadangan .cad agar reset bersih (tak ada cert/key basi tertinggal).
         for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
                 LEAF_KEY_FILE, "ips.txt", "version.txt",
                 CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
-                LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru"}) {
+                LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru",
+                CA_CERT_FILE + ".cad", CA_KEY_FILE + ".cad",
+                LEAF_CERT_FILE + ".cad", LEAF_KEY_FILE + ".cad"}) {
             try {
                 File f = new File(tlsDir, nama);
                 if (f.isFile() && f.delete()) {
