@@ -39,6 +39,18 @@ public class UtilTest {
         assertFalse(Util.chatAdalahGrup(null));
     }
 
+    @Test
+    public void chatPerluAnggapGrupFailClosedUntukUsername() {
+        assertTrue(Util.chatPerluAnggapGrup("-100123"));
+        assertTrue(Util.chatPerluAnggapGrup("@grup"));
+        assertTrue(Util.chatPerluAnggapGrup("nama"));
+        assertFalse(Util.chatPerluAnggapGrup("12345"));
+        assertFalse(Util.chatPerluAnggapGrup("+12345"));
+        assertFalse(Util.chatPerluAnggapGrup("@12345"));
+        assertFalse(Util.chatPerluAnggapGrup(""));
+        assertFalse(Util.chatPerluAnggapGrup(null));
+    }
+
     public void cocokChatUsername() {
         assertTrue(Util.cocokChat("@nama", 999, "nama"));
         assertTrue(Util.cocokChat("nama", 999, "@NAMA"));

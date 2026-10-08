@@ -102,6 +102,41 @@ public final class Util {
         }
     }
 
+    /** True bila chat wajib diperlakukan seperti grup (selalu butuh PIN).
+     *  ID negatif = grup pasti; config username/tak-terurai (mis. "@grup")
+     *  tak bisa dipastikan chat pribadi sehingga fail-closed dianggap grup —
+     *  kalau tidak, bot yang dipasang di grup via username diperlakukan
+     *  sebagai chat pribadi dan semua anggota bisa memerintah. Kosong/null =
+     *  bot belum dikonfigurasi (bukan grup). Murni agar bisa unit test. */
+    public static boolean chatPerluAnggapGrup(String config) {
+        if (chatAdalahGrup(config)) {
+            return true;
+        }
+        if (config == null) {
+            return false;
+        }
+        String c = config.trim();
+        if (c.isEmpty()) {
+            return false;
+        }
+        if (c.startsWith("+") && c.length() > 1) {
+            c = c.substring(1).trim();
+            if (c.isEmpty()) {
+                return false;
+            }
+        }
+        String norm = c.startsWith("@") ? c.substring(1) : c;
+        if (norm.isEmpty()) {
+            return false;
+        }
+        try {
+            return Long.parseLong(norm) < 0;
+        } catch (NumberFormatException ignored) {
+            // Username / tulisan bebas: pemiliknya tak pasti, anggap grup.
+            return true;
+        }
+    }
+
     /** True bila pesan masih segar (tidak basi). Pesan sedikit di masa depan
      *  (jam STB lambat) tetap diterima; masa depan jauh ditolak seperti tombol
      *  inline (toleransi selebar jendela basi) agar antrean Telegram bertanggal

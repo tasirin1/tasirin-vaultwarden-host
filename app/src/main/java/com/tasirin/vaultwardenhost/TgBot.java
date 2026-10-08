@@ -278,11 +278,17 @@ public final class TgBot {
             // ID negatif = grup/supergrup: semua anggota bisa memerintah bot
             // (sensitif tetap butuh PIN), jadi peringatkan sekali per proses
             // agar pemilik pindah ke chat pribadi bila memungkinkan.
-            if (Util.chatAdalahGrup(chatResmi) && !chatResmi.equals(grupDiperingatkan)) {
+            if (Util.chatPerluAnggapGrup(chatResmi) && !chatResmi.equals(grupDiperingatkan)) {
                 grupDiperingatkan = chatResmi;
-                ServerService.catatLog("[tg] Chat bot menunjuk grup: semua anggota"
-                        + " bisa mengirim perintah. Pakai chat pribadi dengan bot"
-                        + " bila memungkinkan.");
+                if (Util.chatAdalahGrup(chatResmi)) {
+                    ServerService.catatLog("[tg] Chat bot menunjuk grup: semua anggota"
+                            + " bisa mengirim perintah. Pakai chat pribadi dengan bot"
+                            + " bila memungkinkan.");
+                } else {
+                    ServerService.catatLog("[tg] Chat bot memakai username, bukan ID numerik:"
+                            + " diperlakukan seperti grup (selalu butuh PIN)."
+                            + " Ganti ke ID numerik chat pribadi di pengaturan.");
+                }
             }
             muatWallMaks(ctx);
             // Token bot selalu ada di path URL (desain API Telegram
@@ -546,15 +552,17 @@ public final class TgBot {
         }
     }
 
-    /** True bila chat resmi adalah grup (ID negatif). */
+    /** True bila chat resmi wajib diperlakukan seperti grup (selalu butuh PIN).
+     *  Fail-closed: config username/tak-terurai dianggap grup karena pemiliknya
+     *  tak pasti (lihat Util.chatPerluAnggapGrup). */
     static boolean chatResmiAdalahGrup(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            return Util.chatAdalahGrup(
+            return Util.chatPerluAnggapGrup(
                     Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, "")));
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 
