@@ -14,18 +14,22 @@ public class TgBotReceiver extends BroadcastReceiver {
             return;
         }
         // Anti-spoof selaras AlarmReceiver: action milik app wajib membawa
-        // rahasia alarm yang cocok dengan prefs alarm_secret. Alarm lama yang
-        // terjadwal sebelum rahasia ada (belum diset) tetap diizinkan sekali
-        // agar kompatibel — setelah rahasia terbentuk, tanpa extra ditolak.
+        // rahasia alarm yang cocok. Alarm lawas pra-rahasia tak lagi
+        // diizinkan sekali jalan (lubang kompat: satu spoof tiap
+        // fresh-install/update lolos): langsung dijadwalkan ulang
+        // ber-rahasia agar tick berikut valid, lalu intent ini ditolak.
+        // Galat baca prefs pun fail-closed (tolak) agar polling buta
+        // tanpa verifikasi tak pernah jalan.
         try {
-            android.content.SharedPreferences sp = context.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE);
-            String tersimpan = TgBackup.amanString(sp, TgBackup.KEY_ALARM_SECRET, "");
-            if (tersimpan != null && !tersimpan.isEmpty()
-                    && !TgBackup.rahasiaAlarmCocok(context, intent)) {
+            if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
+                try {
+                    TgBot.schedule(context);
+                } catch (Exception ignored) {
+                }
                 return;
             }
         } catch (Exception ignored) {
+            return;
         }
         TgBackup.healkanStringPrefs(context);
         // Tanpa token/chat polling pasti nir-op: keluar sebelum pegang

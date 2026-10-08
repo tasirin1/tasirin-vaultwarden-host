@@ -2387,12 +2387,13 @@ public final class Updater {
             return null;
         }
         for (String tok : bersih.split("\\s+")) {
-            String t = tok.trim();
-            if (t.startsWith("=")) {
-                t = t.substring(1).trim();
-            }
-            if (t.length() == 64 && t.matches("[0-9a-fA-F]{64}")) {
-                return t.toLowerCase(Locale.US);
+            // Belah '=' juga agar format tanpa spasi ("SHA256(f)=<hex>")
+            // ikut dikenali; format BSD berspasi tetap lolos seperti dulu.
+            for (String bagian : tok.split("=", -1)) {
+                String t = bagian.trim();
+                if (t.length() == 64 && t.matches("[0-9a-fA-F]{64}")) {
+                    return t.toLowerCase(Locale.US);
+                }
             }
         }
         return null;

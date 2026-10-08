@@ -475,6 +475,24 @@ public final class TgBot {
         return pertama;
     }
 
+    /** Argumen perintah: teks sesudah pemisah whitespace pertama (spasi/tab),
+     *  di-trim. indexOf(' ') buta terhadap tab sehingga PIN sesudah tab
+     *  selalu ditolak; helper murni ini satu pintu agar tak drift. Murni. */
+    static String ambilArgumen(String text) {
+        if (text == null) {
+            return "";
+        }
+        String t = text.trim();
+        int i = 0;
+        while (i < t.length() && !Character.isWhitespace(t.charAt(i))) {
+            i++;
+        }
+        if (i >= t.length()) {
+            return "";
+        }
+        return t.substring(i).trim();
+    }
+
     /** Kunci prefs username bot sendiri (hasil getMe, tanpa @, huruf kecil).
       *  Diisi best-effort saat poll getMe berhasil; dipakai memvalidasi suffix
       *  @namabot pada perintah grup. Belum ada getMe tersimpan = belum diketahui. */
@@ -916,11 +934,7 @@ public final class TgBot {
             return false;
         }
         String cmd = "/" + verifikasi;
-        String arg = "";
-        int space = text.indexOf(' ');
-        if (space >= 0) {
-            arg = text.substring(space + 1).trim();
-        }
+        String arg = ambilArgumen(text);
         switch (cmd) {
             case "/start":
                 if (authDangerous(ctx, arg) == null) {

@@ -32,7 +32,7 @@ android {
         // dipertahankan, locale lain dibuang — hemat ukuran.
         // Catatan: resource Indonesia memakai qualifier "in" (bukan "id"),
         // jadi "in" wajib dipertahankan agar values-in/strings.xml tidak dibuang.
-        resConfigs("en", "in", "id")
+        resConfigs("en", "in")
         // Hanya STB 32-bit: kunci ABI ke armeabi-v7a agar APK tetap kecil.
         ndk {
             abiFilters += "armeabi-v7a"

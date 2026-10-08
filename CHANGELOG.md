@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: receiver, argumen bot, checksum, throttle, resConfigs
+- `TgBot.ambilArgumen` (baru, murni): argumen perintah dipisah pada whitespace apa pun (spasi/tab), bukan `indexOf(' ')` — PIN sesudah tab tak lagi ditolak misterius; dipakai `handleCommand`; uji baru `ambilArgumen_pisahWhitespaceApapun`.
+- `TgBotReceiver`: lubang kompat "alarm pra-rahasia diizinkan sekali" ditutup — intent tanpa rahasia kini ditolak + alarm langsung dijadwalkan ulang ber-rahasia (migrasi otomatis tick berikut); galat prefs fail-closed.
+- `Updater.pindaiHexChecksum`: belah `=` juga agar format checksum tanpa spasi (`SHA256(f)=<hex>`) dikenali, bukan abort; uji baru `pindaiChecksumDukungTanpaSpasi`.
+- `AlarmReceiver`/`BootReceiver`: tolak-throttle ikut menggeser jendela (spam beruntun tak lolos tiap 60 dtk); sekali-lolos pasca-reboot tak berubah.
+- `PinCrypto.perluUpgradeHash`: hardcode `120000` diganti konstanta `ITERATIONS` anti-drift.
+- `app/build.gradle.kts`: buang `resConfigs "id"` yang mati (qualifier Indonesia = `in`).
+
 ## [Belum rilis] — Perbaikan audit: PIN Telegram di grup + clipboard
 - `TgBot.hapusPesanPerintah`: guard `chatId <= 0` jadi `== 0` — pesan ber-PIN di grup (ID negatif) kini ikut dihapus dari riwayat, bukan dibiarkan nangkring untuk semua anggota.
 - `Util.chatPerluAnggapGrup` (baru) dipakai `TgBot.chatResmiAdalahGrup` + peringatan grup: config chat username/tak-terurai fail-closed diperlakukan seperti grup (selalu butuh PIN) + log anjuran ganti ke ID numerik; `chatAdalahGrup` tak berubah. Uji baru `chatPerluAnggapGrupFailClosedUntukUsername`.

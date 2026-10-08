@@ -27,6 +27,10 @@ public class BootReceiver extends BroadcastReceiver {
             long terakhirBoot = Math.max(terakhirBootElapsed,
                     bacaThrottleBoot(context));
             if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot, THROTTLE_BOOT_MS)) {
+                // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
+                // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
+                terakhirBootElapsed = kiniElapsed;
+                simpanThrottleBoot(context, kiniElapsed);
                 return;
             }
             terakhirBootElapsed = kiniElapsed;

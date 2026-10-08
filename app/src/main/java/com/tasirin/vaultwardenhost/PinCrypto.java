@@ -128,7 +128,7 @@ public final class PinCrypto {
             if (salt == null || want == null || salt.length != 16 || want.length != 32) {
                 return true;
             }
-            return iter < 120000;
+            return iter < ITERATIONS;
         } catch (Exception e) {
             return true;
         }

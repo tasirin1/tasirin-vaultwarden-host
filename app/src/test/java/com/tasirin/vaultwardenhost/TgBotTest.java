@@ -121,6 +121,17 @@ public class TgBotTest {
     }
 
     @Test
+    public void ambilArgumen_pisahWhitespaceApapun() {
+        assertEquals("123456", TgBot.ambilArgumen("/stop 123456"));
+        assertEquals("123456", TgBot.ambilArgumen("/stop\t123456"));
+        assertEquals("123456", TgBot.ambilArgumen("/stop@BotName\t123456"));
+        assertEquals("YA", TgBot.ambilArgumen("/restore  YA "));
+        assertEquals("", TgBot.ambilArgumen("/status"));
+        assertEquals("", TgBot.ambilArgumen("   "));
+        assertEquals("", TgBot.ambilArgumen(null));
+    }
+
+    @Test
     public void callbackDataValid_hanyaPerintahDikenal() {
         assertTrue(TgBot.callbackDataValid("/status"));
         assertTrue(TgBot.callbackDataValid("/ca"));

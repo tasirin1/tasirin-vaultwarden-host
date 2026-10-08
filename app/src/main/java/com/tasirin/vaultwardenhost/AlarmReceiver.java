@@ -178,6 +178,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (!bolehAlarmJalan(kiniElapsedTgl,
                     throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context)),
                     THROTTLE_ALARM_MS)) {
+                // Jendela geser: spam beruntun tak lolos tiap 60 dtk.
+                // Sekali-lolos pasca-reboot tetap utuh (hanya tolak yang geser).
+                simpanThrottle(context, kiniElapsedTgl);
                 return;
             }
             simpanThrottle(context, kiniElapsedTgl);
@@ -219,6 +222,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         long kiniElapsed = android.os.SystemClock.elapsedRealtime();
         long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
         if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
+            // Jendela geser seperti jalur tanggal (hanya intent ber-rahasia
+            // yang sampai sini, jadi penggeser pasti alarm sah yang beruntun).
+            simpanThrottle(context, kiniElapsed);
             return;
         }
         simpanThrottle(context, kiniElapsed);

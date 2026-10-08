@@ -796,6 +796,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pindaiChecksumDukungTanpaSpasi() {
+        String hex = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        assertEquals(hex, Updater.pindaiHexChecksum("SHA256(web-vault.zip)=" + hex));
+        assertEquals(hex, Updater.pindaiHexChecksum(hex + "=web-vault.zip"));
+        assertNull(Updater.pindaiHexChecksum("SHA256(web-vault.zip)=bukanhex"));
+        assertNull(Updater.pindaiHexChecksum("="));
+    }
+
+    @Test
     public void pindaiHexDariBaris_lewatiBarisSampah() {
         String hex = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
         assertNull(Updater.pindaiHexDariBaris(null));
