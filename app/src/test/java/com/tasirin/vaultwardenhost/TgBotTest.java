@@ -372,4 +372,17 @@ public class TgBotTest {
         assertFalse(TgBot.pesanPinWajibHapus(""));
         assertFalse(TgBot.perintahBerbahaya("/crashlog"));
     }
+
+    @Test
+    public void parseUsernameBot_kupasUsernameGetMe() {
+        assertEquals("MyBot", TgBot.parseUsernameBot(
+                "{\"ok\":true,\"result\":{\"username\":\"MyBot\"}}"));
+        assertEquals("MyBot", TgBot.parseUsernameBot(
+                "{\"ok\":true,\"result\":{\"username\":\"@MyBot\"}}"));
+        assertEquals("", TgBot.parseUsernameBot("{\"ok\":false}"));
+        assertEquals("", TgBot.parseUsernameBot("{\"ok\":true}"));
+        assertEquals("", TgBot.parseUsernameBot(""));
+        assertEquals("", TgBot.parseUsernameBot(null));
+        assertEquals("", TgBot.parseUsernameBot("bukan json"));
+    }
 }

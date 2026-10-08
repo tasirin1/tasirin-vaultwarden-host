@@ -302,6 +302,10 @@ public final class TgBot {
                 }
             }
             muatWallMaks(ctx);
+            // Username bot sendiri wajib dikenal agar perintah grup ber-@suffix
+            // milik bot ini tak dibuang diam-diam: isi sekali via getMe
+            // best-effort (gagal = perilaku lama, perintah ber-@ ditolak).
+            isiNamaBotBilaKosong(ctx, token);
             // Token bot selalu ada di path URL (desain API Telegram
             // "bot<token>/metode" tak bisa dihindari); POST hanya menjaga
             // parameter offset/timeout tak ikut nangkring di URL/proxy-log.
@@ -501,6 +505,51 @@ public final class TgBot {
                         .edit().putString(KEY_TG_BOT_USER, bersih).apply();
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    /** Isi username bot sendiri via getMe bila prefs masih kosong (best-effort).
+      *  Dipanggil sekali per poll sampai tersimpan; gagal (offline/token salah)
+      *  = diam, perilaku fail-closed lama dipertahankan. Username yang berganti
+      *  (langka) baru terbaca setelah prefs dibersihkan. */
+    static void isiNamaBotBilaKosong(Context ctx, String token) {
+        if (ctx == null || token == null || token.trim().isEmpty()) {
+            return;
+        }
+        try {
+            if (!namaBotTersimpan(ctx).isEmpty()) {
+                return;
+            }
+        } catch (Exception ignored) {
+            return;
+        }
+        try {
+            String nama = parseUsernameBot(httpPostForm(ctx, TG_API + token + "/getMe", ""));
+            if (!nama.isEmpty()) {
+                simpanNamaBot(ctx, nama);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Kupas username bot dari respons getMe (murni agar bisa unit test).
+      *  Kembalikan "" bila respons bukan JSON ok / tanpa username. */
+    static String parseUsernameBot(String body) {
+        if (body == null || body.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            JSONObject akar = new JSONObject(body);
+            if (!akar.optBoolean("ok", false)) {
+                return "";
+            }
+            JSONObject hasil = akar.optJSONObject("result");
+            if (hasil == null) {
+                return "";
+            }
+            return hasil.optString("username", "").trim().replaceFirst("^@", "");
+        } catch (Exception e) {
+            return "";
         }
     }
 
