@@ -670,6 +670,15 @@ public class LogActivity extends Activity {
             return text.substring(0, akhir);
         }
         int mulai = akhir - maks;
+        // Jendela mendarat di baris pertama (newline pertama di/pada mulai):
+        // memenggal hanya membuang awal baris ("aa\nbb\n" maks 4 jadi "bb")
+        // sehingga kembalikan seluruh teks strip. Tanpa newline sama sekali
+        // tetap potong keras ("abcde" -> "cde"). Kelebihan maks dibatasi
+        // sepanjang baris pertama dan hanya dipakai untuk cap tampilan.
+        int pertamaNl = text.indexOf('\n');
+        if (pertamaNl >= mulai && pertamaNl < akhir) {
+            return text.substring(0, akhir);
+        }
         int nl = text.indexOf('\n', mulai);
         if (nl >= 0 && nl + 1 < akhir) {
             return text.substring(nl + 1, akhir);

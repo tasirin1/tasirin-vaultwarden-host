@@ -550,22 +550,32 @@ public final class TgBot {
         }
     }
 
+    /** Pola username dalam respons getMe (dibatasi isi "result"). */
+    private static final java.util.regex.Pattern POLA_USERNAME_GETME =
+            java.util.regex.Pattern.compile("\"username\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+
     /** Kupas username bot dari respons getMe (murni agar bisa unit test).
-      *  Kembalikan "" bila respons bukan JSON ok / tanpa username. */
+      *  Kembalikan "" bila respons bukan JSON ok / tanpa username.
+      *  Kupas manual tanpa org.json: android.jar di JVM unit test hanya
+      *  stub yang melempar sehingga versi JSONObject selalu "" di CI. */
     static String parseUsernameBot(String body) {
         if (body == null || body.trim().isEmpty()) {
             return "";
         }
         try {
-            JSONObject akar = new JSONObject(body);
-            if (!akar.optBoolean("ok", false)) {
+            if (!body.matches("(?s).*\"ok\"\\s*:\\s*true.*")) {
                 return "";
             }
-            JSONObject hasil = akar.optJSONObject("result");
-            if (hasil == null) {
+            int res = body.indexOf("\"result\"");
+            if (res < 0) {
                 return "";
             }
-            return hasil.optString("username", "").trim().replaceFirst("^@", "");
+            java.util.regex.Matcher m = POLA_USERNAME_GETME.matcher(body.substring(res));
+            if (!m.find()) {
+                return "";
+            }
+            String mentah = m.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
+            return mentah.trim().replaceFirst("^@", "");
         } catch (Exception e) {
             return "";
         }
