@@ -193,7 +193,12 @@ public class LogActivity extends Activity {
         // Privasi layar: tampilkan versi tersamar (token/chat_id/IP disensor);
         // buffer internal tetap mentah agar salin/bagi/export bisa menyamarkan
         // sendiri dengan pola terbaru.
-        logView.setText(highlightLog(samarkanLog(text), logSearch));
+        // Buffer jumbo (server aktif menambah baris tiap detik) membuat 14 regex
+        // + setText jalan penuh tiap detik di UI thread (patah/ANR di STB 1 GB).
+        // Tampilkan ekor saja; salin/bagi/simpan tetap memakai buffer penuh.
+        String tampil = text.length() > BATAS_TAMPIL_LOG
+                ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
+        logView.setText(highlightLog(samarkanLog(tampil), logSearch));
         if (logAutoScroll) {
             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         } else {
@@ -422,6 +427,10 @@ public class LogActivity extends Activity {
     static final String KEY_CLIP_HASH = "clip_hash";
     static final String KEY_CLIP_KEDALUWARSA = "clip_kedaluwarsa";
     static final long CLIP_BERSIH_MS = 30_000;
+    /** Batas teks log yang disamar + tampil per refresh (100 KB): buffer bisa
+     *  300 KB sehingga mask penuh tiap detik memberatkan UI thread di STB.
+     *  Di bawah batas sorot 150 KB agar highlight tetap jalan di teks tampil. */
+    static final int BATAS_TAMPIL_LOG = 100_000;
 
     /** Sidik SHA-256 isi clipboard (heks). Murni agar bisa unit test. */
     static String sidikClip(String s) {
@@ -497,7 +506,7 @@ public class LogActivity extends Activity {
             }
             new android.os.Handler(ui).postDelayed(() -> {
                 try {
-                    bersihkanBilaIsiKita(app, etiket);
+                    bersihkanBilaIsiKita(app, etiket, sidik);
                 } catch (Exception ignored) {
                 } finally {
                     hapusPenandaClipJikaCocok(app, sidik);
@@ -541,41 +550,36 @@ public class LogActivity extends Activity {
                 android.os.Looper ui = android.os.Looper.getMainLooper();
                 if (ui != null) {
                     new android.os.Handler(ui).postDelayed(() -> {
-                        bersihkanBilaIsiKita(app, "vaultwarden");
+                        bersihkanBilaIsiKita(app, "vaultwarden", sidik);
                     }, sisa);
                 }
             } catch (Exception ignored) {
             }
             return;
         }
-        bersihkanBilaIsiKita(app, "vaultwarden");
+        bersihkanBilaIsiKita(app, "vaultwarden", sidik);
     }
 
-    /** Bersihkan clipboard hanya bila isinya masih salinan kita (cocok sidik). */
-    private static void bersihkanBilaIsiKita(Context ctx, String label) {
-        // Sidik asal ditangkap di sini (bukan baca ulang di finally): timer basi
-        // tak boleh menghapus penanda salinan baru dari layar lain.
-        String sidikKita = "";
+    /** Bersihkan clipboard hanya bila isinya masih salinan pembuat timer ini
+     *  (cocok sidik tangkapan, bukan sidik prefs terkini): timer basi salinan A
+     *  tak boleh menghapus salinan B yang dibuat sesudahnya. */
+    private static void bersihkanBilaIsiKita(Context ctx, String label, String sidikTangkap) {
+        if (sidikTangkap == null || sidikTangkap.isEmpty()) {
+            return;
+        }
         try {
-            android.content.SharedPreferences sp =
-                    ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-            String sidik = sp.getString(KEY_CLIP_HASH, "");
-            if (sidik == null || sidik.isEmpty()) {
-                return;
-            }
-            sidikKita = sidik;
             ClipboardManager cm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
             if (cm == null) {
                 return;
             }
             android.content.ClipData cur = cm.getPrimaryClip();
             if (cur != null && cur.getItemCount() > 0 && cur.getItemAt(0) != null
-                    && sidik.equals(sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
+                    && sidikTangkap.equals(sidikClip(String.valueOf(cur.getItemAt(0).getText())))) {
                 cm.setPrimaryClip(ClipData.newPlainText(label == null ? "vaultwarden" : label, ""));
             }
         } catch (Exception ignored) {
         } finally {
-            hapusPenandaClipJikaCocok(ctx, sidikKita);
+            hapusPenandaClipJikaCocok(ctx, sidikTangkap);
         }
     }
 
@@ -640,6 +644,23 @@ public class LogActivity extends Activity {
             return 0;
         }
         return Math.max(0, kedaluwarsa - kiniElapsed);
+    }
+
+    /** Ekor teks sepanjang maks char, dipotong di batas baris agar tak ada
+     *  setengah baris di tampilan. Murni agar bisa unit test. */
+    static String potongEkorBaris(String text, int maks) {
+        if (text == null) {
+            return "";
+        }
+        if (maks <= 0 || text.length() <= maks) {
+            return maks <= 0 ? "" : text;
+        }
+        int mulai = text.length() - maks;
+        int nl = text.indexOf('\n', mulai);
+        if (nl >= 0 && nl + 1 < text.length()) {
+            return text.substring(nl + 1);
+        }
+        return text.substring(mulai);
     }
 
 

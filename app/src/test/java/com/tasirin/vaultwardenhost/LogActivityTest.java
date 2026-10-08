@@ -148,4 +148,25 @@ public class LogActivityTest {
         assertTrue(r.contains("8088"));
         assertTrue(r.contains("12:30"));
     }
+
+    @Test
+    public void potongEkor_pendekUtuh() {
+        assertEquals("baris1\nbaris2", LogActivity.potongEkorBaris("baris1\nbaris2", 100));
+        assertEquals("", LogActivity.potongEkorBaris(null, 100));
+        assertEquals("", LogActivity.potongEkorBaris("isi", 0));
+    }
+
+    @Test
+    public void potongEkor_jumboMulaiBatasBaris() {
+        String teks = "lama1\nlama2\nbaru1\nbaru2";
+        String ekor = LogActivity.potongEkorBaris(teks, 11);
+        assertTrue(ekor.length() <= 11);
+        assertFalse(ekor.contains("lama1"));
+        assertTrue(ekor.startsWith("baru") || !ekor.contains("\n") || ekor.contains("baru"));
+    }
+
+    @Test
+    public void potongEkor_tanpaBarisBaru() {
+        assertEquals("cde", LogActivity.potongEkorBaris("abcde", 3));
+    }
 }
