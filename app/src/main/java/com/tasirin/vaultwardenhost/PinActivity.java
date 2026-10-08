@@ -40,12 +40,11 @@ public class PinActivity extends Activity {
         }
         String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
-            try {
-                sp.edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
-            } catch (Exception ignored) {
-            }
-            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
-            setResult(RESULT_OK);
+            // Fail-closed: hash hilang/rusak jangan dimatikan & jangan RESULT_OK.
+            // Akses ditolak; user wajib setup ulang PIN dari pengaturan.
+            // (View belum di-inflate di titik ini, jadi hanya log + tolak.)
+            ServerService.catatLog("[app] PIN rusak: butuh setup ulang, akses ditolak.");
+            setResult(RESULT_CANCELED);
             finish();
             return;
         }
@@ -54,6 +53,12 @@ public class PinActivity extends Activity {
         pinError = findViewById(R.id.pinError);
         bukaBtn = findViewById(R.id.pinBuka);
         Button keluarBtn = findViewById(R.id.pinKeluar);
+        // Cegah NPE bila layout tak memuat semua view yang dibutuhkan.
+        if (pinInput == null || pinError == null || bukaBtn == null || keluarBtn == null) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
         pinInput.setInputType(InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         pinInput.setOnEditorActionListener((v, actionId, event) -> {
@@ -123,6 +128,8 @@ public class PinActivity extends Activity {
                 bukaBtn.setEnabled(true);
                 bersihkanInput();
                 if (hasil) {
+                    // Cegah race: activity sudah finish/destroy jangan buka kunci.
+                    if (isFinishing() || isDestroyed()) return;
                     PinGate.bukaKunciBersama();
                     setResult(RESULT_OK);
                     finish();

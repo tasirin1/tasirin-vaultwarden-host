@@ -121,7 +121,14 @@ public final class PinCrypto {
                 return true;
             }
             int iter = Integer.parseInt(parts[1]);
-            return iter < ITERATIONS;
+            // Minta upgrade bila salt/hash tak standar atau iterasi di bawah 120000.
+            // Hash sah: salt 16 byte (32 hex) & hash 32 byte (64 hex).
+            byte[] salt = unhex(parts[2]);
+            byte[] want = unhex(parts[3]);
+            if (salt == null || want == null || salt.length != 16 || want.length != 32) {
+                return true;
+            }
+            return iter < 120000;
         } catch (Exception e) {
             return true;
         }
@@ -129,6 +136,10 @@ public final class PinCrypto {
 
     /** Verifikasi PIN terhadap hash lama maupun baru (perbandingan konstan). */
     public static boolean verify(String stored, String pin) {
+        // Tolak dini input raksasa dari prefs utak-atik agar tak boros memori.
+        if (stored == null || stored.length() > 512) {
+            return false;
+        }
         if (stored == null || stored.isEmpty() || pin == null || pin.isEmpty()) {
             return false;
         }
@@ -153,8 +164,9 @@ public final class PinCrypto {
                 }
                 byte[] salt = unhex(parts[2]);
                 byte[] want = unhex(parts[3]);
-                if (salt == null || want == null || salt.length == 0
-                        || want.length != HASH_BITS / 8) {
+                // Tolak salt pendek/hash tak standar: sah hanya salt 16 byte & hash 32 byte.
+                if (salt == null || want == null || salt.length != 16
+                        || want.length != 32) {
                     return false;
                 }
                 byte[] got = derive(pin, salt, iter);
@@ -182,8 +194,9 @@ public final class PinCrypto {
                 }
                 byte[] salt = unhex(parts[2]);
                 byte[] want = unhex(parts[3]);
-                if (salt == null || want == null || salt.length == 0
-                        || want.length != HASH_BITS / 8) {
+                // Tolak salt pendek/hash tak standar: sah hanya salt 16 byte & hash 32 byte.
+                if (salt == null || want == null || salt.length != 16
+                        || want.length != 32) {
                     return false;
                 }
                 byte[] got = derive(sha256(pin), salt, iter);

@@ -34,6 +34,9 @@ public final class PinGate {
      *  di catatHasil (synchronized, bisa ratusan ms di storage STB lambat) tak
      *  memblokir cek grace UI. */
     private static final Object KUNCI_GRACE = new Object();
+    /** Executor tunggal untuk pencatatan gagal: cegah ledakan thread tiap upaya. */
+    private static final java.util.concurrent.ExecutorService CATAT_EXEC =
+            java.util.concurrent.Executors.newSingleThreadExecutor();
 
     /** True bila PIN dibuka dalam grace (tanpa peka activity). Murni waktu. */
     public static boolean dalamGraceBersama() {
@@ -70,6 +73,10 @@ public final class PinGate {
      *  Baca via TgBackup.amanInt/amanLong agar prefs korup bertipe String tak
      *  ClassCastException berulang (disembuhkan sekali, lalu default). */
     public static long sisaKunciMs(Context ctx, long sekarang) {
+        // Fail-closed: ctx null jangan beri celah coba (samakan dengan catatHasil).
+        if (ctx == null) {
+            return PinCrypto.KUNCI_MS;
+        }
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
         long sisaWall = PinCrypto.sisaKunciMs(TgBackup.amanInt(sp, KEY_GAGAL, 0),
@@ -135,11 +142,18 @@ public final class PinGate {
             if (bungkus == null) {
                 return;
             }
-            String kini = TgBackup.amanString(sp, KEY_PIN_HASH, "");
-            if (!simpan.equals(kini)) {
-                return;
+            // Kunci kelas + baca ulang di dalam blok: cegah TOCTOU menimpa
+            // hash standar hasil login thread lain; tulis hanya bila masih legasi.
+            synchronized (PinGate.class) {
+                String kini = TgBackup.amanString(sp, KEY_PIN_HASH, "");
+                if (!simpan.equals(kini)) {
+                    return;
+                }
+                if (!PinCrypto.perluMigrasi(kini)) {
+                    return;
+                }
+                sp.edit().putString(KEY_PIN_HASH, bungkus).apply();
             }
-            sp.edit().putString(KEY_PIN_HASH, bungkus).apply();
         } catch (Exception ignored) {
         }
     }
@@ -153,12 +167,16 @@ public final class PinGate {
             return;
         }
         final Context pakai = app != null ? app : ctx;
-        new Thread(() -> {
-            try {
-                catatHasil(pakai, cocok, sekarang);
-            } catch (Exception ignored) {
-            }
-        }, "vw-pin-cat").start();
+        // Executor tunggal agar upaya beruntun tak membuat thread tak terbatas.
+        try {
+            CATAT_EXEC.execute(() -> {
+                try {
+                    catatHasil(pakai, cocok, sekarang);
+                } catch (Exception ignored) {
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 
     /** True bila dipanggil dari UI thread (uji aman di JVM: tanpa Looper = false). */
