@@ -24,8 +24,15 @@ public final class Util {
     }
 
     /** True bila pesan Telegram berasal dari chat resmi.
-     *  Dukung ID numerik ("123456") dan username ("@nama" / "nama",
-     *  tanpa peka huruf). Murni agar bisa unit test. */
+      *  Dukung ID numerik ("123456") dan username ("@nama" / "nama",
+      *  tanpa peka huruf). Murni agar bisa unit test.
+      *  Catatan keamanan: username (@nama) tidak aman sebagai identitas —
+      *  username bisa dilepas lalu diklaim orang lain, beda dengan ID numerik
+      *  yang permanen. Demi kompatibilitas lama, username tetap dicocokkan,
+      *  tapi pemakaian username dicatat sebagai peringatan sekali per proses
+      *  dan pemilik dianjurkan memakai ID numerik di pengaturan bot. */
+    private static volatile boolean peringatanUsernameSudah = false;
+
     public static boolean cocokChat(String config, long id, String username) {
         if (config == null) {
             return false;
@@ -58,6 +65,17 @@ public final class Util {
                 return id == Long.parseLong(norm);
             } catch (NumberFormatException e) {
                 return false;
+            }
+        }
+        // Peringatan sekali: config masih memakai username (bukan ID numerik).
+        // Username tetap dicocokkan agar kompatibel, tapi ID numerik dianjurkan.
+        if (!peringatanUsernameSudah) {
+            peringatanUsernameSudah = true;
+            try {
+                android.util.Log.w("Util", "[tg] Chat bot memakai username (@"
+                        + norm + "), bukan ID numerik. Username bisa diklaim"
+                        + " ulang orang lain — ganti ke ID numerik di pengaturan.");
+            } catch (Throwable ignored) {
             }
         }
         return norm.equalsIgnoreCase(username.trim().replaceFirst("^@", ""));

@@ -454,6 +454,110 @@ public final class TgBot {
         return pertama;
     }
 
+    /** Kunci prefs username bot sendiri (hasil getMe, tanpa @, huruf kecil).
+      *  Diisi best-effort saat poll getMe berhasil; dipakai memvalidasi suffix
+      *  @namabot pada perintah grup. Belum ada getMe tersimpan = belum diketahui. */
+    static final String KEY_TG_BOT_USER = "tg_bot_user";
+
+    /** Username bot sendiri dari prefs ("" bila belum diketahui). Murni I/O prefs. */
+    static String namaBotTersimpan(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String u = TgBackup.amanString(sp, KEY_TG_BOT_USER, "");
+            return u == null ? "" : u.trim();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Simpan username bot sendiri (best-effort, dipanggil setelah getMe lolos). */
+    static void simpanNamaBot(Context ctx, String username) {
+        if (ctx == null || username == null || username.trim().isEmpty()) {
+            return;
+        }
+        try {
+            String bersih = username.trim().replaceFirst("^@", "")
+                    .toLowerCase(Locale.US);
+            if (!bersih.isEmpty()) {
+                ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                        .edit().putString(KEY_TG_BOT_USER, bersih).apply();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Nama perintah terverifikasi @suffix grup (murni agar bisa unit test).
+      *  Bila perintah mengandung @namabot: jalankan hanya bila suffix sama
+      *  dengan username bot sendiri (tanpa peka huruf); suffix milik bot lain
+      *  berarti pesan terusan untuk bot lain → kembalikan "" (abaikan).
+      *  Bila username bot belum diketahui: terima hanya perintah tanpa @
+      *  (fail-closed); yang ber-@ diabaikan sampai getMe tersimpan. */
+    static String namaPerintahUntukBot(String text, String usernameBot) {
+        if (text == null) {
+            return "";
+        }
+        String[] potong = text.trim().split("\\s+");
+        if (potong.length == 0) {
+            return "";
+        }
+        String pertama = potong[0].toLowerCase(Locale.US);
+        if (pertama.startsWith("/")) {
+            pertama = pertama.substring(1);
+        }
+        int at = pertama.indexOf('@');
+        if (at < 0) {
+            return pertama;
+        }
+        String cmd = pertama.substring(0, at);
+        String suffix = pertama.substring(at + 1);
+        if (suffix.isEmpty()) {
+            return cmd;
+        }
+        if (usernameBot == null || usernameBot.trim().isEmpty()) {
+            // Bot sendiri belum dikenal → tolak semua yang ber-@.
+            return "";
+        }
+        String milik = usernameBot.trim().replaceFirst("^@", "")
+                .toLowerCase(Locale.US);
+        if (suffix.equals(milik)) {
+            return cmd;
+        }
+        // Suffix milik bot lain → abaikan.
+        return "";
+    }
+
+    /** ID chat resmi sebagai long (0 bila bukan numerik/tak terbaca).
+      *  Dipakai gerbang grup: ID negatif = grup/supergrup. */
+    static long idChatResmi(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+            if (chat.startsWith("+") && chat.length() > 1) {
+                chat = chat.substring(1).trim();
+            }
+            if (chat.startsWith("@")) {
+                return 0;
+            }
+            return Long.parseLong(chat);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** True bila chat resmi adalah grup (ID negatif). */
+    static boolean chatResmiAdalahGrup(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            return Util.chatAdalahGrup(
+                    Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, "")));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** True bila data callback adalah perintah bot yang dikenal. */
     static boolean callbackDataValid(String data) {
         if (data == null || !data.trim().startsWith("/")) {
@@ -724,7 +828,23 @@ public final class TgBot {
         if (text == null || !text.startsWith("/")) {
             return false;
         }
-        String cmd = "/" + namaPerintah(text);
+        // Keamanan grup: chat ID negatif = grup/supergrup yang semua anggotanya
+        // bisa memerintah bot. Perintah berbahaya dari grup selalu ditolak —
+        // ulangi dari chat pribadi dengan bot (tanpa pengecualian PIN grup).
+        if (idChatResmi(ctx) < 0 && perintahBerbahaya(text)) {
+            TgBackup.sendMessage(ctx, "Perintah berbahaya dari grup ditolak."
+                    + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
+            return false;
+        }
+        // Suffix @namabot grup: hanya milik bot ini yang dijalankan. Suffix
+        // bot lain (atau ber-@ saat username bot belum diketahui) diabaikan
+        // diam-diam agar tak membalas spam terusan bot lain.
+        String dasar = namaPerintah(text);
+        String verifikasi = namaPerintahUntukBot(text, namaBotTersimpan(ctx));
+        if (text.contains("@") && !dasar.equals(verifikasi)) {
+            return false;
+        }
+        String cmd = "/" + verifikasi;
         String arg = "";
         int space = text.indexOf(' ');
         if (space >= 0) {
@@ -819,7 +939,14 @@ public final class TgBot {
                 }
                 break;
             case "/ca":
-                // CA publik (tanpa kunci privat): tanpa PIN seperti /status.
+                // CA publik (tanpa kunci privat): butuh PIN bila PIN aktif,
+                // dan dari grup selalu butuh PIN (tanpa pengecualian grup).
+                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
+                    if (authDangerous(ctx, arg, "ca") == null) {
+                        break;
+                    }
+                    berbahayaTerotorisasi = true;
+                }
                 runWithWakeLock(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.kirimCa(ctx));
@@ -829,7 +956,14 @@ public final class TgBot {
                 });
                 break;
             case "/cabackup":
-                // File publik (tanpa kunci privat): tanpa PIN seperti /ca.
+                // File publik (tanpa kunci privat): butuh PIN bila PIN aktif,
+                // dan dari grup selalu butuh PIN (tanpa pengecualian grup).
+                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
+                    if (authDangerous(ctx, arg, "cabackup") == null) {
+                        break;
+                    }
+                    berbahayaTerotorisasi = true;
+                }
                 runWithWakeLock(ctx, () -> {
                     try {
                         TgBackup.sendMessage(ctx, TgBackup.backupCaKeStorage(ctx));
@@ -857,9 +991,10 @@ public final class TgBot {
             case "/status":
                 // Status memuat folder data, versi binary/web-vault, waktu
                 // backup, dan URL LAN: wajib PIN bila PIN aktif, sama seperti
-                // /log dan /crashlog.
-                if (pinPerangkatAktif(ctx)) {
-                    if (authDangerous(ctx, arg) == null) {
+                // /log dan /crashlog. Dari grup selalu butuh PIN (tanpa
+                // pengecualian grup).
+                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
+                    if (authDangerous(ctx, arg, "status") == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -868,9 +1003,10 @@ public final class TgBot {
                 break;
             case "/log":
                 // Log memuat path folder data, port, versi binary, URL LAN:
-                // wajib PIN bila PIN aktif, sama seperti /crashlog.
-                if (pinPerangkatAktif(ctx)) {
-                    if (authDangerous(ctx, arg) == null) {
+                // wajib PIN bila PIN aktif, sama seperti /crashlog. Dari grup
+                // selalu butuh PIN (tanpa pengecualian grup).
+                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
+                    if (authDangerous(ctx, arg, "log") == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1012,8 +1148,9 @@ public final class TgBot {
                 break;
             case "/crashlog":
                 // Crash log memuat path folder data: wajib PIN bila PIN aktif.
-                if (pinPerangkatAktif(ctx)) {
-                    if (authDangerous(ctx, arg) == null) {
+                // Dari grup selalu butuh PIN (tanpa pengecualian grup).
+                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
+                    if (authDangerous(ctx, arg, "crashlog") == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1130,9 +1267,22 @@ public final class TgBot {
     }
 
     /** Otorisasi perintah berbahaya (/stop, /update, /restore).
-     *  Bila PIN app aktif, kata terakhir argumen wajib PIN yang benar;
-     *  kembalikan argumen bersih (tanpa PIN), atau null (pesan sudah dikirim). */
+      *  Bila PIN app aktif, kata terakhir argumen wajib PIN yang benar;
+      *  kembalikan argumen bersih (tanpa PIN), atau null (pesan sudah dikirim). */
     static String authDangerous(Context ctx, String arg) {
+        // Tanpa nama perintah, anggap berbahaya (fail-closed): varian 2-arg
+        // hanya dipakai perintah berbahaya sehingga PIN mati pun tetap ditolak.
+        return authDangerous(ctx, arg, null);
+    }
+
+    /** Varian ber-perintah: cmd menentukan izin saat PIN mati.
+      *  Bila PIN mati dan chat pribadi: hanya perintah aman (non-berbahaya:
+      *  help/versi/alive/uptime/status/log/crashlog/ca/cabackup) yang lolos
+      *  langsung; perintah berbahaya (start/stop/restart/backup/restore/
+      *  update/webvault/careset) tetap ditolak dan diminta aktifkan PIN dulu.
+      *  Dari grup selalu butuh PIN (tanpa PIN aktif pun ditolak karena tak ada
+      *  yang bisa diverifikasi). cmd null = perlakukan sebagai berbahaya. */
+    static String authDangerous(Context ctx, String arg, String cmd) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         // Baca tahan korup: prefs edit manual bertipe salah tak boleh
@@ -1143,8 +1293,27 @@ public final class TgBot {
         // lolos tanpa kunci; pulihkan via buka Settings (PIN mati otomatis).
         boolean need = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false);
         String t = arg == null ? "" : arg.trim();
-        if (!need) {
+        boolean berbahaya = cmd == null || cmd.trim().isEmpty()
+                || perintahBerbahaya(cmd);
+        boolean grup = chatResmiAdalahGrup(ctx);
+        if (!need && !grup) {
+            // PIN mati + chat pribadi: aman lolos, berbahaya tetap butuh PIN.
+            if (berbahaya) {
+                TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app."
+                        + " Aktifkan PIN dulu di Pengaturan, lalu ulangi dengan"
+                        + " PIN (mis. /stop 123456 atau /stop PIN:123456).");
+                return null;
+            }
             return t;
+        }
+        if (!need) {
+            // Grup tanpa PIN aktif: tak ada yang bisa diverifikasi sehingga
+            // semua yang dijaga PIN ditolak — ulangi dari chat pribadi
+            // setelah PIN diaktifkan.
+            TgBackup.sendMessage(ctx, "Dari grup selalu butuh PIN."
+                    + " Aktifkan PIN dulu di Pengaturan, lalu ulangi dari chat"
+                    + " pribadi dengan PIN (pakai chat pribadi).");
+            return null;
         }
         // Wall-clock agar reboot tak mereset lockout PIN bot.
         long sekarang = System.currentTimeMillis();
@@ -1600,7 +1769,10 @@ public final class TgBot {
     static final int REQ_POLL = 3;
 
     private static PendingIntent pendingIntent(Context ctx) {
-        Intent i = new Intent(ctx, TgBotReceiver.class).setAction(ACTION_POLL);
+        // Alarm polling membawa rahasia anti-spoof selaras AlarmReceiver agar
+        // TgBotReceiver bisa menolak explicit-intent palsu dari app lain.
+        Intent i = new Intent(ctx, TgBotReceiver.class).setAction(ACTION_POLL)
+                .putExtra(AlarmReceiver.EXTRA_RAHASIA, TgBackup.rahasiaAlarm(ctx));
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         return PendingIntent.getBroadcast(ctx, REQ_POLL, i, flags);

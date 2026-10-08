@@ -42,8 +42,9 @@ public final class LogExport {
         }
         header.append("Android: ").append(Build.VERSION.RELEASE)
                 .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        header.append("Device: ").append(Build.MANUFACTURER).append(' ')
-                .append(Build.MODEL).append("\n\n");
+        // Privasi: sidik perangkat (merek + model) sengaja tak diekspor agar
+        // berkas log yang dibagikan tak memuat fingerprint perangkat.
+        header.append("Device: [perangkat disamarkan]\n\n");
         header.append(log.isEmpty() ? "(No server activity yet)\n" : log);
         header.append('\n');
 

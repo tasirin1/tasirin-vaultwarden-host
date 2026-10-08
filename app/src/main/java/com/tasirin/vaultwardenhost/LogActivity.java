@@ -190,7 +190,10 @@ public class LogActivity extends Activity {
         lastLogLen = len;
         logCount.setText(getString(R.string.log_lines, lineCount));
         int prevScroll = logScroll.getScrollY();
-        logView.setText(highlightLog(text, logSearch));
+        // Privasi layar: tampilkan versi tersamar (token/chat_id/IP disensor);
+        // buffer internal tetap mentah agar salin/bagi/export bisa menyamarkan
+        // sendiri dengan pola terbaru.
+        logView.setText(highlightLog(samarkanLog(text), logSearch));
         if (logAutoScroll) {
             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         } else {
@@ -335,11 +338,18 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_BEARER =
             java.util.regex.Pattern.compile("(?i)(Authorization\\s*:\\s*Bearer\\s+)\\S+");
     /** Kredensial bentuk mentah key=value (bukan JSON): tg_token=..., tg_chat=...,
-     *  tg_pass=..., pin_hash=..., admin_token:... — tak ikut POLA_TOKEN_JSON
-     *  (butuh tanda kutip) maupun POLA_CHAT_ID (butuh kata chat_id) sehingga
-     *  disamarkan di sini. */
+      *  tg_pass=..., pin_hash=..., admin_token:... — tak ikut POLA_TOKEN_JSON
+      *  (butuh tanda kutip) maupun POLA_CHAT_ID (butuh kata chat_id) sehingga
+      *  disamarkan di sini. Kunci tambahan: alarm_secret (rahasia anti-spoof
+      *  alarm), tg_last_file (file_id backup), bin_sha (checksum binary) —
+      *  ketiganya sensitif bila bocor via bagi log. */
     private static final java.util.regex.Pattern POLA_KREDENSIAL_NILAI =
-            java.util.regex.Pattern.compile("(?i)((?:tg_token|tg_chat|pin_hash|admin_token)\\s*[:=]\\s*)([^\\s&,;\"']+)");
+            java.util.regex.Pattern.compile("(?i)((?:tg_token|tg_chat|pin_hash|admin_token|alarm_secret|tg_last_file|bin_sha)\\s*[:=]\\s*)([^\\s&,;\"']+)");
+    /** Alamat IPv4 privat + port URL (mis. 192.168.1.5:8080 di DOMAIN/log):
+      *  peta jaringan LAN tak boleh bocor via bagi log. Disamarkan menjadi
+      *  "[ip-privat]" agar struktur baris tetap terbaca tanpa alamat aslinya. */
+    private static final java.util.regex.Pattern POLA_IP_PRIVAT =
+            java.util.regex.Pattern.compile("\\b(192\\.168\\.\\d{1,3}\\.\\d{1,3}|10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3})(:\\d+)?\\b");
     /** Nilai DOMAIN (https://IP:port) ikut disamarkan agar IP/port LAN
      *  tak bocor via bagi log. */
     private static final java.util.regex.Pattern POLA_DOMAIN =
@@ -378,6 +388,9 @@ public class LogActivity extends Activity {
         r = POLA_SANDI_SPASI.matcher(r).replaceAll("$1***");
         r = POLA_KREDENSIAL_NILAI.matcher(r).replaceAll("$1***");
         r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
+        // IP privat LAN (termasuk :port) disamarkan paling akhir agar sisa
+        // alamat yang lolos pola DOMAIN/URL tetap tertutup.
+        r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
         return r;
     }
 
