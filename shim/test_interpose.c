@@ -20,7 +20,7 @@
 #elif defined(__i386__)
 #define SYS_getrandom 355
 #else
-#define SYS_getrandom 0
+#error "SYS_getrandom tak dikenal di arch ini"
 #endif
 #endif
 
@@ -31,6 +31,16 @@ static unsigned long cek(const char *nama, unsigned char *b) {
     }
     printf("%s checksum=%lu\n", nama, x);
     return x;
+}
+
+// Kembalikan 1 bila seluruh 32 byte bernilai sama (acak palsu/rusak).
+static int semua_byte_sama(unsigned char *b) {
+    for (int i = 1; i < 32; i++) {
+        if (b[i] != b[0]) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int main(void) {
@@ -49,5 +59,19 @@ int main(void) {
     unsigned long x = cek("getrandom", b);
     unsigned long y = cek("syscall", c);
     printf("OK n=%zd m=%ld\n", n, m);
-    return (x == 0 || y == 0);
+    // Tolak bila kosong (all-zero), dua jalur kembar persis (x==y, bukan acak
+    // segar), atau tiap buffer semua-bytenya sama (mis. 0xFF semua).
+    if (x == 0 || y == 0) {
+        printf("GAGAL: entropi nol\n");
+        return 1;
+    }
+    if (x == y) {
+        printf("GAGAL: dua jalur acak identik\n");
+        return 1;
+    }
+    if (semua_byte_sama(b) || semua_byte_sama(c)) {
+        printf("GAGAL: buffer semua-byte-sama\n");
+        return 1;
+    }
+    return 0;
 }

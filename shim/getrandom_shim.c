@@ -62,7 +62,7 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         return 0;
     }
     if (buf == 0) {
-        errno = 22; // EINVAL, samakan perilaku glibc untuk argumen buruk.
+        errno = EINVAL; // Samakan perilaku glibc untuk argumen buruk.
         return -1;
     }
     if (fd_urandom < 0) {
@@ -83,16 +83,16 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
         if (n < 0) {
             int e = errno;
-            if (e == 4) { // EINTR: coba lagi, bukan gagal.
+            if (e == EINTR) { // Coba lagi bila disela sinyal, bukan gagal.
                 continue;
             }
-            if (e == 9) { // EBADF: fd rusak, buka ulang di dalam kunci.
+            if (e == EBADF) { // fd rusak, buka ulang di dalam kunci.
                 // Batas percobaan: bila /dev/urandom gagal dibuka permanen,
                 // pulang -1 (gagal tertutup) alih-alih berputar selamanya.
                 // Tanpa batas, dua thread yang kena EBADF bersamaan bisa
                 // saling memicu buka-ulang tanpa henti.
                 if (++coba_ebadf > 3) {
-                    errno = 5; // EIO.
+                    errno = EIO; // Gagal permanen, pulang galat I/O.
                     return -1;
                 }
                 int fd_lama = fd_urandom;
@@ -117,7 +117,7 @@ static ssize_t isi_urandom(void *buf, size_t len) {
             return -1;
         }
         if (n == 0) { // /dev/urandom tak pernah EOF; anggap galat bila terjadi.
-            errno = 5; // EIO.
+            errno = EIO; // Galat I/O umum.
             return -1;
         }
         sudah += (size_t) n;
@@ -126,6 +126,8 @@ static ssize_t isi_urandom(void *buf, size_t len) {
 }
 
 // Tanda tangan sama persis dengan getrandom(2) agar interposisi PLT tepat.
+// Catatan: parameter flags sengaja diabaikan — /dev/urandom tidak pernah
+// blokir (GRND_NONBLOCK/GRND_RANDOM tak relevan), jadi semua flag aman dilayani.
 ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
     (void) flags; // flag diabaikan: /dev/urandom tidak pernah blokir.
     return isi_urandom(buf, buflen);
@@ -160,7 +162,7 @@ long syscall(long n, ...) {
     // pthread_once agar tak ada race publikasi pointer antar thread.
     pthread_once(&sekali_syscall, init_syscall_nyata);
     if (!nyata_syscall) {
-        errno = 38; // ENOSYS bila penerusan tak ditemukan.
+        errno = ENOSYS; // Penerusan tak ditemukan, anggap fungsi tak tersedia.
         return -1;
     }
     return nyata_syscall(n, a, b, c, d, e, f);

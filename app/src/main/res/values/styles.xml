@@ -12,10 +12,10 @@
         <item name="android:paddingRight">14dp</item>
     </style>
 
-    <!-- Tombol utama: berisi warna brand, teks putih. -->
+    <!-- Tombol utama: berisi warna brand, teks adaptif siang/malam via btn_primary_text. -->
     <style name="TasirinBtnPrimary" parent="TasirinBtn">
         <item name="android:background">@drawable/bg_btn_primary</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/btn_primary_text</item>
         <item name="android:minHeight">52dp</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">bold</item>

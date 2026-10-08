@@ -2,14 +2,16 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <solid android:color="#33FF6F00" />
+            <!-- Oranye transparan adaptif siang/malam untuk fokus D-pad. -->
+            <solid android:color="@color/btn_tv_focused" />
             <stroke android:width="2dp" android:color="@color/accent" />
             <corners android:radius="12dp" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="#330D47A1" />
+            <!-- Biru tua transparan adaptif siang/malam saat ditekan. -->
+            <solid android:color="@color/btn_tv_pressed" />
             <stroke android:width="2dp" android:color="@color/primary" />
             <corners android:radius="12dp" />
         </shape>

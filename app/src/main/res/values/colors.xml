@@ -30,4 +30,12 @@
     <color name="search_highlight">#FFE082</color>
     <color name="hero_run_start">#237A3B</color>
     <color name="hero_run_end">#0B3B20</color>
+    <!-- Teks tombol primer siang: putih di atas biru tua, kontras aman. -->
+    <color name="btn_primary_text">#FFFFFF</color>
+    <!-- Overlay tombol TV siang: oranye transparan saat fokus D-pad. -->
+    <color name="btn_tv_focused">#33FF6F00</color>
+    <!-- Overlay tombol TV siang: biru tua transparan saat ditekan. -->
+    <color name="btn_tv_pressed">#330F3D91</color>
+    <!-- Tombol Stop saat ditekan: merah tua pekat. -->
+    <color name="btn_stop_pressed">#7A1A17</color>
 </resources>

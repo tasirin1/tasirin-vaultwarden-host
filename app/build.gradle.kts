@@ -21,21 +21,35 @@ android {
     defaultConfig {
         applicationId = "com.tasirin.vaultwardenhost"
         minSdk = 21
+        // SECURITY-EXCEPTION: targetSdk 28 sengaja dipertahankan (bukan kelalaian) —
+        // Android 10+ memblokir execve binary dari app home untuk targetSdk >= 29 (W^X),
+        // sehingga binary vaultwarden tak bisa jalan. Jangan naikkan tanpa solusi eksekusi.
         // targetSdk 28 sengaja: agar binary vaultwarden tetap bisa di-execute dari app data
         targetSdk = 28
         versionCode = buildCode
         versionName = buildDate
         // Bahasa default aplikasi Inggris (values/); Indonesia (values-in/)
         // dipertahankan, locale lain dibuang — hemat ukuran.
-        resConfigs("id")
+        // Catatan: resource Indonesia memakai qualifier "in" (bukan "id"),
+        // jadi "in" wajib dipertahankan agar values-in/strings.xml tidak dibuang.
+        resConfigs("en", "in", "id")
+        // Hanya STB 32-bit: kunci ABI ke armeabi-v7a agar APK tetap kecil.
+        ndk {
+            abiFilters += "armeabi-v7a"
+        }
     }
 
     signingConfigs {
         create("release") {
             val storeFileProp = project.findProperty("storeFile") as String?
-            val storePasswordProp = project.findProperty("storePassword") as String?
-            val keyAliasProp = project.findProperty("keyAlias") as String?
-            val keyPasswordProp = project.findProperty("keyPassword") as String?
+            // Password dibaca dari env dulu agar secret CI tidak tertulis di file/argumen,
+            // fallback ke properti Gradle bila env kosong (build lokal/kompatibilitas lama).
+            val storePasswordProp = System.getenv("KEYSTORE_PASSWORD")
+                ?: (project.findProperty("storePassword") as String?)
+            val keyAliasProp = System.getenv("KEY_ALIAS")
+                ?: (project.findProperty("keyAlias") as String?)
+            val keyPasswordProp = System.getenv("KEY_PASSWORD")
+                ?: (project.findProperty("keyPassword") as String?)
             if (!storeFileProp.isNullOrBlank() && !storePasswordProp.isNullOrBlank() &&
                 !keyAliasProp.isNullOrBlank() && !keyPasswordProp.isNullOrBlank()
             ) {

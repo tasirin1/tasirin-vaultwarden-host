@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Izin storage untuk semua Android agar folder data eksternal
@@ -15,6 +16,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Sinkron data server di foreground (API 29+); targetSdk 28 jadi hanya deklarasi. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        tools:targetApi="29" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <!-- Aplikasi dipakai di TV (tanpa layar sentuh): jangan wajibkan touchscreen. -->
@@ -66,9 +70,12 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
 
+        <!-- foregroundServiceType dataSync: sinkronisasi data server di foreground. -->
         <service
             android:name=".ServerService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            tools:targetApi="29" />
 
         <!-- exported=true: DATE_CHANGED/TIME_SET/TIMEZONE_CHANGED adalah
              protected broadcast (hanya sistem yang bisa mengirim); dengan
