@@ -207,12 +207,22 @@ public class FileShareProvider extends ContentProvider {
     /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
      *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
      *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
-    /** True bila jalan di mode unit test eksplisit: hanya bila system property
-     *  vaultwardenhost.unittest=true. Sengaja tak fingerprint vm.name (rapuh
-     *  dan fail-open di perangkat aneh). Murni agar bisa diuji. */
+    /** True bila jalan di JVM unit test (bukan perangkat).
+      *  Kriteria ganda: properti eksplisit vaultwardenhost.unittest=true ATAU
+      *  vm.name bukan dalvik/ART (perangkat asli selalu ART, emulator Dalvik).
+      *  Cek ART menutup lubang lama (vm.name=ART lolos sebagai "unit test"
+      *  sehingga cek symlink mati di perangkat). Murni agar bisa diuji. */
     static boolean diJvmUnitTest() {
         try {
-            return "true".equalsIgnoreCase(System.getProperty("vaultwardenhost.unittest"));
+            if ("true".equalsIgnoreCase(System.getProperty("vaultwardenhost.unittest"))) {
+                return true;
+            }
+            String vm = System.getProperty("java.vm.name");
+            if (vm == null) {
+                return false;
+            }
+            String v = vm.toLowerCase(java.util.Locale.US);
+            return !v.contains("dalvik") && !v.contains("art");
         } catch (Exception e) {
             return false;
         }
@@ -295,11 +305,13 @@ public class FileShareProvider extends ContentProvider {
         if (name == null) {
             return false;
         }
-        // Tangkal bypass pembungkus (mis. key.pem.json/.txt): inti yang mengandung
-        // key.pem/ca-key.pem tetap dianggap kunci privat dan ditolak dibagikan.
+        // Tangkal bypass pembungkus (mis. key.pem.json): nama yang SAMA dengan
+        // kunci atau diawali kunci+titik tetap dianggap kunci privat.
+        // startsWith (bukan contains) agar monkey.pem dan backup-ca-key-info.txt
+        // tetap lolos — hanya key.pem.* dan ca-key.pem.* yang ditolak.
         String intiAwal = name.toLowerCase(java.util.Locale.US);
-        if (intiAwal.contains("key.pem") || intiAwal.contains("ca-key.pem")
-                || intiAwal.equals("key.pem") || intiAwal.equals("ca-key.pem")) {
+        if (intiAwal.equals("key.pem") || intiAwal.equals("ca-key.pem")
+                || intiAwal.startsWith("key.pem.") || intiAwal.startsWith("ca-key.pem.")) {
             return true;
         }
         String rendah = name.toLowerCase(java.util.Locale.US);

@@ -708,9 +708,14 @@ public class ServerService extends Service {
      *  @WorkerThread — jangan panggil dari UI thread (ada sleep di dalam). */
     public static boolean stopAndWait(Context context, long timeoutMs) {
         // Guard: sleep di UI thread = ANR; batalkan agar pemanggil sadar salah thread.
-        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-            catatLog("[server] stopAndWait di UI thread, batal");
-            return false;
+        // Aman di JVM unit test (stub Looper melempar): anggap bukan UI.
+        try {
+            android.os.Looper ui = android.os.Looper.getMainLooper();
+            if (ui != null && android.os.Looper.myLooper() == ui) {
+                catatLog("[server] stopAndWait di UI thread, batal");
+                return false;
+            }
+        } catch (Exception ignored) {
         }
         if (!isProcessAlive()) {
             return true;

@@ -60,10 +60,25 @@ public final class TlsCert {
     /** Umur leaf maksimal 397 hari agar klien modern tak menolak (398+ hari ditolak Chrome/Android baru). */
     static final long LEAF_MAX_MS = 397L * 24 * 3600 * 1000;
 
+    /** True bila dipanggil dari thread UI Android (anti-ANR).
+      *  Aman di JVM unit test: stub android.os.Looper melempar "Stub!" —
+      *  tangkap dan anggap bukan UI agar test hijau. Murni. */
+    static boolean diUiThread() {
+        try {
+            android.os.Looper ui = android.os.Looper.getMainLooper();
+            if (ui == null) {
+                return false;
+            }
+            return android.os.Looper.myLooper() == ui;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
-     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
-     *  Dipakai keputusan regenerasi agar sisa hitungan jam tak disangka
-     *  kedaluwarsa (pembagian hari integer membuat sisa 5 jam jadi 0). */
+      *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
+      *  Dipakai keputusan regenerasi agar sisa hitungan jam tak disangka
+      *  kedaluwarsa (pembagian hari integer membuat sisa 5 jam jadi 0). */
     public static long sisaMs(File certFile) {
         long hasil = sisaMsSekali(certFile);
         if (hasil == -1) {
@@ -72,7 +87,7 @@ public final class TlsCert {
             // Settings) tak mengira cert rusak. Cert yang memang tak ada
             // tetap -1 seperti semula.
             // Jangan tidur di thread UI agar tak ANR; panggil dari worker thread saja.
-            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            if (diUiThread()) {
                 return -1;
             }
             try {
@@ -138,7 +153,7 @@ public final class TlsCert {
     public static File ensure(File dir, List<String> ips, List<String> dns,
             boolean paksaLeaf) {
         // Jangan jalankan generate berat di thread UI agar tak ANR; panggil dari worker saja.
-        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+        if (diUiThread()) {
             try {
                 android.util.Log.w("TlsCert", "[tls] ensure dipanggil dari UI thread, batal agar tak ANR");
             } catch (Exception ignored) {
