@@ -301,7 +301,14 @@ public final class TgBackup {
                         am.setExactAndAllowWhileIdle(
                                 AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
                     } catch (Exception e) {
-                        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                        // Fallback tetap boleh saat idle (Doze): set() biasa bisa
+                        // tertunda berjam-jam di STB; pakai setAndAllowWhileIdle bila ada.
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            am.setAndAllowWhileIdle(
+                                    AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                        } else {
+                            am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
+                        }
                     }
                 } else {
                     am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
@@ -1578,6 +1585,19 @@ public final class TgBackup {
         if (!chatIdAman(chatId)) {
             throw new java.io.IOException("Chat ID Telegram tidak valid"
                     + " - periksa pengaturan bot.");
+        }
+        // Kunci host sebelum POST sendDocument (selaras bukaPostTelegram):
+        // URL membawa token bot di path sehingga host asing wajib ditolak
+        // agar token tak bocor via MITM/typo; redirect pun ditolak di bawah.
+        try {
+            String hostKirim = new URL(TG_API + token + "/sendDocument").getHost();
+            if (!Util.hostTelegramAman(hostKirim)) {
+                throw new java.io.IOException("Host Telegram tidak aman: " + hostKirim);
+            }
+        } catch (java.io.IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new java.io.IOException("URL Telegram tidak valid.");
         }
         HttpURLConnection conn = null;
         try {

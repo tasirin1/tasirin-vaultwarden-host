@@ -2043,6 +2043,11 @@ public final class Updater {
 
     /** Sama, tapi memakai shim getrandom bila perangkat kernel lama (agar --version lolos). */
     static String detectVersion(Context ctx, File binary) {
+        // Di luar try agar terlihat di catch: lokal di dalam try tak tampak
+        // di catch (pola sama ServerService detectBinaryVersion).
+        final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread versiWatchdog = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
@@ -2059,9 +2064,7 @@ public final class Updater {
             final Process versiProc = p;
             // AtomicBoolean (bukan boolean[]): tulis thread update wajib terlihat
             // thread watchdog tanpa synchronized (duplikat pola ServerService).
-            final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
-                    new java.util.concurrent.atomic.AtomicBoolean(false);
-            Thread versiWatchdog = new Thread(new Runnable() {
+            versiWatchdog = new Thread(new Runnable() {
                 @Override public void run() {
                     try {
                         Thread.sleep(10000);
@@ -2109,6 +2112,12 @@ public final class Updater {
             }
             return parseBinaryVersion(first);
         } catch (Exception e) {
+            // Hentikan watchdog agar tak bocor tiap detect gagal (pola ServerService 2851).
+            versiSelesai.set(true);
+            try {
+                versiWatchdog.interrupt();
+            } catch (Exception ignored) {
+            }
             return null;
         }
     }

@@ -704,8 +704,14 @@ public class ServerService extends Service {
 
     /** Stop server dan tunggu proses benar-benar mati.
      *  True bila proses sudah mati; false bila masih hidup (pemanggil wajib
-     *  membatalkan operasi file DB agar SQLite tidak korup). */
+     *  membatalkan operasi file DB agar SQLite tidak korup).
+     *  @WorkerThread — jangan panggil dari UI thread (ada sleep di dalam). */
     public static boolean stopAndWait(Context context, long timeoutMs) {
+        // Guard: sleep di UI thread = ANR; batalkan agar pemanggil sadar salah thread.
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            catatLog("[server] stopAndWait di UI thread, batal");
+            return false;
+        }
         if (!isProcessAlive()) {
             return true;
         }
@@ -906,8 +912,11 @@ public class ServerService extends Service {
                         stopForeground(true);
                         stopSelf();
                     } else if (!serverJalan) {
+                        // Demote foreground di sini (stopForeground(false)) berisiko:
+                        // service kehilangan notifikasi tapi tetap hidup tanpa alasan.
+                        // Pilih stopSelf(): aman karena alarm berikutnya start ulang bila perlu.
                         try {
-                            stopForeground(false);
+                            stopSelf();
                         } catch (Exception ignored) {
                         }
                     }
@@ -929,7 +938,9 @@ public class ServerService extends Service {
         }
         mainHandler.removeCallbacks(healthTick);
         mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
-        return START_NOT_STICKY;
+        // ACTION_START wajib STICKY agar sistem menghidupkan ulang service bila
+        // dibunuh saat server diminta jalan; aksi lain tetap NOT_STICKY.
+        return START_STICKY;
     }
 
     @Override
@@ -3575,6 +3586,14 @@ public class ServerService extends Service {
         mainHandler.removeCallbacks(healthTick);
         mainHandler.removeCallbacks(restartTunda);
         flushLogFile();
+        // Selalu destroy proses sisa di sini; aman karena jalur restart/start ulang
+        // akan membuat proses baru. Tanpa ini proses yatim bocor saat service mati.
+        if (process != null) {
+            try {
+                process.destroy();
+            } catch (Exception ignored) {
+            }
+        }
         super.onDestroy();
         // WakeLock hanya dilepas bila proses benar-benar mati; recreate transien
         // saat server jalan mempertahankannya (dipasang ulang di onCreate).

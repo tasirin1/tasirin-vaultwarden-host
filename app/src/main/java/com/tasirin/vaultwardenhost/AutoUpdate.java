@@ -255,6 +255,18 @@ public final class AutoUpdate {
                 ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
             try {
+                // Izin runtime notifikasi (API 33+): tanpa ini notify melempar
+                // SecurityException di perangkat targetSdk 33+ / forward-compat.
+                if (android.os.Build.VERSION.SDK_INT >= 33) {
+                    try {
+                        if (ctx.checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                    } catch (Exception ignoredPerm) {
+                        return;
+                    }
+                }
                 nm.notify(2, n);
             } catch (SecurityException ignored) {
             }

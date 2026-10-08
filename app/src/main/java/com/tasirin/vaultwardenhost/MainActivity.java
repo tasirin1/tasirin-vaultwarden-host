@@ -75,6 +75,10 @@ public class MainActivity extends Activity {
     private boolean refreshActive = true;
     private volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
+    // Cache URL lokal 10 detik: localUrl()/collectIps() tiap detik di UI thread
+    // bikin ANR di STB lambat; pakai cache agar enumerasi jaringan jarang jalan.
+    private static String cacheUrl = "";
+    private static long cacheWaktu = 0;
 
     /** Kapan MainActivity terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
@@ -563,7 +567,16 @@ public class MainActivity extends Activity {
             startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
         }
 
-        String net = ServerService.localUrl(this);
+        // Cache 10 detik agar tak enumerasi IP tiap tick UI (cegah ANR).
+        String net;
+        long now = SystemClock.elapsedRealtime();
+        if (!cacheUrl.isEmpty() && now - cacheWaktu < 10000) {
+            net = cacheUrl;
+        } else {
+            net = ServerService.localUrl(this);
+            cacheUrl = net;
+            cacheWaktu = now;
+        }
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;
