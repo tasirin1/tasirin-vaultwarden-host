@@ -29,10 +29,40 @@ public class AlarmReceiver extends BroadcastReceiver {
      *  dari sistem); susulan boot punya rahasia sendiri sehingga tak ikut. */
     static final long THROTTLE_ALARM_MS = 60_000;
     private static volatile long terakhirAlarmElapsed = 0;
+    /** Penanda throttle di prefs (tahan mati proses): statik saja reset tiap
+     *  proses mati sehingga spam explicit-intent lolos lagi. */
+    static final String KEY_THROTTLE_ALARM_ELAPSED = "alarm_throttle_elapsed";
 
     /** Murni waktu: true bila alarm umum boleh jalan (di luar jeda spam). */
     static boolean bolehAlarmJalan(long kini, long terakhir, long jeda) {
         return terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
+    }
+
+    /** Gabung penanda statik + tersimpan (murni): yang terbesar dipakai agar
+     *  throttle tetap berlaku walau proses mati (statik reset ke 0). */
+    static long throttleEfektif(long statik, long tersimpan) {
+        return Math.max(statik, tersimpan);
+    }
+
+    /** Baca penanda throttle tersimpan (0 bila tak ada/rusak). */
+    static long throttleTersimpan(Context context) {
+        try {
+            SharedPreferences sp = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            return TgBackup.amanLong(sp, KEY_THROTTLE_ALARM_ELAPSED, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Simpan penanda throttle (best-effort, tahan mati proses). */
+    static void simpanThrottle(Context context, long kini) {
+        terakhirAlarmElapsed = kini;
+        try {
+            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(KEY_THROTTLE_ALARM_ELAPSED, kini).apply();
+        } catch (Exception ignored) {
+        }
     }
 
     /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
@@ -145,10 +175,12 @@ public class AlarmReceiver extends BroadcastReceiver {
             // explicit-intent: throttle 60 dtk seperti jalur alarm umum
             // (ganti tanggal legit jarang beruntun).
             long kiniElapsedTgl = android.os.SystemClock.elapsedRealtime();
-            if (!bolehAlarmJalan(kiniElapsedTgl, terakhirAlarmElapsed, THROTTLE_ALARM_MS)) {
+            if (!bolehAlarmJalan(kiniElapsedTgl,
+                    throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context)),
+                    THROTTLE_ALARM_MS)) {
                 return;
             }
-            terakhirAlarmElapsed = kiniElapsedTgl;
+            simpanThrottle(context, kiniElapsedTgl);
             // Hitung ulang tengah malam berikutnya setelah jam berubah.
             TgBackup.schedule(context, true);
             String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
@@ -185,11 +217,11 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
         long kiniElapsed = android.os.SystemClock.elapsedRealtime();
-        long terakhir = terakhirAlarmElapsed;
+        long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
         if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
             return;
         }
-        terakhirAlarmElapsed = kiniElapsed;
+        simpanThrottle(context, kiniElapsed);
         mulaiBackup(context);
     }
 }

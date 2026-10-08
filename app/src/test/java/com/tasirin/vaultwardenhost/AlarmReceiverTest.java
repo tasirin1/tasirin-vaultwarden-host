@@ -28,4 +28,12 @@ public class AlarmReceiverTest {
     public void tepatJedaBolehLagi() {
         assertTrue(AlarmReceiver.bolehAlarmJalan(120_000, 60_000, 60_000));
     }
+
+    @Test
+    public void throttleTersimpanMenutupResetProses() {
+        assertFalse(AlarmReceiver.bolehAlarmJalan(61_000,
+                AlarmReceiver.throttleEfektif(0, 60_000), 60_000));
+        assertTrue(AlarmReceiver.bolehAlarmJalan(120_000,
+                AlarmReceiver.throttleEfektif(0, 60_000), 60_000));
+    }
 }

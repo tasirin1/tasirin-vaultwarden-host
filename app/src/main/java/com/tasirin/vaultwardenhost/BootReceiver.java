@@ -13,6 +13,9 @@ public class BootReceiver extends BroadcastReceiver {
      *  auto-start + jadwal backup berulang-ulang. */
     static final long THROTTLE_BOOT_MS = 60_000;
     private static volatile long terakhirBootElapsed = 0;
+    /** Penanda throttle di prefs (tahan mati proses): statik saja reset tiap
+     *  proses mati sehingga spoof BOOT_COMPLETED lolos lagi. */
+    static final String KEY_THROTTLE_BOOT_ELAPSED = "boot_throttle_elapsed";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -21,10 +24,13 @@ public class BootReceiver extends BroadcastReceiver {
                 || "android.intent.action.QUICKBOOT_POWERON".equals(action)
                 || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
             long kiniElapsed = android.os.SystemClock.elapsedRealtime();
-            if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBootElapsed, THROTTLE_BOOT_MS)) {
+            long terakhirBoot = Math.max(terakhirBootElapsed,
+                    bacaThrottleBoot(context));
+            if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot, THROTTLE_BOOT_MS)) {
                 return;
             }
             terakhirBootElapsed = kiniElapsed;
+            simpanThrottleBoot(context, kiniElapsed);
             SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             TgBackup.healkanStringPrefs(context);
             TgBackup.migrateAutoPref(context);
@@ -78,6 +84,26 @@ public class BootReceiver extends BroadcastReceiver {
             }
             // Remote kontrol bot tetap aktif setelah reboot
             TgBot.schedule(context);
+        }
+    }
+
+    /** Baca penanda throttle boot tersimpan (0 bila tak ada/rusak). */
+    static long bacaThrottleBoot(Context context) {
+        try {
+            android.content.SharedPreferences sp = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            return TgBackup.amanLong(sp, KEY_THROTTLE_BOOT_ELAPSED, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Simpan penanda throttle boot (best-effort, tahan mati proses). */
+    static void simpanThrottleBoot(Context context, long kini) {
+        try {
+            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(KEY_THROTTLE_BOOT_ELAPSED, kini).apply();
+        } catch (Exception ignored) {
         }
     }
 
