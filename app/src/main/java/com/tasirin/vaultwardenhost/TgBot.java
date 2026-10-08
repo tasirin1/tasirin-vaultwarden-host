@@ -214,7 +214,18 @@ public final class TgBot {
 
     /** Daftarkan menu perintah ke BotFather API (best-effort, sekali per token). */
     static void refreshMenuAsync(Context ctx) {
-        final Context app = ctx.getApplicationContext();
+        if (ctx == null) {
+            return;
+        }
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception ignored) {
+            return;
+        }
+        if (app == null) {
+            return;
+        }
         SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         final String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
