@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: health statis, wakelock ganda, rahasia alarm awet
+- `ServerService`: `healthFails`, `configSajaBeruntun`, `healthTcpLolos`, `healthBerjalan` dijadikan statis — hitungan health tak lagi di-reset recreate sistem sehingga restart tertunda berkurang.
+- `ServerService`: `wakeLock` dijadikan statis + akuisisi/pelepasan dikunci `ServerService.class` — recreate transien tak lagi memegang dua kunci 12 jam (bocor baterai).
+- `TgBackup.rahasiaAlarm`: tulis rahasia memakai `commit()` sinkron — rahasia wajib awet sebelum alarm terjadwal memakainya agar backup tak ditolak lalu hilang.
+
 ## [Belum rilis] — Perbaikan audit: PIN whitespace, chat nol-depan, digest, start+backup
 - `TgBot.pisahkanPin`: pemisah PIN kata-terakhir kini whitespace apa pun (tab/newline), bukan `lastIndexOf(' ')` — "YA<TAB>123456" dikenali + sisa dinormalisasi agar cocok `isRestoreConfirm`; uji baru `pisahkanPinPemisahWhitespaceApapun`.
 - `Util.cocokChat`: config/username ber-nol-depan ("0123") ditolak fail-closed agar tak cocok longgar dengan ID 123; uji baru `cocokChatTolakNolDepan`.

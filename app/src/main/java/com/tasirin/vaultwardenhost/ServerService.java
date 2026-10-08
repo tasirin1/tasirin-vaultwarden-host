@@ -275,14 +275,16 @@ public class ServerService extends Service {
      *  watchProcess hanya mengabaikan exit milik proses ini agar Stop lalu Start cepat
      *  tak salah menandai crash proses baru sebagai stop sengaja. */
     private static volatile Process prosesStopDisengaja = null;
-    /** Lolos TCP beruntun saat /alive gagal tapi port tersambung (anti livelock health). */
-    private final java.util.concurrent.atomic.AtomicInteger healthTcpLolos =
+    /** Lolos TCP beruntun saat /alive gagal tapi port tersambung (anti livelock health).
+     *  Statis agar selamat dari recreate instance (selaras restartAttempt/healthFails). */
+    private static final java.util.concurrent.atomic.AtomicInteger healthTcpLolos =
             new java.util.concurrent.atomic.AtomicInteger(0);
     /** True bila Stop ditekan saat start masih persiapan (unduh binary):
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
-    private PowerManager.WakeLock wakeLock;
+    /** Statis agar recreate transien tak memegang dua kunci 12 jam (bocor baterai). */
+    private static PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
     /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
      *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta.
@@ -301,12 +303,14 @@ public class ServerService extends Service {
     private static volatile long lastStartTime = 0;
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
-    private final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
+    /** Statis agar hitungan gagal tak di-reset recreate sistem (selaras restartAttempt). */
+    private static final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
     /** Episode beruntun "server melayani tapi DB rusak" (/alive 5xx + /api/config 200):
      *  pingRinci() menganggapnya sehat sehingga DB korup tak pernah restart.
      *  Dihitung terpisah dari healthFails agar 500 sesaat (backup/migrasi di
      *  STB lambat) tak langsung membunuh server. */
-    private final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
+    /** Statis agar episode DB-rusak tak di-reset recreate (selaras healthFails). */
+    private static final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
             new java.util.concurrent.atomic.AtomicInteger(0);
     /** Batas episode config-saja sebelum dianggap gantung lalu restart: 10x tick
      *  (~5 mnt mode cepat / ~20 mnt mode normal) — jauh di atas 500 sesaat. */
@@ -318,7 +322,8 @@ public class ServerService extends Service {
     /** Cek health yang sedang jalan: tiap tick hanya satu (timeout total
      *  worst-case 32 dtk > interval cepat 30 dtk sehingga thread bisa
      *  menumpuk bila server macet). */
-    private final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
+    /** Statis agar dua instance hasil recreate tak cek health bersamaan. */
+    private static final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private final Runnable healthTick = new Runnable() {
         @Override
@@ -3562,7 +3567,11 @@ public class ServerService extends Service {
      *  server jalan >12 jam kena Doze lalu health gagal. Dipanggil tiap healthTick. */
     private void jagaWakeLock() {
         try {
-            if (running && autoRestart && (wakeLock == null || !wakeLock.isHeld())) {
+            boolean perlu;
+            synchronized (ServerService.class) {
+                perlu = running && autoRestart && (wakeLock == null || !wakeLock.isHeld());
+            }
+            if (perlu) {
                 acquireWakeLock();
             }
         } catch (Exception ignored) {
@@ -3572,26 +3581,29 @@ public class ServerService extends Service {
     private void acquireWakeLock() {
         // Lepas dulu bila ada sisa (tak boleh menimpa field: kunci lama bocor
         // sampai timeout 12 jam bila referensinya hilang).
-        releaseWakeLock();
-        try {
-            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            if (pm != null) {
-                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
-                // Timeout 12 jam: bila jalur stop()/destroy terlewat, kunci
-                // tetap dilepas sistem agar baterai tak terkuras selamanya.
-                // Selalu pakai timeout agar lint WakelockTimeout lolos dan
-                // baterai tak terkuras bila release terlewat.
-                try {
-                    wakeLock.acquire(12L * 3600 * 1000L);
-                } catch (Exception e) {
-                    wakeLock = null;
+        synchronized (ServerService.class) {
+            releaseWakeLockDalam();
+            try {
+                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                if (pm != null) {
+                    wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
+                    // Timeout 12 jam: bila jalur stop()/destroy terlewat, kunci
+                    // tetap dilepas sistem agar baterai tak terkuras selamanya.
+                    // Selalu pakai timeout agar lint WakelockTimeout lolos dan
+                    // baterai tak terkuras bila release terlewat.
+                    try {
+                        wakeLock.acquire(12L * 3600 * 1000L);
+                    } catch (Exception e) {
+                        wakeLock = null;
+                    }
                 }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
         }
     }
 
-    private void releaseWakeLock() {
+    /** Badan pelepas tanpa kunci ulang (dipanggil dari dalam blok sinkron). */
+    private void releaseWakeLockDalam() {
         if (wakeLock != null && wakeLock.isHeld()) {
             try {
                 wakeLock.release();
@@ -3599,6 +3611,12 @@ public class ServerService extends Service {
             }
         }
         wakeLock = null;
+    }
+
+    private void releaseWakeLock() {
+        synchronized (ServerService.class) {
+            releaseWakeLockDalam();
+        }
     }
 
     @Override

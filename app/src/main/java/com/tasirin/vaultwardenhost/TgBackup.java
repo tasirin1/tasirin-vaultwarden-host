@@ -196,6 +196,7 @@ public final class TgBackup {
     static final String KEY_ALARM_SECRET = "alarm_secret";
 
     /** Rahasia alarm milik app (heks 128-bit, dibuat sekali per install). Murni I/O prefs. */
+    @android.annotation.SuppressLint("ApplySharedPref")
     static String rahasiaAlarm(android.content.Context ctx) {
         try {
             android.content.SharedPreferences sp = ctx.getSharedPreferences(
@@ -213,7 +214,9 @@ public final class TgBackup {
             }
             String buat = sb.toString();
             try {
-                sp.edit().putString(KEY_ALARM_SECRET, buat).apply();
+                // commit() sinkron: rahasia wajib awet sebelum alarm terjadwal
+                // memakainya, bila tidak alarm berikut ditolak lalu backup hilang.
+                sp.edit().putString(KEY_ALARM_SECRET, buat).commit();
             } catch (Exception ignored) {
             }
             return buat;
