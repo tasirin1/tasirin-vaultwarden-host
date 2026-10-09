@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: cap verifikasi DB, offset bot at-most-once, restart ikut IP baru
+- `TgBackup.verifikasiIsiDbZip`: ekstraksi `db.sqlite3` kini dibatasi `BATAS_UNZIP_RESTORE` — zip backup jahat/korup dengan DB raksasa dibatalkan + tmp dibersihkan, bukan memenuhi disk/OOM STB 1 GB.
+- `TgBot.pollOnce`: offset dikunci (`commit()`) SEBELUM eksekusi perintah sensitif (berbahaya/status/log/crashlog) — crash di tengah handle tak lagi memutar ulang `/restore`/`/backup` saat hidup lagi.
+- `ServerService.peringatkanIpBerubah`: IP LAN baru yang stabil 2x health tick memicu `scheduleRestart()` agar `DOMAIN` ikut IP baru; flapping DHCP tak memicu loop (kandidat+hitung), peringatan Telegram sekali per IP tetap.
+- `ServerService.onCreate`: guard recreate ditambah `running` eksplisit agar monitoring tak bangun tanpa server yang diminta jalan.
+- `AlarmReceiver.simpanThrottle`: dokumentasikan alasan `apply()` (main thread, anti-ANR) — throttle hilang sesaat hanya berarti satu bangun ekstra.
+
 ## [Belum rilis] — Perbaikan audit: enctmp tak dibagikan, probe prefs, kunci clip sembuh-sendiri
 - `FileShareProvider.berkasSementara`: `app-config-enctmp-*.json` (plaintext sementara export terenkripsi) tak lagi lolos sebagai shareable via pola `app-config-*`.
 - `TgBackup.restoreFromZip`: probe `app-config.json` memakai `normalisasiEntriZip` seperti loop ekstraksi + restore UI — zip ber-folder pembungkus tetap menerapkan prefs.

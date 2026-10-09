@@ -258,6 +258,12 @@ public class ServerService extends Service {
     public static volatile String runningLanHost = "";
     /** IP perubahan terakhir yang sudah diperingatkan (anti-spam Telegram). */
     private static volatile String ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
+    /** Kandidat IP baru + hitungan tick beruntun: restart otomatis hanya bila
+     *  IP baru stabil 2x health tick agar IP flapping DHCP tak memicu loop restart. */
+    private static volatile String ipBaruKandidat = "";
+    private static volatile int ipBaruHitung = 0;
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
     // Anti-loop: berhenti total bila restart beruntun ≥3x dalam 5 menit.
@@ -759,7 +765,7 @@ public class ServerService extends Service {
         // health-check/wakelock/restart bila server masih diminta jalan.
         // Tanpa ini monitoring berhenti diam-diam selagi binary masih hidup.
         try {
-            if (autoRestart && healthActive) {
+            if (running && autoRestart && healthActive) {
                 // Wajib foreground seperti action lain: tanpa ini service hasil
                 // recreate bekerja (health/wakelock) tanpa notifikasi dan bisa
                 // dibunuh sistem sebagai background.
@@ -1474,6 +1480,8 @@ public class ServerService extends Service {
             runningWvFrom = wvFrom == null ? "" : wvFrom;
             runningLanHost = lanHost();
             ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
 
             // Validasi ulang tepat sebelum exec: unduh binary/web-vault di atas
             // makan waktu bermenit-menit; symlink folder data yang ditukar di
@@ -1547,6 +1555,8 @@ public class ServerService extends Service {
             runningWvFrom = "";
             runningLanHost = "";
             ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
@@ -1591,6 +1601,8 @@ public class ServerService extends Service {
                         runningWvFrom = "";
                         runningLanHost = "";
                         ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
                         releaseWakeLock();
                         flushLogFile();
                         setStatus("Stopped");
@@ -1611,6 +1623,8 @@ public class ServerService extends Service {
             runningWvFrom = "";
             runningLanHost = "";
             ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
             releaseWakeLock();
             flushLogFile();
         }
@@ -2100,17 +2114,30 @@ public class ServerService extends Service {
             }
             String kini = lanHost();
             if (kini == null || kini.isEmpty() || kini.equals(runningLanHost)) {
+                ipBaruKandidat = "";
+                ipBaruHitung = 0;
                 return;
             }
-            if (kini.equals(ipBerubahDiperingatkan)) {
-                return;
+            if (kini.equals(ipBaruKandidat)) {
+                ipBaruHitung++;
+            } else {
+                ipBaruKandidat = kini;
+                ipBaruHitung = 1;
             }
-            ipBerubahDiperingatkan = kini;
-            appendLog("[app] IP LAN berubah (" + runningLanHost + " -> " + kini + "):"
-                    + " DOMAIN server masih menunjuk IP lama."
-                    + " Restart server agar tautan ikut IP baru.");
-            TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
-                    + " Restart server agar tautan memakai IP baru.");
+            if (!kini.equals(ipBerubahDiperingatkan)) {
+                ipBerubahDiperingatkan = kini;
+                appendLog("[app] IP LAN berubah (" + runningLanHost + " -> " + kini + "):"
+                        + " DOMAIN server masih menunjuk IP lama."
+                        + " Restart otomatis dijadwalkan bila IP baru stabil.");
+                TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
+                        + " Server restart otomatis agar tautan memakai IP baru.");
+            }
+            if (ipBaruHitung >= 2 && healthActive && isProcessAlive()) {
+                ipBaruKandidat = "";
+                ipBaruHitung = 0;
+                appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
+                scheduleRestart();
+            }
         } catch (Exception ignored) {
         }
     }
@@ -2157,6 +2184,8 @@ public class ServerService extends Service {
             runningWvFrom = "";
             runningLanHost = "";
             ipBerubahDiperingatkan = "";
+            ipBaruKandidat = "";
+            ipBaruHitung = 0;
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");

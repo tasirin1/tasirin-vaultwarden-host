@@ -1062,7 +1062,15 @@ public final class TgBackup {
                  java.io.FileOutputStream fos = new java.io.FileOutputStream(tmpDb)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
+                long terkumpul = 0;
                 while ((n = in.read(buf)) != -1) {
+                    terkumpul += n;
+                    if (terkumpul > Util.BATAS_UNZIP_RESTORE) {
+                        try { fos.close(); } catch (Exception ignored) { }
+                        try { tmpDb.delete(); } catch (Exception ignored) { }
+                        return "db.sqlite3 melebihi batas aman ("
+                                + Util.BATAS_UNZIP_RESTORE + " byte)";
+                    }
                     fos.write(buf, 0, n);
                 }
             }

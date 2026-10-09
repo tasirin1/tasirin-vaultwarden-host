@@ -55,7 +55,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
     }
 
-    /** Simpan penanda throttle (best-effort, tahan mati proses). */
+    /** Simpan penanda throttle (best-effort, tahan mati proses).
+     *  Sengaja apply() bukan commit(): dipanggil dari onReceive di main thread
+     *  sehingga commit() sinkron berisiko ANR; throttle yang hilang sesaat hanya
+     *  berarti satu bangun ekstra, bukan korupsi data. */
     static void simpanThrottle(Context context, long kini) {
         terakhirAlarmElapsed = kini;
         try {

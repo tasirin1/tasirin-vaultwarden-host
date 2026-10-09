@@ -398,6 +398,17 @@ public final class TgBot {
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
+                                // At-most-once untuk perintah sensitif: kunci offset
+                                // SEBELUM eksekusi agar crash di tengah handle tak
+                                // memutar ulang perintah destruktif saat hidup lagi
+                                // (PIN masih nangkring di riwayat). Perintah baca
+                                // tetap at-least-once via commit akhir di finally.
+                                if (perintahBerbahaya(text) || pesanPinWajibHapus(text)) {
+                                    try {
+                                        sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
+                                    } catch (Exception ignored) {
+                                    }
+                                }
                                 boolean terotorisasi = handleCommand(ctx, text);
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
                                 // ulang pengintip: hapus best-effort (perlu izin hapus,
