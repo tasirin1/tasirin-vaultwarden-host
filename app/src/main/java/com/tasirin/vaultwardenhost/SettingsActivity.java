@@ -1775,7 +1775,12 @@ public class SettingsActivity extends Activity {
                     .putString(ServerService.KEY_DATA_DIR, aman).apply();
         }
         runBusy(() -> {
-            File tmp = new File(getCacheDir(), "vwtg-restore.zip");
+            // Nama unik per unduhan: dialog konfirmasi pertama yang menggantung
+            // tak boleh dibajak unduhan kedua yang menimpa file tetap yang sama.
+            // Prefix vwtg-restore dipertahankan agar tetap dilarang dibagikan
+            // (lihat FileShareProvider.berkasSementara).
+            File tmp = new File(getCacheDir(),
+                    "vwtg-restore-" + TgBackup.stempelUnik() + ".zip");
             try {
                 String name = TgBackup.downloadLastBackup(SettingsActivity.this, tmp);
                 final String fname = name;
@@ -1799,7 +1804,10 @@ public class SettingsActivity extends Activity {
     // Dekrip (bila perlu) + restore sesudah user konfirmasi; arsip unduhan
     // maupun plaintext selalu dibersihkan dari cache sesudahnya.
     private void restoreTelegramTerkonfirmasi(File unduhan) {
-        File plain = new File(getCacheDir(), "vwtg-restore-dec.zip");
+        // Pasangan unik dari file unduhan (bukan nama tetap): dua dialog
+        // terkonfirmasi berurutan tak boleh berebut plaintext yang sama.
+        File plain = new File(getCacheDir(),
+                unduhan.getName().replace(".zip", "-dec.zip"));
         try {
             File zip = unduhan;
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
