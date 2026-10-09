@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — PIN ringan di Android lama: iterasi ikut kemampuan perangkat
+- `PinCrypto`: standar iterasi kini dua tingkat — 30rb di perangkat modern, 12rb di STB lama tanpa factory PBKDF2-SHA256 (jalur manual ~2-3x lebih lambat per iterasi) — agar set/buka PIN tetap ~1 detik di CPU lemah. 12rb tetap di atas batas verifikasi 10rb dan hash antar-perangkat saling lolos.
+- `PinCrypto`: hasil deteksi factory diingat (`pabrikAda`) agar `getInstance` yang gagal di STB tak diulang tiap buka PIN; `SecureRandom` dipakai bersama agar hemat seed.
+- `PinCrypto.perluUpgradeHash()`: normalisasi ke standar perangkat masing-masing — hash HP 30k yang dibawa ke STB diturunkan sekali saat login sukses (buka berikutnya cepat), begitu pula sebaliknya.
+- Test baru: `standarLegasiDibawahModernDiatasBatas` + `hashLegasiLolosVerifikasiAntarPerangkat`.
+
 ## [Belum rilis] — PIN bisa aktif di STB Android lama (fallback PBKDF2 manual)
 - `PinCrypto`: `SecretKeyFactory` PBKDF2WithHmacSHA256 tak ada di stock Android API 21-25 sehingga hash PIN selalu melempar di STB ("PIN gagal diproses") sementara di HP bisa — kini jatuh ke `pbkdf2Manual()` via `Mac` HmacSHA256 yang ada di semua API.
 - `pbkdf2Manual()`: PBKDF2-HMAC-SHA256 sesuai RFC 2898, hasil bit-identik dengan factory untuk PIN ASCII sehingga hash HP baru terverifikasi di STB dan sebaliknya; dikunci test `pbkdf2ManualSamadenganFactory`.

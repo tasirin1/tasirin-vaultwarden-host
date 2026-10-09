@@ -2,8 +2,6 @@ package com.tasirin.vaultwardenhost;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
-
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
@@ -26,13 +24,27 @@ public final class PinCrypto {
      *  kunci 5 menit tiap 5 gagal (PinGate) dan salt acak tiap hash menutup
      *  rainbow table; biaya KDF hanya pertahanan lapis kedua. */
     private static final int ITERATIONS = 30_000;
+    /** Iterasi untuk STB Android lama tanpa factory PBKDF2-SHA256: jalur manual
+     *  via Mac ~2-3x lebih lambat per iterasi, jadi standar diturunkan agar
+     *  set/buka PIN tetap ~1 detik. Tetap di atas ITERASI_MINIMAL sehingga
+     *  diterima semua perangkat; PIN 4-6 digit memang mengandalkan kunci
+     *  lockout + salt, bukan besar iterasi, melawan serangan offline. */
+    static final int ITERASI_LEGASI = 12_000;
+    /** SecureRandom bersama (thread-safe): hemat biaya seed tiap hash di STB. */
+    private static final class Acak {
+        static final java.security.SecureRandom ISI = new java.security.SecureRandom();
+    }
+    /** Hasil deteksi factory (null = belum dicek): getInstance yang gagal di
+     *  STB tak diulang tiap buka PIN. */
+    private static volatile Boolean pabrikAda = null;
     /** Iterasi minimum yang diterima saat verifikasi: hash beriterasi jauh
      *  lebih rendah (mis. hasil utak-atik prefs) ditolak fail-closed.
-     *  Semua hash yang ditulis app ini memakai ITERATIONS di atas. */
+     *  Semua hash yang ditulis app ini memakai standar perangkat
+     *  (lihat iterasiStandar), selalu di atas batas ini. */
     static final int ITERASI_MINIMAL = 10_000;
     /** Iterasi maksimum yang diterima saat verifikasi: hash lama 120rb yang
      *  ditulis versi app sebelumnya tetap diverifikasi sekali lalu
-     *  dinormalisasi ke ITERATIONS (lihat perluUpgradeHash), bukan ditolak
+     *  dinormalisasi ke standar perangkat (lihat perluUpgradeHash), bukan ditolak
      *  dan mengunci user. Batas ini juga menutup DoS iterasi raksasa. */
     static final int MAKS_VERIFIKASI = 120_000;
     /** Panjang heks maksimum tiap bagian salt/hash saat verifikasi: format sah
@@ -52,9 +64,10 @@ public final class PinCrypto {
             pin = "";
         }
         byte[] salt = new byte[SALT_BYTES];
-        new SecureRandom().nextBytes(salt);
-        byte[] dk = derive(pin, salt, ITERATIONS);
-        return PREFIX + ITERATIONS + "$" + hex(salt) + "$" + hex(dk);
+        Acak.ISI.nextBytes(salt);
+        int iter = iterasiStandar();
+        byte[] dk = derive(pin, salt, iter);
+        return PREFIX + iter + "$" + hex(salt) + "$" + hex(dk);
     }
 
     /** True bila tersimpan dalam format baru (bukan hash lama). */
@@ -100,9 +113,10 @@ public final class PinCrypto {
         }
         String dalam = stored.trim().toLowerCase(java.util.Locale.US);
         byte[] salt = new byte[SALT_BYTES];
-        new SecureRandom().nextBytes(salt);
-        byte[] dk = derive(dalam, salt, ITERATIONS);
-        return PREFIX_BUNGKUS + ITERATIONS + "$" + hex(salt) + "$" + hex(dk);
+        Acak.ISI.nextBytes(salt);
+        int iter = iterasiStandar();
+        byte[] dk = derive(dalam, salt, iter);
+        return PREFIX_BUNGKUS + iter + "$" + hex(salt) + "$" + hex(dk);
     }
 
     /** True bila tersimpan dalam format bungkus-dini. Murni. */
@@ -112,9 +126,10 @@ public final class PinCrypto {
 
     /** True bila hash wajib di-upgrade sesudah verifikasi sukses: hash lama,
      *  bungkusan dini (normalisasi ke format standar), maupun PBKDF2 yang
-     *  iterasinya bukan standar kini (prefs utak-atik 10k maupun hash lama
-     *  120k yang berat di STB). Tanpa ini hash lemah 10k lolos selamanya
-     *  dan hash 120k lama tetap lambat tiap buka PIN.
+     *  iterasinya bukan standar perangkat ini (prefs utak-atik 10k, hash lama
+     *  120k yang berat di STB, atau hash HP 30k yang dibawa ke STB lama dan
+     *  sebaliknya). Tanpa ini hash lemah lolos selamanya dan buka PIN di STB
+     *  tetap lambat tiap kali.
      *  Murni agar bisa unit test. */
     public static boolean perluUpgradeHash(String stored) {
         if (stored == null || stored.isEmpty()) {
@@ -132,14 +147,15 @@ public final class PinCrypto {
                 return true;
             }
             int iter = Integer.parseInt(parts[1]);
-            // Minta upgrade bila salt/hash tak standar atau iterasi bukan standar kini.
+            // Minta upgrade bila salt/hash tak standar atau iterasi bukan standar
+            // perangkat ini (lihat iterasiStandar).
             // Hash sah: salt 16 byte (32 hex) & hash 32 byte (64 hex).
             byte[] salt = unhex(parts[2]);
             byte[] want = unhex(parts[3]);
             if (salt == null || want == null || salt.length != 16 || want.length != 32) {
                 return true;
             }
-            return iter != ITERATIONS;
+            return iter != iterasiStandar();
         } catch (Exception e) {
             return true;
         }
@@ -282,22 +298,55 @@ public final class PinCrypto {
         return sekarangElapsed + KUNCI_MS;
     }
 
+    /** True bila factory PBKDF2-SHA256 ada (sekali cek, hasilnya diingat). */
+    static boolean pabrikTersedia() {
+        Boolean c = pabrikAda;
+        if (c != null) {
+            return c.booleanValue();
+        }
+        boolean ada;
+        try {
+            SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            ada = true;
+        } catch (Exception e) {
+            ada = false;
+        }
+        pabrikAda = ada ? Boolean.TRUE : Boolean.FALSE;
+        return ada;
+    }
+
+    /** Iterasi hash standar perangkat ini: penuh di HP modern, diringankan di
+     *  STB lama yang memakai jalur manual lambat. Murni (varian boolean) agar
+     *  bisa unit test di JVM yang factory-nya selalu ada. */
+    static int iterasiStandar(boolean pabrik) {
+        return pabrik ? ITERATIONS : ITERASI_LEGASI;
+    }
+
+    /** Varian produksi: standar mengikuti hasil deteksi factory. */
+    static int iterasiStandar() {
+        return iterasiStandar(pabrikTersedia());
+    }
+
     private static byte[] derive(String pin, byte[] salt, int iter) {
         // Salinan char dinolkan di finally: String PIN tak bisa dihapus, tapi
         // salinan kerja ini jangan mengendap di heap sampai GC.
         char[] chars = pin == null ? new char[0] : pin.toCharArray();
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, HASH_BITS);
         try {
-            try {
-                SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-                return f.generateSecret(spec).getEncoded();
-            } catch (Exception e) {
-                // STB Android lama (API 21-25) tak punya factory
-                // PBKDF2WithHmacSHA256 sehingga centang PIN selalu gagal di
-                // sana ("PIN gagal diproses") sementara di HP bisa: hitung
-                // manual via Mac HmacSHA256 yang ada di semua API.
-                return pbkdf2Manual(pin, salt, iter);
+            if (pabrikTersedia()) {
+                try {
+                    SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+                    return f.generateSecret(spec).getEncoded();
+                } catch (Exception e) {
+                    // Factory sempat ada lalu gagal: ingat agar tak dicoba lagi.
+                    pabrikAda = Boolean.FALSE;
+                }
             }
+            // STB Android lama (API 21-25) tak punya factory PBKDF2WithHmacSHA256
+            // sehingga centang PIN selalu gagal di sana ("PIN gagal diproses")
+            // sementara di HP bisa: hitung manual via Mac HmacSHA256 yang ada
+            // di semua API.
+            return pbkdf2Manual(pin, salt, iter);
         } finally {
             spec.clearPassword();
             java.util.Arrays.fill(chars, '\0');

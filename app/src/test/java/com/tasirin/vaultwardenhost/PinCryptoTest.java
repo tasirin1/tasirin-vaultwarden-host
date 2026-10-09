@@ -38,6 +38,33 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void standarLegasiDibawahModernDiatasBatas() {
+        // STB lama (tanpa factory) memakai iterasi ringan agar buka PIN tetap
+        // ~1 detik, tapi tak boleh di bawah batas verifikasi.
+        int legasi = PinCrypto.iterasiStandar(false);
+        int modern = PinCrypto.iterasiStandar(true);
+        org.junit.Assert.assertTrue(legasi >= 10000);
+        org.junit.Assert.assertTrue(legasi < modern);
+        org.junit.Assert.assertTrue(modern <= 120000);
+    }
+
+    @Test
+    public void hashLegasiLolosVerifikasiAntarPerangkat() {
+        // Hash beriterasi legasi (dibuat STB lama) wajib lolos verify di HP dan
+        // sebaliknya: format + derive identik, hanya iterasi yang beda.
+        byte[] salt = new byte[16];
+        for (int i = 0; i < salt.length; i++) {
+            salt[i] = (byte) (i * 3 + 1);
+        }
+        int iter = PinCrypto.iterasiStandar(false);
+        byte[] dk = PinCrypto.pbkdf2Manual("1234", salt, iter);
+        String simpan = "PBKDF2$" + iter + "$"
+                + PinCrypto.hex(salt) + "$" + PinCrypto.hex(dk);
+        assertTrue(PinCrypto.verify(simpan, "1234"));
+        assertFalse(PinCrypto.verify(simpan, "4321"));
+    }
+
+    @Test
     public void saltAcakTiapHash() {
         assertFalse(PinCrypto.hash("1234").equals(PinCrypto.hash("1234")));
     }
