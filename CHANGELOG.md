@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: enctmp tak dibagikan, probe prefs, kunci clip sembuh-sendiri
+- `FileShareProvider.berkasSementara`: `app-config-enctmp-*.json` (plaintext sementara export terenkripsi) tak lagi lolos sebagai shareable via pola `app-config-*`.
+- `TgBackup.restoreFromZip`: probe `app-config.json` memakai `normalisasiEntriZip` seperti loop ekstraksi + restore UI — zip ber-folder pembungkus tetap menerapkan prefs.
+- `TgBackup.KUNCI_STRING/KUNCI_LONG`: tambah `clip_hash`/`clip_kedaluwarsa` agar tipe korup sembuh-sendiri via `healkanStringPrefs`, bukan melempar tiap dibaca `LogActivity`.
+
 ## [Belum rilis] — Perbaikan audit: restart guard, TOCTOU binary manual, tmp restore Telegram
 - `ServerService`: restart terjadwal tak lagi menyalakan server yang sudah di-Stop; alias tombol dihapus; komentar cap trust diluruskan.
 - `ServerService.ensureBinary`: tutup TOCTOU binary manual — hash SHA-256 dihitung dari salinan internal sesudah disalin, bukan dari file di folder data yang bisa ditukar di tengah jalan.

@@ -2266,7 +2266,9 @@ public final class TgBackup {
         try (ZipInputStream probe = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry e;
             while ((e = probe.getNextEntry()) != null) {
-                if ("app-config.json".equals(e.getName())) {
+                // Samakan dengan loop ekstraksi + restore UI: kupas satu folder
+                // pembungkus agar zip asing tetap menerapkan prefs-nya.
+                if ("app-config.json".equals(normalisasiEntriZip(e.getName()))) {
                     cfg = new JSONObject(new String(readAllBytes(probe),
                             StandardCharsets.UTF_8));
                     break;
@@ -2494,7 +2496,7 @@ public final class TgBackup {
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", Updater.KEY_TRUST_TGL,
-                    PinGate.KEY_PIN_HASH));
+                    PinGate.KEY_PIN_HASH, "clip_hash"));
 
     /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
     static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
@@ -2515,7 +2517,7 @@ public final class TgBackup {
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
             java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,
                     KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
-                    "wv_fallback_at"));
+                    "wv_fallback_at", "clip_kedaluwarsa"));
 
     /** True bila teks adalah SHA-256 hex valid (64 digit heksa). Murni. */
     static boolean shaHexValid(String s) {

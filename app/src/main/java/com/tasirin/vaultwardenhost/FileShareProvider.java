@@ -376,8 +376,11 @@ public class FileShareProvider extends ContentProvider {
             return false;
         }
         String rendah = nama.toLowerCase(java.util.Locale.US);
+        // app-config-enctmp-*.json = plaintext sementara cabang export terenkripsi
+        // yang tak pernah boleh dibagikan (lolos pola app-config-* di bawah).
         return rendah.startsWith("vwtg-restore") || rendah.startsWith("vwtg-")
-                || rendah.startsWith("verifikasi-tmp");
+                || rendah.startsWith("verifikasi-tmp")
+                || rendah.startsWith("app-config-enctmp-");
     }
 
     /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
