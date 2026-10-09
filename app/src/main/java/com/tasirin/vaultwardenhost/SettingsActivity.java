@@ -134,16 +134,18 @@ public class SettingsActivity extends Activity {
             }
             return sb.toString();
         } catch (Exception e) {
-            // Fallback unik per berkas + waktu: return "" membuat semua berkas
-            // gagal-baca berbagi satu counter sehingga satu file rusak bisa
-            // memblokir impor file lain. Hash path mengelompokkan per berkas,
-            // nanoTime mencegah berbagi antar impor.
+            // Berkas null/tak-ada: tetap "" (kontrak unit test; berkas seperti
+            // itu takkan sampai ke alur impor). Berkas ADA tapi gagal dibaca
+            // (izin/IO): fallback unik agar counter tak berbagi antar berkas
+            // berbeda sehingga satu file rusak tak memblokir impor file lain.
             try {
-                String basis = String.valueOf(f == null ? "null" : f.getAbsolutePath());
-                return "baca-gagal-" + basis.hashCode() + "-" + System.nanoTime();
+                if (f != null && f.isFile()) {
+                    return "baca-gagal-" + f.getAbsolutePath().hashCode()
+                            + "-" + System.nanoTime();
+                }
             } catch (Exception ignored) {
-                return "baca-gagal-" + System.nanoTime();
             }
+            return "";
         }
     }
 
