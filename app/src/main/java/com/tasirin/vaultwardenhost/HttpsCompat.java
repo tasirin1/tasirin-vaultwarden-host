@@ -49,8 +49,9 @@ public final class HttpsCompat {
         }
     }
 
-    /** Kunci stat murah (mtime+ukuran): cap penuh dihitung ulang hanya bila stat
-     *  berubah, agar tiap koneksi HTTPS (polling bot) tak membaca seluruh file. */
+    /** Kunci stat+isi (mtime+ukuran+hash isi): cap penuh selalu hash seluruh
+     *  isi file (rantai hanya hitungan KB) agar ganti isi se-detik berukuran
+     *  sama tak lolos sebagai cache basi. */
     private static volatile long capStat = Long.MIN_VALUE;
     private static volatile long capNilai = 0L;
 

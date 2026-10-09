@@ -269,10 +269,10 @@ public class TgBotTest {
     }
 
     @Test
-    public void perintahBerbahayaTombol_caresetButuhPin() {
-        assertTrue(TgBot.perintahBerbahayaTombol("/careset"));
-        assertFalse(TgBot.perintahBerbahayaTombol("/ca"));
-        assertFalse(TgBot.perintahBerbahayaTombol("/cabackup"));
+    public void perintahBerbahaya_caresetButuhPin() {
+        assertTrue(TgBot.perintahBerbahaya("/careset"));
+        assertFalse(TgBot.perintahBerbahaya("/ca"));
+        assertFalse(TgBot.perintahBerbahaya("/cabackup"));
     }
 
     @Test
@@ -280,11 +280,11 @@ public class TgBotTest {
         assertTrue(TgBot.perintahBerbahaya("/stop"));
         assertTrue(TgBot.perintahBerbahaya("/stop 123456"));
         assertTrue(TgBot.perintahBerbahaya("/restore YA 123456"));
-        assertTrue(TgBot.perintahBerbahayaTombol("/stop"));
+        assertTrue(TgBot.perintahBerbahaya("/stop"));
         // Perintah baca cukup auth chat agar tombol inline jalan saat PIN aktif.
         assertFalse(TgBot.perintahBerbahaya("/status"));
         assertFalse(TgBot.perintahBerbahaya("/status 123456"));
-        assertFalse(TgBot.perintahBerbahayaTombol("/status"));
+        assertFalse(TgBot.perintahBerbahaya("/status"));
         assertFalse(TgBot.perintahBerbahaya("/log"));
         assertFalse(TgBot.perintahBerbahaya("/crashlog"));
         assertFalse(TgBot.perintahBerbahaya("/uptime"));

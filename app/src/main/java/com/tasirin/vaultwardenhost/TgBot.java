@@ -790,13 +790,6 @@ public final class TgBot {
                 || cmd.equals("careset");
     }
 
-    /** True bila perintah tombol wajib PIN tapi tak bisa dibawa tombol.
-     *  Perintah berbahaya butuh PIN di akhir argumen; tombol hanya kirim
-     *  "/perintah" tanpa PIN sehingga selalu ditolak bila PIN aktif. */
-    static boolean perintahBerbahayaTombol(String data) {
-        return perintahBerbahaya(data);
-    }
-
     /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
      *  (anti intip PIN): semua perintah berbahaya + /status + /log +
      *  /crashlog. Ketiganya sengaja tak masuk perintahBerbahaya (tombol
@@ -813,7 +806,7 @@ public final class TgBot {
 
     /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
     static boolean perluPinTombol(android.content.Context ctx, String data) {
-        if (!perintahBerbahayaTombol(data)) {
+        if (!perintahBerbahaya(data)) {
             return false;
         }
         return pinPerangkatAktif(ctx);
@@ -1031,6 +1024,12 @@ public final class TgBot {
                     break;
                 }
                 berbahayaTerotorisasi = true;
+                // Cek lokal dulu agar pesan jujur: restart() hanya lapor
+                // startService terkirim, bukan server sedang berjalan.
+                if (!ServerService.running && !ServerService.isProcessAlive()) {
+                    TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                    break;
+                }
                 try {
                     if (ServerService.restart(ctx)) {
                         TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");

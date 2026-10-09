@@ -834,6 +834,13 @@ public class ServerService extends Service {
             startForegroundCompat();
             new Thread(() -> {
                 appendLog("[app] Restart diminta via Telegram.");
+                // Jangan menyalakan server yang sedang Stop: restart hanya sah
+                // saat server berjalan. Tanpa guard ini /restart menyalakan
+                // server yang sengaja di-Stop user (lihat TgBot "/restart").
+                if (!running && !alive(process)) {
+                    appendLog("[app] Restart dilewati: server tidak berjalan.");
+                    return;
+                }
                 if (process != null) {
                     final Process p = process;
                     tandaiStopDisengaja(p);
