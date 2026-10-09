@@ -589,6 +589,13 @@ public class SettingsActivity extends Activity {
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                             .edit().remove(PinGate.KEY_PIN_HASH).putBoolean(PinGate.KEY_PIN_ON, false).apply();
+                    // Sinkronkan centang: tanpa ini box tetap tercentang padahal
+                    // PIN sudah mati (menyesatkan sampai Settings dibuka ulang).
+                    if (pinEnabledCheck.isChecked()) {
+                        pinCentangProgram = true;
+                        pinEnabledCheck.setChecked(false);
+                        pinCentangProgram = false;
+                    }
                     return;
                 }
                 final String pin = s.toString();

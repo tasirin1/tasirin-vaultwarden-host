@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif: centang PIN sinkron saat PIN dihapus ketikan
+- `SettingsActivity` (watcher `pinInput`): ketikan <4 char menghapus hash + mematikan PIN tapi centang tetap menyala (menyesatkan sampai buka ulang) — kini centang ikut dimatikan programatis via guard `pinCentangProgram`.
+- Audit seluruh area (21 file): receiver anti-spoof, PBKDF2 + lockout ganda, buffer log terkunci, zip-slip + allowlist + batas unzip, AES-GCM salt/IV acak, parser versi/IP/IPv6/TLS, referensi `R.*` + manifest — semua lolos, tak ada bug lain yang perlu perbaikan.
+
 ## [Belum rilis] — Settings persis TDM: bar atas, chip pil, ikon header
 - `activity_settings`: bilah atas ramping diganti bar ala Toolbar TDM (primary solid setinggi action bar, panah kembali putih + judul putih); `settingsBack` jadi `ImageButton` 48dp.
 - Lima chip navigasi (`navServer`..`navLog`) ke gaya pil TDM: `bg_chip` + `TasirinChip` 40dp teks 13sp tebal; warna `chip_bg`/`chip_pressed` adaptif siang-malam.
