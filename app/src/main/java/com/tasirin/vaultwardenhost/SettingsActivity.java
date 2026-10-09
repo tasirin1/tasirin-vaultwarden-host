@@ -18,6 +18,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -429,7 +430,7 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[tg] " + ramah + " (" + e + ")");
             }
         }));
-        Button settingsBackBtn = findViewById(R.id.settingsBack);
+        ImageButton settingsBackBtn = findViewById(R.id.settingsBack);
         if (settingsBackBtn != null) {
             settingsBackBtn.setOnClickListener(v -> finish());
         }

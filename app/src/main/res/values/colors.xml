@@ -16,6 +16,8 @@
     <color name="card_bg">#FFFFFF</color>
     <color name="card_stroke">#E5E9F0</color>
     <!-- Alias nama TDM untuk komponen bersama (dialog About, dsb). -->
+    <color name="chip_bg">#F4F6FA</color>
+    <color name="chip_pressed">#E3F0FB</color>
     <color name="line">#E5E9F0</color>
     <color name="info_bg">#EDF1F5</color>
     <color name="hero_start">#1565C0</color>

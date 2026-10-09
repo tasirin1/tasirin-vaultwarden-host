@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Settings persis TDM: bar atas, chip pil, ikon header
+- `activity_settings`: bilah atas ramping diganti bar ala Toolbar TDM (primary solid setinggi action bar, panah kembali putih + judul putih); `settingsBack` jadi `ImageButton` 48dp.
+- Lima chip navigasi (`navServer`..`navLog`) ke gaya pil TDM: `bg_chip` + `TasirinChip` 40dp teks 13sp tebal; warna `chip_bg`/`chip_pressed` adaptif siang-malam.
+- Lima header seksi: tinggi 48dp jadi 40dp + ikon 18dp tint aksen seksi (server/kunci/perkakas/kirim/daftar) ala header TDM. Chevron teks + lipat-buka tak berubah.
+
 ## [Belum rilis] — Top bar + titik-tiga persis TDM, tombol seragam 48dp
 - `activity_main` (portrait + land): hero gradien diganti bar judul ala Toolbar TDM — primary solid setinggi action bar, tetap di atas, judul 20sp + subversi `vX · build N` putih, tanpa ikon app. Rantai D-pad dan ID kedua orientasi tetap sama persis.
 - Titik-tiga diganti `ImageButton` 48dp berikon vektor `ic_more` putih (jalur TDM) + `PopupMenu` di bawahnya; status hijau hero saat berjalan dihapus (indikator jalan tetap di banner status).
