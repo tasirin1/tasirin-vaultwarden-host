@@ -56,6 +56,14 @@ static void init_syscall_nyata(void) {
     *(void **) (&nyata_syscall) = dlsym(RTLD_NEXT, "syscall");
 }
 
+// Selesaikan penerusan sedini mungkin (load library): hook syscall() tak lagi
+// memanggil pthread_once/dlsym saat ada panggilan syscall berjalan sehingga
+// jendela deadlock reentransi (dlsym -> malloc -> syscall -> hook) tertutup.
+// Bila constructor gagal (tak mungkin di bionic), hook jatuh ke pthread_once.
+__attribute__((constructor)) static void init_syscall_dini(void) {
+    init_syscall_nyata();
+}
+
 // Isi buf dari /dev/urandom; 0 bila len 0, -1 + errno bila gagal.
 static ssize_t isi_urandom(void *buf, size_t len) {
     if (len == 0) {
@@ -136,31 +144,36 @@ ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
 // Mencegat syscall(SYS_getrandom, buf, len, flags) mentah dari getrandom 0.2
 // (jalur ring/rustls ticketer TLS). Nomor lain diteruskan ke syscall asli
 // via dlsym(RTLD_NEXT). Argumen dibaca sebagai long (seukuran pointer di
-// LP32/LP64); register ekstra yang terbaca untuk panggilan argumen
-// sedikit diabaikan kernel/penerusan, jadi aman diteruskan apa adanya.
+// LP32/LP64). Hanya argumen yang dipakai yang dibaca: jalur getrandom cukup
+// a/b, sisanya hanya dibaca di jalur penerusan yang memang butuh semuanya.
 long syscall(long n, ...) {
-    // Baca register/stack argumen apa adanya seperti implementasi libc:
-    // kernel dan syscall asli mengabaikan kelebihan argumen, jadi nomor
-    // lain aman diteruskan walau pemanggil mengirim <6 argumen.
+    // Baca a/b dulu: getrandom hanya butuh buf+len sehingga pemanggil
+    // ber-argumen sedikit tak tersentuh baca-lebih di jalur panas ini.
     va_list ap;
     va_start(ap, n);
     long a = va_arg(ap, long);
     long b = va_arg(ap, long);
-    long c = va_arg(ap, long);
-    long d = va_arg(ap, long);
-    long e = va_arg(ap, long);
-    long f = va_arg(ap, long);
-    va_end(ap);
     if (n == (long) SYS_getrandom
 #ifdef __NR_getrandom
         || n == (long) __NR_getrandom
 #endif
     ) {
+        va_end(ap);
         return (long) isi_urandom((void *) a, (size_t) b);
     }
-    // Sekali saja (thread-safe): double-checked locking mentah diganti
-    // pthread_once agar tak ada race publikasi pointer antar thread.
-    pthread_once(&sekali_syscall, init_syscall_nyata);
+    // Jalur penerusan (praktis tak dipakai binary ini: Rust memakai SVC
+    // langsung, bukan simbol syscall): baca sisanya lalu teruskan.
+    // Kernel dan syscall asli mengabaikan kelebihan argumen.
+    long c = va_arg(ap, long);
+    long d = va_arg(ap, long);
+    long e = va_arg(ap, long);
+    long f = va_arg(ap, long);
+    va_end(ap);
+    // Umumnya sudah diisi constructor; pthread_once hanya cadangan bila
+    // constructor gagal, agar hook tak pernah memblokir tanpa penerusan.
+    if (!nyata_syscall) {
+        pthread_once(&sekali_syscall, init_syscall_nyata);
+    }
     if (!nyata_syscall) {
         errno = ENOSYS; // Penerusan tak ditemukan, anggap fungsi tak tersedia.
         return -1;

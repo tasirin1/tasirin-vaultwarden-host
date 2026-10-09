@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: baca prefs tahan-korup, hook shim, changelog
+- `ServerService.ensureBinary`: `KEY_BIN_DL_GAGAL_AT` dibaca via `amanLong` (selaras `AutoUpdate`) — prefs korup bertipe String tak lagi jatuh ke 0 lalu mengunduh ulang tiap Start (bakar kuota) tanpa sembuh sendiri.
+- `shim/getrandom_shim.c`: hook `syscall()` hanya membaca argumen yang dipakai (jalur getrandom cukup buf+len) + penerusan diselesaikan di constructor — jendela deadlock reentransi `pthread_once`/`dlsym` di dalam interceptor tertutup.
+- `CHANGELOG.md`: entri audit sebelumnya yang tertinggal dilengkapi.
+
+## [Belum rilis] — Perbaikan audit agresif: symlink fail-closed, korban dekrip, tmp unik, cap trust, overflow desimal
+- `Updater.tautanSimbol`: fail-closed (path tak bisa dikanoniskan dianggap tautan) — `deleteRecursive` tak lagi merekursi ke target luar folder.
+- `TgBackup.encryptFile`/`decryptFile`: gagal tak lagi menghapus file baik milik sebelumnya; tmp dekrip unik per panggilan (dekrip paralel tak berebut); `sapuDecTmpBasi` cek `isFile` + hapus tunggal.
+- `HttpsCompat.capOverride`: cap selalu hash isi (bukan stat mtime+ukuran saja) — ganti isi se-msinar+seukuran tak lolos sebagai cache basi.
+- `TgBackup.satuDesimal`: bagi-dulu anti-overflow + carry desimal 10; uji regresi baru (korban dekrip/enkrip, carry, nilai raksasa).
+
 ## [Belum rilis] — Perbaikan audit: health statis, wakelock ganda, rahasia alarm awet
 - `ServerService`: `healthFails`, `configSajaBeruntun`, `healthTcpLolos`, `healthBerjalan` dijadikan statis — hitungan health tak lagi di-reset recreate sistem sehingga restart tertunda berkurang.
 - `ServerService`: `wakeLock` dijadikan statis + akuisisi/pelepasan dikunci `ServerService.class` — recreate transien tak lagi memegang dua kunci 12 jam (bocor baterai).

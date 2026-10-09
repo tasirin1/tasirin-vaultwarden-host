@@ -2610,11 +2610,11 @@ public class ServerService extends Service {
         // bila cache valid masih ada (hemat kuota + Start cepat); dicoba lagi
         // setelah jeda. Instalasi pertama (tanpa cache) selalu mencoba.
         if (butuhRefresh && isValidBinary(out)) {
-            long gagalAt = 0;
-            try {
-                gagalAt = sp.getLong(KEY_BIN_DL_GAGAL_AT, 0);
-            } catch (Exception ignored) {
-            }
+            // Baca tahan-korup seperti pembaca kunci yang sama di AutoUpdate:
+            // getLong mentah melempar ClassCastException tiap Start bila prefs
+            // dikorup bertipe String lalu jatuh ke 0 (coba unduh tiap Start,
+            // bakar kuota, tak sembuh sendiri).
+            long gagalAt = TgBackup.amanLong(sp, KEY_BIN_DL_GAGAL_AT, 0);
             if (!bolehCobaUnduhLagi(gagalAt, SystemClock.elapsedRealtime())) {
                 try {
                     if (detectBinaryVersion(out)
