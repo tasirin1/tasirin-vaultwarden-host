@@ -140,7 +140,8 @@ public final class PinCrypto {
         if (stored == null || stored.length() > 512) {
             return false;
         }
-        if (stored == null || stored.isEmpty() || pin == null || pin.isEmpty()) {
+        // Guard pertama di atas sudah menolak null, jadi cek null tak diulang di sini.
+        if (stored.isEmpty() || pin == null || pin.isEmpty()) {
             return false;
         }
         try {
