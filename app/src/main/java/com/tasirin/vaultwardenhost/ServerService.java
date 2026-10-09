@@ -2528,20 +2528,24 @@ public class ServerService extends Service {
         if (dataKanonisOk && isValidBinary(userBin)) {
             String wantSha = TgBackup.amanString(sp, KEY_BIN_SHA, "");
             if (wantSha != null && !wantSha.trim().isEmpty()) {
-                String gotSha = Updater.sha256Hex(userBin);
-                if (gotSha == null || !gotSha.equalsIgnoreCase(wantSha.trim())) {
-                    appendLog("[app] Binary manual DITOLAK: SHA-256 tidak cocok"
-                            + " dengan pengaturan. Cek kembali file/SHA-nya.");
-                    setStatus("Binary manual ditolak: SHA-256 tidak cocok.");
-                    TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
-                } else {
+                // Salin dulu ke internal privat, baru hash + uji salinannya:
+                // file di /sdcard bisa ditukar app lain di jeda hash-vs-salin
+                // (TOCTOU) sehingga byte yang dieksekusi tak terverifikasi.
+                // Salinan internal (privat milik app) tak bisa ditukar pihak luar.
+                File tmpManual = new File(binDir, "vaultwarden-" + ABI + ".manual-tmp");
+                try {
+                    copyBinary(userBin, tmpManual);
+                    String gotSha = Updater.sha256Hex(tmpManual);
+                    if (gotSha == null || !gotSha.equalsIgnoreCase(wantSha.trim())) {
+                        appendLog("[app] Binary manual DITOLAK: SHA-256 tidak cocok"
+                                + " dengan pengaturan. Cek kembali file/SHA-nya.");
+                        setStatus("Binary manual ditolak: SHA-256 tidak cocok.");
+                        TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
+                    } else {
                     // Uji di file sementara dulu: binary manual korup tak boleh
                     // menghancurkan cache yang sedang jalan (STB offline tak bisa
                     // unduh ulang). Penimpaan hanya bila smoke test lolos.
-                    File tmpManual = new File(binDir, "vaultwarden-" + ABI + ".manual-tmp");
-                    try {
-                        copyBinary(userBin, tmpManual);
-                        if (!detectBinaryVersion(tmpManual)) {
+                    if (!detectBinaryVersion(tmpManual)) {
                             appendLog("[app] Binary manual GAGAL smoke test --version"
                                     + " (arsitektur salah/rusak?) - diabaikan,"
                                     + " cache lama dipertahankan.");
@@ -2570,6 +2574,7 @@ public class ServerService extends Service {
                                 appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
                                 return out;
                             }
+                            }
                         }
                     } catch (Exception e) {
                         appendLog("[app] Gagal memakai binary dari folder data: " + e);
@@ -2579,7 +2584,6 @@ public class ServerService extends Service {
                         } catch (Exception ignored) {
                         }
                     }
-                }
             } else {
                 appendLog("[app] Binary manual DITOLAK: SHA-256 belum diisi"
                         + " di pengaturan. Isi SHA-256 dulu demi keamanan.");
