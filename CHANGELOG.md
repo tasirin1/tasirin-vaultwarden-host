@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup terenkripsi jalan di STB lama (fallback KDF manual)
+- `TgBackup.deriveKey`: tanpa factory PBKDF2-SHA256 di Android lama, backup/restore terenkripsi (KDF 100rb iterasi) melempar seperti PIN dulu — kini jatuh ke `PinCrypto.pbkdf2Manual` dengan iterasi tetap 100rb agar format file tak berubah; jalur SHA1 lama tak disentuh.
+- Test `pbkdf2ManualIterasiBesarSamadenganFactory` mengunci kesetaraan manual vs factory pada 100rb iterasi.
+
 ## [Belum rilis] — Audit STB lama: hex manual + regex statis di path panas
 - `ServerService.sidikTokenAdmin`: `String.format("%02x")` per byte (32x tiap refresh UI 500 ms di UI thread) diganti `Updater.toHex` manual — pola yang sudah dipakai `Updater` sendiri.
 - `TgBot.sidikMenu`: pola `String.format` per byte yang sama diganti `Updater.toHex`.

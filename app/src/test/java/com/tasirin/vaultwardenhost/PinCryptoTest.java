@@ -65,6 +65,23 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void pbkdf2ManualIterasiBesarSamadenganFactory() throws Exception {
+        // KDF backup memakai 100rb iterasi: fallback manual STB lama wajib
+        // identik dengan factory agar backup HP terbaca di STB dan sebaliknya.
+        byte[] salt = new byte[16];
+        for (int i = 0; i < salt.length; i++) {
+            salt[i] = (byte) (i * 11 + 5);
+        }
+        byte[] manual = PinCrypto.pbkdf2Manual("katasandi", salt, 100000);
+        javax.crypto.spec.PBEKeySpec spec = new javax.crypto.spec.PBEKeySpec(
+                "katasandi".toCharArray(), salt, 100000, 256);
+        byte[] pabrik = javax.crypto.SecretKeyFactory
+                .getInstance("PBKDF2WithHmacSHA256")
+                .generateSecret(spec).getEncoded();
+        org.junit.Assert.assertArrayEquals(pabrik, manual);
+    }
+
+    @Test
     public void saltAcakTiapHash() {
         assertFalse(PinCrypto.hash("1234").equals(PinCrypto.hash("1234")));
     }

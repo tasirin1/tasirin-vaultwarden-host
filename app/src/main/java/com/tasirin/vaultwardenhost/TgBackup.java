@@ -2198,9 +2198,20 @@ public final class TgBackup {
         char[] chars = pass == null ? new char[0] : pass.toCharArray();
         PBEKeySpec spec = new PBEKeySpec(chars, salt, 100000, 256);
         try {
-            SecretKeyFactory f = SecretKeyFactory.getInstance(
-                    sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
-            return f.generateSecret(spec).getEncoded();
+            try {
+                SecretKeyFactory f = SecretKeyFactory.getInstance(
+                        sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
+                return f.generateSecret(spec).getEncoded();
+            } catch (Exception e) {
+                // STB Android lama tanpa factory SHA256 (kasus yang sama dengan
+                // PIN app): tanpa ini backup terenkripsi gagal total di STB.
+                // Iterasi tetap 100rb agar format file tak berubah; jalur SHA1
+                // lama tak perlu fallback (ada di semua API).
+                if (!sha256) {
+                    throw e;
+                }
+                return PinCrypto.pbkdf2Manual(pass, salt, 100000);
+            }
         } finally {
             spec.clearPassword();
             java.util.Arrays.fill(chars, '\0');
