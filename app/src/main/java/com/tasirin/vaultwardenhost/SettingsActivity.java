@@ -3350,6 +3350,14 @@ public class SettingsActivity extends Activity {
             } catch (Throwable t) {
                 // Tanpa ini exception tak terduga membunuh thread diam-diam:
                 // UI kembali idle tanpa pesan. Catat + beri tahu user.
+                // Kembalikan status interrupt agar kode hilir yang memeriksanya
+                // tak buta (thread ini tak memakai cancel, tapi higienis).
+                if (t instanceof InterruptedException) {
+                    try {
+                        Thread.currentThread().interrupt();
+                    } catch (Exception ignored) {
+                    }
+                }
                 try {
                     appendUiLog("[app] Tugas gagal: " + t);
                 } catch (Exception ignored) {
