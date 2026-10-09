@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Tombol log tak freeze UI di STB (redaksi + tulis di worker)
+- `LogActivity.shareLog/copyLog`: 14 regex penyamaran di atas buffer 300 KB pindah ke worker; UI hanya menerima hasil (dengan cek activity hidup).
+- `LogActivity.exportLogTxt`: salin buffer + tulis Download/MediaStore pindah ke worker; toast penanda disiapkan/disimpan.
+
 ## [Belum rilis] — Format backup VWB3: iterasi KDF ikut header, ringan di STB
 - `TgBackup`: file backup terenkripsi baru memakai magic `VWB3` dengan iterasi KDF di header (4 byte big-endian): perangkat modern menulis 100rb (tak berubah), STB lama tanpa factory menulis 30rb — enkripsi/restore di STB ~3x lebih cepat.
 - Dekripsi membaca iterasi dari header (batas 10rb–120rb ikut `PinCrypto`; di luar itu ditolak fail-closed anti-DoS) sehingga file STB terbaca di HP dan sebaliknya; `VWB1` (SHA1) dan `VWB2` tetap terbaca; `VWB2`/`VWB3` tak fallback SHA1.

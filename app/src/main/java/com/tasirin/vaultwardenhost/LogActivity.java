@@ -402,27 +402,35 @@ public class LogActivity extends Activity {
     }
 
     private void shareLog() {
-        String mentah;
+        final String mentah;
         synchronized (ServerService.logBuffer) {
             mentah = ServerService.logBuffer.toString();
         }
         // Penyamaran di luar kunci: belasan regex di atas 300 KB menahan
         // thread server (pumpOutput/health) bila jalan di dalam
-        // synchronized sekaligus berisiko ANR di STB lemah.
-        String log = samarkanLog(mentah);
-        if (log.isEmpty()) {
-            toast("Log is still empty.");
-            return;
-        }
-        Intent send = new Intent(Intent.ACTION_SEND);
-        send.setType("text/plain");
-        send.putExtra(Intent.EXTRA_SUBJECT, "Tasirin Vaultwarden Host - Log");
-        send.putExtra(Intent.EXTRA_TEXT, log);
-        try {
-            startActivity(Intent.createChooser(send, "Share log"));
-        } catch (Exception e) {
-            toast("Failed to share log: " + e.getMessage());
-        }
+        // synchronized; di worker agar tap tak freeze UI di STB lemah.
+        toast("Preparing log…");
+        new Thread(() -> {
+            final String log = samarkanLog(mentah);
+            ui.post(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (log.isEmpty()) {
+                    toast("Log is still empty.");
+                    return;
+                }
+                Intent send = new Intent(Intent.ACTION_SEND);
+                send.setType("text/plain");
+                send.putExtra(Intent.EXTRA_SUBJECT, "Tasirin Vaultwarden Host - Log");
+                send.putExtra(Intent.EXTRA_TEXT, log);
+                try {
+                    startActivity(Intent.createChooser(send, "Share log"));
+                } catch (Exception e) {
+                    toast("Failed to share log: " + e.getMessage());
+                }
+            });
+        }, "vw-log-share").start();
     }
 
     /** Kunci penanda salinan clipboard agar penghapus 30 dtk selamat dari mati proses. */
@@ -688,24 +696,32 @@ public class LogActivity extends Activity {
 
 
     private void copyLog() {
-        String mentah;
+        final String mentah;
         synchronized (ServerService.logBuffer) {
             mentah = ServerService.logBuffer.toString();
         }
         // Penyamaran di luar kunci (lihat shareLog): regex berat tak boleh
-        // menahan lock log global di UI thread.
-        String log = samarkanLog(mentah);
-        if (log.isEmpty()) {
-            toast("Log is still empty.");
-            return;
-        }
-        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        if (cm == null) {
-            toast("Clipboard unavailable.");
-            return;
-        }
-        salinClipboardBersihOtomatis("vaultwarden-log", log);
-        toast("Log copied to clipboard.");
+        // menahan lock log global, dan tak boleh freeze UI di STB lemah.
+        toast("Preparing log…");
+        new Thread(() -> {
+            final String log = samarkanLog(mentah);
+            ui.post(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (log.isEmpty()) {
+                    toast("Log is still empty.");
+                    return;
+                }
+                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                if (cm == null) {
+                    toast("Clipboard unavailable.");
+                    return;
+                }
+                salinClipboardBersihOtomatis("vaultwarden-log", log);
+                toast("Log copied to clipboard.");
+            });
+        }, "vw-log-copy").start();
     }
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
@@ -719,14 +735,24 @@ public class LogActivity extends Activity {
             toast(getString(R.string.izin_storage_belum));
             return;
         }
-        String log;
+        final String log;
         synchronized (ServerService.logBuffer) {
             // Mentah saja: penyamaran token sekali di LogExport agar regex
             // berat tak jalan dua kali per export di STB 1 GB.
             log = ServerService.logBuffer.toString();
         }
-        String nama = LogExport.simpanKeDownload(this, log);
-        toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
+        // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
+        // bikin tap Simpan freeze di storage STB lambat.
+        toast("Saving log…");
+        new Thread(() -> {
+            final String nama = LogExport.simpanKeDownload(LogActivity.this, log);
+            ui.post(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
+            });
+        }, "vw-log-save").start();
     }
 
     @Override
