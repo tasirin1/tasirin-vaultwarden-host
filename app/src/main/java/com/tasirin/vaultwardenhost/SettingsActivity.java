@@ -134,7 +134,16 @@ public class SettingsActivity extends Activity {
             }
             return sb.toString();
         } catch (Exception e) {
-            return "";
+            // Fallback unik per berkas + waktu: return "" membuat semua berkas
+            // gagal-baca berbagi satu counter sehingga satu file rusak bisa
+            // memblokir impor file lain. Hash path mengelompokkan per berkas,
+            // nanoTime mencegah berbagi antar impor.
+            try {
+                String basis = String.valueOf(f == null ? "null" : f.getAbsolutePath());
+                return "baca-gagal-" + basis.hashCode() + "-" + System.nanoTime();
+            } catch (Exception ignored) {
+                return "baca-gagal-" + System.nanoTime();
+            }
         }
     }
 
@@ -3336,6 +3345,17 @@ public class SettingsActivity extends Activity {
         new Thread(() -> {
             try {
                 task.run();
+            } catch (Throwable t) {
+                // Tanpa ini exception tak terduga membunuh thread diam-diam:
+                // UI kembali idle tanpa pesan. Catat + beri tahu user.
+                try {
+                    appendUiLog("[app] Tugas gagal: " + t);
+                } catch (Exception ignored) {
+                }
+                try {
+                    toast("Task failed: " + (t.getMessage() == null ? t.toString() : t.getMessage()));
+                } catch (Exception ignored) {
+                }
             } finally {
                 tugasBerjalan.set(false);
                 setBusy(false);

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan audit: runBusy anti-diam, normalisasi update_version, sidik impor unik
+- `SettingsActivity.runBusy`: tangkap `Throwable` + toast/log — task yang melempar tak terduga tak lagi membunuh thread diam-diam dengan UI kembali idle tanpa pesan.
+- `TgBackup.applyPrefsFromJson`: `update_version` impor dinormalisasi (`normVersion`, sampah = kosong) selaras kuncian versi — penanda versi rusak tak lagi mengendap di prefs.
+- `SettingsActivity.sidikBerkas`: fallback unik per path+waktu bila hash gagal — berkas gagal-baca tak lagi berbagi satu counter `""` sehingga tak saling memblokir impor.
+
 ## [Belum rilis] — Perbaikan audit: cap verifikasi DB, offset bot at-most-once, restart ikut IP baru
 - `TgBackup.verifikasiIsiDbZip`: ekstraksi `db.sqlite3` kini dibatasi `BATAS_UNZIP_RESTORE` — zip backup jahat/korup dengan DB raksasa dibatalkan + tmp dibersihkan, bukan memenuhi disk/OOM STB 1 GB.
 - `TgBot.pollOnce`: offset dikunci (`commit()`) SEBELUM eksekusi perintah sensitif (berbahaya/status/log/crashlog) — crash di tengah handle tak lagi memutar ulang `/restore`/`/backup` saat hidup lagi.

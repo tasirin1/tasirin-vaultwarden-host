@@ -2831,6 +2831,12 @@ public final class TgBackup {
                         // Port rusak ("abc"/"99999") jangan tersimpan mentah:
                         // normalisasi ke default agar Start berikutnya tak gagal.
                         ed.putString(k, ServerService.normalisasiPort(teks));
+                    } else if (ServerService.KEY_UPDATE_VERSION.equals(k)) {
+                        // Penanda versi sampah ("../../x", biner 500 KB) jangan
+                        // mengendap: normalisasi, kosong = selesaikan ulang
+                        // otomatis dari binary cache saat Start berikut.
+                        String normal = Updater.normVersion(teks);
+                        ed.putString(k, normal == null ? "" : normal);
                     } else if (ServerService.KEY_BIN_PILIH.equals(k)
                             || ServerService.KEY_WV_PILIH.equals(k)) {
                         // Kuncian versi sampah ("../../x", "abc") jangan
