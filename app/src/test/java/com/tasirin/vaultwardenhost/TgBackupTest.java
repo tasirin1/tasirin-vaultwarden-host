@@ -198,6 +198,61 @@ public class TgBackupTest {
     }
 
     @Test
+    public void decryptFile_gagalPertahankanFileLama() throws Exception {
+        java.io.File asli = java.io.File.createTempFile("vw-aman", ".bin");
+        java.io.File enc = java.io.File.createTempFile("vw-aman", ".enc");
+        java.io.File korban = new java.io.File(enc.getParentFile(), "vw-korban-" + System.nanoTime() + ".bin");
+        byte[] lama = "file baik jangan dihapus".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(asli)) {
+                o.write("data penting".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            TgBackup.encryptFile(asli, enc, "benar123");
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(korban)) {
+                o.write(lama);
+            }
+            try {
+                TgBackup.decryptFile(enc, korban, "salah456");
+                org.junit.Assert.fail("password salah wajib gagal");
+            } catch (Exception e) {
+            }
+            org.junit.Assert.assertArrayEquals(lama, java.nio.file.Files.readAllBytes(korban.toPath()));
+        } finally {
+            asli.delete();
+            enc.delete();
+            korban.delete();
+        }
+    }
+
+    @Test
+    public void encryptFile_gagalPertahankanFileLama() throws Exception {
+        java.io.File hilang = new java.io.File("/tidak/ada/masuk.bin");
+        java.io.File korban = java.io.File.createTempFile("vw-amanenc", ".enc");
+        byte[] lama = "enc baik jangan dihapus".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(korban)) {
+                o.write(lama);
+            }
+            try {
+                TgBackup.encryptFile(hilang, korban, "rahasia");
+                org.junit.Assert.fail("masukan hilang wajib gagal");
+            } catch (Exception e) {
+            }
+            org.junit.Assert.assertArrayEquals(lama, java.nio.file.Files.readAllBytes(korban.toPath()));
+        } finally {
+            korban.delete();
+        }
+    }
+
+    @Test
+    public void satuDesimal_carryDanRaksasa() {
+        assertEquals("1.0 MB", TgBackup.satuDesimal(1048575, 1048576, "MB"));
+        String raksasa = TgBackup.satuDesimal(Long.MAX_VALUE, 1024, "KB");
+        assertTrue(raksasa.endsWith(" KB"));
+        assertFalse(raksasa.startsWith("-"));
+    }
+
+    @Test
     public void humanBytes_skalaBenar() {
         assertEquals("0 B", TgBackup.humanBytes(0));
         assertEquals("512 B", TgBackup.humanBytes(512));
@@ -442,6 +497,34 @@ public class TgBackupTest {
         assertEquals(null, TgBackup.koersiLong("abc"));
         assertEquals(null, TgBackup.koersiLong(Boolean.TRUE));
         assertEquals(null, TgBackup.koersiLong(null));
+    }
+
+    @Test
+    public void sapuDecTmpBasi_hanyaBasiDanBukanAktif() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vwtg-dectest-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        try {
+            java.io.File basi = new java.io.File(dir, "vwtg-dec-a.zip.tmp");
+            java.io.File segar = new java.io.File(dir, "vwtg-dec-b.zip.tmp");
+            java.io.File lain = new java.io.File(dir, "app-config-x.json");
+            assertTrue(basi.createNewFile());
+            assertTrue(segar.createNewFile());
+            assertTrue(lain.createNewFile());
+            assertTrue(basi.setLastModified(
+                    System.currentTimeMillis() - TgBackup.UMUR_DEC_TMP_MS - 60_000L));
+            TgBackup.sapuDecTmpBasi(dir, segar.getName());
+            assertFalse(basi.exists());
+            assertTrue(segar.exists());
+            assertTrue(lain.exists());
+            TgBackup.sapuDecTmpBasi(dir, null);
+            assertTrue(segar.exists());
+        } finally {
+            for (java.io.File f : dir.listFiles()) {
+                f.delete();
+            }
+            dir.delete();
+        }
     }
 
     @Test

@@ -2519,7 +2519,10 @@ public final class Updater {
         try {
             return !file.getCanonicalPath().equals(file.getAbsolutePath());
         } catch (Exception e) {
-            return false;
+            // Fail-closed: path yang tak bisa dikanoniskan (izin/SELinux/IO)
+            // dianggap tautan agar deleteRecursive hanya menghapus link-nya
+            // dan tak merekursi ke target di luar folder.
+            return true;
         }
     }
 

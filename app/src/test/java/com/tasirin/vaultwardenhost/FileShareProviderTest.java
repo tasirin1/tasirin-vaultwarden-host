@@ -10,6 +10,13 @@ import org.junit.Test;
 public class FileShareProviderTest {
 
     @Test
+    public void berkasSementaraTolakDecTmp() {
+        assertTrue(FileShareProvider.berkasSementara("vwtg-dec-a.zip.tmp"));
+        assertTrue(FileShareProvider.berkasSementara("vwtg-restore-bot.zip"));
+        assertFalse(FileShareProvider.berkasSementara("app-config-20240101.json"));
+    }
+
+    @Test
     public void kunciPrivatDitolak() {
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
         assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));

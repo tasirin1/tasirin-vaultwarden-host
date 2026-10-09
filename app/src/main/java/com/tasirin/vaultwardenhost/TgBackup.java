@@ -1952,12 +1952,17 @@ public final class TgBackup {
     /** Enkripsi + hapus output bila gagal (jangan sisakan .enc parsial di
      *  cache saat mis. disk penuh), simetris dengan decryptFile. */
     public static void encryptFile(File in, File out, String pass) throws Exception {
+        boolean sudahAda = out != null && out.exists();
         try {
             tulisTerenkripsi(in, out, pass);
         } catch (Exception e) {
-            try {
-                out.delete();
-            } catch (Exception ignored) {
+            // Hapus sisa parsial hanya bila file ini dibuat panggilan ini;
+            // file bagus milik sebelumnya tak boleh jadi korban.
+            if (!sudahAda) {
+                try {
+                    out.delete();
+                } catch (Exception ignored) {
+                }
             }
             throw e;
         }
@@ -1990,12 +1995,17 @@ public final class TgBackup {
 
     /** Dekripsi + hapus output bila gagal (jangan sisakan plaintext parsial). */
     public static void decryptFile(File in, File out, String pass) throws Exception {
+        boolean sudahAda = out != null && out.exists();
         try {
             decryptToFile(in, out, pass);
         } catch (Exception e) {
-            try {
-                out.delete();
-            } catch (Exception ignored) {
+            // Seperti encryptFile: kegagalan (mis. password salah) tak boleh
+            // menghapus file baik yang sudah ada sebelumnya.
+            if (!sudahAda) {
+                try {
+                    out.delete();
+                } catch (Exception ignored) {
+                }
             }
             throw e;
         }
@@ -2029,7 +2039,14 @@ public final class TgBackup {
         if (induk == null) {
             throw new java.io.IOException("Path keluaran tidak valid.");
         }
-        File tmp = new File(induk, out.getName() + ".dec-tmp");
+        // Prefix vwtg-dec-: dilarang dibagikan via FileShareProvider
+        // (berkasSementara) dan disapu basi di bawah bila kill menyisakannya.
+        // Nama unik per panggilan (nanoTime + acak): dua dekrip paralel
+        // dengan nama out sama tak boleh berebut satu file sementara.
+        String unik = Long.toHexString(System.nanoTime())
+                + Long.toHexString(SECURE_RANDOM.nextLong());
+        File tmp = new File(induk, PREFIX_DEC_TMP + unik + "-" + out.getName() + ".tmp");
+        sapuDecTmpBasi(induk, tmp.getName());
         try {
             tmp.delete();
         } catch (Exception ignored) {
@@ -2060,6 +2077,51 @@ public final class TgBackup {
         } finally {
             try {
                 tmp.delete();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /** Awalan file sementara dekripsi GCM (plaintext sampai tag lolos). */
+    static final String PREFIX_DEC_TMP = "vwtg-dec-";
+    /** Umur minimum sisa tmp dekripsi yang boleh disapu (dekrip aktif tak ikut). */
+    static final long UMUR_DEC_TMP_MS = 10 * 60 * 1000L;
+
+    /** Sapu sisa plaintext tmp dekripsi yang basi di direktori (best-effort).
+     *  Kill tepat sebelum rename menyisakan vwtg-dec-*.tmp berisi plaintext;
+     *  tanpa ini ia mengendap selamanya di cache. Hanya yang berumur lewat
+     *  ambang yang dihapus agar dekrip bersamaan di direktori sama tak saling
+     *  membuang (file segar = masih dipakai). Murni java.io agar aman JVM. */
+    static void sapuDecTmpBasi(File dir, String kecualikan) {
+        if (dir == null) {
+            return;
+        }
+        File[] isi;
+        try {
+            isi = dir.listFiles();
+        } catch (Exception ignored) {
+            return;
+        }
+        if (isi == null) {
+            return;
+        }
+        long kini = System.currentTimeMillis();
+        for (File f : isi) {
+            try {
+                String n = f.getName();
+                if (!n.startsWith(PREFIX_DEC_TMP) || !n.endsWith(".tmp")) {
+                    continue;
+                }
+                if (n.equals(kecualikan)) {
+                    continue;
+                }
+                long umur = kini - f.lastModified();
+                if (umur < 0) {
+                    umur = 0;
+                }
+                if (umur >= UMUR_DEC_TMP_MS && f.isFile()) {
+                    f.delete();
+                }
             } catch (Exception ignored) {
             }
         }
@@ -3166,8 +3228,18 @@ public final class TgBackup {
     /** Format "x.y UNIT" tanpa String.format (dipanggil tiap refresh).
      *  Murni agar bisa unit test. */
     static String satuDesimal(long bytes, long unit, String suffix) {
-        long sepuluh = (bytes * 10 + unit / 2) / unit;
-        return (sepuluh / 10) + "." + (sepuluh % 10) + " " + suffix;
+        if (unit <= 0) {
+            return bytes + " " + suffix;
+        }
+        // Bagi-dulu agar bytes raksasa tak overflow di bytes*10; carry bila
+        // pembulatan desimal mencapai 10 (mis. 9.95 -> 10.0).
+        long bulat = bytes / unit;
+        long desimal = (bytes % unit * 10 + unit / 2) / unit;
+        if (desimal >= 10) {
+            bulat += 1;
+            desimal = 0;
+        }
+        return bulat + "." + desimal + " " + suffix;
     }
 
     /** True bila backup terakhir beda hari kalender dengan sekarang (murni, bisa unit test).
