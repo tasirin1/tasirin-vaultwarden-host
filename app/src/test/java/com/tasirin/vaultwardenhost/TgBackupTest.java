@@ -115,7 +115,6 @@ public class TgBackupTest {
         assertFalse(keluar.exists());
     }
 
-    @Test
     /** Tulis backup terenkripsi gaya VWB1/VWB2/VWB3 manual (header +
      *  AES-GCM) untuk uji kompatibel mundur dan lintas perangkat. */
     private static void tulisTerenkripsiManual(java.io.File keluar, String magic,
