@@ -225,11 +225,8 @@ public final class TgBot {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
             byte[] h = md.digest((t + "|" + MENU_REV).getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(h.length * 2);
-            for (byte b : h) {
-                sb.append(String.format(Locale.US, "%02x", b));
-            }
-            return sb.toString();
+            // Hex manual (bukan String.format per byte) agar murah di STB lama.
+            return Updater.toHex(h);
         } catch (Exception e) {
             return "";
         }

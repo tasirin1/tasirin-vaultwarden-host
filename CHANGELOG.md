@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit STB lama: hex manual + regex statis di path panas
+- `ServerService.sidikTokenAdmin`: `String.format("%02x")` per byte (32x tiap refresh UI 500 ms di UI thread) diganti `Updater.toHex` manual — pola yang sudah dipakai `Updater` sendiri.
+- `TgBot.sidikMenu`: pola `String.format` per byte yang sama diganti `Updater.toHex`.
+- `SettingsActivity.galatChat`: `String.matches()` (kompilasi regex tiap ketikan) diganti tiga pola statis; perilaku validasi persis sama.
+- Diaudit dan dinyatakan sehat: pola redaksi log statis, refresh UI delta + guard, buffer log 300 KB + ekor tampil, backup/zip streaming 64 KB, receiver hanya start service, backup jalan di service, PBKDF2 adaptif, debounce tulis prefs.
+
 ## [Belum rilis] — PIN ringan di Android lama: iterasi ikut kemampuan perangkat
 - `PinCrypto`: standar iterasi kini dua tingkat — 30rb di perangkat modern, 12rb di STB lama tanpa factory PBKDF2-SHA256 (jalur manual ~2-3x lebih lambat per iterasi) — agar set/buka PIN tetap ~1 detik di CPU lemah. 12rb tetap di atas batas verifikasi 10rb dan hash antar-perangkat saling lolos.
 - `PinCrypto`: hasil deteksi factory diingat (`pabrikAda`) agar `getInstance` yang gagal di STB tak diulang tiap buka PIN; `SecureRandom` dipakai bersama agar hemat seed.

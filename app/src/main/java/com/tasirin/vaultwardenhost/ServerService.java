@@ -145,7 +145,9 @@ public class ServerService extends Service {
     }
 
     /** Sidik SHA-256 hex dari token admin ("" bila kosong/gagal; murni).
-     *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext. */
+     *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext.
+     *  Hex manual via Updater.toHex: String.format per byte 32x per tick UI
+     *  bikin jank di STB lama (dipanggil tiap refresh 500 ms). */
     static String sidikTokenAdmin(String token) {
         if (token == null || token.trim().isEmpty()) {
             return "";
@@ -153,11 +155,7 @@ public class ServerService extends Service {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] h = md.digest(token.trim().getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(h.length * 2);
-            for (byte b : h) {
-                sb.append(String.format(Locale.US, "%02x", b));
-            }
-            return sb.toString();
+            return Updater.toHex(h);
         } catch (Exception e) {
             return "";
         }

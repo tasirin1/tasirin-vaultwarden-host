@@ -3236,17 +3236,26 @@ public class SettingsActivity extends Activity {
     /** Galat Chat ID; null bila valid (kosong = boleh). ID numerik atau
      *  username ("@nama", selaras dengan Util.cocokChat). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
+    /** Pola chat statis: String.matches() mengkompilasi regex tiap ketikan,
+     *  boros di CPU STB lama (galatChat jalan tiap karakter). */
+    private static final java.util.regex.Pattern POLA_CHAT_ANGKA =
+            java.util.regex.Pattern.compile("-?\\d+");
+    private static final java.util.regex.Pattern POLA_CHAT_DIGIT =
+            java.util.regex.Pattern.compile("[0-9]+");
+    private static final java.util.regex.Pattern POLA_CHAT_NAMA =
+            java.util.regex.Pattern.compile("[A-Za-z0-9_]{5,}");
+
     static String galatChat(String chat, String msgSalah) {
         if (chat == null || chat.trim().isEmpty()) {
             return null;
         }
         String isi = chat.trim();
-        if (isi.matches("-?\\d+")) {
+        if (POLA_CHAT_ANGKA.matcher(isi).matches()) {
             return null;
         }
         String nama = isi.startsWith("@") ? isi.substring(1) : isi;
-        if (!nama.isEmpty() && !nama.matches("[0-9]+")
-                && nama.matches("[A-Za-z0-9_]{5,}")) {
+        if (!nama.isEmpty() && !POLA_CHAT_DIGIT.matcher(nama).matches()
+                && POLA_CHAT_NAMA.matcher(nama).matches()) {
             return null;
         }
         return msgSalah;
