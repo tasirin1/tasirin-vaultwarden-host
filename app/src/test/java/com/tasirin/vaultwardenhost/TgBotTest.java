@@ -24,6 +24,19 @@ public class TgBotTest {
     }
 
     @Test
+    public void sidikMenu_stabilDanUnikPerToken() {
+        String a1 = TgBot.sidikMenu("123:ABC");
+        String a2 = TgBot.sidikMenu("  123:ABC  ");
+        String b = TgBot.sidikMenu("123:ABD");
+        assertEquals(64, a1.length());
+        assertTrue(a1.matches("[0-9a-f]+"));
+        assertEquals(a1, a2);
+        assertFalse(a1.equals(b));
+        assertEquals("", TgBot.sidikMenu(null));
+        assertEquals("", TgBot.sidikMenu("   "));
+    }
+
+    @Test
     public void tombolKedaluwarsa_batas24Jam() {
         long kini = 1_000_000_000L;
         assertTrue(TgBot.tombolKedaluwarsa(0, kini));

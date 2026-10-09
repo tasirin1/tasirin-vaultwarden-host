@@ -447,7 +447,8 @@ public class TgBackupTest {
     @Test
     public void kunciIntLongTerdaftar() {
         assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
-        assertTrue(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));
+        assertFalse(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));
+        assertTrue(TgBackup.KUNCI_STRING.contains(TgBot.KEY_TG_MENU_FP));
         assertTrue(TgBackup.KUNCI_LONG.contains("pin_kunci_sampai"));
         assertTrue(TgBackup.KUNCI_LONG.contains("pin_kunci_elapsed"));
         assertTrue(TgBackup.KUNCI_LONG.contains(TgBackup.KEY_TG_LAST));

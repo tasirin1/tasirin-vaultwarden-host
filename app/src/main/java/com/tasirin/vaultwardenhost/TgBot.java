@@ -31,6 +31,8 @@ public final class TgBot {
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
+    /** Sidik menu perintah (ganti hashCode int yang rawan kolisi 32-bit). */
+    static final String KEY_TG_MENU_FP = "tg_menu_fp";
     static final int MENU_REV = 4;
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
@@ -212,6 +214,30 @@ public final class TgBot {
         return sb.toString();
     }
 
+    /** Sidik pendaftaran menu (SHA-256 hex token + revisi menu; "" bila kosong/gagal).
+     *  Ganti cap int hashCode() 32-bit yang bisa kolisi antar token berbeda
+     *  (menu basi tak refresh) — murni agar bisa unit test. */
+    static String sidikMenu(String token) {
+        String t = token == null ? "" : token.trim();
+        if (t.isEmpty()) {
+            return "";
+        }
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] h = md.digest((t + "|" + MENU_REV).getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(h.length * 2);
+            for (byte b : h) {
+                sb.append(String.format(Locale.US, "%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Kelas galat poll terakhir yang sudah dicatat (anti-spam log tiap 20 dtk). */
+    private static volatile String galatPollTercatat = "";
+
     /** Daftarkan menu perintah ke BotFather API (best-effort, sekali per token). */
     static void refreshMenuAsync(Context ctx) {
         if (ctx == null) {
@@ -232,8 +258,11 @@ public final class TgBot {
         if (token.isEmpty()) {
             return;
         }
-        final int hash = token.hashCode() * 31 + MENU_REV;
-        if (TgBackup.amanInt(sp, KEY_TG_MENU_HASH, 0) == hash) {
+        final String sidik = sidikMenu(token);
+        if (sidik.isEmpty()) {
+            return;
+        }
+        if (sidik.equals(TgBackup.amanString(sp, KEY_TG_MENU_FP, ""))) {
             return;
         }
         final String payload = menuPayload();
@@ -258,7 +287,8 @@ public final class TgBot {
                 }
                 if (code == 200 && balasan.contains("\"ok\":true")) {
                     app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                            .edit().putInt(KEY_TG_MENU_HASH, hash).apply();
+                            .edit().putString(KEY_TG_MENU_FP, sidik)
+                            .remove(KEY_TG_MENU_HASH).apply();
                 }
             } catch (Exception ignored) {
             } finally {
@@ -420,7 +450,17 @@ public final class TgBot {
                     sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Jangan bungkam: tanpa token di pesan, catat kelas galat saja
+            // (sekali per jenis) agar polling yang mati total bisa didiagnosa.
+            try {
+                String jenis = e.getClass().getSimpleName();
+                if (!jenis.equals(galatPollTercatat)) {
+                    galatPollTercatat = jenis;
+                    ServerService.catatLog("[tg] Poll gagal (" + jenis + ").");
+                }
+            } catch (Exception ignored2) {
+            }
         } finally {
             simpanWallMaks(ctx);
             POLLING.set(false);

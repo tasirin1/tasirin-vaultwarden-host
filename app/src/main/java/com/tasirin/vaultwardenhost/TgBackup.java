@@ -2020,27 +2020,65 @@ public final class TgBackup {
         // File baru (VWB2) selalu SHA256: password salah langsung gagal tanpa
         // 2x PBKDF2 100k yang boros CPU/baterai STB. Fallback SHA1 hanya untuk
         // file lama (VWB1) yang memang memakai PBKDF2-HMAC-SHA1.
+        // Dekrip ke file sementara dulu: Cipher GCM menulis plaintext update()
+        // sebelum doFinal() memverifikasi tag, sehingga kill tepat sebelum
+        // gagal verifikasi menyisakan plaintext di disk bila langsung ke out.
+        // Pemasangan ke out hanya bila tag lolos (rename se-direktori).
         boolean baru = ENC_MAGIC_V2.equals(magicEnkripsi(in));
+        File induk = out.getParentFile();
+        if (induk == null) {
+            throw new java.io.IOException("Path keluaran tidak valid.");
+        }
+        File tmp = new File(induk, out.getName() + ".dec-tmp");
         try {
-            decryptWithKdf(in, out, pass, true);
-        } catch (javax.crypto.BadPaddingException e) {
-            if (baru) {
-                // Bersihkan di lapis ini juga (decryptFile menghapus di lapis
-                // luar, tapi pemanggil masa depan tak boleh mewarisi parsial).
+            tmp.delete();
+        } catch (Exception ignored) {
+        }
+        try {
+            try {
+                decryptWithKdf(in, tmp, pass, true);
+            } catch (javax.crypto.BadPaddingException e) {
+                if (baru) {
+                    throw e;
+                }
+                // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
+                // autentikasi (password salah/KDF beda); galat I/O (disk penuh/hilang)
+                // langsung dilempar agar tak 2x PBKDF2 sia-sia dan sebab asli tak tertutup.
                 try {
-                    out.delete();
+                    tmp.delete();
                 } catch (Exception ignored) {
                 }
-                throw e;
+                decryptWithKdf(in, tmp, pass, false);
             }
-            // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
-            // autentikasi (password salah/KDF beda); galat I/O (disk penuh/hilang)
-            // langsung dilempar agar tak 2x PBKDF2 sia-sia dan sebab asli tak tertutup.
+            fsyncFile(tmp);
+            if (out.exists() && !out.delete()) {
+                throw new java.io.IOException("Gagal mengganti file lama.");
+            }
+            if (!tmp.renameTo(out)) {
+                throw new java.io.IOException("Gagal memasang hasil dekripsi.");
+            }
+        } finally {
             try {
-                out.delete();
+                tmp.delete();
             } catch (Exception ignored) {
             }
-            decryptWithKdf(in, out, pass, false);
+        }
+    }
+
+    /** fsync isi file (best-effort, murni java.io agar aman JVM/unit test). */
+    private static void fsyncFile(File f) {
+        java.io.FileInputStream fis = null;
+        try {
+            fis = new java.io.FileInputStream(f);
+            fis.getFD().sync();
+        } catch (Exception ignored) {
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception ignored2) {
+                }
+            }
         }
     }
 
@@ -2390,6 +2428,7 @@ public final class TgBackup {
                     ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
                     ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
                     KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,
+                    TgBot.KEY_TG_MENU_FP,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", Updater.KEY_TRUST_TGL,
@@ -2408,7 +2447,7 @@ public final class TgBackup {
 
     /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
     static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
-            java.util.Arrays.asList(PinGate.KEY_GAGAL, TgBot.KEY_TG_MENU_HASH));
+            java.util.Arrays.asList(PinGate.KEY_GAGAL));
 
     /** Kunci Long yang wajib Long (pembaca memakai getLong). */
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
