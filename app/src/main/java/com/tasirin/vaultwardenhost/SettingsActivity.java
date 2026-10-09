@@ -69,6 +69,9 @@ public class SettingsActivity extends Activity {
             java.util.concurrent.Executors.newSingleThreadExecutor();
     private volatile int pinSeq;
     private volatile java.util.concurrent.Future<?> pinPending;
+    /** Jadwal debounce ketikan PIN: hash berat (PBKDF2 120rb) baru dikirim ke
+     *  worker sesudah 800 ms tanpa ketikan agar tak menumpuk di CPU lemah STB. */
+    private Runnable pinTunda = null;
     /** Hash PIN terbaru dari worker yang belum disimpan ke prefs: prefs hanya
      *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
      *  di tengah mengetik. */
@@ -563,6 +566,14 @@ public class SettingsActivity extends Activity {
             @Override
             public void onTextChanged(CharSequence s, int a, int b, int c) {
                 pinSeq++;
+                // Batalkan jadwal debounce lama; Future antre ikut dibatalkan.
+                // PBKDF2 yang sudah jalan tak bisa diinterupsi, jadi hash baru
+                // dikirim SESUDAH 800 ms tanpa ketikan (satu hash per jeda,
+                // bukan satu per ketikan yang menumpuk di CPU lemah STB).
+                if (pinTunda != null) {
+                    ui.removeCallbacks(pinTunda);
+                    pinTunda = null;
+                }
                 java.util.concurrent.Future<?> basi = pinPending;
                 if (basi != null && !basi.isDone()) {
                     basi.cancel(true);
@@ -581,13 +592,16 @@ public class SettingsActivity extends Activity {
                 }
                 final String pin = s.toString();
                 final int seq = pinSeq;
-                pinPending = pinExec.submit(() -> {
-                    String h = PinCrypto.hash(pin);
+                pinTunda = () -> {
                     if (seq != pinSeq) {
                         return;
                     }
-                    pinHashSiap = h;
-                    ui.postDelayed(() -> {
+                    pinPending = pinExec.submit(() -> {
+                        String h = PinCrypto.hash(pin);
+                        if (seq != pinSeq) {
+                            return;
+                        }
+                        pinHashSiap = h;
                         // Nomor urut cukup sebagai penanda settle; hash bersalt
                         // tak perlu pasangan plaintext di field. Hash otomatis
                         // hanya ditulis bila PIN aktif agar toggle mati tak
@@ -597,8 +611,9 @@ public class SettingsActivity extends Activity {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                     .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
                         }
-                    }, 800);
-                });
+                    });
+                };
+                ui.postDelayed(pinTunda, 800);
             }
 
             @Override
@@ -638,6 +653,11 @@ public class SettingsActivity extends Activity {
             // Selalu hash ulang dari field saat itu di worker (PBKDF2 berat,
             // tak boleh di UI thread): tanpa memakai cache pinHashSiap agar
             // centang tak pernah memakai hash basi/parsial (kunci permanen).
+            // Jadwal debounce ketikan ikut dibatalkan agar tinggal satu hash.
+            if (pinTunda != null) {
+                ui.removeCallbacks(pinTunda);
+                pinTunda = null;
+            }
             java.util.concurrent.Future<?> basiAktif = pinPending;
             if (basiAktif != null && !basiAktif.isDone()) {
                 basiAktif.cancel(true);
@@ -648,10 +668,18 @@ public class SettingsActivity extends Activity {
             pinCentangProgram = true;
             b.setChecked(false);
             pinCentangProgram = false;
+            // Kunci checkbox + field selama hash agar user STB tak menumpuk
+            // antrean PBKDF2 dengan mengetik/centang ulang (sumber "proses mulu").
+            pinEnabledCheck.setEnabled(false);
+            pinInput.setEnabled(false);
             toast("Processing PIN…");
             pinPending = pinExec.submit(() -> {
                 String h = PinCrypto.hash(pinBaru);
                 if (seqBaru != pinSeq) {
+                    ui.post(() -> {
+                        pinEnabledCheck.setEnabled(true);
+                        pinInput.setEnabled(true);
+                    });
                     return;
                 }
                 pinHashSiap = h;
@@ -661,6 +689,11 @@ public class SettingsActivity extends Activity {
                         .edit().putString(PinGate.KEY_PIN_HASH, h)
                         .putBoolean(PinGate.KEY_PIN_ON, true).apply();
                 ui.post(() -> {
+                    pinEnabledCheck.setEnabled(true);
+                    pinInput.setEnabled(true);
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
                     if (seqBaru != pinSeq) {
                         return;
                     }
