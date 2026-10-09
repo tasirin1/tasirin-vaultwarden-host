@@ -3,21 +3,21 @@
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/status_off" />
-            <stroke android:width="3dp" android:color="@color/accent" />
-            <corners android:radius="14dp" />
+            <stroke android:width="2dp" android:color="@color/accent" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <!-- Merah tua adaptif siang/malam saat tombol Stop ditekan. -->
             <solid android:color="@color/btn_stop_pressed" />
-            <corners android:radius="14dp" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/status_off" />
-            <corners android:radius="14dp" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
 </selector>

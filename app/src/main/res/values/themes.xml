@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Tema utama tanpa action bar: header memakai teks di layout sendiri,
-         lebih lega & tidak ada banner biru di atas. -->
+         lebih lega & tidak ada banner biru di atas.
+         Atribut diseragamkan ikut Tasirin Download Manager agar
+         komponen bersama (dialog, input, tombol) tampil sama. -->
     <style name="Theme.TasirinVaultwardenHost" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:colorControlHighlight">@color/accent</item>
+        <item name="android:colorControlNormal">@color/text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:colorBackground">@color/window_bg</item>
         <item name="android:windowBackground">@color/window_bg</item>
     </style>
 

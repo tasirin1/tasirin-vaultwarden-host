@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Tema seragam ikut Tasirin Download Manager
+- Palet inti (`primary`/`accent`/`window_bg`/`text_*`/`status_*`) disamakan dengan TDM (`#1565C0`/`#F57C00`/`#F2F4F8`); token TDM (`line`, `text_hint`, `primary_container`) ditambah di siang + malam agar komponen bersama tampil sama.
+- `themes.xml` (siang + malam): atribut `colorControlNormal`, `textColorPrimary/Secondary`, `colorBackground` ditambah ikut TDM.
+- Tombol diseragamkan: `bg_btn_tv` jadi tonal M3 pil 20dp, `bg_btn_primary`/`bg_btn_stop` radius pil 20dp + fokus 2dp, `TasirinBtn` sekunder teks `primary`, `TasirinInput` fokus + hint ikut TDM.
+- `styles.xml`: alias `AppButton`/`TvOutlinedButton`/`AppInput` agar layout bersama bisa dipakai di kedua aplikasi. Dukungan malam + APK kecil tanpa AppCompat tetap dipertahankan.
+
 ## [Belum rilis] — Popup titik tiga menempel + About khas TDM
 - `MainActivity.showOverflowMenu`: `AlertDialog` tengah diganti `PopupMenu` berjangkar `overflowBtn` (`Gravity.END`) — menu Settings/Tentang kini muncul tepat di bawah tombol titik tiga seperti `Tasirin Download Manager`.
 - `MainActivity.showAboutDialog`: dialog HTML datar diganti layout `dialog_about` khas TDM — ikon app, judul, versi app + binary + web-vault, 8 baris ikon-teks (developer Julius Rudi Tasirin), tombol Open GitHub + Check Update, tombol tutup, footer minSdk/targetSdk/build.

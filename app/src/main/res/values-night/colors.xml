@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Mode malam: latar biru-tinta, kartu sedikit terangkat. -->
+    <!-- Mode malam: latar biru-tinta, kartu sedikit terangkat.
+         Palet inti seragam TDM, versi malam dicerahkan agar kontras. -->
     <color name="primary">#90CAF9</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#FFB74D</color>
     <color name="white">#FFFFFF</color>
     <color name="text_primary">#E8EDF5</color>
     <color name="text_secondary">#B9C6DC</color>
+    <color name="text_hint">#8A94A6</color>
     <color name="window_bg">#0C1220</color>
     <color name="status_on">#34A853</color>
     <color name="status_off">#F0554D</color>
     <color name="card_bg">#161F31</color>
     <color name="card_stroke">#2A3A57</color>
+    <color name="line">#2A3A57</color>
     <color name="info_bg">#1E2A44</color>
-    <color name="hero_start">#1B5FD9</color>
-    <color name="hero_end">#0A2F7A</color>
+    <color name="hero_start">#1565C0</color>
+    <color name="hero_end">#0D47A1</color>
     <color name="chip_stopped">#5F6B7A</color>
     <color name="chip_busy">#E8710A</color>
+    <!-- Kontainer tonal malam: biru-tinta agar teks primary terang terbaca. -->
+    <color name="primary_container">#1E3A5F</color>
+    <color name="primary_container_pressed">#274A73</color>
     <!-- Aksen tiap kartu Settings (versi malam, dicerahkan). -->
     <color name="accent_server">#90CAF9</color>
     <color name="accent_pengaturan">#4ADE80</color>

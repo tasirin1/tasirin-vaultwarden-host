@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Tombol tonal gaya M3 (seragam TDM): terisi primary_container +
+     teks primary (di style). Stroke 1dp primary di state normal/pressed
+     agar tak menyatu dengan kartu putih; fokus D-pad tegas via stroke 2dp.
+     Warna adaptif siang/malam via primary_container. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <!-- Oranye transparan adaptif siang/malam untuk fokus D-pad. -->
-            <solid android:color="@color/btn_tv_focused" />
-            <stroke android:width="2dp" android:color="@color/accent" />
-            <corners android:radius="12dp" />
+            <solid android:color="@color/primary_container" />
+            <stroke android:width="2dp" android:color="@color/primary" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <!-- Biru tua transparan adaptif siang/malam saat ditekan. -->
-            <solid android:color="@color/btn_tv_pressed" />
-            <stroke android:width="2dp" android:color="@color/primary" />
-            <corners android:radius="12dp" />
+            <solid android:color="@color/primary_container_pressed" />
+            <stroke android:width="1dp" android:color="@color/primary" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/card_bg" />
-            <stroke android:width="1dp" android:color="@color/card_stroke" />
-            <corners android:radius="12dp" />
+            <solid android:color="@color/primary_container" />
+            <stroke android:width="1dp" android:color="@color/primary" />
+            <corners android:radius="20dp" />
         </shape>
     </item>
 </selector>

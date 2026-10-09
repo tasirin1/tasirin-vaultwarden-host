@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Palet utama: biru brand + aksen oranye, latar kebiruan lembut,
-         kartu putih agar konten terasa mengambang. -->
-    <color name="primary">#1B5FD9</color>
-    <color name="primary_dark">#0F3D91</color>
-    <color name="accent">#FF6F00</color>
+    <!-- Palet seragam Tasirin (ikut Tasirin Download Manager):
+         biru #1565C0 + aksen jingga #F57C00, latar abu terang.
+         Kartu putih agar konten terasa mengambang. -->
+    <color name="primary">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="accent">#F57C00</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_primary">#16233A</color>
-    <color name="text_secondary">#4E5D76</color>
-    <color name="window_bg">#EAF0F8</color>
-    <color name="status_on">#1E8E3E</color>
-    <color name="status_off">#C5221F</color>
+    <color name="text_primary">#1B1F27</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#9AA0A6</color>
+    <color name="window_bg">#F2F4F8</color>
+    <color name="status_on">#2E7D32</color>
+    <color name="status_off">#C62828</color>
     <color name="card_bg">#FFFFFF</color>
-    <color name="card_stroke">#D7E1F0</color>
-    <color name="info_bg">#F1F5FC</color>
-    <color name="hero_start">#1B5FD9</color>
-    <color name="hero_end">#0A2F7A</color>
+    <color name="card_stroke">#E5E9F0</color>
+    <!-- Alias nama TDM untuk komponen bersama (dialog About, dsb). -->
+    <color name="line">#E5E9F0</color>
+    <color name="info_bg">#EDF1F5</color>
+    <color name="hero_start">#1565C0</color>
+    <color name="hero_end">#0D47A1</color>
     <color name="chip_stopped">#5F6B7A</color>
     <color name="chip_busy">#E8710A</color>
+    <!-- Kontainer tonal gaya M3 (ikut TDM): tombol sekunder. -->
+    <color name="primary_container">#D8E7FC</color>
+    <color name="primary_container_pressed">#C2D9F8</color>
     <!-- Aksen tiap kartu Settings agar mudah dibedakan via remote TV. -->
-    <color name="accent_server">#1B5FD9</color>
-    <color name="accent_pengaturan">#0E7C5B</color>
-    <color name="accent_rawat">#6D28D9</color>
+    <color name="accent_server">#1565C0</color>
+    <color name="accent_pengaturan">#2E7D32</color>
+    <color name="accent_rawat">#7B1FA2</color>
     <color name="accent_telegram">#0288D1</color>
     <color name="accent_log">#546E7A</color>
-    <color name="log_error">#B3261E</color>
+    <color name="log_error">#C62828</color>
     <color name="log_warn">#8A5A00</color>
     <!-- Sorot kata kunci pencarian di log layar penuh. -->
     <color name="search_highlight">#FFE082</color>
@@ -33,9 +40,9 @@
     <!-- Teks tombol primer siang: putih di atas biru tua, kontras aman. -->
     <color name="btn_primary_text">#FFFFFF</color>
     <!-- Overlay tombol TV siang: oranye transparan saat fokus D-pad. -->
-    <color name="btn_tv_focused">#33FF6F00</color>
+    <color name="btn_tv_focused">#33F57C00</color>
     <!-- Overlay tombol TV siang: biru tua transparan saat ditekan. -->
-    <color name="btn_tv_pressed">#330F3D91</color>
+    <color name="btn_tv_pressed">#331565C0</color>
     <!-- Tombol Stop saat ditekan: merah tua pekat. -->
     <color name="btn_stop_pressed">#7A1A17</color>
 </resources>
