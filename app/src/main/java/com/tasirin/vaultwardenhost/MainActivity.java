@@ -11,15 +11,19 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.app.Dialog;
+import android.net.Uri;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -297,19 +301,20 @@ public class MainActivity extends Activity {
         ui.removeCallbacksAndMessages(null);
     }
 
-    /** Titik tiga: pilihan Settings dan Tentang (ramah D-pad). */
+    /** Titik tiga: popup menempel di bawah tombol (ramah D-pad). */
     private void showOverflowMenu() {
-        final String[] items = {getString(R.string.open_settings), getString(R.string.about)};
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.menu))
-                .setItems(items, (d, which) -> {
-                    if (which == 0) {
-                        startActivity(new Intent(this, SettingsActivity.class));
-                    } else {
-                        showAboutDialog();
-                    }
-                })
-                .show();
+        PopupMenu popup = new PopupMenu(this, overflowBtn, Gravity.END);
+        popup.getMenu().add(0, 1, 0, getString(R.string.open_settings));
+        popup.getMenu().add(0, 2, 0, getString(R.string.about));
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                startActivity(new Intent(this, SettingsActivity.class));
+            } else {
+                showAboutDialog();
+            }
+            return true;
+        });
+        popup.show();
     }
 
     private void saveAndStart() {
@@ -791,8 +796,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
-    @SuppressWarnings("deprecation")
+    /** Tentang khas Tasirin Download Manager: ikon, judul, versi,
+     *  baris ikon-teks, tombol GitHub + Cek Update, tombol tutup, footer. */
+    @SuppressLint("InflateParams")
     private void showAboutDialog() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
@@ -801,44 +807,89 @@ public class MainActivity extends Activity {
         }
         String bin = currentServerVersion();
         String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
-        StringBuilder html = new StringBuilder();
-        html.append("<b>Tasirin Vaultwarden Host</b><br/>")
-                .append("Running a <b>Vaultwarden</b> (Bitwarden-compatible) server "
-                        + "right on Android 5+ / TV.<br/><br/>")
-                .append("App version: <b>").append(appVersion.isEmpty() ? "?" : appVersion)
-                .append("</b><br/>")
-                .append("Server binary: <b>")
-                .append(bin == null ? "?" : "v" + bin).append("</b><br/>");
+        int build = 0;
+        try {
+            build = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (Exception ignored) {
+        }
+        String versi = appVersion.isEmpty() ? "?" : appVersion;
+        StringBuilder infoVersi = new StringBuilder(versi);
+        if (bin != null) {
+            infoVersi.append(" \u00b7 binary v").append(bin);
+        }
         if (wv != null) {
-            html.append("Web vault: <b>v").append(wv).append("</b><br/>");
+            infoVersi.append(" \u00b7 vault v").append(wv);
         }
-        html.append("Device: Android ").append(Build.VERSION.RELEASE)
-                .append(" (API ").append(Build.VERSION.SDK_INT).append(")<br/><br/>")
-                .append("How to use:<br/>")
-                .append("1. Set the data folder &amp; port in <b>Settings</b> (⋮ menu)<br/>")
-                .append("2. Press <b>Start</b><br/>")
-                .append("3. Open the home-screen URL in a browser<br/><br/>")
-                .append("Source: <a href=\"https://github.com/tasirin1/"
-                        + "tasirin-vaultwarden-host\">github.com/tasirin1/"
-                        + "tasirin-vaultwarden-host</a><br/>")
-                .append("License: GPL-3.0 (app) \u00B7 AGPL-3.0 (Vaultwarden)");
-
-        TextView tv = new TextView(this);
-        float d = getResources().getDisplayMetrics().density;
-        tv.setPadding((int) (20 * d), (int) (16 * d), (int) (20 * d), (int) (8 * d));
-        tv.setTextSize(13);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            tv.setText(Html.fromHtml(html.toString(), Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            tv.setText(Html.fromHtml(html.toString()));
+        android.view.LayoutInflater pompa = android.view.LayoutInflater.from(this);
+        android.view.View lihat = pompa.inflate(R.layout.dialog_about, null);
+        TextView versiView = (TextView) lihat.findViewById(R.id.about_version);
+        versiView.setText(getString(R.string.about_version, infoVersi.toString()));
+        LinearLayout baris = (LinearLayout) lihat.findViewById(R.id.about_rows);
+        String[] ikon = getResources().getStringArray(R.array.about_icons);
+        String[] teks = getResources().getStringArray(R.array.about_rows);
+        float kepadatan = getResources().getDisplayMetrics().density;
+        int jarak = (int) (10 * kepadatan + 0.5f);
+        int atas = (int) (6 * kepadatan + 0.5f);
+        for (int i = 0; i < ikon.length && i < teks.length; i++) {
+            LinearLayout sel = new LinearLayout(this);
+            sel.setOrientation(LinearLayout.HORIZONTAL);
+            sel.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            if (i > 0) {
+                lp.topMargin = atas;
+            }
+            TextView ikonView = new TextView(this);
+            ikonView.setText(ikon[i]);
+            ikonView.setTextSize(16);
+            ikonView.setPadding(0, 0, jarak, 0);
+            TextView teksView = new TextView(this);
+            teksView.setText(teks[i]);
+            teksView.setTextSize(13.5f);
+            teksView.setTextColor(getResources().getColor(R.color.text_secondary));
+            sel.addView(ikonView);
+            sel.addView(teksView, new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            baris.addView(sel, lp);
         }
-        tv.setMovementMethod(LinkMovementMethod.getInstance());
-        tv.setLinkTextColor(getResources().getColor(R.color.accent));
-        new AlertDialog.Builder(this)
-                .setTitle("About")
-                .setView(tv)
-                .setPositiveButton("Close", null)
-                .show();
+        int targetSdk = 28;
+        try {
+            targetSdk = getPackageManager()
+                    .getApplicationInfo(getPackageName(), 0).targetSdkVersion;
+        } catch (Exception ignored) {
+        }
+        TextView kaki = (TextView) lihat.findViewById(R.id.about_footer);
+        kaki.setText(getString(R.string.about_tech, 21, targetSdk, build));
+        lihat.findViewById(R.id.btn_about_github).setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
+                        "https://github.com/tasirin1/tasirin-vaultwarden-host")));
+            } catch (Exception ignored) {
+            }
+        });
+        lihat.findViewById(R.id.btn_about_update).setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(this, SettingsActivity.class));
+            } catch (Exception ignored) {
+            }
+        });
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(lihat);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(
+                    android.R.color.transparent);
+            int lebarLayar = getResources().getDisplayMetrics().widthPixels;
+            int lebar = Math.min((int) (560 * kepadatan + 0.5f),
+                    lebarLayar - (int) (48 * kepadatan + 0.5f));
+            if (lebar > 0) {
+                dialog.getWindow().setLayout(lebar,
+                        WindowManager.LayoutParams.WRAP_CONTENT);
+            }
+        }
+        dialog.show();
+        lihat.findViewById(R.id.btn_about_ok).setOnClickListener(v -> dialog.dismiss());
     }
 
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────

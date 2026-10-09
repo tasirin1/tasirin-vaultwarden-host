@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="about_icons">
+        <item>&#128100;</item>
+        <item>&#127919;</item>
+        <item>&#128241;</item>
+        <item>&#127760;</item>
+        <item>&#128274;</item>
+        <item>&#9889;</item>
+        <item>&#128190;</item>
+        <item>&#9878;&#65039;</item>
+    </string-array>
+    <string-array name="about_rows">
+        <item>Developer: Julius Rudi Tasirin</item>
+        <item>Purpose: Vaultwarden server on Android 5+ / TV and STB</item>
+        <item>Platform: Android phones, TV boxes and STBs (Android 5+)</item>
+        <item>Access: web vault in browser plus Bitwarden app via HTTPS</item>
+        <item>Security: app PIN lock, SHA-256 verified updates, HTTPS-only</item>
+        <item>Performance: lightweight build for low-memory STBs</item>
+        <item>Storage: internal cache plus /sdcard/vaultwarden data</item>
+        <item>License: GPL-3.0 (app) · AGPL-3.0 (Vaultwarden)</item>
+    </string-array>
+</resources>

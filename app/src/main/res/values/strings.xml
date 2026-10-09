@@ -13,6 +13,11 @@
     <string name="allow">Allow</string>
     <string name="active">Active</string>
     <string name="about">About</string>
+    <string name="about_title">About Tasirin Vaultwarden Host</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_github">Open GitHub</string>
+    <string name="about_check_update">Check Update</string>
+    <string name="about_tech">minSdk %1$d · targetSdk %2$d · build %3$d</string>
     <string name="menu">Menu</string>
     <string name="overflow">⋮</string>
     <string name="open_settings">Settings</string>

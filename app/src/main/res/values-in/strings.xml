@@ -13,6 +13,11 @@
     <string name="allow">Izinkan</string>
     <string name="active">Aktif</string>
     <string name="about">Tentang</string>
+    <string name="about_title">Tentang Tasirin Vaultwarden Host</string>
+    <string name="about_version">Versi %1$s</string>
+    <string name="about_github">Buka GitHub</string>
+    <string name="about_check_update">Cek Update</string>
+    <string name="about_tech">minSdk %1$d · targetSdk %2$d · build %3$d</string>
     <string name="menu">Menu</string>
     <string name="overflow">⋮</string>
     <string name="open_settings">Settings</string>
