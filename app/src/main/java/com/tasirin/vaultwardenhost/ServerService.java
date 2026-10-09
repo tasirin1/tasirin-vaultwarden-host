@@ -258,8 +258,6 @@ public class ServerService extends Service {
     public static volatile String runningLanHost = "";
     /** IP perubahan terakhir yang sudah diperingatkan (anti-spam Telegram). */
     private static volatile String ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
     /** Kandidat IP baru + hitungan tick beruntun: restart otomatis hanya bila
      *  IP baru stabil 2x health tick agar IP flapping DHCP tak memicu loop restart. */
     private static volatile String ipBaruKandidat = "";
