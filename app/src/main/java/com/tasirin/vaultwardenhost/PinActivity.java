@@ -91,7 +91,7 @@ public class PinActivity extends Activity {
         }
         long sisa = PinGate.sisaKunciMs(this, System.currentTimeMillis());
         if (sisa > 0) {
-            tampilGalat(teksSisaKunci(sisa));
+            tampilGalat(teksSisaKunci(this, sisa));
             return;
         }
         sedangPeriksa = true;
@@ -159,14 +159,30 @@ public class PinActivity extends Activity {
         }
     }
 
-    /** Teks lockout brute-force ("Terkunci, coba lagi X menit.", menit ceiling).
-     *  Murni agar bisa unit test. */
-    static String teksSisaKunci(long sisaMs) {
+    /** Menit lockout brute-force (ceiling). Murni agar bisa unit test. */
+    static long menitSisaKunci(long sisaMs) {
         long menit = (sisaMs + 59999) / 60000;
-        if (menit < 1) {
-            menit = 1;
-        }
+        return menit < 1 ? 1 : menit;
+    }
+
+    /** Teks lockout Inggris (fallback + dikunci test). Untuk UI pakai
+     *  {@link #teksSisaKunci(android.content.Context, long)} agar ikut locale. */
+    static String teksSisaKunci(long sisaMs) {
+        long menit = menitSisaKunci(sisaMs);
         return menit == 1 ? "Locked, try again in 1 minute."
                 : "Locked, try again in " + menit + " minutes.";
+    }
+
+    /** Teks lockout ikut locale perangkat (Indonesia bila locale ID). */
+    static String teksSisaKunci(android.content.Context ctx, long sisaMs) {
+        long menit = menitSisaKunci(sisaMs);
+        try {
+            if (menit == 1) {
+                return ctx.getString(R.string.pin_lockout_one);
+            }
+            return ctx.getString(R.string.pin_lockout_many, menit);
+        } catch (Exception e) {
+            return teksSisaKunci(sisaMs);
+        }
     }
 }

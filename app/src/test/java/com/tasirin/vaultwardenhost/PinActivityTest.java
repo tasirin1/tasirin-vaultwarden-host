@@ -19,4 +19,13 @@ public class PinActivityTest {
     public void teksSisaKunciNolTetapSatuMenit() {
         assertEquals("Locked, try again in 1 minute.", PinActivity.teksSisaKunci(0));
     }
+
+    @Test
+    public void menitSisaKunciCeiling() {
+        assertEquals(1, PinActivity.menitSisaKunci(0));
+        assertEquals(1, PinActivity.menitSisaKunci(1));
+        assertEquals(1, PinActivity.menitSisaKunci(60000));
+        assertEquals(2, PinActivity.menitSisaKunci(60001));
+        assertEquals(5, PinActivity.menitSisaKunci(300000));
+    }
 }
