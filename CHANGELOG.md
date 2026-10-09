@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Centang PIN tahan CPU STB lambat
+- `SettingsActivity`: aktivasi PIN (centang) pindah ke thread sendiri (bukan antrean `pinExec`) agar tak antre di belakang hash debounce di CPU lemah STB; ketikan/tekan remote ganda selama "Processing PIN" tak lagi menggugurkan hasil via nomor urut.
+- `SettingsActivity`: checkbox + field tak lagi di-uncheck/disable selama hash (fokus D-pad STB tak hilang, tak terlihat "tidak bisa aktif"); toggle ganda saat aktivasi jalan diabaikan dan centang dikembalikan.
+- `SettingsActivity`: hapus-PIN-pendek dan tulis-otomatis debounce dilewati selama aktivasi berjalan; `cancel(true)` diganti `cancel(false)` karena PBKDF2 tak bisa diinterupsi.
+
 ## [Belum rilis] — Teks lockout PIN ikut locale Indonesia
 - `PinActivity`: pesan terkunci brute-force yang tadinya Inggris hardcoded kini memakai string `pin_lockout_one`/`pin_lockout_many` (EN + ID) via `teksSisaKunci(Context, long)`; fallback Inggris bila resource gagal dibaca.
 - `teksSisaKunci(long)` dipertahankan persis (dikunci `PinActivityTest`) + helper murni baru `menitSisaKunci` dengan test ceiling-nya.

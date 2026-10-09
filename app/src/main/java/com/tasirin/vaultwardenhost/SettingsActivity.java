@@ -77,6 +77,11 @@ public class SettingsActivity extends Activity {
      *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
      *  di tengah mengetik. */
     private volatile String pinHashSiap = null;
+    /** True selama aktivasi PIN (centang) berjalan di thread sendiri.
+     *  Ketikan/tekan remote ganda di STB selama flag ini tak boleh menggugurkan
+     *  aktivasi (dulu nomor urut + antrean single-thread membuang hasilnya di
+     *  CPU lambat sehingga centang "tidak bisa aktif"). */
+    private volatile boolean pinAktifJalan = false;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -577,7 +582,7 @@ public class SettingsActivity extends Activity {
                 }
                 java.util.concurrent.Future<?> basi = pinPending;
                 if (basi != null && !basi.isDone()) {
-                    basi.cancel(true);
+                    basi.cancel(false);
                 }
                 // Hash ditahan di memori dulu: prefs hanya menerima nilai yang
                 // sudah settle (800 ms tanpa ketikan) agar app yang mati di
@@ -585,6 +590,11 @@ public class SettingsActivity extends Activity {
                 // PIN mentah tak disimpan di field agar tak mengendap di heap.
                 pinHashSiap = null;
                 if (s.length() < 4) {
+                    // Aktivasi (centang) sedang jalan: jangan hapus/lepas centang
+                    // di tengah jalan — aktivasi memakai jepretan PIN saat ditekan.
+                    if (pinAktifJalan) {
+                        return;
+                    }
                     // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
                     // tak ada status pin_on=true tanpa hash (fail-open di kunci).
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
@@ -615,6 +625,7 @@ public class SettingsActivity extends Activity {
                         // hanya ditulis bila PIN aktif agar toggle mati tak
                         // meninggalkan hash basi di prefs.
                         if (seq == pinSeq && h.equals(pinHashSiap)
+                                && !pinAktifJalan
                                 && pinEnabledCheck.isChecked()) {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                     .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
@@ -630,6 +641,14 @@ public class SettingsActivity extends Activity {
         });
         pinEnabledCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
             if (pinCentangProgram) {
+                return;
+            }
+            if (pinAktifJalan) {
+                // Aktivasi masih jalan (biasanya tekan remote ganda di STB):
+                // abaikan toggle dan kembalikan centang.
+                pinCentangProgram = true;
+                b.setChecked(true);
+                pinCentangProgram = false;
                 return;
             }
             if (!checked) {
@@ -658,9 +677,13 @@ public class SettingsActivity extends Activity {
                 pinCentangProgram = false;
                 return;
             }
-            // Selalu hash ulang dari field saat itu di worker (PBKDF2 berat,
-            // tak boleh di UI thread): tanpa memakai cache pinHashSiap agar
+            // Selalu hash ulang dari field saat itu di thread sendiri (PBKDF2
+            // berat, tak boleh di UI thread): tanpa memakai cache pinHashSiap agar
             // centang tak pernah memakai hash basi/parsial (kunci permanen).
+            // Thread sendiri (bukan antrean pinExec) agar tak antre di belakang
+            // hash debounce di CPU lemah STB; ketikan/tekan ganda selama proses
+            // tak menggugurkan hasil. Checkbox dibiarkan tercentang + tetap
+            // enabled agar fokus D-pad STB tak hilang.
             // Jadwal debounce ketikan ikut dibatalkan agar tinggal satu hash.
             if (pinTunda != null) {
                 ui.removeCallbacks(pinTunda);
@@ -668,41 +691,43 @@ public class SettingsActivity extends Activity {
             }
             java.util.concurrent.Future<?> basiAktif = pinPending;
             if (basiAktif != null && !basiAktif.isDone()) {
-                basiAktif.cancel(true);
+                basiAktif.cancel(false);
             }
+            // Batalkan nilai settle debounce lama agar tulis otomatisnya tak
+            // menimpa hasil aktivasi.
+            pinSeq++;
             final String pinBaru = fieldPin;
-            final int seqBaru = ++pinSeq;
-            pinHashSiap = null;
-            pinCentangProgram = true;
-            b.setChecked(false);
-            pinCentangProgram = false;
-            // Kunci checkbox + field selama hash agar user STB tak menumpuk
-            // antrean PBKDF2 dengan mengetik/centang ulang (sumber "proses mulu").
-            pinEnabledCheck.setEnabled(false);
-            pinInput.setEnabled(false);
+            pinAktifJalan = true;
             toast("Processing PIN…");
-            pinPending = pinExec.submit(() -> {
-                String h = PinCrypto.hash(pinBaru);
-                if (seqBaru != pinSeq) {
+            new Thread(() -> {
+                String hasil;
+                try {
+                    hasil = PinCrypto.hash(pinBaru);
+                } catch (Exception e) {
+                    hasil = null;
+                }
+                if (hasil == null) {
+                    pinAktifJalan = false;
                     ui.post(() -> {
-                        pinEnabledCheck.setEnabled(true);
-                        pinInput.setEnabled(true);
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        pinCentangProgram = true;
+                        pinEnabledCheck.setChecked(false);
+                        pinCentangProgram = false;
+                        toast("PIN gagal diproses, coba lagi.");
                     });
                     return;
                 }
-                pinHashSiap = h;
+                pinHashSiap = hasil;
                 // Satu apply atomis: hash dan flag on ditulis bersama agar
                 // crash di antaranya tak meninggalkan hash basi tanpa flag.
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(PinGate.KEY_PIN_HASH, h)
+                        .edit().putString(PinGate.KEY_PIN_HASH, hasil)
                         .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                pinAktifJalan = false;
                 ui.post(() -> {
-                    pinEnabledCheck.setEnabled(true);
-                    pinInput.setEnabled(true);
                     if (isFinishing() || isDestroyed()) {
-                        return;
-                    }
-                    if (seqBaru != pinSeq) {
                         return;
                     }
                     pinCentangProgram = true;
@@ -710,7 +735,7 @@ public class SettingsActivity extends Activity {
                     pinCentangProgram = false;
                     toast("PIN is active.");
                 });
-            });
+            }, "vw-pin-aktif").start();
         });
 
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
