@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — PIN bisa aktif di STB Android lama (fallback PBKDF2 manual)
+- `PinCrypto`: `SecretKeyFactory` PBKDF2WithHmacSHA256 tak ada di stock Android API 21-25 sehingga hash PIN selalu melempar di STB ("PIN gagal diproses") sementara di HP bisa — kini jatuh ke `pbkdf2Manual()` via `Mac` HmacSHA256 yang ada di semua API.
+- `pbkdf2Manual()`: PBKDF2-HMAC-SHA256 sesuai RFC 2898, hasil bit-identik dengan factory untuk PIN ASCII sehingga hash HP baru terverifikasi di STB dan sebaliknya; dikunci test `pbkdf2ManualSamadenganFactory`.
+
 ## [Belum rilis] — Centang PIN tahan CPU STB lambat
 - `SettingsActivity`: aktivasi PIN (centang) pindah ke thread sendiri (bukan antrean `pinExec`) agar tak antre di belakang hash debounce di CPU lemah STB; ketikan/tekan remote ganda selama "Processing PIN" tak lagi menggugurkan hasil via nomor urut.
 - `SettingsActivity`: checkbox + field tak lagi di-uncheck/disable selama hash (fokus D-pad STB tak hilang, tak terlihat "tidak bisa aktif"); toggle ganda saat aktivasi jalan diabaikan dan centang dikembalikan.

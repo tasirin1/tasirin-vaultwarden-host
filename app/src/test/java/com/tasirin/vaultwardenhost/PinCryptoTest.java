@@ -18,6 +18,26 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void pbkdf2ManualSamadenganFactory() throws Exception {
+        // Jalur darurat STB Android lama (tanpa factory PBKDF2-SHA256) wajib
+        // bit-identik dengan factory agar hash HP baru lolos verifikasi di STB.
+        byte[] salt = new byte[16];
+        for (int i = 0; i < salt.length; i++) {
+            salt[i] = (byte) (i * 7 + 3);
+        }
+        String[] sampel = {"1234", "123456", "pinAb12", "4ngk4-k3r4s!"};
+        for (String pin : sampel) {
+            byte[] manual = PinCrypto.pbkdf2Manual(pin, salt, 10000);
+            javax.crypto.spec.PBEKeySpec spec =
+                    new javax.crypto.spec.PBEKeySpec(pin.toCharArray(), salt, 10000, 256);
+            byte[] pabrik = javax.crypto.SecretKeyFactory
+                    .getInstance("PBKDF2WithHmacSHA256")
+                    .generateSecret(spec).getEncoded();
+            org.junit.Assert.assertArrayEquals(pabrik, manual);
+        }
+    }
+
+    @Test
     public void saltAcakTiapHash() {
         assertFalse(PinCrypto.hash("1234").equals(PinCrypto.hash("1234")));
     }

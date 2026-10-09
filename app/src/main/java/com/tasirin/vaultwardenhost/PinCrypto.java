@@ -288,15 +288,52 @@ public final class PinCrypto {
         char[] chars = pin == null ? new char[0] : pin.toCharArray();
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, HASH_BITS);
         try {
-            SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            return f.generateSecret(spec).getEncoded();
-        } catch (Exception e) {
-            // PBKDF2-HMAC-SHA256 dijamin ada di Android & JVM; bila hilang,
-            // gagal lantang (verify() menangkapnya sebagai false).
-            throw new IllegalStateException("PBKDF2 tidak tersedia", e);
+            try {
+                SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+                return f.generateSecret(spec).getEncoded();
+            } catch (Exception e) {
+                // STB Android lama (API 21-25) tak punya factory
+                // PBKDF2WithHmacSHA256 sehingga centang PIN selalu gagal di
+                // sana ("PIN gagal diproses") sementara di HP bisa: hitung
+                // manual via Mac HmacSHA256 yang ada di semua API.
+                return pbkdf2Manual(pin, salt, iter);
+            }
         } finally {
             spec.clearPassword();
             java.util.Arrays.fill(chars, '\0');
+        }
+    }
+
+    /** PBKDF2-HMAC-SHA256 manual (RFC 2898) untuk STB tanpa factory-nya.
+     *  dkLen 256 bit = tepat 1 blok SHA-256: F = U1^U2^...^Uc dengan
+     *  U1 = HMAC(PIN, salt || INT_32_BE(1)). Hasil bit-identik dengan factory
+     *  untuk PIN ASCII (digit/huruf) sehingga hash HP baru terverifikasi di
+     *  STB dan sebaliknya. Murni JVM — bisa unit test. */
+    static byte[] pbkdf2Manual(String pin, byte[] salt, int iter) {
+        if (iter < 1) {
+            throw new IllegalStateException("PBKDF2 tidak tersedia");
+        }
+        byte[] sandi = pin == null
+                ? new byte[0] : pin.getBytes(StandardCharsets.UTF_8);
+        try {
+            javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+            mac.init(new javax.crypto.spec.SecretKeySpec(sandi, "HmacSHA256"));
+            byte[] blok = new byte[salt.length + 4];
+            System.arraycopy(salt, 0, blok, 0, salt.length);
+            blok[salt.length + 3] = 1;
+            byte[] u = mac.doFinal(blok);
+            byte[] hasil = u.clone();
+            for (int i = 1; i < iter; i++) {
+                u = mac.doFinal(u);
+                for (int j = 0; j < hasil.length; j++) {
+                    hasil[j] ^= u[j];
+                }
+            }
+            return hasil;
+        } catch (Exception e) {
+            throw new IllegalStateException("PBKDF2 tidak tersedia", e);
+        } finally {
+            java.util.Arrays.fill(sandi, (byte) 0);
         }
     }
 
