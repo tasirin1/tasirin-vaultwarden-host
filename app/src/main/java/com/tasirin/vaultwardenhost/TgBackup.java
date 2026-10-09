@@ -130,6 +130,38 @@ public final class TgBackup {
     /** Magic file baru (PBKDF2-HMAC-SHA256 saja): penanda KDF agar password salah
      *  pada file baru langsung gagal tanpa 2x PBKDF2 (fallback SHA1 hanya untuk VWB1). */
     static final String ENC_MAGIC_V2 = "VWB2";
+    /** Magic VWB3: header menyertakan iterasi KDF (4 byte big-endian sesudah
+     *  magic) sehingga STB lama boleh menulis iterasi ringan tanpa merusak
+     *  dekripsi lintas perangkat. VWB1/VWB2 tetap terbaca (iterasi tersirat
+     *  100rb). */
+    static final String ENC_MAGIC_V3 = "VWB3";
+
+    /** True bila magic backup terenkripsi yang dikenal (VWB1/VWB2/VWB3). Murni. */
+    static boolean magicDikenal(String m) {
+        return ENC_MAGIC.equals(m) || ENC_MAGIC_V2.equals(m) || ENC_MAGIC_V3.equals(m);
+    }
+
+    /** Iterasi KDF backup file baru: penuh (100rb) di perangkat modern,
+     *  diringankan (30rb) di STB lama tanpa factory yang jalur manualnya
+     *  lambat. Iterasi tersimpan di header VWB3 sehingga dekripsi di perangkat
+     *  mana pun memakai angka yang benar. */
+    static int iterasiKdfBackup() {
+        return PinCrypto.pabrikTersedia() ? 100_000 : 30_000;
+    }
+
+    /** Iterasi 4 byte big-endian untuk header VWB3. Murni agar bisa unit test. */
+    static byte[] iterKeByte(int v) {
+        return new byte[]{(byte) (v >>> 24), (byte) (v >>> 16), (byte) (v >>> 8), (byte) v};
+    }
+
+    /** Kebalikan iterKeByte. Murni agar bisa unit test. */
+    static int byteKeIter(byte[] b) {
+        if (b == null || b.length != 4) {
+            return -1;
+        }
+        return ((b[0] & 0xFF) << 24) | ((b[1] & 0xFF) << 16)
+                | ((b[2] & 0xFF) << 8) | (b[3] & 0xFF);
+    }
 
     private static final String TG_API = "https://api.telegram.org/bot";
     private static final int KEEP_BACKUPS = 10;
@@ -1949,7 +1981,7 @@ public final class TgBackup {
                 return false;
             }
             String magicStr = new String(magic, StandardCharsets.US_ASCII);
-            return ENC_MAGIC.equals(magicStr) || ENC_MAGIC_V2.equals(magicStr);
+            return magicDikenal(magicStr);
         } catch (Exception e) {
             return false;
         }
@@ -1981,12 +2013,14 @@ public final class TgBackup {
         byte[] iv = new byte[12];
         SECURE_RANDOM.nextBytes(salt);
         SECURE_RANDOM.nextBytes(iv);
+        int iter = iterasiKdfBackup();
         Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt), "AES"),
+        c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt, true, iter), "AES"),
                 new GCMParameterSpec(128, iv));
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
-            fos.write(ENC_MAGIC_V2.getBytes(StandardCharsets.US_ASCII));
+            fos.write(ENC_MAGIC_V3.getBytes(StandardCharsets.US_ASCII));
+            fos.write(iterKeByte(iter));
             fos.write(salt);
             fos.write(iv);
             byte[] buf = new byte[64 * 1024];
@@ -2025,7 +2059,7 @@ public final class TgBackup {
             byte[] magic = new byte[4];
             readFully(fis, magic);
             String m = new String(magic, StandardCharsets.US_ASCII);
-            if (ENC_MAGIC.equals(m) || ENC_MAGIC_V2.equals(m)) {
+            if (magicDikenal(m)) {
                 return m;
             }
             return null;
@@ -2042,7 +2076,8 @@ public final class TgBackup {
         // sebelum doFinal() memverifikasi tag, sehingga kill tepat sebelum
         // gagal verifikasi menyisakan plaintext di disk bila langsung ke out.
         // Pemasangan ke out hanya bila tag lolos (rename se-direktori).
-        boolean baru = ENC_MAGIC_V2.equals(magicEnkripsi(in));
+        String magicAwal = magicEnkripsi(in);
+        boolean baru = magicDikenal(magicAwal) && !ENC_MAGIC.equals(magicAwal);
         File induk = out.getParentFile();
         if (induk == null) {
             throw new java.io.IOException("Path keluaran tidak valid.");
@@ -2165,8 +2200,21 @@ public final class TgBackup {
                 throw new IOException("File bukan backup terenkripsi");
             }
             String magicStr = new String(magic, StandardCharsets.US_ASCII);
-            if (!ENC_MAGIC.equals(magicStr) && !ENC_MAGIC_V2.equals(magicStr)) {
+            if (!magicDikenal(magicStr)) {
                 throw new IOException("File bukan backup terenkripsi");
+            }
+            int iter = 100000;
+            if (ENC_MAGIC_V3.equals(magicStr)) {
+                // VWB3 menyimpan iterasi KDF penulisnya (STB lama menulis angka
+                // ringan): validasi batas dulu agar file utak-atik beriterasi
+                // raksasa tak membakar CPU STB (DoS) dan iterasi mini (KDF lemah
+                // hasil utak-atik) ditolak fail-closed.
+                byte[] iterB = new byte[4];
+                readFully(fis, iterB);
+                iter = byteKeIter(iterB);
+                if (iter < PinCrypto.ITERASI_MINIMAL || iter > PinCrypto.MAKS_VERIFIKASI) {
+                    throw new IOException("Iterasi KDF backup tak valid: " + iter);
+                }
             }
             byte[] salt = new byte[16];
             byte[] iv = new byte[12];
@@ -2174,7 +2222,7 @@ public final class TgBackup {
             readFully(fis, iv);
             Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
             c.init(Cipher.DECRYPT_MODE,
-                    new SecretKeySpec(deriveKey(pass, salt, sha256), "AES"),
+                    new SecretKeySpec(deriveKey(pass, salt, sha256, iter), "AES"),
                     new GCMParameterSpec(128, iv));
             byte[] buf = new byte[64 * 1024];
             int n;
@@ -2194,9 +2242,15 @@ public final class TgBackup {
 
     /** KDF backup: SHA256 untuk file baru, SHA1 hanya fallback baca file lama. */
     private static byte[] deriveKey(String pass, byte[] salt, boolean sha256) throws Exception {
+        return deriveKey(pass, salt, sha256, 100000);
+    }
+
+    /** Varian iterasi eksplisit untuk baca/tulis header VWB3. */
+    private static byte[] deriveKey(String pass, byte[] salt, boolean sha256, int iter)
+            throws Exception {
         // Salinan char dinolkan di finally agar password tak mengendap di heap.
         char[] chars = pass == null ? new char[0] : pass.toCharArray();
-        PBEKeySpec spec = new PBEKeySpec(chars, salt, 100000, 256);
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, 256);
         try {
             try {
                 SecretKeyFactory f = SecretKeyFactory.getInstance(
@@ -2205,12 +2259,12 @@ public final class TgBackup {
             } catch (Exception e) {
                 // STB Android lama tanpa factory SHA256 (kasus yang sama dengan
                 // PIN app): tanpa ini backup terenkripsi gagal total di STB.
-                // Iterasi tetap 100rb agar format file tak berubah; jalur SHA1
-                // lama tak perlu fallback (ada di semua API).
+                // Iterasi mengikuti header agar hasil identik lintas perangkat;
+                // jalur SHA1 lama tak perlu fallback (ada di semua API).
                 if (!sha256) {
                     throw e;
                 }
-                return PinCrypto.pbkdf2Manual(pass, salt, 100000);
+                return PinCrypto.pbkdf2Manual(pass, salt, iter);
             }
         } finally {
             spec.clearPassword();

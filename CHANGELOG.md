@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Format backup VWB3: iterasi KDF ikut header, ringan di STB
+- `TgBackup`: file backup terenkripsi baru memakai magic `VWB3` dengan iterasi KDF di header (4 byte big-endian): perangkat modern menulis 100rb (tak berubah), STB lama tanpa factory menulis 30rb — enkripsi/restore di STB ~3x lebih cepat.
+- Dekripsi membaca iterasi dari header (batas 10rb–120rb ikut `PinCrypto`; di luar itu ditolak fail-closed anti-DoS) sehingga file STB terbaca di HP dan sebaliknya; `VWB1` (SHA1) dan `VWB2` tetap terbaca; `VWB2`/`VWB3` tak fallback SHA1.
+- Test: file baru assert `VWB3` + roundtrip; file `VWB2`/`VWB1` rakitan manual (jalur fallback SHA1 kini teruji beneran); file gaya STB (VWB3 30rb) lintas perangkat; header iterasi raksasa ditolak tanpa sisa file; roundtrip `iterKeByte`/`byteKeIter`.
+
 ## [Belum rilis] — Backup terenkripsi jalan di STB lama (fallback KDF manual)
 - `TgBackup.deriveKey`: tanpa factory PBKDF2-SHA256 di Android lama, backup/restore terenkripsi (KDF 100rb iterasi) melempar seperti PIN dulu — kini jatuh ke `PinCrypto.pbkdf2Manual` dengan iterasi tetap 100rb agar format file tak berubah; jalur SHA1 lama tak disentuh.
 - Test `pbkdf2ManualIterasiBesarSamadenganFactory` mengunci kesetaraan manual vs factory pada 100rb iterasi.

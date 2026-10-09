@@ -116,6 +116,104 @@ public class TgBackupTest {
     }
 
     @Test
+    /** Tulis backup terenkripsi gaya VWB1/VWB2/VWB3 manual (header +
+     *  AES-GCM) untuk uji kompatibel mundur dan lintas perangkat. */
+    private static void tulisTerenkripsiManual(java.io.File keluar, String magic,
+            int iter, String pass, boolean sha256, byte[] data) throws Exception {
+        java.security.SecureRandom acak = new java.security.SecureRandom();
+        byte[] salt = new byte[16];
+        acak.nextBytes(salt);
+        byte[] iv = new byte[12];
+        acak.nextBytes(iv);
+        byte[] kunci;
+        int it = iter > 0 ? iter : 100000;
+        javax.crypto.spec.PBEKeySpec spec = new javax.crypto.spec.PBEKeySpec(
+                pass.toCharArray(), salt, it, 256);
+        try {
+            kunci = javax.crypto.SecretKeyFactory.getInstance(
+                    sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1")
+                    .generateSecret(spec).getEncoded();
+        } finally {
+            spec.clearPassword();
+        }
+        if (iter > 0 && "VWB3".equals(magic)) {
+            // Jalur STB: KDF manual wajib hasilkan kunci yang sama.
+            byte[] manual = com.tasirin.vaultwardenhost.PinCrypto
+                    .pbkdf2Manual(pass, salt, iter);
+            org.junit.Assert.assertArrayEquals(kunci, manual);
+            kunci = manual;
+        }
+        javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+        c.init(javax.crypto.Cipher.ENCRYPT_MODE, new javax.crypto.spec.SecretKeySpec(
+                kunci, "AES"), new javax.crypto.spec.GCMParameterSpec(128, iv));
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(keluar)) {
+            o.write(magic.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            if ("VWB3".equals(magic)) {
+                o.write(new byte[]{(byte) (it >>> 24), (byte) (it >>> 16),
+                        (byte) (it >>> 8), (byte) it});
+            }
+            o.write(salt);
+            o.write(iv);
+            o.write(c.doFinal(data));
+        }
+    }
+
+    @Test
+    public void vwb3_iterasiRinganLintasPerangkat() throws Exception {
+        // File gaya STB lama (VWB3 iterasi 30rb via KDF manual) wajib terbaca
+        // di perangkat modern (factory) dan sebaliknya — iterasi ikut header.
+        java.io.File enc = java.io.File.createTempFile("vw-v3ringan", ".enc");
+        java.io.File pulih = new java.io.File(enc.getParentFile(),
+                "vw-v3pulih-" + System.nanoTime() + ".bin");
+        byte[] data = "backup dari stb lama".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            tulisTerenkripsiManual(enc, "VWB3", 30000, "katasandi", true, data);
+            assertEquals(TgBackup.ENC_MAGIC_V3, TgBackup.magicEnkripsi(enc));
+            assertTrue(TgBackup.isEncrypted(enc));
+            TgBackup.decryptFile(enc, pulih, "katasandi");
+            org.junit.Assert.assertArrayEquals(data,
+                    java.nio.file.Files.readAllBytes(pulih.toPath()));
+        } finally {
+            enc.delete();
+            pulih.delete();
+        }
+    }
+
+    @Test
+    public void vwb3_iterasiRaksasaDitolakFailClosed() throws Exception {
+        // Header utak-atik beriterasi 1 jt wajib ditolak sebelum KDF membakar
+        // CPU STB; tak ada plaintext parsial yang tersisa.
+        java.io.File enc = java.io.File.createTempFile("vw-v3jahat", ".enc");
+        java.io.File pulih = new java.io.File(enc.getParentFile(),
+                "vw-v3jahatpulih-" + System.nanoTime() + ".bin");
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(enc)) {
+            o.write("VWB3".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            o.write(new byte[]{0, 15, 66, 64});
+            byte[] isi = new byte[28];
+            new java.security.SecureRandom().nextBytes(isi);
+            o.write(isi);
+            o.write(new byte[32]);
+        }
+        try {
+            TgBackup.decryptFile(enc, pulih, "katasandi");
+            org.junit.Assert.fail("iterasi raksasa wajib ditolak");
+        } catch (Exception e) {
+        }
+        assertFalse(pulih.exists());
+    }
+
+    @Test
+    public void iterByte_rondtrip() {
+        org.junit.Assert.assertEquals(30000,
+                TgBackup.byteKeIter(TgBackup.iterKeByte(30000)));
+        org.junit.Assert.assertEquals(100000,
+                TgBackup.byteKeIter(TgBackup.iterKeByte(100000)));
+        org.junit.Assert.assertEquals(-1, TgBackup.byteKeIter(null));
+        org.junit.Assert.assertEquals(-1, TgBackup.byteKeIter(new byte[]{1, 2, 3}));
+    }
+
+    @Test
     public void encryptDecryptFile_rondtripUtuh() throws Exception {
         java.io.File asli = java.io.File.createTempFile("vw-asli", ".bin");
         java.io.File enc = java.io.File.createTempFile("vw-enc", ".enc");
@@ -152,19 +250,31 @@ public class TgBackupTest {
                 o.write(data);
             }
             TgBackup.encryptFile(asli, enc, "katasandi");
-            assertEquals(TgBackup.ENC_MAGIC_V2, TgBackup.magicEnkripsi(enc));
+            assertEquals(TgBackup.ENC_MAGIC_V3, TgBackup.magicEnkripsi(enc));
             assertTrue(TgBackup.isEncrypted(enc));
             TgBackup.decryptFile(enc, pulih, "katasandi");
             org.junit.Assert.assertArrayEquals(data, java.nio.file.Files.readAllBytes(pulih.toPath()));
-            byte[] semua = java.nio.file.Files.readAllBytes(enc.toPath());
-            byte[] v1 = "VWB1".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
-            System.arraycopy(v1, 0, semua, 0, 4);
-            try (java.io.FileOutputStream o = new java.io.FileOutputStream(lawas)) {
-                o.write(semua);
-            }
-            assertEquals("VWB1", TgBackup.magicEnkripsi(lawas));
+            // Kompatibel mundur: file VWB2 (SHA256 100rb, tanpa iterasi header)
+            // dan VWB1 (SHA1 100rb) rakitan manual tetap terbaca.
+            tulisTerenkripsiManual(lawas, "VWB2", 0, "katasandi", true, data);
+            assertEquals("VWB2", TgBackup.magicEnkripsi(lawas));
+            assertTrue(TgBackup.isEncrypted(lawas));
             TgBackup.decryptFile(lawas, pulihLawas, "katasandi");
             org.junit.Assert.assertArrayEquals(data, java.nio.file.Files.readAllBytes(pulihLawas.toPath()));
+            java.io.File lawas1 = new java.io.File(enc.getParentFile(),
+                    "vw-lawas1-" + System.nanoTime() + ".enc");
+            java.io.File pulihLawas1 = new java.io.File(enc.getParentFile(),
+                    "vw-pulihlawas1-" + System.nanoTime() + ".bin");
+            try {
+                tulisTerenkripsiManual(lawas1, "VWB1", 0, "katasandi", false, data);
+                assertEquals("VWB1", TgBackup.magicEnkripsi(lawas1));
+                TgBackup.decryptFile(lawas1, pulihLawas1, "katasandi");
+                org.junit.Assert.assertArrayEquals(data,
+                        java.nio.file.Files.readAllBytes(pulihLawas1.toPath()));
+            } finally {
+                lawas1.delete();
+                pulihLawas1.delete();
+            }
         } finally {
             asli.delete();
             enc.delete();
