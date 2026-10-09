@@ -35,8 +35,8 @@ public class PinCryptoTest {
 
     @Test
     public void iterasiRaksasaDitolak() {
-        // Hash utak-atik beriterasi 1 jt memaksa PBKDF2 ~8x (stall STB):
-        // wajib ditolak sebelum derive, hash 120k bawaan tetap lolos.
+        // Hash utak-atik beriterasi 1 jt memaksa PBKDF2 puluhan kali (stall STB):
+        // wajib ditolak sebelum derive, hash bawaan tetap lolos.
         String raksasa = "PBKDF2$1000000$"
                 + "00112233445566778899aabbccddeeff"
                 + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
@@ -70,7 +70,7 @@ public class PinCryptoTest {
     public void bungkusDiniKuatkanHashLegasi() {
         String lama = PinCrypto.sha256("9999");
         String bungkus = PinCrypto.bungkusLegasi(lama);
-        assertTrue(bungkus.startsWith("PBKDF2W$120000$"));
+        assertTrue(bungkus.startsWith("PBKDF2W$30000$"));
         // Hasil bungkusan lolos verifikasi PIN benar, tolak yang salah.
         assertTrue(PinCrypto.verify(bungkus, "9999"));
         assertFalse(PinCrypto.verify(bungkus, "0000"));
@@ -90,10 +90,25 @@ public class PinCryptoTest {
         String bungkus = PinCrypto.bungkusLegasi(PinCrypto.sha256("9999"));
         // Iterasi raksasa/mini hasil utak-atik ditolak seperti format standar.
         assertFalse(PinCrypto.verify(
-                bungkus.replace("PBKDF2W$120000$", "PBKDF2W$1000000$"), "9999"));
+                bungkus.replace("PBKDF2W$30000$", "PBKDF2W$1000000$"), "9999"));
         assertFalse(PinCrypto.verify(
-                bungkus.replace("PBKDF2W$120000$", "PBKDF2W$100$"), "9999"));
+                bungkus.replace("PBKDF2W$30000$", "PBKDF2W$100$"), "9999"));
         assertFalse(PinCrypto.verify("PBKDF2W$xxx", "9999"));
+    }
+
+    @Test
+    public void normalisasiIterasiLama() {
+        // Hash baru memakai standar 30rb: tak perlu upgrade.
+        String kini = PinCrypto.hash("1234");
+        assertTrue(kini.startsWith("PBKDF2$30000$"));
+        assertFalse(PinCrypto.perluUpgradeHash(kini));
+        // Hash lama 120rb (versi app sebelumnya) dinormalisasi ke standar
+        // saat login sukses agar buka PIN di STB cepat.
+        String berat = kini.replace("PBKDF2$30000$", "PBKDF2$120000$");
+        assertTrue(PinCrypto.perluUpgradeHash(berat));
+        // Hash utak-atik 10k juga dinormalisasi, bukan dipertahankan.
+        String lemah = kini.replace("PBKDF2$30000$", "PBKDF2$10000$");
+        assertTrue(PinCrypto.perluUpgradeHash(lemah));
     }
 
     @Test

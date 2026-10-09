@@ -64,12 +64,12 @@ public class SettingsActivity extends Activity {
     private EditText binShaInput;
     private EditText pinInput;
     private CheckBox pinEnabledCheck;
-    /** Hash PIN (PBKDF2 120rb iterasi) di worker agar tiap ketikan tak macetkan UI. */
+    /** Hash PIN (PBKDF2 30rb iterasi) di worker agar tak macetkan UI. */
     private final java.util.concurrent.ExecutorService pinExec =
             java.util.concurrent.Executors.newSingleThreadExecutor();
     private volatile int pinSeq;
     private volatile java.util.concurrent.Future<?> pinPending;
-    /** Jadwal debounce ketikan PIN: hash berat (PBKDF2 120rb) baru dikirim ke
+    /** Jadwal debounce ketikan PIN: hash (PBKDF2 30rb) baru dikirim ke
      *  worker sesudah 800 ms tanpa ketikan agar tak menumpuk di CPU lemah STB. */
     private Runnable pinTunda = null;
     /** Hash PIN terbaru dari worker yang belum disimpan ke prefs: prefs hanya
@@ -3557,18 +3557,14 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
         pinHashSiap = null;
+        pinTunda = null;
         sapuExportPlainBasi();
-        // Batalkan hash PIN yang masih antre agar thread PBKDF2 tak terus
-        // jalan setelah activity hancur; shutdownNow saja tak mematikan
-        // Future yang sudah disubmit.
-        try {
-            java.util.concurrent.Future<?> gantung = pinPending;
-            if (gantung != null && !gantung.isDone()) {
-                gantung.cancel(true);
-            }
-        } catch (Exception ignored) {
-        }
-        pinExec.shutdownNow();
+        // Biarkan antrean pinExec terkuras (shutdown, bukan shutdownNow):
+        // hash toggle yang antre tepat sebelum keluar Settings tetap tersimpan
+        // di prefs (satu hash 30rb cuma ~1 dtk). shutdownNow membuang tugas
+        // antre sehingga PIN gagal aktif tanpa pesan bila user buru-buru keluar.
+        // Callback debounce UI ikut dibuang via removeCallbacks di bawah.
+        pinExec.shutdown();
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }

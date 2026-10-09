@@ -20,11 +20,21 @@ public final class PinCrypto {
     /** Awalan hash "bungkus-dini": PBKDF2 atas hash legasi (bukan PIN langsung).
      *  Lihat bungkusLegasi. */
     static final String PREFIX_BUNGKUS = "PBKDF2W$";
-    private static final int ITERATIONS = 120_000;
+    /** Iterasi hash BARU: 30rb (dulu 120rb) agar sekali set/buka PIN di CPU
+     *  lemah STB rampung ~1 detik, bukan belasan detik yang bikin status
+     *  "proses" dikira macet. PIN tetap aman: brute-force online dibatasi
+     *  kunci 5 menit tiap 5 gagal (PinGate) dan salt acak tiap hash menutup
+     *  rainbow table; biaya KDF hanya pertahanan lapis kedua. */
+    private static final int ITERATIONS = 30_000;
     /** Iterasi minimum yang diterima saat verifikasi: hash beriterasi jauh
      *  lebih rendah (mis. hasil utak-atik prefs) ditolak fail-closed.
      *  Semua hash yang ditulis app ini memakai ITERATIONS di atas. */
     static final int ITERASI_MINIMAL = 10_000;
+    /** Iterasi maksimum yang diterima saat verifikasi: hash lama 120rb yang
+     *  ditulis versi app sebelumnya tetap diverifikasi sekali lalu
+     *  dinormalisasi ke ITERATIONS (lihat perluUpgradeHash), bukan ditolak
+     *  dan mengunci user. Batas ini juga menutup DoS iterasi raksasa. */
+    static final int MAKS_VERIFIKASI = 120_000;
     /** Panjang heks maksimum tiap bagian salt/hash saat verifikasi: format sah
      *  hanya 32 (salt 16 byte) dan 64 char (hash 32 byte). Heks raksasa dari
      *  prefs utak-atik/import jahat memaksa alokasi besar sebelum cek ukuran
@@ -77,10 +87,10 @@ public final class PinCrypto {
         return true;
     }
 
-    /** Bungkus hash legasi ke format ber-salt + stretch 120k tanpa perlu PIN.
+    /** Bungkus hash legasi ke format ber-salt + stretch 30k tanpa perlu PIN.
      *  Tanpa ini SHA-256 tanpa salt bertahan di disk sampai login sukses
      *  berikutnya dan retak offline dalam detik bila prefs bocor (PIN 4-6
-     *  digit). Tiap tebakan atas hasil bungkusan memaksa PBKDF2 120k penuh
+     *  digit). Tiap tebakan atas hasil bungkusan memaksa PBKDF2 30k penuh
      *  karena inputnya bukan PIN melainkan hash legasi. Null bila bukan
      *  hash legasi valid (tak ada yang boleh ditulis). Murni CPU — panggil
      *  dari worker thread (lihat PinGate.kuatkanHashDini). */
@@ -101,9 +111,10 @@ public final class PinCrypto {
     }
 
     /** True bila hash wajib di-upgrade sesudah verifikasi sukses: hash lama,
-     *  bungkusan dini (normalisasi ke format standar), maupun PBKDF2
-     *  beriterasi di bawah standar kini (mis. prefs utak-atik 10k). Tanpa
-     *  ini hash lemah 10k lolos selamanya tanpa pernah naik ke 120k.
+     *  bungkusan dini (normalisasi ke format standar), maupun PBKDF2 yang
+     *  iterasinya bukan standar kini (prefs utak-atik 10k maupun hash lama
+     *  120k yang berat di STB). Tanpa ini hash lemah 10k lolos selamanya
+     *  dan hash 120k lama tetap lambat tiap buka PIN.
      *  Murni agar bisa unit test. */
     public static boolean perluUpgradeHash(String stored) {
         if (stored == null || stored.isEmpty()) {
@@ -121,14 +132,14 @@ public final class PinCrypto {
                 return true;
             }
             int iter = Integer.parseInt(parts[1]);
-            // Minta upgrade bila salt/hash tak standar atau iterasi di bawah 120000.
+            // Minta upgrade bila salt/hash tak standar atau iterasi bukan standar kini.
             // Hash sah: salt 16 byte (32 hex) & hash 32 byte (64 hex).
             byte[] salt = unhex(parts[2]);
             byte[] want = unhex(parts[3]);
             if (salt == null || want == null || salt.length != 16 || want.length != 32) {
                 return true;
             }
-            return iter < ITERATIONS;
+            return iter != ITERATIONS;
         } catch (Exception e) {
             return true;
         }
@@ -151,11 +162,11 @@ public final class PinCrypto {
                     return false;
                 }
                 int iter = Integer.parseInt(parts[1]);
-                // Batas atas = ITERATIONS (120k): hash utak-atik beriterasi
-                // raksasa (mis. 1 jt) memaksa PBKDF2 ~8x dan stall STB/polling
-                // tiap upaya verifikasi. Hash lama 10k-120k tetap diverifikasi
-                // lalu di-upgrade (lihat perluUpgradeHash).
-                if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
+                // Batas atas = MAKS_VERIFIKASI (120k): hash utak-atik beriterasi
+                // raksasa (mis. 1 jt) memaksa PBKDF2 puluhan kali dan stall
+                // STB/polling tiap upaya verifikasi. Hash lama 10k-120k tetap
+                // diverifikasi lalu di-upgrade (lihat perluUpgradeHash).
+                if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
                     return false;
                 }
                 // Heks raksasa ditolak sebelum unhex mengalokasi
@@ -186,7 +197,7 @@ public final class PinCrypto {
                 }
                 // Batas sama seperti format standar: iterasi raksasa = DoS,
                 // iterasi mini = prefs utak-atik.
-                if (iter < ITERASI_MINIMAL || iter > ITERATIONS) {
+                if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
                     return false;
                 }
                 // Batas sama seperti format standar: heks raksasa = OOM.

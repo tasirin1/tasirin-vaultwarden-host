@@ -124,7 +124,7 @@ public final class PinGate {
     /** Keraskan hash PIN legasi di rest tanpa menunggu login sukses.
      *  Tanpa ini SHA-256 tanpa salt bertahan selamanya bagi user yang jarang
      *  login dan retak offline dalam detik bila prefs bocor. Wajib dari worker
-     *  thread (PBKDF2 120k); dipanggil sekali tiap app dibuka. Tulis best-effort
+     *  thread (PBKDF2 30k); dipanggil sekali tiap app dibuka. Tulis best-effort
      *  via apply (gagal tertunda dicoba lagi saat buka berikut); cek-ulang
      *  sebelum tulis agar tak menimpa hash standar hasil login di thread lain. */
     public static void kuatkanHashDini(Context ctx) {

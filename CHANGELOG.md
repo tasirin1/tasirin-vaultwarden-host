@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — PIN enteng di STB: iterasi 120rb jadi 30rb + antrean tak dibuang
+- `PinCrypto`: hash PIN baru memakai 30rb iterasi (dulu 120rb) — sekali set/buka PIN di STB rampung ~1 detik. Brute-force tetap terkunci 5 menit tiap 5 gagal + salt acak, jadi keamanan praktis tak berubah.
+- `PinCrypto`: hash lama 120rb tetap diterima sekali lalu dinormalisasi ke 30rb saat login sukses (`perluUpgradeHash`: `iter != standar`) — user lama tak terkunci dan buka PIN berikutnya jadi cepat.
+- `SettingsActivity.onDestroy`: `pinExec.shutdownNow()` + `cancel()` diganti `shutdown()` — hash toggle yang antre tepat sebelum keluar Settings tetap tersimpan (sumber "centang balik uncheck tanpa pesan").
+
+
 ## [Belum rilis] — PIN ringan di STB: debounce hash + kunci UI saat proses
 - `SettingsActivity`: hash PBKDF2 120rb tiap ketikan diganti debounce 800 ms — hash berat baru dikirim ke worker sesudah user berhenti mengetik (satu hash per jeda, bukan satu per ketikan yang menumpuk di CPU lemah STB).
 - `SettingsActivity`: centang PIN membatalkan jadwal debounce + mengunci checkbox/field selama hash berjalan — ketuk/ketik ulang tak lagi menumpuk antrean PBKDF2 (sumber status "proses mulu").

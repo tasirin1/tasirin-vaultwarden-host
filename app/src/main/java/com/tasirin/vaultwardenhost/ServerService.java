@@ -753,7 +753,7 @@ public class ServerService extends Service {
         createChannel();
         // Keraskan hash PIN legasi di rest (tanpa menunggu buka activity):
         // pemakaian bot-only/boot tak pernah menyentuh MainActivity sehingga
-        // SHA-256 tanpa salt bertahan selamanya. Worker thread (PBKDF2 120k).
+        // SHA-256 tanpa salt bertahan selamanya. Worker thread (PBKDF2 30k).
         try {
             final android.content.Context appPin = getApplicationContext();
             new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
