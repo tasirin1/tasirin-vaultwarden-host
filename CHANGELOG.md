@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Top bar + titik-tiga persis TDM, tombol seragam 48dp
+- `activity_main` (portrait + land): hero gradien diganti bar judul ala Toolbar TDM — primary solid setinggi action bar, tetap di atas, judul 20sp + subversi `vX · build N` putih, tanpa ikon app. Rantai D-pad dan ID kedua orientasi tetap sama persis.
+- Titik-tiga diganti `ImageButton` 48dp berikon vektor `ic_more` putih (jalur TDM) + `PopupMenu` di bawahnya; status hijau hero saat berjalan dihapus (indikator jalan tetap di banner status).
+- `TasirinBtnPrimary`: tinggi 52dp jadi 48dp + teks 17sp jadi 16sp — semua gaya tombol kini se-TDM: satu tinggi 48dp, beda hanya isi/teks. Style `TasirinToolbarTitle`/`Subtitle` baru.
+
 ## [Belum rilis] — Tema seragam ikut Tasirin Download Manager
 - Palet inti (`primary`/`accent`/`window_bg`/`text_*`/`status_*`) disamakan dengan TDM (`#1565C0`/`#F57C00`/`#F2F4F8`); token TDM (`line`, `text_hint`, `primary_container`) ditambah di siang + malam agar komponen bersama tampil sama.
 - `themes.xml` (siang + malam): atribut `colorControlNormal`, `textColorPrimary/Secondary`, `colorBackground` ditambah ikut TDM.

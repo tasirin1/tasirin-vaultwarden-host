@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
@@ -48,7 +49,6 @@ public class MainActivity extends Activity {
     private TextView statusView;
     private View statusBanner;
     private View statusDot;
-    private View heroBar;
     private TextView versionView;
     private TextView netInfoView;
     private TextView uptimeView;
@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
     private TextView homeLogView;
     private ScrollView homeLogScroll;
     private Button startStopBtn;
-    private Button overflowBtn;
+    private ImageButton overflowBtn;
 
     private volatile String pendingVersion = null;
     private String appVersion = "";
@@ -129,7 +129,6 @@ public class MainActivity extends Activity {
         statusView = findViewById(R.id.status);
         statusBanner = findViewById(R.id.statusBanner);
         statusDot = findViewById(R.id.statusDot);
-        heroBar = findViewById(R.id.heroBar);
         versionView = findViewById(R.id.version);
         netInfoView = findViewById(R.id.netInfo);
         uptimeView = findViewById(R.id.uptimeInfo);
@@ -167,6 +166,14 @@ public class MainActivity extends Activity {
         try {
             appVersion = getPackageManager()
                     .getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception ignored) {
+        }
+        try {
+            int buildBar = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionCode;
+            TextView subBar = findViewById(R.id.toolbarSubtitle);
+            subBar.setText(getString(R.string.toolbar_subtitle,
+                    appVersion.isEmpty() ? "?" : appVersion, buildBar));
         } catch (Exception ignored) {
         }
         bundledVersion = readBundledVersion();
@@ -495,8 +502,6 @@ public class MainActivity extends Activity {
                     ? R.drawable.bg_status_running : R.drawable.bg_status_stopped);
             statusDot.setBackgroundResource(running
                     ? R.drawable.bg_dot_running : R.drawable.bg_dot_stopped);
-            heroBar.setBackgroundResource(running
-                    ? R.drawable.bg_hero_running : R.drawable.bg_hero);
             lastShownStatus = key;
         }
         // Tombol Stop merah + deskripsi aksesibilitas (saran 4)

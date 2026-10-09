@@ -12,12 +12,13 @@
         <item name="android:paddingRight">14dp</item>
     </style>
 
-    <!-- Tombol utama: berisi warna brand, teks adaptif siang/malam via btn_primary_text. -->
+    <!-- Tombol utama: tinggi seragam 48dp seperti semua tombol (ikut TDM:
+         tombol aksi dan sekunder seukuran, beda hanya di isi/teks). -->
     <style name="TasirinBtnPrimary" parent="TasirinBtn">
         <item name="android:background">@drawable/bg_btn_primary</item>
         <item name="android:textColor">@color/btn_primary_text</item>
-        <item name="android:minHeight">52dp</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -85,10 +86,21 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
-    <!-- Teks di atas hero gradien. -->
+    <!-- Teks di atas hero gradien (layar PIN). -->
     <style name="TasirinHeroTitle">
         <item name="android:textSize">19sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Judul + subversi bar atas ala Toolbar TDM (putih di atas primary). -->
+    <style name="TasirinToolbarTitle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="TasirinToolbarSubtitle">
+        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
