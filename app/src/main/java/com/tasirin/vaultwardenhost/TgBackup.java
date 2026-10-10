@@ -664,8 +664,10 @@ public final class TgBackup {
             String contentType, int connectMs, int readMs) throws Exception {
         // URL POST membawa token bot di path: kunci ke host Telegram resmi agar
         // bug pemanggil tak mengirim token ke host asing via MITM/typo.
+        final java.net.URL tujuan;
         try {
-            String host = new java.net.URL(url).getHost();
+            tujuan = new java.net.URL(url);
+            String host = tujuan.getHost();
             if (!Util.hostTelegramAman(host)) {
                 throw new java.io.IOException("Host Telegram tidak aman: " + host);
             }
@@ -674,7 +676,7 @@ public final class TgBackup {
         } catch (Exception e) {
             throw new java.io.IOException("URL Telegram tidak valid.");
         }
-        HttpURLConnection c = (HttpURLConnection) new java.net.URL(url).openConnection();
+        HttpURLConnection c = (HttpURLConnection) tujuan.openConnection();
         c.setRequestMethod("POST");
         c.setDoOutput(true);
         c.setConnectTimeout(connectMs);

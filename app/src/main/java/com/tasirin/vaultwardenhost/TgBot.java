@@ -44,6 +44,10 @@ public final class TgBot {
     /** Wall-clock terbesar yang pernah terlihat (deteksi jam mundur/NTP).
      *  Bila jam mundur jauh, tombol/pesan basi diperlakukan kedaluwarsa (fail-closed). */
     private static volatile long wallMaksTelegram = 0;
+    /** Nilai wall-maks yang sudah sinkron dengan prefs di proses ini
+     *  (MIN_VALUE = belum sinkron): simpanWallMaks + muatWallMaks satu-satunya
+     *  penulis/pembaca sehingga baca prefs tiap 20 dtk tak perlu. */
+    private static volatile long wallMaksTersimpan = Long.MIN_VALUE;
     /** Kunci tanda air wall-clock: baca-ubah-tulis wajib atomik agar update
      *  maksimum tak hilang saat dua poll tumpang tindih. */
     private static final Object KUNCI_WALL = new Object();
@@ -393,7 +397,8 @@ public final class TgBot {
                 return;
             }
             long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
-            String chatResmi = chat.trim();
+            // chat sudah Util.amanTrim (tak-null + ter-trim): tanpa trim ulang per poll.
+            String chatResmi = chat;
             // ID negatif = grup/supergrup: semua anggota bisa memerintah bot
             // (sensitif tetap butuh PIN), jadi peringatkan sekali per proses
             // agar pemilik pindah ke chat pribadi bila memungkinkan.
@@ -1907,10 +1912,16 @@ public final class TgBot {
 
     /** Muat maks wall-clock dari prefs (deteksi rollback lintas restart). */
     static void muatWallMaks(Context ctx) {
+        // Sekali per proses: hanya simpanWallMaks/muatWallMaks yang tulis/baca
+        // kunci ini di satu proses, jadi muat ulang tiap poll tak ada gunanya.
+        if (wallMaksTersimpan != Long.MIN_VALUE) {
+            return;
+        }
         try {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long s = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
+            wallMaksTersimpan = s;
             synchronized (KUNCI_WALL) {
                 if (s > wallMaksTelegram) {
                     wallMaksTelegram = s;
@@ -1923,12 +1934,22 @@ public final class TgBot {
     /** Simpan maks wall-clock ke prefs bila berubah (poll tiap 20 dtk). */
     static void simpanWallMaks(Context ctx) {
         try {
-            SharedPreferences sp = ctx.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE);
-            if (TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0) == wallMaksTelegram) {
+            long kini = wallMaksTelegram;
+            if (kini == wallMaksTersimpan) {
                 return;
             }
-            sp.edit().putLong(KEY_TG_WALL_MAKS, wallMaksTelegram).apply();
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (wallMaksTersimpan == Long.MIN_VALUE) {
+                // Belum sinkron di proses ini: baca sekali, bukan tiap poll.
+                long tersimpan = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
+                wallMaksTersimpan = tersimpan;
+                if (tersimpan == kini) {
+                    return;
+                }
+            }
+            sp.edit().putLong(KEY_TG_WALL_MAKS, kini).apply();
+            wallMaksTersimpan = kini;
         } catch (Exception ignored) {
         }
     }
