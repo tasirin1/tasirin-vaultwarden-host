@@ -90,7 +90,16 @@ android {
             "UnusedResources", // drawable/warna/string/gaya yatim
             "UnusedIds",       // android:id tak dirujuk kode/layout lain
             "UnusedQuantity",  // item plurals tak relevan untuk locale
-            "MissingQuantity"  // plurals tanpa quantity wajib (other)
+            "MissingQuantity", // plurals tanpa quantity wajib (other)
+            // Radar buru-bug (SDK GitHub, bukan lokal): lolos audit manual,
+            // jadi dipromosi agar push berikut otomatis gagal bila muncul lagi.
+            "UnusedImports",   // import mati (sapuan ronde 19 bersih)
+            "ObsoleteSdkInt",  // cek SDK basi (minSdk 21; cek >=M/O masih relevan)
+            "DrawAllocation",  // alokasi di onDraw (tanpa custom view)
+            "HandlerLeak",     // Handler non-statis (tanpa subclass Handler)
+            "StaticFieldLeak", // field statis pegang Context/View (nihil)
+            "Recycle",         // TypedArray tanpa recycle (tanpa obtain)
+            "Wakelock"         // acquire tanpa timeout (pakai timeout 12 jam)
         )
         disable += setOf(
             "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)

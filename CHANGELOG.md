@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Radar lint buru-bug: 7 cek jadi error CI
+- `app/build.gradle.kts`: `UnusedImports`, `ObsoleteSdkInt`, `DrawAllocation`, `HandlerLeak`, `StaticFieldLeak`, `Recycle`, `Wakelock` naik ke `error` — SDK GitHub (`lintDebug` tiap push) yang berburu bug/inefisiensi, bukan SDK lokal. Semua lolos audit manual sebelum dipromosi.
 ## [Belum rilis] — Audit agresif 19: buang import mati + sapuan sampah nihil
 - `MainActivity.java`: buang `import android.os.Build` yang tak terpakai (satu-satunya kemunculan kata `Build`).
 - Sapuan sampah: 12 kunci prefs dicurigai semua terpakai; import 21 berkas bersih; ~50 metode privat dicurigai semua terhubung (callback/listener/`::ref`/tes); resource yatim nihil (verifikasi-path).
