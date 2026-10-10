@@ -654,7 +654,9 @@ public class ServerService extends Service {
             return new HasilPing(false, -1, -1, "baca prefs gagal");
         }
         String scheme = "https";
-        String p = port == null ? "" : port.trim();
+        // Tanpa trim: port dari effectivePort() selalu ternormalisasi
+        // (String.valueOf/default, tanpa whitespace).
+        String p = port == null ? "" : port;
         // Gerbang TCP murah dulu: server mati tak membayar 2x handshake TLS
         // (2x4 dtk) tiap tick di CPU ARMv7 lambat; cukup 1x TCP ~3 dtk.
         try {
@@ -764,7 +766,9 @@ public class ServerService extends Service {
         try {
             String p = !runningPort.isEmpty() ? runningPort
                     : effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
-            return Integer.parseInt(p.trim());
+            // Tanpa trim: kedua sumber ternormalisasi tanpa whitespace;
+            // galat parse tetap jatuh ke -1 di bawah.
+            return Integer.parseInt(p);
         } catch (Exception e) {
             return -1;
         }
@@ -1351,8 +1355,10 @@ public class ServerService extends Service {
         // jadi bandingkan dengan nilai mentah agar user paham port 80/443 tak bisa dipakai tanpa root.
         try {
             String mentah = TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
-            if (mentah != null && !port.equals(mentah.trim()) && !mentah.trim().isEmpty()) {
-                appendLog("[app] Port '" + mentah.trim() + "' tidak valid/privileged - pakai default " + port
+            // Trim sekali (dulu 3x trim per Start): perilaku sama persis.
+            String mRapi = mentah == null ? "" : mentah.trim();
+            if (!mRapi.isEmpty() && !port.equals(mRapi)) {
+                appendLog("[app] Port '" + mRapi + "' tidak valid/privileged - pakai default " + port
                         + ". Pakai port >= 1024 di Settings bila ingin port lain.");
             }
         } catch (Exception ignored) {
@@ -1561,7 +1567,9 @@ public class ServerService extends Service {
                 appendLog("[app] LD_PRELOAD shim getrandom aktif.");
             }
             // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
-            String domain = scheme + "://" + formatHostUntukUrl(lanHost()) + ":" + port;
+            // Satu enumerasi interface (dulu lanHost() 2x saat Start).
+            String hostSegar = lanHost();
+            String domain = scheme + "://" + formatHostUntukUrl(hostSegar) + ":" + port;
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
@@ -1571,7 +1579,7 @@ public class ServerService extends Service {
             runningAdminToken = sidikTokenAdmin(adminToken);
             String wvFrom = Updater.webVaultFromVersion(this);
             runningWvFrom = wvFrom == null ? "" : wvFrom;
-            runningLanHost = lanHost();
+            runningLanHost = hostSegar;
             ipBerubahDiperingatkan = "";
             ipBaruKandidat = "";
             ipBaruHitung = 0;
@@ -2651,7 +2659,8 @@ public class ServerService extends Service {
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String port = effectivePort(sp);
-        return "https://" + formatHostUntukUrl(localIp()) + ":" + port.trim();
+        // Tanpa trim: effectivePort() ternormalisasi tanpa whitespace.
+        return "https://" + formatHostUntukUrl(localIp()) + ":" + port;
     }
 
     private void setStatus(String text) {

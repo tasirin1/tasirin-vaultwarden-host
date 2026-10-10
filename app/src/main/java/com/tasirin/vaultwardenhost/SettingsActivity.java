@@ -992,7 +992,9 @@ public class SettingsActivity extends Activity {
         // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
         String statusText = running ? teksBerjalan : teksBerhenti;
-        String key = statusText + "|" + (running ? "on" : "off");
+        // Tanpa concat tiap tick (dulu statusText+"|"+... tiap 500/1000 ms):
+        // teks hanya turunan running sehingga literal on/off cukup.
+        String key = running ? "on" : "off";
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
             statusView.setBackgroundResource(running
