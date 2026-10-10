@@ -148,7 +148,7 @@ public final class LogExport {
                     // (tabrakan acak / file lama) tak akan ditimpa atau dihapus.
                     for (int coba = 0; coba < 5 && tujuan == null; coba++) {
                         if (coba > 0) {
-                            name = namaLog(stamp, rnd);
+                            name = namaLog(stamp, ACAK);
                         }
                         try {
                             File cand = new File(dir, name);
