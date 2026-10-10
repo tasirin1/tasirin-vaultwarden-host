@@ -352,7 +352,8 @@ public final class TlsCert {
         if (sisa == -2) {
             // Sertifikat belum valid karena jam perangkat miring ke masa lalu.
             // Dipakai sementara agar tak regen tiap Start, bukan permanen.
-            // TODO: jadwalkan regen saat jam pulih
+            // Regen otomatis terjadi di Start berikut setelah jam pulih
+            // (sisaMs tak lagi -2 sehingga caOk/leafCukup menolak).
             try {
                 ServerService.catatLog("[tls] CA belum valid (jam miring), dipakai sementara");
             } catch (Exception ignored) {
@@ -371,7 +372,7 @@ public final class TlsCert {
     static boolean leafCukup(long sisa) {
         if (sisa == -2) {
             // Sama seperti CA: jam miring, pakai sementara agar tak regen tiap Start.
-            // TODO: jadwalkan regen saat jam pulih
+            // Regen otomatis terjadi di Start berikut setelah jam pulih (lihat caOk).
             try {
                 ServerService.catatLog("[tls] leaf belum valid (jam miring), dipakai sementara");
             } catch (Exception ignored) {

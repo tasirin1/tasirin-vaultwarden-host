@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 20: hemat tick/health/hash + buang duplikat
+- `MainActivity`/`SettingsActivity` tick: `trim()` 2x per nilai jadi lokal sekali (`dRapi`/`pRapi`/`rdRapi`/`rpRapi`/`raRapi`).
+- `MainActivity.onCreate`: dua `getPackageInfo` jadi satu IPC PackageManager.
+- `ServerService.pingRinci`: fallback `/api/config` dilewati bila `/alive` galat transport (-1, lapor "dilewati") — hemat satu handshake TLS di ARMv7 lambat.
+- `HttpsCompat.capOverride`: hash cap per byte tanpa `Arrays.copyOf` per chunk.
+- `TgBot.teksVersi`: tanpa panggil folder bawaan ganda (fallback sekali).
+- `Updater.readBundledVersionLabel`: satu implementasi label versi; metode privat duplikat di `MainActivity`/`SettingsActivity` dibuang (+ import mati dibersihkan agar lint `UnusedImports` tetap hijau).
+- `KernelCompat.isLegacyDevice`: buang wrapper (kanonis `isLegacyKernel`); `Updater` + tes ikut.
+- `ServerService.DEFAULT_DATA_DIR`: `@Deprecated` (kode baru wajib `dataDirBawaanSegar()`).
+- `TlsCert`: 2 TODO jam-miring jadi catatan perilaku (regen otomatis di Start berikut setelah jam pulih).
+- `AlarmReceiver`: buang cek literal `TIME_SET` ganda (konstanta = string itu).
+
 ## [Belum rilis] — Radar lint buru-bug: 7 cek jadi error CI
 - `app/build.gradle.kts`: `UnusedImports`, `ObsoleteSdkInt`, `DrawAllocation`, `HandlerLeak`, `StaticFieldLeak`, `Recycle`, `Wakelock` naik ke `error` — SDK GitHub (`lintDebug` tiap push) yang berburu bug/inefisiensi, bukan SDK lokal. Semua lolos audit manual sebelum dipromosi.
 ## [Belum rilis] — Audit agresif 19: buang import mati + sapuan sampah nihil

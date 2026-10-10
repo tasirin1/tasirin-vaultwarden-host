@@ -41,15 +41,10 @@ public final class KernelCompat {
     public static boolean legacyPerangkat() {
         Boolean m = legacyMemo;
         if (m == null) {
-            m = Boolean.valueOf(isLegacyDevice(kernelSekarang()));
+            m = Boolean.valueOf(isLegacyKernel(kernelSekarang()));
             legacyMemo = m;
         }
         return m.booleanValue();
-    }
-
-    /** True bila perangkat butuh shim getrandom (penentu tunggal: versi kernel). */
-    public static boolean isLegacyDevice(String osVersion) {
-        return isLegacyKernel(osVersion);
     }
 
     /** Versi kernel perangkat ini (System.getProperty("os.version")), "" bila tak terbaca. */
@@ -71,7 +66,7 @@ public final class KernelCompat {
     public static String infoBaris(String osVersion, int sdkInt) {
         String kernel = osVersion == null || osVersion.isEmpty() ? "?" : osVersion;
         return "kernel " + kernel + " | SDK " + sdkInt
-                + " | channel " + channelName(isLegacyDevice(osVersion));
+                + " | channel " + channelName(isLegacyKernel(osVersion));
     }
 
     /** Saran perbaikan (Bahasa Indonesia) bila binary tetap panic walau shim dipasang. */

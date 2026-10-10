@@ -165,12 +165,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
         String action = intent != null ? intent.getAction() : null;
-        // ACTION_TIME_CHANGED nilainya "android.intent.action.TIME_SET" (sama
-        // dengan literal manifest di bawah) sehingga dicek dua kali dengan
-        // sengaja agar tetap kebaca walau dibaca sebagai salah satunya.
+        // Intent.ACTION_TIME_CHANGED nilainya "android.intent.action.TIME_SET"
+        // (sama dengan literal di manifest) sehingga satu cek cukup.
         if (Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
-                || "android.intent.action.TIME_SET".equals(action)
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);

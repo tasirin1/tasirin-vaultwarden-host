@@ -11,7 +11,7 @@ public class KernelCompatTest {
 
     @Test
     public void legacyMemoKonsistenDenganMurni() {
-        assertEquals(KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang()),
+        assertEquals(KernelCompat.isLegacyKernel(KernelCompat.kernelSekarang()),
                 KernelCompat.legacyPerangkat());
         assertEquals(KernelCompat.legacyPerangkat(), KernelCompat.legacyPerangkat());
     }

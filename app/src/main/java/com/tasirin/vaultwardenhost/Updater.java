@@ -1235,7 +1235,7 @@ public final class Updater {
     /** Pesan gagal uji asap --version; di kernel lama tanpa shim sebut shim
      *  agar langkah user jelas (murni agar bisa diuji unit). */
     static String pesanUjiAsapGagal(String kernel, boolean shimAda) {
-        if (KernelCompat.isLegacyDevice(kernel == null ? "" : kernel) && !shimAda) {
+        if (KernelCompat.isLegacyKernel(kernel == null ? "" : kernel) && !shimAda) {
             return "File update tidak valid (gagal uji jalan --version;"
                     + " shim getrandom belum terpasang)."
                     + " Cek internet lalu tekan Start lagi agar shim ikut terunduh.";
@@ -1860,6 +1860,13 @@ public final class Updater {
             }
             return sBundledVersion;
         }
+    }
+
+    /** Label "Version: x" untuk dialog tentang (satu implementasi dipakai
+     *  MainActivity + SettingsActivity agar tak duplikat). */
+    public static String readBundledVersionLabel(Context ctx) {
+        String v = readBundledVersionRaw(ctx);
+        return (v == null || v.isEmpty()) ? "Version: ?" : "Version: " + v;
     }
 
     /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */

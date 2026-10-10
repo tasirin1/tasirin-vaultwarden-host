@@ -27,11 +27,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
@@ -792,7 +790,7 @@ public class SettingsActivity extends Activity {
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
-        bundledVersion = readBundledVersion();
+        bundledVersion = Updater.readBundledVersionLabel(this);
         bundledRaw = Updater.readBundledVersionRaw(this);
         try {
             appVersion = getPackageManager()
@@ -1022,9 +1020,15 @@ public class SettingsActivity extends Activity {
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
-            boolean bedaData = !d.trim().equals(rd.trim());
-            boolean bedaPort = !p.trim().equals(rp.trim());
-            boolean bedaAdmin = !ServerService.sidikTokenAdmin(a).equals(ra == null ? "" : ra.trim());
+            // Trim sekali per nilai (dulu 2x tiap tick): hemat alokasi String di STB lama.
+            String dRapi = d.trim();
+            String pRapi = p.trim();
+            String rdRapi = rd.trim();
+            String rpRapi = rp.trim();
+            String raRapi = ra == null ? "" : ra.trim();
+            boolean bedaData = !dRapi.equals(rdRapi);
+            boolean bedaPort = !pRapi.equals(rpRapi);
+            boolean bedaAdmin = !ServerService.sidikTokenAdmin(a).equals(raRapi);
             changed = bedaData || bedaPort || bedaAdmin;
             tandaiLabel(labelDataDir, R.string.folder_data, bedaData);
             tandaiLabel(labelPort, R.string.port, bedaPort);
@@ -1168,16 +1172,6 @@ public class SettingsActivity extends Activity {
 
         if (refreshActive) {
             ui.postDelayed(this::refreshFromService, 1000);
-        }
-    }
-
-    private String readBundledVersion() {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
-            String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? "?" : "Version: " + v.trim();
-        } catch (Exception e) {
-            return "Version: ?";
         }
     }
 

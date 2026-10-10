@@ -28,10 +28,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 /** Layar awal sederhana: status server + Start/Stop + log realtime.
  *  Semua pengaturan pindah ke SettingsActivity lewat tombol titik tiga. */
@@ -176,20 +173,23 @@ public class MainActivity extends Activity {
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
+        // Satu IPC PackageManager (dulu dua getPackageInfo): hemat cold-start di STB lama.
         try {
-            appVersion = getPackageManager()
-                    .getPackageInfo(getPackageName(), 0).versionName;
+            android.content.pm.PackageInfo infoBar = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0);
+            if (infoBar != null) {
+                if (infoBar.versionName != null) {
+                    appVersion = infoBar.versionName;
+                }
+                TextView subBar = findViewById(R.id.toolbarSubtitle);
+                if (subBar != null) {
+                    subBar.setText(getString(R.string.toolbar_subtitle,
+                            appVersion.isEmpty() ? "?" : appVersion, infoBar.versionCode));
+                }
+            }
         } catch (Exception ignored) {
         }
-        try {
-            int buildBar = getPackageManager()
-                    .getPackageInfo(getPackageName(), 0).versionCode;
-            TextView subBar = findViewById(R.id.toolbarSubtitle);
-            subBar.setText(getString(R.string.toolbar_subtitle,
-                    appVersion.isEmpty() ? "?" : appVersion, buildBar));
-        } catch (Exception ignored) {
-        }
-        bundledVersion = readBundledVersion();
+        bundledVersion = Updater.readBundledVersionLabel(this);
         bundledRaw = Updater.readBundledVersionRaw(this);
         teksBerjalan = getString(R.string.running);
         teksBerhenti = getString(R.string.stopped);
@@ -558,9 +558,15 @@ public class MainActivity extends Activity {
                 wv = "";
             }
             String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
-            changed = !d.trim().equals(rd.trim())
-                    || !p.trim().equals(rp.trim())
-                    || !ServerService.sidikTokenAdmin(a).equals(ra.trim())
+            // Trim sekali per nilai (dulu 2x tiap tick 1 dtk): hemat alokasi String di STB lama.
+            String dRapi = d.trim();
+            String pRapi = p.trim();
+            String rdRapi = rd.trim();
+            String rpRapi = rp.trim();
+            String raRapi = ra.trim();
+            changed = !dRapi.equals(rdRapi)
+                    || !pRapi.equals(rpRapi)
+                    || !ServerService.sidikTokenAdmin(a).equals(raRapi)
                     || !wv.equals(rwv);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
@@ -1085,16 +1091,6 @@ public class MainActivity extends Activity {
                 }
             }
         }, false);
-    }
-
-    private String readBundledVersion() {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                getAssets().open("vw_version.txt"), StandardCharsets.UTF_8))) {
-            String v = r.readLine();
-            return (v == null || v.trim().isEmpty()) ? "?" : "Version: " + v.trim();
-        } catch (Exception e) {
-            return "Version: ?";
-        }
     }
 
     /** Versi dari file vw-version.json (satu implementasi di Updater). */

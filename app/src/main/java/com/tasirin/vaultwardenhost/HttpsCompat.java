@@ -96,8 +96,11 @@ public final class HttpsCompat {
                         byte[] buf = new byte[8192];
                         int n;
                         while ((n = in.read(buf)) != -1) {
-                            cap = cap * 31 + (java.util.Arrays.hashCode(
-                                    java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+                            // Campur per byte tanpa Arrays.copyOf per chunk:
+                            // hemat alokasi tiap segarkan cap di STB 1 GB.
+                            for (int i = 0; i < n; i++) {
+                                cap = cap * 31 + (buf[i] & 0xff);
+                            }
                         }
                     } catch (Exception ignored) {
                     }

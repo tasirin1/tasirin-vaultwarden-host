@@ -53,7 +53,10 @@ public class ServerService extends Service {
      *  kini ikut Environment dengan fallback lama agar tetap bisa start.
      *  Konstanta ini di-cache saat class-load (bisa basi bila storage belum
      *  mount); kode baru wajib memakai {@link #dataDirBawaanSegar()} untuk
-     *  fallback agar selalu baca kondisi storage terkini. */
+     *  fallback agar selalu baca kondisi storage terkini.
+     *  @deprecated Basi bila class-load sebelum storage mount; dipertahankan
+     *  untuk test/kompat. */
+    @Deprecated
     public static final String DEFAULT_DATA_DIR = defaultDataDir();
 
     /** Folder data bawaan yang dihitung ulang tiap dipanggil (anti basi:
@@ -665,7 +668,10 @@ public class ServerService extends Service {
         HasilCoba config = new HasilCoba(-1, "");
         // /alive butuh DB; fallback ringan /api/config memastikan server
         // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
-        if (alive.kode != 200) {
+        // Galat transport (-1) tak perlu fallback: /api/config memakai TLS yang
+        // sama sehingga ikut gagal dan hanya membayar handshake kedua sia-sia
+        // di CPU ARMv7 lambat. Kode -2 = dilewati (lihat ringkasKode).
+        if (alive.kode != 200 && alive.kode != -1) {
             config = cobaKode(ctx, scheme, p, "/api/config", https);
         } else {
             config = new HasilCoba(-2, "");

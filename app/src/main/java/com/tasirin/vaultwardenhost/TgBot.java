@@ -1649,12 +1649,15 @@ public final class TgBot {
     /** Ringkasan versi binary/web-vault + status kuncian (perintah /versi). */
     static String teksVersi(Context ctx) {
         String bin = Updater.currentServerVersion(ctx);
-        String dataDir = ServerService.dataDirBawaanSegar();
+        String dataDir = null;
         try {
             dataDir = TgBackup.amanString(
                     ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE),
-                    ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
+                    ServerService.KEY_DATA_DIR, null);
         } catch (Exception ignored) {
+        }
+        if (dataDir == null || dataDir.isEmpty()) {
+            dataDir = ServerService.dataDirBawaanSegar();
         }
         String wv = null;
         try {
