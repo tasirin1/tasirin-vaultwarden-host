@@ -11,7 +11,7 @@ public class MainActivityTest {
 
     @Test
     public void indeksTakPekaAscii() {
-        assertEquals(6, MainActivity.indeksTakPeka("tls ERROR sini", "error"));
+        assertEquals(4, MainActivity.indeksTakPeka("tls ERROR sini", "error"));
         assertEquals(-1, MainActivity.indeksTakPeka("log bersih", "error"));
         assertEquals(-1, MainActivity.indeksTakPeka("ab", "abc"));
     }

@@ -459,6 +459,11 @@ def nama_metode_hilang(diff, lewati_berkas=()):
     """Nama metode pada baris dihapus yang definisinya hilang dari pohon kerja."""
     hilang = []
     for path, baris in hapus_java(diff):
+        # Baris panggilan (mis. assertEquals(4, ...) di tes) bukan definisi:
+        # definisi sejati punya modifier atau dibuka kurawal.
+        if not re.search(r"\b(public|protected|private|static)\b", baris) \
+                and not baris.rstrip().endswith("{"):
+            continue
         # Berkas hapus total ditangani cek_berkas_java_dihapus (satu jalan);
         # cek per-metode di sini hanya menghambur puluhan pemindaian penuh.
         if path in lewati_berkas or not os.path.isfile(os.path.join(AKAR, path)):
