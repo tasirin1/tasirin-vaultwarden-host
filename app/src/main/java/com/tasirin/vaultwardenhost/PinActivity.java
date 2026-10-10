@@ -180,10 +180,8 @@ public class PinActivity extends Activity {
     static String teksSisaKunci(android.content.Context ctx, long sisaMs) {
         long menit = menitSisaKunci(sisaMs);
         try {
-            if (menit == 1) {
-                return ctx.getString(R.string.pin_lockout_one);
-            }
-            return ctx.getString(R.string.pin_lockout_many, menit);
+            int jumlah = menit > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) menit;
+            return ctx.getResources().getQuantityString(R.plurals.pin_lockout, jumlah, menit);
         } catch (Exception e) {
             return teksSisaKunci(sisaMs);
         }

@@ -87,6 +87,7 @@ android {
         disable += setOf(
             "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)
             "ExpiredTargetSdkVersion", // targetSdk 28 sengaja (W^X); bukan untuk Play Store
+            "ChromeOsAbiSupport", // armeabi-v7a saja disengaja (STB 32-bit); bukan untuk Chromebook
             "SdCardPath",     // /sdcard/vaultwarden memang folder data publik bawaan
             "ScopedStorage",  // All-files access disengaja (Android 11+); rilis via GitHub, bukan Play Store
             "BatteryLife",    // tombol "Izinkan" ditekan manual oleh pengguna

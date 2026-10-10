@@ -35,15 +35,9 @@
     <color name="log_warn">#FFB74D</color>
     <!-- Sorot pencarian malam: amber gelap agar teks terang tetap terbaca. -->
     <color name="search_highlight">#7A5A00</color>
-    <color name="hero_run_start">#237A3B</color>
-    <color name="hero_run_end">#0B3B20</color>
     <!-- Teks tombol primer malam: gelap #1A1A1A di atas primary terang #90CAF9
          agar kontras terbaca (putih di atas biru muda terlalu pucat). -->
     <color name="btn_primary_text">#1A1A1A</color>
-    <!-- Overlay tombol TV malam: aksen terang transparan saat fokus D-pad. -->
-    <color name="btn_tv_focused">#33FFB74D</color>
-    <!-- Overlay tombol TV malam: primary terang transparan saat ditekan. -->
-    <color name="btn_tv_pressed">#3390CAF9</color>
     <!-- Tombol Stop malam saat ditekan: merah tua pekat (sama siang agar konsisten). -->
     <color name="btn_stop_pressed">#7A1A17</color>
 </resources>
