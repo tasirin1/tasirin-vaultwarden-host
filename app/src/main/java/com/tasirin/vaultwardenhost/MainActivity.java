@@ -80,6 +80,15 @@ public class MainActivity extends Activity {
     private String lastVersiBundled = "\0";
     private long lastUpDetik = -1; // gerbang uptime: durationText+getString hanya saat detik berubah
     private int lastLogLen = 0;
+    /** Cache nilai prefs untuk deteksi "setting berubah": baca prefs tiap
+     *  tick 1-2 dtk boros map-lookup; segarkan tiap 5 tick + saat onResume
+     *  (pulang dari Settings) agar hint restart tetap akurat. */
+    private int tickCachePrefs = 0;
+    private boolean paksaCachePrefs = true;
+    private String cacheD = "";
+    private String cacheP = "";
+    private String cacheA = "";
+    private String cacheWv = "";
     /** Ikuti ekor log otomatis; mati saat pengguna menggulir manual (saran 6). */
     private boolean ikutiLog = true;
     /** Status tombol Start/Stop yang sedang tampil (hindari set tiap tick). */
@@ -281,6 +290,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         refreshActive = true;
+        paksaCachePrefs = true;
         ui.post(this::refreshFromService);
         // Auto-lock PIN setiap kali app kembali ke depan
         maybeShowPinLock();
@@ -538,25 +548,29 @@ public class MainActivity extends Activity {
         // Peringatan bila setting diubah di Settings tapi server belum di-restart
         boolean changed = false;
         if (running) {
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            // Baca tahan korup: tipe prefs salah tak boleh melempar
-            // ClassCastException tiap detik di UI thread (pola aman* bot).
-            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-            if (d == null || d.trim().isEmpty()) {
-                d = ServerService.dataDirBawaanSegar();
+            if (paksaCachePrefs || tickCachePrefs++ % 5 == 0) {
+                paksaCachePrefs = false;
+                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                // Baca tahan korup: tipe prefs salah tak boleh melempar
+                // ClassCastException tiap detik di UI thread (pola aman* bot).
+                String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
+                if (d == null || d.trim().isEmpty()) {
+                    d = ServerService.dataDirBawaanSegar();
+                }
+                cacheD = d;
+                cacheP = ServerService.effectivePort(sp);
+                String ca = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
+                cacheA = ca == null ? "" : ca;
+                String wvCache = Updater.webVaultFromVersion(this);
+                cacheWv = wvCache == null ? "" : wvCache;
             }
-            String p = ServerService.effectivePort(sp);
-            String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
-            if (a == null) {
-                a = "";
-            }
+            String d = cacheD;
+            String p = cacheP;
+            String a = cacheA;
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
-            String wv = Updater.webVaultFromVersion(this);
-            if (wv == null) {
-                wv = "";
-            }
+            String wv = cacheWv;
             String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
             // Trim sekali per nilai (dulu 2x tiap tick 1 dtk): hemat alokasi String di STB lama.
             String dRapi = d.trim();

@@ -1452,10 +1452,16 @@ public final class TgBackup {
                 biasa.add(f);
             }
         }
+        final java.util.Map<File, Long> waktuUbah = new java.util.HashMap<>();
+        for (File f : all) {
+            waktuUbah.put(f, f.lastModified());
+        }
         Comparator<File> terbaruDulu = new Comparator<File>() {
             @Override
             public int compare(File a, File b) {
-                return Long.compare(b.lastModified(), a.lastModified());
+                Long wa = waktuUbah.get(a);
+                Long wb = waktuUbah.get(b);
+                return Long.compare(wb == null ? 0 : wb, wa == null ? 0 : wa);
             }
         };
         File[] rutin = biasa.toArray(new File[0]);

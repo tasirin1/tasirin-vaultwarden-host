@@ -3537,12 +3537,16 @@ public class ServerService extends Service {
         return -1;
     }
 
-    /** Cari pid anak vaultwarden via /proc (fallback API < 26 tanpa Process.pid()). */
-    private static int findChildPid() {
+    /** Kandidat PID se-UID (bukan proses kita): satu pindai /proc dipakai
+     *  findChildPid + killStaleVaultwarden agar Start tak membayar listFiles
+     *  + baca status per PID dua kali. Tanpa baca cmdline (mahal, beda
+     *  predikat per pemanggil). Murni I/O. */
+    private static java.util.List<Integer> kandidatPidSeUid() {
+        java.util.List<Integer> keluar = new java.util.ArrayList<>();
         try {
             File[] dirs = new File("/proc").listFiles();
             if (dirs == null) {
-                return -1;
+                return keluar;
             }
             int myUid = android.os.Process.myUid();
             int myPid = android.os.Process.myPid();
@@ -3559,7 +3563,21 @@ public class ServerService extends Service {
                     if (readProcUid(d) != myUid) {
                         continue;
                     }
-                    String cmd = readProcCmdline(d);
+                    keluar.add(pid);
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return keluar;
+    }
+
+    /** Cari pid anak vaultwarden via /proc (fallback API < 26 tanpa Process.pid()). */
+    private static int findChildPid() {
+        try {
+            for (int pid : kandidatPidSeUid()) {
+                try {
+                    String cmd = readProcCmdline(new File("/proc/" + pid));
                     if (cmdlineServer(cmd)) {
                         return pid;
                     }
@@ -3575,27 +3593,14 @@ public class ServerService extends Service {
      *  nyangkut & memegang port setelah app di-restart/update. */
     private void killStaleVaultwarden() {
         try {
-            File[] dirs = new File("/proc").listFiles();
-            if (dirs == null) {
-                return;
-            }
-            int myUid = android.os.Process.myUid();
             int myPid = android.os.Process.myPid();
             int childPid = runningChildPid();
-            for (File d : dirs) {
-                String name = d.getName();
-                if (name.isEmpty() || !Character.isDigit(name.charAt(0))) {
-                    continue;
-                }
+            for (int pid : kandidatPidSeUid()) {
                 try {
-                    int pid = Integer.parseInt(name);
                     if (pid == myPid || pid == childPid) {
                         continue;
                     }
-                    if (readProcUid(d) != myUid) {
-                        continue;
-                    }
-                    String cmd = readProcCmdline(d);
+                    String cmd = readProcCmdline(new File("/proc/" + pid));
                     if (bolehBunuhBasi(cmd)) {
                         // Verifikasi ulang tepat sebelum bunuh: start konkuren
                         // (ketuk Start 2x / auto-restart vs manual) bisa lahir di

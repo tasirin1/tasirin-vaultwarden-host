@@ -1555,7 +1555,15 @@ public class SettingsActivity extends Activity {
                     daftar.add(f);
                 }
             }
-            java.util.Collections.sort(daftar, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+            final java.util.Map<java.io.File, Long> waktuUbah = new java.util.HashMap<>();
+            for (java.io.File f : daftar) {
+                waktuUbah.put(f, f.lastModified());
+            }
+            java.util.Collections.sort(daftar, (x, y) -> {
+                Long wx = waktuUbah.get(x);
+                Long wy = waktuUbah.get(y);
+                return Long.compare(wy == null ? 0 : wy, wx == null ? 0 : wx);
+            });
             for (int i = 10; i < daftar.size(); i++) {
                 daftar.get(i).delete();
             }
@@ -3362,14 +3370,41 @@ public class SettingsActivity extends Activity {
     /** Galat Chat ID; null bila valid (kosong = boleh). ID numerik atau
      *  username ("@nama", selaras dengan Util.cocokChat). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
-    /** Pola chat statis: String.matches() mengkompilasi regex tiap ketikan,
-     *  boros di CPU STB lama (galatChat jalan tiap karakter). */
-    private static final java.util.regex.Pattern POLA_CHAT_ANGKA =
-            java.util.regex.Pattern.compile("-?\\d+");
-    private static final java.util.regex.Pattern POLA_CHAT_DIGIT =
-            java.util.regex.Pattern.compile("[0-9]+");
-    private static final java.util.regex.Pattern POLA_CHAT_NAMA =
-            java.util.regex.Pattern.compile("[A-Za-z0-9_]{5,}");
+    /** True bila s cocok "-?digit+" penuh (tanpa regex per ketikan). Murni. */
+    private static boolean angkaChat(String s) {
+        if (s == null || s.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        if (s.charAt(0) == '-') {
+            i = 1;
+        }
+        if (i >= s.length()) {
+            return false;
+        }
+        for (; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** True bila s huruf-digit-garisbawah min 5 (tanpa regex per ketikan). Murni. */
+    private static boolean namaChat(String s) {
+        if (s == null || s.length() < 5) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+                    || (c >= '0' && c <= '9') || c == '_')) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     static String galatChat(String chat, String msgSalah) {
         // Trim sekali (dulu cek + assign trim sendiri; jalan tiap ketikan).
@@ -3377,12 +3412,11 @@ public class SettingsActivity extends Activity {
         if (isi.isEmpty()) {
             return null;
         }
-        if (POLA_CHAT_ANGKA.matcher(isi).matches()) {
+        if (angkaChat(isi)) {
             return null;
         }
         String nama = isi.startsWith("@") ? isi.substring(1) : isi;
-        if (!nama.isEmpty() && !POLA_CHAT_DIGIT.matcher(nama).matches()
-                && POLA_CHAT_NAMA.matcher(nama).matches()) {
+        if (!nama.isEmpty() && !Util.semuaDigit(nama) && namaChat(nama)) {
             return null;
         }
         return msgSalah;
