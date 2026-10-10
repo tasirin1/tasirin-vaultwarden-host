@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 22: buang token mati + label DNS tanpa salinan
+- `TgBot.tokenPertama`: buang metode mati (0 pemanggil dari 574 metode tersapu; tanpa tes merujuk).
+- `TlsCert.namaDnsValid`: pola label jadi `CASE_INSENSITIVE` sehingga buang `toLowerCase` per label (hemat satu salinan String per label tiap validasi; perilaku sama — tes `Vault.Lan`/`VAULT` tetap hijau).
+- Sapuan mati: 169 field dicek nol mati; resource ID/paritas warna-string OK.
+
 ## [Belum rilis] — Audit agresif 21: heksa terpusat + tanpa eksepsi poll + seed dadu
 - `Util.HEKS`/`hex12`: tabel + penulis heksa terpusat; duplikat identik di `LogExport`/`TgBackup` dibuang, `TgBot` ikut pakai tabel (+ uji `UtilTest`).
 - `PinCrypto.hex`: `Character.forDigit` per nibble jadi tabel (hasil sama persis, hemat di verifikasi PIN).

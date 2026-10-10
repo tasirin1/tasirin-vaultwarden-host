@@ -207,16 +207,6 @@ public final class TgBot {
         return t;
     }
 
-    /** Token pertama sampai whitespace tanpa String.split (tanpa kompilasi). */
-    static String tokenPertama(String t) {
-        for (int i = 0; i < t.length(); i++) {
-            if (Character.isWhitespace(t.charAt(i))) {
-                return t.substring(0, i);
-            }
-        }
-        return t;
-    }
-
     /** Samarkan spasi/tab/newline ganda jadi satu spasi (pola statis). */
     static String rapikanSpasi(String t) {
         // Manual tanpa regex: tiap pesan Telegram masuk; hemat kompilasi di STB.

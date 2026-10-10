@@ -404,7 +404,7 @@ public final class TlsCert {
 
     /** Pola statis: split/matches per label kompilasi regex tiap panggil. */
     private static final java.util.regex.Pattern POLA_LABEL_DNS =
-            java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?");
+            java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?", java.util.regex.Pattern.CASE_INSENSITIVE);
     private static final java.util.regex.Pattern POLA_PEMISAH_DNS =
             java.util.regex.Pattern.compile("[,\\s]+");
     private static final java.util.regex.Pattern POLA_TITIK =
@@ -448,7 +448,7 @@ public final class TlsCert {
             if (l.isEmpty() || l.length() > 63) {
                 return false;
             }
-            if (!POLA_LABEL_DNS.matcher(l.toLowerCase(java.util.Locale.US)).matches()) {
+            if (!POLA_LABEL_DNS.matcher(l).matches()) {
                 return false;
             }
         }
