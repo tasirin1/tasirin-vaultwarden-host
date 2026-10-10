@@ -73,6 +73,16 @@ public class MainActivity extends Activity {
     private String lastShownUptime = "";
     private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
     private String lastUpdText = ""; // cegah setText+layout tiap tick saat teks sama
+    private String memoCocokA = "\0"; // memo versiCocok(real, pending): regex tiap detik boros
+    private String memoCocokB = "\0";
+    private boolean memoCocokHasil = false;
+    private String memoCocokA2 = "\0";
+    private String memoCocokB2 = "\0";
+    private boolean memoCocokHasil2 = false;
+    private String lastVersiApp = "\0"; // gerbang versi sebelum StringBuilder tiap tick
+    private String lastVersiBin = "\0";
+    private String lastVersiBundled = "\0";
+    private long lastUpDetik = -1; // gerbang uptime: durationText+getString hanya saat detik berubah
     private int lastLogLen = 0;
     /** Ikuti ekor log otomatis; mati saat pengguna menggulir manual (saran 6). */
     private boolean ikutiLog = true;
@@ -558,20 +568,43 @@ public class MainActivity extends Activity {
 
         // Peringatan bila update binary tersedia tapi belum dipasang
         boolean updAvail = false;
-        if (pendingVersion != null) {
+        String pend = pendingVersion;
+        if (pend != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
+            // Memo pasangan (real, pending): normVersion+regex tiap detik boros
+            // di STB; hasil hanya berubah bila salah satunya berubah.
+            String ra = real == null ? "" : real;
+            boolean cocok1;
+            if (ra.equals(memoCocokA) && pend.equals(memoCocokB)) {
+                cocok1 = memoCocokHasil;
+            } else {
+                cocok1 = Updater.versiCocok(real, pend);
+                memoCocokA = ra;
+                memoCocokB = pend;
+                memoCocokHasil = cocok1;
+            }
             // Fallthrough aman: baca di bawah pakai amanString (lihat cur/up).
             // Banding semantik (bukan equals mentah): "v"-prefix/sufiks beta
             // tak boleh membuat banner update macet padahal versi sama.
-            if (Updater.versiCocok(real, pendingVersion)) {
-                psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
+            if (cocok1) {
+                psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pend).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
-                if (Updater.versiCocok(cur, pendingVersion)) {
+                String ca = cur == null ? "" : cur;
+                boolean cocok2;
+                if (ca.equals(memoCocokA2) && pend.equals(memoCocokB2)) {
+                    cocok2 = memoCocokHasil2;
+                } else {
+                    cocok2 = Updater.versiCocok(cur, pend);
+                    memoCocokA2 = ca;
+                    memoCocokB2 = pend;
+                    memoCocokHasil2 = cocok2;
+                }
+                if (cocok2) {
                     pendingVersion = null; // update sudah terpasang
                 } else {
                     updAvail = !running;
@@ -611,29 +644,49 @@ public class MainActivity extends Activity {
             lastShownNet = net;
         }
 
-        String uptime = "";
+        // Gerbang detik: durationText+getString hanya saat detik berubah
+        // (dulu dibangun tiap tick walau teks sama). Mati/stop langsung kosong.
+        long upDetik = -1;
         if (running) {
             long up = ServerService.uptimeMs();
             if (up > 0) {
-                uptime = getString(R.string.uptime_format, TgBot.durationText(up));
+                upDetik = up / 1000;
             }
         }
-        if (!uptime.equals(lastShownUptime)) {
-            lastShownUptime = uptime;
-            uptimeView.setText(uptime);
-            uptimeView.setVisibility(uptime.isEmpty() ? View.GONE : View.VISIBLE);
+        if (upDetik != lastUpDetik) {
+            lastUpDetik = upDetik;
+            String uptime = "";
+            if (upDetik >= 0) {
+                uptime = getString(R.string.uptime_format, TgBot.durationText(upDetik * 1000));
+            }
+            if (!uptime.equals(lastShownUptime)) {
+                lastShownUptime = uptime;
+                uptimeView.setText(uptime);
+                uptimeView.setVisibility(uptime.isEmpty() ? View.GONE : View.VISIBLE);
+            }
         }
 
-        StringBuilder versiB = new StringBuilder("App ").append(appVersion);
-        if (!ServerService.binaryVersion.isEmpty()) {
-            versiB.append(" \u00B7 Binary: ").append(ServerService.binaryVersion);
-        } else {
-            versiB.append(" \u00B7 ").append(bundledVersion);
+        // Gerbang komponen sebelum StringBuilder: tanpa alokasi saat tak berubah.
+        String binVer = ServerService.binaryVersion;
+        if (binVer == null) {
+            binVer = "";
         }
-        String version = versiB.toString();
-        if (!version.equals(lastShownVersion)) {
-            versionView.setText(version);
-            lastShownVersion = version;
+        if (!appVersion.equals(lastVersiApp) || !binVer.equals(lastVersiBin)
+                || !bundledVersion.equals(lastVersiBundled)) {
+            lastVersiApp = appVersion;
+            lastVersiBin = binVer;
+            lastVersiBundled = bundledVersion;
+            StringBuilder versiB = new StringBuilder("App ").append(appVersion);
+            if (!binVer.isEmpty()) {
+                versiB.append(" \u00B7 Binary: ").append(binVer);
+            } else {
+                versiB.append(" \u00B7 ").append(bundledVersion);
+            }
+            String version = versiB.toString();
+            if (!version.equals(lastShownVersion)) {
+                versionView.setText(version);
+                lastShownVersion = version;
+            }
         }
 
         refreshHomeLog();

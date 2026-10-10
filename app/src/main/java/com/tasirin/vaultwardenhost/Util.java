@@ -156,6 +156,18 @@ public final class Util {
         if (hay == null || needle == null || needle.isEmpty() || hay.length() < needle.length()) {
             return false;
         }
+        // Jalur cepat ASCII (token/bot/admin/... semua ASCII): banding (c|32)
+        // tanpa lipatan case Unicode regionMatches yang mahal di ART lama.
+        boolean ascii = true;
+        for (int k = 0; k < needle.length(); k++) {
+            if (needle.charAt(k) >= 128) {
+                ascii = false;
+                break;
+            }
+        }
+        if (ascii) {
+            return cocokAscii(hay, needle);
+        }
         int n = hay.length() - needle.length();
         for (int i = 0; i <= n; i++) {
             if (hay.regionMatches(true, i, needle, 0, needle.length())) {
@@ -163,6 +175,36 @@ public final class Util {
             }
         }
         return false;
+    }
+
+    /** Pencocokan case-insensitive khusus ASCII (huruf A-Z saja dilipat).
+     *  Murni agar bisa unit test. */
+    public static boolean cocokAscii(String hay, String needle) {
+        int n = hay.length() - needle.length();
+        for (int i = 0; i <= n; i++) {
+            int j = 0;
+            while (j < needle.length() && samaHurufAscii(hay.charAt(i + j), needle.charAt(j))) {
+                j++;
+            }
+            if (j >= needle.length()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Sama-huruf ASCII: sama persis, atau kedua huruf yang beda case saja. */
+    static boolean samaHurufAscii(char a, char b) {
+        if (a == b) {
+            return true;
+        }
+        if (a >= 'A' && a <= 'Z') {
+            a = (char) (a + 32);
+        }
+        if (b >= 'A' && b <= 'Z') {
+            b = (char) (b + 32);
+        }
+        return a == b;
     }
 
     /** Jalankan tugas ringan di pool bersama (abaikan bila antrean penuh). */

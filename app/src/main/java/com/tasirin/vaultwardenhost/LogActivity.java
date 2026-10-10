@@ -265,24 +265,145 @@ public class LogActivity extends Activity {
         if (text.length() > 150_000) {
             return text;
         }
-        if ((q == null || q.isEmpty()) && rangeIndexOf(text, "GAGAL", 0, text.length()) < 0
-                && rangeIndexOf(text, "ERROR", 0, text.length()) < 0
-                && rangeIndexOf(text, "FAILED", 0, text.length()) < 0) {
-            return text;
+        boolean adaQ = q != null && !q.isEmpty();
+        // Sekali-jalan per baris (dulu pra-cek 3x full-text Unicode + pindai
+        // ulang per baris): galat + query ditandai dalam satu walk ASCII.
+        // Span malas (lazy): teks bersih tanpa galat/query pulang tanpa
+        // alokasi Spannable. Kueri non-ASCII (jarang) lewat jalur lambat.
+        boolean qAscii = adaQ && asciiSemua(q);
+        if (adaQ && !qAscii) {
+            return highlightLambat(text, q);
         }
-        SpannableStringBuilder sb = new SpannableStringBuilder(text);
-        if (q != null && !q.isEmpty()) {
-            int from = 0;
-            while (from + q.length() <= text.length()) {
-                int idx = rangeIndexOf(text, q, from, text.length());
-                if (idx < 0) {
-                    break;
-                }
-                sb.setSpan(new BackgroundColorSpan(warnaSorotCari),
-                        idx, idx + q.length(),
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-                from = idx + q.length();
+        SpannableStringBuilder sb = null;
+        int qlen = adaQ ? q.length() : 0;
+        int lineStart = 0;
+        int total = text.length();
+        while (lineStart <= total) {
+            int lineEnd = text.indexOf('\n', lineStart);
+            if (lineEnd < 0) {
+                lineEnd = total;
             }
+            boolean galat = false;
+            if (adaQ) {
+                int j = lineStart;
+                while (j + qlen <= lineEnd) {
+                    if (cocokAsciiRentang(text, j, q)) {
+                        if (sb == null) {
+                            sb = new SpannableStringBuilder(text);
+                        }
+                        sb.setSpan(new BackgroundColorSpan(warnaSorotCari),
+                                j, j + qlen,
+                                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        j += qlen;
+                        continue;
+                    }
+                    if (!galat && awalGalatAt(text, j, lineEnd)) {
+                        galat = true;
+                    }
+                    j++;
+                }
+                // Ekor baris lebih pendek dari query masih bisa memuat galat.
+                if (!galat) {
+                    galat = pindaiGalatBaris(text, Math.max(j, lineStart), lineEnd);
+                }
+            } else {
+                galat = pindaiGalatBaris(text, lineStart, lineEnd);
+            }
+            if (galat) {
+                if (sb == null) {
+                    sb = new SpannableStringBuilder(text);
+                }
+                sb.setSpan(new ForegroundColorSpan(warnaGalat),
+                        lineStart, lineEnd,
+                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            if (lineEnd == total) {
+                break;
+            }
+            lineStart = lineEnd + 1;
+        }
+        return sb != null ? sb : text;
+    }
+
+    /** Pindai satu baris [s, e) untuk GAGAL/ERROR/FAILED (ASCII, tanpa alokasi). */
+    private static boolean pindaiGalatBaris(String text, int s, int e) {
+        for (int j = s; j < e; j++) {
+            if (awalGalatAt(text, j, e)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** True bila kata galat mulai di pos (dispatch huruf pertama G/E/F). */
+    private static boolean awalGalatAt(String text, int pos, int e) {
+        char c = text.charAt(pos);
+        if (c >= 'a' && c <= 'z') {
+            c = (char) (c - 32);
+        }
+        if (c == 'G') {
+            return cocokAsciiRentangKata(text, pos, e, "GAGAL");
+        }
+        if (c == 'E') {
+            return cocokAsciiRentangKata(text, pos, e, "ERROR");
+        }
+        if (c == 'F') {
+            return cocokAsciiRentangKata(text, pos, e, "FAILED");
+        }
+        return false;
+    }
+
+    /** Cocok kata ASCII abaikan-huruf dalam [pos, e). */
+    private static boolean cocokAsciiRentangKata(String text, int pos, int e, String kata) {
+        int m = kata.length();
+        if (pos + m > e) {
+            return false;
+        }
+        for (int j = 0; j < m; j++) {
+            if (!Util.samaHurufAscii(text.charAt(pos + j), kata.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Cocok query ASCII abaikan-huruf di pos (batas-aman). */
+    private static boolean cocokAsciiRentang(String text, int pos, String kunci) {
+        int m = kunci.length();
+        if (pos + m > text.length()) {
+            return false;
+        }
+        for (int j = 0; j < m; j++) {
+            if (!Util.samaHurufAscii(text.charAt(pos + j), kunci.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** True bila seluruh char < 128 (jalur cepat ASCII berlaku). */
+    private static boolean asciiSemua(String k) {
+        for (int i = 0; i < k.length(); i++) {
+            if (k.charAt(i) >= 128) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Jalur lambat kueri non-ASCII: pertahankan semantik lama via regionMatches. */
+    private CharSequence highlightLambat(String text, String q) {
+        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        int from = 0;
+        while (from + q.length() <= text.length()) {
+            int idx = rangeIndexOf(text, q, from, text.length());
+            if (idx < 0) {
+                break;
+            }
+            sb.setSpan(new BackgroundColorSpan(warnaSorotCari),
+                    idx, idx + q.length(),
+                    SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+            from = idx + q.length();
         }
         int lineStart = 0;
         int total = text.length();
@@ -291,9 +412,7 @@ public class LogActivity extends Activity {
             if (lineEnd < 0) {
                 lineEnd = total;
             }
-            if (rangeIndexOf(text, "GAGAL", lineStart, lineEnd) >= 0
-                    || rangeIndexOf(text, "ERROR", lineStart, lineEnd) >= 0
-                    || rangeIndexOf(text, "FAILED", lineStart, lineEnd) >= 0) {
+            if (pindaiGalatBaris(text, lineStart, lineEnd)) {
                 sb.setSpan(new ForegroundColorSpan(warnaGalat),
                         lineStart, lineEnd,
                         SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -309,8 +428,26 @@ public class LogActivity extends Activity {
     /** indexOf case-insensitive dalam rentang [from, end) tanpa alokasi baru. */
     private static int rangeIndexOf(String text, String keyword, int from, int end) {
         int max = end - keyword.length();
+        boolean ascii = true;
+        for (int k = 0; k < keyword.length(); k++) {
+            if (keyword.charAt(k) >= 128) {
+                ascii = false;
+                break;
+            }
+        }
         for (int i = Math.max(from, 0); i <= max; i++) {
-            if (text.regionMatches(true, i, keyword, 0, keyword.length())) {
+            boolean cocok;
+            if (ascii) {
+                int j = 0;
+                while (j < keyword.length()
+                        && Util.samaHurufAscii(text.charAt(i + j), keyword.charAt(j))) {
+                    j++;
+                }
+                cocok = j >= keyword.length();
+            } else {
+                cocok = text.regionMatches(true, i, keyword, 0, keyword.length());
+            }
+            if (cocok) {
                 return i;
             }
         }
@@ -416,23 +553,79 @@ public class LogActivity extends Activity {
         if (t == null || t.isEmpty()) {
             return false;
         }
-        // Abaikan-huruf sekali per kunci (bukan 3 varian contains): separuh pindai di STB.
-        return Util.mengandungAbaikanHuruf(t, "token")
-                || t.contains("chat_id") || t.contains("chatId")
-                || Util.mengandungAbaikanHuruf(t, "bot")
-                || Util.mengandungAbaikanHuruf(t, "tg_")
-                || t.contains("pin_hash") || Util.mengandungAbaikanHuruf(t, "admin")
-                || Util.mengandungAbaikanHuruf(t, "bearer")
-                || Util.mengandungAbaikanHuruf(t, "domain")
-                || t.contains("alarm_secret") || t.contains("tg_last_file")
-                || t.contains("bin_sha") || t.contains("tg_pass")
-                || t.contains("api.telegram.org")
-                || t.contains("192.168.") || t.contains("10.")
-                || t.contains("172.16.") || t.contains("172.17.")
-                || t.contains("172.18.") || t.contains("172.19.")
-                || t.contains("172.2") || t.contains("172.30.")
-                || t.contains("172.31.") || t.contains("127.0.0.1:")
-                || t.contains("PIN:") || t.contains("pin:");
+        // Sekali-jalan (dulu 8x regionMatches-penuh + 15x contains): satu loop
+        // dispatch huruf-pertama, kunci ASCII via (c|32). IP privat (native
+        // indexOf, murah) tetap di akhir. Over-aproksimasi aman: "172." tunggal
+        // mencakup semua varian 172.16-31, "pin" mencakup pin_hash/PIN:/pin:.
+        if (pindaiKunciRahasia(t)) {
+            return true;
+        }
+        return t.contains("192.168.") || t.contains("10.")
+                || t.contains("172.") || t.contains("127.0.0.1:");
+    }
+
+    /** Satu pemindaian semua kunci rahasia (ASCII, tanpa alokasi).
+     *  Dispatch huruf pertama agar tiap posisi maksimal 3 banding pendek,
+     *  bukan 8 pemindaian penuh. Murni. */
+    static boolean pindaiKunciRahasia(String t) {
+        int n = t.length();
+        for (int i = 0; i < n; i++) {
+            char c = t.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                c = (char) (c + 32);
+            }
+            switch (c) {
+                case 't':
+                    if (cocokKunciAt(t, i, "token") || cocokKunciAt(t, i, "tg_")) {
+                        return true;
+                    }
+                    break;
+                case 'b':
+                    if (cocokKunciAt(t, i, "bot") || cocokKunciAt(t, i, "bearer")
+                            || cocokKunciAt(t, i, "bin_sha")) {
+                        return true;
+                    }
+                    break;
+                case 'a':
+                    if (cocokKunciAt(t, i, "admin") || cocokKunciAt(t, i, "alarm_secret")
+                            || cocokKunciAt(t, i, "api.telegram.org")) {
+                        return true;
+                    }
+                    break;
+                case 'd':
+                    if (cocokKunciAt(t, i, "domain")) {
+                        return true;
+                    }
+                    break;
+                case 'p':
+                    if (cocokKunciAt(t, i, "pin")) {
+                        return true;
+                    }
+                    break;
+                case 'c':
+                    if (cocokKunciAt(t, i, "chat_id") || cocokKunciAt(t, i, "chatid")) {
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    /** Cocok kunci ASCII abaikan-huruf di posisi i (batas-aman, tanpa eksepsi). */
+    private static boolean cocokKunciAt(String t, int pos, String kunci) {
+        int m = kunci.length();
+        if (pos + m > t.length()) {
+            return false;
+        }
+        for (int j = 0; j < m; j++) {
+            if (!Util.samaHurufAscii(t.charAt(pos + j), kunci.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static String samarkanLog(String log) {

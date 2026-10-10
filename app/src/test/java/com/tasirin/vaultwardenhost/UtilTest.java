@@ -267,6 +267,14 @@ public class UtilTest {
     }
 
     @Test
+    public void cocokAsciiJalurCepat() {
+        assertTrue(Util.cocokAscii("Token=abc", "token"));
+        assertTrue(Util.cocokAscii("BOT123", "bot"));
+        assertFalse(Util.cocokAscii("info biasa", "token"));
+        assertFalse(Util.cocokAscii("pendek", "kalimat panjang sekali"));
+    }
+
+    @Test
     public void mengandungAbaikanHurufTanpaAlokasi() {
         assertTrue(Util.mengandungAbaikanHuruf("Login Failed bro", "login failed"));
         assertTrue(Util.mengandungAbaikanHuruf("TLS Handshake GAGAL", "tls"));

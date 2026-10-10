@@ -10,6 +10,17 @@ import org.junit.Test;
 public class LogActivityTest {
 
     @Test
+    public void gerbangSamaranSekaliJalan() {
+        assertTrue(LogActivity.butuhSamaran("gagal kirim TOKEN=abc"));
+        assertTrue(LogActivity.butuhSamaran("api.telegram.org/bot123:ABC lanjut"));
+        assertTrue(LogActivity.butuhSamaran("server di 192.168.1.5:8080 jalan"));
+        assertTrue(LogActivity.butuhSamaran("PIN: 1234 dibuka"));
+        assertFalse(LogActivity.butuhSamaran("server jalan biasa tanpa rahasia"));
+        assertTrue(LogActivity.pindaiKunciRahasia("ADMIN_TOKEN=xyz"));
+        assertFalse(LogActivity.pindaiKunciRahasia("log bersih biasa"));
+    }
+
+    @Test
     public void tokenBotMentahDisamarkan() {
         String r = LogActivity.samarkanLog("gagal: https://api.telegram.org/bot123456:ABCdefGhI_JKL-mnop");
         assertFalse(r.contains("ABCdefGhI_JKL-mnop"));

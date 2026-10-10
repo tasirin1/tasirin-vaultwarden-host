@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 13: gerbang samaran + sorot sekali-jalan
+- `LogActivity.butuhSamaran`: 23 pindaian per tick (8x `regionMatches` penuh + 15x `contains`) jadi satu loop dispatch huruf-pertama (`pindaiKunciRahasia` + `cocokKunciAt` ASCII); IP privat tetap `contains` native murah.
+- `LogActivity.highlightLog`: pra-cek 3x full-text + pindai ulang per baris via `regionMatches` Unicode jadi satu walk ASCII per baris (galat + query sekaligus, span malas tanpa alokasi saat bersih); kueri non-ASCII lewat jalur lambat.
+- `Util.mengandungAbaikanHuruf`: jalur cepat ASCII (`cocokAscii`/`samaHurufAscii` via `(c|32)`) tanpa lipatan case Unicode; fallback `regionMatches` hanya untuk needle non-ASCII + uji baru.
+- `MainActivity`: `versiCocok` (regex `normVersion`) jadi memo pasangan + `StringBuilder` versi dan `durationText`/`getString` uptime digerbang komponen/detik sebelum dibangun (tanpa alokasi saat tak berubah).
+
 ## [Belum rilis] — Audit agresif 12: cap TLS + cocok chat tanpa eksepsi
 - `HttpsCompat.capOverride`: gerbang TTL 60 dtk (pola `capCaAktif`) — tiap koneksi (poll 20 dtk + health) tanpa kunci kelas + stat file.
 - `Util.cocokChat`/`chatAdalahGrup`/`chatPerluAnggapGrup`: saring `angkaBulat` + kupas `@` manual — tanpa `replaceFirst` regex dan `NumberFormatException` tiap pesan bot di ART lama; perilaku identik + uji baru.
