@@ -3796,8 +3796,12 @@ public class ServerService extends Service {
         if (line == null) {
             return;
         }
+        // Date milik thread dipakai ulang (pola appendLog): log deras
+        // tak alokasi Date per baris di STB lama.
         String stamp;
-        stamp = LOG_TS.get().format(new java.util.Date());
+        java.util.Date tgl = LOG_TGL.get();
+        tgl.setTime(System.currentTimeMillis());
+        stamp = LOG_TS.get().format(tgl);
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');

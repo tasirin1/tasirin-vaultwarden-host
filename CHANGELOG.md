@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 16: Date pakai ulang + gerbang ringkasan
+- `ServerService.catatLog`: `new Date()` per baris jadi `LOG_TGL` ThreadLocal pakai ulang (pola `appendLog`).
+- `SettingsActivity.refreshRingkasan`: gerbang kunci gabungan murah (5 komponen tanpa `getString`) di atas; 9 `getString` + concat hanya bila berubah + badan pakai ulang komponen gerbang (tanpa trim/baca ulang).
+- `SettingsActivity.teksKuncian`: memo dari pasangan pref mentah; `normalisasiPinVersi` (regex) hanya bila kuncian berubah.
 ## [Belum rilis] — Audit agresif 15: pesan penting + nama perintah + persen tanpa alokasi/eksepsi
 - `TgBackup.pesanPenting`: `toLowerCase` salinan penuh + 7x `contains` jadi 7x `Util.mengandungAbaikanHuruf` (jalur ASCII tanpa alokasi).
 - `TgBot.namaPerintah`: `text.trim()` + `toLowerCase` salinan penuh jadi pindai token manual (hanya token pendek di-lowercase), pola `namaPerintahUntukBot`.

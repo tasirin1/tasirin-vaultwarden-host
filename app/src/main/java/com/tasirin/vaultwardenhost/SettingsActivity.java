@@ -273,6 +273,13 @@ public class SettingsActivity extends Activity {
     private String lastRingkasTg = "";
     private String lastStatusAdmin = "";
     private String lastStatusBot = "";
+    // Gerbang gabungan murah: refreshRingkasan jalan tiap ketikan; 9 getString
+    // + concat + regex kuncian hanya dibayar bila komponennya berubah.
+    private String lastRingkasanKunci = null;
+    // Memo kuncian dari pasangan pref mentah: normalisasiPinVersi (regex)
+    // hanya jalan bila kuncian binary/web-vault berubah.
+    private String kuncianMentahLihat = null;
+    private String kuncianTeksLihat = "";
 
     /** Status kotor terakhir per label: setText/setColor yang isinya sama
      *  tetap memicu layout sehingga wajib dilewati bila tak berubah. */
@@ -2889,20 +2896,34 @@ public class SettingsActivity extends Activity {
     private String teksKuncian() {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String b = Updater.normalisasiPinVersi(
-                    TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, ""));
-            String w = Updater.normalisasiPinVersi(
-                    TgBackup.amanString(sp, ServerService.KEY_WV_PILIH, ""));
+            String mentahB = TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, "");
+            String mentahW = TgBackup.amanString(sp, ServerService.KEY_WV_PILIH, "");
+            if (mentahB == null) {
+                mentahB = "";
+            }
+            if (mentahW == null) {
+                mentahW = "";
+            }
+            String kunci = mentahB + "\0" + mentahW;
+            if (kunci.equals(kuncianMentahLihat)) {
+                return kuncianTeksLihat;
+            }
+            String b = Updater.normalisasiPinVersi(mentahB);
+            String w = Updater.normalisasiPinVersi(mentahW);
             boolean adaB = b != null && !b.isEmpty();
             boolean adaW = w != null && !w.isEmpty();
+            String hasil;
             if (!adaB && !adaW) {
-                return "";
+                hasil = "";
+            } else if (adaB && adaW && b.equals(w)) {
+                hasil = ", pinned v" + b;
+            } else {
+                hasil = ", binary pin:" + (adaB ? "v" + b : "latest")
+                        + " wv:" + (adaW ? "v" + w : "latest");
             }
-            if (adaB && adaW && b.equals(w)) {
-                return ", pinned v" + b;
-            }
-            return ", binary pin:" + (adaB ? "v" + b : "latest")
-                    + " wv:" + (adaW ? "v" + w : "latest");
+            kuncianMentahLihat = kunci;
+            kuncianTeksLihat = hasil;
+            return hasil;
         } catch (Exception e) {
             return "";
         }
@@ -3167,36 +3188,47 @@ public class SettingsActivity extends Activity {
         if (pinEnabledCheck == null || adminTokenInput == null) {
             return;
         }
-        String pinAktif = pinEnabledCheck.isChecked() ? "PIN on" : "PIN off";
-        String admin = !adminTokenInput.getText().toString().trim().isEmpty()
+        // Komponen murah dulu (tanpa getString/concat): tak berubah = langsung
+        // pulang tanpa membangun 5 format string (tiap ketikan di ART lama).
+        boolean pinOn = pinEnabledCheck.isChecked();
+        boolean adminIsi = !adminTokenInput.getText().toString().trim().isEmpty();
+        boolean auAwal = autoUpdateCb != null && autoUpdateCb.isChecked();
+        String kuncian = teksKuncian();
+        boolean botIsiAwal = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
+                && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
+        String kunciGabung = (pinOn ? "1" : "0") + (adminIsi ? "1" : "0")
+                + (auAwal ? "1" : "0") + "|" + kuncian + "|" + (botIsiAwal ? "1" : "0");
+        if (kunciGabung.equals(lastRingkasanKunci)) {
+            return;
+        }
+        lastRingkasanKunci = kunciGabung;
+        String pinAktif = pinOn ? "PIN on" : "PIN off";
+        String admin = adminIsi
                 ? getString(R.string.terisi) : getString(R.string.belum_diisi);
         String ringkasKeamanan = getString(R.string.ringkas_keamanan, pinAktif + ", token " + admin);
         if (secRingkasan != null && !ringkasKeamanan.equals(lastRingkasKeamanan)) {
             lastRingkasKeamanan = ringkasKeamanan;
             secRingkasan.setText(ringkasKeamanan);
         }
-        boolean au = autoUpdateCb != null && autoUpdateCb.isChecked();
         String ringkasRawat = getString(R.string.ringkas_rawat,
-                (au ? "auto-update on" : "auto-update off") + teksKuncian());
+                (auAwal ? "auto-update on" : "auto-update off") + kuncian);
         if (rawatRingkasan != null && !ringkasRawat.equals(lastRingkasRawat)) {
             lastRingkasRawat = ringkasRawat;
             rawatRingkasan.setText(ringkasRawat);
         }
-        boolean botIsi = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
-                && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
         String ringkasTg = getString(R.string.ringkas_telegram,
-                botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi));
+                botIsiAwal ? getString(R.string.terisi) : getString(R.string.belum_diisi));
         if (tgRingkasan != null && !ringkasTg.equals(lastRingkasTg)) {
             lastRingkasTg = ringkasTg;
             tgRingkasan.setText(ringkasTg);
         }
-        String statusAdmin = getString(R.string.status_admin, adminTokenInput.getText().toString().trim().isEmpty()
-                ? getString(R.string.belum_diisi) : getString(R.string.terisi));
+        String statusAdmin = getString(R.string.status_admin, adminIsi
+                ? getString(R.string.terisi) : getString(R.string.belum_diisi));
         if (adminStatus != null && !statusAdmin.equals(lastStatusAdmin)) {
             lastStatusAdmin = statusAdmin;
             adminStatus.setText(statusAdmin);
         }
-        String statusBot = getString(R.string.status_bot, botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi));
+        String statusBot = getString(R.string.status_bot, botIsiAwal ? getString(R.string.terisi) : getString(R.string.belum_diisi));
         if (tgStatus != null && !statusBot.equals(lastStatusBot)) {
             lastStatusBot = statusBot;
             tgStatus.setText(statusBot);
