@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Memo folder bawaan (hemat binder tiap tick UI)
+- `ServerService.defaultDataDir()`: cache per proses — argumen default prefs yang dievaluasi tiap tick tak lagi membayar `getExternalStorageDirectory()`.
+
 ## [Belum rilis] — Memo kernel, tunggu mati tanpa eksepsi, heal alarm hemat
 - `KernelCompat.legacyPerangkat()`: status legacy dihitung sekali per proses (9 situs Start/health/bot pakai memo).
 - `ServerService.waitForOrKill()`: pra-Oreo pakai waiter `join()` tanpa poll `exitValue()` (tanpa hujan eksepsi di ART lama).

@@ -63,17 +63,28 @@ public class ServerService extends Service {
         return defaultDataDir();
     }
 
+    /** Cache folder bawaan per proses: argumen default amanString() dievaluasi
+     *  duluan tiap panggil (termasuk tick UI), jadi binder getExternalStorage
+     *  tak boleh dibayar tiap tick. Jalur storage tak berubah tanpa reboot. */
+    private static volatile String cacheDirBawaan = null;
+
     // getExternalStorageDirectory lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private static String defaultDataDir() {
+        String c = cacheDirBawaan;
+        if (c != null) {
+            return c;
+        }
+        String hasil = "/sdcard/vaultwarden";
         try {
             java.io.File ext = android.os.Environment.getExternalStorageDirectory();
             if (ext != null) {
-                return new java.io.File(ext, "vaultwarden").getAbsolutePath();
+                hasil = new java.io.File(ext, "vaultwarden").getAbsolutePath();
             }
         } catch (Exception ignored) {
         }
-        return "/sdcard/vaultwarden";
+        cacheDirBawaan = hasil;
+        return hasil;
     }
     public static final String DEFAULT_PORT = "8088";
     /** Binary selalu 32-bit ARM (armeabi-v7a); HP arm64 tetap jalan via compat mode. */
