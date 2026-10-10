@@ -234,6 +234,26 @@ public class UtilTest {
     }
 
     @Test
+    public void pecahPinTanpaRegex() {
+        String[] r = Util.pecahPin("PBKDF2$30000$abcdef$1234");
+        assertNotNull(r);
+        assertEquals(4, r.length);
+        assertEquals("PBKDF2", r[0]);
+        assertEquals("30000", r[1]);
+        assertNull(Util.pecahPin("tanpa-pemisah"));
+        assertNull(Util.pecahPin("a$b$c$d$e"));
+        assertNull(Util.pecahPin(null));
+    }
+
+    @Test
+    public void mengandungAbaikanHurufTanpaAlokasi() {
+        assertTrue(Util.mengandungAbaikanHuruf("Login Failed bro", "login failed"));
+        assertTrue(Util.mengandungAbaikanHuruf("TLS Handshake GAGAL", "tls"));
+        assertFalse(Util.mengandungAbaikanHuruf("info biasa", "invalid"));
+        assertFalse(Util.mengandungAbaikanHuruf("pendek", "kalimat panjang sekali"));
+    }
+
+    @Test
     public void hapusHanyaTempInternal() throws Exception {
         File base = new File(System.getProperty("java.io.tmpdir"), "uji-util-" + System.nanoTime());
         File cache = new File(base, "cache");

@@ -46,7 +46,7 @@ public class LogActivity extends Activity {
                 return;
             }
             refreshLog();
-            ui.postDelayed(this, 1000);
+            ui.postDelayed(this, 1500);
         }
     };
     /** Tunda refresh pencarian 300 ms: tiap ketikan menyalin buffer 300 KB
@@ -125,7 +125,7 @@ public class LogActivity extends Activity {
         });
 
         refreshLog();
-        ui.postDelayed(logTick, 1000);
+        ui.postDelayed(logTick, 1500);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class LogActivity extends Activity {
         }
         refreshLog();
         ui.removeCallbacks(logTick);
-        ui.postDelayed(logTick, 1000);
+        ui.postDelayed(logTick, 1500);
     }
 
     @Override

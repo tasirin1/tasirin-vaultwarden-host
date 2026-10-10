@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 6: pool thread, parse tanpa regex, tick idle
+- `ServerService`: health/start/stop/restart/backup terjadwal lewat pool bersama (`Util.jalankanBg/jalankanLama`); `appendLog` pakai ulang `Date` per thread; `saranLoginUntukBaris` tanpa `toLowerCase` (saring murah + `regionMatches`).
+- `PinCrypto`: pecah hash `PBKDF2$` via `Util.pecahPin` manual (tanpa kompilasi regex tiap verifikasi).
+- `TgBot`: offset akhir poll via `apply()` (hemat fsync tiap 20 dtk; perintah berbahaya tetap `commit()` sebelum eksekusi).
+- `TlsCert`: `SecureRandom` bersama (hemat seed `/dev/random` di kernel lama).
+- `MainActivity`: tick idle 2 dtk saat server mati; `LogActivity`: tick log 1,5 dtk.
+- `Util`: tambah `postUtama`/`batalTunda`/`pecahPin`/`mengandungAbaikanHuruf` + uji unit.
+
 ## [Belum rilis] — Audit agresif 5: ringkasan ketikan dan pool verifikasi PIN
 - `SettingsActivity.refreshRingkasan`: 5 teks ringkasan/status hanya `setText` bila berubah (sebelumnya tiap ketikan selalu layout ulang).
 - `PinActivity`: verifikasi PIN (PBKDF2 CPU-bound) lewat pool tugas lama bersama, tanpa thread baru tiap ketukan; aman karena guard `sedangPeriksa` + lockout mencegah antrean menumpuk.

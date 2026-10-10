@@ -92,6 +92,79 @@ public final class Util {
         }
     }
 
+    /** Kirim ke looper utama tanpa tunda (hemat alokasi Handler per panggil). */
+    public static void postUtama(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        try {
+            android.os.Looper looper = android.os.Looper.getMainLooper();
+            if (looper == null) {
+                return;
+            }
+            android.os.Handler h = HANDLER_UTAMA;
+            if (h == null || h.getLooper() != looper) {
+                h = new android.os.Handler(looper);
+                HANDLER_UTAMA = h;
+            }
+            h.post(r);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Batalkan runnable tertunda di handler bersama (pasangan postTunda). */
+    public static void batalTunda(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        try {
+            android.os.Handler h = HANDLER_UTAMA;
+            if (h != null) {
+                h.removeCallbacks(r);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Pecah hash PIN "A$B$C$D" tanpa regex (split kompilasi Pattern tiap panggil di API 21). */
+    public static String[] pecahPin(String s) {
+        if (s == null) {
+            return null;
+        }
+        int a = s.indexOf('$');
+        if (a < 0) {
+            return null;
+        }
+        int b = s.indexOf('$', a + 1);
+        if (b < 0) {
+            return null;
+        }
+        int c = s.indexOf('$', b + 1);
+        if (c < 0 || s.indexOf('$', c + 1) >= 0) {
+            return null;
+        }
+        String[] out = new String[4];
+        out[0] = s.substring(0, a);
+        out[1] = s.substring(a + 1, b);
+        out[2] = s.substring(b + 1, c);
+        out[3] = s.substring(c + 1);
+        return out;
+    }
+
+    /** Contains abaikan-huruf tanpa alokasi toLowerCase (hemat GC log deras STB). */
+    public static boolean mengandungAbaikanHuruf(String hay, String needle) {
+        if (hay == null || needle == null || needle.isEmpty() || hay.length() < needle.length()) {
+            return false;
+        }
+        int n = hay.length() - needle.length();
+        for (int i = 0; i <= n; i++) {
+            if (hay.regionMatches(true, i, needle, 0, needle.length())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Jalankan tugas ringan di pool bersama (abaikan bila antrean penuh). */
     public static void jalankanBg(Runnable r) {
         if (r == null) {

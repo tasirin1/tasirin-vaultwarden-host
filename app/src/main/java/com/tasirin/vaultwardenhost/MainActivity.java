@@ -628,7 +628,8 @@ public class MainActivity extends Activity {
         refreshHomeLog();
 
         if (refreshActive) {
-            ui.postDelayed(this::refreshFromService, 1000);
+            // Idle 2 dtk saat server mati: hemat bangun CPU di STB lama.
+            ui.postDelayed(this::refreshFromService, ServerService.running ? 1000 : 2000);
         }
     }
 

@@ -388,13 +388,14 @@ public class ServerService extends Service {
                 return;
             }
             mainHandler.postDelayed(this, delay);
-            new Thread(() -> {
+            // Pool bersama (bukan new Thread per tick): hemat stack 1 MB tiap 30 dtk di STB.
+            Util.jalankanBg(() -> {
                 try {
                     checkHealthOnce();
                 } finally {
                     healthBerjalan.set(false);
                 }
-            }, "vw-health").start();
+            });
         }
     };
 
@@ -839,7 +840,8 @@ public class ServerService extends Service {
             // proses mati sehingga watcher bocor dan restore mengira DB bebas.
             // Tunda sampai proses benar-benar mati, maks ~9 dtk.
             final int stopId = startId;
-            new Thread(() -> {
+            // Pool lama (bukan thread baru): tunggu ~9 dtk tanpa thread baru per Stop.
+            Util.jalankanLama(() -> {
                 try {
                     long tenggat = SystemClock.elapsedRealtime() + 9000;
                     while (SystemClock.elapsedRealtime() < tenggat && isProcessAlive()) {
@@ -861,14 +863,15 @@ public class ServerService extends Service {
                     } catch (Exception ignored) {
                     }
                 }
-            }, "vw-stop-clean").start();
+            });
             return START_NOT_STICKY;
         }
         if (ACTION_RESTART.equals(action)) {
             autoRestart = true;
             batalStart = false;
             startForegroundCompat();
-            new Thread(() -> {
+            // Pool lama agar restart bot tak menambah thread saat Start jalan.
+            Util.jalankanLama(() -> {
                 appendLog("[app] Restart diminta via Telegram.");
                 // Jangan menyalakan server yang sedang Stop: restart hanya sah
                 // saat server berjalan. Tanpa guard ini /restart menyalakan
@@ -916,7 +919,8 @@ public class ServerService extends Service {
                             ServerService.start(appCtx);
                         }
                     } else {
-                        new android.os.Handler(ui).post(() -> {
+                        // Handler bersama (bukan new Handler per restart).
+                        Util.postUtama(() -> {
                             if (autoRestart) {
                                 ServerService.start(appCtx);
                             }
@@ -930,12 +934,13 @@ public class ServerService extends Service {
                     } catch (Exception ignored2) {
                     }
                 }
-            }, "vw-restart").start();
+            });
             return START_NOT_STICKY;
         }
         if (ACTION_TG_BACKUP.equals(action)) {
             startForegroundCompat();
-            new Thread(() -> {
+            // Pool lama (backup menit-lama tak monopoli / tak bikin thread baru).
+            Util.jalankanLama(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
                     if (!TgBackup.amanBoolean(cek, TgBackup.KEY_TG_AUTO, false)) {
@@ -993,7 +998,7 @@ public class ServerService extends Service {
                         }
                     }
                 }
-            }, "vw-tg-sched").start();
+            });
             return START_NOT_STICKY;
         }
         // Aksi tak dikenal (termasuk intent null dari sistem) bukan perintah start:
@@ -1262,13 +1267,14 @@ public class ServerService extends Service {
             appendLog("[app] Start masih berjalan (unduh binary?), dilewati.");
             return;
         }
-        new Thread(() -> {
+        // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
+        Util.jalankanLama(() -> {
             try {
                 startServer();
             } finally {
                 starting.set(false);
             }
-        }, "vw-start").start();
+        });
     }
 
     private void startServer() {
@@ -1800,31 +1806,50 @@ public class ServerService extends Service {
         if (baris == null || baris.isEmpty()) {
             return null;
         }
-        String r = baris.toLowerCase(Locale.US);
-        if (r.contains("invalid username or password")
-                || r.contains("invalid credentials")
-                || r.contains("username or password is incorrect")
-                || r.contains("wrong password")
-                || r.contains("incorrect password")
-                || r.contains("login failed")
-                || r.contains("failed login")
-                || r.contains("failed log-in")
-                || (r.contains("/identity/connect/token") && r.contains("401"))
-                || (r.contains("invalid") && (r.contains("credential") || r.contains("password")))) {
+        // Tanpa toLowerCase (alokasi per baris log deras): cocok abaikan-huruf langsung.
+        // Saring murah dulu agar baris noise (info biasa) keluar sebelum pindai mahal.
+        if (!Util.mengandungAbaikanHuruf(baris, "invalid")
+                && !Util.mengandungAbaikanHuruf(baris, "password")
+                && !Util.mengandungAbaikanHuruf(baris, "credential")
+                && !Util.mengandungAbaikanHuruf(baris, "login")
+                && !Util.mengandungAbaikanHuruf(baris, "fail")
+                && !Util.mengandungAbaikanHuruf(baris, "wrong")
+                && !Util.mengandungAbaikanHuruf(baris, "incorrect")
+                && !Util.mengandungAbaikanHuruf(baris, "token")
+                && !Util.mengandungAbaikanHuruf(baris, "2fa")
+                && !Util.mengandungAbaikanHuruf(baris, "totp")
+                && !Util.mengandungAbaikanHuruf(baris, "two-factor")
+                && !Util.mengandungAbaikanHuruf(baris, "two factor")
+                && !Util.mengandungAbaikanHuruf(baris, "tls")
+                && !Util.mengandungAbaikanHuruf(baris, "ssl")
+                && !Util.mengandungAbaikanHuruf(baris, "certificate")
+                && !Util.mengandungAbaikanHuruf(baris, "handshake")) {
+            return null;
+        }
+        if (Util.mengandungAbaikanHuruf(baris, "invalid username or password")
+                || Util.mengandungAbaikanHuruf(baris, "invalid credentials")
+                || Util.mengandungAbaikanHuruf(baris, "username or password is incorrect")
+                || Util.mengandungAbaikanHuruf(baris, "wrong password")
+                || Util.mengandungAbaikanHuruf(baris, "incorrect password")
+                || Util.mengandungAbaikanHuruf(baris, "login failed")
+                || Util.mengandungAbaikanHuruf(baris, "failed login")
+                || Util.mengandungAbaikanHuruf(baris, "failed log-in")
+                || (Util.mengandungAbaikanHuruf(baris, "/identity/connect/token") && Util.mengandungAbaikanHuruf(baris, "401"))
+                || (Util.mengandungAbaikanHuruf(baris, "invalid") && (Util.mengandungAbaikanHuruf(baris, "credential") || Util.mengandungAbaikanHuruf(baris, "password")))) {
             return "[login] Login aplikasi Bitwarden gagal: email/password salah atau akun belum "
                     + "terdaftar. Daftar dulu di web-vault (Create Account), lalu login di aplikasi "
                     + "dengan email+password itu (bukan admin token).";
         }
-        if (r.contains("two-factor") || r.contains("two factor")
-                || r.contains("2fa") || r.contains("totp")) {
+        if (Util.mengandungAbaikanHuruf(baris, "two-factor") || Util.mengandungAbaikanHuruf(baris, "two factor")
+                || Util.mengandungAbaikanHuruf(baris, "2fa") || Util.mengandungAbaikanHuruf(baris, "totp")) {
             return "[login] Login butuh kode 2FA: buka aplikasi authenticator lalu masukkan "
                     + "kode 6 digit di aplikasi Bitwarden.";
         }
-        boolean tls = r.contains("certificate") || r.contains("handshake")
-                || r.contains("tls") || r.contains("ssl");
-        boolean gagal = r.contains("unknown") || r.contains("alert") || r.contains("fail")
-                || r.contains("error") || r.contains("abort") || r.contains("refus")
-                || r.contains("ditolak") || r.contains("verify");
+        boolean tls = Util.mengandungAbaikanHuruf(baris, "certificate") || Util.mengandungAbaikanHuruf(baris, "handshake")
+                || Util.mengandungAbaikanHuruf(baris, "tls") || Util.mengandungAbaikanHuruf(baris, "ssl");
+        boolean gagal = Util.mengandungAbaikanHuruf(baris, "unknown") || Util.mengandungAbaikanHuruf(baris, "alert") || Util.mengandungAbaikanHuruf(baris, "fail")
+                || Util.mengandungAbaikanHuruf(baris, "error") || Util.mengandungAbaikanHuruf(baris, "abort") || Util.mengandungAbaikanHuruf(baris, "refus")
+                || Util.mengandungAbaikanHuruf(baris, "ditolak") || Util.mengandungAbaikanHuruf(baris, "verify");
         if (tls && gagal) {
             return "[login] Koneksi aman (TLS) gagal: install dulu CA lewat tombol Install Cert "
                     + "/ Bagikan CA di Settings (jenis \"CA certificate\"), lalu login lagi. "
@@ -2042,12 +2067,22 @@ public class ServerService extends Service {
     private static final StringBuilder logFileBuf = new StringBuilder();
     private static final Object LOG_FILE_LOCK = new Object();
 
+    /** Date milik thread (format pakai ulang tanpa new Date per baris log deras). */
+    private static final ThreadLocal<java.util.Date> LOG_TGL =
+            new ThreadLocal<java.util.Date>() {
+                @Override protected java.util.Date initialValue() {
+                    return new java.util.Date();
+                }
+            };
+
     private void appendLog(String line) {
         if (line == null) {
             return;
         }
         String stamp;
-        stamp = LOG_TS.get().format(new Date());
+        java.util.Date tgl = LOG_TGL.get();
+        tgl.setTime(System.currentTimeMillis());
+        stamp = LOG_TS.get().format(tgl);
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');

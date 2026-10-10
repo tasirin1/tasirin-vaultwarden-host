@@ -449,9 +449,12 @@ public final class TlsCert {
         }
     }
 
+    /** SecureRandom bersama (thread-safe): hemat seed /dev/random di kernel lama. */
+    private static final SecureRandom ACAK_BERSAMA = new SecureRandom();
+
     private static KeyPair buatRsa2048() throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048, new SecureRandom());
+        kpg.initialize(2048, ACAK_BERSAMA)
         return kpg.generateKeyPair();
     }
 
@@ -509,7 +512,7 @@ public final class TlsCert {
     /** Susun TBS sertifikat v3 dengan issuer/subject/ekstensi/masa berlaku pilihan. */
     private static byte[] buildTbs(PublicKey subjectPub, String issuerCn, String subjectCn,
             byte[] exts, long masaHari) throws Exception {
-        SecureRandom rnd = new SecureRandom();
+        SecureRandom rnd = ACAK_BERSAMA;
         byte[] serialBytes = new byte[16];
         rnd.nextBytes(serialBytes);
         serialBytes[0] &= 0x7F; // positif

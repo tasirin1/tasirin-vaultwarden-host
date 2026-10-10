@@ -142,8 +142,8 @@ public final class PinCrypto {
             return true;
         }
         try {
-            String[] parts = stored.split("\\$", -1);
-            if (parts.length != 4) {
+            String[] parts = Util.pecahPin(stored);
+            if (parts == null || parts.length != 4) {
                 return true;
             }
             int iter = Integer.parseInt(parts[1]);
@@ -173,8 +173,8 @@ public final class PinCrypto {
         }
         try {
             if (isNewFormat(stored)) {
-                String[] parts = stored.split("\\$", -1);
-                if (parts.length != 4) {
+                String[] parts = Util.pecahPin(stored);
+                if (parts == null || parts.length != 4) {
                     return false;
                 }
                 int iter = Integer.parseInt(parts[1]);
@@ -201,8 +201,8 @@ public final class PinCrypto {
                 return MessageDigest.isEqual(got, want);
             }
             if (isFormatBungkus(stored)) {
-                String[] parts = stored.split("\\$", -1);
-                if (parts.length != 4) {
+                String[] parts = Util.pecahPin(stored);
+                if (parts == null || parts.length != 4) {
                     return false;
                 }
                 int iter;

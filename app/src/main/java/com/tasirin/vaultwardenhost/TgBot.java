@@ -525,10 +525,10 @@ public final class TgBot {
                 }
             } finally {
                 if (newOffset != offset) {
-                    // commit() sinkron: offset wajib awet sebelum perintah
-                    // berikutnya dibaca agar /stop-restore tak replay bila
-                    // proses mati tepat setelah polling.
-                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
+                    // apply() asinkron cukup di sini (baca/idempoten): hemat fsync eMMC
+                    // tiap 20 dtk di STB lama. Perintah berbahaya sudah dikunci
+                    // commit() sinkron SEBELUM eksekusi di atas (anti-replay).
+                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
                 }
             }
         } catch (Exception e) {
