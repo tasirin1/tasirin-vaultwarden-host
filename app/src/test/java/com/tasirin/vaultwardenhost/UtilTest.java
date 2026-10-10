@@ -20,6 +20,27 @@ public class UtilTest {
     }
 
     @Test
+    public void angkaBulatDeteksiTanpaEksepsi() {
+        assertTrue(Util.angkaBulat("12345"));
+        assertTrue(Util.angkaBulat("-100123"));
+        assertTrue(Util.angkaBulat("+123"));
+        assertFalse(Util.angkaBulat("nama"));
+        assertFalse(Util.angkaBulat(""));
+        assertFalse(Util.angkaBulat(null));
+        assertFalse(Util.angkaBulat("+"));
+        assertFalse(Util.angkaBulat("12.5"));
+    }
+
+    @Test
+    public void cocokChatUsernameTanpaRegex() {
+        assertTrue(Util.cocokChat("@nama", 1, "@nama"));
+        assertTrue(Util.cocokChat("@nama", 1, "nama"));
+        assertTrue(Util.cocokChat("nama", 1, "@nama"));
+        assertFalse(Util.cocokChat("@nama", 1, "@lain"));
+        assertFalse(Util.cocokChat("bukan-angka", 1, "lain"));
+    }
+
+    @Test
     public void cocokChatTolakNolDepan() {
         assertFalse(Util.cocokChat("0123", 123, ""));
         assertFalse(Util.cocokChat("00123", 123, ""));

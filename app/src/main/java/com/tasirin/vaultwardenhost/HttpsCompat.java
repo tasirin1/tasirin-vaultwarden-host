@@ -1,6 +1,7 @@
 package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
+import android.os.SystemClock;
 
 import java.io.File;
 import java.io.InputStream;
@@ -54,14 +55,30 @@ public final class HttpsCompat {
      *  sama tak lolos sebagai cache basi. */
     private static volatile long capStat = Long.MIN_VALUE;
     private static volatile long capNilai = 0L;
+    /** Waktu stat override terakhir (elapsedRealtime): stat ulang maks 1x/menit. */
+    private static volatile long capWaktu = 0;
 
     /** Cap file override anchor (0 bila tak ada): kunci invalidasi cache.
      *  Memakai mtime+ukuran+hash isi seperti ServerService.capCaAktif agar
      *  refresh se-detik berukuran sama tak memakai factory basi. */
     static long capOverride(Context ctx) {
+        // Gerbang TTL 60 dtk tanpa kunci/syscall (pola ServerService.capCaAktif):
+        // tiap koneksi (poll bot 20 dtk + health 30 dtk + unduhan) membayar
+        // kunci kelas + getFilesDir/isFile/mtime/length sia-sia di STB lama.
+        // Berkas hanya berubah via segarkanTrustAnchor (maks 1x/hari) sehingga
+        // basi 60 dtk aman (factory lama tetap valid, anchor bersifat aditif).
+        long kini = SystemClock.elapsedRealtime();
+        if (capStat != Long.MIN_VALUE && kini - capWaktu < 60_000) {
+            return capNilai;
+        }
         // Sinkron agar dua thread polling tak berlomba baca-tulis capStat/capNilai
         // (satu bisa menimpa hasil segar dengan nilai basi). I/O kecil (chain KB).
         synchronized (HttpsCompat.class) {
+            // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
+            long kini2 = SystemClock.elapsedRealtime();
+            if (capStat != Long.MIN_VALUE && kini2 - capWaktu < 60_000) {
+                return capNilai;
+            }
             try {
                 File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
                 if (ov.isFile()) {
@@ -69,6 +86,7 @@ public final class HttpsCompat {
                     // tak membayar buka-baca-hash tiap koneksi bila tak berubah.
                     long stat = ov.lastModified() * 31 + ov.length();
                     if (stat == capStat && capNilai != 0L) {
+                        capWaktu = kini2;
                         return capNilai;
                     }
                     // Stat berubah: hash SELURUH isi (rantai hitungan KB) agar
@@ -84,14 +102,20 @@ public final class HttpsCompat {
                     } catch (Exception ignored) {
                     }
                     if (stat == capStat && cap == capNilai) {
+                        capWaktu = kini2;
                         return capNilai;
                     }
                     capStat = stat;
                     capNilai = cap;
+                    capWaktu = kini2;
                     return cap;
                 }
             } catch (Exception ignored) {
             }
+            // Override tak ada/rusak: stempel juga agar koneksi tak
+            // menghujani stat tiap 20-30 dtk; refresh anchor mereset
+            // via perubahan stat (basi maks 60 dtk, factory lama valid).
+            capWaktu = kini2;
             return 0L;
         }
     }

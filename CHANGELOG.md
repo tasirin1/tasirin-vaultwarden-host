@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 12: cap TLS + cocok chat tanpa eksepsi
+- `HttpsCompat.capOverride`: gerbang TTL 60 dtk (pola `capCaAktif`) — tiap koneksi (poll 20 dtk + health) tanpa kunci kelas + stat file.
+- `Util.cocokChat`/`chatAdalahGrup`/`chatPerluAnggapGrup`: saring `angkaBulat` + kupas `@` manual — tanpa `replaceFirst` regex dan `NumberFormatException` tiap pesan bot di ART lama; perilaku identik + uji baru.
+
 ## [Belum rilis] — Audit agresif 11: tanpa regex + tanpa eksepsi di tick
 - `Updater.parseBinaryVersion`: memo input->hasil — Matcher regex per detik dari UI hilang (input hanya berganti tiap Start).
 - `ServerService.normalisasiPort`: saring digit manual (`portTampakAngka`) — port salah ketik tak menghujani `NumberFormatException` + isi stack trace tiap tick UI/health di ART lama; output identik + uji baru.

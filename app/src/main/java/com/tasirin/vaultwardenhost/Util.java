@@ -176,6 +176,30 @@ public final class Util {
         }
     }
 
+    /** True bila s menyerupai integer desimal ([+-]?digit, min 1 digit):
+     *  parseLong di bawah tak melempar untuk panjang wajar; digit raksasa
+     *  (overflow) tetap ditangkap catch pemanggil. Murni. */
+    static boolean angkaBulat(String s) {
+        if (s == null || s.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        char depan = s.charAt(0);
+        if (depan == '+' || depan == '-') {
+            i = 1;
+        }
+        if (i >= s.length()) {
+            return false;
+        }
+        for (; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
     static boolean semuaDigit(String s) {
         if (s == null || s.isEmpty()) {
@@ -233,15 +257,19 @@ public final class Util {
                 return false;
             }
         }
-        try {
-            // Nol-depan ("0123") bukan format ID Telegram: tolak agar tak
-            // cocok longgar dengan ID 123 (fail-closed ke tidak-cocok).
-            if (c.length() > 1 && c.startsWith("0")) {
-                return false;
+        // Nol-depan ("0123") bukan format ID Telegram: tolak agar tak
+        // cocok longgar dengan ID 123 (fail-closed ke tidak-cocok).
+        if (c.length() > 1 && c.startsWith("0")) {
+            return false;
+        }
+        // Saring digit dulu: config username tak melempar NumberFormatException
+        // + isi stack trace tiap pesan masuk di ART lama. Digit raksasa
+        // (overflow) tetap jatuh ke cocok username selaras perilaku lama.
+        if (angkaBulat(c)) {
+            try {
+                return id == Long.parseLong(c);
+            } catch (NumberFormatException ignored) {
             }
-            long want = Long.parseLong(c);
-            return id == want;
-        } catch (NumberFormatException ignored) {
         }
         String norm = c.startsWith("@") ? c.substring(1) : c;
         if (norm.isEmpty() || username == null) {
@@ -250,6 +278,11 @@ public final class Util {
         // Username murni angka (mis. "@12345") diperlakukan sebagai ID agar
         // tak bisa diklaim lewat username; config numerik wajib cocok ID.
         if (semuaDigit(norm)) {
+            // 20+ digit pasti overflow (selaras catch -> false di bawah)
+            // sehingga tak membayar eksepsi tiap pesan masuk.
+            if (norm.length() > 19) {
+                return false;
+            }
             try {
                 if (norm.length() > 1 && norm.startsWith("0")) {
                     return false;
@@ -270,7 +303,13 @@ public final class Util {
             } catch (Throwable ignored) {
             }
         }
-        return norm.equalsIgnoreCase(username.trim().replaceFirst("^@", ""));
+        // Kupas satu @ depan manual: replaceFirst mengkompilasi regex tiap
+        // pesan masuk di API 21 (aturan repo: tanpa regex per panggil).
+        String u = username.trim();
+        if (u.startsWith("@") && u.length() > 1) {
+            u = u.substring(1);
+        }
+        return norm.equalsIgnoreCase(u);
     }
 
     /** True bila config chat menunjuk grup/supergrup (ID numerik negatif).
@@ -286,6 +325,10 @@ public final class Util {
         }
         if (c.startsWith("+") && c.length() > 1) {
             c = c.substring(1).trim();
+        }
+        // Tanpa eksepsi untuk config username (tiap perintah bot di ART lama).
+        if (!angkaBulat(c)) {
+            return false;
         }
         try {
             return Long.parseLong(c) < 0;
@@ -321,10 +364,14 @@ public final class Util {
         if (norm.isEmpty()) {
             return false;
         }
+        // Tanpa eksepsi untuk username; non-angka = anggap grup (fail-closed).
+        if (!angkaBulat(norm)) {
+            return true;
+        }
         try {
             return Long.parseLong(norm) < 0;
         } catch (NumberFormatException ignored) {
-            // Username / tulisan bebas: pemiliknya tak pasti, anggap grup.
+            // Digit raksasa (overflow): pemilik tak pasti, anggap grup.
             return true;
         }
     }
