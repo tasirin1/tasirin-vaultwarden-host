@@ -105,7 +105,10 @@ public class PinActivity extends Activity {
                 ? "" : pinInput.getText().toString();
         bersihkanInput();
         final android.content.Context appCtx = getApplicationContext();
-        new Thread(() -> {
+        // Pool tugas lama bersama: verifikasi PBKDF2 30rb iterasi itu CPU-bound
+        // detik di STB 1 GB (bukan thread baru tiap ketukan). Hasil tetap
+        // kembali via ui.post di bawah.
+        Util.jalankanLama(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
             String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
@@ -137,7 +140,7 @@ public class PinActivity extends Activity {
                     tampilGalat(getString(R.string.pin_salah));
                 }
             });
-        }, "vw-pin-check").start();
+        });
     }
 
     private void tampilGalat(String pesan) {

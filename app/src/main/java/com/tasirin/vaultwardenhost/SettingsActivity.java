@@ -254,6 +254,14 @@ public class SettingsActivity extends Activity {
     private String lastShownBadge = "";
     private String lastUpdHint = "";
     private boolean lastUpdVisible = false;
+    /** Cache teks ringkasan: refreshRingkasan jalan tiap ketikan sehingga
+     *  setText yang isinya sama (tetap memicu layout) wajib dilewati. */
+    private String lastRingkasKeamanan = "";
+    private String lastRingkasRawat = "";
+    private String lastRingkasTg = "";
+    private String lastStatusAdmin = "";
+    private String lastStatusBot = "";
+
     /** Status kotor terakhir per label: setText/setColor yang isinya sama
      *  tetap memicu layout sehingga wajib dilewati bila tak berubah. */
     private final java.util.Map<TextView, Boolean> labelKotorCache =
@@ -3142,26 +3150,36 @@ public class SettingsActivity extends Activity {
         String pinAktif = pinEnabledCheck.isChecked() ? "PIN on" : "PIN off";
         String admin = !adminTokenInput.getText().toString().trim().isEmpty()
                 ? getString(R.string.terisi) : getString(R.string.belum_diisi);
-        if (secRingkasan != null) {
-            secRingkasan.setText(getString(R.string.ringkas_keamanan, pinAktif + ", token " + admin));
+        String ringkasKeamanan = getString(R.string.ringkas_keamanan, pinAktif + ", token " + admin);
+        if (secRingkasan != null && !ringkasKeamanan.equals(lastRingkasKeamanan)) {
+            lastRingkasKeamanan = ringkasKeamanan;
+            secRingkasan.setText(ringkasKeamanan);
         }
         boolean au = autoUpdateCb != null && autoUpdateCb.isChecked();
-        if (rawatRingkasan != null) {
-            rawatRingkasan.setText(getString(R.string.ringkas_rawat,
-                    (au ? "auto-update on" : "auto-update off") + teksKuncian()));
+        String ringkasRawat = getString(R.string.ringkas_rawat,
+                (au ? "auto-update on" : "auto-update off") + teksKuncian());
+        if (rawatRingkasan != null && !ringkasRawat.equals(lastRingkasRawat)) {
+            lastRingkasRawat = ringkasRawat;
+            rawatRingkasan.setText(ringkasRawat);
         }
         boolean botIsi = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
                 && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
-        if (tgRingkasan != null) {
-            tgRingkasan.setText(getString(R.string.ringkas_telegram,
-                    botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
+        String ringkasTg = getString(R.string.ringkas_telegram,
+                botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi));
+        if (tgRingkasan != null && !ringkasTg.equals(lastRingkasTg)) {
+            lastRingkasTg = ringkasTg;
+            tgRingkasan.setText(ringkasTg);
         }
-        if (adminStatus != null) {
-            adminStatus.setText(getString(R.string.status_admin, adminTokenInput.getText().toString().trim().isEmpty()
-                    ? getString(R.string.belum_diisi) : getString(R.string.terisi)));
+        String statusAdmin = getString(R.string.status_admin, adminTokenInput.getText().toString().trim().isEmpty()
+                ? getString(R.string.belum_diisi) : getString(R.string.terisi));
+        if (adminStatus != null && !statusAdmin.equals(lastStatusAdmin)) {
+            lastStatusAdmin = statusAdmin;
+            adminStatus.setText(statusAdmin);
         }
-        if (tgStatus != null) {
-            tgStatus.setText(getString(R.string.status_bot, botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi)));
+        String statusBot = getString(R.string.status_bot, botIsi ? getString(R.string.terisi) : getString(R.string.belum_diisi));
+        if (tgStatus != null && !statusBot.equals(lastStatusBot)) {
+            lastStatusBot = statusBot;
+            tgStatus.setText(statusBot);
         }
     }
 

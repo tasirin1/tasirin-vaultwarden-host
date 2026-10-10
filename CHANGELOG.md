@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 5: ringkasan ketikan dan pool verifikasi PIN
+- `SettingsActivity.refreshRingkasan`: 5 teks ringkasan/status hanya `setText` bila berubah (sebelumnya tiap ketikan selalu layout ulang).
+- `PinActivity`: verifikasi PIN (PBKDF2 CPU-bound) lewat pool tugas lama bersama, tanpa thread baru tiap ketukan; aman karena guard `sedangPeriksa` + lockout mencegah antrean menumpuk.
+
 ## [Belum rilis] — Audit agresif 4: tick Settings, stempel log tanpa kunci
 - `SettingsActivity`: teks status/tombol/badge di-cache sekali di `onCreate` (tanpa `getString` tiap tick); `setText` tombol/badge/hint/status-sibuk hanya bila berubah (tanpa `getText().toString()`); `tandaiLabel` dilewati bila status kotor tak berubah (setText sama pun memicu layout).
 - `ServerService`: stempel jam log (`LOG_TS`) jadi `ThreadLocal` — 4 titik `synchronized` di jalur panas catat/append log hilang.
