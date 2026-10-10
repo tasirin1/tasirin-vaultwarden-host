@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 24: trim ganda boot + sapuan nihil
+- `BootReceiver`: `dataDir.trim()` 2x jadi lokal sekali (`dRapi`) — sisa terakhir keluarga trim-ganda (jalur boot, perilaku sama).
+- Sapuan agresif ~15 keluarga pola (API desugar, `commit()`, IO 1-byte, eksepsi jalur panas, timeout, notifikasi, UUID/enum, kode terkomentari, `@Test`, caching RSS/uptime/IP, jadwal bot, pencarian log, receiver): nihil temuan baru — ronde 15–23 sudah menutupnya.
+
 ## [Belum rilis] — CI hijau: cabut ID lint tak dikenal + cek import pindah ke verifier
 - `app/build.gradle.kts`: cabut `"UnusedImports"` dari set error lint — ID tak dikenal AGP 8.5.2 (warning CI "Unknown issue id"; lint AGP tak punya cek import Java, itu ranah compiler/IDE).
 - `tools/verifikasi-path.py`: `cek_import_mati` baru (GAGAL bila nama import tak dipakai di kode; wildcard dilewati, komentar+string dikupas) — penjagaan setara tetap jalan di tiap push via SDK GitHub. Pohon kini bersih (nol import mati).

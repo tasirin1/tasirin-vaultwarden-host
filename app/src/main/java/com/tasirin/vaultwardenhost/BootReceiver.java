@@ -66,8 +66,10 @@ public class BootReceiver extends BroadcastReceiver {
                     String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
                     String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                             ServerService.dataDirBawaanSegar());
-                    boolean dbAda = dataDir != null && !dataDir.trim().isEmpty()
-                            && new java.io.File(dataDir.trim(), "db.sqlite3").exists();
+                    // Trim sekali (dulu 2x): perilaku sama persis.
+                    String dRapi = dataDir == null ? "" : dataDir.trim();
+                    boolean dbAda = !dRapi.isEmpty()
+                            && new java.io.File(dRapi, "db.sqlite3").exists();
                     // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):
                     // hanya jadwalkan tembakan 5 menit setelah hidup; keputusan
                     // backup (ganti hari + jam wajar) diambil AlarmReceiver
