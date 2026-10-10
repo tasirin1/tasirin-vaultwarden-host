@@ -11,3 +11,6 @@ local.properties
 # Keystore signing - jangan pernah di-commit
 keystore.jks
 
+# Python (verifikasi-path hanya dibaca, tak perlu bytecode)
+__pycache__/
+*.pyc
