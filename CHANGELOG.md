@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 15: pesan penting + nama perintah + persen tanpa alokasi/eksepsi
+- `TgBackup.pesanPenting`: `toLowerCase` salinan penuh + 7x `contains` jadi 7x `Util.mengandungAbaikanHuruf` (jalur ASCII tanpa alokasi).
+- `TgBot.namaPerintah`: `text.trim()` + `toLowerCase` salinan penuh jadi pindai token manual (hanya token pendek di-lowercase), pola `namaPerintahUntukBot`.
+- `Updater.persenUnduhan`: gerbang digit manual (1-3 char) sebelum `parseInt` agar status malformasi tak melempar tiap 500 ms di ART lama.
 ## [Belum rilis] — Perbaiki tes indeks log (build merah)
 - `MainActivityTest.indeksTakPekaAscii`: ekspektasi posisi `ERROR` salah hitung (6, seharusnya 4) — satu-satunya dari 395 tes yang gagal di CI; logika aplikasi tak berubah.
 

@@ -1473,8 +1473,20 @@ public final class Updater {
         if (buka < 0 || tutup < 0 || tutup <= buka + 1) {
             return -1;
         }
+        String angka = status.substring(buka + 1, tutup).trim();
+        // Saring dulu: status malformasi ("(abc%)") melempar + isi stack trace
+        // tiap 500 ms di ART lama selama unduh berjalan.
+        if (angka.isEmpty() || angka.length() > 3) {
+            return -1;
+        }
+        for (int i = 0; i < angka.length(); i++) {
+            char c = angka.charAt(i);
+            if (c < '0' || c > '9') {
+                return -1;
+            }
+        }
         try {
-            int p = Integer.parseInt(status.substring(buka + 1, tutup).trim());
+            int p = Integer.parseInt(angka);
             return (p >= 0 && p <= 100) ? p : -1;
         } catch (Exception e) {
             return -1;

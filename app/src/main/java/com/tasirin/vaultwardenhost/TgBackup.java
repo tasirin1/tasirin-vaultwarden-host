@@ -796,11 +796,15 @@ public final class TgBackup {
         if (msg == null || msg.isEmpty()) {
             return false;
         }
-        String rendah = msg.toLowerCase(java.util.Locale.US);
-        return rendah.contains("gagal") || rendah.contains("terkunci")
-                || rendah.contains("berhenti") || rendah.contains("crash")
-                || rendah.contains("restore") || rendah.contains("korup")
-                || rendah.contains("darurat");
+        // Tanpa toLowerCase salinan penuh: helper ASCII tanpa alokasi
+        // (kata kunci semua ASCII); pesan log panjang tak disalin tiap kirim.
+        return Util.mengandungAbaikanHuruf(msg, "gagal")
+                || Util.mengandungAbaikanHuruf(msg, "terkunci")
+                || Util.mengandungAbaikanHuruf(msg, "berhenti")
+                || Util.mengandungAbaikanHuruf(msg, "crash")
+                || Util.mengandungAbaikanHuruf(msg, "restore")
+                || Util.mengandungAbaikanHuruf(msg, "korup")
+                || Util.mengandungAbaikanHuruf(msg, "darurat");
     }
 
     /** Batas aman teks per pesan Telegram (limit API 4096 char; margin 96). */

@@ -606,7 +606,21 @@ public final class TgBot {
         if (text == null) {
             return "";
         }
-        String pertama = tokenPertama(text.trim()).toLowerCase(Locale.US);
+        // Pindai token pertama manual tanpa trim(): teks utuh tak disalin,
+        // hanya token pendek yang di-lowercase (tiap pesan Telegram masuk).
+        int n = text.length();
+        int a = 0;
+        while (a < n && Character.isWhitespace(text.charAt(a))) {
+            a++;
+        }
+        int b = a;
+        while (b < n && !Character.isWhitespace(text.charAt(b))) {
+            b++;
+        }
+        if (a >= n) {
+            return "";
+        }
+        String pertama = text.substring(a, b).toLowerCase(Locale.US);
         if (pertama.startsWith("/")) {
             pertama = pertama.substring(1);
         }
