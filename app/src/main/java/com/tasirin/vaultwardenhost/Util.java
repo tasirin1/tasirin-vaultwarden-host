@@ -30,6 +30,68 @@ public final class Util {
                 return t;
             }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
 
+    // Pool tugas lama (unduh binary/web-vault, auto-update, hash PIN): tugas
+    // menit-lama tak boleh memonopoli pool ringan hingga cek port terbuang.
+    private static final java.util.concurrent.ExecutorService BG_LAMA =
+            new java.util.concurrent.ThreadPoolExecutor(0, 2, 60L,
+                    java.util.concurrent.TimeUnit.SECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(16), r -> {
+                Thread t = new Thread(r, "vw-bg-lama");
+                t.setDaemon(true);
+                return t;
+            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+
+    /** Jalankan tugas lama (menit-lama) di pool sendiri. */
+    public static void jalankanLama(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        try {
+            BG_LAMA.execute(r);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Digest SHA-256 per thread: getInstance lookup provider tiap panggil boros. */
+    private static final ThreadLocal<java.security.MessageDigest> MD_SHA256 =
+            new ThreadLocal<java.security.MessageDigest>() {
+            };
+
+    /** Ambil digest SHA-256 milik thread ini (digest() me-reset sehingga aman
+     *  pakai ulang); lempar bila provider tak ada agar pemanggil fallback.
+     *  Murni JVM agar bisa unit test. */
+    public static java.security.MessageDigest mdSha256() throws Exception {
+        java.security.MessageDigest m = MD_SHA256.get();
+        if (m == null) {
+            m = java.security.MessageDigest.getInstance("SHA-256");
+            MD_SHA256.set(m);
+        }
+        return m;
+    }
+
+    /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
+    private static volatile android.os.Handler HANDLER_UTAMA = null;
+
+    /** Tunda runnable di looper utama (best-effort, abaikan bila tak ada). */
+    public static void postTunda(Runnable r, long tundaMs) {
+        if (r == null) {
+            return;
+        }
+        try {
+            android.os.Looper looper = android.os.Looper.getMainLooper();
+            if (looper == null) {
+                return;
+            }
+            android.os.Handler h = HANDLER_UTAMA;
+            if (h == null || h.getLooper() != looper) {
+                h = new android.os.Handler(looper);
+                HANDLER_UTAMA = h;
+            }
+            h.postDelayed(r, tundaMs);
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Jalankan tugas ringan di pool bersama (abaikan bila antrean penuh). */
     public static void jalankanBg(Runnable r) {
         if (r == null) {

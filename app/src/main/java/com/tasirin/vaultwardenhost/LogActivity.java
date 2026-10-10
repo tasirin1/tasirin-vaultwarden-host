@@ -200,7 +200,8 @@ public class LogActivity extends Activity {
         // Privasi layar: tampilkan versi tersamar (token/chat_id/IP disensor);
         // buffer internal tetap mentah agar salin/bagi/export bisa menyamarkan
         // sendiri dengan pola terbaru.
-        logView.setText(highlightLog(samarkanLog(tampil), logSearch));
+        String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
+        logView.setText(highlightLog(tampilAman, logSearch));
         if (logAutoScroll) {
             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         } else {
@@ -286,7 +287,8 @@ public class LogActivity extends Activity {
             // Samarkan ulang di sini (bukan andalkan isi file): pola samaran
             // bisa bertambah setelah file ditulis (mis. chat_id JSON), dan
             // jalur tampil/salin ini tak lewat shareLog/copyLog/export.
-            final String crash = samarkanLog(ServerService.crashLogText(LogActivity.this));
+            String mentahCrash = ServerService.crashLogText(LogActivity.this);
+            final String crash = butuhSamaran(mentahCrash) ? samarkanLog(mentahCrash) : mentahCrash;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;
@@ -370,6 +372,31 @@ public class LogActivity extends Activity {
             java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+?)"
                     + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
 
+    /** True bila teks mungkin memuat rahasia (penanda kasar tanpa regex).
+     *  Gerbang murah sebelum 13 pass regex: teks log biasa lolos tanpa
+     *  membayar kompilasi/pindai pola di UI thread tiap tick. Murni. */
+    static boolean butuhSamaran(String t) {
+        if (t == null || t.isEmpty()) {
+            return false;
+        }
+        return t.contains("token") || t.contains("Token") || t.contains("TOKEN")
+                || t.contains("chat_id") || t.contains("chatId")
+                || t.contains("bot") || t.contains("Bot") || t.contains("BOT")
+                || t.contains("tg_") || t.contains("TG_")
+                || t.contains("pin_hash") || t.contains("ADMIN")
+                || t.contains("Bearer") || t.contains("bearer")
+                || t.contains("DOMAIN") || t.contains("Domain")
+                || t.contains("alarm_secret") || t.contains("tg_last_file")
+                || t.contains("bin_sha") || t.contains("tg_pass")
+                || t.contains("api.telegram.org")
+                || t.contains("192.168.") || t.contains("10.")
+                || t.contains("172.16.") || t.contains("172.17.")
+                || t.contains("172.18.") || t.contains("172.19.")
+                || t.contains("172.2") || t.contains("172.30.")
+                || t.contains("172.31.") || t.contains("127.0.0.1:")
+                || t.contains("PIN:") || t.contains("pin:");
+    }
+
     static String samarkanLog(String log) {
         if (log == null) {
             return "";
@@ -411,7 +438,7 @@ public class LogActivity extends Activity {
         // synchronized; di worker agar tap tak freeze UI di STB lemah.
         toast("Preparing log…");
         Util.jalankanBg(() -> {
-            final String log = samarkanLog(mentah);
+            final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;
@@ -448,8 +475,7 @@ public class LogActivity extends Activity {
             return "";
         }
         try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] h = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            byte[] h = Util.mdSha256().digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder(h.length * 2);
             for (byte x : h) {
                 sb.append("0123456789abcdef".charAt((x >> 4) & 15));
@@ -510,11 +536,7 @@ public class LogActivity extends Activity {
         // sudah berhasil malah crash. Timer hanya best-effort (penanda prefs
         // dipasang ulang oleh bersihkanClipBasiJikaAda saat activity dibuka).
         try {
-            android.os.Looper ui = android.os.Looper.getMainLooper();
-            if (ui == null) {
-                return true;
-            }
-            new android.os.Handler(ui).postDelayed(() -> {
+            Util.postTunda(() -> {
                 try {
                     bersihkanBilaIsiKita(app, etiket, sidik);
                 } catch (Exception ignored) {
@@ -556,15 +578,9 @@ public class LogActivity extends Activity {
         }
         long sisa = sisaClipMs(kedaluwarsa);
         if (sisa > 0) {
-            try {
-                android.os.Looper ui = android.os.Looper.getMainLooper();
-                if (ui != null) {
-                    new android.os.Handler(ui).postDelayed(() -> {
-                        bersihkanBilaIsiKita(app, "vaultwarden", sidik);
-                    }, sisa);
-                }
-            } catch (Exception ignored) {
-            }
+            Util.postTunda(() -> {
+                bersihkanBilaIsiKita(app, "vaultwarden", sidik);
+            }, sisa);
             return;
         }
         bersihkanBilaIsiKita(app, "vaultwarden", sidik);
@@ -704,7 +720,7 @@ public class LogActivity extends Activity {
         // menahan lock log global, dan tak boleh freeze UI di STB lemah.
         toast("Preparing log…");
         Util.jalankanBg(() -> {
-            final String log = samarkanLog(mentah);
+            final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;

@@ -297,8 +297,7 @@ public final class TgBot {
             return "";
         }
         try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] h = md.digest((t + "|" + MENU_REV).getBytes(StandardCharsets.UTF_8));
+            byte[] h = Util.mdSha256().digest((t + "|" + MENU_REV).getBytes(StandardCharsets.UTF_8));
             // Hex manual (bukan String.format per byte) agar murah di STB lama.
             return Updater.toHex(h);
         } catch (Exception e) {
@@ -1906,7 +1905,8 @@ public final class TgBot {
     /** 30 baris terakhir log (maks ~3500 karakter, batas aman Telegram). */
     private static String tailLog() {
         // Samarkan dulu (baru potong): /log keluar perangkat via Telegram.
-        String log = LogActivity.samarkanLog(ServerService.tailLog(30));
+        String mentah = ServerService.tailLog(30);
+        String log = LogActivity.butuhSamaran(mentah) ? LogActivity.samarkanLog(mentah) : mentah;
         if (log.isEmpty()) {
             return "Log kosong.";
         }

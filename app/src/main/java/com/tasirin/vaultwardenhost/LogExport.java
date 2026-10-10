@@ -54,7 +54,8 @@ public final class LogExport {
     // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur API 21-32.
     @SuppressWarnings("deprecation")
     public static String simpanKeDownload(Activity act, String logMentah) {
-        String log = LogActivity.samarkanLog(logMentah);
+        String log = LogActivity.butuhSamaran(logMentah)
+                ? LogActivity.samarkanLog(logMentah) : (logMentah == null ? "" : logMentah);
         StringBuilder header = new StringBuilder();
         header.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
         header.append("Time: ")

@@ -182,7 +182,7 @@ public class MainActivity extends Activity {
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         // Cek update otomatis saat dibuka
-        Util.jalankanBg(this::autoUpdateCheck);
+        Util.jalankanLama(this::autoUpdateCheck);
         // Keraskan hash PIN legasi di rest (tanpa menunggu login) agar prefs
         // bocor tak memberi SHA-256 tanpa salt yang retak dalam detik.
         final android.content.Context appPin = getApplicationContext();
@@ -416,7 +416,7 @@ public class MainActivity extends Activity {
                         // Pakai app context di worker agar tekan back saat unduh
                         // 35 MB tak menahan Activity yang sudah destroy (bocor).
                         final android.content.Context appCtx = getApplicationContext();
-                        Util.jalankanBg(() -> {
+                        Util.jalankanLama(() -> {
                             String msg;
                             boolean gagal = false;
                             try {
@@ -613,12 +613,13 @@ public class MainActivity extends Activity {
             uptimeView.setVisibility(uptime.isEmpty() ? View.GONE : View.VISIBLE);
         }
 
-        String version = "App " + appVersion;
+        StringBuilder versiB = new StringBuilder("App ").append(appVersion);
         if (!ServerService.binaryVersion.isEmpty()) {
-            version += " \u00B7 Binary: " + ServerService.binaryVersion;
+            versiB.append(" \u00B7 Binary: ").append(ServerService.binaryVersion);
         } else {
-            version += " \u00B7 " + bundledVersion;
+            versiB.append(" \u00B7 ").append(bundledVersion);
         }
+        String version = versiB.toString();
         if (!version.equals(lastShownVersion)) {
             versionView.setText(version);
             lastShownVersion = version;
@@ -657,7 +658,9 @@ public class MainActivity extends Activity {
         // Offset tetap maju pakai panjang mentah (samaran mengubah panjang).
         if (!delta.isEmpty()) {
             lastLogLen += mentah;
-            delta = LogActivity.samarkanLog(delta);
+            if (LogActivity.butuhSamaran(delta)) {
+                delta = LogActivity.samarkanLog(delta);
+            }
         }
         if (delta.isEmpty()) {
             if (!hintShown && homeLogView.length() == 0) {
@@ -741,11 +744,21 @@ public class MainActivity extends Activity {
         return teks.subSequence(pos, teks.length());
     }
 
+    /** Warna log di-cache: getColor tiap tick boros lookup resource di STB. */
+    private int warnaGalatCache = 0;
+    private int warnaAwasCache = 0;
+    private boolean warnaCacheSiap = false;
+
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private void tempelLogBerwarna(String delta) {
-        int warnaGalat = getResources().getColor(R.color.log_error);
-        int warnaAwas = getResources().getColor(R.color.log_warn);
+        if (!warnaCacheSiap) {
+            warnaGalatCache = getResources().getColor(R.color.log_error);
+            warnaAwasCache = getResources().getColor(R.color.log_warn);
+            warnaCacheSiap = true;
+        }
+        int warnaGalat = warnaGalatCache;
+        int warnaAwas = warnaAwasCache;
         SpannableStringBuilder tempel = new SpannableStringBuilder();
         int mulai = 0;
         for (int i = 0; i <= delta.length(); i++) {
@@ -759,12 +772,10 @@ public class MainActivity extends Activity {
                     if (i < delta.length()) {
                         tempel.append("\n");
                     }
-                    String kecil = baris.toLowerCase(java.util.Locale.ROOT);
-                    if (mengandung(kecil, "error", "exception", "panic", "gagal",
-                            "fatal", "traceback")) {
+                    if (muatKata(baris, KATA_GALAT)) {
                         tempel.setSpan(new ForegroundColorSpan(warnaGalat), awal,
                                 awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    } else if (mengandung(kecil, "warn", "peringatan", "deprecated", "awas")) {
+                    } else if (muatKata(baris, KATA_AWAS)) {
                         tempel.setSpan(new ForegroundColorSpan(warnaAwas), awal,
                                 awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
@@ -775,14 +786,51 @@ public class MainActivity extends Activity {
         homeLogView.append(tempel);
     }
 
-    /** Salah satu kata kunci muncul di baris (cocok sederhana, tanpa regex). */
-    private boolean mengandung(String kecil, String... kata) {
-        for (String k : kata) {
-            if (kecil.contains(k)) {
+    /** Kata kunci pewarna log (huruf kecil semua, untuk cocok tanpa peka huruf). */
+    private static final String[] KATA_GALAT =
+            {"error", "exception", "panic", "gagal", "fatal", "traceback"};
+    private static final String[] KATA_AWAS =
+            {"warn", "peringatan", "deprecated", "awas"};
+
+    /** True bila salah satu kata muncul tanpa peka huruf; tanpa salinan
+     *  lowercase dan tanpa array varargs per baris (hemat di tick 500 ms). */
+    static boolean muatKata(String baris, String[] daftar) {
+        if (baris == null || daftar == null) {
+            return false;
+        }
+        for (String kata : daftar) {
+            if (indeksTakPeka(baris, kata) >= 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** indeksOf tanpa peka huruf (ASCII): tanpa alokasi lowercase per baris. */
+    static int indeksTakPeka(String s, String kata) {
+        int n = s.length();
+        int m = kata.length();
+        if (m == 0 || m > n) {
+            return -1;
+        }
+        char awal = kata.charAt(0);
+        char awalKecil = Character.toLowerCase(awal);
+        char awalBesar = Character.toUpperCase(awal);
+        for (int i = 0; i <= n - m; i++) {
+            char c = s.charAt(i);
+            if (c != awal && c != awalKecil && c != awalBesar) {
+                continue;
+            }
+            int j = 1;
+            while (j < m && Character.toLowerCase(s.charAt(i + j))
+                    == Character.toLowerCase(kata.charAt(j))) {
+                j++;
+            }
+            if (j == m) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL).

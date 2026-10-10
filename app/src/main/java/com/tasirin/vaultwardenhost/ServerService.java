@@ -28,7 +28,6 @@ import java.net.ServerSocket;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -148,20 +147,34 @@ public class ServerService extends Service {
      *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext.
      *  Hex manual via Updater.toHex: String.format per byte 32x per tick UI
      *  bikin jank di STB lama (dipanggil tiap refresh 500 ms). */
+    /** Cache sidik token: refresh UI tiap detik tak perlu hash ulang bila
+     *  token tak berubah. Kunci sendiri agar commit() PIN tak menahannya. */
+    private static final Object KUNCI_SIDIK = new Object();
+    private static String sidikTokenMasuk = null;
+    private static String sidikTokenHasil = "";
+
     static String sidikTokenAdmin(String token) {
-        if (token == null || token.trim().isEmpty()) {
+        String bersih = token == null ? "" : token.trim();
+        if (bersih.isEmpty()) {
             return "";
         }
-        try {
-            MessageDigest md = MD_SHA256.get();
-            if (md == null) {
-                md = MessageDigest.getInstance("SHA-256");
+        synchronized (KUNCI_SIDIK) {
+            if (bersih.equals(sidikTokenMasuk)) {
+                return sidikTokenHasil;
             }
-            byte[] h = md.digest(token.trim().getBytes(StandardCharsets.UTF_8));
-            return Updater.toHex(h);
+        }
+        String hasil;
+        try {
+            byte[] h = Util.mdSha256().digest(bersih.getBytes(StandardCharsets.UTF_8));
+            hasil = Updater.toHex(h);
         } catch (Exception e) {
             return "";
         }
+        synchronized (KUNCI_SIDIK) {
+            sidikTokenMasuk = bersih;
+            sidikTokenHasil = hasil;
+        }
+        return hasil;
     }
 
     /** Potong pesan galat di batas code-point (murni). Belah pasangan surrogate
@@ -196,18 +209,6 @@ public class ServerService extends Service {
             java.util.regex.Pattern.compile("/");
     private static final java.util.regex.Pattern POLA_SPASI =
             java.util.regex.Pattern.compile("\\s+");
-
-    /** Cache SHA-256 per thread: getInstance lookup provider tiap tick UI boros. */
-    private static final ThreadLocal<MessageDigest> MD_SHA256 =
-            new ThreadLocal<MessageDigest>() {
-                @Override protected MessageDigest initialValue() {
-                    try {
-                        return MessageDigest.getInstance("SHA-256");
-                    } catch (Exception e) {
-                        return null;
-                    }
-                }
-            };
 
     /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
     static boolean semuaDigit(String s) {
@@ -669,8 +670,8 @@ public class ServerService extends Service {
         try {
             c = (HttpURLConnection) new URL(
                     scheme + "://127.0.0.1:" + port + path).openConnection();
-            c.setConnectTimeout(8000);
-            c.setReadTimeout(8000);
+            c.setConnectTimeout(4000);
+            c.setReadTimeout(4000);
             if (https) {
                 HttpsURLConnection hc = (HttpsURLConnection) c;
                 hc.setSSLSocketFactory(loopbackSslFactory(ctx));
@@ -1976,8 +1977,9 @@ public class ServerService extends Service {
             }
             // Samarkan dulu: file ini dibaca dialog crash + dikirim /crashlog
             // ke Telegram (keluar perangkat), seperti jalur share/clipboard.
+            String ekor = tailLog(100);
             String body = "=== " + stamp + " [" + reason + "] ===\n"
-                    + LogActivity.samarkanLog(tailLog(100)) + "\n";
+                    + (LogActivity.butuhSamaran(ekor) ? LogActivity.samarkanLog(ekor) : ekor) + "\n";
             try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                     new FileOutputStream(new File(getFilesDir(), CRASH_LOG_NAME), false),
                     StandardCharsets.UTF_8)) {
@@ -1995,7 +1997,11 @@ public class ServerService extends Service {
                 // Hint [login]: jelaskan ke log realtime mengapa aplikasi Bitwarden
                 // gagal login (kredensial salah, 2FA, atau TLS self-signed ditolak app).
                 // Dihitung SEBELUM filter noise agar handshake gagal tetap bersaran.
-                String hintLogin = saranLoginUntukBaris(line, runningHttps);
+                // Gerbang throttle dulu: saat ditahan hasilnya tak dipakai sehingga
+                // pindai mahal (lowercase + puluhan contains) boleh dilewati.
+                String hintLogin = bolehHintLogin(SystemClock.elapsedRealtime(),
+                        loginHintTerakhirElapsed)
+                        ? saranLoginUntukBaris(line, runningHttps) : null;
                 boolean noise = line.contains("CertificateUnknown")
                         || line.contains("tls handshake with 127.0.0.1")
                         || line.contains("Detected TLS-enabled liftoff")

@@ -126,8 +126,7 @@ public class SettingsActivity extends Activity {
      *  "" bila tak terbaca (semua yang tak terbaca berbagi satu budget). */
     static String sidikBerkas(java.io.File f) {
         try {
-            java.security.MessageDigest md =
-                    java.security.MessageDigest.getInstance("SHA-256");
+            java.security.MessageDigest md = Util.mdSha256();
             try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
                 byte[] buf = new byte[8192];
                 int n;
@@ -699,7 +698,7 @@ public class SettingsActivity extends Activity {
             final String pinBaru = fieldPin;
             pinAktifJalan = true;
             toast("Processing PIN…");
-            Util.jalankanBg(() -> {
+            Util.jalankanLama(() -> {
                 String hasil;
                 try {
                     hasil = PinCrypto.hash(pinBaru);
@@ -751,7 +750,7 @@ public class SettingsActivity extends Activity {
         ui.post(this::refreshFromService);
 
         // Auto-update check on launch
-        Util.jalankanBg(this::autoUpdateCheck);
+        Util.jalankanLama(this::autoUpdateCheck);
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot

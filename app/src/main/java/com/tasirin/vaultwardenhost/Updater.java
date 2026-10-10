@@ -831,7 +831,7 @@ public final class Updater {
         }
         java.security.MessageDigest md;
         try {
-            md = java.security.MessageDigest.getInstance("SHA-256");
+            md = Util.mdSha256();
         } catch (Exception e) {
             throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
         }
@@ -1303,7 +1303,7 @@ public final class Updater {
             if (sisi != null) {
                 String dapat;
                 try {
-                    dapat = toHex(MessageDigest.getInstance("SHA-256").digest(blob));
+                    dapat = toHex(Util.mdSha256().digest(blob));
                 } catch (Exception e) {
                     return false;
                 }
@@ -2497,7 +2497,7 @@ public final class Updater {
     /** SHA-256 file sebagai hex kecil; null bila gagal dibaca. */
     static String sha256Hex(File f) {
         try (InputStream in = new FileInputStream(f)) {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = Util.mdSha256();
             byte[] buf = new byte[64 * 1024];
             int n;
             while ((n = in.read(buf)) != -1) {

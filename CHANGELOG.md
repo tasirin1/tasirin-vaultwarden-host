@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 2: tick UI, digest bersama, pool tugas lama
+- `MainActivity`: rangkai versi per tick via `StringBuilder`; warna log di-cache; pewarnaan baris tanpa salinan lowercase/varargs (`muatKata`/`indeksTakPeka`); redaksi delta log hanya bila `butuhSamaran` lolos.
+- `LogActivity`: gerbang `butuhSamaran` di semua jalur redaksi (tampil/bagi/salin/crash/export); timer clipboard via handler utama bersama; sidik clipboard via digest bersama.
+- `Util`: digest SHA-256 per thread bersama (`mdSha256`) dipakai `ServerService`/`TgBot`/`Updater`/`SettingsActivity`/`LogActivity`; pool tugas lama (`jalankanLama`) untuk unduh/auto-update/hash PIN agar pool ringan tak macet; `postTunda` bersama.
+- `ServerService`: sidik token di-memoize (hash ulang hanya bila token berubah); pindai hint login hanya bila throttle mengizinkan; timeout health loopback 8 dtk jadi 4 dtk.
+- `PinCrypto` sengaja tak diubah: lookup factory/Mac ~mikrodetik, kerdil dibanding KDF 12–30rb iterasi; cache objek crypto bersama berisiko thread-safety.
+
 ## [Belum rilis] — Hemat CPU/RAM di STB lama (tanpa regex/thread/format berulang)
 - `TgBot.lolosJson`: `String.format` per char diganti tulis escape unicode manual; `parseUsernameBot` tak lagi pindai regex DOTALL; `split`/`matches`/`replaceAll`/`replaceFirst` di path perintah diganti pola statis + helper manual (`tokenPertama`, `kupasAt`, `rapikanSpasi`); tanggal status via `ThreadLocal`.
 - `TgBackup`: tanggal backup via `ThreadLocal`; `stempelUnik` hex manual; `sudahGantiHari`/`nextMidnight` aritmetika hari lokal tanpa `Calendar`; `rahasiaAlarm` cek hex manual + `SecureRandom` bersama; `folderBytesWalk` pakai absolute path (tanpa syscall kanonis); rangkai param kirim via `StringBuilder`.
