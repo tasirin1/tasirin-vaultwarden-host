@@ -57,6 +57,10 @@ public class LogActivity extends Activity {
             refreshLog();
         }
     };
+    /** Kunci olahan redaksi+sorot: satu dalam penerbangan agar antrean
+     *  worker tak menumpuk saat log deras (tick menyusul dilewati). */
+    private final java.util.concurrent.atomic.AtomicBoolean redaksiJalan =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private long lastLogVer = -1;
@@ -174,43 +178,76 @@ public class LogActivity extends Activity {
         if (key.equals(lastLogKey)) {
             return;
         }
+        // Redaksi 13 regex + sorot ribuan span di worker: jalan penuh tiap
+        // detik di UI thread bikin patah/ANR di STB 1 GB. Coalesce: tick yang
+        // datang saat olahan lama belum selesai dilewati; tick berikut
+        // mengambil buffer terbaru. Salin/bagi/simpan tetap pakai buffer penuh.
+        if (!redaksiJalan.compareAndSet(false, true)) {
+            return;
+        }
         lastLogKey = key;
         lastLogVer = ver;
-        String text;
+        lastLogLen = len;
+        final String kunci = key;
+        final String cari = logSearch;
+        final boolean ikutBawah = logAutoScroll;
+        final int prevScroll = logScroll.getScrollY();
+        final String text;
         synchronized (ServerService.logBuffer) {
             text = ServerService.logBuffer.toString();
         }
-        // Buffer jumbo (server aktif menambah baris tiap detik) membuat 14 regex
-        // + setText jalan penuh tiap detik di UI thread (patah/ANR di STB 1 GB).
-        // Tampilkan ekor saja; salin/bagi/simpan tetap memakai buffer penuh.
-        String tampil = text.length() > BATAS_TAMPIL_LOG
-                ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
-        // Hitung ulang lineCount dari teks yang tampil (handle trim dengan benar)
-        // agar label cocok dengan isi layar; lastLogLen tetap panjang penuh
-        // untuk deteksi trim buffer di atas.
-        lineCount = 0;
-        for (int i = 0; i < tampil.length(); i++) {
-            if (tampil.charAt(i) == '\n') {
-                lineCount++;
+        Util.jalankanBg(() -> {
+            try {
+                // Buffer jumbo (server aktif menambah baris tiap detik):
+                // tampilkan ekor saja agar regex + span tetap ringan.
+                String tampil = text.length() > BATAS_TAMPIL_LOG
+                        ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
+                // Hitung ulang jumlah baris dari teks yang tampil (handle trim
+                // dengan benar) agar label cocok dengan isi layar.
+                int hitung = 0;
+                for (int i = 0; i < tampil.length(); i++) {
+                    if (tampil.charAt(i) == '\n') {
+                        hitung++;
+                    }
+                }
+                // Privasi layar: tampilkan versi tersamar (token/chat_id/IP
+                // disensor); buffer internal tetap mentah agar salin/bagi/
+                // export bisa menyamarkan sendiri dengan pola terbaru.
+                String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
+                final CharSequence sorot = highlightLog(tampilAman, cari);
+                final int baris = hitung;
+                ui.post(() -> {
+                    try {
+                        // Basis/cari berubah saat olahan jalan (ketik cepat,
+                        // bersihkan log): hasil basi dibuang, tick berikut
+                        // me-render ulang dari buffer terbaru.
+                        if (!kunci.equals(lastLogKey)) {
+                            return;
+                        }
+                        if (isDestroyed() || isFinishing()) {
+                            return;
+                        }
+                        lineCount = baris;
+                        logCount.setText(getString(R.string.log_lines, lineCount));
+                        logView.setText(sorot);
+                        if (ikutBawah) {
+                            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+                        } else {
+                            logScroll.post(() -> {
+                                View child = logScroll.getChildAt(0);
+                                int max = (child == null ? 0 : child.getHeight())
+                                        - logScroll.getHeight();
+                                logScroll.scrollTo(0, Math.max(0, Math.min(prevScroll, max)));
+                            });
+                        }
+                    } finally {
+                        redaksiJalan.set(false);
+                    }
+                });
+            } catch (Exception e) {
+                redaksiJalan.set(false);
             }
-        }
-        lastLogLen = len;
-        logCount.setText(getString(R.string.log_lines, lineCount));
-        int prevScroll = logScroll.getScrollY();
-        // Privasi layar: tampilkan versi tersamar (token/chat_id/IP disensor);
-        // buffer internal tetap mentah agar salin/bagi/export bisa menyamarkan
-        // sendiri dengan pola terbaru.
-        String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
-        logView.setText(highlightLog(tampilAman, logSearch));
-        if (logAutoScroll) {
-            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
-        } else {
-            logScroll.post(() -> {
-                View child = logScroll.getChildAt(0);
-                int max = (child == null ? 0 : child.getHeight()) - logScroll.getHeight();
-                logScroll.scrollTo(0, Math.max(0, Math.min(prevScroll, max)));
-            });
-        }
+        });
     }
 
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.

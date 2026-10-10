@@ -653,6 +653,26 @@ public class MainActivity extends Activity {
                 mentah = delta.length();
             }
         }
+        // Batas kerja per tick di UI thread: 13 pass regex di atas delta
+        // puluhan KB tiap 500 ms bikin patah di STB lama. Potong di batas
+        // baris utuh; sisa mengalir di tick berikut (urutan + baris utuh
+        // terjaga sehingga rahasia tak lolos tersamar setengah).
+        if (mentah > BATAS_DELTA_TICK) {
+            int potong = delta.lastIndexOf('\n', BATAS_DELTA_TICK);
+            if (potong <= 0) {
+                potong = BATAS_DELTA_TICK;
+                // Jangan belah pasangan surrogate di titik potong paksa.
+                if (potong < delta.length()
+                        && Character.isHighSurrogate(delta.charAt(potong - 1))
+                        && Character.isLowSurrogate(delta.charAt(potong))) {
+                    potong--;
+                }
+            } else {
+                potong = potong + 1;
+            }
+            delta = delta.substring(0, potong);
+            mentah = potong;
+        }
         // Samarkan seperti jalur LogActivity/bagi/Telegram: token bot dan
         // rahasia di teks exception tak boleh tampil mentah di layar.
         // Offset tetap maju pakai panjang mentah (samaran mengubah panjang).
@@ -748,6 +768,9 @@ public class MainActivity extends Activity {
     private int warnaGalatCache = 0;
     private int warnaAwasCache = 0;
     private boolean warnaCacheSiap = false;
+    /** Batas olah log per tick layar awal (redaksi regex + span): sisa
+     *  ditunda ke tick berikut agar UI thread tak tersedak log deras. */
+    private static final int BATAS_DELTA_TICK = 8192;
 
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")

@@ -454,7 +454,8 @@ public final class TgBackup {
         }
         ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
         final Context app = ctx.getApplicationContext();
-        new Thread(() -> {
+        // Pool tugas lama bersama (hemat thread baru tiap Start di STB 1 GB).
+        Util.jalankanLama(() -> {
             try {
                 final String msg = backupTungguDb(app);
                 ui.jalankanUi(() -> {
@@ -465,7 +466,7 @@ public final class TgBackup {
             } catch (Exception e) {
                 ui.catat("[tg] " + pesanGalatBackup(e));
             }
-        }, "vw-tg-onstart").start();
+        });
     }
 
     /** True bila backup otomatis boleh jalan: password backup wajib diisi agar

@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 3: poll bot, redaksi log di worker, cap tick
+- `TgBotReceiver`: hapus heal prefs penuh tiap poll 20 dtk (parse ulang XML + iterasi semua kunci; baca `aman*` sembuh-sendiri, heal tetap di onCreate/start); polling lewat pool bot bersama + fallback thread bila penuh (jamin `goAsync`/wakelock selesai).
+- `LogActivity.refreshLog`: redaksi 13 regex + sorot span pindah ke worker dengan coalesce (satu olahan dalam penerbangan, tick menyusul dilewati, hasil basi dibuang via kunci generasi).
+- `MainActivity.refreshHomeLog`: delta per tick dibatasi 8 KB pada batas baris utuh (sisa mengalir tick berikut; urutan + baris utuh terjaga, surrogate aman).
+- `Updater`: pindai checksum tanpa salinan lowercase per baris (`mengandungAbaikanHuruf` via `regionMatches`); tanggal STB via `ThreadLocal`.
+- `TgBackup`: backup otomatis saat Start lewat pool tugas lama bersama (tanpa thread baru tiap Start).
+- Sengaja tak diubah: heal di `AlarmReceiver`/`BootReceiver`/onCreate (jarang, proses segar), `sidikTokenAdmin` (sudah memoize), hint login (sudah digerbang throttle), thread backup panjang satu-shot sebelumnya kini ikut pool lama.
+
 ## [Belum rilis] — Audit agresif 2: tick UI, digest bersama, pool tugas lama
 - `MainActivity`: rangkai versi per tick via `StringBuilder`; warna log di-cache; pewarnaan baris tanpa salinan lowercase/varargs (`muatKata`/`indeksTakPeka`); redaksi delta log hanya bila `butuhSamaran` lolos.
 - `LogActivity`: gerbang `butuhSamaran` di semua jalur redaksi (tampil/bagi/salin/crash/export); timer clipboard via handler utama bersama; sidik clipboard via digest bersama.

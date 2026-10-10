@@ -442,12 +442,21 @@ public final class Updater {
                         && rantai.contains("certificate"));
     }
 
+    /** Format tanggal STB per thread: SimpleDateFormat init berat dan tak
+     *  thread-safe sehingga tak boleh dibuat baru tiap pesan galat maupun
+     *  dipakai bersama antar thread. */
+    private static final ThreadLocal<java.text.SimpleDateFormat> FMT_STB =
+            new ThreadLocal<java.text.SimpleDateFormat>() {
+                @Override protected java.text.SimpleDateFormat initialValue() {
+                    return new java.text.SimpleDateFormat(
+                            "d MMM yyyy HH:mm", new Locale("id", "ID"));
+                }
+            };
+
     /** Tanggal jam STB terbaca saat ini (untuk pesan galat jam salah). */
     static String tanggalStbTerbaca() {
         try {
-            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
-                    "d MMM yyyy HH:mm", new Locale("id", "ID"));
-            return f.format(new java.util.Date(System.currentTimeMillis()));
+            return FMT_STB.get().format(new java.util.Date(System.currentTimeMillis()));
         } catch (Exception ignored) {
             return String.valueOf(System.currentTimeMillis());
         }
@@ -2361,7 +2370,7 @@ public final class Updater {
         String kunci = namaAsset == null ? "" : namaAsset.trim().toLowerCase(java.util.Locale.US);
         if (!kunci.isEmpty()) {
             for (String b : baris) {
-                if (b != null && b.toLowerCase(java.util.Locale.US).contains(kunci)) {
+                if (b != null && mengandungAbaikanHuruf(b, kunci)) {
                     String dapat = pindaiHexChecksum(b);
                     if (dapat != null) {
                         return dapat;
@@ -2403,6 +2412,26 @@ public final class Updater {
             nama = nama.substring(0, nama.length() - ".sha256".length());
         }
         return nama;
+    }
+
+    /** Contains tanpa peka-huruf tanpa alokasi salinan lowercase (pindai
+     *  checksum tak menyalin tiap baris). Jarum wajib sudah huruf kecil.
+     *  Murni agar bisa unit test. */
+    static boolean mengandungAbaikanHuruf(String hay, String jarumKecil) {
+        if (hay == null || jarumKecil == null || jarumKecil.isEmpty()) {
+            return false;
+        }
+        int n = hay.length();
+        int m = jarumKecil.length();
+        if (m > n) {
+            return false;
+        }
+        for (int i = 0; i <= n - m; i++) {
+            if (hay.regionMatches(true, i, jarumKecil, 0, m)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Pindai satu baris checksum dan kembalikan 64-hex pertama yang

@@ -31,7 +31,9 @@ public class TgBotReceiver extends BroadcastReceiver {
         } catch (Exception ignored) {
             return;
         }
-        TgBackup.healkanStringPrefs(context);
+        // Tanpa heal penuh di sini: getAll() mem-parse ulang seluruh XML prefs
+        // tiap 20 detik di STB lama; baca aman* di bawah sembuh-sendiri per
+        // kunci bila korup, dan heal penuh tetap jalan di onCreate/start.
         // Tanpa token/chat polling pasti nir-op: keluar sebelum pegang
         // wakelock agar tak membangunkan perangkat sia-sia tiap 20 detik.
         if (!adaKonfig(context)) {
@@ -46,7 +48,7 @@ public class TgBotReceiver extends BroadcastReceiver {
             return;
         }
         final PowerManager.WakeLock wl = acquire(context);
-        new Thread(() -> {
+        Runnable tugas = () -> {
             try {
                 TgBot.pollOnce(context);
             } finally {
@@ -58,7 +60,19 @@ public class TgBotReceiver extends BroadcastReceiver {
                     }
                 }
             }
-        }, "vw-tgbot").start();
+        };
+        // Pool bot bersama dulu (hemat thread baru tiap 20 dtk di STB 1 GB);
+        // fallback thread sendiri bila pool penuh agar goAsync/wakelock
+        // tetap selesai dan polling berikut tak macet.
+        if (!TgBot.cobaJalankanBg(tugas)) {
+            try {
+                Thread t = new Thread(tugas, "vw-tgbot");
+                t.setDaemon(true);
+                t.start();
+            } catch (Exception e) {
+                tugas.run();
+            }
+        }
     }
 
     private static boolean adaKonfig(Context context) {

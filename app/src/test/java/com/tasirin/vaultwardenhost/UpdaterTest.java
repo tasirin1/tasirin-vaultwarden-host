@@ -888,6 +888,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void mengandungAbaikanHuruf_tanpaAlokasiCocok() {
+        assertTrue(Updater.mengandungAbaikanHuruf(
+                "SHA256 (Web-Vault.ZIP) = abc123", "web-vault.zip"));
+        assertTrue(Updater.mengandungAbaikanHuruf("abc", "abc"));
+        assertFalse(Updater.mengandungAbaikanHuruf("abc", "abcd"));
+        assertFalse(Updater.mengandungAbaikanHuruf("abc", ""));
+        assertFalse(Updater.mengandungAbaikanHuruf(null, "x"));
+        assertFalse(Updater.mengandungAbaikanHuruf("x", null));
+    }
+
+    @Test
     public void kuncianDuaBagianDitolak() {
         // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
         // wajib ditolak di normalisasi agar pin lama bertahan.
