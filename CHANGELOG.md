@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 19: buang import mati + sapuan sampah nihil
+- `MainActivity.java`: buang `import android.os.Build` yang tak terpakai (satu-satunya kemunculan kata `Build`).
+- Sapuan sampah: 12 kunci prefs dicurigai semua terpakai; import 21 berkas bersih; ~50 metode privat dicurigai semua terhubung (callback/listener/`::ref`/tes); resource yatim nihil (verifikasi-path).
 ## [Belum rilis] — Audit agresif 18: banding versi sekali + triase warning basi
 - `AutoUpdate.cek`: `bandingVersi(real, latest)` 2x jadi lokal `bandingReal` sekali.
 - Triase anotasi build: `TasirinBtnHero`/`overflow`/`btn_tv_*`/`hero_run_*`/`bg_hero_running`/`bg_btn_hero`, `%d minutes`, `quantities one (in)` semuanya basi (berkas tak ada lagi); `x86_64 ChromeOS` disengaja (armeabi-v7a saja).
