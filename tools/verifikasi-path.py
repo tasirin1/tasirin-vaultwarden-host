@@ -26,10 +26,28 @@ KATA_KUNCI_JAVA = {
     "if", "for", "while", "switch", "catch", "return", "new", "throw",
     "else", "do", "try", "synchronized", "assert", "case",
 }
-# Metode repo yang sengaja dihapus (audit agresif): bila baris baru masih
-# memanggilnya, itu regresi hapusan. Tambahkan nama ke sini tiap menghapus
-# metode agar pen penyebutnya tertangkap otomatis.
-BEKAS_HAPUSAN = {"batalTunda"}
+# Nama metode yang sengaja dihapus total dimuat dari tools/bekas-hapusan.txt
+# (satu nama per baris, # = komentar): bila baris baru masih memanggilnya,
+# itu regresi hapusan. Tambahkan nama ke berkas itu tiap menghapus metode —
+# cek_metode_hilang hanya melihat diff saat itu, daftar inilah yang menjaga
+# push-push berikut. (Pelajaran ronde 22: grep --include BusyBox gagal diam
+# dan pipa menutupi statusnya sehingga "hilang" palsu dilaporkan; skrip ini
+# membaca berkas langsung via Python agar tak kena jebakan shell itu.)
+def muat_bekas_hapusan():
+    nama = set()
+    try:
+        with open(os.path.join(AKAR, "tools", "bekas-hapusan.txt"),
+                  encoding="utf-8") as f:
+            for baris in f:
+                baris = baris.strip()
+                if baris and not baris.startswith("#"):
+                    nama.add(baris.split()[0])
+    except OSError:
+        pass
+    return nama or {"batalTunda"}
+
+
+BEKAS_HAPUSAN = muat_bekas_hapusan()
 # Callback siklus hidup: menghapusnya aman dari sisi acuan (turunkan jadi peringatan).
 OVERRIDE_AMAN = {
     "onCreate", "onStart", "onResume", "onPause", "onStop", "onDestroy",
@@ -376,12 +394,7 @@ def cek_pola_boros(peringatan, diff):
             peringatan.append("Pola boros di baris baru .matches( — "
                               "kompilasi regex tiap panggil; pakai Pattern statis: %s"
                               % isi.strip()[:70])
-        if re.search(r"\.to(Lower|Upper)Case\(\)", isi) \
-                and "tanpa Locale" not in isi:
-            peringatan.append("Pola boros di baris baru toLower/UpperCase() tanpa Locale — "
-                              "bug locale Turki + alokasi; pakai Locale.US/ASCII: %s"
-                              % isi.strip()[:70])
-            break
+
 
 
 def cek_izin_baru(peringatan, diff):
@@ -459,10 +472,16 @@ def nama_metode_hilang(diff, lewati_berkas=()):
     """Nama metode pada baris dihapus yang definisinya hilang dari pohon kerja."""
     hilang = []
     for path, baris in hapus_java(diff):
-        # Baris panggilan (mis. assertEquals(4, ...) di tes) bukan definisi:
-        # definisi sejati punya modifier atau dibuka kurawal.
+        # Baris panggilan (mis. assertEquals(4, ...) di tes) bukan definisi.
+        # Definisi sejati: punya modifier, dibuka kurawal, atau berbentuk
+        # "Tipe nama(" tanpa titik-koma (panggilan selalu diakhiri titik-koma
+        # atau menempel titik/sama-dengan). Ini menangkap package-private dan
+        # definisi yang kurawalnya di baris berikut.
+        rapi = baris.rstrip()
         if not re.search(r"\b(public|protected|private|static)\b", baris) \
-                and not baris.rstrip().endswith("{"):
+                and not rapi.endswith("{") \
+                and (rapi.endswith(";")
+                     or not re.match(r"\s*\w[\w<>\[\].,? ]*\s+\w+\s*\(", baris)):
             continue
         # Berkas hapus total ditangani cek_berkas_java_dihapus (satu jalan);
         # cek per-metode di sini hanya menghambur puluhan pemindaian penuh.
@@ -520,6 +539,95 @@ def cek_panggil_bekas_hapusan(gagal, diff):
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))
                 break
+
+
+def hunk_fungsi(diff):
+    """Hasilkan (path, nama_fungsi) dari kepala hunk diff (konteks xfuncname git).
+
+    Dipakai menandai metode yang TUBUHNYA diubah agar dicek cakupan ujinya —
+    sebelumnya hanya metode BARU yang ditagih tes, metode lama yang diubah
+    diam-diam lolos tanpa tes (celah salah-fix).
+    """
+    path = ""
+    for baris in diff.splitlines():
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+        elif baris.startswith("@@ ") and path.endswith(".java"):
+            ekor = baris.split("@@", 2)[-1]
+            cocok = re.search(r"(\w+)\s*\(", ekor)
+            if cocok:
+                yield path, cocok.group(1)
+
+
+def cek_uji_ubah(peringatan, diff):
+    sudah = set()
+    for _, nama in hunk_fungsi(diff):
+        if not nama or nama in sudah or nama in KATA_KUNCI_JAVA:
+            continue
+        if nama[:1].isupper():
+            continue  # kelas/konstruktor, bukan metode biasa
+        sudah.add(nama)
+        if not disebut_di_uji(nama):
+            peringatan.append(
+                "Metode %s() diubah tapi tanpa jejak di app/src/test — "
+                "tambah/cek uji logika murninya agar salah-fix ketahuan" % nama)
+
+
+def cek_hapusan_belum_tercatat(peringatan, diff):
+    tercatat = muat_bekas_hapusan()
+    for nama in sorted(set(nama_metode_hilang(diff))):
+        if nama in tercatat or masih_didefinisikan(nama):
+            continue
+        peringatan.append(
+            "Metode %s() dihapus tapi belum di tools/bekas-hapusan.txt — "
+            "tambahkan agar push berikut tetap terjaga" % nama)
+
+
+def cek_locale_baru(gagal, diff):
+    for _, isi in tambah_java(diff):
+        if re.search(r"\.to(Lower|Upper)Case\(\)", isi):
+            gagal.append("Baris baru toLower/UpperCase() tanpa Locale — bug locale "
+                         "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
+                         % isi.strip()[:80])
+
+
+def nama_warna(path):
+    return set(re.findall(r'<color\s+name="([^"]+)"', baca(path)))
+
+
+def cek_paritas_resource(gagal):
+    """Paritas yang dulu dicek manual tiap audit kini otomatis (GAGAL bila miring)."""
+    try:
+        siang = nama_warna("app/src/main/res/values/colors.xml")
+        malam = nama_warna("app/src/main/res/values-night/colors.xml")
+        if siang and malam:
+            if siang - malam:
+                gagal.append("colors.xml siang berlebih vs night: "
+                             + ", ".join(sorted(siang - malam)[:10]))
+            if malam - siang:
+                gagal.append("values-night/colors.xml berlebih vs siang: "
+                             + ", ".join(sorted(malam - siang)[:10]))
+        tata = os.path.join(AKAR, "app", "src", "main", "res", "layout")
+        darat_dir = os.path.join(AKAR, "app", "src", "main", "res", "layout-land")
+        if os.path.isdir(tata) and os.path.isdir(darat_dir):
+            for nama in sorted(os.listdir(tata)):
+                if not nama.endswith(".xml"):
+                    continue
+                darat = os.path.join(darat_dir, nama)
+                if not os.path.isfile(darat):
+                    continue
+                port = set(re.findall(r'@\+id/([A-Za-z0-9_]+)',
+                                      baca("app/src/main/res/layout/" + nama)))
+                land = set(re.findall(r'@\+id/([A-Za-z0-9_]+)',
+                                      baca("app/src/main/res/layout-land/" + nama)))
+                if port != land:
+                    gagal.append("ID layout/%s != layout-land/%s (kurang: %s; lebih: %s)"
+                                 % (nama, nama,
+                                    ", ".join(sorted(port - land)[:5]) or "-",
+                                    ", ".join(sorted(land - port)[:5]) or "-"))
+    except OSError as e:
+        gagal.append("Paritas resource tak terbaca: %s" % e)
 
 
 def disebut_di_uji(nama):
@@ -606,6 +714,7 @@ def utama():
     cek_manifest(gagal)
     cek_duplikat_definisi(gagal)
     cek_sinkron_terjemah(gagal)
+    cek_paritas_resource(gagal)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
     hapus = berkas_dihapus(args.rentang, diff)
@@ -617,8 +726,11 @@ def utama():
         cek_pengingat_changelog(peringatan, berubah)
     if diff:
         cek_panggil_bekas_hapusan(gagal, diff)
+        cek_locale_baru(gagal, diff)
         cek_metode_hilang(gagal, peringatan, diff, hapus)
+        cek_hapusan_belum_tercatat(peringatan, diff)
         cek_uji_baru(peringatan, diff)
+        cek_uji_ubah(peringatan, diff)
         cek_pola_berisiko(peringatan, diff, berubah)
         cek_pola_boros(peringatan, diff)
         cek_izin_baru(peringatan, diff)

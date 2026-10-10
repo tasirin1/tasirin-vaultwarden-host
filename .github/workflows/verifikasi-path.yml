@@ -21,6 +21,9 @@ jobs:
           fetch-depth: 0
       - name: Verifikasi path (tanpa SDK Android)
         run: |
-          # Skrip murni-Python: acuan yatim, XML, aturan repo, hapusan salah.
+          # Skrip murni-Python: acuan yatim, XML, aturan repo, hapusan salah,
+          # paritas resource, locale tanpa Locale, cakupan uji metode diubah.
           # Gagal di sini = push ditolak sebelum build APK (~4 mnt) jalan.
           python3 tools/verifikasi-path.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+      - name: Cek cepat (vektor 0.x, ID land, README, secret)
+        run: bash scripts/cek-cepat.sh

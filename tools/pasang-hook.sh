@@ -6,9 +6,10 @@ set -e
 HOOK=".git/hooks/pre-push"
 cat > "$HOOK" <<'HOOK'
 #!/bin/sh
-# Kait otomatis (dipasang tools/pasang-hook.sh): verifikasi path yang akan
-# di-push. Keluar bukan-nol = push dibatalkan.
-exec python3 tools/verifikasi-path.py
+# Kait otomatis (dipasang tools/pasang-hook.sh): verifikasi path + cek cepat
+# yang akan di-push. Keluar bukan-nol = push dibatalkan.
+if ! python3 tools/verifikasi-path.py; then exit 1; fi
+exec bash scripts/cek-cepat.sh
 HOOK
 chmod +x "$HOOK"
 if [ -x "$HOOK" ]; then

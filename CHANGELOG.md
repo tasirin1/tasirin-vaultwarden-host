@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi anti salah-fix: hapusan tetap + paritas + locale + uji-ubah
+- `tools/bekas-hapusan.txt` (baru): daftar hapusan tetap (`batalTunda`, `isLegacyDevice`, `tokenPertama`) — baris baru yang memanggilnya = GAGAL di push berikut; hapusan baru yang belum tercatat = peringatan (menutup celah daftar manual yang basi + pelajaran grep BusyBox yang lapor "hilang" palsu).
+- `tools/verifikasi-path.py`: `cek_uji_ubah` (metode yang tubuhnya diubah tapi tanpa jejak di `app/src/test` = peringatan), `cek_paritas_resource` (colors siang/night + ID layout/land = GAGAL, dulu manual), `toLower/UpperCase()` tanpa Locale naik dari peringatan jadi GAGAL (bug locale Turki), deteksi definisi terhapus tangkap package-private + kurawal baris-berikut.
+- `scripts/cek-cepat.sh`: ekstrak ID portabel tanpa `rg` (mesin BusyBox); workflow verifikasi kini menjalankannya di CI (selama ini tak jalan di CI!); hook pre-push jalankan keduanya.
+
 ## [Belum rilis] — Audit agresif 22: buang token mati + label DNS tanpa salinan
 - `TgBot.tokenPertama`: buang metode mati (0 pemanggil dari 574 metode tersapu; tanpa tes merujuk).
 - `TlsCert.namaDnsValid`: pola label jadi `CASE_INSENSITIVE` sehingga buang `toLowerCase` per label (hemat satu salinan String per label tiap validasi; perilaku sama — tes `Vault.Lan`/`VAULT` tetap hijau).
