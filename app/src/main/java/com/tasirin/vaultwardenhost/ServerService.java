@@ -153,7 +153,10 @@ public class ServerService extends Service {
             return "";
         }
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MD_SHA256.get();
+            if (md == null) {
+                md = MessageDigest.getInstance("SHA-256");
+            }
             byte[] h = md.digest(token.trim().getBytes(StandardCharsets.UTF_8));
             return Updater.toHex(h);
         } catch (Exception e) {
@@ -186,6 +189,29 @@ public class ServerService extends Service {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    /** Pola statis: split/matches kompilasi regex tiap panggil di STB lama. */
+    private static final java.util.regex.Pattern POLA_SLASH =
+            java.util.regex.Pattern.compile("/");
+    private static final java.util.regex.Pattern POLA_SPASI =
+            java.util.regex.Pattern.compile("\\s+");
+
+    /** Cache SHA-256 per thread: getInstance lookup provider tiap tick UI boros. */
+    private static final ThreadLocal<MessageDigest> MD_SHA256 =
+            new ThreadLocal<MessageDigest>() {
+                @Override protected MessageDigest initialValue() {
+                    try {
+                        return MessageDigest.getInstance("SHA-256");
+                    } catch (Exception e) {
+                        return null;
+                    }
+                }
+            };
+
+    /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
+    static boolean semuaDigit(String s) {
+        return Util.semuaDigit(s);
     }
 
     private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
@@ -731,7 +757,7 @@ public class ServerService extends Service {
         long deadline = SystemClock.elapsedRealtime() + timeoutMs;
         while (SystemClock.elapsedRealtime() < deadline && isProcessAlive()) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return false;
@@ -754,7 +780,7 @@ public class ServerService extends Service {
         // SHA-256 tanpa salt bertahan selamanya. Worker thread (PBKDF2 30k).
         try {
             final android.content.Context appPin = getApplicationContext();
-            new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
+            Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
         } catch (Exception ignored) {
         }
         // Recreate transien oleh sistem tanpa intent baru: pasang ulang
@@ -810,7 +836,7 @@ public class ServerService extends Service {
                     long tenggat = SystemClock.elapsedRealtime() + 9000;
                     while (SystemClock.elapsedRealtime() < tenggat && isProcessAlive()) {
                         try {
-                            Thread.sleep(200);
+                            Thread.sleep(500);
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                             break;
@@ -1046,7 +1072,7 @@ public class ServerService extends Service {
         if (t.length() > 512) {
             return false;
         }
-        for (String segmen : t.split("/")) {
+        for (String segmen : POLA_SLASH.split(t)) {
             if (segmen.equals("..") || segmen.equals(".")) {
                 return false;
             }
@@ -1086,7 +1112,7 @@ public class ServerService extends Service {
                     String rest = sisa.substring(slash + 1);
                     if (seg0.equals(pkg)) {
                         sendiri = true;
-                    } else if (seg0.matches("[0-9]+")) {
+                    } else if (semuaDigit(seg0)) {
                         sendiri = rest.equals(pkg) || rest.startsWith(pkg + "/");
                     }
                 }
@@ -1114,7 +1140,7 @@ public class ServerService extends Service {
             return false;
         }
         int segmenIsi = 0;
-        for (String s : n.split("/")) {
+        for (String s : POLA_SLASH.split(n)) {
             if (!s.isEmpty()) {
                 segmenIsi++;
             }
@@ -3406,7 +3432,7 @@ public class ServerService extends Service {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("Uid:")) {
-                    String[] parts = line.trim().split("\\s+");
+                    String[] parts = POLA_SPASI.split(line.trim());
                     if (parts.length >= 2) {
                         return Integer.parseInt(parts[1]);
                     }
@@ -3593,7 +3619,7 @@ public class ServerService extends Service {
             if (!alive(p)) {
                 return true;
             }
-            Thread.sleep(200);
+            Thread.sleep(500);
         }
         return false;
     }

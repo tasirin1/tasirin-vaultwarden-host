@@ -282,7 +282,7 @@ public class LogActivity extends Activity {
     /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */
     private void showCrashDialog() {
         // Baca file di worker: storage STB lambat bisa ANR bila dibaca di UI thread.
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             // Samarkan ulang di sini (bukan andalkan isi file): pola samaran
             // bisa bertambah setelah file ditulis (mis. chat_id JSON), dan
             // jalur tampil/salin ini tak lewat shareLog/copyLog/export.
@@ -297,7 +297,7 @@ public class LogActivity extends Activity {
                 }
                 tampilDialogCrash(crash);
             });
-        }, "vw-crashlog").start();
+        });
     }
 
     /** Bangun dialog crash-log di UI thread (dipanggil setelah baca worker selesai). */
@@ -410,7 +410,7 @@ public class LogActivity extends Activity {
         // thread server (pumpOutput/health) bila jalan di dalam
         // synchronized; di worker agar tap tak freeze UI di STB lemah.
         toast("Preparing log…");
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             final String log = samarkanLog(mentah);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
@@ -430,7 +430,7 @@ public class LogActivity extends Activity {
                     toast("Failed to share log: " + e.getMessage());
                 }
             });
-        }, "vw-log-share").start();
+        });
     }
 
     /** Kunci penanda salinan clipboard agar penghapus 30 dtk selamat dari mati proses. */
@@ -703,7 +703,7 @@ public class LogActivity extends Activity {
         // Penyamaran di luar kunci (lihat shareLog): regex berat tak boleh
         // menahan lock log global, dan tak boleh freeze UI di STB lemah.
         toast("Preparing log…");
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             final String log = samarkanLog(mentah);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
@@ -721,7 +721,7 @@ public class LogActivity extends Activity {
                 salinClipboardBersihOtomatis("vaultwarden-log", log);
                 toast("Log copied to clipboard.");
             });
-        }, "vw-log-copy").start();
+        });
     }
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
@@ -744,7 +744,7 @@ public class LogActivity extends Activity {
         // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
         // bikin tap Simpan freeze di storage STB lambat.
         toast("Saving log…");
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             final String nama = LogExport.simpanKeDownload(LogActivity.this, log);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
@@ -752,7 +752,7 @@ public class LogActivity extends Activity {
                 }
                 toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
             });
-        }, "vw-log-save").start();
+        });
     }
 
     @Override

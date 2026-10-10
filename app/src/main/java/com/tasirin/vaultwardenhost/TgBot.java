@@ -154,6 +154,80 @@ public final class TgBot {
         return msg.contains("Web vault updated");
     }
 
+    /** Digit heksa ASCII (tanpa Locale agar hemat di STB lama). */
+    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
+
+    /** Tulis escape unicode manual: String.format per char boros Formatter+Locale. */
+    private static void tambahEscapeUnicode(StringBuilder o, char c) {
+        o.append('\\').append('u');
+        o.append(HEX_ASCII[(c >> 12) & 15]);
+        o.append(HEX_ASCII[(c >> 8) & 15]);
+        o.append(HEX_ASCII[(c >> 4) & 15]);
+        o.append(HEX_ASCII[c & 15]);
+    }
+
+    /** Pola statis: String.split/matches/replaceAll kompilasi regex tiap panggil. */
+    private static final java.util.regex.Pattern POLA_SPASI =
+            java.util.regex.Pattern.compile("\\s+");
+    private static final java.util.regex.Pattern POLA_PIN_NUMERIK =
+            java.util.regex.Pattern.compile("[0-9]{4,}");
+    private static final java.util.regex.Pattern POLA_PIN_KATA =
+            java.util.regex.Pattern.compile("\\S{4,}");
+    private static final java.util.regex.Pattern POLA_PIN_DIGIT =
+            java.util.regex.Pattern.compile(".*[0-9].*");
+    private static final java.util.regex.Pattern POLA_PIN_SIMBOL =
+            java.util.regex.Pattern.compile(".*[^A-Za-z0-9].*");
+    private static final java.util.regex.Pattern POLA_PIN_MARKER =
+            java.util.regex.Pattern.compile("(?is)\\bPIN\\s*:");
+    private static final java.util.regex.Pattern POLA_OK_TRUE =
+            java.util.regex.Pattern.compile("\"ok\"\\s*:\\s*true");
+
+    /** Cache tanggal status per thread: SimpleDateFormat init berat (Calendar+TimeZone). */
+    private static final ThreadLocal<SimpleDateFormat> FMT_STATUS =
+            new ThreadLocal<SimpleDateFormat>() {
+                @Override protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                }
+            };
+
+    /** True bila body getMe mengandung ok-true (tanpa pindai regex DOTALL). */
+    static boolean responsOk(String body) {
+        if (body == null) {
+            return false;
+        }
+        return POLA_OK_TRUE.matcher(body).find();
+    }
+
+    /** Kupas @ awalan tanpa regex (replaceFirst kompilasi tiap panggil). */
+    static String kupasAt(String u) {
+        if (u == null) {
+            return "";
+        }
+        String t = u.trim();
+        while (t.startsWith("@") && t.length() > 1) {
+            t = t.substring(1);
+        }
+        return t;
+    }
+
+    /** Token pertama sampai whitespace tanpa String.split (tanpa kompilasi). */
+    static String tokenPertama(String t) {
+        for (int i = 0; i < t.length(); i++) {
+            if (Character.isWhitespace(t.charAt(i))) {
+                return t.substring(0, i);
+            }
+        }
+        return t;
+    }
+
+    /** Samarkan spasi/tab/newline ganda jadi satu spasi (pola statis). */
+    static String rapikanSpasi(String t) {
+        if (t == null) {
+            return "";
+        }
+        return POLA_SPASI.matcher(t).replaceAll(" ");
+    }
+
     /** Lolos string untuk payload JSON manual (tanpa pustaka). Murni. */
     static String lolosJson(String s) {
         if (s == null) {
@@ -175,11 +249,11 @@ public final class TgBot {
             } else if (c < 0x20) {
                 // Locale.US: %x di locale berdigit non-Latin (mis. ar-EG)
                 // menghasilkan digit non-ASCII sehingga JSON invalid.
-                o.append(String.format(Locale.US, "\\u%04x", (int) c));
+                tambahEscapeUnicode(o, c);
             } else if (c == '\u2028' || c == '\u2029') {
                 // Pemisah baris Unicode memutus string di parser JS lawas —
                 // escape agar payload tetap satu string valid.
-                o.append(String.format(Locale.US, "\\u%04x", (int) c));
+                tambahEscapeUnicode(o, c);
             } else if (Character.isHighSurrogate(c)) {
                 if (i + 1 < s.length() && Character.isLowSurrogate(s.charAt(i + 1))) {
                     // Pasangan surrogate valid (emoji): biarkan utuh.
@@ -187,11 +261,11 @@ public final class TgBot {
                     i++;
                 } else {
                     // Surrogate yatim tak bisa di-encode UTF-8/JSON valid.
-                    o.append(String.format(Locale.US, "\\u%04x", (int) c));
+                    tambahEscapeUnicode(o, c);
                 }
             } else if (Character.isLowSurrogate(c)) {
                 // Low surrogate yatim (tanpa high sebelumnya).
-                o.append(String.format(Locale.US, "\\u%04x", (int) c));
+                tambahEscapeUnicode(o, c);
             } else {
                 o.append(c);
             }
@@ -512,7 +586,7 @@ public final class TgBot {
         if (text == null) {
             return "";
         }
-        String pertama = text.trim().split("\\s+")[0].toLowerCase(Locale.US);
+        String pertama = tokenPertama(text.trim()).toLowerCase(Locale.US);
         if (pertama.startsWith("/")) {
             pertama = pertama.substring(1);
         }
@@ -564,8 +638,7 @@ public final class TgBot {
             return;
         }
         try {
-            String bersih = username.trim().replaceFirst("^@", "")
-                    .toLowerCase(Locale.US);
+            String bersih = kupasAt(username).toLowerCase(Locale.US);
             if (!bersih.isEmpty()) {
                 ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                         .edit().putString(KEY_TG_BOT_USER, bersih).apply();
@@ -611,7 +684,7 @@ public final class TgBot {
             return "";
         }
         try {
-            if (!body.matches("(?s).*\"ok\"\\s*:\\s*true.*")) {
+            if (!responsOk(body)) {
                 return "";
             }
             int res = body.indexOf("\"result\"");
@@ -623,7 +696,7 @@ public final class TgBot {
                 return "";
             }
             String mentah = m.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
-            return mentah.trim().replaceFirst("^@", "");
+            return kupasAt(mentah);
         } catch (Exception e) {
             return "";
         }
@@ -639,7 +712,7 @@ public final class TgBot {
         if (text == null) {
             return "";
         }
-        String[] potong = text.trim().split("\\s+");
+        String[] potong = POLA_SPASI.split(text.trim());
         if (potong.length == 0) {
             return "";
         }
@@ -660,8 +733,7 @@ public final class TgBot {
             // Bot sendiri belum dikenal → tolak semua yang ber-@.
             return "";
         }
-        String milik = usernameBot.trim().replaceFirst("^@", "")
-                .toLowerCase(Locale.US);
+        String milik = kupasAt(usernameBot).toLowerCase(Locale.US);
         if (suffix.equals(milik)) {
             return cmd;
         }
@@ -1347,7 +1419,7 @@ public final class TgBot {
             name = "backup terakhir";
         }
         String tgl = last > 0
-                ? new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(last))
+                ? FMT_STATUS.get().format(new Date(last))
                 : "?";
         return "Backup terakhir: " + name + " (" + tgl + ").\n"
                 + "Server akan dihentikan & database ditimpa."
@@ -1564,8 +1636,7 @@ public final class TgBot {
         String t = arg == null ? "" : arg.trim();
         // Flag s (DOTALL): '.' menelan newline sehingga PIN/argumen
         // multi-baris tak terpotong di baris pertama.
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
-                "(?is)\\bPIN\\s*:").matcher(t);
+        java.util.regex.Matcher m = POLA_PIN_MARKER.matcher(t);
         // Kemunculan TERAKHIR yang dipakai: tempelan "PIN:lama ... PIN:baru"
         // memakai yang baru; kemunculan tunggal tak berubah perilaku.
         // (Greedy (.+) selalu menelan sampai akhir sehingga find() pertama
@@ -1581,7 +1652,7 @@ public final class TgBot {
             // Bentuk eksplisit: kutip mengapit diambil tepat (sisa sesudah
             // kutip tutup kembali jadi argumen), tanpa kutip menelan sisa
             // baris agar PIN ber-spasi tetap bisa dipakai via bot.
-            String sebelum = t.substring(0, awalMatch).trim().replaceAll("\\s+", " ");
+            String sebelum = rapikanSpasi(t.substring(0, awalMatch).trim());
             String pin;
             String sisa;
             if (mentah.length() >= 2 && (mentah.startsWith("\"") || mentah.startsWith("'"))) {
@@ -1592,8 +1663,8 @@ public final class TgBot {
                     String ekstra = mentah.substring(tutup + 1).trim();
                     sisa = sebelum;
                     if (!ekstra.isEmpty()) {
-                        sisa = (sebelum.isEmpty() ? ekstra
-                                : (sebelum + " " + ekstra)).replaceAll("\\s+", " ");
+                        sisa = sebelum.isEmpty() ? rapikanSpasi(ekstra)
+                                : rapikanSpasi(sebelum + " " + ekstra);
                     }
                 } else {
                     pin = mentah;
@@ -1630,7 +1701,7 @@ public final class TgBot {
             // argumen salah ketik, bukan PIN — makan sebagai PIN menambah
             // hitungan lockout sia-sia. PIN alfanumerik kata tunggal wajib
             // bentuk eksplisit "PIN:ab12" (diutamakan di atas).
-            if (t.matches("[0-9]{4,}")) {
+            if (POLA_PIN_NUMERIK.matcher(t).matches()) {
                 return new String[]{"", t};
             }
             return new String[]{t, ""};
@@ -1666,11 +1737,11 @@ public final class TgBot {
         if (kandidat.contains(".") || kandidat.contains("/") || kandidat.contains("\\")) {
             return new String[]{t, ""};
         }
-        if (kandidat.matches("\\S{4,}")
-                && (kandidat.matches(".*[0-9].*") || kandidat.matches(".*[^A-Za-z0-9].*"))) {
+        if (POLA_PIN_KATA.matcher(kandidat).matches()
+                && (POLA_PIN_DIGIT.matcher(kandidat).matches() || POLA_PIN_SIMBOL.matcher(kandidat).matches())) {
             // Sisa dinormalisasi seperti cabang eksplisit agar "YA <TAB>" dan
             // newline cocok isRestoreConfirm ("ya"), bukan gagal banding.
-            return new String[]{t.substring(0, i).trim().replaceAll("\\s+", " "), kandidat};
+            return new String[]{rapikanSpasi(t.substring(0, i).trim()), kandidat};
         }
         return new String[]{t, ""};
     }
@@ -1887,7 +1958,7 @@ public final class TgBot {
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
         long lastBackup = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
         String backupInfo = lastBackup > 0
-                ? new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(lastBackup))
+                ? FMT_STATUS.get().format(new Date(lastBackup))
                 : "belum pernah";
         String wv = Updater.webVaultFromVersion(ctx);
         String wvInfo = wv != null ? wv : "belum ada";

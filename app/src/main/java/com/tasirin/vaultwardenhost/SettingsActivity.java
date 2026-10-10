@@ -513,7 +513,7 @@ public class SettingsActivity extends Activity {
         // untuk pemakaian settings-only yang tak buka MainActivity.
         try {
             final android.content.Context appPin = getApplicationContext();
-            new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
+            Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
         } catch (Exception ignored) {
         }
         bersihkanPin(pinInput);
@@ -699,7 +699,7 @@ public class SettingsActivity extends Activity {
             final String pinBaru = fieldPin;
             pinAktifJalan = true;
             toast("Processing PIN…");
-            new Thread(() -> {
+            Util.jalankanBg(() -> {
                 String hasil;
                 try {
                     hasil = PinCrypto.hash(pinBaru);
@@ -735,7 +735,7 @@ public class SettingsActivity extends Activity {
                     pinCentangProgram = false;
                     toast("PIN is active.");
                 });
-            }, "vw-pin-aktif").start();
+            });
         });
 
         // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
@@ -751,7 +751,7 @@ public class SettingsActivity extends Activity {
         ui.post(this::refreshFromService);
 
         // Auto-update check on launch
-        new Thread(this::autoUpdateCheck, "vw-auto-check").start();
+        Util.jalankanBg(this::autoUpdateCheck);
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
@@ -1007,12 +1007,13 @@ public class SettingsActivity extends Activity {
             updateHint.setVisibility(View.GONE);
         }
 
-        String version = "App " + appVersion;
+        StringBuilder versiB = new StringBuilder("App ").append(appVersion);
         if (!ServerService.binaryVersion.isEmpty()) {
-            version += " \u00B7 Binary: " + ServerService.binaryVersion;
+            versiB.append(" \u00B7 Binary: ").append(ServerService.binaryVersion);
         } else {
-            version += " \u00B7 " + bundledVersion;
+            versiB.append(" \u00B7 ").append(bundledVersion);
         }
+        String version = versiB.toString();
         // I/O berat (stat DB, jalan folder backup/web-vault) di worker thread;
         // UI thread hanya membaca nilai cache agar tidak jank/ANR.
         long nowHeavy = System.currentTimeMillis();
@@ -1022,7 +1023,7 @@ public class SettingsActivity extends Activity {
                 || nowHeavy - lastSysCheck >= SYS_CHECK_MS
                 || nowHeavy - lastCertCheck >= CERT_CHECK_MS;
         if (heavyDue && heavyRunning.compareAndSet(false, true)) {
-            new Thread(() -> {
+            Util.jalankanBg(() -> {
                 try {
                     dbInfoLine();
                     storageInfoLine();
@@ -1037,26 +1038,30 @@ public class SettingsActivity extends Activity {
                         }
                     });
                 }
-            }, "vw-ui-heavy").start();
+            });
         }
+        StringBuilder fullB = new StringBuilder(version);
         String dbInfo = dbInfoLine();
-        String full = dbInfo.isEmpty() ? version : version + "\n" + dbInfo;
+        if (!dbInfo.isEmpty()) {
+            fullB.append("\n").append(dbInfo);
+        }
         String wv = webVaultInfoLine();
         if (!wv.isEmpty()) {
-            full += "\n" + wv;
+            fullB.append("\n").append(wv);
         }
         String sys = sysInfoLine();
         if (!sys.isEmpty()) {
-            full += "\n" + sys;
+            fullB.append("\n").append(sys);
         }
         String storage = storageInfoLine();
         if (!storage.isEmpty()) {
-            full += "\n" + storage;
+            fullB.append("\n").append(storage);
         }
         String cert = certInfoLine();
         if (!cert.isEmpty()) {
-            full += "\n" + cert;
+            fullB.append("\n").append(cert);
         }
+        String full = fullB.toString();
         httpsBadge.setText(teksBadgeHttps(running, cert,
                 getString(R.string.https_badge_on), getString(R.string.https_badge_none)));
         if (!full.equals(lastShownVersion)) {
@@ -2358,7 +2363,7 @@ public class SettingsActivity extends Activity {
                         // PBKDF2 100rb iterasi di worker (bukan UI): dialog kini
                         // tampil di UI thread dan dekrip di sini macetkan STB.
                         v.setEnabled(false);
-                        new Thread(() -> {
+                        Util.jalankanBg(() -> {
                             try {
                                 File plain = new File(getCacheDir(),
                                         "vwcfg-import-" + capImpor + "-dec.json");
@@ -2401,7 +2406,7 @@ public class SettingsActivity extends Activity {
                                     }
                                 });
                             }
-                        }, "vw-import-dec").start();
+                        });
                     }));
             dialog.show();
         } catch (Exception e) {
@@ -3419,7 +3424,7 @@ public class SettingsActivity extends Activity {
             return;
         }
         setBusy(true);
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             try {
                 task.run();
             } catch (Throwable t) {
@@ -3445,7 +3450,7 @@ public class SettingsActivity extends Activity {
                 tugasBerjalan.set(false);
                 setBusy(false);
             }
-        }, "vw-task").start();
+        });
     }
 
     private void appendUiLog(String line) {

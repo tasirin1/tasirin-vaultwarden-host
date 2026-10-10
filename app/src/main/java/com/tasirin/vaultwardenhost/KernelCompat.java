@@ -81,12 +81,19 @@ public final class KernelCompat {
         while (i < s.length() && (Character.isDigit(s.charAt(i)) || s.charAt(i) == '.')) {
             i++;
         }
-        String[] part = s.substring(0, i).split("\\.");
-        if (part.length < 2) {
+        String angka = s.substring(0, i);
+        int titik = angka.indexOf('.');
+        if (titik <= 0 || titik + 1 >= angka.length()) {
+            return null;
+        }
+        int titik2 = angka.indexOf('.', titik + 1);
+        String minor = titik2 < 0 ? angka.substring(titik + 1) : angka.substring(titik + 1, titik2);
+        if (minor.isEmpty()) {
             return null;
         }
         try {
-            return new int[]{Integer.parseInt(part[0]), Integer.parseInt(part[1])};
+            return new int[]{Integer.parseInt(angka.substring(0, titik)),
+                    Integer.parseInt(minor)};
         } catch (NumberFormatException e) {
             return null;
         }

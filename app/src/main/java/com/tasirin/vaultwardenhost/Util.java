@@ -18,6 +18,55 @@ public final class Util {
     private Util() {
     }
 
+    // Pool bersama tugas ringan UI (cek port, refresh berat, auto-check): hemat
+    // thread dibanding new Thread per tugas di STB 1 GB. Antrean dibatasi 32 +
+    // buang tertua agar spam tak menumpuk OOM; tugas ringan boleh dilewati.
+    private static final java.util.concurrent.ExecutorService BG_RINGAN =
+            new java.util.concurrent.ThreadPoolExecutor(0, 3, 60L,
+                    java.util.concurrent.TimeUnit.SECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(32), r -> {
+                Thread t = new Thread(r, "vw-ui-bg");
+                t.setDaemon(true);
+                return t;
+            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+
+    /** Jalankan tugas ringan di pool bersama (abaikan bila antrean penuh). */
+    public static void jalankanBg(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        try {
+            BG_RINGAN.execute(r);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
+    static boolean semuaDigit(String s) {
+        if (s == null || s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Potong host sampai / ? # tanpa split regex (tanpa kompilasi). */
+    static String potongHost(String h) {
+        int n = h.length();
+        for (int i = 0; i < n; i++) {
+            char c = h.charAt(i);
+            if (c == '/' || c == '?' || c == '#') {
+                return h.substring(0, i);
+            }
+        }
+        return h;
+    }
+
     /** Trim aman untuk hasil prefs yang bisa null (tanpa NPE). Murni. */
     public static String amanTrim(String s) {
         return s == null ? "" : s.trim();
@@ -65,7 +114,7 @@ public final class Util {
         }
         // Username murni angka (mis. "@12345") diperlakukan sebagai ID agar
         // tak bisa diklaim lewat username; config numerik wajib cocok ID.
-        if (norm.matches("[0-9]+")) {
+        if (semuaDigit(norm)) {
             try {
                 if (norm.length() > 1 && norm.startsWith("0")) {
                     return false;
@@ -258,7 +307,7 @@ public final class Util {
         }
         String l = lokasi.trim();
         if (l.startsWith("//")) {
-            return hostTelegramAman(l.substring(2).split("[/?#]")[0]);
+            return hostTelegramAman(potongHost(l.substring(2)));
         }
         if (l.startsWith("/")) {
             return true;
@@ -295,7 +344,7 @@ public final class Util {
         }
         String l = lokasi.trim();
         if (l.startsWith("//")) {
-            return hostGithubAman(l.substring(2).split("[/?#]")[0]);
+            return hostGithubAman(potongHost(l.substring(2)));
         }
         if (l.startsWith("/")) {
             return true;
@@ -361,7 +410,7 @@ public final class Util {
                 return null;
             }
             String ekor = hostPort.substring(tutup + 1);
-            if (!ekor.isEmpty() && !ekor.matches(":[0-9]+")) {
+            if (!ekor.isEmpty() && !(ekor.charAt(0) == ':' && semuaDigit(ekor.substring(1)))) {
                 return null;
             }
             String dalam = hostPort.substring(1, tutup);
@@ -382,7 +431,7 @@ public final class Util {
             String port = hostPort.substring(i + 1);
             // Port wajib angka: "host:abc" bukan otoritas valid sehingga
             // null (ditolak) alih-alih terkupas jadi host telanjang.
-            if (h.isEmpty() || port.isEmpty() || !port.matches("[0-9]+")) {
+            if (h.isEmpty() || port.isEmpty() || !semuaDigit(port)) {
                 return null;
             }
             return h;

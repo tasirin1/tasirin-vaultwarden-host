@@ -351,6 +351,36 @@ public final class TlsCert {
         }
     }
 
+    /** Pola statis: split/matches per label kompilasi regex tiap panggil. */
+    private static final java.util.regex.Pattern POLA_LABEL_DNS =
+            java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?");
+    private static final java.util.regex.Pattern POLA_PEMISAH_DNS =
+            java.util.regex.Pattern.compile("[,\\s]+");
+    private static final java.util.regex.Pattern POLA_TITIK =
+            java.util.regex.Pattern.compile("\\.");
+    private static final java.util.regex.Pattern POLA_KOLON =
+            java.util.regex.Pattern.compile(":");
+    private static final java.util.regex.Pattern POLA_SPASI_APA =
+            java.util.regex.Pattern.compile("\\s");
+
+    /** True bila s hanya [A-Za-z0-9_-] 1-64 char (tanpa kompilasi regex). */
+    private static boolean tokenAman(String s) {
+        if (s == null || s.isEmpty() || s.length() > 64) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            boolean ok = (c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_' || c == '-';
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Validasi nama DNS (ASCII, label 1-63 char, boleh satu label lokal); false untuk IP. */
     static boolean namaDnsValid(String host) {
         if (host == null || host.isEmpty() || host.length() > 253) {
@@ -359,7 +389,7 @@ public final class TlsCert {
         if (ipv4(host) != null || ipv6(host) != null) {
             return false;
         }
-        String[] label = host.split("\\.", -1);
+        String[] label = POLA_TITIK.split(host, -1);
         if (label.length == 0) {
             return false;
         }
@@ -367,7 +397,7 @@ public final class TlsCert {
             if (l.isEmpty() || l.length() > 63) {
                 return false;
             }
-            if (!l.toLowerCase(java.util.Locale.US).matches("[a-z0-9]([a-z0-9-]*[a-z0-9])?")) {
+            if (!POLA_LABEL_DNS.matcher(l.toLowerCase(java.util.Locale.US)).matches()) {
                 return false;
             }
         }
@@ -380,7 +410,8 @@ public final class TlsCert {
         if (mentah == null) {
             return hasil;
         }
-        for (String potong : mentah.trim().toLowerCase(java.util.Locale.US).split("[,\\s]+")) {
+        String rendah = mentah.trim().toLowerCase(java.util.Locale.US);
+        for (String potong : POLA_PEMISAH_DNS.split(rendah)) {
             String h = potong.trim();
             if (h.endsWith(".")) {
                 h = h.substring(0, h.length() - 1);
@@ -458,8 +489,8 @@ public final class TlsCert {
             }
             String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);
             s = s.replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s", "");
+                    .replace("-----END PRIVATE KEY-----", "");
+            s = POLA_SPASI_APA.matcher(s).replaceAll("");
             byte[] pkcs8 = android.util.Base64.decode(s, android.util.Base64.DEFAULT);
             return KeyFactory.getInstance("RSA")
                     .generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
@@ -626,7 +657,7 @@ public final class TlsCert {
         if (ip.isEmpty()) {
             return null;
         }
-        String[] parts = ip.split("\\.");
+        String[] parts = POLA_TITIK.split(ip);
         if (parts.length != 4) {
             return null;
         }
@@ -690,14 +721,14 @@ public final class TlsCert {
                     return null;
                 }
                 kiri = t.substring(0, pecah).isEmpty()
-                        ? new String[0] : t.substring(0, pecah).split(":", -1);
+                        ? new String[0] : POLA_KOLON.split(t.substring(0, pecah), -1);
                 kanan = t.substring(pecah + 2).isEmpty()
-                        ? new String[0] : t.substring(pecah + 2).split(":", -1);
+                        ? new String[0] : POLA_KOLON.split(t.substring(pecah + 2), -1);
                 if (kiri.length + kanan.length > 7) {
                     return null;
                 }
             } else {
-                String[] semua = t.split(":", -1);
+                String[] semua = POLA_KOLON.split(t, -1);
                 if (semua.length != 8) {
                     return null;
                 }
@@ -947,7 +978,7 @@ public final class TlsCert {
         if (ts == null) {
             return "tanpa-waktu";
         }
-        if (!ts.matches("[A-Za-z0-9_-]{1,64}")) {
+        if (!tokenAman(ts)) {
             return "tanpa-waktu";
         }
         return ts;

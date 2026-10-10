@@ -73,7 +73,7 @@ public final class Updater {
             t = t.substring(1);
         }
         if (t.isEmpty()
-                || !t.matches("[0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9.]+)?(\\+[A-Za-z0-9.-]+)?")) {
+                || !POLA_PIN_VERSI.matcher(t).matches()) {
             return null;
         }
         // Wajib 3 bagian (x.y.z): kuncian 2 bagian ("1.32") lolos banding
@@ -1943,7 +1943,7 @@ public final class Updater {
         // Bentuk wajib mirip versi (digit awalan, tanpa slash/spasi/kuot):
         // tag API aneh ("../../x", "1.32/evil") ditolak null agar tak ditempel
         // mentah ke URL asset (404 + unduh gagal). Pemanggil sudah null-aman.
-        if (!hasil.matches("[0-9][0-9A-Za-z.\\-]*")) {
+        if (!POLA_TAG_AMAN.matcher(hasil).matches()) {
             return null;
         }
         return hasil;
@@ -1990,7 +1990,7 @@ public final class Updater {
         if (t.isEmpty()) {
             return new int[0];
         }
-        String[] bagian = t.split("\\.");
+        String[] bagian = POLA_TITIK.split(t);
         int[] keluar = new int[bagian.length];
         for (int i = 0; i < bagian.length; i++) {
             keluar[i] = angkaAwalan(bagian[i]);
@@ -2021,6 +2021,35 @@ public final class Updater {
             }
         }
         return ada ? n : -1;
+    }
+
+    /** Pola statis: matches/split kompilasi regex tiap panggil di STB lama. */
+    private static final java.util.regex.Pattern POLA_PIN_VERSI =
+            java.util.regex.Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9.]+)?(\\+[A-Za-z0-9.-]+)?");
+    private static final java.util.regex.Pattern POLA_TAG_AMAN =
+            java.util.regex.Pattern.compile("[0-9][0-9A-Za-z.\\-]*");
+    private static final java.util.regex.Pattern POLA_SPASI =
+            java.util.regex.Pattern.compile("\\s+");
+    private static final java.util.regex.Pattern POLA_TITIK =
+            java.util.regex.Pattern.compile("\\.");
+    private static final java.util.regex.Pattern POLA_SAMA_DENGAN =
+            java.util.regex.Pattern.compile("=");
+
+    /** True bila s 64 digit heksa (tanpa kompilasi regex matches). */
+    static boolean hex64(String s) {
+        if (s == null || s.length() != 64) {
+            return false;
+        }
+        for (int i = 0; i < 64; i++) {
+            char c = s.charAt(i);
+            boolean ok = (c >= '0' && c <= '9')
+                    || (c >= 'a' && c <= 'f')
+                    || (c >= 'A' && c <= 'F');
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Pola versi di-compile sekali (dipanggil tiap detik dari UI).
@@ -2386,12 +2415,12 @@ public final class Updater {
         if (bersih.isEmpty()) {
             return null;
         }
-        for (String tok : bersih.split("\\s+")) {
+        for (String tok : POLA_SPASI.split(bersih)) {
             // Belah '=' juga agar format tanpa spasi ("SHA256(f)=<hex>")
             // ikut dikenali; format BSD berspasi tetap lolos seperti dulu.
-            for (String bagian : tok.split("=", -1)) {
+            for (String bagian : POLA_SAMA_DENGAN.split(tok, -1)) {
                 String t = bagian.trim();
-                if (t.length() == 64 && t.matches("[0-9a-fA-F]{64}")) {
+                if (hex64(t)) {
                     return t.toLowerCase(Locale.US);
                 }
             }

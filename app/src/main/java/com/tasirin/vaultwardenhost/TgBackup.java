@@ -234,11 +234,11 @@ public final class TgBackup {
             android.content.SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);
             String ada = amanString(sp, KEY_ALARM_SECRET, "");
-            if (ada != null && ada.matches("[0-9a-f]{32}")) {
+            if (ada != null && hex32(ada)) {
                 return ada;
             }
             byte[] b = new byte[16];
-            new SecureRandom().nextBytes(b);
+            SECURE_RANDOM.nextBytes(b);
             StringBuilder sb = new StringBuilder(32);
             for (byte x : b) {
                 sb.append("0123456789abcdef".charAt((x >> 4) & 15));
@@ -874,9 +874,11 @@ public final class TgBackup {
                 // POST (bukan GET): token tidak bocor ke log URL/proxy.
                 String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
                         + "&text=" + URLEncoder.encode(potong, "UTF-8");
+                StringBuilder paramB = new StringBuilder(param);
                 if (mk != null && !mk.isEmpty()) {
-                    param += "&reply_markup=" + URLEncoder.encode(mk, "UTF-8");
+                    paramB.append("&reply_markup=").append(URLEncoder.encode(mk, "UTF-8"));
                 }
+                param = paramB.toString();
                 byte[] body = param.getBytes(StandardCharsets.UTF_8);
                 HttpURLConnection conn = null;
                 try {
@@ -3213,15 +3215,16 @@ public final class TgBackup {
 
     private static long folderBytesWalk(File file, int dalam,
             java.util.Set<String> kunjung) {
-        // Batas 32 tingkat + jejak kanonis: symlink melingkar di folder data
-        // tak boleh meledak jadi StackOverflowError (tak tertangkap catch
-        // Exception) atau menghitung ulang folder yang sama berulang kali.
+        // Batas 32 tingkat + jejak absolute path (tanpa syscall kanonis yang
+        // mahal): symlink melingkar di folder data tak boleh meledak jadi
+        // StackOverflowError (tak tertangkap catch Exception) atau menghitung
+        // ulang folder yang sama berulang kali.
         if (dalam > 32) {
             return 0;
         }
         if (file.isDirectory()) {
             try {
-                String kanon = file.getCanonicalPath();
+                String kanon = file.getAbsolutePath();
                 if (!kunjung.add(kanon)) {
                     return 0;
                 }
@@ -3240,9 +3243,51 @@ public final class TgBackup {
         return file.length();
     }
 
+    /** Cache tanggal backup per thread: SimpleDateFormat init berat. */
+    private static final ThreadLocal<SimpleDateFormat> FMT_BACKUP =
+            new ThreadLocal<SimpleDateFormat>() {
+                @Override protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US);
+                }
+            };
+
+    /** Digit heksa ASCII (tanpa Locale agar hemat di STB lama). */
+    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
+
+    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format. */
+    private static String hex12(long v) {
+        char[] o = new char[12];
+        for (int i = 11; i >= 0; i--) {
+            o[i] = HEX_ASCII[(int) (v & 15)];
+            v >>>= 4;
+        }
+        return new String(o);
+    }
+
+    /** True bila s 32 digit heksa kecil (tanpa kompilasi regex matches). */
+    static boolean hex32(String s) {
+        if (s == null || s.length() != 32) {
+            return false;
+        }
+        for (int i = 0; i < 32; i++) {
+            char c = s.charAt(i);
+            boolean ok = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Nomor hari lokal (untuk banding ganti-hari tanpa Calendar berat). */
+    static long hariLokal(long ms) {
+        long offset = java.util.TimeZone.getDefault().getOffset(ms);
+        return (ms + offset) / 86400000L;
+    }
+
     /** Stamp "yyyyMMdd-HHmmss-SSS" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
-        return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
+        return FMT_BACKUP.get().format(new Date());
     }
 
     /** Stempel nama file anti-timpa (timestamp + 12 hex acak): dua backup/export
@@ -3253,7 +3298,7 @@ public final class TgBackup {
      *  (createBackupZip via createNewFile). */
     public static String stempelUnik() {
         long acak = SECURE_RANDOM.nextLong() & 0xFFFFFFFFFFFFL;
-        return backupTimestamp() + "-" + String.format(Locale.US, "%012x", acak);
+        return backupTimestamp() + "-" + hex12(acak);
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
@@ -3329,26 +3374,16 @@ public final class TgBackup {
         if (lastBackupMs <= 0) {
             return true;
         }
-        java.util.Calendar a = java.util.Calendar.getInstance();
-        a.setTimeInMillis(lastBackupMs);
-        java.util.Calendar b = java.util.Calendar.getInstance();
-        b.setTimeInMillis(sekarangMs);
-        return a.get(java.util.Calendar.YEAR) != b.get(java.util.Calendar.YEAR)
-                || a.get(java.util.Calendar.DAY_OF_YEAR) != b.get(java.util.Calendar.DAY_OF_YEAR);
+        return hariLokal(lastBackupMs) != hariLokal(sekarangMs);
     }
 
     /** Waktu tengah malam berikutnya (00:01) dari acuan, murni agar bisa unit test.
      *  +1 menit supaya tanggal pasti sudah berganti dan terhindar dari balapan
      *  tepat di detik 00:00:00. */
     static long nextMidnight(long acuanMs) {
-        java.util.Calendar c = java.util.Calendar.getInstance();
-        c.setTimeInMillis(acuanMs);
-        c.set(java.util.Calendar.HOUR_OF_DAY, 0);
-        c.set(java.util.Calendar.MINUTE, 1);
-        c.set(java.util.Calendar.SECOND, 0);
-        c.set(java.util.Calendar.MILLISECOND, 0);
-        c.add(java.util.Calendar.DAY_OF_MONTH, 1);
-        return c.getTimeInMillis();
+        long offset = java.util.TimeZone.getDefault().getOffset(acuanMs);
+        long hari = (acuanMs + offset) / 86400000L;
+        return (hari + 1) * 86400000L - offset + 60000L;
     }
 
     /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false).

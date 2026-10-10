@@ -23,6 +23,34 @@ public final class LogExport {
     private LogExport() {
     }
 
+    /** Cache tanggal per thread: SimpleDateFormat init berat di STB lama. */
+    private static final ThreadLocal<SimpleDateFormat> FMT_KEPALA =
+            new ThreadLocal<SimpleDateFormat>() {
+                @Override protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                }
+            };
+    private static final ThreadLocal<SimpleDateFormat> FMT_STAMP =
+            new ThreadLocal<SimpleDateFormat>() {
+                @Override protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US);
+                }
+            };
+    /** Acak bersama: new SecureRandom tiap export bisa blokir seed di kernel lama. */
+    private static final java.security.SecureRandom ACAK =
+            new java.security.SecureRandom();
+    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
+
+    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format. */
+    private static String hex12(long v) {
+        char[] o = new char[12];
+        for (int i = 11; i >= 0; i--) {
+            o[i] = HEX_ASCII[(int) (v & 15)];
+            v >>>= 4;
+        }
+        return new String(o);
+    }
+
     // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur API 21-32.
     @SuppressWarnings("deprecation")
     public static String simpanKeDownload(Activity act, String logMentah) {
@@ -30,7 +58,7 @@ public final class LogExport {
         StringBuilder header = new StringBuilder();
         header.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
         header.append("Time: ")
-                .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()))
+                .append(FMT_KEPALA.get().format(new Date()))
                 .append('\n');
         try {
             android.content.pm.PackageInfo info =
@@ -51,9 +79,8 @@ public final class LogExport {
         // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama
         // (ketuk ganda) tak saling timpa; acak 16-bit lama tabrakan 1/65536
         // dan jalur legacy menimpa file yang sudah ada.
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(new Date());
-        java.security.SecureRandom rnd = new java.security.SecureRandom();
-        String name = namaLog(stamp, rnd);
+        String stamp = FMT_STAMP.get().format(new Date());
+        String name = namaLog(stamp, ACAK);
         boolean ok = false;
         android.net.Uri pendingUri = null;
         if (Build.VERSION.SDK_INT >= 29) {
@@ -171,6 +198,6 @@ public final class LogExport {
     private static String namaLog(String stamp, java.security.SecureRandom rnd) {
         long acak = rnd.nextLong() & 0xFFFFFFFFFFFFL;
         return "tasirin-vaultwarden-host-log-" + stamp + "-"
-                + String.format(Locale.US, "%012x", acak) + ".txt";
+                + hex12(acak) + ".txt";
     }
 }

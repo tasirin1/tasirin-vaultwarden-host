@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Hemat CPU/RAM di STB lama (tanpa regex/thread/format berulang)
+- `TgBot.lolosJson`: `String.format` per char diganti tulis escape unicode manual; `parseUsernameBot` tak lagi pindai regex DOTALL; `split`/`matches`/`replaceAll`/`replaceFirst` di path perintah diganti pola statis + helper manual (`tokenPertama`, `kupasAt`, `rapikanSpasi`); tanggal status via `ThreadLocal`.
+- `TgBackup`: tanggal backup via `ThreadLocal`; `stempelUnik` hex manual; `sudahGantiHari`/`nextMidnight` aritmetika hari lokal tanpa `Calendar`; `rahasiaAlarm` cek hex manual + `SecureRandom` bersama; `folderBytesWalk` pakai absolute path (tanpa syscall kanonis); rangkai param kirim via `StringBuilder`.
+- `LogExport`: tanggal via `ThreadLocal`; `SecureRandom` bersama (tak blokir seed tiap export); nama file hex manual.
+- `ServerService`: sidik token pakai `MessageDigest` per thread; `split`/`matches` validasi path pakai pola statis; polling tunggu proses 200 ms jadi 500 ms.
+- `Updater`/`TlsCert`/`Util`/`KernelCompat`: `matches`/`split` panas diganti pola statis atau loop manual (`hex64`, `tokenAman`, `semuaDigit`, `potongHost`, urai versi kernel tanpa split).
+- `Util.jalankanBg`: pool bersama tugas ringan UI (maks 3 thread, antrean 32 buang-tertua); `MainActivity`/`SettingsActivity`/`LogActivity` tak lagi `new Thread` per tugas; rangkai teks refresh Settings via `StringBuilder`.
+- Thread siklus-hidup (reader/watcher/stopper service, watchdog versi, backup, poll bot) tetap dedicated; `commit()` daya-tahan (PIN, alarm, boot) tak diubah.
+
 ## [Belum rilis] — Tombol log tak freeze UI di STB (redaksi + tulis di worker)
 - `LogActivity.shareLog/copyLog`: 14 regex penyamaran di atas buffer 300 KB pindah ke worker; UI hanya menerima hasil (dengan cek activity hidup).
 - `LogActivity.exportLogTxt`: salin buffer + tulis Download/MediaStore pindah ke worker; toast penanda disiapkan/disimpan.

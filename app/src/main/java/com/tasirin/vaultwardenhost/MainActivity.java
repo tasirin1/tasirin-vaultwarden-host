@@ -182,11 +182,11 @@ public class MainActivity extends Activity {
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         // Cek update otomatis saat dibuka
-        new Thread(this::autoUpdateCheck, "vw-auto-check").start();
+        Util.jalankanBg(this::autoUpdateCheck);
         // Keraskan hash PIN legasi di rest (tanpa menunggu login) agar prefs
         // bocor tak memberi SHA-256 tanpa salt yang retak dalam detik.
         final android.content.Context appPin = getApplicationContext();
-        new Thread(() -> PinGate.kuatkanHashDini(appPin), "vw-pin-kuat").start();
+        Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
         // Pastikan jadwal backup harian tetap terpasang
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
         // Remote kontrol via Telegram bot
@@ -207,7 +207,7 @@ public class MainActivity extends Activity {
                         + " auto-backup sudah dimatikan.");
             } else {
             final android.content.Context app = getApplicationContext();
-            new Thread(() -> {
+            Util.jalankanBg(() -> {
                 try {
                     // Fail-fast: tanpa password otomatis wajib ditolak.
                     if (!TgBackup.bolehBackupOtomatis(
@@ -225,7 +225,7 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     ServerService.catatLog("[tg] " + TgBackup.pesanGalatBackup(e) + " (susulan boot).");
                 }
-            }, "vw-boot-susulan").start();
+            });
             }
         }
         // Susulan auto-start yang ditolak sistem dari background (Android 12+
@@ -368,7 +368,7 @@ public class MainActivity extends Activity {
         // StrictMode, dan hasilnya tetap TOCTOU (service cek ulang sebelum start).
         final int portFix = portNum;
         setBusy(true);
-        new Thread(() -> {
+        Util.jalankanBg(() -> {
             final boolean busy = ServerService.isPortBusy(portFix);
             final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
             ui.post(() -> {
@@ -398,7 +398,7 @@ public class MainActivity extends Activity {
                 }
                 lanjutStart(finalDataDir);
             });
-        }, "vw-port-check").start();
+        });
     }
 
     /** Lanjutan Start setelah cek port selesai (berjalan di UI thread). */
@@ -416,7 +416,7 @@ public class MainActivity extends Activity {
                         // Pakai app context di worker agar tekan back saat unduh
                         // 35 MB tak menahan Activity yang sudah destroy (bocor).
                         final android.content.Context appCtx = getApplicationContext();
-                        new Thread(() -> {
+                        Util.jalankanBg(() -> {
                             String msg;
                             boolean gagal = false;
                             try {
@@ -452,7 +452,7 @@ public class MainActivity extends Activity {
                                     maybeAutoBackup();
                                 }
                             });
-                        }, "vw-task").start();
+                        });
                     })
                     .setNegativeButton("Start without web vault", (d, w) -> {
                         ServerService.start(this);
