@@ -856,7 +856,7 @@ public class MainActivity extends Activity {
         }
         int warnaGalat = warnaGalatCache;
         int warnaAwas = warnaAwasCache;
-        SpannableStringBuilder tempel = new SpannableStringBuilder();
+        SpannableStringBuilder tempel = new SpannableStringBuilder(delta.length() + 1);
         int mulai = 0;
         for (int i = 0; i <= delta.length(); i++) {
             if (i == delta.length() || delta.charAt(i) == '\n') {

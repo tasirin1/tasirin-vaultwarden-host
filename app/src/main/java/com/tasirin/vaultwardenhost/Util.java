@@ -84,6 +84,22 @@ public final class Util {
         return new String(o);
     }
 
+    /** Byte -> heks kecil satu pintu (tanpa String.format/append per nibble).
+     *  Dipakai sidikClip, sidikBerkas, rahasiaAlarm, Updater.toHex agar
+     *  tabel + loop tak triplikat di tiap berkas. Murni. */
+    static String heks(byte[] data) {
+        if (data == null) {
+            return "";
+        }
+        char[] o = new char[data.length * 2];
+        for (int i = 0; i < data.length; i++) {
+            int v = data[i] & 0xFF;
+            o[i * 2] = HEKS[v >>> 4];
+            o[i * 2 + 1] = HEKS[v & 15];
+        }
+        return new String(o);
+    }
+
     /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
     private static volatile android.os.Handler HANDLER_UTAMA = null;
 

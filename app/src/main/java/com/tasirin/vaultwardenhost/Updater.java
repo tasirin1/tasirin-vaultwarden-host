@@ -2495,17 +2495,9 @@ public final class Updater {
         return null;
     }
 
-    private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
-
-    /** Byte -> hex kecil tanpa String.format per byte (32x lebih murah). */
+    /** Byte -> hex kecil via tabel bersama Util (tanpa duplikat tabel per berkas). */
     static String toHex(byte[] digest) {
-        char[] out = new char[digest.length * 2];
-        for (int i = 0; i < digest.length; i++) {
-            int v = digest[i] & 0xFF;
-            out[i * 2] = HEX_DIGITS[v >>> 4];
-            out[i * 2 + 1] = HEX_DIGITS[v & 0x0F];
-        }
-        return new String(out);
+        return Util.heks(digest);
     }
 
     /** Panjang body dari header Content-Length sebagai long (mendukung

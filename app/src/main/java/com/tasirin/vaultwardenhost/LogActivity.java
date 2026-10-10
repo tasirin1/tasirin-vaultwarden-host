@@ -707,12 +707,7 @@ public class LogActivity extends Activity {
         }
         try {
             byte[] h = Util.mdSha256().digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(h.length * 2);
-            for (byte x : h) {
-                sb.append("0123456789abcdef".charAt((x >> 4) & 15));
-                sb.append("0123456789abcdef".charAt(x & 15));
-            }
-            return sb.toString();
+            return Util.heks(h);
         } catch (Exception e) {
             return "";
         }

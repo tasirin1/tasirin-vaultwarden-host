@@ -14,6 +14,14 @@ public class UtilTest {
     }
 
     @Test
+    public void heksSamaDenganHex12UntukNol() {
+        assertEquals("00", Util.heks(new byte[]{0}));
+        assertEquals("0f10ff", Util.heks(new byte[]{15, 16, (byte) 255}));
+        assertEquals("", Util.heks(null));
+        assertEquals("", Util.heks(new byte[0]));
+    }
+
+    @Test
     public void cocokChatNumerik() {
         assertTrue(Util.cocokChat("12345", 12345, ""));
         assertTrue(Util.cocokChat(" 12345 ", 12345, "lain"));

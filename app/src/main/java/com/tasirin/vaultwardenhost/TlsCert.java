@@ -106,16 +106,18 @@ public final class TlsCert {
      *  Settings) boros di ARMv7; tanggal cert tak berubah tanpa tulis file
      *  baru (panjang/mtime berganti sehingga memo gugur sendiri). Gagal
      *  parse ikut di-memo agar cert rusak/hilang tak di-parse berulang. */
-    private static final java.util.HashMap<String, long[]> MEMO_MASA =
-            new java.util.HashMap<>();
+    private static final java.util.Map<String, long[]> MEMO_MASA =
+            new java.util.LinkedHashMap<String, long[]>(64, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(
+                        java.util.Map.Entry<String, long[]> tertua) {
+                    return size() > 64;
+                }
+            };
 
     /** Sekali baca sisa masa berlaku (dipanggil ulang oleh sisaMs bila -1). */
     private static long sisaMsSekali(File certFile) {
         String kunci = kunciStat(certFile);
         synchronized (MEMO_MASA) {
-            if (MEMO_MASA.size() > 64) {
-                MEMO_MASA.clear();
-            }
             long[] memo = kunci == null ? null : MEMO_MASA.get(kunci);
             if (memo != null) {
                 return sisaDariMemo(memo);

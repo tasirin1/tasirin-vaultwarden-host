@@ -239,12 +239,7 @@ public final class TgBackup {
             }
             byte[] b = new byte[16];
             SECURE_RANDOM.nextBytes(b);
-            StringBuilder sb = new StringBuilder(32);
-            for (byte x : b) {
-                sb.append("0123456789abcdef".charAt((x >> 4) & 15));
-                sb.append("0123456789abcdef".charAt(x & 15));
-            }
-            String buat = sb.toString();
+            String buat = Util.heks(b);
             try {
                 // commit() sinkron: rahasia wajib awet sebelum alarm terjadwal
                 // memakainya, bila tidak alarm berikut ditolak lalu backup hilang.

@@ -141,12 +141,7 @@ public class SettingsActivity extends Activity {
                 }
             }
             byte[] d = md.digest();
-            StringBuilder sb = new StringBuilder(d.length * 2);
-            for (byte b : d) {
-                sb.append("0123456789abcdef".charAt((b >> 4) & 0xF));
-                sb.append("0123456789abcdef".charAt(b & 0xF));
-            }
-            return sb.toString();
+            return Util.heks(d);
         } catch (Exception e) {
             // Berkas null/tak-ada: tetap "" (kontrak unit test; berkas seperti
             // itu takkan sampai ke alur impor). Berkas ADA tapi gagal dibaca
