@@ -527,12 +527,12 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void ipCacheSegar_tigaDetik() {
-        assertTrue(ServerService.ipCacheSegar(5000, 3000, "192.168.1.2"));
-        assertFalse(ServerService.ipCacheSegar(6000, 3000, "192.168.1.2"));
-        assertFalse(ServerService.ipCacheSegar(3000, 3000, ""));
-        assertFalse(ServerService.ipCacheSegar(3000, 3000, null));
-        assertFalse(ServerService.ipCacheSegar(2000, 3000, "192.168.1.2"));
+    public void ipCacheSegar_enamPuluhDetik() {
+        assertTrue(ServerService.ipCacheSegar(65_000, 10_000, "192.168.1.2"));
+        assertFalse(ServerService.ipCacheSegar(75_000, 10_000, "192.168.1.2"));
+        assertFalse(ServerService.ipCacheSegar(10_000, 10_000, ""));
+        assertFalse(ServerService.ipCacheSegar(10_000, 10_000, null));
+        assertFalse(ServerService.ipCacheSegar(5_000, 10_000, "192.168.1.2"));
     }
 
     @Test

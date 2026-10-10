@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 8: cache IP/CA + thread PIN anti-bocor
+- `ServerService`: TTL cache IP 3 dtk jadi 60 dtk + TTL enumerasi interface 5 dtk jadi 60 dtk — tick UI/health tak membayar ioctl tiap detik di ARMv7.
+- `ServerService.capCaAktif`: gerbang TTL 60 dtk tanpa kunci/syscall + invalidasi eksplisit saat sertifikat regenerasi (health + ping Telegram hemat stat eMMC).
+- `SettingsActivity.pinExec`: executor per-instance non-daemon (bocor 1 thread tiap rotasi) jadi bersama + daemon; tanpa shutdown agar hash antre tetap tersimpan.
+- `PinGate.CATAT_EXEC` + `TlsCert` (zona UTC bersama, digit waktu manual tanpa `String.format`/`getTimeZone` per panggil).
+
 ## [Belum rilis] — Memo folder bawaan (hemat binder tiap tick UI)
 - `ServerService.defaultDataDir()`: cache per proses — argumen default prefs yang dievaluasi tiap tick tak lagi membayar `getExternalStorageDirectory()`.
 

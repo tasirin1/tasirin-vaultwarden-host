@@ -65,9 +65,17 @@ public class SettingsActivity extends Activity {
     private EditText binShaInput;
     private EditText pinInput;
     private CheckBox pinEnabledCheck;
-    /** Hash PIN (PBKDF2 30rb iterasi) di worker agar tak macetkan UI. */
-    private final java.util.concurrent.ExecutorService pinExec =
-            java.util.concurrent.Executors.newSingleThreadExecutor();
+    /** Hash PIN (PBKDF2 30rb iterasi) di worker bersama: dulu satu executor
+     *  non-daemon per instance SettingsActivity sehingga tiap rotasi layar
+     *  membocorkan satu thread (stack ~1 MB) selamanya di STB 1 GB.
+     *  Daemon + bersama: payload kecil (hash ~1 dtk, ter-debounce 800 ms)
+     *  sehingga antrean tak perlu per instance; batalkan via pinPending. */
+    private static final java.util.concurrent.ExecutorService pinExec =
+            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "vw-pin-hash");
+                t.setDaemon(true);
+                return t;
+            });
     private volatile int pinSeq;
     private volatile java.util.concurrent.Future<?> pinPending;
     /** Jadwal debounce ketikan PIN: hash (PBKDF2 30rb) baru dikirim ke
@@ -3671,12 +3679,11 @@ public class SettingsActivity extends Activity {
         pinHashSiap = null;
         pinTunda = null;
         sapuExportPlainBasi();
-        // Biarkan antrean pinExec terkuras (shutdown, bukan shutdownNow):
-        // hash toggle yang antre tepat sebelum keluar Settings tetap tersimpan
-        // di prefs (satu hash 30rb cuma ~1 dtk). shutdownNow membuang tugas
-        // antre sehingga PIN gagal aktif tanpa pesan bila user buru-buru keluar.
-        // Callback debounce UI ikut dibuang via removeCallbacks di bawah.
-        pinExec.shutdown();
+        // Executor hash PIN milik kelas (bersama + daemon): tanpa shutdown agar
+        // hash yang antre tepat sebelum keluar/rotasi tetap tersimpan di prefs
+        // (satu hash 30rb cuma ~1 dtk); thread daemon tunggal tak menahan
+        // proses dan tak bocor per instance. Callback debounce UI ikut dibuang
+        // via removeCallbacks di bawah.
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }

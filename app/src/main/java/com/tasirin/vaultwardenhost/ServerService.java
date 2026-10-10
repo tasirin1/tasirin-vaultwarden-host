@@ -2364,13 +2364,29 @@ public class ServerService extends Service {
 
     private static volatile long capCaStat = Long.MIN_VALUE;
     private static volatile long capCaNilai = 0L;
+    /** Waktu stat CA terakhir (elapsedRealtime): stat ulang maks 1x/menit. */
+    private static volatile long capCaWaktu = 0;
 
     /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
     private static long capCaAktif(Context ctx) {
+        // Gerbang TTL 60 dtk tanpa kunci/syscall: ca.pem hanya berubah saat
+        // Start/restore/ganti folder (semua menginvalidasi eksplisit di
+        // prepareTls), sehingga stat (getFilesDir + isFile + mtime + length)
+        // tiap cobaKode (1-2x per health tick + ping perintah Telegram)
+        // mubazir di eMMC STB lama + berebut kunci kelas dengan thread UI.
+        long kini = SystemClock.elapsedRealtime();
+        if (capCaStat != Long.MIN_VALUE && kini - capCaWaktu < 60_000) {
+            return capCaNilai;
+        }
         // Sinkron (reentrant, cermin HttpsCompat.capOverride): dua thread
         // (health-tick + ping UI) tak boleh berlomba baca-tulis capCaStat/
         // capCaNilai — satu bisa menimpa hasil segar dengan nilai basi.
         synchronized (ServerService.class) {
+        // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
+        long kini2 = SystemClock.elapsedRealtime();
+        if (capCaStat != Long.MIN_VALUE && kini2 - capCaWaktu < 60_000) {
+            return capCaNilai;
+        }
         try {
             java.io.File ca = null;
             try {
@@ -2391,6 +2407,9 @@ public class ServerService extends Service {
             if (ca != null && ca.isFile()) {
                 long stat = ca.lastModified() * 31 + ca.length();
                 if (stat == capCaStat) {
+                    // Stat cocok: perbarui stempel agar gerbang TTL 60 dtk
+                    // tak jatuh ke jalur lambat di tiap tick berikut.
+                    capCaWaktu = kini2;
                     return capCaNilai;
                 }
                 // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
@@ -2410,10 +2429,14 @@ public class ServerService extends Service {
                 }
                 capCaStat = stat;
                 capCaNilai = h;
+                capCaWaktu = kini2;
                 return h;
             }
         } catch (Exception ignored) {
         }
+        // CA tak ada/rusak: stempel juga agar tick tak menghujani stat
+        // tiap 30 dtk; prepareTls mereset saat sertifikat lahir.
+        capCaWaktu = kini2;
         return 0L;
         }
     }
@@ -2468,17 +2491,21 @@ public class ServerService extends Service {
      *  worker, tulis berurutan tanpa kunci bisa memberi versi campur. */
     private static final Object IP_LOCK = new Object();
 
-    /** True bila cache IP masih segar (umur < 3 dtk, isi tak kosong). Murni. */
+    /** True bila cache IP masih segar (umur < 60 dtk, isi tak kosong). Murni.
+     *  IP LAN/STB jarang berubah; TTL 60 dtk (dulu 3 dtk) agar tick UI 1-2 dtk
+     *  + health 30 dtk tak membayar enumerasi interface (ioctl per kartu +
+     *  isUp + sortir) tiap detik di CPU ARMv7. Keterlambatan deteksi IP baru
+     *  maks 1 menit masih aman (restart butuh IP stabil 2x tick). */
     static boolean ipCacheSegar(long kini, long cacheTime, String cache) {
         return cache != null && !cache.isEmpty() && kini >= cacheTime
-                && kini - cacheTime < 3000;
+                && kini - cacheTime < 60_000;
     }
     private static volatile long collectCacheTime = 0;
     private static volatile List<String> collectCache = new ArrayList<>();
     private static final Object COLLECT_LOCK = new Object();
 
     /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama).
-     *  Di-cache 3 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
+     *  Di-cache 60 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
         long now = SystemClock.elapsedRealtime();
         synchronized (IP_LOCK) {
@@ -3078,7 +3105,11 @@ public class ServerService extends Service {
         synchronized (COLLECT_LOCK) {
             // Monotonik: wall-clock mundur membuat now-cache negatif dan cache basi beku.
             long now = SystemClock.elapsedRealtime();
-            if (now - collectCacheTime < 5000 && !collectCache.isEmpty()) {
+            // TTL 60 dtk (dulu 5 dtk): tick health 30 dtk/2 mnt + URL UI 10 dtk
+            // selalu gagal-hit lalu membayar getNetworkInterfaces + isUp()
+            // tiap kartu tiap tick. IP praktis statis sehingga basi 1 menit
+            // tak masalah; Start selalu bisa paksa segar via writeText ips.txt.
+            if (now - collectCacheTime < 60_000 && !collectCache.isEmpty()) {
                 return collectCache;
             }
             List<String> ips = new ArrayList<>();
@@ -3241,8 +3272,11 @@ public class ServerService extends Service {
         if (dir != null) {
             writeText(ipFile, cur);
             // Sertifikat bisa baru dibuat: buang cache SSL agar health check
-            // memakai CA terbaru, bukan trust-all lama.
+            // memakai CA terbaru, bukan trust-all lama. Cap CA ikut reset
+            // agar gerbang TTL tak menyajikan cap basi 60 dtk.
             sslFactory = null;
+            capCaStat = Long.MIN_VALUE;
+            capCaWaktu = 0;
         }
         return dir;
     }

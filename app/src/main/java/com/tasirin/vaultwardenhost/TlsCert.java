@@ -451,6 +451,9 @@ public final class TlsCert {
 
     /** SecureRandom bersama (thread-safe): hemat seed /dev/random di kernel lama. */
     private static final SecureRandom ACAK_BERSAMA = new SecureRandom();
+    /** Zona UTC bersama: getTimeZone("UTC") mengurai ID + klon tiap panggil. */
+    private static final java.util.TimeZone ZONA_UTC =
+            java.util.TimeZone.getTimeZone("UTC");
 
     private static KeyPair buatRsa2048() throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -922,20 +925,32 @@ public final class TlsCert {
             out.write(data, 0, data.length);
         }
 
+        /** Dua digit desimal manual tanpa Formatter/Locale (murah di ART lama). */
+        static void dua(StringBuilder b, int v) {
+            b.append((char) ('0' + (v / 10) % 10));
+            b.append((char) ('0' + v % 10));
+        }
+
+        /** Empat digit desimal manual (tahun). */
+        static void empat(StringBuilder b, int v) {
+            dua(b, v / 100);
+            dua(b, v % 100);
+        }
+
         /** UTCTime (<2050) atau GeneralizedTime (>=2050) agar CA 10 tahun tetap valid. */
         void waktu(Date d) throws IOException {
-            java.util.Calendar c = java.util.Calendar.getInstance(
-                    java.util.TimeZone.getTimeZone("UTC"), Locale.US);
+            java.util.Calendar c = java.util.Calendar.getInstance(ZONA_UTC, Locale.US);
             c.setTime(d);
             if (c.get(java.util.Calendar.YEAR) >= 2050) {
-                String s = String.format(Locale.US, "%04d%02d%02d%02d%02d%02dZ",
-                        c.get(java.util.Calendar.YEAR),
-                        c.get(java.util.Calendar.MONTH) + 1,
-                        c.get(java.util.Calendar.DAY_OF_MONTH),
-                        c.get(java.util.Calendar.HOUR_OF_DAY),
-                        c.get(java.util.Calendar.MINUTE),
-                        c.get(java.util.Calendar.SECOND));
-                byte[] data = s.getBytes(StandardCharsets.US_ASCII);
+                StringBuilder b = new StringBuilder(15);
+                empat(b, c.get(java.util.Calendar.YEAR));
+                dua(b, c.get(java.util.Calendar.MONTH) + 1);
+                dua(b, c.get(java.util.Calendar.DAY_OF_MONTH));
+                dua(b, c.get(java.util.Calendar.HOUR_OF_DAY));
+                dua(b, c.get(java.util.Calendar.MINUTE));
+                dua(b, c.get(java.util.Calendar.SECOND));
+                b.append('Z');
+                byte[] data = b.toString().getBytes(StandardCharsets.US_ASCII);
                 out.write(0x18);
                 len(data.length, out);
                 out.write(data, 0, data.length);
@@ -946,17 +961,17 @@ public final class TlsCert {
 
         void utcTime(Date d) throws IOException {
             // Wajib UTC: format lama memakai zona perangkat tapi berlabel Z.
-            java.util.Calendar c = java.util.Calendar.getInstance(
-                    java.util.TimeZone.getTimeZone("UTC"), Locale.US);
+            java.util.Calendar c = java.util.Calendar.getInstance(ZONA_UTC, Locale.US);
             c.setTime(d);
-            String s = String.format(Locale.US, "%02d%02d%02d%02d%02d%02dZ",
-                    c.get(java.util.Calendar.YEAR) % 100,
-                    c.get(java.util.Calendar.MONTH) + 1,
-                    c.get(java.util.Calendar.DAY_OF_MONTH),
-                    c.get(java.util.Calendar.HOUR_OF_DAY),
-                    c.get(java.util.Calendar.MINUTE),
-                    c.get(java.util.Calendar.SECOND));
-            byte[] data = s.getBytes(StandardCharsets.US_ASCII);
+            StringBuilder b = new StringBuilder(13);
+            dua(b, c.get(java.util.Calendar.YEAR) % 100);
+            dua(b, c.get(java.util.Calendar.MONTH) + 1);
+            dua(b, c.get(java.util.Calendar.DAY_OF_MONTH));
+            dua(b, c.get(java.util.Calendar.HOUR_OF_DAY));
+            dua(b, c.get(java.util.Calendar.MINUTE));
+            dua(b, c.get(java.util.Calendar.SECOND));
+            b.append('Z');
+            byte[] data = b.toString().getBytes(StandardCharsets.US_ASCII);
             out.write(0x17);
             len(data.length, out);
             out.write(data, 0, data.length);
