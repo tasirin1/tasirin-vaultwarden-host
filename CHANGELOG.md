@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sistem auto-verifikasi path baru
+- `tools/verifikasi-path.py`: cek murni-Python tanpa SDK — XML sehat, acuan `R.*`/`@*/` yatim (termasuk gaya titik `Theme.A` dan pengecualian `android.R`), `values-in` sinkron, aturan repo (targetSdk<29, armeabi-v7a saja, tanpa binary/keystore), metode dihapus tapi masih dipanggil + daftar bekas hapusan (`batalTunda`), metode statis baru tanpa uji, `diff --check`. LOLOS=0/GAGAL=1.
+- `tools/pasang-hook.sh`: pasang kait `pre-push` agar tiap push otomatis terverifikasi (gagal = push batal sebelum sampai CI).
+- `.github/workflows/verifikasi-path.yml`: workflow ringan baru (~1 mnt, tanpa SDK, tak mengubah workflow rilis) memeriksa rentang push; dokumen `*.md` dilewati.
+
 ## [Belum rilis] — Audit agresif 14: buang mati + gerbang login sekali-jalan
 - `styles.xml`: hapus alias tak terpakai `AppButton`/`TvOutlinedButton`/`AppInput` (0 referensi) + namespace `tools` yatim.
 - `Util.batalTunda`: hapus (0 pemanggil dari 559 static).

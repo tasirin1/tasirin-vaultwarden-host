@@ -1,0 +1,26 @@
+name: Verifikasi Path
+
+on:
+  push:
+    branches: [ main ]
+    # Dokumen tak menyentuh kode: hemat menit CI.
+    paths-ignore:
+      - '*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verifikasi:
+    name: Cek path yang berubah
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verifikasi path (tanpa SDK Android)
+        run: |
+          # Skrip murni-Python: acuan yatim, XML, aturan repo, hapusan salah.
+          # Gagal di sini = push ditolak sebelum build APK (~4 mnt) jalan.
+          python3 tools/verifikasi-path.py --rentang "${{ github.event.before }}...${{ github.sha }}"
