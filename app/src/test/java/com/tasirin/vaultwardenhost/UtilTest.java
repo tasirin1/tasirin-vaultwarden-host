@@ -6,6 +6,14 @@ import java.io.File;
 
 public class UtilTest {
     @Test
+    public void hex12DuaBelasDigitNolDepan() {
+        assertEquals("000000000000", Util.hex12(0L));
+        assertEquals("00000000000f", Util.hex12(15L));
+        assertEquals("ffffffffffff", Util.hex12(0xFFFFFFFFFFFFL));
+        assertEquals(12, Util.hex12(System.nanoTime()).length());
+    }
+
+    @Test
     public void cocokChatNumerik() {
         assertTrue(Util.cocokChat("12345", 12345, ""));
         assertTrue(Util.cocokChat(" 12345 ", 12345, "lain"));

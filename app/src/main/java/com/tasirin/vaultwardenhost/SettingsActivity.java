@@ -240,6 +240,11 @@ public class SettingsActivity extends Activity {
     private static final String KEY_SEC_TELEGRAM = "sec_buka_telegram";
     private static final String KEY_SEC_LOG = "sec_buka_log";
 
+    /** Acak bersama tombol dadu: new SecureRandom tiap ketuk bisa blokir
+     *  seed di kernel lama (sekali-per-proses di sini). */
+    private static final java.security.SecureRandom ACAK_DADU =
+            new java.security.SecureRandom();
+
     private String bundledVersion = "?";
     private String bundledRaw = null;
     private String appVersion = "";
@@ -497,7 +502,7 @@ public class SettingsActivity extends Activity {
         copyLoopbackBtn.setOnClickListener(v -> salinTeks("https://127.0.0.1:"
                 + portEfektifUntukSalin(), "Local URL copied"));
         randomAdminBtn.setOnClickListener(v -> {
-            adminTokenInput.setText(buatTokenAcak(new java.security.SecureRandom()));
+            adminTokenInput.setText(buatTokenAcak(ACAK_DADU));
             toast("Random token created — press Start to apply.");
         });
         exportCfgBtn.setOnClickListener(v -> mintaExport());

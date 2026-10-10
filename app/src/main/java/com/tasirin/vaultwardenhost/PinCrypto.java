@@ -405,12 +405,15 @@ public final class PinCrypto {
     }
 
     static String hex(byte[] data) {
-        StringBuilder sb = new StringBuilder(data.length * 2);
-        for (byte v : data) {
-            sb.append(Character.forDigit((v >> 4) & 0xF, 16));
-            sb.append(Character.forDigit(v & 0xF, 16));
+        // Tabel bersama (bukan Character.forDigit yang menelepon + cek radix
+        // per digit): hemat di jalur verifikasi PIN STB lama. Hasil sama persis.
+        char[] o = new char[data.length * 2];
+        for (int i = 0; i < data.length; i++) {
+            int v = data[i] & 0xFF;
+            o[i * 2] = Util.HEKS[v >>> 4];
+            o[i * 2 + 1] = Util.HEKS[v & 15];
         }
-        return sb.toString();
+        return new String(o);
     }
 
     private static byte[] unhex(String s) {

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 21: heksa terpusat + tanpa eksepsi poll + seed dadu
+- `Util.HEKS`/`hex12`: tabel + penulis heksa terpusat; duplikat identik di `LogExport`/`TgBackup` dibuang, `TgBot` ikut pakai tabel (+ uji `UtilTest`).
+- `PinCrypto.hex`: `Character.forDigit` per nibble jadi tabel (hasil sama persis, hemat di verifikasi PIN).
+- `TgBot.idChatResmi`: saring digit + cap 19 digit sebelum `parseLong` agar config username tak melempar tiap poll 20 dtk (ID grup minus tetap lolos).
+- `SettingsActivity` dadu token: `new SecureRandom` tiap ketuk jadi `ACAK_DADU` sekali-per-proses.
+- `ServerService.appendLog`/`catatLog`: rantai `append` tanpa String perantara per baris log.
+- `ServerService.startServer`: `trim` token + path web-vault sekali (dulu dua kali).
+- `MainActivity.readWvVersion`: buang wrapper 1-baris, panggil `Updater` langsung.
+- Sapuan mati: 254 metode privat dicek, nol mati (85 sekali-pakai terverifikasi sah).
+
 ## [Belum rilis] — Audit agresif 20: hemat tick/health/hash + buang duplikat
 - `MainActivity`/`SettingsActivity` tick: `trim()` 2x per nilai jadi lokal sekali (`dRapi`/`pRapi`/`rdRapi`/`rpRapi`/`raRapi`).
 - `MainActivity.onCreate`: dua `getPackageInfo` jadi satu IPC PackageManager.

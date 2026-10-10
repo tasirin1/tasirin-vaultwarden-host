@@ -3279,19 +3279,6 @@ public final class TgBackup {
                 }
             };
 
-    /** Digit heksa ASCII (tanpa Locale agar hemat di STB lama). */
-    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
-
-    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format. */
-    private static String hex12(long v) {
-        char[] o = new char[12];
-        for (int i = 11; i >= 0; i--) {
-            o[i] = HEX_ASCII[(int) (v & 15)];
-            v >>>= 4;
-        }
-        return new String(o);
-    }
-
     /** True bila s 32 digit heksa kecil (tanpa kompilasi regex matches). */
     static boolean hex32(String s) {
         if (s == null || s.length() != 32) {
@@ -3326,7 +3313,7 @@ public final class TgBackup {
      *  (createBackupZip via createNewFile). */
     public static String stempelUnik() {
         long acak = SECURE_RANDOM.nextLong() & 0xFFFFFFFFFFFFL;
-        return backupTimestamp() + "-" + hex12(acak);
+        return backupTimestamp() + "-" + Util.hex12(acak);
     }
 
     /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */

@@ -965,7 +965,7 @@ public class MainActivity extends Activity {
             dataDir = ServerService.dataDirBawaanSegar();
         }
         String bin = currentServerVersion();
-        String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+        String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
         int build = 0;
         try {
             build = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
@@ -1091,11 +1091,6 @@ public class MainActivity extends Activity {
                 }
             }
         }, false);
-    }
-
-    /** Versi dari file vw-version.json (satu implementasi di Updater). */
-    private String readWvVersion(File f) {
-        return Updater.readWvVersion(f);
     }
 
     /** Versi binary yang benar-benar dipakai server saat ini (satu di Updater). */

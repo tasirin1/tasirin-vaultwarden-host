@@ -69,6 +69,21 @@ public final class Util {
         return m;
     }
 
+    /** Digit heksa kecil bersama (tanpa Locale): satu tabel dipakai LogExport,
+     *  TgBackup, TgBot, PinCrypto agar tak triplikat di tiap berkas. Murni. */
+    static final char[] HEKS = "0123456789abcdef".toCharArray();
+
+    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format.
+     *  Satu implementasi dipakai LogExport + TgBackup. Murni. */
+    static String hex12(long v) {
+        char[] o = new char[12];
+        for (int i = 11; i >= 0; i--) {
+            o[i] = HEKS[(int) (v & 15)];
+            v >>>= 4;
+        }
+        return new String(o);
+    }
+
     /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
     private static volatile android.os.Handler HANDLER_UTAMA = null;
 

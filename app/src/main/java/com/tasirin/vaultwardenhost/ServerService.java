@@ -1518,8 +1518,9 @@ public class ServerService extends Service {
 
             // Admin token: tolak karakter kontrol/spasi agar env Rocket tak rusak.
             String adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
-            if (adminToken != null && !adminToken.trim().isEmpty()) {
-                String bersih = adminToken.trim();
+            // Trim sekali (dulu dua kali di tiap Start).
+            String bersih = adminToken == null ? "" : adminToken.trim();
+            if (!bersih.isEmpty()) {
                 if (!tokenAdminValid(bersih)) {
                     appendLog("[app] FATAL: admin token mengandung spasi/baris baru"
                             + " - server TIDAK start. Perbaiki di Settings.");
@@ -1536,8 +1537,9 @@ public class ServerService extends Service {
             File localWv = new File(dataFolder, "web-vault/index.html");
             if (localWv.exists()) {
                 pb.environment().put("WEB_VAULT_ENABLED", "true");
-                pb.environment().put("WEB_VAULT_FOLDER", localWv.getParentFile().getAbsolutePath());
-                appendLog("[app] Web vault (updated): " + localWv.getParentFile().getAbsolutePath());
+                String folderWv = localWv.getParentFile().getAbsolutePath();
+                pb.environment().put("WEB_VAULT_FOLDER", folderWv);
+                appendLog("[app] Web vault (updated): " + folderWv);
             } else {
                 File webVault = extractWebVault();
                 if (webVault != null) {
@@ -2216,15 +2218,16 @@ public class ServerService extends Service {
         java.util.Date tgl = LOG_TGL.get();
         tgl.setTime(System.currentTimeMillis());
         stamp = LOG_TS.get().format(tgl);
-        String entry = stamp + " " + line;
         synchronized (logBuffer) {
-            logBuffer.append(entry).append('\n');
+            // Rantai append (bukan stamp + " " + line): hemat satu String
+            // perantara tiap baris log deras di STB lama.
+            logBuffer.append(stamp).append(' ').append(line).append('\n');
             pangkasBufferTerkunci();
             logVer++;
         }
         if (logFile != null) {
             synchronized (LOG_FILE_LOCK) {
-                logFileBuf.append(entry).append('\n');
+                logFileBuf.append(stamp).append(' ').append(line).append('\n');
                 if (logFileBuf.length() >= LOG_FILE_FLUSH_CHARS) {
                     flushLogFileLocked();
                 }
@@ -3808,9 +3811,10 @@ public class ServerService extends Service {
         java.util.Date tgl = LOG_TGL.get();
         tgl.setTime(System.currentTimeMillis());
         stamp = LOG_TS.get().format(tgl);
-        String entry = stamp + " " + line;
         synchronized (logBuffer) {
-            logBuffer.append(entry).append('\n');
+            // Rantai append (bukan stamp + " " + line): hemat satu String
+            // perantara tiap baris log deras di STB lama.
+            logBuffer.append(stamp).append(' ').append(line).append('\n');
             pangkasBufferTerkunci();
             logVer++;
         }

@@ -154,16 +154,13 @@ public final class TgBot {
         return msg.contains("Web vault updated");
     }
 
-    /** Digit heksa ASCII (tanpa Locale agar hemat di STB lama). */
-    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
-
     /** Tulis escape unicode manual: String.format per char boros Formatter+Locale. */
     private static void tambahEscapeUnicode(StringBuilder o, char c) {
         o.append('\\').append('u');
-        o.append(HEX_ASCII[(c >> 12) & 15]);
-        o.append(HEX_ASCII[(c >> 8) & 15]);
-        o.append(HEX_ASCII[(c >> 4) & 15]);
-        o.append(HEX_ASCII[c & 15]);
+        o.append(Util.HEKS[(c >> 12) & 15]);
+        o.append(Util.HEKS[(c >> 8) & 15]);
+        o.append(Util.HEKS[(c >> 4) & 15]);
+        o.append(Util.HEKS[c & 15]);
     }
 
     /** Pola statis: String.split/matches/replaceAll kompilasi regex tiap panggil. */
@@ -803,6 +800,14 @@ public final class TgBot {
                 chat = chat.substring(1).trim();
             }
             if (chat.startsWith("@")) {
+                return 0;
+            }
+            // Saring digit dulu agar config username tak melempar + isi stack
+            // trace tiap poll 20 dtk di ART lama (pola Util.cocokChat).
+            // Minus depan (ID grup) dikupas dulu; 20+ digit pasti overflow
+            // sehingga tak membayar eksepsi. Hasil sama (catch tetap jaring).
+            String angka = chat.startsWith("-") ? chat.substring(1) : chat;
+            if (!Util.semuaDigit(angka) || angka.length() > 19) {
                 return 0;
             }
             return Long.parseLong(chat);

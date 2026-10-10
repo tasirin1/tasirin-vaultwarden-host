@@ -39,18 +39,6 @@ public final class LogExport {
     /** Acak bersama: new SecureRandom tiap export bisa blokir seed di kernel lama. */
     private static final java.security.SecureRandom ACAK =
             new java.security.SecureRandom();
-    private static final char[] HEX_ASCII = "0123456789abcdef".toCharArray();
-
-    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format. */
-    private static String hex12(long v) {
-        char[] o = new char[12];
-        for (int i = 11; i >= 0; i--) {
-            o[i] = HEX_ASCII[(int) (v & 15)];
-            v >>>= 4;
-        }
-        return new String(o);
-    }
-
     // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur API 21-32.
     @SuppressWarnings("deprecation")
     public static String simpanKeDownload(Activity act, String logMentah) {
@@ -199,6 +187,6 @@ public final class LogExport {
     private static String namaLog(String stamp, java.security.SecureRandom rnd) {
         long acak = rnd.nextLong() & 0xFFFFFFFFFFFFL;
         return "tasirin-vaultwarden-host-log-" + stamp + "-"
-                + hex12(acak) + ".txt";
+                + Util.hex12(acak) + ".txt";
     }
 }
