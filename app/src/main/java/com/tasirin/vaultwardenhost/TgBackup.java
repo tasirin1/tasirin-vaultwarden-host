@@ -3334,7 +3334,39 @@ public final class TgBackup {
     /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar
      *  cache yang bisa dibersihkan ikut dihitung, fallback ke StatFs di
      *  Android 5/6/7. */
+    /** Memo ruang bebas 30 dtk per path (pola folderBytesCached): tick info
+     *  5 dtk + gerbang unduh/backup memanggil getUuidForPath +
+     *  getAllocatableBytes (2x binder IPC + statfs) — angka GB tak berubah
+     *  tiap detik di STB. Basi 30 dtk aman: tulis gagal (ENOSPC) tetap
+     *  ditangani tiap aliran unduh/backup.
+     *  Monotonik: wall-clock mundur membekukan memo sampai jam mengejar. */
+    private static final java.util.Map<String, long[]> MEMO_BEBAS =
+            new java.util.HashMap<>();
+    private static final long MEMO_BEBAS_TTL_MS = 30_000;
+
     public static long freeBytes(Context ctx, String dirPath) {
+        if (dirPath != null) {
+            long now = SystemClock.elapsedRealtime();
+            synchronized (MEMO_BEBAS) {
+                if (MEMO_BEBAS.size() > 16) {
+                    MEMO_BEBAS.clear();
+                }
+                long[] hit = MEMO_BEBAS.get(dirPath);
+                if (hit != null && now - hit[1] < MEMO_BEBAS_TTL_MS) {
+                    return hit[0];
+                }
+            }
+            long nilai = freeBytesAktual(ctx, dirPath);
+            synchronized (MEMO_BEBAS) {
+                MEMO_BEBAS.put(dirPath, new long[]{nilai, now});
+            }
+            return nilai;
+        }
+        return freeBytes(dirPath);
+    }
+
+    /** Ukur aktual ruang bebas (binder StorageManager di API 26+). */
+    private static long freeBytesAktual(Context ctx, String dirPath) {
         if (ctx != null && dirPath != null && Build.VERSION.SDK_INT >= 26) {
             try {
                 StorageManager sm = (StorageManager) ctx.getSystemService(

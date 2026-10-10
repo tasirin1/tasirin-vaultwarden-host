@@ -176,6 +176,17 @@ public class TlsCertTest {
     }
 
     @Test
+    public void sisaDariMemo_cerminkanCheckValidity() {
+        long kini = System.currentTimeMillis();
+        assertEquals(-1, TlsCert.sisaDariMemo(null));
+        assertEquals(-1, TlsCert.sisaDariMemo(new long[]{Long.MIN_VALUE, Long.MIN_VALUE}));
+        assertEquals(-2, TlsCert.sisaDariMemo(new long[]{kini + 60_000, kini + 3_600_000}));
+        assertEquals(0, TlsCert.sisaDariMemo(new long[]{kini - 3_600_000, kini - 1_000}));
+        long sisa = TlsCert.sisaDariMemo(new long[]{kini - 1_000, kini + 3_600_000});
+        assertTrue(sisa > 0 && sisa <= 3_600_000);
+    }
+
+    @Test
     public void namaBackupCa_pakaiTimestamp() {
         assertEquals("ca-cadangan-20260929-120000.pem", TlsCert.namaBackupCa("20260929-120000"));
         assertEquals("ca-cadangan-tanpa-waktu.pem", TlsCert.namaBackupCa(""));

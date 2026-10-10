@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 10: memo tanggal cert + ruang bebas
+- `TlsCert`: parse X.509 + lookup provider tiap 30 dtk (tick Settings) jadi memo `[notBefore, notAfter]` bergerbang stat file — perilaku `checkValidity` (-2/-1/0) dipertahankan + uji `sisaDariMemo`.
+- `TgBackup.freeBytes`: memo 30 dtk per path — tick info 5 dtk tak membayar 2x binder IPC `StorageManager` tiap kali.
+
 ## [Belum rilis] — Audit agresif 9: hemat alokasi tick UI tiap detik
 - `SettingsActivity`: `localUrl()` tiap 1 dtk jadi cache 10 dtk (pola `MainActivity`) — tanpa lookup prefs + concat URL sia-sia.
 - `MainActivity`: string status Berjalan/Berhenti di-cache + kunci boolean (tanpa `getString` + concat tiap 1-2 dtk di ART lama).

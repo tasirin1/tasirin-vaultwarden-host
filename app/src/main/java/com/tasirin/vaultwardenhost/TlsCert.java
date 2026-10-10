@@ -101,23 +101,73 @@ public final class TlsCert {
         return hasil;
     }
 
+    /** Memo [notBefore, notAfter] per file (kunci path+panjang+mtime):
+     *  lookup provider CertificateFactory + parse ASN.1 tiap 30 dtk (tick
+     *  Settings) boros di ARMv7; tanggal cert tak berubah tanpa tulis file
+     *  baru (panjang/mtime berganti sehingga memo gugur sendiri). Gagal
+     *  parse ikut di-memo agar cert rusak/hilang tak di-parse berulang. */
+    private static final java.util.HashMap<String, long[]> MEMO_MASA =
+            new java.util.HashMap<>();
+
     /** Sekali baca sisa masa berlaku (dipanggil ulang oleh sisaMs bila -1). */
     private static long sisaMsSekali(File certFile) {
+        String kunci = kunciStat(certFile);
+        synchronized (MEMO_MASA) {
+            if (MEMO_MASA.size() > 64) {
+                MEMO_MASA.clear();
+            }
+            long[] memo = kunci == null ? null : MEMO_MASA.get(kunci);
+            if (memo != null) {
+                return sisaDariMemo(memo);
+            }
+        }
+        long[] masa = bacaMasa(certFile);
+        if (kunci != null) {
+            synchronized (MEMO_MASA) {
+                MEMO_MASA.put(kunci, masa);
+            }
+        }
+        return sisaDariMemo(masa);
+    }
+
+    /** Kunci stat file (null bila info tak bisa dibaca — tetap parse sekali). */
+    private static String kunciStat(File f) {
+        try {
+            if (f == null) {
+                return null;
+            }
+            // Absolute (tanpa I/O) cukup: canonical memanggil syscall padahal
+            // penghematan justru menghindari kerja file + parse tiap tick.
+            return f.getAbsolutePath() + '|' + f.length() + '|' + f.lastModified();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Baca [notBefore, notAfter] sekali; gagal parse = sentinel MIN_VALUE. */
+    private static long[] bacaMasa(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
                     .getInstance("X.509").generateCertificate(in);
-            try {
-                cert.checkValidity();
-            } catch (java.security.cert.CertificateNotYetValidException belum) {
-                return -2;
-            } catch (Exception tidakValid) {
-                return 0;
-            }
-            long ms = cert.getNotAfter().getTime() - System.currentTimeMillis();
-            return Math.max(0, ms);
+            return new long[]{cert.getNotBefore().getTime(), cert.getNotAfter().getTime()};
         } catch (Exception e) {
+            return new long[]{Long.MIN_VALUE, Long.MIN_VALUE};
+        }
+    }
+
+    /** Sisa ms dari memo (cermin checkValidity: -2 belum valid, 0 lewat). Murni. */
+    static long sisaDariMemo(long[] masa) {
+        if (masa == null || masa[0] == Long.MIN_VALUE) {
             return -1;
         }
+        long kini = System.currentTimeMillis();
+        if (kini < masa[0]) {
+            return -2;
+        }
+        if (kini >= masa[1]) {
+            return 0;
+        }
+        return Math.max(0, masa[1] - kini);
     }
 
     /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa, -2 bila belum
