@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi path v2: 9 cek baru
+- Kebenaran: komponen manifest tanpa kelas, berkas Java dihapus tapi kelas masih disebut, duplikat definisi seberkas, kurung Java tak seimbang (pemindai sekali-jalan, sadar URL-string), acuan generik semua tipe res (termasuk `layout-land` + `res/xml` + `plurals`).
+- Efisiensi lama: baris baru berpola boros (`String.format`, `SimpleDateFormat`, `Calendar`, `split`/`matches`, `new Thread`, `toLowerCase()` tanpa Locale) jadi peringatan; izin manifest baru + definisi baru tak terpakai + pengingat CHANGELOG.
+- Perbaikan bug checker: pindai hunk `.java` saja (tak menuduh diri sendiri), uji-baru yang tak pernah cocok, crash `set.append`, pemindaian berulang puluhan kali saat hapus seberkas.
+- `pasang-hook.sh` lapor jujur bila FS `noexec` (kait git tak jalan, CI jadi cadangan).
+
 ## [Belum rilis] — Sistem auto-verifikasi path baru
 - `tools/verifikasi-path.py`: cek murni-Python tanpa SDK — XML sehat, acuan `R.*`/`@*/` yatim (termasuk gaya titik `Theme.A` dan pengecualian `android.R`), `values-in` sinkron, aturan repo (targetSdk<29, armeabi-v7a saja, tanpa binary/keystore), metode dihapus tapi masih dipanggil + daftar bekas hapusan (`batalTunda`), metode statis baru tanpa uji, `diff --check`. LOLOS=0/GAGAL=1.
 - `tools/pasang-hook.sh`: pasang kait `pre-push` agar tiap push otomatis terverifikasi (gagal = push batal sebelum sampai CI).

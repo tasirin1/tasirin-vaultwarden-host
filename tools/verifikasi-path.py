@@ -90,12 +90,13 @@ def himpun_definisi():
     def rapikan(jenis, nama):
         return nama.replace(".", "_") if jenis == "style" else nama
 
-    pola_def = re.compile(r'<(style|string|color|dimen)\s+name="([^"]+)"')
+    pola_def = re.compile(r'<(style|string|color|dimen|plurals)\s+name="([^"]+)"')
     pola_array = re.compile(r'<(string-array|integer-array|array)\s+name="([^"]+)"')
 
     def tambah(kunci, nama):
         definisi.setdefault(kunci, set()).add(rapikan(kunci, nama))
 
+    akar_res = os.path.join(MAIN, "res")
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
         isi = baca(path)
         for jenis, nama in pola_def.findall(isi):
@@ -104,14 +105,18 @@ def himpun_definisi():
             tambah("array", nama)
         for nama in re.findall(r'@\+id/([A-Za-z0-9_]+)', isi):
             tambah("id", nama)
-    for folder in ("drawable", "mipmap"):
-        wadah = os.path.join(MAIN, "res", folder)
-        if os.path.isdir(wadah):
-            for akar, _, berkas in os.walk(wadah):
-                for nama in berkas:
-                    tambah("drawable", os.path.splitext(nama)[0])
-    for path in jalan_repo(os.path.join("app", "src", "main", "res", "layout"), ext=(".xml",)):
-        tambah("layout", os.path.splitext(os.path.basename(path))[0])
+    # Definisi berbasis berkas: semua subdir res kecuali values* (layout-land,
+    # drawable, xml, ...). Kualifikasi (-land/-night) digabung ke tipe dasar.
+    for nama_dir in sorted(os.listdir(akar_res)):
+        if nama_dir.startswith("values"):
+            continue
+        tipe = nama_dir.split("-")[0]
+        wadah = os.path.join(akar_res, nama_dir)
+        if not os.path.isdir(wadah):
+            continue
+        for akar, _, berkas in os.walk(wadah):
+            for nama in berkas:
+                tambah(tipe, os.path.splitext(nama)[0])
 
     # (?<!android\.) mengecualikan kerangka (android.R.*, @android:*) yang
     # bukan milik repo; style membolehkan titik (Theme.A.B).
@@ -124,7 +129,10 @@ def himpun_definisi():
         ("drawable", r"@drawable/([A-Za-z0-9_]+)", r"(?<!android\.)R\.drawable\.([A-Za-z0-9_]+)"),
         ("layout", None, r"(?<!android\.)R\.layout\.([A-Za-z0-9_]+)"),
         ("id", r"@id/([A-Za-z0-9_]+)", r"(?<!android\.)R\.id\.([A-Za-z0-9_]+)"),
+        ("plurals", r"@plurals/([A-Za-z0-9_]+)", r"(?<!android\.)R\.plurals\.([A-Za-z0-9_]+)"),
     ]
+    pola_generik_xml = re.compile(r"@([a-z]+)/([A-Za-z0-9_.]+)")
+    pola_generik_r = re.compile(r"(?<!android\.)R\.([a-z]+)\.([A-Za-z0-9_]+)")
     pola_android = re.compile(r"@android:[a-z]+/[A-Za-z0-9_.]+")
     pemindai = [p for p in jalan_repo("app", ext=(".java", ".xml",))]
     pemindai.append("app/src/main/AndroidManifest.xml")
@@ -138,6 +146,10 @@ def himpun_definisi():
                 if pola:
                     for nama in re.findall(pola, isi):
                         acuan.setdefault(jenis, set()).add(rapikan(jenis, nama))
+        for tipe, nama in pola_generik_xml.findall(isi):
+            acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
+        for tipe, nama in pola_generik_r.findall(isi):
+            acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
     return definisi, acuan
 
 
@@ -165,6 +177,244 @@ def cek_acuan_yatim(gagal):
         if yatim:
             gagal.append("Acuan %s yatim (dipakai tapi tak terdefinisi): %s"
                          % (jenis, ", ".join(yatim[:10])))
+
+
+def namespace_aplikasi():
+    tetap = baca("app/build.gradle.kts")
+    cocok = re.search(r'namespace\s*=\s*"([^"]+)"', tetap)
+    return cocok.group(1) if cocok else ""
+
+
+def cek_manifest(gagal):
+    """Komponen di manifest wajib ada kelasnya (tangkap hapus berkas Java)."""
+    try:
+        pohon = ET.parse(os.path.join(AKAR, "app/src/main/AndroidManifest.xml"))
+    except ET.ParseError:
+        return  # sudah dilaporkan cek_xml
+    ns = namespace_aplikasi()
+    for el in pohon.getroot().iter():
+        nama = el.get("{http://schemas.android.com/apk/res/android}name", "")
+        if not nama or el.tag not in (
+                "activity", "service", "receiver", "provider"):
+            continue
+        if not nama.startswith(".") and not nama.startswith(ns):
+            continue  # kerangka / pustaka
+        kelas = (nama[1:] if nama.startswith(".") else nama[len(ns) + 1:]).split(".")[0]
+        berkas = os.path.join(
+            MAIN, "java", *ns.split("."), kelas + ".java")
+        if not os.path.isfile(berkas):
+            gagal.append("Komponen manifest tanpa kelas: %s (hapus %s.java?)"
+                         % (nama, kelas))
+
+
+def cek_duplikat_definisi(gagal):
+    """Nama ganda dalam SATU berkas values = galat aapt (override beda
+    berkas seperti values-night tetap sah)."""
+    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
+    for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
+        if "/values" not in path.replace(os.sep, "/"):
+            continue
+        hitung = {}
+        for jenis, nama in pola.findall(baca(path)):
+            kunci = jenis + "/" + nama
+            hitung[kunci] = hitung.get(kunci, 0) + 1
+        ganda = sorted(k for k, n in hitung.items() if n > 1)
+        if ganda:
+            gagal.append("Definisi ganda di %s: %s" % (path, ", ".join(ganda[:5])))
+
+
+def berkas_dihapus(rentang, diff_biasa):
+    """Daftar path yang dihapus pada diff (butuh status; kosong bila tak tahu)."""
+    if rentang and ("..." in rentang or ".." in rentang):
+        for pemisah in ("...", ".."):
+            if pemisah in rentang:
+                a, b = rentang.split(pemisah, 1)
+                if set(a) == {"0"} or not a:
+                    return []
+                out = jalan("git", "diff", "--name-status", a + pemisah + b)
+                if out is None:
+                    return []
+                return [x.split(None, 1)[1] for x in out.splitlines()
+                        if x.startswith("D")]
+    out = jalan("git", "diff", "--name-status")
+    return [x.split(None, 1)[1] for x in (out or "").splitlines() if x.startswith("D")]
+
+
+def disebut_kata(nama, lewat=()):
+    pola = re.compile(r"\b%s\b" % re.escape(nama))
+    temu = []
+    for path in jalan_repo("app", ext=(".java", ".xml")):
+        if path in lewat:
+            continue
+        for i, baris in enumerate(baca(path).splitlines(), 1):
+            if pola.search(baris):
+                temu.append("%s:%d" % (path, i))
+                if len(temu) >= 6:
+                    return temu
+    return temu
+
+
+def cek_berkas_java_dihapus(gagal, hapus):
+    for path in hapus:
+        if not (path.startswith("app/src/main/java/") and path.endswith(".java")):
+            continue
+        kelas = os.path.splitext(os.path.basename(path))[0]
+        siapa = disebut_kata(kelas, lewat=[path])
+        if siapa:
+            gagal.append("Berkas %s dihapus tapi %s masih disebut: %s"
+                         % (path, kelas, ", ".join(siapa)))
+
+
+def tambah_java(diff):
+    """Hasilkan (path, isi) tiap baris tambah dari hunk berkas .java.
+
+    Mencegah skrip menuduh dirinya sendiri (prosa Python/tabel pola yang
+    memuat kata String.format/new Thread) maupun berkas non-Java."""
+    path = ""
+    for baris in diff.splitlines():
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+        elif baris.startswith("+") and not baris.startswith("+++"):
+            if path.endswith(".java"):
+                yield path, baris[1:]
+
+
+def hapus_java(diff):
+    """Hasilkan (path, isi) tiap baris hapus dari hunk berkas .java."""
+    path = ""
+    for baris in diff.splitlines():
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+        elif baris.startswith("-") and not baris.startswith("---"):
+            if path.endswith(".java"):
+                yield path, baris[1:]
+
+
+def kupas_java(isi):
+    """Buang komentar + literal sekali-jalan (URL dalam string tak
+    boleh dianggap komentar //, dan kutip dalam komentar tak boleh
+    membuka string)."""
+    petik_ganda = chr(34)
+    petik_satu = chr(39)
+    garis_miring_balik = chr(92)
+    keluar = []
+    i, n = 0, len(isi)
+    while i < n:
+        c = isi[i]
+        dua = isi[i:i + 2]
+        if dua == '//':
+            while i < n and isi[i] != chr(10):
+                i += 1
+        elif dua == '/*':
+            i += 2
+            while i < n and isi[i:i + 2] != '*/':
+                i += 1
+            i += 2
+        elif c == petik_ganda or c == petik_satu:
+            kutip = c
+            i += 1
+            while i < n:
+                if isi[i] == garis_miring_balik:
+                    i += 2
+                    continue
+                if isi[i] == kutip:
+                    i += 1
+                    break
+                if kutip == petik_ganda and isi[i] == chr(10):
+                    break
+                i += 1
+        else:
+            keluar.append(c)
+            i += 1
+    return "".join(keluar)
+
+
+def cek_kurung_java(gagal, berubah):
+    for path in berubah:
+        if not path.endswith(".java"):
+            continue
+        penuh = os.path.join(AKAR, path)
+        if not os.path.isfile(penuh):
+            continue  # berkas dihapus: ditangani cek lain
+        isi = kupas_java(baca(path))
+        for buka, tutup, nama in (("{", "}", "kurawal"), ("(", ")", "lengkung"), ("[", "]", "siku")):
+            selisih = isi.count(buka) - isi.count(tutup)
+            if selisih:
+                gagal.append("Kurung %s tak seimbang di %s (%+d) — kompilasi pasti gagal"
+                             % (nama, path, selisih))
+                break
+
+
+# Pola boros khas STB lama: muncul di baris tambah = peringatan + saran hemat.
+POLA_BOROS = [
+    ("String.format(", "Formatter+Locale mahal di ART lama; pakai concat/manual"),
+    ("new SimpleDateFormat(", "buat sekali per thread (ThreadLocal bersama)"),
+    ("Calendar.getInstance(", "hitung manual tanpa Calendar berat"),
+    (".split(", "kompilasi Pattern tiap panggil; pecah manual/indexOf"),
+    ("new Thread(", "pakai pool bersama (Util.jalankanBg/Lama) hemat stack 1 MB"),
+    ("System.out.println", "pakai log/Toast, bukan stdout"),
+    (".printStackTrace()", "telan/abaikan eksplisit + catat log"),
+]
+
+
+def cek_pola_boros(peringatan, diff):
+    tampil = set()
+    for _, isi in tambah_java(diff):
+        for pola, saran in POLA_BOROS:
+            if pola in isi and pola not in tampil:
+                if pola == ".split(" and "matcher" in isi.lower():
+                    continue  # POLA_X.matcher().split() sah
+                tampil.add(pola)
+                peringatan.append("Pola boros di baris baru %s — %s: %s"
+                                  % (pola.strip(), saran, isi.strip()[:70]))
+    for _, isi in tambah_java(diff):
+        if ".matches(" in isi and "matcher" not in isi.lower() \
+                and ".matches(" not in tampil:
+            tampil.add(".matches(")
+            peringatan.append("Pola boros di baris baru .matches( — "
+                              "kompilasi regex tiap panggil; pakai Pattern statis: %s"
+                              % isi.strip()[:70])
+        if re.search(r"\.to(Lower|Upper)Case\(\)", isi) \
+                and "tanpa Locale" not in isi:
+            peringatan.append("Pola boros di baris baru toLower/UpperCase() tanpa Locale — "
+                              "bug locale Turki + alokasi; pakai Locale.US/ASCII: %s"
+                              % isi.strip()[:70])
+            break
+
+
+def cek_izin_baru(peringatan, diff):
+    for baris in diff.splitlines():
+        if baris.startswith("+") and "uses-permission" in baris:
+            cocok = re.search(r'android:name="([^"]+)"', baris)
+            if cocok:
+                peringatan.append("Izin baru %s — pastikan perlu di TV/STB + tercatat README"
+                                  % cocok.group(1))
+
+
+def cek_definisi_baru(peringatan, diff):
+    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
+    _, acuan = himpun_definisi()
+    sudah = set()
+    for baris in diff.splitlines():
+        cocok = pola.match(baris)
+        if cocok and (cocok.group(1), cocok.group(2)) not in sudah:
+            sudah.add((cocok.group(1), cocok.group(2)))
+            jenis, nama = cocok.group(1), cocok.group(2)
+            kunci = "array" if "array" in jenis else jenis
+            if nama not in acuan.get(kunci, set()):
+                peringatan.append("Definisi baru %s/%s tanpa acuan — hapus bila tak jadi dipakai"
+                                  % (kunci, nama))
+
+
+def cek_pengingat_changelog(peringatan, berubah):
+    if not berubah or "CHANGELOG.md" in berubah:
+        return
+    if any(b.startswith(("app/src/main/java/", "app/src/main/res/",
+                          "app/src/main/AndroidManifest.xml", "shim/",
+                          "app/build.gradle.kts")) for b in berubah):
+        peringatan.append("Kode aplikasi berubah tanpa CHANGELOG.md — catat per rilis (aturan repo)")
 
 
 def cek_sinkron_terjemah(gagal):
@@ -205,15 +455,17 @@ def cek_aturan_repo(gagal, berubah):
                 gagal.append("Berkas >1 MB di app/src (binary/web-vault diunduh CI): " + path)
 
 
-def nama_metode_hilang(diff):
+def nama_metode_hilang(diff, lewati_berkas=()):
     """Nama metode pada baris dihapus yang definisinya hilang dari pohon kerja."""
-    hilang = set()
-    for baris in diff.splitlines():
-        if not baris.startswith("-") or baris.startswith("---"):
+    hilang = []
+    for path, baris in hapus_java(diff):
+        # Berkas hapus total ditangani cek_berkas_java_dihapus (satu jalan);
+        # cek per-metode di sini hanya menghambur puluhan pemindaian penuh.
+        if path in lewati_berkas or not os.path.isfile(os.path.join(AKAR, path)):
             continue
         cocok = re.match(
-            r"-\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
-            r"[\w<>\[\].,? ]+\s+(\w+)\s*\(", baris[1:])
+            r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
+            r"[\w<>\[\].,? ]+\s+(\w+)\s*\(", baris)
         if cocok and cocok.group(1) not in KATA_KUNCI_JAVA:
             hilang.append(cocok.group(1))
     return hilang
@@ -239,8 +491,9 @@ def pemanggil(nama):
     return temu
 
 
-def cek_metode_hilang(gagal, peringatan, diff):
-    for nama in sorted(nama_metode_hilang(diff)):
+def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
+    lewati_berkas = set(hapus)
+    for nama in sorted(nama_metode_hilang(diff, lewati_berkas)):
         if masih_didefinisikan(nama):
             continue  # overload/kembaran masih ada: aman
         siapa = pemanggil(nama)
@@ -256,38 +509,44 @@ def cek_metode_hilang(gagal, peringatan, diff):
 def cek_panggil_bekas_hapusan(gagal, diff):
     for nama in sorted(BEKAS_HAPUSAN):
         pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
-        for baris in diff.splitlines():
-            if baris.startswith("+") and not baris.startswith("+++"):
-                if pola.search(baris[1:]):
-                    gagal.append(
-                        "Baris baru memanggil %s() yang sudah dihapus: %s"
-                        % (nama, baris[1:].strip()[:80]))
-                    break
+        for _, baris in tambah_java(diff):
+            if pola.search(baris):
+                gagal.append(
+                    "Baris baru memanggil %s() yang sudah dihapus: %s"
+                    % (nama, baris.strip()[:80]))
+                break
+
+
+def disebut_di_uji(nama):
+    pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+    for path in jalan_repo(os.path.join("app", "src", "test")):
+        if pola.search(baca(path)):
+            return True
+    return False
 
 
 def cek_uji_baru(peringatan, diff):
     pola = re.compile(
-        r"\+\s*(?:public\s+)?static\s+[\w<>\[\].,? ]+\s+(\w+)\s*\(")
-    for baris in diff.splitlines():
-        if not baris.startswith("+") or baris.startswith("+++"):
-            continue
-        cocok = pola.match(baris[1:])
+        r"\s*(?:public\s+)?static\s+[\w<>\[\].,? ]+\s+(\w+)\s*\(")
+    sudah = set()
+    for _, baris in tambah_java(diff):
+        cocok = pola.match(baris)
         if cocok and cocok.group(1) not in KATA_KUNCI_JAVA:
             nama = cocok.group(1)
-            if not pemanggil(nama) or not any("src/test" in p for p in pemanggil(nama)):
-                peringatan.append(
-                    "Metode statis baru %s() tanpa jejak di app/src/test (aturan: uji logika murni baru)"
-                    % nama)
+            if nama not in sudah:
+                sudah.add(nama)
+                if not disebut_di_uji(nama):
+                    peringatan.append(
+                        "Metode statis baru %s() tanpa jejak di app/src/test "
+                        "(aturan: uji logika murni baru)" % nama)
 
 
 def cek_pola_berisiko(peringatan, diff, berubah):
-    for baris in diff.splitlines():
-        if baris.startswith("+") and not baris.startswith("+++"):
-            isi = baris[1:]
-            if "System.out.println" in isi:
-                peringatan.append("System.out.println di diff (pakai log/Toast): " + isi.strip()[:80])
-            if ".printStackTrace()" in isi:
-                peringatan.append("printStackTrace di diff (telan/abaikan eksplisit): " + isi.strip()[:80])
+    for _, isi in tambah_java(diff):
+        if "System.out.println" in isi:
+            peringatan.append("System.out.println di diff (pakai log/Toast): " + isi.strip()[:80])
+        if ".printStackTrace()" in isi:
+            peringatan.append("printStackTrace di diff (telan/abaikan eksplisit): " + isi.strip()[:80])
     cek = jalan("git", "diff", "--check")
     if cek:
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
@@ -339,13 +598,26 @@ def utama():
 
     cek_xml(gagal, "")
     cek_acuan_yatim(gagal)
+    cek_manifest(gagal)
+    cek_duplikat_definisi(gagal)
     cek_sinkron_terjemah(gagal)
     cek_aturan_repo(gagal, berubah)
+    cek_kurung_java(gagal, berubah)
+    hapus = berkas_dihapus(args.rentang, diff)
+    if not args.rentang:
+        keluar = jalan("git", "diff", "--cached", "--name-status") or ""
+        hapus += [x.split(None, 1)[1] for x in keluar.splitlines() if x.startswith("D")]
+    cek_berkas_java_dihapus(gagal, hapus)
+    if not args.semua:
+        cek_pengingat_changelog(peringatan, berubah)
     if diff:
         cek_panggil_bekas_hapusan(gagal, diff)
-        cek_metode_hilang(gagal, peringatan, diff)
+        cek_metode_hilang(gagal, peringatan, diff, hapus)
         cek_uji_baru(peringatan, diff)
         cek_pola_berisiko(peringatan, diff, berubah)
+        cek_pola_boros(peringatan, diff)
+        cek_izin_baru(peringatan, diff)
+        cek_definisi_baru(peringatan, diff)
 
     for w in peringatan:
         print("PERINGATAN: " + w)

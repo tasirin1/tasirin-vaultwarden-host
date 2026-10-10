@@ -11,4 +11,11 @@ cat > "$HOOK" <<'HOOK'
 exec python3 tools/verifikasi-path.py
 HOOK
 chmod +x "$HOOK"
-echo "Kait pre-push terpasang: $HOOK"
+if [ -x "$HOOK" ]; then
+    echo "Kait pre-push terpasang dan bisa dieksekusi: $HOOK"
+else
+    echo "PERINGATAN: $HOOK tak bisa dieksekusi (penyimpanan noexec?) — kait"
+    echo "  git diabaikan di sini. Cadangan: workflow Verifikasi Path di CI"
+    echo "  tetap memeriksa tiap push; atau jalankan manual sebelum commit:"
+    echo "  python3 tools/verifikasi-path.py"
+fi
