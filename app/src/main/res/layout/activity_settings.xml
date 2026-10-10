@@ -152,7 +152,6 @@
 
         <!-- ===================== SEKSI: SERVER ===================== -->
         <LinearLayout
-            android:id="@+id/sectionServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -221,7 +220,6 @@
 
         <!-- ===================== SEKSI: KEAMANAN ===================== -->
         <LinearLayout
-            android:id="@+id/sectionKeamanan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -290,7 +288,6 @@
 
         <!-- ===================== SEKSI: PERAWATAN ===================== -->
         <LinearLayout
-            android:id="@+id/sectionRawat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -359,7 +356,6 @@
 
         <!-- ===================== SEKSI: TELEGRAM ===================== -->
         <LinearLayout
-            android:id="@+id/sectionTelegram"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -428,7 +424,6 @@
 
         <!-- ===================== SEKSI: LOG ===================== -->
         <LinearLayout
-            android:id="@+id/sectionLog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

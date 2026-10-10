@@ -84,6 +84,14 @@ android {
     lint {
         // Error menggagalkan build; warning yang disengaja dinonaktifkan.
         abortOnError = true
+        // Deteksi kode mati otomatis: resource/id/plurals yatim langsung
+        // menggagalkan build CI tiap push (bukan sekadar warning).
+        error += setOf(
+            "UnusedResources", // drawable/warna/string/gaya yatim
+            "UnusedIds",       // android:id tak dirujuk kode/layout lain
+            "UnusedQuantity",  // item plurals tak relevan untuk locale
+            "MissingQuantity"  // plurals tanpa quantity wajib (other)
+        )
         disable += setOf(
             "OldTargetApi",   // targetSdk 28 sengaja (eksekusi binary Android 10+)
             "ExpiredTargetSdkVersion", // targetSdk 28 sengaja (W^X); bukan untuk Play Store

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Deteksi resource yatim otomatis di CI
+- `app/build.gradle.kts`: `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` naik jadi error lint — resource yatim gagal build tiap push.
+- Hapus 9 `android:id` yatim (`heroBar`/`appTitle` ×2 orientasi, `logTitle`, 5 seksi Settings, `secRingkasanRow`) + aturan di `AGENTS.md`.
+
 ## [Belum rilis] — Audit agresif 7: TLS, health, regex, dan MIME hemat STB
 - `HttpsCompat.capOverride`: cek stat dulu, hash isi hanya bila berubah (poll 20 dtk + health tak bayar baca file tiap koneksi).
 - `TgBot`: long-poll `timeout=15` jadi `8` + wakelock receiver 60 dtk jadi 25 dtk (radio/CPU tak aktif 75% waktu saat idle).

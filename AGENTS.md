@@ -137,13 +137,14 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
     lewat workflow; jangan edit asset release lewat web/UI manual.
-12. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
+12. **Resource yatim terdeteksi otomatis di CI** — `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` dipasang sebagai error lint (`app/build.gradle.kts`): push yang menyisakan drawable/warna/string/gaya/id/plurals tak terpakai langsung gagal build. Alias gaya lintas-aplikasi yang disengaja wajib `tools:ignore="UnusedResources"` + komentar.
+13. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
     menunda push, jangan menunggu perintah, jangan menumpuk perubahan di
     working tree. Alur wajib tiap selesai satu tujuan logis: `git add` →
     `git commit` → `git push origin main` (lihat aturan #1 dan
     "Verifikasi setelah build"). Pengecualian hanya bila pengguna eksplisit
     meminta menahan push.
-13. **Jangan pantau build kecuali disuruh** — setelah `push`, JANGAN
+14. **Jangan pantau build kecuali disuruh** — setelah `push`, JANGAN
     menjalankan `gh run watch`, `gh run view`, atau `gh release view`
     kecuali pengguna eksplisit menyuruh memantau/memverifikasi. Push saja,
     lalu selesai dan laporkan. Ini menghemat waktu polling CI (~15 menit)
@@ -270,7 +271,7 @@ gh release view v<versi> --json assets -q '.assets[].name'
 ```
 
 Jangan menjalankan `gh run watch` kecuali pengguna eksplisit menyuruh
-memantau (aturan #13: push-andai saja, hemat token/polling).
+memantau (aturan #14: push-andai saja, hemat token/polling).
 Pastikan conclusion `success` dan release punya 7 asset. Ini satu-satunya
 cara verifikasi yang sah (tidak ada verifikasi lokal). Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
