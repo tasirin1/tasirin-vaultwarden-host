@@ -386,6 +386,22 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void minatLoginSekaliJalan() {
+        assertTrue(ServerService.minatLogin("Invalid username or password"));
+        assertTrue(ServerService.minatLogin("POST /identity/connect/token => 401"));
+        assertTrue(ServerService.minatLogin("TWO-FACTOR required"));
+        assertTrue(ServerService.minatLogin("need totp code"));
+        assertTrue(ServerService.minatLogin("TLS handshake failed"));
+        assertTrue(ServerService.minatLogin("ssl alert unknown"));
+        assertTrue(ServerService.minatLogin("Certificate verify failed"));
+        assertTrue(ServerService.minatLogin("WRONG PASSWORD"));
+        assertFalse(ServerService.minatLogin("Rocket has launched"));
+        assertFalse(ServerService.minatLogin("GET /alive 200 OK"));
+        assertFalse(ServerService.minatLogin(null));
+        assertFalse(ServerService.minatLogin(""));
+    }
+
+    @Test
     public void throttleHintLogin60Detik() {
         assertTrue(ServerService.bolehHintLogin(61000, 0));
         assertFalse(ServerService.bolehHintLogin(59000, 0));

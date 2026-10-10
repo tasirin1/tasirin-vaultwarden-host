@@ -1849,30 +1849,108 @@ public class ServerService extends Service {
         return "";
     }
 
+    /** Satu pemindaian semua kunci minat login (ASCII, tanpa alokasi).
+     *  Dispatch huruf pertama: tiap posisi maksimal 4 banding pendek, bukan
+     *  16 pindaian penuh. Frasa panjang tahap lanjut tetap dicek pemanggil
+     *  hanya bila gerbang ini lolos. Murni agar bisa unit test. */
+    static boolean minatLogin(String b) {
+        if (b == null || b.isEmpty()) {
+            return false;
+        }
+        int n = b.length();
+        for (int i = 0; i < n; i++) {
+            char c = b.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                c = (char) (c + 32);
+            }
+            switch (c) {
+                case 'i':
+                    if (cocokLoginAt(b, i, "invalid") || cocokLoginAt(b, i, "incorrect")) {
+                        return true;
+                    }
+                    break;
+                case 'p':
+                    if (cocokLoginAt(b, i, "password")) {
+                        return true;
+                    }
+                    break;
+                case 'c':
+                    if (cocokLoginAt(b, i, "credential") || cocokLoginAt(b, i, "certificate")) {
+                        return true;
+                    }
+                    break;
+                case 'l':
+                    if (cocokLoginAt(b, i, "login")) {
+                        return true;
+                    }
+                    break;
+                case 'f':
+                    if (cocokLoginAt(b, i, "fail")) {
+                        return true;
+                    }
+                    break;
+                case 'w':
+                    if (cocokLoginAt(b, i, "wrong")) {
+                        return true;
+                    }
+                    break;
+                case 't':
+                    if (cocokLoginAt(b, i, "token") || cocokLoginAt(b, i, "totp")
+                            || cocokLoginAt(b, i, "two-factor") || cocokLoginAt(b, i, "two factor")
+                            || cocokLoginAt(b, i, "tls")) {
+                        return true;
+                    }
+                    break;
+                case '2':
+                    if (cocokLoginAt(b, i, "2fa")) {
+                        return true;
+                    }
+                    break;
+                case 's':
+                    if (cocokLoginAt(b, i, "ssl")) {
+                        return true;
+                    }
+                    break;
+                case 'h':
+                    if (cocokLoginAt(b, i, "handshake")) {
+                        return true;
+                    }
+                    break;
+                case '/':
+                    if (cocokLoginAt(b, i, "/identity/connect/token")) {
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    /** Cocok kunci login abaikan-huruf di posisi i (batas-aman, tanpa eksepsi). */
+    private static boolean cocokLoginAt(String b, int pos, String kunci) {
+        int m = kunci.length();
+        if (pos + m > b.length()) {
+            return false;
+        }
+        for (int j = 0; j < m; j++) {
+            if (!Util.samaHurufAscii(b.charAt(pos + j), kunci.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Saran [login] untuk satu baris output Vaultwarden; null bila baris tak terkait login.
      *  Murni agar bisa diuji unit (tanpa runtime Android). */
     static String saranLoginUntukBaris(String baris, boolean httpsAktif) {
         if (baris == null || baris.isEmpty()) {
             return null;
         }
-        // Tanpa toLowerCase (alokasi per baris log deras): cocok abaikan-huruf langsung.
-        // Saring murah dulu agar baris noise (info biasa) keluar sebelum pindai mahal.
-        if (!Util.mengandungAbaikanHuruf(baris, "invalid")
-                && !Util.mengandungAbaikanHuruf(baris, "password")
-                && !Util.mengandungAbaikanHuruf(baris, "credential")
-                && !Util.mengandungAbaikanHuruf(baris, "login")
-                && !Util.mengandungAbaikanHuruf(baris, "fail")
-                && !Util.mengandungAbaikanHuruf(baris, "wrong")
-                && !Util.mengandungAbaikanHuruf(baris, "incorrect")
-                && !Util.mengandungAbaikanHuruf(baris, "token")
-                && !Util.mengandungAbaikanHuruf(baris, "2fa")
-                && !Util.mengandungAbaikanHuruf(baris, "totp")
-                && !Util.mengandungAbaikanHuruf(baris, "two-factor")
-                && !Util.mengandungAbaikanHuruf(baris, "two factor")
-                && !Util.mengandungAbaikanHuruf(baris, "tls")
-                && !Util.mengandungAbaikanHuruf(baris, "ssl")
-                && !Util.mengandungAbaikanHuruf(baris, "certificate")
-                && !Util.mengandungAbaikanHuruf(baris, "handshake")) {
+        // Tanpa toLowerCase (alokasi per baris log deras): satu pemindaian
+        // dispatch huruf-pertama (dulu 16 pindaian penuh untuk tiap baris noise).
+        if (!minatLogin(baris)) {
             return null;
         }
         if (Util.mengandungAbaikanHuruf(baris, "invalid username or password")

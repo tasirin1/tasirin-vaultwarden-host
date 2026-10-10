@@ -855,21 +855,21 @@ public class MainActivity extends Activity {
         int mulai = 0;
         for (int i = 0; i <= delta.length(); i++) {
             if (i == delta.length() || delta.charAt(i) == '\n') {
-                String baris = delta.substring(mulai, i);
                 // Sisa tanpa newline di ujung (baris parsial) ditempel apa adanya
                 // agar chunk berikut menyambung; bukan baris kosong baru.
-                if (i < delta.length() || !baris.isEmpty()) {
+                // Tanpa substring per baris: uji + tempel langsung dari rentang.
+                if (i < delta.length() || i > mulai) {
                     int awal = tempel.length();
-                    tempel.append(baris);
+                    tempel.append(delta, mulai, i);
                     if (i < delta.length()) {
                         tempel.append("\n");
                     }
-                    if (muatKata(baris, KATA_GALAT)) {
+                    if (muatKataRentang(delta, mulai, i, KATA_GALAT)) {
                         tempel.setSpan(new ForegroundColorSpan(warnaGalat), awal,
-                                awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    } else if (muatKata(baris, KATA_AWAS)) {
+                                awal + (i - mulai), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else if (muatKataRentang(delta, mulai, i, KATA_AWAS)) {
                         tempel.setSpan(new ForegroundColorSpan(warnaAwas), awal,
-                                awal + baris.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                awal + (i - mulai), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
                 mulai = i + 1;
@@ -890,32 +890,28 @@ public class MainActivity extends Activity {
         if (baris == null || daftar == null) {
             return false;
         }
-        for (String kata : daftar) {
-            if (indeksTakPeka(baris, kata) >= 0) {
-                return true;
-            }
-        }
-        return false;
+        return muatKataRentang(baris, 0, baris.length(), daftar);
     }
 
-    /** indeksOf tanpa peka huruf (ASCII): tanpa alokasi lowercase per baris. */
+    /** indeksOf tanpa peka huruf (ASCII): tanpa alokasi lowercase per baris,
+     *  tanpa tabel Unicode Character.toLowerCase per char (kata kunci ASCII). */
     static int indeksTakPeka(String s, String kata) {
-        int n = s.length();
+        return indeksTakPekaRentang(s, 0, s.length(), kata);
+    }
+
+    /** Varian rentang [dari, sampai): uji keyword langsung di buffer delta
+     *  tanpa substring per baris (hemat puluhan alokasi per tick). Murni. */
+    static int indeksTakPekaRentang(String s, int dari, int sampai, String kata) {
         int m = kata.length();
-        if (m == 0 || m > n) {
+        if (m == 0 || dari < 0 || sampai > s.length() || dari > sampai) {
             return -1;
         }
-        char awal = kata.charAt(0);
-        char awalKecil = Character.toLowerCase(awal);
-        char awalBesar = Character.toUpperCase(awal);
-        for (int i = 0; i <= n - m; i++) {
-            char c = s.charAt(i);
-            if (c != awal && c != awalKecil && c != awalBesar) {
+        for (int i = dari; i + m <= sampai; i++) {
+            if (!Util.samaHurufAscii(s.charAt(i), kata.charAt(0))) {
                 continue;
             }
             int j = 1;
-            while (j < m && Character.toLowerCase(s.charAt(i + j))
-                    == Character.toLowerCase(kata.charAt(j))) {
+            while (j < m && Util.samaHurufAscii(s.charAt(i + j), kata.charAt(j))) {
                 j++;
             }
             if (j == m) {
@@ -923,6 +919,19 @@ public class MainActivity extends Activity {
             }
         }
         return -1;
+    }
+
+    /** True bila salah satu kata muncul di rentang tanpa peka huruf. Murni. */
+    static boolean muatKataRentang(String teks, int mulai, int akhir, String[] daftar) {
+        if (teks == null || daftar == null) {
+            return false;
+        }
+        for (String kata : daftar) {
+            if (indeksTakPekaRentang(teks, mulai, akhir, kata) >= 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL).

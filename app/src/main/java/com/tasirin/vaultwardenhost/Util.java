@@ -112,20 +112,6 @@ public final class Util {
         }
     }
 
-    /** Batalkan runnable tertunda di handler bersama (pasangan postTunda). */
-    public static void batalTunda(Runnable r) {
-        if (r == null) {
-            return;
-        }
-        try {
-            android.os.Handler h = HANDLER_UTAMA;
-            if (h != null) {
-                h.removeCallbacks(r);
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
     /** Pecah hash PIN "A$B$C$D" tanpa regex (split kompilasi Pattern tiap panggil di API 21). */
     public static String[] pecahPin(String s) {
         if (s == null) {

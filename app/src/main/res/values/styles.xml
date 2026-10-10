@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Tombol sekunder tonal (seragam TDM): primary_container + teks primary. -->
     <style name="TasirinBtn">
         <item name="android:background">@drawable/bg_btn_tv</item>
@@ -37,12 +37,6 @@
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-
-    <!-- Alias nama Tasirin Download Manager agar layout bersama
-         bisa dipakai di kedua aplikasi tanpa ubah nama style. -->
-    <style name="AppButton" tools:ignore="UnusedResources" parent="TasirinBtnPrimary" />
-    <style name="TvOutlinedButton" tools:ignore="UnusedResources" parent="TasirinBtn" />
-    <style name="AppInput" tools:ignore="UnusedResources" parent="TasirinInput" />
 
     <style name="TasirinInput">
         <item name="android:background">@drawable/bg_input_tv</item>

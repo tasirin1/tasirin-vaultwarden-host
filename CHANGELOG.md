@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 14: buang mati + gerbang login sekali-jalan
+- `styles.xml`: hapus alias tak terpakai `AppButton`/`TvOutlinedButton`/`AppInput` (0 referensi) + namespace `tools` yatim.
+- `Util.batalTunda`: hapus (0 pemanggil dari 559 static).
+- `ServerService.saranLoginUntukBaris`: gerbang 16 pindaian jadi `minatLogin()` sekali-jalan dispatch huruf-pertama; frasa panjang tahap lanjut tak berubah + uji baru.
+- `MainActivity.indeksTakPeka`: `Character.toLowerCase` Unicode per char jadi `Util.samaHurufAscii`; `tempelLogBerwarna` tanpa `substring` per baris (`muatKataRentang` + `append` rentang, `muatKata` jadi wrapper) + `MainActivityTest` baru.
+
 ## [Belum rilis] — Audit agresif 13: gerbang samaran + sorot sekali-jalan
 - `LogActivity.butuhSamaran`: 23 pindaian per tick (8x `regionMatches` penuh + 15x `contains`) jadi satu loop dispatch huruf-pertama (`pindaiKunciRahasia` + `cocokKunciAt` ASCII); IP privat tetap `contains` native murah.
 - `LogActivity.highlightLog`: pra-cek 3x full-text + pindai ulang per baris via `regionMatches` Unicode jadi satu walk ASCII per baris (galat + query sekaligus, span malas tanpa alokasi saat bersih); kueri non-ASCII lewat jalur lambat.
