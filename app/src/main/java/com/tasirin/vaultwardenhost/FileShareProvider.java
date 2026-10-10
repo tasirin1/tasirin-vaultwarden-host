@@ -102,6 +102,10 @@ public class FileShareProvider extends ContentProvider {
                 && s.regionMatches(true, s.length() - akhir.length(), akhir, 0, akhir.length());
     }
 
+    /** Ekstensi pembungkus yang dikupas berulang (statis agar tak alokasi array tiap buka file). */
+    private static final String[] EKSTENSI_BUNGKUS =
+            {".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"};
+
     /** Awalan abaikan-huruf tanpa alokasi toLowerCase. */
     static boolean mulaiAbaikanHuruf(String s, String awal) {
         return s != null && awal != null && s.length() >= awal.length()
@@ -331,7 +335,7 @@ public class FileShareProvider extends ContentProvider {
         boolean kupas = true;
         while (kupas) {
             kupas = false;
-            for (String ext : new String[]{".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"}) {
+            for (String ext : EKSTENSI_BUNGKUS) {
                 if (berakhirAbaikanHuruf(inti, ext) && inti.length() > ext.length()) {
                     inti = inti.substring(0, inti.length() - ext.length());
                     kupas = true;

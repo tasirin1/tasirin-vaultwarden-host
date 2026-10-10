@@ -2042,8 +2042,8 @@ public class ServerService extends Service {
                 || logTail.contains("failed to get random bytes")) {
             return true;
         }
-        String rendah = logTail.toLowerCase(Locale.US);
-        return rendah.contains("panicked") && rendah.contains("getrandom");
+        return Util.mengandungAbaikanHuruf(logTail, "panicked")
+                && Util.mengandungAbaikanHuruf(logTail, "getrandom");
     }
 
     /** True bila ekor log menunjukkan bind gagal karena port direbut proses
@@ -2053,9 +2053,10 @@ public class ServerService extends Service {
         if (logTail == null || logTail.isEmpty()) {
             return false;
         }
-        String r = logTail.toLowerCase(Locale.US);
-        return r.contains("address already in use") || r.contains("address in use")
-                || r.contains("eaddrinuse") || r.contains("os error 98");
+        return Util.mengandungAbaikanHuruf(logTail, "address already in use")
+                || Util.mengandungAbaikanHuruf(logTail, "address in use")
+                || Util.mengandungAbaikanHuruf(logTail, "eaddrinuse")
+                || Util.mengandungAbaikanHuruf(logTail, "os error 98");
     }
 
     /** True bila baris output binary hanya noise linker STB lama
@@ -2074,7 +2075,7 @@ public class ServerService extends Service {
         // palsu atau menyembunyikan loop asli; stempel tampil tetap wall-clock.
         long now = SystemClock.elapsedRealtime();
         String stamp;
-        stamp = LOG_TS.get().format(new Date());
+        stamp = LOG_TS.get().format(tanggalLog());
         synchronized (RESTART_TIMES) {
             RESTART_TIMES.add(now);
             RESTART_REASONS.add(stamp + " " + reason);
@@ -2145,7 +2146,7 @@ public class ServerService extends Service {
     private void writeCrashLog(String reason) {
         try {
             String stamp;
-            stamp = LOG_TS.get().format(new Date());
+            stamp = LOG_TS.get().format(tanggalLog());
             // Samarkan dulu: file ini dibaca dialog crash + dikirim /crashlog
             // ke Telegram (keluar perangkat), seperti jalur share/clipboard.
             String ekor = tailLog(100);
@@ -2210,6 +2211,13 @@ public class ServerService extends Service {
     private static final StringBuilder logFileBuf = new StringBuilder();
     private static final Object LOG_FILE_LOCK = new Object();
 
+    /** Tanggal milik thread untuk stempel log (tanpa new Date per panggil). */
+    private static java.util.Date tanggalLog() {
+        java.util.Date tgl = LOG_TGL.get();
+        tgl.setTime(System.currentTimeMillis());
+        return tgl;
+    }
+
     /** Date milik thread (format pakai ulang tanpa new Date per baris log deras). */
     private static final ThreadLocal<java.util.Date> LOG_TGL =
             new ThreadLocal<java.util.Date>() {
@@ -2223,9 +2231,7 @@ public class ServerService extends Service {
             return;
         }
         String stamp;
-        java.util.Date tgl = LOG_TGL.get();
-        tgl.setTime(System.currentTimeMillis());
-        stamp = LOG_TS.get().format(tgl);
+        stamp = LOG_TS.get().format(tanggalLog());
         synchronized (logBuffer) {
             // Rantai append (bukan stamp + " " + line): hemat satu String
             // perantara tiap baris log deras di STB lama.

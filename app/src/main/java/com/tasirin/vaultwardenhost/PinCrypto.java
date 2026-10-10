@@ -108,15 +108,29 @@ public final class PinCrypto {
      *  hash legasi valid (tak ada yang boleh ditulis). Murni CPU — panggil
      *  dari worker thread (lihat PinGate.kuatkanHashDini). */
     static String bungkusLegasi(String stored) {
-        if (!hashLegasiValid(stored)) {
+        String dalam = stored == null ? "" : stored.trim().toLowerCase(java.util.Locale.US);
+        if (!hashLegasiValidTernormalisasi(dalam)) {
             return null;
         }
-        String dalam = stored.trim().toLowerCase(java.util.Locale.US);
         byte[] salt = new byte[SALT_BYTES];
         Acak.ISI.nextBytes(salt);
         int iter = iterasiStandar();
         byte[] dk = derive(dalam, salt, iter);
         return PREFIX_BUNGKUS + iter + "$" + hex(salt) + "$" + hex(dk);
+    }
+
+    /** Validasi hash legasi yang sudah dinormalisasi (tanpa trim+lower ulang). Murni. */
+    private static boolean hashLegasiValidTernormalisasi(String l) {
+        if (l == null || l.length() != 64) {
+            return false;
+        }
+        for (int i = 0; i < 64; i++) {
+            char c = l.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** True bila tersimpan dalam format bungkus-dini. Murni. */
@@ -232,7 +246,7 @@ public final class PinCrypto {
             }
             // Legasi: SHA-256 tanpa salt — banding tak peka huruf agar hash
             // lama ber-huruf besar tak mengunci user (disimpan lowercase baru).
-            return slowHexEquals(sha256(pin), stored.trim().toLowerCase(java.util.Locale.US));
+            return samakanHexLegasi(sha256(pin), stored);
         } catch (Exception e) {
             return false;
         }
@@ -394,6 +408,34 @@ public final class PinCrypto {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    /** Samakan heksa legasi tanpa alokasi trim+lower: dukung huruf besar lama. Murni. */
+    private static boolean samakanHexLegasi(String hexKecil, String stored) {
+        if (hexKecil == null || stored == null) {
+            return false;
+        }
+        int n = stored.length();
+        int awal = 0;
+        while (awal < n && stored.charAt(awal) <= ' ') {
+            awal++;
+        }
+        int akhir = n;
+        while (akhir > awal && stored.charAt(akhir - 1) <= ' ') {
+            akhir--;
+        }
+        if (akhir - awal != hexKecil.length()) {
+            return false;
+        }
+        int beda = 0;
+        for (int i = 0; i < hexKecil.length(); i++) {
+            char c = stored.charAt(awal + i);
+            if (c >= 'A' && c <= 'F') {
+                c = (char) (c + 32);
+            }
+            beda |= c ^ hexKecil.charAt(i);
+        }
+        return beda == 0;
     }
 
     private static boolean slowHexEquals(String a, String b) {

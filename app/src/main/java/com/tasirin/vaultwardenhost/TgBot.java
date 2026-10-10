@@ -607,15 +607,26 @@ public final class TgBot {
         if (a >= n) {
             return "";
         }
-        String pertama = text.substring(a, b).toLowerCase(Locale.US);
-        if (pertama.startsWith("/")) {
-            pertama = pertama.substring(1);
+        int mulai = a;
+        if (mulai < b && text.charAt(mulai) == '/') {
+            mulai++;
         }
-        int at = pertama.indexOf('@');
-        if (at >= 0) {
-            pertama = pertama.substring(0, at);
+        int akhir = b;
+        for (int i = mulai; i < b; i++) {
+            if (text.charAt(i) == '@') {
+                akhir = i;
+                break;
+            }
         }
-        return pertama;
+        if (mulai >= akhir) {
+            return "";
+        }
+        char[] kecil = new char[akhir - mulai];
+        for (int i = mulai; i < akhir; i++) {
+            char c = text.charAt(i);
+            kecil[i - mulai] = (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
+        }
+        return new String(kecil);
     }
 
     /** Argumen perintah: teks sesudah pemisah whitespace pertama (spasi/tab),
@@ -754,16 +765,29 @@ public final class TgBot {
             }
             b++;
         }
-        String pertama = text.substring(a, b).toLowerCase(Locale.US);
-        if (pertama.startsWith("/")) {
-            pertama = pertama.substring(1);
+        int mulai = a;
+        if (mulai < b && text.charAt(mulai) == '/') {
+            mulai++;
         }
-        int at = pertama.indexOf('@');
-        if (at < 0) {
-            return pertama;
+        int akhir = b;
+        for (int i = mulai; i < b; i++) {
+            if (text.charAt(i) == '@') {
+                akhir = i;
+                break;
+            }
         }
-        String cmd = pertama.substring(0, at);
-        String suffix = pertama.substring(at + 1);
+        char[] kecil = new char[Math.max(0, b - mulai)];
+        for (int i = mulai; i < b; i++) {
+            char c = text.charAt(i);
+            kecil[i - mulai] = (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
+        }
+        String penuh = new String(kecil);
+        if (akhir >= b) {
+            return penuh;
+        }
+        int pisah = akhir - mulai;
+        String cmd = penuh.substring(0, pisah);
+        String suffix = penuh.substring(pisah + 1);
         if (suffix.isEmpty()) {
             return cmd;
         }
