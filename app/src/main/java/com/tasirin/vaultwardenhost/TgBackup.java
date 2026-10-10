@@ -404,13 +404,21 @@ public final class TgBackup {
         return kiniMs >= BATAS_JAM_WAJAR_MS;
     }
 
+    /** Format tanggal jam STB per thread: SimpleDateFormat init berat dan tak
+     *  thread-safe (pola sama seperti FMT_BACKUP/FMT_STB di Updater). */
+    private static final ThreadLocal<java.text.SimpleDateFormat> FMT_JAM_STB =
+            new ThreadLocal<java.text.SimpleDateFormat>() {
+                @Override protected java.text.SimpleDateFormat initialValue() {
+                    return new java.text.SimpleDateFormat(
+                            "d MMM yyyy HH:mm", new Locale("id", "ID"));
+                }
+            };
+
     /** Pesan jam STB salah untuk backup (sertakan tanggal terbaca + cara betulkan). */
     static String pesanJamStbSalah(long kiniMs) {
         String terbaca;
         try {
-            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
-                    "d MMM yyyy HH:mm", new Locale("id", "ID"));
-            terbaca = f.format(new Date(kiniMs));
+            terbaca = FMT_JAM_STB.get().format(new Date(kiniMs));
         } catch (Exception ignored) {
             terbaca = String.valueOf(kiniMs);
         }

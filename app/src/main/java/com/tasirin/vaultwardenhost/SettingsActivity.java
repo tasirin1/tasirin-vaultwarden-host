@@ -240,6 +240,24 @@ public class SettingsActivity extends Activity {
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
+    /** Cache teks status/tombol/badge agar tick 500 ms-1 dtk tak getString +
+     *  alokasi ulang tiap kali di STB lama (diisi sekali di onCreate). */
+    private String teksBerjalan = "";
+    private String teksBerhenti = "";
+    private String teksMulai = "";
+    private String teksStop = "";
+    private String teksSibuk = "";
+    private String teksHttpsAktif = "";
+    private String teksHttpsKosong = "";
+    private String lastStartStopText = "";
+    private String lastBusyText = "";
+    private String lastShownBadge = "";
+    private String lastUpdHint = "";
+    private boolean lastUpdVisible = false;
+    /** Status kotor terakhir per label: setText/setColor yang isinya sama
+     *  tetap memicu layout sehingga wajib dilewati bila tak berubah. */
+    private final java.util.Map<TextView, Boolean> labelKotorCache =
+            new java.util.IdentityHashMap<>();
     private boolean refreshActive = true;
     private volatile boolean uiBusy = false;
     /** Cegah dua tugas berat (update/backup/restore) tumpang tindih. */
@@ -372,6 +390,13 @@ public class SettingsActivity extends Activity {
         labelAdmin = findViewById(R.id.labelAdmin);
         unduhBar = findViewById(R.id.unduhBar);
         warnaLabelBawaan = labelDataDir.getTextColors();
+        teksBerjalan = getString(R.string.running);
+        teksBerhenti = getString(R.string.stopped);
+        teksMulai = getString(R.string.start);
+        teksStop = getString(R.string.stop);
+        teksSibuk = getString(R.string.busy_work);
+        teksHttpsAktif = getString(R.string.https_badge_on);
+        teksHttpsKosong = getString(R.string.https_badge_none);
         Button randomAdminBtn = findViewById(R.id.randomAdmin);
         Button copyLoopbackBtn = findViewById(R.id.copyLoopback);
         copyAdminBtn = findViewById(R.id.copyAdmin);
@@ -909,8 +934,12 @@ public class SettingsActivity extends Activity {
         // selain itu "Bekerja…" — jangan biarkan polling menimpa dengan status lama.
         if (uiBusy) {
             String dl = Updater.downloadStatus;
-            statusView.setText(dl.isEmpty() ? getString(R.string.busy_work) : dl);
-            statusView.setBackgroundResource(R.drawable.bg_status_busy);
+            String sibuk = dl.isEmpty() ? teksSibuk : dl;
+            if (!sibuk.equals(lastBusyText)) {
+                lastBusyText = sibuk;
+                statusView.setText(sibuk);
+                statusView.setBackgroundResource(R.drawable.bg_status_busy);
+            }
             lastShownStatus = "";
             int persen = Updater.persenUnduhan(dl);
             // Bar ganda fungsi: progress download bila persen diketahui,
@@ -929,10 +958,10 @@ public class SettingsActivity extends Activity {
             return;
         }
 
+        lastBusyText = "";
         // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
-        String statusText = running ? getString(R.string.running)
-                : getString(R.string.stopped);
+        String statusText = running ? teksBerjalan : teksBerhenti;
         String key = statusText + "|" + (running ? "on" : "off");
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
@@ -942,9 +971,9 @@ public class SettingsActivity extends Activity {
         }
         unduhBar.setVisibility(View.GONE);
         unduhBar.setIndeterminate(false);
-        String btnText = running ? getString(R.string.stop)
-                : getString(R.string.start);
-        if (!btnText.equals(startStopBawah.getText().toString())) {
+        String btnText = running ? teksStop : teksMulai;
+        if (!btnText.equals(lastStartStopText)) {
+            lastStartStopText = btnText;
             startStopBawah.setText(btnText);
             startStopBawah.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     running ? R.drawable.ic_stop : R.drawable.ic_play, 0, 0, 0);
@@ -1000,10 +1029,21 @@ public class SettingsActivity extends Activity {
             }
         }
         if (updAvail) {
-            updateHint.setText(getString(R.string.update_available, pendingVersion));
-            updateHint.setVisibility(View.VISIBLE);
+            String teksUpd = getString(R.string.update_available, pendingVersion);
+            if (!teksUpd.equals(lastUpdHint)) {
+                lastUpdHint = teksUpd;
+                updateHint.setText(teksUpd);
+            }
+            if (!lastUpdVisible) {
+                lastUpdVisible = true;
+                updateHint.setVisibility(View.VISIBLE);
+            }
         } else {
-            updateHint.setVisibility(View.GONE);
+            lastUpdHint = "";
+            if (lastUpdVisible) {
+                lastUpdVisible = false;
+                updateHint.setVisibility(View.GONE);
+            }
         }
 
         StringBuilder versiB = new StringBuilder("App ").append(appVersion);
@@ -1061,8 +1101,11 @@ public class SettingsActivity extends Activity {
             fullB.append("\n").append(cert);
         }
         String full = fullB.toString();
-        httpsBadge.setText(teksBadgeHttps(running, cert,
-                getString(R.string.https_badge_on), getString(R.string.https_badge_none)));
+        String badge = teksBadgeHttps(running, cert, teksHttpsAktif, teksHttpsKosong);
+        if (!badge.equals(lastShownBadge)) {
+            lastShownBadge = badge;
+            httpsBadge.setText(badge);
+        }
         if (!full.equals(lastShownVersion)) {
             versionView.setText(full);
             lastShownVersion = full;
@@ -3182,6 +3225,11 @@ public class SettingsActivity extends Activity {
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private void tandaiLabel(TextView label, int stringId, boolean kotor) {
+        Boolean dulu = labelKotorCache.get(label);
+        if (dulu != null && dulu == kotor) {
+            return;
+        }
+        labelKotorCache.put(label, kotor);
         if (kotor) {
             label.setText(getString(R.string.label_kotor, getString(stringId)));
             label.setTextColor(getResources().getColor(R.color.status_off));

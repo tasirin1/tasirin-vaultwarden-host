@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 4: tick Settings, stempel log tanpa kunci
+- `SettingsActivity`: teks status/tombol/badge di-cache sekali di `onCreate` (tanpa `getString` tiap tick); `setText` tombol/badge/hint/status-sibuk hanya bila berubah (tanpa `getText().toString()`); `tandaiLabel` dilewati bila status kotor tak berubah (setText sama pun memicu layout).
+- `ServerService`: stempel jam log (`LOG_TS`) jadi `ThreadLocal` — 4 titik `synchronized` di jalur panas catat/append log hilang.
+- `TgBackup.pesanJamStbSalah`: format tanggal via `ThreadLocal` (tanpa `SimpleDateFormat` baru tiap panggil).
+
 ## [Belum rilis] — Audit agresif 3: poll bot, redaksi log di worker, cap tick
 - `TgBotReceiver`: hapus heal prefs penuh tiap poll 20 dtk (parse ulang XML + iterasi semua kunci; baca `aman*` sembuh-sendiri, heal tetap di onCreate/start); polling lewat pool bot bersama + fallback thread bila penuh (jamin `goAsync`/wakelock selesai).
 - `LogActivity.refreshLog`: redaksi 13 regex + sorot span pindah ke worker dengan coalesce (satu olahan dalam penerbangan, tick menyusul dilewati, hasil basi dibuang via kunci generasi).

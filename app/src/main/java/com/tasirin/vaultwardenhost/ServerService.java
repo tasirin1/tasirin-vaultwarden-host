@@ -258,8 +258,15 @@ public class ServerService extends Service {
     private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
     private static final long HEALTH_FAST_MS = 5 * 60 * 1000;
     private static final long HEALTH_FAST_INTERVAL_MS = 30 * 1000;
-    private static final SimpleDateFormat LOG_TS =
-            new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
+    /** Stempel jam log per thread: SimpleDateFormat tak thread-safe sehingga
+     *  instance statis bersama butuh synchronized di tiap baris log (jalur
+     *  panas thread pump output); ThreadLocal menghapus kunci itu. */
+    private static final ThreadLocal<SimpleDateFormat> LOG_TS =
+            new ThreadLocal<SimpleDateFormat>() {
+                @Override protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
+                }
+            };
 
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
@@ -1899,9 +1906,7 @@ public class ServerService extends Service {
         // palsu atau menyembunyikan loop asli; stempel tampil tetap wall-clock.
         long now = SystemClock.elapsedRealtime();
         String stamp;
-        synchronized (LOG_TS) {
-            stamp = LOG_TS.format(new Date());
-        }
+        stamp = LOG_TS.get().format(new Date());
         synchronized (RESTART_TIMES) {
             RESTART_TIMES.add(now);
             RESTART_REASONS.add(stamp + " " + reason);
@@ -1972,9 +1977,7 @@ public class ServerService extends Service {
     private void writeCrashLog(String reason) {
         try {
             String stamp;
-            synchronized (LOG_TS) {
-                stamp = LOG_TS.format(new Date());
-            }
+            stamp = LOG_TS.get().format(new Date());
             // Samarkan dulu: file ini dibaca dialog crash + dikirim /crashlog
             // ke Telegram (keluar perangkat), seperti jalur share/clipboard.
             String ekor = tailLog(100);
@@ -2044,9 +2047,7 @@ public class ServerService extends Service {
             return;
         }
         String stamp;
-        synchronized (LOG_TS) {
-            stamp = LOG_TS.format(new Date());
-        }
+        stamp = LOG_TS.get().format(new Date());
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');
@@ -3577,9 +3578,7 @@ public class ServerService extends Service {
             return;
         }
         String stamp;
-        synchronized (LOG_TS) {
-            stamp = LOG_TS.format(new java.util.Date());
-        }
+        stamp = LOG_TS.get().format(new java.util.Date());
         String entry = stamp + " " + line;
         synchronized (logBuffer) {
             logBuffer.append(entry).append('\n');
