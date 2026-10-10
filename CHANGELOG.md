@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 7: TLS, health, regex, dan MIME hemat STB
+- `HttpsCompat.capOverride`: cek stat dulu, hash isi hanya bila berubah (poll 20 dtk + health tak bayar baca file tiap koneksi).
+- `TgBot`: long-poll `timeout=15` jadi `8` + wakelock receiver 60 dtk jadi 25 dtk (radio/CPU tak aktif 75% waktu saat idle).
+- `ServerService.pingRinci`: gerbang TCP murah dulu; server mati tak membayar 2x handshake TLS tiap tick.
+- `TgBackup.adaSegmenDotDot` + `TgBot.rapikanSpasi`/`namaPerintahUntukBot`: manual tanpa regex/split (ribuan entri zip + tiap pesan masuk).
+- `FileShareProvider`: 6 cek MIME/nama via `regionMatches`/`equalsIgnoreCase` (tanpa 8x `toLowerCase`).
+- `LogActivity.butuhSamaran`: abaikan-huruf sekali per kunci (separuh pindai 100 KB tiap tick worker).
+
 ## [Belum rilis] — Audit agresif 6: pool thread, parse tanpa regex, tick idle
 - `ServerService`: health/start/stop/restart/backup terjadwal lewat pool bersama (`Util.jalankanBg/jalankanLama`); `appendLog` pakai ulang `Date` per thread; `saranLoginUntukBaris` tanpa `toLowerCase` (saring murah + `regionMatches`).
 - `PinCrypto`: pecah hash `PBKDF2$` via `Util.pecahPin` manual (tanpa kompilasi regex tiap verifikasi).

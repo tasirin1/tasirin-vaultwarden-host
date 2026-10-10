@@ -421,4 +421,11 @@ public class TgBotTest {
         assertEquals("", TgBot.parseUsernameBot(null));
         assertEquals("", TgBot.parseUsernameBot("bukan json"));
     }
+    @Test
+    public void rapikanSpasiManual() {
+        assertEquals("a b c", TgBot.rapikanSpasi("a   b\t\nc"));
+        assertEquals("", TgBot.rapikanSpasi(null));
+        assertEquals("", TgBot.namaPerintahUntukBot("  /start@BotLain  ", "BotKu"));
+        assertEquals("start", TgBot.namaPerintahUntukBot("  /start  ", "BotKu"));
+    }
 }

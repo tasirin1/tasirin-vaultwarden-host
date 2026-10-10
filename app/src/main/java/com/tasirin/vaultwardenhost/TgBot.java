@@ -222,10 +222,31 @@ public final class TgBot {
 
     /** Samarkan spasi/tab/newline ganda jadi satu spasi (pola statis). */
     static String rapikanSpasi(String t) {
+        // Manual tanpa regex: tiap pesan Telegram masuk; hemat kompilasi di STB.
         if (t == null) {
             return "";
         }
-        return POLA_SPASI.matcher(t).replaceAll(" ");
+        int n = t.length();
+        StringBuilder o = new StringBuilder(n);
+        boolean spasi = true;
+        for (int i = 0; i < n; i++) {
+            char c = t.charAt(i);
+            boolean ws = c == ' ' || c == '\t' || c == '\n' || c == '\r';
+            if (ws) {
+                if (!spasi) {
+                    o.append(' ');
+                    spasi = true;
+                }
+            } else {
+                o.append(c);
+                spasi = false;
+            }
+        }
+        int m = o.length();
+        if (m > 0 && o.charAt(m - 1) == ' ') {
+            o.setLength(m - 1);
+        }
+        return o.toString();
     }
 
     /** Lolos string untuk payload JSON manual (tanpa pustaka). Murni. */
@@ -410,7 +431,7 @@ public final class TgBot {
             // "bot<token>/metode" tak bisa dihindari); POST hanya menjaga
             // parameter offset/timeout tak ikut nangkring di URL/proxy-log.
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
-                    "offset=" + offset + "&timeout=15&limit=10");
+                    "offset=" + offset + "&timeout=8&limit=10");
             if (body == null) {
                 return;
             }
@@ -711,11 +732,28 @@ public final class TgBot {
         if (text == null) {
             return "";
         }
-        String[] potong = POLA_SPASI.split(text.trim());
-        if (potong.length == 0) {
+        // Token pertama manual (tanpa trim+split array) untuk tiap perintah masuk.
+        int n = text.length();
+        int a = 0;
+        while (a < n) {
+            char c = text.charAt(a);
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+                break;
+            }
+            a++;
+        }
+        if (a >= n) {
             return "";
         }
-        String pertama = potong[0].toLowerCase(Locale.US);
+        int b = a;
+        while (b < n) {
+            char c = text.charAt(b);
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                break;
+            }
+            b++;
+        }
+        String pertama = text.substring(a, b).toLowerCase(Locale.US);
         if (pertama.startsWith("/")) {
             pertama = pertama.substring(1);
         }

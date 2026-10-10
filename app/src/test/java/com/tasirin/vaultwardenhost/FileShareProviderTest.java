@@ -10,6 +10,15 @@ import org.junit.Test;
 public class FileShareProviderTest {
 
     @Test
+    public void akhiranAwalanAbaikanHurufTanpaAlokasi() {
+        assertTrue(FileShareProvider.berakhirAbaikanHuruf("CA.PEM", ".pem"));
+        assertTrue(FileShareProvider.mulaiAbaikanHuruf("Key.PEM.zip", "key.pem."));
+        assertTrue(FileShareProvider.namaBolehDibagikan("CADANGAN.ZIP"));
+        assertTrue(FileShareProvider.namaCacheBolehDibagikan("CA.PEM"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("key.PEM"));
+    }
+
+    @Test
     public void berkasSementaraTolakDecTmp() {
         assertTrue(FileShareProvider.berkasSementara("vwtg-dec-a.zip.tmp"));
         assertTrue(FileShareProvider.berkasSementara("vwtg-restore-bot.zip"));

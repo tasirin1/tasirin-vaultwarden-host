@@ -641,6 +641,15 @@ public class ServerService extends Service {
         }
         String scheme = "https";
         String p = port == null ? "" : port.trim();
+        // Gerbang TCP murah dulu: server mati tak membayar 2x handshake TLS
+        // (2x4 dtk) tiap tick di CPU ARMv7 lambat; cukup 1x TCP ~3 dtk.
+        try {
+            int pn = Integer.parseInt(p);
+            if (!tcpTersambung(pn)) {
+                return new HasilPing(false, -1, -1, "port tertutup");
+            }
+        } catch (Exception ignored) {
+        }
         HasilCoba alive = cobaKode(ctx, scheme, p, "/alive", https);
         HasilCoba config = new HasilCoba(-1, "");
         // /alive butuh DB; fallback ringan /api/config memastikan server

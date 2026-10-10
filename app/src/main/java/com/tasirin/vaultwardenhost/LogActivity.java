@@ -416,13 +416,14 @@ public class LogActivity extends Activity {
         if (t == null || t.isEmpty()) {
             return false;
         }
-        return t.contains("token") || t.contains("Token") || t.contains("TOKEN")
+        // Abaikan-huruf sekali per kunci (bukan 3 varian contains): separuh pindai di STB.
+        return Util.mengandungAbaikanHuruf(t, "token")
                 || t.contains("chat_id") || t.contains("chatId")
-                || t.contains("bot") || t.contains("Bot") || t.contains("BOT")
-                || t.contains("tg_") || t.contains("TG_")
-                || t.contains("pin_hash") || t.contains("ADMIN")
-                || t.contains("Bearer") || t.contains("bearer")
-                || t.contains("DOMAIN") || t.contains("Domain")
+                || Util.mengandungAbaikanHuruf(t, "bot")
+                || Util.mengandungAbaikanHuruf(t, "tg_")
+                || t.contains("pin_hash") || Util.mengandungAbaikanHuruf(t, "admin")
+                || Util.mengandungAbaikanHuruf(t, "bearer")
+                || Util.mengandungAbaikanHuruf(t, "domain")
                 || t.contains("alarm_secret") || t.contains("tg_last_file")
                 || t.contains("bin_sha") || t.contains("tg_pass")
                 || t.contains("api.telegram.org")

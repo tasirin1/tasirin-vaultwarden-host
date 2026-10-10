@@ -3037,9 +3037,19 @@ public final class TgBackup {
     /** True bila path memuat segmen ".." (traversal); nama sah seperti
      *  "my..folder/x" tetap lolos karena titik ganda bukan segmen utuh. */
     static boolean adaSegmenDotDot(String n) {
-        for (String seg : n.split("/", -1)) {
-            if (seg.equals("..")) {
-                return true;
+        // Manual tanpa split regex: dipanggil per entri zip (ribuan) saat restore di STB.
+        if (n == null || n.isEmpty()) {
+            return false;
+        }
+        int mulai = 0;
+        int len = n.length();
+        for (int i = 0; i <= len; i++) {
+            if (i == len || n.charAt(i) == '/') {
+                int l = i - mulai;
+                if (l == 2 && n.charAt(mulai) == '.' && n.charAt(mulai + 1) == '.') {
+                    return true;
+                }
+                mulai = i + 1;
             }
         }
         return false;

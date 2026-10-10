@@ -65,11 +65,14 @@ public final class HttpsCompat {
             try {
                 File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
                 if (ov.isFile()) {
-                    // Selalu hash SELURUH isi (rantai hanya hitungan KB): kunci
-                    // cap adalah stat+isi, sehingga ganti isi dalam milidetik
-                    // yang sama dengan ukuran sama tak lolos sebagai cache basi.
-                    // Biaya satu baca kecil per koneksi jauh di bawah handshake TLS.
+                    // Stat dulu (tanpa I/O isi): polling 20 dtk + health 30 dtk
+                    // tak membayar buka-baca-hash tiap koneksi bila tak berubah.
                     long stat = ov.lastModified() * 31 + ov.length();
+                    if (stat == capStat && capNilai != 0L) {
+                        return capNilai;
+                    }
+                    // Stat berubah: hash SELURUH isi (rantai hitungan KB) agar
+                    // ganti isi se-detik berukuran sama tak lolos basi.
                     long cap = stat;
                     try (InputStream in = new java.io.FileInputStream(ov)) {
                         byte[] buf = new byte[8192];

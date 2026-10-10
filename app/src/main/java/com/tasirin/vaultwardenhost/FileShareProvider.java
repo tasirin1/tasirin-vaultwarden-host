@@ -96,25 +96,36 @@ public class FileShareProvider extends ContentProvider {
         return tipeMimeDariPath(uri == null ? null : uri.getPath());
     }
 
+    /** Akhiran abaikan-huruf tanpa alokasi toLowerCase (buka file jarang tapi path panjang). */
+    static boolean berakhirAbaikanHuruf(String s, String akhir) {
+        return s != null && akhir != null && s.length() >= akhir.length()
+                && s.regionMatches(true, s.length() - akhir.length(), akhir, 0, akhir.length());
+    }
+
+    /** Awalan abaikan-huruf tanpa alokasi toLowerCase. */
+    static boolean mulaiAbaikanHuruf(String s, String awal) {
+        return s != null && awal != null && s.length() >= awal.length()
+                && s.regionMatches(true, 0, awal, 0, awal.length());
+    }
+
     /** Varian path polos agar bisa diuji JVM tanpa runtime Android. */
     static String tipeMimeDariPath(String path) {
         if (path == null) {
             return "application/octet-stream";
         }
-        String rendah = path.toLowerCase(java.util.Locale.US);
-        if (rendah.endsWith(".json")) {
+        if (berakhirAbaikanHuruf(path, ".json")) {
             return "application/json";
         }
-        if (rendah.endsWith(".txt")) {
+        if (berakhirAbaikanHuruf(path, ".txt")) {
             return "text/plain";
         }
-        if (rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")) {
+        if (berakhirAbaikanHuruf(path, ".pem") || berakhirAbaikanHuruf(path, ".crt") || berakhirAbaikanHuruf(path, ".cer")) {
             return "application/x-pem-file";
         }
-        if (rendah.endsWith(".zip")) {
+        if (berakhirAbaikanHuruf(path, ".zip")) {
             return "application/zip";
         }
-        if (rendah.endsWith(".enc")) {
+        if (berakhirAbaikanHuruf(path, ".enc")) {
             return "application/octet-stream";
         }
         return "application/octet-stream";
@@ -141,8 +152,8 @@ public class FileShareProvider extends ContentProvider {
         if (mode == null || mode.isEmpty()) {
             return true;
         }
-        String m = mode.trim().toLowerCase(java.util.Locale.US);
-        return m.equals("r") || m.equals("rt");
+        String m = mode.trim();
+        return m.equalsIgnoreCase("r") || m.equalsIgnoreCase("rt");
     }
 
     @Override
@@ -309,12 +320,11 @@ public class FileShareProvider extends ContentProvider {
         // kunci atau diawali kunci+titik tetap dianggap kunci privat.
         // startsWith (bukan contains) agar monkey.pem dan backup-ca-key-info.txt
         // tetap lolos — hanya key.pem.* dan ca-key.pem.* yang ditolak.
-        String intiAwal = name.toLowerCase(java.util.Locale.US);
-        if (intiAwal.equals("key.pem") || intiAwal.equals("ca-key.pem")
-                || intiAwal.startsWith("key.pem.") || intiAwal.startsWith("ca-key.pem.")) {
+        if (name.equalsIgnoreCase("key.pem") || name.equalsIgnoreCase("ca-key.pem")
+                || mulaiAbaikanHuruf(name, "key.pem.") || mulaiAbaikanHuruf(name, "ca-key.pem.")) {
             return true;
         }
-        String rendah = name.toLowerCase(java.util.Locale.US);
+        String rendah = name;
         // Kupas pembungkus (zip/enc/txt) agar key.pem.zip tak lolos;
         // monkey.pem/monkey.zip tetap lolos karena intinya bukan kunci.
         String inti = rendah;
@@ -322,18 +332,18 @@ public class FileShareProvider extends ContentProvider {
         while (kupas) {
             kupas = false;
             for (String ext : new String[]{".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"}) {
-                if (inti.endsWith(ext) && inti.length() > ext.length()) {
+                if (berakhirAbaikanHuruf(inti, ext) && inti.length() > ext.length()) {
                     inti = inti.substring(0, inti.length() - ext.length());
                     kupas = true;
                     break;
                 }
             }
         }
-        if (inti.equals("ca-key.pem") || inti.equals("ca-key")
-                || inti.equals("key.pem") || inti.equals("key")) {
+        if (inti.equalsIgnoreCase("ca-key.pem") || inti.equalsIgnoreCase("ca-key")
+                || inti.equalsIgnoreCase("key.pem") || inti.equalsIgnoreCase("key")) {
             return true;
         }
-        return inti.endsWith(".key");
+        return berakhirAbaikanHuruf(inti, ".key");
     }
 
     /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
@@ -346,10 +356,9 @@ public class FileShareProvider extends ContentProvider {
         if (kunciPrivat(name)) {
             return false;
         }
-        String rendah = name.toLowerCase(java.util.Locale.US);
-        return rendah.endsWith(".pem") || rendah.endsWith(".crt") || rendah.endsWith(".cer")
-                || rendah.endsWith(".zip") || rendah.endsWith(".json") || rendah.endsWith(".txt")
-                || rendah.endsWith(".enc");
+        return berakhirAbaikanHuruf(name, ".pem") || berakhirAbaikanHuruf(name, ".crt") || berakhirAbaikanHuruf(name, ".cer")
+                || berakhirAbaikanHuruf(name, ".zip") || berakhirAbaikanHuruf(name, ".json") || berakhirAbaikanHuruf(name, ".txt")
+                || berakhirAbaikanHuruf(name, ".enc");
     }
 
     /** Nama file di files/cache app yang boleh dibagikan: hanya yang memang
@@ -359,15 +368,14 @@ public class FileShareProvider extends ContentProvider {
         if (name == null) {
             return false;
         }
-        String rendah = name.toLowerCase(java.util.Locale.US);
-        if (rendah.equals("ca.pem") || rendah.equals("cert.pem")) {
+        if (name.equalsIgnoreCase("ca.pem") || name.equalsIgnoreCase("cert.pem")) {
             return true;
         }
-        if (rendah.startsWith("ca-cadangan-") && rendah.endsWith(".pem")) {
+        if (mulaiAbaikanHuruf(name, "ca-cadangan-") && berakhirAbaikanHuruf(name, ".pem")) {
             return true;
         }
-        return rendah.startsWith("app-config-")
-                && (rendah.endsWith(".json") || rendah.endsWith(".json.enc"));
+        return mulaiAbaikanHuruf(name, "app-config-")
+                && (berakhirAbaikanHuruf(name, ".json") || berakhirAbaikanHuruf(name, ".json.enc"));
     }
 
     /** True bila nama file sementara restore/dekrip yang tak boleh dibagikan (murni). */
@@ -375,12 +383,11 @@ public class FileShareProvider extends ContentProvider {
         if (nama == null) {
             return false;
         }
-        String rendah = nama.toLowerCase(java.util.Locale.US);
         // app-config-enctmp-*.json = plaintext sementara cabang export terenkripsi
         // yang tak pernah boleh dibagikan (lolos pola app-config-* di bawah).
-        return rendah.startsWith("vwtg-restore") || rendah.startsWith("vwtg-")
-                || rendah.startsWith("verifikasi-tmp")
-                || rendah.startsWith("app-config-enctmp-");
+        return mulaiAbaikanHuruf(nama, "vwtg-restore") || mulaiAbaikanHuruf(nama, "vwtg-")
+                || mulaiAbaikanHuruf(nama, "verifikasi-tmp")
+                || mulaiAbaikanHuruf(nama, "app-config-enctmp-");
     }
 
     /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
