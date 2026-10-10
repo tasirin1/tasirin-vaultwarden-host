@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — CI hijau: cabut ID lint tak dikenal + cek import pindah ke verifier
+- `app/build.gradle.kts`: cabut `"UnusedImports"` dari set error lint — ID tak dikenal AGP 8.5.2 (warning CI "Unknown issue id"; lint AGP tak punya cek import Java, itu ranah compiler/IDE).
+- `tools/verifikasi-path.py`: `cek_import_mati` baru (GAGAL bila nama import tak dipakai di kode; wildcard dilewati, komentar+string dikupas) — penjagaan setara tetap jalan di tiap push via SDK GitHub. Pohon kini bersih (nol import mati).
+- Gradle 8.14.3 "out of date" (notice saja): sengaja tak di-upgrade — Gradle 9 butuh AGP ≥8.7 (rantai risiko), build tetap hijau.
+
 ## [Belum rilis] — Audit agresif 23: buang trim redundan + kunci tick + enumerasi ganda
 - `SettingsActivity` tick: kunci status `statusText+"|"+...` tiap 500/1000 ms jadi literal `"on"`/`"off"` (ikut pola `MainActivity`, nol alokasi per tick).
 - `ServerService`: buang `.trim()` redundan yang sumbernya selalu ternormalisasi — `portLoopback()`, `pingRinci()`, `localUrl()` (per health tick/10 dtk); `mentah.trim()` 3x jadi lokal sekali (`mRapi`); `lanHost()` 2x enumerasi interface saat Start jadi sekali (`hostSegar`).

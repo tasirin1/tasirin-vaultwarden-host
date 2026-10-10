@@ -630,6 +630,27 @@ def cek_paritas_resource(gagal):
         gagal.append("Paritas resource tak terbaca: %s" % e)
 
 
+def cek_import_mati(gagal):
+    """Import Java yang nama sederhananya tak dipakai di kode (GAGAL).
+
+    Pengganti ID lint "UnusedImports" yang tak dikenal AGP 8.5.2 (warning
+    "Unknown issue id" di CI): penjagaan setara di SDK GitHub. Wildcard
+    (.*) dilewati karena tak bisa dipastikan; komentar+string dikupas dulu
+    via kupas_java agar acuan palsu tak dihitung.
+    """
+    for path in jalan_repo("app", ext=(".java",)):
+        bersih = kupas_java(baca(path))
+        tanpa = re.sub(r"^\s*import\s+.*$", "", bersih, flags=re.M)
+        for m in re.finditer(r"^\s*import\s+(static\s+)?([\w.]+)\s*;",
+                             bersih, flags=re.M):
+            jalan_imp = m.group(2)
+            if jalan_imp.endswith(".*"):
+                continue
+            nama = jalan_imp.split(".")[-1]
+            if not re.search(r"\b%s\b" % re.escape(nama), tanpa):
+                gagal.append("Import mati di %s: %s" % (path, jalan_imp))
+
+
 def disebut_di_uji(nama):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
     for path in jalan_repo(os.path.join("app", "src", "test")):
@@ -714,6 +735,7 @@ def utama():
     cek_manifest(gagal)
     cek_duplikat_definisi(gagal)
     cek_sinkron_terjemah(gagal)
+    cek_import_mati(gagal)
     cek_paritas_resource(gagal)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
