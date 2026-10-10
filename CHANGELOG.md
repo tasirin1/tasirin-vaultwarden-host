@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Hemat pindai /proc, hitung baris log, dan seed SSL di STB
+- `ServerService`: TTL PID anak 30 dtk jadi 120 dtk + `processRssKb()` keluar cepat bila server mati; `readProcUid()` parse manual tanpa split.
+- `ServerService`/`HttpsCompat`: satu `SecureRandom` bersama untuk init SSL (seed kernel lama bisa blokir).
+- `PinCrypto.sha256()`: digest SHA-256 bersama (`Util.mdSha256()`).
+- `MainActivity`: trim 150 baris log hanya dihitung bila teks >25 KB (bukan pindai penuh tiap tick).
+
 ## [Belum rilis] — Deteksi resource yatim otomatis di CI
 - `app/build.gradle.kts`: `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` naik jadi error lint — resource yatim gagal build tiap push.
 - Hapus 9 `android:id` yatim (`heroBar`/`appTitle` ×2 orientasi, `logTitle`, 5 seksi Settings, `secRingkasanRow`) + aturan di `AGENTS.md`.

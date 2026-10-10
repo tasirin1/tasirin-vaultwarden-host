@@ -96,6 +96,13 @@ public final class HttpsCompat {
         }
     }
 
+    /** Acak bersama init SSL (thread-safe): seed kernel lama bisa blokir detik. */
+    private static final java.security.SecureRandom ACAK_SSL = new java.security.SecureRandom();
+
+    static java.security.SecureRandom acakBersama() {
+        return ACAK_SSL;
+    }
+
     private static SSLSocketFactory socketFactory(Context ctx) throws Exception {
         long cap = capOverride(ctx);
         SSLSocketFactory f = cached;
@@ -180,7 +187,7 @@ public final class HttpsCompat {
             } catch (Exception e12) {
                 sc = SSLContext.getInstance("TLS");
             }
-            sc.init(null, tmf.getTrustManagers(), new SecureRandom());
+            sc.init(null, tmf.getTrustManagers(), acakBersama());
             cached = new PabrikTls12(sc.getSocketFactory());
             cachedCap = cap;
         }

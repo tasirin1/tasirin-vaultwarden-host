@@ -717,10 +717,14 @@ public class MainActivity extends Activity {
             }
             homeLogView.setText(penuh.subSequence(awalTampil, penuh.length()));
         }
-        // Batas 150 baris tampil: buang baris tertua dari depan.
-        int total = hitungBaris(homeLogView.getText());
-        if (total > MAKS_BARIS_LOG) {
-            homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
+        // Batas 150 baris tampil: hitungBaris memindai seluruh teks tiap
+        // tick sehingga hanya jalan bila panjang mengisyaratkan over batas
+        // (150 baris pendek ~15 KB; di bawah 25 KB pasti aman, hemat CPU STB).
+        if (homeLogView.length() > 25000) {
+            int total = hitungBaris(homeLogView.getText());
+            if (total > MAKS_BARIS_LOG) {
+                homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
+            }
         }
         // Gulir otomatis hanya bila pengguna tidak sedang membaca atas (saran 6).
         if (ikutiLog) {

@@ -388,7 +388,8 @@ public final class PinCrypto {
 
     static String sha256(String pin) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            // Digest bersama per thread (bukan lookup provider tiap panggil).
+            java.security.MessageDigest md = Util.mdSha256();
             return hex(md.digest(pin.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
             return "";

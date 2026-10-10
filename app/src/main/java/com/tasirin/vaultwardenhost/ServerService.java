@@ -2341,6 +2341,13 @@ public class ServerService extends Service {
         return f;
     }
 
+    /** Acak bersama init SSL (thread-safe): seed /dev/urandom kernel lama bisa blokir. */
+    private static final java.security.SecureRandom ACAK_SSL = new java.security.SecureRandom();
+
+    static java.security.SecureRandom acakSsl() {
+        return ACAK_SSL;
+    }
+
     /** Kunci stat murah (mtime+ukuran) untuk capCaAktif: bila stat tak berubah,
      *  cap penuh dipakai ulang tanpa baca+hash seluruh isi di tiap health-check. */
 
@@ -2429,7 +2436,7 @@ public class ServerService extends Service {
                     javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
             SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, tmf.getTrustManagers(), new SecureRandom());
+            sc.init(null, tmf.getTrustManagers(), acakSsl());
             return sc.getSocketFactory();
         } catch (Exception ignored) {
             return null;
@@ -3300,10 +3307,16 @@ public class ServerService extends Service {
     // 5 dtk) tidak memindai /proc terus-menerus.
     private static volatile int cachedChildPid = -1;
     private static volatile long cachedChildPidAt = 0;
-    private static final long CHILD_PID_TTL_MS = 30_000;
+    // TTL 120 dtk (PID stabil selama proses hidup): pindai /proc penuh
+    // tiap 30 dtk boros I/O di API<26 yang selalu lewat jalur ini.
+    private static final long CHILD_PID_TTL_MS = 120_000;
 
     /** RAM (VmRSS, kB) proses vaultwarden; -1 bila tidak terbaca. */
     public static long processRssKb() {
+        // Server mati tak punya PID: jangan pindai /proc sia-sia.
+        if (!running) {
+            return -1;
+        }
         int pid = -1;
         Process p = process;
         if (p != null) {
@@ -3483,9 +3496,19 @@ public class ServerService extends Service {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("Uid:")) {
-                    String[] parts = POLA_SPASI.split(line.trim());
-                    if (parts.length >= 2) {
-                        return Integer.parseInt(parts[1]);
+                    // Parse manual tanpa split regex: dipanggil per kandidat
+                    // saat pindai /proc di STB lama.
+                    int i = 4;
+                    int n = line.length();
+                    while (i < n && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) {
+                        i++;
+                    }
+                    int j = i;
+                    while (j < n && line.charAt(j) >= '0' && line.charAt(j) <= '9') {
+                        j++;
+                    }
+                    if (j > i) {
+                        return Integer.parseInt(line.substring(i, j));
                     }
                 }
             }
