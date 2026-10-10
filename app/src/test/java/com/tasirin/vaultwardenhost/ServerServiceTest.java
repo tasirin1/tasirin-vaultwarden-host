@@ -527,6 +527,26 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void normalisasiPort_tanpaEksepsiUntukInputAneh() {
+        assertEquals("8088", ServerService.normalisasiPort("8088"));
+        assertEquals("8088", ServerService.normalisasiPort("  8088  "));
+        assertEquals("8088", ServerService.normalisasiPort("+8088"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("abc"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(""));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(null));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("12.5"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999999"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("80"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("0x50"));
+        assertTrue(ServerService.portTampakAngka("8088"));
+        assertTrue(ServerService.portTampakAngka("+8088"));
+        assertFalse(ServerService.portTampakAngka("8a88"));
+        assertFalse(ServerService.portTampakAngka(""));
+        assertFalse(ServerService.portTampakAngka(null));
+        assertFalse(ServerService.portTampakAngka("1234567"));
+    }
+
+    @Test
     public void ipCacheSegar_enamPuluhDetik() {
         assertTrue(ServerService.ipCacheSegar(65_000, 10_000, "192.168.1.2"));
         assertFalse(ServerService.ipCacheSegar(75_000, 10_000, "192.168.1.2"));

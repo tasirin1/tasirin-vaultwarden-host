@@ -1220,16 +1220,45 @@ public class ServerService extends Service {
      *  Port privileged (<1024) butuh root: sebelumnya lolos lalu FATAL tiap
      *  Start. Kini jatuh ke default agar prefs lama berisi 80/443 tetap bisa start. */
     static String normalisasiPort(String p) {
-        if (p != null) {
-            try {
-                int n = Integer.parseInt(p.trim());
-                if (n >= 1024 && n <= 65535) {
-                    return String.valueOf(n);
-                }
-            } catch (Exception ignored) {
+        String t = p == null ? "" : p.trim();
+        // Saring dulu: port salah ketik (huruf/titik/...) melempar
+        // NumberFormatException + isi stack trace tiap tick UI/health
+        // di ART lama selama kolom port belum dibetulkan.
+        if (!portTampakAngka(t)) {
+            return DEFAULT_PORT;
+        }
+        try {
+            int n = Integer.parseInt(t);
+            if (n >= 1024 && n <= 65535) {
+                return String.valueOf(n);
             }
+        } catch (Exception ignored) {
         }
         return DEFAULT_PORT;
+    }
+
+    /** True bila trim menyerupai angka ([+-]?digit, 1-6 char): string yang
+     *  lolos pasti ter-parse (maks 999999 muat int) sehingga parseInt di
+     *  bawah tak pernah melempar; yang ditolak pun ditolak parseInt
+     *  (keluar rentang 1024-65535 butuh 4-5 digit). Murni. */
+    static boolean portTampakAngka(String t) {
+        if (t == null || t.isEmpty() || t.length() > 6) {
+            return false;
+        }
+        int i = 0;
+        if (t.charAt(0) == '+' || t.charAt(0) == '-') {
+            i = 1;
+        }
+        if (i >= t.length()) {
+            return false;
+        }
+        for (; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Kutip path untuk nilai ROCKET_TLS (escape backslash + kutip). Murni. */

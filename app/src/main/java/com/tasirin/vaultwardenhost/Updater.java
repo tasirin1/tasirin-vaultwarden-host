@@ -2065,13 +2065,27 @@ public final class Updater {
     private static final java.util.regex.Pattern VERSION_PATTERN =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+");
 
+    /** Memo hasil parse versi binary: dipanggil tiap detik dari UI (lihat
+     *  komentar VERSION_PATTERN) sehingga alokasi Matcher per tick jadi
+     *  sampah di ART lama; input hanya berganti tiap Start. Hit (termasuk
+     *  null) tanpa regex ulang; balapan tulis jinak (idempoten). */
+    private static volatile String memoBinMasuk = null;
+    private static volatile String memoBinHasil = null;
+
     /** Ambil "x.y.z" dari output "--version" ("vaultwarden 1.37.3" -> "1.37.3"). */
     static String parseBinaryVersion(String raw) {
         if (raw == null) {
             return null;
         }
+        String masuk = memoBinMasuk;
+        if (masuk != null && raw.equals(masuk)) {
+            return memoBinHasil;
+        }
         java.util.regex.Matcher m = VERSION_PATTERN.matcher(raw);
-        return m.find() ? m.group() : null;
+        String hasil = m.find() ? m.group() : null;
+        memoBinMasuk = raw;
+        memoBinHasil = hasil;
+        return hasil;
     }
 
     /** Jalankan binary --version; kembalikan "x.y.z" atau null bila gagal. */

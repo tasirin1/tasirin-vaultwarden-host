@@ -160,6 +160,15 @@ public class UpdaterTest {
     }
 
     @Test
+    public void parseBinaryVersion_memoKonsistenTanpaRegexUlang() {
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3"));
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3"));
+        assertNull(Updater.parseBinaryVersion("tanpa-angka-di-sini"));
+        assertNull(Updater.parseBinaryVersion("tanpa-angka-di-sini"));
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3"));
+    }
+
+    @Test
     public void parseBinaryVersion_noiseLinkerBukanVersi() {
         assertNull(Updater.parseBinaryVersion(
                 "WARNING: linker: vaultwarden-armeabi-v7a: unsupported flags DT_FLAGS_1=0x8000001"));
