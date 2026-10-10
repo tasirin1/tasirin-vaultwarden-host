@@ -158,7 +158,6 @@
     <string name="pin_salah">PIN salah</string>
     <string name="pin_memeriksa">Memeriksa PIN…</string>
     <plurals name="pin_lockout">
-        <item quantity="one">Terkunci, coba lagi 1 menit.</item>
         <item quantity="other">Terkunci, coba lagi %1$d menit.</item>
     </plurals>
 </resources>
