@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 18: banding versi sekali + triase warning basi
+- `AutoUpdate.cek`: `bandingVersi(real, latest)` 2x jadi lokal `bandingReal` sekali.
+- Triase anotasi build: `TasirinBtnHero`/`overflow`/`btn_tv_*`/`hero_run_*`/`bg_hero_running`/`bg_btn_hero`, `%d minutes`, `quantities one (in)` semuanya basi (berkas tak ada lagi); `x86_64 ChromeOS` disengaja (armeabi-v7a saja).
 ## [Belum rilis] — Audit agresif 17: belah pesan jendela + trim sekali
 - `TgBackup.pecahPesan`: `lastIndexOf` pindai mundur sampai indeks 0 per potongan (O(n^2)) jadi loop manual terbatas jendela `(i + batas/2, akhir)`; hasil sama (tes newline/gabung utuh tetap mencakup).
 - `TgBot.pollOnce`: `chat.trim()` per callback jadi `chatResmi` yang sudah di-trim.
