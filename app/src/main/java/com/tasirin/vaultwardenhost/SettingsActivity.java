@@ -3313,11 +3313,13 @@ public class SettingsActivity extends Activity {
     /** Galat inline untuk kolom port; null bila valid (kosong = bawaan). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
     static String galatPort(String port, String msgSalah) {
-        if (port == null || port.trim().isEmpty()) {
+        // Trim sekali (dulu cek + parseInt trim sendiri; jalan tiap ketikan).
+        String isi = port == null ? "" : port.trim();
+        if (isi.isEmpty()) {
             return null;
         }
         try {
-            int p = Integer.parseInt(port.trim());
+            int p = Integer.parseInt(isi);
             // <1024 butuh root dan selalu gagal bind: tolak di input agar
             // tak FATAL saat Start (selaras ServerService.normalisasiPort).
             if (p >= 1024 && p <= 65535) {
@@ -3331,28 +3333,34 @@ public class SettingsActivity extends Activity {
     /** Galat inline untuk kolom folder; null bila valid (kosong = bawaan). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
     static String galatFolder(String folder, String msgSalah) {
-        if (folder == null || folder.trim().isEmpty()) {
+        // Trim sekali di sini (dataDirAman trim lagi tapi atas string bersih
+        // me-return this tanpa alokasi; jalan tiap ketikan).
+        String isi = folder == null ? "" : folder.trim();
+        if (isi.isEmpty()) {
             return null;
         }
-        return ServerService.dataDirAman(folder) ? null : msgSalah;
+        return ServerService.dataDirAman(isi) ? null : msgSalah;
     }
 
     /** Galat Admin Token; null bila valid (kosong = boleh, isi = minimal 8). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
     static String galatAdmin(String token, String msgSalah) {
-        if (token == null || token.trim().isEmpty()) {
+        // Trim sekali (dulu cek + length trim sendiri; jalan tiap ketikan).
+        String isi = token == null ? "" : token.trim();
+        if (isi.isEmpty()) {
             return null;
         }
-        return token.trim().length() >= 8 ? null : msgSalah;
+        return isi.length() >= 8 ? null : msgSalah;
     }
 
     /** Galat token bot Telegram; null bila valid (kosong = boleh). Murni.
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
     static String galatTgToken(String token, String msgSalah) {
-        if (token == null || token.trim().isEmpty()) {
+        // Trim sekali (dulu cek + assign trim sendiri; jalan tiap ketikan).
+        String isi = token == null ? "" : token.trim();
+        if (isi.isEmpty()) {
             return null;
         }
-        String isi = token.trim();
         return isi.contains(":") && isi.length() >= 20 ? null : msgSalah;
     }
 
@@ -3369,10 +3377,11 @@ public class SettingsActivity extends Activity {
             java.util.regex.Pattern.compile("[A-Za-z0-9_]{5,}");
 
     static String galatChat(String chat, String msgSalah) {
-        if (chat == null || chat.trim().isEmpty()) {
+        // Trim sekali (dulu cek + assign trim sendiri; jalan tiap ketikan).
+        String isi = chat == null ? "" : chat.trim();
+        if (isi.isEmpty()) {
             return null;
         }
-        String isi = chat.trim();
         if (POLA_CHAT_ANGKA.matcher(isi).matches()) {
             return null;
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 25: 5 validator ketikan trim sekali
+- `SettingsActivity`: `galatPort`/`galatAdmin`/`galatTgToken`/`galatChat`/`galatFolder` trim 2x jadi lokal `isi` sekali — validator ini jalan tiap karakter ketikan (jalur input terpanas), perilaku sama persis.
+- Sapuan angle baru (banding `==`, race ARM, charset, `disconnect`, leak static, duplikasi): nihil temuan — ronde 15–24 sudah menutupnya.
+
 ## [Belum rilis] — Audit agresif 24: trim ganda boot + sapuan nihil
 - `BootReceiver`: `dataDir.trim()` 2x jadi lokal sekali (`dRapi`) — sisa terakhir keluarga trim-ganda (jalur boot, perilaku sama).
 - Sapuan agresif ~15 keluarga pola (API desugar, `commit()`, IO 1-byte, eksepsi jalur panas, timeout, notifikasi, UUID/enum, kode terkomentari, `@Test`, caching RSS/uptime/IP, jadwal bot, pencarian log, receiver): nihil temuan baru — ronde 15–23 sudah menutupnya.
