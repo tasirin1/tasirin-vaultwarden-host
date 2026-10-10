@@ -10,6 +10,13 @@ import org.junit.Test;
 public class KernelCompatTest {
 
     @Test
+    public void legacyMemoKonsistenDenganMurni() {
+        assertEquals(KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang()),
+                KernelCompat.legacyPerangkat());
+        assertEquals(KernelCompat.legacyPerangkat(), KernelCompat.legacyPerangkat());
+    }
+
+    @Test
     public void kernel314StbTerdeteksiLegacy() {
         assertTrue(KernelCompat.isLegacyKernel("3.14.29"));
         assertTrue(KernelCompat.isLegacyKernel("3.14.29-g1234567"));

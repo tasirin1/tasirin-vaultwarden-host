@@ -1360,7 +1360,7 @@ public class ServerService extends Service {
 
         // Kernel lama: pastikan shim getrandom, lalu uji --version sekali lagi
         // dengan shim agar smoke test menilai kondisi start yang sebenarnya.
-        boolean legacy = KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang());
+        boolean legacy = KernelCompat.legacyPerangkat();
         File shim = null;
         if (legacy) {
             shim = ensureShim();
@@ -2572,7 +2572,7 @@ public class ServerService extends Service {
         // di bawah (cache, manual, unduhan) menilai kondisi start sebenarnya.
         // Tanpa ini binary bagus gagal uji saat shim belum ada (bin kosong).
         // Murah bila shim sudah valid (tanpa jaringan).
-        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+        if (KernelCompat.legacyPerangkat()) {
             try {
                 Updater.ensureShimFile(this);
             } catch (Exception abaikan) {
@@ -2934,7 +2934,7 @@ public class ServerService extends Service {
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
-            if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            if (KernelCompat.legacyPerangkat()) {
                 File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
                 if (shim.exists()) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
@@ -3686,14 +3686,23 @@ public class ServerService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
         }
-        long deadline = SystemClock.elapsedRealtime() + timeoutMillis;
-        while (SystemClock.elapsedRealtime() < deadline) {
-            if (!alive(p)) {
-                return true;
+        // Pra-Oreo tanpa waitFor(timeout): waiter join lebih murah daripada
+        // poll alive() tiap 500 ms — exitValue() melempar + isi stack trace
+        // tiap proses masih hidup di ART lama.
+        final java.util.concurrent.atomic.AtomicBoolean mati =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread penunggu = new Thread(() -> {
+            try {
+                p.waitFor();
+            } catch (Exception ignored) {
+            } finally {
+                mati.set(true);
             }
-            Thread.sleep(500);
-        }
-        return false;
+        }, "vw-wait");
+        penunggu.setDaemon(true);
+        penunggu.start();
+        penunggu.join(timeoutMillis);
+        return mati.get();
     }
 
     /** Perpanjang wakelock bila server masih jalan tapi kunci lepas/kedaluwarsa.

@@ -1093,7 +1093,7 @@ public final class Updater {
         // gagal tanpa shim valid, jadi pastikan DULU sebelum menghabiskan
         // ~20 MB kuota. Gagal di sini langsung lapor tanpa mengunduh —
         // inilah yang dulu terlihat sebagai "unduh berulang tiap cek".
-        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+        if (KernelCompat.legacyPerangkat()) {
             File shimAwal = new File(ctx.getFilesDir(),
                     "bin/" + KernelCompat.SHIM_ASSET);
             if (!shimValid(shimAwal)) {
@@ -1168,7 +1168,7 @@ public final class Updater {
         // --version lolos. Shim wajib dipastikan ADA SEBELUM uji asap, bukan
         // sesudah (dulu folder bin kosong selalu gagal di sini karena shim
         // belum terpasang, padahal binary-nya bagus).
-        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+        if (KernelCompat.legacyPerangkat()) {
             try {
                 ensureShimFile(ctx);
             } catch (Exception abaikan) {
@@ -2089,7 +2089,7 @@ public final class Updater {
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
-            if (ctx != null && KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            if (ctx != null && KernelCompat.legacyPerangkat()) {
                 File shim = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
                 if (shim.exists()) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());

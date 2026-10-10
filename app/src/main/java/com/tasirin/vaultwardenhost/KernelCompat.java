@@ -33,6 +33,20 @@ public final class KernelCompat {
         return v[0] == 3 && v[1] < 17;
     }
 
+    /** Hasil legacy per proses (kernel tak berubah tanpa reboot): hemat parse
+     *  ulang tiap Start/health di STB lama. Null = belum dihitung. */
+    private static volatile Boolean legacyMemo = null;
+
+    /** Varian memo: baca + parse kernel sekali per proses (murni di dalam). */
+    public static boolean legacyPerangkat() {
+        Boolean m = legacyMemo;
+        if (m == null) {
+            m = Boolean.valueOf(isLegacyDevice(kernelSekarang()));
+            legacyMemo = m;
+        }
+        return m.booleanValue();
+    }
+
     /** True bila perangkat butuh shim getrandom (penentu tunggal: versi kernel). */
     public static boolean isLegacyDevice(String osVersion) {
         return isLegacyKernel(osVersion);

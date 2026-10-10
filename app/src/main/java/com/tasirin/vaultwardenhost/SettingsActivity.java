@@ -2813,7 +2813,7 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] Mengecek update dari sumber resmi...");
             // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
             String imbuhShim = "";
-            if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+            if (KernelCompat.legacyPerangkat()) {
                 try {
                     Updater.ensureShimFile(this);
                     imbuhShim = " Shim getrandom siap.";
@@ -2992,7 +2992,7 @@ public class SettingsActivity extends Activity {
                 try {
                     appendUiLog("[app] Memasang binary v"
                             + (target == null ? "terbaru" : target) + "...");
-                    if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                    if (KernelCompat.legacyPerangkat()) {
                         try {
                             Updater.ensureShimFile(this);
                         } catch (Exception se) {

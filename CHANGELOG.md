@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Memo kernel, tunggu mati tanpa eksepsi, heal alarm hemat
+- `KernelCompat.legacyPerangkat()`: status legacy dihitung sekali per proses (9 situs Start/health/bot pakai memo).
+- `ServerService.waitForOrKill()`: pra-Oreo pakai waiter `join()` tanpa poll `exitValue()` (tanpa hujan eksepsi di ART lama).
+- `AlarmReceiver`: heal penuh pindah ke `mulaiBackup()`; alarm palsu/throttle/boot-dini tak membayar parse XML.
+
 ## [Belum rilis] — Hemat pindai /proc, hitung baris log, dan seed SSL di STB
 - `ServerService`: TTL PID anak 30 dtk jadi 120 dtk + `processRssKb()` keluar cepat bila server mati; `readProcUid()` parse manual tanpa split.
 - `ServerService`/`HttpsCompat`: satu `SecureRandom` bersama untuk init SSL (seed kernel lama bisa blokir).

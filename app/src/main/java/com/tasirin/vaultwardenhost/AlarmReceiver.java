@@ -71,6 +71,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
     @SuppressLint("ApplySharedPref")
     private static void mulaiBackup(Context context) {
+        // Heal di sini (bukan onReceive): hanya jalur yang benar-benar tulis
+        // prefs yang membayar parse penuh; baca di atas pakai aman*.
+        TgBackup.healkanStringPrefs(context);
         try {
             SharedPreferences cek = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
@@ -107,9 +110,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Proses receiver bisa hidup tanpa Activity/Service: sembuhkan prefs
-        // bertipe salah dulu agar baca mentah di bawah tak ClassCastException.
-        TgBackup.healkanStringPrefs(context);
+        // Tanpa heal penuh di sini: getAll() mem-parse ulang seluruh XML prefs
+        // tiap alarm (termasuk spoof/throttle yang kembali dini); baca aman*
+        // sembuh-sendiri per kunci, heal jalan di mulaiBackup sebelum tulis.
         // STB baru hidup (mis. alarm tengah malam menyala sesaat setelah boot):
         // tunda sampai 5 menit agar sistem stabil, lalu nilai ulang.
         if (TgBackup.sisaTungguBootMs(

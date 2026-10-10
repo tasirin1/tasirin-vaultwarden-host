@@ -1306,7 +1306,7 @@ public final class TgBot {
                         }
                         // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
                         String imbuhShim = "";
-                        if (KernelCompat.isLegacyDevice(KernelCompat.kernelSekarang())) {
+                        if (KernelCompat.legacyPerangkat()) {
                             try {
                                 Updater.ensureShimFile(ctx);
                                 imbuhShim = " Shim getrandom siap.";
