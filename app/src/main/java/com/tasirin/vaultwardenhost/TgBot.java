@@ -452,7 +452,7 @@ public final class TgBot {
                         try {
                             JSONObject cb = upd.optJSONObject("callback_query");
                             if (cb != null) {
-                                tanganiCallback(ctx, cb, chat.trim());
+                                tanganiCallback(ctx, cb, chatResmi);
                                 continue;
                             }
                             JSONObject msg = upd.optJSONObject("message");

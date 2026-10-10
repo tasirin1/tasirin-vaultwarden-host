@@ -830,11 +830,16 @@ public final class TgBackup {
             }
             // Belah di newline terakhir dalam jangkauan bila menyisakan isi
             // wajar (>separuh batas) agar baris raksasa tanpa newline tak jadi
-            // potongan mungil dan progres selalu maju (akhir > i).
+            // potongan mungil dan progres selalu maju (akhir > i). Pindai manual
+            // terbatas jendela: lastIndexOf(fromIndex) memindai mundur sampai
+            // indeks 0 per potongan (O(n^2) untuk log crash multi-potongan).
             if (akhir - i > 1) {
-                int nl = s.lastIndexOf('\n', akhir - 1);
-                if (nl > i && nl - i > batas / 2) {
-                    akhir = nl + 1;
+                int minNl = i + batas / 2;
+                for (int k = akhir - 1; k > minNl; k--) {
+                    if (s.charAt(k) == '\n') {
+                        akhir = k + 1;
+                        break;
+                    }
                 }
             }
             // Tanda lanjut grapheme di awal potongan berikut (combining mark,
