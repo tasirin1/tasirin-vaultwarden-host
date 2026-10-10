@@ -248,6 +248,10 @@ public class SettingsActivity extends Activity {
     private String lastShownStatus = "";
     private String lastShownVersion = "";
     private String lastShownNet = "";
+    /** Cache URL lokal 10 dtk (pola MainActivity): localUrl (prefs + port
+     *  + IP) tiap 1 dtk sampah + lookup prefs sia-sia di ART lama. */
+    private String cacheUrlSet = "";
+    private long cacheWaktuSet = 0;
     /** Cache teks status/tombol/badge agar tick 500 ms-1 dtk tak getString +
      *  alokasi ulang tiap kali di STB lama (diisi sekali di onCreate). */
     private String teksBerjalan = "";
@@ -1127,7 +1131,15 @@ public class SettingsActivity extends Activity {
             lastShownVersion = full;
         }
 
-        String net = ServerService.localUrl(this);
+        String net;
+        long nowUrl = SystemClock.elapsedRealtime();
+        if (!cacheUrlSet.isEmpty() && nowUrl - cacheWaktuSet < 10000) {
+            net = cacheUrlSet;
+        } else {
+            net = ServerService.localUrl(this);
+            cacheUrlSet = net;
+            cacheWaktuSet = nowUrl;
+        }
         if (!net.equals(lastShownNet)) {
             netInfoView.setText(net);
             lastShownNet = net;

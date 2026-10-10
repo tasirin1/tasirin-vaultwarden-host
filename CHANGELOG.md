@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 9: hemat alokasi tick UI tiap detik
+- `SettingsActivity`: `localUrl()` tiap 1 dtk jadi cache 10 dtk (pola `MainActivity`) — tanpa lookup prefs + concat URL sia-sia.
+- `MainActivity`: string status Berjalan/Berhenti di-cache + kunci boolean (tanpa `getString` + concat tiap 1-2 dtk di ART lama).
+
 ## [Belum rilis] — Audit agresif 8: cache IP/CA + thread PIN anti-bocor
 - `ServerService`: TTL cache IP 3 dtk jadi 60 dtk + TTL enumerasi interface 5 dtk jadi 60 dtk — tick UI/health tak membayar ioctl tiap detik di ARMv7.
 - `ServerService.capCaAktif`: gerbang TTL 60 dtk tanpa kunci/syscall + invalidasi eksplisit saat sertifikat regenerasi (health + ping Telegram hemat stat eMMC).

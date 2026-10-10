@@ -64,6 +64,10 @@ public class MainActivity extends Activity {
     private String bundledVersion = "?";
     private String bundledRaw = null;
     private String lastShownStatus = "";
+    /** Teks status cache (pola Settings): tanpa getString tiap tick. */
+    private String teksBerjalan = "";
+    private String teksBerhenti = "";
+    private String teksSibuk = "";
     private String lastShownNet = "";
     private String lastShownVersion = "";
     private String lastShownUptime = "";
@@ -178,6 +182,9 @@ public class MainActivity extends Activity {
         }
         bundledVersion = readBundledVersion();
         bundledRaw = Updater.readBundledVersionRaw(this);
+        teksBerjalan = getString(R.string.running);
+        teksBerhenti = getString(R.string.stopped);
+        teksSibuk = getString(R.string.busy_work);
         ui.post(this::refreshFromService);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -474,7 +481,9 @@ public class MainActivity extends Activity {
         // Sedang sibuk (unduh web-vault)? Kunci chip status agar tidak tertimpa polling.
         if (uiBusy) {
             String dl = Updater.downloadStatus;
-            String sibuk = dl.isEmpty() ? getString(R.string.busy_work) : dl;
+            String sibuk = dl.isEmpty()
+                    ? (teksSibuk.isEmpty() ? getString(R.string.busy_work) : teksSibuk)
+                    : dl;
             String kunciSibuk = "sibuk|" + sibuk;
             if (!kunciSibuk.equals(lastShownStatus)) {
                 statusView.setText(sibuk);
@@ -492,9 +501,11 @@ public class MainActivity extends Activity {
 
         // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
-        String statusText = running ? getString(R.string.running)
-                : getString(R.string.stopped);
-        String key = statusText + "|" + (running ? "on" : "off");
+        // Tanpa getString + concat tiap 1-2 dtk (sampah di ART lama):
+        // kunci boolean cukup karena cabang sibuk memakai namespace
+        // "sibuk|..." yang tak bertabrakan dengan "on"/"off".
+        String statusText = running ? teksBerjalan : teksBerhenti;
+        String key = running ? "on" : "off";
         if (!key.equals(lastShownStatus)) {
             statusView.setText(statusText);
             statusView.setBackgroundResource(0);
