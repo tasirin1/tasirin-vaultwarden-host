@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 39: metode mati + getMessage ganda terakhir
+- `TlsCert.utcTime`: metode mati (nol pemanggil di app + test, diganti `waktu()` yang menangani GeneralizedTime >=2050) dihapus 12 baris; `tulisUtc` tetap dipakai `waktu()`.
+- `TgBackup` (3 situs): `getMessage()` 2x tiap chat gagal unggah (loop per-chat) + 2x di dua verifikasi zip kini lokal `pesan`/`msgSebab` sekali.
+- Tanpa test baru: hoist murni setara (pola sama audit-37/38 yang sudah dikunci test); `waktu()` tetap dikunci `TlsCertTest` yang ada.
+- Sapuan bersih (bukan temuan): nol metode yatim di 21 file (pindai definisi-vs-panggilan), nol import yatim di semua file, tanpa `toLowerCase()`/`SimpleDateFormat` tanpa Locale (bug locale Turki nihil), `TimeZone.getDefault` hanya aritmetika offset, aturan ProGuard manifest-auto-keep + eksplisit selaras, koneksi `disconnect`/stream-tutup di semua jalur (redirect loop + health tick + checksum).
+
 ## [Belum rilis] — Audit agresif 38: salinan getMessage bot + jam ganda backup
 - `TgBot` (/update + /webvault): pola `getMessage()` 3x tiap gagal unduh kini lokal `pesan` sekali — salinan kembar dari pola `ServerService` yang sudah dirapikan di audit-37 tapi lolos di jalur perintah bot.
 - `TgBackup.pesanGalatBackup` + `backupNowIsi`: jam dibaca 2x (cek wajar vs bangun pesan) kini `kini` sekali; cek vs pesan satu instant yang sama.

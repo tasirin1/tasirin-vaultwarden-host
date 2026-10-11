@@ -654,8 +654,9 @@ public final class TgBackup {
             try {
                 respTerakhir = uploadTelegram(ctx, token, tujuan.get(ci), upload);
             } catch (Exception e) {
+                String pesan = e.getMessage();
                 gagalChat.add(tujuan.get(ci) + ": "
-                        + (e.getMessage() == null ? e.toString() : e.getMessage()));
+                        + (pesan == null ? e.toString() : pesan));
             }
         }
         if (respTerakhir == null) {
@@ -1209,7 +1210,8 @@ public final class TgBackup {
             }
             return null;
         } catch (Exception e) {
-            String sebab = e.getMessage() != null ? e.getMessage() : e.toString();
+            String msgSebab = e.getMessage();
+            String sebab = msgSebab != null ? msgSebab : e.toString();
             return "zip korup/tak terbaca (" + sebab + ")";
         }
     }
@@ -1251,7 +1253,8 @@ public final class TgBackup {
                 tmpDb.delete();
             } catch (Exception ignored) {
             }
-            String sebab = e.getMessage() != null ? e.getMessage() : e.toString();
+            String msgSebab = e.getMessage();
+            String sebab = msgSebab != null ? msgSebab : e.toString();
             return "zip tak terbaca (" + sebab + ")";
         }
         try {
