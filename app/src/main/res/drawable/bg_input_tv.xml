@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Kolom input TV: fokus D-pad selalu jingga aksen 3dp agar seragam
+     dengan tombol dan kartu, tidak tertukar dengan biru primer. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/info_bg" />
-            <stroke android:width="2dp" android:color="@color/primary" />
+            <stroke android:width="3dp" android:color="@color/accent" />
             <corners android:radius="10dp" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/window_bg" />
-            <stroke android:width="2dp" android:color="@color/primary" />
+            <stroke android:width="3dp" android:color="@color/accent" />
             <corners android:radius="10dp" />
         </shape>
     </item>
