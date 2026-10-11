@@ -299,6 +299,32 @@ public class UtilTest {
     }
 
     @Test
+    public void pecahDaftarChatPisahKomaDanSpasi() {
+        assertEquals(java.util.Arrays.asList("123", "456"), Util.pecahDaftarChat("123,456"));
+        assertEquals(java.util.Arrays.asList("123", "@namabot"),
+                Util.pecahDaftarChat(" 123 ; @namabot\n123 "));
+        assertTrue(Util.pecahDaftarChat(null).isEmpty());
+        assertTrue(Util.pecahDaftarChat("  , ; ").isEmpty());
+    }
+
+    @Test
+    public void cocokChatBanyakTerimaSalahSatu() {
+        assertTrue(Util.cocokChatBanyak("111,222", 222, ""));
+        assertTrue(Util.cocokChatBanyak("111 @namabot", 9, "namabot"));
+        assertTrue(Util.cocokChatBanyak("111", 111, ""));
+        assertFalse(Util.cocokChatBanyak("111,222", 333, ""));
+        assertFalse(Util.cocokChatBanyak("", 111, ""));
+    }
+
+    @Test
+    public void daftarPerluAnggapGrupKetatBilaSatuGrup() {
+        assertTrue(Util.daftarPerluAnggapGrup("123,-1005"));
+        assertTrue(Util.daftarPerluAnggapGrup("@namabot"));
+        assertFalse(Util.daftarPerluAnggapGrup("123,456"));
+        assertFalse(Util.daftarPerluAnggapGrup(""));
+    }
+
+    @Test
     public void hapusHanyaTempInternal() throws Exception {
         File base = new File(System.getProperty("java.io.tmpdir"), "uji-util-" + System.nanoTime());
         File cache = new File(base, "cache");

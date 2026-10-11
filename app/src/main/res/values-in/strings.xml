@@ -83,7 +83,7 @@
     <string name="bot_token">Bot token</string>
     <string name="bot_token_hint">dari @BotFather</string>
     <string name="chat_id">Chat ID</string>
-    <string name="chat_id_hint">ID chat tujuan</string>
+    <string name="chat_id_hint">ID chat tujuan, pisahkan koma (maks 5)</string>
     <string name="backup_pass_label">Password enkripsi (opsional)</string>
     <string name="bin_sha_label">SHA-256 binary manual (opsional)</string>
     <string name="bin_sha_hint">wajib bila pakai binary sendiri</string>

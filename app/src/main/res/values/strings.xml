@@ -83,7 +83,7 @@
     <string name="bot_token">Bot token</string>
     <string name="bot_token_hint">from @BotFather</string>
     <string name="chat_id">Chat ID</string>
-    <string name="chat_id_hint">destination chat ID</string>
+    <string name="chat_id_hint">destination chat IDs, comma-separated (max 5)</string>
     <string name="backup_pass_label">Encryption password (optional)</string>
     <string name="bin_sha_label">Manual binary SHA-256 (optional)</string>
     <string name="bin_sha_hint">required when using your own binary</string>

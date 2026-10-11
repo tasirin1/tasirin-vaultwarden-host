@@ -371,6 +371,63 @@ public final class Util {
         return norm.equalsIgnoreCase(u);
     }
 
+    /** Batas jumlah chat tujuan Telegram (hemat bandwidth/CPU STB). Murni. */
+    public static final int MAKS_CHAT_TUJUAN = 5;
+
+    /** Pecah config chat jadi daftar tujuan (pisah koma/titik-koma/spasi/baris).
+     *  Urutan dipertahankan, duplikat dibuang, kosong diabaikan. Tanpa regex
+     *  (aturan repo: tanpa kompilasi pola per panggil). Murni agar bisa unit test. */
+    public static java.util.List<String> pecahDaftarChat(String config) {
+        java.util.List<String> hasil = new java.util.ArrayList<String>();
+        if (config == null) {
+            return hasil;
+        }
+        int n = config.length();
+        int awal = -1;
+        for (int i = 0; i <= n; i++) {
+            char c = i < n ? config.charAt(i) : ',';
+            boolean pisah = c == ',' || c == ';' || c == '\n' || c == '\r'
+                    || c == '\t' || c == ' ';
+            if (pisah) {
+                if (awal >= 0) {
+                    String potong = config.substring(awal, i).trim();
+                    if (!potong.isEmpty() && !hasil.contains(potong)) {
+                        hasil.add(potong);
+                    }
+                    awal = -1;
+                }
+            } else if (awal < 0) {
+                awal = i;
+            }
+        }
+        return hasil;
+    }
+
+    /** True bila pengirim cocok dengan salah satu chat di daftar config.
+     *  Config satu ID lama tetap jalan (daftar satu entri). Murni. */
+    public static boolean cocokChatBanyak(String config, long id, String username) {
+        java.util.List<String> daftar = pecahDaftarChat(config);
+        for (int i = 0; i < daftar.size(); i++) {
+            if (cocokChat(daftar.get(i), id, username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** True bila salah satu chat di daftar wajib diperlakukan seperti grup.
+     *  Fail-closed: satu entri grup/username mengetatkan semua (butuh PIN).
+     *  Murni agar bisa unit test. */
+    public static boolean daftarPerluAnggapGrup(String config) {
+        java.util.List<String> daftar = pecahDaftarChat(config);
+        for (int i = 0; i < daftar.size(); i++) {
+            if (chatPerluAnggapGrup(daftar.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** True bila config chat menunjuk grup/supergrup (ID numerik negatif).
      *  Username (@grup) tak bisa dipastikan pemiliknya sehingga dianggap
      *  bukan grup. Murni agar bisa unit test. */

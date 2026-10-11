@@ -396,13 +396,22 @@ public final class TgBot {
             }
             long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
             // chat sudah Util.amanTrim (tak-null + ter-trim): tanpa trim ulang per poll.
-            String chatResmi = chat;
+            // Multi-akun: config boleh daftar ID pisah koma, satu ID lama tetap jalan.
+            String chatKonfig = chat;
             // ID negatif = grup/supergrup: semua anggota bisa memerintah bot
             // (sensitif tetap butuh PIN), jadi peringatkan sekali per proses
             // agar pemilik pindah ke chat pribadi bila memungkinkan.
-            if (Util.chatPerluAnggapGrup(chatResmi) && !chatResmi.equals(grupDiperingatkan)) {
-                grupDiperingatkan = chatResmi;
-                if (Util.chatAdalahGrup(chatResmi)) {
+            if (Util.daftarPerluAnggapGrup(chatKonfig) && !chatKonfig.equals(grupDiperingatkan)) {
+                grupDiperingatkan = chatKonfig;
+                boolean adaGrupId = false;
+                java.util.List<String> daftarResmi = Util.pecahDaftarChat(chatKonfig);
+                for (int gi = 0; gi < daftarResmi.size(); gi++) {
+                    if (Util.chatAdalahGrup(daftarResmi.get(gi))) {
+                        adaGrupId = true;
+                        break;
+                    }
+                }
+                if (adaGrupId) {
                     ServerService.catatLog("[tg] Chat bot menunjuk grup: semua anggota"
                             + " bisa mengirim perintah. Pakai chat pribadi dengan bot"
                             + " bila memungkinkan.");
@@ -442,7 +451,7 @@ public final class TgBot {
                         try {
                             JSONObject cb = upd.optJSONObject("callback_query");
                             if (cb != null) {
-                                tanganiCallback(ctx, cb, chatResmi);
+                                tanganiCallback(ctx, cb, chatKonfig);
                                 continue;
                             }
                             JSONObject msg = upd.optJSONObject("message");
@@ -455,7 +464,7 @@ public final class TgBot {
                             }
                             // Hanya layani chat resmi (ID numerik atau @username).
                             String namaUser = c.optString("username", "");
-                            if (Util.cocokChat(chatResmi, c.optLong("id", -1), namaUser)) {
+                            if (Util.cocokChatBanyak(chatKonfig, c.optLong("id", -1), namaUser)) {
                                 // Perintah basi (>5 mnt, mis. /stop tertunda saat bot
                                 // offline) wajib diabaikan; offset tetap maju.
                                 // Pesan masa depan (jam STB lambat) jangan dibuang.
@@ -490,7 +499,7 @@ public final class TgBot {
                                     } catch (Exception ignored) {
                                     }
                                 }
-                                boolean terotorisasi = handleCommand(ctx, text);
+                                boolean terotorisasi = handleCommand(ctx, text, c.optLong("id", -1));
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
                                 // ulang pengintip: hapus best-effort (perlu izin hapus,
                                 // di poll thread sendiri); gagal sekali diperingatkan
@@ -840,7 +849,7 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            return Util.chatPerluAnggapGrup(
+            return Util.daftarPerluAnggapGrup(
                     Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, "")));
         } catch (Exception e) {
             return true;
@@ -862,7 +871,7 @@ public final class TgBot {
     }
 
     /** Balas ketukan tombol inline: hanya dari chat resmi yang dijalankan. */
-    private static void tanganiCallback(Context ctx, JSONObject cb, String chatResmi) {
+    private static void tanganiCallback(Context ctx, JSONObject cb, String chatKonfig) {
         try {
             JSONObject pesan = cb.optJSONObject("message");
             JSONObject ruang = pesan != null ? pesan.optJSONObject("chat") : null;
@@ -872,7 +881,7 @@ public final class TgBot {
             // resmi. Pengirim resmi saja tak cukup agar keyboard yang bocor /
             // diteruskan ke chat lain tak bisa mengeksekusi perintah dari luar.
             // (Tombol berbahaya tetap butuh PIN yang tak bisa dibawa tombol.)
-            if (!Util.cocokChat(chatResmi, idRuang, namaRuang)) {
+            if (!Util.cocokChatBanyak(chatKonfig, idRuang, namaRuang)) {
                 // Tetap jawab agar spinner tak jadi oracle resmi/tidak resmi.
                 jawabCallback(ctx, cb.optString("id", ""));
                 return;
@@ -918,7 +927,7 @@ public final class TgBot {
                     TgBackup.sendMessage(ctx, "Tombol tak bisa membawa PIN."
                             + " Ketik manual mis. " + data + " 123456.");
                 } else {
-                    handleCommand(ctx, data);
+                    handleCommand(ctx, data, idRuang);
                 }
             }
         } catch (Exception ignored) {
@@ -1108,7 +1117,7 @@ public final class TgBot {
      *  /log + /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
      *  pemanggil boleh menghapus pesan dari riwayat. False berarti PIN
      *  gagal/hilang: pesan dipertahankan sebagai bukti forensik brute-force. */
-    private static boolean handleCommand(Context ctx, String text) {
+    private static boolean handleCommand(Context ctx, String text, long pengirimId) {
         boolean berbahayaTerotorisasi = false;
         if (text == null || !text.startsWith("/")) {
             return false;
@@ -1116,7 +1125,9 @@ public final class TgBot {
         // Keamanan grup: chat ID negatif = grup/supergrup yang semua anggotanya
         // bisa memerintah bot. Perintah berbahaya dari grup selalu ditolak —
         // ulangi dari chat pribadi dengan bot (tanpa pengecualian PIN grup).
-        if (idChatResmi(ctx) < 0 && perintahBerbahaya(text)) {
+        // Multi-akun: gerbang ikut ID pengirim (bukan config) agar admin pribadi
+        // tetap bisa memerintah saat config juga memuat grup.
+        if (pengirimId < 0 && perintahBerbahaya(text)) {
             TgBackup.sendMessage(ctx, "Perintah berbahaya dari grup ditolak."
                     + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
             return false;

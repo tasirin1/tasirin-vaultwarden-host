@@ -637,7 +637,15 @@ public final class TgBackup {
             zip.delete();
             upload = enc;
         }
-        String resp = uploadTelegram(ctx, token, chat, upload);
+        if (!semuaChatAman(chat)) {
+            throw new IOException("Chat ID Telegram tidak valid"
+                    + " - periksa pengaturan bot.");
+        }
+        java.util.List<String> tujuan = daftarChatTujuan(chat);
+        String resp = null;
+        for (int ci = 0; ci < tujuan.size(); ci++) {
+            resp = uploadTelegram(ctx, token, tujuan.get(ci), upload);
+        }
         String fileId = extractFileId(resp);
         sp.edit()
                 .putLong(KEY_TG_LAST, System.currentTimeMillis())
@@ -654,7 +662,7 @@ public final class TgBackup {
                         + " - unduh manual dari chat bila perlu restore)"
                 : "";
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
-                + upload.length() + " bytes)" + peringatan + batas;
+                + upload.length() + " bytes ke " + tujuan.size() + " chat)" + peringatan + batas;
     }
 
     /** Siapkan POST Telegram tanpa ikuti redirect otomatis.
@@ -870,6 +878,26 @@ public final class TgBackup {
                 || t == Character.COMBINING_SPACING_MARK;
     }
 
+    /** Daftar chat tujuan dari config (satu ID lama tetap satu entri). Murni. */
+    static java.util.List<String> daftarChatTujuan(String chatConfig) {
+        return Util.pecahDaftarChat(chatConfig);
+    }
+
+    /** True bila daftar chat layak dikirim (tiap entri ikut chatIdAman,
+     *  jumlah tak lewat batas STB). Murni agar bisa unit test. */
+    static boolean semuaChatAman(String chatConfig) {
+        java.util.List<String> daftar = Util.pecahDaftarChat(chatConfig);
+        if (daftar.isEmpty() || daftar.size() > Util.MAKS_CHAT_TUJUAN) {
+            return false;
+        }
+        for (int i = 0; i < daftar.size(); i++) {
+            if (!chatIdAman(daftar.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */
     private static void kirimSinkron(Context app, String msg, String markup) {
         try {
@@ -877,17 +905,20 @@ public final class TgBackup {
                     Context.MODE_PRIVATE);
             String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
             String chat = Util.amanTrim(amanString(sp, KEY_TG_CHAT, ""));
-            if (token.isEmpty() || chat.isEmpty()) {
+            java.util.List<String> tujuan = daftarChatTujuan(chat);
+            if (token.isEmpty() || tujuan.isEmpty()) {
                 return;
             }
             // Limit API Telegram 4096 char: pecah agar /status & /log panjang
             // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
             java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
+            for (int ci = 0; ci < tujuan.size(); ci++) {
+            String satu = tujuan.get(ci);
             for (int bi = 0; bi < bagian.size(); bi++) {
                 String potong = bagian.get(bi);
                 String mk = (bi == bagian.size() - 1) ? markup : null;
                 // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                String param = "chat_id=" + URLEncoder.encode(chat, "UTF-8")
+                String param = "chat_id=" + URLEncoder.encode(satu, "UTF-8")
                         + "&text=" + URLEncoder.encode(potong, "UTF-8");
                 StringBuilder paramB = new StringBuilder(param);
                 if (mk != null && !mk.isEmpty()) {
@@ -921,6 +952,7 @@ public final class TgBackup {
                         conn.disconnect();
                     }
                 }
+            }
             }
         } catch (Exception e) {
             logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
@@ -1511,7 +1543,14 @@ public final class TgBackup {
         }
         File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), stempelUnik());
         try {
-            uploadTelegram(ctx, token, chat, tmp);
+            if (!semuaChatAman(chat)) {
+                throw new IOException("Chat ID Telegram tidak valid"
+                        + " - periksa pengaturan bot.");
+            }
+            java.util.List<String> tujuanCa = daftarChatTujuan(chat);
+            for (int ci = 0; ci < tujuanCa.size(); ci++) {
+                uploadTelegram(ctx, token, tujuanCa.get(ci), tmp);
+            }
         } finally {
             try {
                 tmp.delete();

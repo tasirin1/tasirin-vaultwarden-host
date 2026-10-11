@@ -1093,6 +1093,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void semuaChatAmanTerimaDaftarMultiAkun() {
+        assertTrue(TgBackup.semuaChatAman("123456789"));
+        assertTrue(TgBackup.semuaChatAman("123,456"));
+        assertTrue(TgBackup.semuaChatAman("123; @namabot"));
+        assertFalse(TgBackup.semuaChatAman(""));
+        assertFalse(TgBackup.semuaChatAman(null));
+        assertFalse(TgBackup.semuaChatAman("123, abc"));
+        assertFalse(TgBackup.semuaChatAman("1,2,3,4,5,6"));
+        assertEquals(2, TgBackup.daftarChatTujuan("123, 456,123").size());
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

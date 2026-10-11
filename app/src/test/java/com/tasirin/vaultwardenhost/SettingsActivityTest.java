@@ -139,6 +139,15 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatChatDaftarMultiAkun() {
+        assertNull(SettingsActivity.galatChat("123,456", "SALAH"));
+        assertNull(SettingsActivity.galatChat("123; @namabot", "SALAH"));
+        assertNull(SettingsActivity.galatChat("123 456", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("123, abc", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("1,2,3,4,5,6", "SALAH"));
+    }
+
+    @Test
     public void sisaEnkripTmpHanyaPrefixKhusus() {
         assertTrue(SettingsActivity.sisaEnkripTmp("app-config-enctmp-20240101-120000-abcdef.json"));
         assertFalse(SettingsActivity.sisaEnkripTmp("app-config-20240101-120000-abcdef.json"));

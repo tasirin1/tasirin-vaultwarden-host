@@ -3472,19 +3472,27 @@ public class SettingsActivity extends Activity {
     }
 
     static String galatChat(String chat, String msgSalah) {
-        // Trim sekali (dulu cek + assign trim sendiri; jalan tiap ketikan).
-        String isi = chat == null ? "" : chat.trim();
-        if (isi.isEmpty()) {
+        // Multi-akun: pisah koma/titik-koma/spasi, tiap entri wajib valid
+        // (ID numerik atau username, selaras Util.cocokChat). Murni.
+        java.util.List<String> daftar = Util.pecahDaftarChat(chat);
+        if (daftar.isEmpty()) {
             return null;
         }
-        if (angkaChat(isi)) {
-            return null;
+        if (daftar.size() > Util.MAKS_CHAT_TUJUAN) {
+            return msgSalah;
         }
-        String nama = isi.startsWith("@") ? isi.substring(1) : isi;
-        if (!nama.isEmpty() && !Util.semuaDigit(nama) && namaChat(nama)) {
-            return null;
+        for (int i = 0; i < daftar.size(); i++) {
+            String isi = daftar.get(i);
+            if (angkaChat(isi)) {
+                continue;
+            }
+            String nama = isi.startsWith("@") ? isi.substring(1) : isi;
+            if (!nama.isEmpty() && !Util.semuaDigit(nama) && namaChat(nama)) {
+                continue;
+            }
+            return msgSalah;
         }
-        return msgSalah;
+        return null;
     }
 
     /** Token admin acak 24 karakter [A-Za-z0-9]. Murni (Random diinjeksi agar bisa diuji). */
