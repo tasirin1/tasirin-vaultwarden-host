@@ -3432,48 +3432,11 @@ public class SettingsActivity extends Activity {
         return isi.contains(":") && isi.length() >= 20 ? null : msgSalah;
     }
 
-    /** Galat Chat ID; null bila valid (kosong = boleh). ID numerik atau
-     *  username ("@nama", selaras dengan Util.cocokChat). Murni.
-     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml. */
-    /** True bila s cocok "-?digit+" penuh (tanpa regex per ketikan). Murni. */
-    private static boolean angkaChat(String s) {
-        if (s == null || s.isEmpty()) {
-            return false;
-        }
-        int i = 0;
-        if (s.charAt(0) == '-') {
-            i = 1;
-        }
-        if (i >= s.length()) {
-            return false;
-        }
-        for (; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c < '0' || c > '9') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** True bila s huruf-digit-garisbawah min 5 (tanpa regex per ketikan). Murni. */
-    private static boolean namaChat(String s) {
-        if (s == null || s.length() < 5) {
-            return false;
-        }
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
-                    || (c >= '0' && c <= '9') || c == '_')) {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /** Galat Chat ID; null bila valid (kosong = boleh). Tiap entri ikut satu
+     *  validator Util.chatTunggalValid (ID numerik opsional +/-, atau username).
+     *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml.
+     *  Murni. */
     static String galatChat(String chat, String msgSalah) {
-        // Multi-akun: pisah koma/titik-koma/spasi, tiap entri wajib valid
-        // (ID numerik atau username, selaras Util.cocokChat). Murni.
         java.util.List<String> daftar = Util.pecahDaftarChat(chat);
         if (daftar.isEmpty()) {
             return null;
@@ -3482,15 +3445,9 @@ public class SettingsActivity extends Activity {
             return msgSalah;
         }
         for (int i = 0; i < daftar.size(); i++) {
-            String isi = daftar.get(i);
-            if (angkaChat(isi)) {
-                continue;
+            if (!Util.chatTunggalValid(daftar.get(i))) {
+                return msgSalah;
             }
-            String nama = isi.startsWith("@") ? isi.substring(1) : isi;
-            if (!nama.isEmpty() && !Util.semuaDigit(nama) && namaChat(nama)) {
-                continue;
-            }
-            return msgSalah;
         }
         return null;
     }

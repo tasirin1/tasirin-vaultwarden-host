@@ -1638,23 +1638,11 @@ public final class TgBackup {
     /** Batas upload Bot API Telegram (50 MB): tolak lebih awal agar tak menahan slot tugas. */
     static final long BATAS_UPLOAD_TELEGRAM = 48L * 1024 * 1024;
 
-    /** True bila chat ID layak dikirim (ID numerik atau username, tanpa
-     *  whitespace/kontrol, maks 64). Murni agar bisa unit test. */
+    /** True bila chat ID layak dikirim: delegasi ke satu validator bersama
+     *  (Util.chatTunggalValid) agar UI, impor, dan upload satu suara; config
+     *  sampah ditolak lokal dengan pesan jelas, bukan 400 dari API. Murni. */
     static boolean chatIdAman(String chat) {
-        if (chat == null) {
-            return false;
-        }
-        String t = chat.trim();
-        if (t.isEmpty() || t.length() > 64) {
-            return false;
-        }
-        for (int i = 0; i < t.length(); i++) {
-            char c = t.charAt(i);
-            if (c <= ' ' || c == 127) {
-                return false;
-            }
-        }
-        return true;
+        return Util.chatTunggalValid(chat);
     }
 
     /** Sanitasi nama file untuk header multipart: tanpa kutip/CRLF/slash agar

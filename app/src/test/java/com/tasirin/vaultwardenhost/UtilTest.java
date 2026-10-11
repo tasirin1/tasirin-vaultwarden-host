@@ -320,6 +320,26 @@ public class UtilTest {
     }
 
     @Test
+    public void chatTunggalValidSatuSuaraDenganCocok() {
+        assertTrue(Util.chatTunggalValid("123456789"));
+        assertTrue(Util.chatTunggalValid("+628123456789"));
+        assertTrue(Util.chatTunggalValid("-1001234567890"));
+        assertTrue(Util.chatTunggalValid("@namabot"));
+        assertTrue(Util.chatTunggalValid("namabot1"));
+        assertTrue(Util.chatTunggalValid("  123  "));
+        assertFalse(Util.chatTunggalValid(null));
+        assertFalse(Util.chatTunggalValid(""));
+        assertFalse(Util.chatTunggalValid("abc"));
+        assertFalse(Util.chatTunggalValid("@ab"));
+        assertFalse(Util.chatTunggalValid("@12345"));
+        assertFalse(Util.chatTunggalValid("12.5"));
+        assertFalse(Util.chatTunggalValid("0123"));
+        assertFalse(Util.chatTunggalValid("123 456"));
+        assertFalse(Util.chatTunggalValid("id\njahat"));
+        assertFalse(Util.chatTunggalValid("+"));
+    }
+
+    @Test
     public void cocokChatBanyakTerimaSalahSatu() {
         assertTrue(Util.cocokChatBanyak("111,222", 222, ""));
         assertTrue(Util.cocokChatBanyak("111 @namabot", 9, "namabot"));

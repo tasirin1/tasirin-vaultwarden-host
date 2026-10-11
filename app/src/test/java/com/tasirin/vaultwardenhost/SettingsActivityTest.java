@@ -143,6 +143,8 @@ public class SettingsActivityTest {
         assertNull(SettingsActivity.galatChat("123,456", "SALAH"));
         assertNull(SettingsActivity.galatChat("123; @namabot", "SALAH"));
         assertNull(SettingsActivity.galatChat("123 456", "SALAH"));
+        assertNull(SettingsActivity.galatChat("+628123456789", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("0123", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("123, abc", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("1,2,3,4,5,6", "SALAH"));
     }

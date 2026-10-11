@@ -422,6 +422,61 @@ public final class Util {
         return false;
     }
 
+    /** Satu sumber kebenaran validitas satu entri chat: ID numerik (awalan
+     *  + opsional ala tempel nomor telepon, - untuk grup) atau username
+     *  (aturan Telegram: huruf-digit-garisbawah, min 5, @ opsional).
+     *  Selaras cocokChat: valid selalu berarti bisa cocok (nol-depan dan
+     *  digit-murni ber-@ ditolak), plus tanpa whitespace/kontrol agar aman
+     *  dipakai di header multipart. Dipakai UI, impor, dan upload agar satu
+     *  suara. Tanpa regex. Murni agar bisa unit test. */
+    public static boolean chatTunggalValid(String entri) {
+        if (entri == null) {
+            return false;
+        }
+        String t = entri.trim();
+        if (t.isEmpty() || t.length() > 64) {
+            return false;
+        }
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c <= ' ' || c == 127) {
+                return false;
+            }
+        }
+        String isi = t;
+        if (isi.startsWith("+") && isi.length() > 1) {
+            isi = isi.substring(1);
+        }
+        if (isi.isEmpty()) {
+            return false;
+        }
+        // Numerik dulu (cocokChat juga menyaring digit sebelum parse agar
+        // config username tak melempar di ART lama).
+        String angka = isi.startsWith("-") ? isi.substring(1) : isi;
+        if (!angka.isEmpty() && semuaDigit(angka)) {
+            if (angka.length() > 19) {
+                return false;
+            }
+            if (angka.length() > 1 && angka.startsWith("0")) {
+                return false;
+            }
+            return true;
+        }
+        String nama = isi.startsWith("@") ? isi.substring(1) : isi;
+        if (nama.isEmpty() || semuaDigit(nama) || nama.length() < 5) {
+            return false;
+        }
+        for (int i = 0; i < nama.length(); i++) {
+            char c = nama.charAt(i);
+            boolean ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+                    || (c >= '0' && c <= '9') || c == '_';
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** True bila salah satu chat di daftar wajib diperlakukan seperti grup.
      *  Fail-closed: satu entri grup/username mengetatkan semua (butuh PIN).
      *  Murni agar bisa unit test. */
