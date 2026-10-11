@@ -978,7 +978,7 @@ public class MainActivity extends Activity {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        String bin = currentServerVersion();
+        String bin = Updater.currentServerVersion(this);
         String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
         int build = 0;
         try {
@@ -1107,10 +1107,6 @@ public class MainActivity extends Activity {
         }, false);
     }
 
-    /** Versi binary yang benar-benar dipakai server saat ini (satu di Updater). */
-    private String currentServerVersion() {
-        return Updater.currentServerVersion(this);
-    }
 
     /** Backup Telegram otomatis saat Start (satu implementasi di TgBackup). */
     private void maybeAutoBackup() {

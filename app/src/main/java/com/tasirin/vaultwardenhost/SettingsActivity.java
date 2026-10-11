@@ -1221,8 +1221,8 @@ public class SettingsActivity extends Activity {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        String bin = currentServerVersion();
-        String wv = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+        String bin = Updater.currentServerVersion(this);
+        String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
         StringBuilder html = new StringBuilder();
         html.append("<b>Tasirin Vaultwarden Host</b><br/>")
                 .append("Running a <b>Vaultwarden</b> (Bitwarden-compatible) server "
@@ -1392,11 +1392,11 @@ public class SettingsActivity extends Activity {
             }
             String marker = Updater.webVaultFromVersion(this);
             final String updated = marker != null ? marker
-                    : readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+                    : Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
             if (updated == null) {
                 return;
             }
-            String server = currentServerVersion();
+            String server = Updater.currentServerVersion(this);
             if (server == null || server.equals(updated)) {
                 return;
             }
@@ -2782,7 +2782,7 @@ public class SettingsActivity extends Activity {
             String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
             String updated = Updater.webVaultFromVersion(this);
             if (updated == null) {
-                updated = readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+                updated = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
             }
             String bundled = bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
             String wv = updated != null ? updated
@@ -2793,7 +2793,7 @@ public class SettingsActivity extends Activity {
             }
             StringBuilder sb = new StringBuilder("Web vault: ").append(wv)
                     .append(updated != null ? " (updated)" : " (bundled)");
-            String server = currentServerVersion();
+            String server = Updater.currentServerVersion(this);
             if (server != null && !server.equals(wv)) {
                 sb.append(" \u26A0 server version differs v").append(server);
             }
@@ -2889,17 +2889,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Versi dari file vw-version.json (web-vault yang sudah di-update) atau null. */
-    /** Versi dari file vw-version.json (satu implementasi di Updater). */
-    private String readWvVersion(File f) {
-        return Updater.readWvVersion(f);
-    }
-
-    /** Versi binary yang benar-benar dipakai server saat ini (x.y.z). */
-    /** Versi binary yang benar-benar dipakai server saat ini (satu di Updater). */
-    private String currentServerVersion() {
-        return Updater.currentServerVersion(this);
-    }
 
     // ─── Update binary (unduh per tag versi resmi) ──────────────────────
 

@@ -341,6 +341,24 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void portLoopback_tolakKorupTanpaLempar() {
+        // Saring portTampakAngka sebelum parseInt: prefs korup tak melempar
+        // (isi stack trace tiap health gagal di ART lama). runningPort
+        // non-kosong murni JVM (tanpa runtime Android).
+        String dulu = ServerService.runningPort;
+        try {
+            ServerService.runningPort = "8088";
+            assertEquals(8088, new ServerService().portLoopback());
+            ServerService.runningPort = "abc";
+            assertEquals(-1, new ServerService().portLoopback());
+            ServerService.runningPort = "80";
+            assertEquals(80, new ServerService().portLoopback());
+        } finally {
+            ServerService.runningPort = dulu;
+        }
+    }
+
+    @Test
     public void dataDirKanonisTolakSistemDanTerimaBiasa() throws Exception {
         assertFalse(ServerService.dataDirKanonisAman(null));
         assertFalse(ServerService.dataDirKanonisAman("/data"));

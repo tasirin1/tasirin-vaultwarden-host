@@ -791,8 +791,12 @@ public class ServerService extends Service {
         try {
             String p = !runningPort.isEmpty() ? runningPort
                     : effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
-            // Tanpa trim: kedua sumber ternormalisasi tanpa whitespace;
-            // galat parse tetap jatuh ke -1 di bawah.
+            // Tanpa trim: kedua sumber ternormalisasi tanpa whitespace.
+            // Saring dulu seperti normalisasiPort agar prefs korup tak
+            // melempar (isi stack trace tiap health gagal di ART lama).
+            if (!portTampakAngka(p)) {
+                return -1;
+            }
             return Integer.parseInt(p);
         } catch (Exception e) {
             return -1;

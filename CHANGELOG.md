@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 40: wrapper delegasi + port tanpa eksepsi
+- `SettingsActivity`/`MainActivity`: wrapper `readWvVersion`/`currentServerVersion` (delegasi satu baris + komentar ganda sisa refactor) dihapus; 7 situs panggil `Updater.*` langsung. Baris bersih -11.
+- `ServerService.portLoopback`: saring `portTampakAngka` sebelum `parseInt` (selaras `normalisasiPort`) agar prefs korup tak melempar tiap health gagal di ART lama.
+- Test: `portLoopback_tolakKorupTanpaLempar` (`ServerServiceTest`).
+- Sapuan bersih (bukan temuan): `FMT_CACHE` terbatas 3 pola konstan (tanpa bocor); `reportDownload` throttle 256 KB; `debounce` jadwal bot 1 dtk; `disconnect`/tutup stream semua jalur koneksi; TTL + worker untuk semua info berat.
+
 ## [Belum rilis] — Audit agresif 39: metode mati + getMessage ganda terakhir
 - `TlsCert.utcTime`: metode mati (nol pemanggil di app + test, diganti `waktu()` yang menangani GeneralizedTime >=2050) dihapus 12 baris; `tulisUtc` tetap dipakai `waktu()`.
 - `TgBackup` (3 situs): `getMessage()` 2x tiap chat gagal unggah (loop per-chat) + 2x di dua verifikasi zip kini lokal `pesan`/`msgSebab` sekali.
