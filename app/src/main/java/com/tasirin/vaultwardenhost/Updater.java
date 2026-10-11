@@ -442,24 +442,11 @@ public final class Updater {
                         && rantai.contains("certificate"));
     }
 
-    /** Format tanggal STB per thread: SimpleDateFormat init berat dan tak
-     *  thread-safe sehingga tak boleh dibuat baru tiap pesan galat maupun
-     *  dipakai bersama antar thread. */
-    private static final ThreadLocal<java.text.SimpleDateFormat> FMT_STB =
-            new ThreadLocal<java.text.SimpleDateFormat>() {
-                @Override protected java.text.SimpleDateFormat initialValue() {
-                    return new java.text.SimpleDateFormat(
-                            "d MMM yyyy HH:mm", new Locale("id", "ID"));
-                }
-            };
-
-    /** Tanggal jam STB terbaca saat ini (untuk pesan galat jam salah). */
+    /** Tanggal jam STB terbaca saat ini (untuk pesan galat jam salah).
+     *  Via Util.tanggalStb satu pintu (dulu ThreadLocal ganda
+     *  yang duplikat di tiap modul). */
     static String tanggalStbTerbaca() {
-        try {
-            return FMT_STB.get().format(new java.util.Date(System.currentTimeMillis()));
-        } catch (Exception ignored) {
-            return String.valueOf(System.currentTimeMillis());
-        }
+        return Util.tanggalStb(System.currentTimeMillis());
     }
 
     /** Saran perbaikan koneksi (Bahasa Indonesia) berdasarkan jenis galat. */
@@ -2101,8 +2088,6 @@ public final class Updater {
             java.util.regex.Pattern.compile("[0-9][0-9A-Za-z.\\-]*");
     private static final java.util.regex.Pattern POLA_SPASI =
             java.util.regex.Pattern.compile("\\s+");
-    private static final java.util.regex.Pattern POLA_SAMA_DENGAN =
-            java.util.regex.Pattern.compile("=");
 
     /** True bila s 64 digit heksa (tanpa kompilasi regex matches). */
     static boolean hex64(String s) {
@@ -2521,13 +2506,22 @@ public final class Updater {
             return null;
         }
         for (String tok : POLA_SPASI.split(bersih)) {
-            // Belah '=' juga agar format tanpa spasi ("SHA256(f)=<hex>")
-            // ikut dikenali; format BSD berspasi tetap lolos seperti dulu.
-            for (String bagian : POLA_SAMA_DENGAN.split(tok, -1)) {
+            // Belah '=' manual tanpa regex (dulu Pattern.compile("=")
+            // menjalankan mesin regex untuk satu char literal di tiap token).
+            // Semantik samakan split(tok,-1): segmen kosong tepi ikut dipindai
+            // (gagal hex64, dilewati) sehingga hasil identik.
+            int dari = 0;
+            while (true) {
+                int eq = tok.indexOf('=', dari);
+                String bagian = eq < 0 ? tok.substring(dari) : tok.substring(dari, eq);
                 String t = bagian.trim();
                 if (hex64(t)) {
                     return t.toLowerCase(Locale.US);
                 }
+                if (eq < 0) {
+                    break;
+                }
+                dari = eq + 1;
             }
         }
         return null;

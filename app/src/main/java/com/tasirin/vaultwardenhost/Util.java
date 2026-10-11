@@ -229,6 +229,27 @@ public final class Util {
         }
     }
 
+    /** Format tanggal STB locale Indonesia per thread ("d MMM yyyy HH:mm"):
+     *  satu pintu pengganti ThreadLocal kembar identik di Updater + TgBackup
+     *  (tiap ThreadLocal memegang Calendar+TimeZone+Locale sendiri per thread).
+     *  Locale Indonesia disengaja (nama bulan "Mei"/"Agu"), bukan Locale.US. */
+    private static final ThreadLocal<java.text.SimpleDateFormat> FMT_STB_ID =
+            new ThreadLocal<java.text.SimpleDateFormat>() {
+                @Override protected java.text.SimpleDateFormat initialValue() {
+                    return new java.text.SimpleDateFormat("d MMM yyyy HH:mm",
+                            new java.util.Locale("id", "ID"));
+                }
+            };
+
+    /** Tanggal STB terbaca ("d MMM yyyy HH:mm", fallback millis bila gagal). */
+    public static String tanggalStb(long kiniMs) {
+        try {
+            return FMT_STB_ID.get().format(new java.util.Date(kiniMs));
+        } catch (Exception ignored) {
+            return String.valueOf(kiniMs);
+        }
+    }
+
     /** Format waktu kini pola Locale.US ("" bila gagal). Murni. */
     public static String formatTanggalSekarang(String pola) {
         try {

@@ -24,14 +24,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.Comparator;
 import java.util.UUID;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -416,24 +413,11 @@ public final class TgBackup {
         return kiniMs >= BATAS_JAM_WAJAR_MS;
     }
 
-    /** Format tanggal jam STB per thread: SimpleDateFormat init berat dan tak
-     *  thread-safe (stamp "yyyyMMdd-HHmmss-SSS" via cache Util). */
-    private static final ThreadLocal<java.text.SimpleDateFormat> FMT_JAM_STB =
-            new ThreadLocal<java.text.SimpleDateFormat>() {
-                @Override protected java.text.SimpleDateFormat initialValue() {
-                    return new java.text.SimpleDateFormat(
-                            "d MMM yyyy HH:mm", new Locale("id", "ID"));
-                }
-            };
-
-    /** Pesan jam STB salah untuk backup (sertakan tanggal terbaca + cara betulkan). */
+    /** Pesan jam STB salah untuk backup (sertakan tanggal terbaca + cara betulkan).
+     *  Tanggal via Util.tanggalStb satu pintu (dulu ThreadLocal ganda
+     *  yang duplikat di tiap modul). */
     static String pesanJamStbSalah(long kiniMs) {
-        String terbaca;
-        try {
-            terbaca = FMT_JAM_STB.get().format(new Date(kiniMs));
-        } catch (Exception ignored) {
-            terbaca = String.valueOf(kiniMs);
-        }
+        String terbaca = Util.tanggalStb(kiniMs);
         return "Tanggal & jam STB salah (terbaca " + terbaca + ")."
                 + " Sertifikat Telegram belum berlaku menurut jam itu sehingga backup GAGAL."
                 + " Aktifkan Tanggal & waktu otomatis di Pengaturan STB"
@@ -3424,9 +3408,6 @@ public final class TgBackup {
         }
         return file.length();
     }
-
-    /** Stamp backup via cache terpusat Util (FMT_JAM_STB lokal tetap karena
-     *  Locale Indonesia). */
 
     /** True bila s 32 digit heksa kecil (tanpa kompilasi regex matches). */
     static boolean hex32(String s) {
