@@ -337,6 +337,12 @@ public class UtilTest {
         assertFalse(Util.chatTunggalValid("123 456"));
         assertFalse(Util.chatTunggalValid("id\njahat"));
         assertFalse(Util.chatTunggalValid("+"));
+        assertTrue(Util.chatTunggalValid("9223372036854775807"));
+        assertFalse(Util.chatTunggalValid("9999999999999999999"));
+        assertFalse(Util.chatTunggalValid("-9999999999999999999"));
+        assertEquals(0, Util.bandingDigit("123", "123"));
+        assertTrue(Util.bandingDigit("123", "124") < 0);
+        assertTrue(Util.bandingDigit("124", "123") > 0);
     }
 
     @Test

@@ -429,6 +429,21 @@ public final class Util {
      *  digit-murni ber-@ ditolak), plus tanpa whitespace/kontrol agar aman
      *  dipakai di header multipart. Dipakai UI, impor, dan upload agar satu
      *  suara. Tanpa regex. Murni agar bisa unit test. */
+    /** Banding dua string digit sama panjang: -1/0/1. Tanpa alokasi. Murni. */
+    static int bandingDigit(String a, String b) {
+        for (int i = 0; i < a.length() && i < b.length(); i++) {
+            char x = a.charAt(i);
+            char y = b.charAt(i);
+            if (x != y) {
+                return x < y ? -1 : 1;
+            }
+        }
+        if (a.length() == b.length()) {
+            return 0;
+        }
+        return a.length() < b.length() ? -1 : 1;
+    }
+
     public static boolean chatTunggalValid(String entri) {
         if (entri == null) {
             return false;
@@ -452,13 +467,25 @@ public final class Util {
         }
         // Numerik dulu (cocokChat juga menyaring digit sebelum parse agar
         // config username tak melempar di ART lama).
-        String angka = isi.startsWith("-") ? isi.substring(1) : isi;
+        boolean negatif = isi.startsWith("-");
+        String angka = negatif ? isi.substring(1) : isi;
         if (!angka.isEmpty() && semuaDigit(angka)) {
             if (angka.length() > 19) {
                 return false;
             }
             if (angka.length() > 1 && angka.startsWith("0")) {
                 return false;
+            }
+            // 19 digit bisa lewat Long.MAX (9,2e18): cocokChat pasti gagal
+            // parse lalu jatuh ke banding username (tak cocok). Tolak di sini
+            // agar valid selalu berarti bisa cocok. Banding leksikografis
+            // manual (sama panjang) tanpa alokasi/eksepsi. Murni.
+            if (angka.length() == 19) {
+                String batas = negatif ? "9223372036854775808"
+                        : "9223372036854775807";
+                if (bandingDigit(angka, batas) > 0) {
+                    return false;
+                }
             }
             return true;
         }

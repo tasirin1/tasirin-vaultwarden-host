@@ -920,46 +920,46 @@ public final class TgBackup {
             // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
             java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
             for (int ci = 0; ci < tujuan.size(); ci++) {
-            String satu = tujuan.get(ci);
-            for (int bi = 0; bi < bagian.size(); bi++) {
-                String potong = bagian.get(bi);
-                String mk = (bi == bagian.size() - 1) ? markup : null;
-                // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                String param = "chat_id=" + URLEncoder.encode(satu, "UTF-8")
-                        + "&text=" + URLEncoder.encode(potong, "UTF-8");
-                StringBuilder paramB = new StringBuilder(param);
-                if (mk != null && !mk.isEmpty()) {
-                    paramB.append("&reply_markup=").append(URLEncoder.encode(mk, "UTF-8"));
-                }
-                param = paramB.toString();
-                byte[] body = param.getBytes(StandardCharsets.UTF_8);
-                HttpURLConnection conn = null;
-                try {
-                    conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
-                            "application/x-www-form-urlencoded", 15000, 30000);
-                    try (OutputStream os = conn.getOutputStream()) {
-                        os.write(body);
+                String satu = tujuan.get(ci);
+                for (int bi = 0; bi < bagian.size(); bi++) {
+                    String potong = bagian.get(bi);
+                    String mk = (bi == bagian.size() - 1) ? markup : null;
+                    // POST (bukan GET): token tidak bocor ke log URL/proxy.
+                    String param = "chat_id=" + URLEncoder.encode(satu, "UTF-8")
+                            + "&text=" + URLEncoder.encode(potong, "UTF-8");
+                    StringBuilder paramB = new StringBuilder(param);
+                    if (mk != null && !mk.isEmpty()) {
+                        paramB.append("&reply_markup=").append(URLEncoder.encode(mk, "UTF-8"));
                     }
-                    tolakRedirectTelegram(conn);
-                    int code = conn.getResponseCode();
-                    InputStream mentah = (code >= 200 && code < 300)
-                            ? conn.getInputStream() : conn.getErrorStream();
-                    StringBuilder sb = new StringBuilder();
-                    if (mentah != null) {
-                        try (InputStream is = mentah) {
-                            sb.append(bacaResponsBatas(is));
+                    param = paramB.toString();
+                    byte[] body = param.getBytes(StandardCharsets.UTF_8);
+                    HttpURLConnection conn = null;
+                    try {
+                        conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
+                                "application/x-www-form-urlencoded", 15000, 30000);
+                        try (OutputStream os = conn.getOutputStream()) {
+                            os.write(body);
+                        }
+                        tolakRedirectTelegram(conn);
+                        int code = conn.getResponseCode();
+                        InputStream mentah = (code >= 200 && code < 300)
+                                ? conn.getInputStream() : conn.getErrorStream();
+                        StringBuilder sb = new StringBuilder();
+                        if (mentah != null) {
+                            try (InputStream is = mentah) {
+                                sb.append(bacaResponsBatas(is));
+                            }
+                        }
+                        if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                            logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
+                                    code, sb.toString());
+                        }
+                    } finally {
+                        if (conn != null) {
+                            conn.disconnect();
                         }
                     }
-                    if (code != 200 || !sb.toString().contains("\"ok\":true")) {
-                        logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
-                                code, sb.toString());
-                    }
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
                 }
-            }
             }
         } catch (Exception e) {
             logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
