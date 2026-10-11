@@ -217,8 +217,6 @@ public class ServerService extends Service {
     }
 
     /** Pola statis: split/matches kompilasi regex tiap panggil di STB lama. */
-    private static final java.util.regex.Pattern POLA_SLASH =
-            java.util.regex.Pattern.compile("/");
 
     private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?");
@@ -1106,15 +1104,53 @@ public class ServerService extends Service {
         if (t.length() > 512) {
             return false;
         }
-        for (String segmen : POLA_SLASH.split(t)) {
-            if (segmen.equals("..") || segmen.equals(".")) {
+        // Pindai segmen manual tanpa split regex + tanpa alokasi byte[] per
+        // segmen (dipanggil tiap tick cache prefs): satu pass menolak "."
+        // / ".." sekaligus menghitung byte UTF-8 manual (surrogate = 4 byte).
+        int segmenIsiAwal = 0;
+        int pos = 0;
+        int batasT = t.length();
+        while (pos <= batasT) {
+            int miring = t.indexOf('/', pos);
+            if (miring < 0) {
+                miring = batasT;
+            }
+            int panjangSeg = miring - pos;
+            if (panjangSeg == 1 && t.charAt(pos) == '.') {
                 return false;
             }
-            // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG):
-            // hitung byte UTF-8, bukan char (200 emoji = 800 byte lolos cek char).
-            if (segmen.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 255) {
+            if (panjangSeg == 2 && t.charAt(pos) == '.'
+                    && t.charAt(pos + 1) == '.') {
                 return false;
             }
+            if (panjangSeg > 0) {
+                // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG):
+                // hitung byte UTF-8, bukan char (200 emoji = 800 byte lolos cek char).
+                int byteSeg = 0;
+                int k = pos;
+                while (k < miring) {
+                    char c = t.charAt(k);
+                    if (c < 0x80) {
+                        byteSeg += 1;
+                        k++;
+                    } else if (c < 0x800) {
+                        byteSeg += 2;
+                        k++;
+                    } else if (Character.isHighSurrogate(c) && k + 1 < miring
+                            && Character.isLowSurrogate(t.charAt(k + 1))) {
+                        byteSeg += 4;
+                        k += 2;
+                    } else {
+                        byteSeg += 3;
+                        k++;
+                    }
+                    if (byteSeg > 255) {
+                        return false;
+                    }
+                }
+                segmenIsiAwal++;
+            }
+            pos = miring + 1;
         }
         // Kupas slash akhir agar /data/ tak lolos dari cek persis.
         String n = t;
@@ -1173,13 +1209,9 @@ public class ServerService extends Service {
                 || n.equals("/mnt/media_rw") || n.equals("/mnt/runtime")) {
             return false;
         }
-        int segmenIsi = 0;
-        for (String s : POLA_SLASH.split(n)) {
-            if (!s.isEmpty()) {
-                segmenIsi++;
-            }
-        }
-        return segmenIsi >= 2;
+        // n hanya t tanpa slash akhir (segmen kosong tak dihitung di atas)
+        // sehingga cacah segmen sama: pakai ulang tanpa split kedua.
+        return segmenIsiAwal >= 2;
     }
 
     /** Kembalikan folder data aman atau bawaan segar bila input berbahaya. Murni. */
@@ -3516,7 +3548,7 @@ public class ServerService extends Service {
         }
         try (BufferedReader r = new BufferedReader(
                 new InputStreamReader(new FileInputStream("/proc/" + pid + "/status"),
-                        StandardCharsets.UTF_8))) {
+                        StandardCharsets.UTF_8), 2048)) {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("VmRSS:")) {
@@ -3538,11 +3570,26 @@ public class ServerService extends Service {
         return -1;
     }
 
+    /** Cache pindai /proc 8 detik: findChildPid + killStaleVaultwarden jalan
+     *  berurutan tiap Start sehingga tanpa cache membayar listFiles + baca
+     *  status per PID dua kali. Basi aman: pemakai ulang-verifikasi cmdline
+     *  + PID anak berjalan tepat sebelum bunuh (anti PID-recycle). */
+    private static final Object KUNCI_PROC = new Object();
+    private static java.util.List<Integer> cachePidSeUid = null;
+    private static long cachePidSeUidAt = 0;
+    private static final long PID_CACHE_TTL_MS = 8000;
+
     /** Kandidat PID se-UID (bukan proses kita): satu pindai /proc dipakai
      *  findChildPid + killStaleVaultwarden agar Start tak membayar listFiles
      *  + baca status per PID dua kali. Tanpa baca cmdline (mahal, beda
      *  predikat per pemanggil). Murni I/O. */
     private static java.util.List<Integer> kandidatPidSeUid() {
+        long kiniCache = SystemClock.elapsedRealtime();
+        synchronized (KUNCI_PROC) {
+            if (cachePidSeUid != null && kiniCache - cachePidSeUidAt < PID_CACHE_TTL_MS) {
+                return cachePidSeUid;
+            }
+        }
         java.util.List<Integer> keluar = new java.util.ArrayList<>();
         try {
             File[] dirs = new File("/proc").listFiles();
@@ -3570,7 +3617,13 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
-        return keluar;
+        java.util.List<Integer> beku =
+                java.util.Collections.unmodifiableList(keluar);
+        synchronized (KUNCI_PROC) {
+            cachePidSeUid = beku;
+            cachePidSeUidAt = SystemClock.elapsedRealtime();
+        }
+        return beku;
     }
 
     /** Cari pid anak vaultwarden via /proc (fallback API < 26 tanpa Process.pid()). */
@@ -3673,8 +3726,10 @@ public class ServerService extends Service {
     }
 
     private static int readProcUid(File dir) {
+        // Buffer 2KB (bukan 8KB bawaan): berkas status hanya ~1KB dan
+        // dipanggil per kandidat PID sehingga alokasi menumpuk di STB lama.
         try (BufferedReader r = new BufferedReader(
-                new java.io.FileReader(new File(dir, "status")))) {
+                new java.io.FileReader(new File(dir, "status")), 2048)) {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("Uid:")) {

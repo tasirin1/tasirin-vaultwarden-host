@@ -901,66 +901,79 @@ public class SettingsActivity extends Activity {
         ed.putString(ServerService.KEY_PORT, portEfektif);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
-        if (portNum > 0 && ServerService.isPortBusy(portNum)) {
-            if (ServerService.portButuhRoot(portNum)) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Port " + portNum + " needs root access")
-                        .setMessage("Main port (" + portNum + ") below 1024 can only be"
-                                + " used with root access.\n"
-                                + "Change the port to >= 1024 (e.g. 8088) above.")
-                        .setPositiveButton("OK", null)
-                        .show();
-                return;
-            }
-            new AlertDialog.Builder(this)
-                    .setTitle("Port " + portNum + " is in use")
-                    .setMessage("Main port (" + portNum + ") is already used by another process.\n"
-                            + "Stop the other app using it, change the port above, "
-                            + "or restart the phone first.")
-                    .setPositiveButton("OK", null)
-                    .show();
-            return;
-        }
+        // Cek port di worker (2x bind ServerSocket di UI thread berisiko ANR
+        // di tumpukan lambat): prefs sudah tersimpan di atas, dialog tetap di UI.
+        final int portCekPort = portNum;
+        final String dirCekPort = dataDirEfektif;
+        Util.jalankanBg(() -> {
+            final boolean portSibuk =
+                    portCekPort > 0 && ServerService.isPortBusy(portCekPort);
+            ui.post(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (portSibuk) {
+                    if (ServerService.portButuhRoot(portCekPort)) {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Port " + portCekPort + " needs root access")
+                                .setMessage("Main port (" + portCekPort + ") below 1024 can only be"
+                                        + " used with root access.\n"
+                                        + "Change the port to >= 1024 (e.g. 8088) above.")
+                                .setPositiveButton("OK", null)
+                                .show();
+                        return;
+                    }
+                    new AlertDialog.Builder(this)
+                            .setTitle("Port " + portCekPort + " is in use")
+                            .setMessage("Main port (" + portCekPort + ") is already used by another process.\n"
+                                    + "Stop the other app using it, change the port above, "
+                                    + "or restart the phone first.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    return;
+                }
 
-        if (!webVaultReady(dataDirEfektif)) {
-            // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
-            // unduh sekali saat Start pertama bila diizinkan.
-            new AlertDialog.Builder(this)
-                    .setTitle("Web vault not installed")
-                    .setMessage("The APK excludes the web vault to stay small.\n"
-                            + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
-                            + "Without the web vault, the server and Bitwarden apps still work normally.")
-                    .setPositiveButton("Download & Start", (d, w) -> {
-                        // App context: unduh 35 MB di worker tak boleh menahan
-                        // Activity yang sudah di-back (bocor) + start dari
-                        // konteks mati (selaras MainActivity).
-                        final android.content.Context appCtx = getApplicationContext();
-                        runBusy(() -> {
-                            boolean gagal = false;
-                            try {
-                                String msg = Updater.updateWebVault(appCtx);
-                                appendUiLog("[app] " + msg);
-                            } catch (Exception e) {
-                                gagal = true;
-                                toast("Web-vault download failed"
-                                        + " \u2014 server was not started: " + e.getMessage());
-                                appendUiLog("[app] Web-vault download failed: " + e);
-                            }
-                            if (!gagal) {
-                                ServerService.start(appCtx);
-                            }
-                        });
-                        maybeAutoBackup();
-                    })
-                    .setNegativeButton("Start without web vault", (d, w) -> {
-                        ServerService.start(this);
-                        maybeAutoBackup();
-                    })
-                    .show();
-            return;
-        }
-        ServerService.start(this);
-        maybeAutoBackup();
+                if (!webVaultReady(dirCekPort)) {
+                    // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
+                    // unduh sekali saat Start pertama bila diizinkan.
+                    new AlertDialog.Builder(this)
+                            .setTitle("Web vault not installed")
+                            .setMessage("The APK excludes the web vault to stay small.\n"
+                                    + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
+                                    + "Without the web vault, the server and Bitwarden apps still work normally.")
+                            .setPositiveButton("Download & Start", (d, w) -> {
+                                // App context: unduh 35 MB di worker tak boleh menahan
+                                // Activity yang sudah di-back (bocor) + start dari
+                                // konteks mati (selaras MainActivity).
+                                final android.content.Context appCtx = getApplicationContext();
+                                runBusy(() -> {
+                                    boolean gagal = false;
+                                    try {
+                                        String msg = Updater.updateWebVault(appCtx);
+                                        appendUiLog("[app] " + msg);
+                                    } catch (Exception e) {
+                                        gagal = true;
+                                        toast("Web-vault download failed"
+                                                + " \u2014 server was not started: " + e.getMessage());
+                                        appendUiLog("[app] Web-vault download failed: " + e);
+                                    }
+                                    if (!gagal) {
+                                        ServerService.start(appCtx);
+                                    }
+                                });
+                                maybeAutoBackup();
+                            })
+                            .setNegativeButton("Start without web vault", (d, w) -> {
+                                ServerService.start(this);
+                                maybeAutoBackup();
+                            })
+                            .show();
+                    return;
+                }
+                ServerService.start(this);
+                maybeAutoBackup();
+            });
+        });
     }
 
     private boolean webVaultReady(String dataDir) {
@@ -992,7 +1005,7 @@ public class SettingsActivity extends Activity {
                 unduhBar.setIndeterminate(true);
             }
             if (refreshActive) {
-                ui.postDelayed(this::refreshFromService, 500);
+                ui.postDelayed(this::refreshFromService, 1500);
             }
             return;
         }
@@ -1572,17 +1585,20 @@ public class SettingsActivity extends Activity {
                     daftar.add(f);
                 }
             }
-            final java.util.Map<java.io.File, Long> waktuUbah = new java.util.HashMap<>();
-            for (java.io.File f : daftar) {
-                waktuUbah.put(f, f.lastModified());
-            }
-            java.util.Collections.sort(daftar, (x, y) -> {
-                Long wx = waktuUbah.get(x);
-                Long wy = waktuUbah.get(y);
-                return Long.compare(wy == null ? 0 : wy, wx == null ? 0 : wx);
-            });
+            // Urut langsung via lastModified (tanpa peta File->Long: daftar
+            // export hanya segelintir berkas sehingga stat per banding murah
+            // dan tanpa autoboxing + lookup peta per banding).
+            java.util.Collections.sort(daftar,
+                    (x, y) -> Long.compare(y.lastModified(), x.lastModified()));
             for (int i = 10; i < daftar.size(); i++) {
-                daftar.get(i).delete();
+                try {
+                    if (!daftar.get(i).delete()) {
+                        appendUiLog("[app] Gagal hapus export lama: "
+                                + daftar.get(i).getName());
+                    }
+                } catch (Exception e) {
+                    appendUiLog("[app] Gagal hapus export lama: " + e);
+                }
             }
         } catch (Exception ignored) {
         }

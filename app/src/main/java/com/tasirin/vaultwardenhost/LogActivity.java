@@ -625,6 +625,98 @@ public class LogActivity extends Activity {
         return false;
     }
 
+    /** Bit topeng kunci rahasia untuk gerbang samarkanLog (satu pemindaian). */
+    private static final int BIT_TOKEN_EQ = 1;
+    private static final int BIT_CHAT = 1 << 1;
+    private static final int BIT_BOT = 1 << 2;
+    private static final int BIT_TELEGRAM = 1 << 3;
+    private static final int BIT_ADMIN = 1 << 4;
+    private static final int BIT_BEARER = 1 << 5;
+    private static final int BIT_TG_PASS = 1 << 6;
+    private static final int BIT_TG = 1 << 7;
+    private static final int BIT_PIN = 1 << 8;
+    private static final int BIT_ALARM = 1 << 9;
+    private static final int BIT_BINSHA = 1 << 10;
+    private static final int BIT_DOMAIN = 1 << 11;
+
+    /** Satu pemindaian semua kunci gerbang (ganti ~8 pindai cocokAscii penuh).
+     *  Semantik setara substring abaikan-huruf seperti cocokAscii sehingga
+     *  over-aproksimasi aman tetap terjaga; redaksi berikutnya tak pernah
+     *  menghapus kunci gerbang pola sesudahnya (kunci dipertahankan di $1)
+     *  sehingga topeng di muka setara gerbang per pola. Murni. */
+    private static int topengKunci(String t) {
+        int topeng = 0;
+        int n = t.length();
+        for (int i = 0; i < n; i++) {
+            char c = t.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                c = (char) (c + 32);
+            }
+            switch (c) {
+                case 't':
+                    if (cocokKunciAt(t, i, "token=")) {
+                        topeng |= BIT_TOKEN_EQ;
+                    }
+                    if (cocokKunciAt(t, i, "tg_pass")) {
+                        topeng |= BIT_TG_PASS | BIT_TG;
+                    } else if (cocokKunciAt(t, i, "tg_")) {
+                        topeng |= BIT_TG;
+                    }
+                    if (cocokKunciAt(t, i, "telegram")) {
+                        topeng |= BIT_TELEGRAM;
+                    }
+                    break;
+                case 'c':
+                    if (cocokKunciAt(t, i, "chat_id") || cocokKunciAt(t, i, "chatid")) {
+                        topeng |= BIT_CHAT;
+                    }
+                    break;
+                case 'b':
+                    if (cocokKunciAt(t, i, "bot")) {
+                        topeng |= BIT_BOT;
+                    }
+                    if (cocokKunciAt(t, i, "bearer")) {
+                        topeng |= BIT_BEARER;
+                    }
+                    if (cocokKunciAt(t, i, "bin_sha")) {
+                        topeng |= BIT_BINSHA;
+                    }
+                    break;
+                case 'a':
+                    if (cocokKunciAt(t, i, "admin_token")) {
+                        topeng |= BIT_ADMIN;
+                    } else if (cocokKunciAt(t, i, "admin")) {
+                        topeng |= BIT_ADMIN;
+                    }
+                    if (cocokKunciAt(t, i, "alarm")) {
+                        topeng |= BIT_ALARM;
+                    }
+                    if (cocokKunciAt(t, i, "api.telegram.org")) {
+                        topeng |= BIT_TELEGRAM;
+                    }
+                    break;
+                case 'p':
+                    if (cocokKunciAt(t, i, "pin")) {
+                        topeng |= BIT_PIN;
+                    }
+                    break;
+                case 'd':
+                    if (cocokKunciAt(t, i, "domain")) {
+                        topeng |= BIT_DOMAIN;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if (topeng == (BIT_TOKEN_EQ | BIT_CHAT | BIT_BOT | BIT_TELEGRAM | BIT_ADMIN
+                    | BIT_BEARER | BIT_TG_PASS | BIT_TG | BIT_PIN | BIT_ALARM
+                    | BIT_BINSHA | BIT_DOMAIN)) {
+                break;
+            }
+        }
+        return topeng;
+    }
+
     /** Cocok kunci ASCII abaikan-huruf di posisi i (batas-aman, tanpa eksepsi). */
     private static boolean cocokKunciAt(String t, int pos, String kunci) {
         int m = kunci.length();
@@ -650,7 +742,8 @@ public class LogActivity extends Activity {
         // string + mesin regex. Gerbang selalu over-aproksimasi aman (pola tak
         // mungkin cocok bila penandanya tak ada di teks). Murni.
         String r = log;
-        if (Util.cocokAscii(r, "token=")) {
+        int topeng = topengKunci(r);
+        if ((topeng & BIT_TOKEN_EQ) != 0) {
             r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
         }
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
@@ -660,10 +753,10 @@ public class LogActivity extends Activity {
         if (r.indexOf('\'') >= 0) {
             r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
         }
-        if (Util.cocokAscii(r, "chat_id") || Util.cocokAscii(r, "chatid")) {
+        if ((topeng & BIT_CHAT) != 0) {
             r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
         }
-        if (Util.cocokAscii(r, "bot")) {
+        if ((topeng & BIT_BOT) != 0) {
             r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
         }
         // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 10+
@@ -674,24 +767,22 @@ public class LogActivity extends Activity {
         }
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
         // di pesan galat) + secret admin via env/query/Bearer.
-        if (Util.cocokAscii(r, "api.telegram.org")) {
+        if ((topeng & BIT_TELEGRAM) != 0) {
             r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
         }
-        if (Util.cocokAscii(r, "admin_token")) {
+        if ((topeng & BIT_ADMIN) != 0) {
             r = POLA_ADMIN_ENV.matcher(r).replaceAll("$1***");
         }
-        if (Util.cocokAscii(r, "bearer")) {
+        if ((topeng & BIT_BEARER) != 0) {
             r = POLA_BEARER.matcher(r).replaceAll("$1***");
         }
-        if (Util.cocokAscii(r, "tg_pass")) {
+        if ((topeng & BIT_TG_PASS) != 0) {
             r = POLA_SANDI_SPASI.matcher(r).replaceAll("$1***");
         }
-        if (Util.cocokAscii(r, "tg_") || Util.cocokAscii(r, "pin")
-                || Util.cocokAscii(r, "admin") || Util.cocokAscii(r, "alarm")
-                || Util.cocokAscii(r, "bin_sha")) {
+        if ((topeng & (BIT_TG | BIT_PIN | BIT_ADMIN | BIT_ALARM | BIT_BINSHA)) != 0) {
             r = POLA_KREDENSIAL_NILAI.matcher(r).replaceAll("$1***");
         }
-        if (Util.cocokAscii(r, "domain")) {
+        if ((topeng & BIT_DOMAIN) != 0) {
             r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
         }
         // IP privat LAN (termasuk :port) disamarkan paling akhir agar sisa

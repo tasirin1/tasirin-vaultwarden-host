@@ -651,11 +651,27 @@ public final class TgBackup {
                     + " - periksa pengaturan bot.");
         }
         java.util.List<String> tujuan = daftarChatTujuan(chat);
-        String resp = null;
+        // Coba semua chat walau satu gagal: dulu chat-0 gagal melempar
+        // sebelum chat-1 dicoba (kirim parsial tanpa laporan), dan fileId
+        // hanya dari chat terakhir. Kumpulkan per-chat di sini.
+        String respTerakhir = null;
+        java.util.List<String> gagalChat = new java.util.ArrayList<>();
         for (int ci = 0; ci < tujuan.size(); ci++) {
-            resp = uploadTelegram(ctx, token, tujuan.get(ci), upload);
+            try {
+                respTerakhir = uploadTelegram(ctx, token, tujuan.get(ci), upload);
+            } catch (Exception e) {
+                gagalChat.add(tujuan.get(ci) + ": "
+                        + (e.getMessage() == null ? e.toString() : e.getMessage()));
+            }
         }
-        String fileId = extractFileId(resp);
+        if (respTerakhir == null) {
+            throw new IOException("Backup gagal ke semua chat ("
+                    + gagalChat.size() + "/" + tujuan.size() + "): "
+                    + gabungGagalChat(gagalChat));
+        }
+        String fileId = extractFileId(respTerakhir);
+        String peringatanChat = gagalChat.isEmpty() ? ""
+                : " (sebagian chat gagal: " + gabungGagalChat(gagalChat) + ")";
         sp.edit()
                 .putLong(KEY_TG_LAST, System.currentTimeMillis())
                 .putString(KEY_TG_LAST_FILE, fileId)
@@ -671,7 +687,25 @@ public final class TgBackup {
                         + " - unduh manual dari chat bila perlu restore)"
                 : "";
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
-                + upload.length() + " bytes ke " + tujuan.size() + " chat)" + peringatan + batas;
+                + upload.length() + " bytes ke " + (tujuan.size() - gagalChat.size())
+                + "/" + tujuan.size() + " chat)" + peringatanChat + peringatan + batas;
+    }
+
+    /** Gabung daftar gagal per-chat dengan "; " tanpa alokasi TextUtils.
+     *  Murni agar bisa unit test JVM. */
+    static String gabungGagalChat(java.util.List<String> gagal) {
+        if (gagal == null || gagal.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < gagal.size(); i++) {
+            if (i > 0) {
+                sb.append("; ");
+            }
+            String s = gagal.get(i);
+            sb.append(s == null ? "" : s);
+        }
+        return sb.toString();
     }
 
     /** Siapkan POST Telegram tanpa ikuti redirect otomatis.
@@ -756,7 +790,25 @@ public final class TgBackup {
                 Thread t = new Thread(r, "vw-tgmsg-penting");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+            }, (tugas, eksekutor) -> {
+                // Selaras TG_MSG_EXEC: tetap anti-OOM tapi kabar kritis yang
+                // gugur wajib jejak di log, bukan hilang sunyi.
+                try {
+                    if (!eksekutor.isShutdown()) {
+                        eksekutor.getQueue().poll();
+                        eksekutor.execute(tugas);
+                    }
+                } catch (Exception ignored) {
+                }
+                try {
+                    android.util.Log.w("TgBackup", "Antrean pesan penting penuh, pesan tertua dibuang.");
+                } catch (Exception ignored) {
+                }
+                try {
+                    ServerService.catatLog("[tg] Antrean pesan penting penuh, pesan tertua dibuang.");
+                } catch (Exception ignored) {
+                }
+            });
 
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
      *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
@@ -1502,8 +1554,13 @@ public final class TgBackup {
                 biasa.add(f);
             }
         }
+        // Stat hanya berkas backup (bukan seluruh isi folder): folder backups
+        // bisa memuat zip besar lain dan lastModified = syscall per berkas.
         final java.util.Map<File, Long> waktuUbah = new java.util.HashMap<>();
-        for (File f : all) {
+        for (File f : biasa) {
+            waktuUbah.put(f, f.lastModified());
+        }
+        for (File f : pre) {
             waktuUbah.put(f, f.lastModified());
         }
         Comparator<File> terbaruDulu = new Comparator<File>() {

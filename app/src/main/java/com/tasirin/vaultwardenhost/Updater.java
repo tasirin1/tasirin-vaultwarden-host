@@ -2533,7 +2533,9 @@ public final class Updater {
     }
 
     /** Panjang body dari header Content-Length sebagai long (mendukung
-     *  file >2 GB dan chunked tanpa getContentLengthLong agar aman API 21). */
+     *  file >2 GB dan chunked tanpa getContentLengthLong agar aman API 21).
+     *  Sekali parse: getContentLength() membaca header yang sama sehingga
+     *  fallback lama membayar parse ganda + int overflow >2GB. */
     static long panjangKonten(HttpURLConnection dl) {
         try {
             String v = dl.getHeaderField("Content-Length");
@@ -2545,11 +2547,7 @@ public final class Updater {
             }
         } catch (Exception ignored) {
         }
-        try {
-            return dl.getContentLength();
-        } catch (Exception ignored) {
-            return -1;
-        }
+        return -1;
     }
 
     /** Hash awalan file yang sudah terunduh (untuk unduhan lanjutan/Range). */

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 27: topeng sekali-jalan, pindai manual, /proc cache, port worker, multi-chat tahan-gagal
+- `LogActivity`: gerbang `samarkanLog` ~8 pindai `cocokAscii` penuh jadi satu `topengKunci()` sekali-jalan (bit per kunci, semantik substring sama persis).
+- `ServerService`: `dataDirAman` tanpa `split` regex + tanpa `getBytes` per segmen (hitung byte UTF-8 manual, cacah dipakai ulang); `POLA_SLASH` mati dibuang.
+- `ServerService`: pindai `/proc` di-cache 8 dtk (`findChildPid`+`killStale` satu pindai; basi aman via verifikasi ulang); buffer baca `status` 2KB bukan 8KB.
+- `SettingsActivity`: cek `isPortBusy` (2x bind) pindah worker + dialog di UI; tick sibuk 500 ms jadi 1500 ms selaras Main.
+- `TgBackup`: upload multi-chat coba semua chat (gagal per-chat dilaporkan, sukses parsial + `fileId` chat sukses terakhir; lempar hanya bila semua gagal); `cleanupOldBackups` stat hanya berkas backup; `TG_PENTING_EXEC` buang ber-log selaras `TG_MSG_EXEC`.
+- `Updater`: `panjangKonten` sekali parse (buang fallback `getContentLength` ganda + overflow int).
+- `SettingsActivity`: `sapuExportEnkripLama` tanpa peta boxing + catat gagal hapus.
+- Koreksi audit: `cleanupOldBackups`/`sapuExport` ternyata sudah di worker (`runBusy`) — bukan ANR; yang dipindah hanya cek port. Helper `parsePortAman` ditolak: tiap situs punya fallback/toast beda, unifikasi berisiko drift.
+
 ## [Belum rilis] — Audit agresif 26: wakelock bot, alias array, symlink cepat, tulis log streaming
 - `TgBotReceiver`: timeout wakelock 20 dtk jadi 60 dtk — poll terburuk ~50 dtk kedaluwarsa di tengah saat Doze sehingga CPU tidur sebelum poll selesai.
 - `StoragePerm`: `izinRuntime()` kembalikan salinan (`clone`) — array bersama yang diekspos bisa diubah pemanggil dan meracuni panggilan berikut.
