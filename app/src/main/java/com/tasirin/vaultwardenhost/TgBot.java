@@ -20,9 +20,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Remote kontrol Vaultwarden Host lewat Telegram bot (long polling getUpdates). */
@@ -167,27 +165,14 @@ public final class TgBot {
         o.append(Util.HEKS[c & 15]);
     }
 
-    /** Pola statis: String.split/matches/replaceAll kompilasi regex tiap panggil. */
-    private static final java.util.regex.Pattern POLA_PIN_NUMERIK =
-            java.util.regex.Pattern.compile("[0-9]{4,}");
-    private static final java.util.regex.Pattern POLA_PIN_KATA =
-            java.util.regex.Pattern.compile("\\S{4,}");
-    private static final java.util.regex.Pattern POLA_PIN_DIGIT =
-            java.util.regex.Pattern.compile(".*[0-9].*");
-    private static final java.util.regex.Pattern POLA_PIN_SIMBOL =
-            java.util.regex.Pattern.compile(".*[^A-Za-z0-9].*");
+    /** Pola statis: String.split/matches/replaceAll kompilasi regex tiap panggil.
+     *  Validasi PIN numerik/kata kini loop char manual (Util) tanpa regex. */
     private static final java.util.regex.Pattern POLA_PIN_MARKER =
             java.util.regex.Pattern.compile("(?is)\\bPIN\\s*:");
     private static final java.util.regex.Pattern POLA_OK_TRUE =
             java.util.regex.Pattern.compile("\"ok\"\\s*:\\s*true");
 
-    /** Cache tanggal status per thread: SimpleDateFormat init berat (Calendar+TimeZone). */
-    private static final ThreadLocal<SimpleDateFormat> FMT_STATUS =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
-                }
-            };
+    /** Tanggal status via cache terpusat Util (satu pintu, hemat ThreadLocal). */
 
     /** True bila body getMe mengandung ok-true (tanpa pindai regex DOTALL). */
     static boolean responsOk(String body) {
@@ -682,7 +667,7 @@ public final class TgBot {
             return;
         }
         try {
-            String bersih = kupasAt(username).toLowerCase(Locale.US);
+            String bersih = Util.rendahAscii(kupasAt(username));
             if (!bersih.isEmpty()) {
                 ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                         .edit().putString(KEY_TG_BOT_USER, bersih).apply();
@@ -807,7 +792,7 @@ public final class TgBot {
             // Bot sendiri belum dikenal → tolak semua yang ber-@.
             return "";
         }
-        String milik = kupasAt(usernameBot).toLowerCase(Locale.US);
+        String milik = Util.rendahAscii(kupasAt(usernameBot));
         if (suffix.equals(milik)) {
             return cmd;
         }
@@ -1457,7 +1442,7 @@ public final class TgBot {
         if (arg == null) {
             return false;
         }
-        String a = arg.trim().toLowerCase(Locale.US);
+        String a = Util.rendahAscii(arg.trim());
         return a.equals("ya") || a.equals("yes") || a.equals("konfirmasi")
                 || a.equals("confirm");
     }
@@ -1476,7 +1461,7 @@ public final class TgBot {
             name = "backup terakhir";
         }
         String tgl = last > 0
-                ? FMT_STATUS.get().format(new Date(last))
+                ? Util.formatTanggal("yyyy-MM-dd HH:mm", new Date(last))
                 : "?";
         return "Backup terakhir: " + name + " (" + tgl + ").\n"
                 + "Server akan dihentikan & database ditimpa."
@@ -1761,7 +1746,7 @@ public final class TgBot {
             // argumen salah ketik, bukan PIN — makan sebagai PIN menambah
             // hitungan lockout sia-sia. PIN alfanumerik kata tunggal wajib
             // bentuk eksplisit "PIN:ab12" (diutamakan di atas).
-            if (POLA_PIN_NUMERIK.matcher(t).matches()) {
+            if (Util.numerik4Plus(t)) {
                 return new String[]{"", t};
             }
             return new String[]{t, ""};
@@ -1797,8 +1782,7 @@ public final class TgBot {
         if (kandidat.contains(".") || kandidat.contains("/") || kandidat.contains("\\")) {
             return new String[]{t, ""};
         }
-        if (POLA_PIN_KATA.matcher(kandidat).matches()
-                && (POLA_PIN_DIGIT.matcher(kandidat).matches() || POLA_PIN_SIMBOL.matcher(kandidat).matches())) {
+        if (Util.pinKataValid(kandidat)) {
             // Sisa dinormalisasi seperti cabang eksplisit agar "YA <TAB>" dan
             // newline cocok isRestoreConfirm ("ya"), bukan gagal banding.
             return new String[]{rapikanSpasi(t.substring(0, i).trim()), kandidat};
@@ -2038,7 +2022,7 @@ public final class TgBot {
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
         long lastBackup = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
         String backupInfo = lastBackup > 0
-                ? FMT_STATUS.get().format(new Date(lastBackup))
+                ? Util.formatTanggal("yyyy-MM-dd HH:mm", new Date(lastBackup))
                 : "belum pernah";
         String wv = Updater.webVaultFromVersion(ctx);
         String wvInfo = wv != null ? wv : "belum ada";

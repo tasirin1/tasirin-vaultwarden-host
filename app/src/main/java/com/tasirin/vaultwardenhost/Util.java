@@ -65,6 +65,13 @@ public final class Util {
         if (m == null) {
             m = java.security.MessageDigest.getInstance("SHA-256");
             MD_SHA256.set(m);
+        } else {
+            // Bersihkan sisa update() yang gagal digest (exception di tengah):
+            // tanpa ini hash berikut di thread sama tercemar state basi.
+            try {
+                m.reset();
+            } catch (Exception ignored) {
+            }
         }
         return m;
     }
@@ -98,6 +105,107 @@ public final class Util {
             o[i * 2 + 1] = HEKS[v & 15];
         }
         return new String(o);
+    }
+
+    /** Rendahkan ASCII A-Z tanpa Locale (tanpa alokasi Locale tiap panggil).
+     *  Untuk host/hex/username/versi yang murni ASCII; bukan teks lokal. Murni. */
+    public static String rendahAscii(String s) {
+        if (s == null) {
+            return "";
+        }
+        int n = s.length();
+        for (int i = 0; i < n; i++) {
+            char c = s.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                char[] o = s.toCharArray();
+                o[i] = (char) (c + 32);
+                for (int j = i + 1; j < n; j++) {
+                    char d = o[j];
+                    if (d >= 'A' && d <= 'Z') {
+                        o[j] = (char) (d + 32);
+                    }
+                }
+                return new String(o);
+            }
+        }
+        return s;
+    }
+
+    /** True bila s numerik 4+ digit (pengganti regex "\d{4,}"). Murni. */
+    static boolean numerik4Plus(String s) {
+        if (s == null || s.length() < 4) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** True bila kandidat PIN implisit valid: min 4 char tanpa spasi dan
+     *  berdigit ATAU bersimbol (pengganti 3 regex PIN). Murni. */
+    static boolean pinKataValid(String s) {
+        if (s == null || s.length() < 4) {
+            return false;
+        }
+        boolean digit = false;
+        boolean simbol = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c <= ' ') {
+                return false;
+            }
+            if (c >= '0' && c <= '9') {
+                digit = true;
+            } else if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+                simbol = true;
+            }
+        }
+        return digit || simbol;
+    }
+
+    /** Cache formatter tanggal per pola (satu pintu): ganti 4 ThreadLocal
+     *  pola sama yang tersebar (LogExport/TgBackup/TgBot) agar thread tak
+     *  memegang Calendar+TimeZone ganda di STB 1 GB. LOG_TS ServerService
+     *  sengaja tetap langsung (jalur log terpanas, tanpa lookup map). Murni. */
+    private static final java.util.Map<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
+            new java.util.HashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();
+
+    /** Format tanggal pola Locale.US ("" bila gagal). Murni. */
+    public static String formatTanggal(String pola, java.util.Date t) {
+        if (pola == null || t == null) {
+            return "";
+        }
+        try {
+            ThreadLocal<java.text.SimpleDateFormat> tl;
+            synchronized (FMT_CACHE) {
+                tl = FMT_CACHE.get(pola);
+                if (tl == null) {
+                    final String p = pola;
+                    tl = new ThreadLocal<java.text.SimpleDateFormat>() {
+                        @Override protected java.text.SimpleDateFormat initialValue() {
+                            return new java.text.SimpleDateFormat(p, java.util.Locale.US);
+                        }
+                    };
+                    FMT_CACHE.put(pola, tl);
+                }
+            }
+            return tl.get().format(t);
+        } catch (Exception ignored) {
+            return "";
+        }
+    }
+
+    /** Format waktu kini pola Locale.US ("" bila gagal). Murni. */
+    public static String formatTanggalSekarang(String pola) {
+        try {
+            return formatTanggal(pola, new java.util.Date());
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
     /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
@@ -620,8 +728,7 @@ public final class Util {
         if (kol < 0) {
             return true;
         }
-        String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
-        return "https".equals(skema);
+        return "https".equals(rendahAscii(l.substring(0, kol)));
     }
 
     /** True bila host termasuk rilis GitHub (unduhan binary/web-vault).
@@ -640,7 +747,7 @@ public final class Util {
         if (kupas == null || kupas.isEmpty()) {
             return false;
         }
-        String h = normalisasiHost(kupas).toLowerCase(java.util.Locale.US);
+        String h = rendahAscii(normalisasiHost(kupas));
         if (h.isEmpty()) {
             return false;
         }
@@ -672,7 +779,7 @@ public final class Util {
         if (kupas == null || kupas.isEmpty()) {
             return false;
         }
-        String h = normalisasiHost(kupas).toLowerCase(java.util.Locale.US);
+        String h = rendahAscii(normalisasiHost(kupas));
         if (h.isEmpty()) {
             return false;
         }
@@ -686,43 +793,19 @@ public final class Util {
      *  Telegram (lihat hostTelegramAman). Dipakai bukaFileTelegram agar token
      *  di path URL tak bocor ke host asing via 302. Murni agar bisa unit test. */
     public static boolean bolehIkutiRedirectTelegram(String asal, String lokasi) {
-        if (!bolehIkutiRedirect(asal, lokasi)) {
-            return false;
-        }
-        if (lokasi == null) {
-            return false;
-        }
-        String l = lokasi.trim();
-        if (l.startsWith("//")) {
-            return hostTelegramAman(potongHost(l.substring(2)));
-        }
-        if (l.startsWith("/")) {
-            return true;
-        }
-        int kol = l.indexOf(':');
-        if (kol < 0) {
-            try {
-                String gabung = sambungRedirect(asal, l);
-                return hostTelegramAman(new java.net.URL(gabung).getHost());
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        try {
-            String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
-            if (!"https".equals(skema)) {
-                return false;
-            }
-            return hostTelegramAman(new java.net.URL(l).getHost());
-        } catch (Exception e) {
-            return false;
-        }
+        return bolehIkutiRedirectHost(asal, lokasi, true);
     }
 
     /** True bila redirect unduhan GitHub boleh diikuti: https + host GitHub.
      *  Dipakai Updater (binary/web-vault/shim).
      *  Murni agar bisa unit test. */
     public static boolean bolehIkutiRedirectGithub(String asal, String lokasi) {
+        return bolehIkutiRedirectHost(asal, lokasi, false);
+    }
+
+    /** Inti tunggal validasi redirect host (Telegram bila telegram=true,
+     *  else GitHub): satu parse + satu lower skema, bukan ganda. Murni. */
+    private static boolean bolehIkutiRedirectHost(String asal, String lokasi, boolean telegram) {
         if (!bolehIkutiRedirect(asal, lokasi)) {
             return false;
         }
@@ -731,26 +814,24 @@ public final class Util {
         }
         String l = lokasi.trim();
         if (l.startsWith("//")) {
-            return hostGithubAman(potongHost(l.substring(2)));
+            String host = potongHost(l.substring(2));
+            return telegram ? hostTelegramAman(host) : hostGithubAman(host);
         }
         if (l.startsWith("/")) {
             return true;
         }
         int kol = l.indexOf(':');
-        if (kol < 0) {
-            try {
-                String gabung = sambungRedirect(asal, l);
-                return hostGithubAman(new java.net.URL(gabung).getHost());
-            } catch (Exception e) {
-                return false;
-            }
-        }
         try {
-            String skema = l.substring(0, kol).toLowerCase(java.util.Locale.US);
-            if (!"https".equals(skema)) {
+            if (kol < 0) {
+                String gabung = sambungRedirect(asal, l);
+                String host = new java.net.URL(gabung).getHost();
+                return telegram ? hostTelegramAman(host) : hostGithubAman(host);
+            }
+            if (!"https".equals(rendahAscii(l.substring(0, kol)))) {
                 return false;
             }
-            return hostGithubAman(new java.net.URL(l).getHost());
+            String host = new java.net.URL(l).getHost();
+            return telegram ? hostTelegramAman(host) : hostGithubAman(host);
         } catch (Exception e) {
             return false;
         }

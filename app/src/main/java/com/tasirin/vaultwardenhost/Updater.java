@@ -403,8 +403,8 @@ public final class Updater {
             if (pa != pb) {
                 return true;
             }
-            String ha = ua.getHost() == null ? "" : ua.getHost().toLowerCase(java.util.Locale.US);
-            String hb = ub.getHost() == null ? "" : ub.getHost().toLowerCase(java.util.Locale.US);
+            String ha = Util.rendahAscii(ua.getHost() == null ? "" : ua.getHost());
+            String hb = Util.rendahAscii(ub.getHost() == null ? "" : ub.getHost());
             return !ha.equals(hb);
         } catch (Exception e) {
             return true;
@@ -423,7 +423,7 @@ public final class Updater {
             } catch (Exception ignored) {
             }
         }
-        return sb.toString().toLowerCase(Locale.US);
+        return Util.rendahAscii(sb.toString());
     }
 
     /** True bila galat TLS disebabkan jam STB salah (sertifikat belum berlaku /
@@ -2576,11 +2576,40 @@ public final class Updater {
         if (expectedHex == null || gotHex == null) {
             return false;
         }
-        byte[] a = expectedHex.trim().toLowerCase(Locale.US)
-                .getBytes(StandardCharsets.UTF_8);
-        byte[] b = gotHex.trim().toLowerCase(Locale.US)
-                .getBytes(StandardCharsets.UTF_8);
-        return MessageDigest.isEqual(a, b);
+        // Banding constant-time tanpa trim().toLowerCase().getBytes (4 alokasi
+        // per verifikasi): kupas spasi manual + samakan huruf ASCII di tempat.
+        int aAwal = 0;
+        int aAkhir = expectedHex.length();
+        while (aAwal < aAkhir && expectedHex.charAt(aAwal) <= ' ') {
+            aAwal++;
+        }
+        while (aAkhir > aAwal && expectedHex.charAt(aAkhir - 1) <= ' ') {
+            aAkhir--;
+        }
+        int bAwal = 0;
+        int bAkhir = gotHex.length();
+        while (bAwal < bAkhir && gotHex.charAt(bAwal) <= ' ') {
+            bAwal++;
+        }
+        while (bAkhir > bAwal && gotHex.charAt(bAkhir - 1) <= ' ') {
+            bAkhir--;
+        }
+        if (aAkhir - aAwal != bAkhir - bAwal) {
+            return false;
+        }
+        int beda = 0;
+        for (int i = 0; i < aAkhir - aAwal; i++) {
+            char ca = expectedHex.charAt(aAwal + i);
+            char cb = gotHex.charAt(bAwal + i);
+            if (ca >= 'A' && ca <= 'F') {
+                ca = (char) (ca + 32);
+            }
+            if (cb >= 'A' && cb <= 'F') {
+                cb = (char) (cb + 32);
+            }
+            beda |= ca ^ cb;
+        }
+        return beda == 0;
     }
 
     /** SHA-256 file sebagai hex kecil; null bila gagal dibaca. */

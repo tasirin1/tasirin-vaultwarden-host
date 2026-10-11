@@ -294,6 +294,15 @@ public final class TgBackup {
     /** Tunggu (interruptible) sampai 5 menit setelah boot. Untuk worker thread
      *  backup otomatis; jangan dipanggil dari receiver/activity thread. */
     public static void tungguBootStabil() throws InterruptedException {
+        // Guard main thread: tidur menit-lama di UI = ANR. Pulang cepat agar
+        // pemanggil masa depan yang keliru tak menggantung aplikasi.
+        try {
+            if (android.os.Looper.getMainLooper() != null
+                    && android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                return;
+            }
+        } catch (Exception ignored) {
+        }
         for (;;) {
             long sisa = sisaTungguBootMs(SystemClock.elapsedRealtime());
             if (sisa <= 0) {
@@ -400,7 +409,7 @@ public final class TgBackup {
     }
 
     /** Format tanggal jam STB per thread: SimpleDateFormat init berat dan tak
-     *  thread-safe (pola sama seperti FMT_BACKUP/FMT_STB di Updater). */
+     *  thread-safe (stamp "yyyyMMdd-HHmmss-SSS" via cache Util). */
     private static final ThreadLocal<java.text.SimpleDateFormat> FMT_JAM_STB =
             new ThreadLocal<java.text.SimpleDateFormat>() {
                 @Override protected java.text.SimpleDateFormat initialValue() {
@@ -3342,13 +3351,8 @@ public final class TgBackup {
         return file.length();
     }
 
-    /** Cache tanggal backup per thread: SimpleDateFormat init berat. */
-    private static final ThreadLocal<SimpleDateFormat> FMT_BACKUP =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US);
-                }
-            };
+    /** Stamp backup via cache terpusat Util (FMT_JAM_STB lokal tetap karena
+     *  Locale Indonesia). */
 
     /** True bila s 32 digit heksa kecil (tanpa kompilasi regex matches). */
     static boolean hex32(String s) {
@@ -3373,7 +3377,7 @@ public final class TgBackup {
 
     /** Stamp "yyyyMMdd-HHmmss-SSS" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
-        return FMT_BACKUP.get().format(new Date());
+        return Util.formatTanggalSekarang("yyyyMMdd-HHmmss-SSS");
     }
 
     /** Stempel nama file anti-timpa (timestamp + 12 hex acak): dua backup/export

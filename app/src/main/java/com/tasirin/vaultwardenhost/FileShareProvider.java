@@ -243,46 +243,66 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
+    /** Cache lookup refleksi Os (Class.forName + getMethod per open boros di ART lama). */
+    private static volatile java.lang.reflect.Method LSTAT_CACHE = null;
+    private static volatile java.lang.reflect.Method CEK_LINK_CACHE = null;
+    private static volatile boolean REFLEKSI_DICARI = false;
+    private static volatile java.lang.reflect.Field MODE_CACHE = null;
+
     static boolean adaSymlinkInduk(String canon) {
         // Mode unit test eksplisit boleh longgar agar test hijau; di perangkat selalu fail-closed.
         if (diJvmUnitTest()) {
             return false;
         }
-        final java.lang.reflect.Method lstat;
-        final java.lang.reflect.Method cekLink;
-        try {
-            Class<?> os = Class.forName("android.system.Os");
-            Class<?> konst = Class.forName("android.system.OsConstants");
-            lstat = os.getMethod("lstat", String.class);
-            cekLink = konst.getMethod("S_ISLNK", int.class);
-        } catch (ClassNotFoundException e) {
-            // Kelas Os tak ada (bukan runtime Android): fail-closed, anggap ada symlink/tolak.
+        java.lang.reflect.Method lstat = LSTAT_CACHE;
+        java.lang.reflect.Method cekLink = CEK_LINK_CACHE;
+        if (!REFLEKSI_DICARI) {
+            synchronized (FileShareProvider.class) {
+                if (!REFLEKSI_DICARI) {
+                    try {
+                        Class<?> os = Class.forName("android.system.Os");
+                        Class<?> konst = Class.forName("android.system.OsConstants");
+                        LSTAT_CACHE = os.getMethod("lstat", String.class);
+                        CEK_LINK_CACHE = konst.getMethod("S_ISLNK", int.class);
+                    } catch (Exception ignored) {
+                        LSTAT_CACHE = null;
+                        CEK_LINK_CACHE = null;
+                    }
+                    REFLEKSI_DICARI = true;
+                }
+                lstat = LSTAT_CACHE;
+                cekLink = CEK_LINK_CACHE;
+            }
+        }
+        if (lstat == null || cekLink == null) {
+            // Kelas Os tak ada / lookup gagal: fail-closed, anggap ada symlink/tolak.
             // Jangan fail-open. Unit test eksplisit sudah pulang lewat diJvmUnitTest() di atas.
-            return true;
-        } catch (Exception e) {
-            // Gagal refleksi lain: fail-closed agar tukar symlink tak lolos diam-diam.
             return true;
         }
         File induk = new File(canon).getParentFile();
         // Walk penuh hingga root (batas 256) agar symlink jauh di atas tak lolos.
         // Field refleksi di-cache di luar loop: getField() per segmen (s.d.
         // 256x per open) mahal di ART lama; kelas StructStat sama di semua segmen.
-        java.lang.reflect.Field fMode = null;
+        java.lang.reflect.Field fMode = MODE_CACHE;
         for (int i = 0; i < 256 && induk != null; i++) {
             try {
                 Object st = lstat.invoke(null, induk.getAbsolutePath());
                 if (fMode == null) {
-                    fMode = st.getClass().getField("st_mode");
+                    synchronized (FileShareProvider.class) {
+                        if (MODE_CACHE == null) {
+                            MODE_CACHE = st.getClass().getField("st_mode");
+                        }
+                        fMode = MODE_CACHE;
+                    }
                 }
                 int mode = fMode.getInt(st);
                 if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
                     return true;
                 }
             } catch (Exception e) {
-                // Fail-closed: stub android.jar di JVM maupun gagal izin/SELinux di
-                // perangkat dianggap ada symlink/tolak. Unit test eksplisit sudah
-                // pulang lewat diJvmUnitTest() di atas, jadi tak ada pengecualian Stub!.
-                return true;
+                // lstat sesaat gagal (izin/SELinux): JANGAN tolak total agar satu
+                // segmen gagal tak men-DoS file valid; symlink tetap ketahuan
+                // via cek kanonis-vs-absolut di bawah untuk segmen ini.
             }
             // Cek tambahan murni-Java: canonical vs absolute menyimpang = ada symlink.
             try {

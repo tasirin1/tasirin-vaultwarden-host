@@ -87,13 +87,20 @@ public final class PinCrypto {
         if (stored == null) {
             return false;
         }
-        String l = stored.trim().toLowerCase(java.util.Locale.US);
-        if (l.length() != 64) {
+        int awal = 0;
+        int akhir = stored.length();
+        while (awal < akhir && stored.charAt(awal) <= ' ') {
+            awal++;
+        }
+        while (akhir > awal && stored.charAt(akhir - 1) <= ' ') {
+            akhir--;
+        }
+        if (akhir - awal != 64) {
             return false;
         }
-        for (int i = 0; i < l.length(); i++) {
-            char c = l.charAt(i);
-            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
+        for (int i = awal; i < akhir; i++) {
+            char c = stored.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
                 return false;
             }
         }
@@ -108,7 +115,7 @@ public final class PinCrypto {
      *  hash legasi valid (tak ada yang boleh ditulis). Murni CPU — panggil
      *  dari worker thread (lihat PinGate.kuatkanHashDini). */
     static String bungkusLegasi(String stored) {
-        String dalam = stored == null ? "" : stored.trim().toLowerCase(java.util.Locale.US);
+        String dalam = Util.rendahAscii(stored == null ? "" : stored.trim());
         if (!hashLegasiValidTernormalisasi(dalam)) {
             return null;
         }

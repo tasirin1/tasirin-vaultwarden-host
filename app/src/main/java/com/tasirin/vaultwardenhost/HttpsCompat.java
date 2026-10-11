@@ -30,6 +30,9 @@ public final class HttpsCompat {
     private static volatile SSLSocketFactory cached;
     /** Cap override anchor (mtime+ukuran); gugur bila file disegarkan. */
     private static volatile long cachedCap = -1L;
+    /** Kunci khusus cap stat: poll 20 dtk + health 30 dtk tak boleh antre
+     *  di kunci kelas yang dipakai build factory (I/O keystore). */
+    private static final Object KUNCI_CAP = new Object();
     /** Pilihan protokol/cipher terhitung (null = belum): dukungan soket
      *  konstan per perangkat + factory tunggal sehingga hitung sekali,
      *  bukan tiap handshake. Gugur bersama factory saat cap berubah. */
@@ -119,9 +122,9 @@ public final class HttpsCompat {
         if (capStat != Long.MIN_VALUE && kini - capWaktu < 60_000) {
             return capNilai;
         }
-        // Sinkron agar dua thread polling tak berlomba baca-tulis capStat/capNilai
-        // (satu bisa menimpa hasil segar dengan nilai basi). I/O kecil (chain KB).
-        synchronized (HttpsCompat.class) {
+        // Sinkron di kunci cap (bukan kunci kelas) agar polling tak antre
+        // dengan build factory; cek ulang dalam kunci seperti semula.
+        synchronized (KUNCI_CAP) {
             // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
             long kini2 = SystemClock.elapsedRealtime();
             if (capStat != Long.MIN_VALUE && kini2 - capWaktu < 60_000) {

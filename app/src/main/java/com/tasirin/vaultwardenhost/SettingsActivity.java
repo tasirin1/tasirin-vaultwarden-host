@@ -3743,7 +3743,27 @@ public class SettingsActivity extends Activity {
     /** Simpan nilai EditText ke prefs begitu berubah. */
     private class SimpleTextWatcher implements android.text.TextWatcher {
         private final String key;
-        private Runnable tugasTunda;
+        private String nilaiTerbaru = "";
+        private int generasiTulis = 0;
+        // Satu Runnable dipakai ulang: tanpa new Runnable/ArrayList per karakter.
+        private final Runnable tugasTunda = () -> {
+            String nilai;
+            int gen;
+            synchronized (tulisTundaAktif) {
+                nilai = nilaiTerbaru;
+                gen = generasiTulis;
+            }
+            try {
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putString(key, nilai).apply();
+            } catch (Exception ignored) {
+            }
+            synchronized (tulisTundaAktif) {
+                if (gen == generasiTulis) {
+                    tulisTundaAktif.remove(tugasTunda);
+                }
+            }
+        };
 
         SimpleTextWatcher(String key) {
             this.key = key;
@@ -3756,25 +3776,14 @@ public class SettingsActivity extends Activity {
         @Override
         public void onTextChanged(CharSequence s, int a, int b, int c) {
             // Debounce: mengetik token panjang tak menulis flash per karakter.
-            final String nilai = s.toString();
-            if (tugasTunda != null) {
-                ui.removeCallbacks(tugasTunda);
-                synchronized (tulisTundaAktif) {
-                    tulisTundaAktif.remove(tugasTunda);
-                }
-            }
-            final Runnable[] wadah = new Runnable[1];
-            wadah[0] = () -> {
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(key, nilai).apply();
-                synchronized (tulisTundaAktif) {
-                    tulisTundaAktif.remove(wadah[0]);
-                }
-            };
-            tugasTunda = wadah[0];
             synchronized (tulisTundaAktif) {
-                tulisTundaAktif.add(tugasTunda);
+                nilaiTerbaru = s == null ? "" : s.toString();
+                generasiTulis++;
+                if (!tulisTundaAktif.contains(tugasTunda)) {
+                    tulisTundaAktif.add(tugasTunda);
+                }
             }
+            ui.removeCallbacks(tugasTunda);
             ui.postDelayed(tugasTunda, 400);
         }
 

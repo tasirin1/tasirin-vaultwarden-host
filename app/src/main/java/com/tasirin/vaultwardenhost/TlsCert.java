@@ -463,7 +463,7 @@ public final class TlsCert {
         if (mentah == null) {
             return hasil;
         }
-        String rendah = mentah.trim().toLowerCase(java.util.Locale.US);
+        String rendah = Util.rendahAscii(mentah.trim());
         for (String potong : POLA_PEMISAH_DNS.split(rendah)) {
             String h = potong.trim();
             if (h.endsWith(".")) {

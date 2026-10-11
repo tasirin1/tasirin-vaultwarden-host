@@ -54,6 +54,11 @@ public class LogActivity extends Activity {
     private final Runnable refreshCari = new Runnable() {
         @Override
         public void run() {
+            // Guard seperti logTick: ketik lalu rotate/destroy dalam 300 ms
+            // membuat runnable jalan di activity mati (crash).
+            if (isDestroyed() || isFinishing()) {
+                return;
+            }
             refreshLog();
         }
     };
@@ -153,6 +158,7 @@ public class LogActivity extends Activity {
     protected void onPause() {
         super.onPause();
         ui.removeCallbacks(logTick);
+        ui.removeCallbacks(refreshCari);
     }
 
     @Override

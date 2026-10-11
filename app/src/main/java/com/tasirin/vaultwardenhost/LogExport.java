@@ -12,9 +12,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /** Simpan log ke .txt di Download (dipakai LogActivity).
  *  Return nama file bila sukses, null bila gagal. */
@@ -23,19 +20,7 @@ public final class LogExport {
     private LogExport() {
     }
 
-    /** Cache tanggal per thread: SimpleDateFormat init berat di STB lama. */
-    private static final ThreadLocal<SimpleDateFormat> FMT_KEPALA =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-                }
-            };
-    private static final ThreadLocal<SimpleDateFormat> FMT_STAMP =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US);
-                }
-            };
+    /** Tanggal via cache terpusat Util (hemat 2 ThreadLocal per thread). */
     /** Acak bersama: new SecureRandom tiap export bisa blokir seed di kernel lama. */
     private static final java.security.SecureRandom ACAK =
             new java.security.SecureRandom();
@@ -47,7 +32,7 @@ public final class LogExport {
         StringBuilder header = new StringBuilder();
         header.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
         header.append("Time: ")
-                .append(FMT_KEPALA.get().format(new Date()))
+                .append(Util.formatTanggalSekarang("yyyy-MM-dd HH:mm:ss"))
                 .append('\n');
         try {
             android.content.pm.PackageInfo info =
@@ -68,7 +53,7 @@ public final class LogExport {
         // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama
         // (ketuk ganda) tak saling timpa; acak 16-bit lama tabrakan 1/65536
         // dan jalur legacy menimpa file yang sudah ada.
-        String stamp = FMT_STAMP.get().format(new Date());
+        String stamp = Util.formatTanggalSekarang("yyyyMMdd-HHmmss-SSS");
         String name = namaLog(stamp, ACAK);
         boolean ok = false;
         android.net.Uri pendingUri = null;
