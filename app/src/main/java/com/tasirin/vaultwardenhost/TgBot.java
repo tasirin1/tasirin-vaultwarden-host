@@ -593,6 +593,28 @@ public final class TgBot {
         return sb.append("]}").toString();
     }
 
+    /** Salin rentang [mulai, akhir) ke String huruf-kecil ASCII (satu pintu:
+     *  dipakai namaPerintah + namaPerintahUntukBot agar loop lower tak ganda).
+     *  Batas dijepit aman sehingga pemanggil tak perlu guard sendiri. Murni. */
+    static String kecilkanRentang(String text, int mulai, int akhir) {
+        int n = text == null ? 0 : text.length();
+        if (mulai < 0) {
+            mulai = 0;
+        }
+        if (akhir > n) {
+            akhir = n;
+        }
+        if (mulai >= akhir) {
+            return "";
+        }
+        char[] kecil = new char[akhir - mulai];
+        for (int i = mulai; i < akhir; i++) {
+            char c = text.charAt(i);
+            kecil[i - mulai] = (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
+        }
+        return new String(kecil);
+    }
+
     /** Nama perintah tanpa `/`, argumen, dan imbuhan `@namabot` grup. Murni. */
     static String namaPerintah(String text) {
         if (text == null) {
@@ -623,15 +645,7 @@ public final class TgBot {
                 break;
             }
         }
-        if (mulai >= akhir) {
-            return "";
-        }
-        char[] kecil = new char[akhir - mulai];
-        for (int i = mulai; i < akhir; i++) {
-            char c = text.charAt(i);
-            kecil[i - mulai] = (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
-        }
-        return new String(kecil);
+        return kecilkanRentang(text, mulai, akhir);
     }
 
     /** Argumen perintah: teks sesudah pemisah whitespace pertama (spasi/tab),
@@ -684,6 +698,23 @@ public final class TgBot {
         }
     }
 
+    /** Throttle getMe gagal 1 jam per token: STB offline dulu membayar
+     *  handshake TLS gagal tiap 20 dtk poll; token diganti = coba langsung. */
+    private static volatile long getMeCobaAt = 0;
+    private static volatile String getMeCobaToken = "";
+    static final long GETME_ULANG_MS = 60L * 60 * 1000;
+
+    /** True bila getMe boleh dicoba lagi untuk token ini (murni waktu). */
+    static boolean bolehCobaGetMe(String tokenRapi, String tokenCoba, long cobaAt, long kini) {
+        if (tokenRapi == null || tokenRapi.isEmpty()) {
+            return false;
+        }
+        if (!tokenRapi.equals(tokenCoba)) {
+            return true;
+        }
+        return cobaAt <= 0 || kini < cobaAt || kini - cobaAt >= GETME_ULANG_MS;
+    }
+
     /** Isi username bot sendiri via getMe bila prefs masih kosong (best-effort).
       *  Dipanggil sekali per poll sampai tersimpan; gagal (offline/token salah)
       *  = diam, perilaku fail-closed lama dipertahankan. Username yang berganti
@@ -699,6 +730,13 @@ public final class TgBot {
         } catch (Exception ignored) {
             return;
         }
+        String tokRapi = token.trim();
+        long kini = SystemClock.elapsedRealtime();
+        if (!bolehCobaGetMe(tokRapi, getMeCobaToken, getMeCobaAt, kini)) {
+            return;
+        }
+        getMeCobaToken = tokRapi;
+        getMeCobaAt = kini;
         try {
             String nama = parseUsernameBot(httpPostForm(ctx, TG_API + token + "/getMe", ""));
             if (!nama.isEmpty()) {
@@ -781,12 +819,7 @@ public final class TgBot {
                 break;
             }
         }
-        char[] kecil = new char[Math.max(0, b - mulai)];
-        for (int i = mulai; i < b; i++) {
-            char c = text.charAt(i);
-            kecil[i - mulai] = (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
-        }
-        String penuh = new String(kecil);
+        String penuh = kecilkanRentang(text, mulai, b);
         if (akhir >= b) {
             return penuh;
         }

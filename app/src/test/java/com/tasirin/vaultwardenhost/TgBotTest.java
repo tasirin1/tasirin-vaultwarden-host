@@ -447,4 +447,25 @@ public class TgBotTest {
         assertFalse(TgBot.responsOk(null));
         assertFalse(TgBot.responsOk(""));
     }
+
+    @Test
+    public void kecilkanRentang_lowerAsciiJepitBatas() {
+        assertEquals("start", TgBot.kecilkanRentang("/START x", 1, 6));
+        assertEquals("", TgBot.kecilkanRentang("/START", 7, 3));
+        assertEquals("", TgBot.kecilkanRentang(null, 0, 5));
+        assertEquals("", TgBot.kecilkanRentang("ab", -9, 0));
+        assertEquals("ab", TgBot.kecilkanRentang("AB", -9, 99));
+    }
+
+    @Test
+    public void bolehCobaGetMe_throttleSatuJamPerToken() {
+        assertTrue(TgBot.bolehCobaGetMe("tokA", "", 0, 1000));
+        assertTrue(TgBot.bolehCobaGetMe("tokB", "tokA", 1000, 2000));
+        assertFalse(TgBot.bolehCobaGetMe("tokA", "tokA", 1000, 2000));
+        assertTrue(TgBot.bolehCobaGetMe("tokA", "tokA", 1000,
+                1000 + TgBot.GETME_ULANG_MS));
+        assertTrue(TgBot.bolehCobaGetMe("tokA", "tokA", 5000, 1000));
+        assertFalse(TgBot.bolehCobaGetMe("", "tokA", 0, 1000));
+        assertFalse(TgBot.bolehCobaGetMe(null, "tokA", 0, 1000));
+    }
 }

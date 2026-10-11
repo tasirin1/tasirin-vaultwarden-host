@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 35: throttle getMe + dedup lower perintah
+- `TgBot.isiNamaBotBilaKosong`: STB offline dulu membayar handshake TLS `getMe` gagal tiap 20 dtk poll; kini throttle 1 jam per token (`bolehCobaGetMe` murni: token ganti = coba langsung, elapsed mundur = coba lagi). Hemat baterai + CPU + log.
+- `TgBot.kecilkanRentang`: 2 loop salin-lower ASCII identik (`namaPerintah` + `namaPerintahUntukBot`) jadi satu pintu batas-jepit; perilaku sama persis (terkunci test perintah yang ada).
+- Test: `kecilkanRentang_lowerAsciiJepitBatas`, `bolehCobaGetMe_throttleSatuJamPerToken` (`TgBotTest`).
+- Sapuan bersih (bukan temuan): `pollOnce` single-flight + snapshot jam/id per poll; `httpPostForm`/`bukaFileTelegram`/`bukaIkutiRedirect` semua berset timeout + redirect fail-closed; `verify`/`perluUpgradeHash` batas iterasi + tolak heks raksasa; `Boot/Alarm/TgBotReceiver` tanpa `getAll` di jalur panas; `LogExport` streaming tanpa salinan ganda; `StoragePerm` dialog throttle per proses.
+
 ## [Belum rilis] — Audit agresif 34: satu pintu penangan antrean penuh
 - `Util.penanganAntreanPenuh(tag)`: 3 salinan identik handler buang-tertua (Util/TgBot/PinGate, ±25 baris tiapnya) jadi satu factory; semantik sama persis (buang tertua + jejak log + offer sekali anti-rekursi StackOverflow). Varian `TgBackup` (TG_MSG/TG_PENTING) sengaja tetap sendiri: membawa `catatLog` server + cek shutdown.
 - Test: `penanganAntreanPenuh_buangTertuaTanpaLempar` (`UtilTest`) — antrean penuh tak melempar, tugas gugur tercatat.
