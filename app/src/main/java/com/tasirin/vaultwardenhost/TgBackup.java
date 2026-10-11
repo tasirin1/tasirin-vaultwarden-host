@@ -909,6 +909,13 @@ public final class TgBackup {
             if (token.isEmpty() || tujuan.isEmpty()) {
                 return;
             }
+            // Config edit manual/import bisa lolos dari validasi UI: jangan
+            // kirim ke puluhan chat (self-spam bandwidth STB). Backup/CA sudah
+            // melempar via semuaChatAman; pesan cukup ditolak + jejak log.
+            if (tujuan.size() > Util.MAKS_CHAT_TUJUAN) {
+                logTgFailure("kirim pesan", -1, "daftar chat melebihi batas");
+                return;
+            }
             // Limit API Telegram 4096 char: pecah agar /status & /log panjang
             // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
             java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);

@@ -815,33 +815,6 @@ public final class TgBot {
         return "";
     }
 
-    /** ID chat resmi sebagai long (0 bila bukan numerik/tak terbaca).
-      *  Dipakai gerbang grup: ID negatif = grup/supergrup. */
-    static long idChatResmi(Context ctx) {
-        try {
-            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                    Context.MODE_PRIVATE);
-            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
-            if (chat.startsWith("+") && chat.length() > 1) {
-                chat = chat.substring(1).trim();
-            }
-            if (chat.startsWith("@")) {
-                return 0;
-            }
-            // Saring digit dulu agar config username tak melempar + isi stack
-            // trace tiap poll 20 dtk di ART lama (pola Util.cocokChat).
-            // Minus depan (ID grup) dikupas dulu; 20+ digit pasti overflow
-            // sehingga tak membayar eksepsi. Hasil sama (catch tetap jaring).
-            String angka = chat.startsWith("-") ? chat.substring(1) : chat;
-            if (!Util.semuaDigit(angka) || angka.length() > 19) {
-                return 0;
-            }
-            return Long.parseLong(chat);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     /** True bila chat resmi wajib diperlakukan seperti grup (selalu butuh PIN).
      *  Fail-closed: config username/tak-terurai dianggap grup karena pemiliknya
      *  tak pasti (lihat Util.chatPerluAnggapGrup). */

@@ -373,6 +373,10 @@ public final class Util {
 
     /** Batas jumlah chat tujuan Telegram (hemat bandwidth/CPU STB). Murni. */
     public static final int MAKS_CHAT_TUJUAN = 5;
+    /** Batas keras entri parser daftar chat (anti-DoS config impor/edit manual
+     *  raksasa: contains() kuadrat + kirim per chat tiap tick). Validasi resmi
+     *  tetap MAKS_CHAT_TUJUAN; auth/kirim konsisten karena satu parser. Murni. */
+    public static final int BATAS_ENTRI_CHAT = 32;
 
     /** Pecah config chat jadi daftar tujuan (pisah koma/titik-koma/spasi/baris).
      *  Urutan dipertahankan, duplikat dibuang, kosong diabaikan. Tanpa regex
@@ -393,6 +397,9 @@ public final class Util {
                     String potong = config.substring(awal, i).trim();
                     if (!potong.isEmpty() && !hasil.contains(potong)) {
                         hasil.add(potong);
+                        if (hasil.size() >= BATAS_ENTRI_CHAT) {
+                            break;
+                        }
                     }
                     awal = -1;
                 }

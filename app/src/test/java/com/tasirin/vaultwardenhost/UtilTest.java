@@ -308,6 +308,18 @@ public class UtilTest {
     }
 
     @Test
+    public void pecahDaftarChatDibatasiAntiDos() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 40; i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(1000 + i);
+        }
+        assertEquals(Util.BATAS_ENTRI_CHAT, Util.pecahDaftarChat(sb.toString()).size());
+    }
+
+    @Test
     public void cocokChatBanyakTerimaSalahSatu() {
         assertTrue(Util.cocokChatBanyak("111,222", 222, ""));
         assertTrue(Util.cocokChatBanyak("111 @namabot", 9, "namabot"));
