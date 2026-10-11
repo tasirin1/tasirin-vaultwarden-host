@@ -381,4 +381,41 @@ public class UtilTest {
         files.delete();
         base.delete();
     }
+
+    @Test
+    public void penanganAntreanPenuh_buangTertuaTanpaLempar() throws Exception {
+        final java.util.concurrent.atomic.AtomicInteger jalan =
+                new java.util.concurrent.atomic.AtomicInteger(0);
+        java.util.concurrent.ThreadPoolExecutor ex =
+                new java.util.concurrent.ThreadPoolExecutor(0, 1, 60L,
+                        java.util.concurrent.TimeUnit.SECONDS,
+                        new java.util.concurrent.LinkedBlockingQueue<Runnable>(1),
+                        r -> {
+                            Thread t = new Thread(r);
+                            t.setDaemon(true);
+                            return t;
+                        },
+                        Util.penanganAntreanPenuh("uji"));
+        final java.util.concurrent.CountDownLatch lepas =
+                new java.util.concurrent.CountDownLatch(1);
+        ex.execute(() -> {
+            try {
+                lepas.await();
+            } catch (Exception ignored) {
+            }
+            jalan.incrementAndGet();
+        });
+        ex.execute(jalan::incrementAndGet);
+        boolean lempar = false;
+        try {
+            // Antrean penuh -> handler buang tertua + tawarkan ulang, tak melempar.
+            ex.execute(jalan::incrementAndGet);
+        } catch (Exception e) {
+            lempar = true;
+        }
+        assertFalse(lempar);
+        assertNotNull(Util.penanganAntreanPenuh(null));
+        lepas.countDown();
+        ex.shutdown();
+    }
 }

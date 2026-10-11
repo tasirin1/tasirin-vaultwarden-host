@@ -65,31 +65,9 @@ public final class TgBot {
     // Satu pool kecil untuk tugas bot (perintah, callback, menu): hemat thread
     // dibanding new Thread per ketukan/perintah di STB 1 GB.
     // Antrean dibatasi agar spam update tak menumpuk OOM di STB 1 GB.
+    // Satu pintu Util (buang tertua + jejak log, anti-rekursi StackOverflow).
     private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
-            new java.util.concurrent.RejectedExecutionHandler() {
-                @Override public void rejectedExecution(Runnable r,
-                        java.util.concurrent.ThreadPoolExecutor e) {
-                    try {
-                        android.util.Log.w("TgBot", "Antrean bot penuh, tugas tertua dibuang");
-                    } catch (Exception ignored) {
-                    }
-                    boolean masuk = false;
-                    try {
-                        e.getQueue().poll();
-                    } catch (Exception ignored) {
-                    }
-                    try {
-                        masuk = e.getQueue().offer(r);
-                    } catch (Exception ignored) {
-                    }
-                    if (!masuk) {
-                        try {
-                            android.util.Log.w("TgBot", "Tugas bot gugur, antrean tetap penuh");
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-            };
+            Util.penanganAntreanPenuh("TgBot");
     private static final java.util.concurrent.ExecutorService BG =
             new java.util.concurrent.ThreadPoolExecutor(3, 3, 0L,
                     java.util.concurrent.TimeUnit.MILLISECONDS,

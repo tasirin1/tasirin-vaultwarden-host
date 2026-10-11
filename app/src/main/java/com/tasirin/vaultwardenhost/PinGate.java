@@ -38,35 +38,9 @@ public final class PinGate {
      *  buang tertua agar spam PIN tak menumpuk OOM di STB 1 GB.
      *  Daemon agar thread idle tak menahan proses saat uji/unit selesai.
      *  Penolakan dicatat agar kegagalan catat tak hilang sunyi. */
+    // Satu pintu Util (buang tertua + jejak log, anti-rekursi StackOverflow).
     private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
-            new java.util.concurrent.RejectedExecutionHandler() {
-                @Override public void rejectedExecution(Runnable r,
-                        java.util.concurrent.ThreadPoolExecutor e) {
-                    try {
-                        android.util.Log.w("PinGate", "Antrean catat penuh, tugas tertua dibuang");
-                    } catch (Exception ignored) {
-                    }
-                    // Tanpa execute() ulang: antrean bisa penuh lagi oleh thread
-                    // lain di antara poll-execute sehingga rejectedExecution
-                    // ber-rekursi hingga StackOverflow di STB. Tawarkan sekali
-                    // via offer (tak melempar/tak rekursi); gagal = gugur tercatat.
-                    boolean masuk = false;
-                    try {
-                        e.getQueue().poll();
-                    } catch (Exception ignored) {
-                    }
-                    try {
-                        masuk = e.getQueue().offer(r);
-                    } catch (Exception ignored) {
-                    }
-                    if (!masuk) {
-                        try {
-                            android.util.Log.w("PinGate", "Catatan PIN gugur, antrean tetap penuh");
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-            };
+            Util.penanganAntreanPenuh("PinGate");
     private static final java.util.concurrent.ExecutorService CATAT_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(0, 1, 60L,
                     java.util.concurrent.TimeUnit.SECONDS,

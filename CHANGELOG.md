@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 34: satu pintu penangan antrean penuh
+- `Util.penanganAntreanPenuh(tag)`: 3 salinan identik handler buang-tertua (Util/TgBot/PinGate, ±25 baris tiapnya) jadi satu factory; semantik sama persis (buang tertua + jejak log + offer sekali anti-rekursi StackOverflow). Varian `TgBackup` (TG_MSG/TG_PENTING) sengaja tetap sendiri: membawa `catatLog` server + cek shutdown.
+- Test: `penanganAntreanPenuh_buangTertuaTanpaLempar` (`UtilTest`) — antrean penuh tak melempar, tugas gugur tercatat.
+- Sapuan bersih (bukan temuan): `TgBotReceiver` goAsync+wakelock+fallback berlapis; `Boot/AlarmReceiver` tanpa `getAll` di jalur panas; `AutoUpdate.cek`/`PinActivity`/`SettingsActivity.refreshRingkasan`+`teksKuncian` semua worker/cache/gerbang; `Toast`/`dialog` hanya dari UI; tanpa `MODE_WORLD`/`sendBroadcast`/`printStackTrace`/`String.format` di scope app; semua `openConnection` berset timeout; `getPackageInfo` sekali saat create.
+
 ## [Belum rilis] — Audit agresif 33: encode-once multi-chat + verifier statis + toast aman-thread
 - `TgBackup.kirimSinkron`: `URLEncoder.encode` potongan pesan dulu jalan per kombinasi chat×potongan (teks 4KB ke 5 chat = 5x encode identik di CPU STB); kini encode sekali per chat/potongan/markup + rakit via `bangunParamPesan` satu pintu (builder pra-ukuran, tanpa regrow). Byte body identik.
 - `ServerService.cobaKode`: lambda `HostnameVerifier` loopback dulu dialokasi tiap tick health (30 dtk/2 mnt); kini konstanta statis `VERIF_LOOPBACK` tanpa state.

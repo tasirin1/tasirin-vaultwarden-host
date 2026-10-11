@@ -23,34 +23,43 @@ public final class Util {
     // buang tertua agar spam tak menumpuk OOM; tugas ringan boleh dilewati.
     // Penolakan dicatat (bukan sunyi) agar tugas hilang bisa dilacak di log.
     private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
-            new java.util.concurrent.RejectedExecutionHandler() {
-                @Override public void rejectedExecution(Runnable r,
-                        java.util.concurrent.ThreadPoolExecutor e) {
+            penanganAntreanPenuh("Util");
+
+    /** Penanganan antrean penuh bersama (buang tertua + jejak log, tanpa rekursi).
+     *  Satu pintu ganti salinan identik di TgBot/PinGate: tanpa execute() ulang
+     *  di dalam handler (antrean bisa penuh lagi oleh thread lain di antara
+     *  poll-execute sehingga ber-rekursi hingga StackOverflow di STB). Tawarkan
+     *  sekali via offer (tak melempar/tak rekursi); gagal = gugur tercatat.
+     *  Varian TgBackup (TG_MSG/TG_PENTING) sengaja tetap sendiri: membawa
+     *  catatLog server + cek shutdown yang tak berlaku umum. Murni alur. */
+    public static java.util.concurrent.RejectedExecutionHandler penanganAntreanPenuh(
+            final String tag) {
+        final String t = tag == null ? "Util" : tag;
+        return new java.util.concurrent.RejectedExecutionHandler() {
+            @Override public void rejectedExecution(Runnable r,
+                    java.util.concurrent.ThreadPoolExecutor e) {
+                try {
+                    android.util.Log.w(t, "Antrean penuh, tugas tertua dibuang");
+                } catch (Exception ignored) {
+                }
+                boolean masuk = false;
+                try {
+                    e.getQueue().poll();
+                } catch (Exception ignored) {
+                }
+                try {
+                    masuk = e.getQueue().offer(r);
+                } catch (Exception ignored) {
+                }
+                if (!masuk) {
                     try {
-                        android.util.Log.w("Util", "Antrean penuh, tugas tertua dibuang: " + r);
+                        android.util.Log.w(t, "Tugas gugur, antrean tetap penuh");
                     } catch (Exception ignored) {
-                    }
-                    // Tanpa execute() ulang: antrean bisa penuh lagi oleh thread
-                    // lain di antara poll-execute sehingga rejectedExecution
-                    // ber-rekursi hingga StackOverflow di STB. Tawarkan sekali
-                    // via offer (tak melempar/tak rekursi); gagal = gugur tercatat.
-                    boolean masuk = false;
-                    try {
-                        e.getQueue().poll();
-                    } catch (Exception ignored) {
-                    }
-                    try {
-                        masuk = e.getQueue().offer(r);
-                    } catch (Exception ignored) {
-                    }
-                    if (!masuk) {
-                        try {
-                            android.util.Log.w("Util", "Tugas gugur, antrean tetap penuh: " + r);
-                        } catch (Exception ignored) {
-                        }
                     }
                 }
-            };
+            }
+        };
+    }
     private static final java.util.concurrent.ExecutorService BG_RINGAN =
             new java.util.concurrent.ThreadPoolExecutor(0, 3, 60L,
                     java.util.concurrent.TimeUnit.SECONDS,
