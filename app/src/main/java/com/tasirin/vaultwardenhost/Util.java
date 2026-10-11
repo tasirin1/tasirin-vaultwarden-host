@@ -21,6 +21,25 @@ public final class Util {
     // Pool bersama tugas ringan UI (cek port, refresh berat, auto-check): hemat
     // thread dibanding new Thread per tugas di STB 1 GB. Antrean dibatasi 32 +
     // buang tertua agar spam tak menumpuk OOM; tugas ringan boleh dilewati.
+    // Penolakan dicatat (bukan sunyi) agar tugas hilang bisa dilacak di log.
+    private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
+            new java.util.concurrent.RejectedExecutionHandler() {
+                @Override public void rejectedExecution(Runnable r,
+                        java.util.concurrent.ThreadPoolExecutor e) {
+                    try {
+                        android.util.Log.w("Util", "Antrean penuh, tugas tertua dibuang: " + r);
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        e.getQueue().poll();
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        e.execute(r);
+                    } catch (Exception ignored) {
+                    }
+                }
+            };
     private static final java.util.concurrent.ExecutorService BG_RINGAN =
             new java.util.concurrent.ThreadPoolExecutor(0, 3, 60L,
                     java.util.concurrent.TimeUnit.SECONDS,
@@ -28,7 +47,7 @@ public final class Util {
                 Thread t = new Thread(r, "vw-ui-bg");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+            }, BUANG_BERLOG);
 
     // Pool tugas lama (unduh binary/web-vault, auto-update, hash PIN): tugas
     // menit-lama tak boleh memonopoli pool ringan hingga cek port terbuang.
@@ -39,7 +58,7 @@ public final class Util {
                 Thread t = new Thread(r, "vw-bg-lama");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+            }, BUANG_BERLOG);
 
     /** Jalankan tugas lama (menit-lama) di pool sendiri. */
     public static void jalankanLama(Runnable r) {

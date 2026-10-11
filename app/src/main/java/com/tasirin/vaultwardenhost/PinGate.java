@@ -36,7 +36,26 @@ public final class PinGate {
     private static final Object KUNCI_GRACE = new Object();
     /** Executor tunggal berbatas untuk pencatatan gagal: antrean 32 +
      *  buang tertua agar spam PIN tak menumpuk OOM di STB 1 GB.
-     *  Daemon agar thread idle tak menahan proses saat uji/unit selesai. */
+     *  Daemon agar thread idle tak menahan proses saat uji/unit selesai.
+     *  Penolakan dicatat agar kegagalan catat tak hilang sunyi. */
+    private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
+            new java.util.concurrent.RejectedExecutionHandler() {
+                @Override public void rejectedExecution(Runnable r,
+                        java.util.concurrent.ThreadPoolExecutor e) {
+                    try {
+                        android.util.Log.w("PinGate", "Antrean catat penuh, tugas tertua dibuang");
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        e.getQueue().poll();
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        e.execute(r);
+                    } catch (Exception ignored) {
+                    }
+                }
+            };
     private static final java.util.concurrent.ExecutorService CATAT_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(0, 1, 60L,
                     java.util.concurrent.TimeUnit.SECONDS,
@@ -44,7 +63,7 @@ public final class PinGate {
                 Thread t = new Thread(r, "vw-pin-catat");
                 t.setDaemon(true);
                 return t;
-            }, new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy());
+            }, BUANG_BERLOG);
 
     /** True bila PIN dibuka dalam grace (tanpa peka activity). Murni waktu. */
     public static boolean dalamGraceBersama() {

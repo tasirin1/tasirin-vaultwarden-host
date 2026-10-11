@@ -34,12 +34,15 @@ public final class StoragePerm {
             Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
-    /** Izin runtime yang diminta (dipakai di bawah API 30 dan pelengkap di 30+). */
+    /** Izin runtime yang diminta (dipakai di bawah API 30 dan pelengkap di 30+).
+     *  Kembalikan salinan: array bersama yang diekspos langsung bisa diubah
+     *  pemanggil dan meracuni panggilan berikutnya. Dipanggil jarang (saat
+     *  minta izin) sehingga biaya clone diabaikan. */
     public static String[] izinRuntime(int sdk) {
         if (sdk < Build.VERSION_CODES.M) {
-            return IZIN_KOSONG;
+            return IZIN_KOSONG.clone();
         }
-        return IZIN_RW;
+        return IZIN_RW.clone();
     }
 
     /** True bila folder data berada di storage eksternal sehingga butuh izin. */

@@ -847,11 +847,13 @@ public final class Updater {
         if (lanjutDari > 0) {
             // Kunci TOCTOU: file bisa berubah (cleanup/storage) antara baca
             // prefix dan append sehingga hash basi + data campur. Batalkan
-            // lantang agar pemanggil unduh ulang dari nol.
+            // lantang agar pemanggil unduh ulang dari nol. Hanya panjang
+            // yang diandalkan: lastModified di /sdcard FAT bergranularitas
+            // 2 detik sehingga perubahan dalam jendela itu lolos bila
+            // memakai mtime.
             long capPanjang = tmp.length();
-            long capUbah = tmp.lastModified();
             digestPrefix(md, tmp, lanjutDari);
-            if (tmp.length() != capPanjang || tmp.lastModified() != capUbah) {
+            if (tmp.length() != capPanjang) {
                 throw new IOException("File parsial berubah saat di-hash"
                         + " - unduh ulang dari nol.");
             }

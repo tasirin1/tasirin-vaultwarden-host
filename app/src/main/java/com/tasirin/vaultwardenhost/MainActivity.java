@@ -100,8 +100,8 @@ public class MainActivity extends Activity {
     private long lastUiLogRefresh = 0;
     // Cache URL lokal 10 detik: localUrl()/collectIps() tiap detik di UI thread
     // bikin ANR di STB lambat; pakai cache agar enumerasi jaringan jarang jalan.
-    private static String cacheUrl = "";
-    private static long cacheWaktu = 0;
+    private static volatile String cacheUrl = "";
+    private static volatile long cacheWaktu = 0;
 
     /** Kapan MainActivity terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
@@ -513,7 +513,7 @@ public class MainActivity extends Activity {
             }
             refreshHomeLog();
             if (refreshActive) {
-                ui.postDelayed(this::refreshFromService, 500);
+                ui.postDelayed(this::refreshFromService, 1500);
             }
             return;
         }

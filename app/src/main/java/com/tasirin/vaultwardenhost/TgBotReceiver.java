@@ -92,11 +92,13 @@ public class TgBotReceiver extends BroadcastReceiver {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot");
-            // Timeout 20 dtk hanya pengaman thread macet (poll terburuk
+            // Timeout 60 dtk hanya pengaman thread macet (poll terburuk
             // ~50 dtk saat timeout jaring 15/35 dtk): kunci dilepas di
             // finally tepat setelah poll selesai sehingga CPU boleh tidur
-            // antar-poll, tak ditahan penuh 20 dtk tiap 20 dtk.
-            wl.acquire(20_000);
+            // antar-poll, tak ditahan penuh 60 dtk tiap 20 dtk. Batas 20 dtk
+            // lama kedaluwarsa di tengah poll panjang saat Doze sehingga
+            // CPU tidur sebelum poll selesai dan perintah hilang.
+            wl.acquire(60_000);
             return wl;
         } catch (Exception e) {
             return null;

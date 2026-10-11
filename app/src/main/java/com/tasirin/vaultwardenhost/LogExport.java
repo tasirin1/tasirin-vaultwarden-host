@@ -29,26 +29,29 @@ public final class LogExport {
     public static String simpanKeDownload(Activity act, String logMentah) {
         String log = LogActivity.butuhSamaran(logMentah)
                 ? LogActivity.samarkanLog(logMentah) : (logMentah == null ? "" : logMentah);
-        StringBuilder header = new StringBuilder();
-        header.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
-        header.append("Time: ")
+        // Kepala tetap kecil: badan log ditulis streaming terpisah agar tak
+        // ada salinan String+byte ganda 300 KB di heap STB (dulu header
+        // menampung seluruh log lalu toString+getBytes menggandakannya).
+        StringBuilder kepala = new StringBuilder(256);
+        kepala.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
+        kepala.append("Time: ")
                 .append(Util.formatTanggalSekarang("yyyy-MM-dd HH:mm:ss"))
                 .append('\n');
         try {
             android.content.pm.PackageInfo info =
                     act.getPackageManager().getPackageInfo(act.getPackageName(), 0);
-            header.append("App version: ").append(info.versionName)
+            kepala.append("App version: ").append(info.versionName)
                     .append(" (build ").append(info.versionCode).append(")\n");
         } catch (Exception ignored) {
-            header.append("App version: ?\n");
+            kepala.append("App version: ?\n");
         }
-        header.append("Android: ").append(Build.VERSION.RELEASE)
+        kepala.append("Android: ").append(Build.VERSION.RELEASE)
                 .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
         // Privasi: sidik perangkat (merek + model) sengaja tak diekspor agar
         // berkas log yang dibagikan tak memuat fingerprint perangkat.
-        header.append("Device: [perangkat disamarkan]\n\n");
-        header.append(log.isEmpty() ? "(No server activity yet)\n" : log);
-        header.append('\n');
+        kepala.append("Device: [perangkat disamarkan]\n\n");
+        String kepalaTeks = kepala.toString();
+        String badan = log.isEmpty() ? "(No server activity yet)\n" : log;
 
         // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama
         // (ketuk ganda) tak saling timpa; acak 16-bit lama tabrakan 1/65536
@@ -68,9 +71,14 @@ public final class LogExport {
                 Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
                 pendingUri = uri;
                 if (uri != null) {
-                    try (OutputStream out = resolver.openOutputStream(uri)) {
-                        if (out != null) {
-                            out.write(header.toString().getBytes(StandardCharsets.UTF_8));
+                    try (OutputStream mentah = resolver.openOutputStream(uri)) {
+                        if (mentah != null) {
+                            try (java.io.OutputStreamWriter w =
+                                    new java.io.OutputStreamWriter(mentah, StandardCharsets.UTF_8)) {
+                                w.write(kepalaTeks);
+                                w.write(badan);
+                                w.write('\n');
+                            }
                             ok = true;
                         } else {
                             resolver.delete(uri, null, null);
@@ -155,7 +163,9 @@ public final class LogExport {
                     try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                             new FileOutputStream(tujuan, false),
                             StandardCharsets.UTF_8)) {
-                        w.write(header.toString());
+                        w.write(kepalaTeks);
+                        w.write(badan);
+                        w.write('\n');
                         ok = true;
                     }
                 }

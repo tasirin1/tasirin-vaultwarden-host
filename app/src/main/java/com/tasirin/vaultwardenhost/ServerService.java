@@ -1045,6 +1045,10 @@ public class ServerService extends Service {
     // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
     @SuppressWarnings("deprecation")
     private void startForegroundCompat() {
+        try {
+            createChannel();
+        } catch (Exception ignored) {
+        }
         Intent open = new Intent(this, MainActivity.class);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -3846,13 +3850,22 @@ public class ServerService extends Service {
 
     /** Pangkas buffer log di batas code-point (wajib dalam lock logBuffer).
      *  Belah pasangan surrogate emoji menghasilkan lone surrogate (tofu di
-     *  layar / 400 Telegram) sehingga titik potong digeser bila perlu. */
+     *  layar / 400 Telegram) sehingga titik potong digeser bila perlu.
+     *  Titik potong dimajukan ke awal baris berikut agar tak menyisakan
+     *  potongan baris di kepala buffer (pindai terbatas 4 KB). */
     private static void pangkasBufferTerkunci() {
         if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
             int potongBuf = logBuffer.length() - MAX_LOG_CHARS / 2;
             if (potongBuf > 0 && potongBuf < logBuffer.length()
                     && Character.isLowSurrogate(logBuffer.charAt(potongBuf))
                     && Character.isHighSurrogate(logBuffer.charAt(potongBuf - 1))) {
+                potongBuf++;
+            }
+            int batas = Math.min(logBuffer.length(), potongBuf + 4096);
+            while (potongBuf < batas && logBuffer.charAt(potongBuf) != '\n') {
+                potongBuf++;
+            }
+            if (potongBuf < logBuffer.length()) {
                 potongBuf++;
             }
             logBuffer.delete(0, potongBuf);

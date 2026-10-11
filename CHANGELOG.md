@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 26: wakelock bot, alias array, symlink cepat, tulis log streaming
+- `TgBotReceiver`: timeout wakelock 20 dtk jadi 60 dtk — poll terburuk ~50 dtk kedaluwarsa di tengah saat Doze sehingga CPU tidur sebelum poll selesai.
+- `StoragePerm`: `izinRuntime()` kembalikan salinan (`clone`) — array bersama yang diekspos bisa diubah pemanggil dan meracuni panggilan berikut.
+- `FileShareProvider`: `adaSymlinkInduk()` jalur cepat kanonis-vs-absolut dulu — cocok langsung false tanpa 256x lstat+canonical per segmen di ART lama; beda langsung true; walk lstat hanya saat I/O gagal.
+- `LogExport`: kepala kecil + badan log ditulis streaming via `OutputStreamWriter` — tanpa salinan ganda String+byte 300 KB di heap STB.
+- `ServerService`: `startForegroundCompat()` pastikan `createChannel()` dulu (anti crash notif tanpa channel di Android 8+); trim log maju ke awal baris berikut (pindai batas 4 KB) agar tak sisakan potongan baris.
+- `Updater`: cek TOCTOU resume hanya panjang file — `lastModified` FAT bergranularitas 2 detik sehingga perubahan dalam jendela lolos.
+- `Util`/`PinGate`: penolakan antrean penuh kini ber-log (`BUANG_BERLOG`) — tugas hilang tak lagi sunyi.
+- `MainActivity`: cache URL jadi `volatile`; tick sibuk 500 ms jadi 1500 ms (separuh bangun CPU saat unduh).
+
 ## [Belum rilis] — Audit agresif 25: 5 validator ketikan trim sekali
 - `SettingsActivity`: `galatPort`/`galatAdmin`/`galatTgToken`/`galatChat`/`galatFolder` trim 2x jadi lokal `isi` sekali — validator ini jalan tiap karakter ketikan (jalur input terpanas), perilaku sama persis.
 - Sapuan angle baru (banding `==`, race ARM, charset, `disconnect`, leak static, duplikasi): nihil temuan — ronde 15–24 sudah menutupnya.

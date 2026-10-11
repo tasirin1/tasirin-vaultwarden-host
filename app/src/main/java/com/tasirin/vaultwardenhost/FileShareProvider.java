@@ -254,6 +254,18 @@ public class FileShareProvider extends ContentProvider {
         if (diJvmUnitTest()) {
             return false;
         }
+        // Jalur cepat: canonical-vs-absolute path penuh sudah menyelesaikan
+        // semua symlink di rantai. Cocok = tak ada symlink, langsung false
+        // tanpa 256x lstat+canonical per segmen di ART lama. Beda = ada
+        // symlink, langsung true. Hanya saat I/O gagal jatuh ke walk lstat.
+        try {
+            java.io.File fCepat = new java.io.File(canon);
+            if (fCepat.getCanonicalPath().equals(fCepat.getAbsolutePath())) {
+                return false;
+            }
+            return true;
+        } catch (Exception ignored) {
+        }
         java.lang.reflect.Method lstat = LSTAT_CACHE;
         java.lang.reflect.Method cekLink = CEK_LINK_CACHE;
         if (!REFLEKSI_DICARI) {
