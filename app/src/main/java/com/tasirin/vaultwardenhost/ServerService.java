@@ -496,9 +496,7 @@ public class ServerService extends Service {
         }
         File bak = new File(out.getParentFile(), out.getName() + ".bak");
         try {
-            if (bak.exists() && !bak.delete()) {
-                bak.delete();
-            }
+            bak.delete();
         } catch (Exception ignored) {
         }
         if (out.exists() && !out.renameTo(bak)) {
@@ -535,9 +533,7 @@ public class ServerService extends Service {
                 }
             } else if (ok) {
                 try {
-                    if (bak.exists() && !bak.delete()) {
-                        bak.delete();
-                    }
+                    bak.delete();
                 } catch (Exception ignored) {
                 }
                 // Best-effort: fsync direktori agar rename awet bila STB mati

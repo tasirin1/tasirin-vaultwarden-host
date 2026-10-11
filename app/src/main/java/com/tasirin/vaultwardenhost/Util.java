@@ -171,8 +171,8 @@ public final class Util {
      *  pola sama yang tersebar (LogExport/TgBackup/TgBot) agar thread tak
      *  memegang Calendar+TimeZone ganda di STB 1 GB. LOG_TS ServerService
      *  sengaja tetap langsung (jalur log terpanas, tanpa lookup map). Murni. */
-    private static final java.util.Map<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
-            new java.util.HashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();
 
     /** Format tanggal pola Locale.US ("" bila gagal). Murni. */
     public static String formatTanggal(String pola, java.util.Date t) {
@@ -180,18 +180,18 @@ public final class Util {
             return "";
         }
         try {
-            ThreadLocal<java.text.SimpleDateFormat> tl;
-            synchronized (FMT_CACHE) {
-                tl = FMT_CACHE.get(pola);
-                if (tl == null) {
-                    final String p = pola;
-                    tl = new ThreadLocal<java.text.SimpleDateFormat>() {
-                        @Override protected java.text.SimpleDateFormat initialValue() {
-                            return new java.text.SimpleDateFormat(p, java.util.Locale.US);
-                        }
-                    };
-                    FMT_CACHE.put(pola, tl);
-                }
+            ThreadLocal<java.text.SimpleDateFormat> tl = FMT_CACHE.get(pola);
+            if (tl == null) {
+                final String pe = pola;
+                ThreadLocal<java.text.SimpleDateFormat> buat =
+                        new ThreadLocal<java.text.SimpleDateFormat>() {
+                    @Override protected java.text.SimpleDateFormat initialValue() {
+                        return new java.text.SimpleDateFormat(pe, java.util.Locale.US);
+                    }
+                };
+                ThreadLocal<java.text.SimpleDateFormat> menang =
+                        FMT_CACHE.putIfAbsent(pola, buat);
+                tl = menang != null ? menang : buat;
             }
             return tl.get().format(t);
         } catch (Exception ignored) {
@@ -211,20 +211,34 @@ public final class Util {
     /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
     private static volatile android.os.Handler HANDLER_UTAMA = null;
 
+    /** Handler utama bersama satu pintu (ganti blok ambil-handler ganda
+     *  di postTunda/postUtama yang rawan drift). */
+    private static android.os.Handler handlerUtama() {
+        try {
+            android.os.Looper looper = android.os.Looper.getMainLooper();
+            if (looper == null) {
+                return null;
+            }
+            android.os.Handler h = HANDLER_UTAMA;
+            if (h == null || h.getLooper() != looper) {
+                h = new android.os.Handler(looper);
+                HANDLER_UTAMA = h;
+            }
+            return h;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     /** Tunda runnable di looper utama (best-effort, abaikan bila tak ada). */
     public static void postTunda(Runnable r, long tundaMs) {
         if (r == null) {
             return;
         }
         try {
-            android.os.Looper looper = android.os.Looper.getMainLooper();
-            if (looper == null) {
+            android.os.Handler h = handlerUtama();
+            if (h == null) {
                 return;
-            }
-            android.os.Handler h = HANDLER_UTAMA;
-            if (h == null || h.getLooper() != looper) {
-                h = new android.os.Handler(looper);
-                HANDLER_UTAMA = h;
             }
             h.postDelayed(r, tundaMs);
         } catch (Exception ignored) {
@@ -237,14 +251,9 @@ public final class Util {
             return;
         }
         try {
-            android.os.Looper looper = android.os.Looper.getMainLooper();
-            if (looper == null) {
+            android.os.Handler h = handlerUtama();
+            if (h == null) {
                 return;
-            }
-            android.os.Handler h = HANDLER_UTAMA;
-            if (h == null || h.getLooper() != looper) {
-                h = new android.os.Handler(looper);
-                HANDLER_UTAMA = h;
             }
             h.post(r);
         } catch (Exception ignored) {
