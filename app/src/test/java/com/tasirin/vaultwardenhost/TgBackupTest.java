@@ -1128,5 +1128,15 @@ public class TgBackupTest {
         }
         TgBackup.tulisAscii(new java.io.ByteArrayOutputStream(), null);
     }
+    @Test
+    public void bangunParamPesan_tanpaKeyboardDanDenganKeyboard() {
+        assertEquals("chat_id=123&text=halo",
+                TgBackup.bangunParamPesan("123", "halo", null));
+        assertEquals("chat_id=123&text=halo&reply_markup=KB",
+                TgBackup.bangunParamPesan("123", "halo", "KB"));
+        assertEquals("chat_id=&text=",
+                TgBackup.bangunParamPesan(null, null, null));
+    }
 }
+
 

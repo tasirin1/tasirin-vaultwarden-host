@@ -926,6 +926,21 @@ public final class TgBackup {
         return out;
     }
 
+    /** Rakit body form sendMessage dari nilai yang sudah di-encode (satu pintu:
+     *  keyboard hanya di potongan terakhir — keputusan di pemanggil via mk null).
+     *  Builder pra-ukuran agar tak regrow per potongan. Murni agar bisa unit test. */
+    static String bangunParamPesan(String chatEnk, String teksEnk, String mkEnk) {
+        String c = chatEnk == null ? "" : chatEnk;
+        String t = teksEnk == null ? "" : teksEnk;
+        StringBuilder b = new StringBuilder(8 + c.length()
+                + 6 + t.length() + (mkEnk == null ? 0 : 14 + mkEnk.length()));
+        b.append("chat_id=").append(c).append("&text=").append(t);
+        if (mkEnk != null) {
+            b.append("&reply_markup=").append(mkEnk);
+        }
+        return b.toString();
+    }
+
     /** True bila char adalah lanjutan grapheme yang tak boleh membuka potongan:
      *  combining mark, ZWJ, variation selector. Murni agar bisa unit test. */
     static boolean ekorGrapheme(char c) {
@@ -978,19 +993,25 @@ public final class TgBackup {
             // Limit API Telegram 4096 char: pecah agar /status & /log panjang
             // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
             java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
+            // Encode sekali per chat/potongan (bukan per kombinasi): teks sama
+            // untuk semua tujuan sehingga /log 4KB ke 5 chat dulu membayar
+            // URLEncoder 5x per potongan di CPU STB.
+            java.util.List<String> enkChat = new java.util.ArrayList<String>(tujuan.size());
             for (int ci = 0; ci < tujuan.size(); ci++) {
-                String satu = tujuan.get(ci);
+                enkChat.add(URLEncoder.encode(tujuan.get(ci), "UTF-8"));
+            }
+            java.util.List<String> enkBagian = new java.util.ArrayList<String>(bagian.size());
+            for (int bi = 0; bi < bagian.size(); bi++) {
+                enkBagian.add(URLEncoder.encode(bagian.get(bi), "UTF-8"));
+            }
+            String enkMk = (markup == null || markup.isEmpty()) ? null
+                    : URLEncoder.encode(markup, "UTF-8");
+            for (int ci = 0; ci < tujuan.size(); ci++) {
+                String chatEnk = enkChat.get(ci);
                 for (int bi = 0; bi < bagian.size(); bi++) {
-                    String potong = bagian.get(bi);
-                    String mk = (bi == bagian.size() - 1) ? markup : null;
+                    String mk = (bi == bagian.size() - 1) ? enkMk : null;
                     // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                    String param = "chat_id=" + URLEncoder.encode(satu, "UTF-8")
-                            + "&text=" + URLEncoder.encode(potong, "UTF-8");
-                    StringBuilder paramB = new StringBuilder(param);
-                    if (mk != null && !mk.isEmpty()) {
-                        paramB.append("&reply_markup=").append(URLEncoder.encode(mk, "UTF-8"));
-                    }
-                    param = paramB.toString();
+                    String param = bangunParamPesan(chatEnk, enkBagian.get(bi), mk);
                     byte[] body = param.getBytes(StandardCharsets.UTF_8);
                     HttpURLConnection conn = null;
                     try {

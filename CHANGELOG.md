@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 33: encode-once multi-chat + verifier statis + toast aman-thread
+- `TgBackup.kirimSinkron`: `URLEncoder.encode` potongan pesan dulu jalan per kombinasi chat×potongan (teks 4KB ke 5 chat = 5x encode identik di CPU STB); kini encode sekali per chat/potongan/markup + rakit via `bangunParamPesan` satu pintu (builder pra-ukuran, tanpa regrow). Byte body identik.
+- `ServerService.cobaKode`: lambda `HostnameVerifier` loopback dulu dialokasi tiap tick health (30 dtk/2 mnt); kini konstanta statis `VERIF_LOOPBACK` tanpa state.
+- `LogActivity.toast`: langsung `Toast.makeText().show()` crash (`Looper.prepare`) bila kelak dipanggil dari worker; kini via `ui.post` selaras Main/Settings + null-aman.
+- Test: `bangunParamPesan_tanpaKeyboardDanDenganKeyboard` (`TgBackupTest`).
+- Sapuan bersih (bukan temuan): `reportDownload` hanya string di memori (tanpa tulis prefs per 256KB); `catatLog`/`appendLog` pakai `Date`+`SimpleDateFormat` per-thread tanpa alokasi; `appendUiLog` throttle 500 ms; `AutoUpdate.cek` selalu di worker; `PinActivity.verify` di pool; `collectIps`/versi/ringkasan/kuncian semua cache+gerbang; tanpa `printStackTrace`/`System.out`/`Random` non-sekaman; `String.format` nihil di scope app; semua `openConnection` berset timeout; semua receiver pakai intent eksplisit.
+
 ## [Belum rilis] — Audit agresif 32: kanonis ok-true + gerbang samaran tanpa pindai buta
 - `TgBot`/`TgBackup`: 3 cek `"ok":true` mentah (`contains`) jadi satu pintu `TgBot.responsOk` (regex `POLA_OK_TRUE` toleran spasi `"ok": true`); perbaikan bug nyata — hapus/pesan dan kirim dokumen yang sah tapi ber-spasi dulu ditolak sebagai gagal.
 - `TgBackup`: `DataOutputStream.writeBytes` (tersinkron per baris) untuk header multipart jadi `tulisAscii` (byte rendah, tanpa lock, byte identik — dikunci test); import mati dibuang.

@@ -708,6 +708,13 @@ public class ServerService extends Service {
         return new HasilPing(sehat, alive.kode, config.kode, rincian);
     }
 
+    /** Verifikator loopback bersama: lambda per tick health (30 dtk/2 mnt)
+     *  mengalokasi objek tiap cek di STB; loopback selalu 127.0.0.1 sehingga
+     *  satu instans cukup. Murni tanpa state. */
+    private static final javax.net.ssl.HostnameVerifier VERIF_LOOPBACK =
+            (host, session) -> "127.0.0.1".equals(host)
+                    || "localhost".equalsIgnoreCase(host);
+
     /** Hasil satu request GET loopback (kode + pesan galat lokal tanpa field
      *  statis bersama agar panggilan konkuren health/bot tak tukar pesan error). */
     static final class HasilCoba {
@@ -730,8 +737,7 @@ public class ServerService extends Service {
             if (https) {
                 HttpsURLConnection hc = (HttpsURLConnection) c;
                 hc.setSSLSocketFactory(loopbackSslFactory(ctx));
-                hc.setHostnameVerifier((host, session) ->
-                        "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host));
+                hc.setHostnameVerifier(VERIF_LOOPBACK);
             }
             return new HasilCoba(c.getResponseCode(), "");
         } catch (Exception e) {

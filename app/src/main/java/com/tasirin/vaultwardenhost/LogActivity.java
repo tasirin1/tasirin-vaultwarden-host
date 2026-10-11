@@ -1234,6 +1234,14 @@ public class LogActivity extends Activity {
     }
 
     private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        // Via ui.post (selaras Main/Settings): Toast dari worker melempar
+        // "Can't toast on a thread that has not called Looper.prepare()".
+        final String teks = msg == null ? "" : msg;
+        ui.post(() -> {
+            try {
+                Toast.makeText(LogActivity.this, teks, Toast.LENGTH_LONG).show();
+            } catch (Exception ignored) {
+            }
+        });
     }
 }
