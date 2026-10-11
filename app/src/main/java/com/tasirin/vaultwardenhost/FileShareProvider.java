@@ -265,10 +265,16 @@ public class FileShareProvider extends ContentProvider {
         }
         File induk = new File(canon).getParentFile();
         // Walk penuh hingga root (batas 256) agar symlink jauh di atas tak lolos.
+        // Field refleksi di-cache di luar loop: getField() per segmen (s.d.
+        // 256x per open) mahal di ART lama; kelas StructStat sama di semua segmen.
+        java.lang.reflect.Field fMode = null;
         for (int i = 0; i < 256 && induk != null; i++) {
             try {
                 Object st = lstat.invoke(null, induk.getAbsolutePath());
-                int mode = st.getClass().getField("st_mode").getInt(st);
+                if (fMode == null) {
+                    fMode = st.getClass().getField("st_mode");
+                }
+                int mode = fMode.getInt(st);
                 if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
                     return true;
                 }

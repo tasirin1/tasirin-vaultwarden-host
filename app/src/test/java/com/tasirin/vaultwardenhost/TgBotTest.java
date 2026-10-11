@@ -37,6 +37,15 @@ public class TgBotTest {
     }
 
     @Test
+    public void durationText_formatStabil() {
+        assertEquals("0 detik", TgBot.durationText(0));
+        assertEquals("5 detik", TgBot.durationText(5000));
+        assertEquals("3 menit 4 detik", TgBot.durationText((3 * 60 + 4) * 1000L));
+        assertEquals("1 jam 2 menit", TgBot.durationText((3600 + 120) * 1000L));
+        assertEquals("25 jam 0 menit", TgBot.durationText(25L * 3600 * 1000));
+    }
+
+    @Test
     public void tombolKedaluwarsa_batas24Jam() {
         long kini = 1_000_000_000L;
         assertTrue(TgBot.tombolKedaluwarsa(0, kini));

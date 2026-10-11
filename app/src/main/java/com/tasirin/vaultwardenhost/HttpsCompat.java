@@ -30,6 +30,54 @@ public final class HttpsCompat {
     private static volatile SSLSocketFactory cached;
     /** Cap override anchor (mtime+ukuran); gugur bila file disegarkan. */
     private static volatile long cachedCap = -1L;
+    /** Pilihan protokol/cipher terhitung (null = belum): dukungan soket
+     *  konstan per perangkat + factory tunggal sehingga hitung sekali,
+     *  bukan tiap handshake. Gugur bersama factory saat cap berubah. */
+    private static volatile String[] protokolCache = null;
+    private static volatile String[] cipherCache = null;
+    /** Pilih protokol modern dari dukungan (murni agar bisa unit test).
+     *  Kosong = lewatkan set agar kompatibel Android 5 tua. */
+    static String[] pilihProtokol(String[] didukung) {
+        if (didukung == null || didukung.length == 0) {
+            return new String[0];
+        }
+        int n = 0;
+        for (String p : didukung) {
+            if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p)) {
+                n++;
+            }
+        }
+        String[] keluar = new String[n];
+        int i = 0;
+        for (String p : didukung) {
+            if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p)) {
+                keluar[i++] = p;
+            }
+        }
+        return keluar;
+    }
+    /** Saring cipher lemah (RC4/3DES gugur); kosong = pakai bawaan (murni). */
+    static String[] saringCipher(String[] didukung) {
+        if (didukung == null || didukung.length == 0) {
+            return new String[0];
+        }
+        int n = 0;
+        for (String c : didukung) {
+            if (c != null && (c.contains("ECDHE")
+                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
+                n++;
+            }
+        }
+        String[] keluar = new String[n];
+        int i = 0;
+        for (String c : didukung) {
+            if (c != null && (c.contains("ECDHE")
+                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
+                keluar[i++] = c;
+            }
+        }
+        return keluar;
+    }
 
     private HttpsCompat() {
     }
@@ -217,6 +265,10 @@ public final class HttpsCompat {
             sc.init(null, tmf.getTrustManagers(), acakBersama());
             cached = new PabrikTls12(sc.getSocketFactory());
             cachedCap = cap;
+            // Factory baru = dukungan bisa beda: hitung ulang pilihan di
+            // handshake berikut (praktis hasilnya sama per perangkat).
+            protokolCache = null;
+            cipherCache = null;
         }
         return cached;
     }
@@ -235,21 +287,32 @@ public final class HttpsCompat {
         private Socket nyalakan(Socket s) {
             if (s instanceof SSLSocket) {
                 SSLSocket ssl = (SSLSocket) s;
-                java.util.ArrayList<String> mau = new java.util.ArrayList<String>();
-                // Hanya TLS modern (1.2/1.3): 1.0/1.1 usang dan GitHub wajib 1.2+.
-                try {
-                    for (String p : ssl.getSupportedProtocols()) {
-                        if ("TLSv1.3".equals(p) || "TLSv1.2".equals(p)) {
-                            mau.add(p);
-                        }
+                // Hitung sekali per proses (dukungan konstan per perangkat):
+                // tanpa cache tiap handshake (poll 20 dtk, health 30 dtk)
+                // membayar getSupported* + ArrayList + toArray di STB lama.
+                // Array tak pernah diubah setelah terbit sehingga aman dipakai
+                // ulang (setEnabled* menyalin isi di dalam).
+                String[] protokol = protokolCache;
+                if (protokol == null) {
+                    String[] dukung;
+                    try {
+                        dukung = ssl.getSupportedProtocols();
+                    } catch (Exception ignored) {
+                        dukung = null;
                     }
-                } catch (Exception ignored) {
+                    protokol = pilihProtokol(dukung);
+                    // Gagal baca (null) jangan di-cache agar handshake berikut
+                    // mencoba lagi; hasil kosong valid tetap di-cache.
+                    if (dukung != null) {
+                        protokolCache = protokol;
+                    }
                 }
-                if (!mau.isEmpty()) {
+                // Hanya TLS modern (1.2/1.3): 1.0/1.1 usang dan GitHub wajib 1.2+.
+                if (protokol.length > 0) {
                     // Jangan fail-open diam: bila set protokol gagal, catat lalu lempar
                     // agar pemanggil tahu handshake tak aman.
                     try {
-                        ssl.setEnabledProtocols(mau.toArray(new String[mau.size()]));
+                        ssl.setEnabledProtocols(protokol);
                     } catch (Exception e) {
                         try {
                             android.util.Log.w("HttpsCompat", "Gagal set protokol TLS: " + e);
@@ -261,19 +324,22 @@ public final class HttpsCompat {
                 // Filter cipher lemah: hanya cipher modern agar tak negosiasi RC4/3DES.
                 // Bila hasil filter kosong (Android 5 tua), jangan set sama sekali
                 // dan pakai bawaan agar tetap kompatibel API 21.
-                try {
-                    String[] didukung = ssl.getSupportedCipherSuites();
-                    java.util.ArrayList<String> kuat = new java.util.ArrayList<String>();
-                    if (didukung != null) {
-                        for (String c : didukung) {
-                            if (c != null && (c.contains("ECDHE")
-                                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
-                                kuat.add(c);
-                            }
-                        }
+                String[] kuat = cipherCache;
+                if (kuat == null) {
+                    String[] dukung;
+                    try {
+                        dukung = ssl.getSupportedCipherSuites();
+                    } catch (Exception ignored) {
+                        dukung = null;
                     }
-                    if (!kuat.isEmpty()) {
-                        ssl.setEnabledCipherSuites(kuat.toArray(new String[kuat.size()]));
+                    kuat = saringCipher(dukung);
+                    if (dukung != null) {
+                        cipherCache = kuat;
+                    }
+                }
+                try {
+                    if (kuat.length > 0) {
+                        ssl.setEnabledCipherSuites(kuat);
                     }
                     // Bila kosong: pakai bawaan (jangan set) agar API 21 tetap bisa handshake.
                 } catch (Exception e) {

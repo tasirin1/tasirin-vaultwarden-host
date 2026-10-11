@@ -2025,15 +2025,43 @@ public final class Updater {
         if (t.isEmpty()) {
             return new int[0];
         }
-        String[] bagian = POLA_TITIK.split(t);
-        int[] keluar = new int[bagian.length];
-        for (int i = 0; i < bagian.length; i++) {
-            keluar[i] = angkaAwalan(bagian[i]);
-            if (keluar[i] < 0) {
-                return new int[0];
+        // Belah manual tanpa regex: split() merakit Matcher + String[] di
+        // tiap banding versi (tick UI, cek bot, jalur update di STB lama).
+        // Semantik disamakan dengan split(limit 0): segmen kosong di ekor
+        // dibuang ("1.37." -> {1,37}), kosong di tengah = rusak ("1..2" -> {}).
+        int nSeg = 1;
+        for (int i = 0; i < t.length(); i++) {
+            if (t.charAt(i) == '.') {
+                nSeg++;
             }
         }
-        return keluar;
+        int[] keluar = new int[nSeg];
+        int hitung = 0;
+        int awal = 0;
+        for (int i = 0; i <= t.length(); i++) {
+            if (i == t.length() || t.charAt(i) == '.') {
+                int angka = angkaAwalan(t.substring(awal, i));
+                awal = i + 1;
+                if (angka < 0) {
+                    boolean ekor = true;
+                    for (int j = i; j < t.length(); j++) {
+                        if (t.charAt(j) != '.') {
+                            ekor = false;
+                            break;
+                        }
+                    }
+                    if (ekor) {
+                        break;
+                    }
+                    return new int[0];
+                }
+                keluar[hitung++] = angka;
+            }
+        }
+        if (hitung == keluar.length) {
+            return keluar;
+        }
+        return java.util.Arrays.copyOf(keluar, hitung);
     }
 
     /** Angka desimal di awal segmen ("37-beta" -> 37, " 3a " -> 3); -1 bila tanpa digit. Murni. */
@@ -2065,8 +2093,6 @@ public final class Updater {
             java.util.regex.Pattern.compile("[0-9][0-9A-Za-z.\\-]*");
     private static final java.util.regex.Pattern POLA_SPASI =
             java.util.regex.Pattern.compile("\\s+");
-    private static final java.util.regex.Pattern POLA_TITIK =
-            java.util.regex.Pattern.compile("\\.");
     private static final java.util.regex.Pattern POLA_SAMA_DENGAN =
             java.util.regex.Pattern.compile("=");
 

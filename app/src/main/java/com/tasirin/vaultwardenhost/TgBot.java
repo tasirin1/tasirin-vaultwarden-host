@@ -2026,16 +2026,19 @@ public final class TgBot {
     }
 
     static String durationText(long ms) {
+        // StringBuilder eksplisit: concat "+" merakit String per operan di
+        // tiap tick 1 dtk layar awal + tiap balasan status/uptime bot.
         long s = ms / 1000;
         long h = s / 3600;
         long m = (s % 3600) / 60;
+        StringBuilder o = new StringBuilder(24);
         if (h > 0) {
-            return h + " jam " + m + " menit";
+            return o.append(h).append(" jam ").append(m).append(" menit").toString();
         }
         if (m > 0) {
-            return m + " menit " + (s % 60) + " detik";
+            return o.append(m).append(" menit ").append(s % 60).append(" detik").toString();
         }
-        return s + " detik";
+        return o.append(s).append(" detik").toString();
     }
 
     /** Ringkasan status untuk dibalas ke Telegram. */

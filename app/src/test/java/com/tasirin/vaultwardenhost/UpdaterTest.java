@@ -602,6 +602,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bandingVersi_titikEkorDanTengah() {
+        // Samakan split(limit 0): ekor kosong dibuang, tengah = rusak.
+        assertTrue(Updater.bandingVersi("1.37.", "1.37") == 0);
+        assertTrue(Updater.bandingVersi("1.37.", "1.37.0") == 0);
+        assertTrue(Updater.bandingVersi("1..2", "1.37.1") < 0);
+        assertTrue(Updater.bandingVersi("...", "1.37.1") < 0);
+        assertTrue(Updater.bandingVersi(".1", "1.37.1") < 0);
+        assertTrue(Updater.bandingVersi("1.37.0.", "1.37") == 0);
+    }
+
+    @Test
     public void bandingVersi_takDikenalDianggapTertua() {
         assertTrue(Updater.bandingVersi(null, "1.37.1") < 0);
         assertTrue(Updater.bandingVersi("", "1.37.1") < 0);
