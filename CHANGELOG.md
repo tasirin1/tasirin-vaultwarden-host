@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaiki build: doFinal Mac 4-argumen
+- `PinCrypto.pbkdf2Manual`: `Mac` tak punya `doFinal` 5-argumen (itu milik `Cipher`) sehingga build gagal; ganti ke `update` + `doFinal(output, offset)` yang ada sejak API 1 — tetap tanpa alokasi per iterasi, hasil bit-identik.
+
 ## [Belum rilis] — Audit agresif 29: IPv4 manual tanpa split + ketat titik-akhir
 - `TlsCert.ipv4`: tulis ulang manual digit-only tanpa `split`/`parseInt` — hemat alokasi regex di STB lama sekaligus perbaiki bug `1.2.3.4.` lolos (split membuang ekor kosong) dan `+1.2.3.4` lolos (parseInt terima plus); hanya digit + tepat 3 titik, alokasi `byte[4]` hanya saat valid.
 - Test `TlsCertTest`: tambah kasus titik-akhir/segmen-kosong/plus agar regresi terkunci.

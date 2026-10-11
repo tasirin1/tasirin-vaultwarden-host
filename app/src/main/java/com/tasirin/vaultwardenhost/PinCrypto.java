@@ -391,14 +391,17 @@ public final class PinCrypto {
             byte[] blok = new byte[salt.length + 4];
             System.arraycopy(salt, 0, blok, 0, salt.length);
             blok[salt.length + 3] = 1;
-            // Tanpa alokasi per iterasi: doFinal 4-argumen menulis ke buffer
-            // sedia (ping-pong) sehingga 12rb iterasi tak membuat 12rb array
-            // 32B (~384KB sampah) tepat di STB tua yang memakai jalur ini.
+            // Tanpa alokasi per iterasi: update + doFinal ke buffer sedia
+            // (ping-pong) sehingga 12rb iterasi tak membuat 12rb array 32B
+            // (~384KB sampah) tepat di STB tua yang memakai jalur ini.
+            // Mac tak punya doFinal 5-argumen (itu milik Cipher) sehingga
+            // dipakai update + doFinal(output, offset) yang ada sejak API 1.
             byte[] u = mac.doFinal(blok);
             byte[] hasil = u.clone();
             byte[] keluar = new byte[u.length];
             for (int i = 1; i < iter; i++) {
-                mac.doFinal(u, 0, u.length, keluar, 0);
+                mac.update(u, 0, u.length);
+                mac.doFinal(keluar, 0);
                 for (int j = 0; j < hasil.length; j++) {
                     hasil[j] ^= keluar[j];
                 }
