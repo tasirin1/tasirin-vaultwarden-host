@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 31: pra-alokasi buffer pembaca batas
+- `TgBackup.bacaTerbatas` + `SettingsActivity.readCapped`: `ByteArrayOutputStream` pra-alokasi 8 KB (dulu 32 B bawaan mengganda + menyalin berulang untuk payload hingga 512 KB–1 MB); perilaku sama persis.
+- Sapuan bersih: charset eksplisit di semua konversi byte↔string; loop unduh/hash 64 KB; `tailLog`/`shorten` tanpa salinan perantara; `refreshRingkasan`/`validasiInline` sudah gerbang-cache; `equalsIgnoreCase` sisa hanya di jalur dingin; tidak ada baca 1-byte.
+
 ## [Belum rilis] — Audit agresif 30: trim sekali + pulihkan interupsi
 - `SettingsActivity.saveAndStart`: `port` sudah di-trim saat baca input — buang `trim()` kedua.
 - `SettingsActivity.perluWizard`: trim tiap argumen sekali ke lokal (dulu 2x) + `dataDirBawaanSegar()` hanya dipanggil bila input tak kosong; semantik sama persis.

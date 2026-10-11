@@ -3325,7 +3325,9 @@ public final class TgBackup {
 
     /** Baca stream sampai habis; lempar IOException bila melebihi batas byte. */
     static byte[] bacaTerbatas(InputStream in, long batas) throws Exception {
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        // Pra-alokasi 8 KB: respons JSON umum muat tanpa regrow (dulu 32 B
+        // bawaan mengganda + menyalin berulang hingga ~1 MB di STB 1 GB).
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
         byte[] buf = new byte[64 * 1024];
         int n;
         long total = 0;

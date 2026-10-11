@@ -2586,7 +2586,8 @@ public class SettingsActivity extends Activity {
 
     /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */
     private static byte[] readCapped(InputStream in, int max) throws Exception {
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        // Pra-alokasi 8 KB selaras buffer baca (alasan sama dengan bacaTerbatas).
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
         byte[] buf = new byte[8192];
         int total = 0;
         int n;
