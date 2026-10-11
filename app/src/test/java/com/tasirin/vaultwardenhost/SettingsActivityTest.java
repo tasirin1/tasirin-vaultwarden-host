@@ -150,6 +150,15 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatChatSatuEntriTanpaAlokasi() {
+        // Jalur cepat satu token (tanpa pemisah) wajib setara parser daftar.
+        assertNull(SettingsActivity.galatChat("  123456789  ", "SALAH"));
+        assertNull(SettingsActivity.galatChat("  @namabot  ", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatChat("  abc  ", "SALAH"));
+        assertNull(SettingsActivity.galatChat("   ", "SALAH"));
+    }
+
+    @Test
     public void sisaEnkripTmpHanyaPrefixKhusus() {
         assertTrue(SettingsActivity.sisaEnkripTmp("app-config-enctmp-20240101-120000-abcdef.json"));
         assertFalse(SettingsActivity.sisaEnkripTmp("app-config-20240101-120000-abcdef.json"));

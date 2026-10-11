@@ -333,8 +333,8 @@ public final class TgBackup {
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
             PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_TUNDA_BOOT, intent, flags);
-            long trigger = SystemClock.elapsedRealtime() + sisaTungguBootMs(
-                    SystemClock.elapsedRealtime());
+            long kini = SystemClock.elapsedRealtime();
+            long trigger = kini + sisaTungguBootMs(kini);
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     try {

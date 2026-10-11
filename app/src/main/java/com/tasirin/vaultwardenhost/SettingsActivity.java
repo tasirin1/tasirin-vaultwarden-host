@@ -3353,30 +3353,45 @@ public class SettingsActivity extends Activity {
     }
 
     /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
+    /** Tampilkan galat inline tanpa layout sia-sia: setText/setVisibility
+     *  yang isinya sama tetap memicu layout, jadi dilewati via tag cache.
+     *  Tag menyimpan teks tampil terakhir ("" = valid). Aman API 21. */
+    private void setTeksGalat(android.widget.TextView err, String galat) {
+        String tampil = galat == null ? ""
+                : getString(R.string.galat_awalan, galat);
+        Object dulu = err.getTag();
+        if (tampil.equals(dulu)) {
+            return;
+        }
+        err.setTag(tampil);
+        err.setText(tampil);
+        int vis = galat == null ? View.GONE : View.VISIBLE;
+        if (err.getVisibility() != vis) {
+            err.setVisibility(vis);
+        }
+    }
+
+    /** Samakan visibilitas tanpa layout sia-sia tiap ketikan. */
+    private static void samakanVisibilitas(View v, int vis) {
+        if (v != null && v.getVisibility() != vis) {
+            v.setVisibility(vis);
+        }
+    }
+
     private void validasiInline() {
         String gData = galatFolder(dataDirInput.getText().toString(), msgFolderSalah);
-        dataDirError.setText(gData == null ? ""
-                : getString(R.string.galat_awalan, gData));
-        dataDirError.setVisibility(gData == null ? View.GONE : View.VISIBLE);
+        setTeksGalat(dataDirError, gData);
         String gPort = galatPort(portInput.getText().toString(), msgPortSalah);
-        portError.setText(gPort == null ? ""
-                : getString(R.string.galat_awalan, gPort));
-        portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
+        setTeksGalat(portError, gPort);
         String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
                 msgAdminSalah) : null;
-        if (adminError != null) {
-            adminError.setVisibility(gAdmin == null ? View.GONE : View.VISIBLE);
-        }
+        samakanVisibilitas(adminError, gAdmin == null ? View.GONE : View.VISIBLE);
         String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString(),
                 msgTokenSalah) : null;
-        if (tokenError != null) {
-            tokenError.setVisibility(gTok == null ? View.GONE : View.VISIBLE);
-        }
+        samakanVisibilitas(tokenError, gTok == null ? View.GONE : View.VISIBLE);
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
                 msgChatSalah) : null;
-        if (chatError != null) {
-            chatError.setVisibility(gChat == null ? View.GONE : View.VISIBLE);
-        }
+        samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
         boolean blokirStart = gData != null || gPort != null;
         if (startStopBawah != null) {
             startStopBawah.setEnabled(!blokirStart);
@@ -3461,6 +3476,27 @@ public class SettingsActivity extends Activity {
      *  Pesan (msgSalah) diinjeksi dari resources agar teks hanya hidup di strings.xml.
      *  Murni. */
     static String galatChat(String chat, String msgSalah) {
+        // Jalur cepat tanpa alokasi: ketikan umum satu chat tanpa pemisah
+        // tak perlu ArrayList + contains() kuadrat tiap ketikan. Setara
+        // pecahDaftarChat untuk satu token (sama-sama trim lalu validasi).
+        if (chat != null) {
+            String rapi = chat.trim();
+            if (rapi.isEmpty()) {
+                return null;
+            }
+            boolean adaPisah = false;
+            for (int i = 0; i < rapi.length(); i++) {
+                char c = rapi.charAt(i);
+                if (c == ',' || c == ';' || c == '\n' || c == '\r'
+                        || c == '\t' || c == ' ') {
+                    adaPisah = true;
+                    break;
+                }
+            }
+            if (!adaPisah) {
+                return Util.chatTunggalValid(rapi) ? null : msgSalah;
+            }
+        }
         java.util.List<String> daftar = Util.pecahDaftarChat(chat);
         if (daftar.isEmpty()) {
             return null;

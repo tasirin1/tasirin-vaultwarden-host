@@ -1525,19 +1525,21 @@ public class ServerService extends Service {
             sp.edit().putString(KEY_PORT, port).apply();
         }
         if (isPortBusy(portNum)) {
+            // Trim sekali (dulu 6x trim = 6 alokasi String tiap gagal start).
+            String portRapi = port.trim();
             if (portButuhRoot(portNum)) {
-                setStatus("Port " + port.trim() + " butuh akses root.\n"
+                setStatus("Port " + portRapi + " butuh akses root.\n"
                         + "Pakai port >= 1024 (mis. 8088) di Settings, lalu Start lagi.");
-                appendLog("[app] Port " + port.trim() + " butuh root (privileged)"
+                appendLog("[app] Port " + portRapi + " butuh root (privileged)"
                         + " - server TIDAK start. Ganti ke port >= 1024.");
-                TgBackup.sendMessage(this, "Gagal start: port " + port.trim()
+                TgBackup.sendMessage(this, "Gagal start: port " + portRapi
                         + " butuh akses root. Ganti ke port >= 1024 lalu coba lagi.");
                 return;
             }
-            setStatus("Port " + port.trim() + " sedang dipakai proses lain.\n"
+            setStatus("Port " + portRapi + " sedang dipakai proses lain.\n"
                     + "Stop server lain / ganti port di Settings, lalu Start lagi.");
-            appendLog("[app] Port " + port.trim() + " sedang dipakai - server TIDAK start (cegah loop).");
-            TgBackup.sendMessage(this, "Gagal start: port " + port.trim()
+            appendLog("[app] Port " + portRapi + " sedang dipakai - server TIDAK start (cegah loop).");
+            TgBackup.sendMessage(this, "Gagal start: port " + portRapi
                     + " sedang dipakai proses lain. Stop server lain / ganti port lalu coba lagi.");
             return;
         }
@@ -2245,7 +2247,8 @@ public class ServerService extends Service {
                 // Dihitung SEBELUM filter noise agar handshake gagal tetap bersaran.
                 // Gerbang throttle dulu: saat ditahan hasilnya tak dipakai sehingga
                 // pindai mahal (lowercase + puluhan contains) boleh dilewati.
-                String hintLogin = bolehHintLogin(SystemClock.elapsedRealtime(),
+                long kini = SystemClock.elapsedRealtime();
+                String hintLogin = bolehHintLogin(kini,
                         loginHintTerakhirElapsed)
                         ? saranLoginUntukBaris(line, runningHttps) : null;
                 boolean noise = line.contains("CertificateUnknown")
@@ -2254,7 +2257,6 @@ public class ServerService extends Service {
                         || line.contains("unsupported flags DT_FLAGS_1")
                         || line.contains("Shield has enabled a default HSTS policy");
                 if (hintLogin != null) {
-                    long kini = SystemClock.elapsedRealtime();
                     if (bolehHintLogin(kini, loginHintTerakhirElapsed)) {
                         loginHintTerakhirElapsed = kini;
                         if (noise) {

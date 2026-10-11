@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 36: syscall sekali + validasi tanpa alokasi tiap ketikan
+- `ServerService.pumpOutput`: `elapsedRealtime()` dulu 2x per baris log deras (cek throttle + pakai) kini satu `kini` per iterasi; hemat syscall + tutup jendela TOCTOU throttle.
+- `ServerService.startServer`: `port.trim()` 6x tiap gagal start kini `portRapi` sekali; pesan status/log/Telegram identik.
+- `TgBackup.jadwalTundaBoot`: `elapsedRealtime()` ganda (`now + sisa(now)`) kini satu `kini`; trigger identik.
+- `SettingsActivity.galatChat`: jalur cepat satu entri tanpa pemisah — tanpa `ArrayList` + `contains()` kuadrat tiap ketikan; setara parser daftar (dibuktikan simulasi + test).
+- `SettingsActivity.validasiInline`: `setText`/`setVisibility` tiap ketikan dulu selalu memicu layout; kini `setTeksGalat` (cache tag) + `samakanVisibilitas` — layout hanya bila teks/visibilitas berubah. Aman API 21.
+- Test: `galatChatSatuEntriTanpaAlokasi` (`SettingsActivityTest`).
+- Sapuan bersih (bukan temuan): `ConcurrentHashMap.putIfAbsent` aman API 21 (override lawas, bukan default-method 24); `NotificationChannel`/`setExactAndAllowWhileIdle`/`canScheduleExactAlarms`/`FROM_HTML_MODE_LEGACY` semua guard versi; tanpa `java.time`/`stream`/`String.join`/`printStackTrace`/`System.out` di scope app; `try-with-resources` aman via D8; `FLAG_IMMUTABLE` konstanta inline + guard M.
+
 ## [Belum rilis] — Audit agresif 35: throttle getMe + dedup lower perintah
 - `TgBot.isiNamaBotBilaKosong`: STB offline dulu membayar handshake TLS `getMe` gagal tiap 20 dtk poll; kini throttle 1 jam per token (`bolehCobaGetMe` murni: token ganti = coba langsung, elapsed mundur = coba lagi). Hemat baterai + CPU + log.
 - `TgBot.kecilkanRentang`: 2 loop salin-lower ASCII identik (`namaPerintah` + `namaPerintahUntukBot`) jadi satu pintu batas-jepit; perilaku sama persis (terkunci test perintah yang ada).
