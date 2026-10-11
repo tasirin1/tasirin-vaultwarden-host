@@ -168,8 +168,6 @@ public final class TgBot {
     }
 
     /** Pola statis: String.split/matches/replaceAll kompilasi regex tiap panggil. */
-    private static final java.util.regex.Pattern POLA_SPASI =
-            java.util.regex.Pattern.compile("\\s+");
     private static final java.util.regex.Pattern POLA_PIN_NUMERIK =
             java.util.regex.Pattern.compile("[0-9]{4,}");
     private static final java.util.regex.Pattern POLA_PIN_KATA =

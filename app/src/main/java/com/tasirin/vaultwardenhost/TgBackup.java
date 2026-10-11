@@ -1655,8 +1655,10 @@ public final class TgBackup {
         // Kunci host sebelum POST sendDocument (selaras bukaPostTelegram):
         // URL membawa token bot di path sehingga host asing wajib ditolak
         // agar token tak bocor via MITM/typo; redirect pun ditolak di bawah.
+        final java.net.URL tujuanKirim;
         try {
-            String hostKirim = new URL(TG_API + token + "/sendDocument").getHost();
+            tujuanKirim = new URL(TG_API + token + "/sendDocument");
+            String hostKirim = tujuanKirim.getHost();
             if (!Util.hostTelegramAman(hostKirim)) {
                 throw new java.io.IOException("Host Telegram tidak aman: " + hostKirim);
             }
@@ -1667,7 +1669,7 @@ public final class TgBackup {
         }
         HttpURLConnection conn = null;
         try {
-            conn = (HttpURLConnection) new URL(TG_API + token + "/sendDocument").openConnection();
+            conn = (HttpURLConnection) tujuanKirim.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setConnectTimeout(20000);
