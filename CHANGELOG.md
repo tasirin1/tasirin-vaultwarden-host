@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 29: IPv4 manual tanpa split + ketat titik-akhir
+- `TlsCert.ipv4`: tulis ulang manual digit-only tanpa `split`/`parseInt` — hemat alokasi regex di STB lama sekaligus perbaiki bug `1.2.3.4.` lolos (split membuang ekor kosong) dan `+1.2.3.4` lolos (parseInt terima plus); hanya digit + tepat 3 titik, alokasi `byte[4]` hanya saat valid.
+- Test `TlsCertTest`: tambah kasus titik-akhir/segmen-kosong/plus agar regresi terkunci.
+- Sapuan bersih: sisa `split` (`namaDnsValid`/`daftarDns`/`ipv6`/`pindaiHexChecksum`) sudah pola statis + limit `-1` benar; `AutoUpdate` channel/notif sudah guard O/M/33; `PendingIntent` semua IMMUTABLE-guard; tanpa `java.nio/time/stream/String.join` di scope app (aman API 21).
+
 ## [Belum rilis] — Audit agresif 28: PBKDF2 tanpa alokasi, mkdirs sekali, poll snapshot
 - `PinCrypto`: `pbkdf2Manual` pakai `doFinal` 4-argumen ping-pong — 12rb iterasi tak lagi membuat 12rb array 32B (~384KB sampah) tepat di STB tua API 21-25 yang memakai jalur ini. Hasil bit-identik (test `pbkdf2ManualSamadenganFactory` tetap acuan).
 - `Updater`: ekstrak web-vault `mkdirs` sekali per direktori (`dirSiap`) — ribuan stat sia-sia di FAT /sdcard hilang; perilaku sama (dir segar per ekstrak).

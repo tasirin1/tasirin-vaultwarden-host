@@ -57,6 +57,11 @@ public class TlsCertTest {
         assertNull(TlsCert.ipv4("1.2.3.4.5"));
         assertNull(TlsCert.ipv4("256.1.1.1"));
         assertNull(TlsCert.ipv4("192.168.1.x"));
+        assertNull(TlsCert.ipv4("1.2.3.4."));
+        assertNull(TlsCert.ipv4(".1.2.3"));
+        assertNull(TlsCert.ipv4("1..3.4"));
+        assertNull(TlsCert.ipv4("+1.2.3.4"));
+        assertNull(TlsCert.ipv4(" 1.2.3.4. "));
         assertNull(TlsCert.ipv4("::1"));
     }
 

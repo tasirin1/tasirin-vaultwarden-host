@@ -716,23 +716,40 @@ public final class TlsCert {
         if (ip.isEmpty()) {
             return null;
         }
-        String[] parts = POLA_TITIK.split(ip);
-        if (parts.length != 4) {
-            return null;
-        }
-        try {
-            byte[] out = new byte[4];
-            for (int i = 0; i < 4; i++) {
-                int v = Integer.parseInt(parts[i]);
-                if (v < 0 || v > 255) {
+        // Urai manual tanpa split/parseInt: hemat alokasi regex di STB lama
+        // sekaligus ketat (dulu "1.2.3.4." lolos karena split membuang ekor
+        // kosong, dan "+1" lolos via parseInt). Hanya digit + tepat 3 titik.
+        int[] nilai = new int[4];
+        int bagian = 0;
+        int angka = 0;
+        int digit = 0;
+        for (int i = 0; i < ip.length(); i++) {
+            char c = ip.charAt(i);
+            if (c >= '0' && c <= '9') {
+                angka = angka * 10 + (c - '0');
+                if (angka > 255) {
                     return null;
                 }
-                out[i] = (byte) v;
+                digit++;
+                if (digit > 3) {
+                    return null;
+                }
+            } else if (c == '.') {
+                if (digit == 0 || bagian >= 3) {
+                    return null;
+                }
+                nilai[bagian++] = angka;
+                angka = 0;
+                digit = 0;
+            } else {
+                return null;
             }
-            return out;
-        } catch (NumberFormatException e) {
+        }
+        if (bagian != 3 || digit == 0) {
             return null;
         }
+        nilai[3] = angka;
+        return new byte[]{(byte) nilai[0], (byte) nilai[1], (byte) nilai[2], (byte) nilai[3]};
     }
 
     /** Urai literal IPv6 (termasuk kompresi ::) jadi 16 byte; null bila bukan IPv6. Murni. */
