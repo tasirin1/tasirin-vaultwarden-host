@@ -77,34 +77,70 @@ public final class KernelCompat {
                 + " butuh internet), lalu Start lagi.";
     }
 
-    /** Parse "3.14.29-gabc" -> {3,14}; null bila tak terpola. Package-private agar bisa diuji. */
+    /** Batas jenuh parse kernel: versi riil 1-2 digit; di atasnya hasilnya
+     *  sama (modern) sehingga dijenuhkan agar akumulasi tak overflow int
+     *  lalu terbaca <3 (salah legacy). */
+    private static final int BATAS_VERSI_KERNEL = 100000;
+
+    /** Parse "3.14.29-gabc" -> {3,14}; null bila tak terpola. Package-private agar bisa diuji.
+     *  Satu pass tanpa alokasi (dulu trim + 4 substring + indexOf): hemat di
+     *  STB lama walau memo per proses. Digit ASCII eksplisit (dulu
+     *  Character.isDigit menerima digit Unicode yang pasti gagal parseInt
+     *  lalu jatuh ke catch NumberFormatException tiap Start). Jenuh di atas
+     *  batas (dulu parseInt melempar untuk angka raksasa): hasil legacy sama
+     *  (modern), tanpa alokasi eksepsi. */
     static int[] parseKernel(String osVersion) {
         if (osVersion == null) {
             return null;
         }
-        String s = osVersion.trim();
-        if (s.isEmpty()) {
+        int n = osVersion.length();
+        int awal = 0;
+        while (awal < n && osVersion.charAt(awal) <= ' ') {
+            awal++;
+        }
+        int akhir = n;
+        while (akhir > awal && osVersion.charAt(akhir - 1) <= ' ') {
+            akhir--;
+        }
+        if (awal >= akhir) {
             return null;
         }
-        int i = 0;
-        while (i < s.length() && (Character.isDigit(s.charAt(i)) || s.charAt(i) == '.')) {
+        int i = awal;
+        int mayor = 0;
+        boolean adaMayor = false;
+        while (i < akhir) {
+            char c = osVersion.charAt(i);
+            if (c < '0' || c > '9') {
+                break;
+            }
+            adaMayor = true;
+            mayor = mayor * 10 + (c - '0');
+            if (mayor > BATAS_VERSI_KERNEL) {
+                mayor = BATAS_VERSI_KERNEL;
+            }
             i++;
         }
-        String angka = s.substring(0, i);
-        int titik = angka.indexOf('.');
-        if (titik <= 0 || titik + 1 >= angka.length()) {
+        if (!adaMayor || i >= akhir || osVersion.charAt(i) != '.') {
             return null;
         }
-        int titik2 = angka.indexOf('.', titik + 1);
-        String minor = titik2 < 0 ? angka.substring(titik + 1) : angka.substring(titik + 1, titik2);
-        if (minor.isEmpty()) {
+        i++;
+        int minor = 0;
+        boolean adaMinor = false;
+        while (i < akhir) {
+            char c = osVersion.charAt(i);
+            if (c < '0' || c > '9') {
+                break;
+            }
+            adaMinor = true;
+            minor = minor * 10 + (c - '0');
+            if (minor > BATAS_VERSI_KERNEL) {
+                minor = BATAS_VERSI_KERNEL;
+            }
+            i++;
+        }
+        if (!adaMinor) {
             return null;
         }
-        try {
-            return new int[]{Integer.parseInt(angka.substring(0, titik)),
-                    Integer.parseInt(minor)};
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return new int[]{mayor, minor};
     }
 }

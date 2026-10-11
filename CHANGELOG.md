@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 37: parse tanpa alokasi + pesan galat sekali baca
+- `KernelCompat.parseKernel`: satu pass tanpa alokasi (dulu `trim` + 4 `substring` + `indexOf` per Start); digit ASCII eksplisit (dulu `Character.isDigit` menerima digit Unicode yang pasti gagal `parseInt` lalu melempar `NumberFormatException` tiap Start); angka raksasa dijenuhkan (dulu melempar, hasil legacy sama = modern). Kesetaraan dibuktikan simulasi (termasuk NBSP/digit Arab/overflow) + test.
+- `ServerService.ensureBinary/ensureShim`: `e.getMessage()` 3x/2x tiap gagal unduh/pasang kini lokal `msgBin`/`msgShim` sekali.
+- `TgBackup.potretTls`: `finally` manual ganda per berkas jadi try-with-resources (D8 aman API 21); semantik tutup-abaikan sama, bytecode lebih ramping.
+- Test: `parseKernelTanpaAlokasiSetara` (`KernelCompatTest`).
+- Sapuan bersih (bukan temuan): rantai PEM berisi 6 sertifikat (kedaluwarsa 2031-2046, anchor aman); vektor tanpa path `.9` (lint `InvalidVectorPath` aman); `isDestroyed` butuh API 17 (minSdk 21 aman); `localUrl` di UI thread hanya baca prefs + IP cache 60 dtk (tanpa socket, tanpa `NetworkOnMainThread`); `showAboutDialog` IPC ganda hanya saat dialog dibuka; `heal` prefs + `folderBytes` + info storage semua TTL/cache + worker; tanpa `computeIfAbsent`/`String.join`/`Optional`/`stream` di scope app.
+
 ## [Belum rilis] — Audit agresif 36: syscall sekali + validasi tanpa alokasi tiap ketikan
 - `ServerService.pumpOutput`: `elapsedRealtime()` dulu 2x per baris log deras (cek throttle + pakai) kini satu `kini` per iterasi; hemat syscall + tutup jendela TOCTOU throttle.
 - `ServerService.startServer`: `port.trim()` 6x tiap gagal start kini `portRapi` sekali; pesan status/log/Telegram identik.

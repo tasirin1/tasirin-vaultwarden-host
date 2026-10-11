@@ -3058,8 +3058,9 @@ public class ServerService extends Service {
                 }
             }
             // Pesan Updater sudah ramah (isi saran koneksi); jangan ditimpa pesan generik.
-            String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
-                    ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
+            String msgBin = e.getMessage();
+            String ramah = msgBin != null && msgBin.contains("Cek ")
+                    ? msgBin : Updater.pesanGalatUnduh("Unduh binary", e);
             appendLog("[app] Gagal unduh binary: " + e
                     + "\n[app] Saran: " + Updater.saranKoneksi(e)
                     + " Bila STB offline, pakai cara manual di README"
@@ -3148,7 +3149,8 @@ public class ServerService extends Service {
             appendLog("[app] Shim getrandom dipakai: " + shim.getAbsolutePath());
             return shim;
         } catch (Exception e) {
-            String ramah = e.getMessage() != null ? e.getMessage() : e.toString();
+            String msgShim = e.getMessage();
+            String ramah = msgShim != null ? msgShim : e.toString();
             appendLog("[app] Gagal pasang shim getrandom: " + e
                     + "\n[app] Saran: " + Updater.saranKoneksi(
                             e instanceof Exception ? (Exception) e : null));

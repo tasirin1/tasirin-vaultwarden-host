@@ -1324,18 +1324,11 @@ public final class TgBackup {
             if (!f.isFile()) {
                 continue;
             }
-            java.io.InputStream in = null;
-            try {
-                in = new java.io.FileInputStream(f);
+            // Try-with-resources (D8 aman API 21): tutup otomatis tanpa
+            // finally ganda per berkas; galat baca/tutup sama-sama abaikan.
+            try (java.io.InputStream in = new java.io.FileInputStream(f)) {
                 m.put(nama, readAllBytes(in));
             } catch (Exception ignored) {
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (Exception ignored2) {
-                    }
-                }
             }
         }
         return m;
