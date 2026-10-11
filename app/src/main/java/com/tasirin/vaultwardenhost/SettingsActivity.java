@@ -278,6 +278,15 @@ public class SettingsActivity extends Activity {
     // hanya jalan bila kuncian binary/web-vault berubah.
     private String kuncianMentahLihat = null;
     private String kuncianTeksLihat = "";
+    /** Template pesan galat inline (5x getString per ketikan boros di ART lama):
+     *  dimuat sekali di onCreate (ganti bahasa recreate activity). */
+    private String msgFolderSalah = "";
+    private String msgPortSalah = "";
+    private String msgAdminSalah = "";
+    private String msgTokenSalah = "";
+    private String msgChatSalah = "";
+    /** Throttle baca prefs kuncian: mentah berubah hanya via dialog/bot. */
+    private long kuncianCekAt = 0;
 
     /** Status kotor terakhir per label: setText/setColor yang isinya sama
      *  tetap memicu layout sehingga wajib dilewati bila tak berubah. */
@@ -417,6 +426,11 @@ public class SettingsActivity extends Activity {
         warnaLabelBawaan = labelDataDir.getTextColors();
         teksBerjalan = getString(R.string.running);
         teksBerhenti = getString(R.string.stopped);
+        msgFolderSalah = getString(R.string.folder_error);
+        msgPortSalah = getString(R.string.port_error);
+        msgAdminSalah = getString(R.string.admin_error);
+        msgTokenSalah = getString(R.string.token_error);
+        msgChatSalah = getString(R.string.chat_error);
         teksMulai = getString(R.string.start);
         teksStop = getString(R.string.stop);
         teksSibuk = getString(R.string.busy_work);
@@ -2898,6 +2912,13 @@ public class SettingsActivity extends Activity {
 
     /** Sufiks ringkasan kartu rawat bila ada versi dikunci. */
     private String teksKuncian() {
+        // Kuncian berubah hanya via dialog pilih versi / perintah bot:
+        // baca prefs maks 1x/2 dtk, bukan tiap ketikan di field lain.
+        long kiniKunci = SystemClock.elapsedRealtime();
+        if (kuncianMentahLihat != null && kiniKunci - kuncianCekAt < 2000) {
+            return kuncianTeksLihat;
+        }
+        kuncianCekAt = kiniKunci;
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String mentahB = TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, "");
@@ -3188,18 +3209,38 @@ public class SettingsActivity extends Activity {
     }
 
     /** Teks ringkasan per kartu dari prefs + input saat ini. */
+    /** Ada isi non-spasi tanpa alokasi toString+trim (gerbang murah tiap ketikan). Murni. */
+    private static boolean adaIsiTrim(CharSequence s) {
+        if (s == null) {
+            return false;
+        }
+        int n = s.length();
+        int a = 0;
+        while (a < n && s.charAt(a) <= ' ') {
+            a++;
+        }
+        if (a >= n) {
+            return false;
+        }
+        int b = n;
+        while (b > a && s.charAt(b - 1) <= ' ') {
+            b--;
+        }
+        return b > a;
+    }
+
     private void refreshRingkasan() {
         if (pinEnabledCheck == null || adminTokenInput == null) {
             return;
         }
-        // Komponen murah dulu (tanpa getString/concat): tak berubah = langsung
-        // pulang tanpa membangun 5 format string (tiap ketikan di ART lama).
+        // Komponen murah dulu (tanpa getString/concat/alokasi trim): tak berubah
+        // = langsung pulang tanpa membangun 5 format string (tiap ketikan di ART lama).
         boolean pinOn = pinEnabledCheck.isChecked();
-        boolean adminIsi = !adminTokenInput.getText().toString().trim().isEmpty();
+        boolean adminIsi = adaIsiTrim(adminTokenInput.getText());
         boolean auAwal = autoUpdateCb != null && autoUpdateCb.isChecked();
         String kuncian = teksKuncian();
-        boolean botIsiAwal = tgTokenInput != null && !tgTokenInput.getText().toString().trim().isEmpty()
-                && tgChatInput != null && !tgChatInput.getText().toString().trim().isEmpty();
+        boolean botIsiAwal = tgTokenInput != null && adaIsiTrim(tgTokenInput.getText())
+                && tgChatInput != null && adaIsiTrim(tgChatInput.getText());
         String kunciGabung = (pinOn ? "1" : "0") + (adminIsi ? "1" : "0")
                 + (auAwal ? "1" : "0") + "|" + kuncian + "|" + (botIsiAwal ? "1" : "0");
         if (kunciGabung.equals(lastRingkasanKunci)) {
@@ -3263,28 +3304,26 @@ public class SettingsActivity extends Activity {
 
     /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     private void validasiInline() {
-        String gData = galatFolder(dataDirInput.getText().toString(),
-                getString(R.string.folder_error));
+        String gData = galatFolder(dataDirInput.getText().toString(), msgFolderSalah);
         dataDirError.setText(gData == null ? ""
                 : getString(R.string.galat_awalan, gData));
         dataDirError.setVisibility(gData == null ? View.GONE : View.VISIBLE);
-        String gPort = galatPort(portInput.getText().toString(),
-                getString(R.string.port_error));
+        String gPort = galatPort(portInput.getText().toString(), msgPortSalah);
         portError.setText(gPort == null ? ""
                 : getString(R.string.galat_awalan, gPort));
         portError.setVisibility(gPort == null ? View.GONE : View.VISIBLE);
         String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
-                getString(R.string.admin_error)) : null;
+                msgAdminSalah) : null;
         if (adminError != null) {
             adminError.setVisibility(gAdmin == null ? View.GONE : View.VISIBLE);
         }
         String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString(),
-                getString(R.string.token_error)) : null;
+                msgTokenSalah) : null;
         if (tokenError != null) {
             tokenError.setVisibility(gTok == null ? View.GONE : View.VISIBLE);
         }
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
-                getString(R.string.chat_error)) : null;
+                msgChatSalah) : null;
         if (chatError != null) {
             chatError.setVisibility(gChat == null ? View.GONE : View.VISIBLE);
         }
