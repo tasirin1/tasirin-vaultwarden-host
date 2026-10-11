@@ -475,6 +475,7 @@ public final class TgBackup {
                     ui.catat("[tg] " + msg);
                 });
             } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 ui.catat("[tg] " + pesanGalatBackup(e));
             }

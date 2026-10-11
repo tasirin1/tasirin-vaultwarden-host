@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 30: trim sekali + pulihkan interupsi
+- `SettingsActivity.saveAndStart`: `port` sudah di-trim saat baca input — buang `trim()` kedua.
+- `SettingsActivity.perluWizard`: trim tiap argumen sekali ke lokal (dulu 2x) + `dataDirBawaanSegar()` hanya dipanggil bila input tak kosong; semantik sama persis.
+- `ServerService.watchProcess` + runnable backup `TgBackup`: pulihkan status interupsi (`interrupt()`) saat tangkap `InterruptedException` agar thread pool tak kehilangan sinyal interupsi. Watchdog `Updater` sengaja tak diubah (langsung `return`, sudah benar).
+
 ## [Belum rilis] — Perbaiki build: doFinal Mac 4-argumen
 - `PinCrypto.pbkdf2Manual`: `Mac` tak punya `doFinal` 5-argumen (itu milik `Cipher`) sehingga build gagal; ganti ke `update` + `doFinal(output, offset)` yang ada sejak API 1 — tetap tanpa alokasi per iterasi, hasil bit-identik.
 

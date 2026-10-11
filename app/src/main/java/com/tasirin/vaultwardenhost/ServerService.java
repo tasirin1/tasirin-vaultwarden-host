@@ -1831,6 +1831,7 @@ public class ServerService extends Service {
                 }
             }
         } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -871,7 +871,7 @@ public class SettingsActivity extends Activity {
             return;
         }
 
-        String portEfektif = TextUtils.isEmpty(port) ? DEFAULT_PORT : port.trim();
+        String portEfektif = TextUtils.isEmpty(port) ? DEFAULT_PORT : port;
         int portNum = -1;
         try {
             portNum = Integer.parseInt(portEfektif);
@@ -3501,11 +3501,14 @@ public class SettingsActivity extends Activity {
         if (sudahSelesai) {
             return false;
         }
-        boolean ubahan = (dataDir != null && !dataDir.trim().isEmpty()
-                && !dataDir.trim().equals(ServerService.dataDirBawaanSegar()))
-                || (port != null && !port.trim().isEmpty()
-                && !port.trim().equals(ServerService.DEFAULT_PORT))
-                || (admin != null && !admin.trim().isEmpty())
+        // Trim sekali ke lokal (dulu trim 2x per argumen): semantik sama persis,
+        // bawaan hanya dihitung bila input tak kosong (hemat panggil Environment).
+        String d = dataDir == null ? "" : dataDir.trim();
+        String q = port == null ? "" : port.trim();
+        String a = admin == null ? "" : admin.trim();
+        boolean ubahan = (!d.isEmpty() && !d.equals(ServerService.dataDirBawaanSegar()))
+                || (!q.isEmpty() && !q.equals(ServerService.DEFAULT_PORT))
+                || !a.isEmpty()
                 || (versiTersimpan != null && !versiTersimpan.isEmpty());
         return !ubahan;
     }
