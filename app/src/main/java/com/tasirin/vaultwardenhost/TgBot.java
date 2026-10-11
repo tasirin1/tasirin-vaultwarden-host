@@ -427,6 +427,11 @@ public final class TgBot {
                 if (arr != null) {
                     int updateRusak = 0;
                     String contohGalatUpdate = null;
+                    // Snapshot jam + id sekali per poll (bukan per pesan):
+                    // syscall jam ×10 dan lookup "id" ×4 per pesan boros di
+                    // STB lama; selisih µs antar-pesan tak berarti untuk
+                    // batas basi 5 menit.
+                    long kiniPoll = System.currentTimeMillis();
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject upd = arr.optJSONObject(i);
                         if (upd == null) {
@@ -449,26 +454,26 @@ public final class TgBot {
                             }
                             // Hanya layani chat resmi (ID numerik atau @username).
                             String namaUser = c.optString("username", "");
-                            if (Util.cocokChatBanyak(chatKonfig, c.optLong("id", -1), namaUser)) {
+                            long idRuang = c.optLong("id", -1);
+                            if (Util.cocokChatBanyak(chatKonfig, idRuang, namaUser)) {
                                 // Perintah basi (>5 mnt, mis. /stop tertunda saat bot
                                 // offline) wajib diabaikan; offset tetap maju.
                                 // Pesan masa depan (jam STB lambat) jangan dibuang.
                                 long dateMs = msg.optLong("date", 0) * 1000L;
-                                long kini = System.currentTimeMillis();
-                                if (jamMundur(kini)) {
+                                if (jamMundur(kiniPoll)) {
                                     // Fail-closed: jam tak dipercaya (rollback/NTP),
                                     // perintah berbahaya tak boleh jalan dari pesan
                                     // basi yang di-replay. Offset tetap maju agar
                                     // tak diproses ulang; maks dipertahankan agar
                                     // pulih sendiri saat jam kembali normal.
-                                    if (catatMundurDanBolehIngatkan(kini)) {
+                                    if (catatMundurDanBolehIngatkan(kiniPoll)) {
                                         rollbackDitolak++;
                                     }
                                     continue;
                                 } else {
-                                    catatWall(kini);
+                                    catatWall(kiniPoll);
                                 }
-                                if (!Util.pesanSegar(dateMs, kini,
+                                if (!Util.pesanSegar(dateMs, kiniPoll,
                                         STALE_MSG_MS)) {
                                     continue;
                                 }
@@ -484,7 +489,7 @@ public final class TgBot {
                                     } catch (Exception ignored) {
                                     }
                                 }
-                                boolean terotorisasi = handleCommand(ctx, text, c.optLong("id", -1));
+                                boolean terotorisasi = handleCommand(ctx, text, idRuang);
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
                                 // ulang pengintip: hapus best-effort (perlu izin hapus,
                                 // di poll thread sendiri); gagal sekali diperingatkan
@@ -495,7 +500,7 @@ public final class TgBot {
                                 if (idPesan != 0 && terotorisasi && pesanPinWajibHapus(text)
                                         && pinPerangkatAktif(ctx)) {
                                     boolean terhapus = hapusPesanPerintah(ctx,
-                                            c.optLong("id", -1), idPesan);
+                                            idRuang, idPesan);
                                     peringatkanBilaTakBisaHapus(ctx, terhapus);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
                                         && pinPerangkatAktif(ctx)
@@ -503,7 +508,7 @@ public final class TgBot {
                                     // Uji hapus sekali saat /help (tanpa PIN di riwayat):
                                     // hapus pesan /help sendiri sebagai proba hak hapus.
                                     boolean terhapus = hapusPesanPerintah(ctx,
-                                            c.optLong("id", -1), idPesan);
+                                            idRuang, idPesan);
                                     peringatkanBilaTakBisaHapus(ctx, terhapus);
                                 }
                             }

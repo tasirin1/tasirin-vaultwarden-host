@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 28: PBKDF2 tanpa alokasi, mkdirs sekali, poll snapshot
+- `PinCrypto`: `pbkdf2Manual` pakai `doFinal` 4-argumen ping-pong — 12rb iterasi tak lagi membuat 12rb array 32B (~384KB sampah) tepat di STB tua API 21-25 yang memakai jalur ini. Hasil bit-identik (test `pbkdf2ManualSamadenganFactory` tetap acuan).
+- `Updater`: ekstrak web-vault `mkdirs` sekali per direktori (`dirSiap`) — ribuan stat sia-sia di FAT /sdcard hilang; perilaku sama (dir segar per ekstrak).
+- `TgBot`: `pollOnce` snapshot `kiniPoll` + `idRuang` sekali per poll — syscall jam ×10 dan lookup `optLong("id")` ×4 per pesan hilang; snapshot tunggal juga lebih konsisten untuk batas basi.
+- Sapuan bersih (bukan temuan): timeout long-poll 8 dtk < read 35 dtk (tanpa busy-loop); `AlarmReceiver` delegasi ke service (tanpa `goAsync` pun aman); `cleanup`/`sapuExport` sudah worker; layout tanpa teks hardcode; izin manifest semua terpakai.
+
 ## [Belum rilis] — Audit agresif 27: topeng sekali-jalan, pindai manual, /proc cache, port worker, multi-chat tahan-gagal
 - `LogActivity`: gerbang `samarkanLog` ~8 pindai `cocokAscii` penuh jadi satu `topengKunci()` sekali-jalan (bit per kunci, semantik substring sama persis).
 - `ServerService`: `dataDirAman` tanpa `split` regex + tanpa `getBytes` per segmen (hitung byte UTF-8 manual, cacah dipakai ulang); `POLA_SLASH` mati dibuang.

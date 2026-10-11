@@ -1712,6 +1712,9 @@ public final class Updater {
         }
         String awalanAman = kanonBasis + File.separator;
         byte[] buf = new byte[64 * 1024];
+        // Direktori yang sudah dibuat: mkdirs per berkas = stat sia-sia
+        // ribuan kali di FAT /sdcard (banyak berkas berbagi induk sama).
+        java.util.Set<String> dirSiap = new java.util.HashSet<>();
         long totalUnzip = 0;
         int jumlahEntri = 0;
         try {
@@ -1746,10 +1749,13 @@ public final class Updater {
                         continue;
                     }
                     if (entry.isDirectory()) {
-                        outFile.mkdirs();
+                        if (dirSiap.add(outFile.getAbsolutePath())) {
+                            outFile.mkdirs();
+                        }
                     } else {
                         File parent = outFile.getParentFile();
-                        if (parent != null) {
+                        if (parent != null
+                                && dirSiap.add(parent.getAbsolutePath())) {
                             parent.mkdirs();
                         }
                         try (FileOutputStream fos = new FileOutputStream(outFile)) {
