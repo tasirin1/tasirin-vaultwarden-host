@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 41: dokumen selaras + sapuan D-pad/batas aman
+- `AGENTS.md`: klaim basi "15 kelas test" di dua tempat (struktur + aturan unit test) selaras jadi 17 (`HttpsCompat`, `MainActivity` hilang dari daftar); dokumen basi menyesatkan sesi AI berikut.
+- Tanpa ubah kode aplikasi: sapuan 9 area berikut bersih sehingga sisipan диф hanya menambah risiko regresi tanpa untung.
+- Sapuan bersih (temuan nihil, terverifikasi): rantai D-pad lengkap (77 kontrol interaktif di 13 layout punya `nextFocus`, paritas portrait-landscape utuh); `network_security_config` (loopback cleartext saja, WAN HTTPS-only); semua `charAt(0)`/`substring(indexOf)` berpenjaga (`isEmpty`/hitung-titik/cek-batas); `shorten` vs `potongPesanGalat` beda ujung (tak didedup); factory SSL loopback memo + cap (tanpa I/O per tick); `FMT_CACHE` 3 pola konstan; `bandingVersi` hanya jalur Start/update (dingin); tanpa `StringBuffer`/`+=` string di loop/`StringBuilder` panas tanpa kapasitas.
+
 ## [Belum rilis] — Audit agresif 40: wrapper delegasi + port tanpa eksepsi
 - `SettingsActivity`/`MainActivity`: wrapper `readWvVersion`/`currentServerVersion` (delegasi satu baris + komentar ganda sisa refactor) dihapus; 7 situs panggil `Updater.*` langsung. Baris bersih -11.
 - `ServerService.portLoopback`: saring `portTampakAngka` sebelum `parseInt` (selaras `normalisasiPort`) agar prefs korup tak melempar tiap health gagal di ART lama.
