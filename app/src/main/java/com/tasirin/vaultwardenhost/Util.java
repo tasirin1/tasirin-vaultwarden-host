@@ -261,6 +261,9 @@ public final class Util {
 
     /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
     private static volatile android.os.Handler HANDLER_UTAMA = null;
+    /** Kunci pembuatan handler: tanpa ini dua thread bersamaan membuat dua
+     *  Handler lalu satu bocor (volatile check-then-act tak atomik). */
+    private static final Object KUNCI_HANDLER = new Object();
 
     /** Handler utama bersama satu pintu (ganti blok ambil-handler ganda
      *  di postTunda/postUtama yang rawan drift). */
@@ -272,8 +275,13 @@ public final class Util {
             }
             android.os.Handler h = HANDLER_UTAMA;
             if (h == null || h.getLooper() != looper) {
-                h = new android.os.Handler(looper);
-                HANDLER_UTAMA = h;
+                synchronized (KUNCI_HANDLER) {
+                    h = HANDLER_UTAMA;
+                    if (h == null || h.getLooper() != looper) {
+                        h = new android.os.Handler(looper);
+                        HANDLER_UTAMA = h;
+                    }
+                }
             }
             return h;
         } catch (Exception ignored) {

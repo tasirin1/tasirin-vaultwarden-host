@@ -12,7 +12,6 @@ import android.os.StatFs;
 import android.os.storage.StorageManager;
 import android.os.SystemClock;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -1010,7 +1009,9 @@ public final class TgBackup {
                                 sb.append(bacaResponsBatas(is));
                             }
                         }
-                        if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+                        // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
+                        // contains mentah menolak respons sah ber-spasi.
+                        if (code != 200 || !TgBot.responsOk(sb.toString())) {
                             logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
                                     code, sb.toString());
                         }
@@ -1794,24 +1795,26 @@ public final class TgBackup {
             }
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-            try (OutputStream os = conn.getOutputStream();
-                 DataOutputStream dos = new DataOutputStream(os)) {
-                dos.writeBytes("--" + boundary + "\r\n");
-                dos.writeBytes("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
-                dos.writeBytes(chatId + "\r\n");
-                dos.writeBytes("--" + boundary + "\r\n");
-                dos.writeBytes("Content-Disposition: form-data; name=\"document\"; filename=\""
+            // Tanpa DataOutputStream: writeBytes tersinkron per baris dan konversi
+            // char-per-char; header multipart selalu ASCII sehingga tulisAscii
+            // (byte rendah, tanpa lock) menghasilkan byte identik. Murni I/O.
+            try (OutputStream os = conn.getOutputStream()) {
+                tulisAscii(os, "--" + boundary + "\r\n");
+                tulisAscii(os, "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
+                tulisAscii(os, chatId + "\r\n");
+                tulisAscii(os, "--" + boundary + "\r\n");
+                tulisAscii(os, "Content-Disposition: form-data; name=\"document\"; filename=\""
                         + sanitasiNamaFile(file.getName()) + "\"\r\n");
-                dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+                tulisAscii(os, "Content-Type: application/octet-stream\r\n\r\n");
                 try (FileInputStream fis = new FileInputStream(file)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
                     while ((n = fis.read(buf)) != -1) {
-                        dos.write(buf, 0, n);
+                        os.write(buf, 0, n);
                     }
                 }
-                dos.writeBytes("\r\n--" + boundary + "--\r\n");
-                dos.flush();
+                tulisAscii(os, "\r\n--" + boundary + "--\r\n");
+                os.flush();
             }
 
             tolakRedirectTelegram(conn);
@@ -1823,7 +1826,9 @@ public final class TgBackup {
                     sb.append(bacaResponsBatas(is));
                 }
             }
-            if (code != 200 || !sb.toString().contains("\"ok\":true")) {
+            // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
+            // contains mentah menolak respons sah ber-spasi.
+            if (code != 200 || !TgBot.responsOk(sb.toString())) {
                 String body = sb.toString();
                 if (body.length() > 200) {
                     body = body.substring(0, 200) + "...";
@@ -3309,6 +3314,21 @@ public final class TgBackup {
 
     static byte[] readAllBytes(InputStream in) throws Exception {
         return bacaTerbatas(in, BATAS_CONFIG_JSON);
+    }
+
+    /** Tulis string ASCII murni ke stream (semantik DataOutputStream.writeBytes:
+     *  byte rendah tiap char, tanpa sinkronisasi per panggil). Header multipart
+     *  selalu ASCII sehingga byte yang dihasilkan identik. Murni I/O. */
+    static void tulisAscii(OutputStream os, String s) throws IOException {
+        if (os == null || s == null || s.isEmpty()) {
+            return;
+        }
+        int n = s.length();
+        byte[] b = new byte[n];
+        for (int i = 0; i < n; i++) {
+            b[i] = (byte) s.charAt(i);
+        }
+        os.write(b);
     }
 
     /** Baca respons HTTP kecil (maks 1 MB, kosong bila lebih): anti OOM bila

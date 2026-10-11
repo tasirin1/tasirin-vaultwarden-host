@@ -1112,4 +1112,21 @@ public class TgBackupTest {
         assertFalse(TgBackup.dbSibuk(null));
         assertFalse(TgBackup.dbSibuk(""));
     }
+    @Test
+    public void tulisAscii_byteIdentikWriteBytes() throws Exception {
+        String[] sampel = {"--boundary\r\n", "Content-Type: application/octet-stream\r\n\r\n",
+                "nama berkas abc-123_ Z\r\n", ""};
+        for (String x : sampel) {
+            java.io.ByteArrayOutputStream a = new java.io.ByteArrayOutputStream();
+            java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+            TgBackup.tulisAscii(a, x);
+            java.io.DataOutputStream dos = new java.io.DataOutputStream(b);
+            dos.writeBytes(x);
+            dos.flush();
+            assertEquals(new String(b.toByteArray(), "ISO-8859-1"),
+                    new String(a.toByteArray(), "ISO-8859-1"));
+        }
+        TgBackup.tulisAscii(new java.io.ByteArrayOutputStream(), null);
+    }
 }
+

@@ -660,7 +660,9 @@ public class LogActivity extends Activity {
             }
             switch (c) {
                 case 't':
-                    if (cocokKunciAt(t, i, "token=")) {
+                    // Tanpa "=": "token=" mengandung "token" sehingga satu cek
+                    // mencakup keduanya, termasuk kunci JSON ("token": "...").
+                    if (cocokKunciAt(t, i, "token")) {
                         topeng |= BIT_TOKEN_EQ;
                     }
                     if (cocokKunciAt(t, i, "tg_pass")) {
@@ -753,11 +755,18 @@ public class LogActivity extends Activity {
             r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
         }
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
-        if (r.indexOf('"') >= 0) {
-            r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
-        }
-        if (r.indexOf('\'') >= 0) {
-            r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
+        // Gerbang topeng dulu (tanpa itu tiap tick membayar 2 pindai kutip
+        // penuh + regex di teks biasa); kutip dicek sekali bila gerbang lolos.
+        // Aman tanpa redaksi hilang: tiap alternatif kunci JSON (admin_token,
+        // tg_token/tg_chat/tg_pass, pin_hash, token) mengeset BIT-nya di
+        // topengKunci, dan redaksi di atas tak menambah/menghapus kunci.
+        if ((topeng & (BIT_TOKEN_EQ | BIT_TG | BIT_ADMIN | BIT_PIN)) != 0) {
+            if (r.indexOf('"') >= 0) {
+                r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
+            }
+            if (r.indexOf('\'') >= 0) {
+                r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
+            }
         }
         if ((topeng & BIT_CHAT) != 0) {
             r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
@@ -767,8 +776,9 @@ public class LogActivity extends Activity {
         }
         // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 10+
         // karakter sehingga jam "12:30" dan teks biasa tak ikut rusak,
-        // sementara token bocor di log generik tetap tertutup.
-        if (r.indexOf(':') >= 0) {
+        // sementara token bocor di log generik tetap tertutup. Pra-cek bentuk
+        // (tanpa mesin regex) agar tick biasa tanpa token tak membayar regex.
+        if (adaBentukTokenMentah(r)) {
             r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
         }
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
@@ -792,12 +802,81 @@ public class LogActivity extends Activity {
             r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
         }
         // IP privat LAN (termasuk :port) disamarkan paling akhir agar sisa
-        // alamat yang lolos pola DOMAIN/URL tetap tertutup.
-        if (r.contains("192.168.") || r.contains("10.") || r.contains("172.")
-                || r.contains("127.0.0.1:")) {
+        // alamat yang lolos pola DOMAIN/URL tetap tertutup. Satu pra-cek
+        // sekali jalan (bukan 4 contains = 4 pindai penuh tiap tick).
+        if (adaIpPrivat(r)) {
             r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
         }
         return r;
+    }
+
+    /** True bila t memuat bentuk token mentah (6+ digit + ':' + 10+ char token).
+     *  Pra-cek longgar untuk POLA_TOKEN_MENTAH: run digit boleh >12 dan tanpa
+     *  lookbehind sehingga tak pernah lebih ketat dari regex (tanpa redaksi
+     *  hilang), tapi jam "12:30"/port "8088" gugur murah tanpa mesin regex.
+     *  Murni agar bisa unit test. */
+    static boolean adaBentukTokenMentah(String t) {
+        if (t == null) {
+            return false;
+        }
+        int n = t.length();
+        int digit = 0;
+        for (int i = 0; i < n; i++) {
+            char c = t.charAt(i);
+            if (c >= '0' && c <= '9') {
+                digit++;
+                continue;
+            }
+            if (c == ':' && digit >= 6) {
+                int j = i + 1;
+                int k = 0;
+                while (j < n && k < 10) {
+                    char d = t.charAt(j);
+                    if ((d >= 'A' && d <= 'Z') || (d >= 'a' && d <= 'z')
+                            || (d >= '0' && d <= '9') || d == '_' || d == '-') {
+                        k++;
+                        j++;
+                    } else {
+                        break;
+                    }
+                }
+                if (k >= 10) {
+                    return true;
+                }
+            }
+            digit = 0;
+        }
+        return false;
+    }
+
+    /** True bila t memuat penanda IP privat (pra-cek longgar POLA_IP_PRIVAT).
+     *  "10."/"172." menuntut digit sesudahnya (regex selalu begitu) sehingga
+     *  versi "1.10.2" tak memicu regex sia-sia; tetap over-aproksimasi aman.
+     *  Murni agar bisa unit test. */
+    static boolean adaIpPrivat(String t) {
+        if (t == null) {
+            return false;
+        }
+        int n = t.length();
+        for (int i = 0; i < n; i++) {
+            char c = t.charAt(i);
+            if (c != '1') {
+                continue;
+            }
+            if (t.startsWith("192.168.", i) || t.startsWith("127.0.0.1:", i)) {
+                return true;
+            }
+            // "10."/"172." hanya bila digit sesudahnya (seperti regex).
+            boolean sepuluh = t.startsWith("10.", i);
+            boolean seratusTujuh = !sepuluh && t.startsWith("172.", i);
+            if ((sepuluh && i + 3 < n) || (seratusTujuh && i + 4 < n)) {
+                char ikut = t.charAt(i + (sepuluh ? 3 : 4));
+                if (ikut >= '0' && ikut <= '9') {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void shareLog() {

@@ -437,4 +437,14 @@ public class TgBotTest {
         assertEquals("", TgBot.namaPerintahUntukBot("  /start@BotLain  ", "BotKu"));
         assertEquals("start", TgBot.namaPerintahUntukBot("  /start  ", "BotKu"));
     }
+
+    @Test
+    public void responsOk_toleranSpasi() {
+        assertTrue(TgBot.responsOk("{\"ok\":true,\"result\":{}}"));
+        assertTrue(TgBot.responsOk("{\"ok\": true,\"result\":{}}"));
+        assertTrue(TgBot.responsOk("{ \"ok\" : true }"));
+        assertFalse(TgBot.responsOk("{\"ok\":false}"));
+        assertFalse(TgBot.responsOk(null));
+        assertFalse(TgBot.responsOk(""));
+    }
 }

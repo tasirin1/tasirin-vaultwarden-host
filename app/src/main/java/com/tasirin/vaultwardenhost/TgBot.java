@@ -1012,7 +1012,9 @@ public final class TgBot {
                 return false;
             }
             try (InputStream in = c.getInputStream()) {
-                return TgBackup.bacaResponsBatas(in).contains("\"ok\":true");
+                // Kanonis via responsOk (toleran spasi "ok": true); contains mentah
+                // gagal bila Telegram menyisip spasi dan menduplikasi logika ok-true.
+                return responsOk(TgBackup.bacaResponsBatas(in));
             }
         } catch (Exception ignored) {
             return false;

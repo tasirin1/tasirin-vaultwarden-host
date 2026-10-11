@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 32: kanonis ok-true + gerbang samaran tanpa pindai buta
+- `TgBot`/`TgBackup`: 3 cek `"ok":true` mentah (`contains`) jadi satu pintu `TgBot.responsOk` (regex `POLA_OK_TRUE` toleran spasi `"ok": true`); perbaikan bug nyata — hapus/pesan dan kirim dokumen yang sah tapi ber-spasi dulu ditolak sebagai gagal.
+- `TgBackup`: `DataOutputStream.writeBytes` (tersinkron per baris) untuk header multipart jadi `tulisAscii` (byte rendah, tanpa lock, byte identik — dikunci test); import mati dibuang.
+- `LogActivity.samarkanLog`: gerbang JSON (`"..."`/`'...'`) yang dulu `indexOf` kutip buta (kutip ada di hampir tiap baris) kini gerbang topeng kredensial dulu; `indexOf(':')` yang selalu benar di log ber-stempel waktu jadi pra-cek bentuk `adaBentukTokenMentah` (tanpa mesin regex, jam `12:30`/port `8088` gugur murah); 4 `contains` IP (`4x` pindai penuh tiap tick) jadi `adaIpPrivat` sekali jalan (`10.`/`172.` menuntut digit seperti regex).
+- `LogActivity.topengKunci`: deteksi `token=` dilonggarkan ke `token` agar gerbang JSON berbasis topeng tetap over-aproksimasi aman untuk kunci `"token": "..."` tanpa `=`; tanpa redaksi hilang (pra-cek dibuktikan tak lebih ketat dari regex via simulasi + test).
+- `Util.handlerUtama`: double-checked locking (`KUNCI_HANDLER`) — dua thread bersamaan dulu bisa membuat dua Handler dan membocorkan satu.
+- Test: `adaBentukTokenMentah`/`adaIpPrivat`/`samaranJsonTanpaEquals` (`LogActivityTest`), `tulisAscii_byteIdentikWriteBytes` (`TgBackupTest`), `responsOk_toleranSpasi` (`TgBotTest`).
+- Sapuan bersih (bukan temuan): `waitFor(timeout)` sudah guard O+ dengan fallback waiter-join pra-Oreo; `Base64` pakai `android.util`; tanpa `String.join`/`computeIfAbsent`/`java.time`/`stream` di scope app (aman API 21); `PendingIntent` IMMUTABLE-guard semua; `Html.fromHtml`/`StatFs`/`AlarmManager.exact` semua guard versi; semua import terpakai.
+
 ## [Belum rilis] — Audit agresif 31: pra-alokasi buffer pembaca batas
 - `TgBackup.bacaTerbatas` + `SettingsActivity.readCapped`: `ByteArrayOutputStream` pra-alokasi 8 KB (dulu 32 B bawaan mengganda + menyalin berulang untuk payload hingga 512 KB–1 MB); perilaku sama persis.
 - Sapuan bersih: charset eksplisit di semua konversi byte↔string; loop unduh/hash 64 KB; `tailLog`/`shorten` tanpa salinan perantara; `refreshRingkasan`/`validasiInline` sudah gerbang-cache; `equalsIgnoreCase` sisa hanya di jalur dingin; tidak ada baca 1-byte.

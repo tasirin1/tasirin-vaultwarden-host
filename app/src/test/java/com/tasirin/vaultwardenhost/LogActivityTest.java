@@ -187,4 +187,34 @@ public class LogActivityTest {
         assertEquals("ccc", LogActivity.potongEkorBaris("aaa\nbbb\nccc\n", 5));
         assertEquals("", LogActivity.potongEkorBaris("\n\n\n", 2));
     }
+    @Test
+    public void praCekTokenMentah_longgarTapiTakPernahMiss() {
+        assertTrue(LogActivity.adaBentukTokenMentah("proses 123456:ABCDEF1234567890 selesai"));
+        assertTrue(LogActivity.adaBentukTokenMentah("kirim 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 ok"));
+        assertFalse(LogActivity.adaBentukTokenMentah("server jalan di port 8088 jam 12:30"));
+        assertFalse(LogActivity.adaBentukTokenMentah("server jalan di port 8088"));
+        assertFalse(LogActivity.adaBentukTokenMentah("env ADMIN_TOKEN=rahasia123 lanjut"));
+        assertFalse(LogActivity.adaBentukTokenMentah(null));
+        assertFalse(LogActivity.adaBentukTokenMentah(""));
+    }
+
+    @Test
+    public void praCekIpPrivat_longgarTapiTakPernahMiss() {
+        assertTrue(LogActivity.adaIpPrivat("server di 192.168.1.5:8080 jalan"));
+        assertTrue(LogActivity.adaIpPrivat("host 10.0.0.5 internal"));
+        assertTrue(LogActivity.adaIpPrivat("lantai 172.16.0.9"));
+        assertTrue(LogActivity.adaIpPrivat("loop 127.0.0.1:8088 lokal"));
+        assertFalse(LogActivity.adaIpPrivat("server jalan biasa tanpa rahasia"));
+        assertFalse(LogActivity.adaIpPrivat("nilai 10. volt"));
+        assertFalse(LogActivity.adaIpPrivat(null));
+    }
+
+    @Test
+    public void samaranJsonTanpaEquals_tetapJalan() {
+        String r = LogActivity.samarkanLog("dump \"token\": \"rahasia123\" selesai");
+        assertFalse(r.contains("rahasia123"));
+        String bersih = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
+        assertTrue(bersih.contains("12:30"));
+    }
 }
+
