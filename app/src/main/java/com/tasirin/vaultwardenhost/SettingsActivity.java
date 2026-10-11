@@ -3746,7 +3746,10 @@ public class SettingsActivity extends Activity {
         private String nilaiTerbaru = "";
         private int generasiTulis = 0;
         // Satu Runnable dipakai ulang: tanpa new Runnable/ArrayList per karakter.
-        private final Runnable tugasTunda = () -> {
+        // Method reference (bukan lambda self-reference) agar javac lolos.
+        private final Runnable tugasTunda = this::tulisNilaiTunda;
+
+        private void tulisNilaiTunda() {
             String nilai;
             int gen;
             synchronized (tulisTundaAktif) {
@@ -3763,7 +3766,7 @@ public class SettingsActivity extends Activity {
                     tulisTundaAktif.remove(tugasTunda);
                 }
             }
-        };
+        }
 
         SimpleTextWatcher(String key) {
             this.key = key;
