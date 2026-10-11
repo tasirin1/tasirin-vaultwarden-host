@@ -2660,15 +2660,43 @@ public final class TgBackup {
             return null;
         }
         if (v instanceof String) {
-            String t = ((String) v).trim().toLowerCase(java.util.Locale.US);
-            if ("true".equals(t) || "1".equals(t)) {
-                return Boolean.TRUE;
+            // Tanpa trim()/toLowerCase() (dua alokasi): banding ASCII langsung
+            // dengan spasi tepi dilewati. Jalur sembuh-korup, jarang dipanggil.
+            String t = (String) v;
+            int dari = 0;
+            int sampai = t.length();
+            while (dari < sampai && t.charAt(dari) <= ' ') {
+                dari++;
             }
-            if ("false".equals(t) || "0".equals(t)) {
+            while (sampai > dari && t.charAt(sampai - 1) <= ' ') {
+                sampai--;
+            }
+            int n = sampai - dari;
+            if (n == 1) {
+                char c = t.charAt(dari);
+                if (c == '1') {
+                    return Boolean.TRUE;
+                }
+                if (c == '0') {
+                    return Boolean.FALSE;
+                }
+            } else if (n == 4 && cocokKata(t, dari, "true")) {
+                return Boolean.TRUE;
+            } else if (n == 5 && cocokKata(t, dari, "false")) {
                 return Boolean.FALSE;
             }
         }
         return null;
+    }
+
+    /** Cocok kata ASCII abaikan-huruf di offset (tanpa substring). Murni. */
+    private static boolean cocokKata(String t, int dari, String kata) {
+        for (int i = 0; i < kata.length(); i++) {
+            if (!Util.samaHurufAscii(t.charAt(dari + i), kata.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Koersi nilai Long dari String/Number edit manual ("123"/123 -> 123).

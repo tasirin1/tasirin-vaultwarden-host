@@ -1981,15 +1981,17 @@ public final class Updater {
 
     /** True bila dua versi menunjuk rilis yang sama ("v"-prefix, segmen
      *  hilang, dan sufiks beta diabaikan): banner update tak macet gara-gara
-     *  beda format tulisan. Null tak pernah cocok. Murni agar bisa unit test. */
+     *  beda format tulisan. Null/kosong/sampah tak dikenal tak pernah cocok
+     *  (dua sampah pun false, bukan true). Murni agar bisa unit test. */
     static boolean versiCocok(String a, String b) {
-        // Trim sekali per arg (dulu cek isEmpty lalu normVersion trim lagi).
-        String ra = a == null ? "" : a.trim();
-        String rb = b == null ? "" : b.trim();
-        if (ra.isEmpty() || rb.isEmpty()) {
+        // Tanpa trim ganda: normVersion sudah trim + null-aman (""/spasi/null
+        // -> ""/null) sehingga cek kosong cukup setelah normalisasi.
+        String ra = normVersion(a);
+        String rb = normVersion(b);
+        if (ra == null || ra.isEmpty() || rb == null || rb.isEmpty()) {
             return false;
         }
-        return bandingVersi(normVersion(ra), normVersion(rb)) == 0;
+        return bandingVersi(ra, rb) == 0;
     }
 
     /** Banding versi numerik per segmen ("1.9" < "1.10", "1.37" = "1.37.0").
@@ -2478,7 +2480,9 @@ public final class Updater {
         if (line == null) {
             return null;
         }
-        String bersih = line.replace("\uFEFF", "").trim();
+        // Tanpa alokasi bila tak ada BOM: replace selalu menyalin string penuh.
+        String bersih = line.indexOf('\uFEFF') >= 0 ? line.replace("\uFEFF", "") : line;
+        bersih = bersih.trim();
         if (bersih.isEmpty()) {
             return null;
         }

@@ -1102,7 +1102,7 @@ public class SettingsActivity extends Activity {
         String version = versiB.toString();
         // I/O berat (stat DB, jalan folder backup/web-vault) di worker thread;
         // UI thread hanya membaca nilai cache agar tidak jank/ANR.
-        long nowHeavy = System.currentTimeMillis();
+        long nowHeavy = SystemClock.elapsedRealtime();
         boolean heavyDue = nowHeavy - lastDbCheck >= DB_CHECK_MS
                 || nowHeavy - lastStorageCheck >= STORAGE_CHECK_MS
                 || nowHeavy - lastWvCheck >= WV_CHECK_MS
@@ -1111,11 +1111,11 @@ public class SettingsActivity extends Activity {
         if (heavyDue && heavyRunning.compareAndSet(false, true)) {
             Util.jalankanBg(() -> {
                 try {
-                    dbInfoLine();
-                    storageInfoLine();
-                    webVaultInfoLine();
-                    sysInfoLine();
-                    certInfoLine();
+                    dbInfoLine(true);
+                    storageInfoLine(true);
+                    webVaultInfoLine(true);
+                    sysInfoLine(true);
+                    certInfoLine(true);
                 } finally {
                     heavyRunning.set(false);
                     ui.post(() -> {
@@ -1127,23 +1127,26 @@ public class SettingsActivity extends Activity {
             });
         }
         StringBuilder fullB = new StringBuilder(version);
-        String dbInfo = dbInfoLine();
+        // Cache saja bila worker berat jalan (lihat dbInfoLine): cegah hitung
+        // ganda + I/O (/proc/statfs/jalan folder) di UI thread saat cache dingin.
+        boolean hitungUi = !heavyRunning.get();
+        String dbInfo = dbInfoLine(hitungUi);
         if (!dbInfo.isEmpty()) {
             fullB.append("\n").append(dbInfo);
         }
-        String wv = webVaultInfoLine();
+        String wv = webVaultInfoLine(hitungUi);
         if (!wv.isEmpty()) {
             fullB.append("\n").append(wv);
         }
-        String sys = sysInfoLine();
+        String sys = sysInfoLine(hitungUi);
         if (!sys.isEmpty()) {
             fullB.append("\n").append(sys);
         }
-        String storage = storageInfoLine();
+        String storage = storageInfoLine(hitungUi);
         if (!storage.isEmpty()) {
             fullB.append("\n").append(storage);
         }
-        String cert = certInfoLine();
+        String cert = certInfoLine(hitungUi);
         if (!cert.isEmpty()) {
             fullB.append("\n").append(cert);
         }
@@ -1174,7 +1177,7 @@ public class SettingsActivity extends Activity {
 
         // Baris "Izinkan akses penuh" hanya muncul bila battery optimization aktif.
         // Hasil IPC di-cache 30 dtk agar refresh tiap detik tidak membebani binder.
-        long nowBattery = System.currentTimeMillis();
+        long nowBattery = SystemClock.elapsedRealtime();
         if (nowBattery - lastBatteryCheck >= BATTERY_CHECK_MS) {
             lastBatteryCheck = nowBattery;
             boolean need = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
@@ -2641,7 +2644,8 @@ public class SettingsActivity extends Activity {
 
     /** Isi folder backups dengan cache 5 dtk (dipakai dua baris info). */
     private File[] daftarBackup(File backupDir) {
-        long now = System.currentTimeMillis();
+        // Jam monotonik: wall-clock mundur (NTP) membekukan daftar sampai jam mengejar.
+        long now = SystemClock.elapsedRealtime();
         String kunci = backupDir.getAbsolutePath();
         if (cacheDaftarBackup != null && kunci.equals(cacheDaftarBackupDir)
                 && now - cacheDaftarBackupAt < DAFTAR_BACKUP_TTL_MS) {
@@ -2654,9 +2658,15 @@ public class SettingsActivity extends Activity {
         return files;
     }
 
-    private String dbInfoLine() {
-        long now = System.currentTimeMillis();
+    /** Baris info DB. bolehHitung=false = cache saja (tanpa I/O stat):
+     *  dipakai UI thread saat worker berat sedang menghitung agar buka
+     *  Settings tak jank dua kali (worker me-repaint saat selesai). */
+    private String dbInfoLine(boolean bolehHitung) {
+        long now = SystemClock.elapsedRealtime();
         if (now - lastDbCheck < DB_CHECK_MS) {
+            return dbLine;
+        }
+        if (!bolehHitung) {
             return dbLine;
         }
         lastDbCheck = now;
@@ -2677,10 +2687,14 @@ public class SettingsActivity extends Activity {
         return dbLine;
     }
 
-    /** Rincian storage: DB, backup lokal, web-vault, binary (satu baris ringkas). */
-    private String storageInfoLine() {
-        long now = System.currentTimeMillis();
+    /** Rincian storage: DB, backup lokal, web-vault, binary (satu baris ringkas).
+     *  bolehHitung=false = cache saja (lihat dbInfoLine). */
+    private String storageInfoLine(boolean bolehHitung) {
+        long now = SystemClock.elapsedRealtime();
         if (now - lastStorageCheck < STORAGE_CHECK_MS) {
+            return storageLine;
+        }
+        if (!bolehHitung) {
             return storageLine;
         }
         lastStorageCheck = now;
@@ -2728,10 +2742,14 @@ public class SettingsActivity extends Activity {
         return storageLine;
     }
 
-    /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server. */
-    private String webVaultInfoLine() {
-        long now = System.currentTimeMillis();
+    /** Baris info versi web-vault (bundled/updated) + peringatan bila beda dari server.
+     *  bolehHitung=false = cache saja (lihat dbInfoLine). */
+    private String webVaultInfoLine(boolean bolehHitung) {
+        long now = SystemClock.elapsedRealtime();
         if (now - lastWvCheck < WV_CHECK_MS) {
+            return wvLine;
+        }
+        if (!bolehHitung) {
             return wvLine;
         }
         lastWvCheck = now;
@@ -2763,9 +2781,13 @@ public class SettingsActivity extends Activity {
     }
 
     /** RAM proses server, uptime, dan sisa storage (satu baris ringkas). */
-    private String sysInfoLine() {
-        long now = System.currentTimeMillis();
+    /** Baris info RAM/uptime/storage (lihat dbInfoLine soal bolehHitung). */
+    private String sysInfoLine(boolean bolehHitung) {
+        long now = SystemClock.elapsedRealtime();
         if (now - lastSysCheck < SYS_CHECK_MS) {
+            return sysLine;
+        }
+        if (!bolehHitung) {
             return sysLine;
         }
         lastSysCheck = now;
@@ -2804,9 +2826,13 @@ public class SettingsActivity extends Activity {
     }
 
     /** Sisa masa berlaku sertifikat TLS; kosong bila belum ada / tidak terbaca. */
-    private String certInfoLine() {
-        long now = System.currentTimeMillis();
+    /** Baris info sertifikat (lihat dbInfoLine soal bolehHitung). */
+    private String certInfoLine(boolean bolehHitung) {
+        long now = SystemClock.elapsedRealtime();
         if (now - lastCertCheck < CERT_CHECK_MS) {
+            return certLine;
+        }
+        if (!bolehHitung) {
             return certLine;
         }
         lastCertCheck = now;
