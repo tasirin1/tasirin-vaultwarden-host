@@ -159,10 +159,8 @@ public class ServerService extends Service {
 
     /** Sidik SHA-256 hex dari token admin ("" bila kosong/gagal; murni).
      *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext.
-     *  Hex manual via Updater.toHex: String.format per byte 32x per tick UI
-     *  bikin jank di STB lama (dipanggil tiap refresh 500 ms). */
-    /** Cache sidik token: refresh UI tiap detik tak perlu hash ulang bila
-     *  token tak berubah. Kunci sendiri agar commit() PIN tak menahannya. */
+     *  Cache sidik: refresh UI tiap detik tak perlu hash ulang bila token tak
+     *  berubah. Kunci sendiri agar commit() PIN tak menahannya. */
     private static final Object KUNCI_SIDIK = new Object();
     private static String sidikTokenMasuk = null;
     private static String sidikTokenHasil = "";
@@ -221,13 +219,6 @@ public class ServerService extends Service {
     /** Pola statis: split/matches kompilasi regex tiap panggil di STB lama. */
     private static final java.util.regex.Pattern POLA_SLASH =
             java.util.regex.Pattern.compile("/");
-    private static final java.util.regex.Pattern POLA_SPASI =
-            java.util.regex.Pattern.compile("\\s+");
-
-    /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
-    static boolean semuaDigit(String s) {
-        return Util.semuaDigit(s);
-    }
 
     private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?");
@@ -1155,7 +1146,7 @@ public class ServerService extends Service {
                     String rest = sisa.substring(slash + 1);
                     if (seg0.equals(pkg)) {
                         sendiri = true;
-                    } else if (semuaDigit(seg0)) {
+                    } else if (Util.semuaDigit(seg0)) {
                         sendiri = rest.equals(pkg) || rest.startsWith(pkg + "/");
                     }
                 }
