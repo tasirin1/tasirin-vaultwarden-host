@@ -192,9 +192,14 @@ public class LogActivity extends Activity {
         final String cari = logSearch;
         final boolean ikutBawah = logAutoScroll;
         final int prevScroll = logScroll.getScrollY();
+        // Salin ekor saja (+ margin 512 agar potong batas baris di bawah tetap
+        // tepat): buffer bisa 300 KB sementara tampil max 100 KB — salin penuh
+        // tiap 1,5 dtk membuang ~200 KB sampah per tick di STB 1 GB.
         final String text;
         synchronized (ServerService.logBuffer) {
-            text = ServerService.logBuffer.toString();
+            int n = ServerService.logBuffer.length();
+            int dari = n > BATAS_TAMPIL_LOG + 512 ? n - (BATAS_TAMPIL_LOG + 512) : 0;
+            text = ServerService.logBuffer.substring(dari);
         }
         Util.jalankanBg(() -> {
             try {
@@ -634,28 +639,61 @@ public class LogActivity extends Activity {
         }
         // Samarkan token, chat_id, dan token bot agar tak bocor via bagi/clipboard.
         // Pola dikompilasi sekali (polling log tiap detik di STB 1 GB).
+        // Gerbang murah per pola: 13 replaceAll di 100 KB tiap tick memberatkan
+        // STB — pola yang penandanya tak ada dilewati tanpa membayar salinan
+        // string + mesin regex. Gerbang selalu over-aproksimasi aman (pola tak
+        // mungkin cocok bila penandanya tak ada di teks). Murni.
         String r = log;
-        r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
+        if (Util.cocokAscii(r, "token=")) {
+            r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
+        }
         // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
-        r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
-        r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
-        r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
-        r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
+        if (r.indexOf('"') >= 0) {
+            r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
+        }
+        if (r.indexOf('\'') >= 0) {
+            r = POLA_TOKEN_JSON_SQ.matcher(r).replaceAll("$1***'");
+        }
+        if (Util.cocokAscii(r, "chat_id") || Util.cocokAscii(r, "chatid")) {
+            r = POLA_CHAT_ID.matcher(r).replaceAll("$1***");
+        }
+        if (Util.cocokAscii(r, "bot")) {
+            r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
+        }
         // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 10+
         // karakter sehingga jam "12:30" dan teks biasa tak ikut rusak,
         // sementara token bocor di log generik tetap tertutup.
-        r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
+        if (r.indexOf(':') >= 0) {
+            r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
+        }
         // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
         // di pesan galat) + secret admin via env/query/Bearer.
-        r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
-        r = POLA_ADMIN_ENV.matcher(r).replaceAll("$1***");
-        r = POLA_BEARER.matcher(r).replaceAll("$1***");
-        r = POLA_SANDI_SPASI.matcher(r).replaceAll("$1***");
-        r = POLA_KREDENSIAL_NILAI.matcher(r).replaceAll("$1***");
-        r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
+        if (Util.cocokAscii(r, "api.telegram.org")) {
+            r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
+        }
+        if (Util.cocokAscii(r, "admin_token")) {
+            r = POLA_ADMIN_ENV.matcher(r).replaceAll("$1***");
+        }
+        if (Util.cocokAscii(r, "bearer")) {
+            r = POLA_BEARER.matcher(r).replaceAll("$1***");
+        }
+        if (Util.cocokAscii(r, "tg_pass")) {
+            r = POLA_SANDI_SPASI.matcher(r).replaceAll("$1***");
+        }
+        if (Util.cocokAscii(r, "tg_") || Util.cocokAscii(r, "pin")
+                || Util.cocokAscii(r, "admin") || Util.cocokAscii(r, "alarm")
+                || Util.cocokAscii(r, "bin_sha")) {
+            r = POLA_KREDENSIAL_NILAI.matcher(r).replaceAll("$1***");
+        }
+        if (Util.cocokAscii(r, "domain")) {
+            r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
+        }
         // IP privat LAN (termasuk :port) disamarkan paling akhir agar sisa
         // alamat yang lolos pola DOMAIN/URL tetap tertutup.
-        r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
+        if (r.contains("192.168.") || r.contains("10.") || r.contains("172.")
+                || r.contains("127.0.0.1:")) {
+            r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
+        }
         return r;
     }
 

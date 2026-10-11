@@ -2596,6 +2596,19 @@ public final class TgBackup {
                     "wv_fallback_for", Updater.KEY_TRUST_TGL,
                     PinGate.KEY_PIN_HASH, "clip_hash"));
 
+    /** Kunci pengaturan yang boleh dipulihkan dari zip tak tepercaya.
+     *  State perangkat (jadwal, offset, notifikasi, UI) selalu dipertahankan.
+     *  Statis agar impor tak alokasi HashSet + array tiap kali. */
+    static final java.util.Set<String> BOLEH_IMPOR = new java.util.HashSet<>(
+            java.util.Arrays.asList(ServerService.KEY_PORT,
+                    ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
+                    ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
+                    ServerService.KEY_AUTO_UPDATE_WV,
+                    ServerService.KEY_AUTO_RESTART_UPDATE,
+                    ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
+                    ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
+                    KEY_TG_AUTO));
+
     /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
     static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_AUTO_START, ServerService.KEY_HTTPS,
@@ -2880,17 +2893,8 @@ public final class TgBackup {
                 keepWv.put(e.getKey(), (Boolean) e.getValue());
             }
         }
-        // Kunci pengaturan yang boleh dipulihkan dari zip tak tepercaya.
-        // State perangkat (jadwal, offset, notifikasi, UI) selalu dipertahankan.
-        java.util.Set<String> bolehImpor = new java.util.HashSet<String>(
-                java.util.Arrays.asList(ServerService.KEY_PORT,
-                        ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
-                        ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
-                        ServerService.KEY_AUTO_UPDATE_WV,
-                        ServerService.KEY_AUTO_RESTART_UPDATE,
-                        ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
-                        ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
-                        KEY_TG_AUTO));
+        // Allowlist impor dipakai langsung dari konstanta statis (tanpa
+        // bangun HashSet + array tiap impor).
         SharedPreferences.Editor ed = cur.edit();
         // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
         // tak menghapus seluruh pengaturan perangkat. Folder data selalu
@@ -2901,7 +2905,7 @@ public final class TgBackup {
             if (ServerService.KEY_DATA_DIR.equals(k)) {
                 continue;
             }
-            if (!bolehImpor.contains(k)) {
+            if (!BOLEH_IMPOR.contains(k)) {
                 continue;
             }
             Object v = prefs.get(k);

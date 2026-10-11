@@ -3770,9 +3770,14 @@ public class ServerService extends Service {
     static String tailLog(int lines) {
         synchronized (logBuffer) {
             int len = logBuffer.length();
-            java.util.ArrayList<String> ambil = new java.util.ArrayList<>(Math.max(0, lines));
+            // Kumpulkan rentang [mulai, akhir) lalu tempel langsung dari buffer:
+            // tanpa ArrayList<String> + substring per baris (hemat N salinan
+            // string perantara di jalur crash). Murni, signature tetap.
+            int[] mulai = new int[Math.max(0, lines)];
+            int[] akhir = new int[Math.max(0, lines)];
+            int hitung = 0;
             int end = len;
-            for (int i = len - 1; i >= -1 && ambil.size() < lines; i--) {
+            for (int i = len - 1; i >= -1 && hitung < mulai.length; i--) {
                 if (i < 0 || logBuffer.charAt(i) == '\n') {
                     int start = i + 1;
                     int e = end;
@@ -3781,17 +3786,19 @@ public class ServerService extends Service {
                         e--;
                     }
                     if (e > start && !rentangKosong(logBuffer, start, e)) {
-                        ambil.add(logBuffer.substring(start, e));
+                        mulai[hitung] = start;
+                        akhir[hitung] = e;
+                        hitung++;
                     }
                     end = i;
                 }
             }
             StringBuilder sb = new StringBuilder();
-            for (int k = ambil.size() - 1; k >= 0; k--) {
+            for (int k = hitung - 1; k >= 0; k--) {
                 if (sb.length() > 0) {
                     sb.append('\n');
                 }
-                sb.append(ambil.get(k));
+                sb.append(logBuffer, mulai[k], akhir[k]);
             }
             return sb.toString();
         }

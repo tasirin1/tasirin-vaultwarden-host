@@ -26,15 +26,20 @@ public final class StoragePerm {
         return sdk >= Build.VERSION_CODES.R;
     }
 
+    /** Array statis (jangan diubah pemanggil): izinRuntime dipanggil tiap cek
+     *  izin sehingga alokasi array baru tiap kali membuang sampah di ART lama. */
+    private static final String[] IZIN_KOSONG = new String[0];
+    private static final String[] IZIN_RW = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+    };
+
     /** Izin runtime yang diminta (dipakai di bawah API 30 dan pelengkap di 30+). */
     public static String[] izinRuntime(int sdk) {
         if (sdk < Build.VERSION_CODES.M) {
-            return new String[0];
+            return IZIN_KOSONG;
         }
-        return new String[]{
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-        };
+        return IZIN_RW;
     }
 
     /** True bila folder data berada di storage eksternal sehingga butuh izin. */

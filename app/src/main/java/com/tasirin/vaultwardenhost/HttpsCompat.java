@@ -249,7 +249,7 @@ public final class HttpsCompat {
                     // Jangan fail-open diam: bila set protokol gagal, catat lalu lempar
                     // agar pemanggil tahu handshake tak aman.
                     try {
-                        ssl.setEnabledProtocols(mau.toArray(new String[0]));
+                        ssl.setEnabledProtocols(mau.toArray(new String[mau.size()]));
                     } catch (Exception e) {
                         try {
                             android.util.Log.w("HttpsCompat", "Gagal set protokol TLS: " + e);
@@ -273,7 +273,7 @@ public final class HttpsCompat {
                         }
                     }
                     if (!kuat.isEmpty()) {
-                        ssl.setEnabledCipherSuites(kuat.toArray(new String[0]));
+                        ssl.setEnabledCipherSuites(kuat.toArray(new String[kuat.size()]));
                     }
                     // Bila kosong: pakai bawaan (jangan set) agar API 21 tetap bisa handshake.
                 } catch (Exception e) {
