@@ -901,6 +901,14 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pesanGalatBackup_jamWajarPakaiIntiSekali() {
+        // Jam dibaca sekali (cek vs pesan satu instant): hasil memakai inti
+        // + saran koneksi, bukan cabang jam salah.
+        String out = TgBackup.pesanGalatBackup(new java.io.IOException("jaringan putus"));
+        assertTrue(out.startsWith("Backup gagal: jaringan putus"));
+    }
+
+    @Test
     public void pesanJamStbSalah_sebutCaraBetulkan() {
         String pesan = TgBackup.pesanJamStbSalah(1420070424000L);
         assertTrue(pesan.contains("Tanggal & jam STB salah"));

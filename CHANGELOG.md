@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit agresif 38: salinan getMessage bot + jam ganda backup
+- `TgBot` (/update + /webvault): pola `getMessage()` 3x tiap gagal unduh kini lokal `pesan` sekali — salinan kembar dari pola `ServerService` yang sudah dirapikan di audit-37 tapi lolos di jalur perintah bot.
+- `TgBackup.pesanGalatBackup` + `backupNowIsi`: jam dibaca 2x (cek wajar vs bangun pesan) kini `kini` sekali; cek vs pesan satu instant yang sama.
+- Test: `pesanGalatBackup_jamWajarPakaiIntiSekali` (`TgBackupTest`).
+- Sapuan bersih (bukan temuan): kode request alarm 101/0/3 + `getActivity` terpisah (tanpa tabrakan `PendingIntent`); status lintas-thread `volatile` (`running`/`binaryVersion`/`downloadStatus`/`logVer` atomik); `downloadStatus` throttle 256 KB; paritas ID portrait-vs-landscape sama persis (13 + 4 ID); string 147/147 + warna day/night 32/32 sinkron; `delete(0,n)` trim log hanya saat lewat ambang (amortisasi aman); tanpa komentar kode mati; loop tunggu DB membaca ulang jam tiap 500 ms sesuai kebutuhan (bukan ganda sia-sia).
+
 ## [Belum rilis] — Audit agresif 37: parse tanpa alokasi + pesan galat sekali baca
 - `KernelCompat.parseKernel`: satu pass tanpa alokasi (dulu `trim` + 4 `substring` + `indexOf` per Start); digit ASCII eksplisit (dulu `Character.isDigit` menerima digit Unicode yang pasti gagal `parseInt` lalu melempar `NumberFormatException` tiap Start); angka raksasa dijenuhkan (dulu melempar, hasil legacy sama = modern). Kesetaraan dibuktikan simulasi (termasuk NBSP/digit Arab/overflow) + test.
 - `ServerService.ensureBinary/ensureShim`: `e.getMessage()` 3x/2x tiap gagal unduh/pasang kini lokal `msgBin`/`msgShim` sekali.

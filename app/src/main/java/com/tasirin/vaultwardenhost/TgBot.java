@@ -1385,8 +1385,9 @@ public final class TgBot {
                             Updater.simpanKuncianBinary(ctx,
                                     pinLama == null ? "" : pinLama);
                         }
-                        String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
-                                ? e.getMessage() : Updater.pesanGalatUnduh("Unduh binary", e);
+                        String pesan = e.getMessage();
+                        String ramah = pesan != null && pesan.contains("Cek ")
+                                ? pesan : Updater.pesanGalatUnduh("Unduh binary", e);
                         TgBackup.sendMessage(ctx, "Update gagal: " + ramah);
                     }
                 });
@@ -1436,8 +1437,9 @@ public final class TgBot {
                             Updater.simpanKuncianWebVault(ctx,
                                     pinLamaWv == null ? "" : pinLamaWv);
                         }
-                        String ramah = e.getMessage() != null && e.getMessage().contains("Cek ")
-                                ? e.getMessage() : Updater.pesanGalatUnduh("Unduh web-vault", e);
+                        String pesan = e.getMessage();
+                        String ramah = pesan != null && pesan.contains("Cek ")
+                                ? pesan : Updater.pesanGalatUnduh("Unduh web-vault", e);
                         TgBackup.sendMessage(ctx, "Update web-vault gagal: " + ramah);
                     }
                 });

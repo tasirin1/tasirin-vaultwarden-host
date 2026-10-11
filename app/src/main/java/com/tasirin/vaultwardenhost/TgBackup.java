@@ -426,8 +426,9 @@ public final class TgBackup {
     /** Bungkus galat backup jadi pesan tindak-lanjut (jam salah dijelaskan khusus). */
     static String pesanGalatBackup(Exception e) {
         String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
-        if (!jamStbWajar(System.currentTimeMillis()) || Updater.galatJamSertifikat(e)) {
-            return "Backup gagal: " + pesanJamStbSalah(System.currentTimeMillis());
+        long kini = System.currentTimeMillis();
+        if (!jamStbWajar(kini) || Updater.galatJamSertifikat(e)) {
+            return "Backup gagal: " + pesanJamStbSalah(kini);
         }
         return "Backup gagal: " + inti + ". " + Updater.saranKoneksi(e);
     }
@@ -521,8 +522,9 @@ public final class TgBackup {
         if (token.isEmpty() || chat.isEmpty()) {
             throw new IOException("Bot token / chat ID belum diisi.");
         }
-        if (!jamStbWajar(System.currentTimeMillis())) {
-            throw new IOException(pesanJamStbSalah(System.currentTimeMillis()));
+        long kini = System.currentTimeMillis();
+        if (!jamStbWajar(kini)) {
+            throw new IOException(pesanJamStbSalah(kini));
         }
         String dataDir = amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
