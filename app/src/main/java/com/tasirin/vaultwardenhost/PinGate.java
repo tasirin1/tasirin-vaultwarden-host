@@ -46,13 +46,24 @@ public final class PinGate {
                         android.util.Log.w("PinGate", "Antrean catat penuh, tugas tertua dibuang");
                     } catch (Exception ignored) {
                     }
+                    // Tanpa execute() ulang: antrean bisa penuh lagi oleh thread
+                    // lain di antara poll-execute sehingga rejectedExecution
+                    // ber-rekursi hingga StackOverflow di STB. Tawarkan sekali
+                    // via offer (tak melempar/tak rekursi); gagal = gugur tercatat.
+                    boolean masuk = false;
                     try {
                         e.getQueue().poll();
                     } catch (Exception ignored) {
                     }
                     try {
-                        e.execute(r);
+                        masuk = e.getQueue().offer(r);
                     } catch (Exception ignored) {
+                    }
+                    if (!masuk) {
+                        try {
+                            android.util.Log.w("PinGate", "Catatan PIN gugur, antrean tetap penuh");
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             };

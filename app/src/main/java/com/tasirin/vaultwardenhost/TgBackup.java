@@ -109,10 +109,18 @@ public final class TgBackup {
             }, (tugas, eksekutor) -> {
                 // Tetap anti-OOM (buang tertua) tapi jangan bungkam: pesan kritis
                 // (PIN terkunci, restore gagal, crash) yang gugur wajib jejak di log.
+                // Tanpa execute() ulang: antrean bisa penuh lagi oleh thread lain
+                // di antara poll-execute sehingga handler ber-rekursi hingga
+                // StackOverflow di STB. Tawarkan sekali via offer.
                 try {
                     if (!eksekutor.isShutdown()) {
                         eksekutor.getQueue().poll();
-                        eksekutor.execute(tugas);
+                        if (!eksekutor.getQueue().offer(tugas)) {
+                            try {
+                                android.util.Log.w("TgBackup", "Pesan gugur, antrean tetap penuh.");
+                            } catch (Exception ignored2) {
+                            }
+                        }
                     }
                 } catch (Exception ignored) {
                 }
@@ -794,10 +802,16 @@ public final class TgBackup {
             }, (tugas, eksekutor) -> {
                 // Selaras TG_MSG_EXEC: tetap anti-OOM tapi kabar kritis yang
                 // gugur wajib jejak di log, bukan hilang sunyi.
+                // Tanpa execute() ulang (anti-rekursi StackOverflow, lihat atas).
                 try {
                     if (!eksekutor.isShutdown()) {
                         eksekutor.getQueue().poll();
-                        eksekutor.execute(tugas);
+                        if (!eksekutor.getQueue().offer(tugas)) {
+                            try {
+                                android.util.Log.w("TgBackup", "Pesan penting gugur, antrean penuh.");
+                            } catch (Exception ignored2) {
+                            }
+                        }
                     }
                 } catch (Exception ignored) {
                 }

@@ -145,12 +145,13 @@ public class SettingsActivity extends Activity {
         } catch (Exception e) {
             // Berkas null/tak-ada: tetap "" (kontrak unit test; berkas seperti
             // itu takkan sampai ke alur impor). Berkas ADA tapi gagal dibaca
-            // (izin/IO): fallback unik agar counter tak berbagi antar berkas
-            // berbeda sehingga satu file rusak tak memblokir impor file lain.
+            // (izin/IO): fallback stabil per path agar budget 5x tetap
+            // terakumulasi lintas dialog (bukan kunci unik tiap panggil yang
+            // memberi jatah baru terus + membocorkan entri map tiap coba).
             try {
                 if (f != null && f.isFile()) {
                     return "baca-gagal-" + f.getAbsolutePath().hashCode()
-                            + "-" + System.nanoTime();
+                            + "-" + f.length();
                 }
             } catch (Exception ignored) {
             }
@@ -173,13 +174,19 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /** Batas entri budget impor agar impor massal berkas berbeda tak
+     *  menumpuk map statis tanpa batas di STB 1 GB (sukses menghapus, jadi
+     *  cap hanya menahan spam gagal). */
+    private static final int MAKS_SIDIK_IMPOR = 128;
+
     /** Simpan gagal kumulatif sidik ini (<=0 menghapus agar map tak bocor). */
     static synchronized void simpanGagalImpor(String sidik, int gagal) {
         try {
             String k = sidik == null ? "" : sidik;
             if (gagal <= 0) {
                 GAGAL_IMPOR_DIGEST.remove(k);
-            } else {
+            } else if (GAGAL_IMPOR_DIGEST.containsKey(k)
+                    || GAGAL_IMPOR_DIGEST.size() < MAKS_SIDIK_IMPOR) {
                 GAGAL_IMPOR_DIGEST.put(k, gagal);
             }
         } catch (Exception ignored) {

@@ -198,58 +198,14 @@ public final class PinCrypto {
                 if (parts == null || parts.length != 4) {
                     return false;
                 }
-                int iter = Integer.parseInt(parts[1]);
-                // Batas atas = MAKS_VERIFIKASI (120k): hash utak-atik beriterasi
-                // raksasa (mis. 1 jt) memaksa PBKDF2 puluhan kali dan stall
-                // STB/polling tiap upaya verifikasi. Hash lama 10k-120k tetap
-                // diverifikasi lalu di-upgrade (lihat perluUpgradeHash).
-                if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
-                    return false;
-                }
-                // Heks raksasa ditolak sebelum unhex mengalokasi
-                // setengah panjang string di memori STB 1 GB.
-                if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
-                    return false;
-                }
-                byte[] salt = unhex(parts[2]);
-                byte[] want = unhex(parts[3]);
-                // Tolak salt pendek/hash tak standar: sah hanya salt 16 byte & hash 32 byte.
-                if (salt == null || want == null || salt.length != 16
-                        || want.length != 32) {
-                    return false;
-                }
-                byte[] got = derive(pin, salt, iter);
-                return MessageDigest.isEqual(got, want);
+                return verifikasiPbkdf2(parts, pin);
             }
             if (isFormatBungkus(stored)) {
                 String[] parts = Util.pecahPin(stored);
                 if (parts == null || parts.length != 4) {
                     return false;
                 }
-                int iter;
-                try {
-                    iter = Integer.parseInt(parts[1]);
-                } catch (Exception e) {
-                    return false;
-                }
-                // Batas sama seperti format standar: iterasi raksasa = DoS,
-                // iterasi mini = prefs utak-atik.
-                if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
-                    return false;
-                }
-                // Batas sama seperti format standar: heks raksasa = OOM.
-                if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
-                    return false;
-                }
-                byte[] salt = unhex(parts[2]);
-                byte[] want = unhex(parts[3]);
-                // Tolak salt pendek/hash tak standar: sah hanya salt 16 byte & hash 32 byte.
-                if (salt == null || want == null || salt.length != 16
-                        || want.length != 32) {
-                    return false;
-                }
-                byte[] got = derive(sha256(pin), salt, iter);
-                return MessageDigest.isEqual(got, want);
+                return verifikasiPbkdf2(parts, sha256(pin));
             }
             // Legasi: SHA-256 tanpa salt — banding tak peka huruf agar hash
             // lama ber-huruf besar tak mengunci user (disimpan lowercase baru).
@@ -257,6 +213,40 @@ public final class PinCrypto {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** Verifikasi satu hash PBKDF2 ber-salt (format standar maupun bungkusan
+     *  dini): batas iterasi anti-DoS, tolak heks raksasa anti-OOM, tolak
+     *  salt/hash tak standar, banding konstan. Satu pintu agar kedua format
+     *  tak drift bila batas diubah. Murni. */
+    private static boolean verifikasiPbkdf2(String[] parts, String input) {
+        int iter;
+        try {
+            iter = Integer.parseInt(parts[1]);
+        } catch (Exception e) {
+            return false;
+        }
+        // Batas atas = MAKS_VERIFIKASI (120k): hash utak-atik beriterasi
+        // raksasa (mis. 1 jt) memaksa PBKDF2 puluhan kali dan stall
+        // STB/polling tiap upaya verifikasi. Hash lama 10k-120k tetap
+        // diverifikasi lalu di-upgrade (lihat perluUpgradeHash).
+        if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
+            return false;
+        }
+        // Heks raksasa ditolak sebelum unhex mengalokasi
+        // setengah panjang string di memori STB 1 GB.
+        if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
+            return false;
+        }
+        byte[] salt = unhex(parts[2]);
+        byte[] want = unhex(parts[3]);
+        // Tolak salt pendek/hash tak standar: sah hanya salt 16 byte & hash 32 byte.
+        if (salt == null || want == null || salt.length != 16
+                || want.length != 32) {
+            return false;
+        }
+        byte[] got = derive(input, salt, iter);
+        return MessageDigest.isEqual(got, want);
     }
 
     /** Batas pisah wall-clock vs jam monoton: uptime tak pernah capai 1e11 ms
