@@ -1009,16 +1009,24 @@ public final class TlsCert {
 
         /** UTCTime (<2050) atau GeneralizedTime (>=2050) agar CA 10 tahun tetap valid. */
         void waktu(Date d) throws IOException {
+            // Satu Calendar per tanggal: dulu utcTime() membuat instance kedua
+            // untuk tanggal yang sama (2x TimeZone+Locale di tiap field cert).
             java.util.Calendar c = java.util.Calendar.getInstance(ZONA_UTC, Locale.US);
             c.setTime(d);
-            if (c.get(java.util.Calendar.YEAR) >= 2050) {
+            int tahun = c.get(java.util.Calendar.YEAR);
+            int bulan = c.get(java.util.Calendar.MONTH) + 1;
+            int hari = c.get(java.util.Calendar.DAY_OF_MONTH);
+            int jam = c.get(java.util.Calendar.HOUR_OF_DAY);
+            int menit = c.get(java.util.Calendar.MINUTE);
+            int detik = c.get(java.util.Calendar.SECOND);
+            if (tahun >= 2050) {
                 StringBuilder b = new StringBuilder(15);
-                empat(b, c.get(java.util.Calendar.YEAR));
-                dua(b, c.get(java.util.Calendar.MONTH) + 1);
-                dua(b, c.get(java.util.Calendar.DAY_OF_MONTH));
-                dua(b, c.get(java.util.Calendar.HOUR_OF_DAY));
-                dua(b, c.get(java.util.Calendar.MINUTE));
-                dua(b, c.get(java.util.Calendar.SECOND));
+                empat(b, tahun);
+                dua(b, bulan);
+                dua(b, hari);
+                dua(b, jam);
+                dua(b, menit);
+                dua(b, detik);
                 b.append('Z');
                 byte[] data = b.toString().getBytes(StandardCharsets.US_ASCII);
                 out.write(0x18);
@@ -1026,20 +1034,30 @@ public final class TlsCert {
                 out.write(data, 0, data.length);
                 return;
             }
-            utcTime(d);
+            tulisUtc(tahun % 100, bulan, hari, jam, menit, detik);
         }
 
         void utcTime(Date d) throws IOException {
             // Wajib UTC: format lama memakai zona perangkat tapi berlabel Z.
             java.util.Calendar c = java.util.Calendar.getInstance(ZONA_UTC, Locale.US);
             c.setTime(d);
+            tulisUtc(c.get(java.util.Calendar.YEAR) % 100,
+                    c.get(java.util.Calendar.MONTH) + 1,
+                    c.get(java.util.Calendar.DAY_OF_MONTH),
+                    c.get(java.util.Calendar.HOUR_OF_DAY),
+                    c.get(java.util.Calendar.MINUTE),
+                    c.get(java.util.Calendar.SECOND));
+        }
+
+        private void tulisUtc(int tahun2, int bulan, int hari,
+                int jam, int menit, int detik) throws IOException {
             StringBuilder b = new StringBuilder(13);
-            dua(b, c.get(java.util.Calendar.YEAR) % 100);
-            dua(b, c.get(java.util.Calendar.MONTH) + 1);
-            dua(b, c.get(java.util.Calendar.DAY_OF_MONTH));
-            dua(b, c.get(java.util.Calendar.HOUR_OF_DAY));
-            dua(b, c.get(java.util.Calendar.MINUTE));
-            dua(b, c.get(java.util.Calendar.SECOND));
+            dua(b, tahun2);
+            dua(b, bulan);
+            dua(b, hari);
+            dua(b, jam);
+            dua(b, menit);
+            dua(b, detik);
             b.append('Z');
             byte[] data = b.toString().getBytes(StandardCharsets.US_ASCII);
             out.write(0x17);

@@ -307,7 +307,41 @@ public class ServerService extends Service {
     private static final List<Long> RESTART_TIMES = new ArrayList<>();
     private static final List<String> RESTART_REASONS = new ArrayList<>();
 
-    private final android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private static volatile android.os.Handler handlerBersama = null;
+    private static android.os.Handler handlerUtama() {
+        try {
+            android.os.Looper looper = android.os.Looper.getMainLooper();
+            if (looper == null) {
+                return null;
+            }
+            android.os.Handler h = handlerBersama;
+            if (h == null || h.getLooper() != looper) {
+                h = new android.os.Handler(looper);
+                handlerBersama = h;
+            }
+            return h;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+    private static void posUtama(Runnable r, long tundaMs) {
+        try {
+            android.os.Handler h = handlerUtama();
+            if (h != null) {
+                h.postDelayed(r, tundaMs);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+    private static void batalUtama(Runnable r) {
+        try {
+            android.os.Handler h = handlerBersama;
+            if (h != null) {
+                h.removeCallbacks(r);
+            }
+        } catch (Exception ignored) {
+        }
+    }
 
     private static volatile Process process;
     /** Proses yang diminta berhenti sengaja (per-proses, bukan boolean global):
@@ -383,14 +417,14 @@ public class ServerService extends Service {
             if (process == null || !alive(process) || !running) {
                 // Proses mati ditangani restartTunda; tetap jadwalkan tick
                 // berikut sekali saja (bukan sebelum cek agar tak ganda).
-                mainHandler.postDelayed(this, delay);
+                posUtama(this, delay);
                 return;
             }
             if (!healthBerjalan.compareAndSet(false, true)) {
-                mainHandler.postDelayed(this, delay);
+                posUtama(this, delay);
                 return;
             }
-            mainHandler.postDelayed(this, delay);
+            posUtama(this, delay);
             // Pool bersama (bukan new Thread per tick): hemat stack 1 MB tiap 30 dtk di STB.
             Util.jalankanBg(() -> {
                 try {
@@ -821,12 +855,12 @@ public class ServerService extends Service {
                 }
                 if (isProcessAlive()) {
                     jagaWakeLock();
-                    mainHandler.removeCallbacks(healthTick);
-                    mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
+                    batalUtama(healthTick);
+                    posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
                 } else if (running) {
                     scheduleRestart();
-                    mainHandler.removeCallbacks(healthTick);
-                    mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
+                    batalUtama(healthTick);
+                    posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
                 }
             }
         } catch (Exception ignored) {
@@ -846,8 +880,8 @@ public class ServerService extends Service {
             }
             autoRestart = false;
             healthActive = false;
-            mainHandler.removeCallbacks(healthTick);
-            mainHandler.removeCallbacks(restartTunda);
+            batalUtama(healthTick);
+            batalUtama(restartTunda);
             batalStart = true;
             stopServer();
             // stopper di stopServer() butuh hingga ~8 dtk (destroy + destroyForcibly):
@@ -1028,8 +1062,8 @@ public class ServerService extends Service {
         if (process == null || !alive(process)) {
             startServerAsync();
         }
-        mainHandler.removeCallbacks(healthTick);
-        mainHandler.postDelayed(healthTick, HEALTH_FAST_INTERVAL_MS);
+        batalUtama(healthTick);
+        posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
         // ACTION_START wajib STICKY agar sistem menghidupkan ulang service bila
         // dibunuh saat server diminta jalan; aksi lain tetap NOT_STICKY.
         return START_STICKY;
@@ -1860,7 +1894,7 @@ public class ServerService extends Service {
         if (restartAttempt.get() >= RESTART_DELAYS.length) {
             autoRestart = false;
             healthActive = false;
-            mainHandler.removeCallbacks(healthTick);
+            batalUtama(healthTick);
             String tail = tailLog(18);
             setStatus("Server berhenti - gagal restart 5x.\n" + shorten(tail, 300));
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
@@ -1873,8 +1907,8 @@ public class ServerService extends Service {
         long delay = RESTART_DELAYS[coba];
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + (coba + 1) + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
-        mainHandler.removeCallbacks(restartTunda);
-        mainHandler.postDelayed(restartTunda, delay);
+        batalUtama(restartTunda);
+        posUtama(restartTunda, delay);
     }
 
     /** Saran spesifik untuk exit code proses (logika murni agar bisa diuji).
@@ -2586,8 +2620,9 @@ public class ServerService extends Service {
                     byte[] buf = new byte[8192];
                     int n;
                     while ((n = in.read(buf)) != -1) {
-                        h = h * 31 + (java.util.Arrays.hashCode(
-                                java.util.Arrays.copyOf(buf, n)) & 0xffffffffL);
+                        for (int i = 0; i < n; i++) {
+                            h = h * 31 + (buf[i] & 0xff);
+                        }
                     }
                 } catch (Exception ignored) {
                 }
@@ -4027,8 +4062,8 @@ public class ServerService extends Service {
         // dari recreate transien tanpa intent baru. Jalur STOP eksplisit sudah
         // mematikannya sebelum stopSelf; membersihkan di sini menghentikan
         // monitoring diam-diam selagi binary mungkin masih jalan.
-        mainHandler.removeCallbacks(healthTick);
-        mainHandler.removeCallbacks(restartTunda);
+        batalUtama(healthTick);
+        batalUtama(restartTunda);
         flushLogFile();
         // Selalu destroy proses sisa di sini; aman karena jalur restart/start ulang
         // akan membuat proses baru. Tanpa ini proses yatim bocor saat service mati.
