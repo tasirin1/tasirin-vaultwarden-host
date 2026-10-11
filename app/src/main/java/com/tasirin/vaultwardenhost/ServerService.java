@@ -1955,6 +1955,16 @@ public class ServerService extends Service {
         if (baris == null || baris.isEmpty()) {
             return null;
         }
+        // Baris loopback (probe TCP/health internal, mis. "tls handshake with
+        // 127.0.0.1"): bukan klien nyata sehingga saran install-CA tiap 60 dtk
+        // hanya spam yang menakuti user padahal login LAN sukses (lihat log:
+        // token/sync 200 OK). Klien nyata selalu ber-IP LAN di baris Rocket.
+        // Tanpa ini probe tiap health-tick lolos filter noise (hint dihitung
+        // sebelum filter) lalu nag tiap jendela throttle. Murni.
+        if (Util.mengandungAbaikanHuruf(baris, "127.0.0.1")
+                || Util.mengandungAbaikanHuruf(baris, "localhost")) {
+            return null;
+        }
         // Tanpa toLowerCase (alokasi per baris log deras): satu pemindaian
         // dispatch huruf-pertama (dulu 16 pindaian penuh untuk tiap baris noise).
         if (!minatLogin(baris)) {

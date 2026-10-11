@@ -379,6 +379,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void saranLoginAbaikanLoopback() {
+        // Probe internal (health/TCP) tak boleh menakut-nakuti user tiap 60 dtk.
+        assertNull(ServerService.saranLoginUntukBaris(
+                "tls handshake with 127.0.0.1 failed: certificate unknown", true));
+        assertNull(ServerService.saranLoginUntukBaris(
+                "TLS handshake failed with localhost: alert unknown", true));
+    }
+
+    @Test
     public void saranLoginNullUntukBarisBiasa() {
         assertNull(ServerService.saranLoginUntukBaris("Rocket has launched", false));
         assertNull(ServerService.saranLoginUntukBaris(null, false));
