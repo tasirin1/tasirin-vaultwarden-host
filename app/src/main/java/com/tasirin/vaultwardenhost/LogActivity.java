@@ -404,12 +404,15 @@ public class LogActivity extends Activity {
 
     /** Jalur lambat kueri non-ASCII: pertahankan semantik lama via regionMatches. */
     private CharSequence highlightLambat(String text, String q) {
-        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        SpannableStringBuilder sb = null;
         int from = 0;
         while (from + q.length() <= text.length()) {
             int idx = rangeIndexOf(text, q, from, text.length());
             if (idx < 0) {
                 break;
+            }
+            if (sb == null) {
+                sb = new SpannableStringBuilder(text);
             }
             sb.setSpan(new BackgroundColorSpan(warnaSorotCari),
                     idx, idx + q.length(),
@@ -424,6 +427,9 @@ public class LogActivity extends Activity {
                 lineEnd = total;
             }
             if (pindaiGalatBaris(text, lineStart, lineEnd)) {
+                if (sb == null) {
+                    sb = new SpannableStringBuilder(text);
+                }
                 sb.setSpan(new ForegroundColorSpan(warnaGalat),
                         lineStart, lineEnd,
                         SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -433,7 +439,7 @@ public class LogActivity extends Activity {
             }
             lineStart = lineEnd + 1;
         }
-        return sb;
+        return sb != null ? sb : text;
     }
 
     /** indexOf case-insensitive dalam rentang [from, end) tanpa alokasi baru. */

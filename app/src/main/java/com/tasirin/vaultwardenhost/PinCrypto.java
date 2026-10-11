@@ -455,24 +455,8 @@ public final class PinCrypto {
         return beda == 0;
     }
 
-    private static boolean slowHexEquals(String a, String b) {
-        if (a == null || b == null || a.length() != b.length()) {
-            return false;
-        }
-        return MessageDigest.isEqual(a.getBytes(StandardCharsets.US_ASCII),
-                b.getBytes(StandardCharsets.US_ASCII));
-    }
-
     static String hex(byte[] data) {
-        // Tabel bersama (bukan Character.forDigit yang menelepon + cek radix
-        // per digit): hemat di jalur verifikasi PIN STB lama. Hasil sama persis.
-        char[] o = new char[data.length * 2];
-        for (int i = 0; i < data.length; i++) {
-            int v = data[i] & 0xFF;
-            o[i * 2] = Util.HEKS[v >>> 4];
-            o[i * 2 + 1] = Util.HEKS[v & 15];
-        }
-        return new String(o);
+        return Util.heks(data);
     }
 
     private static byte[] unhex(String s) {
