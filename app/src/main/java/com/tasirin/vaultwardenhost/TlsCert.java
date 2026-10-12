@@ -114,19 +114,42 @@ public final class TlsCert {
                 }
             };
 
+    /** Umur memo tanggal cert (elapsed): stat path+panjang+mtime buta bila
+     *  cert ditulis ulang berukuran sama dalam granularitas mtime FAT (2 dtk)
+     *  sehingga memo basi tak boleh hidup selamanya. Selaras TTL 60 dtk
+     *  cap trust (HttpsCompat/ServerService): parse ulang maks 1x/menit. */
+    static final long MEMO_MASA_TTL_MS = 60_000;
+
+    /** Jam monotonik aman: stub android.jar di JVM unit test melempar
+     *  sehingga memo tak kedaluwarsa di test (0 = abaikan TTL). Murni. */
+    static long elapsedAman() {
+        try {
+            return android.os.SystemClock.elapsedRealtime();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     /** Sekali baca sisa masa berlaku (dipanggil ulang oleh sisaMs bila -1). */
     private static long sisaMsSekali(File certFile) {
         String kunci = kunciStat(certFile);
         synchronized (MEMO_MASA) {
             long[] memo = kunci == null ? null : MEMO_MASA.get(kunci);
             if (memo != null) {
-                return sisaDariMemo(memo);
+                // TTL hanya bila kedua stempel valid; di JVM unit test
+                // (elapsedAman 0) memo dipakai seperti semula agar hijau.
+                long kini = elapsedAman();
+                if (memo.length < 3 || memo[2] <= 0 || kini <= 0
+                        || kini - memo[2] < MEMO_MASA_TTL_MS) {
+                    return sisaDariMemo(memo);
+                }
             }
         }
         long[] masa = bacaMasa(certFile);
         if (kunci != null) {
+            long catat = elapsedAman();
             synchronized (MEMO_MASA) {
-                MEMO_MASA.put(kunci, masa);
+                MEMO_MASA.put(kunci, new long[]{masa[0], masa[1], catat});
             }
         }
         return sisaDariMemo(masa);
@@ -790,7 +813,7 @@ public final class TlsCert {
             int[] grup = new int[8];
             int pos = 0;
             for (String g : kiri) {
-                if (g.isEmpty()) {
+                if (!grupHeksaValid(g)) {
                     return null;
                 }
                 grup[pos++] = Integer.parseInt(g, 16);
@@ -805,7 +828,7 @@ public final class TlsCert {
             }
             int q = awalKanan;
             for (String g : kanan) {
-                if (g.isEmpty()) {
+                if (!grupHeksaValid(g)) {
                     return null;
                 }
                 grup[q++] = Integer.parseInt(g, 16);
@@ -824,6 +847,24 @@ public final class TlsCert {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** True bila g 1-4 digit heksa murni: parseInt radix menerima tanda
+     *  +-$ sehingga "+ff" lolos validator tanpa ini. Murni. */
+    static boolean grupHeksaValid(String g) {
+        if (g == null || g.isEmpty() || g.length() > 4) {
+            return false;
+        }
+        for (int i = 0; i < g.length(); i++) {
+            char c = g.charAt(i);
+            boolean ok = (c >= '0' && c <= '9')
+                    || (c >= 'a' && c <= 'f')
+                    || (c >= 'A' && c <= 'F');
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static byte[] nameCn(String cn) throws Exception {

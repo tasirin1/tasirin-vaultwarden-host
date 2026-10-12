@@ -2645,7 +2645,10 @@ public class ServerService extends Service {
             tmf.init(ks);
             SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, tmf.getTrustManagers(), acakSsl());
-            return sc.getSocketFactory();
+            // Paksa TLSv1.2+ seperti HttpsCompat: konteks "TLS" di API 21/22
+            // default hanya TLSv1 sehingga health-check loopback ke Rocket
+            // (min 1.2) gagal selamanya lalu restart beruntun sia-sia.
+            return HttpsCompat.bungkusTls12(sc.getSocketFactory());
         } catch (Exception ignored) {
             return null;
         }

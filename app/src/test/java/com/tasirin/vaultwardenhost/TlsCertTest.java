@@ -81,6 +81,11 @@ public class TlsCertTest {
         assertNull(TlsCert.ipv6("bukan-ip"));
         assertNull(TlsCert.ipv6("1::2::3"));
         assertNull(TlsCert.ipv6("gggg::1"));
+        assertNull(TlsCert.ipv6("::+ff"));
+        assertNull(TlsCert.ipv6("2001:db8::-1"));
+        assertTrue(TlsCert.grupHeksaValid("ab12"));
+        assertFalse(TlsCert.grupHeksaValid("+ab"));
+        assertFalse(TlsCert.grupHeksaValid("abcde"));
     }
 
     @Test
@@ -178,6 +183,11 @@ public class TlsCertTest {
         assertEquals(-1, TlsCert.sisaMs(sampah));
         assertEquals(-1, TlsCert.daysLeft(sampah));
         sampah.delete();
+    }
+
+    @Test
+    public void elapsedAman_nolDiJvmAgarMemoTakKedaluwarsa() {
+        assertEquals(0, TlsCert.elapsedAman());
     }
 
     @Test

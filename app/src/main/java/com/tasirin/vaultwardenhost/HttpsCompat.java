@@ -59,6 +59,22 @@ public final class HttpsCompat {
         }
         return keluar;
     }
+    /** True bila suite modern: ECDHE/AES seperti semula, kecuali yang
+     *  mengandung primitif lemah (RC4/3DES/DES/MD5/NULL/anon/EXPORT) —
+     *  mis. ECDHE+3DES lolos filter lama walau komentar mengklaim gugur.
+     *  "DES" aman dipakai (AES tak mengandungnya). Murni. */
+    static boolean cipherKuat(String c) {
+        if (c == null) {
+            return false;
+        }
+        if (c.contains("RC4") || c.contains("DES") || c.contains("MD5")
+                || c.contains("NULL") || c.contains("anon") || c.contains("ANON")
+                || c.contains("EXPORT") || c.contains("EMPTY")) {
+            return false;
+        }
+        return c.contains("ECDHE") || c.contains("AES_GCM") || c.contains("AES_256");
+    }
+
     /** Saring cipher lemah (RC4/3DES gugur); kosong = pakai bawaan (murni). */
     static String[] saringCipher(String[] didukung) {
         if (didukung == null || didukung.length == 0) {
@@ -66,20 +82,30 @@ public final class HttpsCompat {
         }
         int n = 0;
         for (String c : didukung) {
-            if (c != null && (c.contains("ECDHE")
-                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
+            if (cipherKuat(c)) {
                 n++;
             }
         }
         String[] keluar = new String[n];
         int i = 0;
         for (String c : didukung) {
-            if (c != null && (c.contains("ECDHE")
-                    || c.contains("AES_GCM") || c.contains("AES_256"))) {
+            if (cipherKuat(c)) {
                 keluar[i++] = c;
             }
         }
         return keluar;
+    }
+
+    /** Bungkus factory agar soket menyalakan TLSv1.2+ (satu pintu socketFactory()).
+     *  Dipakai health-check loopback ServerService: konteks "TLS" di API 21/22
+     *  default hanya TLSv1 sehingga handshake ke Rocket (min 1.2) gagal
+     *  selamanya tanpa pembungkus ini. Null bila bawaan null. */
+    static javax.net.ssl.SSLSocketFactory bungkusTls12(
+            javax.net.ssl.SSLSocketFactory bawaan) {
+        if (bawaan == null) {
+            return null;
+        }
+        return new PabrikTls12(bawaan);
     }
 
     private HttpsCompat() {

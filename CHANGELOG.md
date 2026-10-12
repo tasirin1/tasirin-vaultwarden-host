@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit TLS: 1 tinggi + 3 rendah (Android 5+)
+- `ServerService.cobaPinnedCa` + `HttpsCompat.bungkusTls12` (baru): factory loopback health-check dibungkus penegak TLSv1.2+ satu pintu dengan `socketFactory()` — konteks "TLS" di API 21/22 default hanya TLSv1 sehingga handshake ke Rocket (min 1.2) gagal selamanya lalu restart beruntun sia-sia. Perilaku identik di API 23+.
+- `HttpsCompat.cipherKuat` (baru, dipakai `saringCipher`): kecualikan eksplisit suite berprimitif lemah (RC4/DES/3DES/MD5/NULL/anon/EXPORT) — filter lama meloloskan ECDHE+3DES walau komentar mengklaim gugur.
+- `TlsCert.grupHeksaValid` (baru, dipakai `ipv6`): tolak grup bertanda (`+ff`) yang diterima `parseInt` radix.
+- `TlsCert` memo tanggal: TTL 60 dtk (`MEMO_MASA_TTL_MS`, selaras cap trust) agar tulis ulang berukuran sama dalam granularitas mtime FAT (2 dtk) tak menyajikan tanggal basi selamanya; aman JVM via `elapsedAman`.
+- Test: `saringCipher` kini mencakup ECDHE+3DES, `bungkusTls12` null/wrap/delegasi, `ipv6` tolak `+`/`-` + `grupHeksaValid`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 65: cache prefs hint restart Settings (Android 5+)
 - `SettingsActivity.refreshFromService`: blok deteksi "setting berubah" tak lagi baca `SharedPreferences` + parse port + `sidikTokenAdmin` tiap tick 1 dtk — kini cache tiap 5 tick selaras `MainActivity.tickCachePrefs`, dipaksa segar saat prefs ditulis lokal (saveAndStart/restore/import/sanitize), saat import `applyPrefsFromJson`, dan saat `onResume`. Hint restart + sorot label tetap akurat tanpa jeda. Perilaku identik; tanpa test baru (wiring UI thread). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
