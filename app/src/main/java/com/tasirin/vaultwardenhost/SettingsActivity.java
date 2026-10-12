@@ -286,6 +286,14 @@ public class SettingsActivity extends Activity {
     private String memoCocokA2 = "\0";
     private String memoCocokB2 = "\0";
     private boolean memoCocokHasil2 = false;
+    /** Cache prefs deteksi "setting berubah" (selaras MainActivity.tickCachePrefs):
+     *  baca prefs + parse port + sidik token tiap tick 1 dtk boros di STB lama;
+     *  segarkan tiap 5 tick + paksa saat prefs ditulis lokal/import/resume. */
+    private int tickCacheUbah = 0;
+    private volatile boolean paksaCacheUbah = true;
+    private String cacheUbahD = "";
+    private String cacheUbahP = "";
+    private String cacheUbahA = "";
     /** Cache teks ringkasan: refreshRingkasan jalan tiap ketikan sehingga
      *  setText yang isinya sama (tetap memicu layout) wajib dilewati. */
     private String lastRingkasKeamanan = "";
@@ -851,6 +859,7 @@ public class SettingsActivity extends Activity {
         sapuExportPlainBasi();
         sapuSisaImpor();
         refreshActive = true;
+        paksaCacheUbah = true;
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);
         // Auto-lock PIN setiap kali app kembali ke depan
@@ -925,6 +934,7 @@ public class SettingsActivity extends Activity {
         ed.putString(ServerService.KEY_PORT, portEfektif);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.apply();
+        paksaCacheUbah = true;
         // Cek port di worker (2x bind ServerSocket di UI thread berisiko ANR
         // di tumpukan lambat): prefs sudah tersimpan di atas, dialog tetap di UI.
         final int portCekPort = portNum;
@@ -1062,16 +1072,21 @@ public class SettingsActivity extends Activity {
         // Peringatan bila setting diubah tapi server belum di-restart
         boolean changed = false;
         if (running) {
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-            if (d == null || d.trim().isEmpty()) {
-                d = ServerService.dataDirBawaanSegar();
+            if (paksaCacheUbah || tickCacheUbah++ % 5 == 0) {
+                paksaCacheUbah = false;
+                SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+                String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
+                if (d == null || d.trim().isEmpty()) {
+                    d = ServerService.dataDirBawaanSegar();
+                }
+                cacheUbahD = d;
+                cacheUbahP = ServerService.effectivePort(sp);
+                String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
+                cacheUbahA = a == null ? "" : a;
             }
-            String p = ServerService.effectivePort(sp);
-            String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
-            if (a == null) {
-                a = "";
-            }
+            String d = cacheUbahD;
+            String p = cacheUbahP;
+            String a = cacheUbahA;
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
@@ -1979,6 +1994,7 @@ public class SettingsActivity extends Activity {
             // identitas server benar-benar berganti (bukan memakai CA lama diam-diam).
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
             if (zipCfg != null) {
+                paksaCacheUbah = true;
                 TgBackup.applyPrefsFromJson(SettingsActivity.this,
                         zipCfg.optJSONObject("prefs"));
                 sanitizePortPref();
@@ -2028,6 +2044,7 @@ public class SettingsActivity extends Activity {
             }
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putString(ServerService.KEY_DATA_DIR, aman).apply();
+            paksaCacheUbah = true;
         }
         runBusy(() -> {
             // Nama unik per unduhan: dialog konfirmasi pertama yang menggantung
@@ -2460,6 +2477,7 @@ public class SettingsActivity extends Activity {
                 toast("Invalid config file.");
                 return;
             }
+            paksaCacheUbah = true;
             TgBackup.applyPrefsFromJson(this, prefs);
             sanitizePortPref();
             ui.post(() -> {
@@ -2673,6 +2691,7 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
         sp.edit().putString(ServerService.KEY_PORT, DEFAULT_PORT).apply();
+        paksaCacheUbah = true;
         appendUiLog("[app] Port hasil import tidak valid/privileged - kembali ke " + DEFAULT_PORT + ".");
     }
 

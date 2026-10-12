@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 65: cache prefs hint restart Settings (Android 5+)
+- `SettingsActivity.refreshFromService`: blok deteksi "setting berubah" tak lagi baca `SharedPreferences` + parse port + `sidikTokenAdmin` tiap tick 1 dtk — kini cache tiap 5 tick selaras `MainActivity.tickCachePrefs`, dipaksa segar saat prefs ditulis lokal (saveAndStart/restore/import/sanitize), saat import `applyPrefsFromJson`, dan saat `onResume`. Hint restart + sorot label tetap akurat tanpa jeda. Perilaku identik; tanpa test baru (wiring UI thread). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 64: runBusy pindah ke pool lama (Android 5+)
 - `SettingsActivity.runBusy`: 12 tugas berat (unduh binary/web-vault, backup/restore/unggah Telegram, generate RSA) pindah dari `Util.jalankanBg` (pool ringan 3-thread untuk cek port/refresh/redaksi log) ke `Util.jalankanLama` (pool BG_LAMA 2-thread untuk tugas menit-lama) — selaras dokumen pool di `Util` + preseden `MainActivity` yang sudah memakai `jalankanLama` untuk unduh web-vault. Sebelumnya unduhan 35 MB memonopoli thread pool ringan ber-shared proses sehingga cek port/refresh terbuang di STB 1 GB. Perilaku sama (CAS `tugasBerjalan` + `setBusy` tak berubah); tanpa test baru (routing executor butuh runtime Android). Verifikasi via `verifikasi-patch --semua` + `cek-cepat`, build/test penuh di CI.
 
