@@ -93,7 +93,7 @@ android {
             "MissingQuantity", // plurals tanpa quantity wajib (other)
             // Radar buru-bug (SDK GitHub, bukan lokal): lolos audit manual,
             // jadi dipromosi agar push berikut otomatis gagal bila muncul lagi.
-            // Import mati dijaga tools/verifikasi-path.py (cek_import_mati):
+            // Import mati dijaga tools/verifikasi-patch.py (cek_import_mati):
             // ID "UnusedImports" tak dikenal lint AGP 8.5.2 (warning CI).
             "ObsoleteSdkInt",  // cek SDK basi (minSdk 21; cek >=M/O masih relevan)
             "DrawAllocation",  // alokasi di onDraw (tanpa custom view)

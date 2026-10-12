@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Verifikasi otomatis path yang baru dikerjakan.
+"""Verifikasi otomatis patch yang baru dikerjakan.
 
 Memastikan penghapusan kode tak merusak acuan dan aturan repo tetap
 ditaati, tanpa toolchain Android (hanya baca kode + git diff + parse XML).
 
 Pakai:
-    python3 tools/verifikasi-path.py                 # kerja lokal + belum push
-    python3 tools/verifikasi-path.py --semua         # seluruh repo
-    python3 tools/verifikasi-path.py --rentang A...B # rentang commit (dipakai CI)
-    python3 tools/verifikasi-path.py app/... Main.java
+    python3 tools/verifikasi-patch.py                 # kerja lokal + belum push
+    python3 tools/verifikasi-patch.py --semua         # seluruh repo
+    python3 tools/verifikasi-patch.py --rentang A...B # rentang commit (dipakai CI)
+    python3 tools/verifikasi-patch.py app/... Main.java
 
 Keluar 0 bila lolos (peringatan tak menggagalkan), 1 bila ada yang gagal.
 """
@@ -687,7 +687,7 @@ def cek_pola_berisiko(peringatan, diff, berubah):
 
 
 def utama():
-    parser = argparse.ArgumentParser(description="Verifikasi path yang baru dikerjakan.")
+    parser = argparse.ArgumentParser(description="Verifikasi patch yang baru dikerjakan.")
     parser.add_argument("jalur", nargs="*", help="berkas spesifik (opsional)")
     parser.add_argument("--semua", action="store_true", help="cek seluruh repo")
     parser.add_argument("--rentang", default="", help="rentang diff A...B (dipakai CI)")

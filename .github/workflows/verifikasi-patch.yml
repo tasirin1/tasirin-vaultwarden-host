@@ -1,4 +1,4 @@
-name: Verifikasi Path
+name: Verifikasi Patch
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   verifikasi:
-    name: Cek path yang berubah
+    name: Cek patch yang berubah
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -24,6 +24,6 @@ jobs:
           # Skrip murni-Python: acuan yatim, XML, aturan repo, hapusan salah,
           # paritas resource, locale tanpa Locale, cakupan uji metode diubah.
           # Gagal di sini = push ditolak sebelum build APK (~4 mnt) jalan.
-          python3 tools/verifikasi-path.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+          python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
