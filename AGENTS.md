@@ -177,6 +177,15 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     audit-45: `batalTunda` yang diciptakan ulang menabrak nama yang dibuang
     audit-38). Pengecualian: nama yang masih didefinisikan di berkas lain
     (pindah, bukan hapus) dilarang masuk daftar.
+16. **Cek program lokal dulu, manfaatkan semaksimal mungkin** — di awal tiap
+    pekerjaan, cek program lokal yang terinstal (`command -v` + `--version`;
+    mis. `rg`, `fd`, `fzf`, `bat`, `eza`, `jq`, `file`, `lsof`, `htop`,
+    `strace`/`ltrace`, `gdb`, `git`, `python3`, `bash`, `gh`) lalu pakai yang
+    paling tepat semaksimal mungkin: `rg` untuk cari teks (bukan `grep`
+    lambat), `fd` untuk cari berkas, `jq` untuk JSON, `bat`/`eza` untuk
+    baca/daftar, sisanya sesuai kebutuhan (profil/debug). Tetap patuhi
+    aturan No. 1: program toolchain Android (`gradle`, `javac`/`kotlinc`,
+    `apktool`, emulator, `adb install`) dilarang dipakai walau terinstal.
 
 ## Alur build & rilis (CI terpisah: binary vs APK)
 
