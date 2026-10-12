@@ -10,3 +10,4 @@ tokenPertama
 slowHexEquals
 tungguAtauBunuh
 mulaiAksi
+tungguBootStabil

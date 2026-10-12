@@ -313,25 +313,28 @@ public final class TgBackup {
         return sisa > 0 ? sisa : 0;
     }
 
-    /** Tunggu (interruptible) sampai 5 menit setelah boot. Untuk worker thread
-     *  backup otomatis; jangan dipanggil dari receiver/activity thread. */
-    public static void tungguBootStabil() throws InterruptedException {
-        // Guard main thread: tidur menit-lama di UI = ANR. Pulang cepat agar
-        // pemanggil masa depan yang keliru tak menggantung aplikasi.
-        try {
-            if (android.os.Looper.getMainLooper() != null
-                    && android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-                return;
-            }
-        } catch (Exception ignored) {
+    /** Tunda backup via alarm bila STB baru hidup (<5 mnt); true = pemanggil
+     *  wajib pulang tanpa backup (AlarmReceiver menilai ulang + mengeksekusi
+     *  saat alarm tunda menyala). Satu pintu pengganti metode tidur-blokir
+     *  lama yang menidurkan thread pool bersama menit-lama (BG lama 2 slot,
+     *  BG ringan 3 slot di STB 1 GB): unduh binary/hash PIN ikut antre di
+     *  belakang tidur 5 menit itu. Tanpa tidur sehingga aman dari thread
+     *  mana pun (receiver/activity/worker). */
+    public static boolean tundaBilaBootBaru(Context ctx, String label) {
+        return tundaBilaBootBaruPada(ctx, label, SystemClock.elapsedRealtime());
+    }
+
+    /** Varian waktu-suntik dari tundaBilaBootBaru (murni + alarm) agar bisa
+     *  unit test JVM tanpa memalsukan jam uptime perangkat. */
+    static boolean tundaBilaBootBaruPada(Context ctx, String label, long elapsedMs) {
+        if (sisaTungguBootMs(elapsedMs) <= 0) {
+            return false;
         }
-        for (;;) {
-            long sisa = sisaTungguBootMs(SystemClock.elapsedRealtime());
-            if (sisa <= 0) {
-                return;
-            }
-            Thread.sleep(Math.min(sisa, 10_000));
-        }
+        boolean ok = jadwalTundaBoot(ctx);
+        ServerService.catatLog("[tg] STB baru hidup - " + label + " ditunda"
+                + " sampai sistem stabil"
+                + (ok ? " (alarm terpasang)." : " (alarm gagal, coba jadwal berikut)."));
+        return true;
     }
 
     /** Jadwalkan satu tembakan backup susulan tepat saat 5 menit setelah boot.
@@ -408,11 +411,11 @@ public final class TgBackup {
                 throw new IOException("Backup otomatis dibatalkan.");
             }
         }
-        // STB baru hidup: tunggu 5 menit agar sistem stabil sebelum backup.
-        if (sisaTungguBootMs(SystemClock.elapsedRealtime()) > 0) {
-            ServerService.catatLog("[tg] STB baru hidup - backup otomatis menunggu"
-                    + " 5 menit agar sistem stabil...");
-            tungguBootStabil();
+        // STB baru hidup: tunda via alarm satu pintu (tanpa menidurkan
+        // thread pool menit-lama); AlarmReceiver menilai ulang saat menyala.
+        if (tundaBilaBootBaru(ctx, "backup otomatis saat Start")) {
+            return "STB baru hidup - backup otomatis saat Start ditunda"
+                    + " sampai sistem stabil (alarm terpasang).";
         }
         // Jalur otomatis: wajib terenkripsi (fail-closed bila tanpa password).
         return backupOtomatis(ctx);

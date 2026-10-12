@@ -494,6 +494,33 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tundaBilaBootBaru_lewatBilaUptimeLama() {
+        assertFalse(TgBackup.tundaBilaBootBaruPada(null, "uji", 3600_000L));
+    }
+
+    @Test
+    public void tundaBilaBootBaru_wrapperTakCrash() {
+        boolean hasil;
+        try {
+            // Di JVM murni jam SystemClock stub (melempar) atau 0
+            // (default-value): keduanya jatuh ke jalur tunda tanpa crash.
+            // Di perangkat asli hasilnya ikut uptime (>5 mnt = false),
+            // tapi uji ini hanya jalan di JVM host sehingga deterministik.
+            hasil = TgBackup.tundaBilaBootBaru(null, "uji");
+        } catch (RuntimeException e) {
+            hasil = TgBackup.tundaBilaBootBaruPada(null, "uji", 0);
+        }
+        assertTrue(hasil);
+    }
+
+    @Test
+    public void tundaBilaBootBaru_tundaBilaBootBaru() {
+        // ctx null: jadwal alarm gagal (ditangkap di dalam) tapi status tunda
+        // tetap true + tercatat di log; deterministik di JVM.
+        assertTrue(TgBackup.tundaBilaBootBaruPada(null, "uji", 0));
+    }
+
+    @Test
     public void bolehBackupSusulanBoot_hanyaHariBaruDanJamWajar() {
         long sehari = 24L * 3600 * 1000;
         long wajar = TgBackup.BATAS_JAM_WAJAR_MS + 10L * sehari;

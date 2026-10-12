@@ -998,10 +998,9 @@ public class ServerService extends Service {
                         appendLog("[tg] " + tolak);
                         TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + tolak);
                     } else {
-                        try {
-                            TgBackup.tungguBootStabil();
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
+                        // STB baru hidup: tunda via alarm satu pintu (tanpa
+                        // menidurkan thread pool lama, selaras susulan/saat-Start).
+                        if (TgBackup.tundaBilaBootBaru(this, "backup terjadwal")) {
                             return;
                         }
                         // Terjadwal = otomatis: wajib terenkripsi (fail-closed).

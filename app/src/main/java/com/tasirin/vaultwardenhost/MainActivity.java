@@ -247,7 +247,11 @@ public class MainActivity extends Activity {
                                 + " (susulan boot).");
                         return;
                     }
-                    TgBackup.tungguBootStabil();
+                    // STB baru hidup: tunda via alarm (tanpa menidurkan
+                    // thread pool, selaras jalur terjadwal/saat-Start).
+                    if (TgBackup.tundaBilaBootBaru(app, "backup susulan boot")) {
+                        return;
+                    }
                     // Susulan boot = otomatis: wajib terenkripsi (fail-closed).
                     String msg = TgBackup.backupOtomatis(app);
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
