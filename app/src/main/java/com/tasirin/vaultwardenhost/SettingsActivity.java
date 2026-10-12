@@ -1901,7 +1901,7 @@ public class SettingsActivity extends Activity {
                         }
                         off += r;
                     }
-                    byte[] sqliteMagic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+                    byte[] sqliteMagic = TgBackup.MAGIC_SQLITE;
                     boolean ok = off == head.length;
                     for (int i = 0; ok && i < sqliteMagic.length; i++) {
                         if (head[i] != sqliteMagic[i]) {

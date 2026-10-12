@@ -91,6 +91,13 @@ public final class TgBackup {
 
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
 
+    /** Magic header SQLite ("SQLite format 3\0") sekali-encode satu pintu:
+     *  3 situs cek header (isSqliteFile, cek header zip, validasi restore
+     *  SettingsActivity) dulu getBytes per panggil — termasuk loop tunggu-DB
+     *  500 ms hingga 60x per backup. Murni data (hanya dibaca). */
+    static final byte[] MAGIC_SQLITE =
+            "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+
     /** Pabrik thread daemon satu pola untuk kedua antrean pesan (biasa +
      *  penting): nama beda agar jejak thread terpilah di logcat. */
     private static java.util.concurrent.ThreadFactory pabrikPesan(final String nama) {
@@ -1196,7 +1203,7 @@ public final class TgBackup {
             if (off < 512) {
                 return "db.sqlite3 terpotong (<512 byte)";
             }
-            byte[] want = "SQLite format 3\0".getBytes(StandardCharsets.UTF_8);
+            byte[] want = MAGIC_SQLITE;
             for (int i = 0; i < want.length; i++) {
                 if (head[i] != want[i]) {
                     return "db.sqlite3 bukan database SQLite valid";
@@ -3345,7 +3352,7 @@ public final class TgBackup {
         } catch (Exception e) {
             return false;
         }
-        byte[] magic = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
+        byte[] magic = MAGIC_SQLITE;
         for (int i = 0; i < magic.length; i++) {
             if (head[i] != magic[i]) {
                 return false;

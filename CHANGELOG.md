@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 56: satu pintu magic SQLite (Android 5+)
+- `TgBackup.MAGIC_SQLITE` baru (satu pintu): 3 situs cek header SQLite (`isSqliteFile`, cek header zip, validasi restore `SettingsActivity`) dulu `getBytes` per panggil — termasuk loop tunggu-DB 500 ms hingga 60x per backup otomatis. Kini konstanta `static final` sekali-encode (ASCII = byte identik dengan varian UTF-8 lama). Perilaku identik; tanpa test baru (byte magic dicakup `TgBackupTest` yang ada). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 55: gerbang versi Settings per tick (Android 5+)
 - `SettingsActivity.refreshFromService`: string versi ("App … · Binary: …") kini dirakit hanya bila komponennya berubah (`lastVersiApp/Bin/Bundled` + `versiCache`, selaras gerbang `MainActivity`). Sebelumnya `StringBuilder` + concat dibangun tiap tick 1 dtk walau versi statis di antara Start/update — sampah GC sia-sia di UI thread STB lama. Perilaku/teks identik; tanpa test baru (tick activity butuh runtime Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
