@@ -430,7 +430,7 @@ public class MainActivity extends Activity {
     /** Lanjutan Start setelah cek port selesai (berjalan di UI thread). */
     private void lanjutStart(String dataDir) {
         final String finalDataDir = dataDir;
-        if (!webVaultReady(finalDataDir)) {
+        if (!Updater.webVaultReady(this, finalDataDir)) {
             // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
             new AlertDialog.Builder(this)
                     .setTitle("Web vault not installed")
@@ -489,11 +489,6 @@ public class MainActivity extends Activity {
         }
         ServerService.start(this);
         maybeAutoBackup();
-    }
-
-    private boolean webVaultReady(String dataDir) {
-        return new File(dataDir, "web-vault/index.html").exists()
-                || new File(getFilesDir(), "web-vault/index.html").exists();
     }
 
     private void refreshFromService() {

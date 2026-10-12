@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 43: dedup webVaultReady + sapuan jalur panas
+- `Updater.webVaultReady(ctx, dataDir)` baru (satu pintu): ganti salinan identik `webVaultReady` di `MainActivity` + `SettingsActivity` (4 call site). Bonus: null-guard + try/catch — aslinya `new File(null, ...)` = NPE bila prefs korup kosong.
+- Sapuan bersih (temuan nihil): `pumpOutput` (throttle hint + filter noise), `highlightLog`/`refreshHomeLog` (batas kerja per tick + delta), loop unduh 64 KB + hapus `.tmp` di semua jalur gagal, `pollOnce` (snapshot jam/offset per poll), `PinActivity` (PBKDF2 di pool lama), `TlsCert.ensure` (tolak UI thread), `FileShareProvider` (kanonis ganda + tolak symlink), manifest `exported` tepat, pool `Util` berpenjaga anti-OOM.
+- Tanpa test baru: helper butuh `Context.getFilesDir` (runtime Android); logika murni (null-guard) sebaris guard yang sudah dikunci pola sejenis.
+
 ## [Belum rilis] — Audit 42: I/O bind di UI thread + sapuan penuh 21 file
 - `SettingsActivity` (jalur simpan & Start): `portButuhRoot()` (2x bind `ServerSocket`) jalan di dalam `ui.post` padahal komentarnya mewajibkan cek port di worker — pindah ke `Util.jalankanBg` dengan short-circuit (`portSibuk && ...`) agar port bebas tak membayar 2 bind tambahan dan UI tak ANR di tumpukan lambat. Perilaku dialog sama persis; `MainActivity` sudah benar (keduanya di worker).
 - Sapuan bersih (temuan nihil, terverifikasi per berkas): tanpa API >21 tanpa guard (`NotificationChannel`, `setExactAndAllowWhileIdle`, `FLAG_IMMUTABLE`, `TLSv1.2`, `requestPermissions` semua berpenjaga; `java.nio` hanya `charset`; tanpa `java.nio.file`/`Optional`/`Stream`); receiver ringan (`backupNow`/`pollOnce` delegasi ke service/pool, `goAsync` + wakelock timeout); semua `Pattern` statis; buffer unduh 64 KB; `ThreadLocal` tanggal terpusat `Util` (2 pola konstan, tanpa bocor); `MessageDigest.isEqual` + batas iterasi DoS + lockout ganda wall/elapsed; `disconnect()`/`delete()` file sementara di semua jalur; tanpa `StringBuffer`/`System.out`/`printStackTrace`.

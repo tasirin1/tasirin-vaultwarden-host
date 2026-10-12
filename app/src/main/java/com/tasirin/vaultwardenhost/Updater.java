@@ -1530,6 +1530,20 @@ public final class Updater {
      *  mengandalkan kata "updated". */
     static final String WV_UPDATED_MARKER = "[wv-updated]";
 
+    /** True bila web-vault sudah terpasang (folder data atau internal).
+     *  Satu pintu ganti salinan identik di Main/SettingsActivity: dua stat
+     *  murah, aman dipanggil dari UI thread. Murni file. */
+    public static boolean webVaultReady(Context ctx, String dataDir) {
+        try {
+            if (dataDir != null && new File(dataDir, "web-vault/index.html").exists()) {
+                return true;
+            }
+            return ctx != null && new File(ctx.getFilesDir(), "web-vault/index.html").exists();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Unduh & ekstrak web-vault ke folder data; return pesan hasil.
      *  Mengikuti versi target (kuncian user atau terbaru). */
     public static String updateWebVault(Context ctx) throws Exception {

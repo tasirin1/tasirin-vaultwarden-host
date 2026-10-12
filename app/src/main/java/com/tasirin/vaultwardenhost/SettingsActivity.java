@@ -944,7 +944,7 @@ public class SettingsActivity extends Activity {
                     return;
                 }
 
-                if (!webVaultReady(dirCekPort)) {
+                if (!Updater.webVaultReady(this, dirCekPort)) {
                     // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
                     // unduh sekali saat Start pertama bila diizinkan.
                     new AlertDialog.Builder(this)
@@ -985,11 +985,6 @@ public class SettingsActivity extends Activity {
                 maybeAutoBackup();
             });
         });
-    }
-
-    private boolean webVaultReady(String dataDir) {
-        return new File(dataDir, "web-vault/index.html").exists()
-                || new File(getFilesDir(), "web-vault/index.html").exists();
     }
 
     private void refreshFromService() {
@@ -1368,7 +1363,7 @@ public class SettingsActivity extends Activity {
                 autoOfferWebVaultUpdate();
             }
             @Override public boolean webVaultSiap(String dataDir) {
-                return webVaultReady(dataDir);
+                return Updater.webVaultReady(SettingsActivity.this, dataDir);
             }
             @Override public void restartServer() {
                 ServerService.restart(SettingsActivity.this);
@@ -1391,7 +1386,7 @@ public class SettingsActivity extends Activity {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-            if (!webVaultReady(dataDir)) {
+            if (!Updater.webVaultReady(this, dataDir)) {
                 return;
             }
             String marker = Updater.webVaultFromVersion(this);
