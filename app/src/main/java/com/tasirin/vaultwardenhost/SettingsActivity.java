@@ -915,12 +915,16 @@ public class SettingsActivity extends Activity {
         Util.jalankanBg(() -> {
             final boolean portSibuk =
                     portCekPort > 0 && ServerService.isPortBusy(portCekPort);
+            // Cek izin bind di worker juga (2x ServerSocket di UI thread = ANR
+            // di tumpukan lambat): short-circuit agar port bebas tak membayar
+            // 2 bind tambahan yang hasilnya pasti false.
+            final boolean butuhRoot = portSibuk && ServerService.portButuhRoot(portCekPort);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;
                 }
                 if (portSibuk) {
-                    if (ServerService.portButuhRoot(portCekPort)) {
+                    if (butuhRoot) {
                         new AlertDialog.Builder(this)
                                 .setTitle("Port " + portCekPort + " needs root access")
                                 .setMessage("Main port (" + portCekPort + ") below 1024 can only be"

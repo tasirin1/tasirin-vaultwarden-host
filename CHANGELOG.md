@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 42: I/O bind di UI thread + sapuan penuh 21 file
+- `SettingsActivity` (jalur simpan & Start): `portButuhRoot()` (2x bind `ServerSocket`) jalan di dalam `ui.post` padahal komentarnya mewajibkan cek port di worker — pindah ke `Util.jalankanBg` dengan short-circuit (`portSibuk && ...`) agar port bebas tak membayar 2 bind tambahan dan UI tak ANR di tumpukan lambat. Perilaku dialog sama persis; `MainActivity` sudah benar (keduanya di worker).
+- Sapuan bersih (temuan nihil, terverifikasi per berkas): tanpa API >21 tanpa guard (`NotificationChannel`, `setExactAndAllowWhileIdle`, `FLAG_IMMUTABLE`, `TLSv1.2`, `requestPermissions` semua berpenjaga; `java.nio` hanya `charset`; tanpa `java.nio.file`/`Optional`/`Stream`); receiver ringan (`backupNow`/`pollOnce` delegasi ke service/pool, `goAsync` + wakelock timeout); semua `Pattern` statis; buffer unduh 64 KB; `ThreadLocal` tanggal terpusat `Util` (2 pola konstan, tanpa bocor); `MessageDigest.isEqual` + batas iterasi DoS + lockout ganda wall/elapsed; `disconnect()`/`delete()` file sementara di semua jalur; tanpa `StringBuffer`/`System.out`/`printStackTrace`.
+- Tanpa test baru: perbaikan berupa pemindahan thread (butuh runtime Android), tanpa logika murni baru.
+
 ## [Belum rilis] — Jadwal rilis bulanan + APK manual
 - `build-binary.yml`: `schedule` tiap 12 jam → sebulan sekali tiap tanggal 1 (`0 0 1 * *`); tetap skip bila binary/web-vault untuk tag upstream sudah ada, jadi bangun hanya bila ada update Vaultwarden.
 - `build-apk.yml`: hapus pemicu otomatis (`push` + `workflow_run`); APK hanya via `workflow_dispatch` manual. Job `perlu` disederhanakan jadi selalu bangun.
