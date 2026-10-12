@@ -9,7 +9,10 @@
 > Satu-satunya cara build, test, lint, dan rilis: **push ke `main`**,
 > lalu workflow GitHub Actions yang mengerjakan semuanya.
 > Verifikasi lokal yang diizinkan hanya yang tanpa toolchain Android:
-> membaca kode, `grep`/`rg`, `git diff`/`git log`, dan parse XML polos.
+> membaca kode, `grep`/`rg`, `git diff`/`git log`, parse XML polos, serta
+> menjalankan `python3 tools/verifikasi-patch.py` dan
+> `bash scripts/cek-cepat.sh` (keduanya dirancang tanpa toolchain; wajib
+> lolos sebelum push agar hemat menit CI).
 > Pelanggaran aturan ini = pengerjaan dianggap gagal.
 
 Baca file ini **SEBELUM** mengubah, memperbaiki, atau mengelola repository ini.
@@ -25,17 +28,22 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 .
 ├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): resolve versi → build APK → upload APK
 ├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): resolve versi → build binary+shim+web-vault → rilis
+├── .github/workflows/verifikasi-patch.yml  # Gerbang pertama (~1 mnt, tanpa SDK): verifikasi patch + annotations
+├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
+├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
+├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
+├── scripts/cek-cepat.sh                 # Cek cepat pra-push (vektor 0.x, ID land, README, secret)
 ├── AGENTS.md                         # Panduan pengelolaan ini
 ├── CHANGELOG.md                      # Riwayat perubahan per rilis (update manual)
 ├── shim/getrandom_shim.c             # shim getrandom LD_PRELOAD untuk STB kernel lama
-├── app/build.gradle.kts              # Kotlin DSL: targetSdk 28, minSdk 21, versionCode yyyyMMddHH, R8, signing via -P
+├── app/build.gradle.kts              # Kotlin DSL: targetSdk 28, minSdk 21, versionCode menit-epoch UTC, R8, signing via -P
 ├── app/proguard-rules.pro            # Aturan R8 minimal (Java murni, tanpa refleksi sendiri)
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
 │   ├── res/layout/ (+layout-land)      # activity_main.xml (ringkas, portrait + landscape dua kolom) + activity_settings.xml + main_card_*.xml
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
-│   ├── res/values/ (+night, sw600dp) # warna (sinkron terang/gelap), gaya, string, dimensi
+│   ├── res/values/ (+night, sw600dp-land, sw480dp-land) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
 │       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, titik tiga
 │       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
@@ -47,6 +55,8 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 │       ├── PinCrypto.java / PinGate.java  # PIN PBKDF2+salt (format PBKDF2$...) + lockout brute-force
 │       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed + trust anchor Android 5/6
 │       ├── LogActivity.java / LogExport.java  # log realtime layar penuh (cari/simpan/bagikan)
+│       ├── PinActivity.java          # layar kunci PIN (dibuka via PinGate)
+│       ├── Util.java                 # logika murni + helper satu pintu (handler, watchdog proses, tanggal, redirect)
 │       ├── StoragePerm.java          # izin storage / All files access
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
@@ -84,6 +94,12 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   `downloadBinaryVersi()`/`updateWebVaultVersi()` selalu pasang versi
   diminta termasuk downgrade, dan versi terkunci tak fallback diam-diam
   ke latest bila asset-nya 404.
+- **Satu pintu (jangan duplikat)**: `Util.postTunda`/`batalkanTunda`
+  (handler utama), `Util.pasangWatchdogProses` (watchdog `--version`
+  ServerService + Updater), `ServerService.waitForOrKill` (tunggu proses),
+  `TgBackup.bacaStempelThrottle`/`simpanStempelThrottle` (throttle
+  AlarmReceiver + BootReceiver). Duplikat yang dihapus dicatat di
+  `tools/bekas-hapusan.txt` (lihat aturan #15).
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
   `mode_sederhana` (default aktif, UI lokal ikut diimpor), `wizard_selesai` (UI lokal, tak diimpor),
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
@@ -109,7 +125,10 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
   Rusia); log diagnostik dan pesan bot Telegram tetap Indonesia.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
-   singkat (contoh di `git log`). Satu commit satu tujuan logis. Push kode aplikasi
+   singkat (contoh di `git log`). Satu commit satu tujuan logis. Tiap push
+   melewati gerbang **Verifikasi Patch** dulu (~1 menit, tanpa SDK;
+   temuan ditulis sebagai annotations di tab Files) baru build APK;
+   push kode aplikasi
    otomatis memicu build APK ringan (~4 menit, + manual via Run workflow); build
    binary berat (~15 menit) hanya jalan bila `shim/`/`build-binary.yml` berubah
    atau jadwal bulanan menemukan versi upstream baru — jadi gabungkan perubahan
@@ -151,6 +170,13 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     lalu selesai dan laporkan. Ini menghemat waktu polling CI (~15 menit)
     dan token. Pantau hanya bila kalimat pengguna memuat kata pantau/
     monitor/cek build/tunggu/verifikasi rilis.
+15. **Metode yang dihapus wajib dicatat, namanya tak boleh dipakai lagi** —
+    tiap menghapus metode, tambahkan namanya ke `tools/bekas-hapusan.txt`;
+    jangan pernah membuat metode baru dengan nama yang ada di daftar itu
+    (verifikasi-patch menggagalkan push yang memanggilnya — pelajaran
+    audit-45: `batalTunda` yang diciptakan ulang menabrak nama yang dibuang
+    audit-38). Pengecualian: nama yang masih didefinisikan di berkas lain
+    (pindah, bukan hapus) dilarang masuk daftar.
 
 ## Alur build & rilis (CI terpisah: binary vs APK)
 
@@ -181,6 +207,19 @@ dan `workflow_dispatch`:
    (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`)
    hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
    ganti versi upstream).
+
+**C. `verifikasi-patch.yml` (gerbang, ~1 mnt, tanpa SDK)** — `push` ke
+`main` (kecuali dokumen `*.md`) + `workflow_dispatch` manual. Jalan
+**sebelum** build APK agar push bermasalah gagal cepat tanpa membakar
+menit CI:
+
+1. **Cek patch yang berubah** — `python3 tools/verifikasi-patch.py`
+   (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
+   resource, locale tanpa Locale, cakupan uji) + `bash scripts/cek-cepat.sh`
+   (vektor `0.x`, ID land, README, secret). Tiap temuan ditulis sebagai
+   **annotations GitHub** (`::error`/`::warning` dengan file+baris) sehingga
+   bug/kode sampah/celah keamanan terlihat di tab Files, bukan tenggelam
+   di log. GAGAL = push ditolak sebelum build APK jalan.
 
 **B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh kode
 app (kecuali dokumen, `shim/`, `build-binary.yml`) + `workflow_dispatch` manual.
@@ -235,6 +274,11 @@ seamless (beda signature) — backup keystore di tempat aman.
   `impl CustomDnsResolver { fn new()` / rantai `Client::builder()`): sesuaikan
   polanya; bila `ndk-context`/platform-verifier sudah tidak dipakai, patch
   terkait bisa dihapus.
+- **Gagal di job "Cek patch yang berubah" = baca annotations dulu** —
+  buka tab Files pada run tersebut; tiap temuan (bug, kode sampah, celah
+  keamanan, nama terlarang `bekas-hapusan.txt`) menempel di baris kode yang
+  tepat. Log hanya ringkasan. Jalankan `python3 tools/verifikasi-patch.py`
+  di lokal untuk reproduksi persis sebelum memperbaiki.
 - **Unit test**: 17 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
   `PinCrypto`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`, `LogActivity`,
   `FileShareProvider`, `SettingsActivity`, `PinActivity`, `AlarmReceiver`,
@@ -274,7 +318,9 @@ gh release view v<versi> --json assets -q '.assets[].name'
 
 Jangan menjalankan `gh run watch` kecuali pengguna eksplisit menyuruh
 memantau (aturan #14: push-andai saja, hemat token/polling).
-Pastikan conclusion `success` dan release punya 7 asset. Ini satu-satunya
+Pastikan conclusion `success` dan release punya 7 asset. Bila job
+"Verifikasi Patch" merah, perbaikannya berdasar annotations di tab Files
+(lihat bullet di atas), bukan tebak-tebakan. Ini satu-satunya
 cara verifikasi yang sah (tidak ada verifikasi lokal). Verifikasi **favicon
 vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek log
 tidak ada panic (`android context was not initialized` /
