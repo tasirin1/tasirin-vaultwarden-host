@@ -461,25 +461,17 @@ public class ServerService extends Service {
     }
 
     public static boolean stop(Context context) {
-        return mulaiAksi(context, ACTION_STOP);
+        return mulaiService(context, ACTION_STOP);
     }
 
     /** Restart proses server tanpa mematikan service (dipakai dari perintah bot). */
     public static boolean restart(Context context) {
-        return mulaiAksi(context, ACTION_RESTART);
+        return mulaiService(context, ACTION_RESTART);
     }
 
     /** Flag susulan auto-start: start dari background ditolak sistem
      *  (Android 12+). MainActivity mengeksekusinya saat dibuka berikutnya. */
     public static final String KEY_START_TERTUNDA = "auto_start_tertunda";
-
-    /** Kirim aksi ke service lewat foreground API di Android 8+ agar tidak
-     *  IllegalStateException saat dipanggil dari background (bot/alarm).
-     *  Return false bila sistem menolak (pemanggil wajib fallback/susulan,
-     *  bukan mengandalkan try/catch: penolakan sudah ditangkap di dalam). */
-    private static boolean mulaiAksi(Context context, String aksi) {
-        return mulaiService(context, aksi);
-    }
 
     /** Jalankan backup Telegram terjadwal (via AlarmReceiver).
      *  Return false bila sistem menolak start background (AlarmReceiver

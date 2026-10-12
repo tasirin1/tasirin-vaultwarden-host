@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 50: hapus delegasi mati + sapuan satu-pintu
+- `ServerService.mulaiAksi()` dihapus: delegasi satu-baris tanpa nilai tambah ke `mulaiService()` (2 call site `stop`/`restart` kini langsung ke `mulaiService`, selaras `backupNow`); nama dicatat di `tools/bekas-hapusan.txt` sesuai aturan #15 agar tak dipakai lagi.
+- Sapuan putaran empat (temuan lain nihil, tanpa churn): `bacaResponsBatas`/`bacaTerbatas` + `bukaPostTelegram` + `gantiAtomik` sudah satu-pintu lintas TgBot/Updater/ServerService; `tailLog` TgBot hanya menambah redaksi + batas di atas `ServerService.tailLog`; `alive()` via `exitValue` hanya di health 30 dtk/2 mnt + jalur event (bukan tick UI); `healkanStringPrefs` tak di poll; `tanpaKuota` ganda di `AutoUpdate.cek` disengaja (cek ulang segar sesudah unduh menit-lama — hoist justru bakar kuota bila pindah ke mobile data); wakelock ganda receiver + `runWithWakeLock` disengaja (jembatan handoff Doze).
+- Tanpa test baru: hapus delegasi internal (butuh runtime Android); verifikasi via `verifikasi-patch` (LOLOS) + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 49: dedup jalur log + seleksi IP + guard view mati
 - `ServerService.tulisBarisLog()` baru (satu pintu): ganti badan stempel+tempel 12-baris identik di `appendLog` (instans, + file-log) dan `catatLog` (statis). Perilaku sama persis.
 - `ServerService.localIp()`: delegasikan seleksi IPv4-pertama ke `lanHost()` (dulu salinan logika identik di dua tempat); cache 60 dtk tak berubah.
