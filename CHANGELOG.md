@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 55: gerbang versi Settings per tick (Android 5+)
+- `SettingsActivity.refreshFromService`: string versi ("App … · Binary: …") kini dirakit hanya bila komponennya berubah (`lastVersiApp/Bin/Bundled` + `versiCache`, selaras gerbang `MainActivity`). Sebelumnya `StringBuilder` + concat dibangun tiap tick 1 dtk walau versi statis di antara Start/update — sampah GC sia-sia di UI thread STB lama. Perilaku/teks identik; tanpa test baru (tick activity butuh runtime Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 54: samakan banding versi Settings + tutup manual-close (Android 5+)
 - `SettingsActivity.refreshFromService`: blok `pendingVersion` kini memakai `Updater.versiCocok` semantik + memo pasangan seperti `MainActivity` (dulu `equals` mentah + `parseBinaryVersion`/`normVersion` regex tiap tick 1 dtk). Perbaiki bug banner macet saat format beda tulisan ("v1.32.0" vs "1.32.0"/sufiks beta) sekaligus hemat alokasi Matcher di UI thread STB lama; baca `pendingVersion` volatile sekali per tick (`pendSet`) agar tak berubah tengah jalan.
 - `TlsCert.bacaPrivateKey`: ganti tutup manual `finally { if (in != null) in.close(); }` dengan try-with-resources (hapus kode sampah + tutup FD dijamin bila `read` melempar di tengah; cegah kebocoran FD di STB RAM kecil).

@@ -257,6 +257,10 @@ public class SettingsActivity extends Activity {
     private String appVersion = "";
     private String lastShownStatus = "";
     private String lastShownVersion = "";
+    private String lastVersiApp = "\0";
+    private String lastVersiBin = "\0";
+    private String lastVersiBundled = "\0";
+    private String versiCache = "";
     private String lastShownNet = "";
     /** Cache URL lokal 10 dtk (pola MainActivity): localUrl (prefs + port
      *  + IP) tiap 1 dtk sampah + lookup prefs sia-sia di ART lama. */
@@ -1149,13 +1153,25 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        StringBuilder versiB = new StringBuilder("App ").append(appVersion);
-        if (!ServerService.binaryVersion.isEmpty()) {
-            versiB.append(" \u00B7 Binary: ").append(ServerService.binaryVersion);
-        } else {
-            versiB.append(" \u00B7 ").append(bundledVersion);
+        String binVerSet = ServerService.binaryVersion;
+        if (binVerSet == null) {
+            binVerSet = "";
         }
-        String version = versiB.toString();
+        String bundledSet = bundledVersion == null ? "" : bundledVersion;
+        if (!appVersion.equals(lastVersiApp) || !binVerSet.equals(lastVersiBin)
+                || !bundledSet.equals(lastVersiBundled)) {
+            lastVersiApp = appVersion;
+            lastVersiBin = binVerSet;
+            lastVersiBundled = bundledSet;
+            StringBuilder versiB = new StringBuilder("App ").append(appVersion);
+            if (!binVerSet.isEmpty()) {
+                versiB.append(" \u00B7 Binary: ").append(binVerSet);
+            } else {
+                versiB.append(" \u00B7 ").append(bundledSet);
+            }
+            versiCache = versiB.toString();
+        }
+        String version = versiCache;
         // I/O berat (stat DB, jalan folder backup/web-vault) di worker thread;
         // UI thread hanya membaca nilai cache agar tidak jank/ANR.
         long nowHeavy = SystemClock.elapsedRealtime();
