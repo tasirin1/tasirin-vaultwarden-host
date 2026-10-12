@@ -2220,16 +2220,15 @@ public class ServerService extends Service {
                         || line.contains("unsupported flags DT_FLAGS_1")
                         || line.contains("Shield has enabled a default HSTS policy");
                 if (hintLogin != null) {
-                    if (bolehHintLogin(kini, loginHintTerakhirElapsed)) {
-                        loginHintTerakhirElapsed = kini;
-                        if (noise) {
-                            appendLog(hintLogin);
-                        } else {
-                            appendLog(line);
-                            appendLog(hintLogin);
-                        }
-                    } else if (!noise) {
+                    // Tanpa cek throttle ulang: gerbang bolehHintLogin di atas
+                    // sudah lolos (satu-satunya penulis di thread ini, kini
+                    // sama) sehingga cabang else lama tak terjangkau.
+                    loginHintTerakhirElapsed = kini;
+                    if (noise) {
+                        appendLog(hintLogin);
+                    } else {
                         appendLog(line);
+                        appendLog(hintLogin);
                     }
                     continue;
                 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 60: sapuan penuh, cabang mati pumpOutput (Android 5+)
+- `ServerService.pumpOutput`: buang cek throttle `bolehHintLogin` kedua + cabang `else` tak terjangkau — gerbang di atas sudah meloloskan (`hintLogin != null`), penulis satu-satunya di thread reader ini, `kini` sama. Perilaku identik (urutan append + stempel throttle sama persis).
+- Sapuan penuh semua area (temuan lain nihil, tanpa churn): `daftarDns` sengaja dipertahankan (util teruji untuk pemakaian mendatang), sisa migrasi `KEY_TG_MENU_HASH` disengaja, `getAll()` prefs + `getPackageInfo` hanya jalur dingin/sembuh, kunci backup/restore satu flag, alarm/`PendingIntent`/notifikasi berpenjaga versi, tanpa `NetworkOnMainThread`/`Uri.fromFile`/`System.gc`/`printStackTrace`/`Timer`/`AsyncTask`/receiver bocor. Tanpa test baru (cabang mati tanpa perilaku; `pumpOutput` butuh runtime proses). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 59: sapuan penuh, 1 metode mati + 2 overload mati (Android 5+)
 - `PinCrypto`: buang `hashLegasiValid` yang nol pemanggil (digantikan `hashLegasiValidTernormalisasi` di `bungkusLegasi`; nama dicatat di `tools/bekas-hapusan.txt` sesuai aturan #15 agar tak dipakai lagi).
 - `TlsCert`: buang overload mati `ensure(dir, ips)` + `ensure(dir, ips, dns)` yang nol pemanggil (satu-satunya pemanggil memakai varian 4-arg `paksaLeaf`). Nama `ensure` tetap terdefinisi sehingga tanpa catat hapusan.
