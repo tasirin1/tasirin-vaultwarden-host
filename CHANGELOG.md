@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — APK otomatis tiap perubahan app (tak ikut rilis binary)
+- `build-apk.yml`: kembalikan pemicu `push` (kode app berubah → APK otomatis dibangun); `workflow_run` tetap dihapus agar rilis binary bulanan tak ikut membangun APK (`versionCode` tak churn sia-sia). `workflow_dispatch` manual tetap ada.
+- `AGENTS.md` + `README.md`/`README.id.md`/`README.ru.md`: dokumen selaras.
+
 ## [Belum rilis] — Audit 43: dedup webVaultReady + sapuan jalur panas
 - `Updater.webVaultReady(ctx, dataDir)` baru (satu pintu): ganti salinan identik `webVaultReady` di `MainActivity` + `SettingsActivity` (4 call site). Bonus: null-guard + try/catch — aslinya `new File(null, ...)` = NPE bila prefs korup kosong.
 - Sapuan bersih (temuan nihil): `pumpOutput` (throttle hint + filter noise), `highlightLog`/`refreshHomeLog` (batas kerja per tick + delta), loop unduh 64 KB + hapus `.tmp` di semua jalur gagal, `pollOnce` (snapshot jam/offset per poll), `PinActivity` (PBKDF2 di pool lama), `TlsCert.ensure` (tolak UI thread), `FileShareProvider` (kanonis ganda + tolak symlink), manifest `exported` tepat, pool `Util` berpenjaga anti-OOM.

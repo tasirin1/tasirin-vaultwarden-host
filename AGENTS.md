@@ -109,11 +109,11 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
   Rusia); log diagnostik dan pesan bot Telegram tetap Indonesia.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
-   singkat (contoh di `git log`). Satu commit satu tujuan logis. APK **tidak**
-   dibangun otomatis (hanya manual via Run workflow, ~4 menit); build binary berat
-   (~15 menit) hanya jalan bila `shim/`/`build-binary.yml` berubah atau jadwal
-   bulanan menemukan versi upstream baru — jadi gabungkan perubahan kecil dalam
-   satu commit (commit dokumen `*.md` saja dilewati CI).
+   singkat (contoh di `git log`). Satu commit satu tujuan logis. Push kode aplikasi
+   otomatis memicu build APK ringan (~4 menit, + manual via Run workflow); build
+   binary berat (~15 menit) hanya jalan bila `shim/`/`build-binary.yml` berubah
+   atau jadwal bulanan menemukan versi upstream baru — jadi gabungkan perubahan
+   kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).
 4. **Jangan menaikkan `targetSdk` ≥ 29** tanpa solusi eksekusi binary:
    Android 10+ memblokir `execve` dari app home untuk targetSdk ≥ 29 (W^X).
 5. **Jangan menambah ABI lain** — repo ini sengaja `armeabi-v7a` saja
@@ -182,11 +182,13 @@ dan `workflow_dispatch`:
    hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
    ganti versi upstream).
 
-**B. `build-apk.yml` (ringan, ~4 mnt)** — **manual saja** via `workflow_dispatch`
-(tanpa pemicu otomatis: push app maupun rilis binary baru tak memicu APK):
+**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh kode
+app (kecuali dokumen, `shim/`, `build-binary.yml`) + `workflow_dispatch` manual.
+Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
+(APK hanya dibangun bila kodenya berubah, agar `versionCode` tak churn sia-sia):
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
-2. **perlu** — selalu bangun (pemicu manual; tanpa logika lewati otomatis).
+2. **perlu** — selalu bangun (pemicu push app + manual; tanpa logika lewati).
 3. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
    `assembleDebug` + `lintDebug` + `testDebugUnitTest` + `assembleRelease`
    (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.

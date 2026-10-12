@@ -1,8 +1,16 @@
 name: Build APK
 
 on:
-  # Manual saja via tombol Run workflow (tanpa build otomatis:
-  # hemat kuota; push app maupun rilis binary baru tak memicu APK).
+  push:
+    branches: [ main ]
+    # Otomatis tiap ada perbaikan/perubahan app. Commit dokumen + shim saja
+    # tak menyentuh APK: hemat satu build. Rilis binary bulanan tak memicu
+    # APK (workflow_run disengaja dihapus): APK hanya ikut bila kodenya berubah.
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   workflow_dispatch:
 
 permissions:
