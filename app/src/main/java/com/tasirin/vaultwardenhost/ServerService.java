@@ -1690,7 +1690,10 @@ public class ServerService extends Service {
             appendLog("[app] start: " + binary.getAbsolutePath()
                     + " | versi: " + binaryVersion
                     + " | data=" + dataDir + " | port=" + port);
-            for (String panduan : panduanLoginBitwarden(scheme, port, formatHostUntukUrl(lanHost()))) {
+            // Pakai hostSegar (bukan lanHost() kedua): satu enumerasi interface
+            // sesuai komentar di atas + DOMAIN dan panduan tak bisa beda IP
+            // bila DHCP flap tepat di tengah Start.
+            for (String panduan : panduanLoginBitwarden(scheme, port, formatHostUntukUrl(hostSegar))) {
                 appendLog(panduan);
             }
         } catch (Exception e) {
