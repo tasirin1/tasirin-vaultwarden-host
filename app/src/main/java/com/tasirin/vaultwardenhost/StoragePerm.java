@@ -35,12 +35,13 @@ public final class StoragePerm {
     };
 
     /** Izin runtime yang diminta (dipakai di bawah API 30 dan pelengkap di 30+).
-     *  Kembalikan salinan: array bersama yang diekspos langsung bisa diubah
-     *  pemanggil dan meracuni panggilan berikutnya. Dipanggil jarang (saat
-     *  minta izin) sehingga biaya clone diabaikan. */
+     *  Varian berisi diklon: array bersama yang diekspos langsung bisa diubah
+     *  pemanggil dan meracuni panggilan berikutnya. Varian kosong memakai
+     *  konstanta bersama tanpa klon — array nol-elemen tak punya indeks yang
+     *  bisa diubah sehingga aman dibagi (hemat alokasi tiap cek izin di ART lama). */
     public static String[] izinRuntime(int sdk) {
         if (sdk < Build.VERSION_CODES.M) {
-            return IZIN_KOSONG.clone();
+            return IZIN_KOSONG;
         }
         return IZIN_RW.clone();
     }

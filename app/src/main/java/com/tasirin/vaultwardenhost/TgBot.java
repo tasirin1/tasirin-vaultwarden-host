@@ -77,11 +77,6 @@ public final class TgBot {
                 return t;
             }, BUANG_BERLOG);
 
-    /** Kirim tugas bot tanpa lempar bila antrean penuh (fail-safe STB). */
-    static void jalankanBg(Runnable r) {
-        cobaJalankanBg(r);
-    }
-
     /** Tawarkan tugas ke pool; false bila antrean penuh (agar kunci tugas
      *  berat bisa dilepas pemanggil, bukan macet selamanya). Murni alur. */
     static boolean cobaJalankanBg(Runnable r) {
@@ -334,7 +329,7 @@ public final class TgBot {
             return;
         }
         final String payload = menuPayload();
-        jalankanBg(() -> {
+        cobaJalankanBg(() -> {
             HttpURLConnection c = null;
             try {
                 byte[] body = payload.getBytes(StandardCharsets.UTF_8);
@@ -1085,7 +1080,7 @@ public final class TgBot {
             return;
         }
         final Context app = ctx.getApplicationContext();
-        jalankanBg(() -> {
+        cobaJalankanBg(() -> {
             HttpURLConnection c = null;
             try {
                 SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
