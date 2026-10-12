@@ -51,6 +51,11 @@ public class SettingsActivity extends Activity {
     private static final String KEY_WIZARD_DONE = "wizard_selesai";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
+    /** Satu instans loop refresh (selaras MainActivity.refreshLoop): tiap
+     *  postDelayed/post method-ref baru adalah objek beda sehingga titikan
+     *  basi tak terbatalkan — rantai ganda menumpuk permanen tiap onResume/
+     *  setBusy/appendUiLog. Semua titik memakai ini + hapus-sebelum-post. */
+    private final Runnable refreshLoop = this::refreshFromService;
 
     private EditText dataDirInput;
     private EditText portInput;
@@ -818,7 +823,7 @@ public class SettingsActivity extends Activity {
                     .getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {
         }
-        ui.post(this::refreshFromService);
+        ui.post(refreshLoop);
 
         // Auto-update check on launch
         Util.jalankanLama(this::autoUpdateCheck);
@@ -836,7 +841,8 @@ public class SettingsActivity extends Activity {
         sapuExportPlainBasi();
         sapuSisaImpor();
         refreshActive = true;
-        ui.post(this::refreshFromService);
+        ui.removeCallbacks(refreshLoop);
+        ui.post(refreshLoop);
         // Auto-lock PIN setiap kali app kembali ke depan
         maybeShowPinLock();
     }
@@ -846,6 +852,7 @@ public class SettingsActivity extends Activity {
         super.onPause();
         siramTulisTertunda();
         refreshActive = false;
+        ui.removeCallbacks(refreshLoop);
         // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
         // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
         pauseStamp = SystemClock.elapsedRealtime();
@@ -988,6 +995,9 @@ public class SettingsActivity extends Activity {
     }
 
     private void refreshFromService() {
+        // Runtuhkan rantai ganda jadi satu (selaras MainActivity): tiap
+        // suntikan "refresh sekarang" ikut menjadwalkan penerus abadi.
+        ui.removeCallbacks(refreshLoop);
         // Sedang sibuk (update/backup)? Kunci chip status: progress unduh bila ada,
         // selain itu "Bekerja…" — jangan biarkan polling menimpa dengan status lama.
         if (uiBusy) {
@@ -1011,7 +1021,7 @@ public class SettingsActivity extends Activity {
                 unduhBar.setIndeterminate(true);
             }
             if (refreshActive) {
-                ui.postDelayed(this::refreshFromService, 1500);
+                ui.postDelayed(refreshLoop, 1500);
             }
             return;
         }
@@ -1209,7 +1219,7 @@ public class SettingsActivity extends Activity {
         batteryRow.setVisibility(needBatteryCached ? View.VISIBLE : View.GONE);
 
         if (refreshActive) {
-            ui.postDelayed(this::refreshFromService, 1000);
+            ui.postDelayed(refreshLoop, 1000);
         }
     }
 
@@ -3701,7 +3711,7 @@ public class SettingsActivity extends Activity {
         long now = SystemClock.elapsedRealtime();
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
-            ui.post(this::refreshFromService);
+            ui.post(refreshLoop);
         }
     }
 

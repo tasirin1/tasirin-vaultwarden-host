@@ -41,6 +41,12 @@ public class MainActivity extends Activity {
     private static final int MAKS_BARIS_LOG = 150;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
+    /** Satu instans loop refresh: tiap postDelayed/post method-ref baru
+     *  adalah objek beda sehingga removeCallbacks tak bisa membatalkan
+     *  titikan basi — rantai ganda menumpuk permanen tiap onResume/
+     *  setBusy/appendUiLog (CPU + baterai terbuang di STB 1 GB).
+     *  Semua titik memakai ini + hapus-sebelum-post agar selalu satu rantai. */
+    private final Runnable refreshLoop = this::refreshFromService;
 
     private TextView statusView;
     private View statusBanner;
@@ -203,7 +209,7 @@ public class MainActivity extends Activity {
         teksBerjalan = getString(R.string.running);
         teksBerhenti = getString(R.string.stopped);
         teksSibuk = getString(R.string.busy_work);
-        ui.post(this::refreshFromService);
+        ui.post(refreshLoop);
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         // Cek update otomatis saat dibuka
@@ -291,7 +297,8 @@ public class MainActivity extends Activity {
         super.onResume();
         refreshActive = true;
         paksaCachePrefs = true;
-        ui.post(this::refreshFromService);
+        ui.removeCallbacks(refreshLoop);
+        ui.post(refreshLoop);
         // Auto-lock PIN setiap kali app kembali ke depan
         maybeShowPinLock();
     }
@@ -323,6 +330,7 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         refreshActive = false;
+        ui.removeCallbacks(refreshLoop);
         // Jangan kunci langsung (pindah ke Settings/Log bukan keluar app);
         // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
         pauseStamp = SystemClock.elapsedRealtime();
@@ -492,6 +500,10 @@ public class MainActivity extends Activity {
     }
 
     private void refreshFromService() {
+        // Runtuhkan rantai ganda jadi satu: suntikan "refresh sekarang"
+        // (setBusy/appendUiLog/onResume) ikut menjadwalkan penerus sehingga
+        // tanpa ini tiap suntikan menjadi loop abadi tambahan.
+        ui.removeCallbacks(refreshLoop);
         // Sedang sibuk (unduh web-vault)? Kunci chip status agar tidak tertimpa polling.
         if (uiBusy) {
             String dl = Updater.downloadStatus;
@@ -508,7 +520,7 @@ public class MainActivity extends Activity {
             }
             refreshHomeLog();
             if (refreshActive) {
-                ui.postDelayed(this::refreshFromService, 1500);
+                ui.postDelayed(refreshLoop, 1500);
             }
             return;
         }
@@ -707,7 +719,7 @@ public class MainActivity extends Activity {
 
         if (refreshActive) {
             // Idle 2 dtk saat server mati: hemat bangun CPU di STB lama.
-            ui.postDelayed(this::refreshFromService, ServerService.running ? 1000 : 2000);
+            ui.postDelayed(refreshLoop, ServerService.running ? 1000 : 2000);
         }
     }
 
@@ -1181,7 +1193,7 @@ public class MainActivity extends Activity {
         long now = SystemClock.elapsedRealtime();
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;
-            ui.post(this::refreshFromService);
+            ui.post(refreshLoop);
         }
     }
 

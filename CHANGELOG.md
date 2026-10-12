@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 47: satukan rantai refresh ganda (hemat CPU/baterai Android 6+)
+- `MainActivity` + `SettingsActivity`: `refreshFromService` memakai satu instans `refreshLoop` di semua titik `post`/`postDelayed` (dulu tiap `this::refreshFromService` adalah objek beda sehingga `removeCallbacks` tak bisa membatalkan titikan basi). Tiap suntikan "refresh sekarang" (`onResume`, `setBusy(false)`, `appendUiLog` throttle 500 ms) ikut menjadwalkan penerus abadi — rantai loop 1-2 dtk menumpuk permanen tiap buka Settings/Log dan transisi sibuk (baca prefs + binder + `setText` + delta log berlipat di STB 1 GB).
+- Perilaku sama, kini satu rantai: `removeCallbacks(refreshLoop)` di awal `refreshFromService` meruntuhkan duplikat tiap tick; `onPause` membatalkan titikan (tanpa kerja latar saat tak terlihat, hemat Doze/baterai); `onResume` hapus-dahulu-lalu-post. Selaras pola `LogActivity.logTick` yang sudah benar.
+- Tanpa test baru: logika di activity (butuh runtime Android); verifikasi via `verifikasi-patch` + `cek-cepat` lokal, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 46: guard null retensi backup (Android 6+)
 - `TgBackup.cleanupOldBackups`: tambah guard `backupDir == null` — selaras `namaFileDi`/`sapuExportEnkripLama` yang sudah berpenjaga; cegah NPE crash bila dipanggil dengan folder null di jalur backup/restore.
 - `SettingsActivity.daftarBackup`: tambah guard `backupDir == null → null` — pemanggil (`dbInfoLine`/`storageInfoLine`) sudah menangani `null` (`files == null ? 0`), cegah NPE `getAbsolutePath` bila prefs folder korup.
