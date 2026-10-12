@@ -2172,7 +2172,7 @@ public class SettingsActivity extends Activity {
                     }
                 }
             }
-            batasiFileExportCache(pendingNamaSegar);
+            batasiFileExportCache(pendingNamaSegar, sisa);
         } catch (Exception ignored) {
         }
     }
@@ -2181,8 +2181,18 @@ public class SettingsActivity extends Activity {
      *  terbaru saja agar export berulang tanpa kembali tak menumpuk. Pending
      *  yang masih segar selalu dipertahankan. */
     private void batasiFileExportCache(String pendingNamaSegar) {
+        File[] kini = null;
         try {
-            File[] kini = getCacheDir().listFiles();
+            kini = getCacheDir().listFiles();
+        } catch (Exception ignored) {
+        }
+        batasiFileExportCache(pendingNamaSegar, kini);
+    }
+
+    /** Varian hemat I/O: pakai ulang hasil listFiles() pemanggil agar direktori
+     *  cache tak dienumerasi dua kali (dulu sapu + batas masing-masing stat). */
+    private void batasiFileExportCache(String pendingNamaSegar, File[] kini) {
+        try {
             if (kini == null) {
                 return;
             }

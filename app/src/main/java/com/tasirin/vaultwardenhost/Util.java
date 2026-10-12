@@ -623,6 +623,9 @@ public final class Util {
         if (config == null) {
             return hasil;
         }
+        // Set pendamping: contains() di daftar adalah pindai O(n) sehingga
+        // dedup murni-kuadrat; set menjaga O(1) dengan urutan tetap di daftar.
+        java.util.Set<String> terlihat = new java.util.HashSet<String>();
         int n = config.length();
         int awal = -1;
         for (int i = 0; i <= n; i++) {
@@ -632,7 +635,7 @@ public final class Util {
             if (pisah) {
                 if (awal >= 0) {
                     String potong = config.substring(awal, i).trim();
-                    if (!potong.isEmpty() && !hasil.contains(potong)) {
+                    if (!potong.isEmpty() && terlihat.add(potong)) {
                         hasil.add(potong);
                         if (hasil.size() >= BATAS_ENTRI_CHAT) {
                             break;

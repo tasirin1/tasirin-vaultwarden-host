@@ -366,13 +366,10 @@ public final class TgBackup {
                                 AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
                     } catch (Exception e) {
                         // Fallback tetap boleh saat idle (Doze): set() biasa bisa
-                        // tertunda berjam-jam di STB; pakai setAndAllowWhileIdle bila ada.
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            am.setAndAllowWhileIdle(
-                                    AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
-                        } else {
-                            am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
-                        }
+                        // tertunda berjam-jam di STB. Cabang luar sudah menjamin
+                        // API 23+ sehingga tanpa fallback set() lawas yang mati.
+                        am.setAndAllowWhileIdle(
+                                AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
                     }
                 } else {
                     am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
@@ -3664,12 +3661,10 @@ public final class TgBackup {
             }
             try {
                 if (exact) {
-                    // Tepat waktu walau dalam Doze.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
-                    } else {
-                        am.set(AlarmManager.RTC_WAKEUP, trigger, pi);
-                    }
+                    // Tepat waktu walau dalam Doze. exact=true hanya mungkin
+                    // saat API 23+ (inisialisasi di atas) sehingga tanpa
+                    // fallback set() lawas yang mati.
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
                 } else {
                     am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
                             AlarmManager.INTERVAL_DAY, pi);
