@@ -2220,18 +2220,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Batasi tumpukan file export config di cache (best-effort): simpan yang
-     *  terbaru saja agar export berulang tanpa kembali tak menumpuk. Pending
-     *  yang masih segar selalu dipertahankan. */
-    private void batasiFileExportCache(String pendingNamaSegar) {
-        File[] kini = null;
-        try {
-            kini = getCacheDir().listFiles();
-        } catch (Exception ignored) {
-        }
-        batasiFileExportCache(pendingNamaSegar, kini);
-    }
-
     /** Varian hemat I/O: pakai ulang hasil listFiles() pemanggil agar direktori
      *  cache tak dienumerasi dua kali (dulu sapu + batas masing-masing stat). */
     private void batasiFileExportCache(String pendingNamaSegar, File[] kini) {

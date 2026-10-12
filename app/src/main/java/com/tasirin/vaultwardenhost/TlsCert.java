@@ -476,13 +476,6 @@ public final class TlsCert {
         return hasil;
     }
 
-    /** Buat sertifikat server baru ditandatangani CA (CA tetap). Return false bila gagal. */
-    private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
-            List<String> ips) {
-        return buatLeaf(caKeyFile, certFile, keyFile, ips,
-                java.util.Collections.<String>emptyList());
-    }
-
     /** Varian dengan SAN DNS tambahan (domain lokal). */
     private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
             List<String> ips, List<String> dns) {

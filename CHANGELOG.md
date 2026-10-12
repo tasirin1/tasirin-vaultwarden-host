@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 58: sapuan penuh, 2 overload mati + 1 onDestroy (Android 5+)
+- `PinActivity.onDestroy` baru: cabut `ui.removeCallbacksAndMessages(null)` — tanpa ini runnable hasil PBKDF2 (`ui.post`) menahan activity yang sudah `finish()` sampai hash 30rb iterasi selesai (detik di STB lama). Perilaku sama; guard `isFinishing()/isDestroyed()` di callback tetap.
+- `SettingsActivity`: buang overload 1-arg `batasiFileExportCache(String)` yang nol pemanggil (hanya varian 2-arg `(String, File[])` yang dipakai sapu cache export). Nama tetap terdefinisi sehingga tanpa catat hapusan.
+- `TlsCert`: buang overload 4-arg `buatLeaf(caKey, cert, key, ips)` yang nol pemanggil (satu-satunya pemanggil memakai varian 5-arg dengan SAN DNS). Nama tetap terdefinisi sehingga tanpa catat hapusan.
+- Sapuan penuh semua area (temuan lain nihil, tanpa churn): tanpa import/field mati, `Pattern` statis, `SimpleDateFormat`/`MessageDigest`/`SecureRandom`/heks bersama, pool BG berbatang + tolak tercatat, `commit()` sinkron semua beralasan daya-tahan, `PendingIntent` IMMUTABLE + channel O+ + `POST_NOTIFICATIONS`/`Html.fromHtml` berpenjaga versi, `isDestroyed` aman (API 17+ < minSdk 21), tanpa `NetworkOnMainThread`, tanpa `Uri.fromFile`, tanpa `System.gc`/`printStackTrace`. Tanpa test baru (overload mati tanpa acuan uji; `onDestroy` butuh runtime Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 57: sapuan penuh semua area (nihil temuan, Android 5+)
 - Diverifikasi tanpa perubahan kode: alur Start (env, shim, smoke test, kill-stale, TLS, bind), health+restart backoff, unduh binary/shim/web-vault (resume, SHA-256, zip-slip, batas zip-bomb), backup/restore (WAL checkpoint, quick_check, enkripsi, allowlist), dispatch bot + polling, redaksi rahasia, tick Main/Settings/Log (memo versi, gerbang StringBuilder, cache IP/URL/prefs TTL), PBKDF2 + fallback manual, factory TLS + cap override, provider kanonis ganda, receiver anti-spoof + throttle, izin/storage berpenjaga versi. Tanpa import/metode/field mati, tanpa `String.format`/`split`/trim-case di jalur panas, tanpa I/O berat di UI thread, tanpa `System.gc`/`printStackTrace`/`available()`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh tetap di CI.
 

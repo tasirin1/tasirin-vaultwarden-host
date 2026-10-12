@@ -80,6 +80,17 @@ public class PinActivity extends Activity {
         batalKeluar();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Cabut callback hasil PBKDF2: tanpa ini runnable ui.post menahan
+        // activity yang sudah finish sampai hash selesai (detik di STB lama).
+        try {
+            ui.removeCallbacksAndMessages(null);
+        } catch (Exception ignored) {
+        }
+    }
+
     private void batalKeluar() {
         setResult(RESULT_CANCELED);
         finish();
