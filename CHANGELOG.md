@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 44: sapuan dalam kripto/restore/restart (nihil temuan)
+- Diverifikasi tanpa perubahan kode: enkripsi backup (salt+IV acak per berkas, GCM, batas iterasi KDF, password dinolkan, plaintext parsial dihapus saat gagal); ekstraksi restore (allowlist + kanonis ganda + batas zip-bomb + buang -wal/-shm basi); restart (backoff 2/5/10/20/40 dtk + rem loop 5 mnt monotonik); sanitasi versi bot (regex allowlist, tolak traversal URL); request code PendingIntent unik (0/3/101/...); validasi port inline selaras normalisasi; `tanpaKuota` (tolak VPN + metered, dual jalur API 21/23).
+- Keputusan: tanpa diff kode — basis sudah bersih, perubahan tanpa temuan hanya menambah risiko regresi tanpa untung (prinsip audit-41).
+
 ## [Belum rilis] — APK otomatis tiap perubahan app (tak ikut rilis binary)
 - `build-apk.yml`: kembalikan pemicu `push` (kode app berubah → APK otomatis dibangun); `workflow_run` tetap dihapus agar rilis binary bulanan tak ikut membangun APK (`versionCode` tak churn sia-sia). `workflow_dispatch` manual tetap ada.
 - `AGENTS.md` + `README.md`/`README.id.md`/`README.ru.md`: dokumen selaras.
