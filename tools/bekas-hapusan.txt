@@ -11,3 +11,4 @@ slowHexEquals
 tungguAtauBunuh
 mulaiAksi
 tungguBootStabil
+hashLegasiValid

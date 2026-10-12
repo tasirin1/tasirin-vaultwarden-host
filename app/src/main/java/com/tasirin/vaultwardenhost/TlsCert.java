@@ -187,16 +187,6 @@ public final class TlsCert {
      *  Telegram /start tak boleh generate CA/leaf bersamaan (rusak ca.pem/cert.pem). */
     private static final Object KUNCI_ENSURE = new Object();
 
-    /** Pastikan CA + cert server ada di {@code dir}; buat bila belum. Return null bila gagal. */
-    public static File ensure(File dir, List<String> ips) {
-        return ensure(dir, ips, java.util.Collections.<String>emptyList());
-    }
-
-    /** Varian dengan SAN DNS tambahan (domain lokal); {@code dns} boleh kosong. */
-    public static File ensure(File dir, List<String> ips, List<String> dns) {
-        return ensure(dir, ips, dns, false);
-    }
-
     /** Varian paksa-regen-leaf: dipakai pemanggil saat IP berubah agar SAN ikut baru.
      *  Tanpa ini leaf valid-waktu dipakai ulang dengan SAN basi, dan pemanggil
      *  terpaksa menghapus leaf dulu (destruktif bila generate gagal).

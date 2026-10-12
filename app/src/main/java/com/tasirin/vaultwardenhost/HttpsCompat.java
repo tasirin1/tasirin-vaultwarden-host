@@ -220,11 +220,11 @@ public final class HttpsCompat {
             } catch (Exception ignored) {
             }
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            // Union (bukan ganti): bawaan selalu dimuat, berkas segar hasil
-            // segarkanTrustAnchor ditumpuk di atasnya. Override valid tapi tak
-            // lengkap tak boleh memutus rantai root lama sampai refresh berikut.
+            // Union (bukan ganti) agar kompatibel Android 5/6: bawaan selalu
+            // dimuat, berkas segar hasil segarkanTrustAnchor ditumpuk di atasnya.
+            // Override valid tapi tak lengkap tak boleh memutus rantai root lama
+            // sampai refresh berikut.
             // Validasi dasar: chain kosong berarti aset rusak; tolak agar tak dikira trust OK.
-            // Union (bukan ganti) agar kompatibel Android 5/6: bawaan tetap dipakai.
             try (InputStream in = ctx.getAssets().open("certs/github-chain.pem")) {
                 java.util.Collection<? extends Certificate> chain = cf.generateCertificates(in);
                 if (chain == null || chain.isEmpty()) {

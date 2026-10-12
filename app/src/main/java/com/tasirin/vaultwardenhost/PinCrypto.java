@@ -82,31 +82,6 @@ public final class PinCrypto {
                 && !isNewFormat(stored) && !isFormatBungkus(stored);
     }
 
-    /** True bila hash legasi valid (64 hex) yang bisa dibungkus. Murni. */
-    static boolean hashLegasiValid(String stored) {
-        if (stored == null) {
-            return false;
-        }
-        int awal = 0;
-        int akhir = stored.length();
-        while (awal < akhir && stored.charAt(awal) <= ' ') {
-            awal++;
-        }
-        while (akhir > awal && stored.charAt(akhir - 1) <= ' ') {
-            akhir--;
-        }
-        if (akhir - awal != 64) {
-            return false;
-        }
-        for (int i = awal; i < akhir; i++) {
-            char c = stored.charAt(i);
-            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /** Bungkus hash legasi ke format ber-salt + stretch 30k tanpa perlu PIN.
      *  Tanpa ini SHA-256 tanpa salt bertahan di disk sampai login sukses
      *  berikutnya dan retak offline dalam detik bila prefs bocor (PIN 4-6

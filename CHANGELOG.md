@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 59: sapuan penuh, 1 metode mati + 2 overload mati (Android 5+)
+- `PinCrypto`: buang `hashLegasiValid` yang nol pemanggil (digantikan `hashLegasiValidTernormalisasi` di `bungkusLegasi`; nama dicatat di `tools/bekas-hapusan.txt` sesuai aturan #15 agar tak dipakai lagi).
+- `TlsCert`: buang overload mati `ensure(dir, ips)` + `ensure(dir, ips, dns)` yang nol pemanggil (satu-satunya pemanggil memakai varian 4-arg `paksaLeaf`). Nama `ensure` tetap terdefinisi sehingga tanpa catat hapusan.
+- `HttpsCompat.socketFactory`: gabung 2 baris komentar duplikat "Union (bukan ganti)" jadi satu (tanpa ubah logika).
+- Sapuan penuh semua area (temuan lain nihil, tanpa churn): pindai definisi-vs-pemakaian semua metode (acuan method-ref `this::` + callback siklus hidup + refleksi `len` ikut dihitung), tanpa import/field mati, `getAll()` prefs hanya di jalur sembuh-korup, `getPackageInfo` hanya dialog/contoh sekali-tampil, pool BG berbatang + tolak tercatat, `PendingIntent` IMMUTABLE + channel O+ berpenjaga versi, tanpa `NetworkOnMainThread`/`Uri.fromFile`/`System.gc`/`printStackTrace`/`Timer`/`AsyncTask`. Tanpa test baru (metode mati tanpa acuan uji; perilaku lain identik). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 58: sapuan penuh, 2 overload mati + 1 onDestroy (Android 5+)
 - `PinActivity.onDestroy` baru: cabut `ui.removeCallbacksAndMessages(null)` — tanpa ini runnable hasil PBKDF2 (`ui.post`) menahan activity yang sudah `finish()` sampai hash 30rb iterasi selesai (detik di STB lama). Perilaku sama; guard `isFinishing()/isDestroyed()` di callback tetap.
 - `SettingsActivity`: buang overload 1-arg `batasiFileExportCache(String)` yang nol pemanggil (hanya varian 2-arg `(String, File[])` yang dipakai sapu cache export). Nama tetap terdefinisi sehingga tanpa catat hapusan.
