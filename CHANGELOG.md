@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi patch menulis annotations GitHub
+- `tools/verifikasi-patch.py`: tiap temuan GAGAL/PERINGATAN juga dipancarkan sebagai perintah workflow `::error`/`::warning` bila jalan di CI (`GITHUB_ACTIONS=true`) — bug, kode sampah, dan celah keamanan langsung muncul sebagai annotation di tab Files; lokasi `berkas:baris` pertama dalam pesan dipakai agar anotasi menempel di baris kode yang tepat. Output lokal tak berubah.
+- `scripts/cek-cepat.sh`: tiap GAGAL ikut ditulis sebagai `::error::` di CI via helper `gagal_msg` (lokal tetap teks biasa).
+
 ## [Belum rilis] — Audit 45: satu pintu watchdog/handler/throttle + hapus poll boros
 - `Util.pasangWatchdogProses` baru (satu pintu): ganti blok watchdog `--version` identik di `ServerService.detectBinaryVersion` + `Updater.detectVersion`; `Util.batalkanTunda` baru: `ServerService` (`handlerBersama`/`handlerUtama`/`posUtama`/`batalUtama`) delegasi ke `Util.postTunda`/`batalkanTunda` — sekaligus perbaiki balapan double-create tanpa kunci di `handlerUtama` lama. (Nama panjang disengaja: `batalTunda` terlarang di `tools/bekas-hapusan.txt`.)
 - `Updater.tungguAtauBunuh` dihapus: poll `exitValue()` tiap 100 ms melempar + isi stack trace tiap tick di ART lama; diganti `ServerService.waitForOrKill` (kini `static` package-visible; waiter+join pra-O, `waitFor(timeout)` di O+).

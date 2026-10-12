@@ -48,6 +48,45 @@ def muat_bekas_hapusan():
 
 
 BEKAS_HAPUSAN = muat_bekas_hapusan()
+
+
+def di_github_actions():
+    """True bila jalan di runner GitHub Actions (punya SDK GitHub: GITHUB_*)."""
+    return os.environ.get("GITHUB_ACTIONS") == "true"
+
+
+def _lolos_properti(s):
+    s = str(s)
+    for lama, baru in (("%", "%25"), ("\r", "%0D"), ("\n", "%0A"),
+                       (":", "%3A"), (",", "%2C")):
+        s = s.replace(lama, baru)
+    return s
+
+
+def _lolos_pesan(s):
+    s = str(s)
+    for lama, baru in (("%", "%25"), ("\r", "%0D"), ("\n", "%0A")):
+        s = s.replace(lama, baru)
+    return s
+
+
+def anotasi(jenis, pesan):
+    """Tulis temuan sebagai annotation GitHub (error/warning) bila di CI.
+
+    Lokasi berkas:baris pertama dalam pesan dipakai agar anotasi menempel di
+    baris kode yang tepat (bug/kode sampah/celah keamanan langsung terlihat
+    di tab Files); tanpa lokasi = anotasi level-run. Di luar CI tak mencetak
+    apa-apa sehingga output lokal tak berubah."""
+    if not di_github_actions():
+        return
+    m = re.search(r"([A-Za-z0-9_./-]+\.(?:java|xml|kts|yml|sh|py|txt)):(\d+)",
+                  str(pesan))
+    if m:
+        print("::%s file=%s,line=%s::%s"
+              % (jenis, _lolos_properti(m.group(1)), m.group(2),
+                 _lolos_pesan(pesan)))
+    else:
+        print("::%s::%s" % (jenis, _lolos_pesan(pesan)))
 # Callback siklus hidup: menghapusnya aman dari sisi acuan (turunkan jadi peringatan).
 OVERRIDE_AMAN = {
     "onCreate", "onStart", "onResume", "onPause", "onStop", "onDestroy",
@@ -760,9 +799,11 @@ def utama():
 
     for w in peringatan:
         print("PERINGATAN: " + w)
+        anotasi("warning", w)
     if gagal:
         for g in gagal:
             print("GAGAL: " + g)
+            anotasi("error", g)
         print("Hasil: GAGAL (%d) — perbaiki sebelum push." % len(gagal))
         return 1
     print("Hasil: LOLOS (%d berkas diperiksa%s)." % (
