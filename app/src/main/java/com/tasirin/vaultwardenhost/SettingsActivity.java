@@ -3715,7 +3715,11 @@ public class SettingsActivity extends Activity {
             return;
         }
         setBusy(true);
-        Util.jalankanBg(() -> {
+        // Pool lama (bukan ringan): semua tugas runBusy menit-lama (unduh
+        // binary/web-vault, backup/restore/unggah Telegram, generate RSA)
+        // sehingga di pool ringan memonopoli thread + membuat cek port dan
+        // refresh terbuang di STB 1 GB (lihat BG_LAMA di Util).
+        Util.jalankanLama(() -> {
             try {
                 task.run();
             } catch (Throwable t) {
