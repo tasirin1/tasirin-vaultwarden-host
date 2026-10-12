@@ -2271,12 +2271,17 @@ public class ServerService extends Service {
                 }
             };
 
-    private void appendLog(String line) {
-        if (line == null) {
-            return;
-        }
+    /** Stempel + tempel satu baris ke buffer bersama (satu pintu
+     *  appendLog/catatLog): Date milik thread dipakai ulang + rantai append
+     *  (bukan stamp + " " + line) agar log deras tak alokasi per baris di
+     *  STB lama. Kembalikan stempel untuk kelanjutan file-log pemanggil. */
+    private static String tulisBarisLog(String line) {
+        // Date milik thread dipakai ulang (pola appendLog): log deras
+        // tak alokasi Date per baris di STB lama.
         String stamp;
-        stamp = LOG_TS.get().format(tanggalLog());
+        java.util.Date tgl = LOG_TGL.get();
+        tgl.setTime(System.currentTimeMillis());
+        stamp = LOG_TS.get().format(tgl);
         synchronized (logBuffer) {
             // Rantai append (bukan stamp + " " + line): hemat satu String
             // perantara tiap baris log deras di STB lama.
@@ -2284,6 +2289,14 @@ public class ServerService extends Service {
             pangkasBufferTerkunci();
             logVer++;
         }
+        return stamp;
+    }
+
+    private void appendLog(String line) {
+        if (line == null) {
+            return;
+        }
+        String stamp = tulisBarisLog(line);
         if (logFile != null) {
             synchronized (LOG_FILE_LOCK) {
                 logFileBuf.append(stamp).append(' ').append(line).append('\n');
@@ -2681,17 +2694,9 @@ public class ServerService extends Service {
                 return ipCache;
             }
         }
-        List<String> ips = collectIps();
-        String pilih = "127.0.0.1";
-        if (!ips.isEmpty()) {
-            pilih = ips.get(0);
-            for (String ip : ips) {
-                if (ip != null && !ip.isEmpty() && ip.indexOf(':') < 0) {
-                    pilih = ip;
-                    break;
-                }
-            }
-        }
+        // Seleksi satu pintu via lanHost() (dulu salinan logika pilih
+        // IPv4-pertama di sini + di lanHost): hasil identik persis.
+        String pilih = lanHost();
         synchronized (IP_LOCK) {
             ipCache = pilih;
             ipCacheTime = now;
@@ -3877,19 +3882,7 @@ public class ServerService extends Service {
         if (line == null) {
             return;
         }
-        // Date milik thread dipakai ulang (pola appendLog): log deras
-        // tak alokasi Date per baris di STB lama.
-        String stamp;
-        java.util.Date tgl = LOG_TGL.get();
-        tgl.setTime(System.currentTimeMillis());
-        stamp = LOG_TS.get().format(tgl);
-        synchronized (logBuffer) {
-            // Rantai append (bukan stamp + " " + line): hemat satu String
-            // perantara tiap baris log deras di STB lama.
-            logBuffer.append(stamp).append(' ').append(line).append('\n');
-            pangkasBufferTerkunci();
-            logVer++;
-        }
+        tulisBarisLog(line);
     }
 
     /** Pangkas buffer log di batas code-point (wajib dalam lock logBuffer).

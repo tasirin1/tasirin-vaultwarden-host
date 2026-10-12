@@ -128,11 +128,14 @@ public class PinActivity extends Activity {
             final boolean hasil = cocok;
             ui.post(() -> {
                 sedangPeriksa = false;
+                // Cegah race: rotate/keluar saat PBKDF2 jalan — jangan sentuh
+                // view mati di semua cabang (bukan hanya sukses).
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
                 bukaBtn.setEnabled(true);
                 bersihkanInput();
                 if (hasil) {
-                    // Cegah race: activity sudah finish/destroy jangan buka kunci.
-                    if (isFinishing() || isDestroyed()) return;
                     PinGate.bukaKunciBersama();
                     setResult(RESULT_OK);
                     finish();

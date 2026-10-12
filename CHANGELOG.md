@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 49: dedup jalur log + seleksi IP + guard view mati
+- `ServerService.tulisBarisLog()` baru (satu pintu): ganti badan stempel+tempel 12-baris identik di `appendLog` (instans, + file-log) dan `catatLog` (statis). Perilaku sama persis.
+- `ServerService.localIp()`: delegasikan seleksi IPv4-pertama ke `lanHost()` (dulu salinan logika identik di dua tempat); cache 60 dtk tak berubah.
+- `PinActivity`: pindahkan guard `isFinishing/isDestroyed` ke puncak callback hasil-PIN agar cabang galat (`tampilGalat`) tak menyentuh view mati saat rotate/keluar tepat selama PBKDF2 berjalan.
+- Sapuan putaran tiga (temuan lain nihil, tanpa churn): health/IP (peringatan sekali per IP + restart bila stabil 2 tick, TCP-lolos 3x anti positif-palsu), `latestVersion` (TTL 15 mnt + jeda-gagal 60 dtk), `schedule` harian (exact + fallback inexact + sapu alarm lawas), `pollOnce`/`handleCommand` (gerbang grup + PIN + offset at-most-once), `notifyLowStorage` (latch sekali), `segarkanTrustAnchor` (1x/hari), `healkanStringPrefs` (hanya di onCreate/Start/receiver harian — tak di poll 20 dtk), debounce tulis prefs + siram saat pause, `PinActivity` (PBKDF2 di pool lama + hash-upgrade TOCTOU-aman).
+- Tanpa test baru: dedup pemanggilan + guard lifecycle (butuh runtime Android); verifikasi via `verifikasi-patch` (LOLOS) + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 48: satu pintu reset penanda + pabrik pool pesan
 - `ServerService.resetPenandaJalan()` baru (satu pintu): ganti 4 blok reset 8-field identik (`runningDataDir/Port/Https/AdminToken/WvFrom/LanHost` + 3 pelacak IP) di jalur gagal-start, stopper, stop-tanpa-proses, dan healthFail. Tambah field baru dulu hanya di sebagian jalur = status basi (drift sudah terlihat: indentasi 2 baris melenceng di blok stopper); WakeLock/log/status tetap di pemanggil karena beda tiap jalur. Perilaku sama persis.
 - `TgBackup.pabrikPesan()` + `tolakPesan()` baru (satu pintu lokal): ganti 2 blok konstruksi `ThreadPoolExecutor` + handler-tolak identik (`TG_MSG_EXEC`/`TG_PENTING_EXEC`, ~45 baris duplikat) — lajur prioritas tetap terpisah, teks log biasa/penting dipertahankan via parameter. Catatan verifikasi: peringatan `new Thread(` pada diff ini false-positive — berada di dalam `ThreadFactory` pool berbatang (maks 1 thread per pool, dipakai ulang), bukan `new Thread` per tugas.
