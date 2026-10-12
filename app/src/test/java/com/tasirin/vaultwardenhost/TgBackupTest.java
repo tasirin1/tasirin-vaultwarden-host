@@ -46,6 +46,12 @@ public class TgBackupTest {
     }
 
     @Test
+    public void cleanupOldBackups_nolAman() {
+        TgBackup.cleanupOldBackups(null);
+        TgBackup.cleanupOldBackups(new java.io.File("/jalan/tak/ada/vw-uji-nol"));
+    }
+
+    @Test
     public void filePathTelegram_tolakTraversal() {
         assertTrue(TgBackup.filePathTelegramAman("documents/backup-telegram-abc.zip"));
         assertTrue(TgBackup.filePathTelegramAman("f/1.zip"));

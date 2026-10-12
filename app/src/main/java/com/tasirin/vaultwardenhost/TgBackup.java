@@ -1554,6 +1554,9 @@ public final class TgBackup {
     }
 
     public static void cleanupOldBackups(File backupDir) {
+        if (backupDir == null) {
+            return;
+        }
         File[] all = backupDir.listFiles();
         if (all == null) {
             return;

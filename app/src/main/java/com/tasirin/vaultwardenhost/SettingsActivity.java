@@ -2667,6 +2667,9 @@ public class SettingsActivity extends Activity {
 
     /** Isi folder backups dengan cache 5 dtk (dipakai dua baris info). */
     private File[] daftarBackup(File backupDir) {
+        if (backupDir == null) {
+            return null;
+        }
         // Jam monotonik: wall-clock mundur (NTP) membekukan daftar sampai jam mengejar.
         long now = SystemClock.elapsedRealtime();
         String kunci = backupDir.getAbsolutePath();

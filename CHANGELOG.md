@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 46: guard null retensi backup (Android 6+)
+- `TgBackup.cleanupOldBackups`: tambah guard `backupDir == null` — selaras `namaFileDi`/`sapuExportEnkripLama` yang sudah berpenjaga; cegah NPE crash bila dipanggil dengan folder null di jalur backup/restore.
+- `SettingsActivity.daftarBackup`: tambah guard `backupDir == null → null` — pemanggil (`dbInfoLine`/`storageInfoLine`) sudah menangani `null` (`files == null ? 0`), cegah NPE `getAbsolutePath` bila prefs folder korup.
+- Test: `TgBackupTest.cleanupOldBackups_nolAman` (null + path tak ada, murni JVM).
+- Sapuan penuh 21 berkas: tanpa import mati, tanpa method privat mati, `commit()` sinkron semua beralasan daya-tahan, `Pattern` statis, buffer 64 KB, `getColor`/`getPackageInfo` lawas disengaja satu jalur API 21-32, `PendingIntent` IMMUTABLE berpenjaga M+, channel O+ berpenjaga, exact-alarm fallback inexact — nihil temuan lain sehingga tanpa churn tambahan.
+
 ## [Belum rilis] — Verifikasi patch menulis annotations GitHub
 - `tools/verifikasi-patch.py`: tiap temuan GAGAL/PERINGATAN juga dipancarkan sebagai perintah workflow `::error`/`::warning` bila jalan di CI (`GITHUB_ACTIONS=true`) — bug, kode sampah, dan celah keamanan langsung muncul sebagai annotation di tab Files; lokasi `berkas:baris` pertama dalam pesan dipakai agar anotasi menempel di baris kode yang tepat. Output lokal tak berubah.
 - `scripts/cek-cepat.sh`: tiap GAGAL ikut ditulis sebagai `::error::` di CI via helper `gagal_msg` (lokal tetap teks biasa).
