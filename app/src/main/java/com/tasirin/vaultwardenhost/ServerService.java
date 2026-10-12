@@ -316,6 +316,22 @@ public class ServerService extends Service {
         Util.batalkanTunda(r);
     }
 
+    /** Nol-kan 8 penanda jalan sekaligus (satu pintu): blok reset identik
+     *  tersebar di 4 jalur (gagal start, stopper, stop-tanpa-proses,
+     *  healthFail) — tambah field baru dulu hanya di sebagian jalur =
+     *  status basi. WakeLock/log/status tetap di pemanggil (beda tiap jalur). */
+    private static void resetPenandaJalan() {
+        runningDataDir = "";
+        runningPort = "";
+        runningHttps = false;
+        runningAdminToken = "";
+        runningWvFrom = "";
+        runningLanHost = "";
+        ipBerubahDiperingatkan = "";
+        ipBaruKandidat = "";
+        ipBaruHitung = 0;
+    }
+
     private static volatile Process process;
     /** Proses yang diminta berhenti sengaja (per-proses, bukan boolean global):
      *  watchProcess hanya mengabaikan exit milik proses ini agar Stop lalu Start cepat
@@ -1691,15 +1707,7 @@ public class ServerService extends Service {
             running = false;
             // Bersihkan penanda jalan agar health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
-            runningDataDir = "";
-            runningPort = "";
-            runningHttps = false;
-            runningAdminToken = "";
-            runningWvFrom = "";
-            runningLanHost = "";
-            ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
+            resetPenandaJalan();
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
@@ -1737,15 +1745,7 @@ public class ServerService extends Service {
                     if (process == p) {
                         process = null;
                         running = false;
-                        runningDataDir = "";
-                        runningPort = "";
-                        runningHttps = false;
-                        runningAdminToken = "";
-                        runningWvFrom = "";
-                        runningLanHost = "";
-                        ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
+                        resetPenandaJalan();
                         releaseWakeLock();
                         flushLogFile();
                         setStatus("Stopped");
@@ -1759,15 +1759,7 @@ public class ServerService extends Service {
             setStatus("Stopped");
             prosesStopDisengaja = null;
             running = false;
-            runningDataDir = "";
-            runningPort = "";
-            runningHttps = false;
-            runningAdminToken = "";
-            runningWvFrom = "";
-            runningLanHost = "";
-            ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
+            resetPenandaJalan();
             releaseWakeLock();
             flushLogFile();
         }
@@ -2444,15 +2436,7 @@ public class ServerService extends Service {
             // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
             // proses bisa mati tepat di jeda cek-vs-eksekusi sehingga p null.
             running = false;
-            runningDataDir = "";
-            runningPort = "";
-            runningHttps = false;
-            runningAdminToken = "";
-            runningWvFrom = "";
-            runningLanHost = "";
-            ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
+            resetPenandaJalan();
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");

@@ -90,45 +90,63 @@ public final class TgBackup {
     }
 
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
+
+    /** Pabrik thread daemon satu pola untuk kedua antrean pesan (biasa +
+     *  penting): nama beda agar jejak thread terpilah di logcat. */
+    private static java.util.concurrent.ThreadFactory pabrikPesan(final String nama) {
+        return r -> {
+            Thread t = new Thread(r, nama);
+            t.setDaemon(true);
+            return t;
+        };
+    }
+
+    /** Penangan tolak antrean pesan: buang tertua + jejak log, tanpa
+     *  execute() ulang (antrean bisa penuh lagi oleh thread lain di antara
+     *  poll-offer sehingga ber-rekursi hingga StackOverflow di STB).
+     *  Varian lokal TgBackup (bukan Util.penanganAntreanPenuh): membawa
+     *  catatLog server + cek shutdown yang tak berlaku umum. Teks dibedakan
+     *  biasa/penting agar saringan logcat tetap memisahkan sumbernya. */
+    private static java.util.concurrent.RejectedExecutionHandler tolakPesan(
+            final String gugur, final String penuh, final String catat) {
+        return (tugas, eksekutor) -> {
+            try {
+                if (!eksekutor.isShutdown()) {
+                    eksekutor.getQueue().poll();
+                    if (!eksekutor.getQueue().offer(tugas)) {
+                        try {
+                            android.util.Log.w("TgBackup", gugur);
+                        } catch (Exception ignored2) {
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                android.util.Log.w("TgBackup", penuh);
+            } catch (Exception ignored) {
+            }
+            try {
+                ServerService.catatLog(catat);
+            } catch (Exception ignored) {
+            }
+        };
+    }
     // Satu worker berantre untuk pesan Telegram: hemat thread (sebelumnya satu
     // thread baru per pesan) sekaligus menjaga urutan pengiriman.
     // Antrean dibatasi 20 + buang tertua: saat Telegram lama tak terjangkau,
     // pesan basi (mis. "Server jalan" berjam-jam lalu) tak menumpuk OOM di
     // STB 1 GB dan tak terkirim menyesatkan; pesan terbaru selalu diprioritaskan.
+    // Tetap anti-OOM (buang tertua) tapi jangan bungkam: pesan kritis
+    // (PIN terkunci, restore gagal, crash) yang gugur wajib jejak di log.
     private static final ExecutorService TG_MSG_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
                     java.util.concurrent.TimeUnit.MILLISECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20), r -> {
-                Thread t = new Thread(r, "vw-tgmsg");
-                t.setDaemon(true);
-                return t;
-            }, (tugas, eksekutor) -> {
-                // Tetap anti-OOM (buang tertua) tapi jangan bungkam: pesan kritis
-                // (PIN terkunci, restore gagal, crash) yang gugur wajib jejak di log.
-                // Tanpa execute() ulang: antrean bisa penuh lagi oleh thread lain
-                // di antara poll-execute sehingga handler ber-rekursi hingga
-                // StackOverflow di STB. Tawarkan sekali via offer.
-                try {
-                    if (!eksekutor.isShutdown()) {
-                        eksekutor.getQueue().poll();
-                        if (!eksekutor.getQueue().offer(tugas)) {
-                            try {
-                                android.util.Log.w("TgBackup", "Pesan gugur, antrean tetap penuh.");
-                            } catch (Exception ignored2) {
-                            }
-                        }
-                    }
-                } catch (Exception ignored) {
-                }
-                try {
-                    android.util.Log.w("TgBackup", "Antrean pesan Telegram penuh, pesan tertua dibuang.");
-                } catch (Exception ignored) {
-                }
-                try {
-                    ServerService.catatLog("[tg] Antrean pesan penuh, pesan tertua dibuang.");
-                } catch (Exception ignored) {
-                }
-            });
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20),
+                    pabrikPesan("vw-tgmsg"),
+                    tolakPesan("Pesan gugur, antrean tetap penuh.",
+                            "Antrean pesan Telegram penuh, pesan tertua dibuang.",
+                            "[tg] Antrean pesan penuh, pesan tertua dibuang."));
 
     private static final String ENC_MAGIC = "VWB1";
     /** Magic file baru (PBKDF2-HMAC-SHA256 saja): penanda KDF agar password salah
@@ -781,35 +799,11 @@ public final class TgBackup {
     private static final ExecutorService TG_PENTING_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
                     java.util.concurrent.TimeUnit.MILLISECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20), r -> {
-                Thread t = new Thread(r, "vw-tgmsg-penting");
-                t.setDaemon(true);
-                return t;
-            }, (tugas, eksekutor) -> {
-                // Selaras TG_MSG_EXEC: tetap anti-OOM tapi kabar kritis yang
-                // gugur wajib jejak di log, bukan hilang sunyi.
-                // Tanpa execute() ulang (anti-rekursi StackOverflow, lihat atas).
-                try {
-                    if (!eksekutor.isShutdown()) {
-                        eksekutor.getQueue().poll();
-                        if (!eksekutor.getQueue().offer(tugas)) {
-                            try {
-                                android.util.Log.w("TgBackup", "Pesan penting gugur, antrean penuh.");
-                            } catch (Exception ignored2) {
-                            }
-                        }
-                    }
-                } catch (Exception ignored) {
-                }
-                try {
-                    android.util.Log.w("TgBackup", "Antrean pesan penting penuh, pesan tertua dibuang.");
-                } catch (Exception ignored) {
-                }
-                try {
-                    ServerService.catatLog("[tg] Antrean pesan penting penuh, pesan tertua dibuang.");
-                } catch (Exception ignored) {
-                }
-            });
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20),
+                    pabrikPesan("vw-tgmsg-penting"),
+                    tolakPesan("Pesan penting gugur, antrean penuh.",
+                            "Antrean pesan penting penuh, pesan tertua dibuang.",
+                            "[tg] Antrean pesan penting penuh, pesan tertua dibuang."));
 
     /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
      *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
