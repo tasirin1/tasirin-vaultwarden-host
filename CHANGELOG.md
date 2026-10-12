@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 57: sapuan penuh semua area (nihil temuan, Android 5+)
+- Diverifikasi tanpa perubahan kode: alur Start (env, shim, smoke test, kill-stale, TLS, bind), health+restart backoff, unduh binary/shim/web-vault (resume, SHA-256, zip-slip, batas zip-bomb), backup/restore (WAL checkpoint, quick_check, enkripsi, allowlist), dispatch bot + polling, redaksi rahasia, tick Main/Settings/Log (memo versi, gerbang StringBuilder, cache IP/URL/prefs TTL), PBKDF2 + fallback manual, factory TLS + cap override, provider kanonis ganda, receiver anti-spoof + throttle, izin/storage berpenjaga versi. Tanpa import/metode/field mati, tanpa `String.format`/`split`/trim-case di jalur panas, tanpa I/O berat di UI thread, tanpa `System.gc`/`printStackTrace`/`available()`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh tetap di CI.
+
 ## [Belum rilis] — Audit 56: satu pintu magic SQLite (Android 5+)
 - `TgBackup.MAGIC_SQLITE` baru (satu pintu): 3 situs cek header SQLite (`isSqliteFile`, cek header zip, validasi restore `SettingsActivity`) dulu `getBytes` per panggil — termasuk loop tunggu-DB 500 ms hingga 60x per backup otomatis. Kini konstanta `static final` sekali-encode (ASCII = byte identik dengan varian UTF-8 lama). Perilaku identik; tanpa test baru (byte magic dicakup `TgBackupTest` yang ada). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
