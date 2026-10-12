@@ -313,7 +313,7 @@ public class ServerService extends Service {
         Util.postTunda(r, tundaMs);
     }
     private static void batalUtama(Runnable r) {
-        Util.batalTunda(r);
+        Util.batalkanTunda(r);
     }
 
     private static volatile Process process;

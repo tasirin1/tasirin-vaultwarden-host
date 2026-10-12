@@ -8,3 +8,4 @@ batalTunda
 isLegacyDevice
 tokenPertama
 slowHexEquals
+tungguAtauBunuh

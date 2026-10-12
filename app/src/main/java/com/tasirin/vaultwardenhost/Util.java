@@ -330,8 +330,10 @@ public final class Util {
 
     /** Batalkan runnable tertunda di looper utama (best-effort, abaikan bila tak ada).
      *  Satu pintu pasangan postTunda: ServerService dulunya punya salinan
-     *  batalUtama+handler sendiri (duplikat + balapan double-create tanpa kunci). */
-    public static void batalTunda(Runnable r) {
+     *  batalUtama+handler sendiri (duplikat + balapan double-create tanpa kunci).
+     *  Nama batalkanTunda (bukan batalTunda): nama pendeknya terlarang di
+     *  tools/bekas-hapusan.txt (metode mati yang dibuang audit-38). */
+    public static void batalkanTunda(Runnable r) {
         if (r == null) {
             return;
         }

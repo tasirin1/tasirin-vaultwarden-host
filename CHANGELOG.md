@@ -1,10 +1,10 @@
 # Changelog
 
 ## [Belum rilis] — Audit 45: satu pintu watchdog/handler/throttle + hapus poll boros
-- `Util.pasangWatchdogProses` baru (satu pintu): ganti blok watchdog `--version` identik di `ServerService.detectBinaryVersion` + `Updater.detectVersion`; `Util.batalTunda` baru: `ServerService` (`handlerBersama`/`handlerUtama`/`posUtama`/`batalUtama`) delegasi ke `Util.postTunda`/`batalTunda` — sekaligus perbaiki balapan double-create tanpa kunci di `handlerUtama` lama.
+- `Util.pasangWatchdogProses` baru (satu pintu): ganti blok watchdog `--version` identik di `ServerService.detectBinaryVersion` + `Updater.detectVersion`; `Util.batalkanTunda` baru: `ServerService` (`handlerBersama`/`handlerUtama`/`posUtama`/`batalUtama`) delegasi ke `Util.postTunda`/`batalkanTunda` — sekaligus perbaiki balapan double-create tanpa kunci di `handlerUtama` lama. (Nama panjang disengaja: `batalTunda` terlarang di `tools/bekas-hapusan.txt`.)
 - `Updater.tungguAtauBunuh` dihapus: poll `exitValue()` tiap 100 ms melempar + isi stack trace tiap tick di ART lama; diganti `ServerService.waitForOrKill` (kini `static` package-visible; waiter+join pra-O, `waitFor(timeout)` di O+).
 - `TgBackup.bacaStempelThrottle`/`simpanStempelThrottle` baru (satu pintu): ganti salinan baca/tulis throttle identik di `AlarmReceiver` + `BootReceiver` (perilaku sama persis, nama method receiver dipertahankan).
-- Test: 4 test baru `UtilTest` (watchdog hancurkan saat macet / diam saat selesai / diam saat interupsi; `batalTunda` aman tanpa Looper).
+- Test: 4 test baru `UtilTest` (watchdog hancurkan saat macet / diam saat selesai / diam saat interupsi; `batalkanTunda` aman tanpa Looper) + 2 test `ServerServiceTest` (`waitForOrKill` mati-cepat/timeout); `tungguAtauBunuh` dicatat di `tools/bekas-hapusan.txt`.
 - Sapuan bersih (temuan nihil): tanpa metode/field privat mati, vektor patuh `0.x`, warna night sinkron, paritas ID layout portrait-landscape, paritas string EN/ID, `disconnect()` semua jalur koneksi, interrupt selalu restore (kecuali watchdog yang memang exit), foreground tepat di semua action service, tanpa `Random`/`System.gc`/`available()`/`toLowerCase()` tanpa Locale.
 
 ## [Belum rilis] — Audit 44: sapuan dalam kripto/restore/restart (nihil temuan)

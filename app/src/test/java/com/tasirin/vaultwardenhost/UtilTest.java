@@ -420,10 +420,10 @@ public class UtilTest {
     }
 
     @Test
-    public void batalTundaAmanTanpaLooper() {
+    public void batalkanTundaAmanTanpaLooper() {
         // JVM unit test tanpa Looper: best-effort tanpa-lempar (termasuk null).
-        Util.batalTunda(null);
-        Util.batalTunda(() -> {
+        Util.batalkanTunda(null);
+        Util.batalkanTunda(() -> {
         });
         Util.postTunda(null, 100);
     }

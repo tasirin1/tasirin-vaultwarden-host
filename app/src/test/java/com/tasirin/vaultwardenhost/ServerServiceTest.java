@@ -607,4 +607,51 @@ public class ServerServiceTest {
             tahan.close();
         }
     }
+
+    /** Proses langsung mati: waitForOrKill true cepat (jalur waiter+join pra-O di JVM). */
+    static class ProsesMati extends Process {
+        @Override public java.io.OutputStream getOutputStream() {
+            return new java.io.ByteArrayOutputStream();
+        }
+        @Override public java.io.InputStream getInputStream() {
+            return new java.io.ByteArrayInputStream(new byte[0]);
+        }
+        @Override public java.io.InputStream getErrorStream() {
+            return new java.io.ByteArrayInputStream(new byte[0]);
+        }
+        @Override public int waitFor() {
+            return 0;
+        }
+        @Override public int exitValue() {
+            return 0;
+        }
+        @Override public void destroy() {
+        }
+    }
+
+    @Test
+    public void tungguProsesMatiCepat() throws Exception {
+        assertTrue(ServerService.waitForOrKill(new ProsesMati(), 2000));
+    }
+
+    @Test
+    public void tungguProsesMacetTimeout() throws Exception {
+        Process macet = new ProsesMati() {
+            @Override public int waitFor() {
+                try {
+                    Thread.sleep(30_000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                return 0;
+            }
+            @Override public int exitValue() {
+                throw new IllegalThreadStateException();
+            }
+        };
+        long mulai = System.nanoTime();
+        assertFalse(ServerService.waitForOrKill(macet, 300));
+        // Kembali sekitar timeout, bukan 30 detik penuh.
+        assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
+    }
 }
