@@ -119,7 +119,10 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
    kerja. Alur wajib: edit → `git commit` → `git push origin main`
    (lihat "Verifikasi setelah build"). Jangan memantau build dengan
    `gh run watch` kecuali pengguna eksplisit menyuruh memantau.
-   Tidak ada pengecualian.
+   Tidak ada pengecualian. Dilarang menginstal apa pun yang berat di mesin
+   lokal (SDK Android/cmdline-tools, emulator/system-image, NDK, dan sejenisnya)
+   — jangan unduh ratusan MB–GB ke mesin kerja untuk alasan apa pun, termasuk
+   "cuma SDK saja" atau "cuma emulator".
 2. **Bahasa**: kode, komentar, dan commit memakai **Bahasa Indonesia**;
   bahasa default aplikasi (resource string + teks UI) dan README memakai
   **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
