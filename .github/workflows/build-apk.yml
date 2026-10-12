@@ -1,22 +1,9 @@
 name: Build APK
 
 on:
-  push:
-    branches: [ main ]
-    # Commit dokumen + shim saja tak menyentuh APK: hemat satu build.
-    # (Perubahan shim/patch-binary ditangani workflow Build Binary & Web-Vault.)
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
-      - 'shim/**'
-      - '.github/workflows/build-binary.yml'
+  # Manual saja via tombol Run workflow (tanpa build otomatis:
+  # hemat kuota; push app maupun rilis binary baru tak memicu APK).
   workflow_dispatch:
-  # Ikut jalan saat workflow binary selesai: tag upstream baru butuh APK
-  # pendamping (vw_version.txt ikut naik). Dilewati bila APK sudah ada.
-  workflow_run:
-    workflows: [Build Binary & Web-Vault]
-    types: [completed]
-    branches: [main]
 
 permissions:
   contents: write
@@ -70,18 +57,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Push/manual: selalu bangun. workflow_run: hanya bila binary sukses
-          # dan APK belum ada di rilis (tag upstream baru); bila APK sudah ada
-          # (mis. push shim-only), lewati agar versionCode tak churn sia-sia.
+          # Pemicu manual: selalu bangun (tak ada pemicu otomatis lagi).
           YA=yes
           ALASAN="pemicu ${{ github.event_name }}"
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
-              YA=no; ALASAN="workflow binary tidak sukses"
-            elif gh release view "v${{ needs.resolve.outputs.vw }}" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "tasirin-vaultwarden-host-armeabi-v7a.apk"; then
-              YA=no; ALASAN="APK sudah ada di rilis"
-            fi
-          fi
           echo "bangun=$YA ($ALASAN)"
           echo "ya=$YA" >> "$GITHUB_OUTPUT"
 

@@ -51,6 +51,6 @@
 
 ## Разработчикам и лицензия
 
-См. [AGENTS.md](AGENTS.md). Сборка только через GitHub Actions (push в `main`, раздельно: binary и APK); `targetSdk 28` — осознанно; бинарник никогда не входит в APK.
+См. [AGENTS.md](AGENTS.md). Сборка только через GitHub Actions (binary: раз в месяц 1-го числа при обновлении upstream + вручную; APK: только вручную через Run workflow); `targetSdk 28` — осознанно; бинарник никогда не входит в APK.
 
 Приложение: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

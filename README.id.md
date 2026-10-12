@@ -52,6 +52,6 @@ Tampilan satu kolom vertikal (portrait + landscape sama): kartu tautan di atas, 
 
 ## Pengembang & lisensi
 
-Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (push ke `main`, terpisah: binary vs APK); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
+Lihat [AGENTS.md](AGENTS.md). Build hanya via GitHub Actions (binary: jadwal bulanan tiap tanggal 1 bila upstream ada update + manual; APK: manual saja via Run workflow); `targetSdk 28` disengaja; tanpa bundel binary ke APK.
 
 App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

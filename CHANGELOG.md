@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Jadwal rilis bulanan + APK manual
+- `build-binary.yml`: `schedule` tiap 12 jam → sebulan sekali tiap tanggal 1 (`0 0 1 * *`); tetap skip bila binary/web-vault untuk tag upstream sudah ada, jadi bangun hanya bila ada update Vaultwarden.
+- `build-apk.yml`: hapus pemicu otomatis (`push` + `workflow_run`); APK hanya via `workflow_dispatch` manual. Job `perlu` disederhanakan jadi selalu bangun.
+- `AGENTS.md` + `README.md`/`README.id.md`/`README.ru.md`: dokumen selaras (jadwal bulanan, APK manual).
+
 ## [Belum rilis] — Audit agresif 41: dokumen selaras + sapuan D-pad/batas aman
 - `AGENTS.md`: klaim basi "15 kelas test" di dua tempat (struktur + aturan unit test) selaras jadi 17 (`HttpsCompat`, `MainActivity` hilang dari daftar); dokumen basi menyesatkan sesi AI berikut.
 - Tanpa ubah kode aplikasi: sapuan 9 area berikut bersih sehingga sisipan диф hanya menambah risiko regresi tanpa untung.

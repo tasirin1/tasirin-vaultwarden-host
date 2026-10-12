@@ -51,6 +51,6 @@ Single vertical column layout (portrait and landscape share the same order): lin
 
 ## Developers & license
 
-See [AGENTS.md](AGENTS.md). Build only via GitHub Actions (push to `main`, split: binary vs APK); `targetSdk 28` is intentional; binary never bundled in the APK.
+See [AGENTS.md](AGENTS.md). Build only via GitHub Actions (binary: monthly schedule on the 1st if upstream updated + manual; APK: manual only via Run workflow); `targetSdk 28` is intentional; binary never bundled in the APK.
 
 App: GPL-3.0 (`LICENSE`). Vaultwarden: AGPL-3.0 (`LICENSE.vaultwarden`).

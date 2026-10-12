@@ -9,9 +9,10 @@ on:
       - '.github/workflows/build-binary.yml'
       - 'shim/**'
   workflow_dispatch:
-  # Auto-rebuild beberapa jam setelah Vaultwarden rilis versi baru
+  # Cek bulanan tiap tanggal 1: hanya bangun bila ada versi upstream baru
+  # (binary/web-vault berubah); resolve skip bila rilis tag itu sudah ada.
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 0 1 * *'
 
 permissions:
   contents: write

@@ -109,10 +109,11 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
   Rusia); log diagnostik dan pesan bot Telegram tetap Indonesia.
 3. **Gaya commit**: `feat:` / `fix:` / `docs:` / `chore:` / `perf:` + deskripsi
-   singkat (contoh di `git log`). Satu commit satu tujuan logis. Push kode aplikasi
-   hanya memicu build APK ringan (~4 menit); build binary berat (~15 menit) hanya
-   jalan bila `shim/`/`build-binary.yml` berubah atau ada versi upstream baru — jadi
-   gabungkan perubahan kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).
+   singkat (contoh di `git log`). Satu commit satu tujuan logis. APK **tidak**
+   dibangun otomatis (hanya manual via Run workflow, ~4 menit); build binary berat
+   (~15 menit) hanya jalan bila `shim/`/`build-binary.yml` berubah atau jadwal
+   bulanan menemukan versi upstream baru — jadi gabungkan perubahan kecil dalam
+   satu commit (commit dokumen `*.md` saja dilewati CI).
 4. **Jangan menaikkan `targetSdk` ≥ 29** tanpa solusi eksekusi binary:
    Android 10+ memblokir `execve` dari app home untuk targetSdk ≥ 29 (W^X).
 5. **Jangan menambah ABI lain** — repo ini sengaja `armeabi-v7a` saja
@@ -159,8 +160,9 @@ Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
 coba ulang). Cache cargo dipakai ulang antar run binary.
 
 **A. `build-binary.yml` (berat, ~15 mnt)** — `push` yang menyentuh
-`build-binary.yml`/`shim/**` saja, `schedule` tiap 12 jam (cek versi upstream;
-skip bila rilis untuk tag tersebut sudah ada), dan `workflow_dispatch`:
+`build-binary.yml`/`shim/**` saja, `schedule` sebulan sekali tiap tanggal 1
+(cek versi upstream; skip bila binary/web-vault untuk tag tersebut sudah ada),
+dan `workflow_dispatch`:
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
 2. **build-binary** — satu job untuk binary + shim agar NDK (~500 MB) cukup
@@ -180,13 +182,11 @@ skip bila rilis untuk tag tersebut sudah ada), dan `workflow_dispatch`:
    hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
    ganti versi upstream).
 
-**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` (kecuali dokumen,
-`shim/`, `build-binary.yml`), `workflow_dispatch`, dan `workflow_run` setelah
-workflow binary sukses (untuk tag upstream baru; dilewati bila APK sudah ada
-di rilis agar `versionCode` tak churn sia-sia):
+**B. `build-apk.yml` (ringan, ~4 mnt)** — **manual saja** via `workflow_dispatch`
+(tanpa pemicu otomatis: push app maupun rilis binary baru tak memicu APK):
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
-2. **perlu** — putuskan perlu bangun atau lewati (lihat di atas).
+2. **perlu** — selalu bangun (pemicu manual; tanpa logika lewati otomatis).
 3. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
    `assembleDebug` + `lintDebug` + `testDebugUnitTest` + `assembleRelease`
    (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.
