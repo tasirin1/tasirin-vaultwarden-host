@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 45: satu pintu watchdog/handler/throttle + hapus poll boros
+- `Util.pasangWatchdogProses` baru (satu pintu): ganti blok watchdog `--version` identik di `ServerService.detectBinaryVersion` + `Updater.detectVersion`; `Util.batalTunda` baru: `ServerService` (`handlerBersama`/`handlerUtama`/`posUtama`/`batalUtama`) delegasi ke `Util.postTunda`/`batalTunda` — sekaligus perbaiki balapan double-create tanpa kunci di `handlerUtama` lama.
+- `Updater.tungguAtauBunuh` dihapus: poll `exitValue()` tiap 100 ms melempar + isi stack trace tiap tick di ART lama; diganti `ServerService.waitForOrKill` (kini `static` package-visible; waiter+join pra-O, `waitFor(timeout)` di O+).
+- `TgBackup.bacaStempelThrottle`/`simpanStempelThrottle` baru (satu pintu): ganti salinan baca/tulis throttle identik di `AlarmReceiver` + `BootReceiver` (perilaku sama persis, nama method receiver dipertahankan).
+- Test: 4 test baru `UtilTest` (watchdog hancurkan saat macet / diam saat selesai / diam saat interupsi; `batalTunda` aman tanpa Looper).
+- Sapuan bersih (temuan nihil): tanpa metode/field privat mati, vektor patuh `0.x`, warna night sinkron, paritas ID layout portrait-landscape, paritas string EN/ID, `disconnect()` semua jalur koneksi, interrupt selalu restore (kecuali watchdog yang memang exit), foreground tepat di semua action service, tanpa `Random`/`System.gc`/`available()`/`toLowerCase()` tanpa Locale.
+
 ## [Belum rilis] — Audit 44: sapuan dalam kripto/restore/restart (nihil temuan)
 - Diverifikasi tanpa perubahan kode: enkripsi backup (salt+IV acak per berkas, GCM, batas iterasi KDF, password dinolkan, plaintext parsial dihapus saat gagal); ekstraksi restore (allowlist + kanonis ganda + batas zip-bomb + buang -wal/-shm basi); restart (backoff 2/5/10/20/40 dtk + rem loop 5 mnt monotonik); sanitasi versi bot (regex allowlist, tolak traversal URL); request code PendingIntent unik (0/3/101/...); validasi port inline selaras normalisasi; `tanpaKuota` (tolak VPN + metered, dual jalur API 21/23).
 - Keputusan: tanpa diff kode — basis sudah bersih, perubahan tanpa temuan hanya menambah risiko regresi tanpa untung (prinsip audit-41).

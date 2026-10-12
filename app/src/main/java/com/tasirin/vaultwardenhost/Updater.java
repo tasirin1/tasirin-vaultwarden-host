@@ -2171,27 +2171,10 @@ public final class Updater {
             Process p = pb.start();
             // Watchdog 10 detik: readLine() memblokir selamanya bila binary
             // macet tanpa output; destroy terjadwal menutup pipa sehingga
-            // baca balik EOF (batas tungguAtauBunuh di bawah saja tak cukup).
-            final Process versiProc = p;
-            // AtomicBoolean (bukan boolean[]): tulis thread update wajib terlihat
-            // thread watchdog tanpa synchronized (duplikat pola ServerService).
-            versiWatchdog = new Thread(new Runnable() {
-                @Override public void run() {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    if (!versiSelesai.get()) {
-                        try {
-                            versiProc.destroy();
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-            }, "vw-detect-watchdog");
-            versiWatchdog.setDaemon(true);
-            versiWatchdog.start();
+            // baca balik EOF (batas waitForOrKill di bawah saja tak cukup).
+            // Satu pintu Util (sama dengan ServerService.detectBinaryVersion).
+            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai, 10000,
+                    "vw-detect-watchdog");
             // Baca sampai baris bermakna: baris pertama di STB lama adalah
             // noise linker ("WARNING: linker: ..."), bukan versi.
             String first = null;
@@ -2209,8 +2192,21 @@ public final class Updater {
             versiSelesai.set(true);
             versiWatchdog.interrupt();
             // Batas 10 detik: binary macet tak boleh menggantung thread update
-            // selamanya (di Settings itu mengunci semua tombol berat).
-            if (!tungguAtauBunuh(p, 10_000)) {
+            // selamanya (di Settings itu mengunci semua tombol berat). Satu pintu
+            // ServerService (waiter+join, tanpa spam stack-trace exitValue tiap
+            // 100 ms di ART lama seperti tungguAtauBunuh lama).
+            boolean mati;
+            try {
+                mati = ServerService.waitForOrKill(p, 10_000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                try {
+                    p.destroy();
+                } catch (Exception ignored) {
+                }
+                return null;
+            }
+            if (!mati) {
                 try {
                     p.destroy();
                 } catch (Exception ignored) {
@@ -2230,36 +2226,6 @@ public final class Updater {
             } catch (Exception ignored) {
             }
             return null;
-        }
-    }
-
-    /** Tunggu proses --version maks timeout lalu bunuh bila macet; true bila sudah mati.
-     *  waitFor(timeout) hanya API 26+, jadi polling exitValue agar API 21 aman. */
-    static boolean tungguAtauBunuh(Process p, long timeoutMs) {
-        long batas = SystemClock.elapsedRealtime() + timeoutMs;
-        while (SystemClock.elapsedRealtime() < batas) {
-            try {
-                p.exitValue();
-                return true;
-            } catch (IllegalThreadStateException e) {
-                // Masih hidup: tunggu sebentar lagi.
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-        try {
-            p.destroy();
-        } catch (Exception ignored) {
-        }
-        try {
-            p.exitValue();
-            return true;
-        } catch (IllegalThreadStateException e) {
-            return false;
         }
     }
 

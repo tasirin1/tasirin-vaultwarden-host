@@ -2950,6 +2950,35 @@ public final class TgBackup {
         }
     }
 
+    /** Baca stempel throttle tersimpan (0 bila tak ada/rusak). Satu pintu
+     *  AlarmReceiver + BootReceiver (dulunya salinan baca identik beda kunci). */
+    static long bacaStempelThrottle(Context ctx, String kunci) {
+        if (ctx == null) {
+            return 0;
+        }
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            return amanLong(sp, kunci, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Simpan stempel throttle (best-effort apply: dipanggil dari onReceive di
+     *  main thread sehingga commit() sinkron berisiko ANR; stempel hilang hanya
+     *  berarti satu bangun ekstra). Satu pintu AlarmReceiver + BootReceiver. */
+    static void simpanStempelThrottle(Context ctx, String kunci, long kini) {
+        if (ctx == null) {
+            return;
+        }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(kunci, kini).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Sembuhkan prefs bertipe salah (impor lama / config edit manual berisi
      *  angka): baca via getAll (tak lempar CCE), tulis ulang sesuai tipe yang
      *  diharapkan pembaca. Mencakup String/Boolean/int/long agar getInt/getLong

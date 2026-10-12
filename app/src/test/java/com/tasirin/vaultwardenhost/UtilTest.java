@@ -418,4 +418,70 @@ public class UtilTest {
         lepas.countDown();
         ex.shutdown();
     }
+
+    @Test
+    public void batalTundaAmanTanpaLooper() {
+        // JVM unit test tanpa Looper: best-effort tanpa-lempar (termasuk null).
+        Util.batalTunda(null);
+        Util.batalTunda(() -> {
+        });
+        Util.postTunda(null, 100);
+    }
+
+    /** Proses palsu: catat destroy(), selainnya nir-op. */
+    static class ProsesPalsu extends Process {
+        volatile boolean hancur = false;
+        @Override public java.io.OutputStream getOutputStream() {
+            return new java.io.ByteArrayOutputStream();
+        }
+        @Override public java.io.InputStream getInputStream() {
+            return new java.io.ByteArrayInputStream(new byte[0]);
+        }
+        @Override public java.io.InputStream getErrorStream() {
+            return new java.io.ByteArrayInputStream(new byte[0]);
+        }
+        @Override public int waitFor() {
+            return 0;
+        }
+        @Override public int exitValue() {
+            return 0;
+        }
+        @Override public void destroy() {
+            hancur = true;
+        }
+    }
+
+    @Test
+    public void watchdogHancurkanProsesMacet() throws Exception {
+        ProsesPalsu p = new ProsesPalsu();
+        java.util.concurrent.atomic.AtomicBoolean selesai =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread w = Util.pasangWatchdogProses(p, selesai, 100, "uji-watchdog");
+        assertNotNull(w);
+        assertTrue(w.isDaemon());
+        w.join(3000);
+        assertTrue(p.hancur);
+    }
+
+    @Test
+    public void watchdogTakHancurkanBilaSelesai() throws Exception {
+        ProsesPalsu p = new ProsesPalsu();
+        java.util.concurrent.atomic.AtomicBoolean selesai =
+                new java.util.concurrent.atomic.AtomicBoolean(true);
+        Thread w = Util.pasangWatchdogProses(p, selesai, 100, "uji-watchdog");
+        w.join(3000);
+        assertFalse(p.hancur);
+    }
+
+    @Test
+    public void watchdogTakHancurkanBilaDiinterupsi() throws Exception {
+        ProsesPalsu p = new ProsesPalsu();
+        java.util.concurrent.atomic.AtomicBoolean selesai =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread w = Util.pasangWatchdogProses(p, selesai, 10_000, "uji-watchdog");
+        w.interrupt();
+        w.join(3000);
+        assertFalse(w.isAlive());
+        assertFalse(p.hancur);
+    }
 }

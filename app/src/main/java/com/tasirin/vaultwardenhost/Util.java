@@ -328,6 +328,56 @@ public final class Util {
         }
     }
 
+    /** Batalkan runnable tertunda di looper utama (best-effort, abaikan bila tak ada).
+     *  Satu pintu pasangan postTunda: ServerService dulunya punya salinan
+     *  batalUtama+handler sendiri (duplikat + balapan double-create tanpa kunci). */
+    public static void batalTunda(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        try {
+            // Tanpa membuat handler: belum pernah post = tak ada yang dibatalkan.
+            android.os.Handler h = HANDLER_UTAMA;
+            if (h == null) {
+                return;
+            }
+            h.removeCallbacks(r);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Nyalakan watchdog proses --version (satu pintu ServerService + Updater).
+     *  readLine() pemanggil bisa memblokir selamanya bila binary macet tanpa
+     *  output; destroy terjadwal menutup pipa sehingga baca balik EOF.
+     *  Selesai lebih awal = interrupt oleh pemanggil (tanpa destroy).
+     *  AtomicBoolean (bukan boolean[]): tulis pemanggil wajib terlihat thread
+     *  watchdog tanpa synchronized. Murni JVM agar bisa unit test. */
+    public static Thread pasangWatchdogProses(final Process proc,
+            final java.util.concurrent.atomic.AtomicBoolean selesai,
+            final long timeoutMs, final String nama) {
+        Thread w = new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    Thread.sleep(timeoutMs);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                try {
+                    if (selesai != null && !selesai.get() && proc != null) {
+                        proc.destroy();
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }, nama == null || nama.isEmpty() ? "vw-watchdog" : nama);
+        try {
+            w.setDaemon(true);
+            w.start();
+        } catch (Exception ignored) {
+        }
+        return w;
+    }
+
     /** Pecah hash PIN "A$B$C$D" tanpa regex (split kompilasi Pattern tiap panggil di API 21). */
     public static String[] pecahPin(String s) {
         if (s == null) {

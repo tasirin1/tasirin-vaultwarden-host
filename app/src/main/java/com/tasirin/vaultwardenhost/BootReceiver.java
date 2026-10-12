@@ -93,24 +93,14 @@ public class BootReceiver extends BroadcastReceiver {
         }
     }
 
-    /** Baca penanda throttle boot tersimpan (0 bila tak ada/rusak). */
+    /** Baca penanda throttle boot tersimpan (satu pintu TgBackup, sama dengan AlarmReceiver). */
     static long bacaThrottleBoot(Context context) {
-        try {
-            android.content.SharedPreferences sp = context.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE);
-            return TgBackup.amanLong(sp, KEY_THROTTLE_BOOT_ELAPSED, 0);
-        } catch (Exception e) {
-            return 0;
-        }
+        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED);
     }
 
-    /** Simpan penanda throttle boot (best-effort, tahan mati proses). */
+    /** Simpan penanda throttle boot (satu pintu TgBackup, sama dengan AlarmReceiver). */
     static void simpanThrottleBoot(Context context, long kini) {
-        try {
-            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putLong(KEY_THROTTLE_BOOT_ELAPSED, kini).apply();
-        } catch (Exception ignored) {
-        }
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED, kini);
     }
 
     /** Flag daya-tahan boot: commit() sinkron agar tak hilang bila

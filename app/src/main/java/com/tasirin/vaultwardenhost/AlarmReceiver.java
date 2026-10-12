@@ -44,15 +44,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         return Math.max(statik, tersimpan);
     }
 
-    /** Baca penanda throttle tersimpan (0 bila tak ada/rusak). */
+    /** Baca penanda throttle tersimpan (satu pintu TgBackup, sama dengan BootReceiver). */
     static long throttleTersimpan(Context context) {
-        try {
-            SharedPreferences sp = context.getSharedPreferences(
-                    ServerService.PREFS, Context.MODE_PRIVATE);
-            return TgBackup.amanLong(sp, KEY_THROTTLE_ALARM_ELAPSED, 0);
-        } catch (Exception e) {
-            return 0;
-        }
+        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED);
     }
 
     /** Simpan penanda throttle (best-effort, tahan mati proses).
@@ -61,11 +55,7 @@ public class AlarmReceiver extends BroadcastReceiver {
      *  berarti satu bangun ekstra, bukan korupsi data. */
     static void simpanThrottle(Context context, long kini) {
         terakhirAlarmElapsed = kini;
-        try {
-            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putLong(KEY_THROTTLE_ALARM_ELAPSED, kini).apply();
-        } catch (Exception ignored) {
-        }
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED, kini);
     }
 
     /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */

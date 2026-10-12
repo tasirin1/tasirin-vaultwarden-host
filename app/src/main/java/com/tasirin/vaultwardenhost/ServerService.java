@@ -307,40 +307,13 @@ public class ServerService extends Service {
     private static final List<Long> RESTART_TIMES = new ArrayList<>();
     private static final List<String> RESTART_REASONS = new ArrayList<>();
 
-    private static volatile android.os.Handler handlerBersama = null;
-    private static android.os.Handler handlerUtama() {
-        try {
-            android.os.Looper looper = android.os.Looper.getMainLooper();
-            if (looper == null) {
-                return null;
-            }
-            android.os.Handler h = handlerBersama;
-            if (h == null || h.getLooper() != looper) {
-                h = new android.os.Handler(looper);
-                handlerBersama = h;
-            }
-            return h;
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
+    // Satu pintu Util (dulu handler+pos+batal ganda di sini): hemat duplikat
+    // sekaligus perbaiki balapan double-create tanpa kunci di handlerUtama lama.
     private static void posUtama(Runnable r, long tundaMs) {
-        try {
-            android.os.Handler h = handlerUtama();
-            if (h != null) {
-                h.postDelayed(r, tundaMs);
-            }
-        } catch (Exception ignored) {
-        }
+        Util.postTunda(r, tundaMs);
     }
     private static void batalUtama(Runnable r) {
-        try {
-            android.os.Handler h = handlerBersama;
-            if (h != null) {
-                h.removeCallbacks(r);
-            }
-        } catch (Exception ignored) {
-        }
+        Util.batalTunda(r);
     }
 
     private static volatile Process process;
@@ -3196,27 +3169,9 @@ public class ServerService extends Service {
             // Watchdog 10 detik: readLine() memblokir selamanya bila binary
             // macet tanpa output; destroy terjadwal menutup pipa sehingga
             // baca balik EOF dan thread Start tak nyangkut "Bekerja...".
-            final Process versiProc = p;
-            // AtomicBoolean (bukan boolean[]): tulis thread Start wajib terlihat
-            // thread watchdog tanpa synchronized, bila tidak watchdog bisa
-            // destroy proses yang sudah selesai atau melewatkan timeout.
-            versiWatchdog = new Thread(new Runnable() {
-                @Override public void run() {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    if (!versiSelesai.get()) {
-                        try {
-                            versiProc.destroy();
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-            }, "vw-version-watchdog");
-            versiWatchdog.setDaemon(true);
-            versiWatchdog.start();
+            // Satu pintu Util (dulu blok identik di Updater.detectVersion).
+            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai, 10000,
+                    "vw-version-watchdog");
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             // Cukup 2 baris versi pertama (saring noise linker STB lama), lalu
@@ -3990,7 +3945,10 @@ public class ServerService extends Service {
         return s.substring(mulai);
     }
 
-    private boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
+    /** Tunggu proses mati maks timeout (dipakai internal + Updater): O+ memakai
+     *  waitFor(timeout), pra-O waiter+join agar exitValue() tak melempar +
+     *  isi stack trace tiap poll di ART lama. Murni JVM. */
+    static boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
         }
