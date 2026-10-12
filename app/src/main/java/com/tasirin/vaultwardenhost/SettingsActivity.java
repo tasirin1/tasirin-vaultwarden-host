@@ -276,6 +276,12 @@ public class SettingsActivity extends Activity {
     private String lastShownBadge = "";
     private String lastUpdHint = "";
     private boolean lastUpdVisible = false;
+    private String memoCocokA = "\0";
+    private String memoCocokB = "\0";
+    private boolean memoCocokHasil = false;
+    private String memoCocokA2 = "\0";
+    private String memoCocokB2 = "\0";
+    private boolean memoCocokHasil2 = false;
     /** Cache teks ringkasan: refreshRingkasan jalan tiap ketikan sehingga
      *  setText yang isinya sama (tetap memicu layout) wajib dilewati. */
     private String lastRingkasKeamanan = "";
@@ -1087,17 +1093,38 @@ public class SettingsActivity extends Activity {
 
         // Peringatan bila update binary tersedia tapi belum dipasang
         boolean updAvail = false;
-        if (pendingVersion != null) {
+        String pendSet = pendingVersion;
+        if (pendSet != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            if (real != null && real.equals(pendingVersion)) {
-                psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendingVersion).apply();
+            String raSet = real == null ? "" : real;
+            boolean cocok1;
+            if (raSet.equals(memoCocokA) && pendSet.equals(memoCocokB)) {
+                cocok1 = memoCocokHasil;
+            } else {
+                cocok1 = Updater.versiCocok(real, pendSet);
+                memoCocokA = raSet;
+                memoCocokB = pendSet;
+                memoCocokHasil = cocok1;
+            }
+            if (cocok1) {
+                psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendSet).apply();
                 pendingVersion = null; // update sudah terpasang
             } else {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
-                if (cur != null && cur.equals(pendingVersion)) {
+                String caSet = cur == null ? "" : cur;
+                boolean cocok2;
+                if (caSet.equals(memoCocokA2) && pendSet.equals(memoCocokB2)) {
+                    cocok2 = memoCocokHasil2;
+                } else {
+                    cocok2 = Updater.versiCocok(cur, pendSet);
+                    memoCocokA2 = caSet;
+                    memoCocokB2 = pendSet;
+                    memoCocokHasil2 = cocok2;
+                }
+                if (cocok2) {
                     pendingVersion = null; // update sudah terpasang
                 } else {
                     updAvail = !running;

@@ -529,21 +529,21 @@ public final class TlsCert {
 
     /** Baca kunci privat RSA PKCS#8 dari file PEM; null bila gagal. */
     private static PrivateKey bacaPrivateKey(File pem) {
-        FileInputStream in = null;
         try {
             // Batasi ukuran kunci agar file raksasa tak bikin OOM saat dibaca ke memori.
             if (pem != null && pem.length() > 32768) {
                 throw new java.io.IOException("kunci terlalu besar");
             }
-            in = new FileInputStream(pem);
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            byte[] tmp = new byte[1024];
-            int n;
-            while ((n = in.read(tmp)) != -1) {
-                buf.write(tmp, 0, n);
-                // Pengaman ganda bila berkas membesar di tengah baca.
-                if (buf.size() > 32768) {
-                    throw new java.io.IOException("kunci terlalu besar");
+            try (FileInputStream in = new FileInputStream(pem)) {
+                byte[] tmp = new byte[1024];
+                int n;
+                while ((n = in.read(tmp)) != -1) {
+                    buf.write(tmp, 0, n);
+                    // Pengaman ganda bila berkas membesar di tengah baca.
+                    if (buf.size() > 32768) {
+                        throw new java.io.IOException("kunci terlalu besar");
+                    }
                 }
             }
             String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);
@@ -555,13 +555,6 @@ public final class TlsCert {
                     .generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
         } catch (Exception e) {
             return null;
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (Exception ignored) {
-            }
         }
     }
 

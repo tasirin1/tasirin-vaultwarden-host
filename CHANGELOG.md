@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 54: samakan banding versi Settings + tutup manual-close (Android 5+)
+- `SettingsActivity.refreshFromService`: blok `pendingVersion` kini memakai `Updater.versiCocok` semantik + memo pasangan seperti `MainActivity` (dulu `equals` mentah + `parseBinaryVersion`/`normVersion` regex tiap tick 1 dtk). Perbaiki bug banner macet saat format beda tulisan ("v1.32.0" vs "1.32.0"/sufiks beta) sekaligus hemat alokasi Matcher di UI thread STB lama; baca `pendingVersion` volatile sekali per tick (`pendSet`) agar tak berubah tengah jalan.
+- `TlsCert.bacaPrivateKey`: ganti tutup manual `finally { if (in != null) in.close(); }` dengan try-with-resources (hapus kode sampah + tutup FD dijamin bila `read` melempar di tengah; cegah kebocoran FD di STB RAM kecil).
+- Sapuan penuh 21 berkas (temuan lain nihil, tanpa churn): tanpa import/metode/field mati, `Pattern` sudah statis, `SimpleDateFormat`/`MessageDigest`/`SecureRandom`/heks bersama, pool BG berbatang, `commit()` sinkron semua beralasan daya-tahan, `PendingIntent` IMMUTABLE + channel O+ + `POST_NOTIFICATIONS`/`Html.fromHtml` berpenjaga versi, tanpa `NetworkOnMainThread`, tanpa `Uri.fromFile`. Tanpa test baru (perilaku identik; tick activity butuh runtime Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 53: sapuan penuh, 3 sisa inefisiensi/junk dibuang (Android 6+)
 - `SettingsActivity.bersihkanExportPlainCache`: satu enumerasi `getCacheDir().listFiles()` — varian baru `batasiFileExportCache(nama, File[])` memakai ulang hasil sapu (dulu enumerasi + stat direktori cache dua kali tiap onCreate/onResume/onDestroy). Varian 1-arg dipertahankan sebagai delegasi (tanpa hapus nama, tanpa catat hapusan).
 - `TgBackup`: buang 2 cabang `else` mati tak terjangkau — fallback `am.set()` lawas di `jadwalTundaBoot` dan `schedule` harian yang mensyaratkan API <23 padahal cabang luar sudah menjamin API 23+ (`exact=true` hanya bila `>= M`). Perilaku sama persis di API 21-32 (API 21/22 tetap `set`/`setInexactRepeating` di cabang luar).
