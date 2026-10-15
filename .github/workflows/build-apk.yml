@@ -23,6 +23,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verifikasi:
+    name: Cek patch yang berubah
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Verifikasi patch (tanpa SDK Android)
+        run: |
+          # Gagal di sini = job build tidak jalan.
+          python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+      - name: Cek cepat (vektor 0.x, ID land, README, secret)
+        run: bash scripts/cek-cepat.sh
+
   resolve:
     name: Resolve latest Vaultwarden
     runs-on: ubuntu-24.04
@@ -73,7 +87,7 @@ jobs:
 
   build-apk:
     name: Assemble APK
-    needs: [resolve, perlu]
+    needs: [resolve, perlu, verifikasi]
     if: needs.perlu.outputs.ya == 'yes'
     runs-on: ubuntu-24.04
     env:

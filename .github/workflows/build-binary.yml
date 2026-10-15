@@ -27,6 +27,20 @@ env:
   NDK_VERSION: 25.2.9519653
 
 jobs:
+  verifikasi:
+    name: Cek patch yang berubah
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Verifikasi patch (tanpa SDK Android)
+        run: |
+          # Gagal di sini = job build tidak jalan.
+          python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+      - name: Cek cepat (vektor 0.x, ID land, README, secret)
+        run: bash scripts/cek-cepat.sh
+
   resolve:
     name: Resolve latest Vaultwarden
     runs-on: ubuntu-24.04
@@ -60,7 +74,7 @@ jobs:
 
   build-binary:
     name: Build binary + shim (armeabi-v7a)
-    needs: resolve
+    needs: [resolve, verifikasi]
     # Satu job untuk binary Rust (~15 mnt) + shim (detik) agar NDK (~500 MB)
     # cukup diunduh sekali. Push ke workflow ini sudah difilter paths.
     if: needs.resolve.outputs.skip != 'yes'

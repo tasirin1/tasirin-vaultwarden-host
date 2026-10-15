@@ -26,9 +26,8 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 
 ```
 .
-├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): resolve versi → build APK → upload APK
-├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): resolve versi → build binary+shim+web-vault → rilis
-├── .github/workflows/verifikasi-patch.yml  # Gerbang pertama (~1 mnt, tanpa SDK): verifikasi patch + annotations
+├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): verifikasi → resolve versi → build APK → upload APK
+├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): verifikasi → resolve versi → build binary+shim+web-vault → rilis
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
