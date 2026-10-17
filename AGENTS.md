@@ -189,6 +189,19 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     aturan No. 1: program toolchain Android (`gradle`, `javac`/`kotlinc`,
     `apktool`, emulator, `adb install`) dilarang dipakai walau terinstal.
 
+17. **Mode perbaiki = maraton** — perintah "perbaiki/fix/lanjutkan" atas temuan
+    audit dikerjakan sampai habis: satu temuan satu perbaikan akar masalah, tiap
+    perbaikan selesai langsung commit + push `main` (aturan #13), tanpa memantau
+    build (aturan #14), tidak berhenti di tengah, tidak menumpuk perubahan di
+    working tree. Bila owner melapor build gagal, perbaiki itu dulu sebelum
+    lanjut ke temuan berikutnya.
+18. **Audit menyeluruh = sub-agen paralel + verifikasi mandiri** — pecah jadi
+    2–5 sub-agen per area (mis. shim/binary, UI-Kotlin, workflow-verifikasi,
+    izin/manifest), lalu verifikasi sendiri tiap klaim berat langsung ke kode
+    (`rg`/`sed`) sebelum masuk laporan atau patch — klaim sub-agen bukan fakta
+    sampai terbukti. Temuan wajib memuat `file:baris` + kenapa berbahaya +
+    skenario pemicu + level bahaya (Kritikal/Tinggi/Sedang/Rendah).
+
 ## Alur build & rilis (CI terpisah: binary vs APK)
 
 Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
