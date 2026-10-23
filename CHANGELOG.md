@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 93: update tak memasang isi yang tak terverifikasi (Android 5+)
+- `Updater`: sebelum `gantiAtomik`, binary dan shim di-hash ulang di dalam kunci unduh yang sama dengan transfer; bila file tmp sempat ditimpa update lain, pemasangan dibatalkan (dulu checksum diverifikasi pada hasil transfer lalu rename di luar kunci, sehingga isi lain bisa terpasang). Update web-vault kini diserialkan penuh (`KUNCI_UPDATE_WV`) karena zip tmp dipakai bersama antar-panggilan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 92: Start tak menyalakan server di tengah restore (Android 5+)
 - `ServerService` menambah kunci data `kunciData()/lepasKunciData()`. `startServerAsync` memakai `tryLock` dan menunda Start dengan pesan jelas bila restore sedang berjalan; restore UI (`SettingsActivity.restoreDatabase`) dan restore zip (`TgBackup.restoreFromZip`) memegang kunci sampai ekstraksi selesai. Sebelumnya bot `/restore` berjalan di pool berbeda dari Start UI sehingga server bisa menyala saat DB setengah ditimpa. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

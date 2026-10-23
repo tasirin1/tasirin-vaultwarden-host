@@ -632,6 +632,12 @@ public final class Updater {
      *  bawah kunci ini; cleanup menyapu sisa staging yatim (melewati STAGING_AKTIF). */
     public static final Object KUNCI_WEBVAULT = new Object();
 
+    /** Serialkan seluruh update web-vault (unduh + ekstrak + swap): file zip
+     *  tmp dipakai bersama antar-panggilan, jadi dua update bersamaan bisa
+     *  saling menimpa isi sebelum diekstrak. Kunci swap di bawah tetap dipakai
+     *  agar cleanup Start tak berebut folder target. */
+    private static final Object KUNCI_UPDATE_WV = new Object();
+
     /** Nama staging web-vault yang sedang diekstrak/ditukar (bukan yatim).
      *  Melindungi dari cleanup Start: pola sisaStagingWebVault cocok ke SEMUA
      *  web-vault.new-<cap> termasuk yang aktif, jadi update menandai stagingnya
@@ -1187,7 +1193,16 @@ public final class Updater {
                     KernelCompat.kernelSekarang(), shimAda));
         }
         try {
-            ServerService.gantiAtomik(tmp, out);
+            // Re-hash + rename di dalam kunci yang sama dengan transfer:
+            // setelah kunci transfer lepas, file tmp bisa ditimpa update lain,
+            // sehingga tanpa cek ulang isi yang dipasang bukan yang di-checksum.
+            synchronized (kunciUnduh(tmp)) {
+                if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
+                    tmp.delete();
+                    throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
+                }
+                ServerService.gantiAtomik(tmp, out);
+            }
         } catch (IOException e) {
             try {
                 tmp.delete();
@@ -1429,14 +1444,22 @@ public final class Updater {
             tmp.delete();
             throw new IOException("File shim tidak valid (ukuran " + ukuran + " byte).");
         }
-        try {
-            ServerService.gantiAtomik(tmp, out);
-        } catch (IOException e) {
-            try {
+        // Re-hash + rename di dalam kunci yang sama dengan transfer (lihat
+        // jalur binary): tmp bisa ditimpa unduhan shim lain sebelum rename.
+        synchronized (kunciUnduh(tmp)) {
+            if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
                 tmp.delete();
-            } catch (Exception ignored) {
+                throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
             }
-            throw new IOException("Gagal menyimpan shim.");
+            try {
+                ServerService.gantiAtomik(tmp, out);
+            } catch (IOException e) {
+                try {
+                    tmp.delete();
+                } catch (Exception ignored) {
+                }
+                throw new IOException("Gagal menyimpan shim.");
+            }
         }
         out.setReadable(true, true);
         out.setExecutable(true, true);
@@ -1576,10 +1599,12 @@ public final class Updater {
     /** Unduh & ekstrak web-vault versi persis yang diminta (null = terbaru).
      *  Pemanggil menyimpan kuncian dulu agar auto-update tak langsung menaikkan lagi. */
     public static String updateWebVaultVersi(Context ctx, String versi) throws Exception {
-        try {
-            return updateWebVaultInner(ctx, versi);
-        } finally {
-            downloadStatus = "";
+        synchronized (KUNCI_UPDATE_WV) {
+            try {
+                return updateWebVaultInner(ctx, versi);
+            } finally {
+                downloadStatus = "";
+            }
         }
     }
 
