@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 120: Start saat restore/reset berjalan tak lagi hilang diam-diam (Android 5+)
+- `ServerService.startServerAsync`: bila `KUNCI_DATA` sedang dipegang restore/reset, Start tidak lagi dibuang. Permintaan diulang tiap 5 detik lewat `restartTunda` (maks 60 kali/5 menit) lalu dihentikan dengan pesan jelas "tekan Start setelah selesai". Stop tetap membatalkan percobaan ulang (`batalUtama(restartTunda)` + `autoRestart=false`), dan hitungan di-reset begitu Start berhasil memegang kunci.
+- Dulu `/start` dari bot atau tombol Start saat restore hanya menulis "Start ditunda" tanpa ada yang mencoba lagi, sehingga server tetap mati sampai user menekan Start kedua (padahal `KEY_SERVER_DIMINTA` sudah tersimpan).
+
 ## [Belum rilis] — Audit 119: Jam STB yang melompat ke masa depan tak lagi membisukan bot selamanya (Android 5+)
 - `TgBot.catatWall` hanya memajukan tanda air anti-rollback bila lompatannya wajar (`wallBolehMaju`): nilai era 1970 (RTC belum diset) ditolak dan lompatan > 30 hari dianggap RTC salah. Dulu satu lompatan jam ke 2030 langsung dicatat + disimpan ke `tg_wall_maks`, sehingga setelah NTP membetulkan jam setiap perintah/tombol dibuang `jamMundur` sampai tahun 2030 — remote Telegram mati total tanpa jalan pulih in-app.
 - `muatWallMaks` membuang tanda air racun yang jauh di masa depan (pemulihan bagi perangkat yang sudah terlanjur menyimpannya), dan `pollOnce` me-rebase tanda air serupa yang terlanjur ada di memori sebelum cek mundur. Proteksi anti-rollback untuk selisih wajar (menit/jam) tetap berjalan; pesan basi tetap ditolak `Util.pesanSegar` dan tombol oleh `tombolKedaluwarsa`.

@@ -355,6 +355,14 @@ public class ServerService extends Service {
     private static final java.util.concurrent.locks.ReentrantLock KUNCI_DATA =
             new java.util.concurrent.locks.ReentrantLock();
 
+    /** Berapa kali Start sudah ditunda karena KUNCI_DATA dipegang restore/reset.
+     *  Dipakai membatasi percobaan ulang agar Start dari bot tak hilang diam-diam
+     *  (lihat startServerAsync) tanpa memutar tugas selamanya. */
+    private static final java.util.concurrent.atomic.AtomicInteger startTertundaData =
+            new java.util.concurrent.atomic.AtomicInteger(0);
+    /** Batas percobaan ulang Start tertunda kunci data (5 dtk x 60 = 5 menit). */
+    static final int BATAS_START_TERTUNDA_DATA = 60;
+
     /** Ambil kunci data untuk restore (blocking; wajib dari worker thread). */
     public static void kunciData() {
         KUNCI_DATA.lock();
@@ -1496,11 +1504,29 @@ public class ServerService extends Service {
                 kunci = KUNCI_DATA.tryLock();
                 if (!kunci) {
                     // Restore/reset sedang menimpa DB atau file TLS: menyalakan
-                    // server sekarang berisiko membaca setengah jadi.
-                    appendLog("[app] Start ditunda: operasi data (restore/reset) sedang berjalan.");
-                    setStatus("Restore/reset sedang berjalan - Start ditunda.");
+                    // server sekarang berisiko membaca setengah jadi. Start
+                    // diulang tiap 5 dtk (maks 5 mnt) lewat restartTunda yang
+                    // sudah dibatalkan otomatis oleh Stop; dulu permintaan ini
+                    // hilang begitu saja sehingga /start dari bot tak berefek
+                    // walau restore selesai sedetik kemudian.
+                    int n = startTertundaData.getAndIncrement();
+                    if (n == 0) {
+                        appendLog("[app] Start ditunda: operasi data (restore/reset)"
+                                + " sedang berjalan, dicoba lagi otomatis.");
+                        setStatus("Restore/reset sedang berjalan - Start menyusul otomatis.");
+                    }
+                    if (n < BATAS_START_TERTUNDA_DATA) {
+                        posUtama(restartTunda, 5000);
+                    } else {
+                        startTertundaData.set(0);
+                        setStatus("Restore/reset masih berjalan - tekan Start setelah selesai.");
+                        appendLog("[app] Start tertunda dihentikan setelah "
+                                + BATAS_START_TERTUNDA_DATA + " percobaan;"
+                                + " tekan Start lagi setelah restore/reset selesai.");
+                    }
                     return;
                 }
+                startTertundaData.set(0);
                 startServer();
             } finally {
                 if (kunci) {
