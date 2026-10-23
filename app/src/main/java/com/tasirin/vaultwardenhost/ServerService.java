@@ -1067,15 +1067,20 @@ public class ServerService extends Service {
                     // ditolak). Pertahankan hidup bila server jalan atau
                     // auto-backup masih aktif; hanya berhenti total bila idle.
                     boolean serverJalan = process != null && alive(process);
-                    if (!serverJalan && !autoAktif) {
+                    // Start yang masih berjalan (task Start bisa antre di pool
+                    // yang sama dengan backup) belum melahirkan process; jangan
+                    // stopSelf di tengah jalan. stopSelf(startId) juga membuat
+                    // intent Start yang lebih baru membatalkan stop ini.
+                    boolean mulai = starting.get();
+                    if (!serverJalan && !mulai && !autoAktif) {
                         stopForeground(true);
-                        stopSelf();
-                    } else if (!serverJalan) {
+                        stopSelf(startId);
+                    } else if (!serverJalan && !mulai) {
                         // Demote foreground di sini (stopForeground(false)) berisiko:
                         // service kehilangan notifikasi tapi tetap hidup tanpa alasan.
                         // Pilih stopSelf(): aman karena alarm berikutnya start ulang bila perlu.
                         try {
-                            stopSelf();
+                            stopSelf(startId);
                         } catch (Exception ignored) {
                         }
                     }

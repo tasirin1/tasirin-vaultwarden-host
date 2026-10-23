@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 91: backup selesai tak mematikan service saat Start berjalan (Android 5+)
+- `ServerService` (ACTION_TG_BACKUP): `stopSelf()` di `finally` kini memakai `stopSelf(startId)` dan dilewati bila `starting` masih true. Sebelumnya backup yang selesai saat Start masih mengantre/mengunduh binary (`process` belum lahir) mematikan service di tengah start, lalu `onDestroy` membunuh proses yang baru dibuat. `stopSelf(startId)` juga membuat intent Start yang lebih baru otomatis membatalkan stop. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 90: service mati tak memicu server yatim (Android 5+)
 - `ServerService.onDestroy`: proses kini ditandai `tandaiStopDisengaja` sebelum `destroy`, sehingga `watchProcess` tidak lagi menganggap kematian service sebagai crash lalu menjadwalkan restart. Sebelumnya binary bisa hidup kembali tanpa service/notifikasi (proses yatim) setelah service dihancurkan sistem; pemulihan tetap terjadi lewat jalur intent null `START_STICKY` bila user memang meminta server jalan. Penanda juga dibersihkan saat watcher melihat proses berhenti. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
