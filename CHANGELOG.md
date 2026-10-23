@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 90: service mati tak memicu server yatim (Android 5+)
+- `ServerService.onDestroy`: proses kini ditandai `tandaiStopDisengaja` sebelum `destroy`, sehingga `watchProcess` tidak lagi menganggap kematian service sebagai crash lalu menjadwalkan restart. Sebelumnya binary bisa hidup kembali tanpa service/notifikasi (proses yatim) setelah service dihancurkan sistem; pemulihan tetap terjadi lewat jalur intent null `START_STICKY` bila user memang meminta server jalan. Penanda juga dibersihkan saat watcher melihat proses berhenti. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 89: restore tak membuang WAL sah (Android 5+)
 - `TgBackup` restore: WAL dan SHM kini dihapus per berkas sesuai isi zip. Sebelumnya kondisi `!adaWal || !adaShm` menghapus keduanya, sehingga zip berisi `db.sqlite3-wal` tanpa `-shm` (umum setelah crash/force-stop) kehilangan transaksi yang sudah commit tapi belum checkpoint — `quick_check` tetap lolos sehingga kerusakan tak terdeteksi. Ditambah unit test `hapusWalShmTerpisahPertahankanWalSah`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

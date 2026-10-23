@@ -1868,6 +1868,7 @@ public class ServerService extends Service {
                 if (process == p) {
                     process = null;
                 }
+                hapusTandaStop(p);
                 return;
             }
             if (process == p) {
@@ -4112,11 +4113,16 @@ public class ServerService extends Service {
         batalUtama(healthTick);
         batalUtama(restartTunda);
         flushLogFile();
-        // Selalu destroy proses sisa di sini; aman karena jalur restart/start ulang
-        // akan membuat proses baru. Tanpa ini proses yatim bocor saat service mati.
-        if (process != null) {
+        // Tandai proses sebagai stop sengaja SEBELUM destroy: tanpa ini
+        // watchProcess menganggap service mati sebagai crash lalu menjadwalkan
+        // restart, sehingga binary hidup lagi tanpa service/notifikasi (proses
+        // yatim) sampai sistem membunuhnya. Recreate START_STICKY tetap
+        // memulihkan server lewat jalur intent null bila memang diminta.
+        Process p = process;
+        if (p != null) {
+            tandaiStopDisengaja(p);
             try {
-                process.destroy();
+                p.destroy();
             } catch (Exception ignored) {
             }
         }
