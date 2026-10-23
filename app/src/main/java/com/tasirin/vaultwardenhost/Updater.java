@@ -142,14 +142,26 @@ public final class Updater {
         return latest;
     }
 
-    /** Versi binary yang dituju (kuncian user atau rilis resmi terbaru). */
+    /** Versi binary yang dituju (kuncian user atau rilis resmi terbaru).
+     *  Saat dikunci, latestVersion sengaja TIDAK dipanggil: nilainya dibuang
+     *  pilihTarget, dan panggilan itu memperlambat Start offline serta memicu
+     *  rate-limit GitHub tanpa manfaat. */
     public static String versiTargetBinary(Context ctx) {
-        return pilihTarget(kuncianBinary(ctx), latestVersion(ctx));
+        String pin = kuncianBinary(ctx);
+        if (pin != null && !pin.isEmpty()) {
+            return pin;
+        }
+        return pilihTarget(pin, latestVersion(ctx));
     }
 
-    /** Versi web-vault yang dituju (kuncian user atau rilis resmi terbaru). */
+    /** Versi web-vault yang dituju (kuncian user atau rilis resmi terbaru);
+     *  alasan sama dengan versiTargetBinary: kuncian tak butuh cek terbaru. */
     public static String versiTargetWebVault(Context ctx) {
-        return pilihTarget(kuncianWebVault(ctx), latestVersion(ctx));
+        String pin = kuncianWebVault(ctx);
+        if (pin != null && !pin.isEmpty()) {
+            return pin;
+        }
+        return pilihTarget(pin, latestVersion(ctx));
     }
 
     /** Simpan kuncian versi (null/kosong/"terbaru" = ikuti terbaru).

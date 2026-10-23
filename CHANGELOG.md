@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 77: versi terkunci tak lagi cek "terbaru" ke GitHub (Android 5+)
+- `Updater.versiTargetBinary`/`versiTargetWebVault`: bila user mengunci versi (`bin_pin_version`/`wv_pin_version`), fungsi langsung mengembalikan kuncian tanpa memanggil `latestVersion`. Sebelumnya nilai terbaru selalu diambil lalu dibuang `pilihTarget`; pada STB offline/lambat itu menunda Start dan saat `latestVersion` gagal jalur unduh pin ikut menggantung, sekaligus memicu rate-limit GitHub percuma. Tanpa test baru (butuh Context/prefs; `pilihTarget` sudah diuji). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 76: Android 11+ tak lagi wajib All files access (Android 5+)
 - `StoragePerm.cukupAkses`: pada API 30+ kini menerima izin tulis runtime ATAU All files access. targetSdk 28 tetap memakai model legacy di Android 11+ (scoped storage baru diwajibkan untuk target 30+), jadi `/sdcard/vaultwarden` sudah bisa ditulis dengan izin Storage biasa. Sebelumnya aplikasi menolak Start di Android 11+ walau izin tulis sudah diberikan, kecuali pengguna juga memberi All files access.
 - `mintaIzinBilaPerlu`: Android 11+ ikut meminta izin tulis runtime (jalur sama dengan Android 6-10); dialog "buka pengaturan All files" + throttle 5 menit dihapus (`tampilDialogKelola`/`bukaPengaturanKelola`/`bolehTampilDialogKelola`, string `izin_storage_judul/pesan/buka/nanti`). `MANAGE_EXTERNAL_STORAGE` tetap dideklarasikan dan tetap diterima bila pengguna memberikannya manual.
