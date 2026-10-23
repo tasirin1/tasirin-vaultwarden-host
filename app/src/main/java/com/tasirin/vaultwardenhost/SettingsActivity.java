@@ -2174,7 +2174,7 @@ public class SettingsActivity extends Activity {
                 // Arsip terenkripsi tetap utuh sampai user menekan Ya; dekrip
                 // dikerjakan sesudah konfirmasi agar plaintext tak mengendap
                 // di cache bila dialog tak jadi dijawab.
-                ui.post(() -> confirm("Restore dari Telegram",
+                ui.post(() -> confirm("Restore from Telegram",
                         "Use backup '" + fname + "'? The server will be stopped first. Continue?",
                         () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp))));
             } catch (Exception e) {

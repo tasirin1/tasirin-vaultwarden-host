@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 112: judul dialog restore tak lagi campur bahasa (Android 5+)
+- `SettingsActivity`: judul konfirmasi `"Restore dari Telegram"` diganti `"Restore from Telegram"` (isi pesannya sudah Inggris). Ini satu-satunya teks UI yang masih Indonesia; log diagnostik dan pesan bot Telegram tetap Indonesia sesuai aturan bahasa repo. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 111: deteksi grup bot per chat, bukan seluruh config (Android 5+)
 - `TgBot`: `authDangerous` kini menerima ID chat (`idRuang`) dan menolak perintah ber-PIN hanya bila chat pengirim benar-benar grup (ID negatif). Sebelumnya pemeriksaan memakai `chatResmiAdalahGrup(ctx)` yang menilai seluruh daftar chat, sehingga config campuran (chat pribadi + grup) menolak perintah ber-PIN dari chat pribadi juga. Parameter `pengirimId` di `handleCommand` diganti `idRuang` agar sesuai isinya. Perintah berbahaya dari grup tetap ditolak lebih awal (tanpa verifikasi PIN). Tanpa test baru (butuh Context Android); helper murni `perintahBerbahaya` tetap teruji. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
