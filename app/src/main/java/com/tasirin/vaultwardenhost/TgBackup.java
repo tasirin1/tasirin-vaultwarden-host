@@ -480,6 +480,14 @@ public final class TgBackup {
             ui.catat("[tg] " + pesanTolakPlainOtomatis());
             return;
         }
+        // Backup/restore lain sudah memegang kunci data: jangan buang satu slot
+        // pool lama untuk menunggu DB 30 dtk lalu "gagal" dengan pesan yang
+        // menyesatkan (dulu user mengira backup harian gagal, padahal dilewati).
+        if (tugasDataJalan()) {
+            ui.catat("[tg] Backup otomatis saat Start dilewati:"
+                    + " tugas backup/restore lain sedang berjalan.");
+            return;
+        }
         ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
         final Context app = ctx.getApplicationContext();
         // Pool tugas lama bersama (hemat thread baru tiap Start di STB 1 GB).

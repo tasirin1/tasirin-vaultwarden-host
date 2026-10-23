@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 123: Backup otomatis dilewati cepat saat tugas data lain berjalan (Android 5+)
+- `TgBackup.maybeAutoBackup` mengecek `tugasDataJalan()` sebelum masuk pool: bila backup/restore lain sedang berjalan, backup otomatis dicatat "dilewati" dan keluar, bukan menunggu DB sampai 30 detik lalu melaporkan "Backup gagal: tugas backup/restore lain sedang berjalan. <saran koneksi>" — pesan yang membuat user mengira backup harian gagal/putus jaringan, sekaligus menahan satu slot `BG_LAMA` (hanya 2 thread) di STB 1 GB.
+
 ## [Belum rilis] — Audit 122: Retensi backup hanya menyapu setelah zip terverifikasi (Android 5+)
 - `TgBackup.createBackupZip` tak lagi memanggil `cleanupOldBackups`; pemanggil menyapu setelah zip lolos `verifikasiZip` + `verifikasiIsiDbZip` (jalur tanpa password) atau setelah `.enc` jadi (jalur terenkripsi). Dulu retensi jalan sebelum verifikasi, sehingga percobaan backup yang gagal (DB robek saat server menulis) tetap mengusir satu backup lama yang sah — riwayat menipis justru ketika backup sedang bermasalah.
 
