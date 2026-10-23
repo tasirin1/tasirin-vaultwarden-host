@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 115: Zip backup berisi kunci privat tak lagi mampir ke storage publik (Android 5+)
+- `TgBackup.createBackupZip` menerima folder zip sementara: saat backup akan dienkripsi, zip plaintext (DB + `tls/ca-key.pem` + `tls/key.pem`) dibangun di cache privat app, bukan di `<folder data>/backups` yang bisa dibaca app lain. Dulu zip berisi kunci privat sempat tertulis plaintext di /sdcard sebelum dienkripsi — dan bila enkripsi/verifikasi gagal, `zip.delete()` tak pernah jalan sehingga plaintext bertahan di sana.
+- Hasil `.enc` tetap disimpan di `<folder data>/backups` (retensi 10) dengan nama unik terhadap isi folder; `cleanupOldBackups` dipanggil setelah `.enc` jadi karena zip sementara tak menjalankan retensi. `zip.delete()` + `tmpDec.delete()` kini di `finally` agar plaintext hilang juga saat gagal. Tanpa test baru (butuh Context + storage Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 114: Restart karena IP LAN berubah benar-benar jalan (Android 5+)
 - `ServerService.peringatkanIpBerubah`: restart memakai jalur kanonik `restart()` (`ACTION_RESTART`) yang menghentikan proses lama lebih dulu, bukan `scheduleRestart()` yang hanya menunda start saat proses sudah mati. Dulu `restartTunda` melewati proses yang masih hidup sehingga tidak ada restart sama sekali, padahal log + Telegram menjanjikannya dan status sempat berbunyi "Server crash - restart dalam 2 dtk". `runningLanHost` langsung diperbarui ke IP baru agar tick berikutnya tak memicu restart kedua selagi proses lama berhenti; bila permintaan restart ditolak sistem, log menyarankan Stop→Start.
 - Log `ACTION_RESTART` jadi "Restart server diminta." (dulu "via Telegram") karena jalur ini juga dipakai peringatan IP. Tanpa test baru (butuh proses/service Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

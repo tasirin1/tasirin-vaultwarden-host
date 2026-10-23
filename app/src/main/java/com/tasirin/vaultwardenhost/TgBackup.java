@@ -614,7 +614,11 @@ public final class TgBackup {
                 zip = null;
                 checkpointWal(db);
             }
-            zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi);
+            zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi,
+                    // Zip berisi kunci privat TLS tak boleh mampir ke storage
+                    // publik (folder data user) walau hanya sesaat sebelum
+                    // dienkripsi: bangun di cache privat app saat hasilnya .enc.
+                    terenkripsi ? ctx.getCacheDir() : null);
             // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
             String galat = verifikasiZip(zip);
             if (galat != null) {
@@ -649,13 +653,15 @@ public final class TgBackup {
         }
         File upload = zip;
         if (pass != null && !pass.trim().isEmpty()) {
-            File enc = new File(zip.getParentFile(), zip.getName() + ".enc");
-            encryptFile(zip, enc, pass.trim());
-            // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
+            File backupDir = new File(dataDir, "backups");
+            File enc = new File(backupDir,
+                    namaBackupUnik(zip.getName() + ".enc", namaFileDi(backupDir)));
             // Round-trip di cache internal (bukan /sdcard) agar plaintext
             // sementara tak terekspos ke app lain di storage publik.
             File tmpDec = new File(ctx.getCacheDir(), "verifikasi-tmp.zip");
             try {
+                encryptFile(zip, enc, pass.trim());
+                // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
                 decryptFile(enc, tmpDec, pass.trim());
                 String galat2 = verifikasiZip(tmpDec);
                 if (galat2 != null) {
@@ -663,10 +669,16 @@ public final class TgBackup {
                             + galat2);
                 }
             } finally {
+                // Plaintext (berisi kunci privat TLS) wajib hilang juga saat
+                // enkripsi/verifikasi gagal — dulu zip.delete() hanya jalan
+                // setelah sukses sehingga zip plaintext tertinggal di folder
+                // backup yang bisa dibaca app lain.
+                zip.delete();
                 tmpDec.delete();
             }
-            zip.delete();
             upload = enc;
+            // .enc baru masuk folder backup di sini, sapu retensi setelahnya.
+            cleanupOldBackups(backupDir);
         }
         if (!semuaChatAman(chat)) {
             throw new IOException("Chat ID Telegram tidak valid"
@@ -1497,12 +1509,20 @@ public final class TgBackup {
      *  lalu bersihkan backup lama (sisakan 10). Kunci privat hanya ikut bila
      *  backup terenkripsi (denganKunci=true); tanpa itu plaintext ke cloud. */
     private static File createBackupZip(Context ctx, String dataDir, boolean full,
-                                        String configJson, boolean denganKunci)
+                                        String configJson, boolean denganKunci,
+                                        File dirZipSementara)
             throws Exception {
         File dataFolder = new File(dataDir);
         File backupDir = new File(dataFolder, "backups");
         if (!backupDir.exists() && !backupDir.mkdirs()) {
             throw new IOException("Gagal membuat folder backup");
+        }
+        // dirZipSementara != null: hasil zip akan dienkripsi, jadi plaintext-nya
+        // (beserta kunci privat TLS) ditulis di folder privat app, bukan di
+        // /sdcard/.../backups yang bisa dibaca app lain.
+        File dirZip = dirZipSementara != null ? dirZipSementara : backupDir;
+        if (!dirZip.exists() && !dirZip.mkdirs()) {
+            throw new IOException("Gagal menyiapkan folder backup sementara");
         }
         String ts = backupTimestamp();
         File zip;
@@ -1511,17 +1531,17 @@ public final class TgBackup {
             // Nama unik + klaim .tmp di dalam kunci agar thread lain (bot vs UI)
             // tak memilih nama yang sama dalam milidetik yang sama; .tmp yang
             // diklaim langsung dibuat agar pemegang lain melihatnya.
-            java.util.Set<String> ada = namaFileDi(backupDir);
+            java.util.Set<String> ada = namaFileDi(dirZip);
             File z = null;
             File t = null;
             for (int coba = 0; coba < 100 && z == null; coba++) {
                 String nama = namaBackupUnik("backup-telegram-" + ts + ".zip", ada);
                 ada.add(nama);
                 ada.add(nama + ".tmp");
-                File candTmp = new File(backupDir, nama + ".tmp");
+                File candTmp = new File(dirZip, nama + ".tmp");
                 try {
                     if (candTmp.createNewFile()) {
-                        z = new File(backupDir, nama);
+                        z = new File(dirZip, nama);
                         t = candTmp;
                     }
                 } catch (Exception ignored) {
@@ -1571,7 +1591,12 @@ public final class TgBackup {
             }
             throw e;
         }
-        cleanupOldBackups(backupDir);
+        // Retensi hanya untuk zip plaintext yang memang disimpan di folder
+        // backup user; zip sementara (akan dienkripsi) dibersihkan pemanggil
+        // dan .enc-nya disapu di sana setelah selesai.
+        if (dirZipSementara == null) {
+            cleanupOldBackups(backupDir);
+        }
         return zip;
     }
 
