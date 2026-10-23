@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 66: anti-loop restart hidup lagi (Android 5+)
+- `ServerService`: riwayat restart tidak lagi dibersihkan tiap start sukses. Start otomatis (`restartTunda` → `startServer`) juga lewat jalur itu, sehingga penjaga "≥3 restart/5 menit" (`recordRestart`) mustahil tercapai dan binary yang crash tiap beberapa detik di-restart 2 dtk selamanya (spam Telegram + crash log tiap siklus). Riwayat kini hanya dilupakan saat Start eksplisit user (`lupakanRiwayatRestart`, dipanggil di ACTION_START).
+- `restartAttempt` tidak lagi di-reset tiap start; reset hanya saat uptime >60 dtk (`scheduleRestartTerkunci`) atau Start eksplisit, agar batas 5x backoff juga berfungsi untuk crash ber-uptime pendek.
+- `recordRestart` membuang entri di luar jendela 5 menit dan `restartSummary` menghitung hanya jendela itu, agar status tak menampilkan "Restart: Nx" basi setelah server pulih lama. Tanpa test baru (wiring lifecycle/thread; logika murni `hitungRestartBaru` sudah diuji). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit TLS: 1 tinggi + 3 rendah (Android 5+)
 - `ServerService.cobaPinnedCa` + `HttpsCompat.bungkusTls12` (baru): factory loopback health-check dibungkus penegak TLSv1.2+ satu pintu dengan `socketFactory()` — konteks "TLS" di API 21/22 default hanya TLSv1 sehingga handshake ke Rocket (min 1.2) gagal selamanya lalu restart beruntun sia-sia. Perilaku identik di API 23+.
 - `HttpsCompat.cipherKuat` (baru, dipakai `saringCipher`): kecualikan eksplisit suite berprimitif lemah (RC4/DES/3DES/MD5/NULL/anon/EXPORT) — filter lama meloloskan ECDHE+3DES walau komentar mengklaim gugur.

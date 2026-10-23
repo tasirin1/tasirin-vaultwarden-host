@@ -1048,6 +1048,11 @@ public class ServerService extends Service {
         autoRestart = true;
         batalStart = false;
         healthActive = true;
+        // Start eksplisit = persetujuan baru user: lupakan riwayat restart lama
+        // agar penjaga anti-loop tak langsung mematikan start yang diminta.
+        // Restart otomatis (restartTunda -> startServer) tidak lewat jalur ini,
+        // jadi riwayatnya tetap utuh dan loop tetap terdeteksi.
+        lupakanRiwayatRestart();
         startForegroundCompat();
         if (process == null || !alive(process)) {
             startServerAsync();
@@ -1657,16 +1662,18 @@ public class ServerService extends Service {
             prosesStopDisengaja = null;
             acquireWakeLock();
             running = true;
-            // Riwayat restart milik kejadian lama: bersihkan agar /status tak
-            // menampilkan "Restart: Nx" basi setelah start bersih yang sukses.
-            synchronized (RESTART_TIMES) {
-                RESTART_TIMES.clear();
-                RESTART_REASONS.clear();
-            }
+            // Riwayat restart SENGAJA tidak dibersihkan di sini: start otomatis
+            // (restartTunda -> startServer) juga lewat jalur ini. Menghapusnya
+            // membuat "≥3 restart/5 menit" mustahil tercapai sehingga crash
+            // pendek berulang jadi loop 2 detik selamanya. Riwayat hanya
+            // dilupakan saat user menekan Start (lupakanRiwayatRestart), dan
+            // ringkasan dibatasi jendela 5 menit agar tak tampil basi.
             healthFails.set(0);
             lastStartTime = System.currentTimeMillis();
             lastStartElapsed = SystemClock.elapsedRealtime();
-            restartAttempt.set(0);
+            // restartAttempt TIDAK di-reset tiap start: itu mematikan batas 5x
+            // untuk crash beruntun ber-uptime pendek. Reset hanya terjadi saat
+            // uptime sudah >60 dtk (scheduleRestart) atau Start eksplisit user.
 
             // Siram buffer milik folder lama dulu agar log tak tecampur ke file baru.
             flushLogFile();
@@ -1850,6 +1857,16 @@ public class ServerService extends Service {
             }
         }
     };
+
+    /** Lupakan riwayat restart + hitungan backoff. Hanya dipakai Start eksplisit
+     *  user; restart otomatis sengaja tidak memanggilnya agar loop terdeteksi. */
+    private static void lupakanRiwayatRestart() {
+        synchronized (RESTART_TIMES) {
+            RESTART_TIMES.clear();
+            RESTART_REASONS.clear();
+        }
+        restartAttempt.set(0);
+    }
 
     private void scheduleRestart() {
         synchronized (KUNCI_RESTART) {
@@ -2116,6 +2133,13 @@ public class ServerService extends Service {
         String stamp;
         stamp = LOG_TS.get().format(tanggalLog());
         synchronized (RESTART_TIMES) {
+            // Buang entri di luar jendela anti-loop: daftar tak penuh oleh
+            // kejadian lama dan ringkasan selalu mencerminkan 5 menit terakhir.
+            while (!RESTART_TIMES.isEmpty()
+                    && now - RESTART_TIMES.get(0) > RESTART_WINDOW_MS) {
+                RESTART_TIMES.remove(0);
+                RESTART_REASONS.remove(0);
+            }
             RESTART_TIMES.add(now);
             RESTART_REASONS.add(stamp + " " + reason);
             while (RESTART_TIMES.size() > RESTART_HISTORY_MAX) {
@@ -2151,14 +2175,15 @@ public class ServerService extends Service {
         return n;
     }
 
-    /** Ringkasan riwayat restart untuk UI/Telegram; kosong bila tidak pernah restart. */
+    /** Ringkasan restart dalam jendela anti-loop (5 menit) untuk UI/Telegram. */
     public static String restartSummary() {
         synchronized (RESTART_TIMES) {
-            if (RESTART_REASONS.isEmpty()) {
+            int n = hitungRestartBaru(RESTART_TIMES, SystemClock.elapsedRealtime());
+            if (n == 0 || RESTART_REASONS.isEmpty()) {
                 return "";
             }
             String last = RESTART_REASONS.get(RESTART_REASONS.size() - 1);
-            return "Restart: " + RESTART_REASONS.size() + "x (terakhir " + last + ")";
+            return "Restart: " + n + "x (terakhir " + last + ")";
         }
     }
 
