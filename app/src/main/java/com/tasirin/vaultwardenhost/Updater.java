@@ -2338,6 +2338,12 @@ public final class Updater {
         }
     }
 
+    /** True bila HTTP status layak dicoba ulang (gangguan sementara).
+     *  Murni agar bisa unit test. */
+    static boolean kodeSementara(int kode) {
+        return kode == 408 || kode == 429 || kode >= 500;
+    }
+
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
     private static String fetchChecksum(Context ctx, String url,
                                         int connectMs, int readMs) {
@@ -2350,7 +2356,14 @@ public final class Updater {
             HttpURLConnection c = null;
             try {
                 c = open(ctx, url, connectMs, readMs);
-                if (c.getResponseCode() != 200) {
+                int kode = c.getResponseCode();
+                if (kode != 200) {
+                    // 5xx/408/429 = gangguan sementara (GitHub hiccup/rate-limit):
+                    // lempar agar dicoba ulang. 4xx lain (404/403) tak berubah
+                    // dalam 2 dtk, jadi langsung null tanpa memperlambat.
+                    if (kodeSementara(kode)) {
+                        throw new IOException("HTTP " + kode);
+                    }
                     return null;
                 }
                 java.util.List<String> baris = new java.util.ArrayList<>();

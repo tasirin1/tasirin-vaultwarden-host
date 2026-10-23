@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 73: checksum dicoba ulang saat GitHub gangguan sesaat (Android 5+)
+- `Updater.fetchChecksum`: balasan non-200 kini dibedakan. 408/429/5xx dilempar agar jalur coba-ulang (2x, jeda 2 dtk) berjalan; 404/403 tetap langsung `null`. Sebelumnya semua non-200 langsung menyerah, sehingga gangguan sesaat/rate-limit GitHub membuat unduhan binary/web-vault yang sudah selesai dibatalkan dengan pesan "Checksum tidak ditemukan" (padahal file tmp parsial bisa dilanjutkan).
+- `kodeSementara` (baru, murni) + test `kodeSementara_hanyaGangguanSesaat`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 72: tugas ditolak tegas, flag tak macet (Android 5+)
 - `Util.penanganAntreanPenuh`: antrean penuh kini mencatat lalu MELEMPAR `RejectedExecutionException` untuk tugas baru; tugas lama tidak lagi dibuang diam-diam. Dulu handler mem-poll tugas tertua: bila yang terbuang memegang flag (health tick, start server, runBusy, PIN, redaksi log), flag tak pernah dilepas — watchdog health mati senyap, tombol Start/OK terkunci permanen, layar PIN macet di "Checking PIN…", log berhenti refresh.
 - `Util.jalankanBg`/`jalankanLama` mengembalikan boolean (false = tugas tidak dijalankan); pemanggil yang menyetel flag sebelum submit melepasnya: health tick melepas `healthBerjalan` (tick berikut tetap memeriksa), `startServerAsync` melepas `starting` + pesan status, `SettingsActivity.runBusy` melepas `tugasBerjalan`/`setBusy`, `PinActivity` mengaktifkan tombol + `pin_sibuk`, `LogActivity` melepas `redaksiJalan` + `lastLogKey=null`, `MainActivity` melepas `setBusy` (cek port & unduh web-vault).

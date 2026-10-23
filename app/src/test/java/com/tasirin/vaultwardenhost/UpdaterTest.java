@@ -28,6 +28,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void kodeSementara_hanyaGangguanSesaat() {
+        assertTrue(Updater.kodeSementara(429));
+        assertTrue(Updater.kodeSementara(408));
+        assertTrue(Updater.kodeSementara(500));
+        assertTrue(Updater.kodeSementara(503));
+        assertFalse(Updater.kodeSementara(404));
+        assertFalse(Updater.kodeSementara(403));
+        assertFalse(Updater.kodeSementara(200));
+    }
+
+    @Test
     public void wvPayloadAda_wajibIndexBerisi() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),
