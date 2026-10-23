@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 109: bundel CA CI terpin & cache cargo tak lagi mati (CI)
+- `.github/workflows/build-binary.yml`: `cacert.pem` dari curl.se kini diverifikasi SHA-256 sebelum dipakai `include_str!` (dulu isi yang berubah/diretas bisa ikut masuk binary). Bila curl.se merilis bundel baru, langkah ini gagal sengaja dengan petunjuk memperbarui hash.
+- Cache cargo: `restore-keys` diganti prefiks lebar `vw-cargo-armv7-` (dulu `vw-cargo-armv7-<versi>-` tak pernah cocok dengan key `vw-cargo-armv7-<versi>` sehingga cache lama tak terpakai). Verifikasi via `verifikasi-patch` + `cek-cepat`, build penuh di CI.
+
 ## [Belum rilis] — Audit 108: gerbang patch tak lagi buta di CI & hasil build (CI)
 - `scripts/cek-cepat.sh`: pemeriksaan berkas terlarang kini melihat yang staged **dan** semua berkas tracked, jadi gate tetap bekerja di runner (dulu `git diff --cached` kosong karena checkout bersih). Pola diperluas ke `.aab`/`.so`/`.a`/`.dex`, `assets/bin/`, `vw_version.txt`, dan `.env.*`.
 - `.gitignore`: mengabaikan `app/src/main/assets/bin/` dan `app/src/main/assets/vw_version.txt` yang diisi CI.

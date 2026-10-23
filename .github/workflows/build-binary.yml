@@ -111,8 +111,15 @@ jobs:
 
       - name: Unduh bundel CA Mozilla (verifier TLS Android)
         run: |
+          # Kunci integritas bundel root Mozilla: isi cacert.pem di curl.se
+          # berubah saat Mozilla memperbarui root, dan tanpa pin file yang
+          # berubah/diretas ikut masuk binary. Bila curl.se merilis bundel
+          # baru, langkah ini GAGAL dengan sengaja — periksa perubahan lalu
+          # perbarui hash (curl -s https://curl.se/ca/cacert.pem | sha256sum).
+          CACERT_SHA256="796f1389bfea13c0ed78f663b765baaff54a508e5483786bd6ece73c5e3e3cbe"
           curl -fsSL --retry 3 https://curl.se/ca/cacert.pem \
             -o vaultwarden/mozilla-cacert.pem
+          echo "$CACERT_SHA256  vaultwarden/mozilla-cacert.pem" | sha256sum -c -
           grep -q "BEGIN CERTIFICATE" vaultwarden/mozilla-cacert.pem
 
       - name: Patch DNS resolver untuk Android (tanpa ndk-context)
@@ -206,8 +213,11 @@ jobs:
             vaultwarden/target
             ~/.cargo/registry
           key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}
+          # Prefiks lebar: cache versi lama masih dipakai untuk crate yang tak
+          # berubah (cargo memvalidasi fingerprint). Dulu restore-key memakai
+          # versi yang sama + "-" sehingga tak pernah cocok dengan key mana pun.
           restore-keys: |
-            vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-
+            vw-cargo-armv7-
 
       - name: Cross-compile vaultwarden for Android (armv7)
         run: |
