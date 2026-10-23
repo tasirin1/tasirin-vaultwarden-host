@@ -1180,6 +1180,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tugasDataJalan_mengikutiKunciRestore() {
+        assertFalse(TgBackup.tugasDataJalan());
+        assertTrue(TgBackup.kunciRestore());
+        try {
+            assertTrue(TgBackup.tugasDataJalan());
+        } finally {
+            TgBackup.lepasRestore();
+        }
+        assertFalse(TgBackup.tugasDataJalan());
+    }
+
+    @Test
     public void hapusWalShmTerpisahPertahankanWalSah() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwwal").toFile();
         java.io.File wal = new java.io.File(dir, "db.sqlite3-wal");

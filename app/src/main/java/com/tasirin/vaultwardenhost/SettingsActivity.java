@@ -879,11 +879,59 @@ public class SettingsActivity extends Activity {
     protected void onPause() {
         super.onPause();
         siramTulisTertunda();
+        // Editan folder/port/token yang valid jangan hilang saat Back: dulu
+        // ketiganya hanya ditulis ketika tombol Start ditekan.
+        simpanPengaturanValid();
         refreshActive = false;
         ui.removeCallbacks(refreshLoop);
         // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
         // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
         pauseStamp = SystemClock.elapsedRealtime();
+    }
+
+    /** Simpan folder/port/admin token yang valid saat layar ditinggalkan.
+     *  Nilai tak valid dilewati agar editan setengah jadi tak menimpa setelan
+     *  lama; saat backup/restore berjalan tulis ditunda karena prefs bisa
+     *  sedang ditimpa hasil restore. */
+    private void simpanPengaturanValid() {
+        if (tugasBerjalan.get() || TgBackup.tugasDataJalan()) {
+            return;
+        }
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor ed = null;
+        String dataDir = dataDirInput.getText().toString();
+        if (galatFolder(dataDir, msgFolderSalah) == null) {
+            ed = tulisBilaBeda(ed, sp, ServerService.KEY_DATA_DIR,
+                    ServerService.amankanDataDir(dataDir));
+        }
+        String port = portInput.getText().toString();
+        if (galatPort(port, msgPortSalah) == null) {
+            String p = port.trim();
+            ed = tulisBilaBeda(ed, sp, ServerService.KEY_PORT,
+                    p.isEmpty() ? DEFAULT_PORT : p);
+        }
+        String admin = adminTokenInput.getText().toString();
+        if (galatAdmin(admin, msgAdminSalah) == null) {
+            ed = tulisBilaBeda(ed, sp, ServerService.KEY_ADMIN_TOKEN, admin.trim());
+        }
+        if (ed != null) {
+            ed.apply();
+            paksaCacheUbah = true;
+        }
+    }
+
+    /** Tambah pasangan kunci/nilai ke editor hanya bila beda dari prefs agar
+     *  onPause tidak menulis disk percuma tiap kali. */
+    private SharedPreferences.Editor tulisBilaBeda(SharedPreferences.Editor ed,
+            SharedPreferences sp, String kunci, String nilai) {
+        if (nilai.equals(TgBackup.amanString(sp, kunci, ""))) {
+            return ed;
+        }
+        if (ed == null) {
+            ed = sp.edit();
+        }
+        ed.putString(kunci, nilai);
+        return ed;
     }
 
     @Override
@@ -900,6 +948,15 @@ public class SettingsActivity extends Activity {
         String dataDir = dataDirInput.getText().toString().trim();
         String port = portInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();
+
+        // Tombol Start sudah dikunci saat token <8 karakter; cek lagi di sini
+        // agar jalur programatik (isi otomatis) tak menyimpan token lemah.
+        if (galatAdmin(adminToken, msgAdminSalah) != null) {
+            toast(msgAdminSalah);
+            appendUiLog("[app] Admin token terlalu pendek - Start dibatalkan.");
+            adminTokenInput.requestFocus();
+            return;
+        }
 
         String dataDirEfektif = ServerService.amankanDataDir(dataDir);
         if ((!ServerService.dataDirAman(dataDir) || !ServerService.dataDirKanonisAman(dataDir))
@@ -3530,7 +3587,7 @@ public class SettingsActivity extends Activity {
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
                 msgChatSalah) : null;
         samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
-        inputStartValid = gData == null && gPort == null;
+        inputStartValid = gData == null && gPort == null && gAdmin == null;
         perbaruiEnabledStartStop();
         refreshRingkasan();
     }

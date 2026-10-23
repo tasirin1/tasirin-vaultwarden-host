@@ -2458,6 +2458,12 @@ public final class TgBackup {
         TUGAS_DATA_JALAN.set(false);
     }
 
+    /** True bila tugas backup/restore (UI maupun bot) sedang berjalan: layar
+     *  Pengaturan tak boleh menulis setelan lama ke prefs saat ditinggalkan. */
+    public static boolean tugasDataJalan() {
+        return TUGAS_DATA_JALAN.get();
+    }
+
     // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
 
     /** Restore database dari file zip backup Telegram.
