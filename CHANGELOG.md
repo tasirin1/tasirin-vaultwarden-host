@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 89: restore tak membuang WAL sah (Android 5+)
+- `TgBackup` restore: WAL dan SHM kini dihapus per berkas sesuai isi zip. Sebelumnya kondisi `!adaWal || !adaShm` menghapus keduanya, sehingga zip berisi `db.sqlite3-wal` tanpa `-shm` (umum setelah crash/force-stop) kehilangan transaksi yang sudah commit tapi belum checkpoint — `quick_check` tetap lolos sehingga kerusakan tak terdeteksi. Ditambah unit test `hapusWalShmTerpisahPertahankanWalSah`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 88: password backup dipakai satu snapshot (Android 5+)
 - `TgBackup`: password Telegram dibaca sekali di awal backup dan dipakai untuk menentukan ikut/tidaknya kunci privat TLS, enkripsi zip, serta teks peringatan. Sebelumnya password dibaca ulang setelah zip dibangun, sehingga bila user mengosongkannya di tengah backup zip plaintext berisi kunci privat tetap terkirim tanpa peringatan; kini hasil backup selalu konsisten dengan password saat backup dimulai. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

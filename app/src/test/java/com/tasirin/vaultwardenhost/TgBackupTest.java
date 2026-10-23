@@ -1178,6 +1178,23 @@ public class TgBackupTest {
         assertEquals("chat_id=&text=",
                 TgBackup.bangunParamPesan(null, null, null));
     }
+
+    @Test
+    public void hapusWalShmTerpisahPertahankanWalSah() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwwal").toFile();
+        java.io.File wal = new java.io.File(dir, "db.sqlite3-wal");
+        java.io.File shm = new java.io.File(dir, "db.sqlite3-shm");
+        assertTrue(wal.createNewFile());
+        assertTrue(shm.createNewFile());
+        // Zip berisi WAL tanpa SHM: WAL (transaksi belum checkpoint) wajib
+        // bertahan; SHM lama dibuang agar tak menempel ke DB hasil restore.
+        TgBackup.hapusWalShm(dir, false, true);
+        assertTrue(wal.exists());
+        assertFalse(shm.exists());
+        // Zip tanpa WAL: WAL lama tak boleh menempel ke DB hasil restore.
+        TgBackup.hapusWalShm(dir, true, false);
+        assertFalse(wal.exists());
+    }
 }
 
 

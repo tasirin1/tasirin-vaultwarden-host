@@ -2635,9 +2635,11 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
         }
-        if (!adaWal || !adaShm) {
-            hapusWalShm(dataFolder);
-        }
+        // Hapus per berkas, bukan sepasang: WAL tanpa SHM itu sah (SQLite
+        // membuat ulang SHM saat membuka DB) dan WAL memuat transaksi yang
+        // sudah commit tapi belum checkpoint. Dulu kondisi OR menghapus WAL
+        // hanya karena SHM tidak ikut di zip -> transaksi hilang diam-diam.
+        hapusWalShm(dataFolder, !adaWal, !adaShm);
         // Zip berisi -wal/-shm tanpa db.sqlite3 wajib ditolak tegas: tanpa ini
         // WAL asing menempel ke DB lama (adaWal+adaShm lolos hapus di atas)
         // lalu lolos cek SQLite karena DB lama memang valid.
@@ -3214,8 +3216,17 @@ public final class TgBackup {
 
     /** Hapus -wal/-shm basi agar tak ditempel ke DB hasil rollback. */
     static void hapusWalShm(File dataFolder) {
-        new File(dataFolder, "db.sqlite3-wal").delete();
-        new File(dataFolder, "db.sqlite3-shm").delete();
+        hapusWalShm(dataFolder, true, true);
+    }
+
+    /** Hapus WAL dan/atau SHM secara terpisah (restore: hanya yang tak ada di zip). */
+    static void hapusWalShm(File dataFolder, boolean hapusWal, boolean hapusShm) {
+        if (hapusWal) {
+            new File(dataFolder, "db.sqlite3-wal").delete();
+        }
+        if (hapusShm) {
+            new File(dataFolder, "db.sqlite3-shm").delete();
+        }
     }
 
     /** Salin file (dipakai juga restore/backup UI agar satu implementasi). */
