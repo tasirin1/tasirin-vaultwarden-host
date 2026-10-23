@@ -683,22 +683,13 @@ public class SettingsActivity extends Activity {
                 // PIN mentah tak disimpan di field agar tak mengendap di heap.
                 pinHashSiap = null;
                 if (s.length() < 4) {
-                    // Aktivasi (centang) sedang jalan: jangan hapus/lepas centang
-                    // di tengah jalan — aktivasi memakai jepretan PIN saat ditekan.
-                    if (pinAktifJalan) {
-                        return;
-                    }
-                    // PIN pendek bukan PIN valid: hapus hash DAN matikan PIN agar
-                    // tak ada status pin_on=true tanpa hash (fail-open di kunci).
-                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                            .edit().remove(PinGate.KEY_PIN_HASH).putBoolean(PinGate.KEY_PIN_ON, false).apply();
-                    // Sinkronkan centang: tanpa ini box tetap tercentang padahal
-                    // PIN sudah mati (menyesatkan sampai Settings dibuka ulang).
-                    if (pinEnabledCheck.isChecked()) {
-                        pinCentangProgram = true;
-                        pinEnabledCheck.setChecked(false);
-                        pinCentangProgram = false;
-                    }
+                    // PIN pendek bukan PIN valid: cukup jangan tulis hash baru.
+                    // JANGAN hapus hash / matikan PIN yang tersimpan — dulu cabang
+                    // ini melakukannya tanpa konfirmasi, sehingga mengetik satu
+                    // karakter saat PIN aktif langsung mematikan proteksi
+                    // (fail-open), dan PIN baru (>=4 karakter) tak pernah
+                    // tersimpan karena centang sudah dilepas. PIN hanya dimatikan
+                    // lewat centang, yang memakai dialog konfirmasi.
                     return;
                 }
                 final String pin = s.toString();

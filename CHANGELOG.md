@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 87: mengetik PIN pendek tak mematikan proteksi (Android 5+)
+- `SettingsActivity`: cabang `TextWatcher` PIN <4 karakter tidak lagi menghapus `pin_hash` dan mematikan `pin_on` tanpa konfirmasi. Sebelumnya mengetik karakter pertama saat PIN aktif langsung mematikan proteksi (fail-open) dan PIN baru (>=4) tak pernah tersimpan karena centang sudah dilepas; kini PIN hanya dimatikan lewat centang yang berkonfirmasi. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 86: teks UI PIN yang hardcode Indonesia jadi resource (Android 5+)
 - `SettingsActivity`: dua toast aktivasi PIN yang masih hardcode `"PIN gagal diproses, coba lagi."` diganti `R.string.pin_proses_gagal` (default Inggris; padanan Indonesia di `values-in`). Sebelumnya teks Indonesia muncul di perangkat berbahasa apa pun dan tak bisa diterjemahkan, melanggar aturan bahasa default (teks UI Inggris, log/Telegram Indonesia). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
