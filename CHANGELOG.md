@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 114: Restart karena IP LAN berubah benar-benar jalan (Android 5+)
+- `ServerService.peringatkanIpBerubah`: restart memakai jalur kanonik `restart()` (`ACTION_RESTART`) yang menghentikan proses lama lebih dulu, bukan `scheduleRestart()` yang hanya menunda start saat proses sudah mati. Dulu `restartTunda` melewati proses yang masih hidup sehingga tidak ada restart sama sekali, padahal log + Telegram menjanjikannya dan status sempat berbunyi "Server crash - restart dalam 2 dtk". `runningLanHost` langsung diperbarui ke IP baru agar tick berikutnya tak memicu restart kedua selagi proses lama berhenti; bila permintaan restart ditolak sistem, log menyarankan Stop→Start.
+- Log `ACTION_RESTART` jadi "Restart server diminta." (dulu "via Telegram") karena jalur ini juga dipakai peringatan IP. Tanpa test baru (butuh proses/service Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 113: Stop tak lagi menggantung karena balapan watcher (Android 5+)
 - `ServerService.watchProcess`: cabang "stop disengaja" kini menyelesaikan seluruh pembersihan (`process`, `running`, penanda port/folder, wakelock, flush log, status "Stopped"), bukan hanya men-null-kan `process`. Watcher dan thread `vw-stop` sama-sama menunggu proses mati; dulu bila watcher menang, guard `process == p` di `finally` stopper ikut gagal sehingga `running` tetap `true` dan status "Menghentikan..." menggantung (UI/guard restore salah menilai server masih hidup). Kedua jalur tetap memakai guard `process == p` agar Start baru tak ikut dibersihkan. Tanpa test baru (butuh proses/thread Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

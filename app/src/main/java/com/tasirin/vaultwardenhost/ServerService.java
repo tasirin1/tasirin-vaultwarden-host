@@ -977,7 +977,7 @@ public class ServerService extends Service {
             startForegroundCompat();
             // Pool lama agar restart bot tak menambah thread saat Start jalan.
             Util.jalankanLama(() -> {
-                appendLog("[app] Restart diminta via Telegram.");
+                appendLog("[app] Restart server diminta.");
                 // Jangan menyalakan server yang sedang Stop: restart hanya sah
                 // saat server berjalan. Tanpa guard ini /restart menyalakan
                 // server yang sengaja di-Stop user (lihat TgBot "/restart").
@@ -2538,8 +2538,8 @@ public class ServerService extends Service {
 
     /** Bandingkan IP LAN kini dengan snapshot start: DOMAIN Vaultwarden hanya
      *  dibaca saat start sehingga tautan reset password menunjuk IP lama bila
-     *  DHCP/WiFi berubah. Peringatkan sekali per IP baru (log + Telegram),
-     *  bukan restart otomatis: loopback tetap sehat. */
+     *  DHCP/WiFi berubah. Peringatkan sekali per IP baru (log + Telegram) lalu
+     *  restart lewat jalur ACTION_RESTART bila IP baru stabil 2x tick. */
     private void peringatkanIpBerubah() {
         try {
             if (!running || runningLanHost == null || runningLanHost.isEmpty()) {
@@ -2561,15 +2561,26 @@ public class ServerService extends Service {
                 ipBerubahDiperingatkan = kini;
                 appendLog("[app] IP LAN berubah (" + runningLanHost + " -> " + kini + "):"
                         + " DOMAIN server masih menunjuk IP lama."
-                        + " Restart otomatis dijadwalkan bila IP baru stabil.");
+                        + " Server di-restart otomatis bila IP baru stabil.");
                 TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
-                        + " Server restart otomatis agar tautan memakai IP baru.");
+                        + " Server di-restart otomatis agar tautan memakai IP baru.");
             }
             if (ipBaruHitung >= 2 && healthActive && isProcessAlive()) {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
                 appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
-                scheduleRestart();
+                // Jangan scheduleRestart(): jalur itu hanya menunda start saat
+                // proses sudah mati (restartTunda melewati proses yang hidup),
+                // sehingga dulu tak pernah ada restart padahal status/Telegram
+                // menjanjikannya - bahkan status sempat berbunyi "Server crash".
+                // Jalur kanonik (ACTION_RESTART) menghentikan proses lama dulu.
+                // Tandai IP baru sebagai acuan agar tick berikutnya tak memicu
+                // restart kedua selagi proses lama sedang berhenti.
+                runningLanHost = kini;
+                if (!restart(getApplicationContext())) {
+                    appendLog("[app] Restart karena IP baru gagal diminta;"
+                            + " tekan Stop lalu Start untuk memperbarui DOMAIN.");
+                }
             }
         } catch (Exception ignored) {
         }
