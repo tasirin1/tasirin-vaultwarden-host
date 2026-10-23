@@ -406,7 +406,7 @@ public class MainActivity extends Activity {
         // StrictMode, dan hasilnya tetap TOCTOU (service cek ulang sebelum start).
         final int portFix = portNum;
         setBusy(true);
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             final boolean busy = ServerService.isPortBusy(portFix);
             final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
             ui.post(() -> {
@@ -437,6 +437,11 @@ public class MainActivity extends Activity {
                 lanjutStart(finalDataDir);
             });
         });
+        if (!masuk) {
+            // Antrean penuh: lepas status sibuk agar banner tidak terkunci.
+            setBusy(false);
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
     /** Lanjutan Start setelah cek port selesai (berjalan di UI thread). */
@@ -454,7 +459,7 @@ public class MainActivity extends Activity {
                         // Pakai app context di worker agar tekan back saat unduh
                         // 35 MB tak menahan Activity yang sudah destroy (bocor).
                         final android.content.Context appCtx = getApplicationContext();
-                        Util.jalankanLama(() -> {
+                        boolean masuk = Util.jalankanLama(() -> {
                             String msg;
                             boolean gagal = false;
                             try {
@@ -491,6 +496,12 @@ public class MainActivity extends Activity {
                                 }
                             });
                         });
+                        if (!masuk) {
+                            // Antrean penuh: setBusy(true) di atas tak akan
+                            // dilepas oleh finally tugas yang tak pernah jalan.
+                            setBusy(false);
+                            toast("Task queue is full, try again shortly.");
+                        }
                     })
                     .setNegativeButton("Start without web vault", (d, w) -> {
                         ServerService.start(this);

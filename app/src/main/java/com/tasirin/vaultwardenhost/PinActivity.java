@@ -119,7 +119,7 @@ public class PinActivity extends Activity {
         // Pool tugas lama bersama: verifikasi PBKDF2 30rb iterasi itu CPU-bound
         // detik di STB 1 GB (bukan thread baru tiap ketukan). Hasil tetap
         // kembali via ui.post di bawah.
-        Util.jalankanLama(() -> {
+        boolean masuk = Util.jalankanLama(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
             String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
@@ -155,6 +155,13 @@ public class PinActivity extends Activity {
                 }
             });
         });
+        if (!masuk) {
+            // Antrean penuh: pulihkan tombol + status agar layar kunci tak macet
+            // di "Checking PIN..." dengan tombol mati.
+            sedangPeriksa = false;
+            bukaBtn.setEnabled(true);
+            tampilGalat(getString(R.string.pin_sibuk));
+        }
     }
 
     private void tampilGalat(String pesan) {

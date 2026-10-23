@@ -3764,7 +3764,7 @@ public class SettingsActivity extends Activity {
         // binary/web-vault, backup/restore/unggah Telegram, generate RSA)
         // sehingga di pool ringan memonopoli thread + membuat cek port dan
         // refresh terbuang di STB 1 GB (lihat BG_LAMA di Util).
-        Util.jalankanLama(() -> {
+        boolean masuk = Util.jalankanLama(() -> {
             try {
                 task.run();
             } catch (Throwable t) {
@@ -3791,6 +3791,13 @@ public class SettingsActivity extends Activity {
                 setBusy(false);
             }
         });
+        if (!masuk) {
+            // Antrean penuh: lepas status sibuk agar tombol tak terkunci
+            // permanen sampai Activity dibuat ulang.
+            tugasBerjalan.set(false);
+            setBusy(false);
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
     private void appendUiLog(String line) {

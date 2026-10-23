@@ -157,6 +157,7 @@
     <string name="pin_keluar">Keluar</string>
     <string name="pin_salah">PIN salah</string>
     <string name="pin_memeriksa">Memeriksa PIN…</string>
+    <string name="pin_sibuk">Perangkat sibuk, coba lagi.</string>
     <plurals name="pin_lockout">
         <item quantity="other">Terkunci, coba lagi %1$d menit.</item>
     </plurals>

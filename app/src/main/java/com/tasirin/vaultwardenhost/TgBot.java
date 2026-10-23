@@ -65,8 +65,8 @@ public final class TgBot {
     // Satu pool kecil untuk tugas bot (perintah, callback, menu): hemat thread
     // dibanding new Thread per ketukan/perintah di STB 1 GB.
     // Antrean dibatasi agar spam update tak menumpuk OOM di STB 1 GB.
-    // Satu pintu Util (buang tertua + jejak log, anti-rekursi StackOverflow).
-    private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
+    // Satu pintu Util (tolak tugas baru saat antrean penuh + jejak log).
+    private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
             Util.penanganAntreanPenuh("TgBot");
     private static final java.util.concurrent.ExecutorService BG =
             new java.util.concurrent.ThreadPoolExecutor(3, 3, 0L,
@@ -75,7 +75,7 @@ public final class TgBot {
                 Thread t = new Thread(r, "vw-tgbot-bg");
                 t.setDaemon(true);
                 return t;
-            }, BUANG_BERLOG);
+            }, TOLAK_BERLOG);
 
     /** Tawarkan tugas ke pool; false bila antrean penuh (agar kunci tugas
      *  berat bisa dilepas pemanggil, bukan macet selamanya). Murni alur. */

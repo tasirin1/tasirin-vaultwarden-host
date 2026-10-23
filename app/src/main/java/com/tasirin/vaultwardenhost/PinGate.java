@@ -34,12 +34,13 @@ public final class PinGate {
      *  di catatHasil (synchronized, bisa ratusan ms di storage STB lambat) tak
      *  memblokir cek grace UI. */
     private static final Object KUNCI_GRACE = new Object();
-    /** Executor tunggal berbatas untuk pencatatan gagal: antrean 32 +
-     *  buang tertua agar spam PIN tak menumpuk OOM di STB 1 GB.
+    /** Executor tunggal berbatas untuk pencatatan gagal: antrean 32; tugas baru
+     *  ditolak saat penuh (pencatatan best-effort, penolakan di-catch pemanggil)
+     *  agar spam PIN tak menumpuk OOM di STB 1 GB.
      *  Daemon agar thread idle tak menahan proses saat uji/unit selesai.
-     *  Penolakan dicatat agar kegagalan catat tak hilang sunyi. */
-    // Satu pintu Util (buang tertua + jejak log, anti-rekursi StackOverflow).
-    private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
+     *  Penolakan dicatat lewat satu pintu Util. */
+    // Satu pintu Util (tolak tugas baru saat antrean penuh + jejak log).
+    private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
             Util.penanganAntreanPenuh("PinGate");
     private static final java.util.concurrent.ExecutorService CATAT_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(0, 1, 60L,
@@ -48,7 +49,7 @@ public final class PinGate {
                 Thread t = new Thread(r, "vw-pin-catat");
                 t.setDaemon(true);
                 return t;
-            }, BUANG_BERLOG);
+            }, TOLAK_BERLOG);
 
     /** True bila PIN dibuka dalam grace (tanpa peka activity). Murni waktu. */
     public static boolean dalamGraceBersama() {

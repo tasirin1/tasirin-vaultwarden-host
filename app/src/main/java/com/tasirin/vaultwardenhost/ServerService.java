@@ -419,13 +419,18 @@ public class ServerService extends Service {
             }
             posUtama(this, delay);
             // Pool bersama (bukan new Thread per tick): hemat stack 1 MB tiap 30 dtk di STB.
-            Util.jalankanBg(() -> {
+            boolean masuk = Util.jalankanBg(() -> {
                 try {
                     checkHealthOnce();
                 } finally {
                     healthBerjalan.set(false);
                 }
             });
+            if (!masuk) {
+                // Antrean penuh: lepas flag agar tick berikutnya tetap memeriksa
+                // (tick sudah dijadwalkan di atas; tanpa ini watchdog mati diam-diam).
+                healthBerjalan.set(false);
+            }
         }
     };
 
@@ -886,7 +891,7 @@ public class ServerService extends Service {
             // Tunda sampai proses benar-benar mati, maks ~9 dtk.
             final int stopId = startId;
             // Pool lama (bukan thread baru): tunggu ~9 dtk tanpa thread baru per Stop.
-            Util.jalankanLama(() -> {
+            boolean masuk = Util.jalankanLama(() -> {
                 try {
                     long tenggat = SystemClock.elapsedRealtime() + 9000;
                     while (SystemClock.elapsedRealtime() < tenggat && isProcessAlive()) {
@@ -899,6 +904,27 @@ public class ServerService extends Service {
                     }
                 } catch (Exception ignored) {
                 } finally {
+                    // Bila user sudah menekan Start lagi selagi kita menunggu,
+                    // jangan cabut foreground/stopSelf yang baru (niat=true).
+                    if (!niatJalanTersimpan()) {
+                        try {
+                            stopForeground(true);
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                            stopSelf(stopId);
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            });
+            if (!masuk) {
+                // Antrean penuh: tetap tutup foreground/service setelah jeda
+                // (tanpa ini notifikasi foreground menggantung selamanya).
+                Util.postTunda(() -> {
+                    if (niatJalanTersimpan()) {
+                        return; // user sudah Start lagi: foreground itu milik server baru
+                    }
                     try {
                         stopForeground(true);
                     } catch (Exception ignored) {
@@ -907,8 +933,8 @@ public class ServerService extends Service {
                         stopSelf(stopId);
                     } catch (Exception ignored) {
                     }
-                }
-            });
+                }, 3000);
+            }
             return START_NOT_STICKY;
         }
         if (ACTION_RESTART.equals(action)) {
@@ -1425,13 +1451,20 @@ public class ServerService extends Service {
             return;
         }
         // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
-        Util.jalankanLama(() -> {
+        boolean masuk = Util.jalankanLama(() -> {
             try {
                 startServer();
             } finally {
                 starting.set(false);
             }
         });
+        if (!masuk) {
+            // Antrean penuh: lepas guard agar Start berikutnya tak terkunci
+            // selamanya ("Start masih berjalan..." palsu).
+            starting.set(false);
+            appendLog("[app] Antrean tugas penuh - Start ditunda, coba lagi.");
+            setStatus("Antrean penuh - Start ditunda. Tekan Start lagi.");
+        }
     }
 
     private void startServer() {

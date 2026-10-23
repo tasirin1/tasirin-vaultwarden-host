@@ -383,7 +383,7 @@ public class UtilTest {
     }
 
     @Test
-    public void penanganAntreanPenuh_buangTertuaTanpaLempar() throws Exception {
+    public void penanganAntreanPenuh_tolakBaruTanpaBuangLama() throws Exception {
         final java.util.concurrent.atomic.AtomicInteger jalan =
                 new java.util.concurrent.atomic.AtomicInteger(0);
         java.util.concurrent.ThreadPoolExecutor ex =
@@ -396,27 +396,52 @@ public class UtilTest {
                             return t;
                         },
                         Util.penanganAntreanPenuh("uji"));
+        final java.util.concurrent.CountDownLatch mulai =
+                new java.util.concurrent.CountDownLatch(1);
         final java.util.concurrent.CountDownLatch lepas =
                 new java.util.concurrent.CountDownLatch(1);
         ex.execute(() -> {
+            mulai.countDown();
             try {
                 lepas.await();
             } catch (Exception ignored) {
             }
             jalan.incrementAndGet();
         });
-        ex.execute(jalan::incrementAndGet);
+        assertTrue(mulai.await(5, java.util.concurrent.TimeUnit.SECONDS));
+        Runnable antre = jalan::incrementAndGet;
+        ex.execute(antre);
         boolean lempar = false;
         try {
-            // Antrean penuh -> handler buang tertua + tawarkan ulang, tak melempar.
+            // Antrean penuh -> tugas BARU ditolak (melempar) agar pemanggil
+            // melepas flag-nya; tugas lama TIDAK dibuang diam-diam.
             ex.execute(jalan::incrementAndGet);
-        } catch (Exception e) {
+        } catch (java.util.concurrent.RejectedExecutionException e) {
             lempar = true;
         }
-        assertFalse(lempar);
+        assertTrue(lempar);
+        assertEquals(1, ex.getQueue().size());
+        assertSame(antre, ex.getQueue().peek());
         assertNotNull(Util.penanganAntreanPenuh(null));
         lepas.countDown();
         ex.shutdown();
+        assertTrue(ex.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS));
+        assertEquals(2, jalan.get());
+    }
+
+    @Test
+    public void jalankanBgLamaLaporPenolakanDanMenerimaTugas() throws Exception {
+        // null = tidak dijalankan (false) agar pemanggil melepas flag-nya.
+        assertFalse(Util.jalankanBg(null));
+        assertFalse(Util.jalankanLama(null));
+        final java.util.concurrent.CountDownLatch ringan =
+                new java.util.concurrent.CountDownLatch(1);
+        assertTrue(Util.jalankanBg(ringan::countDown));
+        assertTrue(ringan.await(5, java.util.concurrent.TimeUnit.SECONDS));
+        final java.util.concurrent.CountDownLatch lama =
+                new java.util.concurrent.CountDownLatch(1);
+        assertTrue(Util.jalankanLama(lama::countDown));
+        assertTrue(lama.await(5, java.util.concurrent.TimeUnit.SECONDS));
     }
 
     @Test

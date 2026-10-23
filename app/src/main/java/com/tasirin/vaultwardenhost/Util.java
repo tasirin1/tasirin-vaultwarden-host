@@ -19,19 +19,18 @@ public final class Util {
     }
 
     // Pool bersama tugas ringan UI (cek port, refresh berat, auto-check): hemat
-    // thread dibanding new Thread per tugas di STB 1 GB. Antrean dibatasi 32 +
-    // buang tertua agar spam tak menumpuk OOM; tugas ringan boleh dilewati.
-    // Penolakan dicatat (bukan sunyi) agar tugas hilang bisa dilacak di log.
-    private static final java.util.concurrent.RejectedExecutionHandler BUANG_BERLOG =
+    // thread dibanding new Thread per tugas di STB 1 GB. Antrean dibatasi 32 agar
+    // spam tak menumpuk OOM; tugas baru DITOLAK saat penuh (bukan membuang tugas
+    // lama) supaya pemanggil bisa melepas flag yang sudah diset sebelum submit.
+    // Penolakan dicatat (bukan sunyi) agar tugas gugur bisa dilacak di log.
+    private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
             penanganAntreanPenuh("Util");
 
-    /** Penanganan antrean penuh bersama (buang tertua + jejak log, tanpa rekursi).
-     *  Satu pintu ganti salinan identik di TgBot/PinGate: tanpa execute() ulang
-     *  di dalam handler (antrean bisa penuh lagi oleh thread lain di antara
-     *  poll-execute sehingga ber-rekursi hingga StackOverflow di STB). Tawarkan
-     *  sekali via offer (tak melempar/tak rekursi); gagal = gugur tercatat.
-     *  Varian TgBackup (TG_MSG/TG_PENTING) sengaja tetap sendiri: membawa
-     *  catatLog server + cek shutdown yang tak berlaku umum. Murni alur. */
+    /** Penanganan antrean penuh bersama: catat lalu TOLAK tugas baru dengan
+     *  RejectedExecutionException. Satu pintu untuk Util/TgBot/PinGate.
+     *  Dulu tugas tertua dibuang diam-diam: bila tugas itu memegang flag
+     *  (health/start/runBusy/PIN), flag tak pernah dilepas dan fitur terkunci
+     *  selamanya. Tanpa execute() ulang di dalam handler (anti-rekursi). */
     public static java.util.concurrent.RejectedExecutionHandler penanganAntreanPenuh(
             final String tag) {
         final String t = tag == null ? "Util" : tag;
@@ -39,24 +38,11 @@ public final class Util {
             @Override public void rejectedExecution(Runnable r,
                     java.util.concurrent.ThreadPoolExecutor e) {
                 try {
-                    android.util.Log.w(t, "Antrean penuh, tugas tertua dibuang");
+                    android.util.Log.w(t, "Antrean penuh, tugas baru ditolak");
                 } catch (Exception ignored) {
                 }
-                boolean masuk = false;
-                try {
-                    e.getQueue().poll();
-                } catch (Exception ignored) {
-                }
-                try {
-                    masuk = e.getQueue().offer(r);
-                } catch (Exception ignored) {
-                }
-                if (!masuk) {
-                    try {
-                        android.util.Log.w(t, "Tugas gugur, antrean tetap penuh");
-                    } catch (Exception ignored) {
-                    }
-                }
+                throw new java.util.concurrent.RejectedExecutionException(
+                        t + ": antrean penuh");
             }
         };
     }
@@ -67,7 +53,7 @@ public final class Util {
                 Thread t = new Thread(r, "vw-ui-bg");
                 t.setDaemon(true);
                 return t;
-            }, BUANG_BERLOG);
+            }, TOLAK_BERLOG);
 
     // Pool tugas lama (unduh binary/web-vault, auto-update, hash PIN): tugas
     // menit-lama tak boleh memonopoli pool ringan hingga cek port terbuang.
@@ -78,16 +64,19 @@ public final class Util {
                 Thread t = new Thread(r, "vw-bg-lama");
                 t.setDaemon(true);
                 return t;
-            }, BUANG_BERLOG);
+            }, TOLAK_BERLOG);
 
-    /** Jalankan tugas lama (menit-lama) di pool sendiri. */
-    public static void jalankanLama(Runnable r) {
+    /** Jalankan tugas lama (menit-lama) di pool sendiri; false bila antrean
+     *  penuh (tugas TIDAK dijalankan) agar pemanggil melepas flag/kuncinya. */
+    public static boolean jalankanLama(Runnable r) {
         if (r == null) {
-            return;
+            return false;
         }
         try {
             BG_LAMA.execute(r);
-        } catch (Exception ignored) {
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -461,14 +450,17 @@ public final class Util {
         return a == b;
     }
 
-    /** Jalankan tugas ringan di pool bersama (abaikan bila antrean penuh). */
-    public static void jalankanBg(Runnable r) {
+    /** Jalankan tugas ringan di pool bersama; false bila antrean penuh (tugas
+     *  TIDAK dijalankan) agar pemanggil melepas flag yang sudah diset. */
+    public static boolean jalankanBg(Runnable r) {
         if (r == null) {
-            return;
+            return false;
         }
         try {
             BG_RINGAN.execute(r);
-        } catch (Exception ignored) {
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

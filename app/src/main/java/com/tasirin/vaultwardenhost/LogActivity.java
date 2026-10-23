@@ -207,7 +207,7 @@ public class LogActivity extends Activity {
             int dari = n > BATAS_TAMPIL_LOG + 512 ? n - (BATAS_TAMPIL_LOG + 512) : 0;
             text = ServerService.logBuffer.substring(dari);
         }
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             try {
                 // Buffer jumbo (server aktif menambah baris tiap detik):
                 // tampilkan ekor saja agar regex + span tetap ringan.
@@ -259,6 +259,13 @@ public class LogActivity extends Activity {
                 redaksiJalan.set(false);
             }
         });
+        if (!masuk) {
+            // Antrean penuh: lepas flag + paksa tick berikut memproses konten
+            // yang sama (lastLogKey sudah diperbarui sehingga tick identik
+            // akan dilewati bila dibiarkan).
+            redaksiJalan.set(false);
+            lastLogKey = null;
+        }
     }
 
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
