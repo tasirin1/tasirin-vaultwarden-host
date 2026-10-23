@@ -591,8 +591,13 @@ public final class TgBackup {
         }
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
-        String passAwal = amanString(sp, KEY_TG_PASS, "");
-        boolean terenkripsi = passAwal != null && !passAwal.trim().isEmpty();
+        // Password dibaca SEKALI di awal lalu dipakai untuk tiga keputusan:
+        // ikutkan kunci privat TLS, enkripsi zip, dan teks peringatan. Dulu
+        // password dibaca ulang setelah zip dibangun; bila user mengosongkannya
+        // di tengah backup, zip plaintext berisi kunci privat tetap terkirim
+        // dan pesan sukses tidak memperingatkan apa pun.
+        String pass = amanString(sp, KEY_TG_PASS, "");
+        boolean terenkripsi = pass != null && !pass.trim().isEmpty();
         // Tanpa password, backup melenggang plaintext ke cloud Telegram:
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
         // Bangun + verifikasi dengan satu kali ulangan: server tetap jalan saat
@@ -643,7 +648,6 @@ public final class TgBackup {
             throw new IOException("Backup gagal dibuat.");
         }
         File upload = zip;
-        String pass = amanString(sp, KEY_TG_PASS, "");
         if (pass != null && !pass.trim().isEmpty()) {
             File enc = new File(zip.getParentFile(), zip.getName() + ".enc");
             encryptFile(zip, enc, pass.trim());

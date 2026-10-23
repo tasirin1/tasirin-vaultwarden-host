@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 88: password backup dipakai satu snapshot (Android 5+)
+- `TgBackup`: password Telegram dibaca sekali di awal backup dan dipakai untuk menentukan ikut/tidaknya kunci privat TLS, enkripsi zip, serta teks peringatan. Sebelumnya password dibaca ulang setelah zip dibangun, sehingga bila user mengosongkannya di tengah backup zip plaintext berisi kunci privat tetap terkirim tanpa peringatan; kini hasil backup selalu konsisten dengan password saat backup dimulai. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 87: mengetik PIN pendek tak mematikan proteksi (Android 5+)
 - `SettingsActivity`: cabang `TextWatcher` PIN <4 karakter tidak lagi menghapus `pin_hash` dan mematikan `pin_on` tanpa konfirmasi. Sebelumnya mengetik karakter pertama saat PIN aktif langsung mematikan proteksi (fail-open) dan PIN baru (>=4) tak pernah tersimpan karena centang sudah dilepas; kini PIN hanya dimatikan lewat centang yang berkonfirmasi. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
