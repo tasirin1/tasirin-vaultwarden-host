@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 113: Stop tak lagi menggantung karena balapan watcher (Android 5+)
+- `ServerService.watchProcess`: cabang "stop disengaja" kini menyelesaikan seluruh pembersihan (`process`, `running`, penanda port/folder, wakelock, flush log, status "Stopped"), bukan hanya men-null-kan `process`. Watcher dan thread `vw-stop` sama-sama menunggu proses mati; dulu bila watcher menang, guard `process == p` di `finally` stopper ikut gagal sehingga `running` tetap `true` dan status "Menghentikan..." menggantung (UI/guard restore salah menilai server masih hidup). Kedua jalur tetap memakai guard `process == p` agar Start baru tak ikut dibersihkan. Tanpa test baru (butuh proses/thread Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Fitur: kontrol Telegram berbasis tombol berjenjang (Android 5+)
 - `TgBot`: `/help` kini membuka menu utama berjenjang (Status, Kontrol, Backup, Update, Sertifikat, Info) dengan tombol navigasi `m:<panel>` dan tombol Kembali. Panel diedit di tempat lewat `editMessageText` agar riwayat chat tidak menumpuk; keyboard lama dengan callback `/perintah` tetap dikenali.
 - Tombol perintah yang dijaga PIN (`/start /stop /restart /backup /restore /update /webvault /careset /status /log /crashlog /ca /cabackup`) kini meminta PIN lewat balasan chat selama 5 menit. Aksi pending disimpan per chat, fail-closed saat jam mundur, dan selalu dihapus sebelum eksekusi agar PIN salah tidak menambah lockout berulang. Grup tetap ditolak dan PIN yang lolos tetap dihapus dari riwayat.

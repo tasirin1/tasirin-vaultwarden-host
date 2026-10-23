@@ -1894,8 +1894,9 @@ public class ServerService extends Service {
             releaseWakeLock();
             flushLogFile();
         }
-        // Pesan tetap dikirim langsung; flag/DB dibersihkan thread stopper
-        // agar tak ada yang mengira proses lama sudah mati sebelum waktunya.
+        // Pesan tetap dikirim langsung; pembersihan flag/DB dilakukan thread
+        // yang lebih dulu melihat proses mati (watcher atau stopper), dengan
+        // guard process==p agar Start baru tak ikut dibersihkan.
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
 
@@ -1905,7 +1906,18 @@ public class ServerService extends Service {
             if (isStopDisengaja(p) || process != p) {
                 // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
                 if (process == p) {
+                    // Pembersihan penuh di sini, bukan hanya process=null:
+                    // watcher ini dan thread "vw-stop" sama-sama menunggu proses
+                    // mati, dan yang menang balapan duluan harus menyelesaikan
+                    // SEMUA state. Dulu watcher hanya men-null-kan process,
+                    // sehingga guard process==p di finally stopper ikut gagal
+                    // dan running/status "Menghentikan..." menggantung selamanya.
                     process = null;
+                    running = false;
+                    resetPenandaJalan();
+                    releaseWakeLock();
+                    flushLogFile();
+                    setStatus("Stopped");
                 }
                 hapusTandaStop(p);
                 return;
