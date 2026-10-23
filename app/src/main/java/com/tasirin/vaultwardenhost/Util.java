@@ -46,25 +46,33 @@ public final class Util {
             }
         };
     }
+    /** Buat pool berukuran tetap dengan antrean terbatas + thread daemon.
+     *  core = max (dulu core 0 membuat ThreadPoolExecutor hanya memakai SATU
+     *  worker sampai antrean penuh, sehingga verifikasi PIN/Start ikut antre di
+     *  belakang unduhan 20 MB). allowCoreThreadTimeOut membuang thread idle
+     *  setelah 60 dtk agar RAM STB 1 GB tetap hemat. */
+    private static java.util.concurrent.ExecutorService buatPool(
+            int ukuran, int antrean, final String nama) {
+        java.util.concurrent.ThreadPoolExecutor p =
+                new java.util.concurrent.ThreadPoolExecutor(ukuran, ukuran, 60L,
+                        java.util.concurrent.TimeUnit.SECONDS,
+                        new java.util.concurrent.LinkedBlockingQueue<Runnable>(antrean),
+                        r -> {
+                            Thread t = new Thread(r, nama);
+                            t.setDaemon(true);
+                            return t;
+                        }, TOLAK_BERLOG);
+        p.allowCoreThreadTimeOut(true);
+        return p;
+    }
+
     private static final java.util.concurrent.ExecutorService BG_RINGAN =
-            new java.util.concurrent.ThreadPoolExecutor(0, 3, 60L,
-                    java.util.concurrent.TimeUnit.SECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(32), r -> {
-                Thread t = new Thread(r, "vw-ui-bg");
-                t.setDaemon(true);
-                return t;
-            }, TOLAK_BERLOG);
+            buatPool(3, 32, "vw-ui-bg");
 
     // Pool tugas lama (unduh binary/web-vault, auto-update, hash PIN): tugas
     // menit-lama tak boleh memonopoli pool ringan hingga cek port terbuang.
     private static final java.util.concurrent.ExecutorService BG_LAMA =
-            new java.util.concurrent.ThreadPoolExecutor(0, 2, 60L,
-                    java.util.concurrent.TimeUnit.SECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(16), r -> {
-                Thread t = new Thread(r, "vw-bg-lama");
-                t.setDaemon(true);
-                return t;
-            }, TOLAK_BERLOG);
+            buatPool(2, 16, "vw-bg-lama");
 
     /** Jalankan tugas lama (menit-lama) di pool sendiri; false bila antrean
      *  penuh (tugas TIDAK dijalankan) agar pemanggil melepas flag/kuncinya. */

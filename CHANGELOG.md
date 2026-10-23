@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 94: pool tugas benar-benar memakai worker paralel (Android 5+)
+- `Util`: `BG_RINGAN` (3) dan `BG_LAMA` (2) kini dibuat lewat satu pintu `buatPool` dengan `core = max` + `allowCoreThreadTimeOut(60 dtk)`. Sebelumnya `core=0` membuat `ThreadPoolExecutor` hanya memakai **satu** worker sampai antrean penuh (32/16), sehingga verifikasi/hash PIN dan Start ikut mengantre di belakang unduhan binary/web-vault 20–35 MB — layar kunci bisa berhenti di “Memeriksa…” selama unduhan. Thread idle tetap dibuang agar RAM STB hemat. Ditambah unit test `jalankanLamaBenarBenarParalel`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 93: update tak memasang isi yang tak terverifikasi (Android 5+)
 - `Updater`: sebelum `gantiAtomik`, binary dan shim di-hash ulang di dalam kunci unduh yang sama dengan transfer; bila file tmp sempat ditimpa update lain, pemasangan dibatalkan (dulu checksum diverifikasi pada hasil transfer lalu rename di luar kunci, sehingga isi lain bisa terpasang). Update web-vault kini diserialkan penuh (`KUNCI_UPDATE_WV`) karena zip tmp dipakai bersama antar-panggilan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

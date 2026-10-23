@@ -509,4 +509,28 @@ public class UtilTest {
         assertFalse(w.isAlive());
         assertFalse(p.hancur);
     }
+
+    @Test
+    public void jalankanLamaBenarBenarParalel() throws Exception {
+        final java.util.concurrent.CountDownLatch dua =
+                new java.util.concurrent.CountDownLatch(2);
+        final java.util.concurrent.CountDownLatch lepas =
+                new java.util.concurrent.CountDownLatch(1);
+        Runnable tugas = () -> {
+            dua.countDown();
+            try {
+                lepas.await(3, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        };
+        try {
+            assertTrue(Util.jalankanLama(tugas));
+            assertTrue(Util.jalankanLama(tugas));
+            // Dua worker harus benar-benar paralel (dulu core=0: efektif 1).
+            assertTrue(dua.await(2, java.util.concurrent.TimeUnit.SECONDS));
+        } finally {
+            lepas.countDown();
+        }
+    }
 }
