@@ -627,10 +627,6 @@ public final class TlsCert {
         return der(b -> b.raw(extensions), 0xA3);
     }
 
-    private static byte[] extensionsBlock(List<String> ips) throws Exception {
-        return extensionsBlock(ips, java.util.Collections.<String>emptyList());
-    }
-
     private static byte[] extensionsBlock(List<String> ips, List<String> dns) throws Exception {
         final List<String> bersihDns = new java.util.ArrayList<>();
         if (dns != null) {

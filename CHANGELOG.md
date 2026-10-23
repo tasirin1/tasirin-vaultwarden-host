@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 83: buang kode mati (overload & konstanta tak terpakai) (Android 5+)
+- `TlsCert.extensionsBlock(List<String>)` (overload satu argumen) dihapus; satu-satunya pemanggil memakai varian dua argumen (ips, dns).
+- `TgBackup.deriveKey(String, byte[])` dan `deriveKey(String, byte[], boolean)` dihapus; semua jalur memakai varian 4 argumen (SHA256/SHA1 + iterasi eksplisit dari header VWB3).
+- `TgBackup.TG_INTERVAL_MS` dihapus (tidak pernah dirujuk; jadwal backup memakai alarm dan `sudahGantiHari`).
+- Nama `deriveKey`/`extensionsBlock` tidak dimasukkan `tools/bekas-hapusan.txt` karena masih didefinisikan sebagai overload (pindah, bukan hapus total). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 82: memo versi binary bebas balapan antar-thread (Android 5+)
 - `Updater.parseBinaryVersion`: memo dua field volatile (`memoBinMasuk`/`memoBinHasil`) diganti satu objek immutable `MemoVersi` yang ditulis atomis. Dulu thread UI (tick tiap detik) dan worker bisa menulis/membaca silang: field `masuk` sudah berganti tetapi `hasil` masih milik input lama, sehingga versi yang dikembalikan salah. Hasil ini dipakai membandingkan kuncian versi (`cacheSesuaiPin`) dan menampilkan versi, jadi salah baca bisa menolak/menerima binary yang keliru.
 - Test regresi `parseBinaryVersion_memoAmanAntarThread` (4 thread, input bergantian). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

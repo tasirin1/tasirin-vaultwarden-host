@@ -55,7 +55,6 @@ public final class TgBackup {
     /** Susulan backup terjadwal yang ditolak sistem (dipakai Alarm/Boot/Main). */
     public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
-    public static final long TG_INTERVAL_MS = 24L * 3600 * 1000;
 
     /** Migrasi sekali jalan: gabungan toggle lama ke KEY_TG_AUTO.
      *  Baca via getAll+koersi (tak lempar ClassCastException): kunci legacy tak
@@ -2386,15 +2385,6 @@ public final class TgBackup {
             }
             fos.write(c.doFinal());
         }
-    }
-
-    private static byte[] deriveKey(String pass, byte[] salt) throws Exception {
-        return deriveKey(pass, salt, true);
-    }
-
-    /** KDF backup: SHA256 untuk file baru, SHA1 hanya fallback baca file lama. */
-    private static byte[] deriveKey(String pass, byte[] salt, boolean sha256) throws Exception {
-        return deriveKey(pass, salt, sha256, 100000);
     }
 
     /** Varian iterasi eksplisit untuk baca/tulis header VWB3. */
