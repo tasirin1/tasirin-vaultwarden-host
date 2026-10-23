@@ -451,6 +451,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void ukuranIsiZip_menjumlahkanEntri() throws Exception {
+        java.io.File zip = java.io.File.createTempFile("vw-isi-", ".zip");
+        try {
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+                zos.putNextEntry(new ZipEntry("db.sqlite3"));
+                zos.write(new byte[1234]);
+                zos.closeEntry();
+                zos.putNextEntry(new ZipEntry("tls/"));
+                zos.closeEntry();
+                zos.putNextEntry(new ZipEntry("tls/ca.pem"));
+                zos.write(new byte[16]);
+                zos.closeEntry();
+            }
+            assertEquals(1250L, TgBackup.ukuranIsiZip(zip));
+            assertEquals(-1L, TgBackup.ukuranIsiZip(
+                    new java.io.File(zip.getParentFile(), "tak-ada-uji.zip")));
+        } finally {
+            zip.delete();
+        }
+    }
+
+    @Test
     public void folderBytesWalk_symlinkMelingkarTakMeledak() throws Exception {
         java.nio.file.Path dasar = java.nio.file.Files.createTempDirectory("vw-walk-");
         java.nio.file.Path sub = java.nio.file.Files.createDirectory(dasar.resolve("sub"));

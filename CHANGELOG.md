@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 110: restore cek ruang sebelum menimpa database (Android 5+)
+- `TgBackup.restoreFromZipIsi`: sebelum server dihentikan, total isi zip (tak terkompresi) dihitung dan dibandingkan dengan ruang bebas folder data — termasuk salinan pengaman DB lama + 5 MB headroom. Restore ditolak lebih awal bila isi zip melebihi `BATAS_UNZIP_RESTORE` atau storage kurang, sehingga tak ada rollback di tengah ekstraksi dengan pesan membingungkan. Helper murni `ukuranIsiZip` + test `ukuranIsiZip_menjumlahkanEntri`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 109: bundel CA CI terpin & cache cargo tak lagi mati (CI)
 - `.github/workflows/build-binary.yml`: `cacert.pem` dari curl.se kini diverifikasi SHA-256 sebelum dipakai `include_str!` (dulu isi yang berubah/diretas bisa ikut masuk binary). Bila curl.se merilis bundel baru, langkah ini gagal sengaja dengan petunjuk memperbarui hash.
 - Cache cargo: `restore-keys` diganti prefiks lebar `vw-cargo-armv7-` (dulu `vw-cargo-armv7-<versi>-` tak pernah cocok dengan key `vw-cargo-armv7-<versi>` sehingga cache lama tak terpakai). Verifikasi via `verifikasi-patch` + `cek-cepat`, build penuh di CI.

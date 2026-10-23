@@ -2472,6 +2472,37 @@ public final class TgBackup {
         return TUGAS_DATA_JALAN.get();
     }
 
+    /** Total ukuran isi (tak terkompresi) seluruh entri zip, atau -1 bila zip
+     *  tak terbaca. Dipakai cek ruang sebelum restore: db + WAL + tls di
+     *  dalam zip bisa jauh lebih besar dari file zip-nya. Murni I/O. */
+    static long ukuranIsiZip(File zip) {
+        if (zip == null || !zip.isFile()) {
+            return -1;
+        }
+        long total = 0;
+        try (ZipFile zf = new ZipFile(zip)) {
+            java.util.Enumeration<? extends ZipEntry> en = zf.entries();
+            while (en.hasMoreElements()) {
+                ZipEntry e = en.nextElement();
+                if (e.isDirectory()) {
+                    continue;
+                }
+                long ukuran = e.getSize();
+                if (ukuran < 0) {
+                    continue;
+                }
+                total += ukuran;
+                if (total > Util.BATAS_UNZIP_RESTORE) {
+                    // Cukup tahu "melebihi batas": jangan jumlahkan zip bom.
+                    return Util.BATAS_UNZIP_RESTORE + 1;
+                }
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return total;
+    }
+
     // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
 
     /** Restore database dari file zip backup Telegram.
@@ -2527,6 +2558,33 @@ public final class TgBackup {
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
         }
+        File dbFile = new File(dataFolder, "db.sqlite3");
+
+        // Cek ruang SEBELUM server dihentikan dan apa pun ditimpa: ekstraksi
+        // menulis db (+WAL) + tls yang bisa jauh lebih besar dari zip, lalu
+        // masih menyimpan salinan pengaman DB lama. Tanpa cek, storage penuh
+        // di tengah ekstraksi memaksa rollback dengan pesan membingungkan.
+        long isiZip = ukuranIsiZip(zip);
+        if (isiZip > Util.BATAS_UNZIP_RESTORE) {
+            throw new IOException("Isi zip melebihi batas aman restore ("
+                    + Util.BATAS_UNZIP_RESTORE + " byte) - restore dibatalkan.");
+        }
+        if (isiZip >= 0) {
+            long butuh = isiZip + 5L * 1024 * 1024;
+            if (dbFile.isFile()) {
+                butuh += dbFile.length();
+                File walLama = new File(dataFolder, "db.sqlite3-wal");
+                if (walLama.isFile()) {
+                    butuh += walLama.length();
+                }
+            }
+            long sisa = freeBytes(ctx, dataDir);
+            if (sisa >= 0 && butuh > sisa) {
+                throw new IOException("Storage kurang untuk restore (butuh "
+                        + humanBytes(butuh) + ", sisa " + humanBytes(sisa)
+                        + ") - kosongkan penyimpanan lalu ulangi.");
+            }
+        }
 
         if (ServerService.isProcessAlive()
                 && !ServerService.stopAndWait(ctx, 8000)) {
@@ -2538,7 +2596,6 @@ public final class TgBackup {
                     + " agar database tidak korup. Stop manual lalu ulangi.");
         }
 
-        File dbFile = new File(dataFolder, "db.sqlite3");
         File preBackup = null;
         if (dbFile.exists()) {
             // Satukan isi WAL ke DB utama dulu; tanpa ini salinan pengaman
