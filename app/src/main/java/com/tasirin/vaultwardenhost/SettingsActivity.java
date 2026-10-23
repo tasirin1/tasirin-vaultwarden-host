@@ -697,9 +697,15 @@ public class SettingsActivity extends Activity {
                 final String pin = s.toString();
                 final int seq = pinSeq;
                 pinTunda = () -> {
+                    // Tandai sudah dijalankan agar onDestroy tak mengulang submit.
+                    pinTunda = null;
                     if (seq != pinSeq) {
                         return;
                     }
+                    // Baca centang di UI thread (runnable ini dijalankan handler
+                    // UI): worker tak boleh menyentuh View setelah activity mati.
+                    final boolean pinAktif = pinEnabledCheck != null
+                            && pinEnabledCheck.isChecked();
                     pinPending = pinExec.submit(() -> {
                         String h = PinCrypto.hash(pin);
                         if (seq != pinSeq) {
@@ -712,7 +718,7 @@ public class SettingsActivity extends Activity {
                         // meninggalkan hash basi di prefs.
                         if (seq == pinSeq && h.equals(pinHashSiap)
                                 && !pinAktifJalan
-                                && pinEnabledCheck.isChecked()) {
+                                && pinAktif) {
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                     .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
                         }
@@ -4004,7 +4010,14 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
         pinHashSiap = null;
+        // Ketikan PIN yang masih dalam jeda 800 ms jangan hilang saat Back:
+        // jalankan sekarang (submit ke worker) sebelum antrean UI dibuang.
+        Runnable tundaPin = pinTunda;
         pinTunda = null;
+        if (tundaPin != null) {
+            ui.removeCallbacks(tundaPin);
+            tundaPin.run();
+        }
         sapuExportPlainBasi();
         // Executor hash PIN milik kelas (bersama + daemon): tanpa shutdown agar
         // hash yang antre tepat sebelum keluar/rotasi tetap tersimpan di prefs

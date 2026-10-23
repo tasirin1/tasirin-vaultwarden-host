@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 102: hash PIN yang masih debounce tak hilang saat Back (Android 5+)
+- `SettingsActivity`: rundown debounce PIN kini menandai dirinya selesai (`pinTunda = null`) dan dibaca status centangnya di UI thread sebelum dikirim ke worker (dulu worker memanggil `pinEnabledCheck.isChecked()` dari thread lain). `onDestroy` menjalankan debounce yang masih tertunda sebelum antrean UI dibuang, sehingga PIN yang baru diketik lalu langsung Back tetap di-hash dan tersimpan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 101: dialog tak dibuat saat activity sudah selesai (Android 5+)
 - `SettingsActivity.tampilDialogVersi` dan `confirm` kini berhenti bila `isFinishing() || isDestroyed()`. `tampilDialogVersi` dipanggil lewat `ui.post` dari worker daftar versi, sehingga hasil yang datang setelah activity ditutup dulu memicu `WindowManager$BadTokenException`. Dialog password impor juga ikut memeriksa `isDestroyed()`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
