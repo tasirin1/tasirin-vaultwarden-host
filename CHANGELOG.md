@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 106: PIN bot tak lagi diterima dari grup (Android 5+)
+- `TgBot.authDangerous`: perintah yang dijaga PIN (start/stop/restart/backup/restore/update/webvault/careset plus status/log/crashlog/ca/cabackup) kini ditolak bila chat resmi berupa grup atau username, dengan pesan agar dikirim dari chat pribadi. Sebelumnya PIN yang diketik di grup terbaca semua anggota (hapus pesan hanya best-effort) dan anggota mana pun bisa memicu aksi atau mengirim PIN salah sampai `PinGate` bersama mengunci pemilik app. Grup tetap menerima notifikasi/backup dan perintah tanpa PIN (`/help`, `/alive`, `/uptime`, `/versi`). README (EN/ID/RU) diperbarui. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 105: reset sertifikat tak lagi balapan dengan Start (Android 5+)
 - `TgBackup.resetSertifikat` kini memegang `ServerService.KUNCI_DATA` (kunci yang sama dengan Start/restore) dan memeriksa ulang status server di dalam kunci; `TlsCert.resetTls` ikut mengunci `KUNCI_ENSURE` yang dipakai `TlsCert.ensure`. Sebelumnya reset dari tombol Settings atau perintah bot `/careset` bisa menghapus CA/leaf tepat saat Start sedang memasang pasangan baru, sehingga start gagal atau pesan "tekan Start" menyesatkan. Pesan Start yang ditunda disesuaikan menjadi "restore/reset sedang berjalan". Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

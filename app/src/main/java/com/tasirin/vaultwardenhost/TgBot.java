@@ -1591,8 +1591,17 @@ public final class TgBot {
         String t = arg == null ? "" : arg.trim();
         boolean berbahaya = cmd == null || cmd.trim().isEmpty()
                 || perintahBerbahaya(cmd);
-        boolean grup = chatResmiAdalahGrup(ctx);
-        if (!need && !grup) {
+        if (chatResmiAdalahGrup(ctx)) {
+            // PIN yang diketik di grup terbaca semua anggota (hapus pesan cuma
+            // best-effort) dan anggota mana pun bisa memicu aksi atau salah PIN
+            // sampai pemilik terkunci (PinGate dipakai bersama app). Perintah
+            // ber-PIN wajib dari chat pribadi; grup tetap menerima notifikasi,
+            // backup, dan perintah yang tak dijaga PIN.
+            TgBackup.sendMessage(ctx, "Perintah ber-PIN hanya bisa dari chat pribadi"
+                    + " bot. PIN yang diketik di grup terbaca anggota lain.");
+            return null;
+        }
+        if (!need) {
             // PIN mati + chat pribadi: aman lolos, berbahaya tetap butuh PIN.
             if (berbahaya) {
                 TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app."
@@ -1601,15 +1610,6 @@ public final class TgBot {
                 return null;
             }
             return t;
-        }
-        if (!need) {
-            // Grup tanpa PIN aktif: tak ada yang bisa diverifikasi sehingga
-            // semua yang dijaga PIN ditolak — ulangi dari chat pribadi
-            // setelah PIN diaktifkan.
-            TgBackup.sendMessage(ctx, "Dari grup selalu butuh PIN."
-                    + " Aktifkan PIN dulu di Pengaturan, lalu ulangi dari chat"
-                    + " pribadi dengan PIN (pakai chat pribadi).");
-            return null;
         }
         // Wall-clock agar reboot tak mereset lockout PIN bot.
         long sekarang = System.currentTimeMillis();
