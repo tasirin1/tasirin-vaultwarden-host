@@ -104,18 +104,36 @@ def jalan(*args):
     return hasil.stdout if hasil.returncode == 0 else None
 
 
+def rentang_normal(rentang):
+    """Ubah rentang mentah jadi (a, pemisah, b) yang bisa dipakai git diff.
+
+    `workflow_dispatch`/`schedule` tidak punya `github.event.before` (kosong),
+    dan push pertama memakai SHA nol. Dulu `a` kosong membuat seluruh cek
+    berbasis diff dilewati diam-diam. Di kasus itu pakai `<b>~1` (commit
+    sebelumnya) sebagai pembanding; bila b tak punya induk (repo satu commit)
+    kembalikan None agar pemanggil jatuh ke cek keadaan penuh.
+    """
+    if not rentang:
+        return None
+    for pemisah in ("...", ".."):
+        if pemisah in rentang:
+            a, b = rentang.split(pemisah, 1)
+            if not a or set(a) == {"0"}:
+                if not b:
+                    return None
+                a = b + "~1"
+            return a, pemisah, b
+    return None
+
+
 def daftar_berkas_berubah(rentang):
     """Nama file berubah pada rentang diff (None bila revisi tak valid)."""
-    if rentang:
-        for pemisah in ("...", ".."):
-            if pemisah in rentang:
-                a, b = rentang.split(pemisah, 1)
-                if set(a) == {"0"} or not a:
-                    return None  # push pertama: tak ada pembanding
-                out = jalan("git", "diff", "--name-only", a + pemisah + b)
-                if out is not None:
-                    return [x for x in out.splitlines() if x]
-                return None
+    r = rentang_normal(rentang)
+    if r is None:
+        return None
+    out = jalan("git", "diff", "--name-only", r[0] + r[1] + r[2])
+    if out is not None:
+        return [x for x in out.splitlines() if x]
     return None
 
 
@@ -282,17 +300,13 @@ def cek_duplikat_definisi(gagal):
 
 def berkas_dihapus(rentang, diff_biasa):
     """Daftar path yang dihapus pada diff (butuh status; kosong bila tak tahu)."""
-    if rentang and ("..." in rentang or ".." in rentang):
-        for pemisah in ("...", ".."):
-            if pemisah in rentang:
-                a, b = rentang.split(pemisah, 1)
-                if set(a) == {"0"} or not a:
-                    return []
-                out = jalan("git", "diff", "--name-status", a + pemisah + b)
-                if out is None:
-                    return []
-                return [x.split(None, 1)[1] for x in out.splitlines()
-                        if x.startswith("D")]
+    r = rentang_normal(rentang)
+    if r is not None:
+        out = jalan("git", "diff", "--name-status", r[0] + r[1] + r[2])
+        if out is None:
+            return []
+        return [x.split(None, 1)[1] for x in out.splitlines()
+                if x.startswith("D")]
     out = jalan("git", "diff", "--name-status")
     return [x.split(None, 1)[1] for x in (out or "").splitlines() if x.startswith("D")]
 
@@ -739,14 +753,19 @@ def utama():
         berubah = [j for j in args.jalur if os.path.exists(os.path.join(AKAR, j))]
         diff = jalan("git", "diff", "--", *berubah) or ""
     elif args.rentang:
+        r = rentang_normal(args.rentang)
         daftar = daftar_berkas_berubah(args.rentang)
         if daftar is None:
             print("info: rentang tak valid (push pertama?) — cek keadaan penuh.")
             berubah = [p for p in jalan_repo("app") if not p.endswith(".md")]
         else:
             berubah = daftar
-            a, b = re.split(r"\.\.+", args.rentang, maxsplit=1)
-            diff = jalan("git", "diff", a + "..." + b) or ""
+        if r is not None:
+            # Selalu ambil diff dari rentang yang sudah dinormalkan: pada
+            # workflow_dispatch/schedule `before` kosong, dan tanpa ini cek
+            # berbasis diff (metode hilang, hapusan tercatat, uji baru, pola
+            # berisiko) dilewati tanpa jejak.
+            diff = jalan("git", "diff", r[0] + "..." + r[2]) or ""
     else:
         hulu = jalan("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
         if hulu:
