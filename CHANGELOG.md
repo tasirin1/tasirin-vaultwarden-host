@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 107: build APK tak lagi rawan kehilangan aset rilis (CI)
+- `.github/workflows/build-apk.yml`: job `perlu` yang selalu menjawab "yes" dihapus, `assembleDebug` yang hasilnya tak dipakai dihapus (lint + unit test + `assembleRelease` cukup), dan `cancel-in-progress` dimatikan agar push baru tak memotong run di tengah publish. Unggahan APK kini memakai `gh release upload --clobber` dengan coba ulang (tanpa hapus manual + jeda 5 dtk) dan diverifikasi lewat ukuran aset di rilis, bukan sekadar namanya. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 106: PIN bot tak lagi diterima dari grup (Android 5+)
 - `TgBot.authDangerous`: perintah yang dijaga PIN (start/stop/restart/backup/restore/update/webvault/careset plus status/log/crashlog/ca/cabackup) kini ditolak bila chat resmi berupa grup atau username, dengan pesan agar dikirim dari chat pribadi. Sebelumnya PIN yang diketik di grup terbaca semua anggota (hapus pesan hanya best-effort) dan anggota mana pun bisa memicu aksi atau mengirim PIN salah sampai `PinGate` bersama mengunci pemilik app. Grup tetap menerima notifikasi/backup dan perintah tanpa PIN (`/help`, `/alive`, `/uptime`, `/versi`). README (EN/ID/RU) diperbarui. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

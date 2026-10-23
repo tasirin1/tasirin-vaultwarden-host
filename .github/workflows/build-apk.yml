@@ -17,10 +17,13 @@ permissions:
   contents: write
 
 # Grup sendiri agar bisa jalan paralel dengan workflow binary (unggahan APK
-# ke rilis yang sama idempoten: hapus duplikat per ID + coba ulang).
+# ke rilis yang sama idempoten: ganti isi per nama aset + coba ulang).
+# cancel-in-progress: false — jangan hentikan run yang sedang menghapus/
+# mengganti asset APK (dulu cancel di tengah publish bisa meninggalkan rilis
+# tanpa APK); build berikutnya cukup mengantre.
 concurrency:
   group: vw-apk
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   verifikasi:
@@ -42,8 +45,6 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       vw: ${{ steps.vw.outputs.tag }}
-      skip: ${{ steps.vw.outputs.skip }}
-      ada: ${{ steps.vw.outputs.ada }}
     steps:
       - id: vw
         env:
@@ -64,37 +65,10 @@ jobs:
           fi
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          EXISTING=$(gh api "repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
-          if [ "$EXISTING" = "v$TAG" ]; then
-            echo "ada=yes" >> "$GITHUB_OUTPUT"
-          else
-            echo "ada=no" >> "$GITHUB_OUTPUT"
-          fi
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$EXISTING" = "v$TAG" ]; then
-            echo "skip=yes" >> "$GITHUB_OUTPUT"
-          fi
-
-  perlu:
-    name: Perlu bangun APK?
-    needs: resolve
-    runs-on: ubuntu-24.04
-    outputs:
-      ya: ${{ steps.c.outputs.ya }}
-    steps:
-      - id: c
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Pemicu manual: selalu bangun (tak ada pemicu otomatis lagi).
-          YA=yes
-          ALASAN="pemicu ${{ github.event_name }}"
-          echo "bangun=$YA ($ALASAN)"
-          echo "ya=$YA" >> "$GITHUB_OUTPUT"
 
   build-apk:
     name: Assemble APK
-    needs: [resolve, perlu, verifikasi]
-    if: needs.perlu.outputs.ya == 'yes'
+    needs: [resolve, verifikasi]
     runs-on: ubuntu-24.04
     env:
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -121,11 +95,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-
-      - name: Build debug APK (armv7)
-        run: |
-          chmod +x gradlew
-          ./gradlew --no-daemon :app:assembleDebug
 
       - name: Lint & unit test
         run: |
@@ -186,42 +155,38 @@ jobs:
               --title "Tasirin Vaultwarden Host $VW (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
           gh release view "$TAG" >/dev/null 2>&1
-          unggah_asset() {
-            berkas="$1"
-            percobaan=1
-            while [ "$percobaan" -le 6 ]; do
-              for id in $(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
-                  --jq '.assets[] | select(.name=="'"$berkas"'") | .id' 2>/dev/null); do
-                gh api -X DELETE \
-                  "repos/$GITHUB_REPOSITORY/releases/assets/$id" >/dev/null 2>&1 || true
-              done
-              sleep 5
-              if gh release upload "$TAG" "$berkas" 2>"$berkas.gagal.log"; then
-                rm -f "$berkas.gagal.log"
-                return 0
-              fi
-              if ! grep -q "already exists" "$berkas.gagal.log"; then
-                cat "$berkas.gagal.log"
-                return 1
-              fi
-              echo "percobaan $percobaan: $berkas masih 'already exists', tunggu 15 dtk..."
-              sleep 15
-              percobaan=$((percobaan + 1))
-            done
-            cat "$berkas.gagal.log"
-            return 1
-          }
-          unggah_asset tasirin-vaultwarden-host-armeabi-v7a.apk
-          # Verifikasi: APK wajib ada di rilis (6 asset lain milik workflow binary).
-          # Daftar asset API kadang basi sesaat setelah unggah, jadi coba ulang.
-          for t in 1 2 3; do
-            if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "tasirin-vaultwarden-host-armeabi-v7a.apk"; then
-              echo "APK ada di $TAG (cek $t/3)"
+          APK_NAME=tasirin-vaultwarden-host-armeabi-v7a.apk
+          # --clobber mengganti asset bernama sama dalam satu perintah (tanpa
+          # hapus manual + jeda tetap); coba ulang untuk gangguan sesaat.
+          percobaan=1
+          while :; do
+            if gh release upload "$TAG" "$APK_NAME" --clobber; then
               break
             fi
+            if [ "$percobaan" -ge 6 ]; then
+              echo "::error::Gagal mengunggah $APK_NAME setelah 6 percobaan"
+              exit 1
+            fi
+            echo "Unggah $APK_NAME gagal (percobaan $percobaan), coba lagi 15 dtk..."
+            sleep 15
+            percobaan=$((percobaan + 1))
+          done
+          # Verifikasi isi: ukuran asset di rilis wajib sama dengan APK hasil
+          # build (cek nama saja bisa lolos walau unggahan lama tertinggal).
+          LOKAL=$(stat -c %s "$APK_NAME")
+          OK=false
+          for t in 1 2 3; do
+            RILIS=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
+              --jq '.assets[] | select(.name=="'"$APK_NAME"'") | .size' 2>/dev/null || true)
+            if [ "$RILIS" = "$LOKAL" ]; then
+              echo "APK terverifikasi di $TAG: $RILIS byte (cek $t/3)"
+              OK=true
+              break
+            fi
+            echo "Ukuran APK di rilis: ${RILIS:-belum ada} (lokal $LOKAL), cek $t/3"
             sleep 10
           done
-          gh release view "$TAG" --json assets -q '.assets[].name' | grep -qx "tasirin-vaultwarden-host-armeabi-v7a.apk"
+          [ "$OK" = true ] || { echo "::error::APK di rilis tidak cocok dengan hasil build"; exit 1; }
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
