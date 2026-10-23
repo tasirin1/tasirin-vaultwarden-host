@@ -2698,15 +2698,24 @@ public final class Updater {
         return true;
     }
 
-    /** True bila path adalah tautan (symlink) atau memuat segmen tak-kanonis:
-     *  jangan telusuri isinya, hapus link-nya saja. Konservatif: path normal
-     *  selalu kanonis==absolut. Murni I/O agar bisa unit test JVM. */
+    /** True bila komponen TERAKHIR path adalah tautan (symlink): jangan telusuri
+     *  isinya, hapus link-nya saja. Bandingkan kanonis induk + nama dengan
+     *  kanonis file agar induk yang berupa symlink (mis. /sdcard) tidak ikut
+     *  dinilai tautan — dulu path biasa di bawah /sdcard dianggap link sehingga
+     *  deleteRecursive cuma menghapus satu entri dan sisa folder menumpuk.
+     *  Murni I/O agar bisa unit test JVM. */
     static boolean tautanSimbol(File file) {
         if (file == null) {
             return false;
         }
         try {
-            return !file.getCanonicalPath().equals(file.getAbsolutePath());
+            File absolut = file.getAbsoluteFile();
+            File induk = absolut.getParentFile();
+            if (induk == null) {
+                return false;
+            }
+            File kanonTanpaTautan = new File(induk.getCanonicalFile(), absolut.getName());
+            return !absolut.getCanonicalFile().equals(kanonTanpaTautan);
         } catch (Exception e) {
             // Fail-closed: path yang tak bisa dikanoniskan (izin/SELinux/IO)
             // dianggap tautan agar deleteRecursive hanya menghapus link-nya

@@ -88,6 +88,23 @@ public class UpdaterTest {
         } catch (UnsupportedOperationException | java.io.IOException e) {
             // FS tanpa symlink: lewati bagian link, file biasa tetap teruji.
         }
+        try {
+            // Induk berupa symlink (seperti /sdcard di Android): anak biasa
+            // tidak boleh dianggap tautan, kalau tidak hapus rekursif berhenti
+            // di satu entri dan sisa folder menumpuk.
+            java.io.File sub = new java.io.File(dir, "sub");
+            assertTrue(sub.mkdirs());
+            java.nio.file.Path indukLink = new java.io.File(dir, "induk-link").toPath();
+            java.nio.file.Files.createSymbolicLink(indukLink, sub.toPath());
+            java.io.File anak = new java.io.File(indukLink.toFile(), "anak.txt");
+            assertTrue(anak.createNewFile());
+            assertFalse(Updater.tautanSimbol(anak));
+            anak.delete();
+            indukLink.toFile().delete();
+            sub.delete();
+        } catch (UnsupportedOperationException | java.io.IOException e) {
+            // FS tanpa symlink: lewati.
+        }
         biasa.delete();
         dir.delete();
     }

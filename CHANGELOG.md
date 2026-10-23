@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 96: folder di bawah path symlink tak dikira symlink (Android 5+)
+- `Updater.tautanSimbol`: kini hanya menilai komponen terakhir sebagai tautan dengan membandingkan kanonis induk + nama terhadap kanonis file. Sebelumnya `getCanonicalPath()` dibandingkan dengan path absolut sehingga folder biasa di bawah induk symlink (mis. `/sdcard` → `/storage/emulated/0`) dianggap tautan; `deleteRecursive` lalu berhenti di satu entri dan sisa folder web-vault/binary menumpuk. Ditambah test induk symlink di `tautanSimbol_bedakanLinkDanBiasa`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 95: tag upstream tak lagi diinterpolasi ke shell CI (Android 5+)
 - `.github/workflows/build-apk.yml` + `build-binary.yml`: tag rilis Vaultwarden divalidasi berbentuk versi (`1.34.3`, boleh sufiks `-beta.1`/`+build`) di job `resolve`, lalu diteruskan lewat `env: VW` dan dipakai sebagai `"$VW"` di `run:`. Sebelumnya `${{ needs.resolve.outputs.vw }}` disubstitusi GitHub langsung ke skrip shell; tag berisi `$(...)`/backtick dari upstream yang disusupi bisa dieksekusi di runner ber-`contents: write`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
