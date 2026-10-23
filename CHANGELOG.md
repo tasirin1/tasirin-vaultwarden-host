@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 98: stopAndWait menunggu Start yang belum melahirkan proses (Android 5+)
+- `ServerService.stopAndWait` kini juga menunggu `starting` selesai, bukan hanya `process` mati. Sebelumnya Start yang masih mengunduh/menyiapkan binary membuat `process == null` sehingga fungsi langsung mengembalikan `true`; pemanggil restore lalu menimpa DB dan task Start bisa mengeksekusi binary di tengah restore. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 97: panic getrandom di baris kedua ikut terbaca (Android 5+)
 - `ServerService.detectBinaryVersion`: `lastVersionOutput` kini menyimpan semua baris yang dibaca (maks 2 baris non-noise), bukan hanya baris versi. Sebelumnya panic kernel lama (`thread 'main' panicked ... getrandom ...`) yang dicetak di baris kedua terbuang, sehingga `isKernelRandomPanic` tak menyala dan server tetap dicoba start tanpa shim — gagal berulang dengan pesan tidak jelas. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

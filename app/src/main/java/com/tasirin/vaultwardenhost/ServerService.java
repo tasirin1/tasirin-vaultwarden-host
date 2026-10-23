@@ -837,12 +837,17 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
-        if (!isProcessAlive()) {
+        // Start yang belum melahirkan process (masih mengunduh/menyiapkan binary)
+        // juga wajib ditunggu: process==null bukan berarti tak ada yang akan
+        // menyalakan server. Dulu stopAndWait langsung true sehingga restore
+        // menimpa DB, lalu task Start (yang lolos cek) exec di tengah restore.
+        if (!isProcessAlive() && !starting.get()) {
             return true;
         }
         stop(context);
         long deadline = SystemClock.elapsedRealtime() + timeoutMs;
-        while (SystemClock.elapsedRealtime() < deadline && isProcessAlive()) {
+        while (SystemClock.elapsedRealtime() < deadline
+                && (isProcessAlive() || starting.get())) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -850,7 +855,7 @@ public class ServerService extends Service {
                 return false;
             }
         }
-        return !isProcessAlive();
+        return !isProcessAlive() && !starting.get();
     }
 
     @Override
