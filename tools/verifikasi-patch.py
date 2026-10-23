@@ -151,7 +151,11 @@ def baca(path):
 
 
 def jalan_repo(rel, ext=(".java",)):
-    for akar, _, berkas in os.walk(os.path.join(AKAR, rel)):
+    for akar, dirs, berkas in os.walk(os.path.join(AKAR, rel)):
+        # Hasil build (app/build, .gradle) bukan sumber: dulu ikut dipindai
+        # saat verifikasi lokal sehingga R.java/XML generated memunculkan
+        # temuan palsu yang tak ada di CI (checkout selalu bersih).
+        dirs[:] = [d for d in dirs if d not in ("build", ".gradle", ".git")]
         for nama in berkas:
             if nama.endswith(ext):
                 yield os.path.relpath(os.path.join(akar, nama), AKAR)
@@ -503,9 +507,13 @@ def cek_aturan_repo(gagal, berubah):
     target = re.search(r"targetSdk\s*=\s*(\d+)", tetap)
     if target and int(target.group(1)) >= 29:
         gagal.append("targetSdk %s >= 29 memblokir execve binary (aturan repo)" % target.group(1))
-    abi = re.findall(r'"(arm64-v8a|x86|x86_64)"', tetap)
-    if abi:
-        gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % sorted(set(abi)))
+    abi = set()
+    for baris in tetap.splitlines():
+        if "abiFilters" in baris:
+            abi.update(re.findall(r'"([^"]+)"', baris))
+    asing = sorted(a for a in abi if a != "armeabi-v7a")
+    if asing:
+        gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
     for path in berubah:
         rendah = path.lower()
         if rendah.endswith((".apk", ".aab", ".dex", ".jks", ".keystore")):
@@ -548,10 +556,30 @@ def nama_metode_hilang(diff, lewati_berkas=()):
     return hilang
 
 
+def baris_tanpa_komentar(isi):
+    """(nomor, baris) kode saja: komentar blok/Javadoc dan // dibuang agar
+    nama metode di dokumentasi tak dianggap pemanggilan hidup. Nomor baris
+    tetap asli supaya laporan menunjuk lokasi yang benar."""
+    dalam = False
+    for i, baris in enumerate(isi.splitlines(), 1):
+        s = baris.strip()
+        if dalam:
+            if "*/" in s:
+                dalam = False
+            continue
+        if s.startswith("/*"):
+            if "*/" not in s:
+                dalam = True
+            continue
+        if s.startswith("//") or s.startswith("*"):
+            continue
+        yield i, kupas_java(baris)
+
+
 def masih_didefinisikan(nama):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
     for path in jalan_repo(os.path.join("app", "src", "main", "java")):
-        if pola.search(baca(path)):
+        if pola.search(kupas_java(baca(path))):
             return True
     return False
 
@@ -560,7 +588,7 @@ def pemanggil(nama):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
     temu = []
     for path in jalan_repo("app", ext=(".java",)):
-        for i, baris in enumerate(baca(path).splitlines(), 1):
+        for i, baris in baris_tanpa_komentar(baca(path)):
             if pola.search(baris):
                 temu.append("%s:%d" % (path, i))
                 if len(temu) >= 6:
@@ -587,7 +615,10 @@ def cek_panggil_bekas_hapusan(gagal, diff):
     for nama in sorted(BEKAS_HAPUSAN):
         pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
         for _, baris in tambah_java(diff):
-            if pola.search(baris):
+            # Baris dokumentasi/komentar bukan pemanggilan (mis. {@link foo()}).
+            if baris.lstrip().startswith(("*", "//", "/*")):
+                continue
+            if pola.search(kupas_java(baris)):
                 gagal.append(
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))

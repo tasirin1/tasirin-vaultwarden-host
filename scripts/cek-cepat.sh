@@ -36,10 +36,17 @@ for f in app/src/main/res/layout/*.xml; do
     if ! cmp -s <(ekstrak_id "$f") <(ekstrak_id "$land"); then gagal_msg "ID $f != $land"; fi
   fi
 done
-# 3. Jangan commit binary/APK/zip ke repo (APK tetap kecil).
+# 3. Jangan commit binary/APK/zip/secret ke repo (APK tetap kecil).
 # Termasuk keystore/secret agar password tak bocor ke repo.
-if git diff --cached --name-only | grep -E -q '\.(apk|zip|jks|p12|pfx)$|/vaultwarden-armeabi|/libgetrandom-shim-|keystore|\.env$'; then
-  gagal_msg "binary/APK/zip/secret ikut staged (jks|keystore|p12|pfx|.env dilarang)";
+# Di CI tak ada yang staged (index = HEAD), jadi periksa staged + SEMUA
+# berkas tracked; dulu hanya `git diff --cached` sehingga gate buta di runner.
+POLA_TERLARANG='\.(apk|aab|zip|jks|keystore|p12|pfx|so|a|dex)$|/vaultwarden-armeabi|/libgetrandom-shim-|(^|/)keystore|(^|/)\.env(\.|$)|app/src/main/assets/bin/|(^|/)vw_version\.txt$'
+TERLARANG="$(
+  git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
+  git ls-files 2>/dev/null || true
+)"
+if printf '%s\n' "$TERLARANG" | sort -u | grep -E -q "$POLA_TERLARANG"; then
+  gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
 # 4. Jumlah section README Inggris vs Indonesia vs Rusia wajib sama (jaga sinkron).
 a=$(rg -c '^## ' README.md 2>/dev/null || grep -c '^## ' README.md)

@@ -14,3 +14,7 @@ keystore.jks
 # Python (verifikasi-patch hanya dibaca, tak perlu bytecode)
 __pycache__/
 *.pyc
+
+# Aset yang diisi CI saat build (jangan pernah di-commit)
+app/src/main/assets/bin/
+app/src/main/assets/vw_version.txt

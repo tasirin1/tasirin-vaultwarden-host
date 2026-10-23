@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 108: gerbang patch tak lagi buta di CI & hasil build (CI)
+- `scripts/cek-cepat.sh`: pemeriksaan berkas terlarang kini melihat yang staged **dan** semua berkas tracked, jadi gate tetap bekerja di runner (dulu `git diff --cached` kosong karena checkout bersih). Pola diperluas ke `.aab`/`.so`/`.a`/`.dex`, `assets/bin/`, `vw_version.txt`, dan `.env.*`.
+- `.gitignore`: mengabaikan `app/src/main/assets/bin/` dan `app/src/main/assets/vw_version.txt` yang diisi CI.
+- `tools/verifikasi-patch.py`: `jalan_repo` melewati `build`/`.gradle` (dulu `--semua` lokal memindai hasil build dan memunculkan temuan palsu), cek ABI hanya membaca nilai `abiFilters` (bukan semua string di build.gradle.kts), dan cek metode hilang/pemanggil mengabaikan komentar/Javadoc agar `{@link nama()}` tak dianggap kode hidup. Verifikasi via `verifikasi-patch --semua` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 107: build APK tak lagi rawan kehilangan aset rilis (CI)
 - `.github/workflows/build-apk.yml`: job `perlu` yang selalu menjawab "yes" dihapus, `assembleDebug` yang hasilnya tak dipakai dihapus (lint + unit test + `assembleRelease` cukup), dan `cancel-in-progress` dimatikan agar push baru tak memotong run di tengah publish. Unggahan APK kini memakai `gh release upload --clobber` dengan coba ulang (tanpa hapus manual + jeda 5 dtk) dan diverifikasi lewat ukuran aset di rilis, bukan sekadar namanya. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
