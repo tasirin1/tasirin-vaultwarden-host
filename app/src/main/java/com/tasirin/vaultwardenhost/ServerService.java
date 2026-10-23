@@ -349,6 +349,23 @@ public class ServerService extends Service {
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
+    /** Kunci operasi data (restore DB) vs Start: restore memegang kunci ini
+     *  selama menimpa folder data; Start memakai tryLock agar tak menyalakan
+     *  server di tengah ekstraksi. Restore selalu dipanggil dari worker. */
+    private static final java.util.concurrent.locks.ReentrantLock KUNCI_DATA =
+            new java.util.concurrent.locks.ReentrantLock();
+
+    /** Ambil kunci data untuk restore (blocking; wajib dari worker thread). */
+    public static void kunciData() {
+        KUNCI_DATA.lock();
+    }
+
+    /** Lepas kunci data; aman dipanggil walau bukan pemegang (no-op). */
+    public static void lepasKunciData() {
+        if (KUNCI_DATA.isHeldByCurrentThread()) {
+            KUNCI_DATA.unlock();
+        }
+    }
     /** Statis agar recreate transien tak memegang dua kunci 12 jam (bocor baterai). */
     private static PowerManager.WakeLock wakeLock;
     private static volatile File logFile;
@@ -1469,9 +1486,21 @@ public class ServerService extends Service {
         }
         // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
         boolean masuk = Util.jalankanLama(() -> {
+            boolean kunci = false;
             try {
+                kunci = KUNCI_DATA.tryLock();
+                if (!kunci) {
+                    // Restore sedang menimpa DB: menyalakan server sekarang
+                    // berisiko membaca/menulis DB setengah jadi.
+                    appendLog("[app] Start ditunda: restore database sedang berjalan.");
+                    setStatus("Restore database sedang berjalan - Start ditunda.");
+                    return;
+                }
                 startServer();
             } finally {
+                if (kunci) {
+                    KUNCI_DATA.unlock();
+                }
                 starting.set(false);
             }
         });

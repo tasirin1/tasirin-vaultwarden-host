@@ -646,4 +646,28 @@ public class ServerServiceTest {
         // Kembali sekitar timeout, bukan 30 detik penuh.
         assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
     }
+
+    @Test
+    public void kunciDataMemblokirStartSampaiRestoreSelesai() throws Exception {
+        final java.util.concurrent.CountDownLatch masuk =
+                new java.util.concurrent.CountDownLatch(1);
+        ServerService.kunciData();
+        java.util.concurrent.CompletableFuture<Void> f =
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    ServerService.kunciData();
+                    try {
+                        masuk.countDown();
+                    } finally {
+                        ServerService.lepasKunciData();
+                    }
+                });
+        try {
+            // Selagi restore memegang kunci, Start (thread lain) wajib menunggu.
+            assertFalse(masuk.await(150, java.util.concurrent.TimeUnit.MILLISECONDS));
+        } finally {
+            ServerService.lepasKunciData();
+        }
+        assertTrue(masuk.await(2, java.util.concurrent.TimeUnit.SECONDS));
+        f.get(2, java.util.concurrent.TimeUnit.SECONDS);
+    }
 }

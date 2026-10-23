@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 92: Start tak menyalakan server di tengah restore (Android 5+)
+- `ServerService` menambah kunci data `kunciData()/lepasKunciData()`. `startServerAsync` memakai `tryLock` dan menunda Start dengan pesan jelas bila restore sedang berjalan; restore UI (`SettingsActivity.restoreDatabase`) dan restore zip (`TgBackup.restoreFromZip`) memegang kunci sampai ekstraksi selesai. Sebelumnya bot `/restore` berjalan di pool berbeda dari Start UI sehingga server bisa menyala saat DB setengah ditimpa. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 91: backup selesai tak mematikan service saat Start berjalan (Android 5+)
 - `ServerService` (ACTION_TG_BACKUP): `stopSelf()` di `finally` kini memakai `stopSelf(startId)` dan dilewati bila `starting` masih true. Sebelumnya backup yang selesai saat Start masih mengantre/mengunduh binary (`process` belum lahir) mematikan service di tengah start, lalu `onDestroy` membunuh proses yang baru dibuat. `stopSelf(startId)` juga membuat intent Start yang lebih baru otomatis membatalkan stop. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

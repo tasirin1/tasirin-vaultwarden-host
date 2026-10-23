@@ -2467,6 +2467,19 @@ public final class TgBackup {
      *  diterapkan, kecuali identitas bot (token/chat/password/offset) yang
      *  dipertahankan agar bot tetap terhubung. */
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
+        // Kunci data selama restore: Start yang datang belakangan ditolak
+        // startServerAsync (tryLock), dan Start yang sudah berjalan ditunggu
+        // selesai sebelum DB ditimpa. Tanpa ini server bisa menyala di tengah
+        // ekstraksi (bot /restore berjalan di pool berbeda dari Start UI).
+        ServerService.kunciData();
+        try {
+            return restoreFromZipIsi(ctx, zip);
+        } finally {
+            ServerService.lepasKunciData();
+        }
+    }
+
+    private static String restoreFromZipIsi(Context ctx, File zip) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String curDir = amanString(sp, ServerService.KEY_DATA_DIR,

@@ -1776,7 +1776,14 @@ public class SettingsActivity extends Activity {
             return;
         }
         try {
-            restoreDatabaseIsi(uri, dataDirMentah);
+            // Kunci data sampai ekstraksi selesai: Start yang datang setelah
+            // ini ditolak, dan Start yang sudah jalan ditunggu selesai.
+            ServerService.kunciData();
+            try {
+                restoreDatabaseIsi(uri, dataDirMentah);
+            } finally {
+                ServerService.lepasKunciData();
+            }
         } finally {
             TgBackup.lepasRestore();
         }
