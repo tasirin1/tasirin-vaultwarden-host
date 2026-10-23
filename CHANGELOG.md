@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 121: `.enc` gagal verifikasi tak lagi menumpuk di folder backup (Android 5+)
+- `TgBackup.backupNowIsi`: berkas `.enc` yang sudah ditulis tetapi gagal round-trip (`decryptFile`/`verifikasiZip`) kini dihapus di blok `finally` lewat penanda `sah`. Dulu berkas itu tertinggal di `<folder data>/backups`, ikut dihitung retensi `KEEP_BACKUPS`, dan bisa mengusir backup lama yang sah — bahkan muncul di daftar restore lalu baru gagal saat dipakai.
+
 ## [Belum rilis] — Audit 120: Start saat restore/reset berjalan tak lagi hilang diam-diam (Android 5+)
 - `ServerService.startServerAsync`: bila `KUNCI_DATA` sedang dipegang restore/reset, Start tidak lagi dibuang. Permintaan diulang tiap 5 detik lewat `restartTunda` (maks 60 kali/5 menit) lalu dihentikan dengan pesan jelas "tekan Start setelah selesai". Stop tetap membatalkan percobaan ulang (`batalUtama(restartTunda)` + `autoRestart=false`), dan hitungan di-reset begitu Start berhasil memegang kunci.
 - Dulu `/start` dari bot atau tombol Start saat restore hanya menulis "Start ditunda" tanpa ada yang mencoba lagi, sehingga server tetap mati sampai user menekan Start kedua (padahal `KEY_SERVER_DIMINTA` sudah tersimpan).

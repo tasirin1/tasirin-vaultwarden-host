@@ -659,6 +659,7 @@ public final class TgBackup {
             // Round-trip di cache internal (bukan /sdcard) agar plaintext
             // sementara tak terekspos ke app lain di storage publik.
             File tmpDec = new File(ctx.getCacheDir(), "verifikasi-tmp.zip");
+            boolean sah = false;
             try {
                 encryptFile(zip, enc, pass.trim());
                 // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
@@ -668,6 +669,7 @@ public final class TgBackup {
                     throw new IOException("Backup gagal verifikasi setelah enkripsi: "
                             + galat2);
                 }
+                sah = true;
             } finally {
                 // Plaintext (berisi kunci privat TLS) wajib hilang juga saat
                 // enkripsi/verifikasi gagal — dulu zip.delete() hanya jalan
@@ -675,6 +677,12 @@ public final class TgBackup {
                 // backup yang bisa dibaca app lain.
                 zip.delete();
                 tmpDec.delete();
+                if (!sah) {
+                    // .enc gagal verifikasi tak pernah diunggah dan tak layak
+                    // di-restore: jangan biarkan ia memakan kuota retensi lalu
+                    // mengusir backup bagus pada sapuan berikutnya.
+                    enc.delete();
+                }
             }
             upload = enc;
             // .enc baru masuk folder backup di sini, sapu retensi setelahnya.
