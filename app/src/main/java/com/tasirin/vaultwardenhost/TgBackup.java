@@ -651,6 +651,12 @@ public final class TgBackup {
         if (zip == null || !zip.exists()) {
             throw new IOException("Backup gagal dibuat.");
         }
+        // Zip lolos verifikasi: baru sekarang retensi boleh mengusir yang lama
+        // (jalan tanpa password = zip disimpan di folder backup). Jalur
+        // terenkripsi menyapu setelah .enc jadi, di bawah.
+        if (!terenkripsi) {
+            cleanupOldBackups(new File(dataDir, "backups"));
+        }
         File upload = zip;
         if (pass != null && !pass.trim().isEmpty()) {
             File backupDir = new File(dataDir, "backups");
@@ -1599,12 +1605,9 @@ public final class TgBackup {
             }
             throw e;
         }
-        // Retensi hanya untuk zip plaintext yang memang disimpan di folder
-        // backup user; zip sementara (akan dienkripsi) dibersihkan pemanggil
-        // dan .enc-nya disapu di sana setelah selesai.
-        if (dirZipSementara == null) {
-            cleanupOldBackups(backupDir);
-        }
+        // Retensi TIDAK dijalankan di sini: zip baru belum diverifikasi, dan
+        // zip korup yang langsung mengusir backup lama membuat riwayat menipis
+        // justru saat backup sedang bermasalah. Pemanggil menyapu setelah lolos.
         return zip;
     }
 

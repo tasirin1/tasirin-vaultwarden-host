@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 122: Retensi backup hanya menyapu setelah zip terverifikasi (Android 5+)
+- `TgBackup.createBackupZip` tak lagi memanggil `cleanupOldBackups`; pemanggil menyapu setelah zip lolos `verifikasiZip` + `verifikasiIsiDbZip` (jalur tanpa password) atau setelah `.enc` jadi (jalur terenkripsi). Dulu retensi jalan sebelum verifikasi, sehingga percobaan backup yang gagal (DB robek saat server menulis) tetap mengusir satu backup lama yang sah — riwayat menipis justru ketika backup sedang bermasalah.
+
 ## [Belum rilis] — Audit 121: `.enc` gagal verifikasi tak lagi menumpuk di folder backup (Android 5+)
 - `TgBackup.backupNowIsi`: berkas `.enc` yang sudah ditulis tetapi gagal round-trip (`decryptFile`/`verifikasiZip`) kini dihapus di blok `finally` lewat penanda `sah`. Dulu berkas itu tertinggal di `<folder data>/backups`, ikut dihitung retensi `KEEP_BACKUPS`, dan bisa mengusir backup lama yang sah — bahkan muncul di daftar restore lalu baru gagal saat dipakai.
 
