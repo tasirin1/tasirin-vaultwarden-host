@@ -1212,6 +1212,14 @@ public class TgBackupTest {
     }
 
     @Test
+    public void editMessageKb_abaikanMasukanTakSah() {
+        // Context hilang (service dibunuh) atau ID tak sah: edit menu hanya
+        // dilewati, bukan melempar keluar ke pemanggil bot.
+        TgBackup.editMessageKb(null, 1, 1, "menu", null);
+        TgBackup.editMessageKb(null, 0, 0, null, null);
+    }
+
+    @Test
     public void tugasDataJalan_mengikutiKunciRestore() {
         assertFalse(TgBackup.tugasDataJalan());
         assertTrue(TgBackup.kunciRestore());
