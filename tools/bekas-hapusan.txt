@@ -13,3 +13,8 @@ mulaiAksi
 tungguBootStabil
 hashLegasiValid
 penanganAntreanPenuh_buangTertuaTanpaLempar
+bolehTampilDialogKelola
+tampilDialogKelola
+bukaPengaturanKelola
+dialogTampilSekaliPerProsesWalauBaruBoot
+cukupAkses_api30HanyaKelolaSemuaFile

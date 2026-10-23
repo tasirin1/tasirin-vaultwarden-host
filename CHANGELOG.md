@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 76: Android 11+ tak lagi wajib All files access (Android 5+)
+- `StoragePerm.cukupAkses`: pada API 30+ kini menerima izin tulis runtime ATAU All files access. targetSdk 28 tetap memakai model legacy di Android 11+ (scoped storage baru diwajibkan untuk target 30+), jadi `/sdcard/vaultwarden` sudah bisa ditulis dengan izin Storage biasa. Sebelumnya aplikasi menolak Start di Android 11+ walau izin tulis sudah diberikan, kecuali pengguna juga memberi All files access.
+- `mintaIzinBilaPerlu`: Android 11+ ikut meminta izin tulis runtime (jalur sama dengan Android 6-10); dialog "buka pengaturan All files" + throttle 5 menit dihapus (`tampilDialogKelola`/`bukaPengaturanKelola`/`bolehTampilDialogKelola`, string `izin_storage_judul/pesan/buka/nanti`). `MANAGE_EXTERNAL_STORAGE` tetap dideklarasikan dan tetap diterima bila pengguna memberikannya manual.
+- Test `cukupAkses_api30TerimaLegacyAtauKelola`; test dialog All-files dihapus. Nama metode yang dihapus dicatat di `tools/bekas-hapusan.txt`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 75: backup "saat Start" tak dijadwalkan saat start gagal (Android 5+)
 - `SettingsActivity` (tombol Start): `maybeAutoBackup()` dipindah ke dalam alur start dan hanya dipanggil bila `ServerService.start()` diterima. Pada jalur "Download & Start" ia dulu dipanggil tepat setelah tugas unduh 35 MB dimasukkan antrean — sehingga backup otomatis bisa berjalan bersamaan dengan unduhan, dan tetap dijadwalkan walau unduh gagal (server tidak pernah start) sehingga lapor "Database belum siap 30 dtk setelah Start" atau membuat backup yang menandai `tg_last` padahal server tidak jalan. Dua jalur lain ikut dijaga dengan `if (ServerService.start(...))`. Tanpa test baru (butuh Service/Context Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

@@ -49,10 +49,6 @@
     <string name="pin_label">App lock PIN</string>
     <string name="pin_hint">PIN min. 4 characters (letters/digits)</string>
     <string name="battery_not_allowed">Full access not allowed yet</string>
-    <string name="izin_storage_judul">Storage permission needed</string>
-    <string name="izin_storage_pesan">The data folder (/sdcard/vaultwarden) lives on shared storage. On Android 11+, choose “Allow access to manage all files” so the folder can be created and written. Without it, Start fails with a “Folder not writable” message.</string>
-    <string name="izin_storage_buka">Open Settings</string>
-    <string name="izin_storage_nanti">Later</string>
     <string name="izin_storage_belum">Storage permission not granted yet — Start cancelled.</string>
     <string name="izin_storage_ditolak">Storage permission denied — /sdcard/vaultwarden cannot be written. Allow it in Phone Settings → Apps → Permissions.</string>
     <string name="auto_update_binary">Auto-update binary when a new version exists (home network)</string>

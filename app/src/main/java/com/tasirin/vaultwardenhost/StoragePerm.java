@@ -2,20 +2,18 @@ package com.tasirin.vaultwardenhost;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.Settings;
 import android.widget.Toast;
 
 /** Izin penyimpanan untuk semua versi Android (Bahasa Indonesia).
  *  Satu pintu agar MainActivity dan SettingsActivity berperilaku sama:
- *  Android 6-10 cukup izin runtime biasa, Android 11+ butuh
- *  All files access agar /storage/emulated/0/vaultwarden writable. */
+ *  Android 6+ cukup izin tulis runtime. targetSdk 28 tetap memakai model
+ *  legacy di Android 11+ (scoped storage baru wajib untuk target 30+),
+ *  jadi All files access hanya alternatif yang tetap diterima bila sudah
+ *  diberikan — bukan syarat agar /sdcard/vaultwarden bisa ditulis. */
 public final class StoragePerm {
 
     private StoragePerm() {
@@ -60,11 +58,12 @@ public final class StoragePerm {
                 || d.equals("/mnt") || d.startsWith("/mnt/");
     }
 
-    /** Keputusan akses murni (mudah diuji): di API 30+ hanya All files access
-     *  yang cukup untuk /storage/emulated/0 — izin runtime biasa tidak berlaku. */
+    /** Keputusan akses murni (mudah diuji): di API 30+ terima All files access
+     *  ATAU izin tulis runtime — targetSdk 28 masih model legacy sehingga
+     *  /sdcard bisa ditulis dengan izin biasa. All files hanya alternatif. */
     static boolean cukupAkses(int sdk, boolean kelolaSemuaFile, boolean tulisDiberikan) {
         if (butuhKelolaSemuaFile(sdk)) {
-            return kelolaSemuaFile;
+            return kelolaSemuaFile || tulisDiberikan;
         }
         if (sdk >= 23) {
             return tulisDiberikan;
@@ -107,37 +106,11 @@ public final class StoragePerm {
         return false;
     }
 
-    /** Terakhir dialog kelola ditampilkan (elapsed, anti-spam tiap buka app). */
-    private static volatile long dialogKelolaTerakhirElapsed = 0;
-    /** Dialog belum pernah tampil di proses ini: tampilkan sekali walau uptime
-     *  < 5 menit (throttle elapsed buta pasca-reboot karena penanda ikut reset). */
-    private static volatile boolean dialogKelolaPernahTampil = false;
-
-    /** True bila dialog boleh tampil (sekali per proses + jeda anti-spam).
-     *  Murni agar bisa unit test. */
-    static boolean bolehTampilDialogKelola(long kini, long terakhir, boolean pernah, long jeda) {
-        return !pernah || terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
-    }
-
-    /** Minta izin bila belum ada. Kembalikan true bila ada aksi diminta/dibuka. */
+    /** Minta izin tulis bila belum ada. Kembalikan true bila ada aksi diminta.
+     *  Android 11+ ikut jalur ini: targetSdk 28 masih model legacy, jadi izin
+     *  tulis runtime cukup. All files access (bila sudah diberikan) tetap
+     *  diterima `cukupAkses` tanpa dipaksa lewat dialog pengaturan. */
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            boolean kelola = false;
-            try {
-                kelola = Environment.isExternalStorageManager();
-            } catch (Exception ignored) {
-            }
-            if (!kelola) {
-                long kini = android.os.SystemClock.elapsedRealtime();
-                if (bolehTampilDialogKelola(kini, dialogKelolaTerakhirElapsed,
-                        dialogKelolaPernahTampil, 5 * 60 * 1000)) {
-                    dialogKelolaTerakhirElapsed = kini;
-                    dialogKelolaPernahTampil = true;
-                    tampilDialogKelola(act);
-                }
-                return true;
-            }
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 if (act.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -165,41 +138,6 @@ public final class StoragePerm {
         ServerService.catatLog("[app] Start dibatalkan: izin penyimpanan belum diberikan "
                 + "untuk " + dataDir + ".");
         return false;
-    }
-
-    /** Dialog penjelasan All files access (ramah D-pad, tombol besar). */
-    private static void tampilDialogKelola(final Activity act) {
-        try {
-            new AlertDialog.Builder(act)
-                    .setTitle(act.getString(R.string.izin_storage_judul))
-                    .setMessage(act.getString(R.string.izin_storage_pesan))
-                    .setPositiveButton(act.getString(R.string.izin_storage_buka),
-                            (d, w) -> bukaPengaturanKelola(act))
-                    .setNegativeButton(act.getString(R.string.izin_storage_nanti), null)
-                    .show();
-        } catch (Exception ignored) {
-            bukaPengaturanKelola(act);
-        }
-    }
-
-    /** Buka layar All files access untuk app ini (dengan fallback). */
-    public static void bukaPengaturanKelola(Activity act) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return;
-        }
-        try {
-            Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                    Uri.parse("package:" + act.getPackageName()));
-            act.startActivity(i);
-            return;
-        } catch (Exception ignored) {
-        }
-        try {
-            act.startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
-        } catch (Exception e) {
-            Toast.makeText(act, act.getString(R.string.izin_storage_belum),
-                    Toast.LENGTH_LONG).show();
-        }
     }
 
     /** Pesan penolakan izin runtime biasa (dipakai onRequestPermissionsResult). */

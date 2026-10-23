@@ -831,7 +831,8 @@ public class SettingsActivity extends Activity {
             });
         });
 
-        // Izin storage untuk semua Android (biasa di 6-10, All files di 11+).
+        // Izin storage untuk semua Android (izin tulis runtime; targetSdk 28
+        // tetap legacy di Android 11+, All files tidak diwajibkan).
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
         bundledVersion = Updater.readBundledVersionLabel(this);

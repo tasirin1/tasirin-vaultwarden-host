@@ -35,10 +35,12 @@ public class StoragePermTest {
     }
 
     @Test
-    public void cukupAkses_api30HanyaKelolaSemuaFile() {
+    public void cukupAkses_api30TerimaLegacyAtauKelola() {
         assertTrue(StoragePerm.cukupAkses(30, true, false));
         assertTrue(StoragePerm.cukupAkses(34, true, true));
-        assertFalse(StoragePerm.cukupAkses(30, false, true));
+        // targetSdk 28 tetap legacy: izin tulis runtime cukup di Android 11+.
+        assertTrue(StoragePerm.cukupAkses(30, false, true));
+        assertTrue(StoragePerm.cukupAkses(33, false, true));
         assertFalse(StoragePerm.cukupAkses(33, false, false));
     }
 
@@ -73,16 +75,6 @@ public class StoragePermTest {
         assertFalse(StoragePerm.butuhIzinEksternal("/storagex"));
         assertTrue(StoragePerm.butuhIzinEksternal("/sdcard"));
         assertTrue(StoragePerm.butuhIzinEksternal("/sdcard/"));
-    }
-
-    @Test
-    public void dialogTampilSekaliPerProsesWalauBaruBoot() {
-        // Proses baru (belum pernah tampil): tampil walau uptime < 5 menit.
-        assertTrue(StoragePerm.bolehTampilDialogKelola(60_000, 0, false, 300_000));
-        // Sudah tampil: throttle 5 menit berlaku, reboot (kini mundur) lolos lagi.
-        assertFalse(StoragePerm.bolehTampilDialogKelola(200_000, 100_000, true, 300_000));
-        assertTrue(StoragePerm.bolehTampilDialogKelola(400_000, 100_000, true, 300_000));
-        assertTrue(StoragePerm.bolehTampilDialogKelola(50_000, 100_000, true, 300_000));
     }
 
     @Test
