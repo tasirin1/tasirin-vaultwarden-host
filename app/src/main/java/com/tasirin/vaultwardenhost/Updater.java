@@ -1535,13 +1535,24 @@ public final class Updater {
      *  murah, aman dipanggil dari UI thread. Murni file. */
     public static boolean webVaultReady(Context ctx, String dataDir) {
         try {
-            if (dataDir != null && new File(dataDir, "web-vault/index.html").exists()) {
+            if (dataDir != null && wvPayloadAda(new File(dataDir, "web-vault"))) {
                 return true;
             }
-            return ctx != null && new File(ctx.getFilesDir(), "web-vault/index.html").exists();
+            return ctx != null && wvPayloadAda(new File(ctx.getFilesDir(), "web-vault"));
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** True bila folder web-vault punya payload yang dipakai browser.
+     *  Penanda versi saja tidak cukup: index.html hilang = web UI 404.
+     *  Murni (hanya filesystem) agar bisa unit test. */
+    static boolean wvPayloadAda(File targetDir) {
+        if (targetDir == null) {
+            return false;
+        }
+        File idx = new File(targetDir, "index.html");
+        return idx.isFile() && idx.length() > 0;
     }
 
     /** Unduh & ekstrak web-vault ke folder data; return pesan hasil.
@@ -1604,20 +1615,18 @@ public final class Updater {
 
         String latest = diminta;
 
-        // Sudah terpasang versi yang sama? Jangan unduh ulang 35 MB.
-        boolean wvExists = new File(targetDir, "vw-version.json").exists()
-                || new File(targetDir, "index.html").exists();
+        // Payload yang benar-benar dipakai browser. Penanda versi saja tak cukup:
+        // index.html yang hilang (swap terputus) dulu tetap dianggap "terpasang"
+        // sehingga tombol Update menjawab "sudah terbaru" padahal web UI 404.
+        boolean wvExists = wvPayloadAda(targetDir);
         String installed = TgBackup.amanString(sp, KEY_WV_FROM, "");
-        if (wvExists && latest != null) {
-            // Penanda lama (sebelum fitur ini): pakai versi server yang terdeteksi.
-            String known = !installed.isEmpty() ? installed
-                    : parseBinaryVersion(ServerService.binaryVersion);
-            if (known != null && !known.isEmpty() && versiCocok(known, latest)) {
-                if (installed.isEmpty()) {
-                    sp.edit().putString(KEY_WV_FROM, latest).apply();
-                }
-                return "Web vault sudah versi terbaru: v" + latest;
-            }
+        // Hanya penanda tag Vaultwarden yang boleh dipakai membandingkan.
+        // vw-version.json berisi versi web-vault Bitwarden (namespace berbeda) dan
+        // versi binary server bukan bukti isi web-vault; tanpa penanda, pasang
+        // ulang sekali agar folder basi/terpotong sembuh sendiri.
+        if (wvExists && latest != null && !installed.isEmpty()
+                && versiCocok(installed, latest)) {
+            return "Web vault sudah versi terbaru: v" + latest;
         }
         if (wvExists && latest == null && !installed.isEmpty()) {
             return "Web vault v" + installed

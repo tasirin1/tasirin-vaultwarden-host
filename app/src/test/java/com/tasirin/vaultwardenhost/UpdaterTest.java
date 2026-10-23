@@ -28,6 +28,30 @@ public class UpdaterTest {
     }
 
     @Test
+    public void wvPayloadAda_wajibIndexBerisi() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"),
+                "vw-wvpayload-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        assertFalse(Updater.wvPayloadAda(dir));
+        // Penanda versi saja bukan payload: web UI tetap 404 tanpa index.html.
+        java.io.File json = new java.io.File(dir, "vw-version.json");
+        assertTrue(json.createNewFile());
+        assertFalse(Updater.wvPayloadAda(dir));
+        // index.html kosong juga bukan payload (swap terputus).
+        java.io.File idx = new java.io.File(dir, "index.html");
+        assertTrue(idx.createNewFile());
+        assertFalse(Updater.wvPayloadAda(dir));
+        java.nio.file.Files.write(idx.toPath(),
+                "<html></html>".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        assertTrue(Updater.wvPayloadAda(dir));
+        assertFalse(Updater.wvPayloadAda(null));
+        json.delete();
+        idx.delete();
+        dir.delete();
+    }
+
+    @Test
     public void hostBerubah_deteksiLintasHost() {
         assertFalse(Updater.hostBerubah("https://github.com/a/b", "https://github.com/c/d"));
         assertFalse(Updater.hostBerubah("https://github.com:443/a", "https://github.com/b"));

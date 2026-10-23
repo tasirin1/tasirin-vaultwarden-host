@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 70: "web-vault sudah terbaru" tak lagi palsu (Android 5+)
+- `Updater.updateWebVaultInner`: "terpasang" kini hanya bila `web-vault/index.html` benar-benar ada dan berisi (`wvPayloadAda`), bukan sekadar ada `vw-version.json`. Sebelumnya folder dengan penanda tapi `index.html` hilang (swap terputus/storage penuh) selalu dijawab "sudah versi terbaru" sehingga web UI 404 permanen dan tombol Update tak memperbaiki apa pun.
+- Versi terpasang hanya dipercaya dari penanda tag Vaultwarden (`wv_from_version`). Tebakan dari versi binary dihapus: namespace-nya beda dan bukan bukti isi web-vault, sehingga justru menutup peluang self-heal saat penanda kosong. `webVaultReady` memakai pintu yang sama (index kosong = belum siap).
+- Test baru `wvPayloadAda_wajibIndexBerisi` (penanda saja, index kosong, index berisi, null). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 69: dialog tawaran web-vault aman lifecycle (Android 5+)
 - `SettingsActivity.autoOfferWebVaultUpdate`: dialog dipindah utuh ke dalam `ui.post` dengan penjaga `isFinishing()/isDestroyed()` (pola sama dengan dialog lain di kelas ini), dan penanda `wv_notified_<server>` baru ditulis setelah Activity terbukti hidup. Sebelumnya penanda ditulis di worker sebelum dialog tampil, lalu `show()` tanpa penjaga: keluar dari Settings saat cek update berjalan bisa memicu `BadTokenException` (app tertutup) dan tawaran update hilang permanen karena penanda sudah terlanjur true. Tanpa test baru (butuh lifecycle Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
