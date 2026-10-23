@@ -562,14 +562,6 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void smokeGagal_throttleGagalBaru() {
-        assertTrue(ServerService.smokeGagalBaruSaja(61_000, 60_000, 60_000));
-        assertFalse(ServerService.smokeGagalBaruSaja(121_000, 60_000, 60_000));
-        assertFalse(ServerService.smokeGagalBaruSaja(50_000, 0, 60_000));
-        assertFalse(ServerService.smokeGagalBaruSaja(50_000, 60_000, 60_000));
-    }
-
-    @Test
     public void normalisasiPort_tanpaEksepsiUntukInputAneh() {
         assertEquals("8088", ServerService.normalisasiPort("8088"));
         assertEquals("8088", ServerService.normalisasiPort("  8088  "));

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 81: hapus throttle smoke test yang tak pernah dipakai (Android 5+)
+- `ServerService`: buang `smokeGagalAt`, `SMOKE_GAGAL_TTL_MS`, dan `smokeGagalBaruSaja()` beserta tiga penulisannya. Nilainya tak pernah dibaca jalur produksi (hanya unit test), sehingga komentar "anti unduh ulang tiap Start" menyesatkan: throttle unduhan yang benar-benar bekerja adalah `KEY_BIN_DL_GAGAL_AT` + `bolehCobaUnduhLagi` (persisten, dipakai `resolveBinary` dan `AutoUpdate`). Smoke test `--version` tetap dijalankan tiap Start karena itu gerbang terakhir sebelum binary dieksekusi.
+- Test `smokeGagal_throttleGagalBaru` dihapus; kedua nama metode dicatat di `tools/bekas-hapusan.txt`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 80: kegagalan cek update tidak lagi sunyi (Android 5+)
 - `AutoUpdate.cek`: catch terluar tidak lagi kosong — kegagalan (prefs korup, parsing versi, callback UI) dicatat sebagai `[app] Cek update gagal: ...` lewat `aksi.catat`, yang dibungkus try/catch agar kegagalan callback tak menular. Sebelumnya semua galat ditelan sehingga keluhan \"auto-update tak pernah jalan\" tidak meninggalkan jejak apa pun di log aplikasi.
 - Bila `versiTargetBinary` mengembalikan null (offline/rate-limit), kini dicatat `[app] Cek update dilewati: versi terbaru tak terbaca (offline/rate-limit).` alih-alih return tanpa keterangan. Tanpa test baru (butuh Context/Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
