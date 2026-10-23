@@ -1017,4 +1017,26 @@ public class UpdaterTest {
         assertNull(Updater.normalisasiPinVersi("v1.32"));
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
     }
+
+    @Test
+    public void fallbackBinaryBerlaku_hanyaVersiSamaDanDalamJeda() {
+        long kini = 1_000_000_000L;
+        assertTrue(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3", kini - 1000, kini));
+        assertTrue(Updater.fallbackBinaryBerlaku("1.34.3", "v1.34.3", kini - 1000, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku("1.34.4", "1.34.3", kini - 1000, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "", kini - 1000, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku(null, "1.34.3", kini - 1000, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3",
+                kini - Updater.WV_FALLBACK_TUNDA_MS - 1, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3", 0, kini));
+        assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3",
+                kini + 1000, kini));
+    }
+
+    @Test
+    public void binaryFallbackUrl_menunjukAssetAbiIni() {
+        String u = Updater.binaryFallbackUrl();
+        assertTrue(u.contains("/releases/latest/download/"));
+        assertTrue(u.endsWith("/vaultwarden-" + ServerService.ABI));
+    }
 }

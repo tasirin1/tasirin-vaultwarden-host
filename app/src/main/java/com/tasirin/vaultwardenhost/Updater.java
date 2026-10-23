@@ -46,6 +46,12 @@ public final class Updater {
         return RELEASE_LATEST_URL + "vaultwarden-" + abi;
     }
 
+    /** URL binary ABI ini dari rilis terbaru repo (fallback saat asset versi
+     *  target belum terbit). Satu pintu agar URL tak ditulis di beberapa tempat. */
+    static String binaryFallbackUrl() {
+        return RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
+    }
+
     /** URL asset shim getrandom untuk versi resmi tertentu; fallback latest bila tak dikenal. */
     static String shimAssetUrl(String latest) {
         String t = latest == null ? "" : latest.trim();
@@ -311,6 +317,10 @@ public final class Updater {
     static final String KEY_WV_FALLBACK_FOR = "wv_fallback_for";
     /** Jangkar elapsed saat fallback dipasang (SystemClock, ms). */
     static final String KEY_WV_FALLBACK_AT = "wv_fallback_at";
+    /** Versi target yang asset binary-nya belum terbit; sudah pakai rilis terbaru. */
+    static final String KEY_BIN_FALLBACK_FOR = "bin_fallback_for";
+    /** Jangkar elapsed saat fallback binary dipasang (SystemClock, ms). */
+    static final String KEY_BIN_FALLBACK_AT = "bin_fallback_at";
     /** Jeda unduh ulang setelah pasang fallback (asset CI terbit ~12 jam). */
     static final long WV_FALLBACK_TUNDA_MS = 6L * 3600 * 1000;
 
@@ -319,6 +329,22 @@ public final class Updater {
     static boolean fallbackBaruSaja(String latest, boolean wvExists, String untuk,
             long at, long kiniElapsed) {
         if (!wvExists || latest == null || latest.isEmpty()) {
+            return false;
+        }
+        if (!versiCocok(latest, untuk)) {
+            return false;
+        }
+        if (at <= 0 || kiniElapsed < at) {
+            return false;
+        }
+        return kiniElapsed - at < WV_FALLBACK_TUNDA_MS;
+    }
+
+    /** True bila fallback binary untuk versi target ini masih dalam jeda 6 jam:
+     *  lewati percobaan 404 + unduh ~20 MB berulang tiap cek update. Murni. */
+    static boolean fallbackBinaryBerlaku(String latest, String untuk, long at,
+            long kiniElapsed) {
+        if (latest == null || latest.isEmpty()) {
             return false;
         }
         if (!versiCocok(latest, untuk)) {
@@ -996,6 +1022,16 @@ public final class Updater {
             }
             return sebutan + latest;
         }
+        // Asset versi target belum terbit dan fallback sudah dipasang < 6 jam:
+        // lewati 404 + unduh ~20 MB berulang tiap cek (auto-update tiap Start).
+        if (!paksa && !butuhRefresh && !adaKuncianBinary(ctx)
+                && fallbackBinaryBerlaku(latest,
+                        TgBackup.amanString(sp, KEY_BIN_FALLBACK_FOR, ""),
+                        TgBackup.amanLong(sp, KEY_BIN_FALLBACK_AT, 0),
+                        SystemClock.elapsedRealtime())) {
+            return "Build Android v" + latest + " belum tersedia; binary rilis"
+                    + " sebelumnya tetap dipakai (dicoba lagi otomatis nanti).";
+        }
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
@@ -1077,6 +1113,15 @@ public final class Updater {
         // asset-nya belum ada: gagal lantang agar user tahu pin-nya bermasalah.
         boolean bolehFallback = !adaKuncianBinary(ctx);
         String assetUrl = binaryAssetUrl(latest, ServerService.ABI);
+        // Fallback yang baru dipasang untuk versi target yang sama: langsung
+        // pakai rilis terbaru (jangan ulang 404 + unduh 20 MB tiap cek).
+        SharedPreferences spBin = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        boolean fallbackTercatat = bolehFallback && known && fallbackBinaryBerlaku(
+                latest,
+                TgBackup.amanString(spBin, KEY_BIN_FALLBACK_FOR, ""),
+                TgBackup.amanLong(spBin, KEY_BIN_FALLBACK_AT, 0),
+                SystemClock.elapsedRealtime());
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()
                 && !binDir.mkdirs() && !binDir.exists()) {
@@ -1118,8 +1163,8 @@ public final class Updater {
         File tmp = new File(binDir, out.getName() + ".tmp");
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
-        final boolean[] pakaiTerbaru = {false};
-        final String[] urlAkhir = {assetUrl};
+        final boolean[] pakaiTerbaru = {fallbackTercatat};
+        final String[] urlAkhir = {fallbackTercatat ? binaryFallbackUrl() : assetUrl};
         String digestHex;
         try {
             digestHex = unduhKeTmp(ctx, assetUrl, tmp, "binary", 20000, 60000,
@@ -1131,8 +1176,7 @@ public final class Updater {
                                 // Rilis versi ini belum ada / sedang dibuat ulang CI -
                                 // pakai binary rilis terbaru repo agar tetap bisa Start.
                                 pakaiTerbaru[0] = true;
-                                urlAkhir[0] = RELEASE_LATEST_URL + "vaultwarden-"
-                                        + ServerService.ABI;
+                                urlAkhir[0] = binaryFallbackUrl();
                                 return urlAkhir[0];
                             }
                             throw new IOException(known
@@ -1213,6 +1257,18 @@ public final class Updater {
         // ownerOnly=true: hanya UID app yang membaca binary — tidak world-readable.
         out.setReadable(true, true);
         out.setExecutable(true, true);
+        // Catat/bersihkan penanda fallback: cek update berikutnya tak lagi
+        // mencoba asset versi target yang belum terbit (hemat ~20 MB/cek).
+        if (known) {
+            if (fallback) {
+                spBin.edit().putString(KEY_BIN_FALLBACK_FOR, latest)
+                        .putLong(KEY_BIN_FALLBACK_AT, SystemClock.elapsedRealtime())
+                        .apply();
+            } else {
+                spBin.edit().remove(KEY_BIN_FALLBACK_FOR)
+                        .remove(KEY_BIN_FALLBACK_AT).apply();
+            }
+        }
         writeVersionTag(binDir, appVersionName(ctx));
         String installed = asap;
         String effective = installed != null ? installed

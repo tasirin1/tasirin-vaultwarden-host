@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 99: fallback binary tak lagi diunduh 20 MB tiap cek (Android 5+)
+- `Updater`: fallback ke rilis terbaru (saat asset versi target belum terbit) kini dicatat di `bin_fallback_for`/`bin_fallback_at` dan berlaku 6 jam, sama seperti web-vault. `tryUpdateVersi` melewati percobaan unduh selama penanda berlaku, dan `downloadBinaryInner` langsung memakai URL rilis terbaru (bukan mencoba asset 404 dulu). Sebelumnya setiap cek update mengulang 404 lalu mengunduh ulang ~20 MB karena penanda hanya hidup per panggilan. Ditambah test `fallbackBinaryBerlaku_*` + `binaryFallbackUrl_*`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 98: stopAndWait menunggu Start yang belum melahirkan proses (Android 5+)
 - `ServerService.stopAndWait` kini juga menunggu `starting` selesai, bukan hanya `process` mati. Sebelumnya Start yang masih mengunduh/menyiapkan binary membuat `process == null` sehingga fungsi langsung mengembalikan `true`; pemanggil restore lalu menimpa DB dan task Start bisa mengeksekusi binary di tengah restore. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
