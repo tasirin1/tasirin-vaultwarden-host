@@ -1495,10 +1495,10 @@ public class ServerService extends Service {
             try {
                 kunci = KUNCI_DATA.tryLock();
                 if (!kunci) {
-                    // Restore sedang menimpa DB: menyalakan server sekarang
-                    // berisiko membaca/menulis DB setengah jadi.
-                    appendLog("[app] Start ditunda: restore database sedang berjalan.");
-                    setStatus("Restore database sedang berjalan - Start ditunda.");
+                    // Restore/reset sedang menimpa DB atau file TLS: menyalakan
+                    // server sekarang berisiko membaca setengah jadi.
+                    appendLog("[app] Start ditunda: operasi data (restore/reset) sedang berjalan.");
+                    setStatus("Restore/reset sedang berjalan - Start ditunda.");
                     return;
                 }
                 startServer();

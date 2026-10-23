@@ -1703,28 +1703,36 @@ public final class TgBackup {
     /** Reset sertifikat (hapus CA + leaf) agar CA baru dibuat saat Start berikut.
      *  Wajib install ulang CA di semua HP setelahnya. */
     public static String resetSertifikat(Context ctx) throws Exception {
-        // Reset saat server HTTPS jalan menembak kaki sendiri: Rocket memegang
-        // cert di memori, tapi health check loopback kehilangan CA → 3x gagal →
-        // server dibunuh sebagai "tidak sehat". Tolak dengan pesan jelas.
-        if (ServerService.isProcessAlive() && ServerService.runningHttps) {
-            throw new IOException("Server masih berjalan (HTTPS) - Stop dulu,"
-                    + " lalu reset agar health check tak salah menilai.");
+        // Serial dengan Start/restore lewat kunci data yang sama: dulu reset
+        // bisa menghapus CA tepat saat TlsCert.ensure sedang membuat/memasang
+        // pasangan baru, sehingga Start gagal atau pesan reset menyesatkan.
+        ServerService.kunciData();
+        try {
+            // Reset saat server HTTPS jalan menembak kaki sendiri: Rocket memegang
+            // cert di memori, tapi health check loopback kehilangan CA → 3x gagal →
+            // server dibunuh sebagai "tidak sehat". Tolak dengan pesan jelas.
+            if (ServerService.isProcessAlive() && ServerService.runningHttps) {
+                throw new IOException("Server masih berjalan (HTTPS) - Stop dulu,"
+                        + " lalu reset agar health check tak salah menilai.");
+            }
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
+                    ServerService.dataDirBawaanSegar());
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = ServerService.dataDirBawaanSegar();
+            }
+            int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
+                    + TlsCert.resetTls(new File(dataDir, "tls"));
+            if (hapus == 0) {
+                throw new IOException("Sertifikat belum ada, tak ada yang di-reset.");
+            }
+            return "Sertifikat di-reset (" + hapus + " file dihapus)."
+                    + " Tekan Start untuk membuat CA baru, lalu install ulang CA"
+                    + " di semua HP (Bagikan CA / /ca / backup storage).";
+        } finally {
+            ServerService.lepasKunciData();
         }
-        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                Context.MODE_PRIVATE);
-        String dataDir = amanString(sp, ServerService.KEY_DATA_DIR,
-                ServerService.dataDirBawaanSegar());
-        if (dataDir == null || dataDir.trim().isEmpty()) {
-            dataDir = ServerService.dataDirBawaanSegar();
-        }
-        int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
-                + TlsCert.resetTls(new File(dataDir, "tls"));
-        if (hapus == 0) {
-            throw new IOException("Sertifikat belum ada, tak ada yang di-reset.");
-        }
-        return "Sertifikat di-reset (" + hapus + " file dihapus)."
-                + " Tekan Start untuk membuat CA baru, lalu install ulang CA"
-                + " di semua HP (Bagikan CA / /ca / backup storage).";
     }
 
     /** Batas upload Bot API Telegram (50 MB): tolak lebih awal agar tak menahan slot tugas. */

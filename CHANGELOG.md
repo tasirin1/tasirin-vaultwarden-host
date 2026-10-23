@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 105: reset sertifikat tak lagi balapan dengan Start (Android 5+)
+- `TgBackup.resetSertifikat` kini memegang `ServerService.KUNCI_DATA` (kunci yang sama dengan Start/restore) dan memeriksa ulang status server di dalam kunci; `TlsCert.resetTls` ikut mengunci `KUNCI_ENSURE` yang dipakai `TlsCert.ensure`. Sebelumnya reset dari tombol Settings atau perintah bot `/careset` bisa menghapus CA/leaf tepat saat Start sedang memasang pasangan baru, sehingga start gagal atau pesan "tekan Start" menyesatkan. Pesan Start yang ditunda disesuaikan menjadi "restore/reset sedang berjalan". Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 104: admin token lemah memblokir Start & setelan tersimpan tanpa Start (Android 5+)
 - `SettingsActivity`: `inputStartValid` kini juga mensyaratkan admin token valid (≥8 karakter), dan `saveAndStart` memeriksanya lagi secara defensif agar jalur programatik tak menyimpan token lemah.
 - Folder, port, dan admin token yang valid disimpan saat layar ditinggalkan (`onPause` → `simpanPengaturanValid`), bukan hanya ketika Start ditekan; nilai setengah jadi dilewati, dan penyimpanan ditunda saat backup/restore berjalan (`tugasBerjalan`/`TgBackup.tugasDataJalan`) agar tak menimpa prefs hasil restore. Ditambah `TgBackup.tugasDataJalan()` + test `tugasDataJalan_mengikutiKunciRestore`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

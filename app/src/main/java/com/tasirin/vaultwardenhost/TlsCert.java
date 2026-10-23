@@ -1127,19 +1127,23 @@ public final class TlsCert {
             return 0;
         }
         int hapus = 0;
-        // Hapus juga sisa cadangan .cad agar reset bersih (tak ada cert/key basi tertinggal).
-        for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
-                LEAF_KEY_FILE, "ips.txt", "version.txt",
-                CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
-                LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru",
-                CA_CERT_FILE + ".cad", CA_KEY_FILE + ".cad",
-                LEAF_CERT_FILE + ".cad", LEAF_KEY_FILE + ".cad"}) {
-            try {
-                File f = new File(tlsDir, nama);
-                if (f.isFile() && f.delete()) {
-                    hapus++;
+        // Kunci yang sama dengan ensure: jangan hapus file saat CA/leaf baru
+        // sedang ditukar (dulu reset bisa menyisakan pasangan CA/leaf tak cocok).
+        synchronized (KUNCI_ENSURE) {
+            // Hapus juga sisa cadangan .cad agar reset bersih (tak ada cert/key basi tertinggal).
+            for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
+                    LEAF_KEY_FILE, "ips.txt", "version.txt",
+                    CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
+                    LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru",
+                    CA_CERT_FILE + ".cad", CA_KEY_FILE + ".cad",
+                    LEAF_CERT_FILE + ".cad", LEAF_KEY_FILE + ".cad"}) {
+                try {
+                    File f = new File(tlsDir, nama);
+                    if (f.isFile() && f.delete()) {
+                        hapus++;
+                    }
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
         }
         return hapus;
