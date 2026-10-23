@@ -995,21 +995,25 @@ public class SettingsActivity extends Activity {
                                                 + " \u2014 server was not started: " + e.getMessage());
                                         appendUiLog("[app] Web-vault download failed: " + e);
                                     }
-                                    if (!gagal) {
-                                        ServerService.start(appCtx);
+                                    if (!gagal && ServerService.start(appCtx)) {
+                                        // Backup otomatis baru dijadwalkan setelah
+                                        // server benar-benar diminta start; unduh
+                                        // gagal/ditolak = jangan buat backup palsu.
+                                        maybeAutoBackup();
                                     }
                                 });
-                                maybeAutoBackup();
                             })
                             .setNegativeButton("Start without web vault", (d, w) -> {
-                                ServerService.start(this);
-                                maybeAutoBackup();
+                                if (ServerService.start(this)) {
+                                    maybeAutoBackup();
+                                }
                             })
                             .show();
                     return;
                 }
-                ServerService.start(this);
-                maybeAutoBackup();
+                if (ServerService.start(this)) {
+                    maybeAutoBackup();
+                }
             });
         });
     }

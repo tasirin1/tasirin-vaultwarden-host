@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 75: backup "saat Start" tak dijadwalkan saat start gagal (Android 5+)
+- `SettingsActivity` (tombol Start): `maybeAutoBackup()` dipindah ke dalam alur start dan hanya dipanggil bila `ServerService.start()` diterima. Pada jalur "Download & Start" ia dulu dipanggil tepat setelah tugas unduh 35 MB dimasukkan antrean — sehingga backup otomatis bisa berjalan bersamaan dengan unduhan, dan tetap dijadwalkan walau unduh gagal (server tidak pernah start) sehingga lapor "Database belum siap 30 dtk setelah Start" atau membuat backup yang menandai `tg_last` padahal server tidak jalan. Dua jalur lain ikut dijaga dengan `if (ServerService.start(...))`. Tanpa test baru (butuh Service/Context Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 74: "Hapus log" benar-benar bersih (Android 5+)
 - `ServerService.clearLog`: ikut mengosongkan buffer tulis file (`logFileBuf`) dan menghapus `vaultwarden.log.1`. Sebelumnya baris yang belum di-flush (<16 KB) ditulis lagi sesudah file dihapus sehingga log lama muncul kembali, dan file rotasi `.1` tertinggal — "Hapus log" terlihat tidak bekerja dan data diagnostik lama tetap ada di storage. Pengosongan buffer + hapus file kini di bawah `LOG_FILE_LOCK` agar tidak balapan dengan penulis log. Tanpa test baru (state statis + IO Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
