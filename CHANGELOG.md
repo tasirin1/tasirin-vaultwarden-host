@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 118: Penolakan Telegram tak lagi membungkam polling tanpa jejak (Android 5+)
+- `TgBot.httpPostForm` kini membaca body galat (bukan membuangnya) lalu mencatat ringkasannya sekali per jenis: 401 token dicabut, 409 bot dipakai instans lain, dan 429 kena limit dulu membuat bot berhenti menjawab tanpa satu pun petunjuk di log. Galat jaringan juga dicatat per kelas exception.
+- `TgBot.ringkasGalatTelegram` (murni, tanpa `org.json`) mengambil `error_code` + `description` saja; body mentah tak pernah dicatat karena galat proxy/HTML bisa memuat URL `bot<token>` sehingga token bocor ke log dan Telegram `/log`. Deskripsi dipangkas 160 karakter.
+- Uji JVM baru `TgBotTest.ringkasGalatTelegram_kodeDanDeskripsi` (401/409, body non-JSON, tanpa body, deskripsi panjang). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 117: Lockout PIN tetap berlaku saat jam perangkat masih 1970 (Android 5+)
 - `PinCrypto.sisaKunciMs`: stempel kunci kecil (ditulis saat jam 1970, lazim di STB tanpa RTC/NTP) tak lagi dianggap sisa era `elapsedRealtime` lalu langsung diloloskan. Selisih `terkunciSampai - sekarang` tetap dipakai dan dibatasi `KUNCI_MS`, sehingga lima PIN salah di perangkat berjam 1970 benar-benar terkunci 5 menit (dulu brute-force tanpa jeda). Jam wajar yang dimundurkan ke 1970 tetap fail-closed (selisih raksasa → kunci penuh), dan stempel era-elapsed pada jam wajar tetap kedaluwarsa lewat cek `sekarang >= terkunciSampai`.
 - Uji JVM baru `PinCryptoTest.kunciJam1970TetapMengunci` (kunci penuh, sisa menyusut, lalu nol tepat saat habis). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

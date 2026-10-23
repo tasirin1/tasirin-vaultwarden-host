@@ -517,4 +517,29 @@ public class TgBotTest {
         assertFalse(TgBot.bolehCobaGetMe("", "tokA", 0, 1000));
         assertFalse(TgBot.bolehCobaGetMe(null, "tokA", 0, 1000));
     }
+
+    @Test
+    public void ringkasGalatTelegram_kodeDanDeskripsi() {
+        assertEquals("HTTP 401: Unauthorized",
+                TgBot.ringkasGalatTelegram(
+                        "{\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
+                        401));
+        assertEquals("HTTP 409: Conflict: terminated by other getUpdates request",
+                TgBot.ringkasGalatTelegram(
+                        "{\"ok\": false, \"error_code\": 409, "
+                                + "\"description\": \"Conflict: terminated by other getUpdates request\"}",
+                        409));
+        // Body hilang/bukan JSON: kode HTTP saja (body mentah tak boleh dicatat).
+        assertEquals("HTTP 500", TgBot.ringkasGalatTelegram(null, 500));
+        assertEquals("HTTP 502", TgBot.ringkasGalatTelegram("<html>bad gateway</html>", 502));
+        assertEquals("tanpa keterangan", TgBot.ringkasGalatTelegram(null, 0));
+        // Deskripsi panjang dipangkas agar log STB tetap ringkas.
+        StringBuilder isiPanjang = new StringBuilder();
+        for (int i = 0; i < 300; i++) {
+            isiPanjang.append('x');
+        }
+        String body = "{\"error_code\":429,\"description\":\"" + isiPanjang + "\"}";
+        assertEquals("HTTP 429: " + isiPanjang.substring(0, 160),
+                TgBot.ringkasGalatTelegram(body, 429));
+    }
 }

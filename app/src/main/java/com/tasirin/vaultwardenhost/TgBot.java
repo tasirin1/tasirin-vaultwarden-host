@@ -2387,6 +2387,65 @@ public final class TgBot {
         return PendingIntent.getBroadcast(ctx, REQ_POLL, i, flags);
     }
 
+    /** Ringkas body galat Telegram ("ok":false,"error_code":401,"description":
+     *  "Unauthorized") jadi "HTTP 401: Unauthorized". Murni tanpa org.json agar
+     *  bisa diuji JVM. Body mentah tak pernah dicatat: galat dari proxy/HTML bisa
+     *  memuat URL bot<token> sehingga token bocor ke log/Telegram /log. */
+    static String ringkasGalatTelegram(String body, int kodeHttp) {
+        int kode = kodeHttp;
+        String desc = "";
+        if (body != null) {
+            int ik = body.indexOf("\"error_code\"");
+            if (ik >= 0) {
+                int j = ik + 12;
+                while (j < body.length() && (body.charAt(j) < '0' || body.charAt(j) > '9')) {
+                    j++;
+                }
+                int awal = j;
+                while (j < body.length() && body.charAt(j) >= '0' && body.charAt(j) <= '9') {
+                    j++;
+                }
+                if (j > awal) {
+                    try {
+                        kode = Integer.parseInt(body.substring(awal, j));
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+            int id = body.indexOf("\"description\"");
+            if (id >= 0) {
+                int i = body.indexOf('"', id + 13);
+                if (i >= 0) {
+                    int j = i + 1;
+                    while (j < body.length() && body.charAt(j) != '"') {
+                        j++;
+                    }
+                    desc = body.substring(i + 1, j).trim();
+                    if (desc.length() > 160) {
+                        desc = desc.substring(0, 160);
+                    }
+                }
+            }
+        }
+        if (kode <= 0) {
+            return desc.isEmpty() ? "tanpa keterangan" : desc;
+        }
+        return desc.isEmpty() ? ("HTTP " + kode) : ("HTTP " + kode + ": " + desc);
+    }
+
+    /** Catat galat polling sekali per jenis (bukan tiap 20 dtk) agar telemetri
+     *  log STB tak banjir saat token dicabut / bot dipakai instans lain. */
+    private static void catatGalatPollSekali(String ringkas) {
+        try {
+            if (ringkas == null || ringkas.equals(galatPollTercatat)) {
+                return;
+            }
+            galatPollTercatat = ringkas;
+            ServerService.catatLog("[tg] Telegram menolak permintaan (" + ringkas + ").");
+        } catch (Exception ignored) {
+        }
+    }
+
     private static String httpPostForm(Context ctx, String url, String param) {
         HttpURLConnection c = null;
         try {
@@ -2399,13 +2458,24 @@ public final class TgBot {
             TgBackup.tolakRedirectTelegram(c);
             int code = c.getResponseCode();
             InputStream mentah = (code >= 200 && code < 300) ? c.getInputStream() : c.getErrorStream();
-            if (mentah == null) {
+            String isi = null;
+            if (mentah != null) {
+                try (InputStream is = mentah) {
+                    isi = TgBackup.bacaResponsBatas(is);
+                }
+            }
+            if (code < 200 || code >= 300) {
+                // Dulu body galat dibuang diam-diam: token dicabut (401), bot
+                // dipakai instans lain (409 Conflict), atau kena limit (429)
+                // membuat bot berhenti menjawab tanpa satu pun petunjuk.
+                catatGalatPollSekali(ringkasGalatTelegram(isi, code));
                 return null;
             }
-            try (InputStream is = mentah) {
-                return TgBackup.bacaResponsBatas(is);
-            }
+            return isi;
         } catch (Exception e) {
+            // Kelas galat saja: pesan exception (mis. MalformedURLException)
+            // memuat URL bertoken sehingga tak boleh masuk log.
+            catatGalatPollSekali(e.getClass().getSimpleName());
             return null;
         } finally {
             if (c != null) {
