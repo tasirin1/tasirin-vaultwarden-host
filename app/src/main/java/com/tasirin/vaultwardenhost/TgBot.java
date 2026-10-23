@@ -31,7 +31,19 @@ public final class TgBot {
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
     /** Sidik menu perintah (ganti hashCode int yang rawan kolisi 32-bit). */
     static final String KEY_TG_MENU_FP = "tg_menu_fp";
-    static final int MENU_REV = 4;
+    static final int MENU_REV = 5;
+    /** Awalan kunci prefs aksi tombol ber-PIN yang menunggu balasan PIN. */
+    private static final String KEY_TG_PENDING_PREFIX = "tg_pending_aksi_";
+    /** Umur aksi tombol ber-PIN: PIN harus dibalas < 5 menit (seperti Red-Eye). */
+    static final long PENDING_AKSI_MS = 5 * 60_000L;
+    /** Panel menu tombol; callback_data = "m:" + panel. */
+    static final String MENU_UTAMA = "utama";
+    static final String MENU_STATUS = "status";
+    static final String MENU_KONTROL = "kontrol";
+    static final String MENU_BACKUP = "backup";
+    static final String MENU_UPDATE = "update";
+    static final String MENU_SERTIFIKAT = "sertifikat";
+    static final String MENU_INFO = "info";
     private static final long POLL_INTERVAL_MS = 20_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
@@ -136,7 +148,7 @@ public final class TgBot {
                 {"start", "Start server"},
                 {"stop", "Stop server"},
                 {"restart", "Restart server"},
-                {"help", "Daftar perintah"},
+                {"help", "Menu tombol & daftar perintah"},
         };
     }
 
@@ -476,18 +488,42 @@ public final class TgBot {
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
-                                // At-most-once untuk perintah sensitif: kunci offset
-                                // SEBELUM eksekusi agar crash di tengah handle tak
-                                // memutar ulang perintah destruktif saat hidup lagi
-                                // (PIN masih nangkring di riwayat). Perintah baca
-                                // tetap at-least-once via commit akhir di finally.
-                                if (perintahBerbahaya(text) || pesanPinWajibHapus(text)) {
+                                // Tombol ber-PIN meminta PIN lewat balasan chat:
+                                // teks non-perintah saat ada aksi pending = PIN,
+                                // bukan perintah biasa. Sesi 5 menit & hanya chat
+                                // pribadi (aksi ber-PIN dari grup tak pernah dibuat).
+                                String pendingCmd = "";
+                                if (!text.isEmpty() && !text.startsWith("/")) {
+                                    pendingCmd = ambilPending(ctx, idRuang, kiniPoll);
+                                }
+                                boolean pinPending = !pendingCmd.isEmpty();
+                                if (pinPending) {
+                                    // At-most-once: PIN + aksi destruktif tak boleh
+                                    // diputar ulang setelah crash/restart.
                                     try {
                                         sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
                                     } catch (Exception ignored) {
                                     }
+                                } else {
+                                    // Perintah lain membatalkan sesi PIN yang menggantung.
+                                    if (text.startsWith("/")) {
+                                        hapusPending(ctx, idRuang);
+                                    }
+                                    // At-most-once untuk perintah sensitif: kunci offset
+                                    // SEBELUM eksekusi agar crash di tengah handle tak
+                                    // memutar ulang perintah destruktif saat hidup lagi
+                                    // (PIN masih nangkring di riwayat). Perintah baca
+                                    // tetap at-least-once via commit akhir di finally.
+                                    if (perintahPerluPin(text)) {
+                                        try {
+                                            sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
+                                        } catch (Exception ignored) {
+                                        }
+                                    }
                                 }
-                                boolean terotorisasi = handleCommand(ctx, text, idRuang);
+                                boolean terotorisasi = pinPending
+                                        ? handlePinPending(ctx, pendingCmd, text, idRuang)
+                                        : handleCommand(ctx, text, idRuang);
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
                                 // ulang pengintip: hapus best-effort (perlu izin hapus,
                                 // di poll thread sendiri); gagal sekali diperingatkan
@@ -495,7 +531,8 @@ public final class TgBot {
                                 // Upaya GAGAL sengaja dipertahankan sebagai bukti
                                 // brute-force.
                                 int idPesan = msg.optInt("message_id", 0);
-                                if (idPesan != 0 && terotorisasi && pesanPinWajibHapus(text)
+                                if (idPesan != 0 && terotorisasi
+                                        && (pinPending || pesanPinWajibHapus(text))
                                         && pinPerangkatAktif(ctx)) {
                                     boolean terhapus = hapusPesanPerintah(ctx,
                                             idRuang, idPesan);
@@ -556,19 +593,9 @@ public final class TgBot {
         }
     }
 
-    /** Keyboard inline agar tak perlu mengetik perintah (logika murni). */
-    static String keyboardPerintah() {
-        String[][] tombol = {
-                {"Status", "/status"}, {"Log", "/log"},
-                {"Uptime", "/uptime"}, {"Sehat", "/alive"},
-                {"Backup", "/backup"}, {"Restore", "/restore"},
-                {"Crash log", "/crashlog"}, {"Update", "/update"},
-                {"Web vault", "/webvault"}, {"Start", "/start"},
-                {"Stop", "/stop"}, {"Restart", "/restart"},
-                {"Bantuan", "/help"}, {"CA", "/ca"},
-                {"Backup CA", "/cabackup"}, {"Reset CA", "/careset"},
-                {"Versi", "/versi"},
-        };
+    /** Rakit inline keyboard 2 tombol per baris dari pasangan {label, callback}.
+     *  Satu pintu agar menu berjenjang & prompt PIN tak menduplikasi perakitan JSON. Murni. */
+    static String rakitKeyboard(String[][] tombol) {
         StringBuilder sb = new StringBuilder("{\"inline_keyboard\":[");
         for (int i = 0; i < tombol.length; i += 2) {
             if (i > 0) {
@@ -586,6 +613,126 @@ public final class TgBot {
             sb.append(']');
         }
         return sb.append("]}").toString();
+    }
+
+    /** True bila nama panel menu dikenal (callback "m:..." tak sembarang). Murni. */
+    static boolean panelMenuValid(String panel) {
+        if (panel == null) {
+            return false;
+        }
+        String p = panel.trim();
+        return p.equals(MENU_UTAMA) || p.equals(MENU_STATUS) || p.equals(MENU_KONTROL)
+                || p.equals(MENU_BACKUP) || p.equals(MENU_UPDATE)
+                || p.equals(MENU_SERTIFIKAT) || p.equals(MENU_INFO);
+    }
+
+    /** Keyboard panel menu berjenjang; callback "m:<panel>" hanya navigasi
+     *  (tak mengubah keadaan) sehingga aman ditekan dari chat resmi mana pun.
+     *  Tombol perintah tetap memakai callback "/perintah" lama agar keyboard
+     *  yang sudah beredar tidak mati. Murni agar bisa unit test. */
+    static String keyboardMenu(String panel) {
+        String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
+        if (MENU_STATUS.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Status lengkap", "/status"}, {"Log", "/log"},
+                    {"Uptime", "/uptime"}, {"Cek sehat", "/alive"},
+                    {"Versi", "/versi"}, {"Crash log", "/crashlog"},
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        if (MENU_KONTROL.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Start", "/start"}, {"Stop", "/stop"},
+                    {"Restart", "/restart"},
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        if (MENU_BACKUP.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Backup sekarang", "/backup"}, {"Info restore", "/restore"},
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        if (MENU_UPDATE.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Update binary", "/update"}, {"Update web vault", "/webvault"},
+                    {"Versi", "/versi"},
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        if (MENU_SERTIFIKAT.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Kirim CA", "/ca"}, {"Backup CA", "/cabackup"},
+                    {"Reset CA", "/careset"},
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        if (MENU_INFO.equals(p)) {
+            return rakitKeyboard(new String[][]{
+                    {"Kembali", "m:" + MENU_UTAMA},
+            });
+        }
+        return rakitKeyboard(new String[][]{
+                {"Status", "m:" + MENU_STATUS}, {"Kontrol", "m:" + MENU_KONTROL},
+                {"Backup", "m:" + MENU_BACKUP}, {"Update", "m:" + MENU_UPDATE},
+                {"Sertifikat", "m:" + MENU_SERTIFIKAT}, {"Info", "m:" + MENU_INFO},
+        });
+    }
+
+    /** Teks panel menu. Bahasa Indonesia mengikuti pesan bot; menu utama memuat
+     *  status ringkas agar pemilik tak perlu membuka panel Status dulu. */
+    private static String teksMenu(Context ctx, String panel) {
+        String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
+        if (MENU_STATUS.equals(p)) {
+            return "Status & diagnostik\n"
+                    + "Pilih tombol di bawah. /status, /log, dan /crashlog memuat"
+                    + " folder data, port, dan URL LAN sehingga butuh PIN bila PIN aktif.";
+        }
+        if (MENU_KONTROL.equals(p)) {
+            return "Kontrol server\n"
+                    + "Start menyalakan server, Stop menghentikannya, Restart saat server jalan.\n"
+                    + "Bila PIN aktif, ketuk tombol lalu balas dengan PIN (berlaku 5 menit)."
+                    + " Aksi ber-PIN hanya bisa dari chat pribadi; grup selalu ditolak.";
+        }
+        if (MENU_BACKUP.equals(p)) {
+            return "Backup & restore\n"
+                    + "Backup mengirim salinan database ke chat ini. Restore memakai backup"
+                    + " terakhir: tekan Info restore untuk melihat tanggal, lalu ketik"
+                    + " /restore YA (+ PIN bila aktif). Server dihentikan saat restore.";
+        }
+        if (MENU_UPDATE.equals(p)) {
+            return "Update binary & web vault\n"
+                    + "Update mengunduh dari rilis GitHub lalu restart otomatis bila server"
+                    + " sedang jalan. Bila PIN aktif, ketuk tombol lalu balas dengan PIN."
+                    + " Versi tertentu tetap bisa dikunci lewat teks: /update 1.32.0 (+ PIN).";
+        }
+        if (MENU_SERTIFIKAT.equals(p)) {
+            return "Sertifikat HTTPS\n"
+                    + "Kirim CA mengirim file publik untuk dipasang di perangkat."
+                    + " Backup CA menyimpannya ke storage STB. Reset CA membuat sertifikat"
+                    + " baru sehingga semua perangkat harus memasang CA lagi.";
+        }
+        if (MENU_INFO.equals(p)) {
+            return "Info & bantuan\n"
+                    + "Perintah teks: /status /log /uptime /alive /backup /restore /ca\n"
+                    + "/cabackup /careset /crashlog /versi /update /webvault"
+                    + " /restart /start /stop /help\n"
+                    + "Kunci versi: /update 1.32.0, /webvault 1.32.0; lepas: /update terbaru.\n"
+                    + "Bila PIN aktif: /start /stop /restart /backup /update /webvault"
+                    + " /restore /careset /status /log /crashlog /ca /cabackup butuh PIN"
+                    + " (mis. /stop 123456; PIN ber-spasi: /stop PIN:\"kunci saya\").\n"
+                    + "Tombol ber-PIN meminta PIN lewat balasan chat (5 menit) dan pesan PIN"
+                    + " dihapus otomatis bila bot punya izin hapus.";
+        }
+        String status = (ServerService.running || ServerService.isProcessAlive())
+                ? "jalan" : "berhenti";
+        return "Vaultwarden Host\n"
+                + "Server: " + status + "\n"
+                + "Pilih menu tombol di bawah. Ketuk Kembali untuk naik satu panel;"
+                + " tombol menu berlaku 24 jam, kirim /help lagi bila kedaluwarsa.\n"
+                + "Bila PIN aktif, tombol ber-PIN meminta PIN lewat balasan chat."
+                + " Catatan: pesan /help pertamamu bisa dihapus bot sebagai uji"
+                + " sekali izin hapus pesan ber-PIN.";
     }
 
     /** Salin rentang [mulai, akhir) ke String huruf-kecil ASCII (satu pintu:
@@ -850,12 +997,20 @@ public final class TgBot {
         }
     }
 
-    /** True bila data callback adalah perintah bot yang dikenal. */
+    /** True bila data callback adalah navigasi panel menu atau perintah bot
+     *  yang dikenal. Navigasi "m:<panel>" tak mengubah keadaan (aman dari grup). */
     static boolean callbackDataValid(String data) {
-        if (data == null || !data.trim().startsWith("/")) {
+        if (data == null) {
             return false;
         }
-        String cmd = namaPerintah(data);
+        String d = data.trim();
+        if (d.startsWith("m:")) {
+            return panelMenuValid(d.substring(2));
+        }
+        if (!d.startsWith("/")) {
+            return false;
+        }
+        String cmd = namaPerintah(d);
         for (String[] c : daftarPerintahMenu()) {
             if (c[0].equals(cmd)) {
                 return true;
@@ -913,13 +1068,24 @@ public final class TgBot {
             }
             jawabCallback(ctx, cb.optString("id", ""));
             String data = cb.optString("data", "").trim();
-            // Data tombol hanya "/perintah" tanpa PIN (tombol tak bisa membawa
-            // PIN): tak ada rahasia di riwayat yang perlu dihapus seperti
-            // pesan ketik di pollOnce (hapusPesanPerintah khusus pesan ber-PIN).
+            int idPesan = pesan.optInt("message_id", 0);
+            if (data.startsWith("m:")) {
+                hapusPending(ctx, idRuang);
+                String panel = data.substring(2).trim();
+                if ("batal".equals(panel)) {
+                    tampilkanMenu(ctx, idRuang, idPesan, MENU_UTAMA);
+                } else if (panelMenuValid(panel)) {
+                    tampilkanMenu(ctx, idRuang, idPesan, panel);
+                }
+                return;
+            }
+            // Data tombol perintah hanya "/perintah" tanpa PIN. Bila perintah
+            // itu dijaga PIN, tombol memulai prompt PIN 5 menit (PIN tak bisa
+            // dibawa callback_data); selain itu langsung dijalankan.
             if (callbackDataValid(data)) {
+                hapusPending(ctx, idRuang);
                 if (perluPinTombol(ctx, data)) {
-                    TgBackup.sendMessage(ctx, "Tombol tak bisa membawa PIN."
-                            + " Ketik manual mis. " + data + " 123456.");
+                    mulaiAksiPin(ctx, idRuang, idPesan, data);
                 } else {
                     handleCommand(ctx, data, idRuang);
                 }
@@ -928,16 +1094,128 @@ public final class TgBot {
         }
     }
 
-    /** True bila teks adalah perintah berbahaya (wajib PIN bila PIN aktif).
-     *  Perintah yang mengubah keadaan (start/stop/restart/backup/restore/
-     *  update/webvault/careset). Perintah baca (uptime/alive/
-     *  help/ca/cabackup/versi) cukup auth chat agar tombol inline tetap
-     *  bisa dipakai saat PIN aktif (tombol tak bisa membawa PIN).
-     *  /status, /log, dan /crashlog tak ada di daftar ini tapi tetap wajib
-     *  PIN bila PIN aktif (memuat folder data, port, versi binary/web-vault,
-     *  waktu backup, URL LAN; diperiksa sendiri di handleCommand) — jangan
-     *  anggap cukup auth chat. Murni agar bisa unit test; dipakai
-     *  tombol inline & hapus pesan PIN. */
+    /** Tampilkan panel menu; edit pesan yang sama agar riwayat tak menumpuk.
+     *  Bila edit gagal (pesan lama/bukan milik bot), TgBackup mengirim baru. */
+    private static void tampilkanMenu(Context ctx, long chatId, int messageId, String panel) {
+        String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
+        String teks = teksMenu(ctx, p);
+        String kb = keyboardMenu(p);
+        if (chatId != 0 && messageId != 0) {
+            TgBackup.editMessageKb(ctx, chatId, messageId, teks, kb);
+        } else {
+            TgBackup.sendMessageKb(ctx, teks, kb);
+        }
+    }
+
+    /** True bila aksi tombol ber-PIN yang menunggu balasan masih berlaku.
+     *  Fail-closed saat jam mundur (kini < dibuat): sesi dianggap kedaluwarsa. Murni. */
+    static boolean pendingMasihBerlaku(long dibuat, long kini) {
+        return dibuat > 0 && kini >= dibuat && kini - dibuat <= PENDING_AKSI_MS;
+    }
+
+    /** Simpan aksi tombol yang menunggu PIN (satu per chat, ditimpa bila baru). */
+    private static void simpanPending(Context ctx, long chatId, String cmd, long waktu) {
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putString(KEY_TG_PENDING_PREFIX + chatId,
+                            waktu + "|" + cmd).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Ambil aksi pending yang masih segar; selain itu kunci dibersihkan. */
+    private static String ambilPending(Context ctx, long chatId, long kini) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String kunci = KEY_TG_PENDING_PREFIX + chatId;
+            String isi = TgBackup.amanString(sp, kunci, "");
+            if (isi == null || isi.isEmpty()) {
+                return "";
+            }
+            int pisah = isi.indexOf('|');
+            long waktu = 0;
+            if (pisah > 0) {
+                try {
+                    waktu = Long.parseLong(isi.substring(0, pisah));
+                } catch (Exception ignored) {
+                    waktu = 0;
+                }
+            }
+            String cmd = pisah > 0 ? isi.substring(pisah + 1) : "";
+            if (!pendingMasihBerlaku(waktu, kini) || !perintahPerluPin(cmd)) {
+                sp.edit().remove(kunci).apply();
+                return "";
+            }
+            return cmd;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Hapus aksi pending chat ini (dipanggil saat batal, perintah lain, atau selesai). */
+    private static void hapusPending(Context ctx, long chatId) {
+        if (chatId == 0) {
+            return;
+        }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().remove(KEY_TG_PENDING_PREFIX + chatId).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Tombol perintah ber-PIN: minta PIN lewat balasan chat (5 menit).
+     *  Grup & PIN mati diarahkan ke handleCommand agar pesan penolakan yang
+     *  sudah ada (tanpa membuat sesi PIN di grup) tetap satu pintu. */
+    private static void mulaiAksiPin(Context ctx, long chatId, int messageId, String data) {
+        if (chatId < 0 || !pinPerangkatAktif(ctx)) {
+            handleCommand(ctx, data, chatId);
+            return;
+        }
+        simpanPending(ctx, chatId, data, System.currentTimeMillis());
+        String teks = "PIN diperlukan\n"
+                + "Aksi: " + data + "\n"
+                + "Balas pesan ini dengan PIN aplikasi (berlaku 5 menit)."
+                + " Pesan PIN akan dihapus otomatis bila bot punya izin hapus.\n"
+                + "Kirim perintah lain atau tekan Batal untuk membatalkan.";
+        String kb = rakitKeyboard(new String[][]{
+                {"Batal", "m:batal"}, {"Menu utama", "m:" + MENU_UTAMA},
+        });
+        if (messageId != 0) {
+            TgBackup.editMessageKb(ctx, chatId, messageId, teks, kb);
+        } else {
+            TgBackup.sendMessageKb(ctx, teks, kb);
+        }
+    }
+
+    /** Balasan PIN untuk aksi tombol: jalankan perintahnya dengan PIN eksplisit.
+     *  Sesi selalu dihapus sebelum eksekusi (salah PIN = ketuk tombol lagi) agar
+     *  PIN salah berulang tak menambah lockout tanpa sengaja. True bila lolos
+     *  otorisasi sehingga pesan PIN boleh dihapus dari riwayat. */
+    private static boolean handlePinPending(Context ctx, String cmd, String pin, long idRuang) {
+        hapusPending(ctx, idRuang);
+        // Sesi PIN tak pernah dibuat untuk grup (mulaiAksiPin menolak lebih dulu);
+        // tetap ditutup di sini agar grup tak bisa menyelesaikan sesi nyasar.
+        if (idRuang < 0 || !perintahPerluPin(cmd)) {
+            return false;
+        }
+        String p = pin == null ? "" : pin.trim();
+        if (!pinPerangkatAktif(ctx)) {
+            // PIN dimatikan dari app saat prompt masih terbuka: jalankan tanpa
+            // PIN (jangan menempelkan "PIN:..." yang merusak argumen /update).
+            return handleCommand(ctx, cmd, idRuang);
+        }
+        if (p.isEmpty() || p.length() > 128) {
+            TgBackup.sendMessage(ctx, "PIN tidak valid. Ketuk tombol lagi untuk mencoba.");
+            return false;
+        }
+        return handleCommand(ctx, cmd + " PIN:" + p, idRuang);
+    }
+
+    /** True bila teks adalah perintah berbahaya (mengubah keadaan) sehingga
+     *  wajib PIN bila PIN aktif. Perintah baca yang memuat data sensitif
+     *  diurus terpisah oleh perintahPerluPin. Murni agar bisa unit test. */
     static boolean perintahBerbahaya(String text) {
         String cmd = namaPerintah(text);
         return cmd.equals("start") || cmd.equals("stop") || cmd.equals("restart")
@@ -946,23 +1224,30 @@ public final class TgBot {
                 || cmd.equals("careset");
     }
 
-    /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
-     *  (anti intip PIN): semua perintah berbahaya + /status + /log +
-     *  /crashlog. Ketiganya sengaja tak masuk perintahBerbahaya (tombol
-     *  inline-nya tetap boleh dipakai saat PIN aktif — ditolak halus di
-     *  handleCommand), tapi pesan ketik "/status 123456" yang lolos membawa
-     *  PIN asli sehingga wajib dihapus seperti perintah berbahaya lain.
-     *  Upaya GAGAL tak dihapus (bukti brute-force) — pemanggil yang
-     *  memutuskan via hasil otorisasi. Murni agar bisa unit test. */
-    static boolean pesanPinWajibHapus(String text) {
+    /** True bila perintah dijaga PIN saat PIN app aktif: perintah berbahaya
+     *  plus pembaca data sensitif (/status /log /crashlog /ca /cabackup).
+     *  Dipakai prompt PIN tombol & pembersih pesan ber-PIN. Murni. */
+    static boolean perintahPerluPin(String text) {
         String cmd = namaPerintah(text);
         return perintahBerbahaya(text) || "crashlog".equals(cmd) || "log".equals(cmd)
-                || "status".equals(cmd);
+                || "status".equals(cmd) || "ca".equals(cmd) || "cabackup".equals(cmd);
     }
 
-    /** True bila tombol ini tak bisa jalan karena PIN aktif (beri tahu user). */
+    /** True bila pesan perintah yang lolos wajib dihapus dari riwayat chat
+     *  (anti intip PIN): semua perintah yang dijaga PIN. Pesan ketik
+     *  "/status 123456" atau "/ca 123456" membawa PIN asli sehingga wajib
+     *  dihapus seperti perintah berbahaya lain. Upaya GAGAL tak dihapus
+     *  (bukti brute-force) — pemanggil memutuskan via hasil otorisasi.
+     *  Murni agar bisa unit test. */
+    static boolean pesanPinWajibHapus(String text) {
+        return perintahPerluPin(text);
+    }
+
+    /** True bila tombol perintah ini tak bisa langsung jalan karena membawa
+     *  data sensitif/aksi saat PIN aktif; tombol lalu meminta PIN lewat
+     *  balasan chat (callback_data Telegram tak boleh membawa rahasia). */
     static boolean perluPinTombol(android.content.Context ctx, String data) {
-        if (!perintahBerbahaya(data)) {
+        if (!perintahPerluPin(data)) {
             return false;
         }
         return pinPerangkatAktif(ctx);
@@ -1459,15 +1744,8 @@ public final class TgBot {
                 }
                 break;
             case "/help":
-                TgBackup.sendMessageKb(ctx, "Perintah: /status  /log  /uptime  /alive  /backup  /restore  /ca\n"
-                        + "/cabackup  /careset  /crashlog  /versi  /update  /webvault  /restart  /start  /stop  /help\n"
-                        + "Kunci versi lawas: /update 1.32.0 (binary), /webvault 1.32.0;"
-                        + " lepas kunci: /update terbaru. Lihat /versi.\n"
-                        + "Ketuk tombol di bawah agar tak perlu mengetik.\n"
-                        + "Catatan: pesan /help pertamamu bisa dihapus bot"
-                        + " sebagai uji sekali izin hapus pesan ber-PIN.\n"
-                        + "Bila PIN app aktif, /start /stop /restart /backup /update /webvault /restore /careset /status /log /crashlog butuh PIN"
-                        + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\").", keyboardPerintah());
+                TgBackup.sendMessageKb(ctx, teksMenu(ctx, MENU_UTAMA),
+                        keyboardMenu(MENU_UTAMA));
                 break;
             default:
                 TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");

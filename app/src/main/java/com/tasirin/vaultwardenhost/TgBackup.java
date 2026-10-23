@@ -841,6 +841,32 @@ public final class TgBackup {
         kirimPesan(ctx, text, markupJson);
     }
 
+    /** Ubah pesan menu yang sudah ada (edit-in-place) agar riwayat tak menumpuk.
+     *  Bila edit gagal (pesan terlalu lama / bukan milik bot), kirim pesan baru
+     *  dengan keyboard yang sama; async di antrean pesan biasa. */
+    public static void editMessageKb(Context ctx, long chatId, int messageId,
+                                     String text, String markupJson) {
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception e) {
+            return;
+        }
+        if (app == null || chatId == 0 || messageId == 0) {
+            return;
+        }
+        final String msg = text == null ? "" : text;
+        final String markup = markupJson;
+        try {
+            TG_MSG_EXEC.execute(() -> {
+                if (!ubahSinkron(app, chatId, messageId, msg, markup)) {
+                    kirimSinkron(app, msg, markup);
+                }
+            });
+        } catch (Exception ignored) {
+        }
+    }
+
     private static void kirimPesan(Context ctx, String text, String markupJson) {
         final Context app;
         try {
@@ -942,6 +968,22 @@ public final class TgBackup {
         StringBuilder b = new StringBuilder(8 + c.length()
                 + 6 + t.length() + (mkEnk == null ? 0 : 14 + mkEnk.length()));
         b.append("chat_id=").append(c).append("&text=").append(t);
+        if (mkEnk != null) {
+            b.append("&reply_markup=").append(mkEnk);
+        }
+        return b.toString();
+    }
+
+    /** Rakit body form editMessageText (chat_id + message_id + text + keyboard).
+     *  Satu pintu dengan bangunParamPesan agar encoding tak drift. Murni. */
+    static String bangunParamEdit(String chatEnk, String pesanEnk, String teksEnk, String mkEnk) {
+        String c = chatEnk == null ? "" : chatEnk;
+        String p = pesanEnk == null ? "" : pesanEnk;
+        String t = teksEnk == null ? "" : teksEnk;
+        StringBuilder b = new StringBuilder(18 + c.length() + p.length()
+                + 6 + t.length() + (mkEnk == null ? 0 : 14 + mkEnk.length()));
+        b.append("chat_id=").append(c).append("&message_id=").append(p)
+                .append("&text=").append(t);
         if (mkEnk != null) {
             b.append("&reply_markup=").append(mkEnk);
         }
@@ -1052,6 +1094,64 @@ public final class TgBackup {
             }
         } catch (Exception e) {
             logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
+        }
+    }
+
+    /** Edit satu pesan (menu) secara sinkron. False = pemanggil kirim pesan baru.
+     *  "message is not modified" dianggap sukses agar panel yang sama tak
+     *  memicu pesan duplikat. Teks multi-potongan tak diedit (fallback kirim). */
+    private static boolean ubahSinkron(Context app, long chatId, int messageId,
+                                       String msg, String markup) {
+        HttpURLConnection conn = null;
+        try {
+            SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+            if (token.isEmpty()) {
+                return true;
+            }
+            java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
+            if (bagian.size() != 1) {
+                return false;
+            }
+            String chatEnk = URLEncoder.encode(String.valueOf(chatId), "UTF-8");
+            String teksEnk = URLEncoder.encode(bagian.get(0), "UTF-8");
+            String mkEnk = (markup == null || markup.isEmpty()) ? null
+                    : URLEncoder.encode(markup, "UTF-8");
+            String param = bangunParamEdit(chatEnk, String.valueOf(messageId),
+                    teksEnk, mkEnk);
+            byte[] body = param.getBytes(StandardCharsets.UTF_8);
+            conn = bukaPostTelegram(app, TG_API + token + "/editMessageText", body,
+                    "application/x-www-form-urlencoded", 15000, 30000);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body);
+            }
+            tolakRedirectTelegram(conn);
+            int code = conn.getResponseCode();
+            InputStream mentah = (code >= 200 && code < 300)
+                    ? conn.getInputStream() : conn.getErrorStream();
+            String balasan = "";
+            if (mentah != null) {
+                try (InputStream is = mentah) {
+                    balasan = bacaResponsBatas(is);
+                }
+            }
+            if (code == 200 && TgBot.responsOk(balasan)) {
+                return true;
+            }
+            if (code == 400
+                    && Util.mengandungAbaikanHuruf(balasan, "message is not modified")) {
+                return true;
+            }
+            logTgFailure("ubah pesan", code, balasan);
+            return false;
+        } catch (Exception e) {
+            logTgFailure("ubah pesan", -1, String.valueOf(e.getMessage()));
+            return false;
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
     }
 

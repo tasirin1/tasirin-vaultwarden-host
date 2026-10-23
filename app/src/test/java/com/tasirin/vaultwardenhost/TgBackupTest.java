@@ -1202,6 +1202,16 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bangunParamEdit_sertakanMessageIdDanKeyboard() {
+        assertEquals("chat_id=123&message_id=7&text=menu",
+                TgBackup.bangunParamEdit("123", "7", "menu", null));
+        assertEquals("chat_id=123&message_id=7&text=menu&reply_markup=KB",
+                TgBackup.bangunParamEdit("123", "7", "menu", "KB"));
+        assertEquals("chat_id=&message_id=&text=",
+                TgBackup.bangunParamEdit(null, null, null, null));
+    }
+
+    @Test
     public void tugasDataJalan_mengikutiKunciRestore() {
         assertFalse(TgBackup.tugasDataJalan());
         assertTrue(TgBackup.kunciRestore());

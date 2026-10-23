@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Fitur: kontrol Telegram berbasis tombol berjenjang (Android 5+)
+- `TgBot`: `/help` kini membuka menu utama berjenjang (Status, Kontrol, Backup, Update, Sertifikat, Info) dengan tombol navigasi `m:<panel>` dan tombol Kembali. Panel diedit di tempat lewat `editMessageText` agar riwayat chat tidak menumpuk; keyboard lama dengan callback `/perintah` tetap dikenali.
+- Tombol perintah yang dijaga PIN (`/start /stop /restart /backup /restore /update /webvault /careset /status /log /crashlog /ca /cabackup`) kini meminta PIN lewat balasan chat selama 5 menit. Aksi pending disimpan per chat, fail-closed saat jam mundur, dan selalu dihapus sebelum eksekusi agar PIN salah tidak menambah lockout berulang. Grup tetap ditolak dan PIN yang lolos tetap dihapus dari riwayat.
+- `perintahPerluPin`, `pendingMasihBerlaku`, `rakitKeyboard`, dan `panelMenuValid` diuji JVM; `TgBackup.editMessageKb` butuh `Context` Android sehingga tidak diuji JVM. `pesanPinWajibHapus` kini juga menghapus `/ca`/`/cabackup` ber-PIN (dulu PIN tertinggal di riwayat). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 112: judul dialog restore tak lagi campur bahasa (Android 5+)
 - `SettingsActivity`: judul konfirmasi `"Restore dari Telegram"` diganti `"Restore from Telegram"` (isi pesannya sudah Inggris). Ini satu-satunya teks UI yang masih Indonesia; log diagnostik dan pesan bot Telegram tetap Indonesia sesuai aturan bahasa repo. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

@@ -123,14 +123,25 @@ public class TgBotTest {
     }
 
     @Test
-    public void keyboardPerintah_memuatSemuaTombol() {
-        String json = TgBot.keyboardPerintah();
+    public void keyboardMenu_utamaMemuatKategori() {
+        String json = TgBot.keyboardMenu(TgBot.MENU_UTAMA);
         assertTrue(json.startsWith("{\"inline_keyboard\":["));
-        for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
-                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/versi", "/update", "/webvault", "/start", "/stop",
-                "/restart", "/help"}) {
+        assertTrue(json.endsWith("]}"));
+        for (String c : new String[]{"m:status", "m:kontrol", "m:backup", "m:update",
+                "m:sertifikat", "m:info"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
+        // Panel tak dikenal jatuh ke menu utama (fail-safe).
+        assertEquals(json, TgBot.keyboardMenu("tidak-ada"));
+        assertTrue(TgBot.panelMenuValid(TgBot.MENU_KONTROL));
+        assertFalse(TgBot.panelMenuValid("batal"));
+        assertFalse(TgBot.panelMenuValid(null));
+        assertEquals("{\"inline_keyboard\":[["
+                        + "{\"text\":\"A\",\"callback_data\":\"m:utama\"},"
+                        + "{\"text\":\"B\",\"callback_data\":\"/stop\"}]]}",
+                TgBot.rakitKeyboard(new String[][]{
+                        {"A", "m:utama"}, {"B", "/stop"},
+                }));
     }
 
     @Test
@@ -162,6 +173,10 @@ public class TgBotTest {
         assertTrue(TgBot.callbackDataValid("/stop 123456"));
         assertTrue(TgBot.callbackDataValid("/ca@NamaBot"));
         assertTrue(TgBot.callbackDataValid("/stop@Bot 123456"));
+        assertTrue(TgBot.callbackDataValid("m:utama"));
+        assertTrue(TgBot.callbackDataValid("m:sertifikat"));
+        assertFalse(TgBot.callbackDataValid("m:batal"));
+        assertFalse(TgBot.callbackDataValid("m:hapus"));
         assertFalse(TgBot.callbackDataValid("/hapus"));
         assertFalse(TgBot.callbackDataValid("status"));
         assertFalse(TgBot.callbackDataValid(""));
@@ -289,17 +304,44 @@ public class TgBotTest {
         assertTrue(TgBot.perintahBerbahaya("/stop"));
         assertTrue(TgBot.perintahBerbahaya("/stop 123456"));
         assertTrue(TgBot.perintahBerbahaya("/restore YA 123456"));
-        assertTrue(TgBot.perintahBerbahaya("/stop"));
-        // Perintah baca cukup auth chat agar tombol inline jalan saat PIN aktif.
+        // Perintah baca bukan pengubah keadaan (dijaga perintahPerluPin).
         assertFalse(TgBot.perintahBerbahaya("/status"));
         assertFalse(TgBot.perintahBerbahaya("/status 123456"));
-        assertFalse(TgBot.perintahBerbahaya("/status"));
         assertFalse(TgBot.perintahBerbahaya("/log"));
         assertFalse(TgBot.perintahBerbahaya("/crashlog"));
+        assertFalse(TgBot.perintahBerbahaya("/ca"));
+        assertFalse(TgBot.perintahBerbahaya("/cabackup"));
         assertFalse(TgBot.perintahBerbahaya("/uptime"));
         assertFalse(TgBot.perintahBerbahaya("/alive"));
         assertFalse(TgBot.perintahBerbahaya("/help"));
         assertFalse(TgBot.perintahBerbahaya(null));
+    }
+
+    @Test
+    public void perintahPerluPin_termasukPembacaSensitif() {
+        assertTrue(TgBot.perintahPerluPin("/stop 123456"));
+        assertTrue(TgBot.perintahPerluPin("/careset"));
+        assertTrue(TgBot.perintahPerluPin("/status"));
+        assertTrue(TgBot.perintahPerluPin("/log 123456"));
+        assertTrue(TgBot.perintahPerluPin("/crashlog"));
+        assertTrue(TgBot.perintahPerluPin("/ca"));
+        assertTrue(TgBot.perintahPerluPin("/cabackup"));
+        assertFalse(TgBot.perintahPerluPin("/uptime"));
+        assertFalse(TgBot.perintahPerluPin("/alive"));
+        assertFalse(TgBot.perintahPerluPin("/versi"));
+        assertFalse(TgBot.perintahPerluPin("/help"));
+        assertFalse(TgBot.perintahPerluPin(null));
+    }
+
+    @Test
+    public void pendingMasihBerlaku_batasLimaMenit() {
+        long dibuat = 1_000_000L;
+        assertTrue(TgBot.pendingMasihBerlaku(dibuat, dibuat));
+        assertTrue(TgBot.pendingMasihBerlaku(dibuat, dibuat + TgBot.PENDING_AKSI_MS));
+        assertFalse(TgBot.pendingMasihBerlaku(dibuat,
+                dibuat + TgBot.PENDING_AKSI_MS + 1));
+        assertFalse(TgBot.pendingMasihBerlaku(dibuat, dibuat - 1));
+        assertFalse(TgBot.pendingMasihBerlaku(0, dibuat));
     }
 
     @Test
@@ -347,15 +389,21 @@ public class TgBotTest {
     }
 
     @Test
-    public void keyboardPerintah_memuatSemuaPerintah() {
-        String json = TgBot.keyboardPerintah();
-        assertTrue(json.startsWith("{\"inline_keyboard\":["));
-        assertTrue(json.endsWith("]}"));
-        for (String c : new String[]{"/status", "/log", "/uptime", "/alive", "/backup",
-                "/restore", "/ca", "/cabackup", "/careset", "/crashlog", "/versi", "/update",
-                "/webvault", "/start", "/stop", "/restart", "/help"}) {
-            assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
-        }
+    public void keyboardMenu_panelMemuatPerintahDanKembali() {
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_STATUS)
+                .contains("\"/status\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_STATUS)
+                .contains("\"m:utama\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_KONTROL)
+                .contains("\"/stop\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_BACKUP)
+                .contains("\"/backup\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_UPDATE)
+                .contains("\"/webvault\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_SERTIFIKAT)
+                .contains("\"/careset\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_INFO)
+                .contains("\"m:utama\""));
     }
 
     @Test
@@ -404,12 +452,13 @@ public class TgBotTest {
 
     @Test
     public void pesanPinWajibHapus_crashlogIkutDihapus() {
-        // /log + /crashlog ber-PIN yang lolos wajib dihapus dari riwayat
-        // (bawa PIN asli + isi sensitif), walau keduanya bukan
-        // perintahBerbahaya (tombol inline tetap jalan, ditolak halus).
+        // Semua perintah yang dijaga PIN wajib dihapus dari riwayat setelah
+        // lolos (membawa PIN asli + isi sensitif).
         assertTrue(TgBot.pesanPinWajibHapus("/crashlog 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/log 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/status 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/ca 123456"));
+        assertTrue(TgBot.pesanPinWajibHapus("/cabackup 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/stop 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/careset 123456"));
         assertFalse(TgBot.pesanPinWajibHapus("/help"));

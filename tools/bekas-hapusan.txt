@@ -21,3 +21,6 @@ cukupAkses_api30HanyaKelolaSemuaFile
 smokeGagalBaruSaja
 smokeGagal_throttleGagalBaru
 capWvRedirectDariJson
+keyboardPerintah
+keyboardPerintah_memuatSemuaPerintah
+keyboardPerintah_memuatSemuaTombol
