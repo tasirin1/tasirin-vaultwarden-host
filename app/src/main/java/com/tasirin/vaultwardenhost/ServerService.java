@@ -3299,10 +3299,11 @@ public class ServerService extends Service {
                     "vw-version-watchdog");
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            // Cukup 2 baris versi pertama (saring noise linker STB lama), lalu
-            // matikan proses sedini mungkin agar Start tak tertahan belasan detik
-            // bila binary aneh/macet.
+            // Cukup 2 baris pertama (versi + kemungkinan panic getrandom di
+            // baris kedua), lalu matikan proses sedini mungkin agar Start tak
+            // tertahan belasan detik bila binary aneh/macet.
             String first = null;
+            StringBuilder semua = new StringBuilder();
             String baris;
             int dibaca = 0;
             // Batas total 50 baris (termasuk noise): binary aneh yang mengoceh
@@ -3316,13 +3317,20 @@ public class ServerService extends Service {
                 if (first == null) {
                     first = baris;
                 }
+                if (semua.length() > 0) {
+                    semua.append('\n');
+                }
+                semua.append(baris);
                 if (++dibaca >= 2) {
                     break;
                 }
             }
             versiSelesai.set(true);
             versiWatchdog.interrupt();
-            lastVersionOutput = first == null ? "" : first.trim();
+            // Simpan SEMUA baris yang dibaca (bukan hanya baris versi):
+            // panic getrandom muncul di baris berikutnya dan dulu terbuang
+            // sehingga isKernelRandomPanic tak pernah menyala.
+            lastVersionOutput = semua.length() == 0 ? "" : semua.toString().trim();
             p.destroy();
             try {
                 // Timeout 2 detik di SEMUA API (waitFor(timeout) hanya API 26+).

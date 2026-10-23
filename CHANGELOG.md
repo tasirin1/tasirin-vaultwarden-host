@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 97: panic getrandom di baris kedua ikut terbaca (Android 5+)
+- `ServerService.detectBinaryVersion`: `lastVersionOutput` kini menyimpan semua baris yang dibaca (maks 2 baris non-noise), bukan hanya baris versi. Sebelumnya panic kernel lama (`thread 'main' panicked ... getrandom ...`) yang dicetak di baris kedua terbuang, sehingga `isKernelRandomPanic` tak menyala dan server tetap dicoba start tanpa shim — gagal berulang dengan pesan tidak jelas. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 96: folder di bawah path symlink tak dikira symlink (Android 5+)
 - `Updater.tautanSimbol`: kini hanya menilai komponen terakhir sebagai tautan dengan membandingkan kanonis induk + nama terhadap kanonis file. Sebelumnya `getCanonicalPath()` dibandingkan dengan path absolut sehingga folder biasa di bawah induk symlink (mis. `/sdcard` → `/storage/emulated/0`) dianggap tautan; `deleteRecursive` lalu berhenti di satu entri dan sisa folder web-vault/binary menumpuk. Ditambah test induk symlink di `tautanSimbol_bedakanLinkDanBiasa`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
