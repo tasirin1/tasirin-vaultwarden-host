@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 74: "Hapus log" benar-benar bersih (Android 5+)
+- `ServerService.clearLog`: ikut mengosongkan buffer tulis file (`logFileBuf`) dan menghapus `vaultwarden.log.1`. Sebelumnya baris yang belum di-flush (<16 KB) ditulis lagi sesudah file dihapus sehingga log lama muncul kembali, dan file rotasi `.1` tertinggal — "Hapus log" terlihat tidak bekerja dan data diagnostik lama tetap ada di storage. Pengosongan buffer + hapus file kini di bawah `LOG_FILE_LOCK` agar tidak balapan dengan penulis log. Tanpa test baru (state statis + IO Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 73: checksum dicoba ulang saat GitHub gangguan sesaat (Android 5+)
 - `Updater.fetchChecksum`: balasan non-200 kini dibedakan. 408/429/5xx dilempar agar jalur coba-ulang (2x, jeda 2 dtk) berjalan; 404/403 tetap langsung `null`. Sebelumnya semua non-200 langsung menyerah, sehingga gangguan sesaat/rate-limit GitHub membuat unduhan binary/web-vault yang sudah selesai dibatalkan dengan pesan "Checksum tidak ditemukan" (padahal file tmp parsial bisa dilanjutkan).
 - `kodeSementara` (baru, murni) + test `kodeSementara_hanyaGangguanSesaat`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

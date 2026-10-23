@@ -595,15 +595,27 @@ public class ServerService extends Service {
         }
     }
 
-    /** Kosongkan buffer log (in-memory) dan hapus file log di folder data. */
+    /** Kosongkan buffer log (in-memory) + buffer tulis file, dan hapus file
+     *  log di folder data (termasuk sisa rotasi .1). */
     public static void clearLog() {
         synchronized (logBuffer) {
             logBuffer.setLength(0);
             logVer++;
         }
-        File f = logFile;
-        if (f != null) {
-            f.delete();
+        // Baris yang belum di-flush (<16 KB) dulu akan ditulis lagi sesudah
+        // file dihapus sehingga log lama muncul kembali: buang buffernya dulu.
+        synchronized (LOG_FILE_LOCK) {
+            logFileBuf.setLength(0);
+            File f = logFile;
+            if (f != null) {
+                f.delete();
+                // .1 adalah rotasi file yang sama: "Hapus log" harus bersih.
+                File lama = f.getParentFile() == null ? null
+                        : new File(f.getParentFile(), f.getName() + ".1");
+                if (lama != null) {
+                    lama.delete();
+                }
+            }
         }
     }
 
