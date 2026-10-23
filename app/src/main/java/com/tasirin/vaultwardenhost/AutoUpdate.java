@@ -57,6 +57,10 @@ public final class AutoUpdate {
             // Versi target menghormati kuncian user (pin) agar tak terpaku terbaru.
             String latest = Updater.versiTargetBinary(ctx);
             if (latest == null) {
+                // Offline/rate-limit: bukan galat fatal, tapi jangan sunyi —
+                // tanpa baris ini "cek update tak bereaksi" tak bisa dilacak.
+                aksi.catat("[app] Cek update dilewati: versi terbaru tak terbaca"
+                        + " (offline/rate-limit).");
                 return;
             }
             // Segarkan anchor TLS maksimal 1x sehari (best-effort, gagal diam).
@@ -165,7 +169,17 @@ public final class AutoUpdate {
             if (lengkap) {
                 aksi.tawarkanWebVault();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Jangan telan diam-diam: dulu galat apa pun di sini (prefs korup,
+            // callback UI, parsing versi) tak meninggalkan jejak sama sekali,
+            // sehingga "auto-update tak pernah jalan" mustahil didiagnosis.
+            // catat() sendiri dibungkus agar kegagalan callback tak menular.
+            try {
+                String m = e.getMessage();
+                aksi.catat("[app] Cek update gagal: "
+                        + (m != null && !m.isEmpty() ? m : e.getClass().getSimpleName()));
+            } catch (Exception ignored) {
+            }
         }
     }
 

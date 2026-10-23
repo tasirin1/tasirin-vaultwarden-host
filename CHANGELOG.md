@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 80: kegagalan cek update tidak lagi sunyi (Android 5+)
+- `AutoUpdate.cek`: catch terluar tidak lagi kosong — kegagalan (prefs korup, parsing versi, callback UI) dicatat sebagai `[app] Cek update gagal: ...` lewat `aksi.catat`, yang dibungkus try/catch agar kegagalan callback tak menular. Sebelumnya semua galat ditelan sehingga keluhan \"auto-update tak pernah jalan\" tidak meninggalkan jejak apa pun di log aplikasi.
+- Bila `versiTargetBinary` mengembalikan null (offline/rate-limit), kini dicatat `[app] Cek update dilewati: versi terbaru tak terbaca (offline/rate-limit).` alih-alih return tanpa keterangan. Tanpa test baru (butuh Context/Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 79: verifikasi CI tetap jalankan cek diff saat dispatch/schedule
 - `tools/verifikasi-patch.py`: rentang `--rentang` yang sisi kirinya kosong atau SHA nol (`workflow_dispatch`, `schedule`, push pertama) kini dinormalkan menjadi `<sha>~1...<sha>` lewat satu pintu `rentang_normal`, dipakai `daftar_berkas_berubah`, `berkas_dihapus`, dan perhitungan `diff` di `utama`. Sebelumnya `github.event.before` kosong menghasilkan `diff = ""` sehingga cek berbasis diff (metode hilang, hapusan belum tercatat, uji baru/berubah, pola berisiko/boros, izin/definisi baru, locale baru) dilewati diam-diam — run manual/schedule bisa lolos tanpa gerbang itu.
 - Tanpa test baru (skrip Python tanpa harness uji); diverifikasi lokal dengan `--rentang "...HEAD"`, `HEAD~1...HEAD`, dan SHA nol (ketiganya memeriksa 2 berkas commit terakhir) plus `cek-cepat.sh`. Build/test penuh di CI.
