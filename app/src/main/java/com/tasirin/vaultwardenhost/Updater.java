@@ -2181,11 +2181,12 @@ public final class Updater {
 
     /** Sama, tapi memakai shim getrandom bila perangkat kernel lama (agar --version lolos). */
     static String detectVersion(Context ctx, File binary) {
-        // Di luar try agar terlihat di catch: lokal di dalam try tak tampak
-        // di catch (pola sama ServerService detectBinaryVersion).
+        // Di luar try agar terlihat di finally: lokal di dalam try tak tampak
+        // di blok pembersihan (pola sama ServerService detectBinaryVersion).
         final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         Thread versiWatchdog = null;
+        Process p = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
@@ -2195,7 +2196,7 @@ public final class Updater {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 }
             }
-            Process p = pb.start();
+            p = pb.start();
             // Watchdog 10 detik: readLine() memblokir selamanya bila binary
             // macet tanpa output; destroy terjadwal menutup pipa sehingga
             // baca balik EOF (batas waitForOrKill di bawah saja tak cukup).
@@ -2227,32 +2228,28 @@ public final class Updater {
                 mati = ServerService.waitForOrKill(p, 10_000);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
-                try {
-                    p.destroy();
-                } catch (Exception ignored) {
-                }
                 return null;
             }
-            if (!mati) {
-                try {
-                    p.destroy();
-                } catch (Exception ignored) {
-                }
-                return null;
-            }
-            try {
-                p.destroy();
-            } catch (Exception ignored) {
-            }
-            return parseBinaryVersion(first);
+            return mati ? parseBinaryVersion(first) : null;
         } catch (Exception e) {
-            // Hentikan watchdog agar tak bocor tiap detect gagal (pola ServerService 2851).
+            return null;
+        } finally {
+            // Satu pintu pembersihan: watchdog dihentikan dan proses dibunuh di
+            // SEMUA jalur. Dulu blok destroy yang sama diulang tiga kali dan
+            // jalur InterruptedException masih sempat melewatkan destroy.
             versiSelesai.set(true);
             try {
-                versiWatchdog.interrupt();
+                if (versiWatchdog != null) {
+                    versiWatchdog.interrupt();
+                }
             } catch (Exception ignored) {
             }
-            return null;
+            if (p != null) {
+                try {
+                    p.destroy();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
