@@ -1471,25 +1471,34 @@ public class SettingsActivity extends Activity {
             if (TgBackup.amanBoolean(sp, key, false)) {
                 return;
             }
-            sp.edit().putBoolean(key, true).apply();
             final String pinWvDlg = Updater.kuncianWebVault(this);
             final boolean dikunciDlg = pinWvDlg != null && !pinWvDlg.isEmpty();
-            ui.post(() -> new AlertDialog.Builder(this)
-                    .setTitle("Web Vault update available")
-                    .setMessage("Current web vault v" + updated
-                            + ", while the server is v" + server + ".\n\n"
-                            + (dikunciDlg
-                                    ? "Web vault version pinned to v" + pinWvDlg
-                                            + ": sync now? (one ~35 MB download, "
-                                            + "takes effect after a server restart)"
-                                    : "Update the web vault now? (one ~35 MB download, "
-                                            + "takes effect after a server restart)"))
-                    .setPositiveButton("Update & Restart",
-                            (d, w) -> runWebVaultUpdate(true))
-                    .setNeutralButton("Update only",
-                            (d, w) -> runWebVaultUpdate(false))
-                    .setNegativeButton("Later", null)
-                    .show());
+            ui.post(() -> {
+                // Cek update berjalan di worker: Activity bisa sudah ditutup
+                // saat hasilnya datang. Dialog dengan token mati = BadTokenException.
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                // Tandai baru setelah dialog benar-benar tampil; bila dibatalkan
+                // karena Activity mati, tawaran tetap muncul di kunjungan berikut.
+                sp.edit().putBoolean(key, true).apply();
+                new AlertDialog.Builder(this)
+                        .setTitle("Web Vault update available")
+                        .setMessage("Current web vault v" + updated
+                                + ", while the server is v" + server + ".\n\n"
+                                + (dikunciDlg
+                                        ? "Web vault version pinned to v" + pinWvDlg
+                                                + ": sync now? (one ~35 MB download, "
+                                                + "takes effect after a server restart)"
+                                        : "Update the web vault now? (one ~35 MB download, "
+                                                + "takes effect after a server restart)"))
+                        .setPositiveButton("Update & Restart",
+                                (d, w) -> runWebVaultUpdate(true))
+                        .setNeutralButton("Update only",
+                                (d, w) -> runWebVaultUpdate(false))
+                        .setNegativeButton("Later", null)
+                        .show();
+            });
         } catch (Exception ignored) {
         }
     }

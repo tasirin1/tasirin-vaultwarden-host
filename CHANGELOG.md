@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 69: dialog tawaran web-vault aman lifecycle (Android 5+)
+- `SettingsActivity.autoOfferWebVaultUpdate`: dialog dipindah utuh ke dalam `ui.post` dengan penjaga `isFinishing()/isDestroyed()` (pola sama dengan dialog lain di kelas ini), dan penanda `wv_notified_<server>` baru ditulis setelah Activity terbukti hidup. Sebelumnya penanda ditulis di worker sebelum dialog tampil, lalu `show()` tanpa penjaga: keluar dari Settings saat cek update berjalan bisa memicu `BadTokenException` (app tertutup) dan tawaran update hilang permanen karena penanda sudah terlanjur true. Tanpa test baru (butuh lifecycle Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 68: backup UI serial dengan bot/restore (Android 5+)
 - `SettingsActivity.backupDatabase` kini mengambil `TgBackup.kunciBackup()` (wrapper + `backupDatabaseIsi`, pola sama dengan restore UI), sehingga backup dari tombol dan backup terjadwal/`/backup` bot tak berjalan bersamaan. Sebelumnya keduanya berebut file temp `<cache>/verifikasi-isi-db.sqlite3` dan saling menghapus di `finally`: backup sah bisa dilaporkan "corrupt" lalu dibuang.
 - Tanpa test baru (butuh Context/executor Android; perilaku sama dengan jalur restore yang sudah memakai kunci). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
