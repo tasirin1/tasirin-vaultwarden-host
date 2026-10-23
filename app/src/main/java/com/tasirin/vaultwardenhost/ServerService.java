@@ -95,6 +95,10 @@ public class ServerService extends Service {
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
+    /** Niat user tersimpan: true setelah Start, false setelah Stop. Dipakai saat
+     *  sistem menghidupkan ulang service dengan intent null (START_STICKY)
+     *  setelah proses app dibunuh LMK — flag statik sudah hilang, prefs tetap. */
+    static final String KEY_SERVER_DIMINTA = "server_diminta";
     public static final String KEY_UPDATE_VERSION = "update_version";
     /** Selalu true (HTTPS-only: HTTP tak bisa dipakai). Dipertahankan agar
      *  config/backup lama tetap bisa dibaca. */
@@ -871,6 +875,7 @@ public class ServerService extends Service {
             }
             autoRestart = false;
             healthActive = false;
+            simpanNiatJalan(false);
             batalUtama(healthTick);
             batalUtama(restartTunda);
             batalStart = true;
@@ -1040,14 +1045,34 @@ public class ServerService extends Service {
             });
             return START_NOT_STICKY;
         }
-        // Aksi tak dikenal (termasuk intent null dari sistem) bukan perintah start:
-        // abaikan agar service tak menyala sendiri tanpa persetujuan user.
+        // Sistem menghidupkan ulang service (START_STICKY) dengan intent null
+        // setelah proses app dibunuh LMK: flag statik sudah hilang, jadi pakai
+        // niat user tersimpan. Tanpa ini START_STICKY tak pernah menepati janji
+        // dan server yang diminta jalan tak pulih otomatis.
+        if (intent == null) {
+            if (!niatJalanTersimpan()) {
+                return START_NOT_STICKY;
+            }
+            autoRestart = true;
+            batalStart = false;
+            healthActive = true;
+            startForegroundCompat();
+            if (process == null || !alive(process)) {
+                startServerAsync();
+            }
+            batalUtama(healthTick);
+            posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
+            return START_STICKY;
+        }
+        // Aksi tak dikenal bukan perintah start: abaikan agar service tak
+        // menyala sendiri tanpa persetujuan user.
         if (!ACTION_START.equals(action)) {
             return START_NOT_STICKY;
         }
         autoRestart = true;
         batalStart = false;
         healthActive = true;
+        simpanNiatJalan(true);
         // Start eksplisit = persetujuan baru user: lupakan riwayat restart lama
         // agar penjaga anti-loop tak langsung mematikan start yang diminta.
         // Restart otomatis (restartTunda -> startServer) tidak lewat jalur ini,
@@ -1067,6 +1092,27 @@ public class ServerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    /** Simpan niat user (Start/Stop) secara sinkron: harus tahan proses dibunuh
+     *  tepat sesudah perintah agar START_STICKY tahu harus menghidupkan ulang. */
+    @SuppressLint("ApplySharedPref")
+    private void simpanNiatJalan(boolean jalan) {
+        try {
+            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                    .putBoolean(KEY_SERVER_DIMINTA, jalan).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Baca niat user tersimpan; false (jangan start) bila prefs tak terbaca. */
+    private boolean niatJalanTersimpan() {
+        try {
+            return getSharedPreferences(PREFS, MODE_PRIVATE)
+                    .getBoolean(KEY_SERVER_DIMINTA, false);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).

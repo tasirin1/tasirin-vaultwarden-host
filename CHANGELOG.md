@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 71: START_STICKY benar-benar memulihkan server (Android 5+)
+- `ServerService`: niat user kini disimpan (`server_diminta` via `simpanNiatJalan`, commit sinkron) saat Start dan dihapus saat Stop. Intent `null` dari sistem (service dihidupkan ulang START_STICKY setelah proses dibunuh LMK) dulu langsung dijawab `START_NOT_STICKY` tanpa start apa pun, padahal flag statis (`running/healthActive`) sudah hilang — janji START_STICKY tak pernah ditepati dan server tak pulih otomatis.
+- Jalur intent `null` sekarang memulai ulang hanya bila niat tersimpan true, memasang foreground/health, dan tetap menghormati proses yang masih hidup (`process == null || !alive`) agar recreate layanan tanpa kematian proses tidak men-spawn server kedua. Aksi tak dikenal (non-null) tetap diabaikan. Tanpa test baru (butuh lifecycle service Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 70: "web-vault sudah terbaru" tak lagi palsu (Android 5+)
 - `Updater.updateWebVaultInner`: "terpasang" kini hanya bila `web-vault/index.html` benar-benar ada dan berisi (`wvPayloadAda`), bukan sekadar ada `vw-version.json`. Sebelumnya folder dengan penanda tapi `index.html` hilang (swap terputus/storage penuh) selalu dijawab "sudah versi terbaru" sehingga web UI 404 permanen dan tombol Update tak memperbaiki apa pun.
 - Versi terpasang hanya dipercaya dari penanda tag Vaultwarden (`wv_from_version`). Tebakan dari versi binary dihapus: namespace-nya beda dan bukan bukti isi web-vault, sehingga justru menutup peluang self-heal saat penanda kosong. `webVaultReady` memakai pintu yang sama (index kosong = belum siap).
