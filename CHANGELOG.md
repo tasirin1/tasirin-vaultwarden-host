@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 124: Sidik menu bot tersimpan untuk respons JSON ber-spasi
+- `TgBot.refreshMenuAsync` memakai `responsOk()` (toleran `"ok": true` ber-spasi) alih-alih `contains("\"ok\":true")`. Dulu respons sah dengan spasi dianggap gagal sehingga `KEY_TG_MENU_FP` tak pernah tersimpan dan `setMyCommands` dikirim ulang pada setiap Start/boot/perubahan setelan.
+
 ## [Belum rilis] — Audit 123: Backup otomatis dilewati cepat saat tugas data lain berjalan (Android 5+)
 - `TgBackup.maybeAutoBackup` mengecek `tugasDataJalan()` sebelum masuk pool: bila backup/restore lain sedang berjalan, backup otomatis dicatat "dilewati" dan keluar, bukan menunggu DB sampai 30 detik lalu melaporkan "Backup gagal: tugas backup/restore lain sedang berjalan. <saran koneksi>" — pesan yang membuat user mengira backup harian gagal/putus jaringan, sekaligus menahan satu slot `BG_LAMA` (hanya 2 thread) di STB 1 GB.
 

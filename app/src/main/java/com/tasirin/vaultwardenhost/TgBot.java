@@ -360,7 +360,7 @@ public final class TgBot {
                         balasan = TgBackup.bacaResponsBatas(is);
                     }
                 }
-                if (code == 200 && balasan.contains("\"ok\":true")) {
+                if (code == 200 && responsOk(balasan)) {
                     app.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                             .edit().putString(KEY_TG_MENU_FP, sidik)
                             .remove(KEY_TG_MENU_HASH).apply();
