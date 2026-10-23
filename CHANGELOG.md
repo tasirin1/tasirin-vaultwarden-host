@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 84: penanda versi web-vault tak campur namespace (Android 5+)
+- `Updater.versiWvUntukCap`: `KEY_WV_FROM` kini hanya diisi tag Vaultwarden yang benar-benar diunduh; jalur `latest == null` (redirect `WV_UPDATE_URL`) tidak lagi menulis versi dari `vw-version.json`. File itu berisi versi web-vault Bitwarden (mis. `2026.x`) yang namespace-nya berbeda dari tag Vaultwarden, sehingga perbandingan "sudah versi terbaru" di `updateWebVaultInner` selalu meleset dan UI menampilkan versi yang membingungkan. Pemeriksaan `latest == null` sudah memakai keberadaan payload (`wvPayloadAda`), jadi tak ada unduhan ulang tambahan; tampilan versi tetap memakai fallback `readWvVersion` di Main/Settings/TgBot.
+- Test `capWvHanyaTagVaultwarden` menggantikan `capWvRedirectDariJson`; nama test lama dicatat di `tools/bekas-hapusan.txt`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 83: buang kode mati (overload & konstanta tak terpakai) (Android 5+)
 - `TlsCert.extensionsBlock(List<String>)` (overload satu argumen) dihapus; satu-satunya pemanggil memakai varian dua argumen (ips, dns).
 - `TgBackup.deriveKey(String, byte[])` dan `deriveKey(String, byte[], boolean)` dihapus; semua jalur memakai varian 4 argumen (SHA256/SHA1 + iterasi eksplisit dari header VWB3).

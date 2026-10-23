@@ -20,3 +20,4 @@ dialogTampilSekaliPerProsesWalauBaruBoot
 cukupAkses_api30HanyaKelolaSemuaFile
 smokeGagalBaruSaja
 smokeGagal_throttleGagalBaru
+capWvRedirectDariJson

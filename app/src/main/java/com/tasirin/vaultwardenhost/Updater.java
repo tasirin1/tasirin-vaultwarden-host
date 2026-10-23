@@ -1583,17 +1583,13 @@ public final class Updater {
         }
     }
 
-    /** Versi web-vault yang dicap sebagai terpasang (null = jangan cap).
-     *  Instal via redirect (latest==null) wajib cap dari vw-version.json
-     *  hasil ekstrak agar cek berikut tak unduh ulang 35 MB. Murni. */
-    static String versiWvUntukCap(String latest, boolean fallback, String dariJson) {
-        if (latest != null && !fallback) {
-            return latest;
-        }
-        if (latest == null && dariJson != null && !dariJson.isEmpty()) {
-            return dariJson;
-        }
-        return null;
+    /** Versi web-vault yang boleh dicap sebagai terpasang (null = jangan cap).
+     *  Hanya tag Vaultwarden: vw-version.json berisi versi web-vault Bitwarden
+     *  (namespace berbeda), dan jalur fallback/redirect bisa memasang payload
+     *  yang bukan milik tag yang diminta. Cek `latest == null` sudah memakai
+     *  keberadaan payload (bukan cap) agar tak unduh ulang 35 MB. Murni. */
+    static String versiWvUntukCap(String latest, boolean fallback) {
+        return (latest != null && !fallback) ? latest : null;
     }
 
     private static String updateWebVaultInner(Context ctx) throws Exception {
@@ -1851,8 +1847,7 @@ public final class Updater {
             deleteRecursive(bakDir);
             lepasStagingAktif(newDir);
         }
-        String capWv = versiWvUntukCap(latest, wvFallback,
-                readWvVersion(new File(targetDir, "vw-version.json")));
+        String capWv = versiWvUntukCap(latest, wvFallback);
         if (capWv != null) {
             sp.edit().putString(KEY_WV_FROM, capWv).apply();
         }
