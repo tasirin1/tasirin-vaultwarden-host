@@ -60,6 +60,12 @@ jobs:
           TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
             || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
           case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
+          # Tag upstream = data eksternal: wajib berbentuk versi rilis sebelum
+          # dipakai di env/run. Tanpa ini tag berisi $(...) / backtick dieksekusi
+          # shell runner (yang memegang GITHUB_TOKEN contents: write).
+          if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
+            echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
+          fi
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           EXISTING=$(gh api "repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
@@ -79,6 +85,8 @@ jobs:
     # cukup diunduh sekali. Push ke workflow ini sudah difilter paths.
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
+    env:
+      VW: ${{ needs.resolve.outputs.vw }}
     steps:
       - uses: actions/checkout@v7
 
@@ -98,7 +106,7 @@ jobs:
 
       - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw }})
         run: |
-          git clone --depth 1 --branch ${{ needs.resolve.outputs.vw }} \
+          git clone --depth 1 --branch "$VW" \
             https://github.com/dani-garcia/vaultwarden.git
 
       - name: Unduh bundel CA Mozilla (verifier TLS Android)
@@ -283,6 +291,8 @@ jobs:
     needs: [resolve, build-binary]
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
+    env:
+      VW: ${{ needs.resolve.outputs.vw }}
     steps:
       - uses: actions/checkout@v7
 
@@ -306,7 +316,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -e
-          TAG="v${{ needs.resolve.outputs.vw }}"
+          TAG="v$VW"
           mkdir -p /tmp/pub
           cd /tmp/pub
           # Binary + shim selalu hasil build baru dari job di atas.
@@ -318,7 +328,7 @@ jobs:
             echo "web-vault.zip sudah ada di $TAG — pakai ulang dari rilis."
             gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip
           else
-            DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/${{ needs.resolve.outputs.vw }}/docker/DockerSettings.yaml" \
+            DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW/docker/DockerSettings.yaml" \
               | grep 'vault_image_digest' | head -n 1 | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
             # Format ketat: saring keluaran multi-baris/sampah bila format
             # upstream berubah (multi-arch) agar gagal lantang di sini, bukan
@@ -339,7 +349,7 @@ jobs:
           # '|| true' agar tak gagal bila workflow APK membuatnya bersamaan).
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" \
-              --title "Tasirin Vaultwarden Host ${{ needs.resolve.outputs.vw }} (Android)" \
+              --title "Tasirin Vaultwarden Host $VW (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
           gh release view "$TAG" >/dev/null 2>&1
           unggah_asset() {

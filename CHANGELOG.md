@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 95: tag upstream tak lagi diinterpolasi ke shell CI (Android 5+)
+- `.github/workflows/build-apk.yml` + `build-binary.yml`: tag rilis Vaultwarden divalidasi berbentuk versi (`1.34.3`, boleh sufiks `-beta.1`/`+build`) di job `resolve`, lalu diteruskan lewat `env: VW` dan dipakai sebagai `"$VW"` di `run:`. Sebelumnya `${{ needs.resolve.outputs.vw }}` disubstitusi GitHub langsung ke skrip shell; tag berisi `$(...)`/backtick dari upstream yang disusupi bisa dieksekusi di runner ber-`contents: write`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 94: pool tugas benar-benar memakai worker paralel (Android 5+)
 - `Util`: `BG_RINGAN` (3) dan `BG_LAMA` (2) kini dibuat lewat satu pintu `buatPool` dengan `core = max` + `allowCoreThreadTimeOut(60 dtk)`. Sebelumnya `core=0` membuat `ThreadPoolExecutor` hanya memakai **satu** worker sampai antrean penuh (32/16), sehingga verifikasi/hash PIN dan Start ikut mengantre di belakang unduhan binary/web-vault 20–35 MB — layar kunci bisa berhenti di “Memeriksa…” selama unduhan. Thread idle tetap dibuang agar RAM STB hemat. Ditambah unit test `jalankanLamaBenarBenarParalel`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
