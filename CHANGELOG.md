@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 116: Ringkasan pengaturan tak lagi disentuh dari worker thread (Android 5+)
+- `SettingsActivity.refreshRingkasan` kini mem-posting dirinya ke UI thread bila dipanggil dari thread lain. Dulu dua blok `catch` di dalam `runBusy` (gagal pasang binary / web-vault versi pilihan) memanggilnya langsung dari worker, sehingga `isChecked()`/`setText()` dari thread non-UI melempar `CalledFromWrongThreadException` — app crash tepat saat user butuh pesan galat. Guard memakai `Looper.getMainLooper()` + null-check (aman bila Looper belum siap). Tanpa test baru (butuh Activity/Looper Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 115: Zip backup berisi kunci privat tak lagi mampir ke storage publik (Android 5+)
 - `TgBackup.createBackupZip` menerima folder zip sementara: saat backup akan dienkripsi, zip plaintext (DB + `tls/ca-key.pem` + `tls/key.pem`) dibangun di cache privat app, bukan di `<folder data>/backups` yang bisa dibaca app lain. Dulu zip berisi kunci privat sempat tertulis plaintext di /sdcard sebelum dienkripsi — dan bila enkripsi/verifikasi gagal, `zip.delete()` tak pernah jalan sehingga plaintext bertahan di sana.
 - Hasil `.enc` tetap disimpan di `<folder data>/backups` (retensi 10) dengan nama unik terhadap isi folder; `cleanupOldBackups` dipanggil setelah `.enc` jadi karena zip sementara tak menjalankan retensi. `zip.delete()` + `tmpDec.delete()` kini di `finally` agar plaintext hilang juga saat gagal. Tanpa test baru (butuh Context + storage Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

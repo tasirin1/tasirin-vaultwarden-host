@@ -3478,6 +3478,14 @@ public class SettingsActivity extends Activity {
         if (pinEnabledCheck == null || adminTokenInput == null) {
             return;
         }
+        // Dipanggil juga dari catch blok runBusy (worker thread): sentuh View
+        // hanya boleh di UI thread, kalau tidak Android melempar
+        // CalledFromWrongThreadException (crash saat pasang versi gagal).
+        android.os.Looper utama = android.os.Looper.getMainLooper();
+        if (utama != null && android.os.Looper.myLooper() != utama) {
+            ui.post(() -> refreshRingkasan());
+            return;
+        }
         // Komponen murah dulu (tanpa getString/concat/alokasi trim): tak berubah
         // = langsung pulang tanpa membangun 5 format string (tiap ketikan di ART lama).
         boolean pinOn = pinEnabledCheck.isChecked();
