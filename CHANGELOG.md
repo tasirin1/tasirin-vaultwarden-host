@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 125: Flag auto-start susulan tak lagi membuat server menyala sendiri (Android 5+)
+- `MainActivity`: `KEY_START_TERTUNDA` dihapus begitu `ServerService.start()` mengembalikan `true` (intent diterima sistem), bukan menunggu `ServerService.running` yang baru bernilai `true` setelah start asinkron selesai. Dulu flag hampir tak pernah terhapus, sehingga setiap app dibuka setelah user menekan Stop server menyala lagi lewat jalur "Auto-start susulan".
+
 ## [Belum rilis] — Audit 124: Sidik menu bot tersimpan untuk respons JSON ber-spasi
 - `TgBot.refreshMenuAsync` memakai `responsOk()` (toleran `"ok": true` ber-spasi) alih-alih `contains("\"ok\":true")`. Dulu respons sah dengan spasi dianggap gagal sehingga `KEY_TG_MENU_FP` tak pernah tersimpan dan `setMyCommands` dikirim ulang pada setiap Start/boot/perubahan setelan.
 

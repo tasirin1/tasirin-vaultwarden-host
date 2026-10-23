@@ -271,17 +271,19 @@ public class MainActivity extends Activity {
             if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)
                     && !ServerService.running) {
                 appendUiLog("[app] Auto-start susulan: start background sempat ditolak sistem.");
-                // Hapus flag hanya bila start sukses: gagal (lempar/false)
-                // wajib dicoba lagi saat app dibuka berikutnya, bukan hilang
-                // sampai reboot. Selaras BACKUP_TERTUNDA yang tak hangus sia-sia.
+                // Buang flag begitu intent start DITERIMA sistem: sumber masalah
+                // (penolakan start dari background) sudah hilang karena app kini
+                // foreground. Dulu flag hanya dihapus bila ServerService.running
+                // sudah true padahal start berjalan asinkron, sehingga flag awet
+                // dan server menyala sendiri tiap app dibuka walau user sudah
+                // menekan Stop. Kegagalan exec setelah intent diterima sudah
+                // tampil di log/status dan bisa diulang lewat tombol Start.
+                boolean diterima = false;
                 try {
-                    ServerService.start(this);
+                    diterima = ServerService.start(this);
                 } catch (Exception ignored) {
                 }
-                // Flag dihapus hanya bila server benar-benar jalan: intent
-                // terkirim bukan jaminan exec sukses (unduh bisa gagal
-                // kemudian); gagal wajib dicoba lagi buka-berikutnya.
-                if (ServerService.running) {
+                if (diterima) {
                     try {
                         sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
                     } catch (Exception ignored2) {
