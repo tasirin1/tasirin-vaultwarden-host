@@ -2622,6 +2622,15 @@ public final class TgBackup {
                 zis.closeEntry();
             }
         } catch (Exception eEkstrak) {
+            // Ekstraksi bisa terpotong di tengah (storage penuh/proses dibunuh)
+            // setelah db.sqlite3/WAL sudah ditimpa: kembalikan DB lama dari
+            // preBackup, bukan hanya TLS. Tanpa ini DB parsial tertinggal dan
+            // server tak bisa start walau salinan pengaman tersedia.
+            try {
+                pulihkanDbLama(dataFolder, dbFile, preBackup);
+            } catch (Exception ePulih) {
+                eEkstrak.addSuppressed(ePulih);
+            }
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw eEkstrak;
         } finally {
@@ -2648,12 +2657,7 @@ public final class TgBackup {
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
         if (!isSqliteFile(dbFile)) {
-            if (preBackup != null && preBackup.exists()) {
-                hapusWalShm(dataFolder);
-                copyFile(preBackup, dbFile);
-            } else {
-                dbFile.delete();
-            }
+            pulihkanDbLama(dataFolder, dbFile, preBackup);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup rusak (bukan SQLite)"
                     + " - database lama dikembalikan.");
@@ -2661,12 +2665,7 @@ public final class TgBackup {
         try {
             String rusak = cekIntegritasDb(dbFile);
             if (rusak != null) {
-                if (preBackup != null && preBackup.exists()) {
-                    hapusWalShm(dataFolder);
-                    copyFile(preBackup, dbFile);
-                } else {
-                    dbFile.delete();
-                }
+                pulihkanDbLama(dataFolder, dbFile, preBackup);
                 kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
                 throw new IOException("Backup rusak (DB korup: " + rusak + ")"
                         + " - database lama dikembalikan.");
@@ -2692,6 +2691,19 @@ public final class TgBackup {
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
                 + ". Ukuran DB: " + dbFile.length() + " bytes."
                 + " Tekan /start untuk menjalankan.";
+    }
+
+    /** Pulihkan DB + WAL/SHM ke kondisi sebelum restore gagal (satu pintu).
+     *  WAL/SHM selalu dibuang karena isinya milik DB zip yang gagal dan akan
+     *  menempel ke DB lama bila dibiarkan. */
+    private static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup)
+            throws Exception {
+        hapusWalShm(dataFolder);
+        if (preBackup != null && preBackup.exists()) {
+            copyFile(preBackup, dbFile);
+        } else {
+            dbFile.delete();
+        }
     }
 
     /** PIN hanya aktif bila ada hash tersimpan; murni agar bisa unit test. */

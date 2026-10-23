@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 67: rollback DB saat restore gagal di tengah (Android 5+)
+- `TgBackup.restoreFromZip`: blok `catch` ekstraksi kini memulihkan `db.sqlite3` dari `preBackup` (dan membuang WAL/SHM sisa zip) sebelum melempar ulang, bukan hanya memulihkan TLS. Sebelumnya `IOException` di tengah ekstraksi (storage penuh/proses dibunuh) meninggalkan DB parsial sehingga server tak bisa start walau salinan pengaman tersedia; jalur "bukan SQLite"/"korup" sudah rollback, jalur exception belum.
+- `pulihkanDbLama` (baru, satu pintu): dipakai ketiga jalur gagal restore; WAL/SHM kini juga dibuang pada jalur tanpa `preBackup` (sebelumnya bisa tertinggal menempel ke DB lain). Tanpa test baru (butuh Context/SQLite Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 66: anti-loop restart hidup lagi (Android 5+)
 - `ServerService`: riwayat restart tidak lagi dibersihkan tiap start sukses. Start otomatis (`restartTunda` → `startServer`) juga lewat jalur itu, sehingga penjaga "≥3 restart/5 menit" (`recordRestart`) mustahil tercapai dan binary yang crash tiap beberapa detik di-restart 2 dtk selamanya (spam Telegram + crash log tiap siklus). Riwayat kini hanya dilupakan saat Start eksplisit user (`lupakanRiwayatRestart`, dipanggil di ACTION_START).
 - `restartAttempt` tidak lagi di-reset tiap start; reset hanya saat uptime >60 dtk (`scheduleRestartTerkunci`) atau Start eksplisit, agar batas 5x backoff juga berfungsi untuk crash ber-uptime pendek.
