@@ -231,11 +231,13 @@ public final class PinCrypto {
     /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni.
      *  Batas waktu wajib wall-clock (currentTimeMillis) agar reboot tak mereset
      *  lockout brute-force. Stempel hilang (prefs korup/kunci dihapus) fail-closed
-     *  dengan kunci penuh agar lockout tak bisa di-bypass; nilai lama era
-     *  elapsedRealtime (kecil tapi non-nol, di bawah ambang) tetap dianggap
-     *  kedaluwarsa agar tak mengunci permanen. Jam perangkat yang mundur ke
-     *  1970 (sekarang kecil) fail-closed dengan kunci penuh agar penyerang tak
-     *  bisa bypass via utak-atik tanggal. */
+     *  dengan kunci penuh agar lockout tak bisa di-bypass. Jam perangkat yang
+     *  masih 1970 (STB tanpa RTC/NTP) tak boleh mematikan lockout: stempel yang
+     *  ditulis dengan jam itu juga kecil, jadi selisihnya tetap dipakai (dibatasi
+     *  KUNCI_MS). Dulu stempel kecil dianggap sisa era elapsedRealtime lalu
+     *  langsung diloloskan — di perangkat berjam 1970 lima PIN salah tak dikunci
+     *  sama sekali. Stempel era-elapsed pada perangkat berjam wajar tetap
+     *  kedaluwarsa lewat cek "sekarang >= terkunciSampai" di atas. */
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
         if (gagal < MAX_GAGAL) {
             return 0;
@@ -246,13 +248,14 @@ public final class PinCrypto {
         if (sekarang >= terkunciSampai) {
             return 0;
         }
-        if (terkunciSampai <= AMBANG_WALL_MS) {
-            return 0;
-        }
+        long sisa = terkunciSampai - sekarang;
         if (sekarang <= AMBANG_WALL_MS) {
-            return KUNCI_MS;
+            // Jam belum wajar: selisih dua stempel kecil masih berarti selama
+            // jam terus maju; jam sane yang dimundurkan ke 1970 menghasilkan
+            // selisih raksasa yang dipangkas jadi kunci penuh (fail-closed).
+            return Math.min(sisa, KUNCI_MS);
         }
-        return terkunciSampai - sekarang;
+        return sisa;
     }
 
     /** Kunci baru sesudah satu kegagalan (perpanjangan bila sudah capai batas). Murni. */

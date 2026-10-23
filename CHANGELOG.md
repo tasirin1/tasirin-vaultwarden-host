@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 117: Lockout PIN tetap berlaku saat jam perangkat masih 1970 (Android 5+)
+- `PinCrypto.sisaKunciMs`: stempel kunci kecil (ditulis saat jam 1970, lazim di STB tanpa RTC/NTP) tak lagi dianggap sisa era `elapsedRealtime` lalu langsung diloloskan. Selisih `terkunciSampai - sekarang` tetap dipakai dan dibatasi `KUNCI_MS`, sehingga lima PIN salah di perangkat berjam 1970 benar-benar terkunci 5 menit (dulu brute-force tanpa jeda). Jam wajar yang dimundurkan ke 1970 tetap fail-closed (selisih raksasa → kunci penuh), dan stempel era-elapsed pada jam wajar tetap kedaluwarsa lewat cek `sekarang >= terkunciSampai`.
+- Uji JVM baru `PinCryptoTest.kunciJam1970TetapMengunci` (kunci penuh, sisa menyusut, lalu nol tepat saat habis). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 116: Ringkasan pengaturan tak lagi disentuh dari worker thread (Android 5+)
 - `SettingsActivity.refreshRingkasan` kini mem-posting dirinya ke UI thread bila dipanggil dari thread lain. Dulu dua blok `catch` di dalam `runBusy` (gagal pasang binary / web-vault versi pilihan) memanggilnya langsung dari worker, sehingga `isChecked()`/`setText()` dari thread non-UI melempar `CalledFromWrongThreadException` — app crash tepat saat user butuh pesan galat. Guard memakai `Looper.getMainLooper()` + null-check (aman bila Looper belum siap). Tanpa test baru (butuh Activity/Looper Android); verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

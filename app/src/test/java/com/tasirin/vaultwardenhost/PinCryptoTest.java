@@ -212,6 +212,19 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void kunciJam1970TetapMengunci() {
+        // STB tanpa RTC/NTP: lima PIN salah terjadi saat jam masih 1970.
+        // Stempel kecil hasil jam itu tak boleh dianggap sisa era elapsed
+        // (dulu langsung lolos sehingga brute-force PIN tanpa jeda).
+        long sekarang = 5_000L;
+        long sampai = PinCrypto.kunciBerikutnyaMs(5, sekarang);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang + 60_000L)
+                == PinCrypto.KUNCI_MS - 60_000L);
+        assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang + PinCrypto.KUNCI_MS) == 0);
+    }
+
+    @Test
     public void kunciWallBertahanSeolahReboot() {
         // Simulasi reboot: jam monoton reset tapi wall-clock jalan terus.
         long terkunci = 1_700_000_000_000L + PinCrypto.KUNCI_MS;
