@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 101: dialog tak dibuat saat activity sudah selesai (Android 5+)
+- `SettingsActivity.tampilDialogVersi` dan `confirm` kini berhenti bila `isFinishing() || isDestroyed()`. `tampilDialogVersi` dipanggil lewat `ui.post` dari worker daftar versi, sehingga hasil yang datang setelah activity ditutup dulu memicu `WindowManager$BadTokenException`. Dialog password impor juga ikut memeriksa `isDestroyed()`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 100: tombol Stop tak lagi terkunci input tak valid (Android 5+)
 - `SettingsActivity`: status enabled tombol bawah dihitung ulang tiap tick lewat `perbaruiEnabledStartStop()` — saat server berjalan (tombol = Stop) tombol selalu aktif, saat berhenti (tombol = Start) hanya aktif bila folder/port valid. Sebelumnya `setEnabled(!blokirStart)` mengunci Stop juga, sehingga server yang jalan dengan port/folder salah tidak bisa dihentikan dari layar Pengaturan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

@@ -2549,7 +2549,7 @@ public class SettingsActivity extends Activity {
         // (ViewRoot tanpa Looper = crash). Seluruh alur dialog di bawah ini.
         ui.post(() -> {
         try {
-            if (isFinishing()) {
+            if (isFinishing() || isDestroyed()) {
                 tmpEnkrip.delete();
                 return;
             }
@@ -3142,6 +3142,12 @@ public class SettingsActivity extends Activity {
 
     private void tampilDialogVersi(final boolean untukBinary,
             final java.util.List<String> versi, String pin) {
+        // Dipanggil via ui.post dari worker daftar versi: activity bisa sudah
+        // finishing/destroyed saat hasil datang -> show() melempar
+        // WindowManager$BadTokenException. Cukup lewati.
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
         final String[] nama = new String[versi.size() + 1];
         nama[0] = getString(R.string.versi_terbaru_otomatis);
         for (int i = 0; i < versi.size(); i++) {
@@ -3677,6 +3683,9 @@ public class SettingsActivity extends Activity {
     }
 
     private void confirm(String title, String message, final Runnable action) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
