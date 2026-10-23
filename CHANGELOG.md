@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 119: Jam STB yang melompat ke masa depan tak lagi membisukan bot selamanya (Android 5+)
+- `TgBot.catatWall` hanya memajukan tanda air anti-rollback bila lompatannya wajar (`wallBolehMaju`): nilai era 1970 (RTC belum diset) ditolak dan lompatan > 30 hari dianggap RTC salah. Dulu satu lompatan jam ke 2030 langsung dicatat + disimpan ke `tg_wall_maks`, sehingga setelah NTP membetulkan jam setiap perintah/tombol dibuang `jamMundur` sampai tahun 2030 — remote Telegram mati total tanpa jalan pulih in-app.
+- `muatWallMaks` membuang tanda air racun yang jauh di masa depan (pemulihan bagi perangkat yang sudah terlanjur menyimpannya), dan `pollOnce` me-rebase tanda air serupa yang terlanjur ada di memori sebelum cek mundur. Proteksi anti-rollback untuk selisih wajar (menit/jam) tetap berjalan; pesan basi tetap ditolak `Util.pesanSegar` dan tombol oleh `tombolKedaluwarsa`.
+- Uji JVM baru `TgBotTest.wallBolehMaju_tolakJam1970DanLompatanRaksasa`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 118: Penolakan Telegram tak lagi membungkam polling tanpa jejak (Android 5+)
 - `TgBot.httpPostForm` kini membaca body galat (bukan membuangnya) lalu mencatat ringkasannya sekali per jenis: 401 token dicabut, 409 bot dipakai instans lain, dan 429 kena limit dulu membuat bot berhenti menjawab tanpa satu pun petunjuk di log. Galat jaringan juga dicatat per kelas exception.
 - `TgBot.ringkasGalatTelegram` (murni, tanpa `org.json`) mengambil `error_code` + `description` saja; body mentah tak pernah dicatat karena galat proxy/HTML bisa memuat URL `bot<token>` sehingga token bocor ke log dan Telegram `/log`. Deskripsi dipangkas 160 karakter.

@@ -542,4 +542,18 @@ public class TgBotTest {
         assertEquals("HTTP 429: " + isiPanjang.substring(0, 160),
                 TgBot.ringkasGalatTelegram(body, 429));
     }
+
+    @Test
+    public void wallBolehMaju_tolakJam1970DanLompatanRaksasa() {
+        long sane = 1_700_000_000_000L;
+        assertTrue(TgBot.wallBolehMaju(0, sane));                  // patokan pertama
+        assertTrue(TgBot.wallBolehMaju(sane, sane + 3_600_000L));  // maju 1 jam
+        assertTrue(TgBot.wallBolehMaju(sane,
+                sane + TgBot.BATAS_LOMPATAN_JAM_MS));               // tepat batas
+        assertFalse(TgBot.wallBolehMaju(sane,
+                sane + TgBot.BATAS_LOMPATAN_JAM_MS + 1));           // lewat batas
+        assertFalse(TgBot.wallBolehMaju(sane, sane));               // tidak maju
+        assertFalse(TgBot.wallBolehMaju(sane, sane - 1_000L));      // mundur
+        assertFalse(TgBot.wallBolehMaju(0, 5_000L));                // RTC 1970
+    }
 }

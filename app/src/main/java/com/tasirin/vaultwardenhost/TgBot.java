@@ -442,6 +442,14 @@ public final class TgBot {
                     // STB lama; selisih µs antar-pesan tak berarti untuk
                     // batas basi 5 menit.
                     long kiniPoll = System.currentTimeMillis();
+                    // Tanda air yang melompat jauh ke masa depan (RTC sempat
+                    // salah) tak boleh membisukan bot sampai tahun itu tiba:
+                    // rebase ke jam kini yang sudah benar sebelum cek mundur.
+                    if (wallMaksTelegram - kiniPoll > BATAS_LOMPATAN_JAM_MS) {
+                        synchronized (KUNCI_WALL) {
+                            wallMaksTelegram = kiniPoll;
+                        }
+                    }
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject upd = arr.optJSONObject(i);
                         if (upd == null) {
@@ -2182,6 +2190,22 @@ public final class TgBot {
     static final long TOMBOL_KEDALUWARSA_MS = 24L * 3600 * 1000;
     static final long TOLERANSI_JAM_MS = 5 * 60_000;
 
+    /** Lompatan jam > 30 hari dianggap RTC salah, bukan waktu berjalan:
+     *  mencatat/mempercayainya membuat bot bisu sampai tahun itu tiba. */
+    static final long BATAS_LOMPATAN_JAM_MS = 30L * 24 * 3600 * 1000;
+
+    /** True bila tanda air jam boleh maju ke {@code kini}. Murni agar bisa diuji.
+     *  Nilai era 1970 (RTC belum diset) tak pernah jadi patokan; lompatan > 30
+     *  hari (mis. RTC sempat menyetel 2030 lalu NTP membetulkan) ditolak supaya
+     *  tanda air tak berubah jadi "tahun depan" dan membisukan semua perintah. */
+    static boolean wallBolehMaju(long maksLama, long kini) {
+        if (kini < 1_000_000_000_000L) {
+            return false;
+        }
+        return kini > maksLama
+                && (maksLama <= 0 || kini - maksLama <= BATAS_LOMPATAN_JAM_MS);
+    }
+
     /** True bila jam mundur jauh dari yang pernah terlihat (rollback/NTP) — fail-closed. */
     static boolean jamMundur(long kini) {
         long maks = wallMaksTelegram;
@@ -2191,7 +2215,7 @@ public final class TgBot {
     /** Catat wall-clock monoton naik untuk deteksi rollback berikutnya. */
     static void catatWall(long kini) {
         synchronized (KUNCI_WALL) {
-            if (kini > wallMaksTelegram) {
+            if (wallBolehMaju(wallMaksTelegram, kini)) {
                 wallMaksTelegram = kini;
             }
         }
@@ -2208,6 +2232,17 @@ public final class TgBot {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long s = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
+            // Tanda air racun (jam pernah melompat jauh ke depan) dibuang agar
+            // bot tak bisu sampai tahun itu tiba. Saat jam masih 1970, nilai
+            // sah 2026 pun ikut dibuang — catatWall akan memasang patokan baru
+            // begitu jam wajar, tanpa merugikan fungsi apa pun.
+            if (s - System.currentTimeMillis() > BATAS_LOMPATAN_JAM_MS) {
+                s = 0;
+                try {
+                    sp.edit().remove(KEY_TG_WALL_MAKS).apply();
+                } catch (Exception ignored) {
+                }
+            }
             wallMaksTersimpan = s;
             synchronized (KUNCI_WALL) {
                 if (s > wallMaksTelegram) {
