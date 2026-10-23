@@ -1541,6 +1541,23 @@ public class SettingsActivity extends Activity {
     // ─── Backup & Restore database lokal ────────────────────────────────
 
     private void backupDatabase(String dataDirMentah) {
+        // Kunci data bersama (sama dengan backup bot & restore UI). Kedua jalur
+        // memakai file temp verifikasi yang sama, jadi tak boleh tumpang tindih:
+        // tanpa kunci, satu pihak bisa menghapus temp pihak lain lalu backup sah
+        // dinyatakan korup dan dibuang.
+        if (!TgBackup.kunciBackup()) {
+            toast("Another backup/restore task is already running, try again shortly.");
+            appendUiLog("[app] Backup ditolak: tugas backup/restore lain sedang berjalan.");
+            return;
+        }
+        try {
+            backupDatabaseIsi(dataDirMentah);
+        } finally {
+            TgBackup.lepasBackup();
+        }
+    }
+
+    private void backupDatabaseIsi(String dataDirMentah) {
         try {
             String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
             if (TextUtils.isEmpty(dataDir)) {

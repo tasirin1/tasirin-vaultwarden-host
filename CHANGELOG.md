@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 68: backup UI serial dengan bot/restore (Android 5+)
+- `SettingsActivity.backupDatabase` kini mengambil `TgBackup.kunciBackup()` (wrapper + `backupDatabaseIsi`, pola sama dengan restore UI), sehingga backup dari tombol dan backup terjadwal/`/backup` bot tak berjalan bersamaan. Sebelumnya keduanya berebut file temp `<cache>/verifikasi-isi-db.sqlite3` dan saling menghapus di `finally`: backup sah bisa dilaporkan "corrupt" lalu dibuang.
+- Tanpa test baru (butuh Context/executor Android; perilaku sama dengan jalur restore yang sudah memakai kunci). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 67: rollback DB saat restore gagal di tengah (Android 5+)
 - `TgBackup.restoreFromZip`: blok `catch` ekstraksi kini memulihkan `db.sqlite3` dari `preBackup` (dan membuang WAL/SHM sisa zip) sebelum melempar ulang, bukan hanya memulihkan TLS. Sebelumnya `IOException` di tengah ekstraksi (storage penuh/proses dibunuh) meninggalkan DB parsial sehingga server tak bisa start walau salinan pengaman tersedia; jalur "bukan SQLite"/"korup" sudah rollback, jalur exception belum.
 - `pulihkanDbLama` (baru, satu pintu): dipakai ketiga jalur gagal restore; WAL/SHM kini juga dibuang pada jalur tanpa `preBackup` (sebelumnya bisa tertinggal menempel ke DB lain). Tanpa test baru (butuh Context/SQLite Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
