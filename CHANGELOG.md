@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 111: deteksi grup bot per chat, bukan seluruh config (Android 5+)
+- `TgBot`: `authDangerous` kini menerima ID chat (`idRuang`) dan menolak perintah ber-PIN hanya bila chat pengirim benar-benar grup (ID negatif). Sebelumnya pemeriksaan memakai `chatResmiAdalahGrup(ctx)` yang menilai seluruh daftar chat, sehingga config campuran (chat pribadi + grup) menolak perintah ber-PIN dari chat pribadi juga. Parameter `pengirimId` di `handleCommand` diganti `idRuang` agar sesuai isinya. Perintah berbahaya dari grup tetap ditolak lebih awal (tanpa verifikasi PIN). Tanpa test baru (butuh Context Android); helper murni `perintahBerbahaya` tetap teruji. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 110: restore cek ruang sebelum menimpa database (Android 5+)
 - `TgBackup.restoreFromZipIsi`: sebelum server dihentikan, total isi zip (tak terkompresi) dihitung dan dibandingkan dengan ruang bebas folder data — termasuk salinan pengaman DB lama + 5 MB headroom. Restore ditolak lebih awal bila isi zip melebihi `BATAS_UNZIP_RESTORE` atau storage kurang, sehingga tak ada rollback di tengah ekstraksi dengan pesan membingungkan. Helper murni `ukuranIsiZip` + test `ukuranIsiZip_menjumlahkanEntri`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

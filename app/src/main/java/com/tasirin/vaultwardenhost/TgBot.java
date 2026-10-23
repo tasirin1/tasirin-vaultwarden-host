@@ -1113,7 +1113,7 @@ public final class TgBot {
      *  /log + /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
      *  pemanggil boleh menghapus pesan dari riwayat. False berarti PIN
      *  gagal/hilang: pesan dipertahankan sebagai bukti forensik brute-force. */
-    private static boolean handleCommand(Context ctx, String text, long pengirimId) {
+    private static boolean handleCommand(Context ctx, String text, long idRuang) {
         boolean berbahayaTerotorisasi = false;
         if (text == null || !text.startsWith("/")) {
             return false;
@@ -1121,9 +1121,9 @@ public final class TgBot {
         // Keamanan grup: chat ID negatif = grup/supergrup yang semua anggotanya
         // bisa memerintah bot. Perintah berbahaya dari grup selalu ditolak —
         // ulangi dari chat pribadi dengan bot (tanpa pengecualian PIN grup).
-        // Multi-akun: gerbang ikut ID pengirim (bukan config) agar admin pribadi
+        // Multi-akun: gerbang ikut ID chat (bukan config) agar admin pribadi
         // tetap bisa memerintah saat config juga memuat grup.
-        if (pengirimId < 0 && perintahBerbahaya(text)) {
+        if (idRuang < 0 && perintahBerbahaya(text)) {
             TgBackup.sendMessage(ctx, "Perintah berbahaya dari grup ditolak."
                     + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
             return false;
@@ -1140,7 +1140,7 @@ public final class TgBot {
         String arg = ambilArgumen(text);
         switch (cmd) {
             case "/start":
-                if (authDangerous(ctx, arg) == null) {
+                if (authDangerous(ctx, arg, idRuang) == null) {
                     break;
                 }
                 berbahayaTerotorisasi = true;
@@ -1163,7 +1163,7 @@ public final class TgBot {
                 }
                 break;
             case "/stop":
-                if (authDangerous(ctx, arg) == null) {
+                if (authDangerous(ctx, arg, idRuang) == null) {
                     break;
                 }
                 berbahayaTerotorisasi = true;
@@ -1180,7 +1180,7 @@ public final class TgBot {
                 }
                 break;
             case "/restart":
-                if (authDangerous(ctx, arg) == null) {
+                if (authDangerous(ctx, arg, idRuang) == null) {
                     break;
                 }
                 berbahayaTerotorisasi = true;
@@ -1201,7 +1201,7 @@ public final class TgBot {
                 }
                 break;
             case "/backup":
-                if (authDangerous(ctx, arg) == null) {
+                if (authDangerous(ctx, arg, idRuang) == null) {
                     break;
                 }
                 berbahayaTerotorisasi = true;
@@ -1214,7 +1214,7 @@ public final class TgBot {
                 });
                 break;
             case "/restore":
-                String cleanRestore = authDangerous(ctx, arg);
+                String cleanRestore = authDangerous(ctx, arg, idRuang);
                 if (cleanRestore == null) {
                     break;
                 }
@@ -1236,7 +1236,7 @@ public final class TgBot {
                 // CA publik (tanpa kunci privat): butuh PIN bila PIN aktif,
                 // dan dari grup selalu butuh PIN (tanpa pengecualian grup).
                 if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "ca") == null) {
+                    if (authDangerous(ctx, arg, "ca", idRuang) == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1253,7 +1253,7 @@ public final class TgBot {
                 // File publik (tanpa kunci privat): butuh PIN bila PIN aktif,
                 // dan dari grup selalu butuh PIN (tanpa pengecualian grup).
                 if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "cabackup") == null) {
+                    if (authDangerous(ctx, arg, "cabackup", idRuang) == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1267,7 +1267,7 @@ public final class TgBot {
                 });
                 break;
             case "/careset":
-                if (authDangerous(ctx, arg) == null) {
+                if (authDangerous(ctx, arg, idRuang) == null) {
                     break;
                 }
                 berbahayaTerotorisasi = true;
@@ -1288,7 +1288,7 @@ public final class TgBot {
                 // /log dan /crashlog. Dari grup selalu butuh PIN (tanpa
                 // pengecualian grup).
                 if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "status") == null) {
+                    if (authDangerous(ctx, arg, "status", idRuang) == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1300,7 +1300,7 @@ public final class TgBot {
                 // wajib PIN bila PIN aktif, sama seperti /crashlog. Dari grup
                 // selalu butuh PIN (tanpa pengecualian grup).
                 if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "log") == null) {
+                    if (authDangerous(ctx, arg, "log", idRuang) == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1321,7 +1321,7 @@ public final class TgBot {
                         : "Server TIDAK merespon /alive!");
                 break;
             case "/update":
-                String bersihUpdate = authDangerous(ctx, arg);
+                String bersihUpdate = authDangerous(ctx, arg, idRuang);
                 if (bersihUpdate == null) {
                     break;
                 }
@@ -1388,7 +1388,7 @@ public final class TgBot {
                 });
                 break;
             case "/webvault":
-                String bersihWv = authDangerous(ctx, arg);
+                String bersihWv = authDangerous(ctx, arg, idRuang);
                 if (bersihWv == null) {
                     break;
                 }
@@ -1446,7 +1446,7 @@ public final class TgBot {
                 // Crash log memuat path folder data: wajib PIN bila PIN aktif.
                 // Dari grup selalu butuh PIN (tanpa pengecualian grup).
                 if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "crashlog") == null) {
+                    if (authDangerous(ctx, arg, "crashlog", idRuang) == null) {
                         break;
                     }
                     berbahayaTerotorisasi = true;
@@ -1564,11 +1564,12 @@ public final class TgBot {
 
     /** Otorisasi perintah berbahaya (/stop, /update, /restore).
       *  Bila PIN app aktif, kata terakhir argumen wajib PIN yang benar;
-      *  kembalikan argumen bersih (tanpa PIN), atau null (pesan sudah dikirim). */
-    static String authDangerous(Context ctx, String arg) {
-        // Tanpa nama perintah, anggap berbahaya (fail-closed): varian 2-arg
+      *  kembalikan argumen bersih (tanpa PIN), atau null (pesan sudah dikirim).
+      *  idRuang = ID chat pengirim; negatif berarti grup (PIN ditolak). */
+    static String authDangerous(Context ctx, String arg, long idRuang) {
+        // Tanpa nama perintah, anggap berbahaya (fail-closed): varian 3-arg
         // hanya dipakai perintah berbahaya sehingga PIN mati pun tetap ditolak.
-        return authDangerous(ctx, arg, null);
+        return authDangerous(ctx, arg, null, idRuang);
     }
 
     /** Varian ber-perintah: cmd menentukan izin saat PIN mati.
@@ -1576,9 +1577,9 @@ public final class TgBot {
       *  help/versi/alive/uptime/status/log/crashlog/ca/cabackup) yang lolos
       *  langsung; perintah berbahaya (start/stop/restart/backup/restore/
       *  update/webvault/careset) tetap ditolak dan diminta aktifkan PIN dulu.
-      *  Dari grup selalu butuh PIN (tanpa PIN aktif pun ditolak karena tak ada
-      *  yang bisa diverifikasi). cmd null = perlakukan sebagai berbahaya. */
-    static String authDangerous(Context ctx, String arg, String cmd) {
+      *  Dari grup (ID negatif) perintah ber-PIN selalu ditolak. cmd null =
+      *  perlakukan sebagai berbahaya. */
+    static String authDangerous(Context ctx, String arg, String cmd, long idRuang) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         // Baca tahan korup: prefs edit manual bertipe salah tak boleh
@@ -1591,12 +1592,14 @@ public final class TgBot {
         String t = arg == null ? "" : arg.trim();
         boolean berbahaya = cmd == null || cmd.trim().isEmpty()
                 || perintahBerbahaya(cmd);
-        if (chatResmiAdalahGrup(ctx)) {
+        if (idRuang < 0) {
             // PIN yang diketik di grup terbaca semua anggota (hapus pesan cuma
             // best-effort) dan anggota mana pun bisa memicu aksi atau salah PIN
             // sampai pemilik terkunci (PinGate dipakai bersama app). Perintah
             // ber-PIN wajib dari chat pribadi; grup tetap menerima notifikasi,
-            // backup, dan perintah yang tak dijaga PIN.
+            // backup, dan perintah yang tak dijaga PIN. Deteksi per chat (bukan
+            // seluruh config) agar chat pribadi tetap bisa memerintah saat
+            // config juga memuat grup.
             TgBackup.sendMessage(ctx, "Perintah ber-PIN hanya bisa dari chat pribadi"
                     + " bot. PIN yang diketik di grup terbaca anggota lain.");
             return null;
