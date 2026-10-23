@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 78: centang PIN tak desync setelah import / antrean penuh (Android 5+)
+- `SettingsActivity.reloadSettingsFromPrefs`: `pinEnabledCheck.setChecked()` kini dibungkus `pinCentangProgram` seperti semua set programatik lain. Sebelumnya import config memicu listener: PIN mati memunculkan konfirmasi "matikan PIN" palsu, dan config ber-PIN dengan kolom PIN kosong dicentang lalu langsung dibatalkan listener sehingga centang tampil mati padahal `pin_on=true` (sampai Settings dibuka ulang).
+- Aktivasi PIN lewat centang: bila `Util.jalankanLama` menolak tugas (antrean penuh), `pinAktifJalan` dilepas dan centang dikembalikan mati + pesan gagal. Sebelumnya guard itu bisa tertinggal true selamanya: centang menyala, `pin_on` tak pernah ditulis, dan toggle PIN berikutnya diabaikan ("aktivasi masih jalan"). Tanpa test baru (butuh lifecycle/prefs Android). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 77: versi terkunci tak lagi cek "terbaru" ke GitHub (Android 5+)
 - `Updater.versiTargetBinary`/`versiTargetWebVault`: bila user mengunci versi (`bin_pin_version`/`wv_pin_version`), fungsi langsung mengembalikan kuncian tanpa memanggil `latestVersion`. Sebelumnya nilai terbaru selalu diambil lalu dibuang `pilihTarget`; pada STB offline/lambat itu menunda Start dan saat `latestVersion` gagal jalur unduh pin ikut menggantung, sekaligus memicu rate-limit GitHub percuma. Tanpa test baru (butuh Context/prefs; `pilihTarget` sudah diuji). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

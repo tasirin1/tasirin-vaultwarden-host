@@ -792,7 +792,7 @@ public class SettingsActivity extends Activity {
             final String pinBaru = fieldPin;
             pinAktifJalan = true;
             toast("Processing PIN…");
-            Util.jalankanLama(() -> {
+            boolean masuk = Util.jalankanLama(() -> {
                 String hasil;
                 try {
                     hasil = PinCrypto.hash(pinBaru);
@@ -829,6 +829,15 @@ public class SettingsActivity extends Activity {
                     toast("PIN is active.");
                 });
             });
+            // Antrean penuh (tugas tak pernah jalan): jangan biarkan pinAktifJalan
+            // true + centang menyala padahal PIN_ON tak pernah ditulis.
+            if (!masuk) {
+                pinAktifJalan = false;
+                pinCentangProgram = true;
+                pinEnabledCheck.setChecked(false);
+                pinCentangProgram = false;
+                toast("PIN gagal diproses, coba lagi.");
+            }
         });
 
         // Izin storage untuk semua Android (izin tulis runtime; targetSdk 28
@@ -2670,7 +2679,13 @@ public class SettingsActivity extends Activity {
         autoRestartCb.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false));
         backupPassInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""));
         binShaInput.setText(TgBackup.amanString(sp, ServerService.KEY_BIN_SHA, ""));
+        // SetChecked programatik jangan memicu listener: tanpa penjaga ini
+        // import config bisa memunculkan konfirmasi "matikan PIN" palsu, atau
+        // (bila config ber-PIN sementara kolom PIN kosong) mencentang lalu
+        // membatalkannya sendiri sehingga centang desync dengan prefs.
+        pinCentangProgram = true;
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
+        pinCentangProgram = false;
         validasiInline();
     }
 
