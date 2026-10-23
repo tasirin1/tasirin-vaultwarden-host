@@ -948,7 +948,7 @@ public class SettingsActivity extends Activity {
         // di tumpukan lambat): prefs sudah tersimpan di atas, dialog tetap di UI.
         final int portCekPort = portNum;
         final String dirCekPort = dataDirEfektif;
-        Util.jalankanBg(() -> {
+        boolean masukCek = Util.jalankanBg(() -> {
             final boolean portSibuk =
                     portCekPort > 0 && ServerService.isPortBusy(portCekPort);
             // Cek izin bind di worker juga (2x ServerSocket di UI thread = ANR
@@ -1025,6 +1025,12 @@ public class SettingsActivity extends Activity {
                 }
             });
         });
+        if (!masukCek) {
+            // Antrean ringan penuh: beri tahu, jangan biarkan Start diam saja
+            // (dulu hasil jalankanBg diabaikan sehingga tombol tak bereaksi).
+            toast(getString(R.string.pin_sibuk));
+            appendUiLog("[app] Cek port ditolak: antrean tugas penuh.");
+        }
     }
 
     private void refreshFromService() {
@@ -1210,7 +1216,7 @@ public class SettingsActivity extends Activity {
                 || nowHeavy - lastSysCheck >= SYS_CHECK_MS
                 || nowHeavy - lastCertCheck >= CERT_CHECK_MS;
         if (heavyDue && heavyRunning.compareAndSet(false, true)) {
-            Util.jalankanBg(() -> {
+            boolean masuk = Util.jalankanBg(() -> {
                 try {
                     dbInfoLine(true);
                     storageInfoLine(true);
@@ -1226,6 +1232,11 @@ public class SettingsActivity extends Activity {
                     });
                 }
             });
+            if (!masuk) {
+                // Antrean penuh: lepas flag agar info berat dicoba lagi nanti
+                // (dulu flag tertahan true sehingga info tak pernah disegarkan).
+                heavyRunning.set(false);
+            }
         }
         StringBuilder fullB = new StringBuilder(version);
         // Cache saja bila worker berat jalan (lihat dbInfoLine): cegah hitung
@@ -2599,7 +2610,7 @@ public class SettingsActivity extends Activity {
                         // PBKDF2 100rb iterasi di worker (bukan UI): dialog kini
                         // tampil di UI thread dan dekrip di sini macetkan STB.
                         v.setEnabled(false);
-                        Util.jalankanBg(() -> {
+                        boolean masukImpor = Util.jalankanBg(() -> {
                             try {
                                 File plain = new File(getCacheDir(),
                                         "vwcfg-import-" + capImpor + "-dec.json");
@@ -2643,6 +2654,13 @@ public class SettingsActivity extends Activity {
                                 });
                             }
                         });
+                        if (!masukImpor) {
+                            // Antrean penuh: aktifkan lagi tombol dialog agar
+                            // tak terkunci permanen, beri tahu user.
+                            v.setEnabled(true);
+                            toast(getString(R.string.pin_sibuk));
+                            appendUiLog("[app] Impor ditunda: antrean tugas penuh.");
+                        }
                     }));
             dialog.show();
         } catch (Exception e) {

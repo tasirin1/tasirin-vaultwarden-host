@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 103: penolakan antrean tugas tak lagi menggantung UI (Android 5+)
+- `SettingsActivity`: hasil `Util.jalankanBg` kini diperiksa di tiga jalur. Cek port sebelum Start memberi pesan bila antrean penuh (dulu tombol Start diam saja); refresh info berat melepas `heavyRunning` bila tugas ditolak (dulu flag tertahan `true` sehingga info DB/storage tak pernah disegarkan lagi); dan tombol "Try import" diaktifkan kembali + pesan bila dekrip ditolak (dulu tombol mati permanen). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 102: hash PIN yang masih debounce tak hilang saat Back (Android 5+)
 - `SettingsActivity`: rundown debounce PIN kini menandai dirinya selesai (`pinTunda = null`) dan dibaca status centangnya di UI thread sebelum dikirim ke worker (dulu worker memanggil `pinEnabledCheck.isChecked()` dari thread lain). `onDestroy` menjalankan debounce yang masih tertunda sebelum antrean UI dibuang, sehingga PIN yang baru diketik lalu langsung Back tetap di-hash dan tersimpan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 
