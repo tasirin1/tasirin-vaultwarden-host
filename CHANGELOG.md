@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 82: memo versi binary bebas balapan antar-thread (Android 5+)
+- `Updater.parseBinaryVersion`: memo dua field volatile (`memoBinMasuk`/`memoBinHasil`) diganti satu objek immutable `MemoVersi` yang ditulis atomis. Dulu thread UI (tick tiap detik) dan worker bisa menulis/membaca silang: field `masuk` sudah berganti tetapi `hasil` masih milik input lama, sehingga versi yang dikembalikan salah. Hasil ini dipakai membandingkan kuncian versi (`cacheSesuaiPin`) dan menampilkan versi, jadi salah baca bisa menolak/menerima binary yang keliru.
+- Test regresi `parseBinaryVersion_memoAmanAntarThread` (4 thread, input bergantian). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 81: hapus throttle smoke test yang tak pernah dipakai (Android 5+)
 - `ServerService`: buang `smokeGagalAt`, `SMOKE_GAGAL_TTL_MS`, dan `smokeGagalBaruSaja()` beserta tiga penulisannya. Nilainya tak pernah dibaca jalur produksi (hanya unit test), sehingga komentar "anti unduh ulang tiap Start" menyesatkan: throttle unduhan yang benar-benar bekerja adalah `KEY_BIN_DL_GAGAL_AT` + `bolehCobaUnduhLagi` (persisten, dipakai `resolveBinary` dan `AutoUpdate`). Smoke test `--version` tetap dijalankan tiap Start karena itu gerbang terakhir sebelum binary dieksekusi.
 - Test `smokeGagal_throttleGagalBaru` dihapus; kedua nama metode dicatat di `tools/bekas-hapusan.txt`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.

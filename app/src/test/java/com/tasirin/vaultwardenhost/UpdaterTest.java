@@ -204,6 +204,47 @@ public class UpdaterTest {
     }
 
     @Test
+    public void parseBinaryVersion_memoAmanAntarThread() throws Exception {
+        // Regresi balapan memo: dua field terpisah dulu bisa terbaca silang
+        // (masuk baru + hasil lama) sehingga versi terbaca salah.
+        final String a = "vaultwarden 1.2.3";
+        final String b = "vaultwarden 4.5.6";
+        final java.util.concurrent.atomic.AtomicBoolean gagal =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        final java.util.concurrent.CountDownLatch mulai =
+                new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService ex =
+                java.util.concurrent.Executors.newFixedThreadPool(4);
+        java.util.List<java.util.concurrent.Future<?>> tugas =
+                new java.util.ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            final int awal = i;
+            tugas.add(ex.submit(() -> {
+                try {
+                    mulai.await();
+                    for (int n = 0; n < 5000 && !gagal.get(); n++) {
+                        boolean pakaiA = (awal + n) % 2 == 0;
+                        String harap = pakaiA ? "1.2.3" : "4.5.6";
+                        if (!harap.equals(Updater.parseBinaryVersion(pakaiA ? a : b))) {
+                            gagal.set(true);
+                            return;
+                        }
+                    }
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    gagal.set(true);
+                }
+            }));
+        }
+        mulai.countDown();
+        for (java.util.concurrent.Future<?> f : tugas) {
+            f.get(15, java.util.concurrent.TimeUnit.SECONDS);
+        }
+        ex.shutdownNow();
+        assertFalse(gagal.get());
+    }
+
+    @Test
     public void parseBinaryVersion_noiseLinkerBukanVersi() {
         assertNull(Updater.parseBinaryVersion(
                 "WARNING: linker: vaultwarden-armeabi-v7a: unsupported flags DT_FLAGS_1=0x8000001"));

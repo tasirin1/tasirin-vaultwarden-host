@@ -2147,24 +2147,35 @@ public final class Updater {
 
     /** Memo hasil parse versi binary: dipanggil tiap detik dari UI (lihat
      *  komentar VERSION_PATTERN) sehingga alokasi Matcher per tick jadi
-     *  sampah di ART lama; input hanya berganti tiap Start. Hit (termasuk
-     *  null) tanpa regex ulang; balapan tulis jinak (idempoten). */
-    private static volatile String memoBinMasuk = null;
-    private static volatile String memoBinHasil = null;
+     *  sampah di ART lama; input hanya berganti tiap Start. Pasangan
+     *  masuk+hasil disimpan dalam satu objek immutable yang ditulis sekali
+     *  (volatile): dua field terpisah dulu bisa terbaca silang — thread B
+     *  melihat masuk baru tetapi hasil lama, mis. versi "1.2.3" terbaca
+     *  "4.5.6" dan perbandingan kuncian salah. */
+    private static final class MemoVersi {
+        final String masuk;
+        final String hasil;
+
+        MemoVersi(String masuk, String hasil) {
+            this.masuk = masuk;
+            this.hasil = hasil;
+        }
+    }
+
+    private static volatile MemoVersi memoBin = null;
 
     /** Ambil "x.y.z" dari output "--version" ("vaultwarden 1.37.3" -> "1.37.3"). */
     static String parseBinaryVersion(String raw) {
         if (raw == null) {
             return null;
         }
-        String masuk = memoBinMasuk;
-        if (masuk != null && raw.equals(masuk)) {
-            return memoBinHasil;
+        MemoVersi memo = memoBin;
+        if (memo != null && raw.equals(memo.masuk)) {
+            return memo.hasil;
         }
         java.util.regex.Matcher m = VERSION_PATTERN.matcher(raw);
         String hasil = m.find() ? m.group() : null;
-        memoBinMasuk = raw;
-        memoBinHasil = hasil;
+        memoBin = new MemoVersi(raw, hasil);
         return hasil;
     }
 
