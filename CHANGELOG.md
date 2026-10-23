@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 100: tombol Stop tak lagi terkunci input tak valid (Android 5+)
+- `SettingsActivity`: status enabled tombol bawah dihitung ulang tiap tick lewat `perbaruiEnabledStartStop()` — saat server berjalan (tombol = Stop) tombol selalu aktif, saat berhenti (tombol = Start) hanya aktif bila folder/port valid. Sebelumnya `setEnabled(!blokirStart)` mengunci Stop juga, sehingga server yang jalan dengan port/folder salah tidak bisa dihentikan dari layar Pengaturan. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 99: fallback binary tak lagi diunduh 20 MB tiap cek (Android 5+)
 - `Updater`: fallback ke rilis terbaru (saat asset versi target belum terbit) kini dicatat di `bin_fallback_for`/`bin_fallback_at` dan berlaku 6 jam, sama seperti web-vault. `tryUpdateVersi` melewati percobaan unduh selama penanda berlaku, dan `downloadBinaryInner` langsung memakai URL rilis terbaru (bukan mencoba asset 404 dulu). Sebelumnya setiap cek update mengulang 404 lalu mengunduh ulang ~20 MB karena penanda hanya hidup per panggilan. Ditambah test `fallbackBinaryBerlaku_*` + `binaryFallbackUrl_*`. Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

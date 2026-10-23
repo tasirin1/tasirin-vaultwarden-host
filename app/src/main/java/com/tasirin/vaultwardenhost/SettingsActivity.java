@@ -280,6 +280,8 @@ public class SettingsActivity extends Activity {
     private String lastShownBadge = "";
     private String lastUpdHint = "";
     private boolean lastUpdVisible = false;
+    /** Validasi folder/port terakhir: hanya mengunci Start, bukan Stop. */
+    private boolean inputStartValid = true;
     private String memoCocokA = "\0";
     private String memoCocokB = "\0";
     private boolean memoCocokHasil = false;
@@ -1054,6 +1056,7 @@ public class SettingsActivity extends Activity {
         lastBusyText = "";
         // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
+        perbaruiEnabledStartStop();
         String statusText = running ? teksBerjalan : teksBerhenti;
         // Tanpa concat tiap tick (dulu statusText+"|"+... tiap 500/1000 ms):
         // teks hanya turunan running sehingga literal on/off cukup.
@@ -3497,11 +3500,22 @@ public class SettingsActivity extends Activity {
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
                 msgChatSalah) : null;
         samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
-        boolean blokirStart = gData != null || gPort != null;
-        if (startStopBawah != null) {
-            startStopBawah.setEnabled(!blokirStart);
-        }
+        inputStartValid = gData == null && gPort == null;
+        perbaruiEnabledStartStop();
         refreshRingkasan();
+    }
+
+    /** Tombol bawah = Start saat berhenti, Stop saat jalan. Stop wajib selalu
+     *  bisa ditekan walau input folder/port sedang tidak valid (dulu Stop ikut
+     *  mati sehingga server tak bisa dihentikan); Start hanya aktif bila valid. */
+    private void perbaruiEnabledStartStop() {
+        if (startStopBawah == null) {
+            return;
+        }
+        boolean boleh = ServerService.running || inputStartValid;
+        if (startStopBawah.isEnabled() != boleh) {
+            startStopBawah.setEnabled(boleh);
+        }
     }
 
     /** Titik "●" + warna merah pada label yang nilainya beda dari server berjalan. */
