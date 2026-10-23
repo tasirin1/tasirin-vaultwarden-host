@@ -154,6 +154,7 @@
     <string name="pin_salah">Wrong PIN</string>
     <string name="pin_memeriksa">Checking PIN…</string>
     <string name="pin_sibuk">Device busy, try again.</string>
+    <string name="pin_proses_gagal">Failed to process PIN, try again.</string>
     <plurals name="pin_lockout">
         <item quantity="one">Locked, try again in 1 minute.</item>
         <item quantity="other">Locked, try again in %1$d minutes.</item>

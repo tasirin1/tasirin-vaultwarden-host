@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 86: teks UI PIN yang hardcode Indonesia jadi resource (Android 5+)
+- `SettingsActivity`: dua toast aktivasi PIN yang masih hardcode `"PIN gagal diproses, coba lagi."` diganti `R.string.pin_proses_gagal` (default Inggris; padanan Indonesia di `values-in`). Sebelumnya teks Indonesia muncul di perangkat berbahasa apa pun dan tak bisa diterjemahkan, melanggar aturan bahasa default (teks UI Inggris, log/Telegram Indonesia). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
+
 ## [Belum rilis] — Audit 85: satu pintu pembersihan proses smoke test di Updater (Android 5+)
 - `Updater.detectVersion`: tiga blok `try { p.destroy(); }` yang identik diganti satu blok `finally` yang selalu menghentikan watchdog dan membunuh proses; jalur `InterruptedException` yang dulu sempat melewatkan `destroy` kini ikut bersih. Hasil (versi atau null) tidak berubah. Tanpa test baru (butuh eksekusi proses). Verifikasi via `verifikasi-patch` + `cek-cepat`, build/test penuh di CI.
 

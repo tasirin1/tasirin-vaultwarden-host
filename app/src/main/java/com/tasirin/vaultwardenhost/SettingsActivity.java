@@ -808,7 +808,7 @@ public class SettingsActivity extends Activity {
                         pinCentangProgram = true;
                         pinEnabledCheck.setChecked(false);
                         pinCentangProgram = false;
-                        toast("PIN gagal diproses, coba lagi.");
+                        toast(getString(R.string.pin_proses_gagal));
                     });
                     return;
                 }
@@ -836,7 +836,7 @@ public class SettingsActivity extends Activity {
                 pinCentangProgram = true;
                 pinEnabledCheck.setChecked(false);
                 pinCentangProgram = false;
-                toast("PIN gagal diproses, coba lagi.");
+                toast(getString(R.string.pin_proses_gagal));
             }
         });
 
