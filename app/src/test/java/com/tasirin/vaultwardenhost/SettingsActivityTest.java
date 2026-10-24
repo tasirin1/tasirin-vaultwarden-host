@@ -215,17 +215,6 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void wizardHanyaUntukInstalasiBaru() {
-        assertFalse(SettingsActivity.perluWizard(true, "", "", "", ""));
-        assertTrue(SettingsActivity.perluWizard(false, "", "", "", ""));
-        assertTrue(SettingsActivity.perluWizard(false, null, null, null, null));
-        assertFalse(SettingsActivity.perluWizard(false, "/sdcard/data-saya", "", "", ""));
-        assertFalse(SettingsActivity.perluWizard(false, "", "9090", "", ""));
-        assertFalse(SettingsActivity.perluWizard(false, "", "", "token", ""));
-        assertFalse(SettingsActivity.perluWizard(false, "", "", "", "1.37.3"));
-    }
-
-    @Test
     public void gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda() {
         // Mengetik PIN baru saat PIN aktif = MENGGANTI PIN lama: wajib konfirmasi
         // (dulu hash langsung ditimpa tanpa tanya, salah ketik = app terkunci).

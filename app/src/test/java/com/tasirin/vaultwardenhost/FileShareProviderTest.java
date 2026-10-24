@@ -50,15 +50,6 @@ public class FileShareProviderTest {
     }
 
     @Test
-    public void stubAndroidTerdeteksi() {
-        assertTrue(FileShareProvider.adaStubAndroid(new RuntimeException("Stub!")));
-        assertTrue(FileShareProvider.adaStubAndroid(
-                new java.lang.reflect.InvocationTargetException(new RuntimeException("Stub!"))));
-        assertFalse(FileShareProvider.adaStubAndroid(new java.io.IOException("EACCES")));
-        assertFalse(FileShareProvider.adaStubAndroid(null));
-    }
-
-    @Test
     public void jvmUnitTestTerdeteksi() {
         assertTrue(FileShareProvider.diJvmUnitTest());
     }

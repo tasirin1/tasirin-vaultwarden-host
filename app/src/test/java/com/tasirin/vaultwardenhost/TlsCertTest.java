@@ -136,16 +136,6 @@ public class TlsCertTest {
     }
 
     @Test
-    public void daftarDnsBersihUnikBatas() {
-        assertEquals(java.util.Arrays.asList("vault.lan", "server"),
-                TlsCert.daftarDns("vault.lan, server vault.lan"));
-        assertEquals(java.util.Collections.emptyList(), TlsCert.daftarDns(null));
-        assertEquals(java.util.Collections.emptyList(), TlsCert.daftarDns("192.168.1.10"));
-        assertEquals(java.util.Collections.singletonList("vault.lan"),
-                TlsCert.daftarDns("  VAULT.LAN. "));
-    }
-
-    @Test
     public void leafTerlaluLamaBatas397Hari() {
         assertFalse(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS));
         assertTrue(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS + 1));

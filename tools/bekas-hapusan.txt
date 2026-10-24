@@ -43,3 +43,14 @@ hostBerubah_deteksiLintasHost
 fallbackBaruSaja
 fallbackBaruSaja_hematUnduhUlang
 fallbackBaruSaja_toleranHurufV
+# Helper produksi yang hanya dipakai unit test (logika sudah ada di varian
+# rentang / pemakaian nyata tak ada) dihapus agar tak jadi kode mati:
+muatKata
+indeksTakPeka
+daftarDns
+adaStubAndroid
+perluWizard
+stubAndroidTerdeteksi
+daftarDnsBersihUnikBatas
+wizardHanyaUntukInstalasiBaru
+muatKataRentangSetaraWrapper

@@ -346,18 +346,6 @@ public class FileShareProvider extends ContentProvider {
         return false;
     }
 
-    /** True bila rantai exception memuat stub android.jar ("Stub!"):
-     *  tanda jalan di JVM unit test, bukan perangkat. Murni agar bisa diuji. */
-    static boolean adaStubAndroid(Throwable e) {
-        for (Throwable t = e; t != null; t = t.getCause()) {
-            String m = t.getMessage();
-            if (m != null && m.contains("Stub!")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,
      *  termasuk yang dibungkus zip/enc mis. key.pem.zip).
      *  Murni agar bisa unit test; cocok tepat agar monkey.zip maupun

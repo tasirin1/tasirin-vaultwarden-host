@@ -433,8 +433,6 @@ public final class TlsCert {
     /** Pola statis: split/matches per label kompilasi regex tiap panggil. */
     private static final java.util.regex.Pattern POLA_LABEL_DNS =
             java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?", java.util.regex.Pattern.CASE_INSENSITIVE);
-    private static final java.util.regex.Pattern POLA_PEMISAH_DNS =
-            java.util.regex.Pattern.compile("[,\\s]+");
     private static final java.util.regex.Pattern POLA_TITIK =
             java.util.regex.Pattern.compile("\\.");
     private static final java.util.regex.Pattern POLA_KOLON =
@@ -481,25 +479,6 @@ public final class TlsCert {
             }
         }
         return true;
-    }
-
-    /** Pecah input domain menjadi daftar DNS valid (kecil, unik, maks 5); kosong bila tak ada. */
-    static List<String> daftarDns(String mentah) {
-        List<String> hasil = new java.util.ArrayList<>();
-        if (mentah == null) {
-            return hasil;
-        }
-        String rendah = Util.rendahAscii(mentah.trim());
-        for (String potong : POLA_PEMISAH_DNS.split(rendah)) {
-            String h = potong.trim();
-            if (h.endsWith(".")) {
-                h = h.substring(0, h.length() - 1);
-            }
-            if (!h.isEmpty() && namaDnsValid(h) && !hasil.contains(h) && hasil.size() < 5) {
-                hasil.add(h);
-            }
-        }
-        return hasil;
     }
 
     /** Varian dengan SAN DNS tambahan (domain lokal). */

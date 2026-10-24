@@ -928,21 +928,6 @@ public class MainActivity extends Activity {
     private static final String[] KATA_AWAS =
             {"warn", "peringatan", "deprecated", "awas"};
 
-    /** True bila salah satu kata muncul tanpa peka huruf; tanpa salinan
-     *  lowercase dan tanpa array varargs per baris (hemat di tick 500 ms). */
-    static boolean muatKata(String baris, String[] daftar) {
-        if (baris == null || daftar == null) {
-            return false;
-        }
-        return muatKataRentang(baris, 0, baris.length(), daftar);
-    }
-
-    /** indeksOf tanpa peka huruf (ASCII): tanpa alokasi lowercase per baris,
-     *  tanpa tabel Unicode Character.toLowerCase per char (kata kunci ASCII). */
-    static int indeksTakPeka(String s, String kata) {
-        return indeksTakPekaRentang(s, 0, s.length(), kata);
-    }
-
     /** Varian rentang [dari, sampai): uji keyword langsung di buffer delta
      *  tanpa substring per baris (hemat puluhan alokasi per tick). Murni. */
     static int indeksTakPekaRentang(String s, int dari, int sampai, String kata) {

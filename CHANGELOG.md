@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 183: Helper produksi yang hanya dipakai unit test dihapus
+- Lima fungsi tidak pernah dipanggil kode produksi dan hanya hidup karena unit test: `MainActivity.muatKata`/`indeksTakPeka` (produksi memakai varian `…Rentang`), `TlsCert.daftarDns` (fitur domain lokal sudah dihapus; SAN DNS kini selalu kosong), `FileShareProvider.adaStubAndroid` (deteksi stub tak dipakai jalur mana pun), dan `SettingsActivity.perluWizard` (wizard sudah tidak ada). Kode mati semacam ini lolos dari lint resource dan menyamarkan perilaku yang sebenarnya.
+- Semua dihapus bersama uji khususnya; uji `MainActivity` dialihkan ke varian rentang. Nama dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.
+
 ## [Belum rilis] — Audit 182: Kode mati impor config + arsip restore Telegram tak tersapu
 - `TgBackup.applyPrefsFromJson` diakhiri cabang "tebak tipe" (`String`/`Boolean`/`Integer`/`Long`/`Double`) yang tak pernah dieksekusi: setiap kunci `BOLEH_IMPOR` sudah tercakup `KUNCI_STRING`/`KUNCI_BOOLEAN`/`KUNCI_INT`/`KUNCI_LONG` dan semua cabang di atas memakai `continue`. Kode mati itu menyamarkan kunci baru yang lupa didaftarkan; cabang dihapus dan diganti komentar kewajiban mendaftarkan kunci baru di set tipe.
 - Arsip `vwtg-restore-*.zip` di cache hanya dihapus pada jalur sukses/gagal, bukan saat dialog konfirmasi dibatalkan atau proses mati di tengah. `confirm()` kini punya varian dengan aksi batal (dipakai untuk menghapus arsip), dan `bersihkanExportPlainCache()` menyapu sisa `vwtg-restore-*.zip`/`-dec.zip` yang lebih tua dari 1 jam saat Settings dibuka.

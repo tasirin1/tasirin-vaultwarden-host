@@ -3720,24 +3720,6 @@ public class SettingsActivity extends Activity {
         return ada ? barisSert : msgBelumAda;
     }
 
-    /** True bila wizard perlu tampil: belum selesai dan belum pernah di-setup. Murni. */
-    static boolean perluWizard(boolean sudahSelesai, String dataDir, String port,
-            String admin, String versiTersimpan) {
-        if (sudahSelesai) {
-            return false;
-        }
-        // Trim sekali ke lokal (dulu trim 2x per argumen): semantik sama persis,
-        // bawaan hanya dihitung bila input tak kosong (hemat panggil Environment).
-        String d = dataDir == null ? "" : dataDir.trim();
-        String q = port == null ? "" : port.trim();
-        String a = admin == null ? "" : admin.trim();
-        boolean ubahan = (!d.isEmpty() && !d.equals(ServerService.dataDirBawaanSegar()))
-                || (!q.isEmpty() && !q.equals(ServerService.DEFAULT_PORT))
-                || !a.isEmpty()
-                || (versiTersimpan != null && !versiTersimpan.isEmpty());
-        return !ubahan;
-    }
-
     private void confirm(String title, String message, final Runnable action) {
         confirm(title, message, action, null);
     }
