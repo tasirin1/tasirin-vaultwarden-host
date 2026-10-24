@@ -5,42 +5,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/secRingkasan"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        android:layout_weight="1"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <Button
-                        android:id="@+id/secUbah"
-                        android:drawableStart="@drawable/ic_edit"
-                        android:drawablePadding="8dp"
-                        android:nextFocusDown="@id/rawatUbah"
-                        android:nextFocusUp="@id/port"
-                        style="@style/TasirinBtnSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/ubah" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/secDetail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
+                <!-- Dulu ada baris ringkasan + tombol Ubah yang selalu GONE
+                     (tak pernah dimunculkan kode), sehingga nextFocus di
+                     kartu lain menunjuk view tak terlihat. Detail kini
+                     selalu tampil penuh: baris itu dibuang. -->
             <TextView
                 style="@style/TasirinSub"
                 android:layout_width="match_parent"
@@ -164,5 +132,4 @@
                     android:layout_marginStart="12dp"
                     android:text="@string/active" />
             </LinearLayout>
-                </LinearLayout>
         </LinearLayout>

@@ -126,7 +126,6 @@
     <string name="pin_off_judul">Matikan PIN?</string>
     <string name="pin_off_pesan">Siapa pun yang memegang HP/STB ini bisa membuka aplikasi. Lanjutkan?</string>
     <string name="card_title_security">Keamanan</string>
-    <string name="ubah">Ubah</string>
     <string name="disalin">disalin</string>
     <string name="terisi">tersimpan ✓</string>
     <string name="belum_diisi">belum diisi</string>
@@ -136,9 +135,6 @@
     <string name="admin_error">Token minimal 8 karakter bila diisi (boleh kosong).</string>
     <string name="token_error">Format token: angka:id — contoh 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.</string>
     <string name="chat_error">Chat ID harus angka (boleh minus, contoh -1001234567890).</string>
-    <string name="ringkas_keamanan">Keamanan: %1$s</string>
-    <string name="ringkas_rawat">Pembaruan: %1$s</string>
-    <string name="ringkas_telegram">Telegram: %1$s</string>
     <string name="chevron">\u25BE</string>
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>

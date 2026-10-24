@@ -126,7 +126,6 @@
     <string name="pin_off_judul">Turn off PIN?</string>
     <string name="pin_off_pesan">Anyone holding this phone/STB can open the app. Continue?</string>
     <string name="card_title_security">Security</string>
-    <string name="ubah">Change</string>
     <string name="disalin">copied</string>
     <string name="terisi">saved ✓</string>
     <string name="belum_diisi">not set yet</string>
@@ -136,9 +135,6 @@
     <string name="admin_error">Token must be at least 8 characters when filled (may be empty).</string>
     <string name="token_error">Token format: digits:id — example 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.</string>
     <string name="chat_error">Chat ID must be numeric (may be negative, example -1001234567890).</string>
-    <string name="ringkas_keamanan">Security: %1$s</string>
-    <string name="ringkas_rawat">Updates: %1$s</string>
-    <string name="ringkas_telegram">Telegram: %1$s</string>
     <string name="chevron">\u25BE</string>
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>

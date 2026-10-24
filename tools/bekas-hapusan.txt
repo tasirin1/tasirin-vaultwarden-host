@@ -29,3 +29,10 @@ hapusWalShmTerpisahPertahankanWalSah
 # Overload mati Updater dihapus (nama tetap dipakai varian lain):
 #   downloadBinaryInner(ctx, out), updateWebVaultInner(ctx), detectVersion(File)
 potongHost
+# Mekanisme lipat kartu Settings lama (ringkasan + tombol Ubah) dihapus total:
+# barisnya selalu GONE sehingga tak pernah bisa dipakai.
+aturDetail
+aturRingkasan
+tampilkanDetailPenuh
+refreshRingkasan
+teksKuncian

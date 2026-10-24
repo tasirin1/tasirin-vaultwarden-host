@@ -229,16 +229,6 @@ public class SettingsActivity extends Activity {
     private TextView chatError;
     private Button certInfoToggle;
     private TextView certHintView;
-    private LinearLayout secDetail;
-    private TextView secRingkasan;
-    private LinearLayout rawatDetail;
-    private TextView rawatRingkasan;
-    private Button rawatUbah;
-    private LinearLayout tgDetail;
-    private TextView tgRingkasan;
-    private boolean secExpanded = false;
-    private boolean rawatExpanded = false;
-    private boolean tgExpanded = false;
     private TextView httpsBadge;
     private TextView dataDirError;
     private TextView portError;
@@ -303,20 +293,10 @@ public class SettingsActivity extends Activity {
     private String cacheUbahD = "";
     private String cacheUbahP = "";
     private String cacheUbahA = "";
-    /** Cache teks ringkasan: refreshRingkasan jalan tiap ketikan sehingga
-     *  setText yang isinya sama (tetap memicu layout) wajib dilewati. */
-    private String lastRingkasKeamanan = "";
-    private String lastRingkasRawat = "";
-    private String lastRingkasTg = "";
+    /** Cache teks status isian: perbaruiStatusIsian jalan tiap ketikan
+     *  sehingga setText yang isinya sama (tetap memicu layout) dilewati. */
     private String lastStatusAdmin = "";
     private String lastStatusBot = "";
-    // Gerbang gabungan murah: refreshRingkasan jalan tiap ketikan; 9 getString
-    // + concat + regex kuncian hanya dibayar bila komponennya berubah.
-    private String lastRingkasanKunci = null;
-    // Memo kuncian dari pasangan pref mentah: normalisasiPinVersi (regex)
-    // hanya jalan bila kuncian binary/web-vault berubah.
-    private String kuncianMentahLihat = null;
-    private String kuncianTeksLihat = "";
     /** Template pesan galat inline (5x getString per ketikan boros di ART lama):
      *  dimuat sekali di onCreate (ganti bahasa recreate activity). */
     private String msgFolderSalah = "";
@@ -489,13 +469,6 @@ public class SettingsActivity extends Activity {
         awaliGalat(chatError, R.string.chat_error);
         certInfoToggle = findViewById(R.id.certInfoToggle);
         certHintView = findViewById(R.id.certHint);
-        secDetail = findViewById(R.id.secDetail);
-        secRingkasan = findViewById(R.id.secRingkasan);
-        rawatDetail = findViewById(R.id.rawatDetail);
-        rawatRingkasan = findViewById(R.id.rawatRingkasan);
-        rawatUbah = findViewById(R.id.rawatUbah);
-        tgDetail = findViewById(R.id.tgDetail);
-        tgRingkasan = findViewById(R.id.tgRingkasan);
 
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
@@ -575,26 +548,6 @@ public class SettingsActivity extends Activity {
                         ? R.string.cert_info_tutup : R.string.cert_info_buka));
             });
         }
-        Button secUbah = findViewById(R.id.secUbah);
-        if (secUbah != null) {
-            secUbah.setOnClickListener(v -> {
-                secExpanded = true;
-                tampilkanDetailPenuh();
-            });
-        }
-        if (rawatUbah != null) {
-            rawatUbah.setOnClickListener(v -> {
-                rawatExpanded = true;
-                tampilkanDetailPenuh();
-            });
-        }
-        Button tgUbah = findViewById(R.id.tgUbah);
-        if (tgUbah != null) {
-            tgUbah.setOnClickListener(v -> {
-                tgExpanded = true;
-                tampilkanDetailPenuh();
-            });
-        }
         aboutBtn.setOnClickListener(v -> showAboutDialog());
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -632,7 +585,6 @@ public class SettingsActivity extends Activity {
         pasangChip(R.id.navTelegram, R.id.headerTelegram, R.id.bodyTelegram, R.id.chevronTelegram,
                 KEY_SEC_TELEGRAM);
         pasangChip(R.id.navLog, R.id.headerLog, R.id.bodyLog, R.id.chevronLog, KEY_SEC_LOG);
-        tampilkanDetailPenuh();
         segarkanLabelVersi();
 
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
@@ -3171,50 +3123,6 @@ public class SettingsActivity extends Activity {
         return getString(R.string.versi_terkunci, pin);
     }
 
-    /** Sufiks ringkasan kartu rawat bila ada versi dikunci. */
-    private String teksKuncian() {
-        // Kuncian berubah hanya via dialog pilih versi / perintah bot:
-        // baca prefs maks 1x/2 dtk, bukan tiap ketikan di field lain.
-        long kiniKunci = SystemClock.elapsedRealtime();
-        if (kuncianMentahLihat != null && kiniKunci - kuncianCekAt < 2000) {
-            return kuncianTeksLihat;
-        }
-        kuncianCekAt = kiniKunci;
-        try {
-            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            String mentahB = TgBackup.amanString(sp, ServerService.KEY_BIN_PILIH, "");
-            String mentahW = TgBackup.amanString(sp, ServerService.KEY_WV_PILIH, "");
-            if (mentahB == null) {
-                mentahB = "";
-            }
-            if (mentahW == null) {
-                mentahW = "";
-            }
-            String kunci = mentahB + "\0" + mentahW;
-            if (kunci.equals(kuncianMentahLihat)) {
-                return kuncianTeksLihat;
-            }
-            String b = Updater.normalisasiPinVersi(mentahB);
-            String w = Updater.normalisasiPinVersi(mentahW);
-            boolean adaB = b != null && !b.isEmpty();
-            boolean adaW = w != null && !w.isEmpty();
-            String hasil;
-            if (!adaB && !adaW) {
-                hasil = "";
-            } else if (adaB && adaW && b.equals(w)) {
-                hasil = ", pinned v" + b;
-            } else {
-                hasil = ", binary pin:" + (adaB ? "v" + b : "latest")
-                        + " wv:" + (adaW ? "v" + w : "latest");
-            }
-            kuncianMentahLihat = kunci;
-            kuncianTeksLihat = hasil;
-            return hasil;
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     /** Dialog pilih versi (daftar dari rilis repo + opsi terbaru + isi manual). */
     private void pilihVersiDialog(final boolean untukBinary) {
         runBusy(() -> {
@@ -3317,7 +3225,7 @@ public class SettingsActivity extends Activity {
             return;
         }
         segarkanLabelVersi();
-        refreshRingkasan();
+        perbaruiStatusIsian();
         final String target = (versi == null || versi.isEmpty()) ? null : versi;
         final String pinLamaFinal = pinLama == null ? "" : pinLama;
         if (untukBinary) {
@@ -3347,7 +3255,7 @@ public class SettingsActivity extends Activity {
                             Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
                         }
                         segarkanLabelVersi();
-                        refreshRingkasan();
+                        perbaruiStatusIsian();
                     }
                     toast("Failed to install binary: " + e.getMessage());
                     appendUiLog("[app] Failed to install binary: " + e);
@@ -3370,7 +3278,7 @@ public class SettingsActivity extends Activity {
                             Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
                         }
                         segarkanLabelVersi();
-                        refreshRingkasan();
+                        perbaruiStatusIsian();
                     }
                     toast("Web-vault update failed: " + e.getMessage());
                     appendUiLog("[app] Web-vault update failed: " + e);
@@ -3439,42 +3347,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Semua detail selalu tampil penuh (lipatan hanya per seksi, bukan mode). */
-    private void tampilkanDetailPenuh() {
-        refreshRingkasan();
-        aturDetail(secDetail, null, true);
-        aturDetail(rawatDetail, null, true);
-        aturDetail(tgDetail, null, true);
-        aturRingkasan(secRingkasan, R.id.secUbah, false);
-        aturRingkasan(rawatRingkasan, R.id.rawatUbah, false);
-        aturRingkasan(tgRingkasan, R.id.tgUbah, false);
-    }
-
-    private void aturDetail(LinearLayout wadah, Object takDipakai, boolean tampil) {
-        if (wadah != null) {
-            wadah.setVisibility(tampil ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    private void aturRingkasan(TextView ringkas, int idUbah, boolean tampil) {
-        if (ringkas != null) {
-            ringkas.setVisibility(tampil ? View.VISIBLE : View.GONE);
-        }
-        Button ubah = findViewById(idUbah);
-        if (ubah != null) {
-            ubah.setVisibility(tampil ? View.VISIBLE : View.GONE);
-        }
-        android.view.View baris = ringkas != null ? (android.view.View) ringkas.getParent() : null;
-        if (baris != null) {
-            try {
-                if (baris.getId() != View.NO_ID) {
-                    baris.setVisibility(tampil ? View.VISIBLE : View.GONE);
-                }
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
     /** Teks ringkasan per kartu dari prefs + input saat ini. */
     /** Ada isi non-spasi tanpa alokasi toString+trim (gerbang murah tiap ketikan). Murni. */
     private static boolean adaIsiTrim(CharSequence s) {
@@ -3496,8 +3368,12 @@ public class SettingsActivity extends Activity {
         return b > a;
     }
 
-    private void refreshRingkasan() {
-        if (pinEnabledCheck == null || adminTokenInput == null) {
+    /** Perbarui label status "terisi/belum diisi" di kartu Admin Token dan
+     *  Telegram. Dulu satu paket dengan ringkasan kartu ber-Ubah, tetapi baris
+     *  ringkasan itu selalu GONE (tak pernah dimunculkan) sehingga hanya
+     *  membuang 5 getString + regex kuncian tiap ketikan. */
+    private void perbaruiStatusIsian() {
+        if (adminTokenInput == null) {
             return;
         }
         // Dipanggil juga dari catch blok runBusy (worker thread): sentuh View
@@ -3505,50 +3381,20 @@ public class SettingsActivity extends Activity {
         // CalledFromWrongThreadException (crash saat pasang versi gagal).
         android.os.Looper utama = android.os.Looper.getMainLooper();
         if (utama != null && android.os.Looper.myLooper() != utama) {
-            ui.post(() -> refreshRingkasan());
+            ui.post(this::perbaruiStatusIsian);
             return;
         }
-        // Komponen murah dulu (tanpa getString/concat/alokasi trim): tak berubah
-        // = langsung pulang tanpa membangun 5 format string (tiap ketikan di ART lama).
-        boolean pinOn = pinEnabledCheck.isChecked();
         boolean adminIsi = adaIsiTrim(adminTokenInput.getText());
-        boolean auAwal = autoUpdateCb != null && autoUpdateCb.isChecked();
-        String kuncian = teksKuncian();
-        boolean botIsiAwal = tgTokenInput != null && adaIsiTrim(tgTokenInput.getText())
+        boolean botIsi = tgTokenInput != null && adaIsiTrim(tgTokenInput.getText())
                 && tgChatInput != null && adaIsiTrim(tgChatInput.getText());
-        String kunciGabung = (pinOn ? "1" : "0") + (adminIsi ? "1" : "0")
-                + (auAwal ? "1" : "0") + "|" + kuncian + "|" + (botIsiAwal ? "1" : "0");
-        if (kunciGabung.equals(lastRingkasanKunci)) {
-            return;
-        }
-        lastRingkasanKunci = kunciGabung;
-        String pinAktif = pinOn ? "PIN on" : "PIN off";
-        String admin = adminIsi
-                ? getString(R.string.terisi) : getString(R.string.belum_diisi);
-        String ringkasKeamanan = getString(R.string.ringkas_keamanan, pinAktif + ", token " + admin);
-        if (secRingkasan != null && !ringkasKeamanan.equals(lastRingkasKeamanan)) {
-            lastRingkasKeamanan = ringkasKeamanan;
-            secRingkasan.setText(ringkasKeamanan);
-        }
-        String ringkasRawat = getString(R.string.ringkas_rawat,
-                (auAwal ? "auto-update on" : "auto-update off") + kuncian);
-        if (rawatRingkasan != null && !ringkasRawat.equals(lastRingkasRawat)) {
-            lastRingkasRawat = ringkasRawat;
-            rawatRingkasan.setText(ringkasRawat);
-        }
-        String ringkasTg = getString(R.string.ringkas_telegram,
-                botIsiAwal ? getString(R.string.terisi) : getString(R.string.belum_diisi));
-        if (tgRingkasan != null && !ringkasTg.equals(lastRingkasTg)) {
-            lastRingkasTg = ringkasTg;
-            tgRingkasan.setText(ringkasTg);
-        }
         String statusAdmin = getString(R.string.status_admin, adminIsi
                 ? getString(R.string.terisi) : getString(R.string.belum_diisi));
         if (adminStatus != null && !statusAdmin.equals(lastStatusAdmin)) {
             lastStatusAdmin = statusAdmin;
             adminStatus.setText(statusAdmin);
         }
-        String statusBot = getString(R.string.status_bot, botIsiAwal ? getString(R.string.terisi) : getString(R.string.belum_diisi));
+        String statusBot = getString(R.string.status_bot, botIsi
+                ? getString(R.string.terisi) : getString(R.string.belum_diisi));
         if (tgStatus != null && !statusBot.equals(lastStatusBot)) {
             lastStatusBot = statusBot;
             tgStatus.setText(statusBot);
@@ -3619,7 +3465,7 @@ public class SettingsActivity extends Activity {
         samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
         inputStartValid = gData == null && gPort == null && gAdmin == null;
         perbaruiEnabledStartStop();
-        refreshRingkasan();
+        perbaruiStatusIsian();
     }
 
     /** Tombol bawah = Start saat berhenti, Stop saat jalan. Stop wajib selalu

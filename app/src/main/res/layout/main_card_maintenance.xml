@@ -4,43 +4,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/rawatRingkasan"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        android:layout_weight="1"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
-
-                    <Button
-                        android:id="@+id/rawatUbah"
-                        android:drawableStart="@drawable/ic_edit"
-                        android:drawablePadding="8dp"
-                        android:nextFocusDown="@id/tgUbah"
-                        android:nextFocusUp="@id/secUbah"
-                        style="@style/TasirinBtnSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/ubah"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/rawatDetail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
                 <TextView
                     style="@style/TasirinSub"
                     android:layout_width="match_parent"
@@ -360,5 +323,4 @@
                         android:layout_weight="1"
                         android:text="@string/restore_db" />
                     </LinearLayout>
-                </LinearLayout>
             </LinearLayout>
