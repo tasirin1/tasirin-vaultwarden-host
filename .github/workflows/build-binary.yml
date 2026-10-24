@@ -68,7 +68,10 @@ jobs:
           fi
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          EXISTING=$(gh api "repos/tasirin1/tasirin-vaultwarden-host/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
+          # Repo TIDAK boleh di-hardcode: dulu tertulis tasirin1/... sehingga
+          # fork/rename repo melihat EXISTING kosong -> cek "sudah ada" meleset,
+          # build binary ~15 mnt jalan terus tiap cron padahal asetnya ada.
+          EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
           if [ "$EXISTING" = "v$TAG" ]; then
             echo "ada=yes" >> "$GITHUB_OUTPUT"
           else
