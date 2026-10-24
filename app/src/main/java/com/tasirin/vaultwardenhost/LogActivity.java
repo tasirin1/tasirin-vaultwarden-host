@@ -488,7 +488,7 @@ public class LogActivity extends Activity {
     /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */
     private void showCrashDialog() {
         // Baca file di worker: storage STB lambat bisa ANR bila dibaca di UI thread.
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             // Samarkan ulang di sini (bukan andalkan isi file): pola samaran
             // bisa bertambah setelah file ditulis (mis. chat_id JSON), dan
             // jalur tampil/salin ini tak lewat shareLog/copyLog/export.
@@ -505,6 +505,9 @@ public class LogActivity extends Activity {
                 tampilDialogCrash(crash);
             });
         });
+        if (!masuk) {
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
     /** Bangun dialog crash-log di UI thread (dipanggil setelah baca worker selesai). */
@@ -905,7 +908,7 @@ public class LogActivity extends Activity {
         // penyalinan isi buffer menahan lock log global (dipakai pumpOutput
         // server) sekaligus membekukan UI di STB lemah.
         toast("Preparing log…");
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
             synchronized (ServerService.logBuffer) {
                 mentah = ServerService.logBuffer.toString();
@@ -930,6 +933,9 @@ public class LogActivity extends Activity {
                 }
             });
         });
+        if (!masuk) {
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
     /** Kunci penanda salinan clipboard agar penghapus 30 dtk selamat dari mati proses. */
@@ -1183,7 +1189,7 @@ public class LogActivity extends Activity {
         // boleh menahan lock log global, dan penyalinan 300 KB tak boleh
         // membekukan UI di STB lemah.
         toast("Preparing log…");
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
             synchronized (ServerService.logBuffer) {
                 mentah = ServerService.logBuffer.toString();
@@ -1206,6 +1212,9 @@ public class LogActivity extends Activity {
                 toast("Log copied to clipboard.");
             });
         });
+        if (!masuk) {
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
 /** Simpan log ke .txt di Download (satu implementasi di LogExport). */
@@ -1223,7 +1232,7 @@ public class LogActivity extends Activity {
         // bikin tap Simpan freeze di storage STB lambat. Salinan buffer juga
         // diambil di worker agar lock log global tak ditahan UI thread.
         toast("Saving log…");
-        Util.jalankanBg(() -> {
+        boolean masuk = Util.jalankanBg(() -> {
             final String log;
             synchronized (ServerService.logBuffer) {
                 // Mentah saja: penyamaran token sekali di LogExport agar regex
@@ -1238,6 +1247,9 @@ public class LogActivity extends Activity {
                 toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
             });
         });
+        if (!masuk) {
+            toast("Task queue is full, try again shortly.");
+        }
     }
 
     @Override

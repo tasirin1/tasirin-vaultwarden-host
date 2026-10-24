@@ -66,6 +66,7 @@
     <string name="batal">Cancel</string>
     <string name="isi_manual">Enter manually…</string>
     <string name="versi_manual_judul">Type a version (e.g. 1.32.0)</string>
+    <string name="versi_manual_hint">e.g. 1.32.0 (empty = latest)</string>
     <string name="versi_tidak_valid">Invalid version (example: 1.32.0).</string>
     <string name="daftar_versi_gagal">Version list could not be loaded (offline?) — use Enter manually.</string>
         <string name="install_cert">Install Cert</string>

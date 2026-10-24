@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 211: Tombol Stop di Pengaturan, toast jadwal palsu, hint & antrean log
+- Tombol Start/Stop di Pengaturan selalu memakai latar biru `TasirinBtnPrimary` walau teksnya "Stop" (ikon berhenti di atas tombol aksi biasa), sedangkan layar awal sudah memakai `bg_btn_stop` merah saat berjalan. Tombol bawah kini ikut berganti latar (`bg_btn_stop`/`bg_btn_primary`) selagi teks/ikonnya berganti.
+- Listener `tgAutoCheck` menampilkan toast "Automatic backup enabled/disabled" juga saat `setChecked` programatik (impor config/restore) mengubah nilai — pengguna diberi tahu perubahan yang tak ia lakukan. Listener kini membandingkan nilai prefs lama; jadwal tetap dipasang ulang (idempoten), toast hanya untuk perubahan sungguhan.
+- Hint versi manual masih hardcode bahasa Indonesia di kode (`"mis. 1.32.0 (kosongkan = terbaru)"`) sehingga tampil Indonesia di app berbahasa Inggris. Dipindah ke `strings.xml` (`versi_manual_hint`, default Inggris + `values-in`).
+- `LogActivity` mengabaikan hasil `Util.jalankanBg` di empat jalur (salin, bagikan, simpan .txt, dialog crash log): saat antrean tugas penuh UI sudah menampilkan "Preparing/Saving…" padahal tak ada tugas berjalan. Keempat jalur kini memberi tahu "Task queue is full, try again shortly.".
+
 ## [Belum rilis] — Audit 210: Klaim ukuran APK & komentar usang diselaraskan
 - README (Inggris/Indonesia/Rusia) dan `AGENTS.md` masih menyebut "APK ~0,1 MB", padahal aset rilis terkini 238.952–239.093 byte (~0,23 MB). Ketiganya kini "~0,25 MB" (angka dibulatkan ke atas agar tak menjanjikan ukuran yang mustahil).
 - `AndroidManifest.xml` menjelaskan rotasi memuat `layout-land/activity_main.xml`, padahal layout-land hanya berisi `activity_pin.xml` (MainActivity sengaja satu layout untuk dua orientasi). Komentar diperbaiki agar alasan tanpa `configChanges` tetap akurat.

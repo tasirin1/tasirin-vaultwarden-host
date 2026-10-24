@@ -66,6 +66,7 @@
     <string name="batal">Batal</string>
     <string name="isi_manual">Isi manual…</string>
     <string name="versi_manual_judul">Ketik versi (mis. 1.32.0)</string>
+    <string name="versi_manual_hint">mis. 1.32.0 (kosongkan = terbaru)</string>
     <string name="versi_tidak_valid">Versi tidak valid (contoh: 1.32.0).</string>
     <string name="daftar_versi_gagal">Daftar versi tak bisa dimuat (offline?) — pakai Isi manual.</string>
         <string name="install_cert">Install Cert</string>

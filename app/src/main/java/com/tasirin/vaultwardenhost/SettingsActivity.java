@@ -590,10 +590,16 @@ public class SettingsActivity extends Activity {
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
         tgAutoCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> {
-            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
-                    .putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
+            SharedPreferences spTg = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            // setChecked programatik (import config / restore) memicu listener
+            // ini tanpa aksi user: jangan berpura-pura memberi tahu
+            // "enabled/disabled". Jadwal tetap dipasang ulang (idempoten).
+            boolean lama = TgBackup.amanBoolean(spTg, TgBackup.KEY_TG_AUTO, false);
+            spTg.edit().putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
             TgBackup.schedule(SettingsActivity.this, checked);
-            toast(checked ? "Automatic backup enabled." : "Automatic backup disabled.");
+            if (lama != checked) {
+                toast(checked ? "Automatic backup enabled." : "Automatic backup disabled.");
+            }
         });
         autoUpdateCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
@@ -1132,6 +1138,10 @@ public class SettingsActivity extends Activity {
             startStopBawah.setText(btnText);
             startStopBawah.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     running ? R.drawable.ic_stop : R.drawable.ic_play, 0, 0, 0);
+            // Ikon Stop di atas latar biru "primary" terbaca seperti tombol
+            // aksi biasa; samakan dengan layar awal (merah saat berjalan).
+            startStopBawah.setBackgroundResource(running
+                    ? R.drawable.bg_btn_stop : R.drawable.bg_btn_primary);
         }
 
         // Peringatan bila setting diubah tapi server belum di-restart
@@ -3228,7 +3238,7 @@ public class SettingsActivity extends Activity {
 
     private void dialogManualVersi(final boolean untukBinary) {
         final EditText input = new EditText(this);
-        input.setHint("mis. 1.32.0 (kosongkan = terbaru)");
+        input.setHint(R.string.versi_manual_hint);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         String pin = untukBinary ? Updater.kuncianBinary(this)
                 : Updater.kuncianWebVault(this);
