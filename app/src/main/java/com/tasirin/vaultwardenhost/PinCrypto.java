@@ -278,6 +278,14 @@ public final class PinCrypto {
         return sekarangElapsed + KUNCI_MS;
     }
 
+    /** True bila galat factory berarti "algoritma memang tak ada" sehingga
+     *  aman diingat permanen. Galat transien (provider sibuk, alokasi gagal)
+     *  TIDAK boleh mengunci perangkat ke jalur manual + iterasi rendah
+     *  selamanya; deteksi cukup diulang pada panggilan berikutnya. Murni. */
+    static boolean pabrikHilangPermanen(Throwable t) {
+        return t instanceof java.security.NoSuchAlgorithmException;
+    }
+
     /** True bila factory PBKDF2-SHA256 ada (sekali cek, hasilnya diingat). */
     static boolean pabrikTersedia() {
         Boolean c = pabrikAda;
@@ -289,6 +297,10 @@ public final class PinCrypto {
             SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             ada = true;
         } catch (Exception e) {
+            if (!pabrikHilangPermanen(e)) {
+                // Galat transien: jangan diingat sebagai "tak ada".
+                return false;
+            }
             ada = false;
         }
         pabrikAda = ada ? Boolean.TRUE : Boolean.FALSE;
@@ -318,8 +330,15 @@ public final class PinCrypto {
                     SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
                     return f.generateSecret(spec).getEncoded();
                 } catch (Exception e) {
-                    // Factory sempat ada lalu gagal: ingat agar tak dicoba lagi.
-                    pabrikAda = Boolean.FALSE;
+                    // Hanya "algoritma tak ada" yang boleh diingat permanen.
+                    // Galat transien dulu menulis FALSE selamanya sehingga
+                    // hash berikutnya turun ke iterasi legasi + jalur manual
+                    // padahal factory perangkat sehat. Cukup panggilan ini
+                    // memakai manual (hasilnya bit-identik) lalu deteksi
+                    // diulang di pemakaian berikut.
+                    if (pabrikHilangPermanen(e)) {
+                        pabrikAda = Boolean.FALSE;
+                    }
                 }
             }
             // STB Android lama (API 21-25) tak punya factory PBKDF2WithHmacSHA256

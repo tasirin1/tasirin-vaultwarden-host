@@ -295,4 +295,15 @@ public class PinCryptoTest {
         assertFalse(PinCrypto.perluUpgradeHash(null));
         assertFalse(PinCrypto.perluUpgradeHash(""));
     }
+
+    @Test
+    public void hanyaFactoryHilangPermanenYangDiingat() {
+        // "Algoritma tak ada" = kondisi perangkat tetap: aman di-cache FALSE.
+        assertTrue(PinCrypto.pabrikHilangPermanen(
+                new java.security.NoSuchAlgorithmException("PBKDF2WithHmacSHA256")));
+        // Galat transien (provider sibuk/OOM) tak boleh mengunci jalur manual.
+        assertFalse(PinCrypto.pabrikHilangPermanen(new RuntimeException("sibuk")));
+        assertFalse(PinCrypto.pabrikHilangPermanen(new OutOfMemoryError("penuh")));
+        assertFalse(PinCrypto.pabrikHilangPermanen(null));
+    }
 }

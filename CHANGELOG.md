@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 212: Galat factory PBKDF2 transien tak lagi menurunkan hash permanen
+- `PinCrypto.pabrikTersedia()` mengingat `FALSE` untuk **semua** exception `SecretKeyFactory.getInstance()`, dan `derive()` menulis `pabrikAda = FALSE` pada exception apa pun dari `generateSecret()`. Satu gangguan sesaat (provider sibuk, alokasi gagal) membuat proses hidup menganggap perangkat tak punya PBKDF2-SHA256 selamanya: hash baru ditulis dengan iterasi legasi 12rb dan setiap buka PIN memakai jalur manual yang 2–3× lebih lambat, padahal factory perangkat sehat.
+- Kini hanya `NoSuchAlgorithmException` (algoritma memang tak tersedia) yang diingat permanen; galat transien tidak di-cache sehingga deteksi diulang pada panggilan berikutnya. Untuk panggilan yang gagal, hasil manual tetap dipakai (bit-identik dengan factory), jadi verifikasi tidak berubah. Klasifikasi murni `pabrikHilangPermanen(Throwable)` + uji JVM.
+
 ## [Belum rilis] — Audit 211: Tombol Stop di Pengaturan, toast jadwal palsu, hint & antrean log
 - Tombol Start/Stop di Pengaturan selalu memakai latar biru `TasirinBtnPrimary` walau teksnya "Stop" (ikon berhenti di atas tombol aksi biasa), sedangkan layar awal sudah memakai `bg_btn_stop` merah saat berjalan. Tombol bawah kini ikut berganti latar (`bg_btn_stop`/`bg_btn_primary`) selagi teks/ikonnya berganti.
 - Listener `tgAutoCheck` menampilkan toast "Automatic backup enabled/disabled" juga saat `setChecked` programatik (impor config/restore) mengubah nilai — pengguna diberi tahu perubahan yang tak ia lakukan. Listener kini membandingkan nilai prefs lama; jadwal tetap dipasang ulang (idempoten), toast hanya untuk perubahan sungguhan.
