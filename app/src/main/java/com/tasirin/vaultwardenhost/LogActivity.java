@@ -1224,8 +1224,13 @@ public class LogActivity extends Activity {
         // log" bila izin ditolak di layar utama (API 29+ via MediaStore).
         if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
             simpanUlangSetelahIzin = true;
-            StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
-            toast(getString(R.string.izin_storage_belum));
+            // Dialog izin dan toast tak boleh menumpuk (selaras
+            // StoragePerm.siapStart): pesan hanya bila permintaan tak bisa
+            // ditampilkan, dan khusus konteks simpan (bukan "Start dibatalkan").
+            if (!StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE)) {
+                simpanUlangSetelahIzin = false;
+                toast(getString(R.string.izin_simpan_belum));
+            }
             return;
         }
         // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
