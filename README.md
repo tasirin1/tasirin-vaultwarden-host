@@ -6,7 +6,7 @@
 
 <p align="center"><b>&#127760; Language: <a href="README.md">English</a> &middot; <a href="README.id.md">Indonesia</a> &middot; <a href="README.ru.md">Русский</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
 
-A **Vaultwarden** (Bitwarden-compatible) server on Android — for STB/TV boxes and old phones. **Android 5.0+**, 32-bit ARM (`armeabi-v7a`). ~0.1 MB APK; binary & web vault auto-downloaded and SHA-256 verified.
+A **Vaultwarden** (Bitwarden-compatible) server on Android — for STB/TV boxes and old phones. **Android 5.0+**, 32-bit ARM (`armeabi-v7a`). ~0.25 MB APK; binary & web vault auto-downloaded and SHA-256 verified.
 
 ## Usage
 

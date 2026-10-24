@@ -16,7 +16,7 @@ if [ -x "$HOOK" ]; then
     echo "Kait pre-push terpasang dan bisa dieksekusi: $HOOK"
 else
     echo "PERINGATAN: $HOOK tak bisa dieksekusi (penyimpanan noexec?) — kait"
-    echo "  git diabaikan di sini. Cadangan: workflow Verifikasi Patch di CI"
-    echo "  tetap memeriksa tiap push; atau jalankan manual sebelum commit:"
+    echo "  git diabaikan di sini. Cadangan: job Verifikasi Patch di kedua"
+    echo "  workflow CI tetap memeriksa tiap push; atau jalankan manual sebelum commit:"
     echo "  python3 tools/verifikasi-patch.py"
 fi

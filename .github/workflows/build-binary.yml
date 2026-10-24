@@ -9,8 +9,8 @@ on:
       - '.github/workflows/build-binary.yml'
       - 'shim/**'
   workflow_dispatch:
-  # Cek bulanan tiap tanggal 1: hanya bangun bila ada versi upstream baru
-  # (binary/web-vault berubah); resolve skip bila rilis tag itu sudah ada.
+  # Cek bulanan tiap tanggal 1: hanya bangun bila keenam aset non-APK untuk
+  # tag upstream terbaru belum lengkap; resolve mengisi skip=yes bila sudah.
   schedule:
     - cron: '0 0 1 * *'
 
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 # Grup sendiri agar bisa jalan paralel dengan workflow APK (unggahan asset
-# ke rilis yang sama sudah idempoten: hapus duplikat per ID + coba ulang).
+# ke rilis yang sama aman: gh release upload --clobber menimpa nama yang sama).
 concurrency:
   group: vw-binary
   cancel-in-progress: false

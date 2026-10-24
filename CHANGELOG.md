@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 210: Klaim ukuran APK & komentar usang diselaraskan
+- README (Inggris/Indonesia/Rusia) dan `AGENTS.md` masih menyebut "APK ~0,1 MB", padahal aset rilis terkini 238.952–239.093 byte (~0,23 MB). Ketiganya kini "~0,25 MB" (angka dibulatkan ke atas agar tak menjanjikan ukuran yang mustahil).
+- `AndroidManifest.xml` menjelaskan rotasi memuat `layout-land/activity_main.xml`, padahal layout-land hanya berisi `activity_pin.xml` (MainActivity sengaja satu layout untuk dua orientasi). Komentar diperbaiki agar alasan tanpa `configChanges` tetap akurat.
+- `build-binary.yml` menyebut resolve "skip bila rilis tag itu sudah ada" — kenyataannya skip hanya bila **keenam** aset non-APK lengkap (tag bisa dibuat workflow APK lebih dulu). Komentar unggahan juga masih menyebut "hapus duplikat per ID", padahal jalur sekarang memakai `gh release upload --clobber`. Keduanya diselaraskan dengan kode.
+- `tools/pasang-hook.sh` menyebut "workflow Verifikasi Patch" yang tak ada; verifikasi adalah job di kedua workflow CI. Teks cadangan diperbaiki.
+
 ## [Belum rilis] — Audit 209: Salinan log di UI thread dibatasi, VmRSS di-memo, hash ganda didokumentasikan
 - `MainActivity.refreshHomeLog()` menyalin `logBuffer.substring(lastLogLen, n)` **utuh** di UI thread sebelum memotongnya ke `BATAS_DELTA_TICK` (8 KB). Saat log meledak (buffer sampai 300 KB dalam satu tick) UI thread membayar salinan ratusan KB hanya untuk membuang 99%-nya, tiap 500 ms. Salinan kini dibatasi `lastLogLen + BATAS_DELTA_TICK + 2` karakter di dalam lock; pemotongan batas baris tetap memakai karakter di sekitar batas sehingga perilaku (baris utuh, surrogate aman, offset mentah) tak berubah.
 - `ServerService.processRssKb()` membaca `/proc/<pid>/status` setiap panggilan. Kini hasil VmRSS di-memo per PID selama 5 detik (selaras jeda tampilan status), sehingga worker Pengaturan dan perintah `/status` bot yang berdekatan berbagi satu pembacaan. Komentar lama "dipanggil UI tiap 5 dtk" juga diperbaiki: pemanggil beratnya worker (UI hanya membaca cache).
