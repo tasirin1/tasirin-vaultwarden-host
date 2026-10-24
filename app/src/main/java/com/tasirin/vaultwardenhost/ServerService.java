@@ -389,6 +389,13 @@ public class ServerService extends Service {
      *  service bila tak ada intent yang lebih baru menunggu diproses (intent
      *  baru otomatis membatalkan {@code stopSelfResult} id lama). */
     private volatile int startIdTerakhir = 0;
+    /** startId episode yang melahirkan proses yang sedang/baru dipantau; -1 =
+     *  episode ini belum melahirkan proses. Dipakai watcher untuk menutup
+     *  episode yang benar saat menyerah (kernel/port/restart habis), dan oleh
+     *  finally startServerAsync agar start yang prosesnya sudah lahir tak
+     *  mematikan restart yang baru dijadwalkan watcher. Single-flight lewat
+     *  {@code starting}, jadi tak ada dua episode menulisnya bersamaan. */
+    private volatile int idEpisodaProses = -1;
     /** Kunci operasi data (restore DB) vs Start: restore memegang kunci ini
      *  selama menimpa folder data; Start memakai tryLock agar tak menyalakan
      *  server di tengah ekstraksi. Restore selalu dipanggil dari worker. */
@@ -1579,6 +1586,7 @@ public class ServerService extends Service {
             // True bila Start masih akan dicoba lagi (restore/reset memegang
             // KUNCI_DATA): episode Start belum berakhir, jangan turunkan apa pun.
             boolean tunda = false;
+            idEpisodaProses = -1;
             try {
                 kunci = KUNCI_DATA.tryLock();
                 if (!kunci) {
@@ -1616,35 +1624,20 @@ public class ServerService extends Service {
                 lepasKunciData();
                 // Server tak lahir dan tak ada percobaan susulan = start gagal
                 // permanen (sebabnya sudah tampil di status/log/Telegram).
-                // Matikan watchdog health agar tak polling tiap 2 menit
-                // selamanya, dan turunkan notifikasi foreground bila tak ada
-                // auto-backup yang memang butuh service tetap hidup.
+                // Bila proses SEMPAT lahir, watcher pemilik takdirnya: ia yang
+                // menjadwalkan restart atau menutup episode saat menyerah.
+                // Dulu finally ikut menilai "tak running" lalu mematikan health
+                // + niat, sehingga restart yang baru dijadwalkan watcher (proses
+                // crash dalam milidetik) tak pernah jalan padahal status &
+                // Telegram menjanjikan "restart otomatis".
                 // Episode basi (sudah ada perintah Start/Stop lebih baru) TIDAK
                 // ikut membersihkan: dulu simpanNiatJalan(false) + stopForeground
                 // milik episode lama menghapus niat & notifikasi perintah baru,
                 // sehingga server yang baru diminta tak pulih setelah LMK.
                 if (startGagalPermanen(running,
                         process != null && alive(process), tunda,
-                        idAwal == startIdTerakhir)) {
-                    healthActive = false;
-                    batalUtama(healthTick);
-                    // Niat jalan disimpan ulang agar recreate START_STICKY tak
-                    // mengulang start yang sudah pasti gagal; user diminta
-                    // menekan Start lagi setelah sebabnya dibereskan.
-                    simpanNiatJalan(false);
-                    SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
-                        try {
-                            stopForeground(true);
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                            // stopSelfResult: intent yang lebih baru (id lain)
-                            // membatalkan ini sehingga Start baru tak ikut mati.
-                            stopSelfResult(idAwal);
-                        } catch (Exception ignored) {
-                        }
-                    }
+                        idAwal == startIdTerakhir, idEpisodaProses >= 0)) {
+                    akhiriEpisodeGagal(idAwal);
                 }
                 starting.set(false);
             }
@@ -1662,10 +1655,63 @@ public class ServerService extends Service {
      *  susulan: episode Start harus diakhiri (health tick + notifikasi ikut
      *  turun). {@code intentTerbaru} salah bila sudah ada perintah Start/Stop
      *  yang lebih baru: episode basi tak boleh mematikan health/notifikasi/niat
-     *  milik perintah baru itu. Murni. */
+     *  milik perintah baru itu. {@code prosesPernahLahir} benar bila episode
+     *  ini sempat mengeksekusi binary: kelanjutannya milik watcher (restart
+     *  atau penutupan episode), bukan lagi keputusan thread start. Murni. */
     static boolean startGagalPermanen(boolean running, boolean prosesHidup,
-                                     boolean ditunda, boolean intentTerbaru) {
-        return intentTerbaru && !ditunda && !running && !prosesHidup;
+                                     boolean ditunda, boolean intentTerbaru,
+                                     boolean prosesPernahLahir) {
+        return intentTerbaru && !ditunda && !prosesPernahLahir
+                && !running && !prosesHidup;
+    }
+
+    /** Tutup episode Start yang sudah pasti tak dilanjutkan: matikan watchdog
+     *  health + restart tertunda, cabut niat START_STICKY, dan turunkan
+     *  notifikasi foreground bila tak ada backup terjadwal yang memang butuh
+     *  service tetap hidup. Satu pintu untuk start yang gagal sebelum proses
+     *  lahir dan untuk watcher yang menyerah (kernel tak cocok, port direbut,
+     *  restart habis/berulang) — dulu jalur watcher meninggalkan service
+     *  foreground + niat hidup tanpa pekerjaan, sehingga START_STICKY terus
+     *  menghidupkan ulang percobaan yang sudah dinyatakan gagal.
+     *  {@code idAwal} menjaga episode basi (sudah ada perintah Start/Stop lebih
+     *  baru) tak mencabut state milik perintah baru itu. */
+    private void akhiriEpisodeGagal(int idAwal) {
+        if (idAwal != startIdTerakhir) {
+            return; // perintah lebih baru sudah datang: biarkan ia memutuskan
+        }
+        healthActive = false;
+        // Tak ada proses yang boleh dianggap hidup lagi: UI/bot membaca
+        // `running`, dan penanda jalan yang basi membuat health/tautan
+        // menunjuk server yang sudah mati.
+        running = false;
+        resetPenandaJalan();
+        releaseWakeLock();
+        batalUtama(healthTick);
+        batalUtama(restartTunda);
+        // Niat jalan disimpan ulang agar recreate START_STICKY tak mengulang
+        // start yang sudah pasti gagal; user diminta menekan Start lagi.
+        simpanNiatJalan(false);
+        SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
+        if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
+            try {
+                stopForeground(true);
+            } catch (Exception ignored) {
+            }
+            try {
+                // stopSelfResult: intent yang lebih baru (id lain) membatalkan
+                // ini sehingga Start baru tak ikut mati.
+                stopSelfResult(idAwal);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /** startId pemilik proses yang sedang dipantau; startId terakhir bila
+     *  penandanya hilang karena service di-recreate sistem (penanda instance
+     *  tidak selamat, sedangkan proses bisa masih hidup). */
+    private int idEpisodaProsesAktif() {
+        int id = idEpisodaProses;
+        return id >= 0 ? id : startIdTerakhir;
     }
 
     /** Ambil kembali kunci data sebelum fase yang menulis folder data (TLS,
@@ -1986,6 +2032,9 @@ public class ServerService extends Service {
             prosesStopDisengaja = null;
             acquireWakeLock();
             running = true;
+            // Proses lahir: episode ini diserahkan ke watcher (restart atau
+            // penutupan), jadi finally startServerAsync tak boleh mengakhirinya.
+            idEpisodaProses = startIdTerakhir;
             // Riwayat restart SENGAJA tidak dibersihkan di sini: start otomatis
             // (restartTunda -> startServer) juga lewat jalur ini. Menghapusnya
             // membuat "≥3 restart/5 menit" mustahil tercapai sehingga crash
@@ -2038,6 +2087,10 @@ public class ServerService extends Service {
             Process gagal = process;
             process = null;
             running = false;
+            // Proses sudah dimatikan di sini dan tak ada watcher yang memantau:
+            // episode kembali "belum melahirkan proses" agar finally menutupnya
+            // (health/niat/notifikasi) seperti jalur gagal start lainnya.
+            idEpisodaProses = -1;
             matikanProsesTegas(gagal, 3000);
             // Bersihkan penanda jalan agar health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
@@ -2158,6 +2211,10 @@ public class ServerService extends Service {
                     writeCrashLog("binary tak cocok kernel (getrandom)");
                     TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
                             + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
+                    // Menyerah: tutup episode agar health/foreground/niat tak
+                    // menggantung dan START_STICKY tak mengulang start yang pasti
+                    // gagal ini.
+                    akhiriEpisodeGagal(idEpisodaProsesAktif());
                     return;
                 }
                 if (portDirebut(tail)) {
@@ -2173,6 +2230,7 @@ public class ServerService extends Service {
                     TgBackup.sendMessage(this, "Gagal start: port " + portNyata
                             + " direbut proses lain. Stop server lain / ganti port"
                             + " lalu Start lagi.");
+                    akhiriEpisodeGagal(idEpisodaProsesAktif());
                     return;
                 }
                 if (autoRestart) {
@@ -2211,7 +2269,18 @@ public class ServerService extends Service {
     private final Runnable restartTunda = new Runnable() {
         @Override
         public void run() {
-            if (healthActive && autoRestart && (process == null || !alive(process))) {
+            if (!healthActive || !autoRestart) {
+                return;
+            }
+            if (starting.get()) {
+                // Episode Start lain masih menyelesaikan bookkeeping (mis. kirim
+                // notifikasi Telegram). Dulu startServerAsync membuang permintaan
+                // ini sebagai "Start masih berjalan, dilewati" tanpa menjadwalkan
+                // ulang, sehingga restart yang sudah dijanjikan hilang diam-diam.
+                posUtama(restartTunda, 2000);
+                return;
+            }
+            if (process == null || !alive(process)) {
                 startServerAsync();
             }
         }
@@ -2228,12 +2297,21 @@ public class ServerService extends Service {
     }
 
     private void scheduleRestart() {
+        boolean menyerah;
         synchronized (KUNCI_RESTART) {
-            scheduleRestartTerkunci();
+            menyerah = scheduleRestartTerkunci();
+        }
+        if (menyerah) {
+            // Di luar KUNCI_RESTART: penutupan episode menulis prefs + memanggil
+            // stopForeground, sedangkan kunci itu dipakai bersama jalur restart
+            // lain (watcher proses vs health) yang tak perlu menunggu I/O ini.
+            akhiriEpisodeGagal(idEpisodaProsesAktif());
         }
     }
 
-    private void scheduleRestartTerkunci() {
+    /** @return true bila batas restart habis (episode harus ditutup pemanggil
+     *  di luar kunci). */
+    private boolean scheduleRestartTerkunci() {
         long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
             restartAttempt.set(0);
@@ -2248,7 +2326,7 @@ public class ServerService extends Service {
             writeCrashLog("restart 5x gagal");
             TgBackup.sendPenting(this, "Server berhenti: gagal restart 5x.\n"
                     + shorten(tail, 600));
-            return;
+            return true;
         }
         int coba = restartAttempt.getAndIncrement();
         long delay = RESTART_DELAYS[coba];
@@ -2256,6 +2334,7 @@ public class ServerService extends Service {
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
         batalUtama(restartTunda);
         posUtama(restartTunda, delay);
+        return false;
     }
 
     /** Saran spesifik untuk exit code proses (logika murni agar bisa diuji).
@@ -2495,6 +2574,7 @@ public class ServerService extends Service {
         long now = SystemClock.elapsedRealtime();
         String stamp;
         stamp = LOG_TS.get().format(tanggalLog());
+        int n;
         synchronized (RESTART_TIMES) {
             // Buang entri di luar jendela anti-loop: daftar tak penuh oleh
             // kejadian lama dan ringkasan selalu mencerminkan 5 menit terakhir.
@@ -2509,20 +2589,24 @@ public class ServerService extends Service {
                 RESTART_TIMES.remove(0);
                 RESTART_REASONS.remove(0);
             }
-            int n = hitungRestartBaru(RESTART_TIMES, now);
-            if (n >= RESTART_WINDOW_MAX) {
-                autoRestart = false;
-                String tail = tailLog(14);
-                setStatus("Restart berulang (" + n + "x dalam 5 mnt) - dihentikan.\n"
-                        + shorten(tail, 300));
-                appendLog("[app] Restart berulang (" + n
-                        + "x dalam 5 mnt) - auto-restart dimatikan.");
-                writeCrashLog("restart loop (" + n + "x/5mnt)");
-                TgBackup.sendPenting(this, "Server restart berulang (" + n
-                        + "x dalam 5 menit) - auto-restart dimatikan.\n"
-                        + shorten(tail, 600));
-                return true;
-            }
+            n = hitungRestartBaru(RESTART_TIMES, now);
+        }
+        if (n >= RESTART_WINDOW_MAX) {
+            autoRestart = false;
+            String tail = tailLog(14);
+            setStatus("Restart berulang (" + n + "x dalam 5 mnt) - dihentikan.\n"
+                    + shorten(tail, 300));
+            appendLog("[app] Restart berulang (" + n
+                    + "x dalam 5 mnt) - auto-restart dimatikan.");
+            writeCrashLog("restart loop (" + n + "x/5mnt)");
+            TgBackup.sendPenting(this, "Server restart berulang (" + n
+                    + "x dalam 5 menit) - auto-restart dimatikan.\n"
+                    + shorten(tail, 600));
+            // Di luar synchronized(RESTART_TIMES): penutupan episode menulis
+            // prefs + stopForeground, sedangkan kunci itu juga dibaca
+            // restartSummary() di UI thread.
+            akhiriEpisodeGagal(idEpisodaProsesAktif());
+            return true;
         }
         return false;
     }
