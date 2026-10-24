@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 195: Proses `--version` benar-benar mati lewat satu pintu
+- `ServerService.detectBinaryVersion` mematikan proses `--version` dengan blok `destroy()` + `waitForOrKill(2000)` buatan sendiri, sedangkan `finally` hanya memanggil `destroy()`. Bila binary mengabaikan SIGTERM, proses tetap hidup sambil memegang berkas binary-nya (penulisan/penggantian binary berikutnya bisa gagal `ETXTBSY`) dan memperpanjang jejak proses yatim pada STB ber-RAM kecil.
+- Kedua jalur kini memakai `matikanProsesTegas()` (destroy → tunggu → `destroyForcibly` + tunggu 3 dtk), satu pintu yang sudah dipakai jalur stop/restart/bersih.
+
 ## [Belum rilis] — Audit 194: Parameter `https`/`scheme` yang selalu sama dibuang dari jalur start & health
 - Aplikasi ini HTTPS-only (`KEY_HTTPS` selalu `true`, sertifikat wajib dibuat), tetapi `pingRinci`/jalur Start masih membawa variabel `boolean https = true` + `String scheme = "https"` dan meneruskannya ke `cobaKode(...)`, `panduanLoginBitwarden(...)`, serta `DOMAIN`. Nilai yang tak pernah bisa berubah menyamarkan asumsi "selalu TLS": pembaca kode bisa mengira ada jalur HTTP yang tetap bekerja padahal `cobaKode` tanpa TLS khusus akan gagal ke server TLS.
 - Parameter itu dihapus: `cobaKode()` kini membuka `HttpsURLConnection` langsung, `panduanLoginBitwarden()` tak lagi menerima skema (isinya memang selalu `https://`), dan `DOMAIN` ditulis `https://…`. Uji `panduanLoginMemuatUrlDanAkun` disesuaikan (dulu menguji bahwa "http" menghasilkan URL https — bukti parameternya mati) dan kini juga menguji port/IP kosong.

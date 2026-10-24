@@ -3602,13 +3602,11 @@ public class ServerService extends Service {
             // panic getrandom muncul di baris berikutnya dan dulu terbuang
             // sehingga isKernelRandomPanic tak pernah menyala.
             lastVersionOutput = semua.length() == 0 ? "" : semua.toString().trim();
-            p.destroy();
-            try {
-                // Timeout 2 detik di SEMUA API (waitFor(timeout) hanya API 26+).
-                waitForOrKill(p, 2000);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            }
+            // Satu pintu matikan proses (destroy → paksa setelah 2 dtk). Dulu
+            // blok destroy+wait ini disalin sendiri dan tak memaksa, sehingga
+            // binary aneh yang mengabaikan SIGTERM tetap hidup sambil memegang
+            // berkas binary (penulisan/penggantian binary bisa ETXTBSY).
+            matikanProsesTegas(p, 2000);
             if (first == null || first.trim().isEmpty()) {
                 binaryVersion = "?";
                 lastVersionOutput = "";
@@ -3640,7 +3638,9 @@ public class ServerService extends Service {
                 }
             }
             if (p != null) {
-                p.destroy();
+                // Jalur galat (mis. baca output melempar) juga wajib benar-benar
+                // mematikan proses, bukan hanya destroy yang bisa diabaikan.
+                matikanProsesTegas(p, 1000);
             }
         }
     }
