@@ -562,11 +562,14 @@ public class ServerServiceTest {
         // Gerbang akhir startServerAsync: start yang tak melahirkan proses
         // wajib menghentikan health tick + notifikasi; start yang masih
         // ditunda (restore memegang KUNCI_DATA) tidak boleh diakhiri.
-        assertTrue(ServerService.startGagalPermanen(false, false, false));
-        assertFalse(ServerService.startGagalPermanen(true, false, false));
-        assertFalse(ServerService.startGagalPermanen(false, true, false));
-        assertFalse(ServerService.startGagalPermanen(false, false, true));
-        assertFalse(ServerService.startGagalPermanen(true, true, true));
+        assertTrue(ServerService.startGagalPermanen(false, false, false, true));
+        assertFalse(ServerService.startGagalPermanen(true, false, false, true));
+        assertFalse(ServerService.startGagalPermanen(false, true, false, true));
+        assertFalse(ServerService.startGagalPermanen(false, false, true, true));
+        assertFalse(ServerService.startGagalPermanen(true, true, true, true));
+        // Episode basi (perintah lebih baru sudah datang) tak boleh membersihkan
+        // health/niat/notifikasi milik perintah baru itu.
+        assertFalse(ServerService.startGagalPermanen(false, false, false, false));
     }
 
     @Test

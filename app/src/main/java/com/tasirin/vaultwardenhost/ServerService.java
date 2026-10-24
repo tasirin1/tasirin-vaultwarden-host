@@ -1609,8 +1609,13 @@ public class ServerService extends Service {
                 // Matikan watchdog health agar tak polling tiap 2 menit
                 // selamanya, dan turunkan notifikasi foreground bila tak ada
                 // auto-backup yang memang butuh service tetap hidup.
+                // Episode basi (sudah ada perintah Start/Stop lebih baru) TIDAK
+                // ikut membersihkan: dulu simpanNiatJalan(false) + stopForeground
+                // milik episode lama menghapus niat & notifikasi perintah baru,
+                // sehingga server yang baru diminta tak pulih setelah LMK.
                 if (startGagalPermanen(running,
-                        process != null && alive(process), tunda)) {
+                        process != null && alive(process), tunda,
+                        idAwal == startIdTerakhir)) {
                     healthActive = false;
                     batalUtama(healthTick);
                     // Niat jalan disimpan ulang agar recreate START_STICKY tak
@@ -1645,10 +1650,12 @@ public class ServerService extends Service {
 
     /** True bila start berakhir tanpa melahirkan proses dan tanpa percobaan
      *  susulan: episode Start harus diakhiri (health tick + notifikasi ikut
-     *  turun). Murni. */
+     *  turun). {@code intentTerbaru} salah bila sudah ada perintah Start/Stop
+     *  yang lebih baru: episode basi tak boleh mematikan health/notifikasi/niat
+     *  milik perintah baru itu. Murni. */
     static boolean startGagalPermanen(boolean running, boolean prosesHidup,
-                                     boolean ditunda) {
-        return !ditunda && !running && !prosesHidup;
+                                     boolean ditunda, boolean intentTerbaru) {
+        return intentTerbaru && !ditunda && !running && !prosesHidup;
     }
 
     /** Ambil kembali kunci data sebelum fase yang menulis folder data (TLS,

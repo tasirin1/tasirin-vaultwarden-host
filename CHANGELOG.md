@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 168: Episode Start basi tak menghapus niat & notifikasi perintah baru
+- `startServerAsync` menyimpan `idAwal` tetapi blok pembersihan akhirnya selalu menjalankan `simpanNiatJalan(false)` + `stopForeground(true)` walau sudah ada perintah Start/Stop yang lebih baru. Akibatnya Start yang baru ditekan (sementara episode lama masih mengunduh lalu gagal) kehilangan niat tersimpan (server tak pulih setelah app dibunuh LMK) dan notifikasinya dicabut.
+- `startGagalPermanen` kini menerima `intentTerbaru` (`idAwal == startIdTerakhir`); episode basi hanya melepas guard `starting` dan membiarkan perintah terbaru mengurus health/notifikasi/niat. Uji `ServerServiceTest.startGagalPermanenHanyaSaatTakAdaProsesDanTakDitunda` diperluas.
+
 ## [Belum rilis] — Audit 167: Proses yang lahir tak ditinggal yatim saat bookkeeping gagal
 - Bila sesuatu melempar setelah `pb.start()` (mis. kirim notifikasi Telegram), blok `catch` hanya mengosongkan `process` tanpa mematikan proses: server tetap hidup memegang port + database tanpa reader/watcher, dan Start berikutnya dilaporkan "port sedang dipakai proses lain".
 - Blok `catch` kini mematikan proses yang sudah lahir (process di-null-kan lebih dulu agar watcher tak mengira crash lalu auto-restart). Urutan destroy → tunggu → paksa mati yang sebelumnya disalin di tiga jalur (restart bot, `stopServer`, health ganti) disatukan ke `matikanProsesTegas()`; uji JVM baru `ServerServiceTest.matikanProsesTegas_*`.
