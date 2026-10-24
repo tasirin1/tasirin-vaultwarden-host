@@ -773,6 +773,26 @@ public final class Updater {
         return menang != null ? menang : buat;
     }
 
+    /** Pasang hasil unduhan ke tujuan: verifikasi ulang SHA-256 + rename atomik
+     *  diserialkan per TUJUAN (bukan hanya per tmp). Dua unduhan versi berbeda
+     *  memakai tmp berbeda tetapi tujuan sama; tanpa kunci tujuan keduanya bisa
+     *  masuk `gantiAtomik` bersamaan, saling menghapus/menimpa `.bak`, lalu
+     *  melaporkan "Gagal mencadangkan binary lama" padahal unduhannya sehat.
+     *  Urutan kunci selalu tujuan-dulu-baru-tmp: jalur transfer hanya memegang
+     *  kunci tmp, jadi tak ada siklus. */
+    static void pasangHasilUnduh(File tmp, File out, String expectedSha)
+            throws IOException {
+        synchronized (kunciUnduh(out)) {
+            synchronized (kunciUnduh(tmp)) {
+                if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
+                    tmp.delete();
+                    throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
+                }
+                ServerService.gantiAtomik(tmp, out);
+            }
+        }
+    }
+
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
      *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
      *  Return hex SHA-256; lempar IOException terakhir bila gagal.
@@ -1301,16 +1321,7 @@ public final class Updater {
                     KernelCompat.kernelSekarang(), shimAda));
         }
         try {
-            // Re-hash + rename di dalam kunci yang sama dengan transfer:
-            // setelah kunci transfer lepas, file tmp bisa ditimpa update lain,
-            // sehingga tanpa cek ulang isi yang dipasang bukan yang di-checksum.
-            synchronized (kunciUnduh(tmp)) {
-                if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
-                    tmp.delete();
-                    throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
-                }
-                ServerService.gantiAtomik(tmp, out);
-            }
+            pasangHasilUnduh(tmp, out, expectedSha);
         } catch (IOException e) {
             try {
                 tmp.delete();
@@ -1566,22 +1577,16 @@ public final class Updater {
             tmp.delete();
             throw new IOException("File shim tidak valid (ukuran " + ukuran + " byte).");
         }
-        // Re-hash + rename di dalam kunci yang sama dengan transfer (lihat
-        // jalur binary): tmp bisa ditimpa unduhan shim lain sebelum rename.
-        synchronized (kunciUnduh(tmp)) {
-            if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
-                tmp.delete();
-                throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
-            }
+        // Re-hash + rename diserialkan per tujuan (lihat pasangHasilUnduh):
+        // tmp bisa ditimpa unduhan shim lain sebelum rename.
+        try {
+            pasangHasilUnduh(tmp, out, expectedSha);
+        } catch (IOException e) {
             try {
-                ServerService.gantiAtomik(tmp, out);
-            } catch (IOException e) {
-                try {
-                    tmp.delete();
-                } catch (Exception ignored) {
-                }
-                throw new IOException("Gagal menyimpan shim.");
+                tmp.delete();
+            } catch (Exception ignored) {
             }
+            throw new IOException("Gagal menyimpan shim: " + e.getMessage());
         }
         out.setReadable(true, true);
         out.setExecutable(true, true);

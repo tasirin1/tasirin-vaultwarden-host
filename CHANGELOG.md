@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 169: Pemasangan hasil unduhan diserialkan per tujuan
+- Kunci unduhan hanya per berkas `.tmp`, sedangkan `gantiAtomik(tmp, out)` menulis ke tujuan bersama. Dua unduhan versi berbeda (mis. auto-update + `/update` dari bot) memakai tmp berbeda tetapi tujuan sama, sehingga keduanya bisa masuk `gantiAtomik` bersamaan: `.bak` saling dihapus/ditimpa dan salah satunya gagal dengan "Gagal mencadangkan binary lama" padahal unduhannya sehat.
+- Jalur binary dan shim kini memakai `pasangHasilUnduh()` yang memegang kunci tujuan lalu kunci tmp (urutan tetap, tanpa siklus dengan jalur transfer) sebelum verifikasi SHA-256 dan rename. Uji JVM baru `UpdaterTest.pasangHasilUnduh_verifikasiShaLaluGantiAtomik`.
+
 ## [Belum rilis] — Audit 168: Episode Start basi tak menghapus niat & notifikasi perintah baru
 - `startServerAsync` menyimpan `idAwal` tetapi blok pembersihan akhirnya selalu menjalankan `simpanNiatJalan(false)` + `stopForeground(true)` walau sudah ada perintah Start/Stop yang lebih baru. Akibatnya Start yang baru ditekan (sementara episode lama masih mengunduh lalu gagal) kehilangan niat tersimpan (server tak pulih setelah app dibunuh LMK) dan notifikasinya dicabut.
 - `startGagalPermanen` kini menerima `intentTerbaru` (`idAwal == startIdTerakhir`); episode basi hanya melepas guard `starting` dan membiarkan perintah terbaru mengurus health/notifikasi/niat. Uji `ServerServiceTest.startGagalPermanenHanyaSaatTakAdaProsesDanTakDitunda` diperluas.

@@ -1,5 +1,6 @@
 package com.tasirin.vaultwardenhost;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -54,6 +55,33 @@ public class UpdaterTest {
         assertFalse(Updater.wvPayloadAda(null));
         json.delete();
         idx.delete();
+        dir.delete();
+    }
+
+    @Test
+    public void pasangHasilUnduh_verifikasiShaLaluGantiAtomik() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwpasang").toFile();
+        java.io.File tmp = new java.io.File(dir, "bin.tmp");
+        java.io.File out = new java.io.File(dir, "bin");
+        byte[] isi = new byte[]{1, 2, 3, 4};
+        java.nio.file.Files.write(tmp.toPath(), isi);
+        Updater.pasangHasilUnduh(tmp, out, Updater.sha256Hex(tmp));
+        assertTrue(out.isFile());
+        assertFalse(tmp.exists());
+        assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
+        // Checksum salah: berkas tujuan lama tak boleh tersentuh dan tmp dibuang.
+        java.io.File tmp2 = new java.io.File(dir, "bin2.tmp");
+        java.nio.file.Files.write(tmp2.toPath(), new byte[]{9});
+        boolean gagal = false;
+        try {
+            Updater.pasangHasilUnduh(tmp2, out,
+                    "0000000000000000000000000000000000000000000000000000000000000000");
+        } catch (java.io.IOException e) {
+            gagal = true;
+        }
+        assertTrue(gagal);
+        assertFalse(tmp2.exists());
+        assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
         dir.delete();
     }
 
