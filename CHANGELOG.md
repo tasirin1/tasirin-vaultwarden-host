@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 186: Varian layout landscape layar awal yang duplikat dihapus
+- `res/layout-land/activity_main.xml` adalah salinan penuh `res/layout/activity_main.xml` dengan satu-satunya beda `paddingTop` 8dp vs 12dp. Dua berkas besar dengan ID yang wajib sama persis berarti setiap perubahan layar awal harus disalin manual; lupa satu sisi = crash `findViewById`/ID hilang hanya di satu orientasi.
+- Varian landscape dihapus (portrait dipakai di kedua orientasi, selisih 4dp tak sepadan dengan risiko drift) dan komentar layout + `AGENTS.md` disesuaikan.
+
 ## [Belum rilis] — Audit 185: Satu dialog Tentang untuk kedua layar
 - `MainActivity` dan `SettingsActivity` punya dua dialog "Tentang" berbeda: yang di Settings berupa HTML ad-hoc dengan isi lain (panduan pakai, tanpa baris ikon/footer) sehingga info versi, tombol GitHub, dan tombol Cek Update tak pernah sinkron dan perbaikan dialog utama tak sampai ke sana.
 - Dialog dipindah ke satu implementasi `AboutDialog.tampil()` yang dipakai kedua layar. Saat dibuka dari Settings, tombol Cek Update menutup dialog dan memfokuskan tombol Update di kartu (`fokuskanTombolUpdate()`) alih-alih membuka instance Settings kedua. Import yang tak terpakai di kedua activity ikut dibuang.

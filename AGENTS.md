@@ -40,7 +40,7 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
-│   ├── res/layout/ (+layout-land)      # activity_main.xml (ringkas, portrait + landscape dua kolom) + activity_settings.xml + main_card_*.xml
+│   ├── res/layout/ (+layout-land untuk activity_pin) # activity_main.xml (ringkas, satu layout portrait+landscape) + activity_settings.xml + main_card_*.xml
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
 │   ├── res/values/ (+night, sw600dp-land, sw480dp-land) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
@@ -318,10 +318,9 @@ seamless (beda signature) — backup keystore di tempat aman.
   (`activity_settings.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
   `SettingsActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
   konstanta `KEY_*` di `ServerService.java`. Layar awal (`MainActivity.java` +
-  `activity_main.xml` + `layout-land`) tetap ringkas: brand kecil, info
-  versi, banner status full-width, Start full-width sticky, log realtime,
-  simpan .txt, titik tiga (tanpa tombol buka-log). Kedua orientasi wajib
-  mendefinisikan ID yang sama persis agar `MainActivity` tak berubah.
+  `activity_main.xml`, satu layout untuk kedua orientasi) tetap ringkas:
+  brand kecil, info versi, banner status full-width, Start full-width sticky,
+  log realtime, simpan .txt, titik tiga (tanpa tombol buka-log).
 - **Percantik tampilan (tanpa logika)** → `colors.xml` (+ `values-night`,
   wajib sinkron) + `styles.xml` + `drawable/bg_*` + string baru di
   `strings.xml` (default Inggris; padanan Indonesia di `values-in/strings.xml`);

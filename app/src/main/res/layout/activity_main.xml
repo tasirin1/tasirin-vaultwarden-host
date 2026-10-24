@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal portrait: brand ringkas + kartu info (tautan) di atas
-     + kartu log realtime di tengah + footer sticky (banner status
-     di atas tombol Start/Stop). Rantai nextFocus* dijaga untuk D-pad TV; rantai yang melewati
-     updateBtn yang kadang gone diperbaiki dinamis di MainActivity.
-     Varian landscape ada di res/layout-land/activity_main.xml (ID sama). -->
+<!-- Layar awal (satu layout untuk portrait & landscape): brand ringkas +
+     kartu info (tautan) di atas + kartu log realtime di tengah + footer
+     sticky (banner status di atas tombol Start/Stop). Rantai nextFocus*
+     dijaga untuk D-pad TV; rantai yang melewati updateBtn yang kadang gone
+     diperbaiki dinamis di MainActivity. Sengaja tanpa varian layout-land:
+     duplikat penuh dengan beda 4dp padding hanya menambah berkas yang harus
+     disinkronkan ID-nya. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
