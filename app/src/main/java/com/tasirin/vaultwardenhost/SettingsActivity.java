@@ -169,6 +169,13 @@ public class SettingsActivity extends Activity {
         return gagal >= PinCrypto.MAX_GAGAL;
     }
 
+    /** True bila Start wajib ditahan karena tugas backup/restore masih
+     *  berjalan (form bisa berisi nilai pra-restore dan prefs sedang
+     *  ditimpa hasil restore). Murni. */
+    static boolean startDitahanSaatTugasData(boolean tugasUi, boolean tugasData) {
+        return tugasUi || tugasData;
+    }
+
     /** Ambil gagal kumulatif sidik ini (0 bila belum ada). */
     static synchronized int ambilGagalImpor(String sidik) {
         try {
@@ -945,6 +952,14 @@ public class SettingsActivity extends Activity {
     }
 
     private void saveAndStart() {
+        // Tugas backup/restore sedang berjalan: form bisa berisi nilai pra-restore
+        // dan prefs bisa ditimpa hasil restore. Tanpa guard, Start menulis
+        // folder/port/token basi di tengah restore lalu menyalakan server.
+        if (startDitahanSaatTugasData(tugasBerjalan.get(), TgBackup.tugasDataJalan())) {
+            toast("Still working, please wait.");
+            appendUiLog("[app] Start dibatalkan: tugas backup/restore masih berjalan.");
+            return;
+        }
         String dataDir = dataDirInput.getText().toString().trim();
         String port = portInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();

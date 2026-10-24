@@ -176,6 +176,16 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void startDitahanSaatTugasDataUiAtauLatar() {
+        // Dipakai saveAndStart(): jangan menulis prefs dari form selagi
+        // backup/restore berjalan (nilai bisa pra-restore dan prefs ditimpa).
+        assertFalse(SettingsActivity.startDitahanSaatTugasData(false, false));
+        assertTrue(SettingsActivity.startDitahanSaatTugasData(true, false));
+        assertTrue(SettingsActivity.startDitahanSaatTugasData(false, true));
+        assertTrue(SettingsActivity.startDitahanSaatTugasData(true, true));
+    }
+
+    @Test
     public void sidikBerkasStabilDanHeks() throws Exception {
         java.io.File f = java.io.File.createTempFile("vwuji", ".bin");
         try {
