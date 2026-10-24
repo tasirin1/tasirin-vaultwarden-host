@@ -744,7 +744,15 @@ public class MainActivity extends Activity {
             // (penyamaran bekerja per baris).
             if (n < lastLogLen || n - lastLogLen > BATAS_LOMPATAN) {
                 int mulai = Math.max(0, n - BATAS_DELTA_TICK);
-                int nl = ServerService.logBuffer.indexOf("\n", mulai);
+                // Pindai manual (tanpa alokasi substring/indexOf per API):
+                // mulai dari batas baris utuh terdekat ke arah ekor.
+                int nl = -1;
+                for (int i = mulai; i < n; i++) {
+                    if (ServerService.logBuffer.charAt(i) == '\n') {
+                        nl = i;
+                        break;
+                    }
+                }
                 if (nl >= 0 && nl < n - 1) {
                     mulai = nl + 1;
                 }
