@@ -362,6 +362,10 @@ public class ServerService extends Service {
     }
 
     private static volatile Process process;
+    /** Thread pembaca stdout server terakhir: ditunggu sebentar setelah proses
+     *  mati agar baris panic terakhir sempat masuk buffer log sebelum tail
+     *  dibaca untuk saran crash. */
+    private static volatile Thread pembacaOutput = null;
     /** Proses yang diminta berhenti sengaja (per-proses, bukan boolean global):
      *  watchProcess hanya mengabaikan exit milik proses ini agar Stop lalu Start cepat
      *  tak salah menandai crash proses baru sebagai stop sengaja. */
@@ -1955,6 +1959,7 @@ public class ServerService extends Service {
             final Process p = process;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
             reader.setDaemon(true);
+            pembacaOutput = reader;
             reader.start();
 
             Thread watcher = new Thread(() -> watchProcess(p), "vw-watch");
@@ -2037,9 +2042,27 @@ public class ServerService extends Service {
         TgBackup.sendMessage(this, "Server dihentikan.");
     }
 
+    /** Tunggu pembaca output menuntaskan baris terakhir (maks 500 ms) setelah
+     *  proses server mati. Aman dipanggil dari thread mana pun. */
+    private static void tungguPembacaOutput() {
+        Thread baca = pembacaOutput;
+        if (baca == null || baca == Thread.currentThread()) {
+            return;
+        }
+        try {
+            baca.join(500);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void watchProcess(Process p) {
         try {
             int code = p.waitFor();
+            // Panic Rust sering jadi baris TERAKHIR: beri pembaca output
+            // kesempatan menuntaskannya sebelum tail dibaca. Dulu tailLog()
+            // dipanggil lebih dulu sehingga saran crash kehilangan pesan asli.
+            tungguPembacaOutput();
             if (isStopDisengaja(p) || process != p) {
                 // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
                 if (process == p) {
@@ -2552,6 +2575,11 @@ public class ServerService extends Service {
                 appendLog(line);
             }
         } catch (Exception ignored) {
+        } finally {
+            // Lepas rujukan agar watcher berikutnya tak menunggu thread basi.
+            if (pembacaOutput == Thread.currentThread()) {
+                pembacaOutput = null;
+            }
         }
     }
 
