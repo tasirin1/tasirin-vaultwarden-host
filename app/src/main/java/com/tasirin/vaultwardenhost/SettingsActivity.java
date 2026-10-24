@@ -1708,8 +1708,10 @@ public class SettingsActivity extends Activity {
                     appendUiLog("[app] Backup dibatalkan: DB korup (" + rusakDb + ").");
                     return;
                 }
-            } catch (Throwable abaikan) {
-                // JVM unit test tanpa SQLite Android: lanjut tanpa cek.
+            } catch (Exception abaikan) {
+                // JVM unit test tanpa SQLite Android / galat SQLite vegetatif:
+                // lanjut tanpa cek. Hanya Exception — Error (OOM dsb) tak boleh
+                // ditelan diam-diam lalu backup tetap dijalankan.
             }
             String timestamp = TgBackup.stempelUnik();
             File backup = new File(backupDir, "db-backup-" + timestamp + ".zip");

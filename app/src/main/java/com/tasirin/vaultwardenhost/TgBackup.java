@@ -804,26 +804,39 @@ public final class TgBackup {
         String kini = url;
         for (int i = 0; i < 5; i++) {
             HttpURLConnection c = (HttpURLConnection) new java.net.URL(kini).openConnection();
-            c.setConnectTimeout(connectMs);
-            c.setReadTimeout(readMs);
-            c.setInstanceFollowRedirects(false);
-            HttpsCompat.apply(c, ctx);
-            int kode = c.getResponseCode();
-            if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
-                String lok = c.getHeaderField("Location");
-                c.disconnect();
-                if (lok == null || lok.isEmpty()
-                        || !Util.bolehIkutiRedirectTelegram(kini, lok)) {
-                    throw new java.io.IOException("Redirect Telegram tidak aman: " + lok);
+            // Koneksi yang tak diserahkan ke pemanggil wajib ditutup di sini:
+            // galat jaringan/header (SocketTimeoutException) dulu meninggalkan
+            // socket + buffer terbuka tiap percobaan.
+            boolean serah = false;
+            try {
+                c.setConnectTimeout(connectMs);
+                c.setReadTimeout(readMs);
+                c.setInstanceFollowRedirects(false);
+                HttpsCompat.apply(c, ctx);
+                int kode = c.getResponseCode();
+                if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
+                    String lok = c.getHeaderField("Location");
+                    if (lok == null || lok.isEmpty()
+                            || !Util.bolehIkutiRedirectTelegram(kini, lok)) {
+                        throw new java.io.IOException("Redirect Telegram tidak aman: " + lok);
+                    }
+                    String berikut = Util.sambungRedirect(kini, lok);
+                    if (berikut == null || berikut.equals(kini)) {
+                        throw new java.io.IOException("Redirect Telegram tidak aman (downgrade?): " + lok);
+                    }
+                    kini = berikut;
+                    continue;
                 }
-                String berikut = Util.sambungRedirect(kini, lok);
-                if (berikut == null || berikut.equals(kini)) {
-                    throw new java.io.IOException("Redirect Telegram tidak aman (downgrade?): " + lok);
+                serah = true;
+                return c;
+            } finally {
+                if (!serah) {
+                    try {
+                        c.disconnect();
+                    } catch (Exception ignored) {
+                    }
                 }
-                kini = berikut;
-                continue;
             }
-            return c;
         }
         throw new java.io.IOException("Terlalu banyak redirect Telegram.");
     }
