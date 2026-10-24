@@ -738,6 +738,44 @@ public final class Updater {
         return nama.equals("web-vault.new") || nama.startsWith("web-vault.new-");
     }
 
+    /** Nama file sementara unduhan PER VERSI target. Nama .tmp bersama dulu
+     *  membuat sisa unduhan versi lama dilanjutkan (Range) oleh versi baru:
+     *  byte dua asset tercampur, checksum gagal, kuota terbuang. Murni. */
+    static String namaTmpUnduh(String namaDasar, String versi) {
+        String v = normVersion(versi);
+        return namaDasar + "." + (v == null || v.isEmpty() ? "terbaru" : v) + ".tmp";
+    }
+
+    /** Hapus sisa .tmp unduhan versi LAIN yang sudah basi (tak tersentuh
+     *  >10 menit). Nama per versi mencegah byte tercampur, tetapi tiap ganti
+     *  versi bisa menyisakan 20–35 MB bila unduhan sebelumnya putus; unduhan
+     *  yang sedang berjalan menulis ulang filenya terus sehingga aman. */
+    private static void sapuTmpUnduhBasi(File dir, String namaDasar, File kecuali) {
+        try {
+            File[] isi = dir == null ? null : dir.listFiles();
+            if (isi == null) {
+                return;
+            }
+            String awalan = namaDasar + ".";
+            String kecualiPath = kecuali == null ? "" : kecuali.getAbsolutePath();
+            long batas = System.currentTimeMillis() - 10L * 60L * 1000L;
+            for (File f : isi) {
+                String n = f.getName();
+                if (!n.startsWith(awalan) || !n.endsWith(".tmp")
+                        || f.getAbsolutePath().equals(kecualiPath)) {
+                    continue;
+                }
+                try {
+                    if (f.isFile() && f.lastModified() < batas) {
+                        f.delete();
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan.
      *  Kunci = objek per path kanonis (tanpa String.intern global yang tak pernah GC
@@ -1198,7 +1236,9 @@ public final class Updater {
                 }
             }
         }
-        File tmp = new File(binDir, out.getName() + ".tmp");
+        File tmp = new File(binDir, namaTmpUnduh(out.getName(), latest));
+        // Sisa .tmp versi lain yang basi dibuang agar tak menumpuk 20 MB/versi.
+        sapuTmpUnduhBasi(binDir, out.getName(), tmp);
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         final boolean[] pakaiTerbaru = {fallbackTercatat};
@@ -1503,7 +1543,8 @@ public final class Updater {
             throw new IOException("Gagal membuat folder binary: " + binDir
                     + " - cek sisa storage & izin Storage, lalu ulangi.");
         }
-        File tmp = new File(binDir, out.getName() + ".tmp");
+        File tmp = new File(binDir, namaTmpUnduh(out.getName(), latest));
+        sapuTmpUnduhBasi(binDir, out.getName(), tmp);
         final String[] urlShimAkhir = {assetUrl};
         String digestHex;
         try {
@@ -1745,7 +1786,9 @@ public final class Updater {
         }
 
         File targetDir = new File(dataFolder, "web-vault");
-        File tmpZip = new File(dataFolder, "web-vault.zip.tmp");
+        File tmpZip = new File(dataFolder, namaTmpUnduh("web-vault.zip", diminta));
+        // Sisa .tmp versi lain yang basi dibuang (bisa 35 MB per versi).
+        sapuTmpUnduhBasi(dataFolder, "web-vault.zip", tmpZip);
 
         String latest = diminta;
 

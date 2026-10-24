@@ -875,6 +875,23 @@ public class UpdaterTest {
     }
 
     @Test
+    public void namaTmpUnduh_pisahkanPerVersiAgarByteTakTercampur() {
+        // Versi berbeda wajib memakai file .tmp berbeda: sisa unduhan versi
+        // lama tak boleh dilanjutkan (Range) oleh versi baru.
+        assertEquals("vaultwarden-armeabi-v7a.1.37.3.tmp",
+                Updater.namaTmpUnduh("vaultwarden-armeabi-v7a", "1.37.3"));
+        assertEquals("vaultwarden-armeabi-v7a.1.38.0.tmp",
+                Updater.namaTmpUnduh("vaultwarden-armeabi-v7a", "v1.38.0"));
+        assertFalse(Updater.namaTmpUnduh("bin", "1.37.3")
+                .equals(Updater.namaTmpUnduh("bin", "1.38.0")));
+        // Versi tak dikenal (API gagal) punya nama sendiri, bukan berbaur.
+        assertEquals("web-vault.zip.terbaru.tmp",
+                Updater.namaTmpUnduh("web-vault.zip", null));
+        assertEquals("web-vault.zip.terbaru.tmp",
+                Updater.namaTmpUnduh("web-vault.zip", "  "));
+    }
+
+    @Test
     public void stagingWebVault_unikDanDikenaliSapu() {
         java.io.File data = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vw-data");
