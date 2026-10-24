@@ -1679,9 +1679,15 @@ public class SettingsActivity extends Activity {
                 backupDir.mkdirs();
             }
 
-            // Tolak backup DB korup diam-diam seperti jalur Telegram.
+            // Tolak backup DB korup diam-diam seperti jalur Telegram; DB yang
+            // sedang terkunci sesaat (SIBUK) bukan korup — beri pesan coba lagi.
             try {
-                String rusakDb = TgBackup.cekIntegritasDb(dbFile);
+                String rusakDb = TgBackup.cekIntegritasDbUlang(dbFile);
+                if (TgBackup.dbSibuk(rusakDb)) {
+                    toast("Database busy (server is writing) — backup cancelled, try again shortly.");
+                    appendUiLog("[app] Backup dibatalkan: DB sibuk (" + rusakDb + ").");
+                    return;
+                }
                 if (rusakDb != null) {
                     toast("Corrupt database (" + rusakDb + ") — backup cancelled.");
                     appendUiLog("[app] Backup dibatalkan: DB korup (" + rusakDb + ").");

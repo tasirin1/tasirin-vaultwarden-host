@@ -580,16 +580,7 @@ public final class TgBackup {
         // akibat salin saat server menulis, sebelum diunggah ke Telegram.
         // Terkunci sesaat (SIBUK) bukan korup: coba ulang 3x selang 1 detik
         // sebelum menyerah agar backup tak gugur oleh tulis sesaat server.
-        String cekDb = cekIntegritasDb(db);
-        for (int tunggu = 0; dbSibuk(cekDb) && tunggu < 2; tunggu++) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new IOException("Backup otomatis dibatalkan.");
-            }
-            cekDb = cekIntegritasDb(db);
-        }
+        String cekDb = cekIntegritasDbUlang(db);
         if (dbSibuk(cekDb)) {
             throw new IOException("Database sibuk (server sedang menulis)"
                     + " - backup dibatalkan, coba lagi sebentar.");
@@ -1261,6 +1252,25 @@ public final class TgBackup {
      *  bukan korup. Murni agar bisa unit test. */
     static boolean dbSibuk(String hasilCek) {
         return hasilCek != null && hasilCek.startsWith("SIBUK:");
+    }
+
+    /** Cek integritas dengan ulang saat DB terkunci sesaat (server sedang
+     *  menulis): SIBUK bukan korup. Maks 2 ulangan selang 1 detik; tetap
+     *  SIBUK = pemanggil memberi pesan "coba lagi", bukan "korup".
+     *  Wajib worker thread (ada tidur). Interrupt ditandai SIBUK agar
+     *  pemanggil tak salah melaporkannya sebagai DB rusak. */
+    static String cekIntegritasDbUlang(File dbFile) {
+        String hasil = cekIntegritasDb(dbFile);
+        for (int tunggu = 0; dbSibuk(hasil) && tunggu < 2; tunggu++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return "SIBUK: cek dihentikan (interrupt)";
+            }
+            hasil = cekIntegritasDb(dbFile);
+        }
+        return hasil;
     }
 
     /** Catat kegagalan Telegram ke log app (isi respons dipotong 200 char). */

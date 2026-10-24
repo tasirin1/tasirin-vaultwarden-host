@@ -1325,6 +1325,18 @@ public class TgBackupTest {
         TgBackup.pulihkanDbLama(dir, db, null);
         assertFalse(db.exists());
     }
+
+    @Test
+    public void cekIntegritasDbUlangTakMelemparTanpaSqlite() throws Exception {
+        File f = java.nio.file.Files.createTempFile("vwcek", ".sqlite3").toFile();
+        java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        String hasil = TgBackup.cekIntegritasDbUlang(f);
+        // JVM tanpa SQLite Android: galat dikembalikan sebagai pesan (bukan
+        // dilempar) dan tak boleh berlabel SIBUK agar UI tak menyuruh coba lagi.
+        assertNotNull(hasil);
+        assertFalse(TgBackup.dbSibuk(hasil));
+    }
 }
 
 
