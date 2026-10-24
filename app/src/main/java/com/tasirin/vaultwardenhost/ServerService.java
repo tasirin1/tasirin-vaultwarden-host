@@ -385,6 +385,13 @@ public class ServerService extends Service {
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
+    /** Kunci transisi Start↔Stop pada exec proses: fase "cek batalStart lalu
+     *  pb.start() + pasang process/running/wakelock" dan keputusan Stop
+     *  ("proses ada?" + tandai stop sengaja) harus satu bagian kritis. Tanpa
+     *  ini Stop yang masuk di jeda cek-vs-exec bisa meninggalkan server hidup
+     *  setelah status "Stopped", atau start menimpa running=true sesudah
+     *  stopper membersihkan (UI "Running" tanpa proses + wakelock nyangkut). */
+    private static final Object KUNCI_PROSET = new Object();
     /** startId perintah terakhir: start yang gagal permanen hanya menurunkan
      *  service bila tak ada intent yang lebih baru menunggu diproses (intent
      *  baru otomatis membatalkan {@code stopSelfResult} id lama). */
@@ -2018,23 +2025,41 @@ public class ServerService extends Service {
             }
             // Stop yang ditekan selama persiapan (unduh binary ber-menit-menit)
             // membatalkan start di sini: jangan luncurkan server tanpa diminta.
-            if (batalStart) {
-                batalStart = false;
+            // Keputusan batal-vs-luncur dan pemasangan state proses dijadikan
+            // satu bagian kritis dengan stopServer(): Stop yang masuk di jeda
+            // cek-vs-exec dulu bisa meninggalkan server hidup setelah status
+            // "Stopped", atau start menimpa running=true sesudah stopper
+            // membersihkan (UI "Running" tanpa proses + wakelock nyangkut).
+            boolean batal;
+            synchronized (KUNCI_PROSET) {
+                batal = batalStart;
+                if (batal) {
+                    batalStart = false;
+                } else {
+                    process = pb.start();
+                    // Proses baru milik start ini: hapus tanda stop lama agar
+                    // crash dini tak dianggap "stop disengaja" (race stopper
+                    // 5-8 dtk). Wajib di bagian kritis yang sama dengan
+                    // tandaiStopDisengaja() di stopServer().
+                    prosesStopDisengaja = null;
+                    acquireWakeLock();
+                    running = true;
+                    // Proses lahir: episode ini diserahkan ke watcher (restart
+                    // atau penutupan), jadi finally startServerAsync tak boleh
+                    // mengakhirinya.
+                    idEpisodaProses = startIdTerakhir;
+                }
+            }
+            if (batal) {
                 appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
                         + " - tekan Start lagi bila ingin jalan.");
-                setStatus("Stopped");
+                // Jangan timpa status perintah Start yang lebih baru (mis.
+                // Start ditekan lagi tepat sesudah Stop ini).
+                if (idAwal == startIdTerakhir) {
+                    setStatus("Stopped");
+                }
                 return;
             }
-            process = pb.start();
-            // Proses baru milik start ini: hapus tanda stop lama agar crash
-            // dini tak dianggap "stop disengaja" (race stopper 5-8 dtk).
-            // Tanda milik proses lama dibuang total karena generasi berganti.
-            prosesStopDisengaja = null;
-            acquireWakeLock();
-            running = true;
-            // Proses lahir: episode ini diserahkan ke watcher (restart atau
-            // penutupan), jadi finally startServerAsync tak boleh mengakhirinya.
-            idEpisodaProses = startIdTerakhir;
             // Riwayat restart SENGAJA tidak dibersihkan di sini: start otomatis
             // (restartTunda -> startServer) juga lewat jalur ini. Menghapusnya
             // membuat "≥3 restart/5 menit" mustahil tercapai sehingga crash
@@ -2102,13 +2127,27 @@ public class ServerService extends Service {
     }
 
     private void stopServer() {
-        if (process != null) {
-            final Process p = process;
-            // Tandai stop sengaja agar watchProcess abaikan exit (status tetap
-            // "Menghentikan..."). Proses dipertahankan sampai benar-benar mati agar
-            // stopAndWait()/restore tak menimpa DB selagi proses lama hidup.
-            // Per-proses agar Start baru tak ikut ditandai.
-            tandaiStopDisengaja(p);
+        // Keputusan "proses ada?" + tandai stop sengaja + flag batalStart
+        // diambil di bagian kritis yang sama dengan fase exec startServer():
+        // tanpa itu Stop di jeda cek-vs-exec bisa mendahului pb.start()
+        // sehingga server tetap lahir setelah status "Stopped", atau start
+        // menghapus tanda stop sengaja yang baru dipasang.
+        final Process p;
+        synchronized (KUNCI_PROSET) {
+            batalStart = true;
+            p = process;
+            if (p == null) {
+                prosesStopDisengaja = null;
+                running = false;
+                resetPenandaJalan();
+            } else {
+                // Proses dipertahankan sampai benar-benar mati agar
+                // stopAndWait()/restore tak menimpa DB selagi proses lama
+                // hidup. Per-proses agar Start baru tak ikut ditandai.
+                tandaiStopDisengaja(p);
+            }
+        }
+        if (p != null) {
             // Jangan klaim "Stopped" selagi proses lama masih dimatikan
             // (hingga 8 dtk): status + flag dibersihkan thread stopper agar
             // UI/bot/restore tak mengira DB sudah bebas dikunci.
@@ -2133,9 +2172,6 @@ public class ServerService extends Service {
             stopper.start();
         } else {
             setStatus("Stopped");
-            prosesStopDisengaja = null;
-            running = false;
-            resetPenandaJalan();
             releaseWakeLock();
             flushLogFile();
         }
