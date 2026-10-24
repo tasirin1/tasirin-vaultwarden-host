@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 180: Rantai fokus D-pad tak menunjuk tombol baterai yang tersembunyi
+- `main_card_maintenance.xml` mengarahkan `nextFocusDown` (autoStart) dan `nextFocusUp` (autoUpdate) ke `batteryBtn`, padahal `batteryRow` berisi tombol itu default `gone` dan hanya tampil bila optimasi baterai belum diizinkan. Selama tersembunyi, navigasi remote TV berhenti/melompat di rantai fokus.
+- Rantai fokus kini disambung ulang setiap status baris berubah: baris tampil → ke `batteryBtn`; tersembunyi → autoStart langsung ke autoUpdate dan sebaliknya.
+
 ## [Belum rilis] — Audit 179: Penanda "sudah dikabari" ditulis setelah kabar terkirim
 - `AutoUpdate` menulis `tg_notified_version` sebelum menampilkan notifikasi sistem dan mengirim pesan Telegram. Bila notifikasi melempar atau proses mati di antara penulisan dan pengiriman, versi itu ditandai sudah dikabari padahal pengguna tak pernah menerima kabar — update berikutnya tak pernah diberitahukan untuk versi tersebut.
 - Penanda kini ditulis paling akhir, sehingga kegagalan membuat versi dikabari lagi pada cek berikutnya (paling buruk kabar ganda, bukan hilang).

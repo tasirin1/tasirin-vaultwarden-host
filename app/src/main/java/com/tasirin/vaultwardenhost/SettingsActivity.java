@@ -110,6 +110,7 @@ public class SettingsActivity extends Activity {
     private Button logOpenBtn;
     private android.widget.ScrollView settingsScroll;
     private LinearLayout batteryRow;
+    private Button batteryBtn;
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
@@ -347,6 +348,9 @@ public class SettingsActivity extends Activity {
     private static final long BATTERY_CHECK_MS = 30_000;
     private long lastBatteryCheck = 0;
     private boolean needBatteryCached = false;
+    /** Status tampil baris baterai terakhir (null = belum pernah dihitung):
+     *  dipakai menyambung ulang rantai fokus D-pad hanya saat berubah. */
+    private Boolean lastBatteryTampil = null;
 
     /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
     private static volatile long pauseStamp = 0;
@@ -427,7 +431,7 @@ public class SettingsActivity extends Activity {
         }
         backupDbBtn = findViewById(R.id.backupDb);
         restoreDbBtn = findViewById(R.id.restoreDb);
-        Button batteryBtn = findViewById(R.id.batteryBtn);
+        batteryBtn = findViewById(R.id.batteryBtn);
         backupTgBtn = findViewById(R.id.backupTg);
         restoreTgBtn = findViewById(R.id.restoreTg);
         copyUrlBtn = findViewById(R.id.copyUrl);
@@ -1352,7 +1356,15 @@ public class SettingsActivity extends Activity {
             }
             needBatteryCached = need;
         }
-        batteryRow.setVisibility(needBatteryCached ? View.VISIBLE : View.GONE);
+        boolean tampilBaterai = needBatteryCached;
+        batteryRow.setVisibility(tampilBaterai ? View.VISIBLE : View.GONE);
+        // Rantai fokus D-pad disambung ulang saat status baris berubah: tombol
+        // baterai yang GONE tak boleh tetap jadi tujuan nextFocus (fokus
+        // berhenti/melompat sehingga remote TV tersangkut).
+        if (lastBatteryTampil == null || lastBatteryTampil != tampilBaterai) {
+            lastBatteryTampil = tampilBaterai;
+            perbaikiFokusBaterai(tampilBaterai);
+        }
 
         if (refreshActive) {
             ui.postDelayed(refreshLoop, 1000);
@@ -1604,6 +1616,22 @@ public class SettingsActivity extends Activity {
     }
 
     // ─── Battery optimization ───────────────────────────────────────────
+
+    /** Sambung ulang rantai fokus D-pad di sekitar baris baterai. Saat baris
+     *  GONE, autoStart langsung menuju autoUpdate (dan sebaliknya) agar fokus
+     *  tak berhenti di tombol yang tak tampil. */
+    private void perbaikiFokusBaterai(boolean barisTampil) {
+        if (autoStartCheck == null || autoUpdateCb == null) {
+            return;
+        }
+        if (barisTampil && batteryBtn != null) {
+            autoStartCheck.setNextFocusDownId(R.id.batteryBtn);
+            autoUpdateCb.setNextFocusUpId(R.id.batteryBtn);
+        } else {
+            autoStartCheck.setNextFocusDownId(R.id.autoUpdate);
+            autoUpdateCb.setNextFocusUpId(R.id.autoStart);
+        }
+    }
 
     private void requestBatteryExemption() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
