@@ -6,9 +6,15 @@
 // Keduanya dipanggil dengan flag bogus: libc/kernel asli menolak (EINVAL),
 // shim harus tetap melayani 32 byte acak. Return 0 = lolos.
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/random.h>
 #include <sys/syscall.h>
+
+// Deklarasi eksplisit: pada header bionic (mis. Termux) getrandom hanya
+// tersedia untuk API >= 28 sehingga uji host bisa gagal kompilasi walau
+// glibc di runner sudah mendeklarasikannya. Signature sama persis.
+extern ssize_t getrandom(void *buf, size_t buflen, unsigned int flags);
 
 #ifndef SYS_getrandom
 #if defined(__x86_64__)
@@ -59,13 +65,15 @@ int main(void) {
     unsigned long x = cek("getrandom", b);
     unsigned long y = cek("syscall", c);
     printf("OK n=%zd m=%ld\n", n, m);
-    // Tolak bila kosong (all-zero), dua jalur kembar persis (x==y, bukan acak
-    // segar), atau tiap buffer semua-bytenya sama (mis. 0xFF semua).
+    // Tolak bila kosong (all-zero) atau tiap buffer semua-bytenya sama
+    // (mis. 0xFF semua). Dua jalur TIDAK dibandingkan lewat checksum: jumlah
+    // 32 byte acak punya ruang hanya ~8 ribu nilai sehingga tabrakan sesekali
+    // menggagalkan CI tanpa bug nyata (flaky). Bandingkan isi buffer penuh.
     if (x == 0 || y == 0) {
         printf("GAGAL: entropi nol\n");
         return 1;
     }
-    if (x == y) {
+    if (memcmp(b, c, sizeof b) == 0) {
         printf("GAGAL: dua jalur acak identik\n");
         return 1;
     }

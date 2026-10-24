@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 191: Shim getrandom membaca /dev/urandom di dalam kunci + uji tak flaky
+- `isi_urandom()` membaca `fd_urandom` di luar `kunci_urandom`, sementara jalur `EBADF` menutup dan membuka ulang fd itu di dalam kunci. Thread lain bisa memakai fd yang sudah ditutup, atau — bila nomornya sudah dipakai ulang proses lain — menyalin byte dari berkas/socket yang salah sebagai "acak" untuk kunci TLS/token. Read kini berlangsung di dalam kunci yang sama (`/dev/urandom` tak pernah memblokir sehingga serialisasi murah).
+- `shim/test_interpose.c` membandingkan checksum 32 byte (ruang nilai ~8 ribu) untuk memastikan dua jalur berbeda, sehingga tabrakan sesekali menggagalkan CI tanpa bug nyata. Perbandingan kini `memcmp` isi buffer penuh; ditambah deklarasi eksplisit `getrandom()` agar uji host tetap bisa dikompilasi di header bionic lama.
+
 ## [Belum rilis] — Audit 190: Cek cepat memindai isi berkas untuk pola rahasia
 - `scripts/cek-cepat.sh` hanya memeriksa NAMA berkas (keystore/.env/zip/apk), sehingga token cloud atau private key yang ditempel ke kode/dokumen tetap lolos gerbang pra-push.
 - Ditambah pemindaian isi index (`git grep --cached -I`) untuk pola berisiko tinggi: header private key PEM, token GitHub (`ghp_`/`gho_`/`ghu_`/`ghs_`/`ghr_`, `github_pat_`), access key AWS, token Slack, dan token bot Telegram. Pola dibuat spesifik (header PEM harus di akhir baris) agar kode yang menulis header, seperti `TlsCert`, tidak memicu positif palsu.

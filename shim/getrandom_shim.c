@@ -73,63 +73,62 @@ static ssize_t isi_urandom(void *buf, size_t len) {
         errno = EINVAL; // Samakan perilaku glibc untuk argumen buruk.
         return -1;
     }
-    if (fd_urandom < 0) {
-        pthread_mutex_lock(&kunci_urandom);
+    size_t sudah = 0;
+    int coba_ebadf = 0;
+    // Kunci dipegang selama read. Dulu read berjalan di luar kunci sementara
+    // jalur EBADF menutup fd dan membuka ulang di dalam kunci: thread lain
+    // bisa membaca fd yang sudah ditutup (EBADF) atau — bila nomornya sudah
+    // dipakai ulang app lain — menyalin byte dari berkas/socket yang salah
+    // sebagai "acak" (kunci TLS/token jadi tak acak). /dev/urandom tak pernah
+    // memblokir, jadi serialisasi ini murah.
+    pthread_mutex_lock(&kunci_urandom);
+    for (;;) {
         if (fd_urandom < 0) {
             int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
+                int e = errno; // errno sudah diisi open().
                 pthread_mutex_unlock(&kunci_urandom);
-                return -1; // errno sudah diisi open().
+                errno = e;
+                return -1;
             }
             fd_urandom = fd;
         }
-        pthread_mutex_unlock(&kunci_urandom);
-    }
-    size_t sudah = 0;
-    int coba_ebadf = 0;
-    while (sudah < len) {
-        ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
-        if (n < 0) {
-            int e = errno;
-            if (e == EINTR) { // Coba lagi bila disela sinyal, bukan gagal.
-                continue;
-            }
-            if (e == EBADF) { // fd rusak, buka ulang di dalam kunci.
-                // Batas percobaan: bila /dev/urandom gagal dibuka permanen,
-                // pulang -1 (gagal tertutup) alih-alih berputar selamanya.
-                // Tanpa batas, dua thread yang kena EBADF bersamaan bisa
-                // saling memicu buka-ulang tanpa henti.
-                if (++coba_ebadf > 3) {
-                    errno = EIO; // Gagal permanen, pulang galat I/O.
-                    return -1;
+        while (sudah < len) {
+            ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
+            if (n < 0) {
+                int e = errno;
+                if (e == EINTR) { // Coba lagi bila disela sinyal, bukan gagal.
+                    continue;
                 }
-                int fd_lama = fd_urandom;
-                pthread_mutex_lock(&kunci_urandom);
-                // Hanya thread pertama yang menutup/membuka ulang; thread lain
-                // yang antre memakai fd baru di iterasi berikut (tanpa
-                // double-close fd yang sudah ditutup thread pertama).
-                if (fd_urandom == fd_lama) {
+                if (e == EBADF) {
+                    // fd rusak: buka ulang. Batas percobaan agar /dev/urandom
+                    // yang gagal permanen pulang -1 (gagal tertutup), bukan
+                    // berputar selamanya.
+                    if (++coba_ebadf > 3) {
+                        pthread_mutex_unlock(&kunci_urandom);
+                        errno = EIO; // Gagal permanen, pulang galat I/O.
+                        return -1;
+                    }
                     close(fd_urandom);
                     fd_urandom = -1;
-                    int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-                    if (fd < 0) {
-                        pthread_mutex_unlock(&kunci_urandom);
-                        return -1; // errno sudah diisi open().
-                    }
-                    fd_urandom = fd;
+                    break; // Buka ulang di iterasi luar, masih di dalam kunci.
                 }
                 pthread_mutex_unlock(&kunci_urandom);
-                continue;
+                errno = e;
+                return -1;
             }
-            errno = e;
-            return -1;
+            if (n == 0) { // /dev/urandom tak pernah EOF; anggap galat bila terjadi.
+                pthread_mutex_unlock(&kunci_urandom);
+                errno = EIO; // Galat I/O umum.
+                return -1;
+            }
+            sudah += (size_t) n;
         }
-        if (n == 0) { // /dev/urandom tak pernah EOF; anggap galat bila terjadi.
-            errno = EIO; // Galat I/O umum.
-            return -1;
+        if (sudah == len) {
+            break;
         }
-        sudah += (size_t) n;
     }
+    pthread_mutex_unlock(&kunci_urandom);
     return (ssize_t) sudah;
 }
 
