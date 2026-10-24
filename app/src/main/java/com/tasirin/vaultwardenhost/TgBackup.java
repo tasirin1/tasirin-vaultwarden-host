@@ -719,12 +719,26 @@ public final class TgBackup {
         }
         String fileId = extractFileId(respTerakhir);
         String peringatanChat = gagalChat.isEmpty() ? ""
-                : " (sebagian chat gagal: " + gabungGagalChat(gagalChat) + ")";
-        sp.edit()
-                .putLong(KEY_TG_LAST, System.currentTimeMillis())
+                : " (sebagian chat gagal: " + gabungGagalChat(gagalChat)
+                        + " - dicoba lagi otomatis backup berikutnya)";
+        // Stempel harian HANYA dimajukan bila semua chat tujuan menerima
+        // backup. Dulu stempel tetap ditulis walau satu chat gagal, sehingga
+        // cek "sudah backup hari ini" menganggap selesai dan chat yang gagal
+        // tak pernah menerima backup hari itu. File terakhir tetap dicatat
+        // agar /restore dan info ukuran memakai berkas yang benar.
+        SharedPreferences.Editor edLast = sp.edit()
                 .putString(KEY_TG_LAST_FILE, fileId)
-                .putString(KEY_TG_LAST_NAME, upload.getName())
-                .apply();
+                .putString(KEY_TG_LAST_NAME, upload.getName());
+        if (gagalChat.isEmpty()) {
+            edLast.putLong(KEY_TG_LAST, System.currentTimeMillis());
+        }
+        edLast.apply();
+        if (!gagalChat.isEmpty()) {
+            ServerService.catatLog("[tg] Backup belum tuntas ("
+                    + gagalChat.size() + "/" + tujuan.size()
+                    + " chat gagal); stempel harian tidak dimajukan agar"
+                    + " backup berikutnya mengulang.");
+        }
         String peringatan = terenkripsi ? ""
                 : " (TANPA enkripsi: kunci privat tak ikut; isi password backup"
                         + " agar terenkripsi penuh)";
