@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 184: State diagnostik PIN yang tak pernah dibaca dihapus
+- `MainActivity.pauseStamp`/`SettingsActivity.pauseStamp` ditulis di `onCreate`, `onPause`, dan `catatPinDibuka` tetapi tak pernah dibaca satu kali pun; `kapanDibuka()` juga tak pernah dipanggil, dan `PinGate.kapanBukaBersama()` hanya hidup untuk `kapanDibuka()`. Jangkar grace yang sebenarnya adalah `PinGate.dalamGraceBersama()`.
+- Ketiganya dihapus (termasuk komentar onPause yang menggantung) dan namanya dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.
+
 ## [Belum rilis] — Audit 183: Helper produksi yang hanya dipakai unit test dihapus
 - Lima fungsi tidak pernah dipanggil kode produksi dan hanya hidup karena unit test: `MainActivity.muatKata`/`indeksTakPeka` (produksi memakai varian `…Rentang`), `TlsCert.daftarDns` (fitur domain lokal sudah dihapus; SAN DNS kini selalu kosong), `FileShareProvider.adaStubAndroid` (deteksi stub tak dipakai jalur mana pun), dan `SettingsActivity.perluWizard` (wizard sudah tidak ada). Kode mati semacam ini lolos dari lint resource dan menyamarkan perilaku yang sebenarnya.
 - Semua dihapus bersama uji khususnya; uji `MainActivity` dialihkan ke varian rentang. Nama dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.

@@ -59,13 +59,6 @@ public final class PinGate {
         }
     }
 
-    /** Kapan PIN bersama dibuka (jangkar grace, tanpa perpanjangan). */
-    public static long kapanBukaBersama() {
-        synchronized (KUNCI_GRACE) {
-            return bukaBersamaAt;
-        }
-    }
-
     /** Catat PIN cocok sebagai milik bersama (tanpa panggil balik activity). */
     public static void bukaKunciBersama() {
         synchronized (KUNCI_GRACE) {

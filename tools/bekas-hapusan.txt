@@ -54,3 +54,9 @@ stubAndroidTerdeteksi
 daftarDnsBersihUnikBatas
 wizardHanyaUntukInstalasiBaru
 muatKataRentangSetaraWrapper
+# State diagnostik mati: `pauseStamp` (ditulis, tak pernah dibaca),
+# `kapanDibuka()` (tak dipanggil) dan `kapanBukaBersama()` (hanya dipakai
+# `kapanDibuka`): jangkar grace sebenarnya cukup lewat dalamGraceBersama().
+pauseStamp
+kapanDibuka
+kapanBukaBersama

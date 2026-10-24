@@ -355,8 +355,6 @@ public class SettingsActivity extends Activity {
      *  dipakai menyambung ulang rantai fokus D-pad hanya saat berubah. */
     private Boolean lastBatteryTampil = null;
 
-    /** Kapan Settings terakhir pause (diagnostik, bukan jangkar grace). */
-    private static volatile long pauseStamp = 0;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinBukaJalan = false;
 
@@ -365,18 +363,12 @@ public class SettingsActivity extends Activity {
         return PinGate.dalamGraceBersama();
     }
 
-    /** Kapan PIN dibuka (jangkar grace bersama, tanpa perpanjangan). */
-    static long kapanDibuka() {
-        return PinGate.kapanBukaBersama();
-    }
-
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik) agar tak rekursi.
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
         if (!PinGate.dalamGraceBersama()) {
             PinGate.bukaKunciBersama();
         }
-        pauseStamp = PinGate.kapanBukaBersama();
     }
 
     @Override
@@ -873,9 +865,6 @@ public class SettingsActivity extends Activity {
         simpanPengaturanValid();
         refreshActive = false;
         ui.removeCallbacks(refreshLoop);
-        // Jangan kunci langsung (pindah ke LogActivity bukan keluar app);
-        // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
-        pauseStamp = SystemClock.elapsedRealtime();
     }
 
     /** Simpan folder/port/admin token yang valid saat layar ditinggalkan.

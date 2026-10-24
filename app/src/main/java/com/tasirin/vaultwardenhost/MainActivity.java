@@ -109,8 +109,6 @@ public class MainActivity extends Activity {
     private static volatile String cacheUrl = "";
     private static volatile long cacheWaktu = 0;
 
-    /** Kapan MainActivity terakhir pause (diagnostik, bukan jangkar grace). */
-    private static volatile long pauseStamp = 0;
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinBukaJalan = false;
 
@@ -119,18 +117,12 @@ public class MainActivity extends Activity {
         return PinGate.dalamGraceBersama();
     }
 
-    /** Kapan PIN dibuka (jangkar grace bersama, tanpa perpanjangan). */
-    static long kapanDibuka() {
-        return PinGate.kapanBukaBersama();
-    }
-
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik antar-activity).
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
         if (!PinGate.dalamGraceBersama()) {
             PinGate.bukaKunciBersama();
         }
-        pauseStamp = PinGate.kapanBukaBersama();
     }
 
     @Override
@@ -338,9 +330,6 @@ public class MainActivity extends Activity {
         super.onPause();
         refreshActive = false;
         ui.removeCallbacks(refreshLoop);
-        // Jangan kunci langsung (pindah ke Settings/Log bukan keluar app);
-        // maybeShowPinLock mengunci bila jeda > PinGate.PIN_GRACE_MS.
-        pauseStamp = SystemClock.elapsedRealtime();
     }
 
     @Override
