@@ -1,5 +1,104 @@
 # Changelog
 
+## [Belum rilis] — Audit 158: Cek aset rilis binary tak lagi memakai repo hardcoded
+- `.github/workflows/build-binary.yml` memakai `repos/$GITHUB_REPOSITORY/releases/...` alih-alih `tasirin1/tasirin-vaultwarden-host`. Dulu repo fork/rename melihat `EXISTING` kosong sehingga penanda "aset versi ini sudah ada" meleset dan build binary ~15 menit tetap jalan tiap jadwal bulanan.
+
+## [Belum rilis] — Audit 157: Cek ELF binary satu pintu (Android 5+)
+- `ServerService.isValidBinary` kini mendelegasikan ke `Updater.isElf` (ukuran wajar + magic ELF + `e_machine` ARM 32-bit, termasuk varian `EI_DATA` big-endian). Dulu blok ELF kembar di ServerService mengabaikan endianness.
+- `HttpsCompat.capOverride` membuang cek `stat == capStat && cap == capNilai` yang tak pernah bisa benar: stat yang cocok sudah pulang lewat gerbang cepat `capNilai != 0`.
+
+## [Belum rilis] — Audit 156: Wake lock tugas berat bot cukup untuk unduhan lambat (Android 5+)
+- `TgBot.WAKELOCK_TUGAS_BERAT_MS` naik dari 3 ke 20 menit. `/update` (~20 MB) dan `/webvault` (~35 MB) di STB ber-kuota lambat butuh >9 menit; dengan batas lama CPU tidur di tengah transfer lalu unduhan gagal.
+- Batas tetap ada sebagai pengaman thread macet (kunci dilepas di `finally`). Uji JVM baru `TgBotTest.wakelockTugasBeratCukupUntukUnduhanLambat`.
+
+## [Belum rilis] — Audit 155: Mengganti PIN aktif wajib konfirmasi (Android 5+)
+- `SettingsActivity.perluKonfirmasiGantiPin(pinAktif, adaHash)` + dialog "Ganti PIN?" sebelum hash ditimpa. Dulu mengetik di field PIN saat PIN aktif langsung mengganti hash, sehingga salah ketik/salah tempel satu kali mengunci app di luar.
+- Batal mengosongkan field (isi yang tak tersimpan tak boleh tampak seperti PIN baru), dan centang aktivasi mereset kandidat agar edit berikutnya ditanya lagi. Uji JVM baru `SettingsActivityTest.gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda`; `adaHashPinTersimpan` gagal-tertutup saat prefs tak terbaca.
+
+## [Belum rilis] — Audit 154: `getType` provider tolak symlink induk seperti `query()` (Android 5+)
+- `FileShareProvider.getType` menghitung kanonis ulang lalu menolak symlink induk (`adaSymlinkInduk`), sama seperti `query()`/`openFile()`. Dulu tukar symlink di jeda cek-vs-jawab bisa membocorkan tipe file di luar area share.
+- Javadoc `adaSymlinkInduk` yang tertinggal di atas metode lain dipindah ke metode yang benar; klausa `vwtg-restore` yang sudah tercakup awalan `vwtg-` dibuang.
+
+## [Belum rilis] — Audit 153: Mekanisme lipat kartu Settings yang selalu GONE dibuang
+- Tiga blok ringkasan + tombol "Ubah" (`sec*`/`rawat*`/`tg*`) dihapus beserta id `secDetail`/`rawatDetail`/`tgDetail`, karena barisnya selalu `GONE` dan tak pernah dimunculkan kode — `nextFocusUp/Down` di kartu lain bahkan menunjuk view tak terlihat.
+- `aturDetail`, `aturRingkasan`, `tampilkanDetailPenuh`, `teksKuncian`, dan `refreshRingkasan` dihapus (`tools/bekas-hapusan.txt`); sisanya menjadi `perbaruiStatusIsian` (hanya label "terisi/belum diisi"). `ic_edit.xml` serta string `ubah`/`ringkas_*` di kedua locale dihapus agar lint `UnusedResources` tetap bersih.
+
+## [Belum rilis] — Audit 152: Parameter dan cabang mati di jalur login/start dibuang
+- `ServerService.saranLoginUntukBaris(String)` tak lagi menerima `httpsAktif`: server ini selalu HTTPS sehingga flag itu tak pernah dibaca (9 pemanggilan uji disesuaikan).
+- Cabang "port butuh root" di `startServer` dibuang karena tak terjangkau — port sudah dinormalkan ke 1024..65535 dan `isPortBusy()` true berarti bind gagal `EADDRINUSE`, bukan `EACCES`.
+
+## [Belum rilis] — Audit 151: Baris dialog Tentang ikut bahasa Indonesia
+- `values-in/arrays.xml` baru memuat `about_rows`, sehingga dialog Tentang di perangkat berbahasa Indonesia tak lagi separuh Inggris.
+
+## [Belum rilis] — Audit 150: Deklarasi `MANAGE_EXTERNAL_STORAGE` dibuang
+- Izin itu hanya bisa diberikan lewat layar pengaturan sistem dan tak pernah diminta app (targetSdk 28 masih model legacy), jadi deklarasinya hanya menambah permukaan izin. `StoragePerm.cukupAkses` tetap menerima bila perangkat sudah memberikannya.
+
+## [Belum rilis] — Audit 149: Import mati dibuang, verifikator menutup celah nama-penuh
+- `HttpsCompat`/`ServerService` membuang import `SecureRandom` dan `Date` yang tak dipakai.
+- `tools/verifikasi-patch.py` memakai `(?<![\w.])nama\b`, sehingga pemakaian bernama-penuh (`java.security.SecureRandom`) tak lagi dianggap bukti import itu dipakai.
+
+## [Belum rilis] — Audit 148: Cabang `/host` redundan di `Util` dibuang
+- Normalisasi URL cukup satu jalur; helper `potongHost` dan cabang `/host` yang hasilnya identik dihapus (`tools/bekas-hapusan.txt`).
+
+## [Belum rilis] — Audit 147: Tiga overload mati di `Updater` dibuang
+- Overload yang tak pernah dipanggil dihapus dan namanya dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.
+
+## [Belum rilis] — Audit 146: Ekor log crash sempat hilang sebelum saran dibuat (Android 5+)
+- `ServerService` menyimpan thread pembaca output (`pembacaOutput`) dan menunggunya maks 500 ms (`tungguPembacaOutput`) setelah proses mati, sebelum `tailLog` dibaca. Dulu baris panic Rust terakhir (sering baris pamungkas) belum masuk buffer sehingga saran crash kehilangan pesan aslinya.
+
+## [Belum rilis] — Audit 145: Stempel backup harian tak dimajukan bila sebagian chat gagal (Android 5+)
+- `KEY_TG_LAST` hanya ditulis bila semua chat tujuan menerima backup; `KEY_TG_LAST_NAME` tetap dicatat agar `/restore` dan info ukuran memakai berkas yang benar. Dulu satu chat gagal membuat cek "sudah backup hari ini" menganggap selesai dan chat itu tak pernah menerima backup hari tersebut.
+
+## [Belum rilis] — Audit 144: Koneksi unduh Telegram ditutup di semua jalur galat (Android 5+)
+- `TgBackup.bukaFileTelegram` memakai `try/finally` + penanda `serah`: koneksi yang tidak diserahkan ke pemanggil selalu `disconnect()`, termasuk saat `getResponseCode()` melempar `SocketTimeoutException` (dulu socket + buffer tertinggal tiap percobaan).
+- `catch (Throwable)` di jalur cek DB diganti `catch (Exception)` agar `Error` (OOM dan sejenisnya) tak ditelan lalu backup tetap dijalankan.
+
+## [Belum rilis] — Audit 143: Sidik isi web-vault mencegah unduh ulang 35 MB (Android 5+)
+- `Updater.KEY_WV_SHA` menyimpan SHA-256 zip web-vault yang terpasang. Saat penanda versi kosong (cek versi terbaru gagal ketika memasang), kecocokan dibuktikan lewat berkas `.sha256` target yang kecil, bukan mengunduh ulang ~35 MB; cap versi ikut dipasang bila cocok.
+
+## [Belum rilis] — Audit 142: File `.tmp` unduhan dipisah per versi (Android 5+)
+- `Updater.namaTmpUnduh` menamai file sementara dengan versi target. Dulu nama `.tmp` bersama membuat sisa unduhan versi lama dilanjutkan (HTTP Range) oleh versi baru sehingga byte dua asset tercampur, checksum gagal, dan kuota terbuang.
+- Sisa `.tmp` versi lain yang tak tersentuh >10 menit disapu (`sapuTmpUnduhBasi`) agar tiap ganti versi tak menyisakan 20–35 MB.
+
+## [Belum rilis] — Audit 141: Toast izin storage tak lagi menumpuk dialog izin (Android 5+)
+- `StoragePerm` hanya menampilkan toast "izin belum diberikan" bila dialog izin tidak baru dimunculkan. Dulu user melihat toast dan dialog sekaligus; penolakan tetap dilaporkan lewat `onRequestPermissionsResult`.
+
+## [Belum rilis] — Audit 140: Penanda jalan dibersihkan juga saat proses server mati sendiri (Android 5+)
+- `ServerService.watchProcess` memanggil `resetPenandaJalan()` saat proses keluar sendiri. Dulu hanya jalur Stop/gagal-start yang membersihkan, sehingga status "Stopped" setelah crash masih menyimpan port + sidik token server yang sudah mati.
+
+## [Belum rilis] — Audit 139: Gerbang PIN layar log gagal-tertutup (Android 5+)
+- `LogActivity.logBolehTampil(pinOn, graceMain, graceSettings)` dipisah sebagai predikat murni; galat membaca prefs kini berarti log TIDAK boleh tampil. Dulu blok `catch` kosong membuat log penuh terbuka saat prefs tak terbaca.
+
+## [Belum rilis] — Audit 138: `QUICKBOOT_POWERON` non-protected tak lagi memicu auto-start (Android 5+)
+- `BootReceiver` hanya menerima `BOOT_COMPLETED` dan `MY_PACKAGE_REPLACED` (keduanya protected). Action vendor `QUICKBOOT_POWERON` bukan protected, sehingga app lain bisa mengirim intent eksplisit ke receiver `exported` ini dan memicu auto-start/jadwal backup tanpa reboot.
+
+## [Belum rilis] — Audit 137: Rotasi activity memuat layout landscape (Android 5+)
+- `android:configChanges` dibuang dari keempat activity tanpa `onConfigurationChanged`. Dulu orientasi berubah tapi layout `layout-land` serta dimensi `values-sw480dp-land`/`values-sw600dp-land` tak pernah dimuat setelah rotasi (portrait diregangkan).
+- State tetap aman: `SettingsActivity` menyiram tulis tertunda + menyimpan setelan valid di `onPause`, dan backup/restore dikunci statis di `TgBackup`.
+
+## [Belum rilis] — Audit 136: Checksum 403 dicoba ulang, unduhan 416 lengkap tak diulang (Android 5+)
+- `Updater.kodeSementara` menerima 403: GitHub membalas 403 (bukan 429) saat rate-limit, dan tanpa ulang checksum dianggap "tidak ada" padahal asetnya ada. Pesan galat checksum kini menyebut kemungkinan jaringan/rate-limit.
+- `totalDariContentRange` membaca `Content-Range: bytes */N`; respons 416 dengan total == `resumeFrom` berarti file sementara sudah lengkap, jadi di-hash lokal alih-alih mengunduh penuh lagi.
+
+## [Belum rilis] — Audit 135: Start ditahan selama backup/restore berjalan (Android 5+)
+- `SettingsActivity.startDitahanSaatTugasData` menggerbangi `saveAndStart`. Tanpa gerbang ini Start menulis folder/port/token dari form yang mungkin masih berisi nilai pra-restore ke prefs yang sedang ditimpa hasil restore, lalu menyalakan server.
+
+## [Belum rilis] — Audit 134: Backup DB manual membedakan database sibuk dari korup (Android 5+)
+- `TgBackup.cekIntegritasDbUlang` mengulang cek integritas maks 2× selang 1 detik saat DB terkunci sesaat (server sedang menulis). Interrupt ditandai `SIBUK` agar tak dilaporkan sebagai DB rusak; pesan ke user menjadi "coba lagi", bukan "korup".
+
+## [Belum rilis] — Audit 133: Binary manual tak disalin ulang tiap Start (Android 5+)
+- `ServerService.sidikManualFile` (ukuran + mtime) + `KEY_BIN_MANUAL_FP` membuat cache internal dipakai ulang selama file di folder data belum ditukar. Dulu tiap Start menyalin 20 MB + hash + smoke test lagi hanya karena jalur cache dilewati revisi patch.
+- Sidik diambil sebelum salin; bila file ditukar di tengah salin, sidik tersimpan tak cocok sehingga Start berikutnya memvalidasi ulang. Kunci bersifat perangkat (`TAK_DIEKSPOR_KEYS`).
+
+## [Belum rilis] — Audit 132: Start yang gagal permanen menghentikan watchdog dan notifikasi basi (Android 5+)
+- `ServerService.startIdTerakhir` memastikan `stopSelfResult` hanya dipakai bila tak ada intent lebih baru menunggu. Watchdog health dan notifikasi dihentikan saat start gagal permanen, sehingga tak ada lagi restart/notifikasi untuk server yang tak pernah menyala.
+
+## [Belum rilis] — Audit 131: Restart dan backup terjadwal tetap ditangani saat antrean pool penuh (Android 5+)
+- `Util.jalankanLama` mengembalikan status terima; `ServerService` dan jalur backup memeriksanya lalu menurunkan foreground / memberi pesan bila pool menolak tugas. Dulu tugas ditolak diam-diam sehingga restart dan backup terjadwal hilang tanpa jejak di status.
+
+## [Belum rilis] — Audit 130: Unduh binary mulai dari URL fallback yang penandanya masih berlaku (Android 5+)
+- `Updater.urlAwalUnduhBinary` memilih URL awal unduh; checksum wajib diambil dari URL yang sama dengan sumber byte. Dulu unduhan selalu dimulai dari `assetUrl` walau `urlAkhir` sudah fallback, sehingga penanda fallback tak pernah terpakai (404 berulang -> "belum tersedia") dan checksum bisa berasal dari URL berbeda. Uji JVM baru `UpdaterTest.urlAwalUnduhBinary_pakaiFallbackSaatPenandaBerlaku`.
+
 ## [Belum rilis] — Audit 129: Restore DB lewat staging + swap atomik (Android 5+)
 - `TgBackup.pasangDbRestoreAtomik` menerima DB hasil ekstrak di `db.sqlite3.restore-tmp` (+ `-wal`/`-shm` mengikuti penamaan SQLite), menyatukan WAL staging lewat checkpoint, memvalidasi header + `quick_check`, lalu `rename(2)` ke `db.sqlite3` — satu langkah yang mengganti file lama. `SettingsActivity.restoreDatabaseIsi` dan `TgBackup.restoreFromZipIsi` menulis entri DB ke staging, bukan ke DB hidup. Dulu `db.sqlite3` ditimpa langsung saat ekstraksi, sehingga app dibunuh/kehabisan storage di tengah restore meninggalkan DB parsial; rollback dari `backups/*-pre.sqlite3` hanya jalan bila proses masih hidup.
 - `TgBackup.pulihkanDbLama`/`pasangDbDariSalinan` memakai staging + rename juga, jadi rollback yang dibunuh di tengah salin tak meninggalkan DB parsial. Sisa staging dibersihkan sebelum & sesudah restore; entri `db.sqlite3/` sebagai direktori ditolak. Uji JVM baru: `namaStagingRestoreIkutPenamaanWalSqlite`, `hapusStagingRestoreBersihkanSemuaSisa`, `pasangDbRestoreAtomikTolakSampahTanpaSentuhDbLama`, `pasangDbDariSalinanGantiDbDanBuangWalShm`, `pulihkanDbLamaPakaiSalinanAtauBuangDb`, `hapusWalShmBuangWalDanShmLama`.

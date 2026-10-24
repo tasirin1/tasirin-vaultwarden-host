@@ -56,7 +56,7 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 │       ├── LogActivity.java / LogExport.java  # log realtime layar penuh (cari/simpan/bagikan)
 │       ├── PinActivity.java          # layar kunci PIN (dibuka via PinGate)
 │       ├── Util.java                 # logika murni + helper satu pintu (handler, watchdog proses, tanggal, redirect)
-│       ├── StoragePerm.java          # izin storage / All files access
+│       ├── StoragePerm.java          # izin storage runtime (All files opsional, tak diminta)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
 ├── app/src/test/                     # 17 kelas test JVM (junit4): Updater, ServerService,
