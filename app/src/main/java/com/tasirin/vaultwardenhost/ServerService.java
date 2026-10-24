@@ -2063,6 +2063,12 @@ public class ServerService extends Service {
                 process = null;
                 running = false;
                 releaseWakeLock();
+                // Penanda jalan (port/folder/token/web-vault/host) wajib
+                // dikosongkan juga saat proses mati sendiri: dulu hanya jalur
+                // stop/gagal-start yang membersihkan, sehingga setelah crash
+                // (dan dua jalur fatal di bawah) status "Stopped" masih
+                // menyimpan port + sidik admin token server yang sudah mati.
+                resetPenandaJalan();
                 appendLog("[app] process exit: " + code);
                 String tail = tailLog(18);
                 if (isKernelRandomPanic(tail)) {
