@@ -1100,8 +1100,8 @@ public class LogActivity extends Activity {
         }
     }
 
-    private void salinClipboardBersihOtomatis(String label, String isi) {
-        salinBersihOtomatis(this, label, isi);
+    private boolean salinClipboardBersihOtomatis(String label, String isi) {
+        return salinBersihOtomatis(this, label, isi);
     }
 
     /** Pasang ulang sisa timer bila masih dalam jendela, atau langsung bersihkan
@@ -1203,12 +1203,10 @@ public class LogActivity extends Activity {
                     toast("Log is still empty.");
                     return;
                 }
-                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if (cm == null) {
+                if (!salinClipboardBersihOtomatis("vaultwarden-log", log)) {
                     toast("Clipboard unavailable.");
                     return;
                 }
-                salinClipboardBersihOtomatis("vaultwarden-log", log);
                 toast("Log copied to clipboard.");
             });
         });

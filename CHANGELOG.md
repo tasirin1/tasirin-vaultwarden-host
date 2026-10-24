@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 224: Salin log memakai satu pengambilan ClipboardManager
+- `LogActivity.salinLogClipboard()` mengambil `ClipboardManager` + memeriksa null, lalu memanggil `salinClipboardBersihOtomatis()` yang mengambil service yang sama sekali lagi. Pemeriksaan ganda itu juga membuat toast "Log copied" tetap muncul saat `setPrimaryClip` gagal.
+- `salinClipboardBersihOtomatis()` kini mengembalikan hasil `salinBersihOtomatis()`; pemanggil cukup memakai nilai itu (gagal → "Clipboard unavailable.", sukses → "Log copied to clipboard."). Satu pengambilan service, satu sumber hasil.
+
 ## [Belum rilis] — Audit 223: Restore zip membaca arsip satu lintasan sebelum ekstraksi
 - `restoreFromZipIsi()` membuka zip **dua kali** sebelum ekstraksi: pass `ZipInputStream` untuk mencari `app-config.json`, lalu `ukuranIsiZip()` (`ZipFile`) untuk menghitung total isi (cek ruang). Pada STB dengan storage lambat, restore jadi lebih lambat dari perlu.
 - Keduanya digabung menjadi `pindaiZipRestore()` yang mengembalikan `PindaiZip{config, ukuran}` dalam satu lintasan `ZipFile` (batas `BATAS_CONFIG_JSON` tetap berlaku; entri berukuran tak diketahui dilewati seperti sebelumnya; ukuran yang melewati `BATAS_UNZIP_RESTORE` langsung dipotong ke batas+1). `ukuranIsiZip()` kini pembungkus tipis agar pemanggil/uji lama tetap sah. Uji JVM baru memastikan config dan ukuran terbaca dari satu panggilan; ekstraksi tetap lintasan tersendiri karena menulis berkas.
