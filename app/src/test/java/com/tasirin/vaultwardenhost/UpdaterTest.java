@@ -33,9 +33,21 @@ public class UpdaterTest {
         assertTrue(Updater.kodeSementara(408));
         assertTrue(Updater.kodeSementara(500));
         assertTrue(Updater.kodeSementara(503));
+        // GitHub membalas 403 (bukan 429) saat rate-limit: wajib dicoba ulang.
+        assertTrue(Updater.kodeSementara(403));
         assertFalse(Updater.kodeSementara(404));
-        assertFalse(Updater.kodeSementara(403));
         assertFalse(Updater.kodeSementara(200));
+    }
+
+    @Test
+    public void totalDariContentRange_bacaUkuranTotalAtauMinusSatu() {
+        assertEquals(12345L, Updater.totalDariContentRange("bytes */12345"));
+        assertEquals(7L, Updater.totalDariContentRange("bytes 0-6/7"));
+        assertEquals(-1L, Updater.totalDariContentRange(null));
+        assertEquals(-1L, Updater.totalDariContentRange(""));
+        assertEquals(-1L, Updater.totalDariContentRange("bytes */"));
+        assertEquals(-1L, Updater.totalDariContentRange("bytes */0"));
+        assertEquals(-1L, Updater.totalDariContentRange("bytes */abc"));
     }
 
     @Test

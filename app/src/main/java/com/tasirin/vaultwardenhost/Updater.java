@@ -588,6 +588,25 @@ public final class Updater {
         return lanjutDari > 0 && (kodeHttp == 416 || kodeHttp == 200);
     }
 
+    /** Total ukuran file dari respons 416 ("Content-Range: bytes *&#47;12345");
+     *  -1 bila header tak ada/tak sah. Dipakai memastikan file parsial sudah
+     *  lengkap sehingga tak perlu diunduh ulang penuh. Murni. */
+    static long totalDariContentRange(String header) {
+        if (header == null) {
+            return -1;
+        }
+        int garis = header.lastIndexOf('/');
+        if (garis < 0 || garis + 1 >= header.length()) {
+            return -1;
+        }
+        try {
+            long total = Long.parseLong(header.substring(garis + 1).trim());
+            return total > 0 ? total : -1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     /** True bila respons 206 benar melanjutkan dari byte yang diminta: awal
      *  Content-Range wajib sama dengan ukuran file parsial. Tanpa cek ini,
      *  proksi menyimpang bisa mencampur byte dan baru ketahuan di checksum
@@ -837,6 +856,17 @@ public final class Updater {
                     fallbackUsed[0] = true;
                     dl = open(ctx, url[0], connectMs, readMs);
                     code = dl.getResponseCode();
+                }
+            }
+            if (code == 416 && resumeFrom > 0
+                    && totalDariContentRange(
+                            dl.getHeaderField("Content-Range")) == resumeFrom) {
+                // File sementara sudah lengkap (Range diminta dari ujung file):
+                // hash lokal, jangan bakar kuota mengunduh penuh lagi.
+                // Pemanggil tetap memverifikasi digest ini terhadap .sha256.
+                String hexLengkap = sha256Hex(tmp);
+                if (hexLengkap != null) {
+                    return hexLengkap;
                 }
             }
             if (perluResetResume(code, resumeFrom)) {
@@ -1210,7 +1240,8 @@ public final class Updater {
         if (expectedSha == null) {
             // File parsial dipertahankan agar bisa dilanjutkan (gagal ambil checksum
             // biasanya soal jaringan, bukan file korup).
-            throw new IOException("Checksum SHA-256 tidak ditemukan di release"
+            throw new IOException("Checksum SHA-256 tidak bisa diambil dari release"
+                    + " (jaringan/rate-limit atau asset belum terbit)"
                     + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
         if (!expectedHexEquals(expectedSha, digestHex)) {
@@ -1501,7 +1532,8 @@ public final class Updater {
         }
         String expectedSha = fetchChecksum(ctx, urlShimAkhir[0] + ".sha256", 20000, 30000);
         if (expectedSha == null) {
-            throw new IOException("Checksum SHA-256 tidak ditemukan di release"
+            throw new IOException("Checksum SHA-256 tidak bisa diambil dari release"
+                    + " (jaringan/rate-limit atau asset belum terbit)"
                     + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
         if (!expectedHexEquals(expectedSha, digestHex)) {
@@ -1797,7 +1829,8 @@ public final class Updater {
         String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
         if (expectedSha == null) {
             // Zip parsial dipertahankan agar bisa dilanjutkan via Range.
-            throw new IOException("Checksum SHA-256 web-vault tidak ditemukan"
+            throw new IOException("Checksum SHA-256 web-vault tidak bisa diambil"
+                    + " (jaringan/rate-limit atau asset belum terbit)"
                     + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
         }
         if (!expectedHexEquals(expectedSha, wvDigestHex)) {
@@ -2448,9 +2481,11 @@ public final class Updater {
     }
 
     /** True bila HTTP status layak dicoba ulang (gangguan sementara).
+     *  403 ikut: GitHub membalas 403 (bukan 429) saat rate-limit, dan tanpa
+     *  ulang checksum dianggap "tidak ada" padahal asetnya ada.
      *  Murni agar bisa unit test. */
     static boolean kodeSementara(int kode) {
-        return kode == 408 || kode == 429 || kode >= 500;
+        return kode == 403 || kode == 408 || kode == 429 || kode >= 500;
     }
 
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
@@ -2467,9 +2502,10 @@ public final class Updater {
                 c = open(ctx, url, connectMs, readMs);
                 int kode = c.getResponseCode();
                 if (kode != 200) {
-                    // 5xx/408/429 = gangguan sementara (GitHub hiccup/rate-limit):
-                    // lempar agar dicoba ulang. 4xx lain (404/403) tak berubah
-                    // dalam 2 dtk, jadi langsung null tanpa memperlambat.
+                    // 5xx/408/429 dan 403 (rate-limit GitHub) = gangguan
+                    // sementara: lempar agar dicoba ulang. 4xx lain (404)
+                    // tak berubah dalam 2 dtk, jadi langsung null tanpa
+                    // memperlambat.
                     if (kodeSementara(kode)) {
                         throw new IOException("HTTP " + kode);
                     }
