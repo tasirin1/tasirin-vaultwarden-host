@@ -79,9 +79,17 @@ public class FileShareProvider extends ContentProvider {
             if (!isShareable(kanon)) {
                 return null;
             }
+            // Sama seperti query(): kanon dihitung ulang lalu tolak symlink induk,
+            // supaya tukar symlink di jeda cek-vs-jawab tak membocorkan tipe file
+            // di luar area share.
+            String kanonUlang = new File(kanon).getCanonicalPath();
+            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
+                    || adaSymlinkInduk(kanonUlang)) {
+                return null;
+            }
             // Tanpa cek keberadaan, getType membedakan folder shareable vs tidak
             // walau file tak ada (oracle struktur). Samakan dengan query().
-            if (!new File(kanon).isFile()) {
+            if (!new File(kanonUlang).isFile()) {
                 return null;
             }
             return tipeMime(uri);
@@ -219,9 +227,6 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
-    /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
-     *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
-     *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
     /** True bila jalan di JVM unit test (bukan perangkat).
       *  Kriteria ganda: properti eksplisit vaultwardenhost.unittest=true ATAU
       *  vm.name bukan dalvik/ART (perangkat asli selalu ART, emulator Dalvik).
@@ -249,6 +254,9 @@ public class FileShareProvider extends ContentProvider {
     private static volatile boolean REFLEKSI_DICARI = false;
     private static volatile java.lang.reflect.Field MODE_CACHE = null;
 
+    /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
+     *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
+     *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
     static boolean adaSymlinkInduk(String canon) {
         // Mode unit test eksplisit boleh longgar agar test hijau; di perangkat selalu fail-closed.
         if (diJvmUnitTest()) {
@@ -427,7 +435,8 @@ public class FileShareProvider extends ContentProvider {
         }
         // app-config-enctmp-*.json = plaintext sementara cabang export terenkripsi
         // yang tak pernah boleh dibagikan (lolos pola app-config-* di bawah).
-        return mulaiAbaikanHuruf(nama, "vwtg-restore") || mulaiAbaikanHuruf(nama, "vwtg-")
+        // "vwtg-restore*" sudah tercakup awalan "vwtg-" (dulu ditulis dua kali).
+        return mulaiAbaikanHuruf(nama, "vwtg-")
                 || mulaiAbaikanHuruf(nama, "verifikasi-tmp")
                 || mulaiAbaikanHuruf(nama, "app-config-enctmp-");
     }
