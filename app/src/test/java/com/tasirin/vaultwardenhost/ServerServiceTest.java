@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -323,6 +324,19 @@ public class ServerServiceTest {
         assertFalse(ServerService.dataDirAman("/system"));
         assertEquals(ServerService.DEFAULT_DATA_DIR,
                 ServerService.amankanDataDir("/sdcard/a\"b"));
+    }
+
+    @Test
+    public void dataDirBawaanSegarTakKosongDanStabil() {
+        // defaultDataDir() meng-cache hasil yang berhasil di-resolve, tetapi
+        // TIDAK meng-cache nilai cadangan (di JVM Environment melempar, jadi
+        // yang terpakai cadangan): panggilan berulang tetap path yang sama dan
+        // tak pernah kosong.
+        String a = ServerService.dataDirBawaanSegar();
+        assertNotNull(a);
+        assertFalse(a.trim().isEmpty());
+        assertTrue(a.endsWith("vaultwarden"));
+        assertEquals(a, ServerService.dataDirBawaanSegar());
     }
 
     @Test

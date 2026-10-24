@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 177: Folder data cadangan tak lagi terkunci di cache
+- `dataDirBawaanSegar()` didokumentasikan "dihitung ulang tiap dipanggil (anti basi)", tetapi `defaultDataDir()` meng-cache hasil apa pun — termasuk nilai cadangan `/sdcard/vaultwarden` saat storage belum ter-mount. Proses yang memanggil lebih awal (mis. receiver boot) memakai path cadangan itu selamanya, persis masalah yang ingin dihindari dengan menambahkan fungsi "segar".
+- Cache kini hanya menyimpan path yang benar-benar berhasil di-resolve; nilai cadangan dikembalikan tanpa di-cache sehingga pemanggilan sesudah storage ter-mount mendapat path sebenarnya. Uji JVM baru `ServerServiceTest.dataDirBawaanSegarTakKosongDanStabil`.
+
 ## [Belum rilis] — Audit 176: Dialog/pembaruan UI Settings tak jalan di Activity mati
 - Worker `SettingsActivity` (unduh backup Telegram, restore, impor/ekspor config, pasang versi) memposting dialog dan pembaruan view tanpa cek siklus hidup. `onDestroy` memang membuang antrean, tetapi callback yang masuk sesudahnya tetap dieksekusi: `confirm()`/`startActivityForResult` di Activity selesai memicu `BadTokenException` (crash) atau jendela hantu, dan arsip unduhan bisa tertinggal di cache.
 - Ditambah satu pintu `uiPost()` (gerbang `isFinishing()/isDestroyed()`) untuk semua posting yang menyentuh view/dialog, plus gerbang yang sama di awal `refreshFromService()`. Efek data (jadwal backup/bot, flag wizard) pada impor/restore dipindah ke luar gerbang agar tetap dijalankan walau Activity sudah mati; dialog restore dari Telegram menghapus arsip unduhan bila Activity keburu tutup.

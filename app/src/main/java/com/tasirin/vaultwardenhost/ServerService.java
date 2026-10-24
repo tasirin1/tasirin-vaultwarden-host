@@ -57,16 +57,24 @@ public class ServerService extends Service {
     @Deprecated
     public static final String DEFAULT_DATA_DIR = defaultDataDir();
 
-    /** Folder data bawaan yang dihitung ulang tiap dipanggil (anti basi:
-     *  bila class-load terjadi sebelum storage mount, konstanta di atas
-     *  menunjuk fallback lama selamanya). Murni I/O ringan. */
+    /** Folder data bawaan terkini. Nilai FALLBACK tidak pernah di-cache,
+     *  sehingga pemanggilan sesudah storage ter-mount mendapat path sebenarnya
+     *  (dulu fungsi ini mengklaim "dihitung ulang tiap dipanggil" padahal
+     *  {@link #defaultDataDir()} meng-cache hasil fallback selamanya). Path
+     *  yang berhasil di-resolve tetap di-cache per proses karena jalur storage
+     *  tak berubah tanpa reboot. Murni I/O ringan. */
     public static String dataDirBawaanSegar() {
         return defaultDataDir();
     }
 
+    /** Cadangan folder data bila storage eksternal belum bisa dibaca. */
+    private static final String DATA_DIR_CADANGAN = "/sdcard/vaultwarden";
+
     /** Cache folder bawaan per proses: argumen default amanString() dievaluasi
-     *  duluan tiap panggil (termasuk tick UI), jadi binder getExternalStorage
-     *  tak boleh dibayar tiap tick. Jalur storage tak berubah tanpa reboot. */
+     *  duluan tiap panggil (termasuk tick UI), jadi getExternalStorageDirectory
+     *  tak perlu dibayar tiap tick. HANYA hasil yang benar-benar ter-resolve
+     *  yang di-cache: meng-cache fallback membuat proses yang class-load
+     *  sebelum storage mount terkunci ke path cadangan selamanya. */
     private static volatile String cacheDirBawaan = null;
 
     // getExternalStorageDirectory lawas sengaja agar satu jalur kode untuk API 21-32.
@@ -76,13 +84,17 @@ public class ServerService extends Service {
         if (c != null) {
             return c;
         }
-        String hasil = "/sdcard/vaultwarden";
+        String hasil = null;
         try {
             java.io.File ext = android.os.Environment.getExternalStorageDirectory();
             if (ext != null) {
                 hasil = new java.io.File(ext, "vaultwarden").getAbsolutePath();
             }
         } catch (Exception ignored) {
+        }
+        if (hasil == null || hasil.trim().isEmpty()) {
+            // Storage belum ter-mount / tak terbaca: JANGAN cache.
+            return DATA_DIR_CADANGAN;
         }
         cacheDirBawaan = hasil;
         return hasil;
