@@ -353,10 +353,22 @@ jobs:
           cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
           # Web-vault hanya tergantung versi upstream: pakai ulang dari rilis
           # bila sudah ada (hemat Docker + kuota pada push shim-only).
+          # Zip lama wajib lolos cek isi SEBELUM dipakai ulang: aset korup di
+          # rilis tak boleh memacetkan publish selamanya (dulu `unzip -t` baru
+          # jalan sesudah jalur ini, jadi setiap run memakai ulang aset rusak
+          # lalu exit 1 tanpa jalan pulih selain hapus aset manual).
+          PAKAI_ULANG=0
           if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "web-vault.zip"; then
-            echo "web-vault.zip sudah ada di $TAG — pakai ulang dari rilis."
-            gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip
-          else
+            echo "web-vault.zip sudah ada di $TAG — unduh untuk dicek ulang."
+            if gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip \
+                && unzip -tq web-vault.zip >/dev/null 2>&1; then
+              PAKAI_ULANG=1
+            else
+              echo "::warning::web-vault.zip di $TAG korup — dibangun ulang dari digest Docker."
+              rm -f web-vault.zip
+            fi
+          fi
+          if [ "$PAKAI_ULANG" -eq 0 ]; then
             DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW/docker/DockerSettings.yaml" \
               | grep 'vault_image_digest' | head -n 1 | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
             # Format ketat: saring keluaran multi-baris/sampah bila format

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 218: Aset web-vault korup tak lagi memacetkan rilis binary
+- Jalur "pakai ulang" di `build-binary.yml` hanya memeriksa **keberadaan** `web-vault.zip` di rilis lalu mengunduhnya; `unzip -t` baru dijalankan sesudahnya. Bila aset itu sudah korup/terpotong, setiap run binary berikutnya memakai ulang aset rusak, gagal di `unzip -t`, dan `exit 1` — permanen sampai aset dihapus manual (padahal aturan repo melarang edit aset rilis manual).
+- Kini zip lama diunduh dan diuji utuh **sebelum** diputuskan dipakai ulang. Bila unduhan atau `unzip -t` gagal, aset lokal dibuang dan web-vault dibangun ulang dari digest Docker resmi (dengan `::warning::` di log); pemeriksaan isi final (`unzip -t`, `index.html`, ukuran minimum) tetap berlaku untuk hasil pakai-ulang maupun hasil build baru.
+
 ## [Belum rilis] — Audit 217: WakeLock dilepas saat service dihancurkan
 - `ServerService.onDestroy()` memanggil `p.destroy()` lalu langsung `isProcessAlive()`. Karena `destroy()` asinkron, `exitValue()` masih melempar sesaat sehingga proses dianggap hidup dan `releaseWakeLock()` terlewat: `PARTIAL_WAKE_LOCK` (timeout 12 jam) tetap dipegang padahal binary sudah dibunuh — deep-sleep hilang dan baterai terkuras bila service dihancurkan sistem tanpa recreate (tekanan memori, update app, START_STICKY).
 - Jalur ini memang membunuh proses, jadi kunci tak berguna lagi: `releaseWakeLock()` kini dipanggil tanpa syarat (idempoten) sesudah `destroy()`. Recreate START_STICKY tetap memasang ulang kunci lewat `acquireWakeLock()` saat server dijalankan lagi.
