@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 175: Cek ruang backup mengukur volume yang benar
+- `backupKeTelegram` hanya memeriksa sisa ruang folder data, padahal zip plaintext dibangun di cache internal app saat backup dienkripsi. Storage internal yang penuh tak terdeteksi lebih awal: backup baru gagal di tengah pembuatan zip dengan pesan membingungkan, walau volume data masih lega.
+- Password dibaca lebih awal (tetap sekali) untuk menentukan apakah cache ikut dipakai, lalu cek ruang dijalankan untuk setiap volume yang benar-benar ditulis (cache bila terenkripsi + folder data), dengan path penyebab di pesan galat. Uji JVM baru `TgBackupTest.folderCekRuangBackupIkutCacheSaatTerenkripsi`.
+
 ## [Belum rilis] — Audit 174: Galat upload Telegram diringkas sebelum masuk chat
 - `TgBackup.uploadTelegram` melempar `IOException("Telegram HTTP <kode>: <body>")` dengan potongan body mentah (200 karakter) dari respons Telegram. Pesan itu mengalir lewat `gabungGagalChat` → `pesanGalatBackup` → dikirim ke chat dan log, sehingga body panjang/HTML tampil mentah di percakapan.
 - Kini memakai satu pintu `TgBot.ringkasGalatTelegram` (hanya `error_code` + `description`, maks 160 karakter) yang sudah dipakai jalur polling.

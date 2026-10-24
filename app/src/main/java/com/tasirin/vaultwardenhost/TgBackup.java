@@ -567,10 +567,30 @@ public final class TgBackup {
             throw new IOException("Database belum ada.");
         }
 
-        long free = freeBytes(ctx, dataDir);
-        if (free >= 0 && free < 10L * 1024 * 1024) {
-            throw new IOException("Sisa penyimpanan tinggal " + (free / 1048576)
-                    + " MB - backup dibatalkan.");
+        // Password dibaca SEKALI di awal lalu dipakai untuk tiga keputusan:
+        // ikutkan kunci privat TLS, enkripsi zip, dan teks peringatan. Dulu
+        // password dibaca ulang setelah zip dibangun; bila user mengosongkannya
+        // di tengah backup, zip plaintext berisi kunci privat tetap terkirim
+        // dan pesan sukses tidak memperingatkan apa pun.
+        String pass = amanString(sp, KEY_TG_PASS, "");
+        boolean terenkripsi = pass != null && !pass.trim().isEmpty();
+        // Cek ruang di SEMUA volume yang dipakai: zip plaintext dibangun di
+        // cache internal saat backup dienkripsi, sedangkan hasil akhir
+        // (.enc/zip) ditulis ke <dataDir>/backups. Dulu hanya folder data yang
+        // diukur, sehingga storage internal yang penuh baru ketahuan di tengah
+        // pembuatan zip (pesan galat membingungkan) walau volume data lega.
+        String cachePath = "";
+        try {
+            File c = ctx.getCacheDir();
+            cachePath = c == null ? "" : c.getAbsolutePath();
+        } catch (Exception ignored) {
+        }
+        for (String folder : folderCekRuangBackup(dataDir, terenkripsi, cachePath)) {
+            long free = freeBytes(ctx, folder);
+            if (free >= 0 && free < 10L * 1024 * 1024) {
+                throw new IOException("Sisa penyimpanan tinggal " + (free / 1048576)
+                        + " MB di " + folder + " - backup dibatalkan.");
+            }
         }
 
         // Kunci konsistensi: pindahkan isi WAL ke DB utama dulu supaya salinan
@@ -590,13 +610,6 @@ public final class TgBackup {
         }
 
         // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
-        // Password dibaca SEKALI di awal lalu dipakai untuk tiga keputusan:
-        // ikutkan kunci privat TLS, enkripsi zip, dan teks peringatan. Dulu
-        // password dibaca ulang setelah zip dibangun; bila user mengosongkannya
-        // di tengah backup, zip plaintext berisi kunci privat tetap terkirim
-        // dan pesan sukses tidak memperingatkan apa pun.
-        String pass = amanString(sp, KEY_TG_PASS, "");
-        boolean terenkripsi = pass != null && !pass.trim().isEmpty();
         // Tanpa password, backup melenggang plaintext ke cloud Telegram:
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
         // Bangun + verifikasi dengan satu kali ulangan: server tetap jalan saat
@@ -3894,6 +3907,25 @@ public final class TgBackup {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    /** Folder yang wajib punya ruang sebelum backup dibuat: cache internal (zip
+     *  plaintext sementara) bila backup dienkripsi, plus folder data (hasil
+     *  akhir .enc/zip). Keduanya bisa beda volume — dulu hanya folder data yang
+     *  diukur sehingga ENOSPC di storage internal baru muncul di tengah
+     *  pembuatan zip. Duplikat dibuang. Murni. */
+    static java.util.List<String> folderCekRuangBackup(String dataDir,
+                                                      boolean terenkripsi,
+                                                      String cacheDir) {
+        java.util.ArrayList<String> hasil = new java.util.ArrayList<>(2);
+        if (terenkripsi && cacheDir != null && !cacheDir.trim().isEmpty()) {
+            hasil.add(cacheDir);
+        }
+        if (dataDir != null && !dataDir.trim().isEmpty()
+                && !hasil.contains(dataDir)) {
+            hasil.add(dataDir);
+        }
+        return hasil;
     }
 
     /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar

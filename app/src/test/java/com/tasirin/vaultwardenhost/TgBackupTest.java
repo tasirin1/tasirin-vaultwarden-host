@@ -1327,6 +1327,23 @@ public class TgBackupTest {
     }
 
     @Test
+    public void folderCekRuangBackupIkutCacheSaatTerenkripsi() {
+        // Zip plaintext dibangun di cache internal saat terenkripsi, hasil
+        // akhirnya di folder data: kedua volume wajib diukur.
+        assertEquals(java.util.Arrays.asList("/cache", "/data"),
+                TgBackup.folderCekRuangBackup("/data", true, "/cache"));
+        // Tanpa enkripsi zip langsung ke folder data; cache tak dipakai.
+        assertEquals(java.util.Arrays.asList("/data"),
+                TgBackup.folderCekRuangBackup("/data", false, "/cache"));
+        // Cache sama dengan folder data (perangkat tanpa partisi terpisah):
+        // jangan diukur dua kali.
+        assertEquals(java.util.Arrays.asList("/data"),
+                TgBackup.folderCekRuangBackup("/data", true, "/data"));
+        assertTrue(TgBackup.folderCekRuangBackup(null, true, null).isEmpty());
+        assertTrue(TgBackup.folderCekRuangBackup("  ", false, " ").isEmpty());
+    }
+
+    @Test
     public void cekIntegritasDbUlangTakMelemparTanpaSqlite() throws Exception {
         File f = java.nio.file.Files.createTempFile("vwcek", ".sqlite3").toFile();
         java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
