@@ -321,6 +321,10 @@ public final class Updater {
     // Penanda versi vaultwarden pemilik web-vault yang terpasang (supaya tidak
     // mengunduh ulang ~35 MB tiap kali tombol "Update Web Vault" ditekan).
     private static final String KEY_WV_FROM = "wv_from_version";
+    /** Sidik SHA-256 zip web-vault yang terpasang: bukti isi nyata saat
+     *  penanda versi tak bisa dicap (versi terbaru gagal dicek). Milik
+     *  perangkat, tak ikut export/import config. */
+    static final String KEY_WV_SHA = "wv_sha";
     /** Versi yang dipasang via fallback rilis terbaru (asset versi belum terbit). */
     static final String KEY_WV_FALLBACK_FOR = "wv_fallback_for";
     /** Jangkar elapsed saat fallback dipasang (SystemClock, ms). */
@@ -1823,6 +1827,21 @@ public final class Updater {
             return "Web vault v" + latest + " sudah dipasang via rilis terbaru;"
                     + " cek ulang dilewati agar hemat kuota. Coba lagi nanti.";
         }
+        // Penanda versi kosong (dulu dipasang saat cek versi terbaru gagal) tapi
+        // sidik isi tersimpan: buktikan lewat berkas .sha256 target (kecil saja),
+        // bukan mengunduh ulang ~35 MB. Bila cocok, cap penandanya sekalian.
+        if (wvExists && installed.isEmpty() && latest != null) {
+            String sidikLama = TgBackup.amanString(sp, KEY_WV_SHA, "");
+            if (!sidikLama.isEmpty()) {
+                String shaTarget = fetchChecksum(ctx,
+                        RELEASE_URL + "v" + latest + "/web-vault.zip.sha256",
+                        10000, 15000);
+                if (shaTarget != null && expectedHexEquals(shaTarget, sidikLama)) {
+                    sp.edit().putString(KEY_WV_FROM, latest).apply();
+                    return "Web vault sudah versi terbaru: v" + latest;
+                }
+            }
+        }
 
         // Cek ruang hanya bila benar-benar akan mengunduh.
         long free = TgBackup.freeBytes(ctx, dataDir);
@@ -2020,6 +2039,11 @@ public final class Updater {
         String capWv = versiWvUntukCap(latest, wvFallback);
         if (capWv != null) {
             sp.edit().putString(KEY_WV_FROM, capWv).apply();
+        }
+        // Sidik isi selalu dicap: jadi bukti "sudah terbaru" walau penanda
+        // versi belum bisa diisi (cek versi terbaru gagal saat memasang).
+        if (wvDigestHex != null && !wvDigestHex.isEmpty()) {
+            sp.edit().putString(KEY_WV_SHA, wvDigestHex).apply();
         }
         if (latest != null && !wvFallback) {
             sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_WV_FALLBACK_AT).apply();

@@ -1661,6 +1661,7 @@ public final class TgBackup {
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
+                    Updater.KEY_WV_SHA,
                     ServerService.KEY_BIN_DL_GAGAL_AT,
                     ServerService.KEY_BIN_MANUAL_FP,
                     AutoUpdate.KEY_TAWARAN_UPDATE,
