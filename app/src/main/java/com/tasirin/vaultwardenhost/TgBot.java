@@ -497,14 +497,23 @@ public final class TgBot {
                                 }
                                 String text = msg.optString("text", "").trim();
                                 // Tombol ber-PIN meminta PIN lewat balasan chat:
-                                // teks non-perintah saat ada aksi pending = PIN,
-                                // bukan perintah biasa. Sesi 5 menit & hanya chat
+                                // teks non-perintah saat ada aksi pending = kandidat
+                                // PIN, bukan perintah biasa. Sesi 5 menit & hanya chat
                                 // pribadi (aksi ber-PIN dari grup tak pernah dibuat).
-                                String pendingCmd = "";
+                                // AksiPending membedakan "tak ada sesi" dari "sesi
+                                // basi" agar PIN yang datang terlambat tetap dikenali
+                                // dan dihapus dari riwayat Telegram.
+                                AksiPending pending = AksiPending.TIDAK_ADA;
                                 if (!text.isEmpty() && !text.startsWith("/")) {
-                                    pendingCmd = ambilPending(ctx, idRuang, kiniPoll);
+                                    pending = ambilPending(ctx, idRuang, kiniPoll);
                                 }
-                                boolean pinPending = !pendingCmd.isEmpty();
+                                boolean pinPending = !pending.cmd.isEmpty();
+                                // Obrolan biasa selama sesi terbuka bukan percobaan
+                                // PIN: jangan diteruskan ke verifikasi (lima pesan
+                                // obrolan dulu mengunci PIN app 5 menit) dan jangan
+                                // menutup sesi yang masih berlaku.
+                                String pin = pinPending ? pinDariBalasan(text) : null;
+                                boolean obrolan = pinPending && pin == null;
                                 if (pinPending) {
                                     // At-most-once: PIN + aksi destruktif tak boleh
                                     // diputar ulang setelah crash/restart.
@@ -529,19 +538,48 @@ public final class TgBot {
                                         }
                                     }
                                 }
-                                boolean terotorisasi = pinPending
-                                        ? handlePinPending(ctx, pendingCmd, text, idRuang)
-                                        : handleCommand(ctx, text, idRuang);
+                                boolean pinBasi = pending.kedaluwarsa;
+                                boolean terotorisasi = false;
+                                if (pinPending) {
+                                    if (obrolan) {
+                                        // Sesi sengaja TIDAK ditutup: obrolan bukan
+                                        // tebakan PIN. Petunjuk bentuk eksplisit agar
+                                        // PIN huruf murni/ber-spasi tak gagal diam.
+                                        TgBackup.sendMessage(ctx, "Balasan bukan PIN."
+                                                + " Balas dengan PIN (min. 4 karakter berdigit),"
+                                                + " atau bentuk PIN:... bila PIN hanya huruf"
+                                                + " atau ber-spasi. Sesi masih terbuka;"
+                                                + " kirim perintah lain atau tekan Batal"
+                                                + " untuk membatalkan.");
+                                    } else {
+                                        terotorisasi = handlePinPending(ctx, pending.cmd,
+                                                pin, idRuang);
+                                    }
+                                } else if (pinBasi) {
+                                    // Aksi tidak dijalankan (sesi >5 menit). Balasan
+                                    // apa pun setelah sesi basi tak bisa dibedakan dari
+                                    // PIN yang terlambat, jadi pesannya dihapus sekali
+                                    // (sesi langsung dibersihkan) agar PIN asli tak
+                                    // menempel di riwayat cloud.
+                                    TgBackup.sendMessage(ctx, "Sesi PIN sudah kedaluwarsa"
+                                            + " (>5 menit) - aksi tidak dijalankan dan"
+                                            + " pesan balasan dihapus dari riwayat."
+                                            + " Ketuk tombol lagi untuk PIN baru.");
+                                } else {
+                                    terotorisasi = handleCommand(ctx, text, idRuang);
+                                }
                                 // PIN yang lolos menempel di riwayat dan bisa dipakai
                                 // ulang pengintip: hapus best-effort (perlu izin hapus,
                                 // di poll thread sendiri); gagal sekali diperingatkan
                                 // agar pemilik tahu PIN masih nangkring di cloud.
                                 // Upaya GAGAL sengaja dipertahankan sebagai bukti
-                                // brute-force.
+                                // brute-force; PIN basi dihapus karena aksinya tak
+                                // pernah dijalankan.
                                 int idPesan = msg.optInt("message_id", 0);
-                                if (idPesan != 0 && terotorisasi
-                                        && (pinPending || pesanPinWajibHapus(text))
-                                        && pinPerangkatAktif(ctx)) {
+                                boolean hapusPin = pinBasi
+                                        || (terotorisasi
+                                        && (pinPending || pesanPinWajibHapus(text)));
+                                if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     boolean terhapus = hapusPesanPerintah(ctx,
                                             idRuang, idPesan);
                                     peringatkanBilaTakBisaHapus(ctx, terhapus);
@@ -1121,6 +1159,23 @@ public final class TgBot {
         return dibuat > 0 && kini >= dibuat && kini - dibuat <= PENDING_AKSI_MS;
     }
 
+    /** Hasil membaca sesi PIN yang menunggu balasan chat: perintah yang
+     *  menunggu (kosong bila tak ada sesi) + penanda sesi kedaluwarsa.
+     *  Penanda itu perlu agar pesan PIN yang datang terlambat tetap dikenali
+     *  sebagai PIN dan dihapus dari riwayat Telegram; dulu {@code ambilPending}
+     *  mengembalikan "" untuk sesi basi sehingga pesan PIN-nya menempel
+     *  selamanya di cloud. */
+    static final class AksiPending {
+        static final AksiPending TIDAK_ADA = new AksiPending("", false);
+        final String cmd;
+        final boolean kedaluwarsa;
+
+        private AksiPending(String cmd, boolean kedaluwarsa) {
+            this.cmd = cmd;
+            this.kedaluwarsa = kedaluwarsa;
+        }
+    }
+
     /** Simpan aksi tombol yang menunggu PIN (satu per chat, ditimpa bila baru). */
     private static void simpanPending(Context ctx, long chatId, String cmd, long waktu) {
         try {
@@ -1131,15 +1186,16 @@ public final class TgBot {
         }
     }
 
-    /** Ambil aksi pending yang masih segar; selain itu kunci dibersihkan. */
-    private static String ambilPending(Context ctx, long chatId, long kini) {
+    /** Ambil aksi pending yang masih segar; selain itu kunci dibersihkan
+     *  dan hasilnya menandai sesi basi (bukan "tak ada sesi"). */
+    private static AksiPending ambilPending(Context ctx, long chatId, long kini) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String kunci = KEY_TG_PENDING_PREFIX + chatId;
             String isi = TgBackup.amanString(sp, kunci, "");
             if (isi == null || isi.isEmpty()) {
-                return "";
+                return AksiPending.TIDAK_ADA;
             }
             int pisah = isi.indexOf('|');
             long waktu = 0;
@@ -1151,13 +1207,17 @@ public final class TgBot {
                 }
             }
             String cmd = pisah > 0 ? isi.substring(pisah + 1) : "";
-            if (!pendingMasihBerlaku(waktu, kini) || !perintahPerluPin(cmd)) {
+            boolean basi = !pendingMasihBerlaku(waktu, kini);
+            if (basi || !perintahPerluPin(cmd)) {
                 sp.edit().remove(kunci).apply();
-                return "";
+                // Hanya sesi yang benar-benar kedaluwarsa yang ditandai:
+                // isi rusak/asing bukan PIN, jangan sampai pesan obrolan
+                // pengguna ikut terhapus.
+                return new AksiPending("", basi);
             }
-            return cmd;
+            return new AksiPending(cmd, false);
         } catch (Exception e) {
-            return "";
+            return AksiPending.TIDAK_ADA;
         }
     }
 
@@ -1197,10 +1257,49 @@ public final class TgBot {
         }
     }
 
+    /** PIN dari balasan sesi tombol ber-PIN; null bila teks bukan percobaan PIN.
+     *  Bentuk eksplisit "PIN:..." selalu diterima (PIN boleh ber-spasi), sedangkan
+     *  tanpa penanda hanya satu token tanpa spasi minimal 4 karakter yang berdigit.
+     *  Kata huruf murni ("halo"), obrolan banyak kata, dan teks terlalu panjang
+     *  adalah obrolan biasa: dulu semuanya diteruskan ke verifikasi sebagai PIN,
+     *  sehingga lima pesan obrolan di tengah sesi mengunci PIN app 5 menit
+     *  (PinGate dipakai bersama layar kunci Main/Settings). PIN tanpa digit dan
+     *  PIN ber-spasi tetap bisa lewat bentuk eksplisit. Murni. */
+    static String pinDariBalasan(String teks) {
+        String t = teks == null ? "" : teks.trim();
+        if (t.isEmpty() || t.length() > 128) {
+            return null;
+        }
+        if (POLA_PIN_MARKER.matcher(t).lookingAt()) {
+            String[] pisah = pisahkanPin(t);
+            return pisah[1].isEmpty() ? null : pisah[1];
+        }
+        // Tanpa penanda: PIN implisit wajib satu token (spasi berarti obrolan;
+        // PIN ber-spasi memakai PIN:"kunci saya") dan mengandung digit agar
+        // kalimat biasa seperti "tolong" tak membakar hitungan lockout.
+        for (int i = 0; i < t.length(); i++) {
+            if (Character.isWhitespace(t.charAt(i))) {
+                return null;
+            }
+        }
+        if (!Util.pinKataValid(t)) {
+            return null;
+        }
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c >= '0' && c <= '9') {
+                return t;
+            }
+        }
+        return null;
+    }
+
     /** Balasan PIN untuk aksi tombol: jalankan perintahnya dengan PIN eksplisit.
-     *  Sesi selalu dihapus sebelum eksekusi (salah PIN = ketuk tombol lagi) agar
-     *  PIN salah berulang tak menambah lockout tanpa sengaja. True bila lolos
-     *  otorisasi sehingga pesan PIN boleh dihapus dari riwayat. */
+     *  {@code pin} sudah dinormalisasi {@link #pinDariBalasan} (hanya dipanggil
+     *  untuk percobaan PIN; obrolan biasa tak pernah sampai ke sini). Sesi selalu
+     *  dihapus sebelum eksekusi (salah PIN = ketuk tombol lagi) agar PIN salah
+     *  berulang tak menambah lockout tanpa sengaja. True bila lolos otorisasi
+     *  sehingga pesan PIN boleh dihapus dari riwayat. */
     private static boolean handlePinPending(Context ctx, String cmd, String pin, long idRuang) {
         hapusPending(ctx, idRuang);
         // Sesi PIN tak pernah dibuat untuk grup (mulaiAksiPin menolak lebih dulu);

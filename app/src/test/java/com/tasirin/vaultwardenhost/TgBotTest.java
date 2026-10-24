@@ -3,6 +3,7 @@ package com.tasirin.vaultwardenhost;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -229,6 +230,30 @@ public class TgBotTest {
         assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
         assertArrayEquals(new String[]{"YA webvault", ""}, TgBot.pisahkanPin("YA webvault"));
         assertArrayEquals(new String[]{"foo bar", ""}, TgBot.pisahkanPin("foo bar"));
+    }
+
+    @Test
+    public void pinDariBalasanBedakanPinDanObrolan() {
+        // PIN implisit: satu token, min 4, berdigit.
+        assertEquals("123456", TgBot.pinDariBalasan("123456"));
+        assertEquals("123456", TgBot.pinDariBalasan("  123456 "));
+        assertEquals("ab12", TgBot.pinDariBalasan("ab12"));
+        // Bentuk eksplisit: PIN boleh ber-spasi/huruf murni tanpa digit.
+        assertEquals("123456", TgBot.pinDariBalasan("PIN:123456"));
+        assertEquals("hunter2", TgBot.pinDariBalasan("pin: hunter2"));
+        assertEquals("kunci saya", TgBot.pinDariBalasan("PIN:\"kunci saya\""));
+        assertEquals("p@ss", TgBot.pinDariBalasan("PIN:p@ss"));
+        // Obrolan biasa bukan percobaan PIN: dulu lima pesan seperti ini
+        // mengunci PIN app 5 menit lewat PinGate bersama.
+        assertNull(TgBot.pinDariBalasan("halo"));
+        assertNull(TgBot.pinDariBalasan("tolong bantu"));
+        assertNull(TgBot.pinDariBalasan("webvault"));
+        assertNull(TgBot.pinDariBalasan("p@ss"));
+        assertNull(TgBot.pinDariBalasan("123"));
+        assertNull(TgBot.pinDariBalasan("PIN:"));
+        assertNull(TgBot.pinDariBalasan(""));
+        assertNull(TgBot.pinDariBalasan(null));
+        assertNull(TgBot.pinDariBalasan("1234567890".repeat(13)));
     }
 
     @Test
