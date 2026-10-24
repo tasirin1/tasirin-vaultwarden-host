@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 192: AGENTS.md tak lagi merujuk workflow yang tak ada
+- Bagian alur rilis menyebut **`verifikasi-patch.yml`** sebagai workflow gerbang tersendiri, padahal berkas itu tidak pernah ada: verifikasi adalah job `verifikasi` di dalam `build-apk.yml` dan `build-binary.yml`. Panduan yang salah membuat agen/pengguna mencari berkas hantu dan menyimpulkan CI tak berjalan.
+- Bagian itu diganti "Gerbang bersama: job `verifikasi`" (pemicu di kedua workflow, isi dua langkah, annotations), dan klaim "GAGAL = push ditolak" dikoreksi: push tetap masuk `main`, hanya job build di run tersebut yang tidak dijalankan sehingga perlu commit susulan/revert.
+
 ## [Belum rilis] — Audit 191: Shim getrandom membaca /dev/urandom di dalam kunci + uji tak flaky
 - `isi_urandom()` membaca `fd_urandom` di luar `kunci_urandom`, sementara jalur `EBADF` menutup dan membuka ulang fd itu di dalam kunci. Thread lain bisa memakai fd yang sudah ditutup, atau — bila nomornya sudah dipakai ulang proses lain — menyalin byte dari berkas/socket yang salah sebagai "acak" untuk kunci TLS/token. Read kini berlangsung di dalam kunci yang sama (`/dev/urandom` tak pernah memblokir sehingga serialisasi murah).
 - `shim/test_interpose.c` membandingkan checksum 32 byte (ruang nilai ~8 ribu) untuk memastikan dua jalur berbeda, sehingga tabrakan sesekali menggagalkan CI tanpa bug nyata. Perbandingan kini `memcmp` isi buffer penuh; ditambah deklarasi eksplisit `getrandom()` agar uji host tetap bisa dikompilasi di header bionic lama.

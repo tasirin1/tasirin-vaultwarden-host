@@ -209,6 +209,24 @@ Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
 `vw-apk`); unggahan ke rilis yang sama idempoten (hapus duplikat per ID +
 coba ulang). Cache cargo dipakai ulang antar run binary.
 
+**Gerbang bersama: job `verifikasi` (~1 mnt, tanpa SDK)** — ada di dalam
+**kedua** workflow (bukan workflow terpisah) sebagai job pertama, sehingga
+build apa pun yang terpicu selalu melewatinya lebih dulu. Di `build-apk.yml`
+ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`) dan
+`workflow_dispatch`; di `build-binary.yml` untuk `push` yang menyentuh
+`build-binary.yml`/`shim/**`, jadwal bulanan, dan manual. Isinya:
+
+1. `python3 tools/verifikasi-patch.py --rentang "<before>...<sha>"`
+   (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
+   resource, locale tanpa Locale, cakupan uji).
+2. `bash scripts/cek-cepat.sh` (vektor `0.x`, ID land, README, pola rahasia).
+
+Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
+dengan file+baris) sehingga bug/kode sampah/celah keamanan terlihat di tab
+Files, bukan tenggelam di log. Bila job ini GAGAL, **job build di run itu
+tidak dijalankan** — commitnya sudah terlanjur masuk `main` (push tidak
+ditolak), jadi perbaiki dengan commit susulan atau revert.
+
 **A. `build-binary.yml` (berat, ~15 mnt)** — `push` yang menyentuh
 `build-binary.yml`/`shim/**` saja, `schedule` sebulan sekali tiap tanggal 1
 (cek versi upstream; skip bila binary/web-vault untuk tag tersebut sudah ada),
@@ -231,19 +249,6 @@ dan `workflow_dispatch`:
    (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`)
    hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
    ganti versi upstream).
-
-**C. `verifikasi-patch.yml` (gerbang, ~1 mnt, tanpa SDK)** — `push` ke
-`main` (kecuali dokumen `*.md`) + `workflow_dispatch` manual. Jalan
-**sebelum** build APK agar push bermasalah gagal cepat tanpa membakar
-menit CI:
-
-1. **Cek patch yang berubah** — `python3 tools/verifikasi-patch.py`
-   (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
-   resource, locale tanpa Locale, cakupan uji) + `bash scripts/cek-cepat.sh`
-   (vektor `0.x`, ID land, README, secret). Tiap temuan ditulis sebagai
-   **annotations GitHub** (`::error`/`::warning` dengan file+baris) sehingga
-   bug/kode sampah/celah keamanan terlihat di tab Files, bukan tenggelam
-   di log. GAGAL = push ditolak sebelum build APK jalan.
 
 **B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh kode
 app (kecuali dokumen, `shim/`, `build-binary.yml`) + `workflow_dispatch` manual.
