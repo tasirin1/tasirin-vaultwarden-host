@@ -311,6 +311,11 @@ public class ServerService extends Service {
 
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
+    /** True bila notifikasi service sedang dipasang sebagai foreground. Dipakai
+     *  setStatus() agar hanya MEMPERBARUI notifikasi yang memang ada — tanpa ini
+     *  status yang berubah setelah service turun akan memposting notifikasi
+     *  biasa yang menempel selamanya. */
+    private volatile boolean notifForeground = false;
     public static volatile String binaryVersion = "";
     public static final StringBuilder logBuffer = new StringBuilder();
     /** Versi log naik tiap baris/trim/clear: kunci refresh UI tanpa adu panjang. */
@@ -1009,10 +1014,7 @@ public class ServerService extends Service {
                     // Bila user sudah menekan Start lagi selagi kita menunggu,
                     // jangan cabut foreground/stopSelf yang baru (niat=true).
                     if (!niatJalanTersimpan()) {
-                        try {
-                            stopForeground(true);
-                        } catch (Exception ignored) {
-                        }
+                        turunkanForeground(true);
                         try {
                             stopSelf(stopId);
                         } catch (Exception ignored) {
@@ -1027,10 +1029,7 @@ public class ServerService extends Service {
                     if (niatJalanTersimpan()) {
                         return; // user sudah Start lagi: foreground itu milik server baru
                     }
-                    try {
-                        stopForeground(true);
-                    } catch (Exception ignored) {
-                    }
+                    turunkanForeground(true);
                     try {
                         stopSelf(stopId);
                     } catch (Exception ignored) {
@@ -1235,10 +1234,7 @@ public class ServerService extends Service {
         if (niatJalanTersimpan()) {
             return;
         }
-        try {
-            stopForeground(true);
-        } catch (Exception ignored) {
-        }
+        turunkanForeground(true);
         try {
             stopSelf(startId);
         } catch (Exception ignored) {
@@ -1264,7 +1260,7 @@ public class ServerService extends Service {
         // membatalkan stop ini.
         boolean mulai = starting.get();
         if (!serverJalan && !mulai && !autoAktif) {
-            stopForeground(true);
+            turunkanForeground(true);
             stopSelf(startId);
         } else if (!serverJalan && !mulai) {
             // Demote foreground di sini (stopForeground(false)) berisiko:
@@ -1284,6 +1280,17 @@ public class ServerService extends Service {
             createChannel();
         } catch (Exception ignored) {
         }
+        startForeground(NOTIF_ID, bangunNotifikasi());
+        notifForeground = true;
+    }
+
+    /** Bangun notifikasi foreground dari keadaan server saat ini. Dipakai
+     *  startForegroundCompat() dan perbaruiNotifikasi() agar isinya tak basi:
+     *  dulu teks dihitung sekali saat service dinaikkan (pada ACTION_START
+     *  `running` masih false) sehingga berbunyi "Menjalankan tugas latar..."
+     *  sepanjang server melayani, atau tetap "Server aktif" setelah mati. */
+    @SuppressWarnings("deprecation")
+    private Notification bangunNotifikasi() {
         Intent open = new Intent(this, MainActivity.class);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -1292,15 +1299,57 @@ public class ServerService extends Service {
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
         boolean jalan = running || alive(process);
-        Notification n = b.setContentTitle("Vaultwarden Host")
-                .setContentText(jalan ? "Server aktif di port " + currentPort()
-                        : "Menjalankan tugas latar...")
+        return b.setContentTitle("Vaultwarden Host")
+                .setContentText(teksNotifikasi(jalan, currentPort(), statusLine))
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setOngoing(true)
                 .setVisibility(Notification.VISIBILITY_PRIVATE)
                 .build();
-        startForeground(NOTIF_ID, n);
+    }
+
+    /** Isi notifikasi: saat server melayani tampilkan port; saat belum, baris
+     *  pertama status yang dirapikan & dibatasi 80 karakter. Murni (diuji). */
+    static String teksNotifikasi(boolean jalan, String port, String status) {
+        if (jalan) {
+            return "Server aktif di port " + (port == null || port.isEmpty() ? "?" : port);
+        }
+        String s = status == null ? "" : status.trim();
+        int baris = s.indexOf('\n');
+        if (baris >= 0) {
+            s = s.substring(0, baris).trim();
+        }
+        if (s.isEmpty()) {
+            return "Menjalankan tugas latar...";
+        }
+        return s.length() > 80 ? s.substring(0, 77) + "..." : s;
+    }
+
+    /** Segarkan notifikasi foreground bila status berubah (hanya bila memang
+     *  sedang foreground; notify() pada service biasa akan menempel permanen). */
+    private void perbaruiNotifikasi() {
+        if (!notifForeground) {
+            return;
+        }
+        try {
+            NotificationManager nm = (NotificationManager)
+                    getSystemService(NOTIFICATION_SERVICE);
+            if (nm != null) {
+                nm.notify(NOTIF_ID, bangunNotifikasi());
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Satu pintu menurunkan notifikasi foreground: bersihkan penanda lebih
+     *  dulu agar setStatus() berikutnya tak memposting notifikasi biasa. */
+    @SuppressWarnings("deprecation")
+    private void turunkanForeground(boolean hapus) {
+        notifForeground = false;
+        try {
+            stopForeground(hapus);
+        } catch (Exception ignored) {
+        }
     }
 
     /** True bila folder data aman dipakai: absolut, kanonis sederhana, di luar area sistem. Murni. */
@@ -1700,10 +1749,7 @@ public class ServerService extends Service {
         simpanNiatJalan(false);
         SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
         if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
-            try {
-                stopForeground(true);
-            } catch (Exception ignored) {
-            }
+            turunkanForeground(true);
             try {
                 // stopSelfResult: intent yang lebih baru (id lain) membatalkan
                 // ini sehingga Start baru tak ikut mati.
@@ -3252,6 +3298,9 @@ public class ServerService extends Service {
 
     private void setStatus(String text) {
         statusLine = text;
+        // Notifikasi foreground ikut menampilkan status (lihat teksNotifikasi):
+        // perbarui di sini agar tak basi sampai startForegroundCompat berikutnya.
+        perbaruiNotifikasi();
     }
 
     /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume.
@@ -4644,6 +4693,9 @@ public class ServerService extends Service {
 
     @Override
     public void onDestroy() {
+        // Notifikasi foreground ikut hilang bersama service: jangan biarkan
+        // thread yang masih hidup memposting notifikasi biasa lewat setStatus().
+        notifForeground = false;
         // Jangan nol-kan autoRestart/healthActive: keduanya statis agar selamat
         // dari recreate transien tanpa intent baru. Jalur STOP eksplisit sudah
         // mematikannya sebelum stopSelf; membersihkan di sini menghentikan

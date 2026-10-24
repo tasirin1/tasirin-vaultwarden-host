@@ -592,6 +592,30 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void teksNotifikasiIkutStatusDanTakMeluber() {
+        // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".
+        assertEquals("Server aktif di port 8080",
+                ServerService.teksNotifikasi(true, "8080", "apa saja"));
+        assertEquals("Server aktif di port ?",
+                ServerService.teksNotifikasi(true, null, ""));
+
+        // Belum melayani: baris pertama status, tanpa newline/tail panjang.
+        assertEquals("Server crash - restart dalam 2 dtk",
+                ServerService.teksNotifikasi(false, "8080",
+                        "Server crash - restart dalam 2 dtk\n" + "tail " + "x".repeat(300)));
+        assertEquals("Menjalankan tugas latar...",
+                ServerService.teksNotifikasi(false, "8080", "   \n  "));
+        assertEquals("Menjalankan tugas latar...",
+                ServerService.teksNotifikasi(false, "8080", null));
+
+        // Batas 80 karakter: 77 + "..." agar notifikasi tak meluber di TV.
+        String panjang = "y".repeat(200);
+        String hasil = ServerService.teksNotifikasi(false, "8080", panjang);
+        assertEquals(80, hasil.length());
+        assertTrue(hasil.endsWith("..."));
+    }
+
+    @Test
     public void manualPerluValidasiHanyaSaatSidikFileBerubah() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwmanual").toFile();
         java.io.File bin = new java.io.File(dir, "vaultwarden-" + ServerService.ABI);
