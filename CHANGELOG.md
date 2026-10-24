@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 225: Kerapian javadoc & spasi `ServerService`
+- Javadoc "Pola statis..." terpisah dari field `POLA_SUFIKS_VERSI` oleh baris kosong (dianggap yatim), dan `configSajaBeruntun` punya dua blok javadoc berurutan (blok kedua menimpa keterangan pertama di sebagian alat baca). Keduanya digabung/ditempel ke deklarasi yang dimaksud.
+- Empat baris kosong berurutan sebelum `getPid()` diringkas jadi satu. Tidak ada perubahan perilaku.
+
 ## [Belum rilis] — Audit 224: Salin log memakai satu pengambilan ClipboardManager
 - `LogActivity.salinLogClipboard()` mengambil `ClipboardManager` + memeriksa null, lalu memanggil `salinClipboardBersihOtomatis()` yang mengambil service yang sama sekali lagi. Pemeriksaan ganda itu juga membuat toast "Log copied" tetap muncul saat `setPrimaryClip` gagal.
 - `salinClipboardBersihOtomatis()` kini mengembalikan hasil `salinBersihOtomatis()`; pemanggil cukup memakai nilai itu (gagal → "Clipboard unavailable.", sukses → "Log copied to clipboard."). Satu pengambilan service, satu sumber hasil.

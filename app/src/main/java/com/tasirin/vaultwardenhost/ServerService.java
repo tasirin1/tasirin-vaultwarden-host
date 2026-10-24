@@ -255,7 +255,6 @@ public class ServerService extends Service {
     }
 
     /** Pola statis: split/matches kompilasi regex tiap panggil di STB lama. */
-
     private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?");
 
@@ -464,8 +463,8 @@ public class ServerService extends Service {
     /** Episode beruntun "server melayani tapi DB rusak" (/alive 5xx + /api/config 200):
      *  pingRinci() menganggapnya sehat sehingga DB korup tak pernah restart.
      *  Dihitung terpisah dari healthFails agar 500 sesaat (backup/migrasi di
-     *  STB lambat) tak langsung membunuh server. */
-    /** Statis agar episode DB-rusak tak di-reset recreate (selaras healthFails). */
+     *  STB lambat) tak langsung membunuh server. Statis agar episode DB-rusak
+     *  tak di-reset recreate (selaras healthFails). */
     private static final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
             new java.util.concurrent.atomic.AtomicInteger(0);
     /** Batas episode config-saja sebelum dianggap gantung lalu restart: 10x tick
@@ -4033,9 +4032,6 @@ public class ServerService extends Service {
             w.write(text);
         }
     }
-
-
-
 
     private String getPid(Process p) {
         int pid = pidOf(p);
