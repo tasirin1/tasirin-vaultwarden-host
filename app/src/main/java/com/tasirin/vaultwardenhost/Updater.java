@@ -1775,11 +1775,19 @@ public final class Updater {
         }
 
         File targetDir = new File(dataFolder, "web-vault");
-        File tmpZip = new File(dataFolder, namaTmpUnduh("web-vault.zip", diminta));
+        // `diminta == null` berarti "ikuti terbaru" (dipilih user lewat
+        // "Latest (automatic)" di Settings atau `/webvault terbaru`). Dulu null
+        // diperlakukan sebagai "versi tak diketahui" sehingga web-vault yang
+        // sudah terpasang langsung dijawab "cek versi terbaru gagal" tanpa
+        // pernah bertanya ke GitHub — pilihan "Latest (automatic)" tak pernah
+        // memperbarui apa pun. Pin tidak dibaca di sini: pemanggil yang
+        // menginginkan pin mengirim versinya secara eksplisit.
+        String latest = diminta != null ? diminta : latestVersion(ctx);
+        // Nama .tmp per versi hasil resolusi: unduhan "terbaru" tak bercampur
+        // dengan sisa .tmp versi lain.
+        File tmpZip = new File(dataFolder, namaTmpUnduh("web-vault.zip", latest));
         // Sisa .tmp versi lain yang basi dibuang (bisa 35 MB per versi).
         sapuTmpUnduhBasi(dataFolder, "web-vault.zip", tmpZip);
-
-        String latest = diminta;
 
         // Payload yang benar-benar dipakai browser. Penanda versi saja tak cukup:
         // index.html yang hilang (swap terputus) dulu tetap dianggap "terpasang"
