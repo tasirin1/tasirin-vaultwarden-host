@@ -695,6 +695,40 @@ public class ServerServiceTest {
         assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
     }
 
+    /** Proses yang sudah mati (atau null) tak membuat jalur pembersihan melempar. */
+    @Test
+    public void matikanProsesTegas_prosesMatiAtauNullAman() {
+        ServerService.matikanProsesTegas(new ProsesMati(), 200);
+        ServerService.matikanProsesTegas(null, 200);
+    }
+
+    /** Proses macet: setelah tunggu habis wajib dipaksa mati (destroy kedua kali). */
+    @Test
+    public void matikanProsesTegas_macetDipaksaMati() {
+        final java.util.concurrent.atomic.AtomicInteger destroy =
+                new java.util.concurrent.atomic.AtomicInteger();
+        final java.util.concurrent.CountDownLatch lepas =
+                new java.util.concurrent.CountDownLatch(1);
+        Process macet = new ProsesMati() {
+            @Override public int waitFor() {
+                try {
+                    lepas.await(30, java.util.concurrent.TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                return 0;
+            }
+            @Override public void destroy() {
+                if (destroy.incrementAndGet() >= 2) {
+                    lepas.countDown();
+                }
+            }
+        };
+        ServerService.matikanProsesTegas(macet, 100);
+        // destroy pertama (sopan) + destroyForcibly/destroy kedua setelah timeout.
+        assertEquals(2, destroy.get());
+    }
+
     @Test
     public void kunciDataMemblokirStartSampaiRestoreSelesai() throws Exception {
         final java.util.concurrent.CountDownLatch masuk =

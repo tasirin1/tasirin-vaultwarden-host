@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 167: Proses yang lahir tak ditinggal yatim saat bookkeeping gagal
+- Bila sesuatu melempar setelah `pb.start()` (mis. kirim notifikasi Telegram), blok `catch` hanya mengosongkan `process` tanpa mematikan proses: server tetap hidup memegang port + database tanpa reader/watcher, dan Start berikutnya dilaporkan "port sedang dipakai proses lain".
+- Blok `catch` kini mematikan proses yang sudah lahir (process di-null-kan lebih dulu agar watcher tak mengira crash lalu auto-restart). Urutan destroy → tunggu → paksa mati yang sebelumnya disalin di tiga jalur (restart bot, `stopServer`, health ganti) disatukan ke `matikanProsesTegas()`; uji JVM baru `ServerServiceTest.matikanProsesTegas_*`.
+
 ## [Belum rilis] — Audit 166: Kunci data tak dipegang selama unduh binary
 - `startServerAsync` memegang `KUNCI_DATA` sepanjang `startServer()`, termasuk unduh binary (~20 MB) dan uji `--version` yang bisa berjalan menit-menitan di koneksi STB lambat. Restore/reset (UI maupun bot) yang datang di tengah unduhan menunggu tanpa penjelasan, dan permintaan Start berikutnya ditolak "Start masih berjalan".
 - Kunci kini dilepas sebelum `ensureBinary()`/`ensureShim()` (fase yang tidak menulis folder data) dan diambil kembali lewat `tungguKunciDataStart()` sebelum TLS/web-vault/exec: operasi data yang masih berjalan ditunggu maks 5 menit sambil menghormati Stop, lalu Start dibatalkan dengan pesan jelas. Pelepasan di `finally` memakai `lepasKunciData()` (dulu `unlock()` langsung bisa melempar `IllegalMonitorStateException` bila kunci sudah dilepas di tengah, sehingga `starting.set(false)` terlewati dan Start berikutnya terkunci selamanya).

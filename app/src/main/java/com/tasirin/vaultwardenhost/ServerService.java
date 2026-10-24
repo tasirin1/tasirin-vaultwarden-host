@@ -1035,20 +1035,8 @@ public class ServerService extends Service {
                     tandaiStopDisengaja(p);
                     running = false;
                     releaseWakeLock();
-                    p.destroy();
                     try {
-                        if (!waitForOrKill(p, 5000)) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                p.destroyForcibly();
-                            } else {
-                                p.destroy();
-                            }
-                            try {
-                                waitForOrKill(p, 3000);
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    } catch (Exception ignored) {
+                        matikanProsesTegas(p, 5000);
                     } finally {
                         if (process == p) {
                             process = null;
@@ -2027,8 +2015,16 @@ public class ServerService extends Service {
                 appendLog(panduan);
             }
         } catch (Exception e) {
+            // Proses yang sudah lahir tapi bookkeeping start gagal (mis. kirim
+            // notifikasi Telegram melempar) wajib dimatikan. process di-null-kan
+            // DULU agar watcher — bila sudah berjalan — tak menganggapnya crash
+            // lalu auto-restart. Dulu process=null tanpa kill meninggalkan server
+            // yatim yang tetap memegang port + DB tanpa reader/watcher, sehingga
+            // Start berikutnya melihat "port dipakai proses lain".
+            Process gagal = process;
             process = null;
             running = false;
+            matikanProsesTegas(gagal, 3000);
             // Bersihkan penanda jalan agar health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
             resetPenandaJalan();
@@ -2053,18 +2049,7 @@ public class ServerService extends Service {
             p.destroy();
             Thread stopper = new Thread(() -> {
                 try {
-                    if (!waitForOrKill(p, 5000)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            p.destroyForcibly();
-                        } else {
-                            p.destroy();
-                        }
-                        try {
-                            waitForOrKill(p, 3000);
-                        } catch (Exception ignored) {
-                        }
-                    }
-                } catch (Exception ignored) {
+                    matikanProsesTegas(p, 5000);
                 } finally {
                     if (process == p) {
                         process = null;
@@ -2855,24 +2840,12 @@ public class ServerService extends Service {
             if (p != null) {
                 tandaiStopDisengaja(p);
                 releaseWakeLock();
-                p.destroy();
                 // Tunggu sinkron di worker health (bukan UI): restartTunda
                 // 2 dtk yang menyala selagi proses lama masih sekarat akan
                 // dilewati sekali lalu restart hilang diam-diam. Mati dulu,
                 // baru jadwalkan.
                 try {
-                    if (!waitForOrKill(p, 5000)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            p.destroyForcibly();
-                        } else {
-                            p.destroy();
-                        }
-                        try {
-                            waitForOrKill(p, 3000);
-                        } catch (Exception ignored) {
-                        }
-                    }
-                } catch (Exception ignored) {
+                    matikanProsesTegas(p, 5000);
                 } finally {
                     if (process == p) {
                         process = null;
@@ -4415,6 +4388,28 @@ public class ServerService extends Service {
         penunggu.start();
         penunggu.join(timeoutMillis);
         return mati.get();
+    }
+
+    /** Matikan proses dengan tegas: destroy, tunggu {@code tungguMs}, lalu
+     *  destroyForcibly (pra-Oreo hanya destroy) + tunggu 3 dtk. Satu pintu untuk
+     *  semua jalur stop/restart/bersih (dulu urutan ini disalin empat kali). */
+    static void matikanProsesTegas(Process p, long tungguMs) {
+        if (p == null) {
+            return;
+        }
+        try {
+            p.destroy();
+            if (waitForOrKill(p, tungguMs)) {
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                p.destroyForcibly();
+            } else {
+                p.destroy();
+            }
+            waitForOrKill(p, 3000);
+        } catch (Exception ignored) {
+        }
     }
 
     /** Perpanjang wakelock bila server masih jalan tapi kunci lepas/kedaluwarsa.
