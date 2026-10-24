@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 161: Fallback web-vault hormati kuncian versi & tak unduh ulang
+- Jalur fallback web-vault tak punya penjaga kuncian: memilih versi X dalam 6 jam setelah fallback membuat app menjawab "X sudah dipasang" padahal payload-nya rilis lain. Kini `adaKuncianWebVault()` wajib kosong dulu, jadi pin selalu dipenuhi atau gagal lantang.
+- Timer 6 jam diganti PROBE `v<versi>/web-vault.zip.sha256` (ratusan byte): 404 = belum terbit (lewati, tak unduh 35 MB), 200 = aset ada (penanda dibuang, versi target diunduh). `fallbackBaruSaja` beserta dua ujinya dihapus (`tools/bekas-hapusan.txt`).
+
 ## [Belum rilis] — Audit 160: Fallback binary tak lagi mengunduh ulang payload yang sama
 - Jalur fallback `Updater.tryUpdate` dulu memakai timer 6 jam: setelah jeda habis, `releases/latest/download/...` diunduh ulang (~20 MB) padahal isinya byte yang sama dengan yang sudah terpasang, berulang tiap 6 jam selama aset versi target belum terbit.
 - Kini keputusan berbasis isi: bila penanda fallback masih menunjuk versi target (`fallbackTercatatUntuk`, tanpa batas umur), app hanya PROBE `vaultwarden-armeabi-v7a.sha256` versi target (~ratusan byte). 404 = belum terbit, lewati; 200 = aset sudah ada, penanda dibuang lalu versi target diunduh. Uji JVM baru `UpdaterTest.fallbackTercatatUntuk_tanpaBatasUmur`.

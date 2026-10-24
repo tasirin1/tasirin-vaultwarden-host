@@ -11,23 +11,6 @@ import org.junit.Test;
 public class UpdaterTest {
 
     @Test
-    public void fallbackBaruSaja_hematUnduhUlang() {
-        long at = 1000000L;
-        assertTrue(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
-                at, at + 3600_000L));
-        assertFalse(Updater.fallbackBaruSaja("1.37.4", true, "1.37.3",
-                at, at + 3600_000L));
-        assertFalse(Updater.fallbackBaruSaja("1.37.3", false, "1.37.3",
-                at, at + 3600_000L));
-        assertFalse(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
-                at, at + 6L * 3600 * 1000 + 1));
-        assertFalse(Updater.fallbackBaruSaja("1.37.3", true, "1.37.3",
-                0, at + 1000));
-        assertFalse(Updater.fallbackBaruSaja(null, true, "1.37.3",
-                at, at + 1000));
-    }
-
-    @Test
     public void kodeSementara_hanyaGangguanSesaat() {
         assertTrue(Updater.kodeSementara(429));
         assertTrue(Updater.kodeSementara(408));
@@ -177,13 +160,6 @@ public class UpdaterTest {
         assertTrue(Updater.versiCocok(" v1.32.0 ", "1.32.0"));
         assertTrue(Updater.versiCocok("v1.32.0", "1.32.0"));
         assertTrue(Updater.versiCocok("1.32.0+build.5", "v1.32.0"));
-    }
-
-    @Test
-    public void fallbackBaruSaja_toleranHurufV() {
-        long kini = 1000000L;
-        assertTrue(Updater.fallbackBaruSaja("1.32.0", true, "v1.32.0",
-                kini - 1000, kini));
     }
 
     @Test

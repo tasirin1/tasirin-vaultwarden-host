@@ -40,3 +40,6 @@ teksKuncian
 # dibawa; 302 GitHub selalu ke CDN) sehingga pembanding host jadi mati:
 hostBerubah
 hostBerubah_deteksiLintasHost
+fallbackBaruSaja
+fallbackBaruSaja_hematUnduhUlang
+fallbackBaruSaja_toleranHurufV

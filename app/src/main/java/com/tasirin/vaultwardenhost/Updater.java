@@ -336,22 +336,6 @@ public final class Updater {
     /** Jeda unduh ulang setelah pasang fallback (asset CI terbit ~12 jam). */
     static final long WV_FALLBACK_TUNDA_MS = 6L * 3600 * 1000;
 
-    /** True bila fallback untuk versi ini baru dipasang dan web-vault ada:
-     *  lewati unduh ulang 35 MB agar hemat kuota. Murni agar bisa unit test. */
-    static boolean fallbackBaruSaja(String latest, boolean wvExists, String untuk,
-            long at, long kiniElapsed) {
-        if (!wvExists || latest == null || latest.isEmpty()) {
-            return false;
-        }
-        if (!versiCocok(latest, untuk)) {
-            return false;
-        }
-        if (at <= 0 || kiniElapsed < at) {
-            return false;
-        }
-        return kiniElapsed - at < WV_FALLBACK_TUNDA_MS;
-    }
-
     /** True bila penanda fallback menunjuk versi target ini (tanpa batas umur).
      *  Dipakai memutuskan perlu PROBE aset kecil, bukan unduh ulang 20 MB.
      *  Umur tak lagi jadi patokan: isi payload fallback tidak berubah selama
@@ -1806,14 +1790,24 @@ public final class Updater {
                     + " cek versi terbaru gagal (koneksi/rate-limit)."
                     + " Coba lagi nanti agar hemat kuota.";
         }
-        // Fallback baru dipasang (asset versi ini belum terbit di CI):
-        // jangan unduh ulang 35 MB tiap cek; versi terpasang tetap dipakai.
-        if (fallbackBaruSaja(latest, wvExists,
-                TgBackup.amanString(sp, KEY_WV_FALLBACK_FOR, ""),
-                TgBackup.amanLong(sp, KEY_WV_FALLBACK_AT, 0),
-                SystemClock.elapsedRealtime())) {
-            return "Web vault v" + latest + " sudah dipasang via rilis terbaru;"
-                    + " cek ulang dilewati agar hemat kuota. Coba lagi nanti.";
+        // Fallback sudah terpasang untuk versi target ini (asset versi ini belum
+        // terbit di CI): jangan unduh ulang 35 MB. Sama seperti binary, patokan
+        // isi (PROBE .sha256 kecil), bukan timer 6 jam — payload fallback tak
+        // berubah selama versi target belum terbit. Kuncian versi user TIDAK
+        // ikut dilewati: pin wajib dipenuhi atau dilaporkan gagal, bukan
+        // dilaporkan "sudah dipasang" padahal isinya rilis lain.
+        if (wvExists && !adaKuncianWebVault(ctx)
+                && fallbackTercatatUntuk(latest,
+                        TgBackup.amanString(sp, KEY_WV_FALLBACK_FOR, ""))) {
+            String shaTarget = fetchChecksum(ctx,
+                    RELEASE_URL + "v" + latest + "/web-vault.zip.sha256",
+                    10000, 15000);
+            if (shaTarget == null) {
+                return "Web vault v" + latest + " belum tersedia; versi terpasang"
+                        + " tetap dipakai (dicek ulang otomatis nanti).";
+            }
+            sp.edit().remove(KEY_WV_FALLBACK_FOR)
+                    .remove(KEY_WV_FALLBACK_AT).apply();
         }
         // Penanda versi kosong (dulu dipasang saat cek versi terbaru gagal) tapi
         // sidik isi tersimpan: buktikan lewat berkas .sha256 target (kecil saja),
