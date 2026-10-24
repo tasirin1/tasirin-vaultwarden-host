@@ -125,6 +125,9 @@
     <string name="acak">Acak</string>
     <string name="pin_off_judul">Matikan PIN?</string>
     <string name="pin_off_pesan">Siapa pun yang memegang HP/STB ini bisa membuka aplikasi. Lanjutkan?</string>
+    <string name="pin_ganti_judul">Ganti PIN?</string>
+    <string name="pin_ganti_pesan">PIN baru menggantikan PIN aktif. Bila salah ketik, aplikasi tak bisa dibuka lagi. Lanjutkan?</string>
+    <string name="pin_diperbarui">PIN diperbarui.</string>
     <string name="card_title_security">Keamanan</string>
     <string name="disalin">disalin</string>
     <string name="terisi">tersimpan ✓</string>

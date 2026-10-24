@@ -84,6 +84,10 @@ public class SettingsActivity extends Activity {
     /** Jadwal debounce ketikan PIN: hash (PBKDF2 30rb) baru dikirim ke
      *  worker sesudah 800 ms tanpa ketikan agar tak menumpuk di CPU lemah STB. */
     private Runnable pinTunda = null;
+    /** Kandidat PIN yang sudah ditawarkan lewat dialog "Ganti PIN?" agar
+     *  dialog tak muncul berulang untuk isi field yang sama (mis. user
+     *  menggeser kursor lalu berhenti mengetik lagi). */
+    private String pinGantiKandidat = null;
     /** Hash PIN terbaru dari worker yang belum disimpan ke prefs: prefs hanya
      *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
      *  di tengah mengetik. */
@@ -665,23 +669,36 @@ public class SettingsActivity extends Activity {
                     // UI): worker tak boleh menyentuh View setelah activity mati.
                     final boolean pinAktif = pinEnabledCheck != null
                             && pinEnabledCheck.isChecked();
-                    pinPending = pinExec.submit(() -> {
-                        String h = PinCrypto.hash(pin);
-                        if (seq != pinSeq) {
-                            return;
-                        }
-                        pinHashSiap = h;
-                        // Nomor urut cukup sebagai penanda settle; hash bersalt
-                        // tak perlu pasangan plaintext di field. Hash otomatis
-                        // hanya ditulis bila PIN aktif agar toggle mati tak
-                        // meninggalkan hash basi di prefs.
-                        if (seq == pinSeq && h.equals(pinHashSiap)
-                                && !pinAktifJalan
-                                && pinAktif) {
-                            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                    .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
-                        }
-                    });
+                    final boolean ganti = perluKonfirmasiGantiPin(pinAktif, adaHashPinTersimpan());
+                    if (!ganti) {
+                        tulisHashPin(pin, seq, pinAktif, false);
+                        return;
+                    }
+                    // PIN sudah aktif: ketikan di field TIDAK boleh langsung
+                    // menimpa hash (dulu begitu — salah ketik/salah tempel satu
+                    // kali langsung mengunci app di luar). Minta konfirmasi
+                    // sekali per isi field; batal = field dikosongkan agar tak
+                    // terlihat seolah PIN tersimpan sudah berubah.
+                    if (pin.equals(pinGantiKandidat)) {
+                        return;
+                    }
+                    pinGantiKandidat = pin;
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+                    // Dialog langsung (bukan confirm()) karena tombol Batal
+                    // harus mengosongkan field: isi field yang tak tersimpan
+                    // membuat user mengira PIN sudah berganti.
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.pin_ganti_judul))
+                            .setMessage(getString(R.string.pin_ganti_pesan))
+                            .setPositiveButton(android.R.string.ok,
+                                    (d, w) -> tulisHashPin(pin, seq, true, true))
+                            .setNegativeButton(getString(R.string.batal), (d, w) -> {
+                                pinGantiKandidat = null;
+                                bersihkanPin(pinInput);
+                            })
+                            .show();
                 };
                 ui.postDelayed(pinTunda, 800);
             }
@@ -747,6 +764,9 @@ public class SettingsActivity extends Activity {
             // Batalkan nilai settle debounce lama agar tulis otomatisnya tak
             // menimpa hasil aktivasi.
             pinSeq++;
+            // PIN dari centang ini sudah disetujui user: kandidat dialog
+            // ganti-PIN direset agar edit berikutnya ditanya lagi.
+            pinGantiKandidat = null;
             final String pinBaru = fieldPin;
             pinAktifJalan = true;
             toast("Processing PIN…");
@@ -3812,6 +3832,56 @@ public class SettingsActivity extends Activity {
 
     /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
      *  clear() dulu (buang buffer), setText("") sebagai fallback. */
+    /** True bila PIN aktif DAN sudah ada hash tersimpan: mengetik PIN baru
+     *  berarti MENGGANTI PIN lama sehingga wajib konfirmasi. Murni. */
+    static boolean perluKonfirmasiGantiPin(boolean pinAktif, boolean adaHash) {
+        return pinAktif && adaHash;
+    }
+
+    /** True bila prefs sudah menyimpan hash PIN (dibaca jarang: sekali per jeda ketik). */
+    private boolean adaHashPinTersimpan() {
+        try {
+            String h = TgBackup.amanString(getSharedPreferences(
+                    ServerService.PREFS, MODE_PRIVATE), PinGate.KEY_PIN_HASH, "");
+            return h != null && !h.trim().isEmpty();
+        } catch (Exception e) {
+            // Fail-closed: anggap sudah ada hash -> minta konfirmasi.
+            return true;
+        }
+    }
+
+    /** Hash PIN di worker lalu tulis ke prefs bila nomor urut masih segar.
+     *  Ditulis hanya bila PIN aktif (centang menyala) agar toggle mati tak
+     *  meninggalkan hash basi. */
+    private void tulisHashPin(final String pin, final int seq,
+            final boolean pinAktif, final boolean beriKabar) {
+        pinPending = pinExec.submit(() -> {
+            String h;
+            try {
+                h = PinCrypto.hash(pin);
+            } catch (Exception e) {
+                h = null;
+            }
+            if (seq != pinSeq) {
+                return;
+            }
+            pinHashSiap = h;
+            if (h == null) {
+                return;
+            }
+            // Nomor urut cukup sebagai penanda settle; hash bersalt tak perlu
+            // pasangan plaintext di field.
+            if (seq == pinSeq && h.equals(pinHashSiap)
+                    && !pinAktifJalan && pinAktif) {
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                        .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                if (beriKabar) {
+                    toast(getString(R.string.pin_diperbarui));
+                }
+            }
+        });
+    }
+
     private void bersihkanPin(android.widget.EditText v) {
         try {
             if (v.getText() != null) {

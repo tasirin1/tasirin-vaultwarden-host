@@ -224,4 +224,16 @@ public class SettingsActivityTest {
         assertFalse(SettingsActivity.perluWizard(false, "", "", "token", ""));
         assertFalse(SettingsActivity.perluWizard(false, "", "", "", "1.37.3"));
     }
+
+    @Test
+    public void gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda() {
+        // Mengetik PIN baru saat PIN aktif = MENGGANTI PIN lama: wajib konfirmasi
+        // (dulu hash langsung ditimpa tanpa tanya, salah ketik = app terkunci).
+        assertTrue(SettingsActivity.perluKonfirmasiGantiPin(true, true));
+        // Pemasangan awal (belum ada hash) tetap tanpa dialog.
+        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(true, false));
+        // Centang mati: hash tak ditulis, jadi tak perlu dialog.
+        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, true));
+        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, false));
+    }
 }
