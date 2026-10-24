@@ -4727,11 +4727,12 @@ public class ServerService extends Service {
             } catch (Exception ignored) {
             }
         }
+        // destroy() asinkron: sesaat sesudahnya exitValue() masih melempar
+        // (isProcessAlive() tetap true) sehingga kunci dulu tak pernah dilepas
+        // dan PARTIAL_WAKE_LOCK bertahan sampai timeout 12 jam padahal binary
+        // sudah dibunuh. Di jalur ini proses memang dihentikan, jadi kunci tak
+        // berguna lagi; recreate START_STICKY memasangnya ulang di onCreate.
+        releaseWakeLock();
         super.onDestroy();
-        // WakeLock hanya dilepas bila proses benar-benar mati; recreate transien
-        // saat server jalan mempertahankannya (dipasang ulang di onCreate).
-        if (!isProcessAlive()) {
-            releaseWakeLock();
-        }
     }
 }

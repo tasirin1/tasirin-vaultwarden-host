@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 217: WakeLock dilepas saat service dihancurkan
+- `ServerService.onDestroy()` memanggil `p.destroy()` lalu langsung `isProcessAlive()`. Karena `destroy()` asinkron, `exitValue()` masih melempar sesaat sehingga proses dianggap hidup dan `releaseWakeLock()` terlewat: `PARTIAL_WAKE_LOCK` (timeout 12 jam) tetap dipegang padahal binary sudah dibunuh — deep-sleep hilang dan baterai terkuras bila service dihancurkan sistem tanpa recreate (tekanan memori, update app, START_STICKY).
+- Jalur ini memang membunuh proses, jadi kunci tak berguna lagi: `releaseWakeLock()` kini dipanggil tanpa syarat (idempoten) sesudah `destroy()`. Recreate START_STICKY tetap memasang ulang kunci lewat `acquireWakeLock()` saat server dijalankan lagi.
+
 ## [Belum rilis] — Audit 216: Toast izin saat simpan log tidak lagi menumpuk dialog
 - `LogActivity.exportLogTxt` memanggil `StoragePerm.mintaIzinBilaPerlu` lalu **selalu** menampilkan toast `izin_storage_belum` — teksnya "Storage permission not granted yet — Start cancelled", padahal aksinya menyimpan log dan dialog izin baru saja dimunculkan (dua pesan bertumpuk, persis pola yang sudah diperbaiki di `StoragePerm.siapStart`). Bila permintaan izin gagal ditampilkan, flag `simpanUlangSetelahIzin` juga tertinggal `true` sehingga penyimpanan bisa jalan di luar konteks izin.
 - Kini toast hanya muncul bila `mintaIzinBilaPerlu` mengembalikan `false` (dialog tak bisa ditampilkan); flag direset di jalur itu, dan pesan memakai string baru `izin_simpan_belum` yang khusus konteks simpan (Inggris + Indonesia).
