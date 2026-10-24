@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 181: Monitor kelas ServerService tak lagi dipakai untuk I/O SSL
+- Cache SSL (`loopbackSslFactory` + `capCaAktif`) memakai `synchronized (ServerService.class)` — monitor yang sama dengan perpanjangan wakelock dan lookup refleksi pid. Di dalam kunci itu `ca.pem` dibaca dan di-hash penuh lalu `SSLContext` diinisialisasi; health tick yang sedang menyegarkan cache bisa menahan `jagaWakeLock()`/`acquireWakeLock()` beberapa saat, tepat pada jalur yang menjaga server tetap hidup saat Doze.
+- Tiga tanggung jawab kini punya kunci sendiri (`KUNCI_SSL`, `KUNCI_WAKELOCK`, `KUNCI_PID`), dan reset cache SSL di `prepareTls` dilakukan di dalam `KUNCI_SSL` agar pembaca tak menyimpan factory CA lama sesudah reset.
+
 ## [Belum rilis] — Audit 180: Rantai fokus D-pad tak menunjuk tombol baterai yang tersembunyi
 - `main_card_maintenance.xml` mengarahkan `nextFocusDown` (autoStart) dan `nextFocusUp` (autoUpdate) ke `batteryBtn`, padahal `batteryRow` berisi tombol itu default `gone` dan hanya tampil bila optimasi baterai belum diizinkan. Selama tersembunyi, navigasi remote TV berhenti/melompat di rantai fokus.
 - Rantai fokus kini disambung ulang setiap status baris berubah: baris tampil → ke `batteryBtn`; tersembunyi → autoStart langsung ke autoUpdate dan sebaliknya.

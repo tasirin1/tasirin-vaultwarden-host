@@ -423,6 +423,9 @@ public class ServerService extends Service {
     }
     /** Statis agar recreate transien tak memegang dua kunci 12 jam (bocor baterai). */
     private static PowerManager.WakeLock wakeLock;
+    /** Kunci field wakelock (dulu menumpang monitor kelas yang juga dipakai
+     *  hashing CA/SSL sehingga acquire bisa menunggu I/O tak terkait). */
+    private static final Object KUNCI_WAKELOCK = new Object();
     private static volatile File logFile;
     /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
      *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta.
@@ -2891,6 +2894,11 @@ public class ServerService extends Service {
     private static volatile javax.net.ssl.SSLSocketFactory sslFactory;
     /** Cap CA aktif (mtime+ukuran+hash isi); cache factory gugur bila CA regenerasi. */
     private static volatile long sslCaCap = -1L;
+    /** Kunci khusus cache SSL/CA. Dulu memakai monitor kelas ServerService yang
+     *  sama dengan wakelock + lookup pid: hashing ca.pem dan init SSLContext
+     *  (pekerjaan I/O berat) menahan monitor itu sehingga perpanjangan wakelock
+     *  health-tick ikut tertunda. */
+    private static final Object KUNCI_SSL = new Object();
 
     /** Trust khusus health-check loopback: pin CA milik app; gagal tertutup
      *  bila CA tak tersedia (tanpa fallback trust-all agar server 200 palsu
@@ -2899,7 +2907,7 @@ public class ServerService extends Service {
         long cap = capCaAktif(ctx);
         javax.net.ssl.SSLSocketFactory f = sslFactory;
         if (f == null || cap != sslCaCap) {
-            synchronized (ServerService.class) {
+            synchronized (KUNCI_SSL) {
                 // Hitung ulang di dalam kunci (reentrant): cap di luar bisa basi bila
                 // ca.pem regenerasi antar baca-cap dan masuk-kunci, lalu factory basi
                 // menimpa factory segar milik thread lain (cermin HttpsCompat).
@@ -2949,7 +2957,7 @@ public class ServerService extends Service {
         // Sinkron (reentrant, cermin HttpsCompat.capOverride): dua thread
         // (health-tick + ping UI) tak boleh berlomba baca-tulis capCaStat/
         // capCaNilai — satu bisa menimpa hasil segar dengan nilai basi.
-        synchronized (ServerService.class) {
+        synchronized (KUNCI_SSL) {
         // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
         long kini2 = SystemClock.elapsedRealtime();
         if (capCaStat != Long.MIN_VALUE && kini2 - capCaWaktu < 60_000) {
@@ -3841,10 +3849,15 @@ public class ServerService extends Service {
             writeText(ipFile, cur);
             // Sertifikat bisa baru dibuat: buang cache SSL agar health check
             // memakai CA terbaru, bukan trust-all lama. Cap CA ikut reset
-            // agar gerbang TTL tak menyajikan cap basi 60 dtk.
-            sslFactory = null;
-            capCaStat = Long.MIN_VALUE;
-            capCaWaktu = 0;
+            // agar gerbang TTL tak menyajikan cap basi 60 dtk. Di dalam
+            // KUNCI_SSL: pembaca yang sedang menyegarkan factory tak boleh
+            // menyimpan hasil CA lama sesudah reset ini.
+            synchronized (KUNCI_SSL) {
+                sslFactory = null;
+                sslCaCap = -1L;
+                capCaStat = Long.MIN_VALUE;
+                capCaWaktu = 0;
+            }
         }
         return dir;
     }
@@ -3887,6 +3900,8 @@ public class ServerService extends Service {
     // Cache Method "pid" (API 26+): lookup refleksi hanya sekali, bukan tiap panggil.
     private static volatile java.lang.reflect.Method pidMethod;
     private static volatile boolean pidMethodLookedUp = false;
+    /** Kunci lookup refleksi pid (dulu menumpang monitor kelas). */
+    private static final Object KUNCI_PID = new Object();
 
     private static int pidOf(Process p) {
         if (p == null) {
@@ -3895,7 +3910,7 @@ public class ServerService extends Service {
         try {
             java.lang.reflect.Method m = pidMethod;
             if (m == null && !pidMethodLookedUp) {
-                synchronized (ServerService.class) {
+                synchronized (KUNCI_PID) {
                     if (!pidMethodLookedUp) {
                         try {
                             pidMethod = Process.class.getMethod("pid");
@@ -4462,7 +4477,7 @@ public class ServerService extends Service {
     private void jagaWakeLock() {
         try {
             boolean perlu;
-            synchronized (ServerService.class) {
+            synchronized (KUNCI_WAKELOCK) {
                 perlu = running && autoRestart && (wakeLock == null || !wakeLock.isHeld());
             }
             if (perlu) {
@@ -4475,7 +4490,7 @@ public class ServerService extends Service {
     private void acquireWakeLock() {
         // Lepas dulu bila ada sisa (tak boleh menimpa field: kunci lama bocor
         // sampai timeout 12 jam bila referensinya hilang).
-        synchronized (ServerService.class) {
+        synchronized (KUNCI_WAKELOCK) {
             releaseWakeLockDalam();
             try {
                 PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
@@ -4508,7 +4523,7 @@ public class ServerService extends Service {
     }
 
     private void releaseWakeLock() {
-        synchronized (ServerService.class) {
+        synchronized (KUNCI_WAKELOCK) {
             releaseWakeLockDalam();
         }
     }
