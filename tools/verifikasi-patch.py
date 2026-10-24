@@ -168,7 +168,7 @@ def jalan_repo(rel, ext=(".java",)):
         # temuan palsu yang tak ada di CI (checkout selalu bersih).
         dirs[:] = [d for d in dirs if d not in ("build", ".gradle", ".git")]
         for nama in berkas:
-            if nama.endswith(ext):
+            if ext is None or nama.endswith(ext):
                 yield os.path.relpath(os.path.join(akar, nama), AKAR)
 
 
@@ -909,7 +909,23 @@ def utama():
         diff += jalan("git", "diff", "--cached") or ""
     berubah += [b for b in nama_tak_lacak() if b not in berubah]
     if args.semua:
-        berubah = [p for p in jalan_repo("app")]
+        # Seluruh repo, bukan hanya .java di app/: aturan repo (berkas
+        # terlarang, binary >1 MB) dan cek XML/workflow/skrip juga harus
+        # kena. Dulu daftar ini hanya .java sehingga --semua buta terhadap
+        # resource, workflow, dan skrip.
+        berubah = list(jalan_repo(".", ext=None))
+        if not diff:
+            # Delapan cek berbasis diff (metode hilang, hapusan tercatat,
+            # uji baru/ubah, pola berisiko/boros, izin/definisi baru) tak
+            # punya bahan di repo bersih dan dulu dilewati diam-diam. Pakai
+            # commit terakhir agar --semua tetap memeriksanya.
+            r = rentang_cadangan()
+            if r is not None:
+                rentang_cek = r[0] + r[1] + r[2]
+                diff = jalan("git", "diff", r[0] + r[1] + r[2]) or ""
+                print("info: --semua tanpa diff kerja — cek diff memakai HEAD~1...HEAD.")
+            else:
+                print("info: --semua tanpa riwayat commit — cek diff dilewati.")
 
     cek_xml(gagal, "")
     cek_acuan_yatim(gagal)
