@@ -1904,6 +1904,9 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Restore dibatalkan: proses vaultwarden yatim masih hidup.");
                 return;
             }
+            // Sisa staging restore lama (kill di tengah) tak boleh ikut
+            // terbaca sebagai bagian backup baru.
+            TgBackup.hapusStagingRestore(new File(dataDir));
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
@@ -1985,7 +1988,15 @@ public class SettingsActivity extends Activity {
                             zis.closeEntry();
                             continue;
                         }
-                        File out = new File(dataFolder, name);
+                        // Entri DB ditulis ke staging, bukan DB hidup: hasil
+                        // ekstrak divalidasi dulu lalu dipasang atomik.
+                        String staging = TgBackup.namaStagingRestore(name);
+                        if (staging != null && entry.isDirectory()) {
+                            // "db.sqlite3/" sebagai direktori bukan DB sah.
+                            zis.closeEntry();
+                            continue;
+                        }
+                        File out = new File(dataFolder, staging != null ? staging : name);
                         // Cegah zip-slip: entri licik (mis. db.sqlite3/../../x)
                         // tidak boleh keluar dari folder data (cek pakai separator
                         // agar folder sibling berawalan sama tak lolos).
@@ -2051,7 +2062,9 @@ public class SettingsActivity extends Activity {
                         return;
                     }
                     long salin = off;
-                    try (FileOutputStream fos = new FileOutputStream(dbFile)) {
+                    File stagingDb = new File(dataDir,
+                            TgBackup.namaStagingRestore("db.sqlite3"));
+                    try (FileOutputStream fos = new FileOutputStream(stagingDb)) {
                         fos.write(head, 0, off);
                         int len;
                         while ((len = in.read(buf)) != -1) {
@@ -2066,50 +2079,33 @@ public class SettingsActivity extends Activity {
                     if (salin < 512) {
                         throw new java.io.IOException("Database file truncated (not a complete SQLite file).");
                     }
-                    // WAL lama milik DB lama: buang agar tak ditempel ke DB baru.
+                    // WAL lama milik DB lama: buang agar tak ditempel ke DB baru
+                    // (checkpoint sebelum restore sudah mengosongkannya).
                     TgBackup.hapusWalShm(new File(dataDir));
                     restored = true;
                 }
             }
             if (!restored) {
-                // Zip berisi -wal/-shm/tls tanpa db.sqlite3: WAL asing sudah
-                // tertulis menimpa milik DB lama — buang agar tak ditempel
-                // ke DB lama saat Start (selaras restore Telegram). TLS
-                // yang ikut tertimpa dikembalikan dari potret.
+                // Zip berisi -wal/-shm/tls tanpa db.sqlite3: buang staging DB
+                // (WAL asing tak boleh menempel ke DB lama) + kembalikan TLS
+                // yang ikut tertimpa dari potret.
+                TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.hapusWalShm(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast("Backup file does not contain db.sqlite3.");
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
                 return;
             }
-            if (!TgBackup.isSqliteFile(dbFile)) {
-                if (preBackup != null && preBackup.exists()) {
-                    TgBackup.hapusWalShm(new File(dataDir));
-                    TgBackup.copyFile(preBackup, dbFile);
-                } else {
-                    dbFile.delete();
-                }
+            // Validasi + pasang DB staging secara atomik: DB lama baru diganti
+            // setelah backup lolos header + quick_check, jadi kill di tengah
+            // ekstraksi tak bisa meninggalkan db.sqlite3 parsial.
+            String galatDb = TgBackup.pasangDbRestoreAtomik(new File(dataDir));
+            if (galatDb != null) {
+                TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                toast("Corrupt backup (not SQLite) — old database restored.");
-                appendUiLog("[app] Restore gagal: header SQLite tidak cocok, rollback.");
+                toast("Corrupt backup (" + galatDb + ") — old database kept.");
+                appendUiLog("[app] Restore gagal: " + galatDb + ", DB lama dipertahankan.");
                 return;
-            }
-            try {
-                String rusak = TgBackup.cekIntegritasDb(dbFile);
-                if (rusak != null) {
-                    if (preBackup != null && preBackup.exists()) {
-                        TgBackup.hapusWalShm(new File(dataDir));
-                        TgBackup.copyFile(preBackup, dbFile);
-                    } else {
-                        dbFile.delete();
-                    }
-                    TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                    toast("Corrupt backup (corrupt DB) — old database restored.");
-                    appendUiLog("[app] Restore gagal: quick_check korup (" + rusak + "), rollback.");
-                    return;
-                }
-            } catch (Throwable abaikan) {
-                // Unit test JVM tanpa SQLite Android: lewati quick_check.
             }
             // Restore valid: baru sekarang identitas + pengaturan ikut berganti.
             // Runtime membaca TLS internal dulu: sinkronkan hasil restore agar
@@ -2133,19 +2129,15 @@ public class SettingsActivity extends Activity {
             toast("Database restored. Restart the server to use it.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
-            // Tulis parsial (mis. batas ukuran) wajib dikembalikan dari salinan pengaman.
-            // Tanpa salinan (install baru), buang DB parsial agar tak dipakai saat Start.
+            // Gagal sebelum swap: DB lama belum tersentuh, cukup buang staging.
+            // Gagal sesudah swap: pulihkan dari salinan pengaman lewat staging
+            // + rename agar mati di tengah rollback tak meninggalkan DB parsial.
             try {
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                if (preBackup != null && preBackup.exists()) {
-                    TgBackup.hapusWalShm(new File(dataDir));
-                    TgBackup.copyFile(preBackup, dbFile);
-                    appendUiLog("[app] Restore gagal: database lama dikembalikan.");
-                } else {
-                    TgBackup.hapusWalShm(new File(dataDir));
-                    dbFile.delete();
-                    appendUiLog("[app] Restore gagal: file parsial dibuang.");
-                }
+                TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
+                appendUiLog(preBackup != null && preBackup.exists()
+                        ? "[app] Restore gagal: database lama dikembalikan."
+                        : "[app] Restore gagal: file parsial dibuang.");
             } catch (Exception ignored) {
             }
             toast("Restore failed: " + e.getMessage());

@@ -2746,6 +2746,10 @@ public final class TgBackup {
                     + " dibatalkan agar database tidak korup. Stop manual lalu ulangi.");
         }
 
+        // Sisa staging restore lama (kill di tengah) tak boleh ikut terbaca
+        // sebagai bagian backup baru.
+        hapusStagingRestore(dataFolder);
+
         File preBackup = null;
         if (dbFile.exists()) {
             // Satukan isi WAL ke DB utama dulu; tanpa ini salinan pengaman
@@ -2774,11 +2778,8 @@ public final class TgBackup {
         int jumlahEntri = 0;
         String basePath = dataFolder.getCanonicalPath();
         String awalanAman = basePath + File.separator;
-        // Lacak -wal/-shm dari zip: bila zip hanya berisi db.sqlite3, sisa
-        // -wal/-shm basi milik DB lama wajib dibuang agar tak ditempel ke DB
-        // baru (backup bagus bisa ditolak "korup" atau DB jadi cacat).
-        boolean adaWal = false;
-        boolean adaShm = false;
+        // Entri DB (db.sqlite3 + WAL/SHM) diekstrak ke staging; checkpoint
+        // staging menyatukan WAL sehingga swap ke DB hidup cukup satu file.
         boolean adaDb = false;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
@@ -2814,14 +2815,21 @@ public final class TgBackup {
                     }
                     continue;
                 }
+                // Entri DB ditulis ke staging, bukan DB hidup: hasil ekstrak
+                // divalidasi dulu lalu dipasang atomik (pasangDbRestoreAtomik).
+                String staging = namaStagingRestore(nama);
+                if (staging != null && entry.isDirectory()) {
+                    // "db.sqlite3/" sebagai direktori bukan DB sah.
+                    try {
+                        zis.closeEntry();
+                    } catch (Exception ignored) {
+                    }
+                    continue;
+                }
                 if ("db.sqlite3".equals(nama)) {
                     adaDb = true;
-                } else if ("db.sqlite3-wal".equals(nama)) {
-                    adaWal = true;
-                } else if ("db.sqlite3-shm".equals(nama)) {
-                    adaShm = true;
                 }
-                File outFile = new File(dataFolder, nama);
+                File outFile = new File(dataFolder, staging != null ? staging : nama);
                 String kanon = outFile.getCanonicalPath();
                 if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
                     try {
@@ -2850,14 +2858,13 @@ public final class TgBackup {
                 zis.closeEntry();
             }
         } catch (Exception eEkstrak) {
-            // Ekstraksi bisa terpotong di tengah (storage penuh/proses dibunuh)
-            // setelah db.sqlite3/WAL sudah ditimpa: kembalikan DB lama dari
-            // preBackup, bukan hanya TLS. Tanpa ini DB parsial tertinggal dan
-            // server tak bisa start walau salinan pengaman tersedia.
+            // Ekstraksi bisa terpotong di tengah (storage penuh/proses dibunuh).
+            // DB hidup belum tersentuh (entri DB masuk staging), jadi cukup buang
+            // staging + kembalikan TLS; DB lama tetap utuh.
             try {
-                pulihkanDbLama(dataFolder, dbFile, preBackup);
-            } catch (Exception ePulih) {
-                eEkstrak.addSuppressed(ePulih);
+                hapusStagingRestore(dataFolder);
+            } catch (Exception eBersih) {
+                eEkstrak.addSuppressed(eBersih);
             }
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw eEkstrak;
@@ -2869,41 +2876,22 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
         }
-        // Hapus per berkas, bukan sepasang: WAL tanpa SHM itu sah (SQLite
-        // membuat ulang SHM saat membuka DB) dan WAL memuat transaksi yang
-        // sudah commit tapi belum checkpoint. Dulu kondisi OR menghapus WAL
-        // hanya karena SHM tidak ikut di zip -> transaksi hilang diam-diam.
-        hapusWalShm(dataFolder, !adaWal, !adaShm);
-        // Zip berisi -wal/-shm tanpa db.sqlite3 wajib ditolak tegas: tanpa ini
-        // WAL asing menempel ke DB lama (adaWal+adaShm lolos hapus di atas)
-        // lalu lolos cek SQLite karena DB lama memang valid.
+        // Zip berisi -wal/-shm tanpa db.sqlite3 wajib ditolak tegas: WAL asing
+        // tak boleh menempel ke DB lama yang memang valid.
         if (!adaDb) {
-            hapusWalShm(dataFolder);
+            hapusStagingRestore(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
-        if (!dbFile.exists()) {
+        // Validasi + swap atomik: DB lama baru diganti setelah hasil ekstrak
+        // lolos header + quick_check, jadi kill di tengah restorasi tak bisa
+        // meninggalkan db.sqlite3 parsial.
+        String galatDb = pasangDbRestoreAtomik(dataFolder);
+        if (galatDb != null) {
+            hapusStagingRestore(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
-            throw new IOException("Backup tidak berisi db.sqlite3.");
-        }
-        if (!isSqliteFile(dbFile)) {
-            pulihkanDbLama(dataFolder, dbFile, preBackup);
-            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
-            throw new IOException("Backup rusak (bukan SQLite)"
-                    + " - database lama dikembalikan.");
-        }
-        try {
-            String rusak = cekIntegritasDb(dbFile);
-            if (rusak != null) {
-                pulihkanDbLama(dataFolder, dbFile, preBackup);
-                kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
-                throw new IOException("Backup rusak (DB korup: " + rusak + ")"
-                        + " - database lama dikembalikan.");
-            }
-        } catch (IOException e) {
-            throw e;
-        } catch (Throwable abaikan) {
-            // Lingkungan unit test JVM tanpa SQLite Android: lewati quick_check.
+            throw new IOException("Backup rusak (" + galatDb + ")"
+                    + " - database lama dipertahankan.");
         }
         // Runtime membaca TLS internal dulu: sinkronkan hasil restore agar
         // identitas server benar-benar berganti (bukan diam-diam memakai CA lama).
@@ -2923,15 +2911,107 @@ public final class TgBackup {
                 + " Tekan /start untuk menjalankan.";
     }
 
+    /** Nama staging untuk entri DB restore: DB hidup tak disentuh sampai hasil
+     *  ekstrak valid, dan kompanion WAL/SHM mengikuti penamaan SQLite
+     *  ({@code <db>-wal}/{@code <db>-shm}) agar checkpoint staging bekerja.
+     *  Null bila bukan entri DB. Murni. */
+    static String namaStagingRestore(String nama) {
+        if ("db.sqlite3".equals(nama)) {
+            return "db.sqlite3.restore-tmp";
+        }
+        if ("db.sqlite3-wal".equals(nama)) {
+            return "db.sqlite3.restore-tmp-wal";
+        }
+        if ("db.sqlite3-shm".equals(nama)) {
+            return "db.sqlite3.restore-tmp-shm";
+        }
+        return null;
+    }
+
+    /** Hapus sisa staging restore DB (sesudah sukses/gagal) agar tak menumpuk
+     *  dan tak ikut terbaca restore berikutnya. Best-effort. */
+    static void hapusStagingRestore(File dataFolder) {
+        if (dataFolder == null) {
+            return;
+        }
+        String[] asal = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+        for (String nama : asal) {
+            String staging = namaStagingRestore(nama);
+            if (staging != null) {
+                new File(dataFolder, staging).delete();
+            }
+        }
+    }
+
+    /** Pasang DB hasil restore dari staging ke db.sqlite3 secara atomik.
+     *  Alur: satukan WAL staging ke DB staging (checkpoint), validasi header +
+     *  quick_check, hapus WAL/SHM lama (sudah di-checkpoint pemanggil), lalu
+     *  rename(2) staging -&gt; db.sqlite3 yang mengganti file lama dalam satu
+     *  langkah. Kill di tengah ekstraksi/validasi tak menyentuh DB lama; DB
+     *  hidup tak pernah ditulis parsial.
+     *  Return null bila berhasil, atau pesan galat bila backup tak layak
+     *  (DB lama tetap utuh). Wajib worker thread (SQLite + I/O). */
+    static String pasangDbRestoreAtomik(File dataFolder) throws Exception {
+        File staging = new File(dataFolder, namaStagingRestore("db.sqlite3"));
+        if (!staging.isFile()) {
+            return "tidak berisi db.sqlite3";
+        }
+        // WAL staging (bila ada) disatukan dulu: swap jadi satu file sehingga
+        // mati setelah rename tak meninggalkan DB baru tanpa transaksi WAL-nya.
+        checkpointWal(staging);
+        sinkronBerkas(staging);
+        if (!isSqliteFile(staging)) {
+            return "bukan SQLite";
+        }
+        String rusak = cekIntegritasDb(staging);
+        if (rusak != null) {
+            return "DB korup: " + rusak;
+        }
+        // WAL/SHM lama milik DB lama (sudah di-checkpoint sebelum restore):
+        // buang agar tak menempel ke DB baru.
+        hapusWalShm(dataFolder);
+        if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
+            throw new IOException("Gagal memasang database hasil restore");
+        }
+        // Sisa WAL/SHM staging (checkpoint TRUNCATE biasanya mengosongkannya).
+        hapusStagingRestore(dataFolder);
+        return null;
+    }
+
+    /** Salin DB pengaman ke db.sqlite3 lewat staging + rename agar mati di
+     *  tengah rollback tak meninggalkan DB parsial. */
+    static void pasangDbDariSalinan(File dataFolder, File sumber) throws Exception {
+        File staging = new File(dataFolder, namaStagingRestore("db.sqlite3"));
+        hapusStagingRestore(dataFolder);
+        hapusWalShm(dataFolder);
+        copyFile(sumber, staging);
+        sinkronBerkas(staging);
+        if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
+            throw new IOException("Gagal memasang database pengaman");
+        }
+    }
+
+    /** Paksa isi file ke disk sebelum rename: app dibunuh tepat setelah swap
+     *  tak boleh meninggalkan DB yang isinya masih di page cache. */
+    private static void sinkronBerkas(File f) {
+        try (FileOutputStream fos = new FileOutputStream(f, true)) {
+            fos.getFD().sync();
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Pulihkan DB + WAL/SHM ke kondisi sebelum restore gagal (satu pintu).
      *  WAL/SHM selalu dibuang karena isinya milik DB zip yang gagal dan akan
      *  menempel ke DB lama bila dibiarkan. */
-    private static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup)
+    static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup)
             throws Exception {
-        hapusWalShm(dataFolder);
         if (preBackup != null && preBackup.exists()) {
-            copyFile(preBackup, dbFile);
+            // Salin lewat staging + rename: rollback yang dibunuh di tengah
+            // salin dulu meninggalkan db.sqlite3 parsial.
+            pasangDbDariSalinan(dataFolder, preBackup);
         } else {
+            hapusStagingRestore(dataFolder);
+            hapusWalShm(dataFolder);
             dbFile.delete();
         }
     }
@@ -3448,19 +3528,15 @@ public final class TgBackup {
         ed.apply();
     }
 
-    /** Hapus -wal/-shm basi agar tak ditempel ke DB hasil rollback. */
+    /** Hapus -wal/-shm milik DB lama agar tak menempel ke DB hasil restore/
+     *  rollback. Pemanggil wajib sudah checkpoint WAL (isinya kosong) atau
+     *  memang membuang DB lama. */
     static void hapusWalShm(File dataFolder) {
-        hapusWalShm(dataFolder, true, true);
-    }
-
-    /** Hapus WAL dan/atau SHM secara terpisah (restore: hanya yang tak ada di zip). */
-    static void hapusWalShm(File dataFolder, boolean hapusWal, boolean hapusShm) {
-        if (hapusWal) {
-            new File(dataFolder, "db.sqlite3-wal").delete();
+        if (dataFolder == null) {
+            return;
         }
-        if (hapusShm) {
-            new File(dataFolder, "db.sqlite3-shm").delete();
-        }
+        new File(dataFolder, "db.sqlite3-wal").delete();
+        new File(dataFolder, "db.sqlite3-shm").delete();
     }
 
     /** Salin file (dipakai juga restore/backup UI agar satu implementasi). */

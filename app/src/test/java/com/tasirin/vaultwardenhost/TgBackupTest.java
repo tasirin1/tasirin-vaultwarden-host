@@ -1232,20 +1232,98 @@ public class TgBackupTest {
     }
 
     @Test
-    public void hapusWalShmTerpisahPertahankanWalSah() throws Exception {
+    public void hapusWalShmBuangWalDanShmLama() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwwal").toFile();
-        java.io.File wal = new java.io.File(dir, "db.sqlite3-wal");
-        java.io.File shm = new java.io.File(dir, "db.sqlite3-shm");
+        File wal = new File(dir, "db.sqlite3-wal");
+        File shm = new File(dir, "db.sqlite3-shm");
         assertTrue(wal.createNewFile());
         assertTrue(shm.createNewFile());
-        // Zip berisi WAL tanpa SHM: WAL (transaksi belum checkpoint) wajib
-        // bertahan; SHM lama dibuang agar tak menempel ke DB hasil restore.
-        TgBackup.hapusWalShm(dir, false, true);
-        assertTrue(wal.exists());
-        assertFalse(shm.exists());
-        // Zip tanpa WAL: WAL lama tak boleh menempel ke DB hasil restore.
-        TgBackup.hapusWalShm(dir, true, false);
+        TgBackup.hapusWalShm(dir);
         assertFalse(wal.exists());
+        assertFalse(shm.exists());
+        TgBackup.hapusWalShm(null);
+    }
+
+    @Test
+    public void namaStagingRestoreIkutPenamaanWalSqlite() {
+        assertEquals("db.sqlite3.restore-tmp", TgBackup.namaStagingRestore("db.sqlite3"));
+        String dbStaging = TgBackup.namaStagingRestore("db.sqlite3");
+        // WAL/SHM staging wajib mengikuti turunan SQLite dari DB staging agar
+        // checkpoint staging menemukan kompanionnya.
+        assertEquals(dbStaging + "-wal", TgBackup.namaStagingRestore("db.sqlite3-wal"));
+        assertEquals(dbStaging + "-shm", TgBackup.namaStagingRestore("db.sqlite3-shm"));
+        assertNull(TgBackup.namaStagingRestore("tls/ca.pem"));
+        assertNull(TgBackup.namaStagingRestore("db.sqlite3.bak"));
+        assertNull(TgBackup.namaStagingRestore(null));
+    }
+
+    @Test
+    public void hapusStagingRestoreBersihkanSemuaSisa() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwstage").toFile();
+        String[] asal = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+        for (String nama : asal) {
+            assertTrue(new File(dir, TgBackup.namaStagingRestore(nama)).createNewFile());
+        }
+        TgBackup.hapusStagingRestore(dir);
+        for (String nama : asal) {
+            assertFalse(new File(dir, TgBackup.namaStagingRestore(nama)).exists());
+        }
+        TgBackup.hapusStagingRestore(null);
+    }
+
+    @Test
+    public void pasangDbRestoreAtomikTolakSampahTanpaSentuhDbLama() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwpassang").toFile();
+        File db = new File(dir, "db.sqlite3");
+        java.nio.file.Files.write(db.toPath(),
+                "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        File staging = new File(dir, TgBackup.namaStagingRestore("db.sqlite3"));
+        java.nio.file.Files.write(staging.toPath(),
+                "bukan sqlite".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        assertEquals("bukan SQLite", TgBackup.pasangDbRestoreAtomik(dir));
+        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        // Tanpa staging: restore ditolak, DB lama tetap.
+        assertTrue(staging.delete());
+        assertEquals("tidak berisi db.sqlite3", TgBackup.pasangDbRestoreAtomik(dir));
+        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void pasangDbDariSalinanGantiDbDanBuangWalShm() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwsalin").toFile();
+        File db = new File(dir, "db.sqlite3");
+        java.nio.file.Files.write(db.toPath(),
+                "DB-BARU".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        assertTrue(new File(dir, "db.sqlite3-wal").createNewFile());
+        assertTrue(new File(dir, "db.sqlite3-shm").createNewFile());
+        File salinan = new File(dir, "db-backup-pre.sqlite3");
+        java.nio.file.Files.write(salinan.toPath(),
+                "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        TgBackup.pasangDbDariSalinan(dir, salinan);
+        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        assertFalse(new File(dir, "db.sqlite3-wal").exists());
+        assertFalse(new File(dir, "db.sqlite3-shm").exists());
+        assertFalse(new File(dir, TgBackup.namaStagingRestore("db.sqlite3")).exists());
+    }
+
+    @Test
+    public void pulihkanDbLamaPakaiSalinanAtauBuangDb() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwpulih").toFile();
+        File db = new File(dir, "db.sqlite3");
+        File salinan = new File(dir, "db-backup-pre.sqlite3");
+        java.nio.file.Files.write(db.toPath(),
+                "DB-BARU".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.nio.file.Files.write(salinan.toPath(),
+                "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        TgBackup.pulihkanDbLama(dir, db, salinan);
+        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        // Tanpa salinan (install baru): DB parsial dibuang, bukan dibiarkan.
+        TgBackup.pulihkanDbLama(dir, db, null);
+        assertFalse(db.exists());
     }
 }
 
