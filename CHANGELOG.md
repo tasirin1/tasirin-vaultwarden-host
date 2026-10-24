@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Audit 129: Restore DB lewat staging + swap atomik (Android 5+)
+- `TgBackup.pasangDbRestoreAtomik` menerima DB hasil ekstrak di `db.sqlite3.restore-tmp` (+ `-wal`/`-shm` mengikuti penamaan SQLite), menyatukan WAL staging lewat checkpoint, memvalidasi header + `quick_check`, lalu `rename(2)` ke `db.sqlite3` — satu langkah yang mengganti file lama. `SettingsActivity.restoreDatabaseIsi` dan `TgBackup.restoreFromZipIsi` menulis entri DB ke staging, bukan ke DB hidup. Dulu `db.sqlite3` ditimpa langsung saat ekstraksi, sehingga app dibunuh/kehabisan storage di tengah restore meninggalkan DB parsial; rollback dari `backups/*-pre.sqlite3` hanya jalan bila proses masih hidup.
+- `TgBackup.pulihkanDbLama`/`pasangDbDariSalinan` memakai staging + rename juga, jadi rollback yang dibunuh di tengah salin tak meninggalkan DB parsial. Sisa staging dibersihkan sebelum & sesudah restore; entri `db.sqlite3/` sebagai direktori ditolak. Uji JVM baru: `namaStagingRestoreIkutPenamaanWalSqlite`, `hapusStagingRestoreBersihkanSemuaSisa`, `pasangDbRestoreAtomikTolakSampahTanpaSentuhDbLama`, `pasangDbDariSalinanGantiDbDanBuangWalShm`, `pulihkanDbLamaPakaiSalinanAtauBuangDb`, `hapusWalShmBuangWalDanShmLama`.
+
+## [Belum rilis] — Audit 128: Restore DB membersihkan proses vaultwarden yatim (Android 5+)
+- `ServerService.bereskanServerYatim` memindai `/proc` segar (cache 8 detik diabaikan), membunuh proses `.../bin/vaultwarden-*` se-UID yang bukan proses app (verifikasi ulang cmdline sebelum kill, anti PID-recycle), lalu memastikan tak ada yang bertahan. `SettingsActivity.restoreDatabaseIsi` dan `TgBackup.restoreFromZipIsi` memanggilnya sesudah `isProcessAlive`. Dulu anak server yang selamat saat app dibunuh sistem/update jadi yatim (tak terlihat `Process` statis) dan masih memegang `db.sqlite3`, sehingga restore bisa menimpa DB yang sedang dipakai.
+- Bila proses yatim tak bisa dibunuh, restore dibatalkan dengan pesan jelas (DB lama tetap utuh). Uji JVM baru `ServerServiceTest.pidYatimServer_lewatiProsesSendiriDanSmokeTest`.
+
+## [Belum rilis] — Audit 127: Kunci PIN wall-clock tak lagi bisa permanen (Android 5+)
+- `PinCrypto.sisaKunciMs` selalu memangkas sisa wall-clock ke `KUNCI_MS`. Dulu selisih dikembalikan apa adanya saat jam perangkat wajar, sehingga lima PIN salah ketika jam diset ke masa depan (atau 1970) lalu jam dibetulkan membuat PIN terkunci bertahun-tahun — pemulihan hanya dengan menghapus data app. Pangkas ini juga menutup selisih raksasa saat jam sane dimundurkan; perpanjangan tiap percobaan gagal tetap lewat `kunciBerikutnyaMs`.
+- Uji JVM baru `PinCryptoTest.stempelMasaDepanDipangkasSatuKunci`; `kunciJam1970TetapMengunci`, `kunciWallBasiDianggapKedaluwarsa`, dan `jamMundurTetapKunci` tetap hijau.
+
+## [Belum rilis] — Audit 126: Sertifikat TLS belum-valid diregen, server bisa start lagi (Android 5+)
+- `TlsCert.caOk`/`leafCukup` tak lagi menerima sisa `-2` (cert belum valid karena jam mundur > 1 hari). Dulu cert dipakai ulang sementara `ServerService.startServer` fail-closed pada `certDays == -2`, sehingga setelah jam pernah diset ke depan lalu dibetulkan server mustahil start sampai jam melewati `notBefore`. Regenerasi memakai jam sekarang (`notBefore = kini - 1 hari`) membuat cert valid lagi — sekali jalan, bukan tiap Start.
+- `caSisaCukup` dipisah sebagai predikat murni; log menyebut sebab regen (jam mundur), bukan tampak seperti CA hilang. Uji JVM: `caSisaCukupTolakJamMundurAgarRegen` + `leafCukupTerimaSisaPanjangTolakJamMundur`.
+
 ## [Belum rilis] — Audit 125: Flag auto-start susulan tak lagi membuat server menyala sendiri (Android 5+)
 - `MainActivity`: `KEY_START_TERTUNDA` dihapus begitu `ServerService.start()` mengembalikan `true` (intent diterima sistem), bukan menunggu `ServerService.running` yang baru bernilai `true` setelah start asinkron selesai. Dulu flag hampir tak pernah terhapus, sehingga setiap app dibuka setelah user menekan Stop server menyala lagi lewat jalur "Auto-start susulan".
 
