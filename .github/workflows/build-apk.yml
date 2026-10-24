@@ -167,8 +167,13 @@ jobs:
           TAG="v$VW"
           # Buat rilis bila belum ada ('|| true' agar tak gagal bila workflow
           # binary membuatnya bersamaan); APK hanya menimpa asset APK.
+          # --latest=false: rilis yang belum punya binary/web-vault TIDAK boleh
+          # jadi "latest", karena URL /releases/latest/download/... dipakai app
+          # sebagai fallback unduhan binary. Dulu rilis APK-only menjadi latest
+          # sehingga instalasi baru 404 sampai workflow binary jalan (bisa ~1
+          # bulan). Workflow binary menandai latest setelah 6 asetnya lengkap.
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" \
+            gh release create "$TAG" --latest=false \
               --title "Tasirin Vaultwarden Host $VW (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
           gh release view "$TAG" >/dev/null 2>&1

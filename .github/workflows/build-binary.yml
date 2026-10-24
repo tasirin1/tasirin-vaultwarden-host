@@ -360,8 +360,12 @@ jobs:
           ls -lh vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip
           # Buat rilis bila belum ada (upload APK menyusul via workflow APK;
           # '|| true' agar tak gagal bila workflow APK membuatnya bersamaan).
+          # --latest=false: penanda latest baru dipasang di akhir setelah 6
+          # aset non-APK terbukti ada. Rilis setengah jadi (mis. unggahan
+          # gagal di tengah) tak boleh jadi tujuan /releases/latest/download
+          # yang dipakai app untuk fallback unduhan.
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" \
+            gh release create "$TAG" --latest=false \
               --title "Tasirin Vaultwarden Host $VW (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
           gh release view "$TAG" >/dev/null 2>&1
@@ -411,3 +415,9 @@ jobs:
             sleep 10
           done
           [ "$OK" = true ]
+          # Baru sekarang rilis ini layak jadi "latest": 6 aset non-APK sudah
+          # lengkap, sehingga /releases/latest/download/... (jalur fallback
+          # app) pasti menemukan berkasnya. Gagal menandai bukan alasan
+          # menggagalkan rilis (aset sudah benar); cukup dilaporkan.
+          gh release edit "$TAG" --latest || \
+            echo "::warning::Gagal menandai $TAG sebagai latest (aset tetap lengkap)."

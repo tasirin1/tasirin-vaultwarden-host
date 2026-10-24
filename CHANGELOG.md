@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 163: Rilis "latest" hanya setelah 6 aset non-APK lengkap
+- Kedua workflow membuat rilis dengan penanda `latest` otomatis, sehingga rilis yang baru berisi APK (workflow APK jalan ~4 menit, workflow binary ~15 menit/bulanan) menjadi tujuan `/releases/latest/download/...` — jalur yang dipakai app untuk fallback unduhan binary. Selama jendela itu (bisa sampai sebulan bila workflow binary belum jalan) instalasi baru menerima 404.
+- `build-apk.yml` dan `build-binary.yml` kini membuat rilis dengan `--latest=false`; `build-binary.yml` menandai `--latest` hanya setelah verifikasi 6 aset non-APK lolos. Rilis setengah jadi tak pernah jadi tujuan fallback.
+
 ## [Belum rilis] — Audit 162: APK rilis wajib benar-benar bertanda tangan
 - `build-apk.yml` dulu hanya bergantung pada `KEYSTORE_BASE64`; bila salah satu dari tiga secret lain kosong, AGP menghasilkan `app-release-unsigned.apk` yang tetap cocok pola `*release*.apk` lalu terunggah `--clobber` menimpa APK signed.
 - Langkah signing kini memeriksa keempat nilai, menolak berkas bernama `*unsigned*`, dan memverifikasi sertifikat dengan `keytool -printcert -jarfile` sebelum unggah. Password tak lagi dikirim sebagai `-P` (Gradle membaca env; `argv` tak menyimpan rahasia), dan `KEYSTORE_BASE64` dipindah ke level langkah agar langkah lint/unit-test tak melihatnya.
