@@ -556,4 +556,16 @@ public class TgBotTest {
         assertFalse(TgBot.wallBolehMaju(sane, sane - 1_000L));      // mundur
         assertFalse(TgBot.wallBolehMaju(0, 5_000L));                // RTC 1970
     }
+
+    @Test
+    public void wakelockTugasBeratCukupUntukUnduhanLambat() {
+        // /webvault mengunduh ~35 MB: pada 30 KB/s perlu ~20 menit. Batas 3
+        // menit (nilai lama) membuat CPU tidur di tengah transfer.
+        long menit = TgBot.WAKELOCK_TUGAS_BERAT_MS / 60_000L;
+        assertTrue("wakelock tugas berat minimal 15 menit, kini " + menit,
+                menit >= 15);
+        long mbDetik = 35L * 1024L * 1024L / (30L * 1024L);
+        assertTrue("harus menutup 35 MB @30 KB/s (" + mbDetik + " dtk)",
+                TgBot.WAKELOCK_TUGAS_BERAT_MS / 1000L > mbDetik);
+    }
 }

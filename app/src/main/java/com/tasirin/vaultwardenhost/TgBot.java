@@ -2141,6 +2141,10 @@ public final class TgBot {
         }
     }
 
+    /** Batas waktu partial wake lock tugas berat bot (juga pengaman thread
+     *  macet): cukup untuk unduh 35 MB di koneksi lambat, tetap berbatas. */
+    static final long WAKELOCK_TUGAS_BERAT_MS = 20L * 60L * 1000L;
+
     /** Jalankan tugas berat di pool + partial wake lock.
      *  Wake lock best-effort: gagal pasang (pm null / ditolak sistem) tidak
      *  boleh menggagalkan task — flag TUGAS_BERAT milik pemanggil selalu
@@ -2155,9 +2159,12 @@ public final class TgBot {
             PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
             if (pm != null) {
                 wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
-                // 3 menit cukup untuk backup/restore/update; 10 menit menahan
-                // perangkat tetap menyala dan menguras baterai bila tugas gantung.
-                wl.acquire(3 * 60 * 1000L);
+                // Batas ini hanya pengaman thread macet (kunci dilepas di
+                // finally). 3 menit dulu TERLALU PENDEK: /update 20 MB dan
+                // /webvault 35 MB di STB ber-kuota lambat (~60 KB/s) butuh
+                // >9 menit, sehingga CPU tidur di tengah unduhan dan transfer
+                // gagal. 20 menit menutup 35 MB pada ~30 KB/s.
+                wl.acquire(WAKELOCK_TUGAS_BERAT_MS);
             }
         } catch (Exception ignored) {
             wl = null;
