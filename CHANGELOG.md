@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 193: Satu pemindai `tag_name` untuk rilis tunggal & daftar rilis
+- `Updater.extractTag` (versi rilis terbaru) dan `Updater.parseDaftarTag` (daftar versi pilihan) masing-masing menyimpan salinan pemindai JSON struktural ~70 baris. Dua salinan itu wajib diubah bersamaan; perbaikan di satu sisi (mis. body yang memuat `"tag_name"` di dalam teks) tak ikut ke sisi lain sehingga daftar versi dan versi terbaru bisa dibaca berbeda dari respons GitHub yang sama.
+- Keduanya kini memakai satu pemindai `pindaiTag()`; `extractTag` mengambil hasil pertama. Efek samping yang disengaja: bila `tag_name` berisi nilai non-string, pemindai melewatinya dan memakai tag sah berikutnya (dulu `extractTag` langsung menyerah dengan `null`) — perilaku ini kini sama dengan `parseDaftarTag` dan diuji di `pindaiTag_satuPintuUntukRilisTunggalDanDaftar`.
+
 ## [Belum rilis] — Audit 192: AGENTS.md tak lagi merujuk workflow yang tak ada
 - Bagian alur rilis menyebut **`verifikasi-patch.yml`** sebagai workflow gerbang tersendiri, padahal berkas itu tidak pernah ada: verifikasi adalah job `verifikasi` di dalam `build-apk.yml` dan `build-binary.yml`. Panduan yang salah membuat agen/pengguna mencari berkas hantu dan menyimpulkan CI tak berjalan.
 - Bagian itu diganti "Gerbang bersama: job `verifikasi`" (pemicu di kedua workflow, isi dua langkah, annotations), dan klaim "GAGAL = push ditolak" dikoreksi: push tetap masuk `main`, hanya job build di run tersebut yang tidak dijalankan sehingga perlu commit susulan/revert.

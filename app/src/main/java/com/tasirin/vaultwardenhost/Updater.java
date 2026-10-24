@@ -211,9 +211,17 @@ public final class Updater {
     }
 
     /** Urai semua tag_name dari body JSON daftar rilis (terbaru dulu, maks N).
-     *  Struktural seperti extractTag agar literal di dalam string tak ikut.
      *  Murni agar bisa unit test. */
     static java.util.List<String> parseDaftarTag(String body, int maks) {
+        return pindaiTag(body, maks);
+    }
+
+    /** Pemindai tunggal nilai string {@code "tag_name"} yang struktural (di luar
+     *  literal string, escape dihormati) agar literal di dalam body tak salah
+     *  dibaca. Dipakai extractTag (rilis tunggal) dan parseDaftarTag (daftar
+     *  rilis): dulu dua salinan ~70 baris yang wajib diubah bersamaan.
+     *  Sengaja tanpa org.json: stub android.jar di uji JVM tak memparse. */
+    private static java.util.List<String> pindaiTag(String body, int maks) {
         java.util.List<String> keluar = new java.util.ArrayList<>();
         if (body == null || maks <= 0) {
             return keluar;
@@ -2430,71 +2438,14 @@ public final class Updater {
     }
 
     /** Package-private agar bisa diuji unit (tanpa jaringan).
-     *  Cari kunci "tag_name" struktural (di luar literal string, hormati
-     *  escape) agar teks body yang memuat literal itu tak salah dibaca.
-     *  Sengaja tanpa org.json: stub android.jar di uji JVM tak memparse. */
+     *  Cari kunci "tag_name" pertama yang struktural; {@link #pindaiTag}
+     *  menangani literal string dan escape. */
     static String extractTag(String body) {
         if (body == null) {
             return null;
         }
-        String kunci = "\"tag_name\"";
-        int n = body.length();
-        boolean dalamString = false;
-        boolean escape = false;
-        for (int i = 0; i < n; i++) {
-            char c = body.charAt(i);
-            if (dalamString) {
-                if (escape) {
-                    escape = false;
-                } else if (c == '\\') {
-                    escape = true;
-                } else if (c == '"') {
-                    dalamString = false;
-                }
-                continue;
-            }
-            if (c != '"') {
-                continue;
-            }
-            if (!body.startsWith(kunci, i)) {
-                dalamString = true;
-                continue;
-            }
-            int j = i + kunci.length();
-            while (j < n && Character.isWhitespace(body.charAt(j))) {
-                j++;
-            }
-            if (j >= n || body.charAt(j) != ':') {
-                dalamString = true;
-                continue;
-            }
-            j++;
-            while (j < n && Character.isWhitespace(body.charAt(j))) {
-                j++;
-            }
-            if (j >= n || body.charAt(j) != '"') {
-                return null;
-            }
-            StringBuilder tag = new StringBuilder();
-            j++;
-            boolean esc = false;
-            while (j < n) {
-                char d = body.charAt(j);
-                if (esc) {
-                    tag.append(d);
-                    esc = false;
-                } else if (d == '\\') {
-                    esc = true;
-                } else if (d == '"') {
-                    break;
-                } else {
-                    tag.append(d);
-                }
-                j++;
-            }
-            return tag.length() == 0 ? null : tag.toString();
-        }
-        return null;
+        java.util.List<String> tag = pindaiTag(body, 1);
+        return tag.isEmpty() ? null : tag.get(0);
     }
 
     /** True bila file ELF ARM 32-bit (magic + e_machine == EM_ARM).

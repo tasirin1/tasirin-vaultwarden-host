@@ -529,6 +529,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pindaiTag_satuPintuUntukRilisTunggalDanDaftar() {
+        // Dulu extractTag langsung menyerah (null) begitu nilai tag_name bukan
+        // string, sedangkan parseDaftarTag melewatinya. Kini keduanya memakai
+        // pemindai yang sama: nilai non-string dilewati, tag sah berikutnya dipakai.
+        String body = "{\"tag_name\": 123, \"r\": {\"tag_name\": \"v1.2.3\"}}";
+        assertEquals("v1.2.3", Updater.extractTag(body));
+        assertEquals(1, Updater.parseDaftarTag(body, 5).size());
+        assertEquals("v1.2.3", Updater.parseDaftarTag(body, 5).get(0));
+    }
+
+    @Test
     public void shimValid_terimaShimRilis2712Byte() throws Exception {
         // Regresi: shim rilis v1.37.3 hanya 2712 byte (stripped) sehingga
         // batas minimum lama 4096 byte selalu menolaknya sebagai tidak valid.
