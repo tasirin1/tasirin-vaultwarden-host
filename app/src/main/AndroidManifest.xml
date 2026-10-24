@@ -38,11 +38,19 @@
         android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config">
 
+        <!-- Sengaja TANPA android:configChanges: rotasi wajib membuat ulang
+             activity agar layout-land/activity_main.xml, layout-land/activity_pin.xml
+             dan dimensi values-sw480dp-land / values-sw600dp-land benar-benar
+             dipakai. Dulu configChanges dipasang tanpa onConfigurationChanged,
+             sehingga tata letak landscape tak pernah dimuat setelah rotasi
+             (tampilan portrait yang diregangkan). State aman: SettingsActivity
+             menyiram tulis tertunda + menyimpan setelan valid di onPause, dan
+             tugas backup/restore dikunci statis di TgBackup (kunciBackup/
+             kunciRestore) sehingga activity baru tak bisa menjalankan tugas ganda. -->
         <activity
             android:name=".MainActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,20 +61,17 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
 
         <activity
             android:name=".PinActivity"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
 
         <activity
             android:name=".LogActivity"
             android:exported="false"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
 
         <!-- foregroundServiceType dataSync: sinkronisasi data server di foreground. -->
