@@ -2712,10 +2712,26 @@ public final class TgBackup {
     /** Total ukuran isi (tak terkompresi) seluruh entri zip, atau -1 bila zip
      *  tak terbaca. Dipakai cek ruang sebelum restore: db + WAL + tls di
      *  dalam zip bisa jauh lebih besar dari file zip-nya. Murni I/O. */
-    static long ukuranIsiZip(File zip) {
-        if (zip == null || !zip.isFile()) {
-            return -1;
+    /** Hasil satu lintasan zip restore: isi app-config.json (null bila tak ada/
+     *  rusak) + total ukuran isi tak terkompresi (-1 bila zip tak terbaca).
+     *  Probe config dan cek ruang digabung agar zip tak dibuka dua kali sebelum
+     *  ekstraksi (ekstraksi tetap lintasan sendiri karena menulis berkas). */
+    static final class PindaiZip {
+        final String config;
+        final long ukuran;
+
+        PindaiZip(String config, long ukuran) {
+            this.config = config;
+            this.ukuran = ukuran;
         }
+    }
+
+    /** Satu lintasan: baca app-config.json + jumlahkan ukuran isi (batas zip-bomb). */
+    static PindaiZip pindaiZipRestore(File zip) {
+        if (zip == null || !zip.isFile()) {
+            return new PindaiZip(null, -1);
+        }
+        String config = null;
         long total = 0;
         try (ZipFile zf = new ZipFile(zip)) {
             java.util.Enumeration<? extends ZipEntry> en = zf.entries();
@@ -2724,6 +2740,13 @@ public final class TgBackup {
                 if (e.isDirectory()) {
                     continue;
                 }
+                if (config == null
+                        && "app-config.json".equals(normalisasiEntriZip(e.getName()))) {
+                    try (java.io.InputStream in = zf.getInputStream(e)) {
+                        config = new String(readAllBytes(in), StandardCharsets.UTF_8);
+                    } catch (Exception ignored) {
+                    }
+                }
                 long ukuran = e.getSize();
                 if (ukuran < 0) {
                     continue;
@@ -2731,13 +2754,18 @@ public final class TgBackup {
                 total += ukuran;
                 if (total > Util.BATAS_UNZIP_RESTORE) {
                     // Cukup tahu "melebihi batas": jangan jumlahkan zip bom.
-                    return Util.BATAS_UNZIP_RESTORE + 1;
+                    return new PindaiZip(config, Util.BATAS_UNZIP_RESTORE + 1);
                 }
             }
         } catch (Exception e) {
-            return -1;
+            return new PindaiZip(config, -1);
         }
-        return total;
+        return new PindaiZip(config, total);
+    }
+
+    /** Total isi zip tak terkompresi (-1 bila tak terbaca). */
+    static long ukuranIsiZip(File zip) {
+        return pindaiZipRestore(zip).ukuran;
     }
 
     // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
@@ -2776,19 +2804,15 @@ public final class TgBackup {
         // di dalam zip tak tepercaya (bisa menunjuk path arbitrer) sehingga
         // sengaja diabaikan; pengaturan non-rahasia tetap diterapkan
         // belakangan via applyPrefsFromJson (kecuali data_dir).
+        // Satu lintasan sekaligus: config + total isi untuk cek ruang di bawah
+        // (dulu zip dibuka dua kali sebelum ekstraksi).
+        PindaiZip pindai = pindaiZipRestore(zip);
         JSONObject cfg = null;
-        try (ZipInputStream probe = new ZipInputStream(new FileInputStream(zip))) {
-            ZipEntry e;
-            while ((e = probe.getNextEntry()) != null) {
-                // Samakan dengan loop ekstraksi + restore UI: kupas satu folder
-                // pembungkus agar zip asing tetap menerapkan prefs-nya.
-                if ("app-config.json".equals(normalisasiEntriZip(e.getName()))) {
-                    cfg = new JSONObject(new String(readAllBytes(probe),
-                            StandardCharsets.UTF_8));
-                    break;
-                }
+        if (pindai.config != null) {
+            try {
+                cfg = new JSONObject(pindai.config);
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
         }
         String dataDir = curDir;
         File dataFolder = new File(dataDir);
@@ -2801,7 +2825,7 @@ public final class TgBackup {
         // menulis db (+WAL) + tls yang bisa jauh lebih besar dari zip, lalu
         // masih menyimpan salinan pengaman DB lama. Tanpa cek, storage penuh
         // di tengah ekstraksi memaksa rollback dengan pesan membingungkan.
-        long isiZip = ukuranIsiZip(zip);
+        long isiZip = pindai.ukuran;
         if (isiZip > Util.BATAS_UNZIP_RESTORE) {
             throw new IOException("Isi zip melebihi batas aman restore ("
                     + Util.BATAS_UNZIP_RESTORE + " byte) - restore dibatalkan.");

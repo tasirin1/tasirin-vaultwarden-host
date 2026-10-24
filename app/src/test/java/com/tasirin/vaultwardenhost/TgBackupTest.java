@@ -473,6 +473,31 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pindaiZipRestore_sekaliJalanAmbilConfigDanUkuran() throws Exception {
+        java.io.File zip = java.io.File.createTempFile("vw-pindai-", ".zip");
+        try {
+            String cfg = "{\"port\":\"8088\"}";
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+                zos.putNextEntry(new ZipEntry("vaultwarden/app-config.json"));
+                zos.write(cfg.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                zos.closeEntry();
+                zos.putNextEntry(new ZipEntry("vaultwarden/db.sqlite3"));
+                zos.write(new byte[10]);
+                zos.closeEntry();
+            }
+            TgBackup.PindaiZip p = TgBackup.pindaiZipRestore(zip);
+            assertEquals(cfg, p.config);
+            assertEquals(cfg.length() + 10L, p.ukuran);
+        } finally {
+            zip.delete();
+        }
+        TgBackup.PindaiZip hilang = TgBackup.pindaiZipRestore(
+                new java.io.File(zip.getParentFile(), "tak-ada-pindai.zip"));
+        assertNull(hilang.config);
+        assertEquals(-1L, hilang.ukuran);
+    }
+
+    @Test
     public void folderBytesWalk_symlinkMelingkarTakMeledak() throws Exception {
         java.nio.file.Path dasar = java.nio.file.Files.createTempDirectory("vw-walk-");
         java.nio.file.Path sub = java.nio.file.Files.createDirectory(dasar.resolve("sub"));
