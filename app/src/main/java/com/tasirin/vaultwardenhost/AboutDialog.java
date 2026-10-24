@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -97,6 +98,27 @@ final class AboutDialog {
         }
         TextView kaki = (TextView) lihat.findViewById(R.id.about_footer);
         kaki.setText(a.getString(R.string.about_tech, 21, targetSdk, build));
+        // ScrollView tak mengenal android:maxHeight (dulu dipasang sia-sia di
+        // XML dan tinggi 0dp+bobot ikut runtuh karena root wrap_content).
+        // Batasi tinggi daftar baris secara adaptif: 40% tinggi layar, hanya
+        // bila isinya memang lebih panjang, agar tombol Tutup tetap terjangkau
+        // di TV 480p.
+        ScrollView gulir = (ScrollView) lihat.findViewById(R.id.about_scroll);
+        int lebarLayar = a.getResources().getDisplayMetrics().widthPixels;
+        int lebar = Math.min((int) (560 * kepadatan + 0.5f),
+                lebarLayar - (int) (48 * kepadatan + 0.5f));
+        int lebarIsi = (lebar > 0 ? lebar : lebarLayar)
+                - (int) (40 * kepadatan + 0.5f);
+        baris.measure(View.MeasureSpec.makeMeasureSpec(Math.max(0, lebarIsi),
+                        View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        int tinggiMaks = (int) (a.getResources().getDisplayMetrics().heightPixels * 0.40f);
+        if (gulir != null && tinggiMaks > 0
+                && baris.getMeasuredHeight() > tinggiMaks) {
+            android.view.ViewGroup.LayoutParams lp = gulir.getLayoutParams();
+            lp.height = tinggiMaks;
+            gulir.setLayoutParams(lp);
+        }
         lihat.findViewById(R.id.btn_about_github).setOnClickListener(v -> {
             try {
                 a.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
@@ -110,9 +132,6 @@ final class AboutDialog {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(
                     android.R.color.transparent);
-            int lebarLayar = a.getResources().getDisplayMetrics().widthPixels;
-            int lebar = Math.min((int) (560 * kepadatan + 0.5f),
-                    lebarLayar - (int) (48 * kepadatan + 0.5f));
             if (lebar > 0) {
                 dialog.getWindow().setLayout(lebar,
                         WindowManager.LayoutParams.WRAP_CONTENT);

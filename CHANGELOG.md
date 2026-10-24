@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 187: Tinggi daftar baris dialog Tentang benar-benar dibatasi
+- `dialog_about.xml` memakai `android:maxHeight` pada `ScrollView` — atribut itu bukan milik `ScrollView` sehingga diabaikan, dan `layout_height="0dp"` + `layout_weight="1"` di dalam root `wrap_content` membuat daftar baris runtuh ke 0 atau mendorong tombol Tutup keluar layar pada TV 480p.
+- ScrollView kini `wrap_content` tanpa `maxHeight`; `AboutDialog` mengukur tinggi isi lalu membatasinya ke 40% tinggi layar hanya bila isinya lebih panjang, sehingga baris tetap terbaca, bisa digulir, dan tombol Tutup selalu terjangkau.
+
 ## [Belum rilis] — Audit 186: Varian layout landscape layar awal yang duplikat dihapus
 - `res/layout-land/activity_main.xml` adalah salinan penuh `res/layout/activity_main.xml` dengan satu-satunya beda `paddingTop` 8dp vs 12dp. Dua berkas besar dengan ID yang wajib sama persis berarti setiap perubahan layar awal harus disalin manual; lupa satu sisi = crash `findViewById`/ID hilang hanya di satu orientasi.
 - Varian landscape dihapus (portrait dipakai di kedua orientasi, selisih 4dp tak sepadan dengan risiko drift) dan komentar layout + `AGENTS.md` disesuaikan.
