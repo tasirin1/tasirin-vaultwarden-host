@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 213: Polling bot tak pernah dijalankan di main thread
+- `TgBotReceiver.onReceive` memakai `tugas.run()` sebagai fallback terakhir saat pool bot penuh **dan** pembuatan thread baru gagal. Itu menjalankan `TgBot.pollOnce()` (long-poll Telegram 15–35 detik + I/O prefs) langsung di main thread dari dalam `onReceive`: UI beku, ANR, lalu proses/receiver dibunuh sistem — justru saat perangkat sedang kekurangan thread.
+- Fallback kini hanya menutup `PendingResult` + melepas wakelock (satu pintu `selesaikan`) dan mencatat alasannya; alarm polling 20 detik berikutnya memicu ulang saat thread tersedia. Tidak ada jalur yang memblokir main thread.
+
 ## [Belum rilis] — Audit 212: Galat factory PBKDF2 transien tak lagi menurunkan hash permanen
 - `PinCrypto.pabrikTersedia()` mengingat `FALSE` untuk **semua** exception `SecretKeyFactory.getInstance()`, dan `derive()` menulis `pabrikAda = FALSE` pada exception apa pun dari `generateSecret()`. Satu gangguan sesaat (provider sibuk, alokasi gagal) membuat proses hidup menganggap perangkat tak punya PBKDF2-SHA256 selamanya: hash baru ditulis dengan iterasi legasi 12rb dan setiap buka PIN memakai jalur manual yang 2–3× lebih lambat, padahal factory perangkat sehat.
 - Kini hanya `NoSuchAlgorithmException` (algoritma memang tak tersedia) yang diingat permanen; galat transien tidak di-cache sehingga deteksi diulang pada panggilan berikutnya. Untuk panggilan yang gagal, hasil manual tetap dipakai (bit-identik dengan factory), jadi verifikasi tidak berubah. Klasifikasi murni `pabrikHilangPermanen(Throwable)` + uji JVM.

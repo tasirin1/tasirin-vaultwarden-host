@@ -52,25 +52,39 @@ public class TgBotReceiver extends BroadcastReceiver {
             try {
                 TgBot.pollOnce(context);
             } finally {
-                try {
-                    pr.finish();
-                } finally {
-                    if (wl != null && wl.isHeld()) {
-                        wl.release();
-                    }
-                }
+                selesaikan(pr, wl);
             }
         };
         // Pool bot bersama dulu (hemat thread baru tiap 20 dtk di STB 1 GB);
         // fallback thread sendiri bila pool penuh agar goAsync/wakelock
         // tetap selesai dan polling berikut tak macet.
         if (!TgBot.cobaJalankanBg(tugas)) {
+            boolean jalan = false;
             try {
                 Thread t = new Thread(tugas, "vw-tgbot");
                 t.setDaemon(true);
                 t.start();
-            } catch (Exception e) {
-                tugas.run();
+                jalan = true;
+            } catch (Exception ignored) {
+            }
+            if (!jalan) {
+                // JANGAN jalankan poll di main thread: long-poll 15-35 dtk
+                // memblokir onReceive sampai ANR + receiver dibunuh. Cukup
+                // selesaikan goAsync/wakelock; alarm 20 dtk berikutnya
+                // memicu ulang polling saat thread tersedia lagi.
+                selesaikan(pr, wl);
+                ServerService.catatLog("[tg] Poll dilewati: thread bot gagal dibuat.");
+            }
+        }
+    }
+
+    /** Tutup PendingResult lalu lepas wakelock (urutan aman di semua jalur). */
+    private static void selesaikan(PendingResult pr, PowerManager.WakeLock wl) {
+        try {
+            pr.finish();
+        } finally {
+            if (wl != null && wl.isHeld()) {
+                wl.release();
             }
         }
     }
