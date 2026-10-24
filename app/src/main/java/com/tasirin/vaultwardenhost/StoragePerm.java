@@ -132,9 +132,14 @@ public final class StoragePerm {
         if (sudahPunyaAkses(act)) {
             return true;
         }
-        mintaIzinBilaPerlu(act, reqTulis);
-        Toast.makeText(act, act.getString(R.string.izin_storage_belum),
-                Toast.LENGTH_LONG).show();
+        // Bila dialog izin baru dimunculkan, jangan menumpuk toast "belum
+        // diberikan" di atas dialog (dulu user melihat dua pesan sekaligus).
+        // Penolakan tetap dilaporkan lewat onRequestPermissionsResult.
+        boolean diminta = mintaIzinBilaPerlu(act, reqTulis);
+        if (!diminta) {
+            Toast.makeText(act, act.getString(R.string.izin_storage_belum),
+                    Toast.LENGTH_LONG).show();
+        }
         ServerService.catatLog("[app] Start dibatalkan: izin penyimpanan belum diberikan "
                 + "untuk " + dataDir + ".");
         return false;
