@@ -612,11 +612,24 @@ public final class TgBackup {
             cachePath = c == null ? "" : c.getAbsolutePath();
         } catch (Exception ignored) {
         }
+        // Proyeksi ruang dari isi DB, bukan ambang tetap 10 MB: zip backup
+        // memuat salinan DB (+WAL/SHM), sedangkan jalur terenkripsi juga
+        // membangun zip plaintext + salinan verifikasi di cache. Dulu DB besar
+        // lolos gerbang 10 MB lalu gagal di tengah pembuatan zip dengan pesan
+        // membingungkan dan sisa file .tmp.
+        long isiDb = panjangBerkas(db)
+                + panjangBerkas(new File(dataDir, "db.sqlite3-wal"))
+                + panjangBerkas(new File(dataDir, "db.sqlite3-shm"));
         for (String folder : folderCekRuangBackup(dataDir, terenkripsi, cachePath)) {
+            boolean folderCache = folder != null && cachePath != null
+                    && folder.trim().equals(cachePath.trim());
+            long butuh = ruangBackupDibutuhkan(isiDb, folderCache, terenkripsi);
             long free = freeBytes(ctx, folder);
-            if (free >= 0 && free < 10L * 1024 * 1024) {
-                throw new IOException("Sisa penyimpanan tinggal " + (free / 1048576)
-                        + " MB di " + folder + " - backup dibatalkan.");
+            if (free >= 0 && free < butuh) {
+                throw new IOException("Storage kurang untuk backup (butuh "
+                        + humanBytes(butuh) + ", sisa " + humanBytes(free)
+                        + " di " + folder + ") - kosongkan penyimpanan atau"
+                        + " hapus backup lama lalu ulangi.");
             }
         }
 
@@ -3937,6 +3950,24 @@ public final class TgBackup {
             hasil.add(dataDir);
         }
         return hasil;
+    }
+
+    /** Panjang berkas aman (0 bila tak ada/tak terbaca). */
+    static long panjangBerkas(File f) {
+        return f != null && f.isFile() ? f.length() : 0;
+    }
+
+    /** Perkiraan ruang minimum (byte) untuk satu folder backup. Folder data
+     *  menerima hasil akhir (.zip/.enc) ≈ isi DB; cache internal tempat zip
+     *  plaintext + salinan verifikasi dibangun butuh ±2x isi DB saat backup
+     *  dienkripsi. Margin 5 MB menutup overhead zip/TLS/config, dengan lantai
+     *  10 MB agar DB kecil tak lolos hanya karena isinya 0. Murni (diuji). */
+    static long ruangBackupDibutuhkan(long isiDb, boolean folderCache,
+                                      boolean terenkripsi) {
+        long isi = Math.max(0L, isiDb);
+        long butuh = (folderCache && terenkripsi) ? 2L * isi : isi;
+        butuh += 5L * 1024 * 1024;
+        return Math.max(butuh, 10L * 1024 * 1024);
     }
 
     /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar

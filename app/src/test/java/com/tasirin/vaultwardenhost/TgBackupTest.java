@@ -1357,6 +1357,35 @@ public class TgBackupTest {
     }
 
     @Test
+    public void ruangBackupDibutuhkanIkutUkuranDb() {
+        long mb = 1024L * 1024L;
+        // Lantai 10 MB: DB kosong/kecil tetap butuh ruang kerja minimum.
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(0, false, false));
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, false, false));
+        // Folder data menerima hasil akhir zip/.enc ≈ isi DB + margin 5 MB.
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, false));
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, true));
+        // Cache terenkripsi: zip plaintext + salinan verifikasi = 2x isi DB.
+        assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, true));
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, false));
+        // Panjang negatif (berkas tak terbaca) diperlakukan nol.
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(-5, true, true));
+    }
+
+    @Test
+    public void panjangBerkasAmanUntukBerkasHilang() throws Exception {
+        assertEquals(0L, TgBackup.panjangBerkas(null));
+        assertEquals(0L, TgBackup.panjangBerkas(new File("/tidak/ada/berkas-vw")));
+        File f = java.nio.file.Files.createTempFile("vwpanjang", ".bin").toFile();
+        try {
+            java.nio.file.Files.write(f.toPath(), new byte[]{1, 2, 3, 4, 5});
+            assertEquals(5L, TgBackup.panjangBerkas(f));
+        } finally {
+            f.delete();
+        }
+    }
+
+    @Test
     public void cekIntegritasDbUlangTakMelemparTanpaSqlite() throws Exception {
         File f = java.nio.file.Files.createTempFile("vwcek", ".sqlite3").toFile();
         java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
