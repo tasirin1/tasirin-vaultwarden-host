@@ -955,11 +955,11 @@ public class UpdaterTest {
     @Test
     public void pindaiHexDariBaris_lewatiBarisSampah() {
         String hex = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
-        assertNull(Updater.pindaiHexDariBaris(null));
-        assertNull(Updater.pindaiHexDariBaris(java.util.Collections.<String>emptyList()));
-        assertNull(Updater.pindaiHexDariBaris(java.util.Arrays.asList("", "# komentar", "bukanhex")));
+        assertNull(Updater.pindaiHexDariBaris(null, null));
+        assertNull(Updater.pindaiHexDariBaris(java.util.Collections.<String>emptyList(), "web-vault.zip"));
+        assertNull(Updater.pindaiHexDariBaris(java.util.Arrays.asList("", "# komentar", "bukanhex"), null));
         assertEquals(hex, Updater.pindaiHexDariBaris(java.util.Arrays.asList(
-                "# komentar", "SHA256 (lama.zip) = bukanhex", hex + "  baru.zip")));
+                "# komentar", "SHA256 (lama.zip) = bukanhex", hex + "  baru.zip"), null));
     }
 
     @Test
@@ -984,7 +984,6 @@ public class UpdaterTest {
         assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, "vaultwarden-armeabi-v7a"));
         // Tanpa nama: fallback hex pertama (kompatibel perilaku lama).
         assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, null));
-        assertEquals(hexLama, Updater.pindaiHexDariBaris(baris));
     }
 
     @Test

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Audit 208: Sisa kode mati (field, konstanta, overload, cabang) dibuang
+- `ServerService.lastStartTime` hanya ditulis (`startServer`) dan tak pernah dibaca — uptime/health memakai `lastStartElapsed` (monotonik). Field + penulisannya dihapus.
+- `SettingsActivity.kuncianCekAt` (dengan komentar "throttle baca prefs kuncian") tak pernah dipakai; dihapus.
+- `Updater.KEY_WV_FALLBACK_AT` hanya ditulis/dihapus, tak pernah dibaca: keputusan fallback web-vault sudah berbasis isi (`fallbackTercatatUntuk` + probe `.sha256`), bukan timer. Konstanta + tulis/hapusnya dibuang; `KEY_WV_FALLBACK_FOR` tetap (dibaca).
+- Overload `Updater.pindaiHexDariBaris(List)` hanya dipakai unit test (produksi memakai varian 2-argumen dengan nama asset); overload dihapus dan uji memanggil varian 2-argumen (`null` = tanpa preferensi nama). Nama metode masih dipakai, jadi tak masuk `bekas-hapusan.txt`.
+- `bg_chip.xml` punya `<item android:state_selected="true">`, tetapi tak ada satu pun view chip yang memanggil `setSelected`/memakai state itu; item + komentar "terpilih primary solid" dihapus.
+- `ServerService.startForegroundCompat()` memanggil `createChannel()` lagi padahal `onCreate()` (selalu jalan lebih dulu untuk instance service) sudah membuatnya; panggilan ganda dibuang.
+- `pingRinci()` menginisialisasi `HasilCoba config = new HasilCoba(-1, "")` yang langsung ditimpa di kedua cabang; kini dideklarasikan tanpa nilai awal.
+- `MainActivity.saveAndStart()` memeriksa `portNum < 1024 || > 65535` padahal `effectivePort()` menjamin hasil `normalisasiPort()` (1024-65535); cabang + `try/catch` yang tak terjangkau dihapus.
+
 ## [Belum rilis] — Audit 207: Uji shim getrandom juga menguji penerusan `syscall()` lain
 - Shim mencegat **seluruh** simbol `syscall()` (bukan hanya nomor `SYS_getrandom`): nomor lain diteruskan ke `dlsym(RTLD_NEXT, "syscall")`. Uji host `shim/test_interpose.c` hanya memanggil `getrandom()` dan `syscall(SYS_getrandom)`, sehingga regresi jalur penerusan (dlsym gagal, `va_arg` kacau, deadlock reentransi constructor) lolos CI dan baru muncul di perangkat sebagai kegagalan syscall tak terkait (I/O, close, tulis) saat shim dipasang.
 - Uji kini menambah tiga penerusan nyata: `SYS_getpid` harus sama dengan `getpid()`, `SYS_close(-1)` harus mengembalikan `-1` + `EBADF` (errno dari kernel, bukan `ENOSYS` shim), dan `SYS_write` 3-argumen harus menulis tepat sejumlah byte. Semua argumen varargs diisi eksplisit agar hook yang membaca enam argumen tak menyentuh nilai tak terdefinisi.

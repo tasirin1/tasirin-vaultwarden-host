@@ -457,7 +457,6 @@ public class ServerService extends Service {
     /** Kunci statis pendamping restartAttempt (sinkron instance tak
      *  melindungi antar instance hasil recreate). */
     private static final Object KUNCI_RESTART = new Object();
-    private static volatile long lastStartTime = 0;
     /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
     private static volatile long lastStartElapsed = 0;
     /** Statis agar hitungan gagal tak di-reset recreate sistem (selaras restartAttempt). */
@@ -779,7 +778,7 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         HasilCoba alive = cobaKode(ctx, p, "/alive");
-        HasilCoba config = new HasilCoba(-1, "");
+        HasilCoba config;
         // /alive butuh DB; fallback ringan /api/config memastikan server
         // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
         // Galat transport (-1) tak perlu fallback: /api/config memakai TLS yang
@@ -1276,10 +1275,8 @@ public class ServerService extends Service {
     // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
     @SuppressWarnings("deprecation")
     private void startForegroundCompat() {
-        try {
-            createChannel();
-        } catch (Exception ignored) {
-        }
+        // Channel sudah dibuat sekali di onCreate (satu instance service selalu
+        // melewati onCreate sebelum foreground); panggilan kedua tak berguna.
         startForeground(NOTIF_ID, bangunNotifikasi());
         notifForeground = true;
     }
@@ -2113,7 +2110,6 @@ public class ServerService extends Service {
             // dilupakan saat user menekan Start (lupakanRiwayatRestart), dan
             // ringkasan dibatasi jendela 5 menit agar tak tampil basi.
             healthFails.set(0);
-            lastStartTime = System.currentTimeMillis();
             lastStartElapsed = SystemClock.elapsedRealtime();
             // restartAttempt TIDAK di-reset tiap start: itu mematikan batas 5x
             // untuk crash beruntun ber-uptime pendek. Reset hanya terjadi saat

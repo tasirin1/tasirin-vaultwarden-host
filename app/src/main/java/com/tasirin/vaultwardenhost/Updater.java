@@ -335,8 +335,6 @@ public final class Updater {
     static final String KEY_WV_SHA = "wv_sha";
     /** Versi yang dipasang via fallback rilis terbaru (asset versi belum terbit). */
     static final String KEY_WV_FALLBACK_FOR = "wv_fallback_for";
-    /** Jangkar elapsed saat fallback dipasang (SystemClock, ms). */
-    static final String KEY_WV_FALLBACK_AT = "wv_fallback_at";
     /** Versi target yang asset binary-nya belum terbit; sudah pakai rilis terbaru. */
     static final String KEY_BIN_FALLBACK_FOR = "bin_fallback_for";
     /** Jangkar elapsed saat fallback binary dipasang (SystemClock, ms). */
@@ -1827,8 +1825,7 @@ public final class Updater {
                 return "Web vault v" + latest + " belum tersedia; versi terpasang"
                         + " tetap dipakai (dicek ulang otomatis nanti).";
             }
-            sp.edit().remove(KEY_WV_FALLBACK_FOR)
-                    .remove(KEY_WV_FALLBACK_AT).apply();
+            sp.edit().remove(KEY_WV_FALLBACK_FOR).apply();
         }
         // Penanda versi kosong (dulu dipasang saat cek versi terbaru gagal) tapi
         // sidik isi tersimpan: buktikan lewat berkas .sha256 target (kecil saja),
@@ -2049,10 +2046,9 @@ public final class Updater {
             sp.edit().putString(KEY_WV_SHA, wvDigestHex).apply();
         }
         if (latest != null && !wvFallback) {
-            sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_WV_FALLBACK_AT).apply();
+            sp.edit().remove(KEY_WV_FALLBACK_FOR).apply();
         } else if (latest != null && wvFallback) {
-            sp.edit().putString(KEY_WV_FALLBACK_FOR, latest)
-                    .putLong(KEY_WV_FALLBACK_AT, SystemClock.elapsedRealtime()).apply();
+            sp.edit().putString(KEY_WV_FALLBACK_FOR, latest).apply();
         }
         return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER;
     }
@@ -2565,13 +2561,6 @@ public final class Updater {
             }
         }
         return null;
-    }
-
-    /** Pindai daftar baris checksum, kembalikan 64-hex valid pertama.
-     *  Baris tanpa hex dilewati (komentar/kosong); null bila tak ada yang
-     *  valid. Murni agar bisa unit test. */
-    static String pindaiHexDariBaris(java.util.List<String> baris) {
-        return pindaiHexDariBaris(baris, null);
     }
 
     /** Varian yang mengutamakan baris berisi nama asset yang diminta.

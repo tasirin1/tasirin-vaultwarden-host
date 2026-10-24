@@ -310,8 +310,6 @@ public class SettingsActivity extends Activity {
     private String msgAdminSalah = "";
     private String msgTokenSalah = "";
     private String msgChatSalah = "";
-    /** Throttle baca prefs kuncian: mentah berubah hanya via dialog/bot. */
-    private long kuncianCekAt = 0;
 
     /** Status kotor terakhir per label: setText/setColor yang isinya sama
      *  tetap memicu layout sehingga wajib dilewati bila tak berubah. */

@@ -373,25 +373,12 @@ public class MainActivity extends Activity {
             appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
             return;
         }
-        String port = ServerService.effectivePort(sp);
         final String finalDataDir = dataDir;
-
-        int portNum = -1;
-        try {
-            portNum = Integer.parseInt(port.trim());
-        } catch (Exception ignored) {
-        }
-        // effectivePort() sudah menormalisasi ke 1024-65535 (selaras
-        // ServerService.normalisasiPort); penolakan di sini hanya jaring
-        // pengaman dengan pesan yang sama agar tak menyesatkan.
-        if (portNum < 1024 || portNum > 65535) {
-            toast("Port must be a number 1024-65535 (<1024 needs root). Change it in Settings.");
-            appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
-            return;
-        }
+        // effectivePort() selalu mengembalikan angka 1024-65535 (normalisasiPort),
+        // jadi cabang penolakan port di sini tak pernah bisa tercapai.
+        final int portFix = Integer.parseInt(ServerService.effectivePort(sp));
         // Cek bind di worker thread: bind ServerSocket di UI thread rawan ANR/
         // StrictMode, dan hasilnya tetap TOCTOU (service cek ulang sebelum start).
-        final int portFix = portNum;
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {
             final boolean busy = ServerService.isPortBusy(portFix);
