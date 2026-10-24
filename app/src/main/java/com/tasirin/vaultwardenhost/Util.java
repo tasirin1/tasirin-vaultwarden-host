@@ -510,18 +510,6 @@ public final class Util {
         return true;
     }
 
-    /** Potong host sampai / ? # tanpa split regex (tanpa kompilasi). */
-    static String potongHost(String h) {
-        int n = h.length();
-        for (int i = 0; i < n; i++) {
-            char c = h.charAt(i);
-            if (c == '/' || c == '?' || c == '#') {
-                return h.substring(0, i);
-            }
-        }
-        return h;
-    }
-
     /** Trim aman untuk hasil prefs yang bisa null (tanpa NPE). Murni. */
     public static String amanTrim(String s) {
         return s == null ? "" : s.trim();
@@ -945,10 +933,10 @@ public final class Util {
             return false;
         }
         String l = lokasi.trim();
-        if (l.startsWith("//")) {
-            String host = potongHost(l.substring(2));
-            return telegram ? hostTelegramAman(host) : hostGithubAman(host);
-        }
+        // Protokol-relatif ("//host/...") sudah divalidasi bolehIkutiRedirect
+        // di atas: hanya host yang sama dengan asal yang lolos, jadi cabang
+        // "/" di bawah sudah benar. Dulu host di-parse ulang di sini (alokasi
+        // baru tiap redirect) dan hasilnya selalu true.
         if (l.startsWith("/")) {
             return true;
         }
