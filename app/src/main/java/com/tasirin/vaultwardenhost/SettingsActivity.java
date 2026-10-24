@@ -1897,6 +1897,13 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
                 return;
             }
+            // Proses yatim (anak server yang selamat saat app dibunuh sistem)
+            // tak terlihat isProcessAlive tetapi masih memegang db.sqlite3.
+            if (!ServerService.bereskanServerYatim()) {
+                toast("An old server process is still running — restore cancelled to protect the DB.");
+                appendUiLog("[app] Restore dibatalkan: proses vaultwarden yatim masih hidup.");
+                return;
+            }
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {

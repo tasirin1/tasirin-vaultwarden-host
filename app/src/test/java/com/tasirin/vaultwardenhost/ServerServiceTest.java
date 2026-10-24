@@ -546,6 +546,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void pidYatimServer_lewatiProsesSendiriDanSmokeTest() {
+        String server = "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a";
+        assertTrue(ServerService.pidYatimServer(1234, 99, server));
+        // Proses app sendiri (mis. pid basi dari prefs) tak boleh dibunuh.
+        assertFalse(ServerService.pidYatimServer(99, 99, server));
+        assertFalse(ServerService.pidYatimServer(-1, 99, server));
+        assertFalse(ServerService.pidYatimServer(1234, 99, server + " --version"));
+        assertFalse(ServerService.pidYatimServer(1234, 99, "/system/bin/sh"));
+        assertFalse(ServerService.pidYatimServer(1234, 99, null));
+    }
+
+    @Test
     public void unduhBolehDicobaBilaJamMundur() {
         // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
         assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));

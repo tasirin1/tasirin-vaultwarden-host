@@ -3768,6 +3768,15 @@ public class ServerService extends Service {
     private static long cachePidSeUidAt = 0;
     private static final long PID_CACHE_TTL_MS = 8000;
 
+    /** Kosongkan cache pindai /proc agar pemanggil melihat proses yang baru
+     *  lahir/mati (dipakai sebelum & sesudah membersihkan server yatim). */
+    private static void segarkanCachePid() {
+        synchronized (KUNCI_PROC) {
+            cachePidSeUid = null;
+            cachePidSeUidAt = 0;
+        }
+    }
+
     /** Kandidat PID se-UID (bukan proses kita): satu pindai /proc dipakai
      *  findChildPid + killStaleVaultwarden agar Start tak membayar listFiles
      *  + baca status per PID dua kali. Tanpa baca cmdline (mahal, beda
@@ -3865,6 +3874,66 @@ public class ServerService extends Service {
         }
     }
 
+    /** Pastikan tak ada proses vaultwarden se-UID yang masih hidup sebelum
+     *  db.sqlite3 ditimpa restore. Anak server yang selamat saat app dibunuh
+     *  sistem/update menjadi yatim (di-reparent ke init) sehingga tak terlihat
+     *  lewat Process statis {@link #isProcessAlive()} — menimpa DB yang masih
+     *  dipegangnya bisa merusak DB/WAL. Bunuh lalu pastikan hilang (maks
+     *  ~1,2 dtk). Return false bila masih bertahan (restore wajib dibatalkan).
+     *  Wajib dipanggil dari worker thread (ada jeda tunggu), bukan UI. */
+    public static boolean bereskanServerYatim() {
+        int myPid = android.os.Process.myPid();
+        for (int percobaan = 0; percobaan < 3; percobaan++) {
+            // Paksa pindai /proc segar: cache 8 dtk bisa belum memuat proses
+            // yang lahir/mati tepat sebelum restore dimulai.
+            segarkanCachePid();
+            boolean ada = false;
+            for (int pid : kandidatPidSeUid()) {
+                String cmd;
+                try {
+                    cmd = readProcCmdline(new File("/proc/" + pid));
+                } catch (Exception e) {
+                    continue;
+                }
+                if (!pidYatimServer(pid, myPid, cmd)) {
+                    continue;
+                }
+                ada = true;
+                // Verifikasi ulang tepat sebelum bunuh: PID bisa dipakai ulang
+                // proses lain se-UID di jeda baca-cmdline vs kill (anti recycle).
+                if (!pidMilikiServer(pid)) {
+                    continue;
+                }
+                try {
+                    android.os.Process.killProcess(pid);
+                    catatLog("[app] Proses vaultwarden yatim (pid " + pid
+                            + ") dibersihkan sebelum restore.");
+                } catch (Exception ignored) {
+                }
+            }
+            if (!ada) {
+                return true;
+            }
+            // SIGKILL: beri jeda singkat agar entri /proc/<pid> hilang sebelum
+            // verifikasi ulang (killProcess sudah memastikan sinyal terkirim).
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        segarkanCachePid();
+        for (int pid : kandidatPidSeUid()) {
+            if (pid != myPid && pidMilikiServer(pid)) {
+                catatLog("[app] Proses vaultwarden yatim (pid " + pid
+                        + ") masih hidup - restore dibatalkan.");
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** True bila cmdline milik binary server app (bukan smoke-test
      *  "--version" milik flow update/start konkuren). Murni.
      *  Ketat: path internal selalu ".../bin/vaultwarden-armeabi-v7a";
@@ -3878,6 +3947,13 @@ public class ServerService extends Service {
     /** True bila cmdline milik server basi yang boleh dibunuh. Murni. */
     static boolean bolehBunuhBasi(String cmd) {
         return cmdlineServer(cmd);
+    }
+
+    /** True bila pid kandidat adalah server yatim yang boleh dibersihkan
+     *  sebelum restore: bukan proses app sendiri dan cmdline-nya binary server
+     *  (bukan smoke-test "--version"). Murni. */
+    static boolean pidYatimServer(int pid, int myPid, String cmd) {
+        return pid >= 0 && pid != myPid && cmdlineServer(cmd);
     }
 
     /** True bila pid masih milik binary server (anti PID-reuse basi di cache). */

@@ -2739,6 +2739,12 @@ public final class TgBackup {
             throw new IOException("Server masih berjalan - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");
         }
+        // Proses yatim (anak server yang selamat saat app dibunuh sistem/update)
+        // tak terlihat isProcessAlive tetapi masih memegang db.sqlite3.
+        if (!ServerService.bereskanServerYatim()) {
+            throw new IOException("Proses server lama masih berjalan - restore"
+                    + " dibatalkan agar database tidak korup. Stop manual lalu ulangi.");
+        }
 
         File preBackup = null;
         if (dbFile.exists()) {
