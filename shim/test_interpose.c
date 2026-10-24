@@ -1,10 +1,14 @@
 // Uji interposisi shim via LD_PRELOAD (jalan di runner CI, host x86_64).
-// Dua jalur yang dipakai binary Vaultwarden di kernel STB lama:
+// Tiga jalur yang dipakai binary Vaultwarden di kernel STB lama:
 //  1) getrandom() libc (std Rust), dan
 //  2) syscall(SYS_getrandom, ...) mentah (getrandom 0.2 via ring 0.17 ke
-//     ticketer TLS Rocket rustls — jalur yang merusak HTTPS walau HTTP jalan).
-// Keduanya dipanggil dengan flag bogus: libc/kernel asli menolak (EINVAL),
+//     ticketer TLS Rocket rustls — jalur yang merusak HTTPS walau HTTP jalan),
+//  3) syscall() non-getrandom (wajib diteruskan apa adanya; hook mencegat
+//     seluruh simbol syscall sehingga penerusan yang rusak mematikan syscall
+//     lain yang dipakai libc/Rust).
+// Semua dipanggil dengan flag bogus: libc/kernel asli menolak (EINVAL),
 // shim harus tetap melayani 32 byte acak. Return 0 = lolos.
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -79,6 +83,29 @@ int main(void) {
     }
     if (semua_byte_sama(b) || semua_byte_sama(c)) {
         printf("GAGAL: buffer semua-byte-sama\n");
+        return 1;
+    }
+    // Pass-through syscall() non-getrandom: shim mencegat SEMUA panggilan
+    // syscall(), jadi penerusan yang rusak (dlsym gagal, argumen kacau,
+    // deadlock reentransi) mematikan syscall lain yang dipakai libc/Rust di
+    // perangkat. Dulu uji ini hanya memanggil jalur getrandom sehingga
+    // regresi penerusan lolos CI.
+    long pid = syscall(SYS_getpid, 0, 0, 0, 0, 0, 0);
+    if (pid <= 0 || pid != (long) getpid()) {
+        printf("GAGAL pass-through SYS_getpid (%ld vs %ld)\n",
+               pid, (long) getpid());
+        return 1;
+    }
+    errno = 0;
+    long tutup = syscall(SYS_close, -1, 0, 0, 0, 0, 0);
+    if (tutup != -1 || errno != EBADF) {
+        printf("GAGAL pass-through SYS_close (ret=%ld errno=%d)\n", tutup, errno);
+        return 1;
+    }
+    static const char pesan[] = "pass-through\n";
+    long tulis = syscall(SYS_write, 1, pesan, sizeof pesan - 1, 0, 0, 0);
+    if (tulis != (long) (sizeof pesan - 1)) {
+        printf("GAGAL pass-through SYS_write (ret=%ld)\n", tulis);
         return 1;
     }
     return 0;

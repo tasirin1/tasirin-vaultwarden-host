@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 207: Uji shim getrandom juga menguji penerusan `syscall()` lain
+- Shim mencegat **seluruh** simbol `syscall()` (bukan hanya nomor `SYS_getrandom`): nomor lain diteruskan ke `dlsym(RTLD_NEXT, "syscall")`. Uji host `shim/test_interpose.c` hanya memanggil `getrandom()` dan `syscall(SYS_getrandom)`, sehingga regresi jalur penerusan (dlsym gagal, `va_arg` kacau, deadlock reentransi constructor) lolos CI dan baru muncul di perangkat sebagai kegagalan syscall tak terkait (I/O, close, tulis) saat shim dipasang.
+- Uji kini menambah tiga penerusan nyata: `SYS_getpid` harus sama dengan `getpid()`, `SYS_close(-1)` harus mengembalikan `-1` + `EBADF` (errno dari kernel, bukan `ENOSYS` shim), dan `SYS_write` 3-argumen harus menulis tepat sejumlah byte. Semua argumen varargs diisi eksplisit agar hook yang membaca enam argumen tak menyentuh nilai tak terdefinisi.
+
 ## [Belum rilis] — Audit 205: Loop coba-ulang verifikasi aset rilis tak lagi dimatikan `set -e`
 - Langkah "Siapkan & publish 6 asset non-APK" memakai `set -e`, lalu loop verifikasi 3x mengambil data dengan `DAFTAR=$(gh release view ...)` dan `JAUH=$(gh release view ...)`. Bila GitHub menjawab 502/rate-limit/timeout sesaat setelah unggah (justru kondisi yang ingin dicoba ulang), assignment yang gagal langsung menghentikan langkah; `sleep 10` + percobaan berikutnya **tak pernah berjalan** dan rilis yang asetnya mungkin sudah lengkap tetap dinyatakan gagal (atau sebaliknya, `--latest` tak dipasang).
 - Kedua pengambilan data kini memakai `|| true` (ditambah `stat` lokal dengan fallback), sehingga kegagalan sesaat hanya menandai `OK=false` dan loop benar-benar mengulang. Perilaku `set -e` diverifikasi lokal dengan `bash -ec`: `X=$(false)` keluar, `X=$(false || true)` lanjut.
