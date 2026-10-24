@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 214: AlarmReceiver memvalidasi action sebelum menunda boot
+- `AlarmReceiver.onReceive` dulu menjalankan cabang tunda-boot (baca prefs + pasang alarm tunda) **sebelum** memeriksa action. Selama 5 menit pertama setelah boot, intent apa pun yang berhasil mencapai receiver (mis. explicit intent dengan action sembarang, termasuk spoof dari app lain) tetap menulis prefs dan menjadwalkan alarm tunda, padahal action itu tak akan pernah diproses oleh cabang mana pun di bawahnya.
+- Kini `intent` null dan action yang bukan milik app (`ACTION_HARIAN`/`ACTION_TUNDA`) maupun siaran waktu sistem ditolak paling awal. Penolakan action ganda di jalur alarm umum dihapus karena sudah dijamin oleh validasi awal (komentar disesuaikan).
+
 ## [Belum rilis] — Audit 213: Polling bot tak pernah dijalankan di main thread
 - `TgBotReceiver.onReceive` memakai `tugas.run()` sebagai fallback terakhir saat pool bot penuh **dan** pembuatan thread baru gagal. Itu menjalankan `TgBot.pollOnce()` (long-poll Telegram 15–35 detik + I/O prefs) langsung di main thread dari dalam `onReceive`: UI beku, ANR, lalu proses/receiver dibunuh sistem — justru saat perangkat sedang kekurangan thread.
 - Fallback kini hanya menutup `PendingResult` + melepas wakelock (satu pintu `selesaikan`) dan mencatat alasannya; alarm polling 20 detik berikutnya memicu ulang saat thread tersedia. Tidak ada jalur yang memblokir main thread.

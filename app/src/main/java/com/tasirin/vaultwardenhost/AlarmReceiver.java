@@ -100,6 +100,23 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent == null) {
+            return;
+        }
+        String action = intent.getAction();
+        boolean alarmApp = ACTION_HARIAN.equals(action) || ACTION_TUNDA.equals(action);
+        // Intent.ACTION_TIME_CHANGED nilainya "android.intent.action.TIME_SET"
+        // (sama dengan literal di manifest) sehingga satu cek cukup.
+        boolean siaranWaktu = Intent.ACTION_DATE_CHANGED.equals(action)
+                || Intent.ACTION_TIME_CHANGED.equals(action)
+                || Intent.ACTION_TIMEZONE_CHANGED.equals(action);
+        // Validasi action SEBELUM tunda-boot: dulu intent asing (explicit
+        // intent action sembarang ke receiver ini) tetap membaca prefs +
+        // menjadwalkan alarm tunda tiap kali diterima selama 5 menit pertama
+        // setelah boot, padahal action itu tak akan pernah diproses di bawah.
+        if (!alarmApp && !siaranWaktu) {
+            return;
+        }
         // Tanpa heal penuh di sini: getAll() mem-parse ulang seluruh XML prefs
         // tiap alarm (termasuk spoof/throttle yang kembali dini); baca aman*
         // sembuh-sendiri per kunci, heal jalan di mulaiBackup sebelum tulis.
@@ -119,7 +136,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
         // Alarm susulan boot: putuskan SEKARANG dengan jam yang sudah stabil —
         // jalan hanya bila sudah ganti hari; tolak jam reset/mundur (1999).
-        if (intent != null && intent.getBooleanExtra(TgBackup.EXTRA_TUNDA_BOOT, false)) {
+        if (intent.getBooleanExtra(TgBackup.EXTRA_TUNDA_BOOT, false)) {
             // Action milik app wajib membawa rahasia alarm: tanpa ini app lain
             // bisa memicu backup+upload via explicit-intent spoof.
             if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
@@ -154,7 +171,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             return;
         }
-        String action = intent != null ? intent.getAction() : null;
         // Intent.ACTION_TIME_CHANGED nilainya "android.intent.action.TIME_SET"
         // (sama dengan literal di manifest) sehingga satu cek cukup.
         if (Intent.ACTION_DATE_CHANGED.equals(action)
@@ -199,17 +215,12 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             return;
         }
-        // Jalur alarm umum: terima action milik app + bare intent lawas
-        // (transisi satu siklus alarm). Action asing diabaikan. Throttle
-        // 60 dtk menumpulkan spam explicit-intent: jadwal tetap disegar
-        // oleh mulaiBackup, service sudah dedup harian di dalamnya.
-        // Hanya action milik app yang diterima (bare intent lawas + action asing
-        // ditolak: alarm baru selalu ber-action + ber-rahasia, dan pembatalan
-        // alarm lawas tak butuh receiver ini). Rahasia menutup spoof explicit-intent
+        // Jalur alarm umum: action milik app sudah divalidasi di awal (hanya
+        // ACTION_HARIAN/ACTION_TUNDA yang sampai sini; bare intent lawas dan
+        // action asing sudah ditolak). Throttle 60 dtk menumpulkan spam
+        // explicit-intent: jadwal tetap disegar oleh mulaiBackup, service
+        // sudah dedup harian di dalamnya. Rahasia menutup spoof explicit-intent
         // dari app lain yang sebelumnya bisa memicu backup+upload tiap 60 detik.
-        if (!ACTION_HARIAN.equals(action) && !ACTION_TUNDA.equals(action)) {
-            return;
-        }
         if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
             return;
         }
