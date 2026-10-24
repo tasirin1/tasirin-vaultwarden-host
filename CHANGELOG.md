@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 188: Padding gaya tombol/input memakai start/end (RTL)
+- `styles.xml` memakai `android:paddingLeft`/`paddingRight` untuk `TasirinBtn`, `TasirinBtnSmall`, dan `TasirinInput`, padahal manifest menyalakan `android:supportsRtl="true"`. Di locale RTL padding fisik tak ikut dicerminkan sehingga teks menempel ke tepi yang salah.
+- Ketiganya diganti `paddingStart`/`paddingEnd` (API 17+, minSdk 21) sehingga padding mengikuti arah baca.
+
 ## [Belum rilis] — Audit 187: Tinggi daftar baris dialog Tentang benar-benar dibatasi
 - `dialog_about.xml` memakai `android:maxHeight` pada `ScrollView` — atribut itu bukan milik `ScrollView` sehingga diabaikan, dan `layout_height="0dp"` + `layout_weight="1"` di dalam root `wrap_content` membuat daftar baris runtuh ke 0 atau mendorong tombol Tutup keluar layar pada TV 480p.
 - ScrollView kini `wrap_content` tanpa `maxHeight`; `AboutDialog` mengukur tinggi isi lalu membatasinya ke 40% tinggi layar hanya bila isinya lebih panjang, sehingga baris tetap terbaca, bisa digulir, dan tombol Tutup selalu terjangkau.

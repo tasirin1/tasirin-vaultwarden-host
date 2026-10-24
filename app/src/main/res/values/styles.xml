@@ -8,8 +8,8 @@
         <item name="android:textColor">@color/primary</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:paddingLeft">14dp</item>
-        <item name="android:paddingRight">14dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
     </style>
 
     <!-- Tombol utama: tinggi seragam 48dp seperti semua tombol (ikut TDM:
@@ -25,8 +25,8 @@
     <style name="TasirinBtnSmall" parent="TasirinBtn">
         <item name="android:minHeight">48dp</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
     </style>
 
     <!-- Chip navigasi pil ala TDM: 40dp, teks 13sp tebal. -->
@@ -43,8 +43,8 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_hint</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
 
