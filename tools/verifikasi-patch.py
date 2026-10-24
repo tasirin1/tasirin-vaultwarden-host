@@ -731,7 +731,10 @@ def cek_import_mati(gagal):
             if jalan_imp.endswith(".*"):
                 continue
             nama = jalan_imp.split(".")[-1]
-            if not re.search(r"\b%s\b" % re.escape(nama), tanpa):
+            # Pemakaian bernama-penuh (java.security.SecureRandom) bukan bukti
+            # import ini dipakai — dulu ia lolos karena \b tetap cocok, sehingga
+            # import mati menumpuk tanpa terdeteksi.
+            if not re.search(r"(?<![\w.])%s\b" % re.escape(nama), tanpa):
                 gagal.append("Import mati di %s: %s" % (path, jalan_imp))
 
 
