@@ -393,6 +393,10 @@ public class ServerService extends Service {
             new java.util.concurrent.atomic.AtomicInteger(0);
     /** Batas percobaan ulang Start tertunda kunci data (5 dtk x 60 = 5 menit). */
     static final int BATAS_START_TERTUNDA_DATA = 60;
+    /** Batas tunggu kunci data sebelum fase tulis (TLS/web-vault/exec) setelah
+     *  unduhan binary selesai. Restore/reset yang masih berjalan ditunggu
+     *  sampai batas ini, lalu Start dibatalkan dengan pesan jelas. */
+    static final long BATAS_TUNGGU_KUNCI_DATA_MS = 5L * 60 * 1000;
 
     /** Ambil kunci data untuk restore (blocking; wajib dari worker thread). */
     public static void kunciData() {
@@ -1607,9 +1611,11 @@ public class ServerService extends Service {
                 startTertundaData.set(0);
                 startServer();
             } finally {
-                if (kunci) {
-                    KUNCI_DATA.unlock();
-                }
+                // startServer melepas kunci selama unduh binary lalu mengambilnya
+                // kembali; lepasKunciData() aman walau kunci tak dipegang thread
+                // ini (dulu unlock() langsung bisa melempar IllegalMonitorState
+                // dan melewati starting.set(false) di bawah).
+                lepasKunciData();
                 // Server tak lahir dan tak ada percobaan susulan = start gagal
                 // permanen (sebabnya sudah tampil di status/log/Telegram).
                 // Matikan watchdog health agar tak polling tiap 2 menit
@@ -1655,6 +1661,43 @@ public class ServerService extends Service {
     static boolean startGagalPermanen(boolean running, boolean prosesHidup,
                                      boolean ditunda) {
         return !ditunda && !running && !prosesHidup;
+    }
+
+    /** Ambil kembali kunci data sebelum fase yang menulis folder data (TLS,
+     *  ekstrak web-vault, exec). Selama fase unduh binary kunci sengaja
+     *  dilepas agar Restore/reset tak menunggu; di sini operasi data yang
+     *  sedang berjalan ditunggu sampai {@link #BATAS_TUNGGU_KUNCI_DATA_MS}
+     *  sambil tetap menghormati Stop (batalStart). False = start dibatalkan
+     *  (pesan sebabnya sudah ditulis). */
+    private boolean tungguKunciDataStart() {
+        long tenggat = SystemClock.elapsedRealtime() + BATAS_TUNGGU_KUNCI_DATA_MS;
+        while (true) {
+            if (batalStart) {
+                batalStart = false;
+                appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
+                        + " - tekan Start lagi bila ingin jalan.");
+                setStatus("Stopped");
+                return false;
+            }
+            long sisa = tenggat - SystemClock.elapsedRealtime();
+            if (sisa <= 0) {
+                appendLog("[app] Start dibatalkan: operasi data (restore/reset)"
+                        + " masih berjalan lebih dari 5 menit - tekan Start lagi"
+                        + " setelah selesai.");
+                setStatus("Restore/reset masih berjalan - server tidak start.\n"
+                        + "Tekan Start lagi setelah operasi data selesai.");
+                return false;
+            }
+            try {
+                if (KUNCI_DATA.tryLock(Math.min(1000L, sisa),
+                        java.util.concurrent.TimeUnit.MILLISECONDS)) {
+                    return true;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
     }
 
     private void startServer() {
@@ -1726,6 +1769,13 @@ public class ServerService extends Service {
         cleanupTempFiles(dataDir);
         appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
                 KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
+        // Lepas kunci data selama fase panjang yang TIDAK menulis folder data:
+        // unduh binary (~20 MB) + uji --version bisa berjalan menit-menitan di
+        // koneksi STB lambat. Dulu kunci dipegang sepanjang startServer sehingga
+        // Restore/reset (bot & UI) menunggu unduhan selesai tanpa penjelasan,
+        // lalu startServerAsync menilainya "Start masih berjalan". Kunci diambil
+        // kembali sebelum TLS/web-vault/exec (lihat tungguKunciDataStart).
+        lepasKunciData();
         File binary = ensureBinary();
         if (binary == null) {
             return;
@@ -1799,6 +1849,13 @@ public class ServerService extends Service {
         }
 
         try {
+            // Fase di bawah menulis folder data (sertifikat TLS, ekstrak
+            // web-vault, exec). Kunci data wajib dipegang lagi: restore/reset
+            // yang berjalan selama unduhan tadi ditunggu (maks 5 menit) agar
+            // server tak menyala di tengah ekstraksi.
+            if (!tungguKunciDataStart()) {
+                return;
+            }
             // HTTPS-only: HTTP tak bisa dipakai, server selalu TLS (fail-closed).
             sp.edit().putBoolean(KEY_HTTPS, true).apply();
             boolean https = true;
