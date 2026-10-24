@@ -104,6 +104,17 @@ def jalan(*args):
     return hasil.stdout if hasil.returncode == 0 else None
 
 
+def rentang_cadangan():
+    """Rentang pengganti HEAD~1...HEAD, atau None bila repo hanya satu commit.
+
+    Dipakai saat rentang CI kosong/tak valid agar cek berbasis diff tidak
+    fail-open (dulu langsung "cek keadaan penuh" padahal diff kosong).
+    """
+    if jalan("git", "rev-parse", "--verify", "HEAD~1") is None:
+        return None
+    return ("HEAD~1", "...", "HEAD")
+
+
 def rentang_normal(rentang):
     """Ubah rentang mentah jadi (a, pemisah, b) yang bisa dipakai git diff.
 
@@ -111,7 +122,7 @@ def rentang_normal(rentang):
     dan push pertama memakai SHA nol. Dulu `a` kosong membuat seluruh cek
     berbasis diff dilewati diam-diam. Di kasus itu pakai `<b>~1` (commit
     sebelumnya) sebagai pembanding; bila b tak punya induk (repo satu commit)
-    kembalikan None agar pemanggil jatuh ke cek keadaan penuh.
+    kembalikan None agar pemanggil memakai rentang_cadangan() atau cek penuh.
     """
     if not rentang:
         return None
@@ -762,13 +773,20 @@ def cek_uji_baru(peringatan, diff):
                         "(aturan: uji logika murni baru)" % nama)
 
 
-def cek_pola_berisiko(peringatan, diff, berubah):
+def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
     for _, isi in tambah_java(diff):
         if "System.out.println" in isi:
             peringatan.append("System.out.println di diff (pakai log/Toast): " + isi.strip()[:80])
         if ".printStackTrace()" in isi:
             peringatan.append("printStackTrace di diff (telan/abaikan eksplisit): " + isi.strip()[:80])
-    cek = jalan("git", "diff", "--check")
+    # Di CI checkout bersih: `git diff --check` tanpa rentang tak memeriksa
+    # apa pun (selalu kosong) sehingga spasi/penanda konflik di commit yang
+    # di-push lolos. Periksa rentang yang sama dengan diff.
+    r = rentang_normal(rentang) if rentang else None
+    if r is not None:
+        cek = jalan("git", "diff", "--check", r[0] + "..." + r[2])
+    else:
+        cek = jalan("git", "diff", "--check")
     if cek:
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
 
@@ -783,23 +801,43 @@ def utama():
     gagal = []
     peringatan = []
     diff = ""
+    rentang_cek = ""
     if args.jalur:
         berubah = [j for j in args.jalur if os.path.exists(os.path.join(AKAR, j))]
         diff = jalan("git", "diff", "--", *berubah) or ""
     elif args.rentang:
         r = rentang_normal(args.rentang)
-        daftar = daftar_berkas_berubah(args.rentang)
-        if daftar is None:
-            print("info: rentang tak valid (push pertama?) — cek keadaan penuh.")
+        if r is None:
+            # Rentang kosong/aneh (workflow_dispatch, schedule, push pertama
+            # dengan before nol): jangan lewati cek berbasis diff diam-diam.
+            r = rentang_cadangan()
+            if r is None:
+                print("info: rentang kosong dan repo satu commit — cek keadaan penuh.")
+            else:
+                print("info: rentang kosong/tak valid — bandingkan HEAD~1...HEAD.")
+        if r is None:
             berubah = [p for p in jalan_repo("app") if not p.endswith(".md")]
         else:
-            berubah = daftar
-        if r is not None:
+            rentang_cek = r[0] + r[1] + r[2]
+            daftar = daftar_berkas_berubah(rentang_cek)
+            if daftar is None:
+                # Revisi di rentang tak ada (force-push / SHA asing / repo
+                # dangkal): dulu cek diff dilewati dan hasilnya tetap LOLOS.
+                r = rentang_cadangan()
+                if r is not None:
+                    rentang_cek = r[0] + r[1] + r[2]
+                    daftar = daftar_berkas_berubah(rentang_cek)
+                    print("info: rentang tak valid — bandingkan HEAD~1...HEAD.")
+            if daftar is None:
+                berubah = [p for p in jalan_repo("app") if not p.endswith(".md")]
+            else:
+                berubah = daftar
             # Selalu ambil diff dari rentang yang sudah dinormalkan: pada
             # workflow_dispatch/schedule `before` kosong, dan tanpa ini cek
             # berbasis diff (metode hilang, hapusan tercatat, uji baru, pola
             # berisiko) dilewati tanpa jejak.
-            diff = jalan("git", "diff", r[0] + "..." + r[2]) or ""
+            if r is not None:
+                diff = jalan("git", "diff", r[0] + "..." + r[2]) or ""
     else:
         hulu = jalan("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
         if hulu:
@@ -831,7 +869,7 @@ def utama():
     cek_paritas_resource(gagal)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
-    hapus = berkas_dihapus(args.rentang, diff)
+    hapus = berkas_dihapus(rentang_cek, diff)
     if not args.rentang:
         keluar = jalan("git", "diff", "--cached", "--name-status") or ""
         hapus += [x.split(None, 1)[1] for x in keluar.splitlines() if x.startswith("D")]
@@ -845,7 +883,7 @@ def utama():
         cek_hapusan_belum_tercatat(peringatan, diff)
         cek_uji_baru(peringatan, diff)
         cek_uji_ubah(peringatan, diff)
-        cek_pola_berisiko(peringatan, diff, berubah)
+        cek_pola_berisiko(peringatan, diff, berubah, rentang_cek)
         cek_pola_boros(peringatan, diff)
         cek_izin_baru(peringatan, diff)
         cek_definisi_baru(peringatan, diff)

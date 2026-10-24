@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 189: Verifikator CI tak lagi fail-open pada rentang kosong/tak valid
+- `cek_pola_berisiko()` menjalankan `git diff --check` tanpa rentang; di checkout CI yang bersih perintah itu tak memeriksa apa pun, sehingga spasi berlebih/penanda konflik pada commit yang di-push lolos. Kini `--check` memakai rentang yang sama dengan diff.
+- Saat `--rentang` kosong/tak valid (workflow_dispatch, schedule, force-push, SHA asing) verifikator dulu melewati seluruh cek berbasis diff lalu tetap mencetak LOLOS. Kini ia jatuh ke `HEAD~1...HEAD` (atau cek keadaan penuh bila repo satu commit), dan `berkas_dihapus()` ikut memakai rentang efektif itu.
+
 ## [Belum rilis] — Audit 188: Padding gaya tombol/input memakai start/end (RTL)
 - `styles.xml` memakai `android:paddingLeft`/`paddingRight` untuk `TasirinBtn`, `TasirinBtnSmall`, dan `TasirinInput`, padahal manifest menyalakan `android:supportsRtl="true"`. Di locale RTL padding fisik tak ikut dicerminkan sehingga teks menempel ke tepi yang salah.
 - Ketiganya diganti `paddingStart`/`paddingEnd` (API 17+, minSdk 21) sehingga padding mengikuti arah baca.
