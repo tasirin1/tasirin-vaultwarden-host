@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 226: Batas potret TLS dipisah dari batas config zip
+- `potretTls()` membaca cert/key/ca memakai `readAllBytes()` yang batasnya bernama `BATAS_CONFIG_JSON` — nama konstanta menyesatkan dan menyiratkan batas yang sama untuk dua konteks berbeda; bila suatu saat rantai sertifikat wajar melebihi 1 MB, potret TLS gagal senyap (`catch` diabaikan) dan rollback restore kehilangan berkas itu.
+- Kini ada `BATAS_TLS_POTRET` eksplisit (1 MB, tetap jaring pengaman) dan `potretTls()` memakai `bacaTerbatas(in, BATAS_TLS_POTRET)`; `readAllBytes()` didokumentasikan sebagai pembaca `app-config.json` saja (nama dipertahankan karena pemindai CI memakai pola nama itu dan `java.nio.file.Files.readAllBytes` dipakai di test).
+
 ## [Belum rilis] — Audit 225: Kerapian javadoc & spasi `ServerService`
 - Javadoc "Pola statis..." terpisah dari field `POLA_SUFIKS_VERSI` oleh baris kosong (dianggap yatim), dan `configSajaBeruntun` punya dua blok javadoc berurutan (blok kedua menimpa keterangan pertama di sebagian alat baca). Keduanya digabung/ditempel ke deklarasi yang dimaksud.
 - Empat baris kosong berurutan sebelum `getPid()` diringkas jadi satu. Tidak ada perubahan perilaku.

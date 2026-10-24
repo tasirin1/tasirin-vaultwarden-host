@@ -1560,7 +1560,7 @@ public final class TgBackup {
             // Try-with-resources (D8 aman API 21): tutup otomatis tanpa
             // finally ganda per berkas; galat baca/tutup sama-sama abaikan.
             try (java.io.InputStream in = new java.io.FileInputStream(f)) {
-                m.put(nama, readAllBytes(in));
+                m.put(nama, bacaTerbatas(in, BATAS_TLS_POTRET));
             } catch (Exception ignored) {
             }
         }
@@ -3791,7 +3791,12 @@ public final class TgBackup {
 
     /** Batas baca app-config.json dari zip tak tepercaya (anti zip-bomb di STB 1 GB). */
     static final int BATAS_CONFIG_JSON = 1024 * 1024;
+    /** Batas potret berkas TLS saat restore (cert/key/ca buatan app: jauh di
+     *  bawah 1 MB; batas ini hanya jaring pengaman bila folder disusupi). */
+    static final int BATAS_TLS_POTRET = 1024 * 1024;
 
+    /** Baca app-config.json dari zip berbatas BATAS_CONFIG_JSON (bukan pembaca
+     *  berkas umum; nama dipertahankan karena pemindai CI memakai pola nama ini). */
     static byte[] readAllBytes(InputStream in) throws Exception {
         return bacaTerbatas(in, BATAS_CONFIG_JSON);
     }
