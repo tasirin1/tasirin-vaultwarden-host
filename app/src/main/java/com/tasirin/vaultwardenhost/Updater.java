@@ -423,42 +423,20 @@ public final class Updater {
                 if (berikut == null || berikut.equals(kini)) {
                     throw new IOException("Redirect tidak aman/ditolak (downgrade?): " + lok);
                 }
-                if (hostBerubah(kini, berikut)) {
-                    // Lintas host (github.com -> CDN): offset resume milik file
-                    // host lama tak berlaku di host baru (campur dua asset lalu
-                    // gagal SHA + buang kuota). Ulang dari nol.
-                    resumeFrom = 0;
-                }
+                // Range SENGAJA dibawa lintas host: rilis GitHub selalu 302
+                // ke release-assets.githubusercontent.com (host berbeda) untuk
+                // aset yang SAMA. Dulu offset di-nolkan di sini sehingga header
+                // Range hilang, CDN membalas 200, lalu parsial 20-35 MB
+                // dihapus dan unduhan diulang dari nol tiap percobaan (di
+                // koneksi lambat update tak pernah selesai). Keutuhan tetap
+                // dijaga rangeCocok() (awal Content-Range wajib sama dengan
+                // offset) dan verifikasi SHA-256 pemanggil.
                 kini = berikut;
                 continue;
             }
             return c;
         }
         throw new IOException("Terlalu banyak redirect.");
-    }
-
-    /** True bila host/skema/port dua URL berbeda (murni agar bisa unit test).
-     *  Gagal urai = anggap berubah (arah aman: unduh ulang dari nol, bukan
-     *  campur byte dua asset). Port bawaan skema (-1 = 443 https / 80 http)
-     *  disamakan agar redirect berport eksplisit tak mengulang sia-sia. */
-    static boolean hostBerubah(String a, String b) {
-        try {
-            java.net.URL ua = new java.net.URL(a);
-            java.net.URL ub = new java.net.URL(b);
-            if (!ua.getProtocol().equalsIgnoreCase(ub.getProtocol())) {
-                return true;
-            }
-            int pa = ua.getPort() < 0 ? ua.getDefaultPort() : ua.getPort();
-            int pb = ub.getPort() < 0 ? ub.getDefaultPort() : ub.getPort();
-            if (pa != pb) {
-                return true;
-            }
-            String ha = Util.rendahAscii(ua.getHost() == null ? "" : ua.getHost());
-            String hb = Util.rendahAscii(ub.getHost() == null ? "" : ub.getHost());
-            return !ha.equals(hb);
-        } catch (Exception e) {
-            return true;
-        }
     }
 
     /** Gabungan pesan + seluruh cause direndahkan: bungkus SSL sering

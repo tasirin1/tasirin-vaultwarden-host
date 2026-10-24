@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 159: Resume unduhan bertahan melewati redirect CDN GitHub
+- `Updater.bukaIkutiRedirect` tak lagi menolkan offset `Range` saat redirect lintas host. Rilis GitHub selalu 302 dari `github.com` ke `release-assets.githubusercontent.com` untuk aset yang sama, jadi penolakan itu membuat header Range hilang, CDN membalas 200, dan parsial 20-35 MB dihapus lalu diunduh ulang tiap percobaan (di koneksi yang putus sebelum 20 MB, update tak pernah selesai).
+- Keutuhan tetap dijaga `rangeCocok()` (awal `Content-Range` wajib sama dengan offset) + verifikasi SHA-256 pemanggil. Helper `hostBerubah` beserta ujinya dihapus karena tak lagi dipakai (`tools/bekas-hapusan.txt`).
+
 ## [Belum rilis] — Audit 158: Cek aset rilis binary tak lagi memakai repo hardcoded
 - `.github/workflows/build-binary.yml` memakai `repos/$GITHUB_REPOSITORY/releases/...` alih-alih `tasirin1/tasirin-vaultwarden-host`. Dulu repo fork/rename melihat `EXISTING` kosong sehingga penanda "aset versi ini sudah ada" meleset dan build binary ~15 menit tetap jalan tiap jadwal bulanan.
 

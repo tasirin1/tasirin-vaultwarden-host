@@ -36,3 +36,7 @@ aturRingkasan
 tampilkanDetailPenuh
 refreshRingkasan
 teksKuncian
+# Offset resume tak lagi direset saat redirect lintas host (Range tetap
+# dibawa; 302 GitHub selalu ke CDN) sehingga pembanding host jadi mati:
+hostBerubah
+hostBerubah_deteksiLintasHost
