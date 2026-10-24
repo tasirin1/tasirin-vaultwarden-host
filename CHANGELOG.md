@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 171: Salinan buffer log tak lagi diambil di UI thread
+- `LogActivity` menyalin isi `ServerService.logBuffer` di UI thread (ekor 100 KB tiap tick, dan `toString()` penuh 300 KB untuk salin/bagi/simpan). Lock yang sama dipegang `pumpOutput`/`catatLog` server, sehingga tiap tick menahan penulisan log server dan membuat layar terasa berat di STB 1 GB.
+- Keempat jalur (`refreshLog`, `copyLog`, `shareLog`, `exportLogTxt`) kini menyalin buffer di worker; UI thread hanya menerima hasil yang sudah diolah.
+
 ## [Belum rilis] — Audit 170: Sertifikat TLS dibuat ulang saat CA berganti & tahan mati listrik
 - Setelah CA dibuat ulang, `TlsCert.ensure` mengandalkan `delete()` leaf lama yang hasilnya diabaikan. Bila hapus gagal (berkas terkunci), leaf bertanda tangan CA lama tetap lolos cek "umur cukup" dan dipakai lagi, sehingga semua klien yang memasang CA baru ditolak TLS. Regenerasi kini ditentukan flag `caBaru`, bukan keberhasilan hapus.
 - `writePem`/`writeVersion` belum `fsync`: rename atomik hanya mengawetkan nama, isi bisa nol/terpotong bila STB mati tepat sesudah tukar — CA terbaca rusak lalu dibuat ulang (semua HP wajib install CA baru). Keduanya kini fsync sebelum tutup (best-effort, tak menggagalkan start).

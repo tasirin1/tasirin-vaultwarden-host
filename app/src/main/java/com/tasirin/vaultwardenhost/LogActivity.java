@@ -202,17 +202,20 @@ public class LogActivity extends Activity {
         final String cari = logSearch;
         final boolean ikutBawah = logAutoScroll;
         final int prevScroll = logScroll.getScrollY();
-        // Salin ekor saja (+ margin 512 agar potong batas baris di bawah tetap
-        // tepat): buffer bisa 300 KB sementara tampil max 100 KB — salin penuh
-        // tiap 1,5 dtk membuang ~200 KB sampah per tick di STB 1 GB.
-        final String text;
-        synchronized (ServerService.logBuffer) {
-            int n = ServerService.logBuffer.length();
-            int dari = n > BATAS_TAMPIL_LOG + 512 ? n - (BATAS_TAMPIL_LOG + 512) : 0;
-            text = ServerService.logBuffer.substring(dari);
-        }
+        // Salin ekor HANYA di worker, bukan di UI thread: kunci logBuffer juga
+        // dipegang pumpOutput server, sehingga menyalin 100-300 KB di UI thread
+        // menahan penulisan log server tiap tick dan membuat layar terasa berat
+        // di STB 1 GB. Salin ekor saja (+ margin 512 agar potong batas baris di
+        // bawah tetap tepat): buffer bisa 300 KB sementara tampil max 100 KB.
         boolean masuk = Util.jalankanBg(() -> {
             try {
+                final String text;
+                synchronized (ServerService.logBuffer) {
+                    int n = ServerService.logBuffer.length();
+                    int dari = n > BATAS_TAMPIL_LOG + 512
+                            ? n - (BATAS_TAMPIL_LOG + 512) : 0;
+                    text = ServerService.logBuffer.substring(dari);
+                }
                 // Buffer jumbo (server aktif menambah baris tiap detik):
                 // tampilkan ekor saja agar regex + span tetap ringan.
                 String tampil = text.length() > BATAS_TAMPIL_LOG
@@ -898,15 +901,15 @@ public class LogActivity extends Activity {
     }
 
     private void shareLog() {
-        final String mentah;
-        synchronized (ServerService.logBuffer) {
-            mentah = ServerService.logBuffer.toString();
-        }
-        // Penyamaran di luar kunci: belasan regex di atas 300 KB menahan
-        // thread server (pumpOutput/health) bila jalan di dalam
-        // synchronized; di worker agar tap tak freeze UI di STB lemah.
+        // Salin buffer + penyamaran di worker: belasan regex di atas 300 KB dan
+        // penyalinan isi buffer menahan lock log global (dipakai pumpOutput
+        // server) sekaligus membekukan UI di STB lemah.
         toast("Preparing log…");
         Util.jalankanBg(() -> {
+            final String mentah;
+            synchronized (ServerService.logBuffer) {
+                mentah = ServerService.logBuffer.toString();
+            }
             final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
@@ -1176,14 +1179,15 @@ public class LogActivity extends Activity {
 
 
     private void copyLog() {
-        final String mentah;
-        synchronized (ServerService.logBuffer) {
-            mentah = ServerService.logBuffer.toString();
-        }
-        // Penyamaran di luar kunci (lihat shareLog): regex berat tak boleh
-        // menahan lock log global, dan tak boleh freeze UI di STB lemah.
+        // Salin buffer + penyamaran di worker (lihat shareLog): regex berat tak
+        // boleh menahan lock log global, dan penyalinan 300 KB tak boleh
+        // membekukan UI di STB lemah.
         toast("Preparing log…");
         Util.jalankanBg(() -> {
+            final String mentah;
+            synchronized (ServerService.logBuffer) {
+                mentah = ServerService.logBuffer.toString();
+            }
             final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
@@ -1215,16 +1219,17 @@ public class LogActivity extends Activity {
             toast(getString(R.string.izin_storage_belum));
             return;
         }
-        final String log;
-        synchronized (ServerService.logBuffer) {
-            // Mentah saja: penyamaran token sekali di LogExport agar regex
-            // berat tak jalan dua kali per export di STB 1 GB.
-            log = ServerService.logBuffer.toString();
-        }
         // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
-        // bikin tap Simpan freeze di storage STB lambat.
+        // bikin tap Simpan freeze di storage STB lambat. Salinan buffer juga
+        // diambil di worker agar lock log global tak ditahan UI thread.
         toast("Saving log…");
         Util.jalankanBg(() -> {
+            final String log;
+            synchronized (ServerService.logBuffer) {
+                // Mentah saja: penyamaran token sekali di LogExport agar regex
+                // berat tak jalan dua kali per export di STB 1 GB.
+                log = ServerService.logBuffer.toString();
+            }
             final String nama = LogExport.simpanKeDownload(LogActivity.this, log);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
