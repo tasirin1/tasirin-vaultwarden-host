@@ -75,6 +75,52 @@ public final class PinGate {
         }
     }
 
+    /** Hasil keputusan layar kunci (lihat putusKunci). */
+    static final int KUNCI_MATI = 0;   // PIN nonaktif
+    static final int KUNCI_GRACE = 1;  // masih dalam grace buka bersama
+    static final int KUNCI_RUSAK = 2;  // PIN aktif tapi hash hilang/rusak
+    static final int KUNCI_BUKA = 3;   // wajib minta PIN
+
+    /** Keputusan murni apakah layar PIN perlu dibuka. Aturan yang dulu
+     *  disalin di MainActivity & SettingsActivity dipusatkan di sini agar
+     *  tak bisa menyimpang (satu layar fail-open). Murni agar bisa diuji. */
+    static int putusKunci(boolean pinOn, boolean dalamGrace, String pinHash) {
+        if (!pinOn) {
+            return KUNCI_MATI;
+        }
+        if (dalamGrace) {
+            return KUNCI_GRACE;
+        }
+        if (pinHash == null || pinHash.isEmpty()) {
+            return KUNCI_RUSAK;
+        }
+        return KUNCI_BUKA;
+    }
+
+    /** Jalankan keputusan + efek sampingnya; true = activity wajib membuka
+     *  PinActivity. Satu pintu aturan PIN mati / grace / hash rusak untuk
+     *  MainActivity & SettingsActivity. */
+    public static boolean perlukanLayarPin(Context ctx) {
+        SharedPreferences sp = ctx.getSharedPreferences(
+                ServerService.PREFS, Context.MODE_PRIVATE);
+        int putus = putusKunci(TgBackup.amanBoolean(sp, KEY_PIN_ON, false),
+                dalamGraceBersama(), TgBackup.amanString(sp, KEY_PIN_HASH, ""));
+        if (putus == KUNCI_MATI) {
+            // PIN mati: buang status buka basi agar PIN yang diaktifkan lagi
+            // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
+            kunciBersama();
+        } else if (putus == KUNCI_RUSAK) {
+            // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat
+            // agar tak terbuka diam-diam tanpa kunci (fail-open).
+            try {
+                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
+            } catch (Exception ignored) {
+            }
+            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
+        }
+        return putus == KUNCI_BUKA;
+    }
+
     /** Sisa kunci (ms); 0 bila boleh coba. Nilai terbesar wall-clock vs elapsed.
      *  Baca via TgBackup.amanInt/amanLong agar prefs korup bertipe String tak
      *  ClassCastException berulang (disembuhkan sekali, lalu default). */

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 215: Aturan kunci PIN dipusatkan di PinGate
+- `MainActivity.maybeShowPinLock()` dan `SettingsActivity.maybeShowPinLock()` menyalin ~30 baris aturan yang sama (PIN mati → buang grace, grace aktif → lewati, hash hilang → matikan PIN + catat, selain itu buka layar PIN). Dua salinan itu bisa menyimpang tanpa ketahuan; salah satunya meleset berarti satu layar fail-open (terbuka tanpa PIN).
+- Keputusan murni `PinGate.putusKunci(pinOn, dalamGrace, pinHash)` (empat hasil: `KUNCI_MATI`/`KUNCI_GRACE`/`KUNCI_RUSAK`/`KUNCI_BUKA`) + pembungkus `PinGate.perlukanLayarPin(Context)` yang menjalankan efek sampingnya kini menjadi satu-satunya sumber aturan. Kedua activity tinggal membuka `PinActivity` + guard anti-tumpuk. Uji JVM baru `PinGateTest` (4 kasus) menutup seluruh kombinasi; `AGENTS.md` mencatat 18 kelas test.
+
 ## [Belum rilis] — Audit 214: AlarmReceiver memvalidasi action sebelum menunda boot
 - `AlarmReceiver.onReceive` dulu menjalankan cabang tunda-boot (baca prefs + pasang alarm tunda) **sebelum** memeriksa action. Selama 5 menit pertama setelah boot, intent apa pun yang berhasil mencapai receiver (mis. explicit intent dengan action sembarang, termasuk spoof dari app lain) tetap menulis prefs dan menjadwalkan alarm tunda, padahal action itu tak akan pernah diproses oleh cabang mana pun di bawahnya.
 - Kini `intent` null dan action yang bukan milik app (`ACTION_HARIAN`/`ACTION_TUNDA`) maupun siaran waktu sistem ditolak paling awal. Penolakan action ganda di jalur alarm umum dihapus karena sudah dijamin oleh validasi awal (komentar disesuaikan).

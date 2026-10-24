@@ -59,8 +59,8 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
 │       ├── StoragePerm.java          # izin storage runtime (All files opsional, tak diminta)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 17 kelas test JVM (junit4): Updater, ServerService,
-                                      # TgBot, TgBackup, PinCrypto, KernelCompat, Util,
+├── app/src/test/                     # 18 kelas test JVM (junit4): Updater, ServerService,
+                                      # TgBot, TgBackup, PinCrypto, PinGate, KernelCompat, Util,
                                       # TlsCert, StoragePerm, LogActivity, FileShareProvider,
                                       # SettingsActivity, PinActivity, AlarmReceiver,
                                       # AutoUpdate, HttpsCompat, MainActivity — jalan di CI
@@ -308,12 +308,13 @@ seamless (beda signature) — backup keystore di tempat aman.
   keamanan, nama terlarang `bekas-hapusan.txt`) menempel di baris kode yang
   tepat. Log hanya ringkasan. Jalankan `python3 tools/verifikasi-patch.py`
   di lokal untuk reproduksi persis sebelum memperbaiki.
-- **Unit test**: 17 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
-  `PinCrypto`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`, `LogActivity`,
-  `FileShareProvider`, `SettingsActivity`, `PinActivity`, `AlarmReceiver`,
-  `AutoUpdate`, `HttpsCompat`, `MainActivity`) menguji logika murni; tambahkan
-  test untuk logika murni baru (versi, path, parse, crypto) — jangan test
-  yang butuh Android runtime/network. Test hanya jalan di CI, bukan lokal.
+- **Unit test**: 18 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+  `PinCrypto`, `PinGate`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`,
+  `LogActivity`, `FileShareProvider`, `SettingsActivity`, `PinActivity`,
+  `AlarmReceiver`, `AutoUpdate`, `HttpsCompat`, `MainActivity`) menguji logika
+  murni; tambahkan test untuk logika murni baru (versi, path, parse, crypto) —
+  jangan test yang butuh Android runtime/network. Test hanya jalan di CI,
+  bukan lokal.
 
 ## Pemetaan fitur → file
 

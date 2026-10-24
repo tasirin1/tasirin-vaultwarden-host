@@ -1021,30 +1021,9 @@ public class MainActivity extends Activity {
     // ─── Kunci PIN ──────────────────────────────────────────────────────
 
     private void maybeShowPinLock() {
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)) {
-            // PIN mati: buang status buka basi agar PIN yang diaktifkan lagi
-            // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
-            PinGate.kunciBersama();
-            return;
-        }
-        // Sudah dibuka di layar lain dalam grace: jangan minta lagi (tanpa perpanjangan).
-        if (PinGate.dalamGraceBersama()) {
-            return;
-        }
-        // Satu-satunya sumber grace adalah PinGate (jangkar bersama antar-activity);
-        // cermin lokal sengaja tak ada agar tak ada baca basi yang fail-open.
-        // Bila sampai sini, grace sudah habis.
-        final String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-        if (pinHash == null || pinHash.isEmpty()) {
-            try {
-                sp.edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
-            } catch (Exception ignored) {
-            }
-            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
-            return;
-        }
-        if (pinBukaJalan) {
+        // Aturan PIN mati / grace / hash rusak ada di PinGate (satu pintu,
+        // diuji); activity hanya membuka layar kunci + guard anti-tumpuk.
+        if (!PinGate.perlukanLayarPin(this) || pinBukaJalan) {
             return;
         }
         pinBukaJalan = true;
