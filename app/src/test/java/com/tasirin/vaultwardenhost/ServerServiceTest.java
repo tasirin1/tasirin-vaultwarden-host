@@ -570,6 +570,30 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void manualPerluValidasiHanyaSaatSidikFileBerubah() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwmanual").toFile();
+        java.io.File bin = new java.io.File(dir, "vaultwarden-" + ServerService.ABI);
+        // Tanpa mode manual (SHA kosong): cache internal bebas dipakai.
+        assertFalse(ServerService.manualPerluValidasi(null, "", bin));
+        assertFalse(ServerService.manualPerluValidasi("", "", bin));
+        // Sidik kosong = file belum ada: tak ada yang perlu divalidasi ulang.
+        assertFalse(ServerService.manualPerluValidasi("abc", "", bin));
+        java.nio.file.Files.write(bin.toPath(), new byte[]{1, 2, 3});
+        String sidik = ServerService.sidikManualFile(bin);
+        assertFalse(sidik.isEmpty());
+        // File belum ditukar: cache hasil salin boleh dipakai (hemat 20 MB).
+        assertFalse(ServerService.manualPerluValidasi("abc", sidik, bin));
+        // File ditukar: wajib validasi ulang.
+        java.nio.file.Files.write(bin.toPath(), new byte[]{4, 5, 6, 7});
+        assertTrue(ServerService.manualPerluValidasi("abc", sidik, bin));
+        // File dihapus: cache lama tak boleh dianggap mewakili file manual.
+        assertTrue(bin.delete());
+        assertTrue(ServerService.manualPerluValidasi("abc", sidik, bin));
+        assertEquals("", ServerService.sidikManualFile(null));
+        assertEquals("", ServerService.sidikManualFile(bin));
+    }
+
+    @Test
     public void unduhBolehDicobaBilaJamMundur() {
         // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
         assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));

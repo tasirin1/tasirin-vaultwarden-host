@@ -111,6 +111,10 @@ public class ServerService extends Service {
     public static final String KEY_BIN_SHA = "bin_sha";
     /** Revisi patch binary rilis (naikkan bila CI memperbaiki binary tanpa ganti versi). */
     public static final String KEY_BIN_PATCH = "bin_patch_rev";
+    /** Sidik (ukuran:mtime) file binary manual yang terakhir diterima; dipakai
+     *  agar cache internal tak disalin 20 MB + di-hash tiap Start. Milik
+     *  perangkat — jangan ikut export/import config. */
+    public static final String KEY_BIN_MANUAL_FP = "bin_manual_fp";
     /** 3 = binary pasca-patch DNS+TLS favicon (tanpa ndk-context/platform-verifier). */
     public static final int BIN_PATCH_REV = 3;
     /** Versi binary yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
@@ -145,6 +149,27 @@ public class ServerService extends Service {
     /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
+    }
+
+    /** Sidik murah binary manual (ukuran + waktu ubah): cukup untuk tahu file
+     *  di folder data belum ditukar, tanpa membaca 20 MB tiap Start. Murni. */
+    static String sidikManualFile(File f) {
+        if (f == null || !f.isFile()) {
+            return "";
+        }
+        return f.length() + ":" + f.lastModified();
+    }
+
+    /** True bila mode binary manual aktif (SHA diisi) tetapi file di folder
+     *  data bukan yang terakhir diterima (ditukar/dihapus): cache internal
+     *  wajib divalidasi ulang lewat jalur manual, bukan dipakai langsung.
+     *  Murni. */
+    static boolean manualPerluValidasi(String shaDiatur, String sidikTersimpan, File userBin) {
+        if (shaDiatur == null || shaDiatur.trim().isEmpty()) {
+            return false;
+        }
+        String lama = sidikTersimpan == null ? "" : sidikTersimpan;
+        return !sidikManualFile(userBin).equals(lama);
     }
 
     /** True bila unduh boleh dicoba lagi (belum pernah gagal / jeda terlampaui).
@@ -3091,10 +3116,19 @@ public class ServerService extends Service {
         // (mis. patch TLS favicon), cache lama wajib diunduh ulang sekali.
         boolean butuhRefresh = perluRefreshPatch(TgBackup.amanString(sp, KEY_BIN_PATCH, ""));
 
+        // Mode binary manual: cache internal (hasil salin yang sudah lolos
+        // SHA-256 + smoke test) boleh dipakai ulang selama file di folder data
+        // belum ditukar. Tanpa ini tiap Start menyalin 20 MB + hash + smoke
+        // test lagi hanya karena jalur cache dilewati revisi patch.
+        File userBin = new File(dataDir, "vaultwarden-" + ABI);
+        boolean manualBerubah = manualPerluValidasi(
+                TgBackup.amanString(sp, KEY_BIN_SHA, ""),
+                TgBackup.amanString(sp, KEY_BIN_MANUAL_FP, ""), userBin);
+
         // 1) Binary update terbaru hasil tombol Perbarui (KEY_UPDATE_VERSION).
         //    Didahulukan agar Start tidak memakai binary lama selamanya.
         //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
-        if (!butuhRefresh && isValidBinary(out)) {
+        if (!butuhRefresh && !manualBerubah && isValidBinary(out)) {
             String updated = TgBackup.amanString(sp, KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
                 try {
@@ -3132,7 +3166,6 @@ public class ServerService extends Service {
         if (!dataKanonisOk) {
             appendLog("[app] Folder data tak valid/symlink asing - jalur manual dilewati.");
         }
-        File userBin = new File(dataDir, "vaultwarden-" + ABI);
         if (dataKanonisOk && isValidBinary(userBin)) {
             String wantSha = TgBackup.amanString(sp, KEY_BIN_SHA, "");
             if (wantSha != null && !wantSha.trim().isEmpty()) {
@@ -3141,6 +3174,10 @@ public class ServerService extends Service {
                 // (TOCTOU) sehingga byte yang dieksekusi tak terverifikasi.
                 // Salinan internal (privat milik app) tak bisa ditukar pihak luar.
                 File tmpManual = new File(binDir, "vaultwarden-" + ABI + ".manual-tmp");
+                // Sidik diambil sebelum salin: bila file ditukar di tengah
+                // salin, sidik tersimpan tak cocok sehingga Start berikut
+                // memvalidasi ulang (bukan memakai salinan lama diam-diam).
+                String sidikAwal = sidikManualFile(userBin);
                 try {
                     copyBinary(userBin, tmpManual);
                     String gotSha = Updater.sha256Hex(tmpManual);
@@ -3174,6 +3211,14 @@ public class ServerService extends Service {
                             } else {
                                 gantiAtomik(tmpManual, out);
                                 writeText(verFile, Updater.appVersionName(this));
+                                // Tandai cache ini sudah ber-revisi patch terkini
+                                // dan simpan sidik file manual: Start berikut
+                                // memakai cache tanpa salin 20 MB + hash +
+                                // smoke test, selama file manual belum ditukar.
+                                sp.edit().putString(KEY_BIN_PATCH,
+                                                String.valueOf(BIN_PATCH_REV))
+                                        .putString(KEY_BIN_MANUAL_FP, sidikAwal)
+                                        .apply();
                                 // Catat versi terpasang agar cek update tak mengunduh ulang
                                 // binary manual yang memang lebih lama dari rilis.
                                 if (realManual != null && !realManual.isEmpty()) {
