@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 165: Token CI minimal & tak tertinggal di .git/config
+- Kedua workflow memberi `contents: write` ke seluruh job, termasuk langkah lint/unit-test yang menjalankan toolchain pihak ketiga dan job build binary. Kini level workflow hanya `contents: read`; `contents: write` dipersempit ke job yang benar-benar menerbitkan aset (`build-apk`, `publish-binary`).
+- Semua `actions/checkout` memakai `persist-credentials: false` sehingga token tak tersimpan di `.git/config` untuk langkah berikutnya (tak ada langkah yang butuh push).
+
 ## [Belum rilis] — Audit 164: Cron binary tak lagi skip versi yang hanya punya APK
 - `build-binary.yml` melewati jadwal bulanan hanya bila tag rilis sudah ada. Tag bisa dibuat lebih dulu oleh workflow APK (hanya berisi APK), sehingga binary + web-vault untuk versi itu tak pernah dibangun: app yang memakai fallback `/releases/latest/download/...` dan update web-vault menerima 404 permanen.
 - Skip cron kini menuntut keenam aset non-APK benar-benar ada; output `ada` yang tak dipakai dihapus.

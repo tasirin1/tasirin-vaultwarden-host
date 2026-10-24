@@ -14,8 +14,10 @@ on:
   schedule:
     - cron: '0 0 1 * *'
 
+# Default minimal: hanya baca. Hanya publish-binary yang memegang contents:
+# write (buat rilis + unggah aset); build-binary tak perlu akses tulis.
 permissions:
-  contents: write
+  contents: read
 
 # Grup sendiri agar bisa jalan paralel dengan workflow APK (unggahan asset
 # ke rilis yang sama sudah idempoten: hapus duplikat per ID + coba ulang).
@@ -34,6 +36,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # Token tak disimpan di .git/config: langkah berikutnya tak butuh push.
+          persist-credentials: false
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
           # Gagal di sini = job build tidak jalan.
@@ -61,7 +65,7 @@ jobs:
           case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
           # Tag upstream = data eksternal: wajib berbentuk versi rilis sebelum
           # dipakai di env/run. Tanpa ini tag berisi $(...) / backtick dieksekusi
-          # shell runner (yang memegang GITHUB_TOKEN contents: write).
+          # shell runner (runner memegang GITHUB_TOKEN walau job ini baca).
           if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
             echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
           fi
@@ -97,6 +101,8 @@ jobs:
       VW: ${{ needs.resolve.outputs.vw }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Install rustup (tanpa toolchain)
         run: |
@@ -309,10 +315,15 @@ jobs:
     needs: [resolve, build-binary]
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
+    # Satu-satunya job yang menulis rilis (buat rilis + unggah 6 aset).
+    permissions:
+      contents: write
     env:
       VW: ${{ needs.resolve.outputs.vw }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Download binary hasil build
         uses: actions/download-artifact@v7
