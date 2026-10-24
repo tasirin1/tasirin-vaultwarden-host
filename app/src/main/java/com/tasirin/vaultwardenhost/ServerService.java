@@ -4090,13 +4090,19 @@ public class ServerService extends Service {
         }
     }
 
-    // PID anak vaultwarden di-cache 30 dtk agar info RAM (dipanggil UI tiap
+    // PID anak vaultwarden di-cache 120 dtk agar info RAM (tick status
     // 5 dtk) tidak memindai /proc terus-menerus.
     private static volatile int cachedChildPid = -1;
     private static volatile long cachedChildPidAt = 0;
     // TTL 120 dtk (PID stabil selama proses hidup): pindai /proc penuh
     // tiap 30 dtk boros I/O di API<26 yang selalu lewat jalur ini.
     private static final long CHILD_PID_TTL_MS = 120_000;
+    // Memo VmRSS 5 dtk: satu baca /proc/<pid>/status dipakai bersama worker
+    // status Pengaturan dan perintah /status bot yang bisa berdekatan.
+    private static volatile long rssCacheKb = -1;
+    private static volatile int rssCachePid = -1;
+    private static volatile long rssCacheAt = 0;
+    private static final long RSS_CACHE_TTL_MS = 5_000;
 
     /** RAM (VmRSS, kB) proses vaultwarden; -1 bila tidak terbaca. */
     public static long processRssKb() {
@@ -4124,6 +4130,11 @@ public class ServerService extends Service {
         if (pid < 0) {
             return -1;
         }
+        long nowRss = SystemClock.elapsedRealtime();
+        if (pid == rssCachePid && nowRss - rssCacheAt < RSS_CACHE_TTL_MS) {
+            return rssCacheKb;
+        }
+        long hasil = -1;
         try (BufferedReader r = new BufferedReader(
                 new InputStreamReader(new FileInputStream("/proc/" + pid + "/status"),
                         StandardCharsets.UTF_8), 2048)) {
@@ -4137,15 +4148,19 @@ public class ServerService extends Service {
                         angka = angka.substring(0, sp);
                     }
                     try {
-                        return Long.parseLong(angka);
+                        hasil = Long.parseLong(angka);
                     } catch (NumberFormatException nfe) {
-                        return -1;
+                        hasil = -1;
                     }
+                    break;
                 }
             }
         } catch (Exception ignored) {
         }
-        return -1;
+        rssCachePid = pid;
+        rssCacheKb = hasil;
+        rssCacheAt = nowRss;
+        return hasil;
     }
 
     /** Cache pindai /proc 8 detik: findChildPid + killStaleVaultwarden jalan

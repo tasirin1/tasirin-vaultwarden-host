@@ -729,7 +729,12 @@ public class MainActivity extends Activity {
                 hintShown = false;
             }
             if (n > lastLogLen) {
-                delta = ServerService.logBuffer.substring(lastLogLen, n);
+                // Salin paling banyak satu jendela tick + 2 char: pemotongan di
+                // batas baris hanya butuh karakter sekitar BATAS_DELTA_TICK,
+                // sehingga saat log meledak (buffer 300 KB) UI thread tak
+                // pernah menyalin seluruh ekor hanya untuk membuang 99%-nya.
+                int akhir = Math.min(n, lastLogLen + BATAS_DELTA_TICK + 2);
+                delta = ServerService.logBuffer.substring(lastLogLen, akhir);
                 mentah = delta.length();
             }
         }

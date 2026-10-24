@@ -785,7 +785,13 @@ public final class Updater {
      *  masuk `gantiAtomik` bersamaan, saling menghapus/menimpa `.bak`, lalu
      *  melaporkan "Gagal mencadangkan binary lama" padahal unduhannya sehat.
      *  Urutan kunci selalu tujuan-dulu-baru-tmp: jalur transfer hanya memegang
-     *  kunci tmp, jadi tak ada siklus. */
+     *  kunci tmp, jadi tak ada siklus.
+     *  Hash di sini memang dihitung ulang walau `unduhKeTmp` sudah mengembalikan
+     *  digest: antara hash unduhan dan rename ada chmod + uji asap (binary
+     *  dieksekusi) pada file tmp, dan gerbang pasang harus membuktikan byte yang
+     *  benar-benar di-rename — bukan digest dari titik waktu sebelumnya. Biaya
+     *  satu pass 20 MB jauh lebih murah daripada memasang binary yang berubah
+     *  (korup/tertimpa unduhan lain) lalu gagal start. */
     static void pasangHasilUnduh(File tmp, File out, String expectedSha)
             throws IOException {
         synchronized (kunciUnduh(out)) {

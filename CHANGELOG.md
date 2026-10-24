@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 209: Salinan log di UI thread dibatasi, VmRSS di-memo, hash ganda didokumentasikan
+- `MainActivity.refreshHomeLog()` menyalin `logBuffer.substring(lastLogLen, n)` **utuh** di UI thread sebelum memotongnya ke `BATAS_DELTA_TICK` (8 KB). Saat log meledak (buffer sampai 300 KB dalam satu tick) UI thread membayar salinan ratusan KB hanya untuk membuang 99%-nya, tiap 500 ms. Salinan kini dibatasi `lastLogLen + BATAS_DELTA_TICK + 2` karakter di dalam lock; pemotongan batas baris tetap memakai karakter di sekitar batas sehingga perilaku (baris utuh, surrogate aman, offset mentah) tak berubah.
+- `ServerService.processRssKb()` membaca `/proc/<pid>/status` setiap panggilan. Kini hasil VmRSS di-memo per PID selama 5 detik (selaras jeda tampilan status), sehingga worker Pengaturan dan perintah `/status` bot yang berdekatan berbagi satu pembacaan. Komentar lama "dipanggil UI tiap 5 dtk" juga diperbaiki: pemanggil beratnya worker (UI hanya membaca cache).
+- Hash SHA-256 ganda pada pemasangan binary (dihitung saat unduh, lalu dihitung ulang di `pasangHasilUnduh`) tetap dipertahankan dan alasannya didokumentasikan: antara kedua titik file tmp di-chmod dan dieksekusi uji asap, jadi gerbang rename harus membuktikan byte yang benar-benar dipasang. Satu pass 20 MB lebih murah daripada memasang binary yang berubah di tengah jalan.
+
 ## [Belum rilis] — Audit 208: Sisa kode mati (field, konstanta, overload, cabang) dibuang
 - `ServerService.lastStartTime` hanya ditulis (`startServer`) dan tak pernah dibaca — uptime/health memakai `lastStartElapsed` (monotonik). Field + penulisannya dihapus.
 - `SettingsActivity.kuncianCekAt` (dengan komentar "throttle baca prefs kuncian") tak pernah dipakai; dihapus.
