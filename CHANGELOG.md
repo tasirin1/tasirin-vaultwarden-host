@@ -14,6 +14,7 @@
 ## [Belum rilis] — Audit 155: Mengganti PIN aktif wajib konfirmasi (Android 5+)
 - `SettingsActivity.perluKonfirmasiGantiPin(pinAktif, adaHash)` + dialog "Ganti PIN?" sebelum hash ditimpa. Dulu mengetik di field PIN saat PIN aktif langsung mengganti hash, sehingga salah ketik/salah tempel satu kali mengunci app di luar.
 - Batal mengosongkan field (isi yang tak tersimpan tak boleh tampak seperti PIN baru), dan centang aktivasi mereset kandidat agar edit berikutnya ditanya lagi. Uji JVM baru `SettingsActivityTest.gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda`; `adaHashPinTersimpan` gagal-tertutup saat prefs tak terbaca.
+- Perbaikan build: dialog memakai `SettingsActivity.this` — di dalam lambda `TextWatcher`, `this` menunjuk anonim TextWatcher (bukan Activity) sehingga `AlertDialog.Builder(Context)` gagal dikompilasi.
 
 ## [Belum rilis] — Audit 154: `getType` provider tolak symlink induk seperti `query()` (Android 5+)
 - `FileShareProvider.getType` menghitung kanonis ulang lalu menolak symlink induk (`adaSymlinkInduk`), sama seperti `query()`/`openFile()`. Dulu tukar symlink di jeda cek-vs-jawab bisa membocorkan tipe file di luar area share.

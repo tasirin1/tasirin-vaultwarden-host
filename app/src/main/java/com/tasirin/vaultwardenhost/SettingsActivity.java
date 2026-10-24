@@ -689,7 +689,10 @@ public class SettingsActivity extends Activity {
                     // Dialog langsung (bukan confirm()) karena tombol Batal
                     // harus mengosongkan field: isi field yang tak tersimpan
                     // membuat user mengira PIN sudah berganti.
-                    new AlertDialog.Builder(this)
+                    // SettingsActivity.this: di dalam lambda TextWatcher, `this`
+                    // menunjuk anonim TextWatcher (bukan Activity) — dulu
+                    // membuat build gagal "cannot be converted to Context".
+                    new AlertDialog.Builder(SettingsActivity.this)
                             .setTitle(getString(R.string.pin_ganti_judul))
                             .setMessage(getString(R.string.pin_ganti_pesan))
                             .setPositiveButton(android.R.string.ok,
