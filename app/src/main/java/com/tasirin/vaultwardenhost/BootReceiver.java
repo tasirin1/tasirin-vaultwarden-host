@@ -20,8 +20,10 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
+        // Hanya dua aksi protected milik sistem. QUICKBOOT_POWERON (vendor)
+        // sengaja ditolak: bukan protected, app lain bisa mengirim intent
+        // eksplisit ke receiver exported ini dan memicu auto-start palsu.
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)
-                || "android.intent.action.QUICKBOOT_POWERON".equals(action)
                 || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
             long kiniElapsed = android.os.SystemClock.elapsedRealtime();
             long terakhirBoot = Math.max(terakhirBootElapsed,
