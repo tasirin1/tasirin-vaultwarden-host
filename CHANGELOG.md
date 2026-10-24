@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 182: Kode mati impor config + arsip restore Telegram tak tersapu
+- `TgBackup.applyPrefsFromJson` diakhiri cabang "tebak tipe" (`String`/`Boolean`/`Integer`/`Long`/`Double`) yang tak pernah dieksekusi: setiap kunci `BOLEH_IMPOR` sudah tercakup `KUNCI_STRING`/`KUNCI_BOOLEAN`/`KUNCI_INT`/`KUNCI_LONG` dan semua cabang di atas memakai `continue`. Kode mati itu menyamarkan kunci baru yang lupa didaftarkan; cabang dihapus dan diganti komentar kewajiban mendaftarkan kunci baru di set tipe.
+- Arsip `vwtg-restore-*.zip` di cache hanya dihapus pada jalur sukses/gagal, bukan saat dialog konfirmasi dibatalkan atau proses mati di tengah. `confirm()` kini punya varian dengan aksi batal (dipakai untuk menghapus arsip), dan `bersihkanExportPlainCache()` menyapu sisa `vwtg-restore-*.zip`/`-dec.zip` yang lebih tua dari 1 jam saat Settings dibuka.
+
 ## [Belum rilis] — Audit 181: Monitor kelas ServerService tak lagi dipakai untuk I/O SSL
 - Cache SSL (`loopbackSslFactory` + `capCaAktif`) memakai `synchronized (ServerService.class)` — monitor yang sama dengan perpanjangan wakelock dan lookup refleksi pid. Di dalam kunci itu `ca.pem` dibaca dan di-hash penuh lalu `SSLContext` diinisialisasi; health tick yang sedang menyegarkan cache bisa menahan `jagaWakeLock()`/`acquireWakeLock()` beberapa saat, tepat pada jalur yang menjaga server tetap hidup saat Doze.
 - Tiga tanggung jawab kini punya kunci sendiri (`KUNCI_SSL`, `KUNCI_WAKELOCK`, `KUNCI_PID`), dan reset cache SSL di `prepareTls` dilakukan di dalam `KUNCI_SSL` agar pembaca tak menyimpan factory CA lama sesudah reset.

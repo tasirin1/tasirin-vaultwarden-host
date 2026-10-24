@@ -3547,27 +3547,11 @@ public final class TgBackup {
                 }
                 continue;
             }
-            if (v instanceof String) {
-                ed.putString(k, (String) v);
-            } else if (v instanceof Boolean) {
-                ed.putBoolean(k, (Boolean) v);
-            } else if (v instanceof Integer) {
-                ed.putInt(k, (Integer) v);
-            } else if (v instanceof Long) {
-                ed.putLong(k, (Long) v);
-            } else if (v instanceof Double) {
-                double d = (Double) v;
-                if (d == Math.rint(d) && !Double.isInfinite(d)) {
-                    long l = (long) d;
-                    if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
-                        ed.putInt(k, (int) l);
-                    } else {
-                        ed.putLong(k, l);
-                    }
-                } else {
-                    ed.putFloat(k, (float) d);
-                }
-            }
+            // Tak terjangkau selama setiap kunci BOLEH_IMPOR terdaftar di salah
+            // satu set tipe di atas (KUNCI_STRING/BOOLEAN/INT/LONG) dan semua
+            // cabang di atas memakai continue. Kunci baru WAJIB didaftarkan di
+            // set tipe yang sesuai; cabang "tebak tipe" lama dihapus karena
+            // tak pernah dieksekusi (kode mati yang menyamarkan kesalahan).
         }
         ed.putString(KEY_TG_TOKEN, keepToken);
         ed.putString(KEY_TG_CHAT, keepChat);

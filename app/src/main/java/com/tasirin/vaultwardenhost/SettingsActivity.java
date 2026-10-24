@@ -120,6 +120,9 @@ public class SettingsActivity extends Activity {
     private volatile File exportPlainTertunda = null;
     /** Batas simpan file config plaintext sementara (2 menit, sapu basi). */
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
+    /** Umur maksimum arsip backup Telegram yang diunduh untuk restore dan
+     *  menunggu dialog konfirmasi (1 jam, sapu saat Settings dibuka). */
+    static final long RESTORE_TG_TTL_MS = 60L * 60 * 1000;
     /** Prefix plaintext sementara khusus cabang terenkripsi: tak pernah
      *  dibagikan sehingga selalu disapu tanpa pandang umur (sisa kill -9 di
      *  jendela tulis-enkripsi-hapus tak boleh mengendap sampai basi). */
@@ -2219,7 +2222,15 @@ public class SettingsActivity extends Activity {
                     }
                     confirm("Restore from Telegram",
                             "Use backup '" + fname + "'? The server will be stopped first. Continue?",
-                            () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp)));
+                            () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp)),
+                            // Batal = arsip tak dipakai: hapus sekarang, jangan
+                            // menunggu sapu basi 1 jam.
+                            () -> {
+                                try {
+                                    tmp.delete();
+                                } catch (Exception ignored) {
+                                }
+                            });
                 });
             } catch (Exception e) {
                 try {
@@ -2386,6 +2397,21 @@ public class SettingsActivity extends Activity {
                             umur = 0;
                         }
                         if (umur > EXPORT_PLAIN_TTL_MS) {
+                            f.delete();
+                        }
+                        continue;
+                    }
+                    if (n.startsWith("vwtg-restore-") && n.endsWith(".zip")) {
+                        // Arsip backup Telegram sisa proses yang mati saat dialog
+                        // konfirmasi terbuka (atau dibatalkan versi lama yang
+                        // belum menghapus). Bisa puluhan MB dan berisi DB:
+                        // sapu yang sudah basi, tapi jangan sentuh unduhan yang
+                        // sedang menunggu jawaban dialog.
+                        long umur = System.currentTimeMillis() - f.lastModified();
+                        if (umur < 0) {
+                            umur = 0;
+                        }
+                        if (umur > RESTORE_TG_TTL_MS) {
                             f.delete();
                         }
                     }
@@ -3713,14 +3739,28 @@ public class SettingsActivity extends Activity {
     }
 
     private void confirm(String title, String message, final Runnable action) {
+        confirm(title, message, action, null);
+    }
+
+    /** Varian dengan aksi saat dibatalkan (mis. hapus file sementara yang sudah
+     *  terunduh). Batal karena Activity mati juga menjalankan {@code batal}. */
+    private void confirm(String title, String message, final Runnable action,
+                         final Runnable batal) {
         if (isFinishing() || isDestroyed()) {
+            if (batal != null) {
+                batal.run();
+            }
             return;
         }
         new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("Yes", (d, w) -> action.run())
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Cancel", (d, w) -> {
+                    if (batal != null) {
+                        batal.run();
+                    }
+                })
                 .show();
     }
 
