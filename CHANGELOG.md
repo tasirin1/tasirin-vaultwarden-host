@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 162: APK rilis wajib benar-benar bertanda tangan
+- `build-apk.yml` dulu hanya bergantung pada `KEYSTORE_BASE64`; bila salah satu dari tiga secret lain kosong, AGP menghasilkan `app-release-unsigned.apk` yang tetap cocok pola `*release*.apk` lalu terunggah `--clobber` menimpa APK signed.
+- Langkah signing kini memeriksa keempat nilai, menolak berkas bernama `*unsigned*`, dan memverifikasi sertifikat dengan `keytool -printcert -jarfile` sebelum unggah. Password tak lagi dikirim sebagai `-P` (Gradle membaca env; `argv` tak menyimpan rahasia), dan `KEYSTORE_BASE64` dipindah ke level langkah agar langkah lint/unit-test tak melihatnya.
+
 ## [Belum rilis] — Audit 161: Fallback web-vault hormati kuncian versi & tak unduh ulang
 - Jalur fallback web-vault tak punya penjaga kuncian: memilih versi X dalam 6 jam setelah fallback membuat app menjawab "X sudah dipasang" padahal payload-nya rilis lain. Kini `adaKuncianWebVault()` wajib kosong dulu, jadi pin selalu dipenuhi atau gagal lantang.
 - Timer 6 jam diganti PROBE `v<versi>/web-vault.zip.sha256` (ratusan byte): 404 = belum terbit (lewati, tak unduh 35 MB), 200 = aset ada (penanda dibuang, versi target diunduh). `fallbackBaruSaja` beserta dua ujinya dihapus (`tools/bekas-hapusan.txt`).

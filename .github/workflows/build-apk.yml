@@ -71,7 +71,6 @@ jobs:
     needs: [resolve, verifikasi]
     runs-on: ubuntu-24.04
     env:
-      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       VW: ${{ needs.resolve.outputs.vw }}
     steps:
       - uses: actions/checkout@v7
@@ -104,25 +103,43 @@ jobs:
         if: always()
         run: cat app/build/reports/lint-results-debug.txt || true
 
-      - name: Build signed release APK (jika secret signing tersedia)
-        if: env.KEYSTORE_BASE64 != ''
+      # Secret signing hanya dipasang di langkah ini (dulu KEYSTORE_BASE64 di
+      # level job sehingga ikut terlihat langkah lint/unit-test yang menjalankan
+      # toolchain pihak ketiga).
+      - name: Build signed release APK
         env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
+          # Empat nilai wajib lengkap. Bila satu kosong, AGP menghasilkan
+          # app-release-unsigned.apk yang tetap cocok pola *release*.apk dan
+          # dulu bisa menimpa APK signed di rilis (tidak bisa install/update).
+          for v in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret $v kosong - APK release tidak boleh diterbitkan unsigned."
+              exit 1
+            fi
+          done
           echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
+          # Password dibaca Gradle dari env (bukan -P) agar tidak tampil di argv.
           ./gradlew --no-daemon :app:assembleRelease \
-            -PstoreFile=keystore.jks \
-            -PstorePassword="$KEYSTORE_PASSWORD" \
-            -PkeyAlias="$KEY_ALIAS" \
-            -PkeyPassword="$KEY_PASSWORD"
+            -PstoreFile=keystore.jks
 
       - name: Verify APK contents
         run: |
           APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           echo "== $APK"
+          case "$APK" in
+            *unsigned*) echo "::error::APK release unsigned - jangan diterbitkan."; exit 1;;
+          esac
+          # Buktikan tanda tangan benar-benar ada (bukan hanya nama berkas).
+          if ! keytool -printcert -jarfile "$APK" >/dev/null 2>&1; then
+            echo "::error::APK release tidak bertanda tangan (keytool gagal baca sertifikat)."
+            exit 1
+          fi
           unzip -l "$APK" | grep -E 'vw_version|classes.dex|AndroidManifest'
           ls -lh "$APK"
 
