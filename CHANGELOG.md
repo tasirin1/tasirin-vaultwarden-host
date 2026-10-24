@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Audit 196: Cek "metode dihapus tapi masih dipanggil" benar-benar menyala
+- `tools/verifikasi-patch.py` memakai `masih_didefinisikan()` dengan pola `\bnama\s*\(` ke seluruh `app/src/main/java`. Pola itu juga cocok pada baris **pemanggilan**, jadi satu-satunya keadaan yang ingin dilaporkan (metode sudah dihapus tetapi pemanggil produksi masih ada) selalu menghasilkan `True` → `continue` → tidak pernah dilaporkan. Gerbang CI/pre-push hijau palsu padahal pohon Java tak bisa dikompilasi; workflow binary tidak mengompilasi Java sehingga rilis non-APK bisa terbit dari pohon yang APK-nya gagal build.
+- Kini hanya **deklarasi** yang dihitung: `nama_metode_dideklarasikan()` mewajibkan tipe kembalian sebelum nama (`[modifier] TIPE<spasi>NAMA(`), menolak baris berawalan kata kunci (`return`, `new`, `if`, ...), dan membuang komentar lebih dulu. Pemanggilan seperti `Util.foo(1)` atau `foo(1)` tak lagi dianggap definisi, sedangkan overload yang benar-benar masih ada di berkas lain tetap terdeteksi (dipakai juga oleh `cek_hapusan_belum_tercatat` agar metode yang pindah berkas tidak salah dilaporkan).
+- Pemindaian deklarasi di-cache per berkas (`nama_terdeklarasi()`): sebelumnya tiap nama yang dihapus memindai ulang seluruh berkas (`O(nama × berkas)`), sekarang tiap berkas dipindai sekali per jalan.
+- Reproduksi sebelum perbaikan: `masih_didefinisikan('foo') = True` → `cek_metode_hilang` menghasilkan `gagal=[]` walau pemanggil produksi masih ada. Sesudah perbaikan: `gagal` memuat lokasi pemanggil; metode yang dipindah ke berkas lain tetap lolos. `--semua` dan `scripts/cek-cepat.sh` tetap hijau.
+
 ## [Belum rilis] — Audit 195: Proses `--version` benar-benar mati lewat satu pintu
 - `ServerService.detectBinaryVersion` mematikan proses `--version` dengan blok `destroy()` + `waitForOrKill(2000)` buatan sendiri, sedangkan `finally` hanya memanggil `destroy()`. Bila binary mengabaikan SIGTERM, proses tetap hidup sambil memegang berkas binary-nya (penulisan/penggantian binary berikutnya bisa gagal `ETXTBSY`) dan memperpanjang jejak proses yatim pada STB ber-RAM kecil.
 - Kedua jalur kini memakai `matikanProsesTegas()` (destroy → tunggu → `destroyForcibly` + tunggu 3 dtk), satu pintu yang sudah dipakai jalur stop/restart/bersih.

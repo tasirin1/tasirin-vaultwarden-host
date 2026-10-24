@@ -587,10 +587,61 @@ def baris_tanpa_komentar(isi):
         yield i, kupas_java(baris)
 
 
+# Kata kunci yang tak pernah menjadi tipe kembalian: baris berawalan ini
+# bukan deklarasi metode (mis. `return foo();` atau `throw new ...`).
+BUKAN_TIPE = KATA_KUNCI_JAVA | {"break", "continue", "super", "this", "yield"}
+
+# Deklarasi metode: [anotasi] [modifier] [<generik>] TIPE<spasi>NAMA(.
+# Pemanggilan sengaja tidak cocok: `Util.foo(1)` / `foo(1)` tak punya
+# "TIPE<spasi>" sebelum nama, sedangkan deklarasi selalu punya tipe kembalian.
+POLA_DEKLARASI = re.compile(
+    r"^(?:@[\w.]+(?:\([^)]*\))?\s+)*"
+    r"(?:(?:public|protected|private|static|final|abstract|synchronized"
+    r"|native|default|strictfp)\s+)*"
+    r"(?:<[^<>]*>\s+)?"
+    r"([\w$][\w$<>\[\].,?& ]*)\s+(\w+)\s*\(")
+
+
+def nama_metode_dideklarasikan(baris):
+    """Nama metode bila `baris` adalah DEKLARASI; None bila bukan.
+
+    Dibedakan dari pemanggilan dengan mewajibkan tipe kembalian sebelum nama.
+    Dulu `masih_didefinisikan` memakai pola `\\bnama\\s*\\(` yang juga cocok
+    pada baris pemanggilan, sehingga cek "metode dihapus tapi masih dipanggil"
+    tak pernah menyala (gerbang hijau palsu)."""
+    s = baris.strip()
+    if not s:
+        return None
+    cocok = POLA_DEKLARASI.match(s)
+    if not cocok or cocok.group(1) in BUKAN_TIPE:
+        return None
+    return cocok.group(2)
+
+
+# Cache nama metode terdeklarasi per berkas: `masih_didefinisikan` dipanggil
+# sekali per nama yang dihapus, jadi tanpa cache berkas yang sama dipindai
+# ulang O(nama) kali.
+_CACHE_DEKLARASI = {}
+
+
+def nama_terdeklarasi(path):
+    if path not in _CACHE_DEKLARASI:
+        nama = set()
+        for _, baris in baris_tanpa_komentar(baca(path)):
+            metode = nama_metode_dideklarasikan(baris)
+            if metode:
+                nama.add(metode)
+        _CACHE_DEKLARASI[path] = nama
+    return _CACHE_DEKLARASI[path]
+
+
 def masih_didefinisikan(nama):
-    pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+    """True bila masih ada DEKLARASI metode `nama` di app/src/main/java.
+
+    Overload/kembaran di berkas lain tetap terdeteksi (semua berkas dipindai);
+    pemanggilan sisa sengaja tidak dihitung sebagai definisi."""
     for path in jalan_repo(os.path.join("app", "src", "main", "java")):
-        if pola.search(kupas_java(baca(path))):
+        if nama in nama_terdeklarasi(path):
             return True
     return False
 
