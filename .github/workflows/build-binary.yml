@@ -370,6 +370,23 @@ jobs:
             (cd /tmp/web-vault && zip -qr /tmp/pub/web-vault.zip .)
             ls -lh /tmp/pub/web-vault.zip
           fi
+          # Verifikasi isi web-vault SEBELUM diunggah, termasuk zip yang
+          # dipakai ulang dari rilis lama: `unzip -t` mendeteksi entri
+          # korup/terpotong, index.html wajib ada di akar (app menolak
+          # web-vault tanpa index.html dan menjawab 404), dan ukuran minimum
+          # menyaring zip kosong. Dulu yang diperiksa hanya .sha256 yang kita
+          # buat sendiri — sirkular, isi zip tak pernah disentuh.
+          if ! unzip -tq web-vault.zip >/dev/null 2>&1; then
+            echo "::error::web-vault.zip korup (unzip -t gagal)"; exit 1
+          fi
+          if ! unzip -Z1 web-vault.zip | grep -qx "index.html"; then
+            echo "::error::web-vault.zip tidak berisi index.html di akar"; exit 1
+          fi
+          WV_SIZE=$(stat -c%s web-vault.zip)
+          if [ "$WV_SIZE" -lt 1048576 ]; then
+            echo "::error::web-vault.zip terlalu kecil ($WV_SIZE byte) - kemungkinan terpotong"; exit 1
+          fi
+          echo "web-vault.zip lolos cek isi ($WV_SIZE byte, index.html ada)."
           sha256sum vaultwarden-armeabi-v7a > vaultwarden-armeabi-v7a.sha256
           sha256sum libgetrandom-shim-armeabi-v7a.so > libgetrandom-shim-armeabi-v7a.so.sha256
           sha256sum web-vault.zip > web-vault.zip.sha256
@@ -415,14 +432,19 @@ jobs:
           done
           # Verifikasi: 6 asset non-APK wajib ada (APK diterbitkan workflow APK).
           # Daftar asset API kadang basi sesaat setelah unggah, jadi coba ulang.
-          # Selain nama, ukuran tiap payload dan isi .sha256 di rilis dibandingkan
-          # dengan berkas lokal: unggahan yang terpotong/diam-diam memakai asset
-          # lama tak boleh lolos lalu ditandai "latest".
+          # Selain nama, ukuran + digest SHA-256 (dihitung server GitHub) tiap
+          # payload dibandingkan dengan berkas lokal, dan isi .sha256 dicek:
+          # unggahan terpotong/diam-diam memakai asset lama tak boleh lolos
+          # lalu ditandai "latest".
           PAYLOAD="vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip"
           OK=false
           for t in 1 2 3; do
             OK=true
-            DAFTAR=$(gh release view "$TAG" --json assets -q '.assets[].name')
+            # `|| true`: gh bisa gagal sesaat (502/rate-limit/timeout) tepat
+            # setelah unggah. Tanpa ini `set -e` mematikan seluruh langkah,
+            # sehingga loop coba-ulang 3x tak pernah berjalan dan aset yang
+            # sebenarnya sudah lengkap tetap menggagalkan rilis.
+            DAFTAR=$(gh release view "$TAG" --json assets -q '.assets[].name' || true)
             for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
                 libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
                 web-vault.zip web-vault.zip.sha256; do
@@ -430,10 +452,23 @@ jobs:
             done
             for a in $PAYLOAD; do
               JAUH=$(gh release view "$TAG" --json assets \
-                -q ".assets[] | select(.name==\"$a\") | .size")
-              LOKAL=$(stat -c%s "$a")
+                -q ".assets[] | select(.name==\"$a\") | .size" || true)
+              LOKAL=$(stat -c%s "$a" || echo "")
               if [ "$JAUH" != "$LOKAL" ]; then
                 echo "::error::Ukuran $a di rilis ($JAUH) != lokal ($LOKAL)"
+                OK=false
+              fi
+              # Digest dihitung server GitHub saat unggah: bukti payload di
+              # rilis benar-benar sama dengan berkas lokal. Membandingkan
+              # .sha256 saja sirkular karena sidecar itu juga kita yang buat.
+              JAUH_DIGEST=$(gh api "repos/$GH_REPO/releases/tags/$TAG" \
+                --jq ".assets[] | select(.name==\"$a\") | .digest // \"\"" || true)
+              LOKAL_DIGEST="sha256:$(sha256sum "$a" | cut -d' ' -f1)"
+              if [ -z "$JAUH_DIGEST" ]; then
+                echo "::error::Digest SHA-256 $a tak tersedia di rilis"
+                OK=false
+              elif [ "$JAUH_DIGEST" != "$LOKAL_DIGEST" ]; then
+                echo "::error::Digest $a di rilis ($JAUH_DIGEST) != lokal ($LOKAL_DIGEST)"
                 OK=false
               fi
               rm -f /tmp/cek.sha256
