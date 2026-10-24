@@ -984,13 +984,14 @@ public class ServerService extends Service {
             batalStart = false;
             startForegroundCompat();
             // Pool lama agar restart bot tak menambah thread saat Start jalan.
-            Util.jalankanLama(() -> {
+            boolean masuk = Util.jalankanLama(() -> {
                 appendLog("[app] Restart server diminta.");
                 // Jangan menyalakan server yang sedang Stop: restart hanya sah
                 // saat server berjalan. Tanpa guard ini /restart menyalakan
                 // server yang sengaja di-Stop user (lihat TgBot "/restart").
                 if (!running && !alive(process)) {
                     appendLog("[app] Restart dilewati: server tidak berjalan.");
+                    turunkanForegroundBilaTakDiminta(startId);
                     return;
                 }
                 if (process != null) {
@@ -1048,12 +1049,21 @@ public class ServerService extends Service {
                     }
                 }
             });
+            if (!masuk) {
+                // Antrean pool lama penuh: restart tak jalan. Jangan biarkan
+                // foreground menggantung, dan beri tahu user untuk mencoba lagi
+                // (server lama tetap hidup; tak ada yang dibunuh diam-diam).
+                appendLog("[app] Restart gagal: antrean tugas penuh - coba lagi sebentar.");
+                TgBackup.sendMessage(this,
+                        "Restart gagal: tugas lain sedang berjalan. Coba lagi sebentar.");
+                turunkanForegroundBilaTakDiminta(startId);
+            }
             return START_NOT_STICKY;
         }
         if (ACTION_TG_BACKUP.equals(action)) {
             startForegroundCompat();
             // Pool lama (backup menit-lama tak monopoli / tak bikin thread baru).
-            Util.jalankanLama(() -> {
+            boolean masuk = Util.jalankanLama(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
                     if (!TgBackup.amanBoolean(cek, TgBackup.KEY_TG_AUTO, false)) {
@@ -1086,36 +1096,17 @@ public class ServerService extends Service {
                     appendLog("[tg] " + ramah + " (" + e + ")");
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + ramah);
                 } finally {
-                    // Jadwalkan ulang ke tengah malam berikutnya, selama masih aktif.
-                    // Baca tahan korup: getBoolean mentah melempar di finally
-                    // sehingga stopForeground/stopSelf di bawah tak jalan.
-                    SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
-                    boolean autoAktif = TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false);
-                    TgBackup.schedule(this, autoAktif);
-                    // Service yang dimatikan di sini memaksa alarm berikutnya
-                    // startForegroundService dari background (Android 12+ bisa
-                    // ditolak). Pertahankan hidup bila server jalan atau
-                    // auto-backup masih aktif; hanya berhenti total bila idle.
-                    boolean serverJalan = process != null && alive(process);
-                    // Start yang masih berjalan (task Start bisa antre di pool
-                    // yang sama dengan backup) belum melahirkan process; jangan
-                    // stopSelf di tengah jalan. stopSelf(startId) juga membuat
-                    // intent Start yang lebih baru membatalkan stop ini.
-                    boolean mulai = starting.get();
-                    if (!serverJalan && !mulai && !autoAktif) {
-                        stopForeground(true);
-                        stopSelf(startId);
-                    } else if (!serverJalan && !mulai) {
-                        // Demote foreground di sini (stopForeground(false)) berisiko:
-                        // service kehilangan notifikasi tapi tetap hidup tanpa alasan.
-                        // Pilih stopSelf(): aman karena alarm berikutnya start ulang bila perlu.
-                        try {
-                            stopSelf(startId);
-                        } catch (Exception ignored) {
-                        }
-                    }
+                    selesaikanBackupTerjadwal(startId);
                 }
             });
+            if (!masuk) {
+                // Antrean pool lama penuh (2 thread + 16 antre): backup hari ini
+                // tak jalan, tetapi jadwal berikutnya WAJIB tetap terpasang dan
+                // foreground tak boleh menggantung tanpa pekerjaan.
+                appendLog("[tg] Backup terjadwal digeser: antrean tugas penuh"
+                        + " - jadwal berikutnya tetap dipasang.");
+                selesaikanBackupTerjadwal(startId);
+            }
             return START_NOT_STICKY;
         }
         // Sistem menghidupkan ulang service (START_STICKY) dengan intent null
@@ -1185,6 +1176,56 @@ public class ServerService extends Service {
                     .getBoolean(KEY_SERVER_DIMINTA, false);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /** Tutup foreground/service bila user tak meminta server jalan. Dipakai
+     *  jalur restart yang batal (antrean penuh / server sudah mati) agar
+     *  notifikasi foreground tak menggantung tanpa pekerjaan. Bila niat jalan
+     *  masih tersimpan, notifikasi itu memang milik server yang hidup. */
+    private void turunkanForegroundBilaTakDiminta(int startId) {
+        if (niatJalanTersimpan()) {
+            return;
+        }
+        try {
+            stopForeground(true);
+        } catch (Exception ignored) {
+        }
+        try {
+            stopSelf(startId);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Rapikan service setelah tugas backup terjadwal (normal maupun saat
+     *  antrean pool penuh): pasang jadwal berikutnya lalu turunkan foreground
+     *  bila tak ada alasan hidup. Service yang dimatikan di sini memaksa alarm
+     *  berikutnya startForegroundService dari background (Android 12+ bisa
+     *  ditolak); jadi pertahankan hidup bila server jalan atau auto-backup
+     *  masih aktif, dan hanya berhenti total saat idle. */
+    private void selesaikanBackupTerjadwal(int startId) {
+        // Baca tahan korup: getBoolean mentah melempar sehingga stopForeground/
+        // stopSelf di bawah tak jalan.
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        boolean autoAktif = TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false);
+        TgBackup.schedule(this, autoAktif);
+        boolean serverJalan = process != null && alive(process);
+        // Start yang masih berjalan (task Start bisa antre di pool yang sama
+        // dengan backup) belum melahirkan process; jangan stopSelf di tengah
+        // jalan. stopSelf(startId) juga membuat intent Start yang lebih baru
+        // membatalkan stop ini.
+        boolean mulai = starting.get();
+        if (!serverJalan && !mulai && !autoAktif) {
+            stopForeground(true);
+            stopSelf(startId);
+        } else if (!serverJalan && !mulai) {
+            // Demote foreground di sini (stopForeground(false)) berisiko:
+            // service kehilangan notifikasi tapi tetap hidup tanpa alasan.
+            // Pilih stopSelf(): aman karena alarm berikutnya start ulang bila perlu.
+            try {
+                stopSelf(startId);
+            } catch (Exception ignored) {
+            }
         }
     }
 
