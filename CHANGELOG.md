@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 220: Pratinjau log layar awal mengejar ekor, bukan pangkal
+- `MainActivity.refreshHomeLog()` mereset `lastLogLen = 0` + mengosongkan layar setiap buffer log dipangkas (300 KB), lalu menampilkan potongan **tertua** dari buffer sisa. Bila laju log melebihi `BATAS_DELTA_TICK` (8 KB) per tick, offset tak pernah sampai ke ekor sehingga layar terus menampilkan log lama dan melompat tiap trim. Komentar "tiap 500 ms" juga usang (loop nyata 1–2 dtk).
+- Kini saat buffer dipangkas **atau** tertinggal lebih dari `BATAS_LOMPATAN` (4× jendela tick), offset dilompatkan ke ±8 KB terakhir pada batas baris utuh (`indexOf('\n')`) lalu layar diisi ulang — pengguna selalu melihat baris terbaru, dan penyamaran rahasia tetap bekerja per baris (tidak ada token terpotong separuh).
+
 ## [Belum rilis] — Audit 219: Start dilanjutkan otomatis setelah izin storage diberikan
 - `MainActivity.saveAndStart()` dan `SettingsActivity.saveAndStart()` memanggil `StoragePerm.siapStart()` yang memunculkan dialog izin lalu mengembalikan `false`; `onRequestPermissionsResult` hanya menampilkan toast saat izin **ditolak**. Akibatnya, pada instal pertama (atau setelah izin dicabut) pengguna menekan Start, memberi izin, tetapi server tetap tidak jalan sampai ia menekan Start untuk kedua kalinya.
 - Kedua activity kini mengingat bahwa Start tertahan menunggu izin (`mulaiUlangSetelahIzin`, direset di awal `saveAndStart`). Bila callback mengembalikan izin diberikan, `saveAndStart()` dipanggil ulang sekali (dengan guard `isFinishing`/`isDestroyed`); penolakan tetap memakai pesan lama dan tak pernah memicu Start liar.

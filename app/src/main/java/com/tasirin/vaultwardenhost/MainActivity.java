@@ -729,16 +729,26 @@ public class MainActivity extends Activity {
     /** Pratinjau log realtime di layar awal (ringan, tanpa pencarian). */
     private void refreshHomeLog() {
         // Hanya tempel selisih baris baru (delta): salin+setText seluruh buffer
-        // (<=300 KB) tiap 500 ms bikin UI patah-patah saat log deras.
+        // (<=300 KB) tiap tick (1-2 dtk) bikin UI patah-patah saat log deras.
         String delta = "";
         int mentah = 0;
         synchronized (ServerService.logBuffer) {
             int n = ServerService.logBuffer.length();
             // Cek trim di dalam lock: snapshot di luar lock bisa basi bila
             // catatLog memangkas buffer di jeda baca, membuat log beku
-            // sampai buffer tumbuh melewati nilai basi.
-            if (n < lastLogLen) {
-                lastLogLen = 0;
+            // sampai buffer tumbuh melewati nilai basi. Saat buffer dipangkas
+            // ATAU log meledak melewati jendela tick, lompat ke EKOR: dulu
+            // offset direset ke 0 sehingga layar menampilkan bagian tertua dan
+            // tak pernah mengejar ekor bila laju log > BATAS_DELTA_TICK/tick.
+            // Mulai dari batas baris utuh agar rahasia tak tampil separuh
+            // (penyamaran bekerja per baris).
+            if (n < lastLogLen || n - lastLogLen > BATAS_LOMPATAN) {
+                int mulai = Math.max(0, n - BATAS_DELTA_TICK);
+                int nl = ServerService.logBuffer.indexOf("\n", mulai);
+                if (nl >= 0 && nl < n - 1) {
+                    mulai = nl + 1;
+                }
+                lastLogLen = mulai;
                 homeLogView.setText("");
                 hintShown = false;
             }
@@ -753,7 +763,7 @@ public class MainActivity extends Activity {
             }
         }
         // Batas kerja per tick di UI thread: 13 pass regex di atas delta
-        // puluhan KB tiap 500 ms bikin patah di STB lama. Potong di batas
+        // puluhan KB tiap tick bikin patah di STB lama. Potong di batas
         // baris utuh; sisa mengalir di tick berikut (urutan + baris utuh
         // terjaga sehingga rahasia tak lolos tersamar setengah).
         if (mentah > BATAS_DELTA_TICK) {
@@ -874,6 +884,10 @@ public class MainActivity extends Activity {
     /** Batas olah log per tick layar awal (redaksi regex + span): sisa
      *  ditunda ke tick berikut agar UI thread tak tersedak log deras. */
     private static final int BATAS_DELTA_TICK = 8192;
+    /** Bila tertinggal lebih dari ini (log meledak / buffer dipangkas), lompat
+     *  ke ekor alih-alih mengejar dari awal: mengejar 8 KB/tick tak akan
+     *  pernah selesai bila laju log lebih cepat dari itu. */
+    private static final int BATAS_LOMPATAN = BATAS_DELTA_TICK * 4;
 
     // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
