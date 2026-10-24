@@ -352,6 +352,15 @@ public final class Updater {
         return kiniElapsed - at < WV_FALLBACK_TUNDA_MS;
     }
 
+    /** True bila penanda fallback menunjuk versi target ini (tanpa batas umur).
+     *  Dipakai memutuskan perlu PROBE aset kecil, bukan unduh ulang 20 MB.
+     *  Umur tak lagi jadi patokan: isi payload fallback tidak berubah selama
+     *  versi target belum terbit, jadi mengunduhnya ulang hanya membuang kuota.
+     *  Murni agar bisa unit test. */
+    static boolean fallbackTercatatUntuk(String latest, String untuk) {
+        return latest != null && !latest.isEmpty() && versiCocok(latest, untuk);
+    }
+
     /** True bila fallback binary untuk versi target ini masih dalam jeda 6 jam:
      *  lewati percobaan 404 + unduh ~20 MB berulang tiap cek update. Murni. */
     static boolean fallbackBinaryBerlaku(String latest, String untuk, long at,
@@ -1080,15 +1089,24 @@ public final class Updater {
             }
             return sebutan + latest;
         }
-        // Asset versi target belum terbit dan fallback sudah dipasang < 6 jam:
-        // lewati 404 + unduh ~20 MB berulang tiap cek (auto-update tiap Start).
+        // Asset versi target belum terbit dan payload fallback sudah terpasang:
+        // PROBE aset kecil (.sha256), jangan unduh ulang ~20 MB. Dulu keputusan
+        // ini berbasis timer 6 jam, sehingga payload yang isinya persis sama
+        // diunduh ulang tiap 6 jam (kuota STB habis tanpa perubahan apa pun).
+        // Probe 404 = versi target masih belum terbit -> lewati; probe 200 =
+        // aset sudah ada -> buang penanda lalu lanjut unduh versi target.
         if (!paksa && !butuhRefresh && !adaKuncianBinary(ctx)
-                && fallbackBinaryBerlaku(latest,
-                        TgBackup.amanString(sp, KEY_BIN_FALLBACK_FOR, ""),
-                        TgBackup.amanLong(sp, KEY_BIN_FALLBACK_AT, 0),
-                        SystemClock.elapsedRealtime())) {
-            return "Build Android v" + latest + " belum tersedia; binary rilis"
-                    + " sebelumnya tetap dipakai (dicoba lagi otomatis nanti).";
+                && fallbackTercatatUntuk(latest,
+                        TgBackup.amanString(sp, KEY_BIN_FALLBACK_FOR, ""))) {
+            String shaTarget = fetchChecksum(ctx,
+                    binaryAssetUrl(latest, ServerService.ABI) + ".sha256",
+                    20000, 20000);
+            if (shaTarget == null) {
+                return "Build Android v" + latest + " belum tersedia; binary rilis"
+                        + " sebelumnya tetap dipakai (dicek ulang otomatis nanti).";
+            }
+            sp.edit().remove(KEY_BIN_FALLBACK_FOR)
+                    .remove(KEY_BIN_FALLBACK_AT).apply();
         }
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()

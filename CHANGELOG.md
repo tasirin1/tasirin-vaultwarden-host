@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 160: Fallback binary tak lagi mengunduh ulang payload yang sama
+- Jalur fallback `Updater.tryUpdate` dulu memakai timer 6 jam: setelah jeda habis, `releases/latest/download/...` diunduh ulang (~20 MB) padahal isinya byte yang sama dengan yang sudah terpasang, berulang tiap 6 jam selama aset versi target belum terbit.
+- Kini keputusan berbasis isi: bila penanda fallback masih menunjuk versi target (`fallbackTercatatUntuk`, tanpa batas umur), app hanya PROBE `vaultwarden-armeabi-v7a.sha256` versi target (~ratusan byte). 404 = belum terbit, lewati; 200 = aset sudah ada, penanda dibuang lalu versi target diunduh. Uji JVM baru `UpdaterTest.fallbackTercatatUntuk_tanpaBatasUmur`.
+
 ## [Belum rilis] — Audit 159: Resume unduhan bertahan melewati redirect CDN GitHub
 - `Updater.bukaIkutiRedirect` tak lagi menolkan offset `Range` saat redirect lintas host. Rilis GitHub selalu 302 dari `github.com` ke `release-assets.githubusercontent.com` untuk aset yang sama, jadi penolakan itu membuat header Range hilang, CDN membalas 200, dan parsial 20-35 MB dihapus lalu diunduh ulang tiap percobaan (di koneksi yang putus sebelum 20 MB, update tak pernah selesai).
 - Keutuhan tetap dijaga `rangeCocok()` (awal `Content-Range` wajib sama dengan offset) + verifikasi SHA-256 pemanggil. Helper `hostBerubah` beserta ujinya dihapus karena tak lagi dipakai (`tools/bekas-hapusan.txt`).

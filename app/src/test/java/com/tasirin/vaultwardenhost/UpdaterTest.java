@@ -1054,6 +1054,20 @@ public class UpdaterTest {
     }
 
     @Test
+    public void fallbackTercatatUntuk_tanpaBatasUmur() {
+        // Penanda fallback versi yang sama tetap dianggap tercatat walau sudah
+        // lama: isi payload tak berubah selama versi target belum terbit, jadi
+        // tak boleh memicu unduh ulang 20 MB (dulu dibatasi timer 6 jam).
+        assertTrue(Updater.fallbackTercatatUntuk("1.34.3", "1.34.3"));
+        assertTrue(Updater.fallbackTercatatUntuk("1.34.3", "v1.34.3"));
+        assertFalse(Updater.fallbackTercatatUntuk("1.34.4", "1.34.3"));
+        assertFalse(Updater.fallbackTercatatUntuk("1.34.3", ""));
+        assertFalse(Updater.fallbackTercatatUntuk("1.34.3", null));
+        assertFalse(Updater.fallbackTercatatUntuk(null, "1.34.3"));
+        assertFalse(Updater.fallbackTercatatUntuk("", "1.34.3"));
+    }
+
+    @Test
     public void binaryFallbackUrl_menunjukAssetAbiIni() {
         String u = Updater.binaryFallbackUrl();
         assertTrue(u.contains("/releases/latest/download/"));
