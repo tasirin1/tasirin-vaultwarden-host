@@ -125,11 +125,16 @@ public final class AutoUpdate {
                     pending.atur(latest);
                     aksi.kabariTersedia(latest);
                     // Notifikasi sistem + Telegram cukup sekali per versi.
+                    // Penanda ditulis SESUDAH kabar dikirim: bila notifikasi
+                    // melempar (channel/izin rusak) atau proses mati di tengah,
+                    // versi ini dikabari lagi pada cek berikutnya. Dulu penanda
+                    // ditulis lebih dulu sehingga kabar yang gagal hilang
+                    // selamanya (pengguna tak pernah tahu ada update).
                     if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
-                        sp.edit().putString("tg_notified_version", latest).apply();
                         tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
+                        sp.edit().putString("tg_notified_version", latest).apply();
                     }
                 }
             }

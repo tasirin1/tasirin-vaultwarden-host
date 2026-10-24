@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 179: Penanda "sudah dikabari" ditulis setelah kabar terkirim
+- `AutoUpdate` menulis `tg_notified_version` sebelum menampilkan notifikasi sistem dan mengirim pesan Telegram. Bila notifikasi melempar atau proses mati di antara penulisan dan pengiriman, versi itu ditandai sudah dikabari padahal pengguna tak pernah menerima kabar — update berikutnya tak pernah diberitahukan untuk versi tersebut.
+- Penanda kini ditulis paling akhir, sehingga kegagalan membuat versi dikabari lagi pada cek berikutnya (paling buruk kabar ganda, bukan hilang).
+
 ## [Belum rilis] — Audit 178: Rahasia alarm yang gagal disimpan tak membuat backup hilang
 - `TgBackup.rahasiaAlarm` membuat rahasia anti-spoof lalu mengabaikan hasil `commit()`. Bila penyimpanan gagal (storage penuh), PendingIntent tunda-boot tetap dijadwalkan dengan rahasia yang tak pernah awet; saat alarm menyala, prefs kosong → rahasia baru dibuat → verifikasi gagal → backup susulan boot dilewati diam-diam.
 - Rahasia yang dipakai kini dicatat di sesi proses lebih dulu (sumber kebenaran yang sama untuk penjadwalan dan verifikasi), kegagalan simpan dilaporkan ke log, dan pemilihan nilai dipisah ke `pilihRahasiaAlarm()` (murni) dengan uji `TgBackupTest.rahasiaAlarm_pakaiSesiProsesBilaTersimpanGagal`.
