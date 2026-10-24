@@ -234,6 +234,11 @@ public final class TlsCert {
             File caKey = new File(dir, CA_KEY_FILE);
             File certFile = new File(dir, LEAF_CERT_FILE);
             File keyFile = new File(dir, LEAF_KEY_FILE);
+            // CA baru dibuat/dipasang: leaf lama (ditandatangani CA lama) wajib
+            // dibuat ulang. Ditandai flag, bukan lewat delete() yang hasilnya
+            // bisa gagal (berkas terkunci) sehingga leaf basi tetap lolos cek
+            // "masih cukup umur" dan semua klien dengan CA baru ditolak TLS.
+            boolean caBaru = false;
             if (!caOk(caCert, caKey, dir)) {
                 // CA hilang / rusak / versi lama / kedaluwarsa: buat ulang semuanya.
                 // Atomik: tulis ke .baru dulu, ganti lama hanya bila pengganti jadi.
@@ -255,8 +260,11 @@ public final class TlsCert {
                     return null;
                 }
                 // CA berganti: leaf lama wajib dibuat ulang (ditandatangani CA baru).
+                // delete() boleh gagal (berkas terkunci) — penentu regenerasi
+                // adalah caBaru, bukan keberhasilan hapus.
                 certFile.delete();
                 keyFile.delete();
+                caBaru = true;
                 writeVersion(dir);
             }
             long sisaLeaf = sisaMs(certFile);
@@ -268,7 +276,7 @@ public final class TlsCert {
                 } catch (Exception ignored) {
                 }
             }
-            if (!paksaLeaf && certFile.exists() && keyFile.exists()
+            if (!paksaLeaf && !caBaru && certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
                 return dir;
@@ -910,14 +918,28 @@ public final class TlsCert {
     }
 
     private static void writeVersion(File dir) throws IOException {
-        try (FileOutputStream w = new FileOutputStream(new File(dir, "version.txt"))) {
+        FileOutputStream w = new FileOutputStream(new File(dir, "version.txt"));
+        try {
             w.write((CERT_VERSION + "\n").getBytes(StandardCharsets.US_ASCII));
+            // fsync: version.txt hilang/terpotong membuat certVersionOk() false
+            // -> CA dianggap rusak dan dibuat ulang (semua HP wajib install CA
+            // baru). Sama seperti isi PEM, wajib tahan mati listrik.
+            try {
+                w.getFD().sync();
+            } catch (Exception ignored) {
+            }
+        } finally {
+            try {
+                w.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 
     private static void writePem(File f, String type, byte[] der) throws IOException {
-        try (OutputStreamWriter w = new OutputStreamWriter(
-                new FileOutputStream(f), StandardCharsets.US_ASCII)) {
+        FileOutputStream fos = new FileOutputStream(f);
+        try {
+            OutputStreamWriter w = new OutputStreamWriter(fos, StandardCharsets.US_ASCII);
             w.write("-----BEGIN " + type + "-----\n");
             String b64 = android.util.Base64.encodeToString(der, android.util.Base64.NO_WRAP);
             for (int i = 0; i < b64.length(); i += 64) {
@@ -925,6 +947,20 @@ public final class TlsCert {
                 w.write('\n');
             }
             w.write("-----END " + type + "-----\n");
+            w.flush();
+            // fsync sebelum rename atomik: rename hanya mengawetkan NAMA di
+            // direktori, isi berkas bisa nol/terpotong bila STB mati tepat
+            // sesudah tukar. Dulu tanpa ini CA bisa terbaca rusak lalu dibuat
+            // ulang — semua HP wajib install CA baru tanpa sebab yang jelas.
+            try {
+                fos.getFD().sync();
+            } catch (Exception ignored) {
+            }
+        } finally {
+            try {
+                fos.close();
+            } catch (Exception ignored) {
+            }
         }
         if (type.contains("PRIVATE") || f.getName().contains("key")) {
             // Best-effort: batasi kunci hanya untuk pemilik (0600) bila FS mendukung chmod.

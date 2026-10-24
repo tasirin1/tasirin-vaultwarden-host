@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 170: Sertifikat TLS dibuat ulang saat CA berganti & tahan mati listrik
+- Setelah CA dibuat ulang, `TlsCert.ensure` mengandalkan `delete()` leaf lama yang hasilnya diabaikan. Bila hapus gagal (berkas terkunci), leaf bertanda tangan CA lama tetap lolos cek "umur cukup" dan dipakai lagi, sehingga semua klien yang memasang CA baru ditolak TLS. Regenerasi kini ditentukan flag `caBaru`, bukan keberhasilan hapus.
+- `writePem`/`writeVersion` belum `fsync`: rename atomik hanya mengawetkan nama, isi bisa nol/terpotong bila STB mati tepat sesudah tukar — CA terbaca rusak lalu dibuat ulang (semua HP wajib install CA baru). Keduanya kini fsync sebelum tutup (best-effort, tak menggagalkan start).
+
 ## [Belum rilis] — Audit 169: Pemasangan hasil unduhan diserialkan per tujuan
 - Kunci unduhan hanya per berkas `.tmp`, sedangkan `gantiAtomik(tmp, out)` menulis ke tujuan bersama. Dua unduhan versi berbeda (mis. auto-update + `/update` dari bot) memakai tmp berbeda tetapi tujuan sama, sehingga keduanya bisa masuk `gantiAtomik` bersamaan: `.bak` saling dihapus/ditimpa dan salah satunya gagal dengan "Gagal mencadangkan binary lama" padahal unduhannya sehat.
 - Jalur binary dan shim kini memakai `pasangHasilUnduh()` yang memegang kunci tujuan lalu kunci tmp (urutan tetap, tanpa siklus dengan jalur transfer) sebelum verifikasi SHA-256 dan rename. Uji JVM baru `UpdaterTest.pasangHasilUnduh_verifikasiShaLaluGantiAtomik`.
