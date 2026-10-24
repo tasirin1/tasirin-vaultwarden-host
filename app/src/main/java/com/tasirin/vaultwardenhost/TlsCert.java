@@ -260,6 +260,14 @@ public final class TlsCert {
                 writeVersion(dir);
             }
             long sisaLeaf = sisaMs(certFile);
+            if (sisaLeaf == -2) {
+                // Jam mundur > 1 hari: leaf belum valid. Regenerasi di bawah
+                // memakai jam sekarang sehingga notBefore = kini - 1 hari.
+                try {
+                    ServerService.catatLog("[tls] leaf belum valid (jam mundur) - dibuat ulang");
+                } catch (Exception ignored) {
+                }
+            }
             if (!paksaLeaf && certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
@@ -355,8 +363,11 @@ public final class TlsCert {
 
     /** True bila CA bisa dipakai: file ada, versi cocok, sisa > 30 hari.
      *  Regen dini seperti leaf agar CA tak kedaluwarsa mendadak di tengah jalan.
-     *  Jam STB miring (sisa -2 = belum valid) ikut dipakai agar tak regenerasi
-     *  tiap Start yang memaksa install ulang ca.pem di semua HP. */
+     *  Sisa -2 (belum valid karena jam mundur) sengaja TIDAK dipakai: klien
+     *  menolak TLS dan ServerService fail-closed pada certDays == -2 sehingga
+     *  server mustahil start. Regen memakai jam sekarang membuat
+     *  notBefore = kini - 1 hari sehingga valid lagi — sekali jalan, bukan
+     *  tiap Start (sesudahnya sisa > 0). */
     static boolean caOk(File caCert, File caKey, File dir) {
         if (!caCert.exists() || !caKey.exists()
                 || caCert.length() <= 100 || caKey.length() <= 100
@@ -365,35 +376,29 @@ public final class TlsCert {
         }
         long sisa = sisaMs(caCert);
         if (sisa == -2) {
-            // Sertifikat belum valid karena jam perangkat miring ke masa lalu.
-            // Dipakai sementara agar tak regen tiap Start, bukan permanen.
-            // Regen otomatis terjadi di Start berikut setelah jam pulih
-            // (sisaMs tak lagi -2 sehingga caOk/leafCukup menolak).
+            // Catat sebab regen agar log tak tampak seperti CA hilang/rusak.
             try {
-                ServerService.catatLog("[tls] CA belum valid (jam miring), dipakai sementara");
+                ServerService.catatLog("[tls] CA belum valid (jam mundur) - dibuat ulang");
             } catch (Exception ignored) {
             }
             try {
-                android.util.Log.w("TlsCert", "[tls] CA notYetValid, dipakai sementara sampai jam pulih");
+                android.util.Log.w("TlsCert", "[tls] CA notYetValid, dibuat ulang dengan jam sekarang");
             } catch (Exception ignored2) {
             }
-            return true;
         }
+        return caSisaCukup(sisa);
+    }
+
+    /** Ambang sisa CA untuk dipakai ulang (> 30 hari); -2 (belum valid) dan
+     *  -1 (tak terbaca) selalu false agar ensure() meregen. Murni. */
+    static boolean caSisaCukup(long sisa) {
         return sisa > BATAS_REGEN_MS;
     }
 
-    /** True bila leaf boleh dipakai ulang: sisa > 30 hari, atau belum valid
-     *  karena jam STB miring (-2, dipakai seperti CA agar tak regen tiap Start). Murni. */
+    /** True bila leaf boleh dipakai ulang: sisa > 30 hari. Sisa -2 (belum valid
+     *  karena jam mundur) sengaja false agar ensure() meregen dengan jam
+     *  sekarang; lihat caOk. Murni. */
     static boolean leafCukup(long sisa) {
-        if (sisa == -2) {
-            // Sama seperti CA: jam miring, pakai sementara agar tak regen tiap Start.
-            // Regen otomatis terjadi di Start berikut setelah jam pulih (lihat caOk).
-            try {
-                ServerService.catatLog("[tls] leaf belum valid (jam miring), dipakai sementara");
-            } catch (Exception ignored) {
-            }
-            return true;
-        }
         return sisa > BATAS_REGEN_MS;
     }
 

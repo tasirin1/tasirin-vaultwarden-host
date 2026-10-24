@@ -152,12 +152,23 @@ public class TlsCertTest {
     }
 
     @Test
-    public void leafCukupTerimaSisaPanjangDanJamMiring() {
+    public void leafCukupTerimaSisaPanjangTolakJamMundur() {
         assertTrue(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS + 1));
-        assertTrue(TlsCert.leafCukup(-2));
+        // -2 = belum valid (jam mundur): wajib regen, bukan dipakai — kalau
+        // dipakai, startServer fail-closed dan server tak pernah start.
+        assertFalse(TlsCert.leafCukup(-2));
         assertFalse(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS));
         assertFalse(TlsCert.leafCukup(0));
         assertFalse(TlsCert.leafCukup(-1));
+    }
+
+    @Test
+    public void caSisaCukupTolakJamMundurAgarRegen() {
+        assertTrue(TlsCert.caSisaCukup(TlsCert.BATAS_REGEN_MS + 1));
+        assertFalse(TlsCert.caSisaCukup(-2));
+        assertFalse(TlsCert.caSisaCukup(TlsCert.BATAS_REGEN_MS));
+        assertFalse(TlsCert.caSisaCukup(0));
+        assertFalse(TlsCert.caSisaCukup(-1));
     }
 
     @Test

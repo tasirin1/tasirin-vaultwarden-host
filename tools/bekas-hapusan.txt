@@ -24,3 +24,4 @@ capWvRedirectDariJson
 keyboardPerintah
 keyboardPerintah_memuatSemuaPerintah
 keyboardPerintah_memuatSemuaTombol
+leafCukupTerimaSisaPanjangDanJamMiring
