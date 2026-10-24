@@ -138,16 +138,20 @@ public class LogActivity extends Activity {
         super.onResume();
         // Sesi melewati grace PIN: tutup log dan kembalikan ke MainActivity
         // (yang meminta PIN). Tanpa ini log penuh terlihat tanpa kunci.
+        // Fail-closed: bila prefs tak terbaca, log dianggap terkunci.
+        boolean bolehTampil = false;
         try {
             android.content.SharedPreferences sp =
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            if (TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
-                    && !MainActivity.pinBaruSajaDibuka()
-                    && !SettingsActivity.pinBaruSajaDibuka()) {
-                finish();
-                return;
-            }
+            bolehTampil = logBolehTampil(
+                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
+                    MainActivity.pinBaruSajaDibuka(),
+                    SettingsActivity.pinBaruSajaDibuka());
         } catch (Exception ignored) {
+        }
+        if (!bolehTampil) {
+            finish();
+            return;
         }
         refreshLog();
         ui.removeCallbacks(logTick);
@@ -569,6 +573,13 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_SANDI_SPASI =
             java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+?)"
                     + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
+
+    /** True bila layar log boleh dilihat: PIN mati, atau sesi PIN sudah
+     *  dibuka di Main/Settings. Fail-closed di pemanggil (galat baca prefs =
+     *  false). Murni. */
+    static boolean logBolehTampil(boolean pinOn, boolean graceMain, boolean graceSettings) {
+        return !pinOn || graceMain || graceSettings;
+    }
 
     /** True bila teks mungkin memuat rahasia (penanda kasar tanpa regex).
      *  Gerbang murah sebelum 13 pass regex: teks log biasa lolos tanpa

@@ -10,6 +10,15 @@ import org.junit.Test;
 public class LogActivityTest {
 
     @Test
+    public void logBolehTampilHanyaSaatPinMatiAtauSesiDibuka() {
+        // onResume LogActivity: PIN aktif tanpa sesi terbuka = layar ditutup.
+        assertTrue(LogActivity.logBolehTampil(false, false, false));
+        assertTrue(LogActivity.logBolehTampil(true, true, false));
+        assertTrue(LogActivity.logBolehTampil(true, false, true));
+        assertFalse(LogActivity.logBolehTampil(true, false, false));
+    }
+
+    @Test
     public void gerbangSamaranSekaliJalan() {
         assertTrue(LogActivity.butuhSamaran("gagal kirim TOKEN=abc"));
         assertTrue(LogActivity.butuhSamaran("api.telegram.org/bot123:ABC lanjut"));
