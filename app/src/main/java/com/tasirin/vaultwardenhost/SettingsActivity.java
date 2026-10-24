@@ -95,6 +95,8 @@ public class SettingsActivity extends Activity {
      *  aktivasi (dulu nomor urut + antrean single-thread membuang hasilnya di
      *  CPU lambat sehingga centang "tidak bisa aktif"). */
     private volatile boolean pinAktifJalan = false;
+    /** Start ditahan karena dialog izin storage; dilanjutkan setelah izin diberi. */
+    private boolean mulaiUlangSetelahIzin = false;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -918,13 +920,22 @@ public class SettingsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode == REQ_WRITE) {
-            if (!StoragePerm.tulisDiizinkan(permissions, grantResults)) {
+            boolean diberi = StoragePerm.tulisDiizinkan(permissions, grantResults);
+            if (!diberi) {
                 StoragePerm.tanganiPenolakan(this);
+            }
+            // Start yang tadi ditahan menunggu izin dilanjutkan sekali di sini;
+            // flag selalu direset agar penolakan/kegagalan tak memicu Start liar.
+            boolean lanjut = mulaiUlangSetelahIzin;
+            mulaiUlangSetelahIzin = false;
+            if (diberi && lanjut && !isFinishing() && !isDestroyed()) {
+                saveAndStart();
             }
         }
     }
 
     private void saveAndStart() {
+        mulaiUlangSetelahIzin = false;
         // Tugas backup/restore sedang berjalan: form bisa berisi nilai pra-restore
         // dan prefs bisa ditimpa hasil restore. Tanpa guard, Start menulis
         // folder/port/token basi di tengah restore lalu menyalakan server.
@@ -954,6 +965,9 @@ public class SettingsActivity extends Activity {
         }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
         if (!StoragePerm.siapStart(this, dataDirEfektif, REQ_WRITE)) {
+            // Dialog izin baru dimunculkan: lanjutkan Start otomatis begitu
+            // izin diberikan, jangan memaksa pengguna menekan Start dua kali.
+            mulaiUlangSetelahIzin = true;
             appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
             return;
         }

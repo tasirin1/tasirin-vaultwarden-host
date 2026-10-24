@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 219: Start dilanjutkan otomatis setelah izin storage diberikan
+- `MainActivity.saveAndStart()` dan `SettingsActivity.saveAndStart()` memanggil `StoragePerm.siapStart()` yang memunculkan dialog izin lalu mengembalikan `false`; `onRequestPermissionsResult` hanya menampilkan toast saat izin **ditolak**. Akibatnya, pada instal pertama (atau setelah izin dicabut) pengguna menekan Start, memberi izin, tetapi server tetap tidak jalan sampai ia menekan Start untuk kedua kalinya.
+- Kedua activity kini mengingat bahwa Start tertahan menunggu izin (`mulaiUlangSetelahIzin`, direset di awal `saveAndStart`). Bila callback mengembalikan izin diberikan, `saveAndStart()` dipanggil ulang sekali (dengan guard `isFinishing`/`isDestroyed`); penolakan tetap memakai pesan lama dan tak pernah memicu Start liar.
+
 ## [Belum rilis] — Audit 218: Aset web-vault korup tak lagi memacetkan rilis binary
 - Jalur "pakai ulang" di `build-binary.yml` hanya memeriksa **keberadaan** `web-vault.zip` di rilis lalu mengunduhnya; `unzip -t` baru dijalankan sesudahnya. Bila aset itu sudah korup/terpotong, setiap run binary berikutnya memakai ulang aset rusak, gagal di `unzip -t`, dan `exit 1` — permanen sampai aset dihapus manual (padahal aturan repo melarang edit aset rilis manual).
 - Kini zip lama diunduh dan diuji utuh **sebelum** diputuskan dipakai ulang. Bila unduhan atau `unzip -t` gagal, aset lokal dibuang dan web-vault dibangun ulang dari digest Docker resmi (dengan `::warning::` di log); pemeriksaan isi final (`unzip -t`, `index.html`, ukuran minimum) tetap berlaku untuk hasil pakai-ulang maupun hasil build baru.
