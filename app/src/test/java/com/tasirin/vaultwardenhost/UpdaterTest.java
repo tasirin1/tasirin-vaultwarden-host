@@ -1039,4 +1039,14 @@ public class UpdaterTest {
         assertTrue(u.contains("/releases/latest/download/"));
         assertTrue(u.endsWith("/vaultwarden-" + ServerService.ABI));
     }
+
+    @Test
+    public void urlAwalUnduhBinary_pakaiFallbackSaatPenandaBerlaku() {
+        String aset = Updater.binaryAssetUrl("1.34.3", ServerService.ABI);
+        assertEquals(aset, Updater.urlAwalUnduhBinary(false, aset));
+        // Penanda fallback aktif: jangan ulang 404 asset versi target; mulai
+        // dari rilis terbaru agar checksum diambil dari URL yang sama.
+        assertEquals(Updater.binaryFallbackUrl(),
+                Updater.urlAwalUnduhBinary(true, aset));
+    }
 }

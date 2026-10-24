@@ -52,6 +52,14 @@ public final class Updater {
         return RELEASE_LATEST_URL + "vaultwarden-" + ServerService.ABI;
     }
 
+    /** URL awal unduhan binary: langsung fallback bila penanda fallback masih
+     *  berlaku untuk versi target ini (asset versi target sudah terbukti 404),
+     *  selain itu asset versi target. Checksum wajib diambil dari URL yang
+     *  sama dengan sumber unduhan. Murni. */
+    static String urlAwalUnduhBinary(boolean fallbackTercatat, String assetUrl) {
+        return fallbackTercatat ? binaryFallbackUrl() : assetUrl;
+    }
+
     /** URL asset shim getrandom untuk versi resmi tertentu; fallback latest bila tak dikenal. */
     static String shimAssetUrl(String latest) {
         String t = latest == null ? "" : latest.trim();
@@ -1164,10 +1172,15 @@ public final class Updater {
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout TCP ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         final boolean[] pakaiTerbaru = {fallbackTercatat};
-        final String[] urlAkhir = {fallbackTercatat ? binaryFallbackUrl() : assetUrl};
+        final String[] urlAkhir = {urlAwalUnduhBinary(fallbackTercatat, assetUrl)};
         String digestHex;
         try {
-            digestHex = unduhKeTmp(ctx, assetUrl, tmp, "binary", 20000, 60000,
+            // Unduh dari URL yang benar-benar dipakai (fallback bila penanda
+            // masih berlaku). Dulu selalu mulai dari assetUrl walau urlAkhir
+            // sudah fallback, sehingga penanda tak pernah terpakai (404 ->
+            // "belum tersedia") dan checksum bisa diambil dari URL berbeda
+            // dengan sumber byte yang baru diunduh.
+            digestHex = unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) throws IOException {
