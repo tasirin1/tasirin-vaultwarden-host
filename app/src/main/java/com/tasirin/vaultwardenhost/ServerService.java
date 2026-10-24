@@ -3399,30 +3399,10 @@ public class ServerService extends Service {
     }
 
     private boolean isValidBinary(File f) {
-        if (f == null || !f.exists() || f.length() < 1_000_000) {
-            return false;
-        }
-        try (InputStream in = new java.io.FileInputStream(f)) {
-            // Header ELF 20 byte: magic (0-3) + e_machine little-endian (18-19).
-            // 40 = ARM; tolak x86_64 (62)/AArch64 (183) yang lolos cek magic.
-            byte[] h = new byte[20];
-            int off = 0;
-            while (off < h.length) {
-                int n = in.read(h, off, h.length - off);
-                if (n <= 0) {
-                    break;
-                }
-                off += n;
-            }
-            if (off < h.length || h[0] != 0x7F || h[1] != 'E'
-                    || h[2] != 'L' || h[3] != 'F') {
-                return false;
-            }
-            int machine = (h[18] & 0xFF) | ((h[19] & 0xFF) << 8);
-            return machine == 40;
-        } catch (Exception e) {
-            return false;
-        }
+        // Satu pintu dengan Updater.isElf (dulu blok ELF kembar di sini):
+        // ukuran wajar + magic ELF + e_machine ARM 32-bit, termasuk varian
+        // big-endian yang dulu diterima salah oleh salinan lokal.
+        return f != null && f.exists() && f.length() >= 1_000_000 && Updater.isElf(f);
     }
 
     private void copyBinary(File src, File dst) throws IOException {

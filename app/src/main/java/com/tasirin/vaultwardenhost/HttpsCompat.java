@@ -180,10 +180,10 @@ public final class HttpsCompat {
                         }
                     } catch (Exception ignored) {
                     }
-                    if (stat == capStat && cap == capNilai) {
-                        capWaktu = kini2;
-                        return capNilai;
-                    }
+                    // Cek "stat == capStat && cap == capNilai" yang dulu ada di
+                    // sini tak pernah bisa benar: stat yang cocok sudah pulang
+                    // lewat gerbang cepat di atas (capNilai != 0) atau capNilai
+                    // masih 0 sehingga hash nonzero tak mungkin sama.
                     capStat = stat;
                     capNilai = cap;
                     capWaktu = kini2;
