@@ -2709,9 +2709,6 @@ public final class TgBackup {
         return TUGAS_DATA_JALAN.get();
     }
 
-    /** Total ukuran isi (tak terkompresi) seluruh entri zip, atau -1 bila zip
-     *  tak terbaca. Dipakai cek ruang sebelum restore: db + WAL + tls di
-     *  dalam zip bisa jauh lebih besar dari file zip-nya. Murni I/O. */
     /** Hasil satu lintasan zip restore: isi app-config.json (null bila tak ada/
      *  rusak) + total ukuran isi tak terkompresi (-1 bila zip tak terbaca).
      *  Probe config dan cek ruang digabung agar zip tak dibuka dua kali sebelum
@@ -2763,7 +2760,9 @@ public final class TgBackup {
         return new PindaiZip(config, total);
     }
 
-    /** Total isi zip tak terkompresi (-1 bila tak terbaca). */
+    /** Total ukuran isi (tak terkompresi) seluruh entri zip, atau -1 bila zip
+     *  tak terbaca. Dipakai cek ruang sebelum restore: db + WAL + tls di
+     *  dalam zip bisa jauh lebih besar dari file zip-nya. Murni I/O. */
     static long ukuranIsiZip(File zip) {
         return pindaiZipRestore(zip).ukuran;
     }
