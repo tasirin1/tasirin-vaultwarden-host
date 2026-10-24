@@ -1357,21 +1357,14 @@ public final class Updater {
             }
         }
         writeVersionTag(binDir, appVersionName(ctx));
-        String installed = asap;
-        String effective = installed != null ? installed
-                : (!fallback ? latest : null);
-        if (effective != null && !effective.isEmpty()) {
+        // detectVersion() yang null sudah throw di atas, jadi asap selalu versi
+        // nyata binary yang baru dipasang: tak ada cabang "versi tak diketahui".
+        if (!asap.isEmpty()) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(ServerService.KEY_UPDATE_VERSION, effective).apply();
+                    .edit().putString(ServerService.KEY_UPDATE_VERSION, asap).apply();
         }
         ServerService.binaryVersion = "";
-        if (installed != null) {
-            return "Update v" + installed + " terpasang. " + BINARY_UPDATED_MARKER;
-        }
-        return fallback
-                ? "Binary rilis terbaru terpasang (v" + latest + " belum tersedia di repo)."
-                : "Update v" + (latest != null ? latest : "?") + " terpasang. "
-                        + BINARY_UPDATED_MARKER;
+        return "Update v" + asap + " terpasang. " + BINARY_UPDATED_MARKER;
     }
 
     /** Penanda mesin "binary benar-benar diganti" (seperti WV_UPDATED_MARKER).
@@ -1936,11 +1929,10 @@ public final class Updater {
                 while ((entry = zis.getNextEntry()) != null) {
                     String namaEntri = entry.getName();
                     jumlahEntri++;
-                    try {
-                        Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_WEBVAULT, jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
-                    } catch (java.io.IOException e) {
-                        throw e;
-                    }
+                    // Batas jumlah entri dijaga tiap entri; ukuran byte
+                    // diakumulasi di loop tulis di bawah (totalUnzip).
+                    Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_WEBVAULT,
+                            jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
                     // Cek zip-slip leksikal tanpa syscall canonical per entri.
                     if (!amanEntriZip(namaEntri)) {
                         zis.closeEntry();

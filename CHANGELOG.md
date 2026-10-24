@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 221: Kode mati & `try/catch` mubazir di jalur update binary
+- `Updater.downloadBinaryInner` menyimpan `asap` ke `installed` lalu memakai cabang `!fallback ? latest : null` untuk `KEY_UPDATE_VERSION` — padahal `detectVersion()` yang `null` sudah `throw` beberapa baris sebelumnya, jadi `installed` selalu non-null, cabang itu tak terjangkau, dan `if (installed != null)` selalu benar (pesan fallback di akhir juga mati). Semua disederhanakan ke `asap` langsung; nilai yang disimpan tetap sama.
+- Pemeriksaan jumlah entri zip web-vault dibungkus `try { ... } catch (IOException e) { throw e; }` — catch hanya melempar ulang. Kini dipanggil langsung (batas ukuran byte tetap diakumulasi di loop tulis).
+
 ## [Belum rilis] — Audit 220: Pratinjau log layar awal mengejar ekor, bukan pangkal
 - `MainActivity.refreshHomeLog()` mereset `lastLogLen = 0` + mengosongkan layar setiap buffer log dipangkas (300 KB), lalu menampilkan potongan **tertua** dari buffer sisa. Bila laju log melebihi `BATAS_DELTA_TICK` (8 KB) per tick, offset tak pernah sampai ke ekor sehingga layar terus menampilkan log lama dan melompat tiap trim. Komentar "tiap 500 ms" juga usang (loop nyata 1–2 dtk).
 - Kini saat buffer dipangkas **atau** tertinggal lebih dari `BATAS_LOMPATAN` (4× jendela tick), offset dilompatkan ke ±8 KB terakhir pada batas baris utuh (`indexOf('\n')`) lalu layar diisi ulang — pengguna selalu melihat baris terbaru, dan penyamaran rahasia tetap bekerja per baris (tidak ada token terpotong separuh).
