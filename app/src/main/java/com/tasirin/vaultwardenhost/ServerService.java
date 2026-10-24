@@ -3068,10 +3068,35 @@ public class ServerService extends Service {
      *  Di-cache 60 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
         long now = SystemClock.elapsedRealtime();
+        String lama;
+        long lamaWaktu;
         synchronized (IP_LOCK) {
             if (ipCacheSegar(now, ipCacheTime, ipCache)) {
                 return ipCache;
             }
+            lama = ipCache;
+            lamaWaktu = ipCacheTime;
+        }
+        // Cache basi tapi ada isinya: pakai nilai lama dulu (IP LAN praktis
+        // statis) dan segarkan di worker. Dulu pemanggil UI (localUrl di kartu
+        // info + tombol salin) yang membayar enumerasi NetworkInterface + isUp
+        // per kartu tepat saat TTL habis, sehingga layar terasa patah di STB
+        // lambat. Nilai basi paling lama 1 menit — hanya untuk tampilan URL.
+        if (lama != null && !lama.isEmpty() && lamaWaktu > 0) {
+            Util.jalankanBg(() -> {
+                long kini = SystemClock.elapsedRealtime();
+                synchronized (IP_LOCK) {
+                    if (ipCacheSegar(kini, ipCacheTime, ipCache)) {
+                        return;
+                    }
+                }
+                String segar = lanHost();
+                synchronized (IP_LOCK) {
+                    ipCache = segar;
+                    ipCacheTime = kini;
+                }
+            });
+            return lama;
         }
         // Seleksi satu pintu via lanHost() (dulu salinan logika pilih
         // IPv4-pertama di sini + di lanHost): hasil identik persis.

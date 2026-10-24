@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 172: URL lokal tak mengenumerasi interface di UI thread
+- `ServerService.localIp()` mengembalikan nilai cache hanya bila masih segar (<60 dtk); tepat saat TTL habis, pemanggil UI (`MainActivity` kartu info + tombol salin, `SettingsActivity`) yang membayar enumerasi `NetworkInterface` + `isUp()` per kartu, sehingga layar terasa patah di STB lambat.
+- Cache basi kini dipakai lebih dulu (IP LAN praktis statis, hanya untuk tampilan URL) dan penyegaran dijalankan di worker (`Util.jalankanBg`). Jalur pertama (cache kosong) tetap sinkron agar URL tak menampilkan alamat palsu.
+
 ## [Belum rilis] — Audit 171: Salinan buffer log tak lagi diambil di UI thread
 - `LogActivity` menyalin isi `ServerService.logBuffer` di UI thread (ekor 100 KB tiap tick, dan `toString()` penuh 300 KB untuk salin/bagi/simpan). Lock yang sama dipegang `pumpOutput`/`catatLog` server, sehingga tiap tick menahan penulisan log server dan membuat layar terasa berat di STB 1 GB.
 - Keempat jalur (`refreshLog`, `copyLog`, `shareLog`, `exportLogTxt`) kini menyalin buffer di worker; UI thread hanya menerima hasil yang sudah diolah.
