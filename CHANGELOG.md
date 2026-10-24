@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 185: Satu dialog Tentang untuk kedua layar
+- `MainActivity` dan `SettingsActivity` punya dua dialog "Tentang" berbeda: yang di Settings berupa HTML ad-hoc dengan isi lain (panduan pakai, tanpa baris ikon/footer) sehingga info versi, tombol GitHub, dan tombol Cek Update tak pernah sinkron dan perbaikan dialog utama tak sampai ke sana.
+- Dialog dipindah ke satu implementasi `AboutDialog.tampil()` yang dipakai kedua layar. Saat dibuka dari Settings, tombol Cek Update menutup dialog dan memfokuskan tombol Update di kartu (`fokuskanTombolUpdate()`) alih-alih membuka instance Settings kedua. Import yang tak terpakai di kedua activity ikut dibuang.
+
 ## [Belum rilis] — Audit 184: State diagnostik PIN yang tak pernah dibaca dihapus
 - `MainActivity.pauseStamp`/`SettingsActivity.pauseStamp` ditulis di `onCreate`, `onPause`, dan `catatPinDibuka` tetapi tak pernah dibaca satu kali pun; `kapanDibuka()` juga tak pernah dipanggil, dan `PinGate.kapanBukaBersama()` hanya hidup untuk `kapanDibuka()`. Jangkar grace yang sebenarnya adalah `PinGate.dalamGraceBersama()`.
 - Ketiganya dihapus (termasuk komentar onPause yang menggantung) dan namanya dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.

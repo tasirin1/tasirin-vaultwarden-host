@@ -11,10 +11,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -1363,54 +1361,10 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    // Html.fromHtml lama untuk API 21-23; jalur modern dipakai bila API >= 24.
-    @SuppressWarnings("deprecation")
+    /** Dialog Tentang: satu implementasi bersama MainActivity (dulu salinan
+     *  HTML sendiri dengan isi berbeda sehingga info versi tak sinkron). */
     private void showAboutDialog() {
-        String dataDir = dataDirInput.getText().toString().trim();
-        if (TextUtils.isEmpty(dataDir)) {
-            dataDir = ServerService.dataDirBawaanSegar();
-        }
-        String bin = Updater.currentServerVersion(this);
-        String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
-        StringBuilder html = new StringBuilder();
-        html.append("<b>Tasirin Vaultwarden Host</b><br/>")
-                .append("Running a <b>Vaultwarden</b> (Bitwarden-compatible) server "
-                        + "right on Android 5+ / TV.<br/><br/>")
-                .append("App version: <b>").append(appVersion.isEmpty() ? "?" : appVersion)
-                .append("</b><br/>")
-                .append("Server binary: <b>")
-                .append(bin == null ? "?" : "v" + bin).append("</b><br/>");
-        if (wv != null) {
-            html.append("Web vault: <b>v").append(wv).append("</b><br/>");
-        }
-        html.append("Device: Android ").append(Build.VERSION.RELEASE)
-                .append(" (API ").append(Build.VERSION.SDK_INT).append(")<br/><br/>")
-                .append("How to use:<br/>")
-                .append("1. Fill in the data folder &amp; port<br/>")
-                .append("2. Press <b>Start</b><br/>")
-                .append("3. Open the top-row URL in a browser<br/>")
-                .append("4. Optional: connect a Telegram bot for remote control<br/><br/>")
-                .append("Source: <a href=\"https://github.com/tasirin1/"
-                        + "tasirin-vaultwarden-host\">github.com/tasirin1/"
-                        + "tasirin-vaultwarden-host</a><br/>")
-                .append("License: GPL-3.0 (app) \u00B7 AGPL-3.0 (Vaultwarden)");
-
-        TextView tv = new TextView(this);
-        float d = getResources().getDisplayMetrics().density;
-        tv.setPadding((int) (20 * d), (int) (16 * d), (int) (20 * d), (int) (8 * d));
-        tv.setTextSize(13);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            tv.setText(Html.fromHtml(html.toString(), Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            tv.setText(Html.fromHtml(html.toString()));
-        }
-        tv.setMovementMethod(LinkMovementMethod.getInstance());
-        tv.setLinkTextColor(getResources().getColor(R.color.accent));
-        new AlertDialog.Builder(this)
-                .setTitle("About")
-                .setView(tv)
-                .setPositiveButton("Close", null)
-                .show();
+        AboutDialog.tampil(this);
     }
 
     /** Buka installer sertifikat Android langsung dalam mode CA (tanpa pilih manual). */
@@ -3809,6 +3763,27 @@ public class SettingsActivity extends Activity {
                 android.graphics.Rect kotak = new android.graphics.Rect();
                 jangkar.getDrawingRect(kotak);
                 settingsScroll.offsetDescendantRectToMyCoords(jangkar, kotak);
+                settingsScroll.smoothScrollTo(0, kotak.top);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    /** Dipakai dialog Tentang (AboutDialog): arahkan fokus ke tombol Update
+     *  di kartu, bukan membuka instance Settings kedua. */
+    void fokuskanTombolUpdate() {
+        if (isFinishing() || isDestroyed() || updateBtn == null) {
+            return;
+        }
+        updateBtn.requestFocus();
+        if (settingsScroll == null) {
+            return;
+        }
+        settingsScroll.post(() -> {
+            try {
+                android.graphics.Rect kotak = new android.graphics.Rect();
+                updateBtn.getDrawingRect(kotak);
+                settingsScroll.offsetDescendantRectToMyCoords(updateBtn, kotak);
                 settingsScroll.smoothScrollTo(0, kotak.top);
             } catch (Exception ignored) {
             }

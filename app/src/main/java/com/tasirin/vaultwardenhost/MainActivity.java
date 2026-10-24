@@ -14,21 +14,16 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.app.Dialog;
-import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 
 /** Layar awal sederhana: status server + Start/Stop + log realtime.
  *  Semua pengaturan pindah ke SettingsActivity lewat tombol titik tiga. */
@@ -968,100 +963,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Tentang khas Tasirin Download Manager: ikon, judul, versi,
-     *  baris ikon-teks, tombol GitHub + Cek Update, tombol tutup, footer. */
-    @SuppressLint("InflateParams")
+    /** Dialog Tentang: satu implementasi bersama SettingsActivity. */
     private void showAboutDialog() {
-        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-        if (TextUtils.isEmpty(dataDir)) {
-            dataDir = ServerService.dataDirBawaanSegar();
-        }
-        String bin = Updater.currentServerVersion(this);
-        String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
-        int build = 0;
-        try {
-            build = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (Exception ignored) {
-        }
-        String versi = appVersion.isEmpty() ? "?" : appVersion;
-        StringBuilder infoVersi = new StringBuilder(versi);
-        if (bin != null) {
-            infoVersi.append(" \u00b7 binary v").append(bin);
-        }
-        if (wv != null) {
-            infoVersi.append(" \u00b7 vault v").append(wv);
-        }
-        android.view.LayoutInflater pompa = android.view.LayoutInflater.from(this);
-        android.view.View lihat = pompa.inflate(R.layout.dialog_about, null);
-        TextView versiView = (TextView) lihat.findViewById(R.id.about_version);
-        versiView.setText(getString(R.string.about_version, infoVersi.toString()));
-        LinearLayout baris = (LinearLayout) lihat.findViewById(R.id.about_rows);
-        String[] ikon = getResources().getStringArray(R.array.about_icons);
-        String[] teks = getResources().getStringArray(R.array.about_rows);
-        float kepadatan = getResources().getDisplayMetrics().density;
-        int jarak = (int) (10 * kepadatan + 0.5f);
-        int atas = (int) (6 * kepadatan + 0.5f);
-        for (int i = 0; i < ikon.length && i < teks.length; i++) {
-            LinearLayout sel = new LinearLayout(this);
-            sel.setOrientation(LinearLayout.HORIZONTAL);
-            sel.setGravity(android.view.Gravity.CENTER_VERTICAL);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            if (i > 0) {
-                lp.topMargin = atas;
-            }
-            TextView ikonView = new TextView(this);
-            ikonView.setText(ikon[i]);
-            ikonView.setTextSize(16);
-            ikonView.setPadding(0, 0, jarak, 0);
-            TextView teksView = new TextView(this);
-            teksView.setText(teks[i]);
-            teksView.setTextSize(13.5f);
-            teksView.setTextColor(getResources().getColor(R.color.text_secondary));
-            sel.addView(ikonView);
-            sel.addView(teksView, new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-            baris.addView(sel, lp);
-        }
-        int targetSdk = 28;
-        try {
-            targetSdk = getPackageManager()
-                    .getApplicationInfo(getPackageName(), 0).targetSdkVersion;
-        } catch (Exception ignored) {
-        }
-        TextView kaki = (TextView) lihat.findViewById(R.id.about_footer);
-        kaki.setText(getString(R.string.about_tech, 21, targetSdk, build));
-        lihat.findViewById(R.id.btn_about_github).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
-                        "https://github.com/tasirin1/tasirin-vaultwarden-host")));
-            } catch (Exception ignored) {
-            }
-        });
-        lihat.findViewById(R.id.btn_about_update).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(this, SettingsActivity.class));
-            } catch (Exception ignored) {
-            }
-        });
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(lihat);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(
-                    android.R.color.transparent);
-            int lebarLayar = getResources().getDisplayMetrics().widthPixels;
-            int lebar = Math.min((int) (560 * kepadatan + 0.5f),
-                    lebarLayar - (int) (48 * kepadatan + 0.5f));
-            if (lebar > 0) {
-                dialog.getWindow().setLayout(lebar,
-                        WindowManager.LayoutParams.WRAP_CONTENT);
-            }
-        }
-        dialog.show();
-        lihat.findViewById(R.id.btn_about_ok).setOnClickListener(v -> dialog.dismiss());
+        AboutDialog.tampil(this);
     }
 
     // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
