@@ -1084,6 +1084,12 @@ public class SettingsActivity extends Activity {
         // Runtuhkan rantai ganda jadi satu (selaras MainActivity): tiap
         // suntikan "refresh sekarang" ikut menjadwalkan penerus abadi.
         ui.removeCallbacks(refreshLoop);
+        // Worker (appendUiLog/setBusy) bisa memicu refresh sesudah Activity
+        // dihancurkan; menyentuh view mati hanya membuang kerja + berisiko
+        // memunculkan dialog bertoken mati.
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
         // Sedang sibuk (update/backup)? Kunci chip status: progress unduh bila ada,
         // selain itu "Bekerja…" — jangan biarkan polling menimpa dengan status lama.
         if (uiBusy) {
@@ -2114,15 +2120,17 @@ public class SettingsActivity extends Activity {
                 TgBackup.applyPrefsFromJson(SettingsActivity.this,
                         zipCfg.optJSONObject("prefs"));
                 sanitizePortPref();
-                ui.post(() -> {
-                    reloadSettingsFromPrefs();
-                    SharedPreferences sp2 = getSharedPreferences(
-                            ServerService.PREFS, MODE_PRIVATE);
-                    TgBackup.schedule(SettingsActivity.this,
-                            TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-                    TgBot.schedule(SettingsActivity.this);
-                    appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
-                });
+                // Sisi data (jadwal backup/bot) dikerjakan langsung, bukan di
+                // dalam gerbang UI: restore bisa selesai sesudah Activity
+                // dihancurkan, dan jadwal dari prefs hasil restore tetap wajib
+                // terpasang walau tampilan tak perlu disegarkan lagi.
+                SharedPreferences sp2 = getSharedPreferences(
+                        ServerService.PREFS, MODE_PRIVATE);
+                TgBackup.schedule(SettingsActivity.this,
+                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+                TgBot.schedule(SettingsActivity.this);
+                appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
+                uiPost(this::reloadSettingsFromPrefs);
             }
             toast("Database restored. Restart the server to use it.");
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
@@ -2171,9 +2179,20 @@ public class SettingsActivity extends Activity {
                 // Arsip terenkripsi tetap utuh sampai user menekan Ya; dekrip
                 // dikerjakan sesudah konfirmasi agar plaintext tak mengendap
                 // di cache bila dialog tak jadi dijawab.
-                ui.post(() -> confirm("Restore from Telegram",
-                        "Use backup '" + fname + "'? The server will be stopped first. Continue?",
-                        () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp))));
+                ui.post(() -> {
+                    // Activity sudah tutup: jangan tampilkan dialog bertoken
+                    // mati, dan jangan tinggalkan arsip unduhan di cache.
+                    if (isFinishing() || isDestroyed()) {
+                        try {
+                            tmp.delete();
+                        } catch (Exception ignored) {
+                        }
+                        return;
+                    }
+                    confirm("Restore from Telegram",
+                            "Use backup '" + fname + "'? The server will be stopped first. Continue?",
+                            () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp)));
+                });
             } catch (Exception e) {
                 try {
                     tmp.delete();
@@ -2233,7 +2252,7 @@ public class SettingsActivity extends Activity {
         try {
             appendUiLog("[app] Menghentikan server sebelum restore...");
             String msg = TgBackup.restoreFromZip(this, zip);
-            ui.post(() -> {
+            uiPost(() -> {
                 reloadSettingsFromPrefs();
                 toast("Restore done. Press Start to run it.");
             });
@@ -2456,7 +2475,7 @@ public class SettingsActivity extends Activity {
                 exportPlainTertunda = new File(path);
                 exportPlainPada = SystemClock.elapsedRealtime();
             }
-            ui.post(() -> {
+            uiPost(() -> {
                 Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY + Uri.encode(path, "/"));
                 Intent send = new Intent(Intent.ACTION_SEND);
                 send.setType(mime);
@@ -2592,15 +2611,18 @@ public class SettingsActivity extends Activity {
             paksaCacheUbah = true;
             TgBackup.applyPrefsFromJson(this, prefs);
             sanitizePortPref();
-            ui.post(() -> {
+            // Flag wizard + jadwal = efek data, bukan tampilan: kerjakan di
+            // luar gerbang UI agar impor yang selesai sesudah Activity mati
+            // tetap menandai wizard selesai dan memasang jadwal.
+            SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
+            TgBackup.schedule(SettingsActivity.this,
+                    TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+            TgBot.schedule(SettingsActivity.this);
+            appendUiLog("[app] Config import selesai.");
+            uiPost(() -> {
                 reloadSettingsFromPrefs();
-                SharedPreferences sp2 = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                sp2.edit().putBoolean(KEY_WIZARD_DONE, true).apply();
-                TgBackup.schedule(SettingsActivity.this,
-                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-                TgBot.schedule(SettingsActivity.this);
                 toast("Settings imported. Press Start to apply.");
-                appendUiLog("[app] Config import selesai.");
             });
         } catch (Exception e) {
             sapuSisaImpor();
@@ -3120,7 +3142,7 @@ public class SettingsActivity extends Activity {
 
     /** Teks tombol pilih versi: "Terbaru (otomatis)" atau "vX (terkunci)". */
     private void segarkanLabelVersi() {
-        ui.post(() -> {
+        uiPost(() -> {
             try {
                 SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
                 String b = Updater.normalisasiPinVersi(
@@ -3353,7 +3375,7 @@ public class SettingsActivity extends Activity {
                 appendUiLog(s);
             }
             @Override public void jalankanUi(Runnable r) {
-                ui.post(r);
+                uiPost(r);
             }
         });
     }
@@ -3404,7 +3426,7 @@ public class SettingsActivity extends Activity {
         // CalledFromWrongThreadException (crash saat pasang versi gagal).
         android.os.Looper utama = android.os.Looper.getMainLooper();
         if (utama != null && android.os.Looper.myLooper() != utama) {
-            ui.post(this::perbaruiStatusIsian);
+            uiPost(this::perbaruiStatusIsian);
             return;
         }
         boolean adminIsi = adaIsiTrim(adminTokenInput.getText());
@@ -3757,7 +3779,7 @@ public class SettingsActivity extends Activity {
     /** Nonaktifkan tombol aksi + tampilkan "Sedang bekerja…" selama operasi. */
     private void setBusy(final boolean busy) {
         uiBusy = busy;
-        ui.post(() -> {
+        uiPost(() -> {
             updateBtn.setEnabled(!busy);
             revertBtn.setEnabled(!busy);
             updateWvBtn.setEnabled(!busy);
@@ -3900,6 +3922,24 @@ public class SettingsActivity extends Activity {
 
     private void toast(String message) {
         ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    /** Posting ke UI dengan gerbang siklus hidup: worker bisa menyelesaikan
+     *  tugas sesudah Activity dihancurkan (callback sudah terpasang sebelum
+     *  onDestroy membuang antrean), dan dialog/startActivityForResult di
+     *  Activity mati melempar BadTokenException / memunculkan jendela hantu.
+     *  Untuk pekerjaan UI yang menyentuh view/dialog; perubahan data murni
+     *  boleh tetap memakai ui.post langsung. */
+    private void uiPost(Runnable r) {
+        if (r == null) {
+            return;
+        }
+        ui.post(() -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            r.run();
+        });
     }
 
     private boolean jadwalBotTertunda = false;
