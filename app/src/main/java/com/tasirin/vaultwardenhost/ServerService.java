@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -320,7 +319,6 @@ public class ServerService extends Service {
     /** Snapshot konfigurasi server yang sedang berjalan (untuk peringatan restart). */
     public static volatile String runningDataDir = "";
     public static volatile String runningPort = "";
-    public static volatile boolean runningHttps = false;
     /** Sidik SHA-256 token admin saat server start (untuk hint restart).
      *  Sengaja bukan plaintext agar rahasia tak mengendap di heap statis;
      *  bandingkan via sidikTokenAdmin(). */
@@ -355,14 +353,13 @@ public class ServerService extends Service {
         Util.batalkanTunda(r);
     }
 
-    /** Nol-kan 8 penanda jalan sekaligus (satu pintu): blok reset identik
+    /** Nol-kan 7 penanda jalan sekaligus (satu pintu): blok reset identik
      *  tersebar di 4 jalur (gagal start, stopper, stop-tanpa-proses,
      *  healthFail) — tambah field baru dulu hanya di sebagian jalur =
      *  status basi. WakeLock/log/status tetap di pemanggil (beda tiap jalur). */
     private static void resetPenandaJalan() {
         runningDataDir = "";
         runningPort = "";
-        runningHttps = false;
         runningAdminToken = "";
         runningWvFrom = "";
         runningLanHost = "";
@@ -735,9 +732,10 @@ public class ServerService extends Service {
         return aliveCode >= 500 && aliveCode < 600 && configCode == 200;
     }
 
-    /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200. */
+    /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200.
+     *  Server selalu HTTPS (HTTP tak didukung), sehingga skema tak lagi
+     *  diteruskan sebagai parameter yang nilainya selalu sama. */
     static HasilPing pingRinci(Context ctx) {
-        boolean https = true;
         String port;
         try {
             if (!runningPort.isEmpty()) {
@@ -749,7 +747,6 @@ public class ServerService extends Service {
         } catch (Exception e) {
             return new HasilPing(false, -1, -1, "baca prefs gagal");
         }
-        String scheme = "https";
         // Tanpa trim: port dari effectivePort() selalu ternormalisasi
         // (String.valueOf/default, tanpa whitespace).
         String p = port == null ? "" : port;
@@ -762,7 +759,7 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
-        HasilCoba alive = cobaKode(ctx, scheme, p, "/alive", https);
+        HasilCoba alive = cobaKode(ctx, p, "/alive");
         HasilCoba config = new HasilCoba(-1, "");
         // /alive butuh DB; fallback ringan /api/config memastikan server
         // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
@@ -770,7 +767,7 @@ public class ServerService extends Service {
         // sama sehingga ikut gagal dan hanya membayar handshake kedua sia-sia
         // di CPU ARMv7 lambat. Kode -2 = dilewati (lihat ringkasKode).
         if (alive.kode != 200 && alive.kode != -1) {
-            config = cobaKode(ctx, scheme, p, "/api/config", https);
+            config = cobaKode(ctx, p, "/api/config");
         } else {
             config = new HasilCoba(-2, "");
         }
@@ -803,19 +800,17 @@ public class ServerService extends Service {
         }
     }
 
-    /** Satu request GET loopback; balas kode HTTP atau -1 bila gagal jaring/TLS. */
-    private static HasilCoba cobaKode(Context ctx, String scheme, String port, String path, boolean https) {
-        HttpURLConnection c = null;
+    /** Satu request GET loopback HTTPS; balas kode HTTP atau -1 bila gagal
+     *  jaring/TLS. Server selalu TLS, jadi skema/percabangan HTTP tak ada. */
+    private static HasilCoba cobaKode(Context ctx, String port, String path) {
+        HttpsURLConnection c = null;
         try {
-            c = (HttpURLConnection) new URL(
-                    scheme + "://127.0.0.1:" + port + path).openConnection();
+            c = (HttpsURLConnection) new URL(
+                    "https://127.0.0.1:" + port + path).openConnection();
             c.setConnectTimeout(4000);
             c.setReadTimeout(4000);
-            if (https) {
-                HttpsURLConnection hc = (HttpsURLConnection) c;
-                hc.setSSLSocketFactory(loopbackSslFactory(ctx));
-                hc.setHostnameVerifier(VERIF_LOOPBACK);
-            }
+            c.setSSLSocketFactory(loopbackSslFactory(ctx));
+            c.setHostnameVerifier(VERIF_LOOPBACK);
             return new HasilCoba(c.getResponseCode(), "");
         } catch (Exception e) {
             String m = e.getClass().getSimpleName();
@@ -1868,8 +1863,6 @@ public class ServerService extends Service {
             }
             // HTTPS-only: HTTP tak bisa dipakai, server selalu TLS (fail-closed).
             sp.edit().putBoolean(KEY_HTTPS, true).apply();
-            boolean https = true;
-            String scheme = "https";
             File tlsDir = prepareTls(dataFolder);
             if (tlsDir == null) {
                 appendLog("[app] FATAL: sertifikat TLS gagal dibuat - server TIDAK start.");
@@ -1955,13 +1948,12 @@ public class ServerService extends Service {
             // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
             // Satu enumerasi interface (dulu lanHost() 2x saat Start).
             String hostSegar = lanHost();
-            String domain = scheme + "://" + formatHostUntukUrl(hostSegar) + ":" + port;
+            String domain = "https://" + formatHostUntukUrl(hostSegar) + ":" + port;
             pb.environment().put("DOMAIN", domain);
             pb.redirectErrorStream(true);
 
             runningDataDir = dataDir;
             runningPort = port;
-            runningHttps = https;
             runningAdminToken = sidikTokenAdmin(adminToken);
             String wvFrom = Updater.webVaultFromVersion(this);
             runningWvFrom = wvFrom == null ? "" : wvFrom;
@@ -2012,7 +2004,7 @@ public class ServerService extends Service {
             logFile = new File(dataFolder, "vaultwarden.log");
 
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
-                    + "\nURL lokal (di HP): " + scheme + "://127.0.0.1:" + port
+                    + "\nURL lokal (di HP): https://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
             TgBackup.notifyLowStorage(this);
@@ -2033,7 +2025,7 @@ public class ServerService extends Service {
             // Pakai hostSegar (bukan lanHost() kedua): satu enumerasi interface
             // sesuai komentar di atas + DOMAIN dan panduan tak bisa beda IP
             // bila DHCP flap tepat di tengah Start.
-            for (String panduan : panduanLoginBitwarden(scheme, port, formatHostUntukUrl(hostSegar))) {
+            for (String panduan : panduanLoginBitwarden(port, formatHostUntukUrl(hostSegar))) {
                 appendLog(panduan);
             }
         } catch (Exception e) {
@@ -2433,7 +2425,9 @@ public class ServerService extends Service {
 
     /** Baris panduan [login] aplikasi Bitwarden saat start (URL benar + HTTPS + akun).
      *  Murni agar bisa diuji unit (tanpa runtime Android). */
-    static java.util.List<String> panduanLoginBitwarden(String scheme, String port, String lanIp) {
+    /** Panduan login Bitwarden (server selalu HTTPS, jadi skema tak perlu
+     *  parameter yang nilainya selalu sama). */
+    static java.util.List<String> panduanLoginBitwarden(String port, String lanIp) {
         java.util.ArrayList<String> out = new java.util.ArrayList<String>();
         String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
         String p = (port == null || port.isEmpty()) ? DEFAULT_PORT : port.trim();

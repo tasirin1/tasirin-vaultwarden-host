@@ -1934,7 +1934,7 @@ public final class TgBackup {
             // Reset saat server HTTPS jalan menembak kaki sendiri: Rocket memegang
             // cert di memori, tapi health check loopback kehilangan CA → 3x gagal →
             // server dibunuh sebagai "tidak sehat". Tolak dengan pesan jelas.
-            if (ServerService.isProcessAlive() && ServerService.runningHttps) {
+            if (ServerService.isProcessAlive()) {
                 throw new IOException("Server masih berjalan (HTTPS) - Stop dulu,"
                         + " lalu reset agar health check tak salah menilai.");
             }

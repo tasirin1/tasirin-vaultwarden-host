@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 194: Parameter `https`/`scheme` yang selalu sama dibuang dari jalur start & health
+- Aplikasi ini HTTPS-only (`KEY_HTTPS` selalu `true`, sertifikat wajib dibuat), tetapi `pingRinci`/jalur Start masih membawa variabel `boolean https = true` + `String scheme = "https"` dan meneruskannya ke `cobaKode(...)`, `panduanLoginBitwarden(...)`, serta `DOMAIN`. Nilai yang tak pernah bisa berubah menyamarkan asumsi "selalu TLS": pembaca kode bisa mengira ada jalur HTTP yang tetap bekerja padahal `cobaKode` tanpa TLS khusus akan gagal ke server TLS.
+- Parameter itu dihapus: `cobaKode()` kini membuka `HttpsURLConnection` langsung, `panduanLoginBitwarden()` tak lagi menerima skema (isinya memang selalu `https://`), dan `DOMAIN` ditulis `https://…`. Uji `panduanLoginMemuatUrlDanAkun` disesuaikan (dulu menguji bahwa "http" menghasilkan URL https — bukti parameternya mati) dan kini juga menguji port/IP kosong.
+- Penanda `ServerService.runningHttps` dihapus karena selalu bernilai sama dengan "proses hidup"; `TgBackup.resetSertifikat` cukup memeriksa `isProcessAlive()`. Komentar `resetPenandaJalan` disesuaikan (7 penanda).
+
 ## [Belum rilis] — Audit 193: Satu pemindai `tag_name` untuk rilis tunggal & daftar rilis
 - `Updater.extractTag` (versi rilis terbaru) dan `Updater.parseDaftarTag` (daftar versi pilihan) masing-masing menyimpan salinan pemindai JSON struktural ~70 baris. Dua salinan itu wajib diubah bersamaan; perbaikan di satu sisi (mis. body yang memuat `"tag_name"` di dalam teks) tak ikut ke sisi lain sehingga daftar versi dan versi terbaru bisa dibaca berbeda dari respons GitHub yang sama.
 - Keduanya kini memakai satu pemindai `pindaiTag()`; `extractTag` mengambil hasil pertama. Efek samping yang disengaja: bila `tag_name` berisi nilai non-string, pemindai melewatinya dan memakai tag sah berikutnya (dulu `extractTag` langsung menyerah dengan `null`) — perilaku ini kini sama dengan `parseDaftarTag` dan diuji di `pindaiTag_satuPintuUntukRilisTunggalDanDaftar`.

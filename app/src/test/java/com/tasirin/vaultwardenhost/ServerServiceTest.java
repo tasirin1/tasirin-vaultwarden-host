@@ -450,14 +450,15 @@ public class ServerServiceTest {
 
     @Test
     public void panduanLoginMemuatUrlDanAkun() {
-        java.util.List<String> p1 = ServerService.panduanLoginBitwarden("http", "8088", "192.168.1.5");
+        java.util.List<String> p1 = ServerService.panduanLoginBitwarden("8088", "192.168.1.5");
         assertEquals(3, p1.size());
         assertTrue(p1.get(0).contains("https://192.168.1.5:8088"));
         assertTrue(p1.get(1).contains("HTTPS WAJIB"));
         assertTrue(p1.get(2).contains("Create Account"));
-        java.util.List<String> p2 = ServerService.panduanLoginBitwarden("https", "8088", "192.168.1.5");
-        assertTrue(p2.get(0).contains("https://192.168.1.5:8088"));
-        assertTrue(p2.get(1).contains("HTTPS WAJIB"));
+        // Port/IP kosong: pakai default dan penanda "<IP-STB>" (bukan URL rusak).
+        java.util.List<String> p2 = ServerService.panduanLoginBitwarden("", null);
+        assertEquals(3, p2.size());
+        assertTrue(p2.get(0).contains("https://<IP-STB>:" + ServerService.DEFAULT_PORT));
     }
 
     @Test
