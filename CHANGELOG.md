@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 164: Cron binary tak lagi skip versi yang hanya punya APK
+- `build-binary.yml` melewati jadwal bulanan hanya bila tag rilis sudah ada. Tag bisa dibuat lebih dulu oleh workflow APK (hanya berisi APK), sehingga binary + web-vault untuk versi itu tak pernah dibangun: app yang memakai fallback `/releases/latest/download/...` dan update web-vault menerima 404 permanen.
+- Skip cron kini menuntut keenam aset non-APK benar-benar ada; output `ada` yang tak dipakai dihapus.
+- Unggahan aset memakai `gh release upload --clobber` (satu perintah, tanpa hapus-per-ID + tidur 5 dtk) dengan coba ulang khusus gangguan sementara, dan verifikasi akhir membandingkan ukuran tiap payload serta isi `.sha256` di rilis dengan berkas lokal — unggahan terpotong tak bisa lolos lalu ditandai latest.
+
 ## [Belum rilis] — Audit 163: Rilis "latest" hanya setelah 6 aset non-APK lengkap
 - Kedua workflow membuat rilis dengan penanda `latest` otomatis, sehingga rilis yang baru berisi APK (workflow APK jalan ~4 menit, workflow binary ~15 menit/bulanan) menjadi tujuan `/releases/latest/download/...` — jalur yang dipakai app untuk fallback unduhan binary. Selama jendela itu (bisa sampai sebulan bila workflow binary belum jalan) instalasi baru menerima 404.
 - `build-apk.yml` dan `build-binary.yml` kini membuat rilis dengan `--latest=false`; `build-binary.yml` menandai `--latest` hanya setelah verifikasi 6 aset non-APK lolos. Rilis setengah jadi tak pernah jadi tujuan fallback.

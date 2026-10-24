@@ -47,7 +47,6 @@ jobs:
     outputs:
       vw: ${{ steps.vw.outputs.tag }}
       skip: ${{ steps.vw.outputs.skip }}
-      ada: ${{ steps.vw.outputs.ada }}
     steps:
       - id: vw
         env:
@@ -71,13 +70,19 @@ jobs:
           # Repo TIDAK boleh di-hardcode: dulu tertulis tasirin1/... sehingga
           # fork/rename repo melihat EXISTING kosong -> cek "sudah ada" meleset,
           # build binary ~15 mnt jalan terus tiap cron padahal asetnya ada.
-          EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v$TAG" --jq .tag_name 2>/dev/null || true)
-          if [ "$EXISTING" = "v$TAG" ]; then
-            echo "ada=yes" >> "$GITHUB_OUTPUT"
-          else
-            echo "ada=no" >> "$GITHUB_OUTPUT"
-          fi
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$EXISTING" = "v$TAG" ]; then
+          # Skip cron HANYA bila keenam aset non-APK sudah ada: tag rilis bisa
+          # dibuat workflow APK lebih dulu (hanya berisi APK), dan dulu
+          # keberadaan tag saja sudah membuat cron bulanan skip selamanya —
+          # binary/web-vault untuk versi itu tak pernah terbit.
+          DAFTAR=$(gh release view "v$TAG" --json assets -q '.assets[].name' 2>/dev/null || true)
+          LENGKAP=yes
+          for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
+              libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
+              web-vault.zip web-vault.zip.sha256; do
+            printf '%s\n' "$DAFTAR" | grep -qx "$a" || LENGKAP=no
+          done
+          echo "Aset non-APK v$TAG lengkap: $LENGKAP"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$LENGKAP" = yes ]; then
             echo "skip=yes" >> "$GITHUB_OUTPUT"
           fi
 
@@ -373,25 +378,23 @@ jobs:
             berkas="$1"
             percobaan=1
             while [ "$percobaan" -le 6 ]; do
-              for id in $(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
-                  --jq '.assets[] | select(.name=="'"$berkas"'") | .id' 2>/dev/null); do
-                gh api -X DELETE \
-                  "repos/$GITHUB_REPOSITORY/releases/assets/$id" >/dev/null 2>&1 || true
-              done
-              sleep 5
-              if gh release upload "$TAG" "$berkas" 2>"$berkas.gagal.log"; then
+              # --clobber: timpa asset bernama sama tanpa perlu mencari ID dan
+              # menghapus manual lebih dulu (dulu: hapus per ID + tidur 5 dtk,
+              # lalu "already exists" ditunggu 15 dtk x 6). gh melakukan
+              # hapus+unggah berurutan dalam satu perintah, jadi jendela asset
+              # hilang sesingkat mungkin.
+              if gh release upload "$TAG" "$berkas" --clobber 2>"$berkas.gagal.log"; then
                 rm -f "$berkas.gagal.log"
                 return 0
               fi
-              if ! grep -q "already exists" "$berkas.gagal.log"; then
-                cat "$berkas.gagal.log"
+              cat "$berkas.gagal.log"
+              if ! grep -Eqi "already exists|validation failed|502|503|504|timed? ?out|EOF|connection reset" "$berkas.gagal.log"; then
                 return 1
               fi
-              echo "percobaan $percobaan: $berkas masih 'already exists', tunggu 15 dtk..."
+              echo "percobaan $percobaan: unggah $berkas gagal sementara, tunggu 15 dtk..."
               sleep 15
               percobaan=$((percobaan + 1))
             done
-            cat "$berkas.gagal.log"
             return 1
           }
           for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
@@ -401,6 +404,10 @@ jobs:
           done
           # Verifikasi: 6 asset non-APK wajib ada (APK diterbitkan workflow APK).
           # Daftar asset API kadang basi sesaat setelah unggah, jadi coba ulang.
+          # Selain nama, ukuran tiap payload dan isi .sha256 di rilis dibandingkan
+          # dengan berkas lokal: unggahan yang terpotong/diam-diam memakai asset
+          # lama tak boleh lolos lalu ditandai "latest".
+          PAYLOAD="vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip"
           OK=false
           for t in 1 2 3; do
             OK=true
@@ -409,6 +416,21 @@ jobs:
                 libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
                 web-vault.zip web-vault.zip.sha256; do
               echo "$DAFTAR" | grep -qx "$a" || OK=false
+            done
+            for a in $PAYLOAD; do
+              JAUH=$(gh release view "$TAG" --json assets \
+                -q ".assets[] | select(.name==\"$a\") | .size")
+              LOKAL=$(stat -c%s "$a")
+              if [ "$JAUH" != "$LOKAL" ]; then
+                echo "::error::Ukuran $a di rilis ($JAUH) != lokal ($LOKAL)"
+                OK=false
+              fi
+              rm -f /tmp/cek.sha256
+              if ! gh release download "$TAG" -p "$a.sha256" -O /tmp/cek.sha256 2>/dev/null \
+                  || ! cmp -s /tmp/cek.sha256 "$a.sha256"; then
+                echo "::error::Isi $a.sha256 di rilis tidak sama dengan checksum lokal"
+                OK=false
+              fi
             done
             echo "Cek 6 asset non-APK di $TAG: $OK (cek $t/3)"
             [ "$OK" = true ] && break
