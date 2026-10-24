@@ -90,7 +90,7 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Judul + subversi bar atas ala Toolbar TDM (putih di atas primary). -->
+    <!-- Judul + subversi bar atas ala Toolbar TDM (putih di atas toolbar_bg). -->
     <style name="TasirinToolbarTitle">
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>

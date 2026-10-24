@@ -4,6 +4,9 @@
          biru #1565C0 + aksen jingga #F57C00, latar abu terang.
          Kartu putih agar konten terasa mengambang. -->
     <color name="primary">#1565C0</color>
+    <!-- Bilah judul sendiri: tetap biru tua di mode malam karena judul,
+         subversi, dan ikon toolbar berwarna putih (kontras ≥ 4,5:1). -->
+    <color name="toolbar_bg">#1565C0</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#F57C00</color>
     <color name="white">#FFFFFF</color>

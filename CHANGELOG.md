@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 201: Bilah judul mode malam terbaca (kontras 1,75:1 → ±11:1)
+- Mode malam memakai `primary` = `#90CAF9` (biru muda) sebagai latar bilah judul, sedangkan judul, subversi (`TasirinToolbarTitle`/`Subtitle`), ikon titik-tiga, panah kembali, dan ikon Stop semuanya putih. Rasio kontras putih di atas `#90CAF9` hanya ±1,75:1 (WCAG AA butuh 4,5:1), jadi header praktis tak terbaca — dan TV/STB umumnya memakai mode malam. Splash juga ikut menyala terang di tema gelap.
+- Ditambah warna `toolbar_bg` yang khusus untuk bilah judul: `#1565C0` di mode siang (sama seperti sebelumnya) dan `#1E3A5F` di mode malam (kontras putih ±11:1, sewarna `primary_container`). `activity_main.xml`, `activity_settings.xml`, dan `bg_splash.xml` memakai warna baru ini; `primary` tetap dipakai tombol/aksen sehingga teks tombol malam yang gelap (`btn_primary_text` = `#1A1A1A`) tetap kontras.
+- Komentar gaya toolbar diperbarui agar tak lagi menyebut "putih di atas primary".
+
 ## [Belum rilis] — Audit 200: Notifikasi foreground mengikuti status server
 - Teks notifikasi dihitung sekali di `startForegroundCompat()`. Pada Start normal, `running` masih `false` saat service dinaikkan (start berjalan asinkron), jadi notifikasi berbunyi "Menjalankan tugas latar..." **sepanjang** server melayani; sebaliknya setelah server mati tanpa `startForegroundCompat()` baru, notifikasi tetap "Server aktif di port ...". Di STB/TV yang hanya menampilkan notifikasi, status ini praktis satu-satunya indikator.
 - Notifikasi kini dibangun oleh satu pintu `bangunNotifikasi()` dan disegarkan dari `setStatus()` lewat `perbaruiNotifikasi()` (hanya bila service memang sedang foreground — `notifForeground`, agar tak memposting notifikasi biasa yang menempel setelah service turun). Isinya: "Server aktif di port N" saat proses hidup, atau baris pertama status yang dirapikan dan dibatasi 80 karakter saat belum (logika murni `teksNotifikasi()` + uji).

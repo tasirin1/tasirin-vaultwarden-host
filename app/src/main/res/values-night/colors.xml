@@ -3,6 +3,9 @@
     <!-- Mode malam: latar biru-tinta, kartu sedikit terangkat.
          Palet inti seragam TDM, versi malam dicerahkan agar kontras. -->
     <color name="primary">#90CAF9</color>
+    <!-- Bilah judul malam: biru-tinta, bukan primary terang #90CAF9 —
+         judul/ikon putih di atas primary terang hanya ~1,75:1. -->
+    <color name="toolbar_bg">#1E3A5F</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#FFB74D</color>
     <color name="white">#FFFFFF</color>
