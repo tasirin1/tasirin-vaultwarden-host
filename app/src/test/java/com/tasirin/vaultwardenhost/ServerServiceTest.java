@@ -558,6 +558,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void startGagalPermanenHanyaSaatTakAdaProsesDanTakDitunda() {
+        // Gerbang akhir startServerAsync: start yang tak melahirkan proses
+        // wajib menghentikan health tick + notifikasi; start yang masih
+        // ditunda (restore memegang KUNCI_DATA) tidak boleh diakhiri.
+        assertTrue(ServerService.startGagalPermanen(false, false, false));
+        assertFalse(ServerService.startGagalPermanen(true, false, false));
+        assertFalse(ServerService.startGagalPermanen(false, true, false));
+        assertFalse(ServerService.startGagalPermanen(false, false, true));
+        assertFalse(ServerService.startGagalPermanen(true, true, true));
+    }
+
+    @Test
     public void unduhBolehDicobaBilaJamMundur() {
         // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
         assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));

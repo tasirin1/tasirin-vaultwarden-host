@@ -349,6 +349,10 @@ public class ServerService extends Service {
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
+    /** startId perintah terakhir: start yang gagal permanen hanya menurunkan
+     *  service bila tak ada intent yang lebih baru menunggu diproses (intent
+     *  baru otomatis membatalkan {@code stopSelfResult} id lama). */
+    private volatile int startIdTerakhir = 0;
     /** Kunci operasi data (restore DB) vs Start: restore memegang kunci ini
      *  selama menimpa folder data; Start memakai tryLock agar tak menyalakan
      *  server di tengah ekstraksi. Restore selalu dipanggil dari worker. */
@@ -911,6 +915,7 @@ public class ServerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        startIdTerakhir = startId;
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
             // Foreground dulu seperti action lain: STOP datang via
@@ -1534,6 +1539,7 @@ public class ServerService extends Service {
      *  di main thread Android memblokir dengan NetworkOnMainThreadException).
      *  Guard mencegah Start ganda saat unduh binary masih berjalan. */
     private void startServerAsync() {
+        final int idAwal = startIdTerakhir;
         if (!starting.compareAndSet(false, true)) {
             appendLog("[app] Start masih berjalan (unduh binary?), dilewati.");
             return;
@@ -1541,6 +1547,9 @@ public class ServerService extends Service {
         // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
         boolean masuk = Util.jalankanLama(() -> {
             boolean kunci = false;
+            // True bila Start masih akan dicoba lagi (restore/reset memegang
+            // KUNCI_DATA): episode Start belum berakhir, jangan turunkan apa pun.
+            boolean tunda = false;
             try {
                 kunci = KUNCI_DATA.tryLock();
                 if (!kunci) {
@@ -1557,6 +1566,7 @@ public class ServerService extends Service {
                         setStatus("Restore/reset sedang berjalan - Start menyusul otomatis.");
                     }
                     if (n < BATAS_START_TERTUNDA_DATA) {
+                        tunda = true;
                         posUtama(restartTunda, 5000);
                     } else {
                         startTertundaData.set(0);
@@ -1573,6 +1583,33 @@ public class ServerService extends Service {
                 if (kunci) {
                     KUNCI_DATA.unlock();
                 }
+                // Server tak lahir dan tak ada percobaan susulan = start gagal
+                // permanen (sebabnya sudah tampil di status/log/Telegram).
+                // Matikan watchdog health agar tak polling tiap 2 menit
+                // selamanya, dan turunkan notifikasi foreground bila tak ada
+                // auto-backup yang memang butuh service tetap hidup.
+                if (startGagalPermanen(running,
+                        process != null && alive(process), tunda)) {
+                    healthActive = false;
+                    batalUtama(healthTick);
+                    // Niat jalan disimpan ulang agar recreate START_STICKY tak
+                    // mengulang start yang sudah pasti gagal; user diminta
+                    // menekan Start lagi setelah sebabnya dibereskan.
+                    simpanNiatJalan(false);
+                    SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
+                    if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
+                        try {
+                            stopForeground(true);
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                            // stopSelfResult: intent yang lebih baru (id lain)
+                            // membatalkan ini sehingga Start baru tak ikut mati.
+                            stopSelfResult(idAwal);
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
                 starting.set(false);
             }
         });
@@ -1583,6 +1620,14 @@ public class ServerService extends Service {
             appendLog("[app] Antrean tugas penuh - Start ditunda, coba lagi.");
             setStatus("Antrean penuh - Start ditunda. Tekan Start lagi.");
         }
+    }
+
+    /** True bila start berakhir tanpa melahirkan proses dan tanpa percobaan
+     *  susulan: episode Start harus diakhiri (health tick + notifikasi ikut
+     *  turun). Murni. */
+    static boolean startGagalPermanen(boolean running, boolean prosesHidup,
+                                     boolean ditunda) {
+        return !ditunda && !running && !prosesHidup;
     }
 
     private void startServer() {
