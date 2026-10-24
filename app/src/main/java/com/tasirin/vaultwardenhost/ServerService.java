@@ -1917,34 +1917,20 @@ public class ServerService extends Service {
         // Bersihkan proses vaultwarden lama yang masih nyangkut (biasanya masih
         // memegang port) sebelum start - penyebab utama "looping" saat start.
         killStaleVaultwarden();
-        int portNum = -1;
-        try {
-            portNum = Integer.parseInt(port.trim());
-        } catch (Exception ignored) {
-        }
-        // Sumber kebenaran tunggal bersama normalisasiPort(): <1024 butuh root
-        // dan tak pernah bisa bind tanpa root, jadi sembuhkan ke default di sini
-        // (persist agar prefs lama berisi 80/443 tak FATAL tiap Start).
-        // Cek isPortBusy di bawah hanya saran pra-start (TOCTOU bind-lalu-lepas):
-        // penentu sah adalah gagal bind Rocket saat exec + mitigasi portDirebut.
-        if (portNum < 1024 || portNum > 65535) {
-            appendLog("[app] Port tidak valid/privileged ('" + port + "') - pakai default " + DEFAULT_PORT + ".");
-            port = DEFAULT_PORT;
-            portNum = Integer.parseInt(DEFAULT_PORT);
-            sp.edit().putString(KEY_PORT, port).apply();
-        }
+        // currentPort() → effectivePort() → normalisasiPort() sudah menjamin
+        // port 1024..65535 berupa angka tanpa spasi, jadi parse berikut tak
+        // pernah gagal dan tak perlu penyembuhan ulang (dulu ada cabang
+        // <1024/>65535 yang tak terjangkau dan trim kedua).
+        int portNum = Integer.parseInt(port);
         if (isPortBusy(portNum)) {
-            // Trim sekali (dulu 6x trim = 6 alokasi String tiap gagal start).
-            String portRapi = port.trim();
-            // Cabang "port butuh root" sudah dibuang: di titik ini portNum
-            // dijamin 1024..65535 oleh normalisasi di atas, dan karena
-            // isPortBusy() true, bind percobaan pasti gagal EADDRINUSE (bukan
-            // EACCES) — saran "butuh root" tak pernah bisa tercapai. Pesan
-            // "dipakai proses lain" di bawah sudah benar untuk semua kasus itu.
-            setStatus("Port " + portRapi + " sedang dipakai proses lain.\n"
+            // Cek ini hanya saran pra-start (TOCTOU bind-lalu-lepas): penentu
+            // sah adalah gagal bind Rocket saat exec + mitigasi portDirebut.
+            // Port dijamin >=1024, jadi kegagalan bind pasti EADDRINUSE (bukan
+            // EACCES) dan pesan "dipakai proses lain" benar untuk semua kasus.
+            setStatus("Port " + port + " sedang dipakai proses lain.\n"
                     + "Stop server lain / ganti port di Settings, lalu Start lagi.");
-            appendLog("[app] Port " + portRapi + " sedang dipakai - server TIDAK start (cegah loop).");
-            TgBackup.sendMessage(this, "Gagal start: port " + portRapi
+            appendLog("[app] Port " + port + " sedang dipakai - server TIDAK start (cegah loop).");
+            TgBackup.sendMessage(this, "Gagal start: port " + port
                     + " sedang dipakai proses lain. Stop server lain / ganti port lalu coba lagi.");
             return;
         }

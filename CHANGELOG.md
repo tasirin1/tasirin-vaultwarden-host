@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 222: Cabang normalisasi port mati di `startServer` dibuang
+- `ServerService.startServer()` mengambil `port = currentPort()` lalu mem-parse dan menyembuhkan port `<1024`/`>65535` sendiri. Padahal `currentPort() → effectivePort() → normalisasiPort()` sudah menjamin 1024–65535, sehingga `parseInt` tak pernah gagal dan cabang penyembuhan itu tak terjangkau (termasuk tulis ulang prefs di dalamnya); `port.trim()` kedua juga alokasi sia-sia.
+- Kini parse langsung sekali dengan komentar sumber kebenaran tunggal. Perilaku pengguna tidak berubah: port tak valid tetap jatuh ke default di `normalisasiPort()`.
+
 ## [Belum rilis] — Audit 221: Kode mati & `try/catch` mubazir di jalur update binary
 - `Updater.downloadBinaryInner` menyimpan `asap` ke `installed` lalu memakai cabang `!fallback ? latest : null` untuk `KEY_UPDATE_VERSION` — padahal `detectVersion()` yang `null` sudah `throw` beberapa baris sebelumnya, jadi `installed` selalu non-null, cabang itu tak terjangkau, dan `if (installed != null)` selalu benar (pesan fallback di akhir juga mati). Semua disederhanakan ke `asap` langsung; nilai yang disimpan tetap sama.
 - Pemeriksaan jumlah entri zip web-vault dibungkus `try { ... } catch (IOException e) { throw e; }` — catch hanya melempar ulang. Kini dipanggil langsung (batas ukuran byte tetap diakumulasi di loop tulis).
