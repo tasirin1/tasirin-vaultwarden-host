@@ -245,6 +245,18 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void stempelMasaDepanDipangkasSatuKunci() {
+        // Lima PIN salah terjadi saat jam diset ke masa depan, lalu jam
+        // dibetulkan mundur: sisa tak boleh ikut bertahun-tahun (dulu
+        // dikembalikan apa adanya sehingga PIN terkunci praktis permanen).
+        long sekarang = 1_700_000_000_000L;
+        long jauh = sekarang + 3L * 365 * 24 * 3600 * 1000;
+        assertTrue(PinCrypto.sisaKunciMs(5, jauh, sekarang) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciMs(5, sekarang + 10 * PinCrypto.KUNCI_MS,
+                sekarang) == PinCrypto.KUNCI_MS);
+    }
+
+    @Test
     public void inputRusakDitolak() {
         assertFalse(PinCrypto.verify(null, "1"));
         assertFalse(PinCrypto.verify("", "1"));

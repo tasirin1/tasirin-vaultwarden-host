@@ -224,20 +224,18 @@ public final class PinCrypto {
         return MessageDigest.isEqual(got, want);
     }
 
-    /** Batas pisah wall-clock vs jam monoton: uptime tak pernah capai 1e11 ms
-     *  (~3 tahun tanpa reboot), sedangkan wall-clock kini ~1,7e12. */
-    static final long AMBANG_WALL_MS = 100_000_000_000L;
-
     /** Sisa kunci (ms) dari data mentah prefs; 0 bila boleh coba. Murni.
      *  Batas waktu wajib wall-clock (currentTimeMillis) agar reboot tak mereset
      *  lockout brute-force. Stempel hilang (prefs korup/kunci dihapus) fail-closed
      *  dengan kunci penuh agar lockout tak bisa di-bypass. Jam perangkat yang
      *  masih 1970 (STB tanpa RTC/NTP) tak boleh mematikan lockout: stempel yang
-     *  ditulis dengan jam itu juga kecil, jadi selisihnya tetap dipakai (dibatasi
-     *  KUNCI_MS). Dulu stempel kecil dianggap sisa era elapsedRealtime lalu
-     *  langsung diloloskan — di perangkat berjam 1970 lima PIN salah tak dikunci
-     *  sama sekali. Stempel era-elapsed pada perangkat berjam wajar tetap
-     *  kedaluwarsa lewat cek "sekarang >= terkunciSampai" di atas. */
+     *  ditulis dengan jam itu juga kecil, jadi selisihnya tetap dipakai. Selisih
+     *  apa pun selalu dipangkas KUNCI_MS: stempel bisa ditulis saat jam diset ke
+     *  masa depan lalu jam dibetulkan mundur — tanpa pangkas, kunci 5 menit
+     *  berubah jadi bertahun-tahun (pemulihan hanya hapus data app). Pangkas ini
+     *  juga menutup selisih raksasa saat jam sane dimundurkan ke 1970. Dulu
+     *  stempel kecil dianggap sisa era elapsedRealtime lalu langsung diloloskan —
+     *  di perangkat berjam 1970 lima PIN salah tak dikunci sama sekali. */
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
         if (gagal < MAX_GAGAL) {
             return 0;
@@ -248,14 +246,7 @@ public final class PinCrypto {
         if (sekarang >= terkunciSampai) {
             return 0;
         }
-        long sisa = terkunciSampai - sekarang;
-        if (sekarang <= AMBANG_WALL_MS) {
-            // Jam belum wajar: selisih dua stempel kecil masih berarti selama
-            // jam terus maju; jam sane yang dimundurkan ke 1970 menghasilkan
-            // selisih raksasa yang dipangkas jadi kunci penuh (fail-closed).
-            return Math.min(sisa, KUNCI_MS);
-        }
-        return sisa;
+        return Math.min(terkunciSampai - sekarang, KUNCI_MS);
     }
 
     /** Kunci baru sesudah satu kegagalan (perpanjangan bila sudah capai batas). Murni. */
