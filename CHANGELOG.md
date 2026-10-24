@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 174: Galat upload Telegram diringkas sebelum masuk chat
+- `TgBackup.uploadTelegram` melempar `IOException("Telegram HTTP <kode>: <body>")` dengan potongan body mentah (200 karakter) dari respons Telegram. Pesan itu mengalir lewat `gabungGagalChat` → `pesanGalatBackup` → dikirim ke chat dan log, sehingga body panjang/HTML tampil mentah di percakapan.
+- Kini memakai satu pintu `TgBot.ringkasGalatTelegram` (hanya `error_code` + `description`, maks 160 karakter) yang sudah dipakai jalur polling.
+
 ## [Belum rilis] — Audit 173: Gerbang TTL cache anchor TLS hidup saat override tak ada
 - `HttpsCompat.capOverride` memakai `capStat != Long.MIN_VALUE` sebagai syarat gerbang TTL, padahal `capStat` hanya diisi bila berkas anchor override ada. Di kondisi normal (override tak ada, anchor dari aset) gerbang itu tak pernah lolos sehingga tiap koneksi TLS (poll bot 20 dtk, health 30 dtk, unduhan) tetap membayar kunci + `getFilesDir` + `isFile` di STB lama.
 - Syarat gerbang kini `capWaktu != 0` (diisi semua jalur, termasuk jalur "override tak ada"), jadi stempel 60 dtk benar-benar bekerja.

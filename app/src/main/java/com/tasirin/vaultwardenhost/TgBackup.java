@@ -2046,11 +2046,12 @@ public final class TgBackup {
             // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
             // contains mentah menolak respons sah ber-spasi.
             if (code != 200 || !TgBot.responsOk(sb.toString())) {
-                String body = sb.toString();
-                if (body.length() > 200) {
-                    body = body.substring(0, 200) + "...";
-                }
-                throw new IOException("Telegram HTTP " + code + ": " + body);
+                // Ringkas lewat satu pintu (error_code + description, maks 160
+                // karakter): body mentah Telegram bisa panjang/berisi HTML dan
+                // pesan ini ikut terkirim ke chat lewat pesanGalatBackup /
+                // gabungGagalChat ("Backup gagal ke semua chat (...)").
+                throw new IOException("Telegram "
+                        + TgBot.ringkasGalatTelegram(sb.toString(), code));
             }
             return sb.toString();
         } finally {
