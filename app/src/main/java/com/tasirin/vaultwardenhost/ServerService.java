@@ -3410,7 +3410,11 @@ public class ServerService extends Service {
                     } else {
                         appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    // Jangan telan sebabnya: tanpa pesan ini diagnosa "cache
+                    // rusak" (izin/ETXTBSY/prefs korup) hanya bisa ditebak.
+                    appendLog("[app] Cek binary update gagal: " + e
+                            + " - lanjut jalur lain.");
                 }
             }
         }
@@ -3521,7 +3525,9 @@ public class ServerService extends Service {
                         appendLog("[app] Binary cache gagal smoke test --version - diunduh ulang.");
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                appendLog("[app] Cek binary cache internal gagal: " + e
+                        + " - lanjut jalur lain.");
             }
         }
 
@@ -3545,7 +3551,9 @@ public class ServerService extends Service {
                                 + "; unduh perbaikan dicoba lagi nanti.");
                         return out;
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    appendLog("[app] Cek throttle unduhan gagal: " + e
+                            + " - tetap coba unduh.");
                 }
             }
         }

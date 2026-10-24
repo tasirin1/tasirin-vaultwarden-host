@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 227: Galat cek binary di `ensureBinary` tidak lagi ditelan
+- Tiga `catch (Exception ignored)` di `ServerService.ensureBinary()` menelan sebab kegagalan cek binary cache (jalur update, cache internal, dan throttle unduhan). Saat pengguna melaporkan "binary cache rusak/unduh berulang", log hanya menyebut hasil akhir tanpa alasan (izin, `ETXTBSY`, prefs korup).
+- Ketiganya kini mencatat `Exception.toString()` + langkah berikutnya ("lanjut jalur lain" / "tetap coba unduh") ke log aplikasi. Tidak ada perubahan alur: kegagalan tetap jatuh ke jalur cadangan seperti sebelumnya.
+
 ## [Belum rilis] — Audit 226: Batas potret TLS dipisah dari batas config zip
 - `potretTls()` membaca cert/key/ca memakai `readAllBytes()` yang batasnya bernama `BATAS_CONFIG_JSON` — nama konstanta menyesatkan dan menyiratkan batas yang sama untuk dua konteks berbeda; bila suatu saat rantai sertifikat wajar melebihi 1 MB, potret TLS gagal senyap (`catch` diabaikan) dan rollback restore kehilangan berkas itu.
 - Kini ada `BATAS_TLS_POTRET` eksplisit (1 MB, tetap jaring pengaman) dan `potretTls()` memakai `bacaTerbatas(in, BATAS_TLS_POTRET)`; `readAllBytes()` didokumentasikan sebagai pembaca `app-config.json` saja (nama dipertahankan karena pemindai CI memakai pola nama itu dan `java.nio.file.Files.readAllBytes` dipakai di test).
