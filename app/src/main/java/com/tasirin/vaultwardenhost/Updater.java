@@ -1180,10 +1180,6 @@ public final class Updater {
         }
     }
 
-    private static String downloadBinaryInner(Context ctx, File out) throws Exception {
-        return downloadBinaryInner(ctx, out, latestVersion(ctx));
-    }
-
     private static String downloadBinaryInner(Context ctx, File out, String diminta) throws Exception {
         String latest = diminta;
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
@@ -1761,10 +1757,6 @@ public final class Updater {
      *  keberadaan payload (bukan cap) agar tak unduh ulang 35 MB. Murni. */
     static String versiWvUntukCap(String latest, boolean fallback) {
         return (latest != null && !fallback) ? latest : null;
-    }
-
-    private static String updateWebVaultInner(Context ctx) throws Exception {
-        return updateWebVaultInner(ctx, versiTargetWebVault(ctx));
     }
 
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
@@ -2366,11 +2358,6 @@ public final class Updater {
         String hasil = m.find() ? m.group() : null;
         memoBin = new MemoVersi(raw, hasil);
         return hasil;
-    }
-
-    /** Jalankan binary --version; kembalikan "x.y.z" atau null bila gagal. */
-    static String detectVersion(File binary) {
-        return detectVersion(null, binary);
     }
 
     /** Sama, tapi memakai shim getrandom bila perangkat kernel lama (agar --version lolos). */

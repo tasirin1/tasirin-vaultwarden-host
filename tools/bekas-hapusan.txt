@@ -26,3 +26,5 @@ keyboardPerintah_memuatSemuaPerintah
 keyboardPerintah_memuatSemuaTombol
 leafCukupTerimaSisaPanjangDanJamMiring
 hapusWalShmTerpisahPertahankanWalSah
+# Overload mati Updater dihapus (nama tetap dipakai varian lain):
+#   downloadBinaryInner(ctx, out), updateWebVaultInner(ctx), detectVersion(File)
