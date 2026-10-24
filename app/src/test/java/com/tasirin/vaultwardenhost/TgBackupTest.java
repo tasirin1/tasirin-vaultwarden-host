@@ -1327,6 +1327,19 @@ public class TgBackupTest {
     }
 
     @Test
+    public void rahasiaAlarm_pakaiSesiProsesBilaTersimpanGagal() {
+        // commit() gagal (storage penuh) membuat prefs kosong; sesi proses
+        // wajib menang agar alarm yang sudah terjadwal tetap cocok.
+        String sesi = "0123456789abcdef0123456789abcdef";
+        String lain = "fedcba9876543210fedcba9876543210";
+        assertEquals(sesi, TgBackup.pilihRahasiaAlarm(sesi, lain));
+        assertEquals(lain, TgBackup.pilihRahasiaAlarm(null, lain));
+        assertEquals(lain, TgBackup.pilihRahasiaAlarm("bukan-hex", lain));
+        assertNull(TgBackup.pilihRahasiaAlarm(null, null));
+        assertNull(TgBackup.pilihRahasiaAlarm("", "xyz"));
+    }
+
+    @Test
     public void folderCekRuangBackupIkutCacheSaatTerenkripsi() {
         // Zip plaintext dibangun di cache internal saat terenkripsi, hasil
         // akhirnya di folder data: kedua volume wajib diukur.

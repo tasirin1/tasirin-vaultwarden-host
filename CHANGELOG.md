@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 178: Rahasia alarm yang gagal disimpan tak membuat backup hilang
+- `TgBackup.rahasiaAlarm` membuat rahasia anti-spoof lalu mengabaikan hasil `commit()`. Bila penyimpanan gagal (storage penuh), PendingIntent tunda-boot tetap dijadwalkan dengan rahasia yang tak pernah awet; saat alarm menyala, prefs kosong → rahasia baru dibuat → verifikasi gagal → backup susulan boot dilewati diam-diam.
+- Rahasia yang dipakai kini dicatat di sesi proses lebih dulu (sumber kebenaran yang sama untuk penjadwalan dan verifikasi), kegagalan simpan dilaporkan ke log, dan pemilihan nilai dipisah ke `pilihRahasiaAlarm()` (murni) dengan uji `TgBackupTest.rahasiaAlarm_pakaiSesiProsesBilaTersimpanGagal`.
+
 ## [Belum rilis] — Audit 177: Folder data cadangan tak lagi terkunci di cache
 - `dataDirBawaanSegar()` didokumentasikan "dihitung ulang tiap dipanggil (anti basi)", tetapi `defaultDataDir()` meng-cache hasil apa pun — termasuk nilai cadangan `/sdcard/vaultwarden` saat storage belum ter-mount. Proses yang memanggil lebih awal (mis. receiver boot) memakai path cadangan itu selamanya, persis masalah yang ingin dihindari dengan menambahkan fungsi "segar".
 - Cache kini hanya menyimpan path yang benar-benar berhasil di-resolve; nilai cadangan dikembalikan tanpa di-cache sehingga pemanggilan sesudah storage ter-mount mendapat path sebenarnya. Uji JVM baru `ServerServiceTest.dataDirBawaanSegarTakKosongDanStabil`.

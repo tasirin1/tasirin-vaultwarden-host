@@ -255,29 +255,56 @@ public final class TgBackup {
      *  alarm; receiver menolak action milik app tanpa extra ini. */
     static final String KEY_ALARM_SECRET = "alarm_secret";
 
+    /** Rahasia alarm yang dipakai proses ini: sumber kebenaran saat commit()
+     *  ke prefs gagal, agar alarm terjadwal & verifikasinya memakai nilai sama. */
+    private static volatile String rahasiaAlarmSesi = null;
+
     /** Rahasia alarm milik app (heks 128-bit, dibuat sekali per install). Murni I/O prefs. */
     @android.annotation.SuppressLint("ApplySharedPref")
     static String rahasiaAlarm(android.content.Context ctx) {
         try {
             android.content.SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);
-            String ada = amanString(sp, KEY_ALARM_SECRET, "");
-            if (ada != null && hex32(ada)) {
-                return ada;
+            String pilih = pilihRahasiaAlarm(rahasiaAlarmSesi,
+                    amanString(sp, KEY_ALARM_SECRET, ""));
+            if (pilih != null) {
+                rahasiaAlarmSesi = pilih;
+                return pilih;
             }
             byte[] b = new byte[16];
             SECURE_RANDOM.nextBytes(b);
             String buat = Util.heks(b);
+            // Simpan dulu di sesi proses: bila commit() gagal (storage penuh),
+            // alarm yang sudah terjadwal tetap lolos verifikasi di proses ini
+            // alih-alih ditolak karena rahasia baru yang berbeda — dulu
+            // kegagalan commit diabaikan diam-diam dan backup susulan hilang.
+            rahasiaAlarmSesi = buat;
+            boolean tersimpan = false;
             try {
                 // commit() sinkron: rahasia wajib awet sebelum alarm terjadwal
                 // memakainya, bila tidak alarm berikut ditolak lalu backup hilang.
-                sp.edit().putString(KEY_ALARM_SECRET, buat).commit();
+                tersimpan = sp.edit().putString(KEY_ALARM_SECRET, buat).commit();
             } catch (Exception ignored) {
+            }
+            if (!tersimpan) {
+                ServerService.catatLog("[tg] Rahasia alarm gagal disimpan"
+                        + " (storage penuh?) - alarm tetap diverifikasi lewat sesi"
+                        + " proses ini; backup terjadwal bisa hilang bila proses mati.");
             }
             return buat;
         } catch (Exception e) {
             return "";
         }
+    }
+
+    /** Rahasia alarm yang dipakai (murni): nilai sesi proses menang atas prefs
+     *  agar commit() yang gagal tidak membuat verifikasi memakai rahasia lain;
+     *  null bila keduanya bukan 32 hex. */
+    static String pilihRahasiaAlarm(String sesi, String tersimpan) {
+        if (hex32(sesi)) {
+            return sesi;
+        }
+        return hex32(tersimpan) ? tersimpan : null;
     }
 
     /** True bila extra rahasia alarm pada intent cocok dengan milik app. Murni. */
