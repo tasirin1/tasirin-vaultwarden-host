@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 173: Gerbang TTL cache anchor TLS hidup saat override tak ada
+- `HttpsCompat.capOverride` memakai `capStat != Long.MIN_VALUE` sebagai syarat gerbang TTL, padahal `capStat` hanya diisi bila berkas anchor override ada. Di kondisi normal (override tak ada, anchor dari aset) gerbang itu tak pernah lolos sehingga tiap koneksi TLS (poll bot 20 dtk, health 30 dtk, unduhan) tetap membayar kunci + `getFilesDir` + `isFile` di STB lama.
+- Syarat gerbang kini `capWaktu != 0` (diisi semua jalur, termasuk jalur "override tak ada"), jadi stempel 60 dtk benar-benar bekerja.
+
 ## [Belum rilis] — Audit 172: URL lokal tak mengenumerasi interface di UI thread
 - `ServerService.localIp()` mengembalikan nilai cache hanya bila masih segar (<60 dtk); tepat saat TTL habis, pemanggil UI (`MainActivity` kartu info + tombol salin, `SettingsActivity`) yang membayar enumerasi `NetworkInterface` + `isUp()` per kartu, sehingga layar terasa patah di STB lambat.
 - Cache basi kini dipakai lebih dulu (IP LAN praktis statis, hanya untuk tampilan URL) dan penyegaran dijalankan di worker (`Util.jalankanBg`). Jalur pertama (cache kosong) tetap sinkron agar URL tak menampilkan alamat palsu.

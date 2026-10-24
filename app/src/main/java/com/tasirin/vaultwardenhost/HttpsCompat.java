@@ -144,7 +144,11 @@ public final class HttpsCompat {
         // Berkas hanya berubah via segarkanTrustAnchor (maks 1x/hari) sehingga
         // basi 60 dtk aman (factory lama tetap valid, anchor bersifat aditif).
         long kini = SystemClock.elapsedRealtime();
-        if (capStat != Long.MIN_VALUE && kini - capWaktu < 60_000) {
+        // Gerbang TTL memakai capWaktu, BUKAN capStat: capStat hanya diisi saat
+        // berkas override ada, sehingga di kondisi normal (override tak ada)
+        // gerbang lama (`capStat != Long.MIN_VALUE`) tak pernah lolos dan tiap
+        // koneksi TLS tetap membayar kunci + getFilesDir + isFile.
+        if (capWaktu != 0 && kini - capWaktu < 60_000) {
             return capNilai;
         }
         // Sinkron di kunci cap (bukan kunci kelas) agar polling tak antre
@@ -152,7 +156,7 @@ public final class HttpsCompat {
         synchronized (KUNCI_CAP) {
             // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
             long kini2 = SystemClock.elapsedRealtime();
-            if (capStat != Long.MIN_VALUE && kini2 - capWaktu < 60_000) {
+            if (capWaktu != 0 && kini2 - capWaktu < 60_000) {
                 return capNilai;
             }
             try {
