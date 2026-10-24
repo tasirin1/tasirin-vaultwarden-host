@@ -1785,15 +1785,11 @@ public class ServerService extends Service {
         if (isPortBusy(portNum)) {
             // Trim sekali (dulu 6x trim = 6 alokasi String tiap gagal start).
             String portRapi = port.trim();
-            if (portButuhRoot(portNum)) {
-                setStatus("Port " + portRapi + " butuh akses root.\n"
-                        + "Pakai port >= 1024 (mis. 8088) di Settings, lalu Start lagi.");
-                appendLog("[app] Port " + portRapi + " butuh root (privileged)"
-                        + " - server TIDAK start. Ganti ke port >= 1024.");
-                TgBackup.sendMessage(this, "Gagal start: port " + portRapi
-                        + " butuh akses root. Ganti ke port >= 1024 lalu coba lagi.");
-                return;
-            }
+            // Cabang "port butuh root" sudah dibuang: di titik ini portNum
+            // dijamin 1024..65535 oleh normalisasi di atas, dan karena
+            // isPortBusy() true, bind percobaan pasti gagal EADDRINUSE (bukan
+            // EACCES) — saran "butuh root" tak pernah bisa tercapai. Pesan
+            // "dipakai proses lain" di bawah sudah benar untuk semua kasus itu.
             setStatus("Port " + portRapi + " sedang dipakai proses lain.\n"
                     + "Stop server lain / ganti port di Settings, lalu Start lagi.");
             appendLog("[app] Port " + portRapi + " sedang dipakai - server TIDAK start (cegah loop).");
@@ -2312,8 +2308,10 @@ public class ServerService extends Service {
     }
 
     /** Saran [login] untuk satu baris output Vaultwarden; null bila baris tak terkait login.
-     *  Murni agar bisa diuji unit (tanpa runtime Android). */
-    static String saranLoginUntukBaris(String baris, boolean httpsAktif) {
+     *  Murni agar bisa diuji unit (tanpa runtime Android).
+     *  Tanpa parameter https: server ini SELALU HTTPS (lihat manifest/ServerService),
+     *  jadi dulu flag itu tak pernah dibaca dan hanya menambah cabang mati. */
+    static String saranLoginUntukBaris(String baris) {
         if (baris == null || baris.isEmpty()) {
             return null;
         }
@@ -2545,7 +2543,7 @@ public class ServerService extends Service {
                 long kini = SystemClock.elapsedRealtime();
                 String hintLogin = bolehHintLogin(kini,
                         loginHintTerakhirElapsed)
-                        ? saranLoginUntukBaris(line, runningHttps) : null;
+                        ? saranLoginUntukBaris(line) : null;
                 boolean noise = line.contains("CertificateUnknown")
                         || line.contains("tls handshake with 127.0.0.1")
                         || line.contains("Detected TLS-enabled liftoff")

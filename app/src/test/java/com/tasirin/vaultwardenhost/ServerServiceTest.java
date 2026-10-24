@@ -371,28 +371,28 @@ public class ServerServiceTest {
     @Test
     public void saranLoginKredensialSalah() {
         String s = ServerService.saranLoginUntukBaris(
-                "POST /identity/connect/token => 400, Invalid username or password", false);
+                "POST /identity/connect/token => 400, Invalid username or password");
         assertTrue(s != null && s.startsWith("[login]"));
     }
 
     @Test
     public void saranLoginTlsMenyebutInstallCa() {
         String s = ServerService.saranLoginUntukBaris(
-                "tls handshake failed: certificate unknown", true);
+                "tls handshake failed: certificate unknown");
         assertTrue(s != null && s.contains("Install Cert"));
     }
 
     @Test
     public void saranLoginTlsSelaluHttpsTakSebutHttp() {
         String s = ServerService.saranLoginUntukBaris(
-                "ssl handshake failure: alert unknown", false);
+                "ssl handshake failure: alert unknown");
         assertTrue(s != null && s.contains("Install Cert"));
         assertTrue(!s.contains("http://"));
     }
 
     @Test
     public void saranLogin2fa() {
-        String s = ServerService.saranLoginUntukBaris("two-factor required 2fa totp", false);
+        String s = ServerService.saranLoginUntukBaris("two-factor required 2fa totp");
         assertTrue(s != null && s.contains("2FA"));
     }
 
@@ -400,16 +400,16 @@ public class ServerServiceTest {
     public void saranLoginAbaikanLoopback() {
         // Probe internal (health/TCP) tak boleh menakut-nakuti user tiap 60 dtk.
         assertNull(ServerService.saranLoginUntukBaris(
-                "tls handshake with 127.0.0.1 failed: certificate unknown", true));
+                "tls handshake with 127.0.0.1 failed: certificate unknown"));
         assertNull(ServerService.saranLoginUntukBaris(
-                "TLS handshake failed with localhost: alert unknown", true));
+                "TLS handshake failed with localhost: alert unknown"));
     }
 
     @Test
     public void saranLoginNullUntukBarisBiasa() {
-        assertNull(ServerService.saranLoginUntukBaris("Rocket has launched", false));
-        assertNull(ServerService.saranLoginUntukBaris(null, false));
-        assertNull(ServerService.saranLoginUntukBaris("", false));
+        assertNull(ServerService.saranLoginUntukBaris("Rocket has launched"));
+        assertNull(ServerService.saranLoginUntukBaris(null));
+        assertNull(ServerService.saranLoginUntukBaris(""));
     }
 
     @Test
