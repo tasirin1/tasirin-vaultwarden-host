@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 228: Spasi berlebih di blok skrip `build-binary.yml`
+- Blok `run:` patch TLS diakhiri tiga baris kosong (dua di antaranya berisi spasi) sebelum langkah berikutnya. Diringkas jadi satu baris kosong; tidak ada perubahan perintah. YAML divalidasi ulang (`yaml.safe_load`) dan blok skrip lolos `bash -n`.
+
 ## [Belum rilis] — Audit 227: Galat cek binary di `ensureBinary` tidak lagi ditelan
 - Tiga `catch (Exception ignored)` di `ServerService.ensureBinary()` menelan sebab kegagalan cek binary cache (jalur update, cache internal, dan throttle unduhan). Saat pengguna melaporkan "binary cache rusak/unduh berulang", log hanya menyebut hasil akhir tanpa alasan (izin, `ETXTBSY`, prefs korup).
 - Ketiganya kini mencatat `Exception.toString()` + langkah berikutnya ("lanjut jalur lain" / "tetap coba unduh") ke log aplikasi. Tidak ada perubahan alur: kegagalan tetap jatuh ke jalur cadangan seperti sebelumnya.
