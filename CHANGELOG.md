@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 257: Walk symlink induk di FileShareProvider benar-benar jalan
+- `adaSymlinkInduk()` memakai "jalur cepat": bandingkan `getCanonicalPath()` dengan `getAbsolutePath()`. Semua pemanggil sudah memberi path **kanonis** (`getCanonicalPath()`), dan untuk path kanonis kedua nilai itu selalu sama — sehingga fungsi selalu melaporkan "tak ada symlink" dan walk `lstat` per segmen (yang dimaksudkan menutup TOCTOU tukar-symlink) tak pernah dieksekusi. Komentar proteksinya menyesatkan; satu-satunya lapis nyata tinggal cek kanonis ulang sebelum open.
+- Jalur cepat yang tautologis dihapus; walk `lstat` + cek kanonis-vs-absolut per segmen kini selalu dijalankan di perangkat (unit test tetap pulang lewat `diJvmUnitTest()`). Biayanya beberapa `lstat` per open pada path app yang pendek.
+
 ## [Belum rilis] — Audit 256: Cipher ChaCha20 tak lagi dibuang filter "cipher kuat"
 - `cipherKuat()` hanya menerima suite yang memuat `ECDHE`, `AES_GCM`, atau `AES_256`, padahal komentarnya menyatakan hanya primitif lemah (RC4/3DES/DES/MD5/NULL/anon/EXPORT) yang gugur. Suite **ChaCha20** — `TLS_CHACHA20_POLY1305_SHA256` (TLS 1.3) dan `ECDHE-…-CHACHA20-POLY1305` — adalah primitif kuat tetapi tak memuat tiga penanda itu, sehingga dibuang dari daftar cipher yang dipasang.
 - Kini `CHACHA20` ikut diterima (setelah filter primitif lemah), sesuai maksud komentar; uji JVM menambahkan dua suite ChaCha20 dan memastikan 3DES/RC4 tetap ditolak.
