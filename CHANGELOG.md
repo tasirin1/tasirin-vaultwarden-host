@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 244: Daftar bekas-hapusan gagal-terbuka ditutup
+- `muat_bekas_hapusan()` menelan `OSError` lalu kembali ke `{"batalTunda"}`. Bila `tools/bekas-hapusan.txt` hilang/tak terbaca (mis. salah path saat skrip dipanggil dari salinan repo), penjagaan regresi hapusan praktis mati: semua nama lain bisa dipakai ulang tanpa satu pun peringatan.
+- Kini kegagalan baca mengembalikan `None`, dan `cek_daftar_hapusan()` (dipanggil di setiap mode, termasuk `--semua`) menggagalkan verifikasi dengan pesan jelas; daftar kosong juga digagalkan karena berarti penjagaan tak berisi. Cek pemanggil/penghapusan memakai konstanta yang sama dan tak lagi membaca ulang berkas.
+
 ## [Belum rilis] — Audit 243: `kupas_java` mengenal text block Java
 - `kupas_java()` (dipakai cek kurung, import mati, locale, dan pola boros) hanya mengenal string satu-baris. Pada text block (`"""…"""`) kutip kedua menutup string kosong lalu kutip ketiga membuka string liar yang menelan kode sesudahnya, sehingga cek kurung/import bisa meleset (false positive maupun temuan yang lolos).
 - Kini `"""…"""` dikupas utuh sebagai satu literal, termasuk escape `\` di dalamnya; kode sesudah text block tetap diperiksa. Diuji lokal: isi text block berisi `{`, `//`, dan kutip tidak memengaruhi keseimbangan kurawal maupun deteksi metode setelahnya.

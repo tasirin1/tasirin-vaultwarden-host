@@ -34,6 +34,13 @@ KATA_KUNCI_JAVA = {
 # dan pipa menutupi statusnya sehingga "hilang" palsu dilaporkan; skrip ini
 # membaca berkas langsung via Python agar tak kena jebakan shell itu.)
 def muat_bekas_hapusan():
+    """Muat daftar nama metode terhapus; None bila berkas tak terbaca.
+
+    Sengaja TIDAK kembali diam-diam ke {"batalTunda"}: dulu daftar yang
+    hilang/tak terbaca membuat penjagaan regresi hapusan praktis mati tanpa
+    satu pun peringatan (fail-open). Pemanggil melaporkannya sebagai
+    kegagalan lewat cek_daftar_hapusan().
+    """
     nama = set()
     try:
         with open(os.path.join(AKAR, "tools", "bekas-hapusan.txt"),
@@ -43,11 +50,26 @@ def muat_bekas_hapusan():
                 if baris and not baris.startswith("#"):
                     nama.add(baris.split()[0])
     except OSError:
-        pass
-    return nama or {"batalTunda"}
+        return None
+    return nama
 
 
 BEKAS_HAPUSAN = muat_bekas_hapusan()
+
+
+def cek_daftar_hapusan(gagal):
+    """Daftar bekas-hapusan wajib terbaca dan berisi.
+
+    Tanpa daftar, cek_panggil_bekas_hapusan tak punya nama untuk dijaga —
+    nama yang pernah dihapus bisa dipakai ulang tanpa terdeteksi. Dulu
+    kegagalan baca hanya diam (fail-open).
+    """
+    if BEKAS_HAPUSAN is None:
+        gagal.append("tools/bekas-hapusan.txt tak terbaca — penjagaan nama "
+                     "metode terhapus tidak bisa dijalankan")
+    elif not BEKAS_HAPUSAN:
+        gagal.append("tools/bekas-hapusan.txt kosong — daftar nama metode "
+                     "terhapus wajib berisi")
 
 
 def di_github_actions():
@@ -687,6 +709,8 @@ def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
 
 
 def cek_panggil_bekas_hapusan(gagal, diff):
+    if not BEKAS_HAPUSAN:
+        return  # daftar hilang/kosong: dilaporkan cek_daftar_hapusan()
     for nama in sorted(BEKAS_HAPUSAN):
         pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
         for _, baris in tambah_java(diff):
@@ -734,7 +758,9 @@ def cek_uji_ubah(peringatan, diff):
 
 
 def cek_hapusan_belum_tercatat(peringatan, diff):
-    tercatat = muat_bekas_hapusan()
+    tercatat = BEKAS_HAPUSAN
+    if not tercatat:
+        return  # daftar hilang/kosong: dilaporkan cek_daftar_hapusan()
     for nama in sorted(set(nama_metode_hilang(diff))):
         if nama in tercatat or masih_didefinisikan(nama):
             continue
@@ -965,6 +991,7 @@ def utama():
     cek_sinkron_terjemah(gagal)
     cek_import_mati(gagal)
     cek_paritas_resource(gagal)
+    cek_daftar_hapusan(gagal)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
     hapus = berkas_dihapus(rentang_cek, diff)
