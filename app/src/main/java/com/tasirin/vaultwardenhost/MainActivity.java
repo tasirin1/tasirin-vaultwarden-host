@@ -503,6 +503,9 @@ public class MainActivity extends Activity {
     }
 
     private void refreshFromService() {
+        if (!uiHidup()) {
+            return;
+        }
         // Runtuhkan rantai ganda jadi satu: suntikan "refresh sekarang"
         // (setBusy/appendUiLog/onResume) ikut menjadwalkan penerus sehingga
         // tanpa ini tiap suntikan menjadi loop abadi tambahan.
@@ -1049,7 +1052,11 @@ public class MainActivity extends Activity {
                 appendUiLog(s);
             }
             @Override public void jalankanUi(Runnable r) {
-                ui.post(r);
+                ui.post(() -> {
+                    if (uiHidup()) {
+                        r.run();
+                    }
+                });
             }
         });
     }
@@ -1071,9 +1078,21 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** True bila Activity masih boleh menyentuh view/dialog. Wajib dicek DI
+     *  DALAM runnable yang diposting worker: callback AutoUpdate/backup bisa
+     *  mendarat sesudah onDestroy (Handler tetap menerima post baru walau
+     *  removeCallbacksAndMessages sudah jalan). Dulu runnable itu menulis
+     *  view/Toast milik Activity yang sudah mati (crash/log ActivityManager). */
+    private boolean uiHidup() {
+        return !isFinishing() && !isDestroyed();
+    }
+
     private void setBusy(final boolean busy) {
         uiBusy = busy;
         ui.post(() -> {
+            if (!uiHidup()) {
+                return;
+            }
             startStopBtn.setEnabled(!busy);
             if (busy) {
                 statusView.setText(getString(R.string.busy_work));
@@ -1101,6 +1120,10 @@ public class MainActivity extends Activity {
     }
 
     private void toast(String message) {
-        ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+        ui.post(() -> {
+            if (uiHidup()) {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

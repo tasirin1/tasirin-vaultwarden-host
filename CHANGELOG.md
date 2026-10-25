@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 258: Runnable dari worker tak lagi menyentuh Activity yang sudah mati
+- Callback worker (`AutoUpdate.Aksi`, `TgBackup.BackupStartUi`) memposting pekerjaan ke Handler utama, tetapi runnable-nya langsung menulis `startStopBtn`/`statusView`, menjalankan `refreshFromService()`, atau menampilkan `Toast` tanpa memeriksa `isFinishing()`/`isDestroyed()`. `onDestroy` hanya membersihkan callback yang **sudah** antre — post baru sesudahnya tetap dieksekusi, sehingga Activity yang sudah mati masih disentuh (potensi crash/leak context).
+- Kini ada satu gerbang `uiHidup()` yang dipakai di dalam runnable `setBusy()`, `refreshFromService()`, `toast()`, dan `jalankanUi()`; pekerjaan UI dari worker berhenti begitu Activity sedang selesai/dihancurkan.
+
 ## [Belum rilis] — Audit 257: Walk symlink induk di FileShareProvider benar-benar jalan
 - `adaSymlinkInduk()` memakai "jalur cepat": bandingkan `getCanonicalPath()` dengan `getAbsolutePath()`. Semua pemanggil sudah memberi path **kanonis** (`getCanonicalPath()`), dan untuk path kanonis kedua nilai itu selalu sama — sehingga fungsi selalu melaporkan "tak ada symlink" dan walk `lstat` per segmen (yang dimaksudkan menutup TOCTOU tukar-symlink) tak pernah dieksekusi. Komentar proteksinya menyesatkan; satu-satunya lapis nyata tinggal cek kanonis ulang sebelum open.
 - Jalur cepat yang tautologis dihapus; walk `lstat` + cek kanonis-vs-absolut per segmen kini selalu dijalankan di perangkat (unit test tetap pulang lewat `diJvmUnitTest()`). Biayanya beberapa `lstat` per open pada path app yang pendek.
