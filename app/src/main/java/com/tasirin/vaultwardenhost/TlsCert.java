@@ -637,6 +637,35 @@ public final class TlsCert {
         }
     }
 
+    /** True bila folder sudah berisi CA + leaf utuh dan masih layak dipakai
+     *  TANPA menulis apa pun. Dipakai fallback folder data publik: kunci
+     *  privat tak boleh dibuat di storage bersama (chmod mati, app lain bisa
+     *  menyalinnya), jadi hanya material lama yang sudah ada yang boleh
+     *  dipakai apa adanya. */
+    public static boolean siapPakaiTanpaTulis(File dir) {
+        if (dir == null) {
+            return false;
+        }
+        File caCert = new File(dir, CA_CERT_FILE);
+        File caKey = new File(dir, CA_KEY_FILE);
+        File certFile = new File(dir, LEAF_CERT_FILE);
+        File keyFile = new File(dir, LEAF_KEY_FILE);
+        if (!caCert.isFile() || !caKey.isFile()
+                || !certFile.isFile() || !keyFile.isFile()
+                || caCert.length() <= 100 || caKey.length() <= 100
+                || certFile.length() <= 100 || keyFile.length() <= 100
+                || !certVersionOk(dir)) {
+            return false;
+        }
+        long sisaCa = sisaMs(caCert);
+        long sisaLeaf = sisaMs(certFile);
+        return caSisaCukup(sisaCa) && leafCukup(sisaLeaf)
+                && !leafTerlaluLama(sisaLeaf)
+                && pasanganCertKeyCocok(caCert, caKey)
+                && pasanganCertKeyCocok(certFile, keyFile)
+                && ditandatanganiCa(certFile, caCert);
+    }
+
     /** Susun TBS sertifikat v3 dengan issuer/subject/ekstensi/masa berlaku pilihan. */
     private static byte[] buildTbs(PublicKey subjectPub, String issuerCn, String subjectCn,
             byte[] exts, long masaHari) throws Exception {

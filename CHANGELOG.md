@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 240: Kunci privat TLS tak lagi dibuat di storage publik
+- Saat `TlsCert.ensure()` di folder internal gagal, `prepareTls()` jatuh ke `data_dir/tls` — yang pada perangkat umumnya `/sdcard/vaultwarden/tls`. `ensure()` lalu membuat CA/leaf baru di sana, sehingga `ca-key.pem`/`key.pem` tertulis di FAT yang tak mengenal chmod dan bisa disalin app lain berizin storage (log lama hanya memberi peringatan setelah kunci sudah tertulis).
+- Kini fallback ke folder di storage publik hanya memakai material lama yang sudah lengkap dan valid (`TlsCert.siapPakaiTanpaTulis()`: pasangan cert/key cocok, leaf ditandatangani CA, belum kedaluwarsa) **tanpa menulis apa pun**. Bila belum ada material valid, TLS gagal dengan log yang menyebut penyebabnya (ruang/izin internal) — server tak start dengan kunci bocor. Folder data di internal tetap boleh ditulis seperti biasa. Gerbang `diStoragePublik()`/`bolehFallbackTls()` murni + uji JVM.
+
 ## [Belum rilis] — Audit 239: Cert/key/CA diverifikasi berpasangan sebelum dipakai ulang
 - `ensure()` memakai ulang `cert.pem`/`key.pem` hanya berdasarkan keberadaan, ukuran, dan sisa masa berlaku; `caOk()` juga begitu untuk `ca.pem`/`ca-key.pem`. Padahal backup tanpa password hanya membawa `ca.pem` + `cert.pem` (kunci privat sengaja tak ikut), sehingga restore bisa meninggalkan leaf lama dengan kunci baru atau CA baru dengan kunci lama. Rocket lalu gagal TLS dengan log yang menunjuk storage/jam (salah arah), dan server tak pernah start.
 - Kini sebelum dipakai ulang: `pasanganCertKeyCocok()` memastikan modulus kunci privat sama dengan kunci publik sertifikat (lewat gerbang murni `kunciCocokCert()` + uji JVM), dan `ditandatanganiCa()` memastikan leaf benar-benar ditandatangani `ca.pem`. Bila tak cocok, leaf/CA diregen otomatis dengan log sebab yang tepat.

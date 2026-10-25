@@ -177,6 +177,22 @@ public class TlsCertTest {
     }
 
     @Test
+    public void siapPakaiTanpaTulisTolakFolderKosongAtauRusak() throws Exception {
+        File dir = Files.createTempDirectory("tlssiap").toFile();
+        // Folder kosong: fallback publik wajib fail-closed (jangan generate).
+        assertFalse(TlsCert.siapPakaiTanpaTulis(dir));
+        assertFalse(TlsCert.siapPakaiTanpaTulis(null));
+        Files.write(new File(dir, "version.txt").toPath(),
+                "5\n".getBytes(StandardCharsets.US_ASCII));
+        for (String nama : new String[]{"ca.pem", "ca-key.pem", "cert.pem", "key.pem"}) {
+            Files.write(new File(dir, nama).toPath(),
+                    "bukan-pem".getBytes(StandardCharsets.US_ASCII));
+        }
+        // Isi rusak: false (tak boleh dipakai apa adanya).
+        assertFalse(TlsCert.siapPakaiTanpaTulis(dir));
+    }
+
+    @Test
     public void pasanganCertKeyDanRantaiGagalTertutup() throws Exception {
         File dir = Files.createTempDirectory("tlspair").toFile();
         File cert = new File(dir, "cert.pem");

@@ -604,6 +604,23 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void fallbackTlsTakMenulisKunciKeStoragePublik() {
+        // Storage bersama: kunci privat hanya boleh dipakai bila sudah ada &
+        // valid (tanpa tulis); selain itu fail-closed, bukan membuat kunci
+        // baru di FAT yang bisa dibaca app lain.
+        assertTrue(ServerService.diStoragePublik("/sdcard/vaultwarden/tls"));
+        assertTrue(ServerService.diStoragePublik("/storage/emulated/0/vw/tls"));
+        assertTrue(ServerService.diStoragePublik("/mnt/media_rw/1234/tls"));
+        // Null = tak diketahui: anggap publik (fail-closed).
+        assertTrue(ServerService.diStoragePublik(null));
+        assertFalse(ServerService.diStoragePublik("/data/data/com.tasirin.vaultwardenhost/files/tls"));
+        assertFalse(ServerService.diStoragePublik("/data/user/0/com.tasirin.vaultwardenhost/files/tls"));
+        assertFalse(ServerService.bolehFallbackTls(true, false));
+        assertTrue(ServerService.bolehFallbackTls(true, true));
+        assertTrue(ServerService.bolehFallbackTls(false, false));
+    }
+
+    @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
         // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".
         assertEquals("Server aktif di port 8080",

@@ -3963,6 +3963,38 @@ public class ServerService extends Service {
         }
     }
 
+    /** Path kanonis file/folder; null bila gagal (pemanggil memperlakukan
+     *  null sebagai "tak diketahui" = anggap storage publik). */
+    private static String kanonAman(File f) {
+        try {
+            return f == null ? null : f.getCanonicalPath();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** True bila path kanonis berada di storage bersama (/sdcard, /storage,
+     *  /mnt/sdcard, /mnt/media_rw). Kunci privat TLS tak boleh ditulis ke
+     *  sana karena FAT tak mengenal chmod. Null = tak diketahui, anggap
+     *  publik (fail-closed). Murni agar bisa diuji. */
+    static boolean diStoragePublik(String kanon) {
+        if (kanon == null) {
+            return true;
+        }
+        return kanon.equals("/sdcard") || kanon.startsWith("/sdcard/")
+                || kanon.equals("/storage") || kanon.startsWith("/storage/")
+                || kanon.equals("/mnt/sdcard") || kanon.startsWith("/mnt/sdcard/")
+                || kanon.equals("/mnt/media_rw") || kanon.startsWith("/mnt/media_rw/");
+    }
+
+    /** True bila fallback TLS ke folder lama boleh dipakai. Folder di storage
+     *  publik hanya boleh dipakai bila materialnya sudah lengkap & valid
+     *  (tanpa menulis apa pun); folder internal boleh ditulis seperti biasa.
+     *  Murni agar bisa diuji. */
+    static boolean bolehFallbackTls(boolean publik, boolean siapPakai) {
+        return !publik || siapPakai;
+    }
+
     private File prepareTls(File dataFolder) {
         try {
             List<String> ips = new ArrayList<>(collectIps());
@@ -3984,8 +4016,28 @@ public class ServerService extends Service {
             File ipFile = new File(internal, "ips.txt");
             File dir = ensureCertWithIps(internal, ipFile, ips, dns, cur);
             if (dir == null) {
+                // Fallback ke folder data: bila folder itu di storage publik
+                // (/sdcard), JANGAN menulis kunci privat baru ke sana — FAT
+                // tak mengenal chmod sehingga ca-key.pem/key.pem bisa disalin
+                // app lain berizin storage. Material lama yang sudah lengkap
+                // masih boleh dipakai apa adanya agar server tetap hidup.
                 File lama = new File(dataFolder, "tls");
-                dir = ensureCertWithIps(lama, new File(lama, "ips.txt"), ips, dns, cur);
+                boolean publik = diStoragePublik(kanonAman(lama));
+                boolean siap = TlsCert.siapPakaiTanpaTulis(lama);
+                if (bolehFallbackTls(publik, siap)) {
+                    if (publik) {
+                        appendLog("[app] PERINGATAN: internal gagal, memakai TLS lama"
+                                + " di storage publik apa adanya (tanpa menulis kunci).");
+                        dir = lama;
+                    } else {
+                        dir = ensureCertWithIps(lama, new File(lama, "ips.txt"),
+                                ips, dns, cur);
+                    }
+                } else {
+                    appendLog("[app] Gagal siapkan TLS di internal; kunci privat TIDAK"
+                            + " dibuat di storage publik (" + lama.getAbsolutePath()
+                            + "). Periksa ruang/izin penyimpanan internal, lalu Start ulang.");
+                }
             }
             if (dir != null) {
                 bersihKunciTlsLama(tlsLama, dir, internal);
