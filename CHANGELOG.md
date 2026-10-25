@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 255: Komentar penanda notifikasi versi tak lagi menjanjikan pengiriman
+- Komentar pada penulisan `tg_notified_version` mengklaim penanda ditulis "sesudah kabar dikirim" dan versi akan dikabari lagi bila pengiriman gagal. Kenyataannya `TgBackup.sendMessage()` hanya **memasukkan pesan ke antrean** worker: ia kembali sebelum jaringan disentuh, sehingga kegagalan kirim Telegram tidak memicu percobaan ulang — hanya tercatat di log.
+- Komentar kini menyatakan semantik sebenarnya: penanda mencegah spam kabar tiap cek; notifikasi sistem tetap sinkron (gagal = penanda batal, dicoba lagi), sedangkan pengiriman Telegram asinkron dan tidak dijamin. Perilaku kode tidak berubah.
+
 ## [Belum rilis] — Audit 254: Plaintext restore dari bot Telegram ber-nama unik dan disapu
 - `doRestore()` (jalur `/restore` bot) memakai nama cache **tetap**: `vwtg-restore-bot.zip` untuk arsip unduhan dan `vwtg-restore-bot-dec.zip` untuk hasil dekripsi. Dua operasi restore (dua perintah `/restore`, atau bersamaan dengan restore dari Pengaturan) bisa berebut/menimpa file yang sama, dan bila proses mati sebelum blok `finally` sempat jalan, salinan **plaintext** database tertinggal di cache dengan nama yang akan dipakai ulang.
 - Kini arsip unduhan ber-nama unik (`vwtg-restore-bot-<stempel>.zip`) dan hasil dekripsi memakai `TgBackup.berkasPlainSementara()` (`vwtg-plain-…`, dilarang dibagikan `FileShareProvider`) plus `sapuTmpPlainBasi()` di awal operasi agar sisa proses yang mati tak mengendap selamanya.

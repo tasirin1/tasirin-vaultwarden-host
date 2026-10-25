@@ -125,11 +125,15 @@ public final class AutoUpdate {
                     pending.atur(latest);
                     aksi.kabariTersedia(latest);
                     // Notifikasi sistem + Telegram cukup sekali per versi.
-                    // Penanda ditulis SESUDAH kabar dikirim: bila notifikasi
-                    // melempar (channel/izin rusak) atau proses mati di tengah,
-                    // versi ini dikabari lagi pada cek berikutnya. Dulu penanda
-                    // ditulis lebih dulu sehingga kabar yang gagal hilang
-                    // selamanya (pengguna tak pernah tahu ada update).
+                    // Penanda ditulis setelah kabar DIANTREKAN: notifikasi
+                    // sistem sinkron (bila melempar, penanda batal ditulis
+                    // sehingga dicoba lagi), tetapi sendMessage Telegram
+                    // hanya masuk antrean worker — kegagalan kirimnya cuma
+                    // tercatat di log dan TIDAK diulang pada cek berikutnya.
+                    // Dulu komentar mengklaim "sesudah kabar terkirim",
+                    // padahal pengiriman belum tentu terjadi saat penanda
+                    // ditulis. Tujuan penanda = cegah spam tiap cek, bukan
+                    // jaminan terkirim.
                     if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
                         tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
