@@ -852,14 +852,19 @@ public final class Updater {
         return new ShaTarget() {
             @Override
             public String ambil(String urlAkhir) throws IOException {
-                String sha = fetchChecksum(ctx, urlAkhir + ".sha256", connectMs, readMs);
-                if (sha == null) {
+                HasilChecksum hasil = fetchChecksumRinci(ctx, urlAkhir + ".sha256",
+                        connectMs, readMs);
+                if (hasil.hex == null) {
+                    // Pisahkan sebabnya: "belum terbit" (404) tidak sama dengan
+                    // GitHub yang sedang tak terjangkau.
                     throw new IOException(pesanNull
-                            + " (jaringan/rate-limit atau asset belum terbit)"
-                            + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
+                            + (hasil.sementara
+                                    ? " karena gangguan jaringan/rate-limit - coba lagi nanti."
+                                    : " (aset belum terbit di rilis).")
+                            + " Update dibatalkan demi keamanan. " + saranKoneksi(null));
                 }
-                simpan[0] = sha;
-                return sha;
+                simpan[0] = hasil.hex;
+                return hasil.hex;
             }
         };
     }
@@ -1210,15 +1215,28 @@ public final class Updater {
         if (!paksa && !butuhRefresh && !adaKuncianBinary(ctx)
                 && fallbackTercatatUntuk(latest,
                         TgBackup.amanString(sp, KEY_BIN_FALLBACK_FOR, ""))) {
-            String shaTarget = fetchChecksum(ctx,
+            long sekarang = System.currentTimeMillis();
+            if (dalamJedaCek(TgBackup.amanLong(sp, KEY_CEK_GANGGUAN_AT, 0), sekarang)) {
+                // Probe terakhir gagal karena jaringan: jangan ulangi 2 request
+                // x timeout tiap aplikasi dibuka (kuota STB).
+                return "Cek pembaruan tertunda (jaringan GitHub terganggu); binary"
+                        + " rilis sebelumnya tetap dipakai.";
+            }
+            HasilChecksum probe = fetchChecksumRinci(ctx,
                     binaryAssetUrl(latest, ServerService.ABI) + ".sha256",
                     20000, 20000);
-            if (shaTarget == null) {
+            if (probe.hex == null) {
+                if (probe.sementara) {
+                    sp.edit().putLong(KEY_CEK_GANGGUAN_AT, sekarang).apply();
+                    return "Cek pembaruan terganggu jaringan; binary rilis sebelumnya"
+                            + " tetap dipakai (dicek ulang nanti).";
+                }
                 return "Build Android v" + latest + " belum tersedia; binary rilis"
                         + " sebelumnya tetap dipakai (dicek ulang otomatis nanti).";
             }
             sp.edit().remove(KEY_BIN_FALLBACK_FOR)
-                    .remove(KEY_BIN_FALLBACK_AT).apply();
+                    .remove(KEY_BIN_FALLBACK_AT)
+                    .remove(KEY_CEK_GANGGUAN_AT).apply();
         }
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()
@@ -1886,14 +1904,24 @@ public final class Updater {
         if (wvExists && !adaKuncianWebVault(ctx)
                 && fallbackTercatatUntuk(latest,
                         TgBackup.amanString(sp, KEY_WV_FALLBACK_FOR, ""))) {
-            String shaTarget = fetchChecksum(ctx,
+            long sekarang = System.currentTimeMillis();
+            if (dalamJedaCek(TgBackup.amanLong(sp, KEY_CEK_GANGGUAN_AT, 0), sekarang)) {
+                return "Cek web vault tertunda (jaringan GitHub terganggu);"
+                        + " versi terpasang tetap dipakai.";
+            }
+            HasilChecksum probe = fetchChecksumRinci(ctx,
                     RELEASE_URL + "v" + latest + "/web-vault.zip.sha256",
                     10000, 15000);
-            if (shaTarget == null) {
+            if (probe.hex == null) {
+                if (probe.sementara) {
+                    sp.edit().putLong(KEY_CEK_GANGGUAN_AT, sekarang).apply();
+                    return "Cek web vault terganggu jaringan; versi terpasang tetap"
+                            + " dipakai (dicek ulang nanti).";
+                }
                 return "Web vault v" + latest + " belum tersedia; versi terpasang"
                         + " tetap dipakai (dicek ulang otomatis nanti).";
             }
-            sp.edit().remove(KEY_WV_FALLBACK_FOR).apply();
+            sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_CEK_GANGGUAN_AT).apply();
         }
         // Penanda versi kosong (dulu dipasang saat cek versi terbaru gagal) tapi
         // sidik isi tersimpan: buktikan lewat berkas .sha256 target (kecil saja),
@@ -1901,10 +1929,22 @@ public final class Updater {
         if (wvExists && installed.isEmpty() && latest != null) {
             String sidikLama = TgBackup.amanString(sp, KEY_WV_SHA, "");
             if (!sidikLama.isEmpty()) {
-                String shaTarget = fetchChecksum(ctx,
+                long sekarang = System.currentTimeMillis();
+                if (dalamJedaCek(TgBackup.amanLong(sp, KEY_CEK_GANGGUAN_AT, 0), sekarang)) {
+                    return "Cek web vault tertunda (jaringan GitHub terganggu);"
+                            + " versi terpasang tetap dipakai.";
+                }
+                HasilChecksum shaTarget = fetchChecksumRinci(ctx,
                         RELEASE_URL + "v" + latest + "/web-vault.zip.sha256",
                         10000, 15000);
-                if (shaTarget != null && expectedHexEquals(shaTarget, sidikLama)) {
+                if (shaTarget.sementara) {
+                    // Tanpa checksum, "cocok?" tak bisa dijawab; jangan bakar
+                    // ~35 MB mengunduh ulang hanya karena jaringan putus.
+                    sp.edit().putLong(KEY_CEK_GANGGUAN_AT, sekarang).apply();
+                    return "Cek web vault terganggu jaringan; versi terpasang tetap"
+                            + " dipakai (dicek ulang nanti).";
+                }
+                if (shaTarget.hex != null && expectedHexEquals(shaTarget.hex, sidikLama)) {
                     sp.edit().putString(KEY_WV_FROM, latest).apply();
                     return "Web vault sudah versi terbaru: v" + latest;
                 }
@@ -2548,10 +2588,17 @@ public final class Updater {
     /** Baca file .sha256 GitHub (format "<hex>  <nama>"); return hex atau null bila gagal. */
     private static String fetchChecksum(Context ctx, String url,
                                         int connectMs, int readMs) {
+        return fetchChecksumRinci(ctx, url, connectMs, readMs).hex;
+    }
+
+    /** Seperti {@link #fetchChecksum}, tetapi hasilnya membedakan "aset belum
+     *  terbit" dari gangguan jaringan (lihat {@link HasilChecksum}). */
+    private static HasilChecksum fetchChecksumRinci(Context ctx, String url,
+                                                    int connectMs, int readMs) {
         // Checksum + binary satu channel TLS: minimal tolak http polos
         // fail-closed agar downgrade tak bisa menyuntik checksum palsu.
         if (url == null || !url.regionMatches(true, 0, "https://", 0, 8)) {
-            return null;
+            return HasilChecksum.BELUM_TERBIT;
         }
         for (int coba = 1; coba <= 2; coba++) {
             HttpURLConnection c = null;
@@ -2566,7 +2613,7 @@ public final class Updater {
                     if (kodeSementara(kode)) {
                         throw new IOException("HTTP " + kode);
                     }
-                    return null;
+                    return HasilChecksum.BELUM_TERBIT;
                 }
                 java.util.List<String> baris = new java.util.ArrayList<>();
                 try (BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -2586,7 +2633,7 @@ public final class Updater {
                     }
                 }
                 if (baris.isEmpty()) {
-                    return null;
+                    return HasilChecksum.BELUM_TERBIT;
                 }
                 // Pindai semua token tiap baris (bukan hanya token pertama):
                 // format BSD ("SHA256 (berkas) = <hex>") menaruh hex di akhir,
@@ -2596,16 +2643,18 @@ public final class Updater {
                 // pertama untuk file checksum mentah satu baris.
                 // Kecocokan final tetap diverifikasi caller (mismatch = batal,
                 // fail-closed) sehingga baris asing tak bisa lolos diam-diam.
-                return pindaiHexDariBaris(baris, namaAssetDariUrl(url));
+                String hex = pindaiHexDariBaris(baris, namaAssetDariUrl(url));
+                return hex == null ? HasilChecksum.BELUM_TERBIT
+                        : new HasilChecksum(hex, false);
             } catch (Exception e) {
                 if (coba >= 2) {
-                    return null;
+                    return HasilChecksum.GANGGUAN;
                 }
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    return null;
+                    return HasilChecksum.GANGGUAN;
                 }
             } finally {
                 if (c != null) {
@@ -2613,7 +2662,40 @@ public final class Updater {
                 }
             }
         }
-        return null;
+        return HasilChecksum.GANGGUAN;
+    }
+
+    /** Hasil pengambilan berkas .sha256: membedakan "aset belum terbit"
+     *  (404/format asing) dari gangguan jaringan. Dulu keduanya {@code null},
+     *  lalu pemanggil menyimpulkan "build belum terbit" padahal GitHub cuma
+     *  tak terjangkau, dan cek yang sama diulang tiap aplikasi dibuka. */
+    static final class HasilChecksum {
+        final String hex;
+        /** true = gangguan sementara (timeout/5xx/rate-limit), bukan 404. */
+        final boolean sementara;
+
+        private HasilChecksum(String hex, boolean sementara) {
+            this.hex = hex;
+            this.sementara = sementara;
+        }
+
+        /** Aset memang belum ada / isinya bukan checksum sah. */
+        static final HasilChecksum BELUM_TERBIT = new HasilChecksum(null, false);
+        /** Gagal karena jaringan: hasil belum bisa disimpulkan. */
+        static final HasilChecksum GANGGUAN = new HasilChecksum(null, true);
+    }
+
+    /** Jeda sebelum probe .sha256 dicoba lagi setelah gangguan jaringan. */
+    static final long JEDA_CEK_GANGGUAN_MS = 15L * 60L * 1000L;
+    /** Penanda waktu (wall clock) probe checksum terakhir gagal karena jaringan. */
+    static final String KEY_CEK_GANGGUAN_AT = "cek_gangguan_at";
+
+    /** True bila probe terakhir gagal kurang dari {@link #JEDA_CEK_GANGGUAN_MS}
+     *  lalu. Murni. Jam mundur (STB tanpa RTC) sengaja TIDAK menahan probe:
+     *  lebih baik bertanya daripada tak pernah bertanya. */
+    static boolean dalamJedaCek(long terakhirGagal, long sekarang) {
+        return terakhirGagal > 0 && sekarang >= terakhirGagal
+                && sekarang - terakhirGagal < JEDA_CEK_GANGGUAN_MS;
     }
 
     /** Varian yang mengutamakan baris berisi nama asset yang diminta.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 286: "Belum terbit" tidak lagi dipakai untuk gangguan jaringan
+- `fetchChecksum()` mengembalikan `null` untuk 404 **dan** untuk galat jaringan, lalu pemanggil probe `.sha256` menyimpulkan "Build Android v<versi> belum tersedia / web vault belum tersedia" padahal asetnya sudah terbit dan GitHub/STB-nya yang tak terjangkau. Cek yang sama juga diulang tiap aplikasi dibuka (2 request × timeout).
+- `fetchChecksumRinci()` kini membedakan `BELUM_TERBIT` (404/format asing) dari `GANGGUAN` (timeout/5xx/rate-limit). Pesan probe binary & web-vault, serta pesan `shaDariRilis`, menyebut sebab yang benar. Setelah gangguan, waktu kegagalan disimpan (`KEY_CEK_GANGGUAN_AT`) dan probe ditahan `JEDA_CEK_GANGGUAN_MS` (15 menit, `dalamJedaCek` murni + uji; jam mundur tidak menahan selamanya). Cek sidik web-vault yang terganggu tidak lagi memicu unduh ulang ~35 MB.
+
 ## [Belum rilis] — Audit 285: Badan unduhan terpotong & checksum mismatch diulang, bukan dibuang
 - `salinSambilHash()` menghitung digest dari berapa pun byte yang masuk. Proksi/CDN yang menutup koneksi "rapi" di tengah badan membuat digest parsial diterima sebagai hasil penuh, lalu verifikasi SHA-256 (di luar loop) langsung membatalkan unduhan dan menghapus 12 MB yang sudah masuk — pengguna harus menekan ulang manual.
 - Badan kini dibandingkan dengan Content-Length (`badanTerpotong`, murni + uji). Bila berhenti lebih awal, unduhan dianggap "terputus" (boleh dicoba ulang) dan berkas parsial **dipertahankan** karena byte-nya masih berurutan benar, sehingga percobaan berikut melanjutkan via Range alih-alih mengulang dari nol.

@@ -1040,6 +1040,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void dalamJedaCek_hematRequestSaatJaringanGangguan() {
+        long sekarang = 1_000_000_000L;
+        assertFalse(Updater.dalamJedaCek(0, sekarang)); // belum pernah gagal
+        assertTrue(Updater.dalamJedaCek(sekarang - 1000, sekarang));
+        assertTrue(Updater.dalamJedaCek(sekarang - Updater.JEDA_CEK_GANGGUAN_MS + 1, sekarang));
+        assertFalse(Updater.dalamJedaCek(sekarang - Updater.JEDA_CEK_GANGGUAN_MS, sekarang));
+        // Jam STB mundur: jangan pernah menahan probe selamanya.
+        assertFalse(Updater.dalamJedaCek(sekarang + 60_000, sekarang));
+    }
+
+    @Test
     public void shaDariRilis_tolakHttpPolosTanpaJaringan() {
         final String[] simpan = {null};
         Updater.ShaTarget target = Updater.shaDariRilis(null, 100, 100,
