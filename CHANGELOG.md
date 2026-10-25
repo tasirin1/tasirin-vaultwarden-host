@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 233: Dialog konfirmasi PIN tak lagi muncul dari onDestroy
+- `onDestroy` sengaja menjalankan debounce `pinTunda` yang masih tertunda agar ketikan PIN tidak hilang saat Back. Runnable itu juga bisa menampilkan `AlertDialog` konfirmasi "Ganti PIN?". Saat rotasi `isFinishing()`/`isDestroyed()` masih false, sehingga guard lama lolos: dialog menempel ke window activity yang sedang dibongkar (`WindowLeaked`) dan konfirmasinya tak pernah bisa diklik.
+- Kini flag `pinDialogBoleh` dimatikan sejak awal `onDestroy`; jalur tulis hash tetap jalan (aman), jalur dialog dilewati lewat gerbang murni `bolehDialogPin()` (+ uji JVM). PIN lama tetap berlaku dan kandidat yang tak dikonfirmasi dibuang.
+
 ## [Belum rilis] — Audit 232: Start kedua tidak lagi menggantung tanpa proses
 - Start yang datang saat episode Start pertama masih berjalan (unduh binary / restore memegang `KUNCI_DATA`) dulu hanya dicatat "Start masih berjalan, dilewati". Karena `startIdTerakhir` sudah naik, episode pertama tidak boleh lagi menutup episode (guard `intentTerbaru`), sedangkan episode baru tak punya thread: `healthActive`, niat START_STICKY, dan notifikasi foreground menggantung tanpa proses dan tanpa restart.
 - Kini Start kedua menandai `startSusulanDiminta`; di akhir episode berjalan (setelah `starting` dilepas) Start susulan dijalankan lewat gerbang murni `perluStartSusulan()` — hanya bila episode tidak ditunda, server belum hidup, dan niat jalan masih tersimpan. Stop membatalkan permintaan susulan ini.

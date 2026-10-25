@@ -82,6 +82,11 @@ public class SettingsActivity extends Activity {
     /** Jadwal debounce ketikan PIN: hash (PBKDF2 30rb) baru dikirim ke
      *  worker sesudah 800 ms tanpa ketikan agar tak menumpuk di CPU lemah STB. */
     private Runnable pinTunda = null;
+    /** False sejak onDestroy: runnable PIN yang masih tertunda boleh menulis
+     *  hash (aman), tetapi TIDAK boleh menampilkan dialog konfirmasi — window
+     *  activity sedang dibongkar sehingga dialog menempel ke window mati
+     *  (WindowLeaked) dan tombolnya tak bisa diklik. */
+    private boolean pinDialogBoleh = true;
     /** Kandidat PIN yang sudah ditawarkan lewat dialog "Ganti PIN?" agar
      *  dialog tak muncul berulang untuk isi field yang sama (mis. user
      *  menggeser kursor lalu berhenti mengetik lagi). */
@@ -686,7 +691,12 @@ public class SettingsActivity extends Activity {
                         return;
                     }
                     pinGantiKandidat = pin;
-                    if (isFinishing() || isDestroyed()) {
+                    if (!bolehDialogPin(pinDialogBoleh, isFinishing(), isDestroyed())) {
+                        // Activity sedang dibongkar (rotasi/Back): dialog
+                        // konfirmasi tak boleh tampil (window-nya ikut hilang →
+                        // WindowLeaked + tombol tak bisa diklik). PIN lama tetap
+                        // berlaku; isi field yang tak dikonfirmasi dibuang.
+                        pinGantiKandidat = null;
                         return;
                     }
                     // Dialog langsung (bukan confirm()) karena tombol Batal
@@ -3876,6 +3886,14 @@ public class SettingsActivity extends Activity {
         return pinAktif && adaHash;
     }
 
+    /** True bila dialog konfirmasi PIN boleh ditampilkan: activity belum masuk
+     *  onDestroy dan belum selesai. Saat rotasi isFinishing()/isDestroyed()
+     *  masih false, jadi flag onDestroy wajib ikut diperiksa. Murni. */
+    static boolean bolehDialogPin(boolean dialogBoleh, boolean finishing,
+                                  boolean destroyed) {
+        return dialogBoleh && !finishing && !destroyed;
+    }
+
     /** True bila prefs sudah menyimpan hash PIN (dibaca jarang: sekali per jeda ketik). */
     private boolean adaHashPinTersimpan() {
         try {
@@ -4089,6 +4107,10 @@ public class SettingsActivity extends Activity {
         pinHashSiap = null;
         // Ketikan PIN yang masih dalam jeda 800 ms jangan hilang saat Back:
         // jalankan sekarang (submit ke worker) sebelum antrean UI dibuang.
+        // Dialog konfirmasi dilarang sejak titik ini: saat rotasi
+        // isFinishing()/isDestroyed() masih false, sehingga tanpa flag ini
+        // dialog menempel ke window yang sedang dibongkar.
+        pinDialogBoleh = false;
         Runnable tundaPin = pinTunda;
         pinTunda = null;
         if (tundaPin != null) {

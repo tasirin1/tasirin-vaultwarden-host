@@ -225,4 +225,14 @@ public class SettingsActivityTest {
         assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, true));
         assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, false));
     }
+
+    @Test
+    public void dialogPinDilarangSejakOnDestroy() {
+        // Rotasi memanggil onDestroy dengan isFinishing()/isDestroyed() masih
+        // false: flag onDestroy-lah yang mencegah dialog menempel ke window mati.
+        assertTrue(SettingsActivity.bolehDialogPin(true, false, false));
+        assertFalse(SettingsActivity.bolehDialogPin(false, false, false));
+        assertFalse(SettingsActivity.bolehDialogPin(true, true, false));
+        assertFalse(SettingsActivity.bolehDialogPin(true, false, true));
+    }
 }
