@@ -60,3 +60,7 @@ muatKataRentangSetaraWrapper
 pauseStamp
 kapanDibuka
 kapanBukaBersama
+# Audit 236: sapuDecTmpBasi diganti sapuTmpPlainBasi (kini juga menyapu file
+# verifikasi plaintext vwtg-plain-*), uji-nya ikut berganti nama.
+sapuDecTmpBasi
+sapuDecTmpBasi_hanyaBasiDanBukanAktif

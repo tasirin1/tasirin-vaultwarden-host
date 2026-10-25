@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
@@ -689,7 +690,7 @@ public class TgBackupTest {
     }
 
     @Test
-    public void sapuDecTmpBasi_hanyaBasiDanBukanAktif() throws Exception {
+    public void sapuTmpPlainBasi_hanyaBasiDanBukanAktif() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vwtg-dectest-" + System.nanoTime());
         assertTrue(dir.mkdirs());
@@ -697,23 +698,45 @@ public class TgBackupTest {
             java.io.File basi = new java.io.File(dir, "vwtg-dec-a.zip.tmp");
             java.io.File segar = new java.io.File(dir, "vwtg-dec-b.zip.tmp");
             java.io.File lain = new java.io.File(dir, "app-config-x.json");
+            // File verifikasi plaintext (nama unik) juga wajib disapu saat basi.
+            java.io.File basiIsi = new java.io.File(dir, "vwtg-plain-isi-db-a.sqlite3");
+            java.io.File segarIsi = new java.io.File(dir, "vwtg-plain-roundtrip-b.zip");
             assertTrue(basi.createNewFile());
             assertTrue(segar.createNewFile());
             assertTrue(lain.createNewFile());
-            assertTrue(basi.setLastModified(
-                    System.currentTimeMillis() - TgBackup.UMUR_DEC_TMP_MS - 60_000L));
-            TgBackup.sapuDecTmpBasi(dir, segar.getName());
+            assertTrue(basiIsi.createNewFile());
+            assertTrue(segarIsi.createNewFile());
+            long basiMs = System.currentTimeMillis() - TgBackup.UMUR_DEC_TMP_MS - 60_000L;
+            assertTrue(basi.setLastModified(basiMs));
+            assertTrue(basiIsi.setLastModified(basiMs));
+            TgBackup.sapuTmpPlainBasi(dir, segar.getName(), segarIsi.getName());
             assertFalse(basi.exists());
+            assertFalse(basiIsi.exists());
             assertTrue(segar.exists());
+            assertTrue(segarIsi.exists());
             assertTrue(lain.exists());
-            TgBackup.sapuDecTmpBasi(dir, null);
+            TgBackup.sapuTmpPlainBasi(dir, null);
             assertTrue(segar.exists());
+            assertTrue(segarIsi.exists());
         } finally {
             for (java.io.File f : dir.listFiles()) {
                 f.delete();
             }
             dir.delete();
         }
+    }
+
+    @Test
+    public void berkasPlainSementaraUnikDanBerawalanVwtg() {
+        java.io.File dir = new java.io.File(System.getProperty("java.io.tmpdir"));
+        java.io.File a = TgBackup.berkasPlainSementara(dir, "isi-db", ".sqlite3");
+        java.io.File b = TgBackup.berkasPlainSementara(dir, "isi-db", ".sqlite3");
+        assertTrue(a.getName().startsWith(TgBackup.PREFIX_PLAIN_TMP));
+        assertTrue(a.getName().endsWith(".sqlite3"));
+        // Nama unik: dua backup (jadwal + bot) tak boleh berebut satu file.
+        assertNotEquals(a.getName(), b.getName());
+        // Awalan vwtg- otomatis dilarang dibagikan via FileShareProvider.
+        assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.berkasSementara(a.getName()));
     }
 
     @Test

@@ -1776,7 +1776,9 @@ public class SettingsActivity extends Activity {
             }
             // Verifikasi isi DB dari hasil ekstrak agar backup robek
             // tak tersimpan diam-diam (magic saja tak cukup).
-            File tmpIsi = new File(getCacheDir(), "verifikasi-isi-db.sqlite3");
+            File tmpIsi = TgBackup.berkasPlainSementara(
+                    getCacheDir(), "isi-db", ".sqlite3");
+            TgBackup.sapuTmpPlainBasi(getCacheDir(), tmpIsi.getName());
             try {
                 String galatIsi = TgBackup.verifikasiIsiDbZip(backup, tmpIsi);
                 if (galatIsi != null) {
@@ -2424,6 +2426,21 @@ public class SettingsActivity extends Activity {
                             umur = 0;
                         }
                         if (umur > RESTORE_TG_TTL_MS) {
+                            f.delete();
+                        }
+                        continue;
+                    }
+                    if (n.startsWith(TgBackup.PREFIX_PLAIN_TMP)) {
+                        // Sisa plaintext verifikasi backup (salinan DB vault /
+                        // zip round-trip berisi kunci privat TLS) dari proses
+                        // yang mati di tengah backup: sapu yang lewat ambang
+                        // yang sama dengan penyapu di TgBackup agar sisa kill
+                        // tak mengendap selamanya di cache.
+                        long umur = System.currentTimeMillis() - f.lastModified();
+                        if (umur < 0) {
+                            umur = 0;
+                        }
+                        if (umur > TgBackup.UMUR_DEC_TMP_MS) {
                             f.delete();
                         }
                     }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 236: Sisa plaintext verifikasi backup tak lagi mengendap di cache
+- `verifikasi-isi-db.sqlite3` (salinan DB vault) dan `verifikasi-tmp.zip` (hasil dekripsi berisi `key.pem`/`ca-key.pem`) memakai nama **tetap** di cache dan hanya dihapus di `finally`. Proses yang dibunuh/power-loss di tengah backup meninggalkan plaintext itu selamanya, dan dua backup berbeda bisa berebut satu file.
+- Kini keduanya (termasuk jalur backup lokal di Settings) memakai nama unik `vwtg-plain-<label>-<acak>` lewat `berkasPlainSementara()`; awalan `vwtg-` membuatnya otomatis dilarang dibagikan `FileShareProvider`. Penyapu `sapuTmpPlainBasi()` (pengganti `sapuDecTmpBasi`, kini juga menyapu `vwtg-plain-*`) dipanggil sebelum file baru dibuat, dan sapu cache `SettingsActivity` (onCreate/onResume/onDestroy) ikut membersihkan sisa `vwtg-plain-*` — keduanya berambang umur 10 menit agar operasi yang sedang berjalan tak terganggu.
+
 ## [Belum rilis] — Audit 235: Worker aktivasi PIN tak lagi menyalakan PIN yang sudah dibatalkan
 - Worker hash aktivasi PIN selalu menulis `pin_on=true` setelah PBKDF2 selesai, tanpa memeriksa apakah permintaannya masih berlaku. Bila centang dimatikan (konfirmasi "Ya") atau activity ditutup (rotasi/Back) selama hash berjalan, PIN hidup kembali di belakang user: prefs `pin_on=true` sementara centang di layar tampil mati.
 - Kini tiap permintaan aktivasi memakai nomor urut `epAktifPin`; pembatalan (centang mati, `onDestroy`) menaikkannya di dalam kunci `kunciAktifPin`, dan worker hanya menulis hash + `pin_on` bila `aktivasiPinMasihBerlaku()` (murni + uji JVM) masih benar. Worker basi tak menampilkan "PIN is active" dan mengembalikan centang ke mati.

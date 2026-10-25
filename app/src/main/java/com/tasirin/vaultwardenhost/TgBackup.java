@@ -682,7 +682,10 @@ public final class TgBackup {
             }
             // Isi DB ikut di-quick_check dari hasil ekstrak (magic saja tak cukup:
             // salinan robek saat server menulis tetap bermagic valid).
-            File tmpIsi = new File(ctx.getCacheDir(), "verifikasi-isi-db.sqlite3");
+            // Nama unik berawalan vwtg-plain-: sisa kill disapu, dan dua backup
+            // (jadwal + bot) tak berebut satu file tetap.
+            File tmpIsi = berkasPlainSementara(ctx.getCacheDir(), "isi-db", ".sqlite3");
+            sapuTmpPlainBasi(ctx.getCacheDir(), tmpIsi.getName());
             try {
                 String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
                 if (galatIsi != null) {
@@ -716,7 +719,8 @@ public final class TgBackup {
                     namaBackupUnik(zip.getName() + ".enc", namaFileDi(backupDir)));
             // Round-trip di cache internal (bukan /sdcard) agar plaintext
             // sementara tak terekspos ke app lain di storage publik.
-            File tmpDec = new File(ctx.getCacheDir(), "verifikasi-tmp.zip");
+            File tmpDec = berkasPlainSementara(ctx.getCacheDir(), "roundtrip", ".zip");
+            sapuTmpPlainBasi(ctx.getCacheDir(), tmpDec.getName());
             boolean sah = false;
             try {
                 encryptFile(zip, enc, pass.trim());
@@ -2489,7 +2493,7 @@ public final class TgBackup {
         String unik = Long.toHexString(System.nanoTime())
                 + Long.toHexString(SECURE_RANDOM.nextLong());
         File tmp = new File(induk, PREFIX_DEC_TMP + unik + "-" + out.getName() + ".tmp");
-        sapuDecTmpBasi(induk, tmp.getName());
+        sapuTmpPlainBasi(induk, tmp.getName());
         try {
             tmp.delete();
         } catch (Exception ignored) {
@@ -2527,15 +2531,30 @@ public final class TgBackup {
 
     /** Awalan file sementara dekripsi GCM (plaintext sampai tag lolos). */
     static final String PREFIX_DEC_TMP = "vwtg-dec-";
+    /** Awalan file sementara plaintext verifikasi (isi DB / round-trip zip).
+     *  Awalan vwtg- membuatnya dilarang dibagikan via FileShareProvider. */
+    static final String PREFIX_PLAIN_TMP = "vwtg-plain-";
     /** Umur minimum sisa tmp dekripsi yang boleh disapu (dekrip aktif tak ikut). */
     static final long UMUR_DEC_TMP_MS = 10 * 60 * 1000L;
 
-    /** Sapu sisa plaintext tmp dekripsi yang basi di direktori (best-effort).
-     *  Kill tepat sebelum rename menyisakan vwtg-dec-*.tmp berisi plaintext;
-     *  tanpa ini ia mengendap selamanya di cache. Hanya yang berumur lewat
-     *  ambang yang dihapus agar dekrip bersamaan di direktori sama tak saling
-     *  membuang (file segar = masih dipakai). Murni java.io agar aman JVM. */
-    static void sapuDecTmpBasi(File dir, String kecualikan) {
+    /** File sementara plaintext ber-nama unik di direktori cache. Nama tetap
+     *  dulu membuat dua operasi bisa berebut satu file dan sisa kill mengendap
+     *  dengan nama yang dipakai ulang; nama unik + penyapu membuat sisanya
+     *  terhapus tanpa menebak. Murni java.io agar aman JVM/unit test. */
+    static File berkasPlainSementara(File dir, String label, String akhiran) {
+        String unik = Long.toHexString(System.nanoTime())
+                + Long.toHexString(SECURE_RANDOM.nextLong());
+        return new File(dir, PREFIX_PLAIN_TMP + label + "-" + unik + akhiran);
+    }
+
+    /** Sapu sisa plaintext sementara yang basi di direktori (best-effort):
+     *  tmp dekripsi (vwtg-dec-*.tmp) dan file verifikasi plaintext
+     *  (vwtg-plain-*). Kill tepat sebelum rename/hapus menyisakan file berisi
+     *  DB vault atau kunci privat TLS; tanpa sapuan ia mengendap selamanya di
+     *  cache. Hanya yang lewat ambang umur yang dihapus agar operasi yang
+     *  sedang berjalan (file segar) tak terganggu. Murni java.io agar aman
+     *  JVM/unit test. */
+    static void sapuTmpPlainBasi(File dir, String... kecualikan) {
         if (dir == null) {
             return;
         }
@@ -2552,10 +2571,12 @@ public final class TgBackup {
         for (File f : isi) {
             try {
                 String n = f.getName();
-                if (!n.startsWith(PREFIX_DEC_TMP) || !n.endsWith(".tmp")) {
+                boolean calon = (n.startsWith(PREFIX_DEC_TMP) && n.endsWith(".tmp"))
+                        || n.startsWith(PREFIX_PLAIN_TMP);
+                if (!calon) {
                     continue;
                 }
-                if (n.equals(kecualikan)) {
+                if (kecualikan != null && java.util.Arrays.asList(kecualikan).contains(n)) {
                     continue;
                 }
                 long umur = kini - f.lastModified();
