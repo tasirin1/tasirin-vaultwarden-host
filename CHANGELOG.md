@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 292: Restore membatalkan Start yang masih tertunda
+- Kedua pemanggil restore (`SettingsActivity.restoreDatabaseIsi`, `TgBackup.restoreFromZipIsi`) hanya memanggil `ServerService.stopAndWait()` bila `isProcessAlive()`. Saat episode Start masih menyiapkan binary (`process == null`, `starting == true`), guard itu false sehingga Stop tak pernah dikirim dan `batalStart` tak pernah dipasang: `KUNCI_DATA` menahan exec selama restore, lalu episode Start itu exec setelah restore selesai dengan `dataDir`/`port` yang dibaca **sebelum** restore.
+- Guard `isProcessAlive()` dihapus di kedua jalur (hanya Stop nyata yang bisa membatalkan Start tertunda); restore tetap dibatalkan bila `stopAndWait()` mengembalikan false atau proses masih hidup. `stopAndWait()` sendiri sudah langsung `true` saat tak ada proses maupun Start tertunda, jadi tak ada intent Stop tambahan pada kasus biasa.
+
 ## [Belum rilis] — Audit 291: Rahasia alarm diperiksa sebelum kerja tunda-boot
 - Jalur "tunda 5 menit setelah boot" di `AlarmReceiver.onReceive` membaca prefs dan memanggil `TgBackup.jadwalTundaBoot()` **sebelum** `rahasiaAlarmCocok`, padahal receiver `exported="true"`. Selama 5 menit pertama setelah boot, app lain bisa mengirim explicit intent `ALARM_HARIAN`/`ALARM_TUNDA` berulang untuk memaksa parse prefs + penjadwalan alarm di main thread (risiko ANR di STB 1 GB).
 - Pemeriksaan rahasia dipindah ke awal `onReceive` untuk semua action milik app (siaran sistem tanggal/jam/zona tetap dilayani dengan throttle 60 dtk); dua pemeriksaan rahasia yang jadi duplikat dihapus.

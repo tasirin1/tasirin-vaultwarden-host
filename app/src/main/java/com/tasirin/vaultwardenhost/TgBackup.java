@@ -3221,8 +3221,11 @@ public final class TgBackup {
             }
         }
 
-        if (ServerService.isProcessAlive()
-                && !ServerService.stopAndWait(ctx, ServerService.ANGGARAN_STOP_MIN_MS)) {
+        // Tanpa guard isProcessAlive(): Start yang masih tertunda (process
+        // masih null, starting=true) juga wajib dibatalkan lewat Stop. Bila
+        // dilewati, episode Start itu exec setelah restore selesai dengan
+        // dataDir/port yang dibaca SEBELUM restore.
+        if (!ServerService.stopAndWait(ctx, ServerService.ANGGARAN_STOP_MIN_MS)) {
             throw new IOException("Server gagal berhenti - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");
         }

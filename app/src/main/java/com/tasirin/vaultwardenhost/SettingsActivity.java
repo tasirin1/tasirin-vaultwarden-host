@@ -1948,9 +1948,12 @@ public class SettingsActivity extends Activity {
         JSONObject zipCfg = null;
         try {
             // Hentikan server dulu: menimpa SQLite yang hidup merusak DB.
-            if (ServerService.isProcessAlive()
-                    && !ServerService.stopAndWait(SettingsActivity.this,
-                            ServerService.ANGGARAN_STOP_MIN_MS)) {
+            // Tanpa guard isProcessAlive(): Start yang masih tertunda (process
+            // masih null, starting=true) juga wajib dibatalkan lewat Stop.
+            // Bila dilewati, episode Start itu exec setelah restore selesai
+            // dengan dataDir/port yang dibaca SEBELUM restore.
+            if (!ServerService.stopAndWait(SettingsActivity.this,
+                    ServerService.ANGGARAN_STOP_MIN_MS)) {
                 toast("Server failed to stop — restore cancelled to protect the DB.");
                 appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
                 return;
