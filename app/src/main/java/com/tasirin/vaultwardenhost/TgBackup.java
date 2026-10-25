@@ -654,54 +654,72 @@ public final class TgBackup {
         // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
         // Bangun + verifikasi dengan satu kali ulangan: server tetap jalan saat
         // backup sehingga salinan bisa robek di tengah tulis; ulangan diawali
-        // checkpoint WAL segar agar percobaan kedua membaca DB yang tenang.
+        // snapshot konsisten yang baru agar percobaan kedua membaca DB tenang.
         // Gagal dua kali = dilempar (bukan loop) agar storage/STB tak terkuras.
         File zip = null;
-        for (int percobaan = 1; percobaan <= 2; percobaan++) {
-            if (zip != null) {
-                try {
-                    zip.delete();
-                } catch (Exception ignored) {
+        // Folder snapshot milik percobaan ini. Nama unik + sisa percobaan
+        // sebelumnya disapu agar kill di tengah backup tak menumpuk puluhan MB.
+        File snapDir = new File(ctx.getCacheDir(), "vwsnap-" + System.nanoTime());
+        sapuSnapshotBasi(ctx.getCacheDir());
+        try {
+            for (int percobaan = 1; percobaan <= 2; percobaan++) {
+                if (zip != null) {
+                    try {
+                        zip.delete();
+                    } catch (Exception ignored) {
+                    }
+                    zip = null;
                 }
-                zip = null;
-                checkpointWal(db);
-            }
-            zip = createBackupZip(ctx, dataDir, true, configJson(sp), terenkripsi,
-                    // Zip berisi kunci privat TLS tak boleh mampir ke storage
-                    // publik (folder data user) walau hanya sesaat sebelum
-                    // dienkripsi: bangun di cache privat app saat hasilnya .enc.
-                    terenkripsi ? ctx.getCacheDir() : null);
-            // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
-            String galat = verifikasiZip(zip);
-            if (galat != null) {
-                if (percobaan < 2) {
-                    continue;
+                // Snapshot WAJIB konsisten: checkpoint yang SIBUK + salin tiga
+                // berkas berurutan dulu menghasilkan db/WAL dari waktu berbeda
+                // yang tetap lolos verifikasi (hanya db yang diuji).
+                String galatSnap = snapshotDbKonsisten(new File(dataDir), snapDir);
+                if (galatSnap != null) {
+                    if (percobaan < 2) {
+                        continue;
+                    }
+                    throw new IOException("Backup dibatalkan: " + galatSnap
+                            + " - coba lagi sebentar.");
                 }
-                zip.delete();
-                throw new IOException("Backup gagal verifikasi: " + galat);
-            }
-            // Isi DB ikut di-quick_check dari hasil ekstrak (magic saja tak cukup:
-            // salinan robek saat server menulis tetap bermagic valid).
-            // Nama unik berawalan vwtg-plain-: sisa kill disapu, dan dua backup
-            // (jadwal + bot) tak berebut satu file tetap.
-            File tmpIsi = berkasPlainSementara(ctx.getCacheDir(), "isi-db", ".sqlite3");
-            sapuTmpPlainBasi(ctx.getCacheDir(), tmpIsi.getName());
-            try {
-                String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
-                if (galatIsi != null) {
+                zip = createBackupZip(ctx, dataDir, snapDir, true, configJson(sp),
+                        terenkripsi,
+                        // Zip berisi kunci privat TLS tak boleh mampir ke storage
+                        // publik (folder data user) walau hanya sesaat sebelum
+                        // dienkripsi: bangun di cache privat app saat hasilnya .enc.
+                        terenkripsi ? ctx.getCacheDir() : null);
+                // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
+                String galat = verifikasiZip(zip);
+                if (galat != null) {
                     if (percobaan < 2) {
                         continue;
                     }
                     zip.delete();
-                    throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+                    throw new IOException("Backup gagal verifikasi: " + galat);
                 }
-            } finally {
+                // Isi DB (beserta WAL-nya) ikut di-quick_check dari hasil
+                // ekstrak: magic saja tak cukup, dan WAL tanpa db yang cocok
+                // baru ketahuan saat restore.
+                File tmpIsi = berkasPlainSementara(ctx.getCacheDir(), "isi-db", ".sqlite3");
+                sapuTmpPlainBasi(ctx.getCacheDir(), tmpIsi.getName());
                 try {
-                    tmpIsi.delete();
-                } catch (Exception ignored) {
+                    String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
+                    if (galatIsi != null) {
+                        if (percobaan < 2) {
+                            continue;
+                        }
+                        zip.delete();
+                        throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+                    }
+                } finally {
+                    try {
+                        tmpIsi.delete();
+                    } catch (Exception ignored) {
+                    }
                 }
+                break;
             }
-            break;
+        } finally {
+            hapusPohon(snapDir);
         }
         if (zip == null || !zip.exists()) {
             throw new IOException("Backup gagal dibuat.");
@@ -1412,9 +1430,14 @@ public final class TgBackup {
         }
     }
 
-    /** Paksa SQLite menulis isi WAL ke DB utama (best-effort; gagal = lanjut). */
-    static void checkpointWal(File dbFile) {
+    /** Paksa SQLite menulis isi WAL ke DB utama.
+     *  Return true bila checkpoint benar-benar selesai (busy=0). Dulu galat
+     *  dan status SIBUK ditelan diam-diam, sehingga pemanggil mengira WAL
+     *  sudah kosong padahal server masih menulis — salinan db/WAL lalu berasal
+     *  dari waktu berbeda. */
+    static boolean checkpointWal(File dbFile) {
         SQLiteDatabase db = null;
+        boolean selesai = false;
         try {
             // READWRITE disengaja: wal_checkpoint(TRUNCATE) butuh tulis sehingga
             // mode READONLY selalu gagal diam-diam dan WAL tak pernah disatukan.
@@ -1423,8 +1446,9 @@ public final class TgBackup {
             android.database.Cursor c = null;
             try {
                 c = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE);", null);
-                if (c != null) {
-                    c.moveToFirst();
+                if (c != null && c.moveToFirst()) {
+                    // Kolom 0 = busy (0 = seluruh WAL berhasil dipindahkan).
+                    selesai = c.getInt(0) == 0;
                 }
             } finally {
                 if (c != null) {
@@ -1443,16 +1467,159 @@ public final class TgBackup {
                 }
             }
         }
+        return selesai;
+    }
+
+    /** Berkas DB yang ikut snapshot backup (urutan salin: utama lalu WAL/SHM). */
+    static final String[] BERKAS_DB = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+
+    /** Salin db+WAL+SHM apa adanya ke folder tujuan; berkas yang tak ada
+     *  dilewati. Murni I/O agar bisa unit test JVM. */
+    static boolean salinBerkasDb(File dataFolder, File tujuan) {
+        if (dataFolder == null || tujuan == null) {
+            return false;
+        }
+        if (!tujuan.isDirectory() && !tujuan.mkdirs()) {
+            return false;
+        }
+        try {
+            for (String nama : BERKAS_DB) {
+                File asal = new File(dataFolder, nama);
+                if (!asal.isFile()) {
+                    continue;
+                }
+                copyFile(asal, new File(tujuan, nama));
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Snapshot konsisten db+WAL+SHM untuk backup.
+     *
+     *  Dulu ketiga berkas disalin berurutan tanpa pemeriksaan apa pun: server
+     *  yang terus menulis membuat db dari T1, WAL dari T2, SHM dari T3, dan
+     *  checkpoint yang SIBUK ditelan diam-diam. Kini tiap percobaan dimulai
+     *  dengan checkpoint, salinan ditolak bila sumber berubah selama penyalinan
+     *  (mtime/ukuran berbeda), lalu salinan diuji quick_check dengan WAL-nya
+     *  sendiri. Return null bila sah, pesan galat bila tak layak diarsipkan.
+     *  Wajib worker thread (ada tidur). */
+    static String snapshotDbKonsisten(File dataFolder, File tujuan) {
+        File db = new File(dataFolder, "db.sqlite3");
+        if (!db.isFile()) {
+            return "Database belum ada.";
+        }
+        File wal = new File(dataFolder, "db.sqlite3-wal");
+        File shm = new File(dataFolder, "db.sqlite3-shm");
+        String galat = "salinan tidak stabil";
+        for (int coba = 1; coba <= 3; coba++) {
+            // Checkpoint yang SIBUK tak langsung menggagalkan: salinan tetap
+            // diuji keutuhannya (SQLite memakai WAL di sebelah salinan).
+            checkpointWal(db);
+            long mDb = db.lastModified();
+            long uDb = db.length();
+            long mWal = wal.lastModified();
+            long uWal = wal.length();
+            long mShm = shm.lastModified();
+            long uShm = shm.length();
+            if (!salinBerkasDb(dataFolder, tujuan)) {
+                galat = "gagal menyalin berkas database";
+            } else if (db.lastModified() != mDb || db.length() != uDb
+                    || wal.lastModified() != mWal || wal.length() != uWal
+                    || shm.lastModified() != mShm || shm.length() != uShm) {
+                // Server menulis di tengah salin: potret campuran waktu.
+                galat = "database berubah saat disalin (server sedang menulis)";
+            } else {
+                String rusak = cekIntegritasDbSalinan(new File(tujuan, "db.sqlite3"));
+                if (rusak == null) {
+                    return null;
+                }
+                galat = dbSibuk(rusak) ? "database sibuk"
+                        : "isi DB korup (" + rusak + ")";
+            }
+            hapusIsiFolder(tujuan);
+            if (coba < 3) {
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return galat;
+                }
+            }
+        }
+        return galat;
+    }
+
+    /** Sapu folder snapshot backup sisa proses yang dibunuh (kill di tengah
+     *  backup meninggalkan salinan db+WAL puluhan MB di cache). Backup
+     *  diserialkan kunciBackup(), jadi tak ada snapshot hidup saat dipanggil. */
+    static void sapuSnapshotBasi(File cacheDir) {
+        if (cacheDir == null) {
+            return;
+        }
+        File[] isi = cacheDir.listFiles();
+        if (isi == null) {
+            return;
+        }
+        for (File f : isi) {
+            if (f != null && f.isDirectory() && f.getName().startsWith("vwsnap-")) {
+                hapusPohon(f);
+            }
+        }
+    }
+
+    /** Hapus isi folder (foldernya tetap), tanpa melempar. */    static void hapusIsiFolder(File folder) {
+        if (folder == null) {
+            return;
+        }
+        File[] isi = folder.listFiles();
+        if (isi == null) {
+            return;
+        }
+        for (File f : isi) {
+            hapusPohon(f);
+        }
+    }
+
+    /** Hapus berkas/folder secara rekursif, tanpa melempar. */
+    static void hapusPohon(File f) {
+        if (f == null) {
+            return;
+        }
+        if (f.isDirectory()) {
+            File[] isi = f.listFiles();
+            if (isi != null) {
+                for (File anak : isi) {
+                    hapusPohon(anak);
+                }
+            }
+        }
+        try {
+            f.delete();
+        } catch (Exception ignored) {
+        }
     }
 
     /** PRAGMA quick_check baca-saja; null bila OK, pesan singkat bila korup,
      *  "SIBUK: ..." bila DB terkunci sesaat (server sedang menulis). */
     static String cekIntegritasDb(File dbFile) {
+        return cekIntegritasDbMode(dbFile, SQLiteDatabase.OPEN_READONLY);
+    }
+
+    /** quick_check pada SALINAN snapshot: dibuka READWRITE agar SQLite boleh
+     *  memulihkan WAL salinan. Mode read-only pada DB ber-WAL butuh -shm yang
+     *  layak tulis, sehingga salinan yang sebenarnya sehat bisa dilaporkan
+     *  gagal. Salinan berada di folder sementara milik app, jadi aman ditulis. */
+    static String cekIntegritasDbSalinan(File dbFile) {
+        return cekIntegritasDbMode(dbFile, SQLiteDatabase.OPEN_READWRITE);
+    }
+
+    private static String cekIntegritasDbMode(File dbFile, int mode) {
         SQLiteDatabase db = null;
         android.database.Cursor c = null;
         try {
-            db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
-                    SQLiteDatabase.OPEN_READONLY);
+            db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, mode);
             c = db.rawQuery("PRAGMA quick_check;", null);
             if (c != null && c.moveToFirst()) {
                 String hasil = c.getString(0);
@@ -1607,58 +1774,70 @@ public final class TgBackup {
         }
     }
 
-    /** Verifikasi isi DB di dalam zip backup: ekstrak db.sqlite3 lalu
-     *  quick_check penuh. Magic saja tak cukup: salinan robek saat server
-     *  menulis tetap bermagic valid. Return null bila sehat, pesan galat bila
-     *  tidak. File sementara selalu dibersihkan. */
+    /** Verifikasi isi DB di dalam zip backup: ekstrak db.sqlite3 **beserta
+     *  WAL/SHM**-nya ke satu folder sementara lalu quick_check penuh pada
+     *  gabungan itu. Magic saja tak cukup, dan memeriksa db tanpa WAL membuat
+     *  arsip dengan WAL robek/tak cocok tetap lolos verifikasi padahal restore
+     *  akan memutar ulang WAL tersebut. Return null bila sehat, pesan galat
+     *  bila tidak. File sementara selalu dibersihkan. */
     static String verifikasiIsiDbZip(File zip, File tmpDb) {
         if (zip == null || tmpDb == null) {
             return "file backup hilang";
         }
-        try (ZipFile zf = new ZipFile(zip)) {
-            if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
-                return "terlalu banyak entri zip (" + zf.size() + ")";
-            }
-            java.util.zip.ZipEntry db = zf.getEntry("db.sqlite3");
-            if (db == null) {
-                return "tidak berisi db.sqlite3";
-            }
-            try (java.io.InputStream in = zf.getInputStream(db);
-                 java.io.FileOutputStream fos = new java.io.FileOutputStream(tmpDb)) {
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                long terkumpul = 0;
-                while ((n = in.read(buf)) != -1) {
-                    terkumpul += n;
-                    if (terkumpul > Util.BATAS_UNZIP_RESTORE) {
-                        try { fos.close(); } catch (Exception ignored) { }
-                        try { tmpDb.delete(); } catch (Exception ignored) { }
-                        return "db.sqlite3 melebihi batas aman ("
-                                + Util.BATAS_UNZIP_RESTORE + " byte)";
-                    }
-                    fos.write(buf, 0, n);
-                }
-            }
-        } catch (Exception e) {
-            try {
-                tmpDb.delete();
-            } catch (Exception ignored) {
-            }
-            String msgSebab = e.getMessage();
-            String sebab = msgSebab != null ? msgSebab : e.toString();
-            return "zip tak terbaca (" + sebab + ")";
-        }
+        // Folder kerja di sebelah tmpDb (pemanggil sudah menyapu pola
+        // vwtg-plain-*): db + WAL + SHM harus satu folder agar SQLite melihat
+        // ketiganya sebagai satu database.
+        File dir = new File(tmpDb.getAbsoluteFile().getParentFile(),
+                tmpDb.getName() + ".isi");
+        hapusPohon(dir);
         try {
-            String rusak = cekIntegritasDb(tmpDb);
+            try (ZipFile zf = new ZipFile(zip)) {
+                if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
+                    return "terlalu banyak entri zip (" + zf.size() + ")";
+                }
+                if (zf.getEntry("db.sqlite3") == null) {
+                    return "tidak berisi db.sqlite3";
+                }
+                if (!dir.isDirectory() && !dir.mkdirs()) {
+                    return "gagal menyiapkan folder verifikasi";
+                }
+                long total = 0;
+                for (String nama : BERKAS_DB) {
+                    java.util.zip.ZipEntry entri = zf.getEntry(nama);
+                    if (entri == null) {
+                        continue;
+                    }
+                    try (java.io.InputStream in = zf.getInputStream(entri);
+                         java.io.FileOutputStream fos =
+                                 new java.io.FileOutputStream(new File(dir, nama))) {
+                        byte[] buf = new byte[64 * 1024];
+                        int n;
+                        while ((n = in.read(buf)) != -1) {
+                            total += n;
+                            if (total > Util.BATAS_UNZIP_RESTORE) {
+                                return "isi DB melebihi batas aman ("
+                                        + Util.BATAS_UNZIP_RESTORE + " byte)";
+                            }
+                            fos.write(buf, 0, n);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                String msgSebab = e.getMessage();
+                String sebab = msgSebab != null ? msgSebab : e.toString();
+                return "zip tak terbaca (" + sebab + ")";
+            }
+            // READWRITE: SQLite boleh memulihkan WAL salinan (read-only butuh
+            // -shm layak tulis sehingga salinan sehat bisa divonis gagal).
+            String rusak = cekIntegritasDbSalinan(new File(dir, "db.sqlite3"));
             if (rusak != null) {
                 return "isi DB korup (" + rusak + ")";
             }
             return null;
         } finally {
-            try {
-                tmpDb.delete();
-            } catch (Exception ignored) {
-            }
+            // Salinan sementara tak boleh tertinggal (berisi data vault),
+            // termasuk saat keluar lebih awal (entri hilang/terlalu besar).
+            hapusPohon(dir);
         }
     }
 
@@ -1783,9 +1962,9 @@ public final class TgBackup {
     /** Zip db + WAL (opsional config & sertifikat) ke <data>/backups/,
      *  lalu bersihkan backup lama (sisakan 10). Kunci privat hanya ikut bila
      *  backup terenkripsi (denganKunci=true); tanpa itu plaintext ke cloud. */
-    private static File createBackupZip(Context ctx, String dataDir, boolean full,
-                                        String configJson, boolean denganKunci,
-                                        File dirZipSementara)
+    private static File createBackupZip(Context ctx, String dataDir, File sumberDb,
+                                        boolean full, String configJson,
+                                        boolean denganKunci, File dirZipSementara)
             throws Exception {
         File dataFolder = new File(dataDir);
         File backupDir = new File(dataFolder, "backups");
@@ -1830,12 +2009,14 @@ public final class TgBackup {
         }
         // Tulis ke tmp + rename agar zip parsial (disk penuh/crash) tak masuk
         // retensi dan mengusir backup bagus via cleanupOldBackups().
-        String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+        // sumberDb = snapshot konsisten (db+WAL+SHM) yang sudah diverifikasi;
+        // tanpa itu (null) berkas dibaca langsung dari folder data.
+        File asalDb = sumberDb != null ? sumberDb : dataFolder;
         try {
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp))) {
                 byte[] buf = new byte[64 * 1024];
-                for (String name : names) {
-                    addFileEntry(zos, buf, new File(dataFolder, name), name);
+                for (String name : BERKAS_DB) {
+                    addFileEntry(zos, buf, new File(asalDb, name), name);
                 }
             if (full) {
                 if (configJson != null) {

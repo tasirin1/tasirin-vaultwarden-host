@@ -1489,6 +1489,74 @@ public class TgBackupTest {
     }
 
     @Test
+    public void cekIntegritasDbSalinanTakMelemparTanpaSqlite() throws Exception {
+        File f = java.nio.file.Files.createTempFile("vwceksalin", ".sqlite3").toFile();
+        try {
+            java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
+                    java.nio.charset.StandardCharsets.UTF_8));
+            String hasil = TgBackup.cekIntegritasDbSalinan(f);
+            assertNotNull(hasil);
+            assertFalse(TgBackup.dbSibuk(hasil));
+            // Berkas non-DB: false (bukan melempar) agar pemanggil bisa mengulang.
+            assertFalse(TgBackup.checkpointWal(f));
+        } finally {
+            f.delete();
+        }
+    }
+
+    @Test
+    public void salinBerkasDbMenyalinDbDanWalTanpaShm() throws Exception {
+        File asal = java.nio.file.Files.createTempDirectory("vwsnapasal").toFile();
+        File tujuan = java.nio.file.Files.createTempDirectory("vwsnaptujuan").toFile();
+        try {
+            java.nio.file.Files.write(new File(asal, "db.sqlite3").toPath(),
+                    "db".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new File(asal, "db.sqlite3-wal").toPath(),
+                    "wal".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            // SHM sengaja tak ada: harus dilewati, bukan menggagalkan salinan.
+            assertTrue(TgBackup.salinBerkasDb(asal, tujuan));
+            assertEquals(2, tujuan.listFiles().length);
+            assertTrue(new File(tujuan, "db.sqlite3").isFile());
+            assertTrue(new File(tujuan, "db.sqlite3-wal").isFile());
+            assertFalse(TgBackup.salinBerkasDb(null, tujuan));
+        } finally {
+            TgBackup.hapusPohon(asal);
+            TgBackup.hapusPohon(tujuan);
+        }
+    }
+
+    @Test
+    public void snapshotDbKonsistenMenolakTanpaDatabase() throws Exception {
+        File kosong = java.nio.file.Files.createTempDirectory("vwsnapkosong").toFile();
+        File tujuan = java.nio.file.Files.createTempDirectory("vwsnapt2").toFile();
+        try {
+            assertEquals("Database belum ada.",
+                    TgBackup.snapshotDbKonsisten(kosong, tujuan));
+        } finally {
+            TgBackup.hapusPohon(kosong);
+            TgBackup.hapusPohon(tujuan);
+        }
+    }
+
+    @Test
+    public void sapuSnapshotBasiHanyaFolderSnapshot() throws Exception {
+        File cache = java.nio.file.Files.createTempDirectory("vwcache").toFile();
+        try {
+            File snap = new File(cache, "vwsnap-123");
+            assertTrue(snap.mkdirs());
+            assertTrue(new File(snap, "db.sqlite3").createNewFile());
+            File lain = new File(cache, "penting.txt");
+            assertTrue(lain.createNewFile());
+            TgBackup.sapuSnapshotBasi(cache);
+            assertFalse(snap.exists());
+            assertTrue(lain.exists());
+            TgBackup.sapuSnapshotBasi(null);
+        } finally {
+            TgBackup.hapusPohon(cache);
+        }
+    }
+
+    @Test
     public void cekIntegritasDbUlangTakMelemparTanpaSqlite() throws Exception {
         File f = java.nio.file.Files.createTempFile("vwcek", ".sqlite3").toFile();
         java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
