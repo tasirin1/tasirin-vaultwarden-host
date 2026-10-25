@@ -934,6 +934,21 @@ def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
 
 
+def jalan_diff(*args):
+    """Jalankan perintah git yang menghasilkan diff: (teks, berhasil).
+
+    `jalan()` mengembalikan None untuk exit≠0/timeout, dan pemanggil dulu
+    menulis `jalan(...) or ""` sehingga kegagalan git tak bisa dibedakan dari
+    diff kosong. Akibatnya sepuluh cek berbasis diff dilewati diam-diam dan
+    skrip tetap mencetak LOLOS. Pemisahan ini membuat kegagalan git menjadi
+    temuan keras.
+    """
+    hasil = jalan(*args)
+    if hasil is None:
+        return "", False
+    return hasil, True
+
+
 def utama():
     parser = argparse.ArgumentParser(description="Verifikasi patch yang baru dikerjakan.")
     parser.add_argument("jalur", nargs="*", help="berkas spesifik (opsional)")
@@ -944,10 +959,14 @@ def utama():
     gagal = []
     peringatan = []
     diff = ""
+    # True bila ada perintah `git diff` yang GAGAL (bukan sekadar kosong):
+    # cek berbasis diff tak punya bahan, jadi hasil tak boleh LOLOS.
+    diff_gagal = False
     rentang_cek = ""
     if args.jalur:
         berubah = [j for j in args.jalur if os.path.exists(os.path.join(AKAR, j))]
-        diff = jalan("git", "diff", "--", *berubah) or ""
+        diff, ok = jalan_diff("git", "diff", "--", *berubah)
+        diff_gagal = diff_gagal or not ok
     elif args.rentang:
         r = rentang_normal(args.rentang)
         if r is None:
@@ -980,15 +999,18 @@ def utama():
             # berbasis diff (metode hilang, hapusan tercatat, uji baru, pola
             # berisiko) dilewati tanpa jejak.
             if r is not None:
-                diff = jalan("git", "diff", r[0] + "..." + r[2]) or ""
+                diff, ok = jalan_diff("git", "diff", r[0] + "..." + r[2])
+                diff_gagal = diff_gagal or not ok
     else:
         hulu = jalan("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
         if hulu:
-            diff = jalan("git", "diff", hulu.strip() + "...HEAD") or ""
+            diff, ok = jalan_diff("git", "diff", hulu.strip() + "...HEAD")
+            diff_gagal = diff_gagal or not ok
             daftar = jalan("git", "diff", "--name-only", hulu.strip() + "...HEAD") or ""
             berubah = daftar.splitlines()
         else:
-            diff = jalan("git", "diff", "HEAD~1...HEAD") or ""
+            diff, ok = jalan_diff("git", "diff", "HEAD~1...HEAD")
+            diff_gagal = diff_gagal or not ok
             berubah = (jalan("git", "diff", "--name-only", "HEAD~1...HEAD") or "").splitlines()
         kotor = jalan("git", "status", "--porcelain") or ""
         for baris in kotor.splitlines():
@@ -997,8 +1019,12 @@ def utama():
                 berubah.append(nama)
         # Diff kerja yang belum commit ikut diperiksa agar hapusan salah
         # tertangkap sebelum commit, bukan sesudah push.
-        diff += (jalan("git", "diff") or "")
-        diff += jalan("git", "diff", "--cached") or ""
+        teks, ok = jalan_diff("git", "diff")
+        diff += teks
+        diff_gagal = diff_gagal or not ok
+        teks, ok = jalan_diff("git", "diff", "--cached")
+        diff += teks
+        diff_gagal = diff_gagal or not ok
     berubah += [b for b in nama_tak_lacak() if b not in berubah]
     if args.semua:
         # Seluruh repo, bukan hanya .java di app/: aturan repo (berkas
@@ -1014,7 +1040,8 @@ def utama():
             r = rentang_cadangan()
             if r is not None:
                 rentang_cek = r[0] + r[1] + r[2]
-                diff = jalan("git", "diff", r[0] + r[1] + r[2]) or ""
+                diff, ok = jalan_diff("git", "diff", r[0] + r[1] + r[2])
+                diff_gagal = diff_gagal or not ok
                 print("info: --semua tanpa diff kerja — cek diff memakai HEAD~1...HEAD.")
             else:
                 print("info: --semua tanpa riwayat commit — cek diff dilewati.")
@@ -1047,6 +1074,13 @@ def utama():
         cek_pola_boros(peringatan, diff)
         cek_izin_baru(peringatan, diff)
         cek_definisi_baru(peringatan, diff)
+    if diff_gagal:
+        # Kegagalan `git diff` dulu menyisakan diff kosong: sepuluh cek
+        # berbasis diff dilewati dan skrip tetap mencetak LOLOS. Gerbang
+        # integritas CI tak boleh hijau tanpa bahan.
+        gagal.append(
+            "git diff gagal (riwayat tak berhubungan, safe.directory, atau "
+            "timeout): cek berbasis diff tak bisa dijalankan — bukan alasan LOLOS.")
 
     for w in peringatan:
         print("PERINGATAN: " + w)

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 276: Kegagalan `git diff` menggagalkan verifikasi, bukan lolos diam-diam
+- `jalan()` mengembalikan `None` untuk exit≠0/timeout, tetapi seluruh pemanggil diff menulis `jalan(...) or ""`. Bila `git diff` gagal (riwayat tak berhubungan setelah force-push/re-init, `safe.directory`, atau timeout 60 dtk di runner lambat), diff menjadi string kosong dan **sepuluh cek berbasis diff** — termasuk `cek_panggil_bekas_hapusan` (aturan #15), `cek_metode_hilang`, `cek_locale_baru`, `cek_pola_berisiko`, `cek_izin_baru`, `cek_definisi_baru` — dilewati, lalu skrip mencetak `Hasil: LOLOS`.
+- Pembantu baru `jalan_diff()` memisahkan "diff kosong" dari "git gagal"; kegagalan dicatat dan membuat hasil akhir GAGAL dengan pesan eksplisit, sehingga gerbang CI tak bisa hijau tanpa bahan. Berlaku untuk jalur `--rentang`, jalur lokal (hulu/HEAD~1 + diff kerja + staged), `--semua`, dan daftar berkas eksplisit.
+
 ## [Belum rilis] — Audit 275: Verifikator tak lagi mengira pemanggilan konstruktor sebagai definisi
 - `nama_metode_hilang()` menilai baris yang dihapus sebagai definisi metode bila baris itu diakhiri `{` (heuristik untuk definisi yang kurawalnya di baris berikut). Panggilan konstruktor yang dipecah ke beberapa baris — mis. `new FileInputStream(new File(...))) {` di dalam try-with-resources — ikut terbaca sebagai definisi `FileInputStream()`, sehingga penghapusan sah (`tulisTagShim`/`bacaTagShim`) digagalkan gerbang dengan pesan "Metode FileInputStream() dihapus tapi masih dipanggil".
 - Baris yang memuat `new Nama(` kini dilewati: itu pemanggilan konstruktor, bukan definisi. Cek metode hilang tetap menangkap definisi sungguhan (yang tak pernah didahului `new`).
