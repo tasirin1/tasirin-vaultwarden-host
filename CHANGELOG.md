@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 252: Hitungan health lama tak lagi ikut ke server baru
+- Saat Start, hanya `healthFails` yang direset; `healthTcpLolos` dan `configSajaBeruntun` (keduanya statis, selamat dari recreate) terbawa dari episode sebelumnya. Bila run lama berakhir dengan 2 lolos-TCP, server baru bisa langsung divonis "gantung" pada kegagalan health pertama (2 sisa + 1 baru = ambang 3) dan dimatikan; sisa `configSajaBeruntun` mempercepat vonis "DB rusak" dengan cara yang sama.
+- Kini ketiga hitungan direset bersama saat Start, karena proses baru selalu memulai episode health dari nol. `restartAttempt` tetap tidak direset (batas 5x crash beruntun sengaja lintas start).
+
 ## [Belum rilis] — Audit 251: Cabang selalu-benar dan path ganda di `ensureBinary`/`ensureShim`
 - `ensureShim()` menulis `e instanceof Exception ? (Exception) e : null` padahal `e` sudah bertipe `Exception` (catch parameter): kondisinya selalu benar dan cabang `null` mustahil, menyamarkan maksud sekaligus menambah satu percabangan yang tak pernah diuji.
 - Jalur "binary manual dilewati" membuat ulang `new File(dataDir, "vaultwarden-" + ABI)` padahal `userBin` dengan path yang sama sudah dihitung di atas; dua sumber path bisa menyimpang bila pola nama berubah. Kini memakai `userBin` yang sama.

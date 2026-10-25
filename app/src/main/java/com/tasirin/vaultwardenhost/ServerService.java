@@ -2191,7 +2191,13 @@ public class ServerService extends Service {
             // pendek berulang jadi loop 2 detik selamanya. Riwayat hanya
             // dilupakan saat user menekan Start (lupakanRiwayatRestart), dan
             // ringkasan dibatasi jendela 5 menit agar tak tampil basi.
+            // Episode baru = hitungan health lama tak berlaku. Dulu hanya
+            // healthFails yang direset: healthTcpLolos/configSajaBeruntun sisa
+            // run sebelumnya membuat server baru langsung divonis "gantung"/
+            // "DB rusak" pada kegagalan pertama (mis. 2 sisa + 1 gagal).
             healthFails.set(0);
+            healthTcpLolos.set(0);
+            configSajaBeruntun.set(0);
             lastStartElapsed = SystemClock.elapsedRealtime();
             // restartAttempt TIDAK di-reset tiap start: itu mematikan batas 5x
             // untuk crash beruntun ber-uptime pendek. Reset hanya terjadi saat
