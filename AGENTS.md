@@ -201,6 +201,15 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     (`rg`/`sed`) sebelum masuk laporan atau patch — klaim sub-agen bukan fakta
     sampai terbukti. Temuan wajib memuat `file:baris` + kenapa berbahaya +
     skenario pemicu + level bahaya (Kritikal/Tinggi/Sedang/Rendah).
+19. **Setiap temuan audit dicatat sebagai issue dulu** — hasil audit (mode
+    baca-saja) TIDAK langsung diperbaiki: tiap temuan yang lolos verifikasi
+    dibuatkan satu issue GitHub (`gh issue create`, satu issue = satu temuan)
+    berisi `file:baris`, kenapa berbahaya, skenario pemicu, level, dan ronde
+    audit. Perintah "perbaiki/lanjut" mengambil antrean dari issue terbuka
+    (level terberat dulu, lalu nomor tertua); commit menyebut `Closes #N` dan
+    issue ditutup setelah perbaikan di-push (temuan yang digugurkan ditutup
+    dengan alasan). Bila Issues dimatikan/`gh` tak ada, catat daftar bernomor
+    di file memori repo. Versi kanonik: `SOUL.md` memori agen.
 
 ## Alur build & rilis (CI terpisah: binary vs APK)
 
