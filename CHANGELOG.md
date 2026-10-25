@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 285: Badan unduhan terpotong & checksum mismatch diulang, bukan dibuang
+- `salinSambilHash()` menghitung digest dari berapa pun byte yang masuk. Proksi/CDN yang menutup koneksi "rapi" di tengah badan membuat digest parsial diterima sebagai hasil penuh, lalu verifikasi SHA-256 (di luar loop) langsung membatalkan unduhan dan menghapus 12 MB yang sudah masuk — pengguna harus menekan ulang manual.
+- Badan kini dibandingkan dengan Content-Length (`badanTerpotong`, murni + uji). Bila berhenti lebih awal, unduhan dianggap "terputus" (boleh dicoba ulang) dan berkas parsial **dipertahankan** karena byte-nya masih berurutan benar, sehingga percobaan berikut melanjutkan via Range alih-alih mengulang dari nol.
+- Verifikasi checksum dipindah **ke dalam** loop unduh (`Updater.ShaTarget`, `shaDariRilis`): digest yang tak cocok kini dihapus + diunduh ulang (maks 2× agar aset yang memang korup tidak menghabiskan kuota 4×), tidak lagi mati permanen. Gagal mengambil `.sha256` tetap tidak menghapus parsial.
+
 ## [Belum rilis] — Audit 284: Unduhan paralel versi sama tak lagi gagal "checksum tidak cocok"
 - Dua unduhan versi **sama** memakai nama `tmp` identik. Pihak pertama me-rename `tmp` → `out` (setelah uji asapnya) sebelum pihak kedua memanggil `pasangHasilUnduh()`; `sha256Hex(tmp)` menjadi null → `expectedHexEquals` false → "Checksum SHA-256 tidak cocok" padahal byte di tujuan sehat, lalu `tmp.delete()` ikut menimpa hasil pihak lain. Di `SettingsActivity.pasangVersiDipilih` pin dikembalikan ke versi lama dan `KEY_BIN_DL_GAGAL_AT` dipasang sehingga AutoUpdate berhenti mencoba 6 jam.
 - `pasangHasilUnduh()` kini menerima `tmp` yang hilang sebagai sukses bila `out` sudah cocok checksum (hasil unduhan paralel), dan memberi galat eksplisit "berkas sementara hilang" bila tujuan juga tak cocok. Verifikasi byte yang benar-benar dipasang tetap wajib.

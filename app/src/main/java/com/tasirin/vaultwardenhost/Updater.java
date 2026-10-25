@@ -646,9 +646,13 @@ public final class Updater {
                 || rendah.contains("rusak")) {
             return true;
         }
+        // "terputus" = badan unduhan berhenti sebelum Content-Length. Sengaja
+        // TIDAK masuk daftar buangParsialRusak: byte yang sudah masuk masih
+        // berurutan benar, jadi percobaan berikut melanjutkan via Range.
         return rendah.contains("timed out") || rendah.contains("timeout")
                 || rendah.contains("failed to connect") || rendah.contains("econn")
                 || rendah.contains("unreachable") || rendah.contains("reset")
+                || rendah.contains("terputus")
                 || rendah.contains("broken pipe") || rendah.contains("http");
     }
 
@@ -831,23 +835,72 @@ public final class Updater {
         }
     }
 
+    /** Sumber checksum SHA-256 untuk URL akhir unduhan (setelah fallback).
+     *  Dipakai agar verifikasi terjadi DI DALAM loop retry: unduhan yang
+     *  isinya tak cocok diulang, bukan langsung dibatalkan permanen. */
+    interface ShaTarget {
+        String ambil(String urlAkhir) throws IOException;
+    }
+
+    /** ShaTarget standar: ambil "<url akhir>.sha256" dari rilis. Bila tak bisa
+     *  diambil, lempar pesan yang TIDAK memicu hapus parsial/retry (galat
+     *  jaringan sementara: file parsial tetap bisa dilanjutkan nanti).
+     *  Hasilnya disimpan ke {@code simpan} agar pemanggil bisa memakainya
+     *  untuk {@link #pasangHasilUnduh}. */
+    static ShaTarget shaDariRilis(final Context ctx, final int connectMs, final int readMs,
+                                  final String pesanNull, final String[] simpan) {
+        return new ShaTarget() {
+            @Override
+            public String ambil(String urlAkhir) throws IOException {
+                String sha = fetchChecksum(ctx, urlAkhir + ".sha256", connectMs, readMs);
+                if (sha == null) {
+                    throw new IOException(pesanNull
+                            + " (jaringan/rate-limit atau asset belum terbit)"
+                            + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
+                }
+                simpan[0] = sha;
+                return sha;
+            }
+        };
+    }
+
     /** Unduh satu file ke tmp dengan resume + retry + hash (dipakai binary,
      *  shim, dan web-vault agar tiga loop ~60 baris tak duplikat).
+     *  Bila {@code sha} diisi, digest langsung dicocokkan dengan checksum rilis
+     *  DI DALAM loop: unduhan terpotong/mismatch diulang (maks 2× untuk
+     *  mismatch, agar asset yang memang korup tak menghabiskan kuota 4×).
      *  Return hex SHA-256; lempar IOException terakhir bila gagal.
      *  Kunci per-file hanya dipegang selama percobaan jaringan; jeda 3 detik
      *  antar percobaan jalan DI LUAR kunci agar tak menahan pemanggil lain. */
     static String unduhKeTmp(Context ctx, String urlAwal, File tmp, String label,
-                              int connectMs, int readMs, UrlCadangan cadangan)
+                              int connectMs, int readMs, UrlCadangan cadangan,
+                              ShaTarget sha)
             throws IOException {
         final String[] url = {urlAwal};
         final boolean[] fallbackUsed = {false};
         Exception gagal = null;
+        int mismatchSha = 0;
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             try {
+                String digest;
                 synchronized (kunciUnduh(tmp)) {
-                    return unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
+                    digest = unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
                             connectMs, readMs, cadangan);
                 }
+                if (sha != null) {
+                    String harap = sha.ambil(url[0]);
+                    if (!expectedHexEquals(harap, digest)) {
+                        // "tidak cocok" membuat buangParsialRusak menghapus
+                        // tmp dan bolehCobaLagiUnduh mengulang dari nol.
+                        mismatchSha++;
+                        throw new IOException(mismatchSha >= 2
+                                ? "Checksum SHA-256 tidak cocok setelah 2 percobaan;"
+                                        + " update dibatalkan (aset rilis mungkin korup)."
+                                : "Checksum SHA-256 tidak cocok;"
+                                        + " unduhan diulang dari nol.");
+                    }
+                }
+                return digest;
             } catch (IOException e) {
                 gagal = e;
                 buangParsialRusak(tmp, e);
@@ -856,7 +909,8 @@ public final class Updater {
                 // digest tak lagi sesuai checksum URL fallback (gagal verifikasi
                 // palsu). URL versi yang 404 tetap 404; unduhan berikut akan
                 // mengambilnya lagi bila rilis sudah jadi.
-                if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH) {
+                if (!bolehCobaLagiUnduh(e) || coba >= MAX_COBA_UNDUH
+                        || mismatchSha >= 2) {
                     break;
                 }
                 if (!tundaCobaLagiUnduh(coba)) {
@@ -984,6 +1038,7 @@ public final class Updater {
         } catch (Exception e) {
             throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
         }
+        long done = lanjutDari;
         if (lanjutDari > 0) {
             // Kunci TOCTOU: file bisa berubah (cleanup/storage) antara baca
             // prefix dan append sehingga hash basi + data campur. Batalkan
@@ -1002,7 +1057,6 @@ public final class Updater {
              FileOutputStream fos = new FileOutputStream(tmp, kodeHttp == 206)) {
             byte[] buf = new byte[64 * 1024];
             int n;
-            long done = lanjutDari;
             long lastReport = done;
             while ((n = in.read(buf)) != -1) {
                 fos.write(buf, 0, n);
@@ -1014,7 +1068,23 @@ public final class Updater {
                 }
             }
         }
+        if (badanTerpotong(done, total)) {
+            // Proksi/CDN menutup koneksi "rapi" di tengah badan: digest yang
+            // dihitung hanya mencakup byte parsial, jadi tak boleh diterima
+            // sebagai hasil penuh. Berkas parsial SENGAJA dipertahankan
+            // (byte-nya masih berurutan benar) agar percobaan berikut
+            // melanjutkan via Range, bukan mengulang dari nol.
+            throw new IOException("Unduhan terputus di " + done + " dari " + total
+                    + " byte - dilanjutkan dari titik terakhir.");
+        }
         return toHex(md.digest());
+    }
+
+    /** True bila badan unduhan berhenti sebelum/melewati panjang yang
+     *  dijanjikan Content-Length (total < 0 = panjang tak diketahui, jadi tak
+     *  bisa dipastikan). Murni agar bisa unit test. */
+    static boolean badanTerpotong(long done, long total) {
+        return total >= 0 && done != total;
     }
 
     // Cache versi terbaru (TTL 15 menit) supaya tidak menabrak rate-limit
@@ -1281,14 +1351,14 @@ public final class Updater {
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         final boolean[] pakaiTerbaru = {fallbackTercatat};
         final String[] urlAkhir = {urlAwalUnduhBinary(fallbackTercatat, assetUrl)};
-        String digestHex;
+        final String[] shaDapat = {null};
         try {
             // Unduh dari URL yang benar-benar dipakai (fallback bila penanda
             // masih berlaku). Dulu selalu mulai dari assetUrl walau urlAkhir
             // sudah fallback, sehingga penanda tak pernah terpakai (404 ->
             // "belum tersedia") dan checksum bisa diambil dari URL berbeda
             // dengan sumber byte yang baru diunduh.
-            digestHex = unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
+            unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) throws IOException {
@@ -1306,7 +1376,9 @@ public final class Updater {
                                             + " (build otomatis ~12 jam). Coba lagi nanti."
                                     : "Release binary Android belum tersedia. Coba lagi nanti.");
                         }
-                    });
+                    },
+                    shaDariRilis(ctx, 20000, 60000,
+                            "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat));
         } catch (IOException e) {
             if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
                 throw e;
@@ -1314,18 +1386,9 @@ public final class Updater {
             throw new IOException(pesanGalatUnduh("Unduh binary", e));
         }
         boolean fallback = pakaiTerbaru[0];
-        String expectedSha = fetchChecksum(ctx, urlAkhir[0] + ".sha256", 20000, 60000);
-        if (expectedSha == null) {
-            // File parsial dipertahankan agar bisa dilanjutkan (gagal ambil checksum
-            // biasanya soal jaringan, bukan file korup).
-            throw new IOException("Checksum SHA-256 tidak bisa diambil dari release"
-                    + " (jaringan/rate-limit atau asset belum terbit)"
-                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
-        }
-        if (!expectedHexEquals(expectedSha, digestHex)) {
-            tmp.delete();
-            throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
-        }
+        // Unduhan baru diterima setelah digest-nya cocok: verifikasi terjadi di
+        // dalam loop unduh, jadi badan terpotong/mismatch diulang, bukan dibatalkan.
+        String expectedSha = shaDapat[0];
         if (tmp.length() < 1_000_000 || !isElf(tmp)) {
             tmp.delete();
             throw new IOException("File update tidak valid.");
@@ -1575,9 +1638,9 @@ public final class Updater {
         File tmp = new File(binDir, namaTmpUnduh(out.getName(), latest));
         sapuTmpUnduhBasi(binDir, out.getName(), tmp);
         final String[] urlShimAkhir = {assetUrl};
-        String digestHex;
+        final String[] shaDapat = {null};
         try {
-            digestHex = unduhKeTmp(ctx, assetUrl, tmp, "shim", 20000, 30000,
+            unduhKeTmp(ctx, assetUrl, tmp, "shim", 20000, 30000,
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) throws IOException {
@@ -1593,23 +1656,17 @@ public final class Updater {
                             throw new IOException("Shim getrandom belum tersedia di rilis v"
                                     + latest + " (build CI ~12 jam). Coba lagi nanti.");
                         }
-                    });
+                    },
+                    shaDariRilis(ctx, 20000, 30000,
+                            "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat));
         } catch (IOException e) {
             if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
                 throw e;
             }
             throw new IOException(pesanGalatUnduh("Unduh shim", e));
         }
-        String expectedSha = fetchChecksum(ctx, urlShimAkhir[0] + ".sha256", 20000, 30000);
-        if (expectedSha == null) {
-            throw new IOException("Checksum SHA-256 tidak bisa diambil dari release"
-                    + " (jaringan/rate-limit atau asset belum terbit)"
-                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
-        }
-        if (!expectedHexEquals(expectedSha, digestHex)) {
-            tmp.delete();
-            throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
-        }
+        // Digest sudah dicocokkan di dalam loop (mismatch = unduh ulang).
+        String expectedSha = shaDapat[0];
         if (tmp.length() < KernelCompat.SHIM_MIN_BYTES || !isElf(tmp)) {
             long ukuran = tmp.length();
             tmp.delete();
@@ -1863,17 +1920,15 @@ public final class Updater {
 
         String zipUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip"
                 : WV_UPDATE_URL;
-        String shaUrl = latest != null ? RELEASE_URL + "v" + latest + "/web-vault.zip.sha256"
-                : RELEASE_LATEST_URL + "web-vault.zip.sha256";
 
         // Unduh dengan retry (koneksi STB/Android 6 sering timeout ke github.com).
         // File parsial dipertahankan agar percobaan berikut melanjutkan via Range.
         // Tanpa probe 404 terpisah: fallback latest ditangani di loop (hemat 1 request).
         final boolean[] wvLewatTerbaru = {false};
         final String[] urlZipAkhir = {zipUrl};
-        String wvDigestHex;
+        final String[] shaDapat = {null};
         try {
-            wvDigestHex = unduhKeTmp(ctx, zipUrl, tmpZip, "web vault", 20000, 120000,
+            unduhKeTmp(ctx, zipUrl, tmpZip, "web vault", 20000, 120000,
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) {
@@ -1886,31 +1941,23 @@ public final class Updater {
                             }
                             return null;
                         }
-                    });
+                    },
+                    shaDariRilis(ctx, 20000, 60000,
+                            "Verifikasi SHA-256 web-vault tidak bisa diambil", shaDapat));
         } catch (IOException e) {
             throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
         }
+        // Checksum diambil dari URL AKHIR (sumber byte yang benar-benar
+        // diunduh), termasuk saat pindah ke rilis terbaru.
         boolean wvFallback = wvLewatTerbaru[0];
-        if (wvFallback) {
-            shaUrl = RELEASE_LATEST_URL + "web-vault.zip.sha256";
-        }
         if (tmpZip.length() < 1000) {
             tmpZip.delete();
             throw new IOException(pesanGalatUnduh("Unduh web-vault",
                     new IOException("file tidak valid")));
         }
-        String expectedSha = fetchChecksum(ctx, shaUrl, 20000, 60000);
-        if (expectedSha == null) {
-            // Zip parsial dipertahankan agar bisa dilanjutkan via Range.
-            throw new IOException("Checksum SHA-256 web-vault tidak bisa diambil"
-                    + " (jaringan/rate-limit atau asset belum terbit)"
-                    + " - update dibatalkan demi keamanan. " + saranKoneksi(null));
-        }
-        if (!expectedHexEquals(expectedSha, wvDigestHex)) {
-            tmpZip.delete();
-            throw new IOException("Checksum SHA-256 web-vault tidak cocok; file dihapus,"
-                    + " aman diulang. " + saranKoneksi(null));
-        }
+        // Digest sudah dicocokkan di dalam loop (mismatch = unduh ulang);
+        // sidik isi tetap disimpan sebagai bukti "sudah versi ini".
+        String expectedSha = shaDapat[0];
 
         // Ekstrak ke folder sementara unik dulu; web-vault lama baru diganti
         // bila hasil ekstrak valid (hindari tanpa web UI saat unduhan korup).
@@ -2052,8 +2099,8 @@ public final class Updater {
         }
         // Sidik isi selalu dicap: jadi bukti "sudah terbaru" walau penanda
         // versi belum bisa diisi (cek versi terbaru gagal saat memasang).
-        if (wvDigestHex != null && !wvDigestHex.isEmpty()) {
-            sp.edit().putString(KEY_WV_SHA, wvDigestHex).apply();
+        if (expectedSha != null && !expectedSha.isEmpty()) {
+            sp.edit().putString(KEY_WV_SHA, expectedSha).apply();
         }
         if (latest != null && !wvFallback) {
             sp.edit().remove(KEY_WV_FALLBACK_FOR).apply();

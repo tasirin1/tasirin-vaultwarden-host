@@ -1019,6 +1019,43 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bolehCobaLagiUnduh_badanTerputusDilanjutkan() {
+        // Badan berhenti sebelum Content-Length: diulang TANPA membuang parsial
+        // (byte yang sudah masuk masih berurutan benar -> lanjut via Range).
+        assertTrue(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Unduhan terputus di 12000 dari 20000 byte"
+                        + " - dilanjutkan dari titik terakhir.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("Verifikasi SHA-256 tidak bisa diambil dari release"
+                        + " (jaringan/rate-limit atau asset belum terbit)")));
+    }
+
+    @Test
+    public void badanTerpotong_hanyaBilaPanjangDiketahui() {
+        assertFalse(Updater.badanTerpotong(20000, 20000));
+        assertTrue(Updater.badanTerpotong(12000, 20000));
+        assertTrue(Updater.badanTerpotong(20001, 20000));
+        assertFalse(Updater.badanTerpotong(12000, -1));
+        assertFalse(Updater.badanTerpotong(0, 0));
+    }
+
+    @Test
+    public void shaDariRilis_tolakHttpPolosTanpaJaringan() {
+        final String[] simpan = {null};
+        Updater.ShaTarget target = Updater.shaDariRilis(null, 100, 100,
+                "Verifikasi SHA-256 tidak bisa diambil dari release", simpan);
+        try {
+            target.ambil("http://127.0.0.1:1/vaultwarden.sha256");
+            org.junit.Assert.fail("checksum via http polos wajib ditolak");
+        } catch (java.io.IOException e) {
+            // Fail-closed sebelum jaringan: tidak ada checksum palsu dari
+            // kanal tanpa TLS, dan tak ada nilai yang tersimpan.
+            assertTrue(e.getMessage().contains("demi keamanan"));
+        }
+        assertNull(simpan[0]);
+    }
+
+    @Test
     public void unduhDilewatiBilaBerkasSudahTerbaru() {
         assertTrue(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.36.0", "1.37.3"));
         assertTrue(Updater.unduhBolehDilewati(false, false, "1.38.0", "1.37.3", "1.37.3"));
