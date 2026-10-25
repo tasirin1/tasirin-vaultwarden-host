@@ -91,10 +91,6 @@ public class SettingsActivity extends Activity {
      *  dialog tak muncul berulang untuk isi field yang sama (mis. user
      *  menggeser kursor lalu berhenti mengetik lagi). */
     private String pinGantiKandidat = null;
-    /** Hash PIN terbaru dari worker yang belum disimpan ke prefs: prefs hanya
-     *  menerima nilai settle agar PIN parsial tak jadi PIN valid bila app mati
-     *  di tengah mengetik. */
-    private volatile String pinHashSiap = null;
     /** True selama aktivasi PIN (centang) berjalan di thread sendiri.
      *  Ketikan/tekan remote ganda di STB selama flag ini tak boleh menggugurkan
      *  aktivasi (dulu nomor urut + antrean single-thread membuang hasilnya di
@@ -663,11 +659,10 @@ public class SettingsActivity extends Activity {
                 if (basi != null && !basi.isDone()) {
                     basi.cancel(false);
                 }
-                // Hash ditahan di memori dulu: prefs hanya menerima nilai yang
-                // sudah settle (800 ms tanpa ketikan) agar app yang mati di
-                // tengah mengetik tak meninggalkan hash PIN parsial.
+                // Prefs hanya menerima nilai yang sudah settle (800 ms tanpa
+                // ketikan, dijaga nomor urut) agar app yang mati di tengah
+                // mengetik tak meninggalkan hash PIN parsial.
                 // PIN mentah tak disimpan di field agar tak mengendap di heap.
-                pinHashSiap = null;
                 if (s.length() < 4) {
                     // PIN pendek bukan PIN valid: cukup jangan tulis hash baru.
                     // JANGAN hapus hash / matikan PIN yang tersimpan — dulu cabang
@@ -780,8 +775,8 @@ public class SettingsActivity extends Activity {
                 return;
             }
             // Selalu hash ulang dari field saat itu di thread sendiri (PBKDF2
-            // berat, tak boleh di UI thread): tanpa memakai cache pinHashSiap agar
-            // centang tak pernah memakai hash basi/parsial (kunci permanen).
+            // berat, tak boleh di UI thread): tanpa cache hash agar centang tak
+            // pernah memakai hash basi/parsial (kunci permanen).
             // Thread sendiri (bukan antrean pinExec) agar tak antre di belakang
             // hash debounce di CPU lemah STB; ketikan/tekan ganda selama proses
             // tak menggugurkan hasil. Checkbox dibiarkan tercentang + tetap
@@ -837,7 +832,6 @@ public class SettingsActivity extends Activity {
                 synchronized (kunciAktifPin) {
                     diterapkan = aktivasiPinMasihBerlaku(epAktif, epAktifPin);
                     if (diterapkan) {
-                        pinHashSiap = hasil;
                         getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                 .edit().putString(PinGate.KEY_PIN_HASH, hasil)
                                 .putBoolean(PinGate.KEY_PIN_ON, true).apply();
@@ -4044,14 +4038,13 @@ public class SettingsActivity extends Activity {
             if (seq != pinSeq) {
                 return;
             }
-            pinHashSiap = h;
             if (h == null) {
                 return;
             }
-            // Nomor urut cukup sebagai penanda settle; hash bersalt tak perlu
-            // pasangan plaintext di field.
-            if (seq == pinSeq && h.equals(pinHashSiap)
-                    && !pinAktifJalan && pinAktif) {
+            // Nomor urut sudah menjamin nilai ini settle (800 ms tanpa ketikan).
+            // Aktivasi centang yang sedang berjalan menulis hash-nya sendiri,
+            // jadi tulis otomatis ini tak boleh menimpanya.
+            if (!pinAktifJalan && pinAktif) {
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                         .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
                 if (beriKabar) {
@@ -4227,7 +4220,6 @@ public class SettingsActivity extends Activity {
             siramTulisTertunda();
         } catch (Exception ignored) {
         }
-        pinHashSiap = null;
         // Ketikan PIN yang masih dalam jeda 800 ms jangan hilang saat Back:
         // jalankan sekarang (submit ke worker) sebelum antrean UI dibuang.
         // Dialog konfirmasi dilarang sejak titik ini: saat rotasi

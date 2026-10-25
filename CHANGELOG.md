@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 264: Syarat tulis hash PIN tak lagi selalu benar
+- `tulisHashPin()` memeriksa `seq == pinSeq && h.equals(pinHashSiap)` **sesudah** `seq` dicek di atasnya dan `pinHashSiap = h` baru saja ditetapkan — kedua klausa tak pernah bisa salah, jadi yang benar-benar menyaring hanya `!pinAktifJalan && pinAktif`. Field `pinHashSiap` sendiri hanya ditulis (4 tempat) dan tak pernah dibaca secara bermakna, sehingga menyiratkan adanya cache "hash settle" yang sebenarnya tidak dipakai.
+- Field itu dihapus beserta seluruh penulisannya; gerbang settle tinggal nomor urut (`pinSeq`) + debounce 800 ms, dan komentar jalur ketik/aktivasi disesuaikan agar tak lagi menyebut cache yang tak ada. Perilaku tulis hash tidak berubah (dulu pun selalu lolos syarat itu).
+
 ## [Belum rilis] — Audit 263: Sapu cache tak lagi memblokir UI saat activity dibuka
 - `onCreate` memanggil `bersihkanExportPlainCache()` dan `onResume` memanggil `sapuExportPlainBasi()` + `sapuSisaImpor()` langsung di UI thread. Ketiganya melakukan `getCacheDir().listFiles()` lalu `lastModified()`/`delete()` per entri; pada STB yang lama dipakai (cache ribuan berkas, storage lambat) ini menahan cold start/`onResume` sampai enumerasi selesai — persis kelas ANR yang dihindari di jalur lain.
 - Keduanya kini dijalankan lewat satu pintu `sapuCacheLatar()` di pool ringan (`Util.jalankanBg`), dengan gerbang `sapuCacheJalan` agar `onCreate`+`onResume` beruntun tak menggandakan pekerjaan; antrean penuh melepas gerbang agar percobaan berikutnya tetap jalan. Sapu tetap best-effort dan `exportPlainTertunda` hanya dikosongkan bila masih menunjuk file yang sama (sapu kini bisa berjalan bersamaan dengan UI yang memasang pending baru).
