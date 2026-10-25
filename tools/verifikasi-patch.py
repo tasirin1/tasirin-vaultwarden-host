@@ -219,7 +219,11 @@ def himpun_definisi():
             tambah("id", nama)
     # Definisi berbasis berkas: semua subdir res kecuali values* (layout-land,
     # drawable, xml, ...). Kualifikasi (-land/-night) digabung ke tipe dasar.
-    for nama_dir in sorted(os.listdir(akar_res)):
+    # os.listdir melempar OSError bila folder res hilang; cek_xml yang
+    # melaporkannya sebagai temuan, di sini cukup lewati agar verifikator
+    # tidak mati dengan traceback sebelum sempat menulis temuan lain.
+    subdir_res = sorted(os.listdir(akar_res)) if os.path.isdir(akar_res) else []
+    for nama_dir in subdir_res:
         if nama_dir.startswith("values"):
             continue
         tipe = nama_dir.split("-")[0]
@@ -265,23 +269,46 @@ def himpun_definisi():
     return definisi, acuan
 
 
-def cek_xml(gagal, basis_desc):
-    buruk = []
+def parse_xml_aman(path):
+    """(jenis, pesan) galat parse, atau None bila XML sehat.
+
+    ET.parse melempar OSError (berkas hilang/tak terbaca/izin) selain
+    ParseError. Dulu hanya ParseError yang ditangkap sehingga satu berkas
+    hilang mematikan verifikator dengan traceback: temuan lain tak pernah
+    ditulis dan exit code-nya bukan 1 yang jelas.
+    """
+    try:
+        ET.parse(os.path.join(AKAR, path))
+        return None
+    except ET.ParseError as e:
+        return ("rusak", "%s (%s)" % (path, e))
+    except OSError as e:
+        return ("tak terbaca", "%s (%s)" % (path, e))
+
+
+def cek_xml(gagal):
+    akar_res = os.path.join(MAIN, "res")
+    # os.walk pada folder hilang diam-diam menghasilkan nol berkas: tanpa cek
+    # ini repo yang kehilangan res/ lolos "XML sehat" padahal tak ada yang
+    # diperiksa sama sekali.
+    if not os.path.isdir(akar_res):
+        gagal.append("Folder resource hilang: app/src/main/res")
+    temuan = {"rusak": [], "tak terbaca": []}
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
-        try:
-            ET.parse(os.path.join(AKAR, path))
-        except ET.ParseError as e:
-            buruk.append("%s (%s)" % (path, e))
-    for path in ("app/src/main/AndroidManifest.xml",):
-        try:
-            ET.parse(os.path.join(AKAR, path))
-        except ET.ParseError as e:
-            buruk.append("%s (%s)" % (path, e))
-    if buruk:
-        gagal.append("XML rusak: " + ", ".join(buruk))
+        galat = parse_xml_aman(path)
+        if galat:
+            temuan[galat[0]].append(galat[1])
+    galat = parse_xml_aman("app/src/main/AndroidManifest.xml")
+    if galat:
+        temuan[galat[0]].append(galat[1])
+    for jenis in ("rusak", "tak terbaca"):
+        if temuan[jenis]:
+            gagal.append("XML %s: %s" % (jenis, ", ".join(temuan[jenis])))
 
 
 def cek_acuan_yatim(gagal):
+    if not os.path.isdir(os.path.join(MAIN, "res")):
+        return  # cek_xml sudah melaporkan folder resource hilang
     definisi, acuan = himpun_definisi()
     for jenis, dipakai in sorted(acuan.items()):
         ada = definisi.get(jenis, set())
@@ -301,7 +328,7 @@ def cek_manifest(gagal):
     """Komponen di manifest wajib ada kelasnya (tangkap hapus berkas Java)."""
     try:
         pohon = ET.parse(os.path.join(AKAR, "app/src/main/AndroidManifest.xml"))
-    except ET.ParseError:
+    except (ET.ParseError, OSError):
         return  # sudah dilaporkan cek_xml
     ns = namespace_aplikasi()
     for el in pohon.getroot().iter():
@@ -984,7 +1011,7 @@ def utama():
             else:
                 print("info: --semua tanpa riwayat commit — cek diff dilewati.")
 
-    cek_xml(gagal, "")
+    cek_xml(gagal)
     cek_acuan_yatim(gagal)
     cek_manifest(gagal)
     cek_duplikat_definisi(gagal)

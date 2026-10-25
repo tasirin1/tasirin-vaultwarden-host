@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 272: Verifikator patch tahan XML hilang/tak terbaca
+- `cek_xml` hanya menangkap `ET.ParseError`, padahal `ET.parse` juga melempar `OSError` (berkas hilang, izin, checkout tak lengkap). Satu manifest hilang membuat `verifikasi-patch.py` berhenti dengan traceback: temuan lain tak pernah dilaporkan dan exit code bukan `1` yang jelas. `himpun_definisi` pun memanggil `os.listdir(res)` tanpa penjagaan sehingga folder `res/` yang hilang mematikan skrip sebelum sempat menulis temuan.
+- Parse XML kini lewat satu helper `parse_xml_aman` yang membedakan "XML rusak" (ParseError) dari "tak terbaca" (OSError), `cek_manifest` ikut menangkap OSError, `himpun_definisi` melewati `listdir` bila folder tak ada, dan `cek_xml` melaporkan folder `res/` yang hilang secara eksplisit (sebelumnya `os.walk` diam-diam memeriksa nol berkas lalu lolos). Parameter mati `basis_desc` pada `cek_xml` dihapus.
+
 ## [Belum rilis] — Audit 271: Web-vault dipakai ulang hanya bila digest-nya cocok
 - Job `publish-binary` memakai ulang `web-vault.zip` yang sudah ada di rilis bila lolos `unzip -t` saja (uji integritas arsip). Akibatnya zip yang dibangun dari digest Docker **berbeda** untuk tag yang sama tetap diterima dan diunggah ulang: isi web-vault bisa tidak sinkron dengan binary yang dirilis, dan `web-vault.zip.sha256` ikut diperbarui sehingga aplikasi mengunduh campuran versi tanpa peringatan.
 - Digest `vault_image_digest` untuk tag tersebut kini dibaca lebih dulu, lalu pemakaian ulang mensyaratkan arsip utuh **dan** penanda `.vaultwarden-web-digest` di dalam zip sama dengan digest itu. Zip lama tanpa penanda otomatis dibangun ulang sekali dari Docker; saat membangun, penanda ditulis ke folder sebelum di-zip. Galat jaringan saat membaca digest menggagalkan langkah secara lantang, bukan diam-diam memakai zip yang mungkin beda versi.
