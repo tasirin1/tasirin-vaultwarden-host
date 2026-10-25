@@ -3054,20 +3054,37 @@ public final class TgBackup {
         TUGAS_DATA_JALAN.set(false);
     }
 
+    /** True khusus saat RESTORE berjalan: hanya restore yang menimpa prefs
+     *  (app-config.json), jadi hanya restore yang boleh menahan tulis setelan
+     *  dari layar Pengaturan. Backup/update tak menyentuh data_dir/port/token. */
+    private static final java.util.concurrent.atomic.AtomicBoolean RESTORE_JALAN =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     /** Coba kunci restore; false bila tugas backup/restore lain sedang berjalan. */
     public static boolean kunciRestore() {
-        return TUGAS_DATA_JALAN.compareAndSet(false, true);
+        boolean dapat = TUGAS_DATA_JALAN.compareAndSet(false, true);
+        if (dapat) {
+            RESTORE_JALAN.set(true);
+        }
+        return dapat;
     }
 
     /** Lepas kunci restore (wajib di finally pemegang). */
     public static void lepasRestore() {
+        RESTORE_JALAN.set(false);
         TUGAS_DATA_JALAN.set(false);
     }
 
-    /** True bila tugas backup/restore (UI maupun bot) sedang berjalan: layar
-     *  Pengaturan tak boleh menulis setelan lama ke prefs saat ditinggalkan. */
+    /** True bila tugas backup/restore (UI maupun bot) sedang berjalan. */
     public static boolean tugasDataJalan() {
         return TUGAS_DATA_JALAN.get();
+    }
+
+    /** True bila RESTORE sedang berjalan (prefs bisa ditimpa app-config.json).
+     *  Dipakai layar Pengaturan untuk menunda tulis setelan; backup/update
+     *  biasa tidak menahannya. */
+    public static boolean restoreJalan() {
+        return RESTORE_JALAN.get();
     }
 
     /** Hasil satu lintasan zip restore: isi app-config.json (null bila tak ada/

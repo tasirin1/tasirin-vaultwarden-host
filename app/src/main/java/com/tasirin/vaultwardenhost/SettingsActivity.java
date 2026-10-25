@@ -928,10 +928,11 @@ public class SettingsActivity extends Activity {
 
     /** Simpan folder/port/admin token yang valid saat layar ditinggalkan.
      *  Nilai tak valid dilewati agar editan setengah jadi tak menimpa setelan
-     *  lama; saat backup/restore berjalan tulis ditunda karena prefs bisa
-     *  sedang ditimpa hasil restore. */
+     *  lama. Hanya RESTORE yang menahan tulis (app-config.json di dalam zip
+     *  bisa menimpa prefs); update/backup berjalan tak menyentuh ketiga kunci
+     *  ini, jadi editan user dulu dibuang percuma selama tugas berjalan. */
     private void simpanPengaturanValid() {
-        if (tugasBerjalan.get() || TgBackup.tugasDataJalan()) {
+        if (TgBackup.restoreJalan()) {
             return;
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);

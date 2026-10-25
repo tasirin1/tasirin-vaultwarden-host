@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 290: Editan folder/port/token tak lagi dibuang saat tugas berjalan
+- `SettingsActivity.onPause` memanggil `simpanPengaturanValid()`, tetapi fungsinya langsung `return` bila `tugasBerjalan` **atau** `TgBackup.tugasDataJalan()`; selama update binary/web-vault (menit) atau backup, perubahan folder/port/admin token dibuang diam-diam dan tak pernah disimpan sesudah tugas selesai.
+- Penahan tulis kini hanya **restore** (`TgBackup.restoreJalan()`, penanda baru khusus `kunciRestore`/`lepasRestore`) karena hanya restore yang menimpa prefs lewat `app-config.json`. Update & backup tak menyentuh ketiga kunci itu, jadi editan user langsung tersimpan saat layar ditinggalkan. Uji `TgBackupTest.restoreJalanHanyaSaatKunciRestore`.
+
 ## [Belum rilis] — Audit 289: PIN rusak tetap menutup aplikasi (fail-closed)
 - Bila `pin_on=true` tetapi `pin_hash` hilang/rusak, `PinGate.perlukanLayarPin()` menulis `pin_on=false` lalu mengembalikan `false`: aplikasi terbuka penuh (Settings, admin token, log, backup) **dan** proteksinya mati permanen, hanya meninggalkan satu baris log. `PinActivity` sendiri sudah fail-closed, jadi dua jalur ini saling bertentangan.
 - Keputusan wajib-layar dipusatkan di `wajibLayarPin()` (murni + uji): `KUNCI_RUSAK` kini ikut wajib layar PIN, prefs tak lagi diubah. Karena hash tak ada, `PinActivity` menolak (RESULT_CANCELED) dan pemanggil finish — akses tetap terkunci sampai PIN disiapkan ulang, dan pesan log menyebut tindakan yang perlu dilakukan.

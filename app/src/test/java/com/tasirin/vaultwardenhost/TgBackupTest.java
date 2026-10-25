@@ -1557,6 +1557,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void restoreJalanHanyaSaatKunciRestore() {
+        assertFalse(TgBackup.restoreJalan());
+        assertTrue(TgBackup.kunciBackup());
+        try {
+            // Backup biasa tak menimpa prefs -> editan setelan tak boleh ditahan.
+            assertFalse(TgBackup.restoreJalan());
+            assertFalse(TgBackup.kunciRestore());
+        } finally {
+            TgBackup.lepasBackup();
+        }
+        assertTrue(TgBackup.kunciRestore());
+        try {
+            assertTrue(TgBackup.restoreJalan());
+            assertTrue(TgBackup.tugasDataJalan());
+        } finally {
+            TgBackup.lepasRestore();
+        }
+        assertFalse(TgBackup.restoreJalan());
+        assertFalse(TgBackup.tugasDataJalan());
+    }
+
+    @Test
     public void cekIntegritasDbUlangTakMelemparTanpaSqlite() throws Exception {
         File f = java.nio.file.Files.createTempFile("vwcek", ".sqlite3").toFile();
         java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
