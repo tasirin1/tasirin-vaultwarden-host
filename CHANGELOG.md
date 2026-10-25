@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 280: PIN yang diketik di grup dihapus dan dihitung gagal
+- Dua gerbang grup (`handleCommand` untuk perintah berbahaya dan `authDangerous` untuk perintah ber-PIN) menolak dengan `return` **sebelum** PIN diurai. Blok penghapusan pesan di poll loop mensyaratkan `terotorisasi`, sehingga PIN asli yang salah ketik di grup **tetap tersimpan di riwayat grup** — bisa dibaca anggota lain dan dipakai di chat pribadi untuk `/stop`, `/restore`, `/careset`. `PinGate.catatHasil` juga tak pernah dipanggil, jadi tebakan PIN dari grup tidak pernah mengaktifkan lockout 5×5 menit (tebakan tanpa batas).
+- Pembantu murni `pinTebakan()`/`pinTebakanArgumen()` (memakai `pisahkanPin` yang sudah menyaring versi/nama file) mengenali tebakan PIN ≥ 4 karakter. Jalur tolak grup kini menghitungnya sebagai percobaan gagal (tanpa verifikasi agar tak jadi oracle benar/salah; hanya saat PIN aktif dan belum terkunci, agar spam tanpa PIN tak bisa mengunci pemilik). Poll loop menghapus pesan grup yang membawa tebakan PIN walau perintahnya ditolak, dan balasan grup menyebut bahwa tebakan dihitung gagal.
+
 ## [Belum rilis] — Audit 279: Publish rilis hanya dari commit `main`
 - `workflow_dispatch` bisa dijalankan pada branch/tag mana pun dan tak ada pemeriksaan `github.ref` sebelum menerbitkan. Kedua workflow memakai nama rilis `v<tag upstream terbaru>` dengan `--clobber` (dan binary menandainya `--latest`), sehingga run dari branch percobaan bisa menimpa aset rilis resmi yang diverifikasi SHA-256 dan diunduh semua pengguna — setara mengedit aset rilis manual (aturan repo #11), tanpa cara bagi pengguna membedakannya.
 - Langkah `Publish APK ke rilis` kini `if: github.ref == 'refs/heads/main'`, dan job `publish-binary` mensyaratkan hal yang sama di samping cek `skip`. Build di branch lain tetap berjalan sebagai artifact untuk pengujian, publish dilewati. Push ke `main` dan cron bulanan (ref = default branch) tidak terpengaruh.

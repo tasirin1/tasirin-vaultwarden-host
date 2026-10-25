@@ -500,6 +500,26 @@ public class TgBotTest {
     }
 
     @Test
+    public void pinTebakan_grupHanyaKenaliTebakanSah() {
+        // Jalur tolak grup: hanya tebakan PIN sungguhan yang dihitung gagal
+        // dan pesannya dihapus — spam tanpa PIN tak boleh mengunci pemilik.
+        assertEquals("123456", TgBot.pinTebakan("/stop 123456"));
+        assertEquals("123456", TgBot.pinTebakan("/status 123456"));
+        assertEquals("ab12", TgBot.pinTebakan("/stop PIN:ab12"));
+        assertEquals("kunci saya", TgBot.pinTebakan("/stop PIN:\"kunci saya\""));
+        assertNull(TgBot.pinTebakan("/stop"));
+        assertNull(TgBot.pinTebakan("/stop 123"));
+        assertNull(TgBot.pinTebakan("/help 123456"));
+        assertNull(TgBot.pinTebakan("/update 1.32.0"));
+        assertNull(TgBot.pinTebakan("/update terbaru"));
+        assertNull(TgBot.pinTebakan(null));
+        assertNull(TgBot.pinTebakan(""));
+        assertNull(TgBot.pinTebakanArgumen(null));
+        assertEquals("123456", TgBot.pinTebakanArgumen("123456"));
+        assertNull(TgBot.pinTebakanArgumen("1.32.0"));
+    }
+
+    @Test
     public void parseUsernameBot_kupasUsernameGetMe() {
         assertEquals("MyBot", TgBot.parseUsernameBot(
                 "{\"ok\":true,\"result\":{\"username\":\"MyBot\"}}"));

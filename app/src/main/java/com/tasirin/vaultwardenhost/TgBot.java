@@ -576,7 +576,13 @@ public final class TgBot {
                                 // brute-force; PIN basi dihapus karena aksinya tak
                                 // pernah dijalankan.
                                 int idPesan = msg.optInt("message_id", 0);
-                                boolean hapusPin = pinBasi
+                                // Grup: pesan yang membawa tebakan PIN dihapus
+                                // walau perintahnya ditolak. Dulu penghapusan
+                                // mensyaratkan terotorisasi, sehingga PIN asli
+                                // yang salah ketik di grup menempel di riwayat
+                                // dan bisa dipakai anggota lain di chat pribadi.
+                                boolean pinGrup = idRuang < 0 && pinTebakan(text) != null;
+                                boolean hapusPin = pinBasi || pinGrup
                                         || (terotorisasi
                                         && (pinPending || pesanPinWajibHapus(text)));
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
@@ -1360,6 +1366,51 @@ public final class TgBot {
         return perintahPerluPin(text);
     }
 
+    /** PIN berbentuk tebakan (min. 4 karakter) di dalam argumen perintah,
+     *  atau null bila argumen itu bukan tebakan PIN (kosong, pendek, versi,
+     *  nama file, kata biasa). Murni: memakai {@link #pisahkanPin} yang sudah
+     *  menyaring bentuk non-PIN agar salah ketik versi tak membakar lockout. */
+    static String pinTebakanArgumen(String arg) {
+        String pin = pisahkanPin(arg == null ? "" : arg)[1];
+        return pin.length() >= 4 ? pin : null;
+    }
+
+    /** PIN yang diketik bersama perintah yang dijaga PIN (mis. "/stop 123456"
+     *  atau "/stop PIN:ab12"), atau null. Dipakai jalur penolakan grup: PIN
+     *  asli yang diketik di grup wajib dihapus dari riwayat dan tebakannya
+     *  dihitung sebagai percobaan gagal. Murni agar bisa unit test. */
+    static String pinTebakan(String text) {
+        if (text == null || !perintahPerluPin(text)) {
+            return null;
+        }
+        return pinTebakanArgumen(ambilArgumen(text));
+    }
+
+    /** Hitung tebakan PIN dari grup sebagai percobaan GAGAL, tanpa
+     *  memverifikasinya: grup selalu ditolak sehingga verifikasi hanya akan
+     *  menjadi oracle benar/salah bagi anggota grup.
+     *
+     *  Dulu kedua gerbang grup `return` sebelum PIN diurai, jadi
+     *  `PinGate.catatHasil` tak pernah dipanggil: PIN bisa ditebak tanpa batas
+     *  lewat grup (hasil tebakan tetap berlaku penuh di chat pribadi).
+     *
+     *  Hanya tebakan yang benar-benar berbentuk PIN (>= 4 karakter) yang
+     *  dihitung — perintah tanpa PIN/argumen pendek sengaja tak dihitung agar
+     *  anggota grup tak bisa mengunci PIN pemilik hanya dengan spam perintah
+     *  (pelajaran yang sama dengan jalur chat pribadi). Saat PIN sudah
+     *  terkunci, hitungan tidak ditambah agar lockout tak diperpanjang
+     *  tanpa batas dari grup. */
+    private static void hitungTebakanPinGrup(Context ctx, String tebakan) {
+        if (tebakan == null || !pinPerangkatAktif(ctx)) {
+            return;
+        }
+        long sekarang = System.currentTimeMillis();
+        if (PinGate.sisaKunciMs(ctx, sekarang) > 0) {
+            return;
+        }
+        PinGate.catatHasil(ctx, false, sekarang);
+    }
+
     /** True bila tombol perintah ini tak bisa langsung jalan karena membawa
      *  data sensitif/aksi saat PIN aktif; tombol lalu meminta PIN lewat
      *  balasan chat (callback_data Telegram tak boleh membawa rahasia). */
@@ -1539,8 +1590,12 @@ public final class TgBot {
         // Multi-akun: gerbang ikut ID chat (bukan config) agar admin pribadi
         // tetap bisa memerintah saat config juga memuat grup.
         if (idRuang < 0 && perintahBerbahaya(text)) {
+            // PIN yang ikut diketik di grup: hitung sebagai tebakan gagal
+            // (lockout) — dulu jalur ini return sebelum PinGate dihubungi.
+            hitungTebakanPinGrup(ctx, pinTebakan(text));
             balas(ctx, idRuang, "Perintah berbahaya dari grup ditolak."
-                    + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
+                    + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi)."
+                    + " Tebakan PIN dari grup dihitung sebagai percobaan gagal.");
             return false;
         }
         // Suffix @namabot grup: hanya milik bot ini yang dijalankan. Suffix
@@ -2018,6 +2073,9 @@ public final class TgBot {
             // backup, dan perintah yang tak dijaga PIN. Deteksi per chat (bukan
             // seluruh config) agar chat pribadi tetap bisa memerintah saat
             // config juga memuat grup.
+            // Tebakan PIN tetap dihitung gagal: dulu jalur ini return sebelum
+            // PinGate dihubungi sehingga tebakan dari grup tak terbatas.
+            hitungTebakanPinGrup(ctx, pinTebakanArgumen(t));
             balas(ctx, idRuang, "Perintah ber-PIN hanya bisa dari chat pribadi"
                     + " bot. PIN yang diketik di grup terbaca anggota lain.");
             return null;
