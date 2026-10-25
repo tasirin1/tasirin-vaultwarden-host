@@ -1801,6 +1801,11 @@ public class ServerService extends Service {
     }
 
     private void startServer() {
+        // Episode milik panggilan ini. Dipakai guard "jangan timpa status
+        // perintah Start yang lebih baru" di blok batal; dulu guard itu memakai
+        // idAwal milik startServerAsync() yang tak ada di sini sehingga build
+        // gagal (cannot find symbol).
+        final int idEpisoda = startIdTerakhir;
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         try {
             TgBackup.healkanStringPrefs(this);
@@ -2083,7 +2088,7 @@ public class ServerService extends Service {
                         + " - tekan Start lagi bila ingin jalan.");
                 // Jangan timpa status perintah Start yang lebih baru (mis.
                 // Start ditekan lagi tepat sesudah Stop ini).
-                if (idAwal == startIdTerakhir) {
+                if (idEpisoda == startIdTerakhir) {
                     setStatus("Stopped");
                 }
                 return;

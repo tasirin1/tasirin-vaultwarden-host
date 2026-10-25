@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 229: Perbaiki 10 galat kompilasi APK (tabrakan `KUNCI_GRACE`, `idAwal` hilang)
+- `PinGate` mendeklarasikan dua anggota bernama `KUNCI_GRACE`: objek kunci `private static final Object KUNCI_GRACE` (untuk `synchronized` cek grace) dan konstanta hasil `static final int KUNCI_GRACE = 1`. javac menolak kelas itu: `variable KUNCI_GRACE is already defined` plus `unexpected type` di ketiga `synchronized (KUNCI_GRACE)`. Objek kunci kini bernama `KUNCI_BERSAMA` (konstanta hasil dan `PinGateTest` tidak berubah) dan dua blok javadoc `PIN_GRACE_MS` yang menumpuk digabung.
+- `ServerService.startServer()` memakai `idAwal` pada guard "jangan timpa status perintah Start yang lebih baru", padahal `idAwal` hanya ada di `startServerAsync()` (`cannot find symbol`). `startServer()` kini menangkap episodenya sendiri di awal (`final int idEpisoda = startIdTerakhir`) dan guard memakai nilai itu, sehingga semantik lama terjaga tanpa parameter baru.
+- Dampak: build APK kembali bisa dikompilasi (10 error → 0). Tidak ada perubahan perilaku; kelas ini hanya berubah nama variabel/field internal.
+
 ## [Belum rilis] — Audit 228: Spasi berlebih di blok skrip `build-binary.yml`
 - Blok `run:` patch TLS diakhiri tiga baris kosong (dua di antaranya berisi spasi) sebelum langkah berikutnya. Diringkas jadi satu baris kosong; tidak ada perubahan perintah. YAML divalidasi ulang (`yaml.safe_load`) dan blok skrip lolos `bash -n`.
 

@@ -23,17 +23,19 @@ public final class PinGate {
     private PinGate() {
     }
 
-    /** Grace buka PIN antar-activity (satu sumber agar Main/Settings tak drift).
-     *  Jangkar elapsed (bukan wall-clock) agar utak-atik tanggal tak memperpanjang. */
-    /** Grace 30 dtk: cukup untuk pindah Main <-> Settings tanpa PIN ulang,
-     *  tapi sempit untuk penyalahgunaan akses fisik. */
+    /** Grace buka PIN antar-activity (satu sumber agar Main/Settings tak drift):
+     *  30 dtk cukup untuk pindah Main <-> Settings tanpa PIN ulang, tapi sempit
+     *  untuk penyalahgunaan akses fisik. Jangkar elapsed (bukan wall-clock) agar
+     *  utak-atik tanggal tak memperpanjang. */
     public static final long PIN_GRACE_MS = 30_000;
     private static volatile boolean bukaBersama = false;
     private static volatile long bukaBersamaAt = 0;
     /** Kunci khusus status grace: terpisah dari monitor kelas agar commit() disk
      *  di catatHasil (synchronized, bisa ratusan ms di storage STB lambat) tak
-     *  memblokir cek grace UI. */
-    private static final Object KUNCI_GRACE = new Object();
+     *  memblokir cek grace UI. Nama sengaja beda dari konstanta hasil
+     *  {@link #KUNCI_GRACE} (int) — dulu keduanya bernama sama sehingga javac
+     *  menolak kelas ini ("variable KUNCI_GRACE is already defined"). */
+    private static final Object KUNCI_BERSAMA = new Object();
     /** Executor tunggal berbatas untuk pencatatan gagal: antrean 32; tugas baru
      *  ditolak saat penuh (pencatatan best-effort, penolakan di-catch pemanggil)
      *  agar spam PIN tak menumpuk OOM di STB 1 GB.
@@ -53,7 +55,7 @@ public final class PinGate {
 
     /** True bila PIN dibuka dalam grace (tanpa peka activity). Murni waktu. */
     public static boolean dalamGraceBersama() {
-        synchronized (KUNCI_GRACE) {
+        synchronized (KUNCI_BERSAMA) {
             long delta = SystemClock.elapsedRealtime() - bukaBersamaAt;
             return bukaBersama && delta >= 0 && delta < PIN_GRACE_MS;
         }
@@ -61,7 +63,7 @@ public final class PinGate {
 
     /** Catat PIN cocok sebagai milik bersama (tanpa panggil balik activity). */
     public static void bukaKunciBersama() {
-        synchronized (KUNCI_GRACE) {
+        synchronized (KUNCI_BERSAMA) {
             bukaBersama = true;
             bukaBersamaAt = SystemClock.elapsedRealtime();
         }
@@ -69,7 +71,7 @@ public final class PinGate {
 
     /** Buang status buka bersama (PIN dimatikan / grace habis). */
     public static void kunciBersama() {
-        synchronized (KUNCI_GRACE) {
+        synchronized (KUNCI_BERSAMA) {
             bukaBersama = false;
             bukaBersamaAt = 0;
         }
