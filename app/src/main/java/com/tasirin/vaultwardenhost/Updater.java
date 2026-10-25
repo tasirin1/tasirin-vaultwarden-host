@@ -398,42 +398,53 @@ public final class Updater {
         String kini = url;
         for (int i = 0; i < 5; i++) {
             HttpURLConnection c = (HttpURLConnection) new URL(kini).openConnection();
-            c.setConnectTimeout(connectMs);
-            c.setReadTimeout(readMs);
-            c.setInstanceFollowRedirects(false);
-            c.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Linux; Android) TasirinVaultwardenHost");
-            if (resumeFrom > 0) {
-                c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
-            }
-            HttpsCompat.apply(c, ctx);
-            int kode = c.getResponseCode();
-            if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
-                String lok = c.getHeaderField("Location");
-                c.disconnect();
-                if (lok == null || lok.isEmpty()
-                        || !Util.bolehIkutiRedirectGithub(kini, lok)) {
-                    throw new IOException("Redirect tidak aman/ditolak: " + lok);
+            // Koneksi yang gagal SEBELUM diserahkan ke pemanggil (apply TLS,
+            // getResponseCode, validasi redirect) wajib ditutup di sini:
+            // dulu exception di jalur itu meninggalkan socket menggantung.
+            try {
+                c.setConnectTimeout(connectMs);
+                c.setReadTimeout(readMs);
+                c.setInstanceFollowRedirects(false);
+                c.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 (Linux; Android) TasirinVaultwardenHost");
+                if (resumeFrom > 0) {
+                    c.setRequestProperty("Range", "bytes=" + resumeFrom + "-");
                 }
-                String berikut = Util.sambungRedirect(kini, lok);
-                // sambungRedirect fail-closed menahan downgrade http:// di URL dasar
-                // (berikut == kini): laporkan sebagai penolakan downgrade yang jelas,
-                // bukan "Terlalu banyak redirect" yang menyesatkan.
-                if (berikut == null || berikut.equals(kini)) {
-                    throw new IOException("Redirect tidak aman/ditolak (downgrade?): " + lok);
+                HttpsCompat.apply(c, ctx);
+                int kode = c.getResponseCode();
+                if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
+                    String lok = c.getHeaderField("Location");
+                    c.disconnect();
+                    if (lok == null || lok.isEmpty()
+                            || !Util.bolehIkutiRedirectGithub(kini, lok)) {
+                        throw new IOException("Redirect tidak aman/ditolak: " + lok);
+                    }
+                    String berikut = Util.sambungRedirect(kini, lok);
+                    // sambungRedirect fail-closed menahan downgrade http:// di URL dasar
+                    // (berikut == kini): laporkan sebagai penolakan downgrade yang jelas,
+                    // bukan "Terlalu banyak redirect" yang menyesatkan.
+                    if (berikut == null || berikut.equals(kini)) {
+                        throw new IOException("Redirect tidak aman/ditolak (downgrade?): " + lok);
+                    }
+                    // Range SENGAJA dibawa lintas host: rilis GitHub selalu 302
+                    // ke release-assets.githubusercontent.com (host berbeda) untuk
+                    // aset yang SAMA. Dulu offset di-nolkan di sini sehingga header
+                    // Range hilang, CDN membalas 200, lalu parsial 20-35 MB
+                    // dihapus dan unduhan diulang dari nol tiap percobaan (di
+                    // koneksi lambat update tak pernah selesai). Keutuhan tetap
+                    // dijaga rangeCocok() (awal Content-Range wajib sama dengan
+                    // offset) dan verifikasi SHA-256 pemanggil.
+                    kini = berikut;
+                    continue;
                 }
-                // Range SENGAJA dibawa lintas host: rilis GitHub selalu 302
-                // ke release-assets.githubusercontent.com (host berbeda) untuk
-                // aset yang SAMA. Dulu offset di-nolkan di sini sehingga header
-                // Range hilang, CDN membalas 200, lalu parsial 20-35 MB
-                // dihapus dan unduhan diulang dari nol tiap percobaan (di
-                // koneksi lambat update tak pernah selesai). Keutuhan tetap
-                // dijaga rangeCocok() (awal Content-Range wajib sama dengan
-                // offset) dan verifikasi SHA-256 pemanggil.
-                kini = berikut;
-                continue;
+                return c;
+            } catch (Exception e) {
+                try {
+                    c.disconnect();
+                } catch (Exception ignored) {
+                }
+                throw e;
             }
-            return c;
         }
         throw new IOException("Terlalu banyak redirect.");
     }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 246: Koneksi unduh yang gagal di tengah jalur tak lagi bocor
+- `Updater.bukaIkutiRedirect()` membuka `HttpURLConnection` per percobaan redirect, tetapi hanya menutupnya pada cabang redirect/return. Exception di `HttpsCompat.apply()`, `getResponseCode()`, atau validasi redirect meninggalkan koneksi (socket) menggantung sampai GC — berulang tiap percobaan unduh yang gagal TLS/timeout.
+- Kini seluruh badan percobaan dibungkus `try/catch` yang memanggil `disconnect()` sebelum melempar ulang; koneksi yang diserahkan ke pemanggil tetap ditutup pemanggil seperti sebelumnya.
+
 ## [Belum rilis] — Audit 245: Pipa SIGPIPE tak lagi menggagalkan workflow acak
 - GitHub Actions menjalankan `bash -eo pipefail`. Setiap pipa yang ujungnya keluar lebih dulu (`grep -q`, `head -n 1`) membuat proses hulu kena SIGPIPE (141); dengan `pipefail` status itu menggagalkan langkah. Di `build-binary.yml`, cek `index.html` bisa melaporkan "web-vault.zip tidak berisi index.html" padahal ada (rilis gagal), ekstraksi digest Docker bisa gagal acak, dan pemeriksaan kelengkapan aset bisa salah menyimpulkan "belum lengkap".
 - Kini `grep -q` diganti `grep ... >/dev/null` (grep tanpa `-q` membaca seluruh aliran sehingga hulu tidak diputus), dan `head -n 1` diganti `sed -nE '1{...;p;}'` yang juga membaca seluruh aliran. `find | head -1` di `build-apk.yml` diganti `find -print -quit` (tanpa pipa). Perilaku hasil sama, tanpa status 141 acak.
