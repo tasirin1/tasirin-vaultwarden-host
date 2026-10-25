@@ -2308,8 +2308,8 @@ public class SettingsActivity extends Activity {
     }
 
     // Restore didelegasikan ke TgBackup agar satu implementasi (dipakai juga
-    // bot /restore): stop server, pre-backup, validasi SQLite + rollback,
-    // terapkan pengaturan, dan jaga identitas bot. Folder yang diketik (belum
+    // bot /restore): stop server, validasi SQLite + swap atomik, terapkan
+    // pengaturan, dan jaga identitas bot. Folder yang diketik (belum
     // di-Start) disimpan dulu ke prefs di UI thread agar dipakai sebagai
     // folder tujuan.
     private void restoreFromZip(File zip) {

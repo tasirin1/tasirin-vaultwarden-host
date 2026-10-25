@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 288: Restore bot tak lagi menuntut ruang 2× untuk salinan mati
+- Jalur restore bot/UI (`TgBackup.restoreFromZipIsi`) membuat `backups/db-backup-*-pre.sqlite3` lalu tak pernah memakainya; cek ruang ikut menghitung salinan itu (DB 200 MB + isi zip 40 MB menuntut ~245 MB) sehingga restore ditolak di perangkat yang sebenarnya cukup. Dokumentasi menjanjikan rollback yang tak ada.
+- Salinan pengaman itu dihapus: staging + `rename` atomik sudah menjaga DB lama sampai backup baru lolos `quick_check`, jadi cek ruang cukup `isi zip + 5 MB`. Bila penerapan `app-config.json` gagal setelah DB terpasang, restore dilaporkan **berhasil dengan peringatan** (bukan "gagal" tanpa pemulihan). Javadoc `restoreFromZip` + komentar `SettingsActivity.restoreFromZip` disamakan dengan perilaku.
+
 ## [Belum rilis] — Audit 287: Username bot diikat ke ID bot pemilik token
 - `KEY_TG_BOT_USER` hanya diisi sekali lewat `isiNamaBotBilaKosong()`, jadi setelah token bot diganti username lama tetap dipakai memvalidasi suffix `@namabot`: perintah ke bot baru (`/status@botbaru`) dibuang diam-diam sementara perintah ke bot lama tetap lolos gerbang grup.
 - Username kini disimpan bersama `KEY_TG_BOT_ID` (angka sebelum `:` pada token, `idBotDariToken` murni + uji). `namaBotTersimpan()` mengembalikan "" bila ID token sekarang berbeda, sehingga getMe berikutnya mengisi ulang dan suffix bot lama langsung tak berlaku — termasuk untuk token yang diimpor dari config.

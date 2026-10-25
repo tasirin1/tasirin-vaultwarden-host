@@ -3132,11 +3132,14 @@ public final class TgBackup {
 
     /** Restore database dari file zip backup (unduhan bot Telegram atau file
      *  yang dipilih di Pengaturan).
-     *  Server dihentikan dulu; DB lama diamankan ke
-     *  {@code backups/db-backup-*-pre.sqlite3} dan dikembalikan bila hasil
-     *  restore bukan SQLite valid. Pengaturan di {@code app-config.json} ikut
-     *  diterapkan, kecuali identitas bot (token/chat/password/offset) yang
-     *  dipertahankan agar bot tetap terhubung. */
+     *  Server dihentikan dulu, lalu DB hasil ekstrak divalidasi + dipasang
+     *  atomik (rename): DB lama baru hilang setelah backup baru lolos
+     *  header + quick_check, jadi tak perlu salinan pengaman ganda (dulu
+     *  dibuat tetapi tak pernah dipakai — kebutuhan ruang jadi ~2×).
+     *  Pengaturan di {@code app-config.json} ikut diterapkan, kecuali identitas
+     *  bot (token/chat/password/offset) yang dipertahankan agar bot tetap
+     *  terhubung. Gagal menerapkan pengaturan TIDAK membatalkan DB yang sudah
+     *  terpasang (dilaporkan sebagai peringatan). */
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
         // Kunci data selama restore: Start yang datang belakangan ditolak
         // startServerAsync (tryLock), dan Start yang sudah berjalan ditunggu
@@ -3183,9 +3186,9 @@ public final class TgBackup {
         File dbFile = new File(dataFolder, "db.sqlite3");
 
         // Cek ruang SEBELUM server dihentikan dan apa pun ditimpa: ekstraksi
-        // menulis db (+WAL) + tls yang bisa jauh lebih besar dari zip, lalu
-        // masih menyimpan salinan pengaman DB lama. Tanpa cek, storage penuh
-        // di tengah ekstraksi memaksa rollback dengan pesan membingungkan.
+        // menulis db (+WAL) + tls yang bisa jauh lebih besar dari zip. Salinan
+        // pengaman DB lama tak lagi dihitung karena memang tak dibuat (staging
+        // + rename atomik sudah menjaga DB lama sampai backup baru valid).
         long isiZip = pindai.ukuran;
         if (isiZip > Util.BATAS_UNZIP_RESTORE) {
             throw new IOException("Isi zip melebihi batas aman restore ("
@@ -3193,13 +3196,6 @@ public final class TgBackup {
         }
         if (isiZip >= 0) {
             long butuh = isiZip + 5L * 1024 * 1024;
-            if (dbFile.isFile()) {
-                butuh += dbFile.length();
-                File walLama = new File(dataFolder, "db.sqlite3-wal");
-                if (walLama.isFile()) {
-                    butuh += walLama.length();
-                }
-            }
             long sisa = freeBytes(ctx, dataDir);
             if (sisa >= 0 && butuh > sisa) {
                 throw new IOException("Storage kurang untuk restore (butuh "
@@ -3227,25 +3223,6 @@ public final class TgBackup {
         // Sisa staging restore lama (kill di tengah) tak boleh ikut terbaca
         // sebagai bagian backup baru.
         hapusStagingRestore(dataFolder);
-
-        File preBackup = null;
-        if (dbFile.exists()) {
-            // Satukan isi WAL ke DB utama dulu; tanpa ini salinan pengaman
-            // tertinggal bila ada transaksi di -wal (rollback kehilangan data).
-            checkpointWal(dbFile);
-            File backupDir = new File(dataFolder, "backups");
-            if (!backupDir.exists()) {
-                backupDir.mkdirs();
-            }
-            synchronized (KUNCI_NAMA_BACKUP) {
-                String ts = backupTimestamp() + "-pre";
-                String nama = namaBackupUnik("db-backup-" + ts + ".sqlite3",
-                        namaFileDi(backupDir));
-                preBackup = new File(backupDir, nama);
-                copyFile(dbFile, preBackup);
-            }
-            cleanupOldBackups(backupDir);
-        }
 
         // Potret TLS dulu: ekstraksi di bawah menimpa tls/* sebelum tahu
         // zip berisi db.sqlite3; tanpa ini restore ditolak meninggalkan
@@ -3375,9 +3352,18 @@ public final class TgBackup {
         // identitas server benar-benar berganti (bukan diam-diam memakai CA lama).
         sinkronTlsKeInternal(ctx, dataFolder);
         boolean lengkap = false;
+        String peringatan = "";
         if (cfg != null) {
-            applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
-            lengkap = true;
+            try {
+                applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
+                lengkap = true;
+            } catch (Exception eSet) {
+                // DB baru sudah terpasang & lolos quick_check: kegagalan
+                // pengaturan tak boleh dilaporkan "restore gagal" (DB lama sudah
+                // tak ada; rollback justru membuang data yang baru dipulihkan).
+                peringatan = " Peringatan: pengaturan dari backup gagal diterapkan ("
+                        + eSet.getMessage() + ").";
+            }
         }
         SharedPreferences fresh = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -3385,7 +3371,7 @@ public final class TgBackup {
         TgBot.schedule(ctx);
         return "Database dipulihkan"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
-                + ". Ukuran DB: " + dbFile.length() + " bytes.";
+                + ". Ukuran DB: " + dbFile.length() + " bytes." + peringatan;
     }
 
     /** Nama staging untuk entri DB restore: DB hidup tak disentuh sampai hasil
