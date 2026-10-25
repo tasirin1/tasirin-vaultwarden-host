@@ -1623,7 +1623,8 @@ public final class TgBot {
                     runBeratDenganKunci(ctx, () -> {
                         try {
                             TgBackup.sendMessage(ctx, "Mengunduh backup terakhir...");
-                            TgBackup.sendMessage(ctx, doRestore(ctx));
+                            TgBackup.sendMessage(ctx, doRestore(ctx)
+                                    + " Tekan /start untuk menjalankan.");
                         } catch (Exception e) {
                             TgBackup.sendMessage(ctx, "Restore gagal: " + e.getMessage());
                         }

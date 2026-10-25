@@ -2861,9 +2861,10 @@ public final class TgBackup {
         return pindaiZipRestore(zip).ukuran;
     }
 
-    // ─── Restore dari zip backup Telegram (dipakai tombol UI & bot /restore) ──
+    // ─── Restore dari zip backup (dipakai tombol UI & bot /restore) ──────────
 
-    /** Restore database dari file zip backup Telegram.
+    /** Restore database dari file zip backup (unduhan bot Telegram atau file
+     *  yang dipilih di Pengaturan).
      *  Server dihentikan dulu; DB lama diamankan ke
      *  {@code backups/db-backup-*-pre.sqlite3} dan dikembalikan bila hasil
      *  restore bukan SQLite valid. Pengaturan di {@code app-config.json} ikut
@@ -3115,10 +3116,9 @@ public final class TgBackup {
                 Context.MODE_PRIVATE);
         TgBackup.schedule(ctx, amanBoolean(fresh, KEY_TG_AUTO, false));
         TgBot.schedule(ctx);
-        return "Database direstore dari Telegram"
+        return "Database dipulihkan"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
-                + ". Ukuran DB: " + dbFile.length() + " bytes."
-                + " Tekan /start untuk menjalankan.";
+                + ". Ukuran DB: " + dbFile.length() + " bytes.";
     }
 
     /** Nama staging untuk entri DB restore: DB hidup tak disentuh sampai hasil

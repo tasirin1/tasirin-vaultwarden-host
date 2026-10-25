@@ -2306,10 +2306,11 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    // Restore Telegram didelegasikan ke TgBackup agar satu implementasi:
-    // stop server, pre-backup, validasi SQLite + rollback, terapkan pengaturan,
-    // dan jaga identitas bot. Folder yang diketik (belum di-Start) disimpan
-    // dulu ke prefs di UI thread agar dipakai sebagai folder tujuan.
+    // Restore didelegasikan ke TgBackup agar satu implementasi (dipakai juga
+    // bot /restore): stop server, pre-backup, validasi SQLite + rollback,
+    // terapkan pengaturan, dan jaga identitas bot. Folder yang diketik (belum
+    // di-Start) disimpan dulu ke prefs di UI thread agar dipakai sebagai
+    // folder tujuan.
     private void restoreFromZip(File zip) {
         if (!TgBackup.kunciRestore()) {
             toast("Another backup/restore task is already running, try again shortly.");

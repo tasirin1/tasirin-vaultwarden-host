@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 267: Pesan restore tak lagi mengaku datang dari Telegram
+- `TgBackup.restoreFromZipIsi()` selalu mengembalikan "Database direstore dari Telegram … Tekan /start untuk menjalankan.", padahal fungsi yang sama dipakai tombol Restore di Pengaturan untuk file zip **lokal** (hasilnya masuk log UI). Pengguna yang memulihkan dari file lokal melihat sumber yang salah, dan petunjuk "/start" (perintah bot) tak berlaku di jalur UI.
+- Pesan kini netral: "Database dipulihkan … Ukuran DB: N bytes."; petunjuk lanjutan jadi tanggung jawab pemanggil — bot `/restore` menambahkan " Tekan /start untuk menjalankan." sendiri, sementara UI sudah memberi toast "Restore done. Press Start to run it.". Komentar/javadoc yang menyebut "zip backup Telegram" diselaraskan karena jalur ini melayani dua sumber.
+
 ## [Belum rilis] — Audit 266: Kerja boot pindah dari main thread ke worker
 - `BootReceiver.onReceive` mengerjakan semuanya di main thread: `healkanStringPrefs()` + `migrateAutoPref()` masing-masing memanggil `getAll()` (parse XML prefs penuh), penulisan heal, `Environment.getExternalStorageDirectory()` + `File.exists()` untuk `db.sqlite3`, lalu penjadwalan alarm/bot. Pada STB lambat dengan prefs besar, siaran boot bisa menahan UI sampai batas ~10 detik receiver terlampaui.
 - Validasi action (murah) tetap di main; sisa kerja kini diserahkan lewat `goAsync()` + `Util.jalankanBg`, dengan `PendingResult.finish()` di `finally` supaya siaran selalu ditutup. Bila antrean worker penuh (langka saat boot), kerja dijalankan inline agar auto-start tak hilang. Keputusan throttle — baca/tulis penanda yang dulu otomatis berurutan karena main thread — dibungkus `KUNCI_BOOT` agar dua siaran beruntun tak sama-sama lolos. Galat tak terduga dicatat kelasnya, tidak lagi mematikan proses saat boot.
