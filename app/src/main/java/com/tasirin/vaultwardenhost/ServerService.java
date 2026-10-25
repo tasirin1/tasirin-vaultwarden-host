@@ -388,6 +388,11 @@ public class ServerService extends Service {
     /** True bila Stop ditekan saat start masih persiapan (unduh binary):
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
+    /** Start ditekan saat Stop masih mematikan proses lama (jendela 5-8 dtk):
+     *  jalankan sekali setelah proses benar-benar mati. Dulu perintah Start
+     *  hilang diam-diam karena guard `alive(process)` menganggap server masih
+     *  hidup, padahal prosesnya sedang dibunuh. */
+    private static volatile boolean mulaiSetelahProsesMati = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
     /** Kunci transisi Start↔Stop pada exec proses: fase "cek batalStart lalu
      *  pb.start() + pasang process/running/wakelock" dan keputusan Stop
@@ -989,6 +994,9 @@ public class ServerService extends Service {
             batalUtama(healthTick);
             batalUtama(restartTunda);
             batalStart = true;
+            // Stop membatalkan Start yang menunggu proses lama mati; tanpa ini
+            // thread stopper akan menyalakan server tepat setelah user Stop.
+            mulaiSetelahProsesMati = false;
             stopServer();
             // stopper di stopServer() butuh hingga ~8 dtk (destroy + destroyForcibly):
             // stopForeground/stopSelf langsung di sini mematikan service sebelum
@@ -1166,8 +1174,13 @@ public class ServerService extends Service {
             batalStart = false;
             healthActive = true;
             startForegroundCompat();
+            mulaiSetelahProsesMati = false;
             if (process == null || !alive(process)) {
                 startServerAsync();
+            } else if (isStopDisengaja(process)) {
+                // Proses lama sedang dimatikan (recreate di tengah Stop):
+                // jangan buang perintah start, jalankan setelah ia mati.
+                mulaiSetelahProsesMati = true;
             }
             batalUtama(healthTick);
             posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
@@ -1188,8 +1201,14 @@ public class ServerService extends Service {
         // jadi riwayatnya tetap utuh dan loop tetap terdeteksi.
         lupakanRiwayatRestart();
         startForegroundCompat();
+        mulaiSetelahProsesMati = false;
         if (process == null || !alive(process)) {
             startServerAsync();
+        } else if (isStopDisengaja(process)) {
+            // Proses lama masih dimatikan thread "vw-stop" (jendela 5-8 dtk):
+            // perintah Start ini jangan dibuang, jalankan begitu ia benar-benar
+            // mati (dulu server tetap mati sampai user menekan Start lagi).
+            mulaiSetelahProsesMati = true;
         }
         batalUtama(healthTick);
         posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
@@ -2198,6 +2217,10 @@ public class ServerService extends Service {
                         setStatus("Stopped");
                     }
                     hapusTandaStop(p);
+                    // Start yang ditekan selagi Stop berjalan dijalankan di sini
+                    // (proses sudah benar-benar mati). Aman bila watcher menang
+                    // balapan: flag sudah direset di sana.
+                    jalankanStartTertundaStop();
                 }
             }, "vw-stop");
             stopper.setDaemon(true);
@@ -2211,6 +2234,27 @@ public class ServerService extends Service {
         // yang lebih dulu melihat proses mati (watcher atau stopper), dengan
         // guard process==p agar Start baru tak ikut dibersihkan.
         TgBackup.sendMessage(this, "Server dihentikan.");
+    }
+
+    /** Jalankan Start yang tertunda karena proses lama masih dimatikan thread
+     *  stopper. Satu pintu: dipanggil thread "vw-stop" dan watcher tepat setelah
+     *  proses benar-benar mati (yang menang balapan duluan menjalankan Start).
+     *  Flag direset lebih dulu agar kegagalan start tak mengulang tanpa henti. */
+    private void jalankanStartTertundaStop() {
+        if (!mulaiSetelahProsesMati) {
+            return;
+        }
+        mulaiSetelahProsesMati = false;
+        if (process != null && alive(process)) {
+            // Proses baru sudah lahir: permintaan Start ini sudah terpenuhi.
+            return;
+        }
+        if (!niatJalanTersimpan()) {
+            // User sudah Stop setelah menekan Start: jangan nyalakan server.
+            return;
+        }
+        appendLog("[app] Start tertunda dijalankan: proses lama sudah mati.");
+        startServerAsync();
     }
 
     /** Tunggu pembaca output menuntaskan baris terakhir (maks 500 ms) setelah
@@ -2251,6 +2295,9 @@ public class ServerService extends Service {
                     setStatus("Stopped");
                 }
                 hapusTandaStop(p);
+                // Start yang tertunda (ditekan saat Stop berjalan) dijalankan
+                // di sini bila watcher yang lebih dulu melihat proses mati.
+                jalankanStartTertundaStop();
                 return;
             }
             if (process == p) {

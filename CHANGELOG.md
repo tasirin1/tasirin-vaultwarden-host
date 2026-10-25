@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 231: Start saat Stop berjalan tidak lagi hilang
+- Menekan Start di jendela saat Stop masih mematikan proses lama (~5-8 dtk) dulu diabaikan total: guard `process == null || !alive(process)` melihat proses yang sedang dibunuh masih "hidup", sehingga `startServerAsync()` tak pernah dipanggil padahal niat jalan, `autoRestart`, `healthActive`, dan foreground sudah disetel. Server tetap mati sampai user menekan Start lagi (status "Port ... dipakai proses lain" menyesatkan).
+- Kini Start di jendela itu menandai `mulaiSetelahProsesMati`; thread stopper `vw-stop`/watcher memanggil satu pintu `jalankanStartTertundaStop()` tepat setelah proses benar-benar mati (flag direset lebih dulu, Start hanya dijalankan bila tak ada proses hidup dan niat jalan masih tersimpan). Perintah Stop membatalkan penantian ini agar server tak menyala setelah user menghentikannya.
+
 ## [Belum rilis] — Audit 230: Trust store tidak lagi mempercayai CA pengguna
 - `HttpsCompat.socketFactory()` menyalin **semua** alias `AndroidCAStore` ke trust store kustomnya, termasuk alias berawalan `user:` (CA yang dipasang pengguna). Sejak `targetSdk 24` platform sengaja tidak mempercayai CA pengguna; menyalinnya kembali membuat CA "Wi-Fi kantor"/MITM dipercaya untuk unduhan binary + `.sha256` (kanal sama, jadi checksum palsu ikut lolos) dan upload backup ke Telegram — pintu eksekusi kode di sandbox app.
 - Kini hanya anchor sistem (`aliasCaSistem()`, murni + diuji) yang disalin; alias `user:` dilewati. Anchor tambahan dari aset `github-chain.pem`/override tetap berlaku.
