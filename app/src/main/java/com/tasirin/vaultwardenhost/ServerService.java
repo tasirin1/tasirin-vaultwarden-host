@@ -372,6 +372,37 @@ public class ServerService extends Service {
         ipBaruHitung = 0;
     }
 
+    /** Lepas proses {@code p} dari state layanan dalam SATU bagian kritis
+     *  KUNCI_PROSET (kunci yang sama dengan fase exec Start).
+     *
+     *  Semua pemanggil dulu menulis {@code if (process == p) process = null;}
+     *  di luar kunci. Start baru yang exec di jeda cek-vs-tulis kehilangan
+     *  referensi prosesnya: UI "Stopped" padahal server baru hidup, wakelock
+     *  yang baru diambil ikut dilepas, dan penanda jalan milik episode baru
+     *  dihapus. {@code efek} (wakelock/log/status) dijalankan DI DALAM kunci
+     *  supaya pembersihan lanjutan juga tak menimpa episode baru.
+     *
+     *  @return false bila {@code p} bukan proses aktif (sudah diganti atau
+     *          dibersihkan pihak lain) — pemanggil tak boleh menyentuh state.
+     */
+    static boolean lepasProses(Process p, Runnable efek) {
+        if (p == null) {
+            return false;
+        }
+        synchronized (KUNCI_PROSET) {
+            if (process != p) {
+                return false;
+            }
+            process = null;
+            running = false;
+            resetPenandaJalan();
+            if (efek != null) {
+                efek.run();
+            }
+            return true;
+        }
+    }
+
     private static volatile Process process;
     /** Thread pembaca stdout server terakhir: ditunggu sebentar setelah proses
      *  mati agar baris panic terakhir sempat masuk buffer log sebelum tail
@@ -1066,17 +1097,23 @@ public class ServerService extends Service {
                     turunkanForegroundBilaTakDiminta(startId);
                     return;
                 }
-                if (process != null) {
-                    final Process p = process;
-                    tandaiStopDisengaja(p);
-                    running = false;
+                // Baca + tandai dalam satu bagian kritis: `p = process` di
+                // luar kunci bisa menandai/mematikan proses yang sudah
+                // diganti Start baru di jeda baca-vs-tulis.
+                final Process p;
+                synchronized (KUNCI_PROSET) {
+                    p = process;
+                    if (p != null) {
+                        tandaiStopDisengaja(p);
+                        running = false;
+                    }
+                }
+                if (p != null) {
                     releaseWakeLock();
                     try {
                         matikanProsesTegas(p, 5000);
                     } finally {
-                        if (process == p) {
-                            process = null;
-                        }
+                        lepasProses(p, null);
                         hapusTandaStop(p);
                     }
                 }
@@ -2196,13 +2233,19 @@ public class ServerService extends Service {
             // lalu auto-restart. Dulu process=null tanpa kill meninggalkan server
             // yatim yang tetap memegang port + DB tanpa reader/watcher, sehingga
             // Start berikutnya melihat "port dipakai proses lain".
-            Process gagal = process;
-            process = null;
-            running = false;
-            // Proses sudah dimatikan di sini dan tak ada watcher yang memantau:
-            // episode kembali "belum melahirkan proses" agar finally menutupnya
-            // (health/niat/notifikasi) seperti jalur gagal start lainnya.
-            idEpisodaProses = -1;
+            Process gagal;
+            synchronized (KUNCI_PROSET) {
+                // Lepas state proses dalam kunci yang sama dengan fase exec:
+                // dulu process=null/running=false ditulis di luar kunci.
+                gagal = process;
+                process = null;
+                running = false;
+                // Proses sudah dimatikan di sini dan tak ada watcher yang
+                // memantau: episode kembali "belum melahirkan proses" agar
+                // finally menutupnya (health/niat/notifikasi) seperti jalur
+                // gagal start lainnya.
+                idEpisodaProses = -1;
+            }
             matikanProsesTegas(gagal, 3000);
             // Bersihkan penanda jalan agar health tak menunjuk
             // port/folder basi walau status sudah "Gagal start".
@@ -2244,14 +2287,13 @@ public class ServerService extends Service {
                 try {
                     matikanProsesTegas(p, 5000);
                 } finally {
-                    if (process == p) {
-                        process = null;
-                        running = false;
-                        resetPenandaJalan();
+                    // Cek-dan-lepas atomik (KUNCI_PROSET): Start yang exec di
+                    // jeda ini dulu kehilangan referensi proses barunya.
+                    lepasProses(p, () -> {
                         releaseWakeLock();
                         flushLogFile();
                         setStatus("Stopped");
-                    }
+                    });
                     hapusTandaStop(p);
                     // Start yang ditekan selagi Stop berjalan dijalankan di sini
                     // (proses sudah benar-benar mati). Aman bila watcher menang
@@ -2316,36 +2358,32 @@ public class ServerService extends Service {
             tungguPembacaOutput();
             if (isStopDisengaja(p) || process != p) {
                 // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
-                if (process == p) {
-                    // Pembersihan penuh di sini, bukan hanya process=null:
-                    // watcher ini dan thread "vw-stop" sama-sama menunggu proses
-                    // mati, dan yang menang balapan duluan harus menyelesaikan
-                    // SEMUA state. Dulu watcher hanya men-null-kan process,
-                    // sehingga guard process==p di finally stopper ikut gagal
-                    // dan running/status "Menghentikan..." menggantung selamanya.
-                    process = null;
-                    running = false;
-                    resetPenandaJalan();
+                // Pembersihan penuh + atomik di sini, bukan hanya process=null:
+                // watcher ini dan thread "vw-stop" sama-sama menunggu proses
+                // mati, dan yang menang balapan duluan harus menyelesaikan
+                // SEMUA state. Dulu watcher hanya men-null-kan process,
+                // sehingga guard process==p di finally stopper ikut gagal
+                // dan running/status "Menghentikan..." menggantung selamanya.
+                // Guard cek-dan-lepas wajib di dalam KUNCI_PROSET agar tak
+                // menghapus referensi proses Start baru.
+                lepasProses(p, () -> {
                     releaseWakeLock();
                     flushLogFile();
                     setStatus("Stopped");
-                }
+                });
                 hapusTandaStop(p);
                 // Start yang tertunda (ditekan saat Stop berjalan) dijalankan
                 // di sini bila watcher yang lebih dulu melihat proses mati.
                 jalankanStartTertundaStop();
                 return;
             }
-            if (process == p) {
-                process = null;
-                running = false;
-                releaseWakeLock();
+            if (lepasProses(p, () -> releaseWakeLock())) {
                 // Penanda jalan (port/folder/token/web-vault/host) wajib
                 // dikosongkan juga saat proses mati sendiri: dulu hanya jalur
                 // stop/gagal-start yang membersihkan, sehingga setelah crash
                 // (dan dua jalur fatal di bawah) status "Stopped" masih
                 // menyimpan port + sidik admin token server yang sudah mati.
-                resetPenandaJalan();
+                // resetPenandaJalan() ikut di dalam lepasProses().
                 appendLog("[app] process exit: " + code);
                 String tail = tailLog(18);
                 if (isKernelRandomPanic(tail)) {
@@ -3080,16 +3118,24 @@ public class ServerService extends Service {
             healthTcpLolos.set(0);
             // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
             // proses bisa mati tepat di jeda cek-vs-eksekusi sehingga p null.
-            running = false;
-            resetPenandaJalan();
+            // Baca proses + tandai stop sengaja + matikan flag dalam satu
+            // bagian kritis KUNCI_PROSET: dulu semuanya di luar kunci sehingga
+            // Start baru yang exec di jeda itu ikut dihapus/ditandai.
+            final Process p;
+            synchronized (KUNCI_PROSET) {
+                p = process;
+                if (p != null) {
+                    tandaiStopDisengaja(p);
+                }
+                running = false;
+                resetPenandaJalan();
+            }
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
             writeCrashLog("health 3x");
             TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - restart otomatis.\n"
                     + shorten(tailLog(15), 500));
-            final Process p = process;
             if (p != null) {
-                tandaiStopDisengaja(p);
                 releaseWakeLock();
                 // Tunggu sinkron di worker health (bukan UI): restartTunda
                 // 2 dtk yang menyala selagi proses lama masih sekarat akan
@@ -3098,9 +3144,10 @@ public class ServerService extends Service {
                 try {
                     matikanProsesTegas(p, 5000);
                 } finally {
-                    if (process == p) {
-                        process = null;
-                    }
+                    // Cek-dan-lepas atomik: dulu `if (process == p) process =
+                    // null` di luar KUNCI_PROSET bisa menghapus referensi
+                    // proses Start baru yang exec di jeda itu.
+                    lepasProses(p, null);
                     hapusTandaStop(p);
                 }
             }

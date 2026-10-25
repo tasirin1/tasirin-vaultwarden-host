@@ -620,6 +620,60 @@ public class ServerServiceTest {
         assertTrue(ServerService.bolehFallbackTls(false, false));
     }
 
+    /** Proses palsu: lepasProses() hanya membandingkan identitas, tak pernah
+     *  memanggil metode Process, jadi cukup implementasi kosong. */
+    private static final class ProsesPalsu extends Process {
+        @Override public java.io.OutputStream getOutputStream() {
+            return null;
+        }
+
+        @Override public java.io.InputStream getInputStream() {
+            return null;
+        }
+
+        @Override public java.io.InputStream getErrorStream() {
+            return null;
+        }
+
+        @Override public int waitFor() {
+            return 0;
+        }
+
+        @Override public int exitValue() {
+            return 0;
+        }
+
+        @Override public void destroy() {
+        }
+    }
+
+    @Test
+    public void lepasProsesTakMenghapusProsesStartBaru() throws Exception {
+        java.lang.reflect.Field f = ServerService.class.getDeclaredField("process");
+        f.setAccessible(true);
+        Object asli = f.get(null);
+        try {
+            Process lama = new ProsesPalsu();
+            Process baru = new ProsesPalsu();
+            boolean[] efek = {false};
+            f.set(null, lama);
+            assertTrue(ServerService.lepasProses(lama, () -> efek[0] = true));
+            assertTrue("efek pembersihan wajib jalan saat proses aktif", efek[0]);
+            assertNull("proses aktif wajib dilepas", f.get(null));
+            // Pembersihan kedua untuk proses yang sama tak boleh jalan lagi.
+            assertFalse(ServerService.lepasProses(lama, () -> efek[0] = false));
+            assertTrue(efek[0]);
+            // Proses sudah diganti Start baru: pembersihan lama TIDAK boleh
+            // melepas/menghapus referensi proses baru (bug check-then-act).
+            f.set(null, baru);
+            assertFalse(ServerService.lepasProses(lama, null));
+            assertEquals(baru, f.get(null));
+            assertFalse(ServerService.lepasProses(null, null));
+        } finally {
+            f.set(null, asli);
+        }
+    }
+
     @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
         // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".

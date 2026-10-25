@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 248: Pembersihan proses tak lagi menghapus proses Start baru
+- Pembersihan state proses (`if (process == p) process = null;` + `running = false` + reset penanda + wake lock/status) dilakukan **di luar** `KUNCI_PROSET`, padahal fase exec Start memakai kunci yang sama. Bila Start baru berhasil `pb.start()` di jeda antara cek dan tulis, pembersihan milik proses lama menghapus referensi proses baru: UI menampilkan "Stopped" padahal server baru hidup, wake lock-nya dilepas, dan health/tautan menunjuk penanda kosong. Jalur terdampak: stopper `stopServer()`, `watchProcess()` (dua cabang), health 3x gagal, dan restart dari Telegram.
+- Kini semua jalur memakai satu pintu `lepasProses(p, efek)`: cek identitas, pelepasan `process`/`running`, reset penanda, dan efek lanjutan (wake lock/log/status) dijalankan dalam satu bagian kritis `KUNCI_PROSET`. Baca-dan-tandai proses pada jalur restart/health juga dipindah ke dalam kunci. Uji JVM (`ProsesPalsu`) membuktikan pembersihan proses lama tak menyentuh referensi proses baru.
+
 ## [Belum rilis] — Audit 247: Proses `--version` dimatikan tegas, bukan hanya destroy
 - `Updater.detectVersion()` membersihkan proses di `finally` hanya dengan `p.destroy()` (SIGTERM) tanpa `destroyForcibly()`, padahal komentarnya menjanjikan "dibunuh di SEMUA jalur". Binary yang mengabaikan SIGTERM (atau macet di linker) tetap hidup dan menahan thread/pipa sampai proses app mati.
 - Kini pembersihan memakai satu pintu `ServerService.matikanProsesTegas(p, 2000)`: `destroy` → tunggu 2 dtk → `destroyForcibly` (pra-Oreo `destroy`) → tunggu 3 dtk, sama seperti jalur stop/restart server.
