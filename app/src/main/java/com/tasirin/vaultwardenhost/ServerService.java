@@ -394,6 +394,11 @@ public class ServerService extends Service {
      *  hidup, padahal prosesnya sedang dibunuh. */
     private static volatile boolean mulaiSetelahProsesMati = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
+    /** Start kedua datang saat episode start pertama masih berjalan (unduh
+     *  binary/restore memegang KUNCI_DATA): jangan dibuang. Episode yang
+     *  berjalan menjalankannya sekali lagi di akhir, karena episode itu tak
+     *  boleh menutup state milik perintah yang lebih baru. */
+    private static volatile boolean startSusulanDiminta = false;
     /** Kunci transisi Start↔Stop pada exec proses: fase "cek batalStart lalu
      *  pb.start() + pasang process/running/wakelock" dan keputusan Stop
      *  ("proses ada?" + tandai stop sengaja) harus satu bagian kritis. Tanpa
@@ -997,6 +1002,8 @@ public class ServerService extends Service {
             // Stop membatalkan Start yang menunggu proses lama mati; tanpa ini
             // thread stopper akan menyalakan server tepat setelah user Stop.
             mulaiSetelahProsesMati = false;
+            // Stop juga membatalkan Start susulan yang menunggu episode lain.
+            startSusulanDiminta = false;
             stopServer();
             // stopper di stopServer() butuh hingga ~8 dtk (destroy + destroyForcibly):
             // stopForeground/stopSelf langsung di sini mematikan service sebelum
@@ -1648,7 +1655,14 @@ public class ServerService extends Service {
     private void startServerAsync() {
         final int idAwal = startIdTerakhir;
         if (!starting.compareAndSet(false, true)) {
-            appendLog("[app] Start masih berjalan (unduh binary?), dilewati.");
+            // Jangan buang perintah Start: episode yang sedang berjalan
+            // (unduh binary/restore) akan menjalankannya sekali lagi di akhir.
+            // Dulu Start kedua hanya dicatat "dilewati", padahal startIdTerakhir
+            // sudah naik sehingga episode pertama tak boleh menutup state
+            // (foreground/health/niat) milik perintah baru itu — hasilnya
+            // notifikasi + health menggantung tanpa proses dan tanpa restart.
+            startSusulanDiminta = true;
+            appendLog("[app] Start masih berjalan (unduh binary?), dijalankan setelahnya.");
             return;
         }
         // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
@@ -1711,6 +1725,20 @@ public class ServerService extends Service {
                     akhiriEpisodeGagal(idAwal);
                 }
                 starting.set(false);
+                // Start yang datang selagi episode ini berjalan: jalankan
+                // sekarang (setelah guard dilepas) agar episodenya tak
+                // menggantung tanpa proses. Dilewati bila episode ini masih
+                // ditunda (restartTunda sudah menjadwalkan ulang) atau server
+                // sudah hidup; flag selalu direset agar tak memicu start liar.
+                if (startSusulanDiminta) {
+                    startSusulanDiminta = false;
+                    if (perluStartSusulan(!tunda, running,
+                            process != null && alive(process),
+                            niatJalanTersimpan())) {
+                        appendLog("[app] Start susulan dijalankan.");
+                        startServerAsync();
+                    }
+                }
             }
         });
         if (!masuk) {
@@ -1734,6 +1762,14 @@ public class ServerService extends Service {
                                      boolean prosesPernahLahir) {
         return intentTerbaru && !ditunda && !prosesPernahLahir
                 && !running && !prosesHidup;
+    }
+
+    /** True bila Start susulan (datang saat episode lain berjalan) wajib
+     *  dijalankan sekarang: episode sebelumnya sudah selesai tanpa menunda,
+     *  server belum hidup, dan user masih menginginkan server jalan. Murni. */
+    static boolean perluStartSusulan(boolean takDitunda, boolean running,
+                                     boolean prosesHidup, boolean niatJalan) {
+        return takDitunda && !running && !prosesHidup && niatJalan;
     }
 
     /** Tutup episode Start yang sudah pasti tak dilanjutkan: matikan watchdog

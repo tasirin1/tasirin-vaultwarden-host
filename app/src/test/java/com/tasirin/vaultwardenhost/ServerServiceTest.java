@@ -592,6 +592,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void perluStartSusulanHanyaSaatEpisodeSelesaiDanBelumHidup() {
+        // Start kedua saat episode pertama masih berjalan tidak boleh hilang:
+        // dijalankan bila episode selesai normal, server belum hidup, dan user
+        // masih menginginkan jalan. Ditunda = restartTunda sudah menjadwalkan.
+        assertTrue(ServerService.perluStartSusulan(true, false, false, true));
+        assertFalse(ServerService.perluStartSusulan(false, false, false, true));
+        assertFalse(ServerService.perluStartSusulan(true, true, false, true));
+        assertFalse(ServerService.perluStartSusulan(true, false, true, true));
+        assertFalse(ServerService.perluStartSusulan(true, false, false, false));
+    }
+
+    @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
         // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".
         assertEquals("Server aktif di port 8080",

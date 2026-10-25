@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 232: Start kedua tidak lagi menggantung tanpa proses
+- Start yang datang saat episode Start pertama masih berjalan (unduh binary / restore memegang `KUNCI_DATA`) dulu hanya dicatat "Start masih berjalan, dilewati". Karena `startIdTerakhir` sudah naik, episode pertama tidak boleh lagi menutup episode (guard `intentTerbaru`), sedangkan episode baru tak punya thread: `healthActive`, niat START_STICKY, dan notifikasi foreground menggantung tanpa proses dan tanpa restart.
+- Kini Start kedua menandai `startSusulanDiminta`; di akhir episode berjalan (setelah `starting` dilepas) Start susulan dijalankan lewat gerbang murni `perluStartSusulan()` — hanya bila episode tidak ditunda, server belum hidup, dan niat jalan masih tersimpan. Stop membatalkan permintaan susulan ini.
+
 ## [Belum rilis] — Audit 231: Start saat Stop berjalan tidak lagi hilang
 - Menekan Start di jendela saat Stop masih mematikan proses lama (~5-8 dtk) dulu diabaikan total: guard `process == null || !alive(process)` melihat proses yang sedang dibunuh masih "hidup", sehingga `startServerAsync()` tak pernah dipanggil padahal niat jalan, `autoRestart`, `healthActive`, dan foreground sudah disetel. Server tetap mati sampai user menekan Start lagi (status "Port ... dipakai proses lain" menyesatkan).
 - Kini Start di jendela itu menandai `mulaiSetelahProsesMati`; thread stopper `vw-stop`/watcher memanggil satu pintu `jalankanStartTertundaStop()` tepat setelah proses benar-benar mati (flag direset lebih dulu, Start hanya dijalankan bila tak ada proses hidup dan niat jalan masih tersimpan). Perintah Stop membatalkan penantian ini agar server tak menyala setelah user menghentikannya.
