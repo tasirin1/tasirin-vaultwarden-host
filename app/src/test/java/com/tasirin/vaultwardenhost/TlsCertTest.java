@@ -162,6 +162,38 @@ public class TlsCertTest {
     }
 
     @Test
+    public void kunciCocokCertBandingkanModulusRsa() throws Exception {
+        java.security.KeyPairGenerator g =
+                java.security.KeyPairGenerator.getInstance("RSA");
+        g.initialize(2048);
+        java.security.KeyPair a = g.generateKeyPair();
+        java.security.KeyPair b = g.generateKeyPair();
+        assertTrue(TlsCert.kunciCocokCert(a.getPublic(), a.getPrivate()));
+        // Kunci dari pasangan lain (mis. key.pem lama setelah restore cert
+        // baru) wajib ditolak agar leaf diregen, bukan dipakai lalu gagal TLS.
+        assertFalse(TlsCert.kunciCocokCert(a.getPublic(), b.getPrivate()));
+        assertFalse(TlsCert.kunciCocokCert(null, a.getPrivate()));
+        assertFalse(TlsCert.kunciCocokCert(a.getPublic(), null));
+    }
+
+    @Test
+    public void pasanganCertKeyDanRantaiGagalTertutup() throws Exception {
+        File dir = Files.createTempDirectory("tlspair").toFile();
+        File cert = new File(dir, "cert.pem");
+        File key = new File(dir, "key.pem");
+        File ca = new File(dir, "ca.pem");
+        // Hilang: wajib false agar ensure() meregen, bukan memakai berkas hantu.
+        assertFalse(TlsCert.pasanganCertKeyCocok(cert, key));
+        assertFalse(TlsCert.ditandatanganiCa(cert, ca));
+        // Isi rusak juga false: pasangan/rantai tak valid tak boleh dipakai.
+        Files.write(cert.toPath(), "bukan-sertifikat".getBytes(StandardCharsets.US_ASCII));
+        Files.write(key.toPath(), "bukan-kunci".getBytes(StandardCharsets.US_ASCII));
+        Files.write(ca.toPath(), "bukan-ca".getBytes(StandardCharsets.US_ASCII));
+        assertFalse(TlsCert.pasanganCertKeyCocok(cert, key));
+        assertFalse(TlsCert.ditandatanganiCa(cert, ca));
+    }
+
+    @Test
     public void caHilangAtauRusakDianggapTakOk() throws Exception {
         File dir = Files.createTempDirectory("tlsca").toFile();
         Files.write(new File(dir, "version.txt").toPath(), "5\n".getBytes(StandardCharsets.US_ASCII));

@@ -279,7 +279,21 @@ public final class TlsCert {
             if (!paksaLeaf && !caBaru && certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
-                return dir;
+                // Cert dan kunci bisa berasal dari dua restore berbeda: backup
+                // tanpa password hanya membawa ca.pem + cert.pem, bukan
+                // key.pem, sehingga leaf lama tertinggal dengan kunci baru.
+                // Rocket lalu gagal TLS dan log menunjuk storage/jam (salah
+                // arah). Wajib pastikan pasangan cocok dan leaf memang
+                // ditandatangani CA yang ada sebelum dipakai ulang.
+                if (pasanganCertKeyCocok(certFile, keyFile)
+                        && ditandatanganiCa(certFile, caCert)) {
+                    return dir;
+                }
+                try {
+                    ServerService.catatLog(
+                            "[tls] cert.pem/key.pem/CA tak berpasangan - leaf dibuat ulang");
+                } catch (Exception ignored) {
+                }
             }
             // Leaf hilang / rusak / kedaluwarsa / dipaksa (IP berubah): buat
             // ulang, CA tetap. Atomik seperti CA: tulis .baru dulu, tukar hanya
@@ -380,6 +394,18 @@ public final class TlsCert {
         if (!caCert.exists() || !caKey.exists()
                 || caCert.length() <= 100 || caKey.length() <= 100
                 || !certVersionOk(dir)) {
+            return false;
+        }
+        // CA bisa datang dari restore backup tanpa kunci privatnya (kunci CA
+        // sengaja tak ikut backup tanpa password) atau pasangan tertukar.
+        // Leaf baru yang ditandatangani kunci lain tak akan lolos verifikasi
+        // klien, jadi pasangan wajib diperiksa sebelum CA dipakai ulang.
+        if (!pasanganCertKeyCocok(caCert, caKey)) {
+            try {
+                ServerService.catatLog(
+                        "[tls] ca.pem dan ca-key.pem tak berpasangan - CA dibuat ulang");
+            } catch (Exception ignored) {
+            }
             return false;
         }
         long sisa = sisaMs(caCert);
@@ -553,6 +579,61 @@ public final class TlsCert {
                     .generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /** Baca sertifikat X.509 dari PEM; null bila gagal. */
+    private static X509Certificate bacaCert(File pem) {
+        try (FileInputStream in = new FileInputStream(pem)) {
+            return (X509Certificate) CertificateFactory
+                    .getInstance("X.509").generateCertificate(in);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** True bila kunci privat memang pasangan kunci publik sertifikat
+     *  (modulus RSA sama). Murni java.security agar bisa diuji JVM: pasangan
+     *  tertukar membuat Rocket gagal handshake TLS tanpa sebab yang jelas. */
+    static boolean kunciCocokCert(PublicKey publik, PrivateKey privat) {
+        if (!(publik instanceof java.security.interfaces.RSAPublicKey)
+                || !(privat instanceof java.security.interfaces.RSAPrivateKey)) {
+            return false;
+        }
+        BigInteger modulusPub =
+                ((java.security.interfaces.RSAPublicKey) publik).getModulus();
+        BigInteger modulusPriv =
+                ((java.security.interfaces.RSAPrivateKey) privat).getModulus();
+        return modulusPub != null && modulusPub.equals(modulusPriv);
+    }
+
+    /** True bila cert+key di disk bisa dipakai bersama: keduanya terbaca dan
+     *  modulusnya cocok. False bila salah satu hilang/rusak/tak berpasangan. */
+    static boolean pasanganCertKeyCocok(File certFile, File keyFile) {
+        try {
+            X509Certificate cert = bacaCert(certFile);
+            PrivateKey key = bacaPrivateKey(keyFile);
+            return cert != null && key != null
+                    && kunciCocokCert(cert.getPublicKey(), key);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** True bila sertifikat leaf ditandatangani CA yang ada di disk (rantai
+     *  utuh). Restore yang hanya membawa ca.pem + cert.pem meninggalkan leaf
+     *  lama yang tak lagi cocok dengan CA pengganti. */
+    static boolean ditandatanganiCa(File leafFile, File caFile) {
+        try {
+            X509Certificate leaf = bacaCert(leafFile);
+            X509Certificate ca = bacaCert(caFile);
+            if (leaf == null || ca == null) {
+                return false;
+            }
+            leaf.verify(ca.getPublicKey());
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

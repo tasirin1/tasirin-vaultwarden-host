@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 239: Cert/key/CA diverifikasi berpasangan sebelum dipakai ulang
+- `ensure()` memakai ulang `cert.pem`/`key.pem` hanya berdasarkan keberadaan, ukuran, dan sisa masa berlaku; `caOk()` juga begitu untuk `ca.pem`/`ca-key.pem`. Padahal backup tanpa password hanya membawa `ca.pem` + `cert.pem` (kunci privat sengaja tak ikut), sehingga restore bisa meninggalkan leaf lama dengan kunci baru atau CA baru dengan kunci lama. Rocket lalu gagal TLS dengan log yang menunjuk storage/jam (salah arah), dan server tak pernah start.
+- Kini sebelum dipakai ulang: `pasanganCertKeyCocok()` memastikan modulus kunci privat sama dengan kunci publik sertifikat (lewat gerbang murni `kunciCocokCert()` + uji JVM), dan `ditandatanganiCa()` memastikan leaf benar-benar ditandatangani `ca.pem`. Bila tak cocok, leaf/CA diregen otomatis dengan log sebab yang tepat.
+
 ## [Belum rilis] — Audit 238: Galat satu chat tak menghentikan chat lain + hormati 429
 - `kirimSinkron()` membungkus kedua loop (chat × potongan) dalam satu `try`: exception saat mengirim ke chat pertama melewati seluruh chat berikutnya, padahal jalur upload sengaja "coba semua chat" — sebagian penerima tak dapat kabar tanpa jejak.
 - Kini tiap potongan dikirim lewat `kirimSatuPesan()` dengan `try/catch` sendiri (galat dicatat, chat berikutnya tetap dicoba), dan balasan **429** diulang sekali setelah jeda `parameters.retry_after` lewat gerbang murni `jedaRetryAfterMs()` (default 1 dtk, dibatasi 1-5 dtk agar antrean pesan STB tak tertahan lama; + uji JVM).
