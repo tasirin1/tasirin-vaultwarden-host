@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 235: Worker aktivasi PIN tak lagi menyalakan PIN yang sudah dibatalkan
+- Worker hash aktivasi PIN selalu menulis `pin_on=true` setelah PBKDF2 selesai, tanpa memeriksa apakah permintaannya masih berlaku. Bila centang dimatikan (konfirmasi "Ya") atau activity ditutup (rotasi/Back) selama hash berjalan, PIN hidup kembali di belakang user: prefs `pin_on=true` sementara centang di layar tampil mati.
+- Kini tiap permintaan aktivasi memakai nomor urut `epAktifPin`; pembatalan (centang mati, `onDestroy`) menaikkannya di dalam kunci `kunciAktifPin`, dan worker hanya menulis hash + `pin_on` bila `aktivasiPinMasihBerlaku()` (murni + uji JVM) masih benar. Worker basi tak menampilkan "PIN is active" dan mengembalikan centang ke mati.
+
 ## [Belum rilis] — Audit 234: Field rahasia tak lagi disimpan framework ke instance state
 - `adminToken`, `pinInput`, `tgToken`, `backupPass`, dan field PIN di layar kunci (`activity_pin.xml`) disimpan otomatis Android ke `Bundle` instance state dan dipulihkan **setelah** `onCreate` membersihkan/mengisi field. Akibatnya rahasia ikut ke state yang bisa ditulis ke disk, dan pemulihan `pinInput` memicu `TextWatcher` → dialog "ganti PIN?" muncul sendiri; menekan OK menulis hash yang tak pernah dikonfirmasi user.
 - Kelima field kini memakai `android:saveEnabled="false"` sehingga rahasia tidak ikut tersimpan/dipulihkan; nilainya selalu dibaca ulang dari prefs (atau dikosongkan untuk PIN).

@@ -227,6 +227,15 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void aktivasiPinBasiTidakBolehMenyalakanPin() {
+        // Worker PBKDF2 hanya menulis pin_on=true bila permintaannya masih
+        // terbaru; centang mati / onDestroy menaikkan epoch sehingga worker
+        // basi tak menghidupkan PIN di belakang user.
+        assertTrue(SettingsActivity.aktivasiPinMasihBerlaku(3, 3));
+        assertFalse(SettingsActivity.aktivasiPinMasihBerlaku(2, 3));
+    }
+
+    @Test
     public void dialogPinDilarangSejakOnDestroy() {
         // Rotasi memanggil onDestroy dengan isFinishing()/isDestroyed() masih
         // false: flag onDestroy-lah yang mencegah dialog menempel ke window mati.

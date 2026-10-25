@@ -100,6 +100,12 @@ public class SettingsActivity extends Activity {
      *  aktivasi (dulu nomor urut + antrean single-thread membuang hasilnya di
      *  CPU lambat sehingga centang "tidak bisa aktif"). */
     private volatile boolean pinAktifJalan = false;
+    /** Kunci + nomor urut permintaan aktivasi PIN. Worker hash hanya boleh
+     *  menulis `pin_on=true` bila permintaannya masih yang terbaru: centang
+     *  yang dimatikan (atau activity yang ditutup) membatalkannya, sehingga
+     *  PIN tak hidup kembali di belakang user. */
+    private final Object kunciAktifPin = new Object();
+    private int epAktifPin = 0;
     /** Start ditahan karena dialog izin storage; dilanjutkan setelah izin diberi. */
     private boolean mulaiUlangSetelahIzin = false;
     private Button restoreTgBtn;
@@ -742,8 +748,13 @@ public class SettingsActivity extends Activity {
                 pinCentangProgram = false;
                 confirm(getString(R.string.pin_off_judul), getString(R.string.pin_off_pesan),
                         () -> {
-                            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                    .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
+                            // Naikkan epoch dulu: worker hash yang masih jalan
+                            // tak boleh menulis pin_on=true sesudah ini.
+                            synchronized (kunciAktifPin) {
+                                epAktifPin++;
+                                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                        .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
+                            }
                             pinCentangProgram = true;
                             b.setChecked(false);
                             pinCentangProgram = false;
@@ -784,6 +795,10 @@ public class SettingsActivity extends Activity {
             // ganti-PIN direset agar edit berikutnya ditanya lagi.
             pinGantiKandidat = null;
             final String pinBaru = fieldPin;
+            final int epAktif;
+            synchronized (kunciAktifPin) {
+                epAktif = ++epAktifPin;
+            }
             pinAktifJalan = true;
             toast("Processing PIN…");
             boolean masuk = Util.jalankanLama(() -> {
@@ -806,13 +821,35 @@ public class SettingsActivity extends Activity {
                     });
                     return;
                 }
-                pinHashSiap = hasil;
                 // Satu apply atomis: hash dan flag on ditulis bersama agar
                 // crash di antaranya tak meninggalkan hash basi tanpa flag.
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(PinGate.KEY_PIN_HASH, hasil)
-                        .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                // Ditulis di dalam kunci + cek epoch: centang yang dimatikan
+                // atau activity yang ditutup selama PBKDF2 berjalan tak boleh
+                // dihidupkan lagi oleh worker yang sudah basi.
+                boolean diterapkan;
+                synchronized (kunciAktifPin) {
+                    diterapkan = aktivasiPinMasihBerlaku(epAktif, epAktifPin);
+                    if (diterapkan) {
+                        pinHashSiap = hasil;
+                        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                .edit().putString(PinGate.KEY_PIN_HASH, hasil)
+                                .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                    }
+                }
                 pinAktifJalan = false;
+                if (!diterapkan) {
+                    // Permintaan sudah dibatalkan: jangan tampilkan "PIN is
+                    // active" dan jangan tinggalkan centang menyala.
+                    ui.post(() -> {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        pinCentangProgram = true;
+                        pinEnabledCheck.setChecked(false);
+                        pinCentangProgram = false;
+                    });
+                    return;
+                }
                 ui.post(() -> {
                     if (isFinishing() || isDestroyed()) {
                         return;
@@ -3886,6 +3923,13 @@ public class SettingsActivity extends Activity {
         return pinAktif && adaHash;
     }
 
+    /** True bila worker hash PIN masih berhak mengaktifkan PIN: nomor urut
+     *  permintaannya masih yang terbaru (belum dibatalkan centang mati /
+     *  onDestroy). Murni agar bisa diuji. */
+    static boolean aktivasiPinMasihBerlaku(int epPermintaan, int epTerbaru) {
+        return epPermintaan == epTerbaru;
+    }
+
     /** True bila dialog konfirmasi PIN boleh ditampilkan: activity belum masuk
      *  onDestroy dan belum selesai. Saat rotasi isFinishing()/isDestroyed()
      *  masih false, jadi flag onDestroy wajib ikut diperiksa. Murni. */
@@ -4111,6 +4155,12 @@ public class SettingsActivity extends Activity {
         // isFinishing()/isDestroyed() masih false, sehingga tanpa flag ini
         // dialog menempel ke window yang sedang dibongkar.
         pinDialogBoleh = false;
+        // Aktivasi PIN yang masih menghitung hash dibatalkan oleh onDestroy:
+        // tanpa ini worker basi bisa menulis pin_on=true setelah activity
+        // (rotasi/Back) hilang, sementara centang di UI baru tampil mati.
+        synchronized (kunciAktifPin) {
+            epAktifPin++;
+        }
         Runnable tundaPin = pinTunda;
         pinTunda = null;
         if (tundaPin != null) {
