@@ -1626,16 +1626,20 @@ public class SettingsActivity extends Activity {
 
     /** Unduh web-vault; opsional restart server agar update langsung berlaku. */
     private void runWebVaultUpdate(boolean restartAfter) {
+        // Context APLIKASI untuk kerja menit-lama (unduh 35 MB): bila Activity
+        // sudah di-destroy (user menekan Back), helper tak boleh ikut menahan
+        // seluruh view/window Activity sampai unduhan selesai.
+        final android.content.Context app = getApplicationContext();
         runBusy(() -> {
             try {
                 appendUiLog("[app] Mengunduh web-vault terbaru...");
-                String msg = Updater.updateWebVault(this);
+                String msg = Updater.updateWebVault(app);
                 toast(msg);
                 appendUiLog("[app] " + msg);
                 lastWvCheck = 0; // paksa baca ulang info versi web-vault
                 if (restartAfter && ServerService.running && TgBot.webVaultBerubah(msg)) {
                     appendUiLog("[app] Restart server agar web vault berlaku...");
-                    ServerService.restart(this);
+                    ServerService.restart(app);
                 }
             } catch (Exception e) {
                 toast("Web-vault update failed: " + e.getMessage());
@@ -2233,7 +2237,9 @@ public class SettingsActivity extends Activity {
             File tmp = new File(getCacheDir(),
                     "vwtg-restore-" + TgBackup.stempelUnik() + ".zip");
             try {
-                String name = TgBackup.downloadLastBackup(SettingsActivity.this, tmp);
+                // Context aplikasi: unduh backup bisa menit-lama di jaringan
+                // lambat; jangan tahan Activity yang mungkin sudah destroy.
+                String name = TgBackup.downloadLastBackup(getApplicationContext(), tmp);
                 final String fname = name;
                 // Arsip terenkripsi tetap utuh sampai user menekan Ya; dekrip
                 // dikerjakan sesudah konfirmasi agar plaintext tak mengendap
@@ -2318,7 +2324,9 @@ public class SettingsActivity extends Activity {
         }
         try {
             appendUiLog("[app] Menghentikan server sebelum restore...");
-            String msg = TgBackup.restoreFromZip(this, zip);
+            // Context aplikasi: restore bisa menit-lama; Activity yang sudah
+            // destroy tak boleh ditahan helper selama itu.
+            String msg = TgBackup.restoreFromZip(getApplicationContext(), zip);
             uiPost(() -> {
                 reloadSettingsFromPrefs();
                 toast("Restore done. Press Start to run it.");
@@ -3188,17 +3196,20 @@ public class SettingsActivity extends Activity {
     private void checkForUpdate() {
         try {
             appendUiLog("[app] Mengecek update dari sumber resmi...");
+            // Context aplikasi untuk unduh binary menit-lama: Activity yang
+            // sudah destroy tak ditahan helper sampai unduhan selesai.
+            final android.content.Context app = getApplicationContext();
             // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
             String imbuhShim = "";
             if (KernelCompat.legacyPerangkat()) {
                 try {
-                    Updater.ensureShimFile(this);
+                    Updater.ensureShimFile(app);
                     imbuhShim = " Shim getrandom siap.";
                 } catch (Exception se) {
                     imbuhShim = " Shim gagal: " + se.getMessage();
                 }
             }
-            String msg = Updater.tryUpdate(this) + imbuhShim;
+            String msg = Updater.tryUpdate(app) + imbuhShim;
             if (Updater.binaryBerubah(msg)) {
                 pendingVersion = null;
             }

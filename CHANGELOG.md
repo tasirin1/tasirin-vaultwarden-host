@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 261: Kerja berat unduh/restore memakai context aplikasi
+- Tiga jalur kerja menit-lama di `SettingsActivity` menyerahkan **Activity** ke helper: `Updater.updateWebVault(this)` (unduh web-vault ~35 MB), `Updater.tryUpdate(this)` (unduh binary ~15 MB), dan `TgBackup.restoreFromZip(this, zip)`/`downloadLastBackup(SettingsActivity.this, …)` (unduh + restore backup). Bila pengguna menekan Back saat proses berjalan, helper tetap memegang Activity beserta seluruh view/window sampai selesai — pola yang sengaja dihindari MainActivity (komentar "pakai app context di worker agar tekan back saat unduh 35 MB tak menahan Activity yang sudah destroy").
+- Kini keempat jalur memakai `getApplicationContext()` (selaras MainActivity); pembaruan UI sesudahnya tetap lewat gerbang `isFinishing()`/`isDestroyed()` yang sudah ada. Aktivitas hanya dipakai untuk menyentuh view, bukan untuk menahan operasi panjang.
+
 ## [Belum rilis] — Audit 260: Satu sumber grace PIN untuk layar log
 - `LogActivity.logBolehTampil()` menerima **dua** parameter grace (Main + Settings), padahal kedua pemanggilnya — `MainActivity.pinBaruSajaDibuka()` dan `SettingsActivity.pinBaruSajaDibuka()` — adalah wrapper identik atas `PinGate.dalamGraceBersama()`. Nilainya selalu sama, sehingga cabang `graceMain || graceSettings` tak pernah bisa berbeda dan menyiratkan adanya dua sesi PIN yang sebenarnya tidak ada.
 - Parameter diciutkan jadi satu `grace`, dan pemanggil memakai `PinGate.dalamGraceBersama()` langsung; dua wrapper identik dihapus (dicatat di `tools/bekas-hapusan.txt`) agar tak ada jalan kedua yang bisa menyimpang dari satu sumber grace. Uji JVM disesuaikan.
