@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 256: Cipher ChaCha20 tak lagi dibuang filter "cipher kuat"
+- `cipherKuat()` hanya menerima suite yang memuat `ECDHE`, `AES_GCM`, atau `AES_256`, padahal komentarnya menyatakan hanya primitif lemah (RC4/3DES/DES/MD5/NULL/anon/EXPORT) yang gugur. Suite **ChaCha20** — `TLS_CHACHA20_POLY1305_SHA256` (TLS 1.3) dan `ECDHE-…-CHACHA20-POLY1305` — adalah primitif kuat tetapi tak memuat tiga penanda itu, sehingga dibuang dari daftar cipher yang dipasang.
+- Kini `CHACHA20` ikut diterima (setelah filter primitif lemah), sesuai maksud komentar; uji JVM menambahkan dua suite ChaCha20 dan memastikan 3DES/RC4 tetap ditolak.
+
 ## [Belum rilis] — Audit 255: Komentar penanda notifikasi versi tak lagi menjanjikan pengiriman
 - Komentar pada penulisan `tg_notified_version` mengklaim penanda ditulis "sesudah kabar dikirim" dan versi akan dikabari lagi bila pengiriman gagal. Kenyataannya `TgBackup.sendMessage()` hanya **memasukkan pesan ke antrean** worker: ia kembali sebelum jaringan disentuh, sehingga kegagalan kirim Telegram tidak memicu percobaan ulang — hanya tercatat di log.
 - Komentar kini menyatakan semantik sebenarnya: penanda mencegah spam kabar tiap cek; notifikasi sistem tetap sinkron (gagal = penanda batal, dicoba lagi), sedangkan pengiriman Telegram asinkron dan tidak dijamin. Perilaku kode tidak berubah.

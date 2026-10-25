@@ -58,10 +58,13 @@ public final class HttpsCompat {
         }
         return keluar;
     }
-    /** True bila suite modern: ECDHE/AES seperti semula, kecuali yang
+    /** True bila suite modern: ECDHE/AES/ChaCha20, kecuali yang
      *  mengandung primitif lemah (RC4/3DES/DES/MD5/NULL/anon/EXPORT) —
      *  mis. ECDHE+3DES lolos filter lama walau komentar mengklaim gugur.
-     *  "DES" aman dipakai (AES tak mengandungnya). Murni. */
+     *  "DES" aman dipakai (AES tak mengandungnya). ChaCha20 wajib diterima:
+     *  suite TLS 1.3 bernama "TLS_CHACHA20_POLY1305_SHA256" tanpa ECDHE/AES,
+     *  sehingga filter lama membuang primitif KUAT (kebalikan komentar).
+     *  Murni. */
     static boolean cipherKuat(String c) {
         if (c == null) {
             return false;
@@ -71,7 +74,8 @@ public final class HttpsCompat {
                 || c.contains("EXPORT") || c.contains("EMPTY")) {
             return false;
         }
-        return c.contains("ECDHE") || c.contains("AES_GCM") || c.contains("AES_256");
+        return c.contains("ECDHE") || c.contains("AES_GCM") || c.contains("AES_256")
+                || c.contains("CHACHA20");
     }
 
     /** Saring cipher lemah (RC4/3DES gugur); kosong = pakai bawaan (murni). */
