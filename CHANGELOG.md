@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 265: Pratinjau log tak lagi memotong baris raksasa di tengah
+- `refreshHomeLog()` memotong delta tepat di `BATAS_DELTA_TICK` bila tak ada `\n` dalam 8192 karakter pertama ("potong paksa"). Penyamaran bekerja per baris, sehingga potongan baris panjang tampil separuh di satu tick dan lanjutannya di tick berikut — di layar keduanya tersambung lagi, jadi token/rahasia yang seharusnya tersamar justru terbaca utuh (hanya terpecah antar-tick). Titik potong paksa juga bisa membelah pasangan surrogate.
+- Batas tampil kini dihitung di dalam kunci `logBuffer` lewat dua pembantu murni: `ujungBarisUtuh()` (potong sesudah `\n` terakhir di jendela tick, `n` bila sisa buffer muat, `-1` bila baris pertama lebih panjang dari jendela) dan `awalBarisSetelah()` (lompat ke baris utuh berikutnya). Baris yang lebih panjang dari jendela dilewati utuh — bukan dipotong — dan tick berikutnya melanjutkan dari baris baru; lompat-ke-ekor (buffer dipangkas/log meledak) juga selalu mulai di awal baris. Blok potong paksa pasca-lock beserta cek surrogate-nya dihapus karena tak lagi terpakai. Uji JVM `pratinjauLogTakMemotongBaris` menutup kasus baris 9000 karakter.
+
 ## [Belum rilis] — Audit 264: Syarat tulis hash PIN tak lagi selalu benar
 - `tulisHashPin()` memeriksa `seq == pinSeq && h.equals(pinHashSiap)` **sesudah** `seq` dicek di atasnya dan `pinHashSiap = h` baru saja ditetapkan — kedua klausa tak pernah bisa salah, jadi yang benar-benar menyaring hanya `!pinAktifJalan && pinAktif`. Field `pinHashSiap` sendiri hanya ditulis (4 tempat) dan tak pernah dibaca secara bermakna, sehingga menyiratkan adanya cache "hash settle" yang sebenarnya tidak dipakai.
 - Field itu dihapus beserta seluruh penulisannya; gerbang settle tinggal nomor urut (`pinSeq`) + debounce 800 ms, dan komentar jalur ketik/aktivasi disesuaikan agar tak lagi menyebut cache yang tak ada. Perilaku tulis hash tidak berubah (dulu pun selalu lolos syarat itu).

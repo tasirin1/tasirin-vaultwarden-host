@@ -748,7 +748,6 @@ public class MainActivity extends Activity {
         // Hanya tempel selisih baris baru (delta): salin+setText seluruh buffer
         // (<=300 KB) tiap tick (1-2 dtk) bikin UI patah-patah saat log deras.
         String delta = "";
-        int mentah = 0;
         synchronized (ServerService.logBuffer) {
             int n = ServerService.logBuffer.length();
             // Cek trim di dalam lock: snapshot di luar lock bisa basi bila
@@ -760,61 +759,40 @@ public class MainActivity extends Activity {
             // Mulai dari batas baris utuh agar rahasia tak tampil separuh
             // (penyamaran bekerja per baris).
             if (n < lastLogLen || n - lastLogLen > BATAS_LOMPATAN) {
-                int mulai = Math.max(0, n - BATAS_DELTA_TICK);
-                // Pindai manual (tanpa alokasi substring/indexOf per API):
-                // mulai dari batas baris utuh terdekat ke arah ekor.
-                int nl = -1;
-                for (int i = mulai; i < n; i++) {
-                    if (ServerService.logBuffer.charAt(i) == '\n') {
-                        nl = i;
-                        break;
-                    }
-                }
-                if (nl >= 0 && nl < n - 1) {
-                    mulai = nl + 1;
-                }
-                lastLogLen = mulai;
+                lastLogLen = awalBarisSetelah(ServerService.logBuffer,
+                        Math.max(0, n - BATAS_DELTA_TICK), n);
                 homeLogView.setText("");
                 hintShown = false;
+            } else if (lastLogLen > 0 && lastLogLen <= n
+                    && ServerService.logBuffer.charAt(lastLogLen - 1) != '\n') {
+                // Offset bisa jatuh di tengah baris: baris raksasa yang dilewati
+                // tick sebelumnya, atau kepala buffer hasil pangkas yang berhenti
+                // di tengah baris. Tampilkan mulai baris utuh berikutnya agar
+                // tak ada potongan baris (rahasia bisa lolos setengah).
+                lastLogLen = awalBarisSetelah(ServerService.logBuffer, lastLogLen, n);
             }
             if (n > lastLogLen) {
-                // Salin paling banyak satu jendela tick + 2 char: pemotongan di
-                // batas baris hanya butuh karakter sekitar BATAS_DELTA_TICK,
-                // sehingga saat log meledak (buffer 300 KB) UI thread tak
-                // pernah menyalin seluruh ekor hanya untuk membuang 99%-nya.
-                int akhir = Math.min(n, lastLogLen + BATAS_DELTA_TICK + 2);
-                delta = ServerService.logBuffer.substring(lastLogLen, akhir);
-                mentah = delta.length();
-            }
-        }
-        // Batas kerja per tick di UI thread: 13 pass regex di atas delta
-        // puluhan KB tiap tick bikin patah di STB lama. Potong di batas
-        // baris utuh; sisa mengalir di tick berikut (urutan + baris utuh
-        // terjaga sehingga rahasia tak lolos tersamar setengah).
-        if (mentah > BATAS_DELTA_TICK) {
-            int potong = delta.lastIndexOf('\n', BATAS_DELTA_TICK);
-            if (potong <= 0) {
-                potong = BATAS_DELTA_TICK;
-                // Jangan belah pasangan surrogate di titik potong paksa.
-                if (potong < delta.length()
-                        && Character.isHighSurrogate(delta.charAt(potong - 1))
-                        && Character.isLowSurrogate(delta.charAt(potong))) {
-                    potong--;
+                // Batas kerja per tick di UI thread: 13 pass regex di atas delta
+                // puluhan KB tiap tick bikin patah di STB lama. Ambil baris utuh
+                // paling banyak satu jendela tick; sisa mengalir di tick berikut.
+                // Baris yang lebih panjang dari jendela dilewati utuh (bukan
+                // dipotong di tengah) agar rahasianya tak tampil separuh.
+                int akhir = ujungBarisUtuh(ServerService.logBuffer, lastLogLen,
+                        lastLogLen + BATAS_DELTA_TICK, n);
+                if (akhir > lastLogLen) {
+                    delta = ServerService.logBuffer.substring(lastLogLen, akhir);
+                    lastLogLen = akhir;
+                } else if (akhir < 0) {
+                    // Belum ada newline sampai ujung buffer: lewati baris itu
+                    // (tick ini kosong), tick berikut lanjut dari baris baru.
+                    lastLogLen = n;
                 }
-            } else {
-                potong = potong + 1;
             }
-            delta = delta.substring(0, potong);
-            mentah = potong;
         }
         // Samarkan seperti jalur LogActivity/bagi/Telegram: token bot dan
         // rahasia di teks exception tak boleh tampil mentah di layar.
-        // Offset tetap maju pakai panjang mentah (samaran mengubah panjang).
-        if (!delta.isEmpty()) {
-            lastLogLen += mentah;
-            if (LogActivity.butuhSamaran(delta)) {
-                delta = LogActivity.samarkanLog(delta);
-            }
+        if (!delta.isEmpty() && LogActivity.butuhSamaran(delta)) {
+            delta = LogActivity.samarkanLog(delta);
         }
         if (delta.isEmpty()) {
             if (!hintShown && homeLogView.length() == 0) {
@@ -900,6 +878,38 @@ public class MainActivity extends Activity {
             pos++;
         }
         return teks.subSequence(pos, teks.length());
+    }
+
+    /** Indeks sesudah '\n' pertama pada [dari, n), atau n bila tak ada.
+     *  Pratinjau log selalu mulai dari batas baris utuh. */
+    static int awalBarisSetelah(CharSequence buf, int dari, int n) {
+        if (buf == null || n <= 0) {
+            return 0;
+        }
+        for (int i = Math.max(0, dari); i < n; i++) {
+            if (buf.charAt(i) == '\n') {
+                return i + 1;
+            }
+        }
+        return n;
+    }
+
+    /** Ujung potong satu tick: sesudah '\n' terakhir pada [mulai, batas], atau
+     *  n bila sisa buffer muat seluruhnya, atau -1 bila baris pertama lebih
+     *  panjang dari jendela (tak ada baris utuh yang boleh ditampilkan). */
+    static int ujungBarisUtuh(CharSequence buf, int mulai, int batas, int n) {
+        if (buf == null || n <= mulai) {
+            return mulai;
+        }
+        if (batas >= n) {
+            return n;
+        }
+        for (int i = Math.min(batas, n - 1); i > mulai; i--) {
+            if (buf.charAt(i) == '\n') {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     /** Warna log di-cache: getColor tiap tick boros lookup resource di STB. */
