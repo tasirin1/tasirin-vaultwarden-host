@@ -3200,23 +3200,29 @@ public class SettingsActivity extends Activity {
             // sudah destroy tak ditahan helper sampai unduhan selesai.
             final android.content.Context app = getApplicationContext();
             // Shim dulu agar uji --version di dalam tryUpdate lolos di kernel lama.
-            String imbuhShim = "";
+            // Dua varian: log diagnostik tetap Indonesia, toast UI berbahasa
+            // Inggris (aturan bahasa repo) — dulu satu string Indonesia ikut
+            // tercetak di toast berbahasa Inggris.
+            String imbuhShimLog = "";
+            String imbuhShimUi = "";
             if (KernelCompat.legacyPerangkat()) {
                 try {
                     Updater.ensureShimFile(app);
-                    imbuhShim = " Shim getrandom siap.";
+                    imbuhShimLog = " Shim getrandom siap.";
+                    imbuhShimUi = " Shim getrandom ready.";
                 } catch (Exception se) {
-                    imbuhShim = " Shim gagal: " + se.getMessage();
+                    imbuhShimLog = " Shim gagal: " + se.getMessage();
+                    imbuhShimUi = " Shim failed: " + se.getMessage();
                 }
             }
-            String msg = Updater.tryUpdate(app) + imbuhShim;
+            String msg = Updater.tryUpdate(app);
             if (Updater.binaryBerubah(msg)) {
                 pendingVersion = null;
             }
-            appendUiLog("[app] " + msg);
+            appendUiLog("[app] " + msg + imbuhShimLog);
             toast(Updater.binaryBerubah(msg)
-                    ? msg + " Tekan Start untuk memakai."
-                    : msg);
+                    ? msg + imbuhShimUi + " Press Start to use it."
+                    : msg + imbuhShimUi);
         } catch (Exception e) {
             toast("Update check failed: " + e.getMessage());
             appendUiLog("[app] Update check failed: " + e);
@@ -3376,7 +3382,7 @@ public class SettingsActivity extends Activity {
                     }
                     appendUiLog("[app] " + msg);
                     toast(Updater.binaryBerubah(msg)
-                            ? msg + " Tekan Start untuk memakai." : msg);
+                            ? msg + " Press Start to use it." : msg);
                 } catch (Exception e) {
                     if (target != null) {
                         if (untukBinary) {

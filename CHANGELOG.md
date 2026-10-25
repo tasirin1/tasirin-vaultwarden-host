@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 262: Teks Indonesia tak lagi menyelip di toast berbahasa Inggris
+- Tiga potongan teks Indonesia dicetak ke toast UI yang selebihnya berbahasa Inggris: `" Shim getrandom siap."`, `" Shim gagal: …"` (jalur cek update) dan `" Tekan Start untuk memakai."` (cek update + pasang versi pilihan). Pengguna locale Inggris melihat kalimat campuran, dan teks itu tak bisa diterjemahkan.
+- Kini toast memakai Inggris (`" Shim getrandom ready."`, `" Shim failed: …"`, `" Press Start to use it."`), sedangkan log diagnostik tetap Indonesia lewat string terpisah (`imbuhShimLog`), sesuai aturan bahasa repo (UI Inggris, log/bot Indonesia).
+
 ## [Belum rilis] — Audit 261: Kerja berat unduh/restore memakai context aplikasi
 - Tiga jalur kerja menit-lama di `SettingsActivity` menyerahkan **Activity** ke helper: `Updater.updateWebVault(this)` (unduh web-vault ~35 MB), `Updater.tryUpdate(this)` (unduh binary ~15 MB), dan `TgBackup.restoreFromZip(this, zip)`/`downloadLastBackup(SettingsActivity.this, …)` (unduh + restore backup). Bila pengguna menekan Back saat proses berjalan, helper tetap memegang Activity beserta seluruh view/window sampai selesai — pola yang sengaja dihindari MainActivity (komentar "pakai app context di worker agar tekan back saat unduh 35 MB tak menahan Activity yang sudah destroy").
 - Kini keempat jalur memakai `getApplicationContext()` (selaras MainActivity); pembaruan UI sesudahnya tetap lewat gerbang `isFinishing()`/`isDestroyed()` yang sudah ada. Aktivitas hanya dipakai untuk menyentuh view, bukan untuk menahan operasi panjang.
