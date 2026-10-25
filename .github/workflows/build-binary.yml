@@ -78,7 +78,38 @@ jobs:
           # dibuat workflow APK lebih dulu (hanya berisi APK), dan dulu
           # keberadaan tag saja sudah membuat cron bulanan skip selamanya —
           # binary/web-vault untuk versi itu tak pernah terbit.
-          DAFTAR=$(gh release view "v$TAG" --json assets -q '.assets[].name' 2>/dev/null || true)
+          # Daftar aset dibaca dengan coba-ulang: `gh` bisa gagal sesaat
+          # (502/rate-limit/timeout). Dulu `|| true` membuat DAFTAR kosong
+          # sehingga cron menyimpulkan "aset belum lengkap" lalu membangun
+          # ulang binary ~15 mnt padahal asetnya ada. Kini galat sesaat
+          # dibedakan dari rilis yang memang belum ada (404 = perlu build).
+          DAFTAR=""
+          TERBACA=no
+          for coba in 1 2 3 4; do
+            if KELUAR=$(gh release view "v$TAG" --json assets -q '.assets[].name' 2>&1); then
+              DAFTAR="$KELUAR"
+              TERBACA=yes
+              break
+            fi
+            case "$KELUAR" in
+              *"not found"*|*"Not Found"*|*"HTTP 404"*)
+                # Rilis belum ada: memang belum lengkap, build perlu jalan.
+                DAFTAR=""
+                TERBACA=yes
+                break
+                ;;
+            esac
+            if [ "$coba" -lt 4 ]; then
+              echo "::warning::Gagal membaca daftar aset rilis v$TAG (coba $coba/4); ulangi 5 dtk."
+              sleep 5
+            fi
+          done
+          if [ "$TERBACA" != yes ]; then
+            # Tanpa daftar aset, "belum lengkap" bukan kesimpulan yang sah:
+            # gagalkan resolve agar cron tak membangun ulang tanpa alasan.
+            echo "::error::Daftar aset rilis v$TAG tak terbaca (bukan bukti aset hilang)."
+            exit 1
+          fi
           LENGKAP=yes
           for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
               libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
