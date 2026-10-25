@@ -352,7 +352,11 @@ jobs:
   publish-binary:
     name: Publish binary & web-vault
     needs: [resolve, build-binary]
-    if: needs.resolve.outputs.skip != 'yes'
+    # Publish hanya dari commit main: dulu `workflow_dispatch` pada branch/tag
+    # mana pun bisa menimpa 6 aset rilis resmi (--clobber) lalu menandainya
+    # `--latest`, sehingga pengguna mengunduh build yang belum di-merge tanpa
+    # bisa membedakannya. Build di branch lain tetap jalan, publish dilewati.
+    if: needs.resolve.outputs.skip != 'yes' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     # Satu-satunya job yang menulis rilis (buat rilis + unggah 6 aset).
     permissions:

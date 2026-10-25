@@ -172,6 +172,12 @@ jobs:
           fi
 
       - name: Publish APK ke rilis
+        # Hanya commit di main yang boleh menulis rilis resmi. Dulu
+        # `workflow_dispatch` bisa dijalankan pada branch/tag mana pun lalu
+        # `--clobber` menimpa APK rilis v<tag upstream> dengan hasil build
+        # branch itu (setara mengedit aset rilis manual, aturan repo #11).
+        # Build di branch lain tetap berjalan (artifact), publish dilewati.
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
