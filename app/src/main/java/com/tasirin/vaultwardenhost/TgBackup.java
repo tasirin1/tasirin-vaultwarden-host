@@ -1171,39 +1171,101 @@ public final class TgBackup {
                     // POST (bukan GET): token tidak bocor ke log URL/proxy.
                     String param = bangunParamPesan(chatEnk, enkBagian.get(bi), mk);
                     byte[] body = param.getBytes(StandardCharsets.UTF_8);
-                    HttpURLConnection conn = null;
+                    // Galat satu chat/potongan tak boleh menghentikan chat lain:
+                    // dulu satu exception melewati sisa tujuan, padahal jalur
+                    // upload sengaja "coba semua chat".
                     try {
-                        conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
-                                "application/x-www-form-urlencoded", 15000, 30000);
-                        try (OutputStream os = conn.getOutputStream()) {
-                            os.write(body);
-                        }
-                        tolakRedirectTelegram(conn);
-                        int code = conn.getResponseCode();
-                        InputStream mentah = (code >= 200 && code < 300)
-                                ? conn.getInputStream() : conn.getErrorStream();
-                        StringBuilder sb = new StringBuilder();
-                        if (mentah != null) {
-                            try (InputStream is = mentah) {
-                                sb.append(bacaResponsBatas(is));
-                            }
-                        }
-                        // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
-                        // contains mentah menolak respons sah ber-spasi.
-                        if (code != 200 || !TgBot.responsOk(sb.toString())) {
-                            logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
-                                    code, sb.toString());
-                        }
-                    } finally {
-                        if (conn != null) {
-                            conn.disconnect();
-                        }
+                        kirimSatuPesan(app, token, body, bi, bagian.size());
+                    } catch (Exception e) {
+                        logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
+                                -1, String.valueOf(e.getMessage()));
                     }
                 }
             }
         } catch (Exception e) {
             logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
         }
+    }
+
+    /** Kirim satu potongan pesan ke satu chat. Balasan 429 diulang sekali
+     *  setelah jeda `retry_after` (dibatasi 5 dtk agar antrean pesan tak
+     *  tertahan lama); galat lain dicatat lalu dilempar ke pemanggil agar
+     *  chat berikutnya tetap dicoba. */
+    private static void kirimSatuPesan(Context app, String token, byte[] body,
+                                       int bi, int total) throws Exception {
+        for (int percobaan = 0; percobaan < 2; percobaan++) {
+            HttpURLConnection conn = null;
+            try {
+                conn = bukaPostTelegram(app, TG_API + token + "/sendMessage", body,
+                        "application/x-www-form-urlencoded", 15000, 30000);
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body);
+                }
+                tolakRedirectTelegram(conn);
+                int code = conn.getResponseCode();
+                InputStream mentah = (code >= 200 && code < 300)
+                        ? conn.getInputStream() : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        sb.append(bacaResponsBatas(is));
+                    }
+                }
+                if (code == 429 && percobaan == 0) {
+                    long jeda = jedaRetryAfterMs(sb.toString());
+                    ServerService.catatLog("[tg] Kena limit Telegram - tunggu "
+                            + (jeda / 1000) + " dtk lalu coba lagi.");
+                    Thread.sleep(jeda);
+                    continue;
+                }
+                // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
+                // contains mentah menolak respons sah ber-spasi.
+                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+                    logTgFailure("kirim pesan " + (bi + 1) + "/" + total,
+                            code, sb.toString());
+                }
+                return;
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+    }
+
+    /** Jeda (ms) dari `parameters.retry_after` pada balasan 429 Telegram.
+     *  Default 1 dtk bila tak terbaca; dibatasi 1-5 dtk agar antrean pesan
+     *  tak tertahan lama di STB. Murni agar bisa diuji. */
+    static long jedaRetryAfterMs(String body) {
+        if (body == null) {
+            return 1000L;
+        }
+        int i = body.indexOf("\"retry_after\"");
+        if (i < 0) {
+            return 1000L;
+        }
+        int j = i + 13;
+        while (j < body.length() && (body.charAt(j) < '0' || body.charAt(j) > '9')) {
+            j++;
+        }
+        int awal = j;
+        while (j < body.length() && body.charAt(j) >= '0' && body.charAt(j) <= '9') {
+            j++;
+        }
+        if (j <= awal) {
+            return 1000L;
+        }
+        long detik;
+        try {
+            detik = Long.parseLong(body.substring(awal, j));
+        } catch (Exception e) {
+            return 1000L;
+        }
+        long ms = detik * 1000L;
+        if (ms < 1000L) {
+            return 1000L;
+        }
+        return Math.min(ms, 5000L);
     }
 
     /** Edit satu pesan (menu) secara sinkron. False = pemanggil kirim pesan baru.

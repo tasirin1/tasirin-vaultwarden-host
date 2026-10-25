@@ -756,6 +756,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void jedaRetryAfterMsDibatasiSatuSampaiLimaDetik() {
+        // Balasan 429 Telegram: pakai parameters.retry_after, tetapi antrean
+        // pesan STB tak boleh tertahan lama -> dibatasi 1-5 dtk.
+        assertEquals(3000L, TgBackup.jedaRetryAfterMs(
+                "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":3}}"));
+        assertEquals(1000L, TgBackup.jedaRetryAfterMs(
+                "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":0}}"));
+        assertEquals(5000L, TgBackup.jedaRetryAfterMs(
+                "{\"ok\":false,\"parameters\":{\"retry_after\":120}}"));
+        // Tak terbaca/None: default 1 dtk (tetap beri jeda sebelum ulang).
+        assertEquals(1000L, TgBackup.jedaRetryAfterMs("{\"ok\":false}"));
+        assertEquals(1000L, TgBackup.jedaRetryAfterMs(null));
+    }
+
+    @Test
     public void kunciIntLongTerdaftar() {
         assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
         assertFalse(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));

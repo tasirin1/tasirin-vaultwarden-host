@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 238: Galat satu chat tak menghentikan chat lain + hormati 429
+- `kirimSinkron()` membungkus kedua loop (chat × potongan) dalam satu `try`: exception saat mengirim ke chat pertama melewati seluruh chat berikutnya, padahal jalur upload sengaja "coba semua chat" — sebagian penerima tak dapat kabar tanpa jejak.
+- Kini tiap potongan dikirim lewat `kirimSatuPesan()` dengan `try/catch` sendiri (galat dicatat, chat berikutnya tetap dicoba), dan balasan **429** diulang sekali setelah jeda `parameters.retry_after` lewat gerbang murni `jedaRetryAfterMs()` (default 1 dtk, dibatasi 1-5 dtk agar antrean pesan STB tak tertahan lama; + uji JVM).
+
 ## [Belum rilis] — Audit 237: Detail galat Telegram diredaksi sebelum masuk log/pesan
 - `TgBackup.logTgFailure()` mencatat body respons atau `e.getMessage()` mentah (200 char) ke log app. Body dari proxy/captive portal bisa memuat URL `…/bot<token>/sendMessage`, dan log bisa diekspor atau dikirim lewat `/log` — token bot bocor. `TgBot` sendiri sudah melarang ini (hanya kelas exception / `description`).
 - Kini satu pintu `redaksiDetailGalat()` (murni + uji JVM) mengganti token pola `<angka>:<rahasia>` dengan `<token>`, merapatkan spasi/baris, dan memotong 200 char; dipakai `logTgFailure()` dan `pesanGalatBackup()` (pesan galat backup ikut dikirim ke chat).
