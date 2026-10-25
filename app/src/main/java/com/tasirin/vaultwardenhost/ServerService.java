@@ -933,6 +933,17 @@ public class ServerService extends Service {
         }
     }
 
+    /** Anggaran minimum tunggu stop untuk pemanggil yang butuh DB benar-benar
+     *  bebas (restore).
+     *
+     *  Worst-case stopper = {@code matikanProsesTegas(p, 5000)} (destroy + tunggu
+     *  5 dtk, lalu destroyForcibly + tunggu 3 dtk = 8 dtk) DITAMBAH jeda start
+     *  thread "vw-stop" dan polling 500 ms di {@link #stopAndWait}. Pemanggil
+     *  dulu memberi 8000 ms — persis batas worst-case tanpa sisa — sehingga
+     *  restore dibatalkan dengan peringatan "DB bisa korup" padahal server hanya
+     *  butuh sedikit lebih lama untuk mati (STB lambat menutup WAL). */
+    public static final long ANGGARAN_STOP_MIN_MS = 15000;
+
     /** Stop server dan tunggu proses benar-benar mati.
      *  True bila proses sudah mati; false bila masih hidup (pemanggil wajib
      *  membatalkan operasi file DB agar SQLite tidak korup).
@@ -956,7 +967,11 @@ public class ServerService extends Service {
             return true;
         }
         stop(context);
-        long deadline = SystemClock.elapsedRealtime() + timeoutMs;
+        // Anggaran di bawah minimum worst-case stopper selalu berakhir
+        // "masih hidup" palsu: naikkan ke minimum (dokumentasi di konstanta).
+        long anggaran = timeoutMs < ANGGARAN_STOP_MIN_MS
+                ? ANGGARAN_STOP_MIN_MS : timeoutMs;
+        long deadline = SystemClock.elapsedRealtime() + anggaran;
         while (SystemClock.elapsedRealtime() < deadline
                 && (isProcessAlive() || starting.get())) {
             try {

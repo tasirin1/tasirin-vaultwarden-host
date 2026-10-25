@@ -3209,7 +3209,7 @@ public final class TgBackup {
         }
 
         if (ServerService.isProcessAlive()
-                && !ServerService.stopAndWait(ctx, 8000)) {
+                && !ServerService.stopAndWait(ctx, ServerService.ANGGARAN_STOP_MIN_MS)) {
             throw new IOException("Server gagal berhenti - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");
         }

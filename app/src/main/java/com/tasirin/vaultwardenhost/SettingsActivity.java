@@ -1948,7 +1948,8 @@ public class SettingsActivity extends Activity {
         try {
             // Hentikan server dulu: menimpa SQLite yang hidup merusak DB.
             if (ServerService.isProcessAlive()
-                    && !ServerService.stopAndWait(SettingsActivity.this, 8000)) {
+                    && !ServerService.stopAndWait(SettingsActivity.this,
+                            ServerService.ANGGARAN_STOP_MIN_MS)) {
                 toast("Server failed to stop — restore cancelled to protect the DB.");
                 appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
                 return;

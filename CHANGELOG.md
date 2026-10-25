@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 281: Anggaran tunggu stop menutup worst-case stopper
+- `stopAndWait()` dipanggil dengan `timeoutMs = 8000` dari restore Settings dan Telegram, padahal worst-case stopper adalah `destroy` + tunggu 5 dtk, lalu `destroyForcibly` + tunggu 3 dtk (= 8 dtk) **belum** termasuk jeda start thread `vw-stop` dan polling 500 ms. Pada STB lambat yang butuh jalur paksa, restore dibatalkan dengan peringatan "DB bisa korup" padahal server hanya butuh sedikit lebih lama untuk mati — pengguna disuruh mengulang dan masalah berulang.
+- Konstanta `ServerService.ANGGARAN_STOP_MIN_MS` (15 dtk) dipakai kedua pemanggil, dan `stopAndWait()` menaikkan anggaran apa pun yang di bawah minimum itu sebagai pertahanan untuk pemanggil baru. Perilaku "false = DB belum bebas" tetap fail-closed.
+
 ## [Belum rilis] — Audit 280: PIN yang diketik di grup dihapus dan dihitung gagal
 - Dua gerbang grup (`handleCommand` untuk perintah berbahaya dan `authDangerous` untuk perintah ber-PIN) menolak dengan `return` **sebelum** PIN diurai. Blok penghapusan pesan di poll loop mensyaratkan `terotorisasi`, sehingga PIN asli yang salah ketik di grup **tetap tersimpan di riwayat grup** — bisa dibaca anggota lain dan dipakai di chat pribadi untuk `/stop`, `/restore`, `/careset`. `PinGate.catatHasil` juga tak pernah dipanggil, jadi tebakan PIN dari grup tidak pernah mengaktifkan lockout 5×5 menit (tebakan tanpa batas).
 - Pembantu murni `pinTebakan()`/`pinTebakanArgumen()` (memakai `pisahkanPin` yang sudah menyaring versi/nama file) mengenali tebakan PIN ≥ 4 karakter. Jalur tolak grup kini menghitungnya sebagai percobaan gagal (tanpa verifikasi agar tak jadi oracle benar/salah; hanya saat PIN aktif dan belum terkunci, agar spam tanpa PIN tak bisa mengunci pemilik). Poll loop menghapus pesan grup yang membawa tebakan PIN walau perintahnya ditolak, dan balasan grup menyebut bahwa tebakan dihitung gagal.
