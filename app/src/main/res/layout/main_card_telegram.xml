@@ -31,7 +31,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/bot_token_hint"
-                        android:inputType="textPassword" />
+                        android:inputType="textPassword"
+                        android:saveEnabled="false" />
 
                     <Button
                         android:id="@+id/showTg"
@@ -117,7 +118,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:inputType="textPassword" />
+                        android:inputType="textPassword"
+                        android:saveEnabled="false" />
 
                     <Button
                         android:id="@+id/showPass"

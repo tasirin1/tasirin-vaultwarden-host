@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 234: Field rahasia tak lagi disimpan framework ke instance state
+- `adminToken`, `pinInput`, `tgToken`, `backupPass`, dan field PIN di layar kunci (`activity_pin.xml`) disimpan otomatis Android ke `Bundle` instance state dan dipulihkan **setelah** `onCreate` membersihkan/mengisi field. Akibatnya rahasia ikut ke state yang bisa ditulis ke disk, dan pemulihan `pinInput` memicu `TextWatcher` → dialog "ganti PIN?" muncul sendiri; menekan OK menulis hash yang tak pernah dikonfirmasi user.
+- Kelima field kini memakai `android:saveEnabled="false"` sehingga rahasia tidak ikut tersimpan/dipulihkan; nilainya selalu dibaca ulang dari prefs (atau dikosongkan untuk PIN).
+
 ## [Belum rilis] — Audit 233: Dialog konfirmasi PIN tak lagi muncul dari onDestroy
 - `onDestroy` sengaja menjalankan debounce `pinTunda` yang masih tertunda agar ketikan PIN tidak hilang saat Back. Runnable itu juga bisa menampilkan `AlertDialog` konfirmasi "Ganti PIN?". Saat rotasi `isFinishing()`/`isDestroyed()` masih false, sehingga guard lama lolos: dialog menempel ke window activity yang sedang dibongkar (`WindowLeaked`) dan konfirmasinya tak pernah bisa diklik.
 - Kini flag `pinDialogBoleh` dimatikan sejak awal `onDestroy`; jalur tulis hash tetap jalan (aman), jalur dialog dilewati lewat gerbang murni `bolehDialogPin()` (+ uji JVM). PIN lama tetap berlaku dan kandidat yang tak dikonfirmasi dibuang.

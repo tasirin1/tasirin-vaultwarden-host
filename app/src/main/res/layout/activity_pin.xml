@@ -71,6 +71,7 @@
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
                 android:maxLines="1"
+                android:saveEnabled="false"
                 android:nextFocusDown="@id/pinBuka" />
 
             <TextView

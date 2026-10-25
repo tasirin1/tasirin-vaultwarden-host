@@ -37,7 +37,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/admin_token_hint"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:saveEnabled="false" />
 
                 <Button
                     android:id="@+id/showAdmin"
@@ -120,7 +121,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/pin_hint"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:saveEnabled="false" />
 
                 <CheckBox
                     style="@style/TasirinCheck"
