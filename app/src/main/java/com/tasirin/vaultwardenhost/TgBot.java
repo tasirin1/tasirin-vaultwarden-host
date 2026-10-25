@@ -1136,7 +1136,15 @@ public final class TgBot {
                     handleCommand(ctx, data, idRuang);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Jangan telan diam-diam: galat di tengah callback membuat tombol
+            // seolah mati (spinner sudah dijawab, perintah tak dijalankan)
+            // tanpa jejak di log. Detail diredaksi karena bisa memuat token.
+            try {
+                ServerService.catatLog("[tg] Gagal memproses tombol: "
+                        + TgBackup.redaksiDetailGalat(String.valueOf(e)));
+            } catch (Exception ignored) {
+            }
         }
     }
 

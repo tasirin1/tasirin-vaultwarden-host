@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 253: Galat callback tombol Telegram tak lagi ditelan
+- `tanganiCallback()` membungkus seluruh pemrosesan tombol dengan `catch (Exception ignored)`. Galat setelah spinner dijawab (mis. perintah melempar, data tombol rusak) membuat tombol seolah mati tanpa satu baris pun di log, sehingga pengguna melapor "tombol tak berfungsi" tanpa bukti untuk didiagnosis.
+- Kini galat dicatat lewat `ServerService.catatLog` dengan detail yang diredaksi (`TgBackup.redaksiDetailGalat`: token diganti `<token>`, spasi dirapatkan, dipotong 200 char) agar log/ekspor log tak membocorkan token bot.
+
 ## [Belum rilis] — Audit 252: Hitungan health lama tak lagi ikut ke server baru
 - Saat Start, hanya `healthFails` yang direset; `healthTcpLolos` dan `configSajaBeruntun` (keduanya statis, selamat dari recreate) terbawa dari episode sebelumnya. Bila run lama berakhir dengan 2 lolos-TCP, server baru bisa langsung divonis "gantung" pada kegagalan health pertama (2 sisa + 1 baru = ambang 3) dan dimatikan; sisa `configSajaBeruntun` mempercepat vonis "DB rusak" dengan cara yang sama.
 - Kini ketiga hitungan direset bersama saat Start, karena proses baru selalu memulai episode health dari nol. `restartAttempt` tetap tidak direset (batas 5x crash beruntun sengaja lintas start).
