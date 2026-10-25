@@ -650,13 +650,6 @@ public final class Util {
         return false;
     }
 
-    /** Satu sumber kebenaran validitas satu entri chat: ID numerik (awalan
-     *  + opsional ala tempel nomor telepon, - untuk grup) atau username
-     *  (aturan Telegram: huruf-digit-garisbawah, min 5, @ opsional).
-     *  Selaras cocokChat: valid selalu berarti bisa cocok (nol-depan dan
-     *  digit-murni ber-@ ditolak), plus tanpa whitespace/kontrol agar aman
-     *  dipakai di header multipart. Dipakai UI, impor, dan upload agar satu
-     *  suara. Tanpa regex. Murni agar bisa unit test. */
     /** Banding dua string digit sama panjang: -1/0/1. Tanpa alokasi. Murni. */
     static int bandingDigit(String a, String b) {
         for (int i = 0; i < a.length() && i < b.length(); i++) {
@@ -672,6 +665,13 @@ public final class Util {
         return a.length() < b.length() ? -1 : 1;
     }
 
+    /** Satu sumber kebenaran validitas satu entri chat: ID numerik (awalan
+     *  + opsional ala tempel nomor telepon, - untuk grup) atau username
+     *  (aturan Telegram: huruf-digit-garisbawah, min 5, @ opsional).
+     *  Selaras cocokChat: valid selalu berarti bisa cocok (nol-depan dan
+     *  digit-murni ber-@ ditolak), plus tanpa whitespace/kontrol agar aman
+     *  dipakai di header multipart. Dipakai UI, impor, dan upload agar satu
+     *  suara. Tanpa regex. Murni agar bisa unit test. */
     public static boolean chatTunggalValid(String entri) {
         if (entri == null) {
             return false;

@@ -965,8 +965,8 @@ public class LogActivity extends Activity {
      *  Satu pintu untuk Log/Settings/Main agar token rahasia tak mengendap
      *  bila proses mati sebelum penghapus jalan (sidik + kedaluwarsa di prefs,
      *  dipasang ulang saat activity dibuka lagi). Banding via sidik agar
-     *  lambda tak menahan plaintext di heap. */
-    /** @return true bila teks berhasil masuk clipboard (timer bersih best-effort). */
+     *  lambda tak menahan plaintext di heap.
+     *  @return true bila teks berhasil masuk clipboard (timer bersih best-effort). */
     public static boolean salinBersihOtomatis(Context ctx, String label, String isi) {
         if (ctx == null || isi == null) {
             return false;

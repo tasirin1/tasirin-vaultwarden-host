@@ -517,8 +517,8 @@ public class ServerService extends Service {
     private static volatile boolean healthActive = false;
     /** Cek health yang sedang jalan: tiap tick hanya satu (timeout total
      *  worst-case 32 dtk > interval cepat 30 dtk sehingga thread bisa
-     *  menumpuk bila server macet). */
-    /** Statis agar dua instance hasil recreate tak cek health bersamaan. */
+     *  menumpuk bila server macet). Statis agar dua instance hasil recreate
+     *  tak cek health bersamaan. */
     private static final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private final Runnable healthTick = new Runnable() {
@@ -570,8 +570,8 @@ public class ServerService extends Service {
 
     /** Start service tahan penolakan background Android 12+
      *  (ForegroundServiceStartNotAllowedException): catat ke log, jangan crash
-     *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah). */
-    /** commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
+     *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah).
+     *  commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
     @SuppressLint("ApplySharedPref")
     private static boolean mulaiService(Context context, String aksi) {
         try {
@@ -2697,10 +2697,9 @@ public class ServerService extends Service {
         return kiniElapsed - terakhirElapsed >= LOGIN_HINT_JEDA_MS;
     }
 
-    /** Baris panduan [login] aplikasi Bitwarden saat start (URL benar + HTTPS + akun).
-     *  Murni agar bisa diuji unit (tanpa runtime Android). */
-    /** Panduan login Bitwarden (server selalu HTTPS, jadi skema tak perlu
-     *  parameter yang nilainya selalu sama). */
+    /** Baris panduan [login] aplikasi Bitwarden saat start (URL benar + HTTPS +
+     *  akun; server selalu HTTPS sehingga skema tak perlu parameter yang
+     *  nilainya selalu sama). Murni agar bisa diuji unit (tanpa runtime Android). */
     static java.util.List<String> panduanLoginBitwarden(String port, String lanIp) {
         java.util.ArrayList<String> out = new java.util.ArrayList<String>();
         String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
@@ -3234,7 +3233,6 @@ public class ServerService extends Service {
 
     /** Kunci stat murah (mtime+ukuran) untuk capCaAktif: bila stat tak berubah,
      *  cap penuh dipakai ulang tanpa baca+hash seluruh isi di tiap health-check. */
-
     private static volatile long capCaStat = Long.MIN_VALUE;
     private static volatile long capCaNilai = 0L;
     /** Waktu stat CA terakhir (elapsedRealtime): stat ulang maks 1x/menit. */

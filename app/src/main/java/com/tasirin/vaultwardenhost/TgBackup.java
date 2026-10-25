@@ -539,11 +539,6 @@ public final class TgBackup {
         return pass != null && !pass.trim().isEmpty();
     }
 
-    /** Backup otomatis (jadwal/saat Start/susulan boot) yang wajib terenkripsi.
-     *  Tanpa password, isi vault melenggang plaintext ke cloud Telegram dan
-     *  tersimpan di sana permanen — jalur otomatis yang sunyi (tanpa klik user)
-     *  tak boleh memicunya. Backup manual (tombol/bot) tetap lewat
-     *  {@link #backupNow} dengan peringatan plaintext di pesan hasil. */
     /** Penjelasan penolakan backup otomatis tanpa password (murni). */
     static String pesanTolakPlainOtomatis() {
         return "Backup otomatis dilewati: isi password backup di"
@@ -552,6 +547,11 @@ public final class TgBackup {
                 + " manual bila memang mau tanpa enkripsi.";
     }
 
+    /** Backup otomatis (jadwal/saat Start/susulan boot) yang wajib terenkripsi.
+     *  Tanpa password, isi vault melenggang plaintext ke cloud Telegram dan
+     *  tersimpan di sana permanen — jalur otomatis yang sunyi (tanpa klik user)
+     *  tak boleh memicunya. Backup manual (tombol/bot) tetap lewat
+     *  {@link #backupNow} dengan peringatan plaintext di pesan hasil. */
     public static String backupOtomatis(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -1853,9 +1853,6 @@ public final class TgBackup {
         return root.toString(2);
     }
 
-    /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru.
-     *  Hanya file backup (backup-telegram-*, db-backup-*) yang dihitung;
-     *  export pengaturan (app-config-*.json) tidak ikut terhapus. */
     /** True bila nama file adalah backup database (bukan export config). */
     public static boolean isFileBackup(String nama) {
         return nama != null && (nama.startsWith("backup-telegram-")
@@ -1870,6 +1867,9 @@ public final class TgBackup {
         return nama != null && nama.startsWith("db-backup-") && nama.endsWith("-pre.sqlite3");
     }
 
+    /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru.
+     *  Hanya file backup (backup-telegram-*, db-backup-*) yang dihitung;
+     *  export pengaturan (app-config-*.json) tidak ikut terhapus. */
     public static void cleanupOldBackups(File backupDir) {
         if (backupDir == null) {
             return;
@@ -3237,11 +3237,6 @@ public final class TgBackup {
         return pinAktif(pinPerangkat, hashPerangkat);
     }
 
-    /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
-     *  dipertahankan agar bot tetap terhubung setelah restore. Kredensial
-     *  tak pernah diimpor dari file (termasuk backup lama yang masih
-     *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
-     *  perangkat memang tak punya. */
     /** Kunci String yang wajib String (pembaca memakai getString). */
     static final java.util.Set<String> KUNCI_STRING = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
@@ -3586,6 +3581,11 @@ public final class TgBackup {
         }
     }
 
+    /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
+     *  dipertahankan agar bot tetap terhubung setelah restore. Kredensial
+     *  tak pernah diimpor dari file (termasuk backup lama yang masih
+     *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
+     *  perangkat memang tak punya. */
     static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
         if (prefs == null) {
             return;
@@ -4092,9 +4092,6 @@ public final class TgBackup {
         return Math.max(butuh, 10L * 1024 * 1024);
     }
 
-    /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar
-     *  cache yang bisa dibersihkan ikut dihitung, fallback ke StatFs di
-     *  Android 5/6/7. */
     /** Memo ruang bebas 30 dtk per path (pola folderBytesCached): tick info
      *  5 dtk + gerbang unduh/backup memanggil getUuidForPath +
      *  getAllocatableBytes (2x binder IPC + statfs) — angka GB tak berubah
@@ -4105,6 +4102,9 @@ public final class TgBackup {
             new java.util.HashMap<>();
     private static final long MEMO_BEBAS_TTL_MS = 30_000;
 
+    /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar
+     *  cache yang bisa dibersihkan ikut dihitung, fallback ke StatFs di
+     *  Android 5/6/7. */
     public static long freeBytes(Context ctx, String dirPath) {
         if (dirPath != null) {
             long now = SystemClock.elapsedRealtime();

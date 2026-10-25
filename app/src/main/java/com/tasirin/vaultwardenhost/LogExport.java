@@ -20,7 +20,6 @@ public final class LogExport {
     private LogExport() {
     }
 
-    /** Tanggal via cache terpusat Util (hemat 2 ThreadLocal per thread). */
     /** Acak bersama: new SecureRandom tiap export bisa blokir seed di kernel lama. */
     private static final java.security.SecureRandom ACAK =
             new java.security.SecureRandom();

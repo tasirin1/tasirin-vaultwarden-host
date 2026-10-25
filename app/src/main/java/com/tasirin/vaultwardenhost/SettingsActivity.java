@@ -3131,8 +3131,8 @@ public class SettingsActivity extends Activity {
         return wvLine;
     }
 
-    /** RAM proses server, uptime, dan sisa storage (satu baris ringkas). */
-    /** Baris info RAM/uptime/storage (lihat dbInfoLine soal bolehHitung). */
+    /** Baris info RAM proses server, uptime, dan sisa storage (lihat
+     *  dbInfoLine soal bolehHitung). */
     private String sysInfoLine(boolean bolehHitung) {
         long now = SystemClock.elapsedRealtime();
         if (now - lastSysCheck < SYS_CHECK_MS) {
@@ -3176,8 +3176,8 @@ public class SettingsActivity extends Activity {
         return sysLine;
     }
 
-    /** Sisa masa berlaku sertifikat TLS; kosong bila belum ada / tidak terbaca. */
-    /** Baris info sertifikat (lihat dbInfoLine soal bolehHitung). */
+    /** Baris info sisa masa berlaku sertifikat TLS (kosong bila belum ada /
+     *  tidak terbaca; lihat dbInfoLine soal bolehHitung). */
     private String certInfoLine(boolean bolehHitung) {
         long now = SystemClock.elapsedRealtime();
         if (now - lastCertCheck < CERT_CHECK_MS) {
@@ -3509,7 +3509,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Teks ringkasan per kartu dari prefs + input saat ini. */
     /** Ada isi non-spasi tanpa alokasi toString+trim (gerbang murah tiap ketikan). Murni. */
     private static boolean adaIsiTrim(CharSequence s) {
         if (s == null) {
@@ -3585,7 +3584,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     /** Tampilkan galat inline tanpa layout sia-sia: setText/setVisibility
      *  yang isinya sama tetap memicu layout, jadi dilewati via tag cache.
      *  Tag menyimpan teks tampil terakhir ("" = valid). Aman API 21. */
@@ -3611,6 +3609,7 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /** Validasi inline setiap ketikan (tanpa toast agar tak berisik). */
     private void validasiInline() {
         String gData = galatFolder(dataDirInput.getText().toString(), msgFolderSalah);
         setTeksGalat(dataDirError, gData);
@@ -3989,8 +3988,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
-     *  clear() dulu (buang buffer), setText("") sebagai fallback. */
     /** True bila PIN aktif DAN sudah ada hash tersimpan: mengetik PIN baru
      *  berarti MENGGANTI PIN lama sehingga wajib konfirmasi. Murni. */
     static boolean perluKonfirmasiGantiPin(boolean pinAktif, boolean adaHash) {
@@ -4055,6 +4052,8 @@ public class SettingsActivity extends Activity {
         });
     }
 
+    /** Bersihkan field PIN agar tak mengendap di Editable/histori view.
+     *  clear() dulu (buang buffer), setText("") sebagai fallback. */
     private void bersihkanPin(android.widget.EditText v) {
         try {
             if (v.getText() != null) {
