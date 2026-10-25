@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 282: Efek stop (log/notifikasi/wakelock) di luar KUNCI_PROSET
+- `lepasProses()` menjalankan `efek.run()` **di dalam** `synchronized (KUNCI_PROSET)`. Efek pembersihan stop menulis berkas log ke folder data (bisa `/sdcard` FAT) dan memanggil binder `NotificationManager.notify` serta `WakeLock.release`, sementara main thread (`onStartCommand` → `stopServer`) membutuhkan kunci yang sama — UI bisa beku sampai ANR pada STB lambat/log banyak.
+- `lepasProses()` kini hanya mengubah state proses di dalam kunci lalu menjalankan efek di luarnya. Efek standar dipusatkan di `efekProsesBerhenti()`, dengan `setStatusBilaBerhenti()` (cek `running`/`process`/`starting` singkat di kunci, notifikasi di luar) dan `releaseWakeLockBilaBerhenti()` (cek ulang di dalam `KUNCI_WAKELOCK`, kunci yang sama dengan `acquireWakeLock`) agar Start baru tidak kehilangan status/wakelock-nya.
+
 ## [Belum rilis] — Audit 281: Anggaran tunggu stop menutup worst-case stopper
 - `stopAndWait()` dipanggil dengan `timeoutMs = 8000` dari restore Settings dan Telegram, padahal worst-case stopper adalah `destroy` + tunggu 5 dtk, lalu `destroyForcibly` + tunggu 3 dtk (= 8 dtk) **belum** termasuk jeda start thread `vw-stop` dan polling 500 ms. Pada STB lambat yang butuh jalur paksa, restore dibatalkan dengan peringatan "DB bisa korup" padahal server hanya butuh sedikit lebih lama untuk mati — pengguna disuruh mengulang dan masalah berulang.
 - Konstanta `ServerService.ANGGARAN_STOP_MIN_MS` (15 dtk) dipakai kedua pemanggil, dan `stopAndWait()` menaikkan anggaran apa pun yang di bawah minimum itu sebagai pertahanan untuk pemanggil baru. Perilaku "false = DB belum bebas" tetap fail-closed.

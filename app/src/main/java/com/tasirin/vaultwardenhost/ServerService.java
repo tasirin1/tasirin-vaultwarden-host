@@ -379,8 +379,15 @@ public class ServerService extends Service {
      *  di luar kunci. Start baru yang exec di jeda cek-vs-tulis kehilangan
      *  referensi prosesnya: UI "Stopped" padahal server baru hidup, wakelock
      *  yang baru diambil ikut dilepas, dan penanda jalan milik episode baru
-     *  dihapus. {@code efek} (wakelock/log/status) dijalankan DI DALAM kunci
-     *  supaya pembersihan lanjutan juga tak menimpa episode baru.
+     *  dihapus.
+     *
+     *  {@code efek} (wakelock/log/status) dijalankan di LUAR kunci: menulis
+     *  log ke /sdcard dan binder NotificationManager/WakeLock bisa lambat,
+     *  sedangkan main thread (`onStartCommand` → `stopServer`) membutuhkan
+     *  KUNCI_PROSET yang sama — dulu efek berjalan di dalam kunci sehingga UI
+     *  bisa beku sampai ANR. Efek pembersihan standar wajib memakai
+     *  {@link #efekProsesBerhenti()} yang menjaga diri agar tak menimpa
+     *  episode Start baru.
      *
      *  @return false bila {@code p} bukan proses aktif (sudah diganti atau
      *          dibersihkan pihak lain) — pemanggil tak boleh menyentuh state.
@@ -396,10 +403,48 @@ public class ServerService extends Service {
             process = null;
             running = false;
             resetPenandaJalan();
-            if (efek != null) {
-                efek.run();
+        }
+        if (efek != null) {
+            efek.run();
+        }
+        return true;
+    }
+
+    /** Efek pembersihan setelah proses dilepas: siram log, status "Stopped",
+     *  lepas wakelock. WAJIB dipanggil di luar KUNCI_PROSET (lihat
+     *  {@link #lepasProses}); tiap langkah dijaga agar Start baru yang sudah
+     *  berjalan tak kehilangan wakelock/statusnya. */
+    private void efekProsesBerhenti() {
+        flushLogFile();
+        setStatusBilaBerhenti("Stopped");
+        releaseWakeLockBilaBerhenti();
+    }
+
+    /** Set status hanya bila tak ada episode proses yang aktif/berjalan.
+     *  Cek+set singkat di KUNCI_PROSET; notifikasi (binder) di luar kunci. */
+    private void setStatusBilaBerhenti(String text) {
+        synchronized (KUNCI_PROSET) {
+            if (running || process != null || starting.get()) {
+                return;
             }
-            return true;
+            statusLine = text;
+        }
+        perbaruiNotifikasi();
+    }
+
+    /** Lepas wakelock hanya bila tak ada proses/episode baru yang
+     *  memegangnya. Dipanggil di luar KUNCI_PROSET; cek ulang di dalam
+     *  KUNCI_WAKELOCK menutup jeda cek-vs-release (acquire memakai kunci yang
+     *  sama sehingga tak bisa menyelip). */
+    private void releaseWakeLockBilaBerhenti() {
+        if (running || process != null) {
+            return;
+        }
+        synchronized (KUNCI_WAKELOCK) {
+            if (running || process != null) {
+                return;
+            }
+            releaseWakeLockDalam();
         }
     }
 
@@ -2320,11 +2365,7 @@ public class ServerService extends Service {
                 } finally {
                     // Cek-dan-lepas atomik (KUNCI_PROSET): Start yang exec di
                     // jeda ini dulu kehilangan referensi proses barunya.
-                    lepasProses(p, () -> {
-                        releaseWakeLock();
-                        flushLogFile();
-                        setStatus("Stopped");
-                    });
+                    lepasProses(p, this::efekProsesBerhenti);
                     hapusTandaStop(p);
                     // Start yang ditekan selagi Stop berjalan dijalankan di sini
                     // (proses sudah benar-benar mati). Aman bila watcher menang
@@ -2397,18 +2438,14 @@ public class ServerService extends Service {
                 // dan running/status "Menghentikan..." menggantung selamanya.
                 // Guard cek-dan-lepas wajib di dalam KUNCI_PROSET agar tak
                 // menghapus referensi proses Start baru.
-                lepasProses(p, () -> {
-                    releaseWakeLock();
-                    flushLogFile();
-                    setStatus("Stopped");
-                });
+                lepasProses(p, this::efekProsesBerhenti);
                 hapusTandaStop(p);
                 // Start yang tertunda (ditekan saat Stop berjalan) dijalankan
                 // di sini bila watcher yang lebih dulu melihat proses mati.
                 jalankanStartTertundaStop();
                 return;
             }
-            if (lepasProses(p, () -> releaseWakeLock())) {
+            if (lepasProses(p, this::releaseWakeLockBilaBerhenti)) {
                 // Penanda jalan (port/folder/token/web-vault/host) wajib
                 // dikosongkan juga saat proses mati sendiri: dulu hanya jalur
                 // stop/gagal-start yang membersihkan, sehingga setelah crash
