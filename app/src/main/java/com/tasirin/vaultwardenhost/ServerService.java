@@ -3553,8 +3553,7 @@ public class ServerService extends Service {
                             appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
                             // Visibilitas: file manual tak dipakai selama cache update
                             // aktif (bukan diabaikan diam-diam seperti sebelumnya).
-                            File manualLewat = new File(dataDir, "vaultwarden-" + ABI);
-                            if (isValidBinary(manualLewat)) {
+                            if (isValidBinary(userBin)) {
                                 appendLog("[app] Binary manual di folder data dilewati:"
                                         + " cache update (" + updated + ") sedang aktif.");
                             }
@@ -3847,8 +3846,7 @@ public class ServerService extends Service {
             String msgShim = e.getMessage();
             String ramah = msgShim != null ? msgShim : e.toString();
             appendLog("[app] Gagal pasang shim getrandom: " + e
-                    + "\n[app] Saran: " + Updater.saranKoneksi(
-                            e instanceof Exception ? (Exception) e : null));
+                    + "\n[app] Saran: " + Updater.saranKoneksi(e));
             setStatus("Shim getrandom belum tersedia - " + ramah);
             return null;
         }

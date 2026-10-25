@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 251: Cabang selalu-benar dan path ganda di `ensureBinary`/`ensureShim`
+- `ensureShim()` menulis `e instanceof Exception ? (Exception) e : null` padahal `e` sudah bertipe `Exception` (catch parameter): kondisinya selalu benar dan cabang `null` mustahil, menyamarkan maksud sekaligus menambah satu percabangan yang tak pernah diuji.
+- Jalur "binary manual dilewati" membuat ulang `new File(dataDir, "vaultwarden-" + ABI)` padahal `userBin` dengan path yang sama sudah dihitung di atas; dua sumber path bisa menyimpang bila pola nama berubah. Kini memakai `userBin` yang sama.
+
 ## [Belum rilis] — Audit 250: Javadoc urutan pemilihan binary disamakan dengan kode
 - Javadoc `ensureBinary()` menyebut prioritas manual → cache internal → unduh, padahal kode memakai cache hasil tombol Perbarui lebih dulu (agar Start tak memakai binary lama selamanya), baru manual, cache internal, lalu unduh. Dokumentasi yang salah arah membuat perbaikan berikutnya berisiko "membetulkan" urutan yang justru sudah benar.
 - Javadoc kini memuat empat jalur sesuai urutan kode beserta alasan cache update didahulukan dan syarat dilewatinya (revisi patch berubah / file manual ditukar).
