@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 237: Detail galat Telegram diredaksi sebelum masuk log/pesan
+- `TgBackup.logTgFailure()` mencatat body respons atau `e.getMessage()` mentah (200 char) ke log app. Body dari proxy/captive portal bisa memuat URL `…/bot<token>/sendMessage`, dan log bisa diekspor atau dikirim lewat `/log` — token bot bocor. `TgBot` sendiri sudah melarang ini (hanya kelas exception / `description`).
+- Kini satu pintu `redaksiDetailGalat()` (murni + uji JVM) mengganti token pola `<angka>:<rahasia>` dengan `<token>`, merapatkan spasi/baris, dan memotong 200 char; dipakai `logTgFailure()` dan `pesanGalatBackup()` (pesan galat backup ikut dikirim ke chat).
+
 ## [Belum rilis] — Audit 236: Sisa plaintext verifikasi backup tak lagi mengendap di cache
 - `verifikasi-isi-db.sqlite3` (salinan DB vault) dan `verifikasi-tmp.zip` (hasil dekripsi berisi `key.pem`/`ca-key.pem`) memakai nama **tetap** di cache dan hanya dihapus di `finally`. Proses yang dibunuh/power-loss di tengah backup meninggalkan plaintext itu selamanya, dan dua backup berbeda bisa berebut satu file.
 - Kini keduanya (termasuk jalur backup lokal di Settings) memakai nama unik `vwtg-plain-<label>-<acak>` lewat `berkasPlainSementara()`; awalan `vwtg-` membuatnya otomatis dilarang dibagikan `FileShareProvider`. Penyapu `sapuTmpPlainBasi()` (pengganti `sapuDecTmpBasi`, kini juga menyapu `vwtg-plain-*`) dipanggil sebelum file baru dibuat, dan sapu cache `SettingsActivity` (onCreate/onResume/onDestroy) ikut membersihkan sisa `vwtg-plain-*` — keduanya berambang umur 10 menit agar operasi yang sedang berjalan tak terganggu.

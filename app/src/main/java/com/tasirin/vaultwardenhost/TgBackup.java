@@ -481,7 +481,7 @@ public final class TgBackup {
         if (!jamStbWajar(kini) || Updater.galatJamSertifikat(e)) {
             return "Backup gagal: " + pesanJamStbSalah(kini);
         }
-        return "Backup gagal: " + inti + ". " + Updater.saranKoneksi(e);
+        return "Backup gagal: " + redaksiDetailGalat(inti) + ". " + Updater.saranKoneksi(e);
     }
 
     /** Backup Telegram otomatis saat Start (sekali sehari, bila hari berganti).
@@ -1357,14 +1357,25 @@ public final class TgBackup {
         return hasil;
     }
 
-    /** Catat kegagalan Telegram ke log app (isi respons dipotong 200 char). */
+    /** Redaksi detail galat sebelum masuk log: token bot (pola
+     *  {@code <angka>:<rahasia>}) diganti {@code <token>}, spasi/baris
+     *  dirapatkan, dan panjang dipotong 200 char. Body respons proxy/captive
+     *  portal bisa memuat URL bertoken, sedangkan log bisa diekspor atau
+     *  dikirim lewat /log. Murni agar bisa diuji. */
+    static String redaksiDetailGalat(String detail) {
+        if (detail == null) {
+            return "";
+        }
+        String d = detail.replaceAll("[0-9]{5,}:[A-Za-z0-9_-]{10,}", "<token>");
+        d = d.replaceAll("\\s+", " ").trim();
+        return d.length() > 200 ? d.substring(0, 200) + "..." : d;
+    }
+
+    /** Catat kegagalan Telegram ke log app (detail diredaksi + dipotong 200 char). */
     static void logTgFailure(String aksi, int code, String detail) {
         try {
-            String d = detail == null ? "" : detail;
-            if (d.length() > 200) {
-                d = d.substring(0, 200) + "...";
-            }
-            String line = "[tg] Gagal " + aksi + " (HTTP " + code + "): " + d;
+            String line = "[tg] Gagal " + aksi + " (HTTP " + code + "): "
+                    + redaksiDetailGalat(detail);
             ServerService.catatLog(line);
         } catch (Exception ignored) {
         }

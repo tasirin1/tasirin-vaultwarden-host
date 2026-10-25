@@ -740,6 +740,22 @@ public class TgBackupTest {
     }
 
     @Test
+    public void redaksiDetailGalatBuangTokenDanRapikanBaris() {
+        // URL bot yang tercecer di body proxy/captive portal tak boleh masuk log
+        // (log bisa diekspor / dikirim /log): token pola <angka>:<rahasia> diredaksi.
+        assertEquals("<token>",
+                TgBackup.redaksiDetailGalat("123456789:AAHfoo_bar-bazQUUX1234"));
+        assertEquals("HTTP 400 {\"ok\":false}",
+                TgBackup.redaksiDetailGalat("HTTP 400\n  {\"ok\":false} "));
+        // Jam/waktu bukan token (kiri < 5 angka).
+        assertEquals("12:34:56 mulai", TgBackup.redaksiDetailGalat("12:34:56 mulai"));
+        assertEquals("", TgBackup.redaksiDetailGalat(null));
+        // Panjang tetap dibatasi 200 + elipsis.
+        String panjang = TgBackup.redaksiDetailGalat(new String(new char[300]).replace('\0', 'a'));
+        assertEquals(203, panjang.length());
+    }
+
+    @Test
     public void kunciIntLongTerdaftar() {
         assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
         assertFalse(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));
