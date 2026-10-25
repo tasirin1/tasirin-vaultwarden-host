@@ -17,81 +17,114 @@ public class BootReceiver extends BroadcastReceiver {
      *  proses mati sehingga spoof BOOT_COMPLETED lolos lagi. */
     static final String KEY_THROTTLE_BOOT_ELAPSED = "boot_throttle_elapsed";
 
+    /** Kunci keputusan throttle boot: dulu seluruh onReceive berjalan di main
+     *  thread sehingga berurutan, kini kerja pindah ke worker (goAsync) dan dua
+     *  siaran beruntun bisa menilai throttle bersamaan. */
+    private static final Object KUNCI_BOOT = new Object();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
         // Hanya dua aksi protected milik sistem. QUICKBOOT_POWERON (vendor)
         // sengaja ditolak: bukan protected, app lain bisa mengirim intent
         // eksplisit ke receiver exported ini dan memicu auto-start palsu.
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)
-                || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
-            long kiniElapsed = android.os.SystemClock.elapsedRealtime();
-            long terakhirBoot = Math.max(terakhirBootElapsed,
-                    bacaThrottleBoot(context));
-            if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot, THROTTLE_BOOT_MS)) {
-                // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
-                // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
-                terakhirBootElapsed = kiniElapsed;
-                simpanThrottleBoot(context, kiniElapsed);
-                return;
-            }
-            terakhirBootElapsed = kiniElapsed;
-            simpanThrottleBoot(context, kiniElapsed);
-            SharedPreferences sp = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
-            TgBackup.healkanStringPrefs(context);
-            TgBackup.migrateAutoPref(context);
-            // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
-            // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
-            // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
-            boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
-            if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
-                // mulaiService tak melempar: penolakan background dicatat di
-                // dalam + ditandai KEY_START_TERTUNDA untuk susulan MainActivity.
-                // Cek boolean agar boot yang ditolak tercatat di log.
-                boolean jalan = false;
-                try {
-                    jalan = ServerService.start(context);
-                } catch (Exception ignored) {
-                    jalan = false;
+        if (!Intent.ACTION_BOOT_COMPLETED.equals(action)
+                && !Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
+            return;
+        }
+        final Context ctx = context.getApplicationContext();
+        // onReceive jalan di main thread dan dibatasi ~10 dtk. getAll() prefs
+        // (parse XML penuh, dua kali lewat heal + migrasi), penulisan heal, dan
+        // stat db.sqlite3 di sini menahan UI sampai ANR di STB lambat. Validasi
+        // action tetap di main (murah); sisa kerja pindah ke worker lewat
+        // goAsync agar proses tetap hidup sampai siaran selesai.
+        final PendingResult pending = goAsync();
+        Runnable kerja = () -> {
+            try {
+                long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+                synchronized (KUNCI_BOOT) {
+                    long terakhirBoot = Math.max(terakhirBootElapsed,
+                            bacaThrottleBoot(ctx));
+                    if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot,
+                            THROTTLE_BOOT_MS)) {
+                        // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
+                        // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
+                        terakhirBootElapsed = kiniElapsed;
+                        simpanThrottleBoot(ctx, kiniElapsed);
+                        return;
+                    }
+                    terakhirBootElapsed = kiniElapsed;
+                    simpanThrottleBoot(ctx, kiniElapsed);
                 }
-                if (!jalan) {
-                    ServerService.catatLog("[app] Auto-start boot ditolak sistem"
-                            + " - dijalankan susulan saat app dibuka.");
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                TgBackup.healkanStringPrefs(ctx);
+                TgBackup.migrateAutoPref(ctx);
+                // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
+                // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
+                // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
+                boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
+                if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
+                    // mulaiService tak melempar: penolakan background dicatat di
+                    // dalam + ditandai KEY_START_TERTUNDA untuk susulan MainActivity.
+                    // Cek boolean agar boot yang ditolak tercatat di log.
+                    boolean jalan = false;
+                    try {
+                        jalan = ServerService.start(ctx);
+                    } catch (Exception ignored) {
+                        jalan = false;
+                    }
+                    if (!jalan) {
+                        ServerService.catatLog("[app] Auto-start boot ditolak sistem"
+                                + " - dijalankan susulan saat app dibuka.");
+                    }
                 }
-            }
-            // Pertahankan jadwal backup tengah malam setelah reboot;
-            // kejar backup bila tanggal sudah berganti saat device mati.
-            if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
-                TgBackup.schedule(context, true);
-                try {
-                    String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
-                    String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
-                    String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
-                            ServerService.dataDirBawaanSegar());
-                    // Trim sekali (dulu 2x): perilaku sama persis.
-                    String dRapi = dataDir == null ? "" : dataDir.trim();
-                    boolean dbAda = !dRapi.isEmpty()
-                            && new java.io.File(dRapi, "db.sqlite3").exists();
-                    // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):
-                    // hanya jadwalkan tembakan 5 menit setelah hidup; keputusan
-                    // backup (ganti hari + jam wajar) diambil AlarmReceiver
-                    // saat menyala. Jadwal harian tak tersentuh.
-                    if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
-                        if (!TgBackup.jadwalTundaBoot(context)) {
+                // Pertahankan jadwal backup tengah malam setelah reboot;
+                // kejar backup bila tanggal sudah berganti saat device mati.
+                if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
+                    TgBackup.schedule(ctx, true);
+                    try {
+                        String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+                        String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+                        String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
+                                ServerService.dataDirBawaanSegar());
+                        // Trim sekali (dulu 2x): perilaku sama persis.
+                        String dRapi = dataDir == null ? "" : dataDir.trim();
+                        boolean dbAda = !dRapi.isEmpty()
+                                && new java.io.File(dRapi, "db.sqlite3").exists();
+                        // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):
+                        // hanya jadwalkan tembakan 5 menit setelah hidup; keputusan
+                        // backup (ganti hari + jam wajar) diambil AlarmReceiver
+                        // saat menyala. Jadwal harian tak tersentuh.
+                        if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
+                            if (!TgBackup.jadwalTundaBoot(ctx)) {
+                                tandaiBackupTertunda(sp);
+                            }
+                        }
+                    } catch (Exception ignored) {
+                        // Android 12+ bisa menolak start dari background: tandai agar
+                        // MainActivity menjalankan susulan saat dibuka berikutnya.
+                        try {
                             tandaiBackupTertunda(sp);
+                        } catch (Exception ignored2) {
                         }
                     }
-                } catch (Exception ignored) {
-                    // Android 12+ bisa menolak start dari background: tandai agar
-                    // MainActivity menjalankan susulan saat dibuka berikutnya.
-                    try {
-                        tandaiBackupTertunda(sp);
-                    } catch (Exception ignored2) {
-                    }
                 }
+                // Remote kontrol bot tetap aktif setelah reboot
+                TgBot.schedule(ctx);
+            } catch (Exception e) {
+                // Jangan biarkan galat tak terduga mematikan proses saat boot;
+                // catat kelasnya agar penyebab bisa dilacak dari log.
+                ServerService.catatLog("[app] Penanganan boot gagal: "
+                        + e.getClass().getSimpleName());
+            } finally {
+                pending.finish();
             }
-            // Remote kontrol bot tetap aktif setelah reboot
-            TgBot.schedule(context);
+        };
+        if (!Util.jalankanBg(kerja)) {
+            // Antrean worker penuh (langka saat boot): jalankan di thread ini
+            // agar auto-start tak hilang; pending tetap ditutup di finally.
+            kerja.run();
         }
     }
 
