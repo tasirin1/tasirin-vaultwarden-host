@@ -793,8 +793,17 @@ def cek_import_mati(gagal):
     via kupas_java agar acuan palsu tak dihitung.
     """
     for path in jalan_repo("app", ext=(".java",)):
-        bersih = kupas_java(baca(path))
+        mentah = baca(path)
+        bersih = kupas_java(mentah)
         tanpa = re.sub(r"^\s*import\s+.*$", "", bersih, flags=re.M)
+        # Acuan javadoc ({@link Nama}, {@linkplain Nama#metode()}) sah memakai
+        # import walau komentar dikupas dari kode: dulu import semacam ini
+        # dilaporkan "mati" (false positive) dan memaksa dokumentasi dihapus.
+        acuan_javadoc = set()
+        for taut in re.findall(r"\{@link(?:plain|code)?\s+([\w.#$]+)", mentah):
+            target = taut.split("#", 1)[0].split(".")[-1]
+            if target:
+                acuan_javadoc.add(target)
         for m in re.finditer(r"^\s*import\s+(static\s+)?([\w.]+)\s*;",
                              bersih, flags=re.M):
             jalan_imp = m.group(2)
@@ -804,7 +813,8 @@ def cek_import_mati(gagal):
             # Pemakaian bernama-penuh (java.security.SecureRandom) bukan bukti
             # import ini dipakai — dulu ia lolos karena \b tetap cocok, sehingga
             # import mati menumpuk tanpa terdeteksi.
-            if not re.search(r"(?<![\w.])%s\b" % re.escape(nama), tanpa):
+            if (not re.search(r"(?<![\w.])%s\b" % re.escape(nama), tanpa)
+                    and nama not in acuan_javadoc):
                 gagal.append("Import mati di %s: %s" % (path, jalan_imp))
 
 

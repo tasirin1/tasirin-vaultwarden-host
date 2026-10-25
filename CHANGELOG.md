@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 242: Import yang dipakai {@link} tak lagi disebut mati
+- `cek_import_mati()` mengupas komentar lewat `kupas_java()` sebelum menghitung pemakaian, sehingga import yang hanya dirujuk dokumentasi `{@link Kelas}` / `{@linkplain Kelas#metode()}` dianggap mati. Penulis lalu terpaksa menghapus import **atau** tautan javadoc-nya agar push lolos.
+- Kini acuan `{@link}`/`{@linkplain}`/`{@linkcode}` dikumpulkan dari sumber mentah dan dihitung sebagai pemakaian sah; import yang benar-benar hanya disebut di komentar biasa/`{@code}` tetap ditolak. Diuji lokal dengan sumber sintetis (List/Map lewat link lolos, File hanya di `{@code}` tetap tertangkap).
+
 ## [Belum rilis] — Audit 241: Verifier tak lagi menuduh komentar/string soal Locale
 - `cek_locale_baru()` mencocokkan pola `.toLowerCase()`/`.toUpperCase()` pada baris tambah **mentah**, termasuk baris komentar dan isi string. Akibatnya commit yang hanya menulis dokumentasi (mis. "dulu memakai `.toLowerCase()` tanpa Locale") digagalkan gerbang Verifikasi Patch, dan penulis terdorong menghapus penjelasan yang berguna.
 - Kini tiap baris tambah dikupas dulu dengan `kupas_java()` (komentar + literal dibuang) dan baris lanjutan komentar blok (diawali `*`) dilewati; hanya pemanggilan sungguhan tanpa `Locale` yang gagal. Diuji lokal dengan diff sintetis: komentar/string diabaikan, `toLowerCase()` dan `toUpperCase()` asli tetap tertangkap, `toLowerCase(Locale.US)` lolos.
