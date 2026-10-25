@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 270: Build binary memakai `Cargo.lock` upstream apa adanya
+- `cargo build --release` di `build-binary.yml` berjalan tanpa `--locked`, padahal repo Vaultwarden menyertakan `Cargo.lock` (workflow sendiri membacanya untuk cek `ndk-context`). Tanpa `--locked`, cargo bebas memperbarui resolusi dependensi ke versi semver-terbaru: build jadi tak reprodusibel antar-run, dan crate baru bisa menuntut toolchain lebih baru daripada `rust-toolchain.toml` tag tersebut — kegagalan yang muncul jauh di tengah kompilasi ~15 menit.
+- Perintah kini memakai `--locked` sehingga build gagal lantang bila `Cargo.lock` upstream tidak konsisten, bukan diam-diam memakai dependensi lain.
+
 ## [Belum rilis] — Audit 269: Galat sesaat `gh release view` tak lagi memicu rebuild binary
 - Langkah `resolve` di `build-binary.yml` membaca daftar aset dengan `gh release view … 2>/dev/null || true`. Bila panggilan itu gagal sesaat (502, rate-limit, timeout), `DAFTAR` kosong dan loop menganggap keenam aset non-APK **belum lengkap** — cron bulanan lalu menjalankan build Rust ~15 menit plus publish padahal asetnya sudah ada.
 - Daftar aset kini dibaca dengan coba-ulang 4× (jeda 5 dtk) dan stderr diperiksa: pesan "not found"/"HTTP 404" tetap berarti rilis belum ada (build memang perlu jalan), sedangkan galat lain menggagalkan job `resolve` dengan `::error::` eksplisit — lebih baik merah sekali daripada membangun ulang tanpa alasan. Cek kelengkapan aset sendiri tak berubah.

@@ -294,7 +294,11 @@ jobs:
           export CARGO_PROFILE_RELEASE_LTO=thin
           export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
           export CARGO_PROFILE_RELEASE_OPT_LEVEL=s
-          cargo build --release --target armv7-linux-androideabi \
+          # --locked: build wajib memakai Cargo.lock bawaan tag upstream apa
+          # adanya. Tanpa ini cargo boleh menarik versi crate semver-terbaru
+          # (build tak reprodusibel, dan crate baru bisa menuntut toolchain
+          # lebih baru daripada rust-toolchain.toml tag tersebut).
+          cargo build --release --locked --target armv7-linux-androideabi \
             --features sqlite,vendored_openssl
           BIN=target/armv7-linux-androideabi/release/vaultwarden
           ls -lh "$BIN"
