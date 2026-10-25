@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 243: `kupas_java` mengenal text block Java
+- `kupas_java()` (dipakai cek kurung, import mati, locale, dan pola boros) hanya mengenal string satu-baris. Pada text block (`"""…"""`) kutip kedua menutup string kosong lalu kutip ketiga membuka string liar yang menelan kode sesudahnya, sehingga cek kurung/import bisa meleset (false positive maupun temuan yang lolos).
+- Kini `"""…"""` dikupas utuh sebagai satu literal, termasuk escape `\` di dalamnya; kode sesudah text block tetap diperiksa. Diuji lokal: isi text block berisi `{`, `//`, dan kutip tidak memengaruhi keseimbangan kurawal maupun deteksi metode setelahnya.
+
 ## [Belum rilis] — Audit 242: Import yang dipakai {@link} tak lagi disebut mati
 - `cek_import_mati()` mengupas komentar lewat `kupas_java()` sebelum menghitung pemakaian, sehingga import yang hanya dirujuk dokumentasi `{@link Kelas}` / `{@linkplain Kelas#metode()}` dianggap mati. Penulis lalu terpaksa menghapus import **atau** tautan javadoc-nya agar push lolos.
 - Kini acuan `{@link}`/`{@linkplain}`/`{@linkcode}` dikumpulkan dari sumber mentah dan dihitung sebagai pemakaian sah; import yang benar-benar hanya disebut di komentar biasa/`{@code}` tetap ditolak. Diuji lokal dengan sumber sintetis (List/Map lewat link lolos, File hanya di `{@code}` tetap tertangkap).

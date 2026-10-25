@@ -381,10 +381,13 @@ def hapus_java(diff):
 def kupas_java(isi):
     """Buang komentar + literal sekali-jalan (URL dalam string tak
     boleh dianggap komentar //, dan kutip dalam komentar tak boleh
-    membuka string)."""
+    membuka string). Text block Java (\"\"\"...\"\"\") ikut dikupas utuh:
+    dulu kutip pertama menutup string kosong dan kutip ketiga membuka string
+    liar yang menelan kode sesudahnya sehingga cek kurung/import meleset."""
     petik_ganda = chr(34)
     petik_satu = chr(39)
     garis_miring_balik = chr(92)
+    kutip_tiga = petik_ganda * 3
     keluar = []
     i, n = 0, len(isi)
     while i < n:
@@ -398,6 +401,16 @@ def kupas_java(isi):
             while i < n and isi[i:i + 2] != '*/':
                 i += 1
             i += 2
+        elif isi[i:i + 3] == kutip_tiga:
+            i += 3
+            while i < n:
+                if isi[i] == garis_miring_balik:
+                    i += 2
+                    continue
+                if isi[i:i + 3] == kutip_tiga:
+                    i += 3
+                    break
+                i += 1
         elif c == petik_ganda or c == petik_satu:
             kutip = c
             i += 1
