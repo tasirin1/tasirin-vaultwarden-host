@@ -2156,12 +2156,20 @@ public class ServerService extends Service {
             // "Stopped", atau start menimpa running=true sesudah stopper
             // membersihkan (UI "Running" tanpa proses + wakelock nyangkut).
             boolean batal;
+            // Referensi proses lahir DITANGKAP di dalam KUNCI_PROSET. Dulu
+            // `final Process p = process;` dibaca di luar kunci sesudah
+            // notifikasi Telegram (jaringan): Stop yang men-null-kan process
+            // di jendela itu membuat p=null lalu watchProcess(null) melempar
+            // NPE di thread "vw-watch" — NPE tanpa handler mematikan seluruh
+            // proses aplikasi dan server Rust jadi yatim.
+            Process lahir = null;
             synchronized (KUNCI_PROSET) {
                 batal = batalStart;
                 if (batal) {
                     batalStart = false;
                 } else {
-                    process = pb.start();
+                    lahir = pb.start();
+                    process = lahir;
                     // Proses baru milik start ini: hapus tanda stop lama agar
                     // crash dini tak dianggap "stop disengaja" (race stopper
                     // 5-8 dtk). Wajib di bagian kritis yang sama dengan
@@ -2207,13 +2215,15 @@ public class ServerService extends Service {
             // satu bagian kritis agar log folder lama tak tecampur ke folder baru.
             pindahLogFile(new File(dataFolder, "vaultwarden.log"));
 
-            setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
+            setStatus("Running (PID " + getPid(lahir) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): https://127.0.0.1:" + port
                     + "\nURL jaringan (dari PC/laptop): " + domain);
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
             TgBackup.notifyLowStorage(this);
 
-            final Process p = process;
+            // Pakai referensi yang ditangkap di bagian kritis, bukan process
+            // yang bisa sudah di-null-kan Stop di jeda notifikasi di atas.
+            final Process p = lahir;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
             reader.setDaemon(true);
             pembacaOutput = reader;

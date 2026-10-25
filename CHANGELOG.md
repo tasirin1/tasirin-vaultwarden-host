@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 273: Referensi proses Start ditangkap di bagian kritis (NPE `vw-watch`)
+- `startServer()` membaca `final Process p = process;` **di luar** `KUNCI_PROSET`, sesudah `TgBackup.sendMessage()` (jaringan) dan `notifyLowStorage()`. Stop yang berjalan di jendela itu men-null-kan `process`, sehingga `p` menjadi null dan `watchProcess(null)` melempar `NullPointerException` di thread `vw-watch` — NPE tanpa handler mematikan seluruh proses aplikasi dan server Rust tertinggal yatim (port tetap terpakai).
+- Referensi proses kini ditangkap di dalam bagian kritis yang sama dengan `pb.start()`, lalu dipakai untuk status PID, pembaca output, dan watcher. Stop yang datang setelahnya tetap membersihkan state lewat `lepasProses()` (guard `process == p`), jadi perilaku stop/restart tidak berubah.
+
 ## [Belum rilis] — Audit 272: Verifikator patch tahan XML hilang/tak terbaca
 - `cek_xml` hanya menangkap `ET.ParseError`, padahal `ET.parse` juga melempar `OSError` (berkas hilang, izin, checkout tak lengkap). Satu manifest hilang membuat `verifikasi-patch.py` berhenti dengan traceback: temuan lain tak pernah dilaporkan dan exit code bukan `1` yang jelas. `himpun_definisi` pun memanggil `os.listdir(res)` tanpa penjagaan sehingga folder `res/` yang hilang mematikan skrip sebelum sempat menulis temuan.
 - Parse XML kini lewat satu helper `parse_xml_aman` yang membedakan "XML rusak" (ParseError) dari "tak terbaca" (OSError), `cek_manifest` ikut menangkap OSError, `himpun_definisi` melewati `listdir` bila folder tak ada, dan `cek_xml` melaporkan folder `res/` yang hilang secara eksplisit (sebelumnya `os.walk` diam-diam memeriksa nol berkas lalu lolos). Parameter mati `basis_desc` pada `cek_xml` dihapus.
