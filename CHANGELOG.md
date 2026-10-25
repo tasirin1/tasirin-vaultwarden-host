@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 271: Web-vault dipakai ulang hanya bila digest-nya cocok
+- Job `publish-binary` memakai ulang `web-vault.zip` yang sudah ada di rilis bila lolos `unzip -t` saja (uji integritas arsip). Akibatnya zip yang dibangun dari digest Docker **berbeda** untuk tag yang sama tetap diterima dan diunggah ulang: isi web-vault bisa tidak sinkron dengan binary yang dirilis, dan `web-vault.zip.sha256` ikut diperbarui sehingga aplikasi mengunduh campuran versi tanpa peringatan.
+- Digest `vault_image_digest` untuk tag tersebut kini dibaca lebih dulu, lalu pemakaian ulang mensyaratkan arsip utuh **dan** penanda `.vaultwarden-web-digest` di dalam zip sama dengan digest itu. Zip lama tanpa penanda otomatis dibangun ulang sekali dari Docker; saat membangun, penanda ditulis ke folder sebelum di-zip. Galat jaringan saat membaca digest menggagalkan langkah secara lantang, bukan diam-diam memakai zip yang mungkin beda versi.
+
 ## [Belum rilis] — Audit 270: Build binary memakai `Cargo.lock` upstream apa adanya
 - `cargo build --release` di `build-binary.yml` berjalan tanpa `--locked`, padahal repo Vaultwarden menyertakan `Cargo.lock` (workflow sendiri membacanya untuk cek `ndk-context`). Tanpa `--locked`, cargo bebas memperbarui resolusi dependensi ke versi semver-terbaru: build jadi tak reprodusibel antar-run, dan crate baru bisa menuntut toolchain lebih baru daripada `rust-toolchain.toml` tag tersebut — kegagalan yang muncul jauh di tengah kompilasi ~15 menit.
 - Perintah kini memakai `--locked` sehingga build gagal lantang bila `Cargo.lock` upstream tidak konsisten, bukan diam-diam memakai dependensi lain.
