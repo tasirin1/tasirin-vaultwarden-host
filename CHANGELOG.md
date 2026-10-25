@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 247: Proses `--version` dimatikan tegas, bukan hanya destroy
+- `Updater.detectVersion()` membersihkan proses di `finally` hanya dengan `p.destroy()` (SIGTERM) tanpa `destroyForcibly()`, padahal komentarnya menjanjikan "dibunuh di SEMUA jalur". Binary yang mengabaikan SIGTERM (atau macet di linker) tetap hidup dan menahan thread/pipa sampai proses app mati.
+- Kini pembersihan memakai satu pintu `ServerService.matikanProsesTegas(p, 2000)`: `destroy` → tunggu 2 dtk → `destroyForcibly` (pra-Oreo `destroy`) → tunggu 3 dtk, sama seperti jalur stop/restart server.
+
 ## [Belum rilis] — Audit 246: Koneksi unduh yang gagal di tengah jalur tak lagi bocor
 - `Updater.bukaIkutiRedirect()` membuka `HttpURLConnection` per percobaan redirect, tetapi hanya menutupnya pada cabang redirect/return. Exception di `HttpsCompat.apply()`, `getResponseCode()`, atau validasi redirect meninggalkan koneksi (socket) menggantung sampai GC — berulang tiap percobaan unduh yang gagal TLS/timeout.
 - Kini seluruh badan percobaan dibungkus `try/catch` yang memanggil `disconnect()` sebelum melempar ulang; koneksi yang diserahkan ke pemanggil tetap ditutup pemanggil seperti sebelumnya.

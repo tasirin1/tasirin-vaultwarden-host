@@ -2431,9 +2431,10 @@ public final class Updater {
         } catch (Exception e) {
             return null;
         } finally {
-            // Satu pintu pembersihan: watchdog dihentikan dan proses dibunuh di
-            // SEMUA jalur. Dulu blok destroy yang sama diulang tiga kali dan
-            // jalur InterruptedException masih sempat melewatkan destroy.
+            // Satu pintu pembersihan: watchdog dihentikan dan proses dimatikan
+            // TEGAS di SEMUA jalur (destroy -> tunggu -> destroyForcibly).
+            // Dulu hanya destroy() tanpa destroyForcibly sehingga binary
+            // --version yang keras kepala tetap hidup di belakang.
             versiSelesai.set(true);
             try {
                 if (versiWatchdog != null) {
@@ -2441,12 +2442,7 @@ public final class Updater {
                 }
             } catch (Exception ignored) {
             }
-            if (p != null) {
-                try {
-                    p.destroy();
-                } catch (Exception ignored) {
-                }
-            }
+            ServerService.matikanProsesTegas(p, 2000);
         }
     }
 
