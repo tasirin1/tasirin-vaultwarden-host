@@ -3096,6 +3096,14 @@ public class ServerService extends Service {
             // Sehat via /api/config tapi /alive 5xx beruntun = DB rusak yang
             // tak pernah pulih sendiri: restart setelah ambang, bukan selamanya.
             if (aliveRusakTapiConfigSehat(h.aliveCode, h.configCode)) {
+                // Server MENJAWAB (config 200), jadi tick ini bukan kegagalan
+                // /alive biasa: reset hitungan timeout/lolos agar ambang
+                // "3x beruntun" benar-benar beruntun. Dulu counter lama
+                // tertinggal, sehingga satu timeout baru setelah dua timeout
+                // berjam-jam lalu langsung memicu restart palsu (server sehat
+                // dibunuh dan jatah restartAttempt terpakai).
+                healthFails.set(0);
+                healthTcpLolos.set(0);
                 int n = configSajaBeruntun.incrementAndGet();
                 if (n >= BATAS_CONFIG_SAJA_BERUNTUN) {
                     configSajaBeruntun.set(0);

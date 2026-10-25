@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 283: Hitungan health direset saat `/api/config` sehat
+- Cabang `aliveRusakTapiConfigSehat` (di bawah ambang `BATAS_CONFIG_SAJA_BERUNTUN`) hanya menaikkan `configSajaBeruntun`; `healthFails`/`healthTcpLolos` dari timeout lama dibiarkan menumpuk. Akibatnya ambang "3x beruntun" bukan benar-benar beruntun: dua timeout berjam-jam lalu + satu timeout baru langsung memicu restart otomatis, server sehat dibunuh, dan jatah `restartAttempt` terpakai.
+- Server yang menjawab `/api/config` 200 kini mereset kedua counter itu (tick ini bukan kegagalan `/alive` biasa); kerusakan DB yang beruntun tetap dilacak `configSajaBeruntun` sampai ambangnya sendiri.
+
 ## [Belum rilis] — Audit 282: Efek stop (log/notifikasi/wakelock) di luar KUNCI_PROSET
 - `lepasProses()` menjalankan `efek.run()` **di dalam** `synchronized (KUNCI_PROSET)`. Efek pembersihan stop menulis berkas log ke folder data (bisa `/sdcard` FAT) dan memanggil binder `NotificationManager.notify` serta `WakeLock.release`, sementara main thread (`onStartCommand` → `stopServer`) membutuhkan kunci yang sama — UI bisa beku sampai ANR pada STB lambat/log banyak.
 - `lepasProses()` kini hanya mengubah state proses di dalam kunci lalu menjalankan efek di luarnya. Efek standar dipusatkan di `efekProsesBerhenti()`, dengan `setStatusBilaBerhenti()` (cek `running`/`process`/`starting` singkat di kunci, notifikasi di luar) dan `releaseWakeLockBilaBerhenti()` (cek ulang di dalam `KUNCI_WAKELOCK`, kunci yang sama dengan `acquireWakeLock`) agar Start baru tidak kehilangan status/wakelock-nya.
