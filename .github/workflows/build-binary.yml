@@ -83,10 +83,14 @@ jobs:
           # sehingga cron menyimpulkan "aset belum lengkap" lalu membangun
           # ulang binary ~15 mnt padahal asetnya ada. Kini galat sesaat
           # dibedakan dari rilis yang memang belum ada (404 = perlu build).
+          # Job ini TANPA checkout, jadi `gh` tak bisa menebak repo dari git
+          # remote ("fatal: not a git repository") — dulu galat itu tertelan
+          # `|| true` sehingga DAFTAR selalu kosong. `--repo` wajib di sini.
           DAFTAR=""
           TERBACA=no
           for coba in 1 2 3 4; do
-            if KELUAR=$(gh release view "v$TAG" --json assets -q '.assets[].name' 2>&1); then
+            if KELUAR=$(gh release view "v$TAG" --repo "$GITHUB_REPOSITORY" \
+                --json assets -q '.assets[].name' 2>&1); then
               DAFTAR="$KELUAR"
               TERBACA=yes
               break
