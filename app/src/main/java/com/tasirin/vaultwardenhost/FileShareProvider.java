@@ -448,7 +448,8 @@ public class FileShareProvider extends ContentProvider {
                 if (nama.startsWith("db.sqlite3")) {
                     return false;
                 }
-                // Plaintext sementara restore (vwtg-restore-bot-dec.zip) tak boleh bocor via grant URI.
+                // Plaintext sementara restore (vwtg-plain-restore-bot-*.zip /
+                // arsip vwtg-restore-bot-*.zip) tak boleh bocor via grant URI.
                 if (berkasSementara(nama)) {
                     return false;
                 }

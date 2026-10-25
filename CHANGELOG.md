@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 254: Plaintext restore dari bot Telegram ber-nama unik dan disapu
+- `doRestore()` (jalur `/restore` bot) memakai nama cache **tetap**: `vwtg-restore-bot.zip` untuk arsip unduhan dan `vwtg-restore-bot-dec.zip` untuk hasil dekripsi. Dua operasi restore (dua perintah `/restore`, atau bersamaan dengan restore dari Pengaturan) bisa berebut/menimpa file yang sama, dan bila proses mati sebelum blok `finally` sempat jalan, salinan **plaintext** database tertinggal di cache dengan nama yang akan dipakai ulang.
+- Kini arsip unduhan ber-nama unik (`vwtg-restore-bot-<stempel>.zip`) dan hasil dekripsi memakai `TgBackup.berkasPlainSementara()` (`vwtg-plain-…`, dilarang dibagikan `FileShareProvider`) plus `sapuTmpPlainBasi()` di awal operasi agar sisa proses yang mati tak mengendap selamanya.
+
 ## [Belum rilis] — Audit 253: Galat callback tombol Telegram tak lagi ditelan
 - `tanganiCallback()` membungkus seluruh pemrosesan tombol dengan `catch (Exception ignored)`. Galat setelah spinner dijawab (mis. perintah melempar, data tombol rusak) membuat tombol seolah mati tanpa satu baris pun di log, sehingga pengguna melapor "tombol tak berfungsi" tanpa bukti untuk didiagnosis.
 - Kini galat dicatat lewat `ServerService.catatLog` dengan detail yang diredaksi (`TgBackup.redaksiDetailGalat`: token diganti `<token>`, spasi dirapatkan, dipotong 200 char) agar log/ekspor log tak membocorkan token bot.

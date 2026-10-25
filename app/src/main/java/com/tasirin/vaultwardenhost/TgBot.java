@@ -1906,8 +1906,17 @@ public final class TgBot {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
-        File tmp = new File(ctx.getCacheDir(), "vwtg-restore-bot.zip");
-        File plain = new File(ctx.getCacheDir(), "vwtg-restore-bot-dec.zip");
+        // Nama unik per operasi: dua /restore beruntun (atau /restore bot
+        // berbarengan dengan restore dari Pengaturan) tak boleh berebut satu
+        // file tetap. Hasil dekripsi memakai awalan plaintext (vwtg-plain-)
+        // supaya dilarang dibagikan FileShareProvider, dan sisa proses yang
+        // mati sebelum finally disapu di awal operasi berikutnya — dulu nama
+        // tetap membuat plaintext DB mengendap dan bisa ditimpa operasi lain.
+        File tmp = new File(ctx.getCacheDir(),
+                "vwtg-restore-bot-" + TgBackup.stempelUnik() + ".zip");
+        File plain = TgBackup.berkasPlainSementara(
+                ctx.getCacheDir(), "restore-bot", ".zip");
+        TgBackup.sapuTmpPlainBasi(ctx.getCacheDir(), plain.getName());
         boolean dikunci = false;
         try {
             TgBackup.downloadLastBackup(ctx, tmp);
