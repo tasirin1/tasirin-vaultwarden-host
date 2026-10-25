@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 284: Unduhan paralel versi sama tak lagi gagal "checksum tidak cocok"
+- Dua unduhan versi **sama** memakai nama `tmp` identik. Pihak pertama me-rename `tmp` → `out` (setelah uji asapnya) sebelum pihak kedua memanggil `pasangHasilUnduh()`; `sha256Hex(tmp)` menjadi null → `expectedHexEquals` false → "Checksum SHA-256 tidak cocok" padahal byte di tujuan sehat, lalu `tmp.delete()` ikut menimpa hasil pihak lain. Di `SettingsActivity.pasangVersiDipilih` pin dikembalikan ke versi lama dan `KEY_BIN_DL_GAGAL_AT` dipasang sehingga AutoUpdate berhenti mencoba 6 jam.
+- `pasangHasilUnduh()` kini menerima `tmp` yang hilang sebagai sukses bila `out` sudah cocok checksum (hasil unduhan paralel), dan memberi galat eksplisit "berkas sementara hilang" bila tujuan juga tak cocok. Verifikasi byte yang benar-benar dipasang tetap wajib.
+
 ## [Belum rilis] — Audit 283: Hitungan health direset saat `/api/config` sehat
 - Cabang `aliveRusakTapiConfigSehat` (di bawah ambang `BATAS_CONFIG_SAJA_BERUNTUN`) hanya menaikkan `configSajaBeruntun`; `healthFails`/`healthTcpLolos` dari timeout lama dibiarkan menumpuk. Akibatnya ambang "3x beruntun" bukan benar-benar beruntun: dua timeout berjam-jam lalu + satu timeout baru langsung memicu restart otomatis, server sehat dibunuh, dan jatah `restartAttempt` terpakai.
 - Server yang menjawab `/api/config` 200 kini mereset kedua counter itu (tick ini bukan kegagalan `/alive` biasa); kerusakan DB yang beruntun tetap dilacak `configSajaBeruntun` sampai ambangnya sendiri.

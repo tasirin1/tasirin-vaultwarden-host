@@ -86,6 +86,28 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pasangHasilUnduh_tmpHilangTapiTujuanCocokDianggapSukses() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwpasang2").toFile();
+        java.io.File tmp = new java.io.File(dir, "bin.tmp");
+        java.io.File out = new java.io.File(dir, "bin");
+        byte[] isi = new byte[]{5, 6, 7, 8};
+        java.nio.file.Files.write(out.toPath(), isi);
+        String sha = Updater.sha256Hex(out);
+        // Unduhan paralel versi sama sudah me-rename tmp -> out: bukan galat.
+        Updater.pasangHasilUnduh(tmp, out, sha);
+        assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
+        // Tujuan tak cocok + tmp hilang = gagal jelas, bukan sukses palsu.
+        boolean gagal = false;
+        try {
+            Updater.pasangHasilUnduh(tmp, new java.io.File(dir, "bin-lain"), sha);
+        } catch (java.io.IOException e) {
+            gagal = true;
+        }
+        assertTrue(gagal);
+        dir.delete();
+    }
+
+    @Test
     public void tautanSimbol_bedakanLinkDanBiasa() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),

@@ -802,11 +802,26 @@ public final class Updater {
      *  dieksekusi) pada file tmp, dan gerbang pasang harus membuktikan byte yang
      *  benar-benar di-rename — bukan digest dari titik waktu sebelumnya. Biaya
      *  satu pass 20 MB jauh lebih murah daripada memasang binary yang berubah
-     *  (korup/tertimpa unduhan lain) lalu gagal start. */
+     *  (korup/tertimpa unduhan lain) lalu gagal start.
+     *
+     *  Dua unduhan versi SAMA memakai tmp yang sama. Bila pihak lain lebih dulu
+     *  me-rename tmp ke out di antara uji asap dan pemanggilan ini, tmp hilang;
+     *  dulu itu dilaporkan "Checksum SHA-256 tidak cocok" padahal tujuan sudah
+     *  berisi byte yang diminta (update sehat dianggap korup, pin versi
+     *  dikembalikan, AutoUpdate berhenti 6 jam). Kini tmp yang hilang diterima
+     *  sebagai sukses bila out sudah cocok checksum. */
     static void pasangHasilUnduh(File tmp, File out, String expectedSha)
             throws IOException {
         synchronized (kunciUnduh(out)) {
             synchronized (kunciUnduh(tmp)) {
+                if (!tmp.isFile()) {
+                    // Unduhan paralel sudah memasang hasil yang sama.
+                    if (expectedHexEquals(expectedSha, sha256Hex(out))) {
+                        return;
+                    }
+                    throw new IOException("Berkas unduhan sementara hilang;"
+                            + " ulangi unduhan.");
+                }
                 if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
                     tmp.delete();
                     throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
