@@ -3486,11 +3486,14 @@ public class ServerService extends Service {
         }
     }
 
-    /** Pastikan binary vaultwarden siap dipakai. Prioritas:
-     *  1) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
+    /** Pastikan binary vaultwarden siap dipakai. Prioritas (sesuai urutan kode):
+     *  1) cache hasil tombol Perbarui ({@code KEY_UPDATE_VERSION}) — didahulukan
+     *     agar Start tak memakai binary lama selamanya; dilewati bila revisi
+     *     patch berubah atau file manual di folder data sudah ditukar,
+     *  2) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
      *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
-     *  2) cache internal milik APK ini (tidak diunduh ulang),
-     *  3) unduh dari release repo (dibangun dari sumber resmi, verifikasi SHA-256).
+     *  3) cache internal milik APK ini (tidak diunduh ulang),
+     *  4) unduh dari release repo (dibangun dari sumber resmi, verifikasi SHA-256).
      *  Return null bila gagal (status sudah diisi pesan). */
     private File ensureBinary() {
         File binDir = new File(getFilesDir(), "bin");

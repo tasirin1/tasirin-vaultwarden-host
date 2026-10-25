@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 250: Javadoc urutan pemilihan binary disamakan dengan kode
+- Javadoc `ensureBinary()` menyebut prioritas manual → cache internal → unduh, padahal kode memakai cache hasil tombol Perbarui lebih dulu (agar Start tak memakai binary lama selamanya), baru manual, cache internal, lalu unduh. Dokumentasi yang salah arah membuat perbaikan berikutnya berisiko "membetulkan" urutan yang justru sudah benar.
+- Javadoc kini memuat empat jalur sesuai urutan kode beserta alasan cache update didahulukan dan syarat dilewatinya (revisi patch berubah / file manual ditukar).
+
 ## [Belum rilis] — Audit 249: Baris log folder lama tak lagi masuk file folder baru
 - Saat Start memakai folder data baru, `flushLogFile()` (kunci `LOG_FILE_LOCK`) dan penggantian `logFile` adalah dua langkah terpisah. `appendLog()` mengecek `logFile != null` di luar kunci, sehingga baris yang masuk di jeda itu tetap di buffer dan tertulis ke file folder **baru** — log folder lama tecampur, dan baris tersebut hilang dari file lama yang seharusnya.
 - Kini ada satu pintu `pindahLogFile()`: siram buffer dan tukar `logFile` dalam satu bagian kritis, dan `appendLog()` memeriksa `logFile` di dalam kunci yang sama. Baris yang masuk sebelum penukaran pasti tertulis ke file lama, sesudahnya ke file baru. Uji JVM memastikan buffer lama disiram ke file lama dan tujuan baru terpasang.
