@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 291: Rahasia alarm diperiksa sebelum kerja tunda-boot
+- Jalur "tunda 5 menit setelah boot" di `AlarmReceiver.onReceive` membaca prefs dan memanggil `TgBackup.jadwalTundaBoot()` **sebelum** `rahasiaAlarmCocok`, padahal receiver `exported="true"`. Selama 5 menit pertama setelah boot, app lain bisa mengirim explicit intent `ALARM_HARIAN`/`ALARM_TUNDA` berulang untuk memaksa parse prefs + penjadwalan alarm di main thread (risiko ANR di STB 1 GB).
+- Pemeriksaan rahasia dipindah ke awal `onReceive` untuk semua action milik app (siaran sistem tanggal/jam/zona tetap dilayani dengan throttle 60 dtk); dua pemeriksaan rahasia yang jadi duplikat dihapus.
+
 ## [Belum rilis] — Audit 290: Editan folder/port/token tak lagi dibuang saat tugas berjalan
 - `SettingsActivity.onPause` memanggil `simpanPengaturanValid()`, tetapi fungsinya langsung `return` bila `tugasBerjalan` **atau** `TgBackup.tugasDataJalan()`; selama update binary/web-vault (menit) atau backup, perubahan folder/port/admin token dibuang diam-diam dan tak pernah disimpan sesudah tugas selesai.
 - Penahan tulis kini hanya **restore** (`TgBackup.restoreJalan()`, penanda baru khusus `kunciRestore`/`lepasRestore`) karena hanya restore yang menimpa prefs lewat `app-config.json`. Update & backup tak menyentuh ketiga kunci itu, jadi editan user langsung tersimpan saat layar ditinggalkan. Uji `TgBackupTest.restoreJalanHanyaSaatKunciRestore`.

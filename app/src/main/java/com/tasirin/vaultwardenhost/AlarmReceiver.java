@@ -117,6 +117,14 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (!alarmApp && !siaranWaktu) {
             return;
         }
+        // Action milik app wajib membawa rahasia SEBELUM kerja apa pun (baca
+        // prefs + penjadwalan tunda-boot di bawah). Dulu jalur tunda-boot jalan
+        // lebih dulu, sehingga app lain bisa memicu parse prefs + alarm tertunda
+        // berulang selama 5 menit pertama setelah boot. Siaran sistem
+        // (tanggal/jam/zona) tak ber-rahasia dan tetap dilayani dengan throttle.
+        if (alarmApp && !TgBackup.rahasiaAlarmCocok(context, intent)) {
+            return;
+        }
         // Tanpa heal penuh di sini: getAll() mem-parse ulang seluruh XML prefs
         // tiap alarm (termasuk spoof/throttle yang kembali dini); baca aman*
         // sembuh-sendiri per kunci, heal jalan di mulaiBackup sebelum tulis.
@@ -137,11 +145,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         // Alarm susulan boot: putuskan SEKARANG dengan jam yang sudah stabil —
         // jalan hanya bila sudah ganti hari; tolak jam reset/mundur (1999).
         if (intent.getBooleanExtra(TgBackup.EXTRA_TUNDA_BOOT, false)) {
-            // Action milik app wajib membawa rahasia alarm: tanpa ini app lain
-            // bisa memicu backup+upload via explicit-intent spoof.
-            if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
-                return;
-            }
+            // Rahasia alarm sudah diperiksa di awal onReceive (sebelum kerja
+            // apa pun), jadi tak diulang di sini.
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
@@ -215,15 +220,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             return;
         }
-        // Jalur alarm umum: action milik app sudah divalidasi di awal (hanya
-        // ACTION_HARIAN/ACTION_TUNDA yang sampai sini; bare intent lawas dan
-        // action asing sudah ditolak). Throttle 60 dtk menumpulkan spam
+        // Jalur alarm umum (ACTION_HARIAN): action + rahasia alarm sudah
+        // divalidasi di awal onReceive. Throttle 60 dtk menumpulkan spam
         // explicit-intent: jadwal tetap disegar oleh mulaiBackup, service
-        // sudah dedup harian di dalamnya. Rahasia menutup spoof explicit-intent
-        // dari app lain yang sebelumnya bisa memicu backup+upload tiap 60 detik.
-        if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
-            return;
-        }
+        // sudah dedup harian di dalamnya.
         long kiniElapsed = android.os.SystemClock.elapsedRealtime();
         long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
         if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
