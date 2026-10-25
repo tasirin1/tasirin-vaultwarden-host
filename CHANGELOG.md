@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 241: Verifier tak lagi menuduh komentar/string soal Locale
+- `cek_locale_baru()` mencocokkan pola `.toLowerCase()`/`.toUpperCase()` pada baris tambah **mentah**, termasuk baris komentar dan isi string. Akibatnya commit yang hanya menulis dokumentasi (mis. "dulu memakai `.toLowerCase()` tanpa Locale") digagalkan gerbang Verifikasi Patch, dan penulis terdorong menghapus penjelasan yang berguna.
+- Kini tiap baris tambah dikupas dulu dengan `kupas_java()` (komentar + literal dibuang) dan baris lanjutan komentar blok (diawali `*`) dilewati; hanya pemanggilan sungguhan tanpa `Locale` yang gagal. Diuji lokal dengan diff sintetis: komentar/string diabaikan, `toLowerCase()` dan `toUpperCase()` asli tetap tertangkap, `toLowerCase(Locale.US)` lolos.
+
 ## [Belum rilis] — Audit 240: Kunci privat TLS tak lagi dibuat di storage publik
 - Saat `TlsCert.ensure()` di folder internal gagal, `prepareTls()` jatuh ke `data_dir/tls` — yang pada perangkat umumnya `/sdcard/vaultwarden/tls`. `ensure()` lalu membuat CA/leaf baru di sana, sehingga `ca-key.pem`/`key.pem` tertulis di FAT yang tak mengenal chmod dan bisa disalin app lain berizin storage (log lama hanya memberi peringatan setelah kunci sudah tertulis).
 - Kini fallback ke folder di storage publik hanya memakai material lama yang sudah lengkap dan valid (`TlsCert.siapPakaiTanpaTulis()`: pasangan cert/key cocok, leaf ditandatangani CA, belum kedaluwarsa) **tanpa menulis apa pun**. Bila belum ada material valid, TLS gagal dengan log yang menyebut penyebabnya (ruang/izin internal) — server tak start dengan kunci bocor. Folder data di internal tetap boleh ditulis seperti biasa. Gerbang `diStoragePublik()`/`bolehFallbackTls()` murni + uji JVM.

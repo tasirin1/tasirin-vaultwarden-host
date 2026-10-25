@@ -732,10 +732,18 @@ def cek_hapusan_belum_tercatat(peringatan, diff):
 
 def cek_locale_baru(gagal, diff):
     for _, isi in tambah_java(diff):
-        if re.search(r"\.to(Lower|Upper)Case\(\)", isi):
+        # Komentar & literal dikupas dulu: prosa "jangan pakai .toLowerCase()"
+        # atau contoh di dalam string bukan pemanggilan sungguhan. Dulu baris
+        # komentar saja sudah menggagalkan push (false positive), dan baris
+        # lanjutan komentar blok (diawali "*") juga dilewati di sini.
+        rapih = isi.strip()
+        if not rapih or rapih.startswith(("*", "//", "/*", "*/")):
+            continue
+        kode = kupas_java(isi)
+        if re.search(r"\.to(Lower|Upper)Case\(\)", kode):
             gagal.append("Baris baru toLower/UpperCase() tanpa Locale — bug locale "
                          "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
-                         % isi.strip()[:80])
+                         % kode.strip()[:80])
 
 
 def nama_warna(path):
