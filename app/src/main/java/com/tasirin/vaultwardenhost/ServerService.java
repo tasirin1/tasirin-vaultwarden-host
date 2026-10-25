@@ -2197,9 +2197,9 @@ public class ServerService extends Service {
             // untuk crash beruntun ber-uptime pendek. Reset hanya terjadi saat
             // uptime sudah >60 dtk (scheduleRestart) atau Start eksplisit user.
 
-            // Siram buffer milik folder lama dulu agar log tak tecampur ke file baru.
-            flushLogFile();
-            logFile = new File(dataFolder, "vaultwarden.log");
+            // Siram buffer milik folder lama lalu tukar tujuan file log dalam
+            // satu bagian kritis agar log folder lama tak tecampur ke folder baru.
+            pindahLogFile(new File(dataFolder, "vaultwarden.log"));
 
             setStatus("Running (PID " + getPid(process) + ")\nData: " + dataDir
                     + "\nURL lokal (di HP): https://127.0.0.1:" + port
@@ -2956,12 +2956,16 @@ public class ServerService extends Service {
             return;
         }
         String stamp = tulisBarisLog(line);
-        if (logFile != null) {
-            synchronized (LOG_FILE_LOCK) {
-                logFileBuf.append(stamp).append(' ').append(line).append('\n');
-                if (logFileBuf.length() >= LOG_FILE_FLUSH_CHARS) {
-                    flushLogFileLocked();
-                }
+        // Cek logFile DI DALAM kunci: dulu cek di luar lalu append di dalam,
+        // sehingga baris yang masuk tepat saat tujuan file ditukar
+        // (pindahLogFile) bisa tertulis ke file folder BARU.
+        synchronized (LOG_FILE_LOCK) {
+            if (logFile == null) {
+                return;
+            }
+            logFileBuf.append(stamp).append(' ').append(line).append('\n');
+            if (logFileBuf.length() >= LOG_FILE_FLUSH_CHARS) {
+                flushLogFileLocked();
             }
         }
     }
@@ -2970,6 +2974,17 @@ public class ServerService extends Service {
     private static void flushLogFile() {
         synchronized (LOG_FILE_LOCK) {
             flushLogFileLocked();
+        }
+    }
+
+    /** Siram buffer milik folder lama lalu tukar tujuan file log dalam SATU
+     *  bagian kritis. Dulu flushLogFile() dan penggantian logFile dua akuisisi
+     *  kunci terpisah: baris yang masuk di jeda itu ikut tertulis ke file
+     *  folder BARU, sehingga log folder lama tecampur ke folder baru. */
+    static void pindahLogFile(File baru) {
+        synchronized (LOG_FILE_LOCK) {
+            flushLogFileLocked();
+            logFile = baru;
         }
     }
 

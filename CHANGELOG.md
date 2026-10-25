@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 249: Baris log folder lama tak lagi masuk file folder baru
+- Saat Start memakai folder data baru, `flushLogFile()` (kunci `LOG_FILE_LOCK`) dan penggantian `logFile` adalah dua langkah terpisah. `appendLog()` mengecek `logFile != null` di luar kunci, sehingga baris yang masuk di jeda itu tetap di buffer dan tertulis ke file folder **baru** — log folder lama tecampur, dan baris tersebut hilang dari file lama yang seharusnya.
+- Kini ada satu pintu `pindahLogFile()`: siram buffer dan tukar `logFile` dalam satu bagian kritis, dan `appendLog()` memeriksa `logFile` di dalam kunci yang sama. Baris yang masuk sebelum penukaran pasti tertulis ke file lama, sesudahnya ke file baru. Uji JVM memastikan buffer lama disiram ke file lama dan tujuan baru terpasang.
+
 ## [Belum rilis] — Audit 248: Pembersihan proses tak lagi menghapus proses Start baru
 - Pembersihan state proses (`if (process == p) process = null;` + `running = false` + reset penanda + wake lock/status) dilakukan **di luar** `KUNCI_PROSET`, padahal fase exec Start memakai kunci yang sama. Bila Start baru berhasil `pb.start()` di jeda antara cek dan tulis, pembersihan milik proses lama menghapus referensi proses baru: UI menampilkan "Stopped" padahal server baru hidup, wake lock-nya dilepas, dan health/tautan menunjuk penanda kosong. Jalur terdampak: stopper `stopServer()`, `watchProcess()` (dua cabang), health 3x gagal, dan restart dari Telegram.
 - Kini semua jalur memakai satu pintu `lepasProses(p, efek)`: cek identitas, pelepasan `process`/`running`, reset penanda, dan efek lanjutan (wake lock/log/status) dijalankan dalam satu bagian kritis `KUNCI_PROSET`. Baca-dan-tandai proses pada jalur restart/health juga dipindah ke dalam kunci. Uji JVM (`ProsesPalsu`) membuktikan pembersihan proses lama tak menyentuh referensi proses baru.

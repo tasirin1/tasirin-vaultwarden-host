@@ -675,6 +675,35 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void pindahLogFileMenulisBufferKeFileLama() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwlog").toFile();
+        java.io.File lama = new java.io.File(dir, "lama.log");
+        java.io.File baru = new java.io.File(dir, "baru.log");
+        java.lang.reflect.Field fLog = ServerService.class.getDeclaredField("logFile");
+        fLog.setAccessible(true);
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        Object asliLog = fLog.get(null);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            fLog.set(null, lama);
+            buf.append("baris-folder-lama\n");
+            ServerService.pindahLogFile(baru);
+            // Buffer lama wajib sudah disiram ke file LAMA, bukan tertinggal
+            // untuk ditulis ke file folder baru sesudah tujuan ditukar.
+            assertEquals(baru, fLog.get(null));
+            assertEquals(0, buf.length());
+            String isi = new String(java.nio.file.Files.readAllBytes(lama.toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            assertTrue(isi.contains("baris-folder-lama"));
+            assertFalse(baru.exists());
+        } finally {
+            fLog.set(null, asliLog);
+            buf.setLength(0);
+        }
+    }
+
+    @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
         // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".
         assertEquals("Server aktif di port 8080",
