@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 263: Sapu cache tak lagi memblokir UI saat activity dibuka
+- `onCreate` memanggil `bersihkanExportPlainCache()` dan `onResume` memanggil `sapuExportPlainBasi()` + `sapuSisaImpor()` langsung di UI thread. Ketiganya melakukan `getCacheDir().listFiles()` lalu `lastModified()`/`delete()` per entri; pada STB yang lama dipakai (cache ribuan berkas, storage lambat) ini menahan cold start/`onResume` sampai enumerasi selesai — persis kelas ANR yang dihindari di jalur lain.
+- Keduanya kini dijalankan lewat satu pintu `sapuCacheLatar()` di pool ringan (`Util.jalankanBg`), dengan gerbang `sapuCacheJalan` agar `onCreate`+`onResume` beruntun tak menggandakan pekerjaan; antrean penuh melepas gerbang agar percobaan berikutnya tetap jalan. Sapu tetap best-effort dan `exportPlainTertunda` hanya dikosongkan bila masih menunjuk file yang sama (sapu kini bisa berjalan bersamaan dengan UI yang memasang pending baru).
+
 ## [Belum rilis] — Audit 262: Teks Indonesia tak lagi menyelip di toast berbahasa Inggris
 - Tiga potongan teks Indonesia dicetak ke toast UI yang selebihnya berbahasa Inggris: `" Shim getrandom siap."`, `" Shim gagal: …"` (jalur cek update) dan `" Tekan Start untuk memakai."` (cek update + pasang versi pilihan). Pengguna locale Inggris melihat kalimat campuran, dan teks itu tak bisa diterjemahkan.
 - Kini toast memakai Inggris (`" Shim getrandom ready."`, `" Shim failed: …"`, `" Press Start to use it."`), sedangkan log diagnostik tetap Indonesia lewat string terpisah (`imbuhShimLog`), sesuai aturan bahasa repo (UI Inggris, log/bot Indonesia).

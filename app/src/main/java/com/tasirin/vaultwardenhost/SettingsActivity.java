@@ -396,8 +396,9 @@ public class SettingsActivity extends Activity {
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
         // Sisa export plaintext sesi yang mati (dibunuh saat chooser terbuka)
-        // tak boleh mengendap di cache: sapu sekali saat buka.
-        bersihkanExportPlainCache();
+        // tak boleh mengendap di cache: sapu sekali saat buka, di pool ringan
+        // (enumerasi cache di UI thread bisa memblokir cold start STB lama).
+        sapuCacheLatar();
         // Sisa salinan clipboard yang penghapusnya tak sempat jalan karena
         // proses mati dibersihkan/dipasang ulang di sini (satu pintu LogActivity).
         LogActivity.bersihkanClipBasiJikaAda(this);
@@ -903,8 +904,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        sapuExportPlainBasi();
-        sapuSisaImpor();
+        sapuCacheLatar();
         refreshActive = true;
         paksaCacheUbah = true;
         ui.removeCallbacks(refreshLoop);
@@ -2504,6 +2504,33 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /** Gerbang agar sapu cache onCreate+onResume tak berjalan dua kali. */
+    private final java.util.concurrent.atomic.AtomicBoolean sapuCacheJalan =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
+    /** Sapu sisa file sensitif di cache dari pool RINGAN, bukan UI thread:
+     *  `listFiles()` + `lastModified()` + `delete()` per entri bisa ribuan
+     *  berkas di STB yang lama dipakai, dan dulu jalur onCreate/onResume
+     *  memblokir layar sampai enumerasi selesai. Best-effort seperti sapu
+     *  sebelumnya (galat I/O ditelan di masing-masing fungsi). */
+    private void sapuCacheLatar() {
+        if (!sapuCacheJalan.compareAndSet(false, true)) {
+            return;
+        }
+        boolean masuk = Util.jalankanBg(() -> {
+            try {
+                sapuExportPlainBasi();
+                sapuSisaImpor();
+            } finally {
+                sapuCacheJalan.set(false);
+            }
+        });
+        if (!masuk) {
+            // Antrean penuh: lepas gerbang agar percobaan berikutnya jalan.
+            sapuCacheJalan.set(false);
+        }
+    }
+
     /** Sapu file config plaintext yang sudah basi (best-effort, dipakai
      *  onCreate/onResume/onDestroy). File pending yang masih segar (<2 menit)
      *  dipertahankan. */
@@ -2513,7 +2540,11 @@ public class SettingsActivity extends Activity {
             if (pending != null
                     && SystemClock.elapsedRealtime() - exportPlainPada >= EXPORT_PLAIN_TTL_MS) {
                 pending.delete();
-                exportPlainTertunda = null;
+                // Hanya kosongkan bila masih file yang sama: sapu berjalan di
+                // thread lain dan UI bisa memasang pending baru di jeda ini.
+                if (exportPlainTertunda == pending) {
+                    exportPlainTertunda = null;
+                }
             }
         } catch (Exception ignored) {
         } finally {
