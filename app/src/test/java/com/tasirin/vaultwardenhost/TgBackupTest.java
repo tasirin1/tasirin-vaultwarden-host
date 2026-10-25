@@ -1247,6 +1247,30 @@ public class TgBackupTest {
     }
 
     @Test
+    public void kirimKeSatuChatAbaikanMasukanTakSah() {
+        // Context null / chat kosong tak boleh melempar: antrean tak tersentuh.
+        TgBackup.sendMessageKe(null, "123456789", "halo");
+        TgBackup.sendMessageKbKe(null, "123456789", "halo", null);
+        TgBackup.sendPentingKe(null, "", "halo");
+        TgBackup.sendMessageKe(null, null, null);
+    }
+
+    @Test
+    public void tujuanBalasanHanyaChatPengirim() {
+        // Balasan perintah tak boleh menyiarkan ke semua chat config: satu
+        // tujuan saja, yaitu chat pengirim (termasuk bila itu grup).
+        assertEquals(java.util.Arrays.asList("123456789"),
+                TgBackup.tujuanBalasan("123456789"));
+        assertEquals(java.util.Arrays.asList("123456789"),
+                TgBackup.tujuanBalasan("  123456789  "));
+        assertEquals(java.util.Arrays.asList("-1001234567890"),
+                TgBackup.tujuanBalasan("-1001234567890"));
+        assertNull(TgBackup.tujuanBalasan("123, 456"));
+        assertNull(TgBackup.tujuanBalasan(""));
+        assertNull(TgBackup.tujuanBalasan(null));
+    }
+
+    @Test
     public void dbSibuk_bedakanKunciSesaatDariKorup() {
         assertTrue(TgBackup.dbSibuk("SIBUK: database is locked"));
         assertFalse(TgBackup.dbSibuk("no such table: main"));

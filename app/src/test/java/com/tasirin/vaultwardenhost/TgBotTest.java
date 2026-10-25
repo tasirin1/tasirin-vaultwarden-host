@@ -13,6 +13,13 @@ public class TgBotTest {
 
 
     @Test
+    public void peringatkanHapusPinAbaikanContextNull() {
+        // Tanpa Context (atau sudah tercatat) tak boleh melempar di thread bot.
+        TgBot.peringatkanBilaTakBisaHapus(null, true, 123456789L);
+        TgBot.peringatkanBilaTakBisaHapus(null, false, -1001234567890L);
+    }
+
+    @Test
     public void argumenVersiValid_terimaVersiDanTerbaru() {
         assertTrue(TgBot.argumenVersiValid(null));
         assertTrue(TgBot.argumenVersiValid(""));

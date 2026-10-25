@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 277: Balasan perintah Telegram hanya ke chat pengirim
+- Seluruh balasan bot memakai `TgBackup.sendMessage()` yang mengulang **semua** chat di `KEY_TG_CHAT`. `authDangerous` sudah menolak perintah ber-PIN dari grup, tetapi **hasil** perintah yang dijalankan dari chat pribadi tetap disiarkan: grup ikut menerima path folder data, ukuran DB, URL LAN/port (`/status`), potongan log/crash (`/log`, `/crashlog`), serta nama & tanggal berkas backup (`/backup`, `/restore`).
+- Balasan kini lewat satu pintu `TgBackup.sendMessageKe`/`sendMessageKbKe`/`sendPentingKe` yang mengirim ke **satu** chat (pengirim) lewat `kirimKeDaftar()` yang sama; siaran tetap dipakai untuk notifikasi sistem (backup terjadwal, storage, restart berulang, peringatan jam mundur). Fallback `editMessageKb` yang gagal mengedit juga tidak lagi menyiarkan menu ke semua chat. Tujuan balasan divalidasi `tujuanBalasan()` (murni, diuji) sehingga ID aneh tak masuk URL API.
+
 ## [Belum rilis] — Audit 276: Kegagalan `git diff` menggagalkan verifikasi, bukan lolos diam-diam
 - `jalan()` mengembalikan `None` untuk exit≠0/timeout, tetapi seluruh pemanggil diff menulis `jalan(...) or ""`. Bila `git diff` gagal (riwayat tak berhubungan setelah force-push/re-init, `safe.directory`, atau timeout 60 dtk di runner lambat), diff menjadi string kosong dan **sepuluh cek berbasis diff** — termasuk `cek_panggil_bekas_hapusan` (aturan #15), `cek_metode_hilang`, `cek_locale_baru`, `cek_pola_berisiko`, `cek_izin_baru`, `cek_definisi_baru` — dilewati, lalu skrip mencetak `Hasil: LOLOS`.
 - Pembantu baru `jalan_diff()` memisahkan "diff kosong" dari "git gagal"; kegagalan dicatat dan membuat hasil akhir GAGAL dengan pesan eksplisit, sehingga gerbang CI tak bisa hijau tanpa bahan. Berlaku untuk jalur `--rentang`, jalur lokal (hulu/HEAD~1 + diff kerja + staged), `--semua`, dan daftar berkas eksplisit.

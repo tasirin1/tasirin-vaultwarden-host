@@ -545,7 +545,7 @@ public final class TgBot {
                                         // Sesi sengaja TIDAK ditutup: obrolan bukan
                                         // tebakan PIN. Petunjuk bentuk eksplisit agar
                                         // PIN huruf murni/ber-spasi tak gagal diam.
-                                        TgBackup.sendMessage(ctx, "Balasan bukan PIN."
+                                        balas(ctx, idRuang, "Balasan bukan PIN."
                                                 + " Balas dengan PIN (min. 4 karakter berdigit),"
                                                 + " atau bentuk PIN:... bila PIN hanya huruf"
                                                 + " atau ber-spasi. Sesi masih terbuka;"
@@ -561,7 +561,7 @@ public final class TgBot {
                                     // PIN yang terlambat, jadi pesannya dihapus sekali
                                     // (sesi langsung dibersihkan) agar PIN asli tak
                                     // menempel di riwayat cloud.
-                                    TgBackup.sendMessage(ctx, "Sesi PIN sudah kedaluwarsa"
+                                    balas(ctx, idRuang, "Sesi PIN sudah kedaluwarsa"
                                             + " (>5 menit) - aksi tidak dijalankan dan"
                                             + " pesan balasan dihapus dari riwayat."
                                             + " Ketuk tombol lagi untuk PIN baru.");
@@ -582,7 +582,7 @@ public final class TgBot {
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     boolean terhapus = hapusPesanPerintah(ctx,
                                             idRuang, idPesan);
-                                    peringatkanBilaTakBisaHapus(ctx, terhapus);
+                                    peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
                                         && pinPerangkatAktif(ctx)
                                         && !sudahUjiHapus(ctx)) {
@@ -590,7 +590,7 @@ public final class TgBot {
                                     // hapus pesan /help sendiri sebagai proba hak hapus.
                                     boolean terhapus = hapusPesanPerintah(ctx,
                                             idRuang, idPesan);
-                                    peringatkanBilaTakBisaHapus(ctx, terhapus);
+                                    peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
                                 }
                             }
                         } catch (Exception eUpdate) {
@@ -611,6 +611,8 @@ public final class TgBot {
                     }
                 }
                 if (rollbackDitolak > 0) {
+                    // Peringatan jam mundur bersifat perangkat, bukan balasan
+                    // satu perintah: tetap disiarkan ke semua chat config.
                     TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
                             + " perintah ditolak sementara. Periksa tanggal & jam STB.");
                 }
@@ -1087,7 +1089,7 @@ public final class TgBot {
             // Tanpa message tak ada tanggal: tolak agar tak bisa di-replay selamanya.
             if (pesan == null) {
                 jawabCallback(ctx, cb.optString("id", ""));
-                TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
+                balas(ctx, idRuang, "Tombol sudah kedaluwarsa (>24 jam)."
                         + " Minta keyboard baru dengan /help lalu coba lagi.");
                 return;
             }
@@ -1099,7 +1101,7 @@ public final class TgBot {
                 boolean ingatkan = catatMundurDanBolehIngatkan(kini);
                 jawabCallback(ctx, cb.optString("id", ""));
                 if (ingatkan) {
-                    TgBackup.sendMessage(ctx, "Jam STB sempat mundur drastis;"
+                    balas(ctx, idRuang, "Jam STB sempat mundur drastis;"
                             + " tombol ditolak sementara. Periksa tanggal & jam STB.");
                 }
                 return;
@@ -1108,7 +1110,7 @@ public final class TgBot {
             }
             if (tombolKedaluwarsa(tgl, kini)) {
                 jawabCallback(ctx, cb.optString("id", ""));
-                TgBackup.sendMessage(ctx, "Tombol sudah kedaluwarsa (>24 jam)."
+                balas(ctx, idRuang, "Tombol sudah kedaluwarsa (>24 jam)."
                         + " Minta keyboard baru dengan /help lalu coba lagi.");
                 return;
             }
@@ -1157,7 +1159,7 @@ public final class TgBot {
         if (chatId != 0 && messageId != 0) {
             TgBackup.editMessageKb(ctx, chatId, messageId, teks, kb);
         } else {
-            TgBackup.sendMessageKb(ctx, teks, kb);
+            TgBackup.sendMessageKbKe(ctx, String.valueOf(chatId), teks, kb);
         }
     }
 
@@ -1261,7 +1263,7 @@ public final class TgBot {
         if (messageId != 0) {
             TgBackup.editMessageKb(ctx, chatId, messageId, teks, kb);
         } else {
-            TgBackup.sendMessageKb(ctx, teks, kb);
+            TgBackup.sendMessageKbKe(ctx, String.valueOf(chatId), teks, kb);
         }
     }
 
@@ -1322,7 +1324,7 @@ public final class TgBot {
             return handleCommand(ctx, cmd, idRuang);
         }
         if (p.isEmpty() || p.length() > 128) {
-            TgBackup.sendMessage(ctx, "PIN tidak valid. Ketuk tombol lagi untuk mencoba.");
+            balas(ctx, idRuang, "PIN tidak valid. Ketuk tombol lagi untuk mencoba.");
             return false;
         }
         return handleCommand(ctx, cmd + " PIN:" + p, idRuang);
@@ -1434,7 +1436,7 @@ public final class TgBot {
     /** Peringatkan sekali bila bot tak bisa menghapus pesan ber-PIN (tanpa hak
      *  hapus di chat): PIN yang lolos tetap bisa dibaca ulang dari riwayat
      *  cloud. Murni efek prefs + kirim; dipanggil dari poll thread sendiri. */
-    static void peringatkanBilaTakBisaHapus(Context ctx, boolean berhasil) {
+    static void peringatkanBilaTakBisaHapus(Context ctx, boolean berhasil, long idRuang) {
         if (berhasil) {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -1456,7 +1458,7 @@ public final class TgBot {
         } catch (Exception ignored) {
             return;
         }
-        TgBackup.sendMessage(ctx, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
+        balas(ctx, idRuang, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
                 + " dari riwayat chat (tanpa hak hapus; di grup jadikan bot admin)."
                 + " Hapus manual pesan berisi PIN agar tak dipakai ulang pengintip.");
     }
@@ -1509,6 +1511,19 @@ public final class TgBot {
         });
     }
 
+    /** Balas HANYA ke chat pengirim perintah (bukan siaran ke semua chat
+     *  config). Dipakai seluruh balasan bot: dulu /status, /log, /crashlog,
+     *  /backup, /restore ... disiarkan sehingga grup ikut menerima path data,
+     *  URL LAN/port, potongan log, dan nama berkas backup. */
+    private static void balas(Context ctx, long idRuang, String text) {
+        TgBackup.sendMessageKe(ctx, String.valueOf(idRuang), text);
+    }
+
+    /** Balasan penting (antrean prioritas) ke chat pengirim saja. */
+    private static void balasPenting(Context ctx, long idRuang, String text) {
+        TgBackup.sendPentingKe(ctx, String.valueOf(idRuang), text);
+    }
+
     /** Tangani satu perintah; true bila perintah ber-PIN (/berbahaya + /status +
      *  /log + /crashlog) lolos otorisasi (PIN terverifikasi atau PIN mati) sehingga
      *  pemanggil boleh menghapus pesan dari riwayat. False berarti PIN
@@ -1524,7 +1539,7 @@ public final class TgBot {
         // Multi-akun: gerbang ikut ID chat (bukan config) agar admin pribadi
         // tetap bisa memerintah saat config juga memuat grup.
         if (idRuang < 0 && perintahBerbahaya(text)) {
-            TgBackup.sendMessage(ctx, "Perintah berbahaya dari grup ditolak."
+            balas(ctx, idRuang, "Perintah berbahaya dari grup ditolak."
                     + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
             return false;
         }
@@ -1545,18 +1560,18 @@ public final class TgBot {
                 }
                 berbahayaTerotorisasi = true;
                 if (ServerService.running || ServerService.isProcessAlive()) {
-                    TgBackup.sendMessage(ctx, "Server sudah jalan.");
+                    balas(ctx, idRuang, "Server sudah jalan.");
                 } else {
                     try {
                         if (ServerService.start(ctx)) {
-                            TgBackup.sendMessage(ctx, "Perintah diterima: server start...");
+                            balas(ctx, idRuang, "Perintah diterima: server start...");
                         } else {
-                            TgBackup.sendMessage(ctx, "Gagal start dari background (batasan Android). "
+                            balas(ctx, idRuang, "Gagal start dari background (batasan Android). "
                                     + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
                                     + "lalu reboot HP.");
                         }
                     } catch (Throwable t) {
-                        TgBackup.sendMessage(ctx, "Gagal start dari background (batasan Android). "
+                        balas(ctx, idRuang, "Gagal start dari background (batasan Android). "
                                 + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
                                 + "lalu reboot HP.");
                     }
@@ -1569,13 +1584,13 @@ public final class TgBot {
                 berbahayaTerotorisasi = true;
                 try {
                     if (ServerService.stop(ctx)) {
-                        TgBackup.sendMessage(ctx, "Perintah diterima: server stop...");
+                        balas(ctx, idRuang, "Perintah diterima: server stop...");
                     } else {
-                        TgBackup.sendMessage(ctx, "Gagal stop dari background (batasan Android). "
+                        balas(ctx, idRuang, "Gagal stop dari background (batasan Android). "
                                 + "Buka app lalu tekan Stop.");
                     }
                 } catch (Throwable t) {
-                    TgBackup.sendMessage(ctx, "Gagal stop dari background (batasan Android). "
+                    balas(ctx, idRuang, "Gagal stop dari background (batasan Android). "
                             + "Buka app lalu tekan Stop.");
                 }
                 break;
@@ -1587,17 +1602,17 @@ public final class TgBot {
                 // Cek lokal dulu agar pesan jujur: restart() hanya lapor
                 // startService terkirim, bukan server sedang berjalan.
                 if (!ServerService.running && !ServerService.isProcessAlive()) {
-                    TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                    balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
                     break;
                 }
                 try {
                     if (ServerService.restart(ctx)) {
-                        TgBackup.sendMessage(ctx, "Perintah diterima: server restart...");
+                        balas(ctx, idRuang, "Perintah diterima: server restart...");
                     } else {
-                        TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                        balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
                     }
                 } catch (Throwable t) {
-                    TgBackup.sendMessage(ctx, "Restart hanya bisa saat server berjalan.");
+                    balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
                 }
                 break;
             case "/backup":
@@ -1605,11 +1620,11 @@ public final class TgBot {
                     break;
                 }
                 berbahayaTerotorisasi = true;
-                runBeratDenganKunci(ctx, () -> {
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     try {
-                        TgBackup.sendMessage(ctx, TgBackup.backupNow(ctx));
+                        balas(ctx, idRuang, TgBackup.backupNow(ctx));
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, TgBackup.pesanGalatBackup(e));
+                        balas(ctx, idRuang, TgBackup.pesanGalatBackup(e));
                     }
                 });
                 break;
@@ -1620,17 +1635,17 @@ public final class TgBot {
                 }
                 berbahayaTerotorisasi = true;
                 if (isRestoreConfirm(cleanRestore)) {
-                    runBeratDenganKunci(ctx, () -> {
+                    runBeratDenganKunci(ctx, idRuang, () -> {
                         try {
-                            TgBackup.sendMessage(ctx, "Mengunduh backup terakhir...");
-                            TgBackup.sendMessage(ctx, doRestore(ctx)
+                            balas(ctx, idRuang, "Mengunduh backup terakhir...");
+                            balas(ctx, idRuang, doRestore(ctx)
                                     + " Tekan /start untuk menjalankan.");
                         } catch (Exception e) {
-                            TgBackup.sendMessage(ctx, "Restore gagal: " + e.getMessage());
+                            balas(ctx, idRuang, "Restore gagal: " + e.getMessage());
                         }
                     });
                 } else {
-                    TgBackup.sendMessage(ctx, restoreInfoText(ctx));
+                    balas(ctx, idRuang, restoreInfoText(ctx));
                 }
                 break;
             case "/ca":
@@ -1644,9 +1659,9 @@ public final class TgBot {
                 }
                 runWithWakeLock(ctx, () -> {
                     try {
-                        TgBackup.sendMessage(ctx, TgBackup.kirimCa(ctx));
+                        balas(ctx, idRuang, TgBackup.kirimCa(ctx));
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Kirim CA gagal: " + e.getMessage());
+                        balas(ctx, idRuang, "Kirim CA gagal: " + e.getMessage());
                     }
                 });
                 break;
@@ -1661,9 +1676,9 @@ public final class TgBot {
                 }
                 runWithWakeLock(ctx, () -> {
                     try {
-                        TgBackup.sendMessage(ctx, TgBackup.backupCaKeStorage(ctx));
+                        balas(ctx, idRuang, TgBackup.backupCaKeStorage(ctx));
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Backup CA gagal: " + e.getMessage());
+                        balas(ctx, idRuang, "Backup CA gagal: " + e.getMessage());
                     }
                 });
                 break;
@@ -1675,11 +1690,11 @@ public final class TgBot {
                 // Kunci tugas berat (bukan runWithWakeLock polos): reset menghapus
                 // file tls satu per satu sehingga backup konkuren bisa menangkap
                 // setengah set (CA baru + key lama). Serial dengan backup/restore.
-                runBeratDenganKunci(ctx, () -> {
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     try {
-                        TgBackup.sendMessage(ctx, TgBackup.resetSertifikat(ctx));
+                        balas(ctx, idRuang, TgBackup.resetSertifikat(ctx));
                     } catch (Exception e) {
-                        TgBackup.sendMessage(ctx, "Reset sertifikat gagal: " + e.getMessage());
+                        balas(ctx, idRuang, "Reset sertifikat gagal: " + e.getMessage());
                     }
                 });
                 break;
@@ -1694,7 +1709,7 @@ public final class TgBot {
                     }
                     berbahayaTerotorisasi = true;
                 }
-                TgBackup.sendMessage(ctx, statusText(ctx));
+                balas(ctx, idRuang, statusText(ctx));
                 break;
             case "/log":
                 // Log memuat path folder data, port, versi binary, URL LAN:
@@ -1706,18 +1721,18 @@ public final class TgBot {
                     }
                     berbahayaTerotorisasi = true;
                 }
-                TgBackup.sendMessage(ctx, tailLog());
+                balas(ctx, idRuang, tailLog());
                 break;
             case "/uptime":
                 long up = ServerService.uptimeMs();
                 if (up <= 0) {
-                    TgBackup.sendMessage(ctx, "Server sedang berhenti.");
+                    balas(ctx, idRuang, "Server sedang berhenti.");
                 } else {
-                    TgBackup.sendMessage(ctx, "Server jalan selama " + durationText(up) + ".");
+                    balas(ctx, idRuang, "Server jalan selama " + durationText(up) + ".");
                 }
                 break;
             case "/alive":
-                TgBackup.sendMessage(ctx, ServerService.pingAlive(ctx)
+                balas(ctx, idRuang, ServerService.pingAlive(ctx)
                         ? "Server sehat (HTTPS 200 /alive)."
                         : "Server TIDAK merespon /alive!");
                 break;
@@ -1728,13 +1743,13 @@ public final class TgBot {
                 }
                 berbahayaTerotorisasi = true;
                 if (!argumenVersiValid(bersihUpdate)) {
-                    TgBackup.sendMessage(ctx, "Versi tidak valid."
+                    balas(ctx, idRuang, "Versi tidak valid."
                             + " Contoh: /update 1.32.0 atau /update terbaru");
                     break;
                 }
                 final boolean kunciUpdate = !bersihUpdate.isEmpty();
                 final String versiUpdate = Updater.normalisasiPinVersi(bersihUpdate);
-                runBeratDenganKunci(ctx, () -> {
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     String pinLama = Updater.kuncianBinary(ctx);
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
@@ -1743,7 +1758,7 @@ public final class TgBot {
                         // unduh gagal agar typo tak mengunci perangkat ke versi rusak.
                         if (kunciUpdate) {
                             if (!Updater.simpanKuncianBinary(ctx, bersihUpdate)) {
-                                TgBackup.sendMessage(ctx, "Versi tidak valid."
+                                balas(ctx, idRuang, "Versi tidak valid."
                                         + " Contoh: /update 1.32.0 atau /update terbaru");
                                 return;
                             }
@@ -1762,16 +1777,16 @@ public final class TgBot {
                         if (Updater.binaryBerubah(msg)) {
                             if (was) {
                                 if (ServerService.restart(ctx)) {
-                                    TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                    balas(ctx, idRuang, msg + " Restart otomatis...");
                                 } else {
-                                    TgBackup.sendMessage(ctx, msg + " Restart manual dari app"
+                                    balas(ctx, idRuang, msg + " Restart manual dari app"
                                             + " (batasan background Android).");
                                 }
                             } else {
-                                TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
+                                balas(ctx, idRuang, msg + " Tekan /start untuk memakai.");
                             }
                         } else {
-                            TgBackup.sendMessage(ctx, msg);
+                            balas(ctx, idRuang, msg);
                         }
                     } catch (Exception e) {
                         // Gagal unduh: kembalikan pin lama bila tadi mengunci versi
@@ -1784,7 +1799,7 @@ public final class TgBot {
                         String pesan = e.getMessage();
                         String ramah = pesan != null && pesan.contains("Cek ")
                                 ? pesan : Updater.pesanGalatUnduh("Unduh binary", e);
-                        TgBackup.sendMessage(ctx, "Update gagal: " + ramah);
+                        balas(ctx, idRuang, "Update gagal: " + ramah);
                     }
                 });
                 break;
@@ -1795,20 +1810,20 @@ public final class TgBot {
                 }
                 berbahayaTerotorisasi = true;
                 if (!argumenVersiValid(bersihWv)) {
-                    TgBackup.sendMessage(ctx, "Versi tidak valid."
+                    balas(ctx, idRuang, "Versi tidak valid."
                             + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
                     break;
                 }
                 final boolean kunciWv = !bersihWv.isEmpty();
                 final String versiWv = Updater.normalisasiPinVersi(bersihWv);
-                runBeratDenganKunci(ctx, () -> {
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     String pinLamaWv = Updater.kuncianWebVault(ctx);
                     try {
                         boolean was = ServerService.running || ServerService.isProcessAlive();
                         // Pin lama dikembalikan bila unduh gagal (lihat /update).
                         if (kunciWv) {
                             if (!Updater.simpanKuncianWebVault(ctx, bersihWv)) {
-                                TgBackup.sendMessage(ctx, "Versi tidak valid."
+                                balas(ctx, idRuang, "Versi tidak valid."
                                         + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
                                 return;
                             }
@@ -1817,16 +1832,16 @@ public final class TgBot {
                         if (webVaultBerubah(msg)) {
                             if (was) {
                                 if (ServerService.restart(ctx)) {
-                                    TgBackup.sendMessage(ctx, msg + " Restart otomatis...");
+                                    balas(ctx, idRuang, msg + " Restart otomatis...");
                                 } else {
-                                    TgBackup.sendMessage(ctx, msg + " Restart manual dari app"
+                                    balas(ctx, idRuang, msg + " Restart manual dari app"
                                             + " (batasan background Android).");
                                 }
                             } else {
-                                TgBackup.sendMessage(ctx, msg + " Tekan /start untuk memakai.");
+                                balas(ctx, idRuang, msg + " Tekan /start untuk memakai.");
                             }
                         } else {
-                            TgBackup.sendMessage(ctx, msg);
+                            balas(ctx, idRuang, msg);
                         }
                     } catch (Exception e) {
                         if (kunciWv && versiWv != null) {
@@ -1836,12 +1851,12 @@ public final class TgBot {
                         String pesan = e.getMessage();
                         String ramah = pesan != null && pesan.contains("Cek ")
                                 ? pesan : Updater.pesanGalatUnduh("Unduh web-vault", e);
-                        TgBackup.sendMessage(ctx, "Update web-vault gagal: " + ramah);
+                        balas(ctx, idRuang, "Update web-vault gagal: " + ramah);
                     }
                 });
                 break;
             case "/versi":
-                TgBackup.sendMessage(ctx, teksVersi(ctx));
+                balas(ctx, idRuang, teksVersi(ctx));
                 break;
             case "/crashlog":
                 // Crash log memuat path folder data: wajib PIN bila PIN aktif.
@@ -1854,17 +1869,17 @@ public final class TgBot {
                 }
                 String crash = ServerService.crashLogText(ctx);
                 if (crash == null || crash.trim().isEmpty()) {
-                    TgBackup.sendMessage(ctx, "Belum ada crash log tersimpan.");
+                    balas(ctx, idRuang, "Belum ada crash log tersimpan.");
                 } else {
-                    TgBackup.sendMessage(ctx, potongEkor(crash, 3500));
+                    balas(ctx, idRuang, potongEkor(crash, 3500));
                 }
                 break;
             case "/help":
-                TgBackup.sendMessageKb(ctx, teksMenu(ctx, MENU_UTAMA),
+                TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA),
                         keyboardMenu(MENU_UTAMA));
                 break;
             default:
-                TgBackup.sendMessage(ctx, "Perintah tidak dikenal. Ketik /help");
+                balas(ctx, idRuang, "Perintah tidak dikenal. Ketik /help");
         }
         return berbahayaTerotorisasi;
     }
@@ -2003,14 +2018,14 @@ public final class TgBot {
             // backup, dan perintah yang tak dijaga PIN. Deteksi per chat (bukan
             // seluruh config) agar chat pribadi tetap bisa memerintah saat
             // config juga memuat grup.
-            TgBackup.sendMessage(ctx, "Perintah ber-PIN hanya bisa dari chat pribadi"
+            balas(ctx, idRuang, "Perintah ber-PIN hanya bisa dari chat pribadi"
                     + " bot. PIN yang diketik di grup terbaca anggota lain.");
             return null;
         }
         if (!need) {
             // PIN mati + chat pribadi: aman lolos, berbahaya tetap butuh PIN.
             if (berbahaya) {
-                TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app."
+                balas(ctx, idRuang, "Perintah ini butuh PIN app."
                         + " Aktifkan PIN dulu di Pengaturan, lalu ulangi dengan"
                         + " PIN (mis. /stop 123456 atau /stop PIN:123456).");
                 return null;
@@ -2021,7 +2036,7 @@ public final class TgBot {
         long sekarang = System.currentTimeMillis();
         long sisa = PinGate.sisaKunciMs(ctx, sekarang);
         if (sisa > 0) {
-            TgBackup.sendPenting(ctx, "PIN terkunci sementara (kebanyakan gagal)."
+            balasPenting(ctx, idRuang, "PIN terkunci sementara (kebanyakan gagal)."
                     + " Coba lagi " + ((sisa + 59000) / 60000) + " menit.");
             return null;
         }
@@ -2033,7 +2048,7 @@ public final class TgBot {
         // menghitungnya hanya membuka lockout-DoS (orang iseng mengunci pemilik
         // sah dari jauh dengan 5x spam 1 huruf); tanpa PIN sama sekali pun tak dihitung.
         if (pin.length() < 4) {
-            TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
+            balas(ctx, idRuang, "Perintah ini butuh PIN app"
                     + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
                     + " PIN huruf wajib bentuk PIN:ab12).");
             return null;
@@ -2064,7 +2079,7 @@ public final class TgBot {
             }
             return rest;
         }
-        TgBackup.sendMessage(ctx, "Perintah ini butuh PIN app"
+        balas(ctx, idRuang, "Perintah ini butuh PIN app"
                 + " (mis. /stop 123456 atau /stop PIN:123456; bila PIN ber-spasi: /stop PIN:\"kunci saya\";"
                 + " PIN huruf wajib bentuk PIN:ab12).");
         return null;
@@ -2237,9 +2252,9 @@ public final class TgBot {
     }
 
     /** Jalankan tugas berat bot saling-menunggu; tolak halus bila sibuk. */
-    private static void runBeratDenganKunci(Context ctx, Runnable task) {
+    private static void runBeratDenganKunci(Context ctx, long idRuang, Runnable task) {
         if (!TUGAS_BERAT.compareAndSet(false, true)) {
-            TgBackup.sendMessage(ctx, "Tugas lain masih berjalan, coba lagi sebentar.");
+            balas(ctx, idRuang, "Tugas lain masih berjalan, coba lagi sebentar.");
             return;
         }
         boolean masuk = runWithWakeLock(ctx, () -> {
@@ -2254,7 +2269,7 @@ public final class TgBot {
             // tak tercapai — lepas kunci di sini agar perintah berikut tak
             // ditolak selamanya.
             TUGAS_BERAT.set(false);
-            TgBackup.sendMessage(ctx, "Sistem sibuk, coba lagi sebentar.");
+            balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
         }
     }
 

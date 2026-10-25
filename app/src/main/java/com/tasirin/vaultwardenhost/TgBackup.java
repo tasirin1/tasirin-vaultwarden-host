@@ -950,6 +950,49 @@ public final class TgBackup {
         kirimPesan(ctx, text, markupJson);
     }
 
+    /** Balas HANYA ke satu chat (chat pengirim perintah), bukan siaran.
+     *  Dipakai seluruh balasan bot: dulu balasan /status, /log, /crashlog,
+     *  /backup, /restore ... disiarkan ke semua chat di KEY_TG_CHAT sehingga
+     *  grup ikut menerima path folder data, URL LAN/port, potongan log, dan
+     *  nama berkas backup yang secara eksplisit tak boleh mereka minta. */
+    public static void sendMessageKe(Context ctx, String chatId, String text) {
+        kirimPesanKe(ctx, chatId, text, null, false);
+    }
+
+    /** Varian penting dari {@link #sendMessageKe}: antrean prioritas. */
+    public static void sendPentingKe(Context ctx, String chatId, String text) {
+        kirimPesanKe(ctx, chatId, text, null, true);
+    }
+
+    /** Balasan + keyboard inline ke satu chat saja. */
+    public static void sendMessageKbKe(Context ctx, String chatId, String text, String markupJson) {
+        kirimPesanKe(ctx, chatId, text, markupJson, false);
+    }
+
+    private static void kirimPesanKe(Context ctx, String chatId, String text,
+                                     String markupJson, boolean penting) {
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception e) {
+            return;
+        }
+        final String id = Util.amanTrim(chatId);
+        if (app == null || id.isEmpty()) {
+            return;
+        }
+        final String msg = text == null ? "" : text;
+        final String markup = markupJson;
+        try {
+            if (penting) {
+                TG_PENTING_EXEC.execute(() -> kirimSinkronKe(app, id, msg, null));
+            } else {
+                TG_MSG_EXEC.execute(() -> kirimSinkronKe(app, id, msg, markup));
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     /** Ubah pesan menu yang sudah ada (edit-in-place) agar riwayat tak menumpuk.
      *  Bila edit gagal (pesan terlalu lama / bukan milik bot), kirim pesan baru
      *  dengan keyboard yang sama; async di antrean pesan biasa. */
@@ -969,7 +1012,9 @@ public final class TgBackup {
         try {
             TG_MSG_EXEC.execute(() -> {
                 if (!ubahSinkron(app, chatId, messageId, msg, markup)) {
-                    kirimSinkron(app, msg, markup);
+                    // Fallback WAJIB ke chat yang sama: dulu kirimSinkron()
+                    // menyiarkan menu baru ke semua chat config (bocor ke grup).
+                    kirimSinkronKe(app, String.valueOf(chatId), msg, markup);
                 }
             });
         } catch (Exception ignored) {
@@ -1148,42 +1193,83 @@ public final class TgBackup {
                 logTgFailure("kirim pesan", -1, "daftar chat melebihi batas");
                 return;
             }
-            // Limit API Telegram 4096 char: pecah agar /status & /log panjang
-            // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
-            java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
-            // Encode sekali per chat/potongan (bukan per kombinasi): teks sama
-            // untuk semua tujuan sehingga /log 4KB ke 5 chat dulu membayar
-            // URLEncoder 5x per potongan di CPU STB.
-            java.util.List<String> enkChat = new java.util.ArrayList<String>(tujuan.size());
-            for (int ci = 0; ci < tujuan.size(); ci++) {
-                enkChat.add(URLEncoder.encode(tujuan.get(ci), "UTF-8"));
-            }
-            java.util.List<String> enkBagian = new java.util.ArrayList<String>(bagian.size());
-            for (int bi = 0; bi < bagian.size(); bi++) {
-                enkBagian.add(URLEncoder.encode(bagian.get(bi), "UTF-8"));
-            }
-            String enkMk = (markup == null || markup.isEmpty()) ? null
-                    : URLEncoder.encode(markup, "UTF-8");
-            for (int ci = 0; ci < tujuan.size(); ci++) {
-                String chatEnk = enkChat.get(ci);
-                for (int bi = 0; bi < bagian.size(); bi++) {
-                    String mk = (bi == bagian.size() - 1) ? enkMk : null;
-                    // POST (bukan GET): token tidak bocor ke log URL/proxy.
-                    String param = bangunParamPesan(chatEnk, enkBagian.get(bi), mk);
-                    byte[] body = param.getBytes(StandardCharsets.UTF_8);
-                    // Galat satu chat/potongan tak boleh menghentikan chat lain:
-                    // dulu satu exception melewati sisa tujuan, padahal jalur
-                    // upload sengaja "coba semua chat".
-                    try {
-                        kirimSatuPesan(app, token, body, bi, bagian.size());
-                    } catch (Exception e) {
-                        logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
-                                -1, String.valueOf(e.getMessage()));
-                    }
-                }
-            }
+            kirimKeDaftar(app, token, tujuan, msg, markup);
         } catch (Exception e) {
             logTgFailure("kirim pesan", -1, String.valueOf(e.getMessage()));
+        }
+    }
+
+    /** Kirim sinkron ke SATU chat (balasan perintah). Chat divalidasi seperti
+     *  daftar config: ID aneh dari luar (config rusak) tak boleh masuk URL API. */
+    private static void kirimSinkronKe(Context app, String chatId, String msg, String markup) {
+        try {
+            java.util.List<String> satu = tujuanBalasan(chatId);
+            if (satu == null) {
+                logTgFailure("kirim balasan", -1, "chat tujuan tak valid");
+                return;
+            }
+            SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
+            if (token.isEmpty()) {
+                return;
+            }
+            kirimKeDaftar(app, token, satu, msg, markup);
+        } catch (Exception e) {
+            logTgFailure("kirim balasan", -1, String.valueOf(e.getMessage()));
+        }
+    }
+
+    /** Tujuan balasan perintah: TEPAT satu chat (pengirim), bukan seluruh
+     *  KEY_TG_CHAT. Null bila ID tak layak kirim. Murni agar bisa unit test:
+     *  inilah gerbang yang mencegah balasan /status, /log, /backup bocor ke
+     *  grup yang ikut terdaftar di config. */
+    static java.util.List<String> tujuanBalasan(String chatId) {
+        String id = Util.amanTrim(chatId);
+        if (!chatIdAman(id)) {
+            return null;
+        }
+        java.util.List<String> satu = new java.util.ArrayList<String>(1);
+        satu.add(id);
+        return satu;
+    }
+
+    /** Kirim pesan ke daftar tujuan yang sudah tervalidasi (satu pintu). */
+    private static void kirimKeDaftar(Context app, String token,
+                                      java.util.List<String> tujuan, String msg, String markup) {
+        // Limit API Telegram 4096 char: pecah agar /status & /log panjang
+        // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
+        java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
+        // Encode sekali per chat/potongan (bukan per kombinasi): teks sama
+        // untuk semua tujuan sehingga /log 4KB ke 5 chat dulu membayar
+        // URLEncoder 5x per potongan di CPU STB.
+        java.util.List<String> enkChat = new java.util.ArrayList<String>(tujuan.size());
+        for (int ci = 0; ci < tujuan.size(); ci++) {
+            enkChat.add(URLEncoder.encode(tujuan.get(ci), "UTF-8"));
+        }
+        java.util.List<String> enkBagian = new java.util.ArrayList<String>(bagian.size());
+        for (int bi = 0; bi < bagian.size(); bi++) {
+            enkBagian.add(URLEncoder.encode(bagian.get(bi), "UTF-8"));
+        }
+        String enkMk = (markup == null || markup.isEmpty()) ? null
+                : URLEncoder.encode(markup, "UTF-8");
+        for (int ci = 0; ci < tujuan.size(); ci++) {
+            String chatEnk = enkChat.get(ci);
+            for (int bi = 0; bi < bagian.size(); bi++) {
+                String mk = (bi == bagian.size() - 1) ? enkMk : null;
+                // POST (bukan GET): token tidak bocor ke log URL/proxy.
+                String param = bangunParamPesan(chatEnk, enkBagian.get(bi), mk);
+                byte[] body = param.getBytes(StandardCharsets.UTF_8);
+                // Galat satu chat/potongan tak boleh menghentikan chat lain:
+                // dulu satu exception melewati sisa tujuan, padahal jalur
+                // upload sengaja "coba semua chat".
+                try {
+                    kirimSatuPesan(app, token, body, bi, bagian.size());
+                } catch (Exception e) {
+                    logTgFailure("kirim pesan " + (bi + 1) + "/" + bagian.size(),
+                            -1, String.valueOf(e.getMessage()));
+                }
+            }
         }
     }
 
