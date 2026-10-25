@@ -540,6 +540,20 @@ public class TgBotTest {
     }
 
     @Test
+    public void idBotDariToken_kenaliPemilikToken() {
+        assertEquals("123456789", TgBot.idBotDariToken("123456789:AAF-abc_xyz"));
+        assertEquals("123456789", TgBot.idBotDariToken("  123456789:AAF  "));
+        // Token tak berpola = "" (bukan "bot baru"), agar typo tak memicu
+        // getMe berulang tiap poll.
+        assertEquals("", TgBot.idBotDariToken(null));
+        assertEquals("", TgBot.idBotDariToken(""));
+        assertEquals("", TgBot.idBotDariToken("tanpa-titik-dua"));
+        assertEquals("", TgBot.idBotDariToken(":AAF"));
+        assertEquals("", TgBot.idBotDariToken("abc:AAF"));
+        assertEquals("", TgBot.idBotDariToken("123456789012345678901:AAF"));
+    }
+
+    @Test
     public void responsOk_toleranSpasi() {
         assertTrue(TgBot.responsOk("{\"ok\":true,\"result\":{}}"));
         assertTrue(TgBot.responsOk("{\"ok\": true,\"result\":{}}"));

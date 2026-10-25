@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 287: Username bot diikat ke ID bot pemilik token
+- `KEY_TG_BOT_USER` hanya diisi sekali lewat `isiNamaBotBilaKosong()`, jadi setelah token bot diganti username lama tetap dipakai memvalidasi suffix `@namabot`: perintah ke bot baru (`/status@botbaru`) dibuang diam-diam sementara perintah ke bot lama tetap lolos gerbang grup.
+- Username kini disimpan bersama `KEY_TG_BOT_ID` (angka sebelum `:` pada token, `idBotDariToken` murni + uji). `namaBotTersimpan()` mengembalikan "" bila ID token sekarang berbeda, sehingga getMe berikutnya mengisi ulang dan suffix bot lama langsung tak berlaku — termasuk untuk token yang diimpor dari config.
+
 ## [Belum rilis] — Audit 286: "Belum terbit" tidak lagi dipakai untuk gangguan jaringan
 - `fetchChecksum()` mengembalikan `null` untuk 404 **dan** untuk galat jaringan, lalu pemanggil probe `.sha256` menyimpulkan "Build Android v<versi> belum tersedia / web vault belum tersedia" padahal asetnya sudah terbit dan GitHub/STB-nya yang tak terjangkau. Cek yang sama juga diulang tiap aplikasi dibuka (2 request × timeout).
 - `fetchChecksumRinci()` kini membedakan `BELUM_TERBIT` (404/format asing) dari `GANGGUAN` (timeout/5xx/rate-limit). Pesan probe binary & web-vault, serta pesan `shaDariRilis`, menyebut sebab yang benar. Setelah gangguan, waktu kegagalan disimpan (`KEY_CEK_GANGGUAN_AT`) dan probe ditahan `JEDA_CEK_GANGGUAN_MS` (15 menit, `dalamJedaCek` murni + uji; jam mundur tidak menahan selamanya). Cek sidik web-vault yang terganggu tidak lagi memicu unduh ulang ~35 MB.

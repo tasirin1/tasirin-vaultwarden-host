@@ -867,19 +867,65 @@ public final class TgBot {
       *  @namabot pada perintah grup. Belum ada getMe tersimpan = belum diketahui. */
     static final String KEY_TG_BOT_USER = "tg_bot_user";
 
-    /** Username bot sendiri dari prefs ("" bila belum diketahui). Murni I/O prefs. */
+    /** Kunci prefs ID bot (angka sebelum ':' pada token) pemilik username
+      *  tersimpan. Token baru = bot lain = ID lain, jadi username lama tak bisa
+      *  lolos validasi suffix setelah token diganti. */
+    static final String KEY_TG_BOT_ID = "tg_bot_id";
+
+    /** ID bot dari token Telegram ("12345:AAF..." -> "12345"); "" bila token
+      *  tak berpola (kosong/salah ketik). Murni agar bisa unit test. */
+    static String idBotDariToken(String token) {
+        if (token == null) {
+            return "";
+        }
+        String t = token.trim();
+        int pisah = t.indexOf(':');
+        if (pisah <= 0) {
+            return "";
+        }
+        String id = t.substring(0, pisah).trim();
+        // ID bot Telegram selalu angka (maks ~19 digit); tolak yang lain agar
+        // token salah ketik tak dianggap "bot baru" berulang tiap poll.
+        if (id.isEmpty() || id.length() > 20) {
+            return "";
+        }
+        for (int i = 0; i < id.length(); i++) {
+            char c = id.charAt(i);
+            if (c < '0' || c > '9') {
+                return "";
+            }
+        }
+        return id;
+    }
+
+    /** Username bot sendiri dari prefs ("" bila belum diketahui ATAU token
+      *  sudah berganti). Murni I/O prefs; fail-closed: nama basi milik bot lain
+      *  diabaikan sehingga perintah grup ber-@ bot baru tak tertukar. */
     static String namaBotTersimpan(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String u = TgBackup.amanString(sp, KEY_TG_BOT_USER, "");
-            return u == null ? "" : u.trim();
+            String bersih = u == null ? "" : u.trim();
+            if (bersih.isEmpty()) {
+                return "";
+            }
+            String idKini = idBotDariToken(
+                    TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+            if (!idKini.isEmpty()
+                    && !idKini.equals(TgBackup.amanString(sp, KEY_TG_BOT_ID, ""))) {
+                // Token diganti (atau penanda ID belum ada dari versi lama):
+                // anggap belum dikenal, getMe berikutnya mengisi ulang.
+                return "";
+            }
+            return bersih;
         } catch (Exception e) {
             return "";
         }
     }
 
-    /** Simpan username bot sendiri (best-effort, dipanggil setelah getMe lolos). */
+    /** Simpan username bot sendiri + ID bot pemiliknya (best-effort, dipanggil
+      *  setelah getMe lolos). */
     static void simpanNamaBot(Context ctx, String username) {
         if (ctx == null || username == null || username.trim().isEmpty()) {
             return;
@@ -887,8 +933,12 @@ public final class TgBot {
         try {
             String bersih = Util.rendahAscii(kupasAt(username));
             if (!bersih.isEmpty()) {
-                ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                        .edit().putString(KEY_TG_BOT_USER, bersih).apply();
+                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                sp.edit().putString(KEY_TG_BOT_USER, bersih)
+                        .putString(KEY_TG_BOT_ID, idBotDariToken(
+                                TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, "")))
+                        .apply();
             }
         } catch (Exception ignored) {
         }
@@ -911,10 +961,11 @@ public final class TgBot {
         return cobaAt <= 0 || kini < cobaAt || kini - cobaAt >= GETME_ULANG_MS;
     }
 
-    /** Isi username bot sendiri via getMe bila prefs masih kosong (best-effort).
+    /** Isi username bot sendiri via getMe bila prefs masih kosong ATAU token
+      *  sudah berganti (= ID bot berbeda, lihat {@link #namaBotTersimpan}).
       *  Dipanggil sekali per poll sampai tersimpan; gagal (offline/token salah)
       *  = diam, perilaku fail-closed lama dipertahankan. Username yang berganti
-      *  (langka) baru terbaca setelah prefs dibersihkan. */
+      *  tanpa ganti token (langka) baru terbaca setelah prefs dibersihkan. */
     static void isiNamaBotBilaKosong(Context ctx, String token) {
         if (ctx == null || token == null || token.trim().isEmpty()) {
             return;
