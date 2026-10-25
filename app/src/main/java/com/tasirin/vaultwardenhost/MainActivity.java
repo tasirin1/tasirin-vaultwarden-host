@@ -114,11 +114,6 @@ public class MainActivity extends Activity {
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinBukaJalan = false;
 
-    /** Berbagi status buka PIN via PinGate (satu sumber, tanpa drift antar-activity). */
-    static boolean pinBaruSajaDibuka() {
-        return PinGate.dalamGraceBersama();
-    }
-
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik antar-activity).
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {

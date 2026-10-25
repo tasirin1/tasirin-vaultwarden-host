@@ -145,8 +145,7 @@ public class LogActivity extends Activity {
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             bolehTampil = logBolehTampil(
                     TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
-                    MainActivity.pinBaruSajaDibuka(),
-                    SettingsActivity.pinBaruSajaDibuka());
+                    PinGate.dalamGraceBersama());
         } catch (Exception ignored) {
         }
         if (!bolehTampil) {
@@ -581,10 +580,12 @@ public class LogActivity extends Activity {
                     + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
 
     /** True bila layar log boleh dilihat: PIN mati, atau sesi PIN sudah
-     *  dibuka di Main/Settings. Fail-closed di pemanggil (galat baca prefs =
-     *  false). Murni. */
-    static boolean logBolehTampil(boolean pinOn, boolean graceMain, boolean graceSettings) {
-        return !pinOn || graceMain || graceSettings;
+     *  dibuka (grace bersama PinGate). Satu parameter grace saja: dulu ada
+     *  dua (grace Main + grace Settings) yang selalu diisi dari sumber yang
+     *  sama, sehingga cabangnya tak pernah bisa berbeda. Fail-closed di
+     *  pemanggil (galat baca prefs = false). Murni. */
+    static boolean logBolehTampil(boolean pinOn, boolean grace) {
+        return !pinOn || grace;
     }
 
     /** True bila teks mungkin memuat rahasia (penanda kasar tanpa regex).

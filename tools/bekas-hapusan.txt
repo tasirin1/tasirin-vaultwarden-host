@@ -64,3 +64,7 @@ kapanBukaBersama
 # verifikasi plaintext vwtg-plain-*), uji-nya ikut berganti nama.
 sapuDecTmpBasi
 sapuDecTmpBasi_hanyaBasiDanBukanAktif
+# Audit 260 (R15): dua wrapper identik atas PinGate.dalamGraceBersama()
+# dihapus — pemanggil memakai PinGate langsung (parameter grace kedua di
+# logBolehTampil selalu sama, jadi ikut diciutkan jadi satu).
+pinBaruSajaDibuka

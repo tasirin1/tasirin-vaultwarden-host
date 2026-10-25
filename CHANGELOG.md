@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 260: Satu sumber grace PIN untuk layar log
+- `LogActivity.logBolehTampil()` menerima **dua** parameter grace (Main + Settings), padahal kedua pemanggilnya — `MainActivity.pinBaruSajaDibuka()` dan `SettingsActivity.pinBaruSajaDibuka()` — adalah wrapper identik atas `PinGate.dalamGraceBersama()`. Nilainya selalu sama, sehingga cabang `graceMain || graceSettings` tak pernah bisa berbeda dan menyiratkan adanya dua sesi PIN yang sebenarnya tidak ada.
+- Parameter diciutkan jadi satu `grace`, dan pemanggil memakai `PinGate.dalamGraceBersama()` langsung; dua wrapper identik dihapus (dicatat di `tools/bekas-hapusan.txt`) agar tak ada jalan kedua yang bisa menyimpang dari satu sumber grace. Uji JVM disesuaikan.
+
 ## [Belum rilis] — Audit 259: Permintaan Start tertahan izin selamat dari Activity dibuat ulang
 - `mulaiUlangSetelahIzin` (Start ditahan menunggu izin storage, lalu dilanjutkan di `onRequestPermissionsResult`) hanya hidup di field instance. Dialog izin sistem bisa membuat Activity dibuat ulang (rotasi layar, tema/ukuran berubah, proses app dibunuh saat dialog tampil); instance baru memulai flag `false`, sehingga izin yang akhirnya diberikan **tidak** melanjutkan Start dan pengguna harus menekan Start lagi tanpa tahu sebabnya.
 - `MainActivity` dan `SettingsActivity` kini menyimpan flag itu di instance state (`STATE_MULAI_ULANG_IZIN` lewat `onSaveInstanceState`) dan memulihkannya di `onCreate(savedInstanceState)` sebelum hasil izin kembali. Flag tetap direset di `onRequestPermissionsResult`/`saveAndStart()` agar penolakan atau kegagalan tak memicu Start liar.

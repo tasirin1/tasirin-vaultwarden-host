@@ -372,11 +372,6 @@ public class SettingsActivity extends Activity {
     /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinBukaJalan = false;
 
-    /** Status buka PIN via PinGate (satu sumber, simetris dengan MainActivity). */
-    static boolean pinBaruSajaDibuka() {
-        return PinGate.dalamGraceBersama();
-    }
-
     /** Catat buka PIN sebagai milik bersama (tanpa panggil balik) agar tak rekursi.
      *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {

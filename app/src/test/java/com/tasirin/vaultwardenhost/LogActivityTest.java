@@ -12,10 +12,9 @@ public class LogActivityTest {
     @Test
     public void logBolehTampilHanyaSaatPinMatiAtauSesiDibuka() {
         // onResume LogActivity: PIN aktif tanpa sesi terbuka = layar ditutup.
-        assertTrue(LogActivity.logBolehTampil(false, false, false));
-        assertTrue(LogActivity.logBolehTampil(true, true, false));
-        assertTrue(LogActivity.logBolehTampil(true, false, true));
-        assertFalse(LogActivity.logBolehTampil(true, false, false));
+        assertTrue(LogActivity.logBolehTampil(false, false));
+        assertTrue(LogActivity.logBolehTampil(true, true));
+        assertFalse(LogActivity.logBolehTampil(true, false));
     }
 
     @Test
