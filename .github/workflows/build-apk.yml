@@ -140,7 +140,9 @@ jobs:
 
       - name: Verify APK contents
         run: |
-          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
+          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+          APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           echo "== $APK"
           case "$APK" in
@@ -156,7 +158,9 @@ jobs:
 
       - name: Cek ukuran APK (jaga APK tetap kecil)
         run: |
-          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
+          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+          APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           SIZE=$(stat -c %s "$APK")
           echo "Ukuran APK (${APK##*/}): $SIZE bytes"
@@ -171,7 +175,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APK=$(find app/build/outputs/apk -name '*release*.apk' | head -1)
+          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
+          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+          APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           ls -lh tasirin-*.apk

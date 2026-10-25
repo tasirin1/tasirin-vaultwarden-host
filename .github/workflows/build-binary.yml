@@ -83,7 +83,9 @@ jobs:
           for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
               libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
               web-vault.zip web-vault.zip.sha256; do
-            printf '%s\n' "$DAFTAR" | grep -qx "$a" || LENGKAP=no
+            # grep TANPA -q: dengan -q ia keluar di kecocokan pertama, printf
+            # kena SIGPIPE (141) dan pipefail membuat LENGKAP=no palsu.
+            printf '%s\n' "$DAFTAR" | grep -x "$a" >/dev/null || LENGKAP=no
           done
           echo "Aset non-APK v$TAG lengkap: $LENGKAP"
           if [ "${{ github.event_name }}" = "schedule" ] && [ "$LENGKAP" = yes ]; then
@@ -356,7 +358,7 @@ jobs:
           # jalan sesudah jalur ini, jadi setiap run memakai ulang aset rusak
           # lalu exit 1 tanpa jalan pulih selain hapus aset manual).
           PAKAI_ULANG=0
-          if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -qx "web-vault.zip"; then
+          if gh release view "$TAG" --json assets -q '.assets[].name' 2>/dev/null | grep -x "web-vault.zip" >/dev/null; then
             echo "web-vault.zip sudah ada di $TAG — unduh untuk dicek ulang."
             if gh release download "$TAG" -p "web-vault.zip" -O web-vault.zip \
                 && unzip -tq web-vault.zip >/dev/null 2>&1; then
@@ -367,8 +369,12 @@ jobs:
             fi
           fi
           if [ "$PAKAI_ULANG" -eq 0 ]; then
+            # Tanpa `head -n 1` di ujung pipa: head keluar lebih dulu sehingga
+            # grep kena SIGPIPE (141) dan pipefail menggagalkan langkah ini
+            # secara acak. sed -n '1{...;p;}' membaca seluruh aliran.
             DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW/docker/DockerSettings.yaml" \
-              | grep 'vault_image_digest' | head -n 1 | sed -E 's/.*"(sha256:[a-f0-9]+)".*/\1/')
+              | grep 'vault_image_digest' \
+              | sed -nE '1{s/.*"(sha256:[a-f0-9]+)".*/\1/;p;}')
             # Format ketat: saring keluaran multi-baris/sampah bila format
             # upstream berubah (multi-arch) agar gagal lantang di sini, bukan
             # di docker create di tengah publish.
@@ -389,7 +395,7 @@ jobs:
           if ! unzip -tq web-vault.zip >/dev/null 2>&1; then
             echo "::error::web-vault.zip korup (unzip -t gagal)"; exit 1
           fi
-          if ! unzip -Z1 web-vault.zip | grep -qx "index.html"; then
+          if ! unzip -Z1 web-vault.zip | grep -x "index.html" >/dev/null; then
             echo "::error::web-vault.zip tidak berisi index.html di akar"; exit 1
           fi
           WV_SIZE=$(stat -c%s web-vault.zip)
@@ -458,7 +464,7 @@ jobs:
             for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
                 libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
                 web-vault.zip web-vault.zip.sha256; do
-              echo "$DAFTAR" | grep -qx "$a" || OK=false
+              echo "$DAFTAR" | grep -x "$a" >/dev/null || OK=false
             done
             for a in $PAYLOAD; do
               JAUH=$(gh release view "$TAG" --json assets \
