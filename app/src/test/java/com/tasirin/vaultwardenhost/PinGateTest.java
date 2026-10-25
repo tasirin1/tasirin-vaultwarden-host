@@ -1,6 +1,8 @@
 package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -30,6 +32,17 @@ public class PinGateTest {
     public void hashHilangMemaksaPerbaikan() {
         assertEquals(PinGate.KUNCI_RUSAK, PinGate.putusKunci(true, false, null));
         assertEquals(PinGate.KUNCI_RUSAK, PinGate.putusKunci(true, false, ""));
+        // Fail-closed: hash rusak tetap wajib layar PIN (PinActivity menolak),
+        // bukan membuka aplikasi sambil mematikan proteksi.
+        assertTrue(PinGate.wajibLayarPin(PinGate.KUNCI_RUSAK));
+    }
+
+    @Test
+    public void wajibLayarPin_hanyaSaatTerkunci() {
+        assertTrue(PinGate.wajibLayarPin(PinGate.KUNCI_BUKA));
+        assertTrue(PinGate.wajibLayarPin(PinGate.KUNCI_RUSAK));
+        assertFalse(PinGate.wajibLayarPin(PinGate.KUNCI_MATI));
+        assertFalse(PinGate.wajibLayarPin(PinGate.KUNCI_GRACE));
     }
 
     @Test

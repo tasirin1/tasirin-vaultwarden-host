@@ -99,9 +99,17 @@ public final class PinGate {
         return KUNCI_BUKA;
     }
 
+    /** True bila keputusan {@link #putusKunci} mewajibkan layar PIN.
+     *  KUNCI_RUSAK ikut wajib: hash hilang/rusak bukan alasan membuka aplikasi
+     *  tanpa kunci (PinActivity juga fail-closed). Murni agar bisa unit test. */
+    static boolean wajibLayarPin(int putus) {
+        return putus == KUNCI_BUKA || putus == KUNCI_RUSAK;
+    }
+
     /** Jalankan keputusan + efek sampingnya; true = activity wajib membuka
      *  PinActivity. Satu pintu aturan PIN mati / grace / hash rusak untuk
-     *  MainActivity & SettingsActivity. */
+     *  MainActivity & SettingsActivity. Fail-closed: PIN aktif tanpa hash
+     *  tetap menutup aplikasi, bukan mematikan proteksi diam-diam. */
     public static boolean perlukanLayarPin(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
@@ -112,15 +120,14 @@ public final class PinGate {
             // dalam grace lama tak dianggap sudah dibuka tanpa entri baru.
             kunciBersama();
         } else if (putus == KUNCI_RUSAK) {
-            // PIN aktif tanpa hash (mis. prefs rusak): matikan PIN + catat
-            // agar tak terbuka diam-diam tanpa kunci (fail-open).
-            try {
-                sp.edit().putBoolean(KEY_PIN_ON, false).apply();
-            } catch (Exception ignored) {
-            }
-            ServerService.catatLog("[app] PIN dimatikan otomatis: hash hilang/rusak.");
+            // PIN aktif tanpa hash (prefs rusak/terpotong): JANGAN dimatikan
+            // dan JANGAN dibuka. Prefs tak disentuh; PinActivity menolak
+            // (RESULT_CANCELED) sehingga pemanggil finish — Settings, admin
+            // token, log, dan backup tetap terkunci sampai PIN disiapkan ulang.
+            ServerService.catatLog("[app] PIN rusak (hash hilang/rusak): akses"
+                    + " ditolak - siapkan ulang PIN.");
         }
-        return putus == KUNCI_BUKA;
+        return wajibLayarPin(putus);
     }
 
     /** Sisa kunci (ms); 0 bila boleh coba. Nilai terbesar wall-clock vs elapsed.
