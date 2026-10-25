@@ -68,3 +68,7 @@ sapuDecTmpBasi_hanyaBasiDanBukanAktif
 # dihapus — pemanggil memakai PinGate langsung (parameter grace kedua di
 # logBolehTampil selalu sama, jadi ikut diciutkan jadi satu).
 pinBaruSajaDibuka
+# Audit 274: penanda "versi APK pemilik shim" dihapus — reuse shim kini
+# hanya berdasarkan validitas ELF, bukan tanggal build APK.
+bacaTagShim
+tulisTagShim

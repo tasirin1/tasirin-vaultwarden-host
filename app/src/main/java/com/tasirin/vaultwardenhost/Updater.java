@@ -1517,10 +1517,17 @@ public final class Updater {
     }
 
     /** Pastikan shim getrandom tersedia (khusus kernel lama); unduh bila belum ada/rusak.
-     *  Return file shim. Lempar IOException berbahasa Indonesia bila gagal. */
+     *  Return file shim. Lempar IOException berbahasa Indonesia bila gagal.
+     *
+     *  Shim dipakai ulang berdasarkan validitas berkasnya saja (ELF + ukuran
+     *  wajar). Dulu ada penanda "versi APK pemilik" berisi {@code versionName}
+     *  (= tanggal build), sehingga SETIAP APK baru membuat penanda basi dan
+     *  Start wajib mengunduh ulang — di STB kernel lama tanpa internet server
+     *  tak bisa dinyalakan sama sekali padahal shim di disk masih sah. Shim
+     *  hanya bergantung pada ABI + syscall kernel, bukan versi APK. */
     public static File ensureShimFile(Context ctx) throws Exception {
         File out = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-        if (shimValid(out) && appVersionName(ctx).equals(bacaTagShim(out.getParentFile()))) {
+        if (shimValid(out)) {
             return out;
         }
         downloadShim(ctx, out);
@@ -1606,28 +1613,7 @@ public final class Updater {
         }
         out.setReadable(true, true);
         out.setExecutable(true, true);
-        tulisTagShim(binDir, appVersionName(ctx));
         return "Shim getrandom terpasang.";
-    }
-
-    /** Tandai shim dengan versi APK pemiliknya (untuk reuse saat Start). */
-    private static void tulisTagShim(File binDir, String apkVersion) {
-        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                new FileOutputStream(new File(binDir, "shim-tag.txt"), false),
-                StandardCharsets.UTF_8)) {
-            w.write(apkVersion);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /** Tag APK pemilik shim, atau null bila belum pernah dipasang. */
-    private static String bacaTagShim(File binDir) {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                new FileInputStream(new File(binDir, "shim-tag.txt")), StandardCharsets.UTF_8))) {
-            return r.readLine();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /** Persen (0-100) dari status "Unduh ... (NN%)"; -1 bila tak ada angka persen. Murni. */

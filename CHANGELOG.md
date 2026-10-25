@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 274: Shim getrandom dipakai ulang tanpa menunggu APK baru
+- `ensureShimFile()` hanya memakai ulang shim bila `appVersionName(ctx)` (tanggal build APK) sama dengan isi `shim-tag.txt`. Setiap APK baru membuat penanda itu basi, sehingga Start di STB kernel lama **wajib** mengunduh ulang shim; tanpa internet Start dibatalkan ("Shim getrandom belum tersedia") padahal `libgetrandom-shim-armeabi-v7a.so` di disk masih sah, dan tiap Start menunggu timeout jaringan lebih dulu.
+- Reuse kini murni berdasarkan validitas berkas (`shimValid`: ELF + ukuran wajar) — shim bergantung pada ABI/syscall kernel, bukan versi APK. Penanda `shim-tag.txt` beserta penulis/pembacanya (`tulisTagShim`/`bacaTagShim`) dihapus dan namanya dicatat di `tools/bekas-hapusan.txt`.
+
 ## [Belum rilis] — Audit 273: Referensi proses Start ditangkap di bagian kritis (NPE `vw-watch`)
 - `startServer()` membaca `final Process p = process;` **di luar** `KUNCI_PROSET`, sesudah `TgBackup.sendMessage()` (jaringan) dan `notifyLowStorage()`. Stop yang berjalan di jendela itu men-null-kan `process`, sehingga `p` menjadi null dan `watchProcess(null)` melempar `NullPointerException` di thread `vw-watch` — NPE tanpa handler mematikan seluruh proses aplikasi dan server Rust tertinggal yatim (port tetap terpakai).
 - Referensi proses kini ditangkap di dalam bagian kritis yang sama dengan `pb.start()`, lalu dipakai untuk status PID, pembaca output, dan watcher. Stop yang datang setelahnya tetap membersihkan state lewat `lepasProses()` (guard `process == p`), jadi perilaku stop/restart tidak berubah.
