@@ -464,6 +464,12 @@ public class ServerService extends Service {
     /** True bila Stop ditekan saat start masih persiapan (unduh binary):
      *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
     private static volatile boolean batalStart = false;
+    /** Nomor perintah Stop (monotonik). Episode Start mencatat nilainya di awal;
+     *  unduhan binary milik episode itu berhenti begitu nomor berubah (Stop
+     *  masuk). Memakai nomor — bukan flag yang direset Start berikutnya — agar
+     *  Start baru tidak "menghidupkan lagi" unduhan milik episode lama. */
+    private static final java.util.concurrent.atomic.AtomicLong nomorStop =
+            new java.util.concurrent.atomic.AtomicLong();
     /** Start ditekan saat Stop masih mematikan proses lama (jendela 5-8 dtk):
      *  jalankan sekali setelah proses benar-benar mati. Dulu perintah Start
      *  hilang diam-diam karena guard `alive(process)` menganggap server masih
@@ -1090,6 +1096,11 @@ public class ServerService extends Service {
             batalUtama(healthTick);
             batalUtama(restartTunda);
             batalStart = true;
+            // Stop juga menghentikan unduhan binary yang sedang berjalan milik
+            // episode Start ini (bukan hanya flag exec sesudahnya): dulu 20 MB
+            // tetap terunduh setelah user menekan Stop dan `starting` tetap
+            // true sampai selesai sehingga restore/reset menunggu sia-sia.
+            nomorStop.incrementAndGet();
             // Stop membatalkan Start yang menunggu proses lama mati; tanpa ini
             // thread stopper akan menyalakan server tepat setelah user Stop.
             mulaiSetelahProsesMati = false;
@@ -1958,6 +1969,9 @@ public class ServerService extends Service {
         // idAwal milik startServerAsync() yang tak ada di sini sehingga build
         // gagal (cannot find symbol).
         final int idEpisoda = startIdTerakhir;
+        // Nomor Stop saat episode ini mulai: unduhan binary di bawah batal bila
+        // nomor berubah (Stop masuk) — lihat nomorStop/Updater.CekBatal.
+        final long stopAwal = nomorStop.get();
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         try {
             TgBackup.healkanStringPrefs(this);
@@ -2033,7 +2047,7 @@ public class ServerService extends Service {
         // lalu startServerAsync menilainya "Start masih berjalan". Kunci diambil
         // kembali sebelum TLS/web-vault/exec (lihat tungguKunciDataStart).
         lepasKunciData();
-        File binary = ensureBinary();
+        File binary = ensureBinary(stopAwal);
         if (binary == null) {
             return;
         }
@@ -3568,8 +3582,11 @@ public class ServerService extends Service {
      *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
      *  3) cache internal milik APK ini (tidak diunduh ulang),
      *  4) unduh dari release repo (dibangun dari sumber resmi, verifikasi SHA-256).
-     *  Return null bila gagal (status sudah diisi pesan). */
-    private File ensureBinary() {
+     *  Return null bila gagal (status sudah diisi pesan) atau bila Start
+     *  dibatalkan user (Stop) saat unduhan berjalan.
+     *  @param stopAwal nomorStop saat episode Start ini mulai; unduhan batal
+     *                  begitu nomor berubah. */
+    private File ensureBinary(long stopAwal) {
         File binDir = new File(getFilesDir(), "bin");
         if (!binDir.exists() && !binDir.mkdirs()) {
             appendLog("[app] Gagal membuat folder binary.");
@@ -3784,7 +3801,8 @@ public class ServerService extends Service {
             }
         }
         try {
-            String msg = Updater.downloadBinary(this, out);
+            String msg = Updater.downloadBinary(this, out,
+                    () -> nomorStop.get() != stopAwal);
             appendLog("[app] " + msg);
             if (butuhRefresh) {
                 appendLog("[app] Binary perbaikan (patch favicon) terpasang.");
@@ -3805,6 +3823,14 @@ public class ServerService extends Service {
             }
             return out;
         } catch (Exception e) {
+            // Stop ditekan saat unduhan: episode ini memang dibatalkan, bukan
+            // gagal — jangan catat KEY_BIN_DL_GAGAL_AT, jangan tampilkan saran
+            // koneksi, dan jangan jatuh ke cache (server tak boleh start).
+            if (Updater.galatDibatalkan(e)) {
+                appendLog("[app] Unduh binary dibatalkan (Stop ditekan)"
+                        + " - server tidak dijalankan.");
+                return null;
+            }
             // Catat kegagalan unduhan perbaikan agar Start berikut tak
             // langsung mencoba lagi bila cache valid masih ada (throttle di
             // atas). Kegagalan lain (instalasi pertama/kuncian) tak dicatat

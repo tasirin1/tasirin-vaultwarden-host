@@ -675,6 +675,13 @@ public final class Updater {
         String ganti(String url, int kode) throws IOException;
     }
 
+    /** Sumber pembatalan unduhan (mis. user menekan Stop saat Start masih
+     *  menyiapkan binary). Dicek di antara percobaan dan di dalam salinan badan;
+     *  true = hentikan unduhan sekarang. */
+    public interface CekBatal {
+        boolean dibatalkan();
+    }
+
     /** Kunci swap web-vault: dipakai Updater + ServerService.cleanupTempFiles
      *  agar Start dan dua update konkuren tak berebut folder staging yang sama.
      *  Tiap update mengekstrak ke staging unik (stagingWebVault) lalu tukar di
@@ -881,16 +888,30 @@ public final class Updater {
                               int connectMs, int readMs, UrlCadangan cadangan,
                               ShaTarget sha)
             throws IOException {
+        return unduhKeTmp(ctx, urlAwal, tmp, label, connectMs, readMs, cadangan, sha, null);
+    }
+
+    /** Seperti di atas, dengan pembatalan ({@code batal} boleh null). Unduhan
+     *  yang dibatalkan TIDAK diulang dan tidak menghapus berkas parsial, agar
+     *  Start berikutnya bisa melanjutkan via Range — tetapi juga tidak boleh
+     *  dianggap galat jaringan (jangan tampilkan saran koneksi). */
+    static String unduhKeTmp(Context ctx, String urlAwal, File tmp, String label,
+                              int connectMs, int readMs, UrlCadangan cadangan,
+                              ShaTarget sha, CekBatal batal)
+            throws IOException {
         final String[] url = {urlAwal};
         final boolean[] fallbackUsed = {false};
         Exception gagal = null;
         int mismatchSha = 0;
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             try {
+                if (dibatalkan(batal)) {
+                    throw new IOException(pesanDibatalkan(label));
+                }
                 String digest;
                 synchronized (kunciUnduh(tmp)) {
                     digest = unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
-                            connectMs, readMs, cadangan);
+                            connectMs, readMs, cadangan, batal);
                 }
                 if (sha != null) {
                     String harap = sha.ambil(url[0]);
@@ -904,6 +925,9 @@ public final class Updater {
                                 : "Checksum SHA-256 tidak cocok;"
                                         + " unduhan diulang dari nol.");
                     }
+                }
+                if (dibatalkan(batal)) {
+                    throw new IOException(pesanDibatalkan(label));
                 }
                 return digest;
             } catch (IOException e) {
@@ -932,6 +956,37 @@ public final class Updater {
         throw new IOException(gagal == null ? "koneksi gagal" : String.valueOf(gagal));
     }
 
+    /** True bila pembatalan diminta (null = tak bisa dibatalkan). */
+    static boolean dibatalkan(CekBatal batal) {
+        try {
+            return batal != null && batal.dibatalkan();
+        } catch (Exception e) {
+            // Callback rusak tak boleh menggagalkan unduhan: anggap lanjut.
+            return false;
+        }
+    }
+
+    /** Penanda pesan pembatalan user. Sengaja unik: pesan lain juga memakai
+     *  kata "dibatalkan" (mis. "checksum ... update dibatalkan"), jadi
+     *  deteksinya tak boleh hanya mengandalkan kata itu — kegagalan checksum
+     *  harus tetap dilaporkan sebagai kegagalan, bukan pembatalan user.
+     *  Pesan ini juga TIDAK memuat kata pemicu ulang/hapus parsial
+     *  ("checksum", "terputus", "timeout", "rusak", …) agar byte parsialnya
+     *  tetap bisa dilanjutkan Start berikutnya. */
+    static final String TANDA_DIBATALKAN = "dibatalkan (Stop ditekan)";
+
+    /** Pesan unduhan yang dibatalkan user. */
+    static String pesanDibatalkan(String label) {
+        return "Unduhan " + label + " " + TANDA_DIBATALKAN + " - tidak dilanjutkan.";
+    }
+
+    /** True bila galat berasal dari pembatalan user (bukan kegagalan jaringan). */
+    static boolean galatDibatalkan(Exception e) {
+        return String.valueOf(e == null ? null : e.getMessage())
+                .toLowerCase(Locale.US)
+                .contains(TANDA_DIBATALKAN.toLowerCase(Locale.US));
+    }
+
     /** Buang file parsial terpotong/campuran agar percobaan berikut unduh ulang
      *  dari nol (resume dari file rusak pasti gagal lagi, termasuk campuran
      *  byte resume salah yang baru ketahuan di checksum). */
@@ -956,7 +1011,8 @@ public final class Updater {
      *  membungkusnya jadi IOException. */
     private static String unduhSatuPercobaan(Context ctx, String[] url, boolean[] fallbackUsed,
                               File tmp, String label,
-                              int connectMs, int readMs, UrlCadangan cadangan)
+                              int connectMs, int readMs, UrlCadangan cadangan,
+                              CekBatal batal)
             throws Exception {
         // Lanjutkan unduhan terputus (hemat kuota); server GitHub dukung Range.
         // Wajib isFile: path temp yang diduduki direktori membuat
@@ -1021,7 +1077,7 @@ public final class Updater {
             if (code != 200 && code != 206) {
                 throw new IOException("Unduhan gagal (HTTP " + code + ").");
             }
-            return salinSambilHash(dl, tmp, code, resumeFrom, label);
+            return salinSambilHash(dl, tmp, code, resumeFrom, label, batal);
         } finally {
             if (dl != null) {
                 dl.disconnect();
@@ -1033,6 +1089,15 @@ public final class Updater {
      *  (dipakai binary & shim agar tak baca ulang file ~15 MB). Return hex digest. */
     static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
                                   long lanjutDari, String label) throws IOException {
+        return salinSambilHash(dl, tmp, kodeHttp, lanjutDari, label, null);
+    }
+
+    /** Seperti di atas + pembatalan: badan berhenti di tengah bila {@code batal}
+     *  true (Stop ditekan), sehingga tak ada lagi kuota terbuang. Byte yang sudah
+     *  masuk sengaja dipertahankan agar Start berikutnya melanjutkan via Range. */
+    static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
+                                  long lanjutDari, String label, CekBatal batal)
+            throws IOException {
         long total = panjangKonten(dl);
         if (kodeHttp == 206 && total >= 0) {
             total += lanjutDari;
@@ -1064,6 +1129,11 @@ public final class Updater {
             int n;
             long lastReport = done;
             while ((n = in.read(buf)) != -1) {
+                if (dibatalkan(batal)) {
+                    // Hentikan tepat di sini: byte yang sudah ditulis tetap
+                    // berurutan benar (dipakai Range percobaan berikutnya).
+                    throw new IOException(pesanDibatalkan(label));
+                }
                 fos.write(buf, 0, n);
                 md.update(buf, 0, n);
                 done += n;
@@ -1294,19 +1364,33 @@ public final class Updater {
     /** Unduh binary versi terbaru dari release repo ke out (verifikasi SHA-256).
      *  Dipakai saat Start bila binary belum ada (tidak lagi dibundel di APK). */
     public static String downloadBinary(Context ctx, File out) throws Exception {
-        return downloadBinaryVersi(ctx, out, versiTargetBinary(ctx));
+        return downloadBinary(ctx, out, null);
+    }
+
+    /** Seperti {@link #downloadBinary(Context, File)} dengan pembatalan: dipakai
+     *  Start agar Stop menghentikan unduhan ~20 MB yang sedang berjalan. */
+    public static String downloadBinary(Context ctx, File out, CekBatal batal)
+            throws Exception {
+        return downloadBinaryVersi(ctx, out, versiTargetBinary(ctx), batal);
     }
 
     /** Unduh binary versi persis yang diminta (null = terbaru) ke out. */
     public static String downloadBinaryVersi(Context ctx, File out, String versi) throws Exception {
+        return downloadBinaryVersi(ctx, out, versi, null);
+    }
+
+    /** Seperti {@link #downloadBinaryVersi(Context, File, String)} + pembatalan. */
+    public static String downloadBinaryVersi(Context ctx, File out, String versi,
+                                             CekBatal batal) throws Exception {
         try {
-            return downloadBinaryInner(ctx, out, versi);
+            return downloadBinaryInner(ctx, out, versi, batal);
         } finally {
             downloadStatus = "";
         }
     }
 
-    private static String downloadBinaryInner(Context ctx, File out, String diminta) throws Exception {
+    private static String downloadBinaryInner(Context ctx, File out, String diminta,
+                                              CekBatal batal) throws Exception {
         String latest = diminta;
         // Bila API versi sedang gagal (rate-limit/TLS), tetap bisa unduh lewat
         // redirect "latest/download" tanpa perlu tahu nomor versi.
@@ -1396,8 +1480,14 @@ public final class Updater {
                         }
                     },
                     shaDariRilis(ctx, 20000, 60000,
-                            "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat));
+                            "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat),
+                    batal);
         } catch (IOException e) {
+            // Stop ditekan: teruskan pesan pembatalan apa adanya (tanpa saran
+            // koneksi) agar pemanggil tahu ini bukan kegagalan unduhan.
+            if (galatDibatalkan(e)) {
+                throw e;
+            }
             if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
                 throw e;
             }

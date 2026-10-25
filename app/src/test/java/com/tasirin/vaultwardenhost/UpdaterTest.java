@@ -1167,4 +1167,51 @@ public class UpdaterTest {
         assertEquals(Updater.binaryFallbackUrl(),
                 Updater.urlAwalUnduhBinary(true, aset));
     }
+
+    @Test
+    public void pesanDibatalkan_tidakMemicuUlangAtauHapusParsial() {
+        // Stop ditekan = keputusan user, bukan galat jaringan: unduhan tak
+        // boleh diulang dan byte parsial tak boleh dihapus (dilanjutkan Range).
+        java.io.IOException e = new java.io.IOException(
+                Updater.pesanDibatalkan("binary"));
+        assertTrue(Updater.galatDibatalkan(e));
+        assertFalse(Updater.bolehCobaLagiUnduh(e));
+        assertFalse(Updater.galatDibatalkan(new java.io.IOException("timeout")));
+        // Kata "dibatalkan" juga dipakai kegagalan checksum — itu BUKAN
+        // pembatalan user, jadi harus tetap dilaporkan sebagai kegagalan.
+        assertFalse(Updater.galatDibatalkan(new java.io.IOException(
+                "Checksum SHA-256 tidak cocok setelah 2 percobaan; update"
+                        + " dibatalkan (aset rilis mungkin korup).")));
+    }
+
+    @Test
+    public void overloadPembatalan_tersedia() {
+        // Stop harus bisa menghentikan unduhan binary (hook CekBatal): pastikan
+        // overload berparameter 9/6/3/4 itu benar-benar ada di kelas.
+        // Overload yang dijaga uji ini: unduhKeTmp(...), salinSambilHash(...),
+        // downloadBinary(...), downloadBinaryVersi(...) — semuanya ber-CekBatal.
+        assertTrue(punyaMetode("unduhKeTmp", 9));
+        assertTrue(punyaMetode("salinSambilHash", 6));
+        assertTrue(punyaMetode("downloadBinary", 3));
+        assertTrue(punyaMetode("downloadBinaryVersi", 4));
+    }
+
+    private static boolean punyaMetode(String nama, int jumlahParam) {
+        for (java.lang.reflect.Method m : Updater.class.getDeclaredMethods()) {
+            if (m.getName().equals(nama) && m.getParameterCount() == jumlahParam) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Test
+    public void dibatalkan_amanUntukCallbackNullDanRusak() {
+        assertFalse(Updater.dibatalkan(null));
+        assertFalse(Updater.dibatalkan(() -> false));
+        assertTrue(Updater.dibatalkan(() -> true));
+        assertFalse(Updater.dibatalkan(() -> {
+            throw new IllegalStateException("callback rusak");
+        }));
+    }
 }

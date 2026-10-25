@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 293: Stop menghentikan unduhan binary yang sedang berjalan
+- `ACTION_STOP` hanya menyetel `batalStart`, yang baru dibaca sebelum `exec`; `Updater.unduhKeTmp` tak punya hook pembatalan. Start tanpa binary lalu Stop membuat ~20 MB tetap terunduh (menit-menitan di STB lambat) dan `starting` tetap true sampai selesai, sehingga restore/reset yang menunggu `stopAndWait` ditolak "server gagal berhenti" padahal tak ada server.
+- Ditambahkan `nomorStop` (nomor monotonik, dinaikkan tiap Stop) + `Updater.CekBatal`: episode Start mencatat nomornya, lalu unduhan berhenti di antara percobaan **dan** di tengah salinan badan (per 64 KB). Memakai nomor, bukan flag yang direset Start berikutnya, agar Start baru tidak menghidupkan lagi unduhan episode lama.
+- Pesan pembatalan (`TANDA_DIBATALKAN`) sengaja tak memuat kata pemicu ulang/hapus parsial, jadi unduhan tidak diulang, byte parsial tetap bisa dilanjutkan via Range, dan `ensureBinary` tidak mencatat `KEY_BIN_DL_GAGAL_AT`/saran koneksi untuk keputusan user ini. Uji `UpdaterTest.pesanDibatalkan_tidakMemicuUlangAtauHapusParsial`, `dibatalkan_amanUntukCallbackNullDanRusak`, `overloadPembatalan_tersedia`.
+
 ## [Belum rilis] — Audit 292: Restore membatalkan Start yang masih tertunda
 - Kedua pemanggil restore (`SettingsActivity.restoreDatabaseIsi`, `TgBackup.restoreFromZipIsi`) hanya memanggil `ServerService.stopAndWait()` bila `isProcessAlive()`. Saat episode Start masih menyiapkan binary (`process == null`, `starting == true`), guard itu false sehingga Stop tak pernah dikirim dan `batalStart` tak pernah dipasang: `KUNCI_DATA` menahan exec selama restore, lalu episode Start itu exec setelah restore selesai dengan `dataDir`/`port` yang dibaca **sebelum** restore.
 - Guard `isProcessAlive()` dihapus di kedua jalur (hanya Stop nyata yang bisa membatalkan Start tertunda); restore tetap dibatalkan bila `stopAndWait()` mengembalikan false atau proses masih hidup. `stopAndWait()` sendiri sudah langsung `true` saat tak ada proses maupun Start tertunda, jadi tak ada intent Stop tambahan pada kasus biasa.
