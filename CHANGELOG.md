@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 230: Trust store tidak lagi mempercayai CA pengguna
+- `HttpsCompat.socketFactory()` menyalin **semua** alias `AndroidCAStore` ke trust store kustomnya, termasuk alias berawalan `user:` (CA yang dipasang pengguna). Sejak `targetSdk 24` platform sengaja tidak mempercayai CA pengguna; menyalinnya kembali membuat CA "Wi-Fi kantor"/MITM dipercaya untuk unduhan binary + `.sha256` (kanal sama, jadi checksum palsu ikut lolos) dan upload backup ke Telegram — pintu eksekusi kode di sandbox app.
+- Kini hanya anchor sistem (`aliasCaSistem()`, murni + diuji) yang disalin; alias `user:` dilewati. Anchor tambahan dari aset `github-chain.pem`/override tetap berlaku.
+
 ## [Belum rilis] — Audit 229: Perbaiki 10 galat kompilasi APK (tabrakan `KUNCI_GRACE`, `idAwal` hilang)
 - `PinGate` mendeklarasikan dua anggota bernama `KUNCI_GRACE`: objek kunci `private static final Object KUNCI_GRACE` (untuk `synchronized` cek grace) dan konstanta hasil `static final int KUNCI_GRACE = 1`. javac menolak kelas itu: `variable KUNCI_GRACE is already defined` plus `unexpected type` di ketiga `synchronized (KUNCI_GRACE)`. Objek kunci kini bernama `KUNCI_BERSAMA` (konstanta hasil dan `PinGateTest` tidak berubah) dan dua blok javadoc `PIN_GRACE_MS` yang menumpuk digabung.
 - `ServerService.startServer()` memakai `idAwal` pada guard "jangan timpa status perintah Start yang lebih baru", padahal `idAwal` hanya ada di `startServerAsync()` (`cannot find symbol`). `startServer()` kini menangkap episodenya sendiri di awal (`final int idEpisoda = startIdTerakhir`) dan guard memakai nilai itu, sehingga semantik lama terjaga tanpa parameter baru.

@@ -51,6 +51,14 @@ public class HttpsCompatTest {
     }
 
     @Test
+    public void aliasCaSistem_tolakCaPengguna() {
+        assertTrue(HttpsCompat.aliasCaSistem("system:1"));
+        assertTrue(HttpsCompat.aliasCaSistem("added:0"));
+        assertFalse(HttpsCompat.aliasCaSistem("user:12"));
+        assertFalse(HttpsCompat.aliasCaSistem(null));
+    }
+
+    @Test
     public void bungkusTls12_tolakNullTeruskanKuat() {
         assertNull(HttpsCompat.bungkusTls12(null));
         try {

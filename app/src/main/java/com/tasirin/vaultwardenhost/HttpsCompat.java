@@ -203,6 +203,12 @@ public final class HttpsCompat {
         }
     }
 
+    /** True bila alias AndroidCAStore milik anchor sistem (bukan "user:").
+     *  Murni agar bisa diuji tanpa Android runtime. */
+    static boolean aliasCaSistem(String alias) {
+        return alias != null && !alias.startsWith("user:");
+    }
+
     /** Acak bersama init SSL (thread-safe): seed kernel lama bisa blokir detik. */
     private static final java.security.SecureRandom ACAK_SSL = new java.security.SecureRandom();
 
@@ -235,6 +241,13 @@ public final class HttpsCompat {
                     try {
                         a = aliases.nextElement();
                     } catch (Exception ignored) {
+                        continue;
+                    }
+                    // Hanya anchor sistem. Alias "user:" adalah CA yang dipasang
+                    // pengguna; sejak targetSdk 24 platform sengaja tak
+                    // mempercayainya, dan menyalinnya di sini membuka MITM
+                    // unduhan binary + checksum (kanal sama) serta upload backup.
+                    if (!aliasCaSistem(a)) {
                         continue;
                     }
                     try {
