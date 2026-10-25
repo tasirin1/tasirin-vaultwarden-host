@@ -99,6 +99,11 @@ public class MainActivity extends Activity {
     private boolean refreshActive = true;
     /** Start ditahan karena dialog izin storage; dilanjutkan setelah izin diberi. */
     private boolean mulaiUlangSetelahIzin = false;
+    /** Kunci instance state untuk {@link #mulaiUlangSetelahIzin}. Dialog izin
+     *  bisa membunuh Activity (rotasi/proses dibunuh saat dialog tampil);
+     *  tanpa simpan-pulih, izin yang diberikan tak melanjutkan Start dan user
+     *  harus menekan Start lagi tanpa tahu sebabnya. */
+    private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
     private volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
     // Cache URL lokal 10 detik: localUrl()/collectIps() tiap detik di UI thread
@@ -131,6 +136,12 @@ public class MainActivity extends Activity {
         // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
+        // Pulihkan permintaan Start yang tertahan izin sebelum dialog izin
+        // sempat kembali (Activity dibuat ulang saat dialog tampil).
+        if (savedInstanceState != null) {
+            mulaiUlangSetelahIzin = savedInstanceState.getBoolean(
+                    STATE_MULAI_ULANG_IZIN, false);
+        }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
         // Sisa salinan clipboard yang penghapusnya tak sempat jalan karena
@@ -335,6 +346,14 @@ public class MainActivity extends Activity {
         super.onPause();
         refreshActive = false;
         ui.removeCallbacks(refreshLoop);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Simpan permintaan Start tertahan izin: dialog izin bisa membuat
+        // Activity dibuat ulang sebelum hasilnya kembali.
+        outState.putBoolean(STATE_MULAI_ULANG_IZIN, mulaiUlangSetelahIzin);
     }
 
     @Override

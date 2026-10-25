@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 259: Permintaan Start tertahan izin selamat dari Activity dibuat ulang
+- `mulaiUlangSetelahIzin` (Start ditahan menunggu izin storage, lalu dilanjutkan di `onRequestPermissionsResult`) hanya hidup di field instance. Dialog izin sistem bisa membuat Activity dibuat ulang (rotasi layar, tema/ukuran berubah, proses app dibunuh saat dialog tampil); instance baru memulai flag `false`, sehingga izin yang akhirnya diberikan **tidak** melanjutkan Start dan pengguna harus menekan Start lagi tanpa tahu sebabnya.
+- `MainActivity` dan `SettingsActivity` kini menyimpan flag itu di instance state (`STATE_MULAI_ULANG_IZIN` lewat `onSaveInstanceState`) dan memulihkannya di `onCreate(savedInstanceState)` sebelum hasil izin kembali. Flag tetap direset di `onRequestPermissionsResult`/`saveAndStart()` agar penolakan atau kegagalan tak memicu Start liar.
+
 ## [Belum rilis] — Audit 258: Runnable dari worker tak lagi menyentuh Activity yang sudah mati
 - Callback worker (`AutoUpdate.Aksi`, `TgBackup.BackupStartUi`) memposting pekerjaan ke Handler utama, tetapi runnable-nya langsung menulis `startStopBtn`/`statusView`, menjalankan `refreshFromService()`, atau menampilkan `Toast` tanpa memeriksa `isFinishing()`/`isDestroyed()`. `onDestroy` hanya membersihkan callback yang **sudah** antre — post baru sesudahnya tetap dieksekusi, sehingga Activity yang sudah mati masih disentuh (potensi crash/leak context).
 - Kini ada satu gerbang `uiHidup()` yang dipakai di dalam runnable `setBusy()`, `refreshFromService()`, `toast()`, dan `jalankanUi()`; pekerjaan UI dari worker berhenti begitu Activity sedang selesai/dihancurkan.
