@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 275: Verifikator tak lagi mengira pemanggilan konstruktor sebagai definisi
+- `nama_metode_hilang()` menilai baris yang dihapus sebagai definisi metode bila baris itu diakhiri `{` (heuristik untuk definisi yang kurawalnya di baris berikut). Panggilan konstruktor yang dipecah ke beberapa baris — mis. `new FileInputStream(new File(...))) {` di dalam try-with-resources — ikut terbaca sebagai definisi `FileInputStream()`, sehingga penghapusan sah (`tulisTagShim`/`bacaTagShim`) digagalkan gerbang dengan pesan "Metode FileInputStream() dihapus tapi masih dipanggil".
+- Baris yang memuat `new Nama(` kini dilewati: itu pemanggilan konstruktor, bukan definisi. Cek metode hilang tetap menangkap definisi sungguhan (yang tak pernah didahului `new`).
+
 ## [Belum rilis] — Audit 274: Shim getrandom dipakai ulang tanpa menunggu APK baru
 - `ensureShimFile()` hanya memakai ulang shim bila `appVersionName(ctx)` (tanggal build APK) sama dengan isi `shim-tag.txt`. Setiap APK baru membuat penanda itu basi, sehingga Start di STB kernel lama **wajib** mengunduh ulang shim; tanpa internet Start dibatalkan ("Shim getrandom belum tersedia") padahal `libgetrandom-shim-armeabi-v7a.so` di disk masih sah, dan tiap Start menunggu timeout jaringan lebih dulu.
 - Reuse kini murni berdasarkan validitas berkas (`shimValid`: ELF + ukuran wajar) — shim bergantung pada ABI/syscall kernel, bukan versi APK. Penanda `shim-tag.txt` beserta penulis/pembacanya (`tulisTagShim`/`bacaTagShim`) dihapus dan namanya dicatat di `tools/bekas-hapusan.txt`.
