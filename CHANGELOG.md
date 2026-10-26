@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 433: cek duplikat definisi kini mengupas komentar XML
+- `cek_duplikat_definisi` membaca berkas values mentah, sehingga definisi lama yang disimpan di dalam komentar XML ikut terhitung dan memicu GAGAL palsu "Definisi ganda" — padahal AAPT mengabaikan komentar. Fungsi tetangganya (`himpun_definisi`, `cek_sinkron_terjemah`) sudah memakai `kupas_komentar_xml` sejak Audit untuk #148/#153; cek ini tertinggal saat ditulis pada Audit untuk #168.
+- Pemindaian kini melewati `kupas_komentar_xml` lebih dulu. Dibuktikan di salinan buang: duplikat di dalam komentar kini LOLOS, duplikat nyata tetap GAGAL.
+
 ## [Belum rilis] — Audit 432: penjaga bekas-hapusan kini mengenali rujukan metode ::
 - Pola `cek_panggil_bekas_hapusan` hanya mencari panggilan `nama(`, sehingga nama metode terhapus yang dipakai ulang sebagai rujukan metode (`this::namaTerhapus`) lolos — celah yang sama yang ditutup `pemanggil()` pada Audit untuk #147 untuk cek tetangganya.
 - Pola kini sama dengan `pemanggil()`: `\bnama\s*\(|::\s*nama\b`, termasuk lewat jalur baris gabungan untuk panggilan pisah baris. Dibuktikan di salinan buang: `this::sendMessageKb` kini GAGAL, rujukan ke nama yang tidak terlarang tetap LOLOS.

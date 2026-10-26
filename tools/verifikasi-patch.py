@@ -288,7 +288,7 @@ def cek_duplikat_definisi(gagal):
             continue
         folder = rata.rsplit("/", 1)[0]
         hitung = per_folder.setdefault(folder, {})
-        for jenis, nama in pola.findall(baca(path)):
+        for jenis, nama in pola.findall(kupas_komentar_xml(baca(path))):
             kunci = jenis + "/" + nama
             hitung[kunci] = hitung.get(kunci, 0) + 1
     for folder in sorted(per_folder):
