@@ -575,6 +575,35 @@ def cek_sinkron_terjemah(gagal):
             gagal.append("values-in berlebih string: " + ", ".join(lebih[:10]))
 
 
+def jenis_biner(path):
+    """Kenali berkas biner dari magic-nya (bukan ekstensi).
+
+    Ekstensi mudah dilewati (binary ELF tanpa ekstensi, zip bernama .dat),
+    sedangkan aturan repo melarang membundel binary/web-vault/arsip ke repo.
+    """
+    try:
+        with open(os.path.join(AKAR, path), "rb") as f:
+            kepala = f.read(4)
+    except OSError:
+        return None
+    if kepala.startswith(b"\x7fELF"):
+        return "ELF"
+    if kepala[:2] == b"MZ":
+        return "PE/EXE"
+    if kepala[:4] == b"PK\x03\x04":
+        return "ZIP/JAR/APK"
+    if kepala[:4] in (b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
+        return "Mach-O/class"
+    if kepala[:4] == b"dex\n":
+        return "DEX"
+    return None
+
+
+# Berkas biner yang memang bagian repo (wrapper Gradle diunduh CI, bukan aset app).
+BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
+BATAS_UKURAN_BERKAS = 1024 * 1024
+
+
 def cek_aturan_repo(gagal, berubah):
     tetap = baca("app/build.gradle.kts")
     target = re.search(r"targetSdk\s*=\s*(\d+)", tetap)
@@ -588,18 +617,29 @@ def cek_aturan_repo(gagal, berubah):
     if asing:
         gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
     for path in berubah:
+        # Berkas yang dihapus justru dianjurkan (revert/bersih-bersih): jangan
+        # diblokir cek ekstensi/ukuran/biner — path-nya tak ada di pohon kerja.
+        if not os.path.exists(os.path.join(AKAR, path)):
+            continue
         rendah = path.lower()
         if rendah.endswith((".apk", ".aab", ".dex", ".jks", ".keystore")):
             gagal.append("Berkas terlarang masuk repo: " + path)
-        elif path.startswith("app/src/main/assets/bin/"):
+            continue
+        if path.startswith("app/src/main/assets/bin/"):
             gagal.append("Binary tak boleh dibundel ke APK: " + path)
-        elif path.startswith("app/src/main/"):
-            try:
-                ukuran = os.path.getsize(os.path.join(AKAR, path))
-            except OSError:
-                ukuran = 0
-            if ukuran > 1024 * 1024:
-                gagal.append("Berkas >1 MB di app/src (binary/web-vault diunduh CI): " + path)
+            continue
+        if path in BINER_DIIZINKAN:
+            continue
+        # Cek biner magic berlaku untuk SEMUA lokasi, bukan hanya app/src/main:
+        # zip/binary ELF tanpa ekstensi di root/tools/test dulu lolos.
+        jenis = jenis_biner(path)
+        if jenis:
+            gagal.append("Berkas biner (%s) tak boleh masuk repo: %s" % (jenis, path))
+            continue
+        ukuran = os.path.getsize(os.path.join(AKAR, path))
+        if ukuran > BATAS_UKURAN_BERKAS:
+            gagal.append("Berkas >1 MB tak boleh masuk repo"
+                         " (binary/web-vault diunduh CI): " + path)
 
 
 def nama_metode_hilang(diff, lewati_berkas=()):

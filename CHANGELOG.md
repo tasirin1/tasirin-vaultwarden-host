@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 296: Verifikator menolak biner/berkas besar di semua lokasi
+- Cek "berkas >1 MB" dulu hanya berlaku untuk `app/src/main/`, sehingga `web-vault.zip` 36 MB, binary ELF tanpa ekstensi, atau arsip apa pun di root/`tools/`/`app/src/test/` lolos gate. Daftar ekstensi terlarang juga terbatas `.apk/.aab/.dex/.jks/.keystore`.
+- `cek_aturan_repo` kini memeriksa magic berkas (ELF, PE/EXE, ZIP/JAR/APK, Mach-O/class, DEX) di **semua** berkas berubah dan menegakkan batas 1 MB di semua path, dengan pengecualian eksplisit hanya `gradle/wrapper/gradle-wrapper.jar` (bagian repo, bukan aset app). Berkas yang dihapus (tak terbaca) tetap lolos agar revert tak diblokir.
+- Diuji lokal dengan berkas percobaan: `web-vault.zip` (magic PK), ELF tanpa ekstensi, dan teks >1 MB di root semuanya ditolak dengan nama jenisnya; setelah dibersihkan verifikasi kembali LOLOS.
+
 ## [Belum rilis] — Audit 295: Teks UI layar Log, awal, dan Setelan pindah ke resource (i18n)
 - Teks tampilan yang masih ditulis langsung di `LogActivity`, `MainActivity`, dan `SettingsActivity` dipindah ke `res/values/strings.xml` (Inggris) + `res/values-in/strings.xml` (Indonesia): toast crash-log, dialog "Crash Log", bagikan/salin/simpan log, dialog port (<1024/in use), tawaran web-vault, folder data tidak valid, baris versi `App … · Binary …`, pemberitahuan update, seluruh toast/dialog Setelan (CADB, backup/restore, ekspor/impor config, reset binary/sertifikat), label salin token/URL, pesan galat `IOException`, serta baris info panel (DB/penyimpanan/web-vault/RAM/uptime/sisa ruang/TLS/shim). Nilai Inggris tiap resource dibuktikan sama dengan literal lama: 52 literal UI tunggal diperiksa otomatis (parse XML vs teks asal, 50 identik; 2 beda yang disengaja — "not an export of this app" menghindari apostrof resource dan `\u2014` ditulis sebagai karakter em-dash), sedangkan kasus ber-argumen memakai `%1$s`/`%2$d` dengan urutan sama seperti konkatenasi lama.
 - Sekalian memperbaiki teks Inggris yang mencampur bahasa Indonesia: toast URL loopback kini `… (loopback — LAN IP not detected)` dengan padanan Indonesia `… (loopback — IP LAN tak terdeteksi)`.
