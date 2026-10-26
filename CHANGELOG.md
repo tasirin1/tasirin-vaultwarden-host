@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: verifikator mengenali kelas manifest sub-paket
+- `cek_manifest` mengambil segmen pertama nama komponen setelah namespace, jadi `.ui.MainActivity` dicari sebagai `ui.java` dan komponen sah dilaporkan "Komponen manifest tanpa kelas" — push ke sub-paket baru pasti gagal.
+- Nama relatif kini dipetakan utuh ke direktori (`ui/MainActivity.java`) untuk bentuk `.Nama` maupun nama absolut; pesan galat ikut menampilkan path relatif. Diuji dengan fixture: kelas sub-paket yang ada lolos, yang hilang tetap terdeteksi.
+
 ## [Belum rilis] — Audit 311: distribusi Gradle wrapper dipin SHA-256
 - `gradle-wrapper.properties` hanya mengandalkan `distributionUrl` + `validateDistributionUrl`, sehingga zip Gradle yang dieksekusi di runner (memegang `GITHUB_TOKEN` dan secret keystore) tidak diperiksa integritasnya bila layanan distribusi/proxy CI disusupi.
 - Ditambahkan `distributionSha256Sum=bd7110...f3531` untuk `gradle-8.14.3-bin.zip`, dicocokkan dari dua endpoint resmi Gradle (`distributions/...sha256` dan `versions/all`). Bila versi Gradle dinaikkan, hash wajib diperbarui bersamaan.

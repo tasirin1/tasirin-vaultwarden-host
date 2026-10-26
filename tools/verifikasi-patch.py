@@ -247,12 +247,12 @@ def cek_manifest(gagal):
             continue
         if not nama.startswith(".") and not nama.startswith(ns):
             continue
-        kelas = (nama[1:] if nama.startswith(".") else nama[len(ns) + 1:]).split(".")[0]
+        rel = nama[1:] if nama.startswith(".") else nama[len(ns) + 1:]
         berkas = os.path.join(
-            MAIN, "java", *ns.split("."), kelas + ".java")
+            MAIN, "java", *ns.split("."), *rel.split(".")) + ".java"
         if not os.path.isfile(berkas):
             gagal.append("Komponen manifest tanpa kelas: %s (hapus %s.java?)"
-                         % (nama, kelas))
+                         % (nama, rel.replace(".", "/")))
 
 def cek_duplikat_definisi(gagal):
     pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
