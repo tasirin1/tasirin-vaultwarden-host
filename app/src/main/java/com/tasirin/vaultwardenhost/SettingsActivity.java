@@ -2000,7 +2000,14 @@ public class SettingsActivity extends Activity {
                 return;
             }
 
-            TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
+            if (!tlsTerStaging.isEmpty() && !TgBackup.tlsRestoreLengkap(tlsTerStaging)) {
+                TgBackup.hapusStagingTls(new File(dataDir));
+                appendUiLog("[app] Sertifikat dari backup tidak dipasang:"
+                        + " kunci privat tidak ikut - TLS perangkat ini"
+                        + " dipertahankan.");
+            } else {
+                TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
+            }
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
             if (zipCfg != null) {
                 paksaCacheUbah = true;

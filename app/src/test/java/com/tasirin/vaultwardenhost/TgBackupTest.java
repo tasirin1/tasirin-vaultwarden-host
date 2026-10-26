@@ -1442,6 +1442,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tlsRestoreLengkapHanyaBilaKeduaKunciIkut() {
+        assertTrue(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca.pem", "tls/cert.pem", "tls/ca-key.pem", "tls/key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca.pem", "tls/cert.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca.pem", "tls/ca-key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/cert.pem", "tls/key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(
+                java.util.Collections.<String>emptyList()));
+        assertFalse(TgBackup.tlsRestoreLengkap(null));
+    }
+
+    @Test
     public void hapusStagingTlsBersihkanSemuaSisa() throws Exception {
         File dir = java.nio.file.Files.createTempDirectory("vwtlsstage").toFile();
         assertTrue(new File(dir, "tls").mkdirs());

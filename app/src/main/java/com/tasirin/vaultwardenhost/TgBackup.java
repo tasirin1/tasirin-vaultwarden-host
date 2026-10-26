@@ -2980,11 +2980,19 @@ public final class TgBackup {
                     + " - database lama dipertahankan.");
         }
 
-        try {
-            pasangTlsRestore(dataFolder, tlsTerStaging);
-        } catch (Exception eTls) {
-            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
-            throw eTls;
+        String peringatanTls = "";
+        if (!tlsTerStaging.isEmpty() && !tlsRestoreLengkap(tlsTerStaging)) {
+            hapusStagingTls(dataFolder);
+            peringatanTls = " Sertifikat dari backup tidak dipasang karena"
+                    + " kunci privatnya tidak ikut - TLS perangkat ini"
+                    + " dipertahankan.";
+        } else {
+            try {
+                pasangTlsRestore(dataFolder, tlsTerStaging);
+            } catch (Exception eTls) {
+                kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+                throw eTls;
+            }
         }
         sinkronTlsKeInternal(ctx, dataFolder);
         boolean lengkap = false;
@@ -3010,7 +3018,7 @@ public final class TgBackup {
                         ? " DB lama disimpan sebagai " + preBackup.getName()
                                 + " di folder backups."
                         : "")
-                + peringatan;
+                + peringatanTls + peringatan;
     }
 
     static final String[] ENTRI_TLS_RESTORE = {"tls/ca.pem", "tls/ca-key.pem",
@@ -3030,6 +3038,11 @@ public final class TgBackup {
         for (String nama : ENTRI_TLS_RESTORE) {
             new File(dataFolder, namaStagingTls(nama)).delete();
         }
+    }
+
+    static boolean tlsRestoreLengkap(java.util.List<String> daftar) {
+        return daftar != null && daftar.contains("tls/ca-key.pem")
+                && daftar.contains("tls/key.pem");
     }
 
     static void pasangTlsRestore(File dataFolder, java.util.List<String> daftar)
