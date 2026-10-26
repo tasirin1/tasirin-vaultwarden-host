@@ -919,6 +919,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void nextMidnight_hormatiDstHariTarget() {
+        java.util.TimeZone asal = java.util.TimeZone.getDefault();
+        try {
+            java.util.TimeZone.setDefault(
+                    java.util.TimeZone.getTimeZone("America/New_York"));
+            assertEquals(1773028860000L, TgBackup.nextMidnight(1772947800000L));
+        } finally {
+            java.util.TimeZone.setDefault(asal);
+        }
+    }
+
+    @Test
     public void verifikasiZip_tolakDbBuntung() throws Exception {
         File zip = File.createTempFile("vwzip", ".zip");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {

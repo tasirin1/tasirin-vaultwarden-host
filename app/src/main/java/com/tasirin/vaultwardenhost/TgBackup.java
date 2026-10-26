@@ -4011,9 +4011,14 @@ public final class TgBackup {
     }
 
     static long nextMidnight(long acuanMs) {
-        long offset = java.util.TimeZone.getDefault().getOffset(acuanMs);
-        long hari = (acuanMs + offset) / 86400000L;
-        return (hari + 1) * 86400000L - offset + 60000L;
+        java.util.Calendar kal = java.util.Calendar.getInstance();
+        kal.setTimeInMillis(acuanMs);
+        kal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        kal.set(java.util.Calendar.MINUTE, 0);
+        kal.set(java.util.Calendar.SECOND, 0);
+        kal.set(java.util.Calendar.MILLISECOND, 0);
+        kal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        return kal.getTimeInMillis() + 60000L;
     }
 
     public static void schedule(Context ctx, boolean enable) {

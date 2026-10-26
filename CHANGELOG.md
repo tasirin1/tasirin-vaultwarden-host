@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 407: nextMidnight kini dihitung dengan Calendar yang menghormati DST hari target
+- `nextMidnight` memakai offset zona pada INSTAN acuan untuk menghitung tengah malam berikutnya; pada malam pergantian DST offset hari target berbeda dan alarm backup meleset ±1 jam (diuji dengan angka: zona America/New_York menjelang spring-forward meleset tepat 3600 detik; Indonesia tak ber-DST jadi tak terpengaruh) (temuan audit putaran-9, #161).
+- Perhitungan kini memakai `Calendar` (tengah malam lokal hari berikutnya menurut aturan zona pada hari itu) + 60 detik seperti sebelumnya; nilai untuk zona tanpa DST tidak berubah.
+
 ## [Belum rilis] — Audit 406: sapuan .tmp folder backups kini mengenali cap masa depan
 - `cleanupOldBackups` hanya menghapus `.tmp` bila `sekarang - lastModified > TMP_BASI_MS` — berkas bercap masa depan (jam perangkat melompat saat penulisan terpotong) bernilai negatif dan tak pernah tersapu, pasangan tak lengkap dari perbaikan cap depan #103 untuk plaintext (temuan audit putaran-9, #160).
 - Cabang cap depan ditambahkan dengan syarat kestabilan yang sama seperti Audit 387 (`capDepanStabil`: cap tak berubah pada dua sapuan berurutan) agar berkas yang sedang ditulis alur lain tidak ikut terhapus.
