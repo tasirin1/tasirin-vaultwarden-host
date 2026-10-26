@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: tebakan PIN dari grup tak bisa mengunci pemilik
+- `handleCommand` dan `authDangerous` dulu menghitung setiap tebakan PIN dari chat grup sebagai kegagalan **global** (`PinGate.catatHasil(ctx, false, ...)`), padahal perintah ber-PIN dari grup memang selalu ditolak. Anggota grup mana pun bisa mengirim `/stop 0000` lima kali lalu mengulang tiap 5 menit untuk menjaga pemilik tetap terkunci — DoS dari dalam grup.
+- `hitungTebakanPinGrup` dihapus total (dicatat di `tools/bekas-hapusan.txt`); perintah ber-PIN dari grup tetap ditolak dan pesannya tetap dihapus, tetapi penghitung PIN pribadi tidak tersentuh. Pesan "dihitung sebagai percobaan gagal" ikut dihapus.
+
 ## [Belum rilis] — Audit 312: sertifikat APK rilis dipaku SHA-256
 - Langkah *Verify APK contents* (`build-apk.yml`) dulu hanya memastikan `keytool` bisa membaca sertifikat, bukan bahwa sertifikat itu kunci rilis yang benar. Bila `KEYSTORE_BASE64`/`KEY_ALIAS` salah atau keystore dibuat ulang, build tetap hijau dan APK berkunci lain terbit — pengguna lama tak bisa update (harus uninstall, data hilang).
 - Sidik jari SHA-256 sertifikat APK kini dibandingkan dengan konstanta `SIDIK_SERT` (diambil dari APK rilis `v1.37.4`, `C2:78:5A:...:13:D1`); beda/tak terbaca = build gagal sebelum unggah. Prosedur rotasi keystore dicatat di `AGENTS.md`.

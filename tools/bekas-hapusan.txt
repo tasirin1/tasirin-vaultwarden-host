@@ -72,3 +72,5 @@ pinBaruSajaDibuka
 # hanya berdasarkan validitas ELF, bukan tanggal build APK.
 bacaTagShim
 tulisTagShim
+# Audit 311: tebakan PIN dari grup tak lagi menaikkan penghitung gagal global.
+hitungTebakanPinGrup

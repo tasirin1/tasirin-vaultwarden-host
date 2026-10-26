@@ -1277,17 +1277,6 @@ public final class TgBot {
         return pinTebakanArgumen(ambilArgumen(text));
     }
 
-    private static void hitungTebakanPinGrup(Context ctx, String tebakan) {
-        if (tebakan == null || !pinPerangkatAktif(ctx)) {
-            return;
-        }
-        long sekarang = System.currentTimeMillis();
-        if (PinGate.sisaKunciMs(ctx, sekarang) > 0) {
-            return;
-        }
-        PinGate.catatHasil(ctx, false, sekarang);
-    }
-
     static boolean perluPinTombol(android.content.Context ctx, String data) {
         if (!perintahPerluPin(data)) {
             return false;
@@ -1433,10 +1422,8 @@ public final class TgBot {
 
         if (idRuang < 0 && perintahBerbahaya(text)) {
 
-            hitungTebakanPinGrup(ctx, pinTebakan(text));
             balas(ctx, idRuang, "Perintah berbahaya dari grup ditolak."
-                    + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi)."
-                    + " Tebakan PIN dari grup dihitung sebagai percobaan gagal.");
+                    + " Ulangi dari chat pribadi dengan bot (pakai chat pribadi).");
             return false;
         }
 
@@ -1872,7 +1859,6 @@ public final class TgBot {
                 || perintahBerbahaya(cmd);
         if (idRuang < 0) {
 
-            hitungTebakanPinGrup(ctx, pinTebakanArgumen(t));
             balas(ctx, idRuang, "Perintah ber-PIN hanya bisa dari chat pribadi"
                     + " bot. PIN yang diketik di grup terbaca anggota lain.");
             return null;
