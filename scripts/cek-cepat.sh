@@ -65,7 +65,7 @@ if [ "$a" != "$b" ]; then gagal_msg "jumlah ## README.md ($a) != README.id.md ($
 if [ "$a" != "$c" ]; then gagal_msg "jumlah ## README.md ($a) != README.ru.md ($c)"; fi
 
 POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
-POLA_RAHASIA="^-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|$POLA_TOKEN"
+POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|$POLA_TOKEN"
 RAHASIA="$( { git grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
 BUNGKUS="$(git ls-files | while IFS= read -r f; do
   if [ -f "$f" ] && tr -d '\n\r' < "$f" 2>/dev/null | grep -q -E -- "$POLA_TOKEN"; then
