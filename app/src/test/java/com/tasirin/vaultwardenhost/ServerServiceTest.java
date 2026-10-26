@@ -555,13 +555,15 @@ public class ServerServiceTest {
     @Test
     public void pidYatimServer_lewatiProsesSendiriDanSmokeTest() {
         String server = "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a";
-        assertTrue(ServerService.pidYatimServer(1234, 99, server));
+        assertTrue(ServerService.pidYatimServer(1234, 99, 555, server));
+        assertTrue(ServerService.pidYatimServer(1234, 99, -1, server));
 
-        assertFalse(ServerService.pidYatimServer(99, 99, server));
-        assertFalse(ServerService.pidYatimServer(-1, 99, server));
-        assertFalse(ServerService.pidYatimServer(1234, 99, server + " --version"));
-        assertFalse(ServerService.pidYatimServer(1234, 99, "/system/bin/sh"));
-        assertFalse(ServerService.pidYatimServer(1234, 99, null));
+        assertFalse(ServerService.pidYatimServer(99, 99, 555, server));
+        assertFalse(ServerService.pidYatimServer(555, 99, 555, server));
+        assertFalse(ServerService.pidYatimServer(-1, 99, 555, server));
+        assertFalse(ServerService.pidYatimServer(1234, 99, 555, server + " --version"));
+        assertFalse(ServerService.pidYatimServer(1234, 99, 555, "/system/bin/sh"));
+        assertFalse(ServerService.pidYatimServer(1234, 99, 555, null));
     }
 
     @Test

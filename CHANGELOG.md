@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 313: bereskanServerYatim tak lagi membunuh server yang sedang aktif
+- `bereskanServerYatim` menganggap semua proses `vaultwarden-*` selain proses aplikasi sebagai yatim, termasuk anak yang sedang dilacak field `process` dan sedang melayani. Server sehat bisa kena SIGKILL mendadak (mis. server baru yang lahir di celah antar-percobaan pembersihan), tulisan DB terpotong, dan restore ikut batal.
+- `pidYatimServer` kini juga mengecualikan PID anak yang berjalan, `bereskanServerYatim` mengambil PID anak segar dari `process` di tiap pindai dan memeriksa ulang tepat sebelum membunuh (meniru pengecualian ganda `killStaleVaultwarden`), dan cek akhir juga melewati anak yang berjalan. Uji `pidYatimServer` diperbarui untuk mengunci pengecualian ini.
+
 ## [Belum rilis] — Audit 311: startServer dan handleCommand dipecah per tanggung jawab
 - `ServerService.startServer` (320 baris) mencampur pemilihan binary, shim, smoke test, pembersihan proses yatim, cek port, TLS, env proses, start, notifikasi, dan pemasangan thread monitor; salah urutan (mis. cek port sebelum membersihkan proses yatim) mudah terulang.
 - Kini `startServer` hanya mengurutkan langkah melalui `SesiStart`: `siapkanFolderData`, `pilihBiner`, `siapkanShim`, `siapkanProsesDanPort`, `siapkanTls`, `bangunEnv`, `jalankanProses` (+ `umumkanJalan`). Seluruh langkah tetap di dalam satu `try` yang sama seperti sebelumnya, jadi penanganan galat start tidak berubah.

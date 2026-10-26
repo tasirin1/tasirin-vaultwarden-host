@@ -3863,12 +3863,15 @@ public class ServerService extends Service {
                 } catch (Exception e) {
                     continue;
                 }
-                if (!pidYatimServer(pid, myPid, cmd)) {
+                if (!pidYatimServer(pid, myPid, pidOf(process), cmd)) {
                     continue;
                 }
                 ada = true;
 
                 if (!pidMilikiServer(pid)) {
+                    continue;
+                }
+                if (pid == myPid || pid == pidOf(process)) {
                     continue;
                 }
                 try {
@@ -3891,7 +3894,7 @@ public class ServerService extends Service {
         }
         segarkanCachePid();
         for (int pid : kandidatPidSeUid()) {
-            if (pid != myPid && pidMilikiServer(pid)) {
+            if (pid != myPid && pid != pidOf(process) && pidMilikiServer(pid)) {
                 catatLog("[app] Proses vaultwarden yatim (pid " + pid
                         + ") masih hidup - restore dibatalkan.");
                 return false;
@@ -3909,8 +3912,8 @@ public class ServerService extends Service {
         return cmdlineServer(cmd);
     }
 
-    static boolean pidYatimServer(int pid, int myPid, String cmd) {
-        return pid >= 0 && pid != myPid && cmdlineServer(cmd);
+    static boolean pidYatimServer(int pid, int myPid, int childPid, String cmd) {
+        return pid >= 0 && pid != myPid && pid != childPid && cmdlineServer(cmd);
     }
 
     static boolean pidMilikiServer(int pid) {
