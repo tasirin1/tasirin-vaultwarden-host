@@ -3490,16 +3490,26 @@ public class SettingsActivity extends Activity {
             }
             return;
         }
-        DialogAman.tampil(this, new AlertDialog.Builder(this)
+        final boolean[] dipilih = {false};
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(R.string.ya, (d, w) -> action.run())
+                .setPositiveButton(R.string.ya, (d, w) -> {
+                    dipilih[0] = true;
+                    action.run();
+                })
                 .setNegativeButton(R.string.batal, (d, w) -> {
                     if (batal != null) {
                         batal.run();
                     }
                 })
-                .create());
+                .create();
+        dialog.setOnDismissListener(d -> {
+            if (!dipilih[0] && batal != null) {
+                batal.run();
+            }
+        });
+        DialogAman.tampil(this, dialog);
     }
 
     private void pasangSeksi(int idHeader, final int idBadan, final int idChevron, final String kunci) {

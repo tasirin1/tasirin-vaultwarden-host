@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 398: dialog konfirmasi kini menjalankan callback batal saat tertutup tanpa pilihan
+- Penghapusan berkas unduhan restore Telegram (`vwtg-restore-*.zip`, isi database vault) hanya digantungkan pada tombol Batal dialog konfirmasi; rotasi menutup dialog lewat `dismiss()` yang tak memanggil listener tombol — berkas tertinggal di cache sampai sapuan TTL 1 jam yang sendirinya hanya terpicu dari Settings (temuan audit putaran-8, #136).
+- Pembantu `confirm(...)` kini memasang `setOnDismissListener`: callback batal berjalan juga saat dialog tertutup tanpa pilihan (rotasi/back), dengan penanda pilihan agar jalur "Ya" yang sudah berjalan tidak ikut dibatalkan — pola yang sama seperti dialog sandi impor di berkas yang sama.
+
 ## [Belum rilis] — Audit 397: tekanan Start di Settings kini diteruskan sesudah rotasi di tengah cek port
 - Kelanjutan `saveAndStart` Settings (dialog port sibuk/web-vault/`ServerService.start`) digantungkan ke `ui.post` instance yang berjalan; rotasi di tengah cek port menghancurkan instance itu dan kelanjutannya gugur diam-diam — server tak jadi menyala tanpa pesan apa pun (temuan audit putaran-8, #135; pola yang sama sudah diperbaiki untuk MainActivity pada #89).
 - Penanda `startTertundaPort` yang sama kini diterapkan: disimpan ke Bundle lewat `onSaveInstanceState`, dipulihkan sebagai `startTertundaDariPutaran`, dan `onResume` instance baru menjalankan ulang `saveAndStart()` — cek port diulang dari keadaan tersimpan dan alur Start selesai seperti tanpa rotasi.
