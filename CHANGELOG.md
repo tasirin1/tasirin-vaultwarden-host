@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 415: deteksi berkas biner gerbang kini mengenali magic gzip
+- `jenis_biner` di verifikasi-patch mengenali ELF/PE/ZIP/Mach-O/DEX dari byte magic, tetapi bukan gzip — berkas `.gz` berisi biner (mis. binary server terkompres) yang ter-commit akan lolos gerbang larangan biner (temuan audit putaran-9, #169).
+- Magic gzip (`1f 8b`) kini dikenali dan dilaporkan sebagai berkas biner seperti jenis lainnya.
+
 ## [Belum rilis] — Audit 414: cek definisi ganda gerbang kini per folder values, bukan per berkas
 - `cek_duplikat_definisi` mereset penghitungnya tiap berkas, jadi definisi yang sama (mis. `app_name` kedua) di dua berkas berbeda dalam folder `values/` yang sama lolos gerbang lokal dan baru merah di AAPT CI (temuan audit putaran-9, #168; terbukti eksekusi ulang saat audit).
 - Penghitung kini dikelompokkan per folder values — persis satuan konflik AAPT; definisi lintas folder (mis. `values/` vs `values-night/`) tetap sah sebagai timpaan dan tidak dilaporkan.

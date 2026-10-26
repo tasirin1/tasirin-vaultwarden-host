@@ -517,6 +517,8 @@ def jenis_biner(path):
         return "Mach-O/class"
     if kepala[:4] == b"dex\n":
         return "DEX"
+    if kepala[:2] == b"\x1f\x8b":
+        return "gzip"
     return None
 
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
