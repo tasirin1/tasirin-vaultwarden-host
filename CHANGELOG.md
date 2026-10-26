@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 312: Start tak lagi terkunci proses vaultwarden yatim
+- `MainActivity.saveAndStart()` memeriksa `ServerService.isPortBusy()` sebelum service dipanggil, sedangkan pembersihan proses yatim (`killStaleVaultwarden()`) baru berjalan **di dalam** `ServerService.startServer()` — jadi bila proses `vaultwarden-*` sisa app yang dibunuh sistem masih memegang port, dialog "Port sedang dipakai proses lain" muncul terus dan server tak bisa dihidupkan dari UI sampai perangkat reboot atau port diganti. Jalur bot `/start` tidak terkena karena memanggil service langsung.
+- Pre-check kini memanggil `ServerService.bereskanServerYatim()` (pindai `/proc` segar, verifikasi cmdline sebelum kill) lebih dulu, baru memeriksa port. Bila port masih dipakai proses lain yang bukan milik app, dialog lama tetap muncul — jadi pesan "dipakai proses lain" kini benar.
+
 ## [Belum rilis] — Audit 310: kode tanpa komentar (code only, hemat token)
 - Seluruh komentar dan docstring dihapus dari berkas kode: 42 `*.java`, 68 `*.xml` (resource + manifest), 3 `*.kts`, 2 `*.sh`, 1 `*.py`, 2 `*.yml`, 2 `*.c`, 1 `*.pro`, 2 `*.properties` (80 berkas berubah, 5.128 baris penjelasan hilang). Dokumen (`*.md`, `LICENSE`), data (`tools/bekas-hapusan.txt`, `*.pem`), dan wrapper Gradle hasil-generate (`gradlew`, `gradlew.bat`, jar) sengaja tidak disentuh.
 - Penghapusan dilakukan dengan pemindai sadar-string/heredoc, bukan regex buta: `//` di URL, `/*` di string, `#` di `${...}`/regex/`::error::`, komentar XML di atribut, dan komentar di dalam heredoc `run: |` tetap aman. Validasi tiap berkas sebelum ditulis: token C-like sama persis (Java/Kotlin/C), pohon XML identik, AST Python identik (docstring dibuang terkontrol), struktur YAML identik, properti sama, serta `bash -n`/`sh -n`/`py_compile`/`gcc -fsyntax-only` lolos.

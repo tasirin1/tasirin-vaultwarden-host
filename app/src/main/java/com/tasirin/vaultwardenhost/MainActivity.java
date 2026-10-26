@@ -373,6 +373,7 @@ public class MainActivity extends Activity {
 
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {
+            ServerService.bereskanServerYatim();
             final boolean busy = ServerService.isPortBusy(portFix);
             final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
             ui.post(() -> {
