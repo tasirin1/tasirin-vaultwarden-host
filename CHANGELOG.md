@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 353: penanda tawaran update hanya ditulis bila toast benar-benar bisa tampil
+- `kabariTersedia` di MainActivity (dan pola identiknya di SettingsActivity, berbagi kunci penanda yang sama) menulis penanda `KEY_TAWARAN_UPDATE` lebih dulu, baru memanggil `toast()` yang berpagar siklus hidup: bila activity sedang mati saat cek latar selesai, toast dibuang diam-diam tetapi versinya sudah ditandai pernah ditawarkan — toast "Update tersedia" untuk versi itu hilang permanen (tombol update punya jalur terpisah sehingga dampaknya terbatas pada toast).
+- Penanda kini hanya ditulis sesudah pemeriksaan `uiHidup()` (MainActivity) / `isFinishing() || isDestroyed()` (SettingsActivity) lolos, tepat sebelum toast dipasang; activity yang mati melewatkan keduanya sehingga instance berikutnya yang hidup menawarkan lagi.
+
 ## [Belum rilis] — Audit 352: hasil pencarian log lama tak lagi tampil sesaat saat redaksi sedang berjalan
 - Di `LogActivity.refreshLog`, permintaan kata kunci baru yang datang selagi redaksi lama berjalan ditolak `compareAndSet` SEBELUM `lastLogKey` diperbarui, sehingga cek anti-usang di callback tugas lama (`!kunci.equals(lastLogKey)`) menganggap hasil lama — tanpa saringan kata yang sedang tertulis — masih terbaru dan menampilkannya; baru terkoreksi pada tick berikutnya (sampai 1,5 detik).
 - Penolakan CAS kini mengosongkan `lastLogKey` (idiom yang sama dengan jalur antrean-penuh di fungsi yang sama): callback lama pasti terbuang karena kuncinya tak lagi cocok, dan tick berikutnya menjalankan ulang permintaan terbaru begitu redaksi bebas — tanpa jebakan dedupe kunci yang membuat tampilan tersaring tak pernah muncul pada log yang diam.

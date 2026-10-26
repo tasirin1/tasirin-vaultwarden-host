@@ -936,6 +936,9 @@ public class MainActivity extends Activity {
                 if (AutoUpdate.tawarkanBaru(
                         TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
                         versi)) {
+                    if (!uiHidup()) {
+                        return;
+                    }
                     psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
                     MainActivity.this.toast(getString(R.string.update_tersedia, versi));
                 }

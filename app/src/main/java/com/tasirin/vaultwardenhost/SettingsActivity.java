@@ -1413,6 +1413,9 @@ public class SettingsActivity extends Activity {
                 if (AutoUpdate.tawarkanBaru(
                         TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
                         versi)) {
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
                     psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
                     SettingsActivity.this.toast(getString(R.string.update_tersedia_singkat, versi));
                 }
