@@ -1682,6 +1682,10 @@ public final class TgBackup {
             return "";
         }
         String d = detail.replaceAll("[0-9]{5,}:[A-Za-z0-9_-]{10,}", "<token>");
+        // URL (header Location dari portal/proksi, callback proxy) bisa memuat
+        // token/parameter sensitif dan pesan galat dikirim ke chat/grup: samarkan
+        // tautannya, bukan hanya pola token bot.
+        d = d.replaceAll("https?://\\S+", "<url>");
         d = d.replaceAll("\\s+", " ").trim();
         return d.length() > 200 ? d.substring(0, 200) + "..." : d;
     }

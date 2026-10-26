@@ -1753,7 +1753,16 @@ public final class TgBot {
                             balas(ctx, idRuang, doRestore(ctx)
                                     + " Tekan /start untuk menjalankan.");
                         } catch (Exception e) {
-                            balas(ctx, idRuang, "Restore gagal: " + e.getMessage());
+                            // Pesan ini disiarkan ke SEMUA chat (termasuk grup):
+                            // detail mentah bisa memuat path internal atau header
+                            // Location (URL portal dengan token). Redaksi dulu,
+                            // detail teredaksi juga dicatat ke log app.
+                            String mentah = e.getMessage() == null
+                                    ? String.valueOf(e) : e.getMessage();
+                            String aman = TgBackup.redaksiDetailGalat(mentah);
+                            ServerService.catatLog("[tg] Restore gagal: " + aman);
+                            balas(ctx, idRuang, "Restore gagal: " + aman + ". "
+                                    + Updater.saranKoneksi(e));
                         }
                     });
                 } else {

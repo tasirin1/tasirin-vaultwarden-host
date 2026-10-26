@@ -749,6 +749,10 @@ public class TgBackupTest {
                 TgBackup.redaksiDetailGalat("HTTP 400\n  {\"ok\":false} "));
         // Jam/waktu bukan token (kiri < 5 angka).
         assertEquals("12:34:56 mulai", TgBackup.redaksiDetailGalat("12:34:56 mulai"));
+        // URL/Location portal disamarkan: bisa memuat token di query string.
+        assertEquals("Redirect ditolak: <url>",
+                TgBackup.redaksiDetailGalat(
+                        "Redirect ditolak: https://portal.local/login?t=rahasia123"));
         assertEquals("", TgBackup.redaksiDetailGalat(null));
         // Panjang tetap dibatasi 200 + elipsis.
         String panjang = TgBackup.redaksiDetailGalat(new String(new char[300]).replace('\0', 'a'));
