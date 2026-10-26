@@ -135,6 +135,12 @@ public class TlsCertTest {
     }
 
     @Test
+    public void konstantaBatasSertifikatDijepitLiteral() {
+        assertEquals(34_300_800_000L, TlsCert.LEAF_MAX_MS);
+        assertEquals(2_592_000_000L, TlsCert.BATAS_REGEN_MS);
+    }
+
+    @Test
     public void leafTerlaluLamaBatas397Hari() {
         assertFalse(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS));
         assertTrue(TlsCert.leafTerlaluLama(TlsCert.LEAF_MAX_MS + 1));

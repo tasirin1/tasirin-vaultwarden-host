@@ -18,6 +18,11 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void konstantaKeepPreRestoreDijepitLiteral() {
+        assertEquals(2, TgBackup.KEEP_PRE_RESTORE);
+    }
+
+    @Test
     public void cleanupPreTakMengusirBackupRutin() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwretensi").toFile();
         for (int i = 0; i < 10; i++) {

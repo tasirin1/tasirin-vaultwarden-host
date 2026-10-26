@@ -306,6 +306,11 @@ public class UtilTest {
     }
 
     @Test
+    public void konstantaBatasEntriChatDijepitLiteral() {
+        assertEquals(32, Util.BATAS_ENTRI_CHAT);
+    }
+
+    @Test
     public void pecahDaftarChatDibatasiAntiDos() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 40; i++) {

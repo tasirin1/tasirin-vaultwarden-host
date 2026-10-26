@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 381: konstanta produksi yang diuji kini dijepit nilai literal di tes
+- Sejumlah tes menurunkan nilai harapan dari konstanta produksi itu sendiri (`KUNCI_MS`, `DEFAULT_PORT`, `LEAF_MAX_MS`/`BATAS_REGEN_MS`, `KEEP_PRE_RESTORE`, `BATAS_ENTRI_CHAT`): mengubah konstantanya diam-diam mengubah pula "harapannya", jadi tes tetap hijau dan pergeseran nilai yang disengaja maupun tak disengaja tak pernah ketahuan (temuan audit putaran-9, #156).
+- Tiap berkas tes terkait kini punya tes penjepit yang menegaskan konstanta sama dengan literal yang dimaksud (300000 ms, "8088", 397 dan 30 hari dalam ms, 2, 32) — perubahan konstanta mulai sekarang menggagalkan tes dengan sengaja dan terlihat.
+
 ## [Belum rilis] — Audit 380: tes memo kernel legacy tak lagi tautologi
 - `KernelCompatTest.legacyMemoKonsistenDenganMurni` membandingkan `legacyPerangkat()` dengan dirinya sendiri — selalu hijau walau memo menyimpang dari versi kernel perangkat, jadi regresi di jalur memo lolos tanpa jejak (temuan audit putaran-9, #155).
 - Nilai harapan kini diturunkan secara independen dari `System.getProperty("os.version")` lewat `isLegacyKernel` (bukan lewat `kernelSekarang()` yang sedang diuji), lalu dibandingkan ke `legacyPerangkat()` dua kali untuk kestabilan memo.

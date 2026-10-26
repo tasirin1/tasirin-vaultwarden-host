@@ -209,6 +209,11 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void konstantaKunciDijepitLiteral() {
+        org.junit.Assert.assertEquals(300_000L, PinCrypto.KUNCI_MS);
+    }
+
+    @Test
     public void kunciLimaGagalBeruntun() {
 
         long sekarang = 1_700_000_000_000L;

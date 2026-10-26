@@ -334,6 +334,11 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void konstantaPortDefaultDijepitLiteral() {
+        assertEquals("8088", ServerService.DEFAULT_PORT);
+    }
+
+    @Test
     public void normalisasiPortRusakJatuhKeDefault() {
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(null));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(""));
