@@ -622,12 +622,15 @@ public class ServerService extends Service {
         return false;
     }
 
+    interface PenilaiNamaBak {
+        boolean sah(String namaAsal);
+    }
+
     private static void pulihkanBakDiFolder(File folder, String[] namaSah) {
         pulihkanBakDiFolder(folder, namaAsal -> bakNamaSah(namaAsal, namaSah));
     }
 
-    private static void pulihkanBakDiFolder(File folder,
-            java.util.function.Predicate<String> sah) {
+    private static void pulihkanBakDiFolder(File folder, PenilaiNamaBak penilai) {
         File[] isi;
         try {
             isi = folder.listFiles();
@@ -644,7 +647,7 @@ public class ServerService extends Service {
                     continue;
                 }
                 String namaAsal = nama.substring(0, nama.length() - 4);
-                if (!sah.test(namaAsal)) {
+                if (!penilai.sah(namaAsal)) {
                     continue;
                 }
                 File asal = new File(folder, namaAsal);
