@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 342: ikon Play/Stop mengikuti warna teks tombol, tak lagi pudar di mode malam
+- Ikon `ic_play`/`ic_stop` pada tombol Start/Stop bawah di Settings selalu putih (`@color/white`), padahal di mode malam latar tombolnya biru muda `primary` (#90CAF9) dan teks di sebelahnya sengaja dibalik gelap — segitiga putih di atasnya nyaris menyatu (kontras sekitar 1,75:1; siang 5,75:1). Kedua ikon hanya dipakai pada tombol itu (layout + tukar runtime di `SettingsActivity`).
+- `fillColor` kedua vektor kini `@color/btn_primary_text` sehingga ikon selalu sewarna label di sebelahnya di semua kombinasi: putih di biru siang dan di merah `status_off` siang, gelap di biru muda malam dan di merah muda `status_off` malam.
+
 ## [Belum rilis] — Audit 341: teks tombol Start/Stop tetap terbaca saat ditekan di mode malam
 - Di mode malam teks tombol primer sengaja gelap (`btn_primary_text=#1A1A1A`) agar terbaca di atas biru muda `primary` (#90CAF9), tetapi latar keadaan ditekan pada `bg_btn_primary` (`primary_dark=#0D47A1`) dan `bg_btn_stop` (`btn_stop_pressed=#7A1A17`) gelap di kedua mode dan daftar warna teks tidak punya item `state_pressed`: selama tombol ditahan, tulisannya nyaris hilang (kontras sekitar 2,0:1 dan 1,65:1). Tombol yang sama berganti latar primer/stop saat runtime di MainActivity dan SettingsActivity, jadi satu daftar teks melayani keduanya.
 - `btn_primary_text_state` kini punya item `state_pressed` berwarna putih — di atas kedua latar tekan itu kontrasnya 8,6:1 dan 10,6:1; mode siang tidak berubah karena teks tekannya memang sudah putih.
