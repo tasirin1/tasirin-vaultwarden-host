@@ -869,6 +869,20 @@ def nama_warna(path):
     return set(re.findall(r'<color\s+name="([^"]+)"', baca(path)))
 
 
+def quantities_plurals(path):
+    """Peta nama plurals -> himpunan quantity di satu berkas strings.xml.
+
+    Lint `MissingQuantity` (dipasang sebagai error di build.gradle.kts)
+    menggagalkan build bila terjemahan kehilangan quantity yang ada di
+    default; verifikator lokal dulu tak memeriksanya sehingga push pertama
+    baru ketahuan merah di CI (values-in/pin_lockout hanya punya "other").
+    """
+    hasil = {}
+    for m in re.finditer(r'<plurals\s+name="([^"]+)"(.*?)</plurals>', baca(path), re.S):
+        hasil[m.group(1)] = set(re.findall(r'quantity="([^"]+)"', m.group(2)))
+    return hasil
+
+
 def cek_paritas_resource(gagal):
     """Paritas yang dulu dicek manual tiap audit kini otomatis (GAGAL bila miring)."""
     try:
@@ -920,6 +934,20 @@ def cek_paritas_resource(gagal):
                                  % (nama, nama,
                                     ", ".join(sorted(port - land)[:5]) or "-",
                                     ", ".join(sorted(land - port)[:5]) or "-"))
+        # Paritas quantity plurals (lint MissingQuantity = error): values-in yang
+        # hanya punya "other" sementara default punya "one" menghasilkan build
+        # merah di CI walau semua cek lokal hijau.
+        pl_default = quantities_plurals("app/src/main/res/values/strings.xml")
+        pl_in = quantities_plurals("app/src/main/res/values-in/strings.xml")
+        for nama in sorted(set(pl_default) & set(pl_in)):
+            kurang = pl_default[nama] - pl_in[nama]
+            if kurang:
+                gagal.append("plurals %s (values-in) kurang quantity: %s"
+                             % (nama, ", ".join(sorted(kurang))))
+            lebih = pl_in[nama] - pl_default[nama]
+            if lebih:
+                gagal.append("plurals %s (values-in) berlebih: %s"
+                             % (nama, ", ".join(sorted(lebih))))
     except OSError as e:
         gagal.append("Paritas resource tak terbaca: %s" % e)
 
