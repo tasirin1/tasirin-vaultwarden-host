@@ -27,7 +27,7 @@ jobs:
     name: Cek patch yang berubah
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
@@ -111,19 +111,25 @@ jobs:
     env:
       VW: ${{ needs.resolve.outputs.vw }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Install rustup (tanpa toolchain)
         run: |
 
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-            | sh -s -- -y --profile minimal --default-toolchain none
+          RUSTUP_VERSION="1.28.2"
+          RUSTUP_SHA256="20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c"
+          curl -fsSL --proto '=https' --tlsv1.2 \
+            "https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/x86_64-unknown-linux-gnu/rustup-init" \
+            -o rustup-init
+          echo "${RUSTUP_SHA256}  rustup-init" | sha256sum -c -
+          chmod +x rustup-init
+          ./rustup-init -y --profile minimal --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Install Android NDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
 
@@ -234,7 +240,7 @@ jobs:
             --target armv7-linux-androideabi
 
       - name: Cache cargo build
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             vaultwarden/target
@@ -290,7 +296,7 @@ jobs:
           ls -lh app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
       - name: Upload binary artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: vw-binary-armeabi-v7a
           path: app/src/main/assets/bin/armeabi-v7a/vaultwarden
@@ -316,7 +322,7 @@ jobs:
           LD_PRELOAD=/tmp/libshim-host.so /tmp/test_interpose
 
       - name: Upload shim artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: vw-shim
           path: libgetrandom-shim-armeabi-v7a.so
@@ -334,18 +340,18 @@ jobs:
     env:
       VW: ${{ needs.resolve.outputs.vw }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Download binary hasil build
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: vw-binary-armeabi-v7a
           path: /tmp/baru-bin
 
       - name: Download shim hasil build
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: vw-shim
           path: /tmp/baru-shim

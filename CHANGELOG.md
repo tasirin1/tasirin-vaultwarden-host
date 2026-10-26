@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 404: semua action workflow dipaku ke SHA dan rustup dipasang dari biner terpaku checksum
+- Tak satu pun `uses:` di kedua workflow dipaku ke commit (tag mayor bisa digeser pemilik repo action), dan rustup dipasang lewat `curl https://sh.rustup.rs | sh` tanpa verifikasi — kompromi pihak ketiga berarti eksekusi kode asing di job pembangun biner/APK rilis (temuan audit putaran-8, #142; catatan pengerasan).
+- Semua `uses:` kini menunjuk SHA commit persis (versi lama dipertahankan sebagai komentar), dan rustup dipasang dari `rustup-init` 1.28.2 resmi yang diverifikasi SHA-256 sebelum dijalankan — pola yang sama seperti bundel CA di berkas yang sama.
+
 ## [Belum rilis] — Audit 403: pindai rahasia cek-cepat kini meliputi worktree dan token terbungkus baris
 - Pindai rahasia hanya membaca indeks (`git grep --cached`): menjalankan cek-cepat manual sebelum `git add` melaporkan LOLOS atas token yang hidup di berkas kerja; dan pemindaian per baris melewatkan token yang terbungkus ke dua baris (temuan audit putaran-8, #141).
 - Pindai per baris kini menggabungkan indeks DAN worktree, ditambah lintasan kedua yang menggabungkan baris tiap berkas terlacak sebelum mencocokkan pola token — terbukti di salinan buang: token belum ter-stage dan token `ghp_` terbelah dua baris kini GAGAL, pohon bersih tetap LOLOS.
