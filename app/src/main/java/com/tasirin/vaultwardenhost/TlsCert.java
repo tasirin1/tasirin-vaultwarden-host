@@ -557,7 +557,7 @@ public final class TlsCert {
         }
         long sisaCa = sisaMs(caCert);
         long sisaLeaf = sisaMs(certFile);
-        return caSisaCukup(sisaCa) && leafCukup(sisaLeaf)
+        return caLayakDipakai(sisaCa) && leafCukup(sisaLeaf)
                 && !leafTerlaluLama(sisaLeaf)
                 && pasanganCertKeyCocok(caCert, caKey)
                 && pasanganCertKeyCocok(certFile, keyFile)

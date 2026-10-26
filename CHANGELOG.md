@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 429: siapPakaiTanpaTulis memakai kaLayakDipakai yang sama dengan ensure
+- Jalur fallback baca-saja menilai kelayakan CA dengan `caSisaCukup` yang ketat, sedangkan `ensure()` memakai `caLayakDipakai` yang mempertahankan CA saat jam STB mundur (sisa `-2`, notBefore belum tercapai). Dua fungsi menjawab pertanyaan yang sama dengan jawaban berlawanan untuk keadaan jam yang sama: fallback ditolak dan Start gagal total, padahal sertifikat yang sama diterima jalur normal.
+- Sisi CA `siapPakaiTanpaTulis` kini memakai `caLayakDipakai` (semantiknya sudah terkunci uji `TlsCertTest.caLayakDipakaiPertahankanCaSaatJamMundur`); sisi leaf tetap ketat, sama seperti `ensure()` yang membuat ulang leaf pada keadaan itu.
+
 ## [Belum rilis] — Audit 428: rantai alarm harian dipasang ulang juga pada jalur eksepsi mulaiBackup
 - Pemasangan ulang alarm harian di `mulaiBackup()` berada di dalam blok `try` yang `catch`-nya langsung pulang — bila membaca prefs melempar sesaat (prefs rusak, kasus yang memang ditangani `healkanStringPrefs` di STB), alarm satu-tembak tidak terpasang lagi dan backup harian berhenti diam-diam sampai pemicu lain. Jalur pulang-dini lain sudah ditambal Audit untuk #159; jalur eksepsi ini belum.
 - Blok `catch` kini memanggil `jadwalUlangBilaOtomatis(context)` — pembantu yang sama dari #159, yang membaca ulang prefs dengan penjaganya sendiri — sebelum pulang, sehingga rantai tetap hidup bila kegagalannya sesaat dan tetap diam bila backup otomatis memang mati.
