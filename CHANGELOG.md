@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 307: backup .enc ditulis atomik & sisa terpotong tak mengusir backup sehat
+- `tulisTerenkripsi` dulu menulis `.enc` final di tempat. Bila STB mati/listrik putus/`kill -9` di tengah enkripsi, folder `backups/` menyimpan `.enc` parsial yang **tidak bisa didekripsi**, tetapi `lastModified`-nya paling baru sehingga ia menempati kuota `KEEP_BACKUPS` dan mengusir backup lama yang masih sehat — kebalikan tujuan retensi.
+- Enkripsi kini menulis ke `<nama>.enc.tmp` di folder yang sama, `flush` + `fsync`, lalu `rename` atomik (fallback hapus-lalu-rename); `finally` membuang sisa `.tmp`. `isFileBackup` menganggap nama ber-`.tmp` bukan backup sehingga sisa tulisan tak menempati kuota.
+- `cleanupOldBackups` menyapu sisa terputus sebelum menghitung retensi: `.tmp` yang lebih tua dari `TMP_BASI_MS` (1 jam; enkripsi yang sedang berjalan aman) dibuang, dan `.enc` yang panjangnya di bawah `panjangMinimumEnc(magic)` (VWB3 52 byte, VWB1/VWB2 48 byte; magic tak dikenal memakai batas 48) pasti terpotong sehingga dibuang. Daftar berkas dibaca ulang setelah penyapuan agar yang terhapus tak menempati kuota. Unit test baru menutup enc terpotong/kosong, tmp basi vs baru, dan tidak ada `.tmp` tersisa setelah `encryptFile` sukses.
+
 ## [Belum rilis] — Audit 306: status sibuk MainActivity bertahan lintas rotasi
 - `uiBusy` hanya field instance, padahal unduhan web-vault (~35 MB) sengaja berjalan di worker dengan application context sehingga tetap lanjut walau Activity dibuat ulang. Setelah rotasi, instance baru punya `uiBusy=false`: tombol Start aktif kembali dan indikator unduh hilang; Start yang ditekan di tengah unduhan membuat `extractWebVault()` tak menemukan `index.html` sehingga server menyala **tanpa web vault**, dan callback lama dibuang karena `isDestroyed()`.
 - `uiBusy` kini `static volatile`; `onCreate` memulihkan penguncian tombol + status sibuk bila unduhan masih berjalan. Jalur selesai unduhan melepas kunci (`setBusy(false)`) **sebelum** cek `isDestroyed()`, karena dengan status global rotasi di tengah unduhan dulu akan meninggalkan "sibuk" terkunci selamanya (setBusy sendiri sudah aman untuk Activity mati).

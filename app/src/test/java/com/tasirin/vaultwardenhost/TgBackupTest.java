@@ -53,6 +53,91 @@ public class TgBackupTest {
     }
 
     @Test
+    public void cleanupOldBackups_buangEncTerpotongDanTmpBasi() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwretensienc").toFile();
+        // Backup sehat hasil enkripsi sungguhan (VWB3 lengkap).
+        File asli = java.nio.file.Files.createTempFile("vwdata", ".bin").toFile();
+        java.nio.file.Files.write(asli.toPath(), "isi vault".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        File sehat = new File(dir, "backup-telegram-1.zip.enc");
+        TgBackup.encryptFile(asli, sehat, "katasandi");
+        asli.delete();
+        // .enc parsial: header VWB3 + beberapa byte (listrik mati saat menulis).
+        File potong = new File(dir, "backup-telegram-2.zip.enc");
+        try (FileOutputStream o = new FileOutputStream(potong)) {
+            o.write(TgBackup.ENC_MAGIC_V3.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            o.write(new byte[]{1, 2, 3});
+        }
+        potong.setLastModified(System.currentTimeMillis());
+        // .enc kosong: magic tak terbaca sekalipun.
+        File kosong = new File(dir, "backup-telegram-3.zip.enc");
+        assertTrue(kosong.createNewFile());
+        // .tmp basi (sisa mati listrik) vs .tmp baru (enkripsi masih jalan).
+        File tmpBasi = new File(dir, "backup-telegram-4.zip.enc.tmp");
+        assertTrue(tmpBasi.createNewFile());
+        tmpBasi.setLastModified(System.currentTimeMillis()
+                - TgBackup.TMP_BASI_MS - 60000L);
+        File tmpBaru = new File(dir, "backup-telegram-5.zip.enc.tmp");
+        assertTrue(tmpBaru.createNewFile());
+        tmpBaru.setLastModified(System.currentTimeMillis());
+
+        TgBackup.cleanupOldBackups(dir);
+
+        assertTrue("backup sehat tak boleh terhapus", sehat.isFile());
+        assertFalse("enc terpotong harus dibuang", potong.exists());
+        assertFalse("enc kosong harus dibuang", kosong.exists());
+        assertFalse("tmp basi harus dibuang", tmpBasi.exists());
+        assertTrue("tmp baru (sedang ditulis) harus dipertahankan", tmpBaru.isFile());
+    }
+
+    @Test
+    public void encTerpotongHanyaUntukBerkasPendek() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwencpotong").toFile();
+        assertFalse(TgBackup.encTerpotong(null));
+        assertFalse(TgBackup.encTerpotong(new File(dir, "bukan-enc.zip")));
+        File pendek = new File(dir, "a.enc");
+        java.nio.file.Files.write(pendek.toPath(), "VWB3".getBytes(
+                java.nio.charset.StandardCharsets.US_ASCII));
+        assertTrue(TgBackup.encTerpotong(pendek));
+        // Berkas dengan panjang header minimum lengkap bukan "terpotong".
+        File pas = new File(dir, "b.enc");
+        byte[] isi = new byte[TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC_V3)];
+        System.arraycopy(TgBackup.ENC_MAGIC_V3.getBytes(
+                java.nio.charset.StandardCharsets.US_ASCII), 0, isi, 0, 4);
+        java.nio.file.Files.write(pas.toPath(), isi);
+        assertFalse(TgBackup.encTerpotong(pas));
+        assertTrue(TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC_V3)
+                > TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC));
+        assertEquals(-1, TgBackup.panjangMinimumEnc("ZZZZ"));
+        assertEquals(-1, TgBackup.panjangMinimumEnc(null));
+    }
+
+    @Test
+    public void isFileBackupAbaikanTmpDanNol() {
+        assertFalse(TgBackup.isFileBackup(null));
+        assertFalse(TgBackup.isFileBackup("backup-telegram-1.zip.enc.tmp"));
+        assertTrue(TgBackup.isFileBackup("backup-telegram-1.zip.enc"));
+        assertTrue(TgBackup.isFileBackup("db-backup-1-pre.sqlite3"));
+    }
+
+    @Test
+    public void encryptFileTakSisakanTmp() throws Exception {
+        File asli = java.nio.file.Files.createTempFile("vwdata", ".bin").toFile();
+        java.nio.file.Files.write(asli.toPath(), "isi".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        File enc = new File(asli.getParentFile(), "vwenc-" + System.nanoTime() + ".enc");
+        try {
+            TgBackup.encryptFile(asli, enc, "katasandi");
+            assertTrue(enc.isFile());
+            // .enc final hanya muncul lewat rename: sisa .tmp tak boleh tertinggal.
+            assertFalse(new File(enc.getAbsolutePath() + ".tmp").exists());
+        } finally {
+            asli.delete();
+            enc.delete();
+        }
+    }
+
+    @Test
     public void filePathTelegram_tolakTraversal() {
         assertTrue(TgBackup.filePathTelegramAman("documents/backup-telegram-abc.zip"));
         assertTrue(TgBackup.filePathTelegramAman("f/1.zip"));

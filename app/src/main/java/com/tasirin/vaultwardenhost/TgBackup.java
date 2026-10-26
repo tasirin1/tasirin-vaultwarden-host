@@ -2128,10 +2128,45 @@ public final class TgBackup {
         return root.toString(2);
     }
 
-    /** True bila nama file adalah backup database (bukan export config). */
+    /** True bila nama file adalah backup database (bukan export config).
+     *  Sisa tulisan terputus (…tmp) sengaja bukan backup: ia tak bisa
+     *  dipakai memulihkan apa pun, jadi tak boleh menempati kuota retensi. */
     public static boolean isFileBackup(String nama) {
-        return nama != null && (nama.startsWith("backup-telegram-")
-                || nama.startsWith("db-backup-"));
+        if (nama == null || nama.endsWith(".tmp")) {
+            return false;
+        }
+        return nama.startsWith("backup-telegram-") || nama.startsWith("db-backup-");
+    }
+
+    /** Umur minimum sisa .tmp sebelum disapu retensi (1 jam): enkripsi lain
+     *  yang sedang berjalan tetap aman, sisa mati listrik tetap dibuang. */
+    static final long TMP_BASI_MS = 60L * 60L * 1000L;
+
+    /** Panjang minimum berkas .enc yang mungkin sah (header + tag GCM) untuk
+     *  magic tertentu; -1 bila magic tak dikenal. Berkas lebih pendek pasti
+     *  terpotong (listrik mati saat menulis) sehingga tak bisa didekripsi.
+     *  Murni agar bisa unit test. */
+    static int panjangMinimumEnc(String magic) {
+        if (ENC_MAGIC_V3.equals(magic)) {
+            return 4 + 4 + 16 + 12 + 16;
+        }
+        if (ENC_MAGIC.equals(magic) || ENC_MAGIC_V2.equals(magic)) {
+            return 4 + 16 + 12 + 16;
+        }
+        return -1;
+    }
+
+    /** True bila berkas .enc jelas terpotong (tak mungkin didekripsi): panjang
+     *  kurang dari header minimum untuk magic-nya. Magic yang tak dikenal
+     *  diperlakukan sebagai format asing dan hanya ditolak bila lebih pendek
+     *  dari header VWB1/VWB2 (salt 16 + IV 12 + tag 16). Murni I/O. */
+    static boolean encTerpotong(File f) {
+        if (f == null || !f.getName().endsWith(".enc")) {
+            return false;
+        }
+        String magic = magicEnkripsi(f);
+        int min = magic == null ? panjangMinimumEnc(ENC_MAGIC) : panjangMinimumEnc(magic);
+        return min > 0 && f.length() < min;
     }
 
     /** Maks salinan pengaman pra-restore (*-pre.sqlite3) yang dipertahankan. */
@@ -2150,6 +2185,31 @@ public final class TgBackup {
             return;
         }
         File[] all = backupDir.listFiles();
+        if (all == null) {
+            return;
+        }
+        // Sisa tulisan terenkripsi yang terputus (listrik mati / kill -9) BUKAN
+        // backup yang bisa dipakai: .tmp basi dibuang (yang baru mungkin milik
+        // enkripsi yang sedang berjalan), dan .enc yang lebih pendek dari
+        // header minimum pasti tak bisa didekripsi. Dulu keduanya ikut dihitung
+        // sebagai backup rutin, dan karena lastModified-nya paling baru ia
+        // menempati kuota KEEP_BACKUPS serta mengusir backup sehat.
+        long sekarang = System.currentTimeMillis();
+        for (File f : all) {
+            String nama = f.getName();
+            if (nama.endsWith(".tmp")) {
+                String dasar = nama.substring(0, nama.length() - 4);
+                if (isFileBackup(dasar) && sekarang - f.lastModified() > TMP_BASI_MS) {
+                    f.delete();
+                }
+                continue;
+            }
+            if (isFileBackup(nama) && encTerpotong(f)) {
+                f.delete();
+            }
+        }
+        // Daftar ulang: berkas yang baru dibuang tak boleh menempati kuota.
+        all = backupDir.listFiles();
         if (all == null) {
             return;
         }
@@ -2769,21 +2829,46 @@ public final class TgBackup {
         Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt, true, iter), "AES"),
                 new GCMParameterSpec(128, iv));
-        try (FileInputStream fis = new FileInputStream(in);
-             FileOutputStream fos = new FileOutputStream(out)) {
-            fos.write(ENC_MAGIC_V3.getBytes(StandardCharsets.US_ASCII));
-            fos.write(iterKeByte(iter));
-            fos.write(salt);
-            fos.write(iv);
-            byte[] buf = new byte[64 * 1024];
-            int n;
-            while ((n = fis.read(buf)) != -1) {
-                byte[] o = c.update(buf, 0, n);
-                if (o != null && o.length > 0) {
-                    fos.write(o);
+        // Tulis ke .tmp di folder yang sama lalu rename atomik (pola sama
+        // dengan createBackupZip). Dulu .enc final ditulis di tempat: listrik
+        // mati/proses dibunuh di tengah enkripsi meninggalkan .enc parsial
+        // yang TIDAK bisa didekripsi, tetapi lastModified-nya paling baru
+        // sehingga menempati kuota retensi dan mengusir backup sehat.
+        File tmp = new File(out.getAbsolutePath() + ".tmp");
+        try {
+            try (FileInputStream fis = new FileInputStream(in);
+                 FileOutputStream fos = new FileOutputStream(tmp)) {
+                fos.write(ENC_MAGIC_V3.getBytes(StandardCharsets.US_ASCII));
+                fos.write(iterKeByte(iter));
+                fos.write(salt);
+                fos.write(iv);
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = fis.read(buf)) != -1) {
+                    byte[] o = c.update(buf, 0, n);
+                    if (o != null && o.length > 0) {
+                        fos.write(o);
+                    }
+                }
+                fos.write(c.doFinal());
+                fos.flush();
+                // fsync sebelum rename: nama baru hanya boleh mengawetkan isi
+                // yang sudah utuh (rename saja tak menjamin isi ter-flush).
+                try {
+                    fos.getFD().sync();
+                } catch (Exception ignored) {
                 }
             }
-            fos.write(c.doFinal());
+            if (!tmp.renameTo(out)) {
+                if (!out.delete() || !tmp.renameTo(out)) {
+                    throw new IOException("Gagal menyimpan backup terenkripsi.");
+                }
+            }
+        } finally {
+            // Sisa .tmp (galat/rename gagal) tak boleh tertinggal di folder backup.
+            if (tmp.exists()) {
+                tmp.delete();
+            }
         }
     }
 
