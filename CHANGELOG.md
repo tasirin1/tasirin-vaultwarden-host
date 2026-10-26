@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 334: pengingat uji di verifikasi-patch kini mengenali metode non-statis
+- `cek_uji_baru` di `tools/verifikasi-patch.py` hanya mencocokkan deklarasi satu baris berpola `(public)? static`, jadi metode instan dan metode paket-privat baru — yang justru paling mungkin berisi logika murni — lolos dari pengingat "uji logika murni baru" tanpa bunyi apa pun.
+- Pola kini menerima semua pengubah akses/`final`/`synchronized`/`default` dengan tipe pengembalian wajib berkarakter kata (bukan sekadar spasi indentasi); konstruktor disaring lewat nama kelas dari nama berkas + deklarasi `class`/`interface`/`enum` di diff yang sama, metode `@Override` (sebaris atau baris sebelumnya) dan deklarasi tanpa badan (`;`) dilewati, dan teks peringatan digeneralisasi menjadi "Metode baru". Terbukti dengan diff sintetis: metode instan/paket-privat/tipe multi-kata terdeteksi, konstruktor/`@Override`/panggilan metode tidak.
+
 ## [Belum rilis] — Audit 331: tombol yang dinonaktifkan saat sibuk kini terlihat nonaktif
 - Selector latar `bg_btn_tv`/`bg_btn_primary` (dan `bg_btn_stop`) tak punya keadaan `state_enabled="false"` dan warna teks gaya `TasirinBtn` konstan, jadi tujuh tombol Settings yang dimatikan `setBusy` (dan tombol Start/Stop MainActivity) tampak persis seperti tombol aktif selama operasi latar berjalan — pengguna bisa mengira aplikasi macet atau menekan berulang kali.
 - Ketiga selector kini punya item pertama `state_enabled="false"` berlatar warna baru `btn_disabled_bg`, dan warna teks `TasirinBtn`/`TasirinBtnPrimary` diganti ColorStateList baru (`res/color/btn_text_state.xml`, `res/color/btn_primary_text_state.xml`) yang beralih ke `btn_disabled_text` saat nonaktif. Warna baru ditambahkan sinkron di `values` dan `values-night`.

@@ -804,25 +804,45 @@ def disebut_di_uji(nama):
 
 def cek_uji_baru(peringatan, diff):
     pola = re.compile(
-        r"\s*(?:public\s+)?static\s+[\w<>\[\].,? ]+\s+(\w+)\s*\(")
+        r"\s*(?:(?:public|private|protected|static|final|synchronized|"
+        r"default)\s+)*[\w<>\[\].,?][\w<>\[\].,? ]*?\s+(\w+)\s*\(")
 
     def inti(baris):
         return re.sub(r"\s+", " ", kupas_java(baris)).strip()
 
     lama = set(inti(baris) for _, baris in hapus_java(diff))
     sudah = set()
-    for _, baris in tambah_java(diff):
+    sebelumnya = {}
+    kelas = {}
+    pola_kelas = re.compile(r"\b(?:class|interface|enum)\s+(\w+)")
+    for path, baris in tambah_java(diff):
+        if path not in kelas:
+            dasar = os.path.basename(path)
+            kelas[path] = {dasar[:-5]} if dasar.endswith(".java") else set()
+        for cocok_kelas in pola_kelas.finditer(baris):
+            kelas[path].add(cocok_kelas.group(1))
         cocok = pola.match(baris)
+        if cocok and cocok.group(1) in kelas[path]:
+            sebelumnya[path] = baris
+            continue
         if cocok and cocok.group(1) not in KATA_KUNCI_JAVA:
             nama = cocok.group(1)
             if nama not in sudah:
                 sudah.add(nama)
                 if inti(baris) in lama:
+                    sebelumnya[path] = baris
+                    continue
+                if "@Override" in baris or "@Override" in sebelumnya.get(path, ""):
+                    sebelumnya[path] = baris
+                    continue
+                if inti(baris).endswith(";"):
+                    sebelumnya[path] = baris
                     continue
                 if not disebut_di_uji(nama):
                     peringatan.append(
-                        "Metode statis baru %s() tanpa jejak di app/src/test "
+                        "Metode baru %s() tanpa jejak di app/src/test "
                         "(aturan: uji logika murni baru)" % nama)
+        sebelumnya[path] = baris
 
 def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
     for _, isi in tambah_java(diff):
