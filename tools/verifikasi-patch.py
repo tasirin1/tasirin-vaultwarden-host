@@ -727,6 +727,12 @@ def cek_paritas_resource(gagal):
             gagal.append("Folder layout wajib hilang: " + ", ".join(folder_hilang)
                          + " (portrait & landscape butuh keduanya)")
         else:
+            for nama in ("activity_pin.xml",):
+                if not os.path.isfile(os.path.join(tata, nama)):
+                    gagal.append("Berkas layout wajib hilang: layout/" + nama)
+                if not os.path.isfile(os.path.join(darat_dir, nama)):
+                    gagal.append("Berkas layout-land wajib hilang: layout-land/"
+                                 + nama + " (varian landscape berkas ini wajib ada)")
             for nama in sorted(os.listdir(tata)):
                 if not nama.endswith(".xml"):
                     continue

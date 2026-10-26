@@ -36,6 +36,10 @@ for f in app/src/main/res/layout/*.xml; do
     if ! cmp -s <(ekstrak_id "$f") <(ekstrak_id "$land"); then gagal_msg "ID $f != $land"; fi
   fi
 done
+for wajib in activity_pin.xml; do
+  if [ ! -f "app/src/main/res/layout/$wajib" ]; then gagal_msg "layout wajib hilang: $wajib"; fi
+  if [ ! -f "app/src/main/res/layout-land/$wajib" ]; then gagal_msg "layout-land wajib hilang: $wajib (varian landscape berkas ini wajib ada)"; fi
+done
 
 POLA_TERLARANG='\.(apk|aab|zip|jks|keystore|p12|pfx|so|a|dex)$|/vaultwarden-armeabi|/libgetrandom-shim-|(^|/)keystore|(^|/)\.env(\.|$)|app/src/main/assets/bin/|(^|/)vw_version\.txt$'
 TERLARANG="$(

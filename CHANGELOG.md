@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 323: gerbang paritas layout-land tak lagi buta per-berkas
+- Kedua gerbang hanya membandingkan ID bila berkas `layout-land` ada, jadi menghapus satu-satunya varian landscape (`layout-land/activity_pin.xml`) lolos hijau penuh — layar PIN di TV/STB (selalu landscape) akan diam-diam jatuh ke layout portrait. Menghapus seluruh foldernya memang tertangkap, tetapi per-berkas tidak (pola yang sama dengan celah paritas warna dulu).
+- `verifikasi-patch.py` dan `cek-cepat.sh` kini punya daftar berkas layout wajib berpasangan (`activity_pin.xml`): hilang di `layout/` atau `layout-land/` = gagal di kedua gerbang. Teruji di salinan terpisah: berkas dihapus → kedua gerbang GAGAL dengan pesan jelas; repo utuh tetap LOLOS.
+
 ## [Belum rilis] — Audit 322: tombol Cek update di About kini membuka seksi Perawatan dulu
 - `fokuskanTombolUpdate` langsung memfokuskan + menggeser ke tombol update yang tinggal di dalam seksi Perawatan; bila seksi itu sedang tertutup (status persisten `sec_buka_rawat`), badannya `GONE` sehingga fokus gagal dan gesernya tak bermakna — dialog About tertutup tanpa hasil yang terlihat.
 - Fungsi itu kini membuka seksi Perawatan lebih dulu (simpan preferensi + `terapkanSeksi` + `perbaikiRantaiFokus`, pola yang sama dengan `loncatKeSeksi`) sebelum meminta fokus dan menggeser layar.
