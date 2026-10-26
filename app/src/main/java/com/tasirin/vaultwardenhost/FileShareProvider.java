@@ -200,7 +200,7 @@ public class FileShareProvider extends ContentProvider {
             ParcelFileDescriptor pfd = ParcelFileDescriptor.open(buka,
                     ParcelFileDescriptor.MODE_READ_ONLY);
             String jalurFd = jalurFdTerbuka(pfd.getFd());
-            if (jalurFd != null && !jalurFdCocok(jalurFd, canonUlang)) {
+            if (!jalurFdCocok(jalurFd, canonUlang)) {
                 try {
                     pfd.close();
                 } catch (Exception ignored) {

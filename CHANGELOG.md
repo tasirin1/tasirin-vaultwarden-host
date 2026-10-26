@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 365: pemeriksaan fd pasca-buka FileShareProvider kini fail-closed
+- Baris pertahanan terakhir anti-TOCTOU di `openFile` — membandingkan readlink `/proc/self/fd/N` berkas yang benar-benar terbuka dengan jalur kanonis yang lolos semua pemeriksaan — terhubung sebagai `if (jalurFd != null && !jalurFdCocok(...))`: bila `Os.readlink` sendiri gagal (null), penolakan dilewati diam-diam dan berkas tetap dilayani. Sisa dari perbaikan Audit 326 (#78); lapisan terakhir ini justru fail-open persis pada kegagalan yang seharusnya membuatnya menolak.
+- Kondisinya kini cukup `!jalurFdCocok(jalurFd, canonUlang)` — `jalurFdCocok` memang sudah mengembalikan false untuk null (dan perilaku itu teruji), jadi readlink yang gagal kini menolak akses seperti ketidakcocokan biasa: tak bisa diverifikasi, tak dilayani.
+
 ## [Belum rilis] — Audit 364: sisa .bak swap DB/TLS kini dipulihkan saat start, bukan hanya binary
 - `gantiAtomik` memulihkan `.bak` hanya di dalam proses yang sama; bila proses mati (listrik padam/baterai habis) di antara kedua rename, berkas tujuan hilang dan `.bak`-nya yatim. Satu-satunya pemulihan saat start hanya ada untuk binary (`ensureBinary`), padahal pemakai `gantiAtomik` lain memasang berkas yang jauh lebih penting saat restore: `db.sqlite3` (#69) dan berkas TLS (#70). Jendela milidetik di tengah restore yang terpotong daya membuat start berikutnya menciptakan database vault baru yang kosong — vault tampak hilang total padahal data utuh di `db.sqlite3.bak` dan hanya terselamatkan lewat rename manual.
 - `pulihkanBakTersisa` kini berjalan di `pilihBiner` sebelum server dinyalakan: untuk folder data dan subfolder `tls/`, setiap `X.bak` yang berkas `X`-nya hilang diganti namanya kembali menjadi `X` (dengan catatan log), dan `X.bak` yang berkasnya sudah ada (swap selesai, penghapusan `.bak` yang terpotong) dibuang — pola yang sama dengan pemulihan binary.
