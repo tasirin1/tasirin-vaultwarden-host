@@ -934,20 +934,22 @@ def cek_paritas_resource(gagal):
                                  % (nama, nama,
                                     ", ".join(sorted(port - land)[:5]) or "-",
                                     ", ".join(sorted(land - port)[:5]) or "-"))
-        # Paritas quantity plurals (lint MissingQuantity = error): values-in yang
-        # hanya punya "other" sementara default punya "one" menghasilkan build
-        # merah di CI walau semua cek lokal hijau.
-        pl_default = quantities_plurals("app/src/main/res/values/strings.xml")
+        # Quantity plurals mengikuti aturan CLDR: bahasa Indonesia hanya punya
+        # "other" (lint: `MissingQuantity` = error bila "other" hilang,
+        # `UnusedQuantity` = error bila ada quantity lain seperti "one").
+        # Dulu verifikator tak memeriksanya sehingga kesalahan begini baru
+        # ketahuan merah di CI.
         pl_in = quantities_plurals("app/src/main/res/values-in/strings.xml")
-        for nama in sorted(set(pl_default) & set(pl_in)):
-            kurang = pl_default[nama] - pl_in[nama]
-            if kurang:
-                gagal.append("plurals %s (values-in) kurang quantity: %s"
-                             % (nama, ", ".join(sorted(kurang))))
-            lebih = pl_in[nama] - pl_default[nama]
-            if lebih:
-                gagal.append("plurals %s (values-in) berlebih: %s"
-                             % (nama, ", ".join(sorted(lebih))))
+        for nama in sorted(pl_in):
+            q = pl_in[nama]
+            if "other" not in q:
+                gagal.append("plurals %s (values-in) tanpa quantity \"other\""
+                             " (lint MissingQuantity)" % nama)
+            asing = q - {"other"}
+            if asing:
+                gagal.append("plurals %s (values-in) quantity tak relevan untuk"
+                             " bahasa Indonesia: %s (lint UnusedQuantity)"
+                             % (nama, ", ".join(sorted(asing))))
     except OSError as e:
         gagal.append("Paritas resource tak terbaca: %s" % e)
 

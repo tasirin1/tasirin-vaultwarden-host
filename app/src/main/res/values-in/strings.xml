@@ -187,7 +187,6 @@
     <string name="pin_sibuk">Perangkat sibuk, coba lagi.</string>
     <string name="pin_proses_gagal">PIN gagal diproses, coba lagi.</string>
     <plurals name="pin_lockout">
-        <item quantity="one">Terkunci, coba lagi 1 menit.</item>
         <item quantity="other">Terkunci, coba lagi %1$d menit.</item>
     </plurals>
     <string name="acak_dibuat">Token acak dibuat — tekan Start untuk menerapkan.</string>
