@@ -574,6 +574,7 @@ def nilai_target_sdk(tetap):
 
 def himpun_abi(tetap):
     abi = set()
+    pengisi = {"listOf", "setOf", "addAll", "add"}
     for m in re.finditer(r"abiFilters", tetap):
         i = m.end()
         while i < len(tetap):
@@ -586,8 +587,14 @@ def himpun_abi(tetap):
                 abi.add(tetap[i + 1:j])
                 i = j + 1
                 continue
-            if i < len(tetap) and tetap[i] in "+=":
+            if i < len(tetap) and tetap[i] in "+=.()":
                 i += 1
+                continue
+            j = i
+            while j < len(tetap) and (tetap[j].isalpha() or tetap[j] == "_"):
+                j += 1
+            if j > i and tetap[i:j] in pengisi:
+                i = j
                 continue
             break
     return abi

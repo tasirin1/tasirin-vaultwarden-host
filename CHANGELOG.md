@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 423: gerbang ABI kini mengenali bentuk listOf/addAll/setOf
+- Pengumpul ABI gerbang hanya membaca string tepat sesudah `abiFilters`/`+=`, sehingga bentuk idiomatik Kotlin `abiFilters += listOf(...)`, `abiFilters.addAll(listOf(...))`, dan `abiFilters = setOf(...)` yang memuat `arm64-v8a` lolos dari aturan repo ABI tunggal (armeabi-v7a saja) — sisa celah Audit untuk #143.
+- `himpun_abi` kini melewati token pengisi `listOf`/`setOf`/`addAll`/`add` serta tanda `.`/`(`/`)` saat memindai sesudah `abiFilters`. Dibuktikan di salinan buang: ketiga bentuk berisi arm64 kini GAGAL, bentuk kelanjutan polos tetap GAGAL, berkas asli tetap LOLOS.
+
 ## [Belum rilis] — Audit 422: bersihkan tiga warning yang tertinggal dari maraton putaran 7–9
 - Tiga warning non-fatal tertinggal dari perbaikan maraton: lint `ApplySharedPref` untuk `commit()` penghitung gagal impor (Audit 409) yang belum beranotasi penekan seperti semua situs `commit()` lain; peringatan gerbang "pola boros" untuk `Calendar.getInstance(` di `nextMidnight` (Audit 407) dan `new Thread(` di penjaga wakelock (Audit 408).
 - `simpanGagalImporKeduanya` kini ber-`@SuppressLint("ApplySharedPref")` (commit tetap disengaja); `nextMidnight` dihitung manual dua lintasan — offset hari target dikoreksi sekali bila berbeda, hasil DST spring-forward dan fall-back identik dengan versi Calendar (dibuktikan porting Python); penjaga wakelock kini rantai `Util.postTunda` yang menjadwalkan dirinya sendiri, tanpa thread khusus dan tanpa menahan thread pool.
