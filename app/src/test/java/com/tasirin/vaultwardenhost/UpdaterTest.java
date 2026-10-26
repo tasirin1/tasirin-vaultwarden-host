@@ -148,7 +148,30 @@ public class UpdaterTest {
     @Test
     public void kunciUnduh_samaUntukPathSama() throws Exception {
         java.io.File a = new java.io.File("/tmp/vw-bin-test");
-        assertTrue(Updater.kunciUnduh(a) == Updater.kunciUnduh(a));
+        try {
+            assertTrue(Updater.kunciUnduh(a) == Updater.kunciUnduh(a));
+        } finally {
+            Updater.lepasKunciUnduh(a);
+            Updater.lepasKunciUnduh(a);
+        }
+    }
+
+    @Test
+    public void kunciUnduh_lepasEntriSetelahPemakaiTerakhir() {
+        java.io.File a = new java.io.File("/tmp/vw-bin-lepas");
+        Object pertama = Updater.kunciUnduh(a);
+        Object kedua = Updater.kunciUnduh(a);
+        assertTrue(pertama == kedua);
+        Updater.lepasKunciUnduh(a);
+        // Masih ada satu pemakai: kunci yang sama wajib dipakai ulang.
+        assertTrue(pertama == Updater.kunciUnduh(a));
+        Updater.lepasKunciUnduh(a);
+        Updater.lepasKunciUnduh(a);
+        // Pemakai terakhir selesai: entri dibuang, path yang sama boleh
+        // mendapat objek baru tanpa menahan memori selamanya.
+        Object baru = Updater.kunciUnduh(a);
+        assertTrue(pertama != baru);
+        Updater.lepasKunciUnduh(a);
     }
 
     @Test

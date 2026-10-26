@@ -803,23 +803,50 @@ public final class Updater {
     /** Kunci unduhan per file agar binary/shim/web-vault tak saling blokir.
      *  Dulu `synchronized` per-kelas: Start tertahan menit saat update lain jalan.
      *  Kunci = objek per path kanonis (tanpa String.intern global yang tak pernah GC
-     *  dan bisa kontensi lintas-JVM). */
-    private static final java.util.concurrent.ConcurrentHashMap<String, Object> KUNCI_UNDUH =
+     *  dan bisa kontensi lintas-JVM).
+     *
+     *  Entri dihitung pemakainya lalu DILEPAS saat pemakai terakhir selesai:
+     *  nama tmp memuat versi target, jadi tanpa pelepasan peta ini tumbuh satu
+     *  entri per update binary/shim/web-vault seumur proses (bocor kecil tetapi
+     *  permanen di STB 1 GB yang hidup berbulan-bulan). Penghapusan dilakukan
+     *  atomik bersama penurunan hitungan lewat {@code compute}, sehingga tak ada
+     *  celah "entri dihapus padahal masih ada pemakai" yang bisa melahirkan dua
+     *  kunci berbeda untuk path yang sama. */
+    private static final java.util.concurrent.ConcurrentHashMap<String, KunciUnduh> KUNCI_UNDUH =
             new java.util.concurrent.ConcurrentHashMap<>();
-    static Object kunciUnduh(File tmp) {
-        String kunci;
+
+    private static final class KunciUnduh {
+        final Object mutex = new Object();
+        int pemakai;
+    }
+
+    private static String pathKunciUnduh(File tmp) {
         try {
-            kunci = tmp.getCanonicalPath();
+            return tmp.getCanonicalPath();
         } catch (Exception e) {
-            kunci = tmp.getAbsolutePath();
+            return tmp.getAbsolutePath();
         }
-        Object ada = KUNCI_UNDUH.get(kunci);
-        if (ada != null) {
-            return ada;
-        }
-        Object buat = new Object();
-        Object menang = KUNCI_UNDUH.putIfAbsent(kunci, buat);
-        return menang != null ? menang : buat;
+    }
+
+    /** Ambil kunci untuk {@code tmp} dan tambah hitungan pemakai. Wajib
+     *  diimbangi {@link #lepasKunciUnduh(File)} di blok {@code finally}. */
+    static Object kunciUnduh(File tmp) {
+        String kunci = pathKunciUnduh(tmp);
+        KunciUnduh isi = KUNCI_UNDUH.compute(kunci, (k, ada) -> {
+            KunciUnduh hasil = ada == null ? new KunciUnduh() : ada;
+            hasil.pemakai++;
+            return hasil;
+        });
+        return isi.mutex;
+    }
+
+    /** Lepas kunci; entri peta dibuang saat pemakai terakhir selesai. */
+    static void lepasKunciUnduh(File tmp) {
+        String kunci = pathKunciUnduh(tmp);
+        KUNCI_UNDUH.computeIfPresent(kunci, (k, isi) -> {
+            isi.pemakai--;
+            return isi.pemakai <= 0 ? null : isi;
+        });
     }
 
     /** Pasang hasil unduhan ke tujuan: verifikasi ulang SHA-256 + rename atomik
@@ -844,22 +871,29 @@ public final class Updater {
      *  sebagai sukses bila out sudah cocok checksum. */
     static void pasangHasilUnduh(File tmp, File out, String expectedSha)
             throws IOException {
-        synchronized (kunciUnduh(out)) {
-            synchronized (kunciUnduh(tmp)) {
-                if (!tmp.isFile()) {
-                    // Unduhan paralel sudah memasang hasil yang sama.
-                    if (expectedHexEquals(expectedSha, sha256Hex(out))) {
-                        return;
+        Object kunciOut = kunciUnduh(out);
+        Object kunciTmp = kunciUnduh(tmp);
+        try {
+            synchronized (kunciOut) {
+                synchronized (kunciTmp) {
+                    if (!tmp.isFile()) {
+                        // Unduhan paralel sudah memasang hasil yang sama.
+                        if (expectedHexEquals(expectedSha, sha256Hex(out))) {
+                            return;
+                        }
+                        throw new IOException("Berkas unduhan sementara hilang;"
+                                + " ulangi unduhan.");
                     }
-                    throw new IOException("Berkas unduhan sementara hilang;"
-                            + " ulangi unduhan.");
+                    if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
+                        tmp.delete();
+                        throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
+                    }
+                    ServerService.gantiAtomik(tmp, out);
                 }
-                if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
-                    tmp.delete();
-                    throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
-                }
-                ServerService.gantiAtomik(tmp, out);
             }
+        } finally {
+            lepasKunciUnduh(tmp);
+            lepasKunciUnduh(out);
         }
     }
 
@@ -930,9 +964,14 @@ public final class Updater {
                     throw new IOException(pesanDibatalkan(label));
                 }
                 String digest;
-                synchronized (kunciUnduh(tmp)) {
-                    digest = unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
-                            connectMs, readMs, cadangan, batal);
+                Object kunciTmp = kunciUnduh(tmp);
+                try {
+                    synchronized (kunciTmp) {
+                        digest = unduhSatuPercobaan(ctx, url, fallbackUsed, tmp, label,
+                                connectMs, readMs, cadangan, batal);
+                    }
+                } finally {
+                    lepasKunciUnduh(tmp);
                 }
                 if (sha != null) {
                     String harap = sha.ambil(url[0]);
