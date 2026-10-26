@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 393: ikon Play/Stop kini berwujud selector agar terlihat saat pressed di mode malam
+- Warna isi vektor ikon bersifat statis: di mode malam ikon memakai `btn_primary_text` gelap `#1A1A1A`, tetapi latar pressed tombol utama/Stop juga gelap (`#0D47A1`/`#7A1A17`) — ikon lenyap selama tombol ditahan (2,02:1 dan 1,65:1), peninggalan perbaikan #94 yang memindahkan masalah dari keadaan default ke pressed (temuan audit putaran-7, #130).
+- Ikon kini dibungkus selector (`ic_play_state`/`ic_stop_state`): keadaan pressed memakai varian ikon putih (≥7:1 di kedua latar pressed), keadaan lain tetap ikon asal; kedua pemakai (layout Settings dan penukar ikon di `SettingsActivity`) diarahkan ke selector.
+
 ## [Belum rilis] — Audit 392: teks tombol biasa kini punya warna pressed yang kontras
 - Selector teks tombol biasa (`btn_text_state`) tak punya item `state_pressed`: saat ditekan latar menggelap ke `primary_container_pressed` tetapi teks tetap `primary` — kontras siang jatuh ke 3,99:1 selama penekanan (pasangan tak lengkap perbaikan tombol utama #93; temuan audit putaran-7, #131).
 - Item pressed ditambahkan memakai warna baru `btn_text_pressed` — siang `#0D47A1` (5,99:1 di latar pressed), malam `#90CAF9` (5,19:1, sama seperti perilaku malam yang sudah aman).

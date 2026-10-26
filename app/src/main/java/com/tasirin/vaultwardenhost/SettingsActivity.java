@@ -1097,7 +1097,7 @@ public class SettingsActivity extends Activity {
             lastStartStopText = btnText;
             startStopBawah.setText(btnText);
             startStopBawah.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    running ? R.drawable.ic_stop : R.drawable.ic_play, 0, 0, 0);
+                    running ? R.drawable.ic_stop_state : R.drawable.ic_play_state, 0, 0, 0);
 
             startStopBawah.setBackgroundResource(running
                     ? R.drawable.bg_btn_stop : R.drawable.bg_btn_primary);

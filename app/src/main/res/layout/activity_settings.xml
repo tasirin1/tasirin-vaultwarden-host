@@ -511,7 +511,7 @@
 
         <Button
             android:id="@+id/startStopBawah"
-            android:drawableStart="@drawable/ic_play"
+            android:drawableStart="@drawable/ic_play_state"
             android:drawablePadding="8dp"
             android:nextFocusUp="@id/aboutBtn"
             style="@style/TasirinBtnPrimary"
