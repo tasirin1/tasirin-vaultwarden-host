@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 372: pencarian pemanggil di gerbang kini mengenal method-reference ::
+- `pemanggil()` di `verifikasi-patch.py` hanya mengenal bentuk pemanggilan `nama(...)` sehingga metode yang dihapus tetapi masih dirujuk sebagai method-reference (`Foo::metode`) tak terlihat — `cek_metode_hilang` menjawab LOLOS padahal kompilasi pasti gagal (temuan audit putaran-9, #147).
+- Pola pencarian kini juga mencocokkan bentuk `::nama`; terbukti di salinan buang: metode terhapus yang tersisa sebagai method-reference kini GAGAL, penghapusan bersih tetap LOLOS.
+
 ## [Belum rilis] — Audit 371: verifikasi PIN dan dekripsi backup kini mencoba kedua pengkodean PBKDF2
 - Jalur pabrik `PBEKeySpec` mengkodekan kata sandi per byte-rendah tiap karakter (PKCS #5) sedangkan jalur manual memakai UTF-8 penuh; untuk sandi non-ASCII hasil turunannya beda dan format `PBKDF2$` maupun header `VWB3` tidak mencatat jalur mana yang dipakai — backup/PIN non-ASCII yang dibuat di perangkat tanpa pabrik tak bisa dibuka di perangkat berpabrik, dan sebaliknya (temuan audit putaran-9, #146).
 - `verifikasiPbkdf2` kini mencoba derivasi cadangan (`PinCrypto.deriveCadangan`: pengkodean lawan dari jalur utama perangkat itu, dihitung manual sehingga selalu tersedia) bila derivasi utama tak cocok — hash yang cocok lewat jalur mana pun diterima dan penulisan ulang hash sesudah login menyembuhkan catatannya ke jalur utama. Dekripsi backup memakai pola sama: kegagalan tag GCM pada kunci utama dicoba sekali lagi dengan kunci cadangan sebelum menyerah. Vektor referensi independen (termasuk sandi non-ASCII kedua pengkodean) dikunci di `PinCryptoTest`.

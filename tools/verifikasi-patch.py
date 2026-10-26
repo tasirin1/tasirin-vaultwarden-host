@@ -665,7 +665,8 @@ def masih_didefinisikan(nama):
     return False
 
 def pemanggil(nama):
-    pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+    pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
+                      % (re.escape(nama), re.escape(nama)))
     temu = []
     for path in jalan_repo("app", ext=(".java",)):
         for i, baris in baris_tanpa_komentar(baca(path)):
