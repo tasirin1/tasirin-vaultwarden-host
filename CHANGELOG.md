@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: chat @username benar-benar butuh PIN
+- Saat chat bot diisi `@username`, UI/log memperingatkan "diperlakukan seperti grup (selalu butuh PIN)", tetapi `authDangerous` hanya menolak berdasarkan `idRuang < 0`. Dari chat pribadi (ID positif) dengan PIN app **nonaktif**, `/status`, `/log`, `/crashlog`, `/ca`, dan `/cabackup` lolos tanpa PIN karena `berbahaya == false` — username yang kedaluwarsa/diklaim ulang bisa membaca status, log, path, versi, dan URL.
+- Aturan PIN-mati kini `wajibPinSaatPinMati(berbahaya, chatAnggapGrup)`: perintah baca ber-PIN juga ditolak bila konfigurasi chat memakai username/tak-terurai (fail-closed), bukan hanya saat pengirim benar-benar grup. Dengan PIN aktif perilakunya tetap (verifikasi PIN). README tiga bahasa menjelaskan konsekuensinya.
+
 ## [Belum rilis] — Audit 311: zip backup di-fsync & dipasang atomik
 - `createBackupZip` menulis zip ke `.tmp` lalu langsung `renameTo`, tanpa `getFD().sync()`, dan menghapus berkas tujuan lebih dulu. Bila listrik putus tepat setelah backup "selesai", zip baru bisa kosong/terpotong sementara nama lamanya sudah hilang — tidak ada backup yang bisa direstore. Jalur `.enc` di berkas yang sama sudah benar.
 - Zip kini ditutup dengan `finish()` + `flush()` + `fsync` sebelum dipasang lewat `ServerService.gantiAtomik` (rename atomik, berkas lama dicadangkan `.bak` dan dipulihkan bila rename gagal, direktori ikut di-fsync). Sisa `.tmp` tetap dibuang saat gagal.

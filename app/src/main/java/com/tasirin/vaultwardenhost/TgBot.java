@@ -1847,6 +1847,10 @@ public final class TgBot {
         return authDangerous(ctx, arg, null, idRuang);
     }
 
+    static boolean wajibPinSaatPinMati(boolean berbahaya, boolean chatAnggapGrup) {
+        return berbahaya || chatAnggapGrup;
+    }
+
     static String authDangerous(Context ctx, String arg, String cmd, long idRuang) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -1865,7 +1869,7 @@ public final class TgBot {
         }
         if (!need) {
 
-            if (berbahaya) {
+            if (wajibPinSaatPinMati(berbahaya, chatResmiAdalahGrup(ctx))) {
                 balas(ctx, idRuang, "Perintah ini butuh PIN app."
                         + " Aktifkan PIN dulu di Pengaturan, lalu ulangi dengan"
                         + " PIN (mis. /stop 123456 atau /stop PIN:123456).");

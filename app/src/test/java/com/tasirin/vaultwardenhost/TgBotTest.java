@@ -509,6 +509,14 @@ public class TgBotTest {
     }
 
     @Test
+    public void wajibPinSaatPinMatiUntukChatAnggapGrup() {
+        assertTrue(TgBot.wajibPinSaatPinMati(true, false));
+        assertTrue(TgBot.wajibPinSaatPinMati(false, true));
+        assertTrue(TgBot.wajibPinSaatPinMati(true, true));
+        assertFalse(TgBot.wajibPinSaatPinMati(false, false));
+    }
+
+    @Test
     public void pinTebakan_grupHanyaKenaliTebakanSah() {
 
         assertEquals("123456", TgBot.pinTebakan("/stop 123456"));
