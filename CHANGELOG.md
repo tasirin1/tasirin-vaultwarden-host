@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 410: konten layar awal tidak lagi dirender sebelum layar PIN menutupinya
+- `onResume` MainActivity menjadwalkan `refreshLoop` lebih dulu dan memanggil `maybeShowPinLock()` terakhir; refresh yang terposting bisa mengisi status dan log ke layar yang sudah terlihat sesaat sebelum PinActivity menutupinya — kilasan isi (termasuk baris log server) bocor di balik kunci PIN (temuan audit putaran-9, #164).
+- Urutan dibalik (layar PIN dipanggil pertama, refresh hanya diposting bila PIN tidak sedang dibuka) dan `refreshFromService` kini berhenti lebih awal selama PIN menahan konten (keputusan murni `pinMenahanKonten`, cermin bebas efek samping dari `PinGate.perlukanLayarPin`); sesudah PIN dibuka, `onResume` menjadwalkan refresh seperti biasa.
+
 ## [Belum rilis] — Audit 409: penghitung gagal password impor konfigurasi kini tersimpan persisten
 - Blokir 5x salah password impor konfigurasi dicatat di peta statis dalam memori (`GAGAL_IMPOR_DIGEST`); memulai ulang aplikasi mengosongkannya sehingga percobaan bisa diulang tanpa batas dengan modal restart (temuan audit putaran-9, #163).
 - Penghitung kini dikemas (`kemasGagalImpor`) dan disimpan ke preferensi dengan `commit()` pada setiap perubahan, lalu dipulihkan (`pulihkanGagalImpor`, toleran terhadap isi rusak) setiap alur impor memeriksanya — pola yang sama seperti penghitung gagal PIN di `PinGate`; kunci ini tidak ikut ekspor/impor konfigurasi sehingga blokir tak bisa direset lewat impor.

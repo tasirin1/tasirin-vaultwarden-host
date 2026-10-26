@@ -56,4 +56,14 @@ public class MainActivityTest {
         assertEquals(3, MainActivity.awalBarisSetelah("ab\ncd\n", -5, 6));
         assertEquals(3, MainActivity.awalBarisSetelah("ab\ncd\n", 0, 3));
     }
+
+    @Test
+    public void pinMenahanKontenHanyaSaatPinWajib() {
+        assertTrue(MainActivity.pinMenahanKonten(true, false, false, false));
+        assertTrue(MainActivity.pinMenahanKonten(false, true, false, true));
+        assertFalse(MainActivity.pinMenahanKonten(false, true, true, true));
+        assertFalse(MainActivity.pinMenahanKonten(false, false, false, true));
+        assertFalse(MainActivity.pinMenahanKonten(false, true, false, false));
+        assertFalse(MainActivity.pinMenahanKonten(false, false, false, false));
+    }
 }

@@ -274,15 +274,37 @@ public class MainActivity extends Activity {
         super.onResume();
         refreshActive = true;
         paksaCachePrefs = true;
-        ui.removeCallbacks(refreshLoop);
-        ui.post(refreshLoop);
+        maybeShowPinLock();
 
         if (startTertundaDariPutaran) {
             startTertundaDariPutaran = false;
             saveAndStart();
         }
 
-        maybeShowPinLock();
+        ui.removeCallbacks(refreshLoop);
+        if (!pinBukaJalan) {
+            ui.post(refreshLoop);
+        }
+    }
+
+    static boolean pinMenahanKonten(boolean pinBukaJalan, boolean pinAktif,
+            boolean dalamGrace, boolean hashAda) {
+        if (pinBukaJalan) {
+            return true;
+        }
+        return pinAktif && !dalamGrace && hashAda;
+    }
+
+    private boolean pinMenahanKonten() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            return pinMenahanKonten(pinBukaJalan,
+                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
+                    PinGate.dalamGraceBersama(),
+                    !TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "").isEmpty());
+        } catch (Exception e) {
+            return pinBukaJalan;
+        }
     }
 
     @Override
@@ -479,6 +501,9 @@ public class MainActivity extends Activity {
 
     private void refreshFromService() {
         if (!uiHidup()) {
+            return;
+        }
+        if (pinMenahanKonten()) {
             return;
         }
 
