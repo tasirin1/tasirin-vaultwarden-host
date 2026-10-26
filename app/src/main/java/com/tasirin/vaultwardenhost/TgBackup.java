@@ -1855,8 +1855,14 @@ public final class TgBackup {
             String nama = f.getName();
             if (nama.endsWith(".tmp")) {
                 String dasar = nama.substring(0, nama.length() - 4);
-                if (isFileBackup(dasar) && sekarang - f.lastModified() > TMP_BASI_MS) {
-                    f.delete();
+                if (isFileBackup(dasar)) {
+                    long cap = f.lastModified();
+                    boolean basi = sekarang - cap > TMP_BASI_MS;
+                    boolean depanStabil = cap - sekarang >= TMP_BASI_MS
+                            && capDepanStabil(f);
+                    if (basi || depanStabil) {
+                        f.delete();
+                    }
                 }
                 continue;
             }

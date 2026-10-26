@@ -51,6 +51,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void cleanupOldBackups_tmpCapDepanStabilIkutTerhapus() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwcapdepan").toFile();
+        java.io.File tmp = new java.io.File(dir, "backup-telegram-depan.zip.tmp");
+        assertTrue(tmp.createNewFile());
+        long depan = System.currentTimeMillis() + TgBackup.TMP_BASI_MS + 60_000L;
+        assertTrue(tmp.setLastModified(depan));
+        TgBackup.cleanupOldBackups(dir);
+        assertTrue(tmp.exists());
+        TgBackup.cleanupOldBackups(dir);
+        assertFalse(tmp.exists());
+        dir.delete();
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() {
         TgBackup.cleanupOldBackups(null);
         TgBackup.cleanupOldBackups(new java.io.File("/jalan/tak/ada/vw-uji-nol"));

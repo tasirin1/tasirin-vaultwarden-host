@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 406: sapuan .tmp folder backups kini mengenali cap masa depan
+- `cleanupOldBackups` hanya menghapus `.tmp` bila `sekarang - lastModified > TMP_BASI_MS` — berkas bercap masa depan (jam perangkat melompat saat penulisan terpotong) bernilai negatif dan tak pernah tersapu, pasangan tak lengkap dari perbaikan cap depan #103 untuk plaintext (temuan audit putaran-9, #160).
+- Cabang cap depan ditambahkan dengan syarat kestabilan yang sama seperti Audit 387 (`capDepanStabil`: cap tak berubah pada dua sapuan berurutan) agar berkas yang sedang ditulis alur lain tidak ikut terhapus.
+
 ## [Belum rilis] — Audit 405: rantai alarm backup harian kini dipasang ulang di jalur keluar awal
 - Alarm harian adalah alarm exact sekali tembak yang dipasang ulang oleh `mulaiBackup`; dua jalur keluar awal di `AlarmReceiver` tidak pernah mencapainya — rahasia alarm tak cocok dan throttle 60 detik — sehingga satu kejadian saja mematikan rantai: backup harian berhenti selamanya tanpa log maupun pesan (temuan audit putaran-9, #159).
 - Kedua jalur itu kini memasang ulang alarm hari berikutnya lebih dulu (`jadwalUlangBilaOtomatis`, hanya untuk aksi harian dan hanya bila backup otomatis aktif) sebelum kembali; isi backup dan throttle-nya sendiri tak berubah.
