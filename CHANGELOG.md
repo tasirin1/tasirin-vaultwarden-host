@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 305: permintaan simpan log bertahan saat Activity dibuat ulang
+- `LogActivity.simpanUlangSetelahIzin` hanya field instance. Pada Android 6–9, menekan "Simpan" tanpa izin storage membuka dialog izin; bila Activity dibuat ulang saat dialog tampil (rotasi, "Don't keep activities", proses dibunuh), instance baru punya flag `false` sehingga callback "Izinkan" masuk ke instance baru dan **tidak** memanggil `exportLogTxt()`: tidak ada file tersimpan dan tidak ada pesan apa pun.
+- Flag kini disimpan di `onSaveInstanceState` (`simpan_ulang_izin`) dan dipulihkan di `onCreate`, cermin `STATE_MULAI_ULANG_IZIN` di MainActivity.
+
 ## [Belum rilis] — Audit 304: AGENTS.md bebas rujukan metode/job yang tak ada
 - `AGENTS.md` menyebut `pinBaruSajaDibuka` (metode itu tak ada; yang ada `catatPinDibuka` + `PinGate.dalamGraceBersama()`), rantai `ensureBinary()` → `resolveBinary()` (`resolveBinary` tak pernah ada), dan job `perlu` di `build-apk.yml` (job sebenarnya `verifikasi`, `resolve`, `build-apk`). Rujukan basi membuat sesi baru mencari kode yang tak ada lalu "memulihkan" logika yang sudah dipindah — atau menciptakan ulang nama yang sudah dibuang (aturan #15).
 - Dokumen diperbarui ke nama nyata, ukuran APK disamakan (`~0,25 MB`, rilis terakhir 247 KB) termasuk komentar `build-apk.yml` yang masih menulis ~0,1 MB.

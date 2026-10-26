@@ -30,6 +30,12 @@ import android.widget.Toast;
 public class LogActivity extends Activity {
 
     private static final int REQ_WRITE = 1002;
+    /** Kunci instance state untuk {@link #simpanUlangSetelahIzin}. Dialog izin
+     *  storage bisa membuat Activity dibuat ulang (rotasi, "Don't keep
+     *  activities", proses dibunuh) sebelum hasilnya kembali; tanpa ini
+     *  instance baru tak melanjutkan export sehingga log tidak tersimpan
+     *  tanpa pesan apa pun. Cermin STATE_MULAI_ULANG_IZIN di MainActivity. */
+    private static final String STATE_SIMPAN_ULANG_IZIN = "simpan_ulang_izin";
     private boolean simpanUlangSetelahIzin = false;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private TextView logView;
@@ -79,6 +85,12 @@ public class LogActivity extends Activity {
         // Privasi: nonaktifkan screenshot + preview recents dikosongkan (sama dengan MainActivity).
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         super.onCreate(savedInstanceState);
+        // Pulihkan permintaan simpan yang tertahan izin sebelum dialog izin
+        // sempat kembali (Activity dibuat ulang saat dialog tampil).
+        if (savedInstanceState != null) {
+            simpanUlangSetelahIzin = savedInstanceState.getBoolean(
+                    STATE_SIMPAN_ULANG_IZIN, false);
+        }
         // Sisa salinan clipboard yang penghapus 60 dtk-nya tak sempat jalan
         // karena proses mati dibersihkan (atau dipasang ulang) di sini.
         bersihkanClipBasiJikaAda();
@@ -1256,6 +1268,14 @@ public class LogActivity extends Activity {
         if (!masuk) {
             toast(getString(R.string.antrean_penuh));
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Simpan permintaan simpan tertahan izin: dialog izin bisa membuat
+        // Activity dibuat ulang sebelum hasilnya kembali.
+        outState.putBoolean(STATE_SIMPAN_ULANG_IZIN, simpanUlangSetelahIzin);
     }
 
     @Override
