@@ -90,8 +90,11 @@ public class MainActivity extends Activity {
     private boolean refreshActive = true;
 
     private boolean mulaiUlangSetelahIzin = false;
+    private boolean startTertundaPort = false;
+    private boolean startTertundaDariPutaran = false;
 
     private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
+    private static final String STATE_START_TERTUNDA_PORT = "start_tertunda_port";
 
     private static volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
@@ -120,6 +123,8 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null) {
             mulaiUlangSetelahIzin = savedInstanceState.getBoolean(
                     STATE_MULAI_ULANG_IZIN, false);
+            startTertundaDariPutaran = savedInstanceState.getBoolean(
+                    STATE_START_TERTUNDA_PORT, false);
         }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
@@ -272,6 +277,11 @@ public class MainActivity extends Activity {
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);
 
+        if (startTertundaDariPutaran) {
+            startTertundaDariPutaran = false;
+            saveAndStart();
+        }
+
         maybeShowPinLock();
     }
 
@@ -317,6 +327,7 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(STATE_MULAI_ULANG_IZIN, mulaiUlangSetelahIzin);
+        outState.putBoolean(STATE_START_TERTUNDA_PORT, startTertundaPort);
     }
 
     @Override
@@ -371,12 +382,14 @@ public class MainActivity extends Activity {
 
         final int portFix = Integer.parseInt(ServerService.effectivePort(sp));
 
+        startTertundaPort = true;
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {
             ServerService.bereskanServerYatim();
             final boolean busy = ServerService.isPortBusy(portFix);
             final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
             ui.post(() -> {
+                startTertundaPort = false;
                 setBusy(false);
                 if (isFinishing() || isDestroyed()) {
                     return;
@@ -402,6 +415,7 @@ public class MainActivity extends Activity {
         });
         if (!masuk) {
 
+            startTertundaPort = false;
             setBusy(false);
             toast(getString(R.string.antrean_penuh));
         }
