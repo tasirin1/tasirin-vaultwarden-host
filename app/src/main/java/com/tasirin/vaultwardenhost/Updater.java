@@ -318,6 +318,10 @@ public final class Updater {
     private static final java.util.concurrent.atomic.AtomicInteger unduhanAktif =
             new java.util.concurrent.atomic.AtomicInteger();
 
+    private static final java.util.Set<String> TMP_UNDUH_AKTIF =
+            java.util.Collections.newSetFromMap(
+                    new java.util.concurrent.ConcurrentHashMap<String, Boolean>());
+
     static void mulaiUnduhan() {
         unduhanAktif.incrementAndGet();
     }
@@ -640,7 +644,8 @@ public final class Updater {
             for (File f : isi) {
                 String n = f.getName();
                 if (!n.startsWith(awalan) || !n.endsWith(".tmp")
-                        || f.getAbsolutePath().equals(kecualiPath)) {
+                        || f.getAbsolutePath().equals(kecualiPath)
+                        || TMP_UNDUH_AKTIF.contains(f.getAbsolutePath())) {
                     continue;
                 }
                 try {
@@ -767,6 +772,7 @@ public final class Updater {
         final boolean[] fallbackUsed = {false};
         Exception gagal = null;
         int mismatchSha = 0;
+        TMP_UNDUH_AKTIF.add(tmp.getAbsolutePath());
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             try {
                 if (dibatalkan(batal)) {
@@ -797,6 +803,7 @@ public final class Updater {
                 if (dibatalkan(batal)) {
                     throw new IOException(pesanDibatalkan(label));
                 }
+                TMP_UNDUH_AKTIF.remove(tmp.getAbsolutePath());
                 return digest;
             } catch (IOException e) {
                 gagal = e;
@@ -814,6 +821,7 @@ public final class Updater {
                 break;
             }
         }
+        TMP_UNDUH_AKTIF.remove(tmp.getAbsolutePath());
         if (gagal instanceof IOException) {
             throw (IOException) gagal;
         }

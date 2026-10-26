@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 347: sapu tmp basi tak lagi bisa menghapus tmp yang sedang diunduh
+- `sapuTmpUnduhBasi` berjalan di awal tiap alur unduh tanpa kunci apa pun dan menilai umur tmp murni dari jam dinding (`currentTimeMillis - lastModified`, ambang 10 menit): sapu milik unduhan versi lain bisa menghapus tmp unduhan yang sedang berjalan — termasuk saat jam STB melompat maju lebih dari 10 menit di tengah unduhan (mis. sinkron NTP sesudah boot) sehingga tmp yang baru ditulis tampak basi. Unduhan korban gagal dengan aman (SHA-256 diverifikasi ulang saat pemasangan) tetapi harus diulang dari capaian terakhir.
+- `unduhKeTmp` — corong tunggal ketiga alur (binary, shim, web-vault) — kini mendaftarkan path tmp-nya ke himpunan statik `TMP_UNDUH_AKTIF` selama seluruh percobaan termasuk jeda coba-lagi, dan `sapuTmpUnduhBasi` melewati path yang terdaftar. Sisa tmp dari proses yang mati tidak terdaftar (proses baru, himpunan kosong) sehingga tetap tersapu seperti sebelumnya.
+
 ## [Belum rilis] — Audit 346: tmp unduhan yang melebihi batas ukuran kini ikut dibuang
 - `buangParsialRusak` di `Updater` hanya menghapus tmp unduhan gagal bila pesan kesalahannya memuat kata pemicu (parsial/kurang/terpotong/checksum/rusak/dll.), dan pesan `pesanMelebihiBatas` ("melebihi batas ukuran") tidak memuat satu pun — tmp sampai 150 MB tertinggal, dikecualikan dari sapu tmp basi karena bernama versi yang sedang dicari, dan ruangnya terus dihitung terpakai sehingga gerbang ruang 150 MB untuk update web-vault berikutnya bisa gagal terus sampai ada rilis lebih baru. Isi tmp yang melebihi batas memang tidak pernah bisa dilanjutkan (resume), jadi membuangnya adalah perlakuan yang benar seperti parsial rusak.
 - Daftar pemicu kini memuat "melebihi batas".
