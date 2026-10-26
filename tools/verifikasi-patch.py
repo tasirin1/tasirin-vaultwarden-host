@@ -137,8 +137,8 @@ def himpun_definisi():
     def rapikan(jenis, nama):
         return nama.replace(".", "_") if jenis == "style" else nama
 
-    pola_def = re.compile(r'<(style|string|color|dimen|plurals)\s+name="([^"]+)"')
-    pola_array = re.compile(r'<(string-array|integer-array|array)\s+name="([^"]+)"')
+    pola_def = re.compile(r'<(style|string|color|dimen|plurals)\b[^>]*?\bname="([^"]+)"')
+    pola_array = re.compile(r'<(string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
 
     def tambah(kunci, nama):
         definisi.setdefault(kunci, set()).add(rapikan(kunci, nama))
@@ -262,7 +262,7 @@ def cek_manifest(gagal):
                          % (nama, rel.replace(".", "/")))
 
 def cek_duplikat_definisi(gagal):
-    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
+    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
         if "/values" not in path.replace(os.sep, "/"):
             continue
@@ -426,7 +426,7 @@ def cek_izin_baru(peringatan, diff):
                                   % cocok.group(1))
 
 def cek_definisi_baru(peringatan, diff):
-    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
+    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
     _, acuan = himpun_definisi()
     sudah = set()
     for baris in diff.splitlines():
@@ -449,10 +449,10 @@ def cek_pengingat_changelog(peringatan, berubah):
 
 def cek_sinkron_terjemah(gagal):
     def nama_string(path):
-        return set(re.findall(r'<string\s+name="([^"]+)"', baca(path)))
+        return set(re.findall(r'<string\b[^>]*?\bname="([^"]+)"', baca(path)))
 
     def nama_plurals(path):
-        return set(re.findall(r'<plurals\s+name="([^"]+)"', baca(path)))
+        return set(re.findall(r'<plurals\b[^>]*?\bname="([^"]+)"', baca(path)))
 
     inggris = nama_string("app/src/main/res/values/strings.xml")
     indonesia = nama_string("app/src/main/res/values-in/strings.xml")
@@ -760,11 +760,11 @@ def cek_locale_baru(gagal, diff):
                          % kode.strip()[:80])
 
 def nama_warna(path):
-    return set(re.findall(r'<color\s+name="([^"]+)"', baca(path)))
+    return set(re.findall(r'<color\b[^>]*?\bname="([^"]+)"', baca(path)))
 
 def quantities_plurals(path):
     hasil = {}
-    for m in re.finditer(r'<plurals\s+name="([^"]+)"(.*?)</plurals>', baca(path), re.S):
+    for m in re.finditer(r'<plurals\b[^>]*?\bname="([^"]+)"(.*?)</plurals>', baca(path), re.S):
         hasil[m.group(1)] = set(re.findall(r'quantity="([^"]+)"', m.group(2)))
     return hasil
 

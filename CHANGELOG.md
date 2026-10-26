@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 374: pola definisi resource di gerbang tak lagi mensyaratkan atribut name pertama
+- Delapan pola regex definisi resource (himpun definisi, duplikat, definisi baru, sinkron terjemahan, paritas) mensyaratkan `name` sebagai atribut pertama; `<string translatable="false" name="...">` yang sah tak terbaca sebagai definisi sehingga layout yang merujuknya dituduh "acuan yatim" — GAGAL palsu yang mengganggu push sah (temuan audit putaran-9, #149).
+- Semua pola kini mencocokkan `name=` di posisi atribut mana pun dalam tag (`\b[^>]*?\bname=`); terbukti di salinan buang: string sah ber-atribut lain lebih dulu kini LOLOS, string hilang sungguhan tetap GAGAL.
+
 ## [Belum rilis] — Audit 373: pengumpulan definisi resource di gerbang kini mengupas komentar XML
 - `himpun_definisi` menjalankan regex atas teks mentah sehingga `<string>` contoh di dalam komentar `<!-- ... -->` terhitung sebagai definisi sungguhan: layout yang merujuk string yang sebenarnya tidak ada bisa LOLOS dari `cek_acuan_yatim` (dan acuan di dalam komentar ikut terhitung sebagai pemakaian) — gerbang hijau padahal AAPT akan gagal (temuan audit putaran-9, #148).
 - Isi berkas XML kini dikupas komentarnya lebih dulu (`kupas_komentar_xml`) sebelum definisi dan acuan dihimpun — terbukti di salinan buang: definisi hantu di kedua locale kini GAGAL sebagai acuan yatim, keadaan normal tetap LOLOS.
