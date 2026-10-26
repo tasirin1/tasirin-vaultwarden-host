@@ -28,7 +28,6 @@ public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
     private static final int REQ_PIN = 1002;
-    private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
 
     private static final int MAKS_BARIS_LOG = 150;
 

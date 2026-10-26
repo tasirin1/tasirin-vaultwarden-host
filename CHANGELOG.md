@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Audit 436: konstanta mati MainActivity.DEFAULT_PORT dihapus
+- Alias `DEFAULT_PORT` di MainActivity tidak dirujuk satu kali pun — semua logika port memakai `ServerService.DEFAULT_PORT` langsung (salinan di SettingsActivity memang terpakai dan tidak disentuh). Konstanta mati menyesatkan pembaca seolah MainActivity punya bawaan port sendiri.
+- Konstanta dihapus; tidak ada perubahan perilaku.
+
+## [Belum rilis] — Audit 435: metode mati fetchChecksum dihapus
+- Pembungkus `fetchChecksum` atas `fetchChecksumRinci` tidak punya satu pun pemanggil di aplikasi maupun tes — yang hidup hanya varian rincinya (4 situs). Kode mati di berkas keamanan-kritis menyesatkan pembaca seolah ada jalur ambil-checksum kedua.
+- Metode dihapus dan namanya dicatat di `tools/bekas-hapusan.txt` agar tidak dipakai lagi.
+
 ## [Belum rilis] — Audit 434: helper hanya-untuk-tes ukuranIsiZip dihapus
 - `ukuranIsiZip` adalah pembungkus satu baris atas `pindaiZipRestore(zip).ukuran` tanpa satu pun pemanggil produksi — persis pola kode mati yang pernah dibersihkan repo ini (helper produksi yang hanya hidup untuk tesnya).
 - Helper dihapus; tesnya kini memanggil `pindaiZipRestore(...).ukuran` langsung dan berganti nama menjadi `pindaiZipRestore_menjumlahkanUkuranEntri` (kasus yang diuji tidak berubah: total 1250 dan -1 untuk berkas tak ada). Kedua nama lama dicatat di `tools/bekas-hapusan.txt` agar tidak dipakai lagi.
