@@ -163,7 +163,7 @@
     <string name="log_gagal_simpan">Gagal menyimpan log</string>
     <string name="ok">OK</string>
     <string name="folder_tidak_valid">Folder data tidak valid — dikembalikan ke bawaan.</string>
-    <string name="port_root_judul">Port %1$d butuh akses root</string>
+    <string name="port_root_judul">Akses root diperlukan untuk port %1$d</string>
     <string name="port_root_pesan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di Setelan.</string>
     <string name="port_dipakai_judul">Port %1$d sedang dipakai</string>
     <string name="port_dipakai_pesan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di Setelan, atau restart HP lebih dulu.</string>
@@ -195,7 +195,7 @@
     <string name="pin_aktif">PIN aktif.</string>
     <string name="masih_bekerja">Masih bekerja, mohon tunggu.</string>
     <string name="folder_bawaan">Folder data tidak valid, memakai bawaan.</string>
-    <string name="port_angka">Port harus angka 1-65535.</string>
+    <string name="port_angka">Port harus angka 1&#8211;65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 butuh root — memakai bawaan %1$s.</string>
     <string name="port_root_pesan_setelan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di atas.</string>
     <string name="port_dipakai_pesan_setelan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di atas, atau restart HP lebih dulu.</string>
@@ -289,14 +289,18 @@
     <string name="info_ram">RAM %1$s</string>
     <string name="info_uptime">Uptime %1$s</string>
     <string name="info_free">Sisa %1$s</string>
-    <string name="info_tls_exp">\u26A0 Sertifikat TLS kedaluwarsa dalam %1$d hari</string>
-    <string name="info_tls">Sertifikat TLS: %1$d hari</string>
+    <plurals name="info_tls_exp">
+        <item quantity="other">\u26A0 Sertifikat TLS kedaluwarsa dalam %1$d hari</item>
+    </plurals>
+    <plurals name="info_tls">
+        <item quantity="other">Sertifikat TLS: %1$d hari</item>
+    </plurals>
     <string name="shim_siap">Shim getrandom siap.</string>
     <string name="shim_gagal">Shim gagal: %1$s</string>
     <string name="update_press_start">Tekan Start untuk memakainya.</string>
     <string name="galat_backup_ganti">Gagal mengganti backup lama.</string>
     <string name="galat_backup_pasang">Gagal memasang backup.</string>
-    <string name="galat_db_besar">Berkas database melebihi %1$d byte.</string>
+    <string name="galat_db_besar">Berkas database melebihi %1$s.</string>
     <string name="galat_db_terpotong">Berkas database terpotong (bukan berkas SQLite utuh).</string>
     <string name="config_terlalu_besar">Berkas terlalu besar (&gt;512 KB) — bukan konfigurasi valid.</string>
     <string name="config_terenkripsi_tanya">Konfigurasi terenkripsi — isi sandi yang dipakai saat berkas dibuat.</string>

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 309: 6 peringatan lint dihilangkan (tanpa suppress)
+- `TypographyDashes` (`values`/`values-in` `port_angka`): "1-65535" memakai tanda hubung; kini en dash `1&#8211;65535` di kedua locale.
+- `PluralsCandidate` `port_root_judul`: kalimat dibalik menjadi "Root access is required for port %1$d" (Indonesia: "Akses root diperlukan untuk port %1$d") sehingga angka port tak lagi diikuti kata benda — bukan angka yang dihitung, jadi plurals memang tidak tepat di sini.
+- `PluralsCandidate` `galat_db_besar`: `%1$d bytes` diganti `%1$s` dan pemanggil mengirim `TgBackup.humanBytes(Util.BATAS_UNZIP_RESTORE)` → "200 MB" (lebih mudah dibaca daripada angka mentah).
+- `PluralsCandidate` `info_tls`/`info_tls_exp`: kini benar-benar `plurals` dengan quantity `one`/`other` (Inggris: "1 day" vs "N days"; Indonesia hanya `other`, sesuai CLDR). `certInfoLineInner` memakai `getQuantityString`.
+- `verifikasi-patch.py`: `cek_sinkron_terjemah` juga membandingkan nama `plurals` `values` vs `values-in` (dulu hanya `<string>`), agar plurals yang lupa diterjemahkan tak diam-diam jatuh ke teks Inggris.
+
 ## [Belum rilis] — Audit 308: build APK hijau lagi (lint i18n + compile unit test)
 - Dua sebab build merah beruntun: (a) `compileDebugUnitTestJavaWithJavac` gagal karena `TgBackupTest` memakai `TgBackup.ENC_MAGIC` yang `private`; (b) `lintDebug` gagal 16 error setelah i18n (#1).
 - Lint `StringFormatMatches` (8 lokasi, `MainActivity:434-443` + `SettingsActivity:1080-1088`): enam string port memakai `%1$s` padahal pemanggil memberi `int` (`portFix`/`portCekPort`). Specifier diganti `%1$d` di `values` **dan** `values-in` (paritas tetap). Lint `UnusedQuantity` (error, aturan #12): percobaan menambah quantity `one` pada `plurals pin_lockout` versi Indonesia justru **GAGAL** karena CLDR bahasa Indonesia hanya punya `other` — item `one` dibuang, dan kesimpulannya dicatat agar tak diulang.

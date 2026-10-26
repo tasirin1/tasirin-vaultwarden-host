@@ -2120,8 +2120,11 @@ public class SettingsActivity extends Activity {
                         while ((len = in.read(buf)) != -1) {
                             salin += len;
                             if (salin > Util.BATAS_UNZIP_RESTORE) {
+                                // Batas ditampilkan dalam satuan ramah (mis. "200 MB"):
+                                // angka mentah + kata "byte" memicu lint PluralsCandidate
+                                // dan "209715200 byte" tak enak dibaca di HP.
                                 throw new java.io.IOException(getString(R.string.galat_db_besar,
-                                        Util.BATAS_UNZIP_RESTORE));
+                                        TgBackup.humanBytes(Util.BATAS_UNZIP_RESTORE)));
                             }
                             fos.write(buf, 0, len);
                         }
@@ -3203,10 +3206,14 @@ public class SettingsActivity extends Activity {
             if (days < 0) {
                 return "";
             }
+            // Plurals (bukan string + %d): "1 day" vs "N days". Bahasa
+            // Indonesia hanya punya quantity "other" (CLDR), jadi teksnya
+            // tetap satu bentuk.
+            int jumlah = days > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) days;
             if (days < 30) {
-                return getString(R.string.info_tls_exp, days);
+                return getResources().getQuantityString(R.plurals.info_tls_exp, jumlah, days);
             }
-            return getString(R.string.info_tls, days);
+            return getResources().getQuantityString(R.plurals.info_tls, jumlah, days);
         } catch (Exception e) {
             return "";
         }

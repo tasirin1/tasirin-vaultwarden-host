@@ -564,6 +564,9 @@ def cek_sinkron_terjemah(gagal):
     def nama_string(path):
         return set(re.findall(r'<string\s+name="([^"]+)"', baca(path)))
 
+    def nama_plurals(path):
+        return set(re.findall(r'<plurals\s+name="([^"]+)"', baca(path)))
+
     inggris = nama_string("app/src/main/res/values/strings.xml")
     indonesia = nama_string("app/src/main/res/values-in/strings.xml")
     if inggris and indonesia:
@@ -573,6 +576,17 @@ def cek_sinkron_terjemah(gagal):
             gagal.append("values-in kurang string: " + ", ".join(kurang[:10]))
         if lebih:
             gagal.append("values-in berlebih string: " + ", ".join(lebih[:10]))
+    # Plurals ikut diperiksa: resource plurals yang lupa diterjemahkan jatuh
+    # diam-diam ke teks Inggris (dulu hanya <string> yang dibandingkan).
+    pl_inggris = nama_plurals("app/src/main/res/values/strings.xml")
+    pl_indonesia = nama_plurals("app/src/main/res/values-in/strings.xml")
+    if pl_inggris or pl_indonesia:
+        kurang = sorted(pl_inggris - pl_indonesia)
+        lebih = sorted(pl_indonesia - pl_inggris)
+        if kurang:
+            gagal.append("values-in kurang plurals: " + ", ".join(kurang[:10]))
+        if lebih:
+            gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
 
 
 def jenis_biner(path):

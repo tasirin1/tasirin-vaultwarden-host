@@ -163,7 +163,7 @@
     <string name="log_gagal_simpan">Failed to save log</string>
     <string name="ok">OK</string>
     <string name="folder_tidak_valid">Invalid data folder — reverted to default.</string>
-    <string name="port_root_judul">Port %1$d needs root access</string>
+    <string name="port_root_judul">Root access is required for port %1$d</string>
     <string name="port_root_pesan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to >= 1024 (e.g. 8088) in Settings.</string>
     <string name="port_dipakai_judul">Port %1$d is in use</string>
     <string name="port_dipakai_pesan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port in Settings, or restart the phone first.</string>
@@ -196,7 +196,7 @@
     <string name="pin_aktif">PIN is active.</string>
     <string name="masih_bekerja">Still working, please wait.</string>
     <string name="folder_bawaan">Invalid data folder, using default.</string>
-    <string name="port_angka">Port must be a number 1-65535.</string>
+    <string name="port_angka">Port must be a number 1&#8211;65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 needs root — using default %1$s.</string>
     <string name="port_root_pesan_setelan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to &gt;= 1024 (e.g. 8088) above.</string>
     <string name="port_dipakai_pesan_setelan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port above, or restart the phone first.</string>
@@ -290,14 +290,20 @@
     <string name="info_ram">RAM %1$s</string>
     <string name="info_uptime">Uptime %1$s</string>
     <string name="info_free">Free %1$s</string>
-    <string name="info_tls_exp">\u26A0 TLS certificate expires in %1$d days</string>
-    <string name="info_tls">TLS certificate: %1$d days</string>
+    <plurals name="info_tls_exp">
+        <item quantity="one">\u26A0 TLS certificate expires in %1$d day</item>
+        <item quantity="other">\u26A0 TLS certificate expires in %1$d days</item>
+    </plurals>
+    <plurals name="info_tls">
+        <item quantity="one">TLS certificate: %1$d day</item>
+        <item quantity="other">TLS certificate: %1$d days</item>
+    </plurals>
     <string name="shim_siap">Shim getrandom ready.</string>
     <string name="shim_gagal">Shim failed: %1$s</string>
     <string name="update_press_start">Press Start to use it.</string>
     <string name="galat_backup_ganti">Failed to replace the old backup.</string>
     <string name="galat_backup_pasang">Failed to install the backup.</string>
-    <string name="galat_db_besar">Database file exceeds %1$d bytes.</string>
+    <string name="galat_db_besar">Database file exceeds %1$s.</string>
     <string name="galat_db_terpotong">Database file truncated (not a complete SQLite file).</string>
     <string name="config_terlalu_besar">File too large (&gt;512 KB) — not a valid config.</string>
     <string name="config_terenkripsi_tanya">Config is encrypted — enter the password used when the file was created.</string>
