@@ -2957,8 +2957,12 @@ public class ServerService extends Service {
             return lama;
         }
 
-        jadwalSegarkanIp();
-        return "127.0.0.1";
+        String segar = lanHost();
+        synchronized (IP_LOCK) {
+            ipCache = segar;
+            ipCacheTime = now;
+        }
+        return segar;
     }
 
     private static void jadwalSegarkanIp() {

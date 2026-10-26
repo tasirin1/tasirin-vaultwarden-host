@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 385: localIp dingin kini menyelesaikan alamat LAN secara sinkron sekali
+- Pada cache yang belum pernah terisi, `localIp()` menjadwalkan penyegaran latar lalu langsung mengembalikan `127.0.0.1` — tampilan pertama URL akses (layar utama, Pengaturan, pesan bot) menunjukkan alamat loopback yang tak bisa dipakai perangkat lain sampai penyegaran latar keburu selesai dan layar digambar ulang (temuan audit putaran-7, #123).
+- Jalur dingin kini menyelesaikan `lanHost()` secara sinkron sekali dan mengisi cache (enumerasi antarmuka adalah operasi lokal, bukan I/O jaringan); jalur basi tetap melayani nilai lama + penyegaran latar seperti sebelumnya, dan `127.0.0.1` hanya tersisa sebagai hasil sah `lanHost()` bila memang tak ada antarmuka LAN.
+
 ## [Belum rilis] — Audit 384: pidOf kini jatuh ke pemindaian /proc bila invoke pid() gagal
 - `pidOf` hanya memakai cadangan /proc bila metode `Process.pid()` tidak ada; bila metodenya ada tetapi `invoke`-nya gagal (akses refleksi ditolak), hasilnya permanen -1 — sapuan server yatim dan kawanannya kehilangan PID anak untuk Proses yang sebenarnya hidup (temuan audit putaran-7, #122).
 - Blok tangkap `pidOf` kini mengembalikan `pidAnakDariProc(p)` sebagai cadangan terakhir sebelum menyerah, sejalan jalur metode-tidak-ada.
