@@ -6,6 +6,7 @@
     <color name="toolbar_bg">#1565C0</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#F57C00</color>
+    <color name="update_hint">#BF5700</color>
     <color name="white">#FFFFFF</color>
     <color name="text_primary">#1B1F27</color>
     <color name="text_secondary">#6B7280</color>

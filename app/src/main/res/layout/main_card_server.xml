@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/update_available_hint"
-                android:textColor="@color/accent"
+                android:textColor="@color/update_hint"
                 android:textSize="11sp"
                 android:visibility="gone" />
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 357: petunjuk "update tersedia" tak lagi oranye pudar di mode siang
+- Baris `updateHint` di kartu Server memakai `@color/accent` (#F57C00) untuk teks 11sp di atas kartu putih — kontrasnya hanya 2,70:1 sehingga mudah terlewat, padahal baris itu satu-satunya petunjuk di kartu bahwa ada update (di malam pasangan yang sama aman, 9,52:1, karena aksen malam #FFB74D di atas kartu gelap). `accent` dipakai di 19 tempat lain sehingga tidak bisa digelapkan global.
+- Warna khusus baru `update_hint`: siang #BF5700 (4,59:1 di atas putih, sejajar pilihan `chip_busy` di Audit 343), malam tetap #FFB74D seperti aksen malam — tampilan malam tidak berubah sama sekali.
+
 ## [Belum rilis] — Audit 356: rebase lockout PIN tak lagi menulis disk sinkron di UI thread
 - `PinActivity.cobaBuka()` memanggil `PinGate.sisaKunciMs(...)` dari utas UI, dan cabang rebase pasca-reboot (#68) di dalamnya menulis ulang kedua stempel kunci dengan `commit()` sinkron: tepat pada skenario 5× gagal + reboot + buka aplikasi, UI membeku sesaat sebelum pesan lockout tampil. PBKDF2-nya sendiri sudah benar di utas pekerja, dan jalur tulis `catatHasil` dari UI sudah dialihkan async — jalur baca rebase ini yang tertinggal.
 - Penulisan rebase kini `apply()`: nilai baru terbaca seketika di proses yang sama (memori SharedPreferences diperbarui sinkron), dan bila proses mati sebelum penulisan asinkron sempat tuntas, stempel lama yang basi membuat cabang rebase menghitung ulang hasil yang sama pada buka berikutnya — sembuh sendiri tanpa mengubah semantik kunci. Pencatatan kegagalan di `catatHasil` tetap `commit()` karena penghitung keamanan itu wajib awet sebelum kembali.
