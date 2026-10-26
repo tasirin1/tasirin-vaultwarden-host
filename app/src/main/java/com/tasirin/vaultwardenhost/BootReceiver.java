@@ -22,6 +22,18 @@ public class BootReceiver extends BroadcastReceiver {
      *  siaran beruntun bisa menilai throttle bersamaan. */
     private static final Object KUNCI_BOOT = new Object();
 
+    /** Aksi siaran sistem saat APK diperbarui. Protected broadcast: hanya
+     *  sistem yang bisa mengirim, jadi tak perlu throttle anti-spoof. */
+    static final String AKSI_GANTI_PAKET = "android.intent.action.MY_PACKAGE_REPLACED";
+
+    /** Hanya BOOT_COMPLETED yang di-throttle. MY_PACKAGE_REPLACED bisa tiba
+     *  <60 dtk setelah boot (update dipasang tepat sesudah reboot); bila ikut
+     *  jendela throttle bersama, seluruh isinya dibuang dan jadwal backup +
+     *  bot remote mati sampai app dibuka manual. */
+    static boolean perluThrottleBoot(String action) {
+        return !AKSI_GANTI_PAKET.equals(action);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
@@ -33,6 +45,10 @@ public class BootReceiver extends BroadcastReceiver {
             return;
         }
         final Context ctx = context.getApplicationContext();
+        // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
+        // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
+        // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
+        final boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
         // onReceive jalan di main thread dan dibatasi ~10 dtk. getAll() prefs
         // (parse XML penuh, dua kali lewat heal + migrasi), penulisan heal, dan
         // stat db.sqlite3 di sini menahan UI sampai ANR di STB lambat. Validasi
@@ -41,29 +57,27 @@ public class BootReceiver extends BroadcastReceiver {
         final PendingResult pending = goAsync();
         Runnable kerja = () -> {
             try {
-                long kiniElapsed = android.os.SystemClock.elapsedRealtime();
-                synchronized (KUNCI_BOOT) {
-                    long terakhirBoot = Math.max(terakhirBootElapsed,
-                            bacaThrottleBoot(ctx));
-                    if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot,
-                            THROTTLE_BOOT_MS)) {
-                        // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
-                        // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
+                if (perluThrottleBoot(action)) {
+                    long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+                    synchronized (KUNCI_BOOT) {
+                        long terakhirBoot = Math.max(terakhirBootElapsed,
+                                bacaThrottleBoot(ctx));
+                        if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot,
+                                THROTTLE_BOOT_MS)) {
+                            // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
+                            // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
+                            terakhirBootElapsed = kiniElapsed;
+                            simpanThrottleBoot(ctx, kiniElapsed);
+                            return;
+                        }
                         terakhirBootElapsed = kiniElapsed;
                         simpanThrottleBoot(ctx, kiniElapsed);
-                        return;
                     }
-                    terakhirBootElapsed = kiniElapsed;
-                    simpanThrottleBoot(ctx, kiniElapsed);
                 }
                 SharedPreferences sp = ctx.getSharedPreferences(
                         ServerService.PREFS, Context.MODE_PRIVATE);
                 TgBackup.healkanStringPrefs(ctx);
                 TgBackup.migrateAutoPref(ctx);
-                // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
-                // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
-                // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
-                boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
                 if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
                     // mulaiService tak melempar: penolakan background dicatat di
                     // dalam + ditandai KEY_START_TERTUNDA untuk susulan MainActivity.
