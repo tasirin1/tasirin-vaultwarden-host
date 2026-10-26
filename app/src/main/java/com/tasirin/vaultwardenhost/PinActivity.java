@@ -137,6 +137,10 @@ public class PinActivity extends Activity {
             tampilGalat(teksSisaKunci(this, sisa));
             return;
         }
+        if (pinInput.getText() == null || pinInput.getText().length() < 4) {
+            tampilGalat(getString(R.string.pin_min));
+            return;
+        }
         sedangPeriksa = true;
         bukaBtn.setEnabled(false);
         tampilInfo(getString(R.string.pin_memeriksa));

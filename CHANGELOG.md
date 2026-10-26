@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 340: tekanan Buka dengan PIN kosong/pendek tak lagi dihitung tebakan gagal
+- `PinActivity.cobaBuka()` mengirim masukan apa pun — termasuk kolom kosong — ke verifikasi PBKDF2, dan setiap hasil tak cocok menaikkan penghitung gagal `PinGate`: lima ketukan tak sengaja pada tombol Buka mengunci pengguna sah selama 5 menit tanpa satu pun tebakan PIN nyata. Jalur lain sudah konsisten menolaknya lebih dulu: pembuatan PIN mewajibkan minimal 4 karakter (`SettingsActivity`) dan bot Telegram menolak PIN < 4 sebelum verifikasi tanpa menghitung gagal.
+- `cobaBuka()` kini menolak masukan kurang dari 4 karakter dengan pesan `R.string.pin_min` yang sama seperti di Settings, sebelum verifikasi dimulai dan tanpa menyentuh penghitung gagal maupun lockout.
+
 ## [Belum rilis] — Audit 339: hasil Salin/Bagikan log tak lagi hilang karena rotasi selama penyamaran
 - Di `LogActivity`, penulisan clipboard (Salin) dan pembukaan lembar bagikan (Bagikan) sama-sama berada di dalam callback `ui.post` berpagar `isFinishing()/isDestroyed()`: rotasi selama penyamaran log besar di utas latar (buffer sampai 300.000 karakter) membuang hasil kerjanya sendiri tanpa indikasi gagal — berbeda dengan `exportLogTxt()` di berkas yang sama yang menulis berkas di utas latar sehingga hasilnya selamat.
 - Salin kini menulis clipboard di utas pekerja (`salinBersihOtomatis` memang berbasis konteks aplikasi dan aman dari utas mana pun); callback UI tinggal melaporkan hasilnya. Bagikan kini menyimpan teks tersamar ke slot statik `bagikanTertunda` yang dikonsumsi tepat satu kali oleh instance mana pun yang hidup (`tampilBagikanTertunda()`, dipanggil dari callback pekerja dan dari `onResume` sesudah pagar PIN); slot dibersihkan bila activity ditutup dengan niat selesai (`isFinishing()`), sehingga tidak meledak sendiri pada kunjungan berikutnya.
