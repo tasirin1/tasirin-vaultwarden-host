@@ -1,9 +1,7 @@
 package com.tasirin.vaultwardenhost;
 
 import android.content.Context;
-import android.os.SystemClock;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -22,10 +20,6 @@ import javax.net.ssl.TrustManagerFactory;
 public final class HttpsCompat {
 
     private static volatile SSLSocketFactory cached;
-
-    private static volatile long cachedCap = -1L;
-
-    private static final Object KUNCI_CAP = new Object();
 
     private static volatile String[] protokolCache = null;
     private static volatile String[] cipherCache = null;
@@ -108,61 +102,6 @@ public final class HttpsCompat {
         }
     }
 
-    private static volatile long capStat = Long.MIN_VALUE;
-    private static volatile long capNilai = 0L;
-
-    private static volatile long capWaktu = 0;
-
-    static long capOverride(Context ctx) {
-
-        long kini = SystemClock.elapsedRealtime();
-
-        if (capWaktu != 0 && kini - capWaktu < 60_000) {
-            return capNilai;
-        }
-
-        synchronized (KUNCI_CAP) {
-
-            long kini2 = SystemClock.elapsedRealtime();
-            if (capWaktu != 0 && kini2 - capWaktu < 60_000) {
-                return capNilai;
-            }
-            try {
-                File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
-                if (ov.isFile()) {
-
-                    long stat = ov.lastModified() * 31 + ov.length();
-                    if (stat == capStat && capNilai != 0L) {
-                        capWaktu = kini2;
-                        return capNilai;
-                    }
-
-                    long cap = stat;
-                    try (InputStream in = new java.io.FileInputStream(ov)) {
-                        byte[] buf = new byte[8192];
-                        int n;
-                        while ((n = in.read(buf)) != -1) {
-
-                            for (int i = 0; i < n; i++) {
-                                cap = cap * 31 + (buf[i] & 0xff);
-                            }
-                        }
-                    } catch (Exception ignored) {
-                    }
-
-                    capStat = stat;
-                    capNilai = cap;
-                    capWaktu = kini2;
-                    return cap;
-                }
-            } catch (Exception ignored) {
-            }
-
-            capWaktu = kini2;
-            return 0L;
-        }
-    }
-
     static boolean aliasCaSistem(String alias) {
         return alias != null && !alias.startsWith("user:");
     }
@@ -174,15 +113,13 @@ public final class HttpsCompat {
     }
 
     private static SSLSocketFactory socketFactory(Context ctx) throws Exception {
-        long cap = capOverride(ctx);
         SSLSocketFactory f = cached;
-        if (f != null && cap == cachedCap) {
+        if (f != null) {
             return f;
         }
         synchronized (HttpsCompat.class) {
 
-            cap = capOverride(ctx);
-            if (cached != null && cap == cachedCap) {
+            if (cached != null) {
                 return cached;
             }
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -225,24 +162,6 @@ public final class HttpsCompat {
                     ks.setCertificateEntry("extra-" + (i++), cert);
                 }
             }
-            try {
-                File ov = new File(ctx.getFilesDir(), "certs/" + Updater.TRUST_CHAIN_ASSET);
-                if (ov.isFile()) {
-                    try (InputStream in = new java.io.FileInputStream(ov)) {
-
-                        java.util.Collection<? extends Certificate> chain = cf.generateCertificates(in);
-                        if (chain == null || chain.isEmpty()) {
-                            throw new Exception("chain kosong");
-                        }
-                        int i = 0;
-                        for (Certificate cert : chain) {
-                            ks.setCertificateEntry("ov-" + (i++), cert);
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
-            } catch (Exception ignored) {
-            }
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
@@ -255,7 +174,6 @@ public final class HttpsCompat {
             }
             sc.init(null, tmf.getTrustManagers(), acakBersama());
             cached = new PabrikTls12(sc.getSocketFactory());
-            cachedCap = cap;
 
             protokolCache = null;
             cipherCache = null;

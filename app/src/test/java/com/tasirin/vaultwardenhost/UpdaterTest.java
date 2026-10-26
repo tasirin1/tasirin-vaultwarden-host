@@ -973,15 +973,6 @@ public class UpdaterTest {
     }
 
     @Test
-    public void validasiRantai_tolakSampahFailClosed() {
-        assertEquals(0, Updater.validasiRantai(null));
-        assertEquals(0, Updater.validasiRantai(new byte[0]));
-        assertEquals(0, Updater.validasiRantai("bukan-sertifikat".getBytes(
-                java.nio.charset.StandardCharsets.US_ASCII)));
-        assertEquals(0, Updater.validasiRantai(new byte[Updater.BATAS_RANTAI_TRUST + 1]));
-    }
-
-    @Test
     public void pindaiChecksumDukungBsd() {
         String hex = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
         assertEquals(hex, Updater.pindaiHexChecksum(hex + "  web-vault.zip"));

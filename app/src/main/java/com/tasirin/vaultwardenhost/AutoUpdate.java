@@ -51,10 +51,6 @@ public final class AutoUpdate {
                 return;
             }
 
-            try {
-                Updater.segarkanTrustAnchor(ctx);
-            } catch (Exception ignored) {
-            }
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);

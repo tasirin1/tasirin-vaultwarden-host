@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: trust anchor TLS hanya dari aset APK
+- `Updater.segarkanTrustAnchor` mengunduh `github-chain.pem` dari rilis lalu memasangnya ke `files/certs/` (dibaca `HttpsCompat`) walau checksum `.sha256` gagal diambil; validasi isi hanya "minimal satu sertifikat bisa diparse", tanpa root yang diharapkan. Asset itu juga tak pernah diterbitkan kedua workflow, jadi jalur tersebut selalu 404 sekali sehari — kode mati yang tetap menambah permukaan serangan.
+- Jalur refresh dihapus total (`segarkanTrustAnchor`, `validasiRantai`, pembacaan override di `HttpsCompat`, pemicu harian di `AutoUpdate`); trust anchor kini hanya dari `assets/certs/github-chain.pem` yang ikut APK, sehingga bisa diaudit per rilis dan tak bisa diganti diam-diam lewat jaringan. Nama metode yang dihapus dicatat di `tools/bekas-hapusan.txt`.
+
 ## [Belum rilis] — Audit 311: verifikasi PIN tak lagi mengantre di pool unduhan
 - `PinActivity.cobaBuka` dan aktivasi PIN di `SettingsActivity` memakai `Util.jalankanLama` (pool `vw-bg-lama`, 2 thread) yang juga dipakai unduhan web-vault ≥150 MB, update binary, serta backup/restore. Saat dua tugas berat berjalan, PBKDF2 PIN mengantre bermenit-menit dan layar kunci menampilkan "Memeriksa PIN…" tanpa tombol aktif.
 - Pool khusus 1 thread `vw-pin` + `Util.jalankanPin` kini dipakai kedua jalur; `BG_LAMA` tetap untuk tugas berat. Unit test baru menahan kedua thread `jalankanLama` lalu memastikan tugas PIN tetap selesai <2 detik.

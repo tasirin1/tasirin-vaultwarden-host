@@ -74,3 +74,9 @@ bacaTagShim
 tulisTagShim
 # Audit 311: tebakan PIN dari grup tak lagi menaikkan penghitung gagal global.
 hitungTebakanPinGrup
+# Audit 311: refresh trust anchor dari aset rilis (tak pernah diterbitkan,
+# checksum opsional) dihapus; anchor hanya dari aset APK.
+segarkanTrustAnchor
+validasiRantai
+capOverride
+validasiRantai_tolakSampahFailClosed

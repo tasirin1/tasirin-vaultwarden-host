@@ -3049,7 +3049,7 @@ public final class TgBackup {
                     TgBot.KEY_TG_MENU_FP,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_NAME,
                     "tg_notified_version", "wv_from_version",
-                    "wv_fallback_for", Updater.KEY_TRUST_TGL,
+                    "wv_fallback_for",
                     PinGate.KEY_PIN_HASH, "clip_hash"));
 
     static final java.util.Set<String> BOLEH_IMPOR = new java.util.HashSet<>(
