@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 418: pola berkas terlarang cek-cepat kini tak peka huruf besar/kecil
+- Pola berkas terlarang di `cek-cepat.sh` dicocokkan peka huruf: `app.APK`, `SECRET.JKS`, dan `.ENV` lolos dari gerbang larangan binary/secret padahal isinya sama terlarangnya (temuan audit putaran-9, #172).
+- Pencocokan kini `grep -iE`; daftar pola dan pesan kegagalannya tidak berubah. (Sisi verifikasi-patch sudah menurunkan huruf lebih dulu, jadi tak berubah.)
+
 ## [Belum rilis] — Audit 417: namespace kosong kini divalidasi eksplisit oleh cek manifest gerbang
 - Bila `namespace` di `app/build.gradle.kts` tak terbaca (format berubah), `namespace_aplikasi()` mengembalikan string kosong dan `cek_manifest` menyusun FQCN dari awalan kosong — hasilnya banjir kegagalan "komponen tanpa kelas" yang menyesatkan, menunjuk sebab yang salah (temuan audit putaran-9, #171).
 - Namespace kosong kini menghasilkan satu kegagalan yang jelas menyebut sebabnya dan cek komponen dilewati, bukan puluhan tuduhan komponen palsu.

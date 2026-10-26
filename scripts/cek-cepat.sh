@@ -46,7 +46,7 @@ TERLARANG="$(
   git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
   git ls-files 2>/dev/null || true
 )"
-if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -E "$POLA_TERLARANG" || true)" ]; then
+if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -iE "$POLA_TERLARANG" || true)" ]; then
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
 
