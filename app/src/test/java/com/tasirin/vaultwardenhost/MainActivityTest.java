@@ -59,11 +59,9 @@ public class MainActivityTest {
 
     @Test
     public void pinMenahanKontenHanyaSaatPinWajib() {
-        assertTrue(MainActivity.pinMenahanKonten(true, false, false, false));
-        assertTrue(MainActivity.pinMenahanKonten(false, true, false, true));
-        assertFalse(MainActivity.pinMenahanKonten(false, true, true, true));
-        assertFalse(MainActivity.pinMenahanKonten(false, false, false, true));
-        assertFalse(MainActivity.pinMenahanKonten(false, true, false, false));
-        assertFalse(MainActivity.pinMenahanKonten(false, false, false, false));
+        assertTrue(MainActivity.pinMenahanKonten(true, false, false));
+        assertTrue(MainActivity.pinMenahanKonten(false, true, false));
+        assertFalse(MainActivity.pinMenahanKonten(false, true, true));
+        assertFalse(MainActivity.pinMenahanKonten(false, false, false));
     }
 }

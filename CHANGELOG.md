@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 427: SettingsActivity kini menahan konten di balik gerbang PIN seperti MainActivity
+- Penahan konten Audit untuk #164 hanya dipasang di MainActivity: `onResume` Settings memposting loop refresh lebih dulu dan memanggil `maybeShowPinLock()` paling akhir, dan `refreshFromService`-nya tidak pernah memeriksa keadaan PIN — selama layar PIN tampil/bertransisi, isi Settings (URL server, status, petunjuk update) ter-render penuh.
+- `maybeShowPinLock()` kini dipanggil sebelum loop refresh diposting, dan `refreshFromService` pulang dini selama PIN menahan konten (helper `pinMenahanKonten` setempat: transisi buka-PIN berjalan, atau `PinGate.perlukanLayarPin` benar) — pola yang sama persis dengan MainActivity.
+
 ## [Belum rilis] — Audit 426: cermin pinMenahanKonten selaras dengan PinGate pada keadaan hash hilang
 - Cermin keputusan penahan konten di MainActivity mensyaratkan hash PIN ada, sehingga pada keadaan `KUNCI_RUSAK` (PIN aktif, hash hilang/rusak) konten tetap ter-refresh di belakang layar PIN — padahal `PinGate.wajibLayarPin` mewajibkan layar PIN pada keadaan itu juga. Tes Audit untuk #164 ikut mengunci penyimpangan ini.
 - Parameter `hashAda` dibuang dari `pinMenahanKonten`: konten tertahan tepat saat PIN aktif dan di luar masa tenggang, sama seperti keputusan `PinGate` (BUKA maupun RUSAK). Tes diperbarui di commit yang sama — kasus hash-hilang kini tercakup oleh bentuk tiga-argumen dan menegaskan konten tertahan.

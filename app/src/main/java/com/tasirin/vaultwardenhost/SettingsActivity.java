@@ -875,6 +875,7 @@ public class SettingsActivity extends Activity {
         sapuCacheLatar();
         refreshActive = true;
         paksaCacheUbah = true;
+        maybeShowPinLock();
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);
 
@@ -882,8 +883,6 @@ public class SettingsActivity extends Activity {
             startTertundaDariPutaran = false;
             saveAndStart();
         }
-
-        maybeShowPinLock();
     }
 
     @Override

@@ -300,8 +300,7 @@ public class MainActivity extends Activity {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             return pinMenahanKonten(pinBukaJalan,
                     TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
-                    PinGate.dalamGraceBersama(),
-                    !TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "").isEmpty());
+                    PinGate.dalamGraceBersama());
         } catch (Exception e) {
             return pinBukaJalan;
         }
