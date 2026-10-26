@@ -20,6 +20,22 @@ public class PinActivity extends Activity {
     private TextView pinError;
     private Button bukaBtn;
     private volatile boolean sedangPeriksa = false;
+    private boolean pemeriksaGraceJalan = false;
+
+    private final Runnable pemeriksaGrace = new Runnable() {
+        @Override
+        public void run() {
+            if (isFinishing() || isDestroyed()) {
+                pemeriksaGraceJalan = false;
+                return;
+            }
+            if (lolosGrace()) {
+                pemeriksaGraceJalan = false;
+                return;
+            }
+            ui.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +43,7 @@ public class PinActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
-                || PinGate.dalamGraceBersama()) {
-            setResult(RESULT_OK);
-            finish();
+        if (lolosGrace()) {
             return;
         }
         String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
@@ -66,6 +79,33 @@ public class PinActivity extends Activity {
         });
         bukaBtn.setOnClickListener(v -> cobaBuka());
         keluarBtn.setOnClickListener(v -> batalKeluar());
+    }
+
+    private boolean lolosGrace() {
+        SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+        if (!TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false)
+                || PinGate.dalamGraceBersama()) {
+            setResult(RESULT_OK);
+            finish();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!pemeriksaGraceJalan) {
+            pemeriksaGraceJalan = true;
+            ui.postDelayed(pemeriksaGrace, 500);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        ui.removeCallbacks(pemeriksaGrace);
+        pemeriksaGraceJalan = false;
+        super.onPause();
     }
 
     @Override
