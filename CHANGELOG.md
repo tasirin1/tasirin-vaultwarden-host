@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 363: pekerja verifikasi PIN selalu memulihkan UI lewat try/finally
+- Tubuh pekerja di `PinActivity.cobaBuka()` (verify → `catatHasil` → buka grace → upgrade hash → `ui.post`) tidak punya try/finally penyeluruh: `sedangPeriksa` dan pengaktifan lagi tombol Buka hanya dipulihkan di dalam `ui.post` itu. Satu lemparan tak terduga di tengah — mis. `catatHasil` gagal keras di penyimpanan rusak, atau `verify` melempar pada hash tersimpan yang korup — membuat `ui.post` tak pernah terpasang: tulisan "Memeriksa…" menetap dan tombol Buka mati sampai activity dibuat ulang.
+- Seluruh badan pekerja kini dibungkus try/finally dengan callback UI di blok finally (isi callback tidak berubah): apa pun yang gagal di tengah, keadaan UI selalu dipulihkan dan pengguna menerima hasil gagal biasa, bukan layar terkunci.
+
 ## [Belum rilis] — Audit 362: tombol Check Update di About dari MainActivity kini menutup dialog lebih dulu
 - Di `AboutDialog`, cabang Settings men-`dismiss()` dialog sebelum bertindak, tetapi cabang selain Settings (dari MainActivity) langsung `startActivity(SettingsActivity)` tanpa menutup dialog: sesudah selesai di Settings dan menekan Back, dialog About lama masih terbuka menunggu ditutup manual. Sisa inkonsistensi di sekitar perbaikan Audit 322 (#74).
 - Cabang non-Settings kini men-`dismiss()` lebih dulu, sama seperti cabang Settings.

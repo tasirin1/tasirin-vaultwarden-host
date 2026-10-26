@@ -156,39 +156,43 @@ public class PinActivity extends Activity {
         boolean masuk = Util.jalankanPin(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
-            String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-            boolean cocok = !segar.isEmpty()
-                    && PinCrypto.verify(segar, entered);
-            PinGate.catatHasil(appCtx, cocok, System.currentTimeMillis());
-            if (cocok) {
-                PinGate.bukaKunciBersama();
-            }
-            if (cocok && PinCrypto.perluUpgradeHash(segar)) {
-                String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                if (segar.equals(kini)) {
-                    try {
-                        sp.edit().putString(PinGate.KEY_PIN_HASH,
-                                PinCrypto.hash(entered)).apply();
-                    } catch (Exception ignored) {
+            boolean cocok = false;
+            try {
+                String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                cocok = !segar.isEmpty()
+                        && PinCrypto.verify(segar, entered);
+                PinGate.catatHasil(appCtx, cocok, System.currentTimeMillis());
+                if (cocok) {
+                    PinGate.bukaKunciBersama();
+                }
+                if (cocok && PinCrypto.perluUpgradeHash(segar)) {
+                    String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                    if (segar.equals(kini)) {
+                        try {
+                            sp.edit().putString(PinGate.KEY_PIN_HASH,
+                                    PinCrypto.hash(entered)).apply();
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
-            }
-            final boolean hasil = cocok;
-            ui.post(() -> {
-                sedangPeriksa = false;
+            } finally {
+                final boolean hasil = cocok;
+                ui.post(() -> {
+                    sedangPeriksa = false;
 
-                if (isFinishing() || isDestroyed()) {
-                    return;
-                }
-                bukaBtn.setEnabled(true);
-                bersihkanInput();
-                if (hasil) {
-                    setResult(RESULT_OK);
-                    finish();
-                } else {
-                    tampilGalat(getString(R.string.pin_salah));
-                }
-            });
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+                    bukaBtn.setEnabled(true);
+                    bersihkanInput();
+                    if (hasil) {
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        tampilGalat(getString(R.string.pin_salah));
+                    }
+                });
+            }
         });
         if (!masuk) {
 
