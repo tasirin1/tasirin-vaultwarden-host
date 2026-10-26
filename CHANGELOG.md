@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 325: FileShareProvider tak lagi boleh membagikan berkas backup penuh
+- Daftar boleh-bagi untuk folder data hanya menyaring nama/akhiran, jadi `backup-telegram-*.zip` dan `db-backup-*.zip` di folder `backups/` lolos — padahal isinya snapshot `db.sqlite3` + config utuh, dan `db.sqlite3` lepas justru ditolak eksplisit oleh provider yang sama. Kelonggaran laten: belum ada alur yang menerbitkan grant ke folder itu, tetapi satu grant keliru langsung membocorkan seluruh vault.
+- Cabang folder-data `isShareable` kini menolak nama berkas cadangan penuh (`backup-*`/`db-backup-*`, tak peka huruf, lewat penolong murni `berkasBackupPenuh` yang diuji); ekspor yang sah tak berubah (`ca.pem`/`cert.pem` dari `tls/`, `app-config-*.json(.enc)` tetap boleh).
+
 ## [Belum rilis] — Audit 324: pasang-hook hanya melewati cadangan bila hook lama persis hook standar
 - Uji kepemilikan hook memakai substring: hook asing apa pun yang kebetulan memuat baris `exec bash scripts/cek-cepat.sh` (mis. sebagai salah satu langkah tim) dianggap "hook kita" lalu ditimpa total tanpa cadangan — langkah tambahannya hilang diam-diam.
 - Skrip kini menulis hook standar ke berkas sementara lebih dulu dan hanya melewati cadangan bila isi hook lama **persis sama** (`cmp -s`) dengan standar; isi lain apa pun dicadangkan ke `.bak` (kegagalan menyalin tetap membatalkan penimpaan). Teruji tiga skenario di salinan terpisah: tanpa hook, hook standar identik (tanpa cadangan), dan hook asing berpenanda (tercadangkan utuh).

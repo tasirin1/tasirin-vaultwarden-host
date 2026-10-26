@@ -329,6 +329,14 @@ public class FileShareProvider extends ContentProvider {
         return berakhirAbaikanHuruf(inti, ".key");
     }
 
+    static boolean berkasBackupPenuh(String name) {
+        if (name == null) {
+            return false;
+        }
+        return mulaiAbaikanHuruf(name, "backup-")
+                || mulaiAbaikanHuruf(name, "db-backup-");
+    }
+
     static boolean namaBolehDibagikan(String name) {
         if (name == null) {
             return false;
@@ -422,6 +430,9 @@ public class FileShareProvider extends ContentProvider {
                 return false;
             }
             if (kunciPrivat(name)) {
+                return false;
+            }
+            if (berkasBackupPenuh(name)) {
                 return false;
             }
             boolean diTls = canon.startsWith(data + File.separator + "tls" + File.separator);

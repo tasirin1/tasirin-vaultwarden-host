@@ -25,6 +25,17 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void berkasBackupPenuhDikenali() {
+        assertTrue(FileShareProvider.berkasBackupPenuh("backup-telegram-20260101-120000.zip"));
+        assertTrue(FileShareProvider.berkasBackupPenuh("db-backup-20260101.zip"));
+        assertTrue(FileShareProvider.berkasBackupPenuh("DB-BACKUP-20260101-pre.sqlite3"));
+        assertFalse(FileShareProvider.berkasBackupPenuh("app-config-20260101.json.enc"));
+        assertFalse(FileShareProvider.berkasBackupPenuh("ca.pem"));
+        assertFalse(FileShareProvider.berkasBackupPenuh("backupzip"));
+        assertFalse(FileShareProvider.berkasBackupPenuh(null));
+    }
+
+    @Test
     public void kunciPrivatDitolak() {
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
         assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));
