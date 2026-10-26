@@ -849,7 +849,7 @@ public final class Updater {
                     || pesan.contains("content-range") || pesan.contains("416")
                     || pesan.contains("checksum") || pesan.contains("tidak cocok")
                     || pesan.contains("mismatch") || pesan.contains("corrupt")
-                    || pesan.contains("rusak")) {
+                    || pesan.contains("rusak") || pesan.contains("melebihi batas")) {
                 tmp.delete();
             }
         } catch (Exception ignored) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 346: tmp unduhan yang melebihi batas ukuran kini ikut dibuang
+- `buangParsialRusak` di `Updater` hanya menghapus tmp unduhan gagal bila pesan kesalahannya memuat kata pemicu (parsial/kurang/terpotong/checksum/rusak/dll.), dan pesan `pesanMelebihiBatas` ("melebihi batas ukuran") tidak memuat satu pun — tmp sampai 150 MB tertinggal, dikecualikan dari sapu tmp basi karena bernama versi yang sedang dicari, dan ruangnya terus dihitung terpakai sehingga gerbang ruang 150 MB untuk update web-vault berikutnya bisa gagal terus sampai ada rilis lebih baru. Isi tmp yang melebihi batas memang tidak pernah bisa dilanjutkan (resume), jadi membuangnya adalah perlakuan yang benar seperti parsial rusak.
+- Daftar pemicu kini memuat "melebihi batas".
+
 ## [Belum rilis] — Audit 345: paritas string values-in di verifikasi-patch tak lagi fail-open
 - `cek_sinkron_terjemah` di `tools/verifikasi-patch.py` hanya membandingkan string Inggris↔Indonesia bila KEDUA sisi tak kosong (`if inggris and indonesia:`), sedangkan cabang plurals di fungsi yang sama sudah fail-closed (`or`). Mengosongkan seluruh `<string>` di `values-in/strings.xml` — atau menghapus berkasnya — membuat gerbang LOLOS dan aplikasi diam-diam jatuh ke UI Inggris penuh; tak ada jaring lain karena daftar error lint CI tidak memuat `MissingTranslation`. Kelas bug yang sama dengan Audit 303 (#45) pada paritas colors/layout.
 - Syaratnya kini `if inggris or indonesia:` seperti plurals: satu sisi kosong/hilang langsung GAGAL dengan daftar string yang kurang. Terbukti eksekusi di salinan buang: berkas utuh LOLOS, string dikosongkan GAGAL, berkas dihapus GAGAL.
