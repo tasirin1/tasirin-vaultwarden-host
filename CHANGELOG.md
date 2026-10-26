@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 395: bit eksekusi scripts/cek-cepat.sh dipulihkan
+- Mode berkas `scripts/cek-cepat.sh` di git turun menjadi `100644` (dari `100755`) sejak commit penghapusan komentar massal — clone segar di mesin normal tak bisa menjalankan `./scripts/cek-cepat.sh` langsung dan gerbang lokal terasa "rusak" padahal isinya sehat (temuan audit putaran-7, #133).
+- Mode dikembalikan ke `100755` lewat `git update-index --chmod=+x`; isi skrip tidak berubah sehuruf pun.
+
 ## [Belum rilis] — Audit 394: urutan keadaan bg_input_tv diselaraskan — pressed sebelum focused
 - `bg_input_tv.xml` adalah satu-satunya selector yang tertinggal dari penataan ulang #111: item `state_focused` mendahului `state_pressed`, dan karena selector mengambil kecocokan pertama, input yang sedang fokus sekaligus ditekan (khas navigasi D-pad TV) menampilkan gaya fokus, bukan gaya tekan (temuan audit putaran-7, #132).
 - Kedua item ditukar urutannya persis seperti selector lain; bentuk dan warna tiap keadaan tidak berubah sama sekali.
