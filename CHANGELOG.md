@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 324: pasang-hook hanya melewati cadangan bila hook lama persis hook standar
+- Uji kepemilikan hook memakai substring: hook asing apa pun yang kebetulan memuat baris `exec bash scripts/cek-cepat.sh` (mis. sebagai salah satu langkah tim) dianggap "hook kita" lalu ditimpa total tanpa cadangan — langkah tambahannya hilang diam-diam.
+- Skrip kini menulis hook standar ke berkas sementara lebih dulu dan hanya melewati cadangan bila isi hook lama **persis sama** (`cmp -s`) dengan standar; isi lain apa pun dicadangkan ke `.bak` (kegagalan menyalin tetap membatalkan penimpaan). Teruji tiga skenario di salinan terpisah: tanpa hook, hook standar identik (tanpa cadangan), dan hook asing berpenanda (tercadangkan utuh).
+
 ## [Belum rilis] — Audit 323: gerbang paritas layout-land tak lagi buta per-berkas
 - Kedua gerbang hanya membandingkan ID bila berkas `layout-land` ada, jadi menghapus satu-satunya varian landscape (`layout-land/activity_pin.xml`) lolos hijau penuh — layar PIN di TV/STB (selalu landscape) akan diam-diam jatuh ke layout portrait. Menghapus seluruh foldernya memang tertangkap, tetapi per-berkas tidak (pola yang sama dengan celah paritas warna dulu).
 - `verifikasi-patch.py` dan `cek-cepat.sh` kini punya daftar berkas layout wajib berpasangan (`activity_pin.xml`): hilang di `layout/` atau `layout-land/` = gagal di kedua gerbang. Teruji di salinan terpisah: berkas dihapus → kedua gerbang GAGAL dengan pesan jelas; repo utuh tetap LOLOS.
