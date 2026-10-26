@@ -2262,11 +2262,6 @@ public final class Updater {
         return kode == 403 || kode == 408 || kode == 429 || kode >= 500;
     }
 
-    private static String fetchChecksum(Context ctx, String url,
-                                        int connectMs, int readMs) {
-        return fetchChecksumRinci(ctx, url, connectMs, readMs).hex;
-    }
-
     private static HasilChecksum fetchChecksumRinci(Context ctx, String url,
                                                     int connectMs, int readMs) {
 

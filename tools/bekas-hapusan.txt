@@ -93,3 +93,5 @@ punyaMetode
 # Audit 434: helper hanya-untuk-tes dihapus, tes memanggil pindaiZipRestore langsung.
 ukuranIsiZip
 ukuranIsiZip_menjumlahkanEntri
+# Audit 435: pembungkus mati tanpa pemanggil; yang hidup fetchChecksumRinci.
+fetchChecksum
