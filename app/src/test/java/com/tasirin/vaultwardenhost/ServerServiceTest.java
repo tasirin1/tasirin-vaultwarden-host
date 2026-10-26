@@ -917,8 +917,17 @@ public class ServerServiceTest {
 
     @Test
     public void matikanProsesTegas_prosesMatiAtauNullAman() {
-        ServerService.matikanProsesTegas(new ProsesMati(), 200);
+        final java.util.concurrent.atomic.AtomicInteger destroy =
+                new java.util.concurrent.atomic.AtomicInteger();
+        Process mati = new ProsesMati() {
+            @Override public void destroy() {
+                destroy.incrementAndGet();
+            }
+        };
+        ServerService.matikanProsesTegas(mati, 200);
+        assertEquals(1, destroy.get());
         ServerService.matikanProsesTegas(null, 200);
+        assertEquals(1, destroy.get());
     }
 
     @Test

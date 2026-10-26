@@ -256,17 +256,19 @@ public final class Util {
         }
     }
 
-    public static void postTunda(Runnable r, long tundaMs) {
+    public static boolean postTunda(Runnable r, long tundaMs) {
         if (r == null) {
-            return;
+            return false;
         }
         try {
             android.os.Handler h = handlerUtama();
             if (h == null) {
-                return;
+                return false;
             }
             h.postDelayed(r, tundaMs);
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 
@@ -284,18 +286,20 @@ public final class Util {
         }
     }
 
-    public static void batalkanTunda(Runnable r) {
+    public static boolean batalkanTunda(Runnable r) {
         if (r == null) {
-            return;
+            return false;
         }
         try {
 
             android.os.Handler h = HANDLER_UTAMA;
             if (h == null) {
-                return;
+                return false;
             }
             h.removeCallbacks(r);
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 

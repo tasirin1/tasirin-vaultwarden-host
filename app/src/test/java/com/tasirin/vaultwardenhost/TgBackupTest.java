@@ -1370,10 +1370,10 @@ public class TgBackupTest {
     @Test
     public void kirimKeSatuChatAbaikanMasukanTakSah() {
 
-        TgBackup.sendMessageKe(null, "123456789", "halo");
-        TgBackup.sendMessageKbKe(null, "123456789", "halo", null);
-        TgBackup.sendPentingKe(null, "", "halo");
-        TgBackup.sendMessageKe(null, null, null);
+        assertFalse(TgBackup.sendMessageKe(null, "123456789", "halo"));
+        assertFalse(TgBackup.sendMessageKbKe(null, "123456789", "halo", null));
+        assertFalse(TgBackup.sendPentingKe(null, "", "halo"));
+        assertFalse(TgBackup.sendMessageKe(null, null, null));
     }
 
     @Test
@@ -1437,8 +1437,8 @@ public class TgBackupTest {
     @Test
     public void editMessageKb_abaikanMasukanTakSah() {
 
-        TgBackup.editMessageKb(null, 1, 1, "menu", null);
-        TgBackup.editMessageKb(null, 0, 0, null, null);
+        assertFalse(TgBackup.editMessageKb(null, 1, 1, "menu", null));
+        assertFalse(TgBackup.editMessageKb(null, 0, 0, null, null));
     }
 
     @Test

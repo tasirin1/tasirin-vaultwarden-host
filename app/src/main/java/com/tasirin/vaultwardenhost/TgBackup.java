@@ -797,29 +797,29 @@ public final class TgBackup {
         }
     }
 
-    public static void sendMessageKe(Context ctx, String chatId, String text) {
-        kirimPesanKe(ctx, chatId, text, null, false);
+    public static boolean sendMessageKe(Context ctx, String chatId, String text) {
+        return kirimPesanKe(ctx, chatId, text, null, false);
     }
 
-    public static void sendPentingKe(Context ctx, String chatId, String text) {
-        kirimPesanKe(ctx, chatId, text, null, true);
+    public static boolean sendPentingKe(Context ctx, String chatId, String text) {
+        return kirimPesanKe(ctx, chatId, text, null, true);
     }
 
-    public static void sendMessageKbKe(Context ctx, String chatId, String text, String markupJson) {
-        kirimPesanKe(ctx, chatId, text, markupJson, false);
+    public static boolean sendMessageKbKe(Context ctx, String chatId, String text, String markupJson) {
+        return kirimPesanKe(ctx, chatId, text, markupJson, false);
     }
 
-    private static void kirimPesanKe(Context ctx, String chatId, String text,
+    private static boolean kirimPesanKe(Context ctx, String chatId, String text,
                                      String markupJson, boolean penting) {
         final Context app;
         try {
             app = ctx.getApplicationContext();
         } catch (Exception e) {
-            return;
+            return false;
         }
         final String id = Util.amanTrim(chatId);
         if (app == null || id.isEmpty()) {
-            return;
+            return false;
         }
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
@@ -829,20 +829,22 @@ public final class TgBackup {
             } else {
                 TG_MSG_EXEC.execute(() -> kirimSinkronKe(app, id, msg, markup));
             }
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 
-    public static void editMessageKb(Context ctx, long chatId, int messageId,
+    public static boolean editMessageKb(Context ctx, long chatId, int messageId,
                                      String text, String markupJson) {
         final Context app;
         try {
             app = ctx.getApplicationContext();
         } catch (Exception e) {
-            return;
+            return false;
         }
         if (app == null || chatId == 0 || messageId == 0) {
-            return;
+            return false;
         }
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
@@ -853,7 +855,9 @@ public final class TgBackup {
                     kirimSinkronKe(app, String.valueOf(chatId), msg, markup);
                 }
             });
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 

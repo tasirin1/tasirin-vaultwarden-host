@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 420: empat tes tanpa asersi kini memeriksa hasil yang teramati
+- Empat tes hanya memanggil fungsi penelan-eksepsi tanpa satu pun asersi (`batalkanTundaAmanTanpaLooper`, `kirimKeSatuChatAbaikanMasukanTakSah`, `editMessageKb_abaikanMasukanTakSah`, `matikanProsesTegas_prosesMatiAtauNullAman`) — lulus selama JVM tak crash dan memberi kesan cakupan palsu (temuan audit putaran-9, #174).
+- Fungsi terkait kini melaporkan hasil: `Util.postTunda`/`batalkanTunda` dan pengiriman Telegram (`sendMessageKe`/`sendPentingKe`/`sendMessageKbKe`/`editMessageKb`) mengembalikan boolean diterima/ditolak (pemanggil lama tak berubah, nilai boleh diabaikan), tes meng-assert penolakan masukan tak sah, dan tes proses mati menghitung panggilan `destroy()` (tepat 1x, tanpa paksaan).
+
 ## [Belum rilis] — Audit 419: dua tes tak lagi bisa lulus tanpa menjalankan asersi intinya
 - `folderBytesWalk_symlinkMelingkarTakMeledak` mengembalikan "lulus" diam-diam bila pembuatan symlink gagal dan memeriksa total dengan rentang longgar 100–100.000; `tautanSimbol_bedakanLinkDanBiasa` menaruh asersi positifnya di dalam try yang catch-nya kosong — keduanya bisa hijau tanpa pernah memeriksa hal yang dimaksud (temuan audit putaran-9, #173).
 - Kegagalan membuat symlink kini menjadi skip yang jujur lewat `Assume`, asersi berjalan di luar try/catch, dan total walk symlink melingkar dijepit tepat 3100 byte (31 kunjungan berkas 100 byte sampai batas kedalaman 32, dibuktikan dengan porting 1:1 ke Python).

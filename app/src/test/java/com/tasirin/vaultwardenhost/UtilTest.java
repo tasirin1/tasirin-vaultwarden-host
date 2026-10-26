@@ -449,10 +449,12 @@ public class UtilTest {
     @Test
     public void batalkanTundaAmanTanpaLooper() {
 
-        Util.batalkanTunda(null);
-        Util.batalkanTunda(() -> {
-        });
-        Util.postTunda(null, 100);
+        assertFalse(Util.batalkanTunda(null));
+        assertFalse(Util.batalkanTunda(() -> {
+        }));
+        assertFalse(Util.postTunda(null, 100));
+        assertFalse(Util.postTunda(() -> {
+        }, 100));
     }
 
     static class ProsesPalsu extends Process {
