@@ -61,26 +61,18 @@ public class FileShareProviderTest {
     }
 
     @Test
-    public void kunciPrivatDitolak() {
+    public void namaBolehDibagikan_kunciDitolakSertifikatDiterima() {
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem"));
         assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem"));
         assertFalse(FileShareProvider.namaBolehDibagikan("KEY.PEM"));
         assertFalse(FileShareProvider.namaBolehDibagikan("server.key"));
-    }
-
-    @Test
-    public void sertifikatPublikDiterima() {
+        assertFalse(FileShareProvider.namaBolehDibagikan("key.pem.zip"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.enc"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("server.key.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("ca.pem"));
         assertTrue(FileShareProvider.namaBolehDibagikan("cert.pem"));
         assertTrue(FileShareProvider.namaBolehDibagikan("backup.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("app-config.json"));
-    }
-
-    @Test
-    public void kunciBerbungkusZipTetapDitolak() {
-        assertFalse(FileShareProvider.namaBolehDibagikan("key.pem.zip"));
-        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.enc"));
-        assertFalse(FileShareProvider.namaBolehDibagikan("server.key.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
     }
 

@@ -1299,24 +1299,6 @@ public class UpdaterTest {
     }
 
     @Test
-    public void overloadPembatalan_tersedia() {
-
-        assertTrue(punyaMetode("unduhKeTmp", 9));
-        assertTrue(punyaMetode("salinSambilHash", 6));
-        assertTrue(punyaMetode("downloadBinary", 3));
-        assertTrue(punyaMetode("downloadBinaryVersi", 4));
-    }
-
-    private static boolean punyaMetode(String nama, int jumlahParam) {
-        for (java.lang.reflect.Method m : Updater.class.getDeclaredMethods()) {
-            if (m.getName().equals(nama) && m.getParameterCount() == jumlahParam) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Test
     public void dibatalkan_amanUntukCallbackNullDanRusak() {
         assertFalse(Updater.dibatalkan(null));
         assertFalse(Updater.dibatalkan(() -> false));

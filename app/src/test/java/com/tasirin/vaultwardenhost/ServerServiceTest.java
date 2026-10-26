@@ -373,9 +373,23 @@ public class ServerServiceTest {
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("443"));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("1023"));
         assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("12.5"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999999"));
+        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("0x50"));
         assertEquals("1024", ServerService.normalisasiPort("1024"));
         assertEquals("8088", ServerService.normalisasiPort("8088"));
         assertEquals("8088", ServerService.normalisasiPort(" 8088 "));
+        assertEquals("8088", ServerService.normalisasiPort("+8088"));
+    }
+
+    @Test
+    public void portTampakAngka_hanyaDeretAngkaBersih() {
+        assertTrue(ServerService.portTampakAngka("8088"));
+        assertTrue(ServerService.portTampakAngka("+8088"));
+        assertFalse(ServerService.portTampakAngka("8a88"));
+        assertFalse(ServerService.portTampakAngka(""));
+        assertFalse(ServerService.portTampakAngka(null));
+        assertFalse(ServerService.portTampakAngka("1234567"));
     }
 
     @Test
@@ -828,26 +842,6 @@ public class ServerServiceTest {
                 sekarang - ServerService.TUNDA_ULANG_UNDUH_MS, sekarang));
         assertTrue(ServerService.bolehCobaUnduhLagi(
                 sekarang - ServerService.TUNDA_ULANG_UNDUH_MS - 1, sekarang));
-    }
-
-    @Test
-    public void normalisasiPort_tanpaEksepsiUntukInputAneh() {
-        assertEquals("8088", ServerService.normalisasiPort("8088"));
-        assertEquals("8088", ServerService.normalisasiPort("  8088  "));
-        assertEquals("8088", ServerService.normalisasiPort("+8088"));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("abc"));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(""));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort(null));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("12.5"));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("99999999"));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("80"));
-        assertEquals(ServerService.DEFAULT_PORT, ServerService.normalisasiPort("0x50"));
-        assertTrue(ServerService.portTampakAngka("8088"));
-        assertTrue(ServerService.portTampakAngka("+8088"));
-        assertFalse(ServerService.portTampakAngka("8a88"));
-        assertFalse(ServerService.portTampakAngka(""));
-        assertFalse(ServerService.portTampakAngka(null));
-        assertFalse(ServerService.portTampakAngka("1234567"));
     }
 
     @Test

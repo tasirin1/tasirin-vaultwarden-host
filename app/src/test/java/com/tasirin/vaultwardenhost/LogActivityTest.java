@@ -126,18 +126,6 @@ public class LogActivityTest {
     }
 
     @Test
-    public void jamBiasaTakIkutDisamarkan() {
-        String r = LogActivity.samarkanLog("server jalan di port 8088 jam 12:30");
-        assertTrue(r.contains("12:30"));
-    }
-
-    @Test
-    public void logNormalTakBerubah() {
-        String r = LogActivity.samarkanLog("server jalan di port 8088");
-        assertTrue(r.contains("8088"));
-    }
-
-    @Test
     public void tokenPendekTetapDisamarkan() {
         String r = LogActivity.samarkanLog("gagal: bot123456:ABCDEF123456 lanjut");
         assertFalse(r.contains("ABCDEF123456"));

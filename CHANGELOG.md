@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 421: tes duplikat dan trivial digabung/dihapus tanpa kehilangan kasus
+- Beberapa tes mengasersi ulang hal yang sama atau tak membuktikan perilaku: dua tes normalisasi port yang tumpang tindih, dua tes samaran log yang tercakup penuh oleh tes gabungannya, tiga tes `namaBolehDibagikan` yang tercerai, dan satu tes refleksi Updater yang hanya memeriksa nama + jumlah parameter metode (temuan audit putaran-9, #175).
+- Pasangan port digabung (semua masukan unik dipertahankan; asersi `portTampakAngka` pindah ke tesnya sendiri), dua tes log yang tercakup dihapus, tiga tes nama berkas digabung jadi satu, dan tes refleksi trivial beserta penolongnya dihapus — keberadaan overload memang dijamin kompilasi karena dipanggil kode produksi. Nama metode tes yang dihapus dicatat di `tools/bekas-hapusan.txt`.
+
 ## [Belum rilis] — Audit 420: empat tes tanpa asersi kini memeriksa hasil yang teramati
 - Empat tes hanya memanggil fungsi penelan-eksepsi tanpa satu pun asersi (`batalkanTundaAmanTanpaLooper`, `kirimKeSatuChatAbaikanMasukanTakSah`, `editMessageKb_abaikanMasukanTakSah`, `matikanProsesTegas_prosesMatiAtauNullAman`) — lulus selama JVM tak crash dan memberi kesan cakupan palsu (temuan audit putaran-9, #174).
 - Fungsi terkait kini melaporkan hasil: `Util.postTunda`/`batalkanTunda` dan pengiriman Telegram (`sendMessageKe`/`sendPentingKe`/`sendMessageKbKe`/`editMessageKb`) mengembalikan boolean diterima/ditolak (pemanggil lama tak berubah, nilai boleh diabaikan), tes meng-assert penolakan masukan tak sah, dan tes proses mati menghitung panggilan `destroy()` (tepat 1x, tanpa paksaan).
