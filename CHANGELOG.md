@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 312: sertifikat APK rilis dipaku SHA-256
+- Langkah *Verify APK contents* (`build-apk.yml`) dulu hanya memastikan `keytool` bisa membaca sertifikat, bukan bahwa sertifikat itu kunci rilis yang benar. Bila `KEYSTORE_BASE64`/`KEY_ALIAS` salah atau keystore dibuat ulang, build tetap hijau dan APK berkunci lain terbit — pengguna lama tak bisa update (harus uninstall, data hilang).
+- Sidik jari SHA-256 sertifikat APK kini dibandingkan dengan konstanta `SIDIK_SERT` (diambil dari APK rilis `v1.37.4`, `C2:78:5A:...:13:D1`); beda/tak terbaca = build gagal sebelum unggah. Prosedur rotasi keystore dicatat di `AGENTS.md`.
+
 ## [Belum rilis] — Audit 312: Start tak lagi terkunci proses vaultwarden yatim
 - `MainActivity.saveAndStart()` memeriksa `ServerService.isPortBusy()` sebelum service dipanggil, sedangkan pembersihan proses yatim (`killStaleVaultwarden()`) baru berjalan **di dalam** `ServerService.startServer()` — jadi bila proses `vaultwarden-*` sisa app yang dibunuh sistem masih memegang port, dialog "Port sedang dipakai proses lain" muncul terus dan server tak bisa dihidupkan dari UI sampai perangkat reboot atau port diganti. Jalur bot `/start` tidak terkena karena memanggil service langsung.
 - Pre-check kini memanggil `ServerService.bereskanServerYatim()` (pindai `/proc` segar, verifikasi cmdline sebelum kill) lebih dulu, baru memeriksa port. Bila port masih dipakai proses lain yang bukan milik app, dialog lama tetap muncul — jadi pesan "dipakai proses lain" kini benar.

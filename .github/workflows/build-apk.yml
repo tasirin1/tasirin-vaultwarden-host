@@ -129,6 +129,8 @@ jobs:
             -PstoreFile=keystore.jks
 
       - name: Verify APK contents
+        env:
+          SIDIK_SERT: c2785a618082683755eeae867e0a2e01f450b1fd448859d1ec21cf854c5713d1
         run: |
 
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
@@ -138,10 +140,22 @@ jobs:
             *unsigned*) echo "::error::APK release unsigned - jangan diterbitkan."; exit 1;;
           esac
 
-          if ! keytool -printcert -jarfile "$APK" >/dev/null 2>&1; then
+          CETAK=$(keytool -printcert -jarfile "$APK" 2>/dev/null) || {
             echo "::error::APK release tidak bertanda tangan (keytool gagal baca sertifikat)."
             exit 1
+          }
+          SERT=$(printf '%s\n' "$CETAK" \
+            | sed -n 's/.*SHA[-]*256:[[:space:]]*//p' \
+            | head -1 | tr -d '[:space:]:' | tr '[:upper:]' '[:lower:]')
+          if [ -z "$SERT" ]; then
+            echo "::error::Sidik jari SHA-256 sertifikat APK tidak terbaca."
+            exit 1
           fi
+          if [ "$SERT" != "$SIDIK_SERT" ]; then
+            echo "::error::Sertifikat APK bukan kunci rilis (dapat: $SERT, harus: $SIDIK_SERT) - APK tidak diterbitkan."
+            exit 1
+          fi
+          echo "Sidik jari sertifikat cocok: $SERT"
           unzip -l "$APK" | grep -E 'vw_version|classes.dex|AndroidManifest'
           ls -lh "$APK"
 

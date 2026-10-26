@@ -292,6 +292,9 @@ dari workflow binary).
 **Jangan pernah commit keystore atau password** (`.gitignore` sudah mengecualikan
 `keystore.jks`). Bila keystore hilang, APK rilis lama tidak bisa di-update
 seamless (beda signature) — backup keystore di tempat aman.
+Langkah *Verify APK contents* di `build-apk.yml` memaku `SIDIK_SERT` (SHA-256
+sertifikat rilis) dan menolak APK yang ditandatangani kunci lain; bila keystore
+sengaja dibuat ulang, perbarui konstanta itu di commit yang sama.
 
 ## Yang sering membingungkan AI
 
