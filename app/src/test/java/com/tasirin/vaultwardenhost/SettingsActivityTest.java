@@ -213,6 +213,24 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void gagalImporKemasPulihDanToleranRusak() {
+        String kunci = "uji-kemas-" + System.nanoTime();
+        SettingsActivity.simpanGagalImpor(kunci, 4);
+        String kemasan = SettingsActivity.kemasGagalImpor();
+        assertTrue(kemasan.contains(kunci + ":4"));
+        SettingsActivity.simpanGagalImpor(kunci, 0);
+        assertEquals(0, SettingsActivity.ambilGagalImpor(kunci));
+        SettingsActivity.pulihkanGagalImpor(kemasan);
+        assertEquals(4, SettingsActivity.ambilGagalImpor(kunci));
+        SettingsActivity.pulihkanGagalImpor(null);
+        SettingsActivity.pulihkanGagalImpor("");
+        SettingsActivity.pulihkanGagalImpor(";,abc:xyz,:5,k2:-3,tanpatitik");
+        assertEquals(0, SettingsActivity.ambilGagalImpor("abc"));
+        assertEquals(0, SettingsActivity.ambilGagalImpor("k2"));
+        SettingsActivity.simpanGagalImpor(kunci, 0);
+    }
+
+    @Test
     public void gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda() {
 
         assertTrue(SettingsActivity.perluKonfirmasiGantiPin(true, true));

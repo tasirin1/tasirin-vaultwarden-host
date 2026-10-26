@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 409: penghitung gagal password impor konfigurasi kini tersimpan persisten
+- Blokir 5x salah password impor konfigurasi dicatat di peta statis dalam memori (`GAGAL_IMPOR_DIGEST`); memulai ulang aplikasi mengosongkannya sehingga percobaan bisa diulang tanpa batas dengan modal restart (temuan audit putaran-9, #163).
+- Penghitung kini dikemas (`kemasGagalImpor`) dan disimpan ke preferensi dengan `commit()` pada setiap perubahan, lalu dipulihkan (`pulihkanGagalImpor`, toleran terhadap isi rusak) setiap alur impor memeriksanya — pola yang sama seperti penghitung gagal PIN di `PinGate`; kunci ini tidak ikut ekspor/impor konfigurasi sehingga blokir tak bisa direset lewat impor.
+
 ## [Belum rilis] — Audit 408: wakelock tugas berat Telegram kini diperpanjang selama tugas berjalan
 - Wakelock tugas berat (update, restore, backup) dipasang dengan batas tunggal 20 menit; unduhan besar di koneksi lambat yang melewatinya kehilangan wakelock di tengah jalan dan perangkat bisa tertidur sehingga tugas macet/gagal tanpa jejak jelas (temuan audit putaran-9, #162).
 - Kini ada thread penjaga `vw-jaga-kunci` yang memperpanjang wakelock tiap 10 menit selama tugas belum selesai (keputusan murni `kunciMasihDijaga`), dengan batas total penjagaan 6 jam agar tugas yang benar-benar menggantung tidak menguras baterai tanpa batas; pelepasan saat tugas selesai tidak berubah.

@@ -182,6 +182,59 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    static final String KEY_GAGAL_IMPOR_PETA = "impor_gagal_peta";
+
+    static synchronized String kemasGagalImpor() {
+        StringBuilder sb = new StringBuilder();
+        for (java.util.Map.Entry<String, Integer> e : GAGAL_IMPOR_DIGEST.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(e.getKey()).append(':').append(e.getValue().intValue());
+        }
+        return sb.toString();
+    }
+
+    static synchronized void pulihkanGagalImpor(String kemasan) {
+        if (kemasan == null || kemasan.isEmpty()) {
+            return;
+        }
+        for (String bagian : kemasan.split(",")) {
+            int titik = bagian.indexOf(':');
+            if (titik <= 0) {
+                continue;
+            }
+            try {
+                int nilai = Integer.parseInt(bagian.substring(titik + 1).trim());
+                if (nilai > 0) {
+                    String k = bagian.substring(0, titik);
+                    if (GAGAL_IMPOR_DIGEST.containsKey(k)
+                            || GAGAL_IMPOR_DIGEST.size() < MAKS_SIDIK_IMPOR) {
+                        GAGAL_IMPOR_DIGEST.put(k, nilai);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void pulihkanGagalImporDariPrefs() {
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            pulihkanGagalImpor(TgBackup.amanString(sp, KEY_GAGAL_IMPOR_PETA, ""));
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void simpanGagalImporKeduanya(String sidik, int gagal) {
+        simpanGagalImpor(sidik, gagal);
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            sp.edit().putString(KEY_GAGAL_IMPOR_PETA, kemasGagalImpor()).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
     private volatile long exportPlainPada = 0;
     private Button installCertBtn;
     private Button shareCaBtn;
@@ -2486,6 +2539,7 @@ public class SettingsActivity extends Activity {
             if (TgBackup.isEncrypted(tmp)) {
 
                 String sidikImpor = sidikBerkas(tmp);
+                pulihkanGagalImporDariPrefs();
                 if (imporDiblokir(ambilGagalImpor(sidikImpor))) {
                     tmp.delete();
                     sapuSisaImpor();
@@ -2599,6 +2653,7 @@ public class SettingsActivity extends Activity {
                 }
             });
 
+            pulihkanGagalImporDariPrefs();
             final int[] gagalImpor = {ambilGagalImpor(sidikImpor)};
             dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
@@ -2616,7 +2671,7 @@ public class SettingsActivity extends Activity {
                                         "vwcfg-import-" + capImpor + "-dec.json");
                                 TgBackup.decryptFile(tmpEnkrip, plain, rahasia);
                                 tmpEnkrip.delete();
-                                simpanGagalImpor(sidikImpor, 0);
+                                simpanGagalImporKeduanya(sidikImpor, 0);
                                 ui.post(() -> {
                                     try {
                                         dialog.dismiss();
@@ -2633,7 +2688,7 @@ public class SettingsActivity extends Activity {
 
                                     int sudah = gagalImpor[0] + 1;
                                     gagalImpor[0] = sudah;
-                                    simpanGagalImpor(sidikImpor, sudah);
+                                    simpanGagalImporKeduanya(sidikImpor, sudah);
                                     if (imporDiblokir(sudah)) {
                                         try {
                                             tmpEnkrip.delete();
