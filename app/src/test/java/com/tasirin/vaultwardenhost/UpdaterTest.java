@@ -752,6 +752,22 @@ public class UpdaterTest {
     }
 
     @Test
+    public void wvBedaVersiServer_hanyaDariPenanda() {
+        // Penanda KEY_WV_FROM memakai namespace Vaultwarden: boleh dibandingkan.
+        assertTrue(Updater.wvBedaVersiServer("1.32.0", "1.33.0"));
+        assertFalse(Updater.wvBedaVersiServer("1.32.0", "v1.32.0"));
+        assertFalse(Updater.wvBedaVersiServer("1.32", "1.32.0"));
+        // Tanpa penanda (mis. hanya vw-version.json Bitwarden) tak boleh
+        // dianggap "beda": namespace berbeda, dulu memicu tawaran 35 MB.
+        assertFalse(Updater.wvBedaVersiServer(null, "1.32.0"));
+        assertFalse(Updater.wvBedaVersiServer("", "1.32.0"));
+        assertFalse(Updater.wvBedaVersiServer("   ", "1.32.0"));
+        // Versi server tak diketahui: jangan menawarkan update.
+        assertFalse(Updater.wvBedaVersiServer("1.32.0", null));
+        assertFalse(Updater.wvBedaVersiServer("1.32.0", ""));
+    }
+
+    @Test
     public void bandingVersi_sufiksDiabaikan() {
         assertTrue(Updater.bandingVersi("1.37.3-beta", "1.37.3") == 0);
         assertTrue(Updater.bandingVersi("1.37.3", "1.37.3-beta") == 0);

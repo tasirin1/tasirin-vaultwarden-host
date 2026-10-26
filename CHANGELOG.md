@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 299: tawaran update web-vault tak lagi lintas namespace versi
+- `autoOfferWebVaultUpdate` memakai `webVaultFromVersion()` (penanda `KEY_WV_FROM`) **atau**, bila kosong, versi dari `web-vault/vw-version.json` milik web-vault Bitwarden (mis. `2024.6.2`). Nilai fallback itu lalu dibandingkan dengan `currentServerVersion()` (mis. `1.32.0`) sehingga selalu "beda": dialog "Web Vault update available" muncul sekali per versi server dan menawarkan unduhan ~35 MB yang tidak mengubah apa pun; baris info Setelan juga menampilkan "server version differs" permanen.
+- Helper murni baru `Updater.wvBedaVersiServer(penanda, versiServer)` hanya membandingkan penanda Vaultwarden dengan versi server (pakai `versiCocok`, toleran `v`/segmen hilang) dan bernilai false bila penanda atau versi server tak diketahui. Tawaran update dan peringatan di baris info kini memakainya; `vw-version.json` tetap boleh ditampilkan sebagai versi terpasang, tetapi tak pernah dibandingkan dengan versi server. Unit test mencakup penanda kosong/spasi, versi server kosong, dan `1.32` vs `1.32.0`.
+
 ## [Belum rilis] — Audit 298: /ca & /cabackup ikut kunci tugas berat (balapan dengan /careset)
 - `/careset` mengambil `TUGAS_BERAT` agar tidak berjalan bersamaan dengan backup/restore, tetapi `/ca` dan `/cabackup` memakai `runWithWakeLock` polos. Akibatnya `/ca` yang dikirim beruntun setelah `/careset` bisa membaca `ca.pem` lama yang sedang dihapus/diganti, sehingga pengguna memasang CA basi (HTTPS gagal) atau menerima pesan galat membingungkan.
 - Keduanya kini memakai `runBeratDenganKunci` seperti `/careset`, jadi salinan CA menunggu operasi TLS/backup lain selesai dan ditolak halus ("Tugas lain masih berjalan") bila ada tugas berat berjalan.

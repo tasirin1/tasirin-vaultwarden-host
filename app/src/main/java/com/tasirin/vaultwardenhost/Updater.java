@@ -1939,6 +1939,25 @@ public final class Updater {
         return (v == null || v.isEmpty()) ? null : v;
     }
 
+    /** True bila versi web-vault terpasang (penanda KEY_WV_FROM) beda dari
+     *  versi server, yaitu dasar tawaran "update web vault".
+     *
+     *  Hanya penanda yang boleh dibandingkan: penanda berisi tag Vaultwarden,
+     *  sedangkan `vw-version.json` berisi versi web-vault Bitwarden (mis.
+     *  `2024.6.2`) — namespace berbeda, jadi membandingkannya dengan
+     *  `1.32.0` selalu "beda" dan memicu tawaran unduh 35 MB yang sia-sia.
+     *  Tanpa penanda, pemanggil harus melewati tawaran (tak bisa dibandingkan).
+     *  Murni agar bisa unit test. */
+    static boolean wvBedaVersiServer(String penanda, String versiServer) {
+        if (penanda == null || penanda.trim().isEmpty()) {
+            return false;
+        }
+        if (versiServer == null || versiServer.trim().isEmpty()) {
+            return false;
+        }
+        return !versiCocok(penanda, versiServer);
+    }
+
     // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     public static String appVersionName(Context ctx) {

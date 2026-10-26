@@ -1554,7 +1554,10 @@ public class SettingsActivity extends Activity {
         }, true);
     }
 
-    /** Tawarkan update web vault sekali per versi bila versinya beda dari server. */
+    /** Tawarkan update web vault sekali per versi bila penanda Vaultwarden-nya
+     *  beda dari versi server. vw-version.json (versi web-vault Bitwarden)
+     *  sengaja TIDAK dipakai sebagai fallback: namespace-nya beda sehingga
+     *  perbandingannya selalu "beda" dan tawaran 35 MB muncul sia-sia. */
     private void autoOfferWebVaultUpdate() {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -1562,14 +1565,9 @@ public class SettingsActivity extends Activity {
             if (!Updater.webVaultReady(this, dataDir)) {
                 return;
             }
-            String marker = Updater.webVaultFromVersion(this);
-            final String updated = marker != null ? marker
-                    : Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
-            if (updated == null) {
-                return;
-            }
+            final String updated = Updater.webVaultFromVersion(this);
             String server = Updater.currentServerVersion(this);
-            if (server == null || server.equals(updated)) {
+            if (!Updater.wvBedaVersiServer(updated, server)) {
                 return;
             }
             final String key = "wv_notified_" + server;
@@ -3097,7 +3095,14 @@ public class SettingsActivity extends Activity {
         try {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
-            String updated = Updater.webVaultFromVersion(this);
+            // Dua sumber versi beda namespace: penanda KEY_WV_FROM berisi tag
+            // Vaultwarden, vw-version.json berisi versi web-vault Bitwarden.
+            // Keduanya boleh ditampilkan, tetapi peringatan "server version
+            // differs" hanya sah bila ada penanda (wvBedaVersiServer); dulu
+            // fallback Bitwarden dibandingkan dengan versi server sehingga
+            // peringatan itu menempel permanen.
+            String penanda = Updater.webVaultFromVersion(this);
+            String updated = penanda;
             if (updated == null) {
                 updated = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
             }
@@ -3112,7 +3117,7 @@ public class SettingsActivity extends Activity {
                     getString(updated != null ? R.string.info_wv_updated
                             : R.string.info_wv_bundled)));
             String server = Updater.currentServerVersion(this);
-            if (server != null && !server.equals(wv)) {
+            if (Updater.wvBedaVersiServer(penanda, server)) {
                 sb.append(' ').append(getString(R.string.info_wv_beda, server));
             }
             wvLine = sb.toString();
