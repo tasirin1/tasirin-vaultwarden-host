@@ -176,28 +176,45 @@ jobs:
       - name: Patch DNS resolver untuk Android (tanpa ndk-context)
         run: |
           python3 - <<'PYEOF'
+          import os
           import re
           p = 'vaultwarden/src/http_client.rs'
           src = open(p).read()
-          m = re.search(
-              r'(impl CustomDnsResolver \{\n\s*fn new\(\) -> Arc<Self> \{\n)(\s*)', src)
-          if m:
-              indent = m.group(2)
-              guard = (indent +
-                  '// Hickory butuh konteks JNI Android (ndk-context) untuk baca DNS\n' +
-                  indent + '// sistem; proses standalone tidak punya JavaVM -> panic saat\n' +
-                  indent + '// request keluar (mis. ikon vault). Pakai DNS sistem default.\n' +
-                  indent + 'if cfg!(target_os = "android") {\n' +
-                  indent + '    return Arc::new(Self::Default());\n' +
-                  indent + '}\n')
-              # Jangan tulis dulu: patch TLS di bawah memakai variabel src yang sama.
-              # Tulis sekali di akhir agar patch tidak saling menimpa.
-              src = src[:m.end(1)] + guard + src[m.end(1):]
-              print('Patch DNS Android diterapkan.')
-          elif 'ndk-context' not in open('vaultwarden/Cargo.lock').read():
-              print('ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
+          lock = open('vaultwarden/Cargo.lock').read()
+          # Keputusan "patch DNS masih perlu" HARUS dari sumber yang dikompilasi
+          # (http_client.rs), bukan dari nama crate di lockfile: upstream bisa
+          # memindahkan CustomDnsResolver ke modul lain atau mengganti crate
+          # konteks JNI, dan lockfile tanpa string 'ndk-context' bukan bukti
+          # sumbernya sudah aman untuk proses standalone. Satu-satunya jalan
+          # melewati patch adalah penanda eksplisit PATCH_DNS=0 (disengaja).
+          sumber_masih_jni = ('CustomDnsResolver' in src) or ('ndk-context' in src)
+          dns_dipatch = False
+          if os.environ.get('PATCH_DNS', '1') == '0':
+              print('PATCH_DNS=0: patch DNS dilewati atas permintaan eksplisit.')
           else:
-              raise SystemExit('Anchor patch tidak ditemukan tapi ndk-context masih dipakai!')
+              m = re.search(
+                  r'(impl CustomDnsResolver \{\n\s*fn new\(\) -> Arc<Self> \{\n)(\s*)', src)
+              if m:
+                  indent = m.group(2)
+                  guard = (indent +
+                      '// Hickory butuh konteks JNI Android (ndk-context) untuk baca DNS\n' +
+                      indent + '// sistem; proses standalone tidak punya JavaVM -> panic saat\n' +
+                      indent + '// request keluar (mis. ikon vault). Pakai DNS sistem default.\n' +
+                      indent + 'if cfg!(target_os = "android") {\n' +
+                      indent + '    return Arc::new(Self::Default());\n' +
+                      indent + '}\n')
+                  # Jangan tulis dulu: patch TLS di bawah memakai variabel src yang sama.
+                  # Tulis sekali di akhir agar patch tidak saling menimpa.
+                  src = src[:m.end(1)] + guard + src[m.end(1):]
+                  dns_dipatch = True
+                  print('Patch DNS Android diterapkan.')
+              elif sumber_masih_jni or ('ndk-context' in lock):
+                  raise SystemExit(
+                      'Anchor patch DNS tidak ditemukan padahal http_client.rs masih '
+                      'memakai CustomDnsResolver/konteks JNI; periksa perubahan upstream '
+                      '(atau set PATCH_DNS=0 bila memang disengaja).')
+              else:
+                  print('CustomDnsResolver/ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
 
           # Patch TLS verifier Android: rustls-platform-verifier (bawaan reqwest)
           # wajib di-init dari JavaVM; proses standalone tak punya JVM sehingga
@@ -239,9 +256,11 @@ jobs:
               raise SystemExit('Anchor patch TLS tidak ditemukan, periksa http_client.rs upstream!')
           src = src.replace(old_builder, new_builder, 1)
           open(p, 'w').write(src)
-          # Verifikasi kedua patch benar-benar ada di file hasil (anti saling menimpa).
+          # Verifikasi kedua patch benar-benar ada di file hasil (anti saling
+          # menimpa). Cek DNS tidak boleh bergantung pada isi lockfile: bila
+          # patch diterapkan, hasilnya wajib memuat guard-nya.
           hasil = open(p).read()
-          if 'ndk-context' in open('vaultwarden/Cargo.lock').read():
+          if dns_dipatch:
               assert 'return Arc::new(Self::Default());' in hasil, \
                   'Patch DNS hilang setelah patch TLS!'
           assert 'tls_certs_only(mozilla_roots())' in hasil, 'Patch TLS hilang!'
