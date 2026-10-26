@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 400: pengisian nama bot getMe tak lagi menahan antrean perintah
+- `pollOnce` memanggil `isiNamaBotBilaKosong` secara sinkron SEBELUM `getUpdates`; panggilan `getMe`-nya bisa menggantung sampai ±50 detik (timeout sambung + baca) di jaringan mati — selama itu benang polling tunggal tertahan dan perintah pengguna tak diproses (temuan audit putaran-8, #138).
+- Pengisian nama kini dikirim ke latar (`Util.jalankanBg`) dengan konteks aplikasi; polling langsung lanjut ke `getUpdates`. Nama bot hanya pelengkap tampilan/penyebutan, jadi keterlambatan latar tak mengubah perilaku perintah.
+
 ## [Belum rilis] — Audit 399: penanda hapus ekspor config polos kini selamat dari rotasi
 - Berkas ekspor config polos (`app-config-*.json` — token bot, sandi cadangan, token admin teks terang) dijadwalkan terhapus 2 menit sesudah dibuat, tetapi penandanya field instance `exportPlainTertunda`: rotasi saat lembar berbagi tampil membuang penanda itu dan berkas hanya bergantung pada sapuan umur dari lifecycle Settings — bisa bertahan jauh melampaui TTL (temuan audit putaran-8, #137).
 - Jalur + cap waktu penanda kini disimpan ke Bundle (`onSaveInstanceState`) dan dipulihkan di `onCreate`, sehingga instance sesudah rotasi meneruskan jadwal hapus yang sama (cap `elapsedRealtime` tetap sah dalam boot yang sama).
