@@ -153,7 +153,7 @@ final class AboutDialog {
                 }
             });
         }
-        dialog.show();
+        DialogAman.tampil(a, dialog);
         lihat.findViewById(R.id.btn_about_ok).setOnClickListener(v -> dialog.dismiss());
     }
 }

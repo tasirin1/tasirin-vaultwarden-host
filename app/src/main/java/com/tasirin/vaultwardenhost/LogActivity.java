@@ -166,6 +166,7 @@ public class LogActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        DialogAman.tutup(this);
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }
@@ -521,7 +522,7 @@ public class LogActivity extends Activity {
         tv.setPadding(pad, pad, pad, pad);
         ScrollView sv = new ScrollView(this);
         sv.addView(tv);
-        new AlertDialog.Builder(this)
+        DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle("Crash Log")
                 .setView(sv)
                 .setPositiveButton("Copy", (dlg, w) -> {
@@ -529,7 +530,7 @@ public class LogActivity extends Activity {
                     toast("Crash log copied to clipboard.");
                 })
                 .setNegativeButton(getString(R.string.close), null)
-                .show();
+                .create());
     }
 
     private static final java.util.regex.Pattern POLA_TOKEN_URL =

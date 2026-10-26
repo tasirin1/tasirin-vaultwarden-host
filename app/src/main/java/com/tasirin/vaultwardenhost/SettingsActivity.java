@@ -713,7 +713,8 @@ public class SettingsActivity extends Activity {
                     // SettingsActivity.this: di dalam lambda TextWatcher, `this`
                     // menunjuk anonim TextWatcher (bukan Activity) — dulu
                     // membuat build gagal "cannot be converted to Context".
-                    new AlertDialog.Builder(SettingsActivity.this)
+                    DialogAman.tampil(SettingsActivity.this,
+                            new AlertDialog.Builder(SettingsActivity.this)
                             .setTitle(getString(R.string.pin_ganti_judul))
                             .setMessage(getString(R.string.pin_ganti_pesan))
                             .setPositiveButton(android.R.string.ok,
@@ -722,7 +723,7 @@ public class SettingsActivity extends Activity {
                                 pinGantiKandidat = null;
                                 bersihkanPin(pinInput);
                             })
-                            .show();
+                            .create());
                 };
                 ui.postDelayed(pinTunda, 800);
             }
@@ -1076,29 +1077,29 @@ public class SettingsActivity extends Activity {
                 }
                 if (portSibuk) {
                     if (butuhRoot) {
-                        new AlertDialog.Builder(this)
+                        DialogAman.tampil(this, new AlertDialog.Builder(this)
                                 .setTitle("Port " + portCekPort + " needs root access")
                                 .setMessage("Main port (" + portCekPort + ") below 1024 can only be"
                                         + " used with root access.\n"
                                         + "Change the port to >= 1024 (e.g. 8088) above.")
                                 .setPositiveButton("OK", null)
-                                .show();
+                                .create());
                         return;
                     }
-                    new AlertDialog.Builder(this)
+                    DialogAman.tampil(this, new AlertDialog.Builder(this)
                             .setTitle("Port " + portCekPort + " is in use")
                             .setMessage("Main port (" + portCekPort + ") is already used by another process.\n"
                                     + "Stop the other app using it, change the port above, "
                                     + "or restart the phone first.")
                             .setPositiveButton("OK", null)
-                            .show();
+                            .create());
                     return;
                 }
 
                 if (!Updater.webVaultReady(this, dirCekPort)) {
                     // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
                     // unduh sekali saat Start pertama bila diizinkan.
-                    new AlertDialog.Builder(this)
+                    DialogAman.tampil(this, new AlertDialog.Builder(this)
                             .setTitle("Web vault not installed")
                             .setMessage("The APK excludes the web vault to stay small.\n"
                                     + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
@@ -1132,7 +1133,7 @@ public class SettingsActivity extends Activity {
                                     maybeAutoBackup();
                                 }
                             })
-                            .show();
+                            .create());
                     return;
                 }
                 if (ServerService.start(this)) {
@@ -1596,7 +1597,7 @@ public class SettingsActivity extends Activity {
                 // Tandai baru setelah dialog benar-benar tampil; bila dibatalkan
                 // karena Activity mati, tawaran tetap muncul di kunjungan berikut.
                 sp.edit().putBoolean(key, true).apply();
-                new AlertDialog.Builder(this)
+                DialogAman.tampil(this, new AlertDialog.Builder(this)
                         .setTitle("Web Vault update available")
                         .setMessage("Current web vault v" + updated
                                 + ", while the server is v" + server + ".\n\n"
@@ -1611,7 +1612,7 @@ public class SettingsActivity extends Activity {
                         .setNeutralButton("Update only",
                                 (d, w) -> runWebVaultUpdate(false))
                         .setNegativeButton("Later", null)
-                        .show();
+                        .create());
             });
         } catch (Exception ignored) {
         }
@@ -2874,7 +2875,7 @@ public class SettingsActivity extends Activity {
                             appendUiLog("[app] Impor ditunda: antrean tugas penuh.");
                         }
                     }));
-            dialog.show();
+            DialogAman.tampil(this, dialog);
         } catch (Exception e) {
             try {
                 tmpEnkrip.delete();
@@ -3339,7 +3340,7 @@ public class SettingsActivity extends Activity {
             }
         }
         final int[] pilih = {awal};
-        new AlertDialog.Builder(this)
+        DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle(untukBinary ? R.string.dialog_judul_versi_binary
                         : R.string.dialog_judul_versi_webvault)
                 .setSingleChoiceItems(nama, awal, (d, which) -> pilih[0] = which)
@@ -3350,7 +3351,7 @@ public class SettingsActivity extends Activity {
                 .setNeutralButton(R.string.isi_manual,
                         (d, w) -> dialogManualVersi(untukBinary))
                 .setNegativeButton(R.string.batal, null)
-                .show();
+                .create());
     }
 
     private void dialogManualVersi(final boolean untukBinary) {
@@ -3362,7 +3363,7 @@ public class SettingsActivity extends Activity {
         if (pin != null && !pin.isEmpty()) {
             input.setText(pin);
         }
-        new AlertDialog.Builder(this)
+        DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle(R.string.versi_manual_judul)
                 .setView(input)
                 .setPositiveButton(R.string.pasang, (d, w) -> {
@@ -3375,7 +3376,7 @@ public class SettingsActivity extends Activity {
                     pasangVersiDipilih(untukBinary, normal);
                 })
                 .setNegativeButton(R.string.batal, null)
-                .show();
+                .create());
     }
 
     /** Simpan kuncian lalu pasang versi itu (downgrade pun boleh).
@@ -3801,7 +3802,7 @@ public class SettingsActivity extends Activity {
             }
             return;
         }
-        new AlertDialog.Builder(this)
+        DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("Yes", (d, w) -> action.run())
@@ -3810,7 +3811,7 @@ public class SettingsActivity extends Activity {
                         batal.run();
                     }
                 })
-                .show();
+                .create());
     }
 
     /** Pasang lipatan seksi ala Download Manager (status buka tersimpan di prefs). */
@@ -4221,6 +4222,9 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        // Rotasi membongkar Activity (manifest tanpa configChanges): dialog yang
+        // masih terbuka wajib ditutup sebelum window-nya dibuang.
+        DialogAman.tutup(this);
         try {
             siramTulisTertunda();
         } catch (Exception ignored) {

@@ -353,6 +353,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        // Dialog yang masih terbuka (mis. Tentang/konfirmasi) wajib ditutup
+        // sebelum window Activity dibongkar; rotasi membongkar Activity ini.
+        DialogAman.tutup(this);
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }
@@ -417,23 +420,23 @@ public class MainActivity extends Activity {
                     return;
                 }
                 if (butuhRoot) {
-                    new AlertDialog.Builder(MainActivity.this)
+                    DialogAman.tampil(MainActivity.this, new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Port " + portFix + " needs root access")
                             .setMessage("Main port (" + portFix + ") below 1024 can only be"
                                     + " used with root access.\n"
                                     + "Change the port to >= 1024 (e.g. 8088) in Settings.")
                             .setPositiveButton("OK", null)
-                            .show();
+                            .create());
                     return;
                 }
                 if (busy) {
-                    new AlertDialog.Builder(MainActivity.this)
+                    DialogAman.tampil(MainActivity.this, new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Port " + portFix + " is in use")
                             .setMessage("Main port (" + portFix + ") is already used by another process.\n"
                                     + "Stop the other app using it, change the port in Settings, "
                                     + "or restart the phone first.")
                             .setPositiveButton("OK", null)
-                            .show();
+                            .create());
                     return;
                 }
                 lanjutStart(finalDataDir);
@@ -451,7 +454,7 @@ public class MainActivity extends Activity {
         final String finalDataDir = dataDir;
         if (!Updater.webVaultReady(this, finalDataDir)) {
             // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
-            new AlertDialog.Builder(this)
+            DialogAman.tampil(this, new AlertDialog.Builder(this)
                     .setTitle("Web vault not installed")
                     .setMessage("The APK excludes the web vault to stay small.\n"
                             + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
@@ -509,7 +512,7 @@ public class MainActivity extends Activity {
                         ServerService.start(this);
                         maybeAutoBackup();
                     })
-                    .show();
+                    .create());
             return;
         }
         ServerService.start(this);
