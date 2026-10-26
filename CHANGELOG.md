@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 359: arah fokus D-pad layar PIN landscape kini mengikuti posisi tombol sebenarnya
+- Di `layout-land/activity_pin.xml` kedua tombol tersusun menyamping (Buka kiri, Keluar kanan), tetapi atribut fokusnya tersalin utuh dari portrait tempat tombol bertumpuk vertikal: `pinBuka` punya `nextFocusDown=@id/pinKeluar` dan `pinKeluar` punya `nextFocusUp=@id/pinBuka` — di perangkat landscape/TV menekan Bawah pada "Buka" melompat menyamping ke "Keluar", dan menekan Atas pada "Keluar" melompat ke "Buka".
+- Landscape kini memakai arah sebenarnya: `pinBuka` `nextFocusRight=@id/pinKeluar`, `pinKeluar` `nextFocusLeft=@id/pinBuka` + `nextFocusUp=@id/pinInput` (kolom PIN membentang di atas kedua tombol). Portrait tidak berubah; paritas ID layout-land tetap utuh.
+
 ## [Belum rilis] — Audit 358: state pressed tak lagi tertutup state focused di selector tombol
 - Kelima selector latar tombol (`bg_btn_primary`, `bg_btn_stop`, `bg_btn_tv`, `bg_chip`, `item_focus_bg`) menulis item `state_focused` sebelum `state_pressed`; selector Android mengambil kecocokan pertama dan gaya tombol mematikan animator state, jadi di TV/STB menahan OK pada tombol yang sedang fokus tidak mengubah tampilan sama sekali sampai aksi sibuk berjalan — tidak ada umpan balik bahwa tekanan diterima.
 - Blok item `state_pressed` kini mendahului `state_focused` di kelima berkas (isi tiap item tidak berubah, hanya urutannya); melengkapi Audit 341 yang membetulkan warna teks saat ditekan. Keadaan nonaktif tetap paling dulu sehingga tombol mati tidak menunjukkan gaya tekan/fokus.

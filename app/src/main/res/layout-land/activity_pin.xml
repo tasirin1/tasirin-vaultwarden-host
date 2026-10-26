@@ -101,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:nextFocusDown="@id/pinKeluar"
+                    android:nextFocusRight="@id/pinKeluar"
                     android:nextFocusUp="@id/pinInput"
                     android:text="@string/pin_buka" />
 
@@ -112,7 +112,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:nextFocusUp="@id/pinBuka"
+                    android:nextFocusLeft="@id/pinBuka"
+                    android:nextFocusUp="@id/pinInput"
                     android:text="@string/pin_keluar" />
             </LinearLayout>
         </LinearLayout>
