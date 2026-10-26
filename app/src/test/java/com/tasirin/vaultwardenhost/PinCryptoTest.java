@@ -271,6 +271,19 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void stempelElapsedBasiTerdeteksiDanDirebase() {
+        assertTrue(PinCrypto.stempelElapsedBasi(500_000L, 10_000L));
+        assertFalse(PinCrypto.stempelElapsedBasi(0L, 10_000L));
+        assertFalse(PinCrypto.stempelElapsedBasi(100_000L, 90_000L));
+        assertFalse(PinCrypto.stempelElapsedBasi(
+                10_000L + PinCrypto.KUNCI_MS, 10_000L));
+        assertTrue(PinCrypto.stempelElapsedBasi(
+                10_000L + PinCrypto.KUNCI_MS + 1, 10_000L));
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(120_000L) == 120_000L);
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(0L) == PinCrypto.KUNCI_MS);
+    }
+
+    @Test
     public void hashLemahDimintaUpgrade() {
         assertTrue(PinCrypto.perluUpgradeHash(PinCrypto.sha256("1234")));
         String lemah = "PBKDF2$10000$"

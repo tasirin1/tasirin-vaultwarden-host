@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 316: lockout PIN tak lagi runtuh oleh majukan jam + restart
+- Lockout ditahan dua jam terpisah (dinding untuk restart, `elapsedRealtime` untuk majukan jam), tetapi stempel elapsed sisa boot lama selalu dibaca "sisa > 5 menit → tidak terkunci". Gabungan majukan jam dinding melewati batas kunci lalu restart membuat kedua sisi 0 bersamaan, jadi tebakan PIN baru langsung diterima — laju tebakan naik dari 5 per 5 menit menjadi ±5 per siklus restart.
+- `PinGate.sisaKunciMs` kini mengenali stempel elapsed basi (sisa melebihi `KUNCI_MS` hanya mungkin dari boot lama, karena di boot yang sama sisa tak pernah melebihinya) lewat `PinCrypto.stempelElapsedBasi`, lalu memasang ulang kedua stempel secara konsisten untuk boot berjalan: sisa mengikuti jam dinding bila masih ada, dan kunci penuh 5 menit bila jam dinding sudah dimajukan (`sisaKunciSesudahReboot`) — fail-closed tetapi selalu berhingga, bukan kunci permanen. Diuji di `PinCryptoTest`.
+
 ## [Belum rilis] — Audit 315: Start dari Settings tak lagi terkunci proses yatim di port
 - Perbaikan Audit 312 (#50) hanya memasang pola "bersihkan yatim sebelum cek port" di `MainActivity.saveAndStart`; jalur kembarnya `SettingsActivity.saveAndStart` langsung memanggil `isPortBusy`, jadi Start dari Settings ditolak dialog "Port sedang dipakai proses lain" selamanya bila ada proses vaultwarden yatim memegang port — padahal Start yang sama dari layar utama berhasil.
 - `saveAndStart` Settings kini memanggil `ServerService.bereskanServerYatim()` lebih dulu di dalam tugas latar yang sama, persis pola MainActivity, sebelum `isPortBusy` diperiksa.

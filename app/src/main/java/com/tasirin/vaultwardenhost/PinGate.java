@@ -94,6 +94,7 @@ public final class PinGate {
         return wajibLayarPin(putus);
     }
 
+    @SuppressLint("ApplySharedPref")
     public static long sisaKunciMs(Context ctx, long sekarang) {
 
         if (ctx == null) {
@@ -101,11 +102,23 @@ public final class PinGate {
         }
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
-        long sisaWall = PinCrypto.sisaKunciMs(TgBackup.amanInt(sp, KEY_GAGAL, 0),
+        int gagal = TgBackup.amanInt(sp, KEY_GAGAL, 0);
+        long sisaWall = PinCrypto.sisaKunciMs(gagal,
                 TgBackup.amanLong(sp, KEY_KUNCI_SAMPAI, 0), sekarang);
-        long sisaElapsed = PinCrypto.sisaKunciElapsed(
-                TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0),
-                SystemClock.elapsedRealtime());
+        long elapsedKini = SystemClock.elapsedRealtime();
+        long sampaiElapsed = TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0);
+        if (gagal >= PinCrypto.MAX_GAGAL
+                && PinCrypto.stempelElapsedBasi(sampaiElapsed, elapsedKini)) {
+            long sisaBaru = PinCrypto.sisaKunciSesudahReboot(sisaWall);
+            try {
+                sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
+                        .putLong(KEY_KUNCI_ELAPSED, elapsedKini + sisaBaru)
+                        .commit();
+            } catch (Exception ignored) {
+            }
+            return sisaBaru;
+        }
+        long sisaElapsed = PinCrypto.sisaKunciElapsed(sampaiElapsed, elapsedKini);
         return Math.max(sisaWall, sisaElapsed);
     }
 

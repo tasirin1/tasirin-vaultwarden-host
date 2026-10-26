@@ -197,6 +197,15 @@ public final class PinCrypto {
         return sisa;
     }
 
+    public static boolean stempelElapsedBasi(long terkunciElapsed, long sekarangElapsed) {
+        return terkunciElapsed > 0
+                && terkunciElapsed - sekarangElapsed > KUNCI_MS;
+    }
+
+    public static long sisaKunciSesudahReboot(long sisaWall) {
+        return sisaWall > 0 ? sisaWall : KUNCI_MS;
+    }
+
     public static long kunciElapsedBerikutnyaMs(int gagalSesudah, long sekarangElapsed) {
         if (gagalSesudah < MAX_GAGAL) {
             return 0;
