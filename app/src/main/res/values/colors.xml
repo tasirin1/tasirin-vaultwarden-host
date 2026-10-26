@@ -28,6 +28,7 @@
 
     <color name="primary_container">#D8E7FC</color>
     <color name="primary_container_pressed">#C2D9F8</color>
+    <color name="btn_text_pressed">#0D47A1</color>
 
     <color name="accent_server">#1565C0</color>
     <color name="accent_pengaturan">#2E7D32</color>

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 392: teks tombol biasa kini punya warna pressed yang kontras
+- Selector teks tombol biasa (`btn_text_state`) tak punya item `state_pressed`: saat ditekan latar menggelap ke `primary_container_pressed` tetapi teks tetap `primary` — kontras siang jatuh ke 3,99:1 selama penekanan (pasangan tak lengkap perbaikan tombol utama #93; temuan audit putaran-7, #131).
+- Item pressed ditambahkan memakai warna baru `btn_text_pressed` — siang `#0D47A1` (5,99:1 di latar pressed), malam `#90CAF9` (5,19:1, sama seperti perilaku malam yang sudah aman).
+
 ## [Belum rilis] — Audit 391: restore Settings kini sejalan bot saat pemasangan TLS/prefs gagal
 - Dua jalur restore bereaksi beda atas kegagalan yang sama: di bot, gagal pasang TLS mengembalikan TLS lama tetapi DB baru tetap terpasang (restore dilaporkan gagal), dan gagal terapkan prefs hanya jadi peringatan; di Settings kedua kegagalan itu jatuh ke catch luar yang mengembalikan DB LAMA — zip yang sama, hasil akhir berbeda (temuan audit putaran-7, #129).
 - Jalur Settings kini mencerminkan semantik bot: `pasangTlsRestore` dibungkus lokal (gagal → staging dibersihkan, TLS lama dikembalikan, dilaporkan gagal, DB baru dipertahankan) dan `applyPrefsFromJson` dibungkus lokal (gagal → peringatan di log, restore tetap selesai).
