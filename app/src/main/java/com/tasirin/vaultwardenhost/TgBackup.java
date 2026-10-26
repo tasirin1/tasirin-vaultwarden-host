@@ -1701,33 +1701,45 @@ public final class TgBackup {
 
         File asalDb = sumberDb != null ? sumberDb : dataFolder;
         try {
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp))) {
-                byte[] buf = new byte[64 * 1024];
-                for (String name : BERKAS_DB) {
-                    addFileEntry(zos, buf, new File(asalDb, name), name);
+            FileOutputStream fos = new FileOutputStream(tmp);
+            try {
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                try {
+                    byte[] buf = new byte[64 * 1024];
+                    for (String name : BERKAS_DB) {
+                        addFileEntry(zos, buf, new File(asalDb, name), name);
+                    }
+                    if (full) {
+                        if (configJson != null) {
+                            zos.putNextEntry(new ZipEntry("app-config.json"));
+                            zos.write(configJson.getBytes(StandardCharsets.UTF_8));
+                            zos.closeEntry();
+                        }
+                        File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
+                        addFileEntry(zos, buf, new File(tlsSrc, "ca.pem"), "tls/ca.pem");
+                        addFileEntry(zos, buf, new File(tlsSrc, "cert.pem"), "tls/cert.pem");
+                        if (denganKunci) {
+                            addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),
+                                    "tls/ca-key.pem");
+                            addFileEntry(zos, buf, new File(tlsSrc, "key.pem"), "tls/key.pem");
+                        }
+                    }
+                    zos.finish();
+                    zos.flush();
+                    fos.getFD().sync();
+                } finally {
+                    try {
+                        zos.close();
+                    } catch (Exception ignored) {
+                    }
                 }
-            if (full) {
-                if (configJson != null) {
-                    zos.putNextEntry(new ZipEntry("app-config.json"));
-                    zos.write(configJson.getBytes(StandardCharsets.UTF_8));
-                    zos.closeEntry();
-                }
-                File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
-                addFileEntry(zos, buf, new File(tlsSrc, "ca.pem"), "tls/ca.pem");
-                addFileEntry(zos, buf, new File(tlsSrc, "cert.pem"), "tls/cert.pem");
-                if (denganKunci) {
-                    addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),
-                            "tls/ca-key.pem");
-                    addFileEntry(zos, buf, new File(tlsSrc, "key.pem"), "tls/key.pem");
+            } finally {
+                try {
+                    fos.close();
+                } catch (Exception ignored) {
                 }
             }
-            }
-            if (zip.exists() && !zip.delete()) {
-                throw new IOException("Gagal mengganti backup lama");
-            }
-            if (!tmp.renameTo(zip)) {
-                throw new IOException("Gagal memasang backup");
-            }
+            ServerService.gantiAtomik(tmp, zip);
         } catch (Exception e) {
             try {
                 tmp.delete();

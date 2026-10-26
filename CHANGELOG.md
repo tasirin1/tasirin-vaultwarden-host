@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: zip backup di-fsync & dipasang atomik
+- `createBackupZip` menulis zip ke `.tmp` lalu langsung `renameTo`, tanpa `getFD().sync()`, dan menghapus berkas tujuan lebih dulu. Bila listrik putus tepat setelah backup "selesai", zip baru bisa kosong/terpotong sementara nama lamanya sudah hilang — tidak ada backup yang bisa direstore. Jalur `.enc` di berkas yang sama sudah benar.
+- Zip kini ditutup dengan `finish()` + `flush()` + `fsync` sebelum dipasang lewat `ServerService.gantiAtomik` (rename atomik, berkas lama dicadangkan `.bak` dan dipulihkan bila rename gagal, direktori ikut di-fsync). Sisa `.tmp` tetap dibuang saat gagal.
+
 ## [Belum rilis] — Audit 311: trust anchor TLS hanya dari aset APK
 - `Updater.segarkanTrustAnchor` mengunduh `github-chain.pem` dari rilis lalu memasangnya ke `files/certs/` (dibaca `HttpsCompat`) walau checksum `.sha256` gagal diambil; validasi isi hanya "minimal satu sertifikat bisa diparse", tanpa root yang diharapkan. Asset itu juga tak pernah diterbitkan kedua workflow, jadi jalur tersebut selalu 404 sekali sehari — kode mati yang tetap menambah permukaan serangan.
 - Jalur refresh dihapus total (`segarkanTrustAnchor`, `validasiRantai`, pembacaan override di `HttpsCompat`, pemicu harian di `AutoUpdate`); trust anchor kini hanya dari `assets/certs/github-chain.pem` yang ikut APK, sehingga bisa diaudit per rilis dan tak bisa diganti diam-diam lewat jaringan. Nama metode yang dihapus dicatat di `tools/bekas-hapusan.txt`.
