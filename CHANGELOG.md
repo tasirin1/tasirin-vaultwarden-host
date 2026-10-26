@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 317: pasang DB restore kini atomik, WAL lama aman sampai DB baru terpasang
+- `pasangDbRestoreAtomik` menghapus WAL/SHM DB lama lebih dulu lalu memakai `renameTo` polos: bila rename gagal, DB lama diklaim "dipertahankan" padahal WAL-nya (yang bisa berisi transaksi terakhir) sudah dibuang, dan lemparan `IOException`-nya melewati pengembalian TLS di `restoreFromZipIsi` karena jalur itu hanya menangani nilai balik galat.
+- Pemasangan kini memakai `ServerService.gantiAtomik` (DB lama dicadangkan ke `.bak`, staging di-fsync, rename, direktori di-fsync; gagal pasang mengembalikan DB lama utuh termasuk WAL-nya), WAL/SHM lama baru dibuang sesudah DB baru terpasang, dan `restoreFromZipIsi` menangkap lemparan dari pemasangan untuk membersihkan staging + mengembalikan TLS sebelum melempar ulang.
+
 ## [Belum rilis] — Audit 316: lockout PIN tak lagi runtuh oleh majukan jam + restart
 - Lockout ditahan dua jam terpisah (dinding untuk restart, `elapsedRealtime` untuk majukan jam), tetapi stempel elapsed sisa boot lama selalu dibaca "sisa > 5 menit → tidak terkunci". Gabungan majukan jam dinding melewati batas kunci lalu restart membuat kedua sisi 0 bersamaan, jadi tebakan PIN baru langsung diterima — laju tebakan naik dari 5 per 5 menit menjadi ±5 per siklus restart.
 - `PinGate.sisaKunciMs` kini mengenali stempel elapsed basi (sisa melebihi `KUNCI_MS` hanya mungkin dari boot lama, karena di boot yang sama sisa tak pernah melebihinya) lewat `PinCrypto.stempelElapsedBasi`, lalu memasang ulang kedua stempel secara konsisten untuk boot berjalan: sisa mengikuti jam dinding bila masih ada, dan kunci penuh 5 menit bila jam dinding sudah dimajukan (`sisaKunciSesudahReboot`) — fail-closed tetapi selalu berhingga, bukan kunci permanen. Diuji di `PinCryptoTest`.

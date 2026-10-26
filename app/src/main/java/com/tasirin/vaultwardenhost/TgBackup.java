@@ -2956,7 +2956,14 @@ public final class TgBackup {
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
 
-        String galatDb = pasangDbRestoreAtomik(dataFolder);
+        String galatDb;
+        try {
+            galatDb = pasangDbRestoreAtomik(dataFolder);
+        } catch (Exception ePasang) {
+            hapusStagingRestore(dataFolder);
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+            throw ePasang;
+        }
         if (galatDb != null) {
             hapusStagingRestore(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
@@ -3033,10 +3040,8 @@ public final class TgBackup {
             return "DB korup: " + rusak;
         }
 
+        ServerService.gantiAtomik(staging, new File(dataFolder, "db.sqlite3"));
         hapusWalShm(dataFolder);
-        if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
-            throw new IOException("Gagal memasang database hasil restore");
-        }
 
         hapusStagingRestore(dataFolder);
         return null;
