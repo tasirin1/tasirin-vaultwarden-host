@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 331: tombol yang dinonaktifkan saat sibuk kini terlihat nonaktif
+- Selector latar `bg_btn_tv`/`bg_btn_primary` (dan `bg_btn_stop`) tak punya keadaan `state_enabled="false"` dan warna teks gaya `TasirinBtn` konstan, jadi tujuh tombol Settings yang dimatikan `setBusy` (dan tombol Start/Stop MainActivity) tampak persis seperti tombol aktif selama operasi latar berjalan — pengguna bisa mengira aplikasi macet atau menekan berulang kali.
+- Ketiga selector kini punya item pertama `state_enabled="false"` berlatar warna baru `btn_disabled_bg`, dan warna teks `TasirinBtn`/`TasirinBtnPrimary` diganti ColorStateList baru (`res/color/btn_text_state.xml`, `res/color/btn_primary_text_state.xml`) yang beralih ke `btn_disabled_text` saat nonaktif. Warna baru ditambahkan sinkron di `values` dan `values-night`.
+
 ## [Belum rilis] — Audit 330: toast SettingsActivity kini memakai pagar siklus hidup uiPost
 - `SettingsActivity.toast()` memasang `Toast` lewat `ui.post` polos tanpa memeriksa keadaan activity, padahal kelas yang sama sudah punya `uiPost` berpagar `isFinishing()/isDestroyed()` dan `MainActivity.toast` memakai `uiHidup()`. Toast dari callback latar (cek auto-update dan auto-backup Telegram sama-sama meneruskan ke `toast()` ini) yang tiba sesudah activity ditutup bisa menempel pada window yang sudah mati.
 - `toast()` kini meneruskan ke `uiPost` — satu baris, menutup semua pemanggil sekaligus; toast yang terlambat sesudah activity selesai dibuang diam-diam seperti callback UI lain di kelas ini.
