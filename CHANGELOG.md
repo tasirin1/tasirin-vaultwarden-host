@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 322: tombol Cek update di About kini membuka seksi Perawatan dulu
+- `fokuskanTombolUpdate` langsung memfokuskan + menggeser ke tombol update yang tinggal di dalam seksi Perawatan; bila seksi itu sedang tertutup (status persisten `sec_buka_rawat`), badannya `GONE` sehingga fokus gagal dan gesernya tak bermakna — dialog About tertutup tanpa hasil yang terlihat.
+- Fungsi itu kini membuka seksi Perawatan lebih dulu (simpan preferensi + `terapkanSeksi` + `perbaikiRantaiFokus`, pola yang sama dengan `loncatKeSeksi`) sebelum meminta fokus dan menggeser layar.
+
 ## [Belum rilis] — Audit 321: uji asap binary kini di dalam kunci unduhan
 - Kunci unduhan per-berkas hanya menaungi badan `unduhKeTmp`; sesudahnya `downloadBinaryInner` memeriksa berkas, mengeksekusinya sebagai uji asap (`detectVersion`), dan menghapusnya di luar kunci — padahal nama tmp per-versi sama antar-jalur (auto-update, Start, bot). Unduhan kedua untuk versi yang sama bisa me-reset/menghapus tmp tepat saat unduhan pertama mengeksekusinya, atau sebaliknya, sehingga update gagal acak (integritas tetap aman karena `pasangHasilUnduh` meng-hash ulang di dalam kunci).
 - Seluruh rangkaian unduh → periksa → uji asap → pasang di `downloadBinaryInner` kini dibungkus `synchronized` pada kunci tmp yang sama (referensi terhitung `kunciUnduh`/`lepasKunciUnduh`; kunci bawaannya sendiri di `unduhKeTmp`/`pasangHasilUnduh` bersifat reentrant untuk utas yang sama). Transformasi dibuktikan setara dengan pembanding pernyataan: tidak ada pernyataan lama yang hilang/berubah selain dua deklarasi yang diangkat keluar blok.

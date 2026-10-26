@@ -3553,6 +3553,12 @@ public class SettingsActivity extends Activity {
         if (isFinishing() || isDestroyed() || updateBtn == null) {
             return;
         }
+        if (!seksiTerbuka(R.id.bodyRawat)) {
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
+                    .putBoolean(KEY_SEC_RAWAT, true).apply();
+            terapkanSeksi(R.id.bodyRawat, R.id.chevronRawat, true);
+            perbaikiRantaiFokus();
+        }
         updateBtn.requestFocus();
         if (settingsScroll == null) {
             return;
