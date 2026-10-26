@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 391: restore Settings kini sejalan bot saat pemasangan TLS/prefs gagal
+- Dua jalur restore bereaksi beda atas kegagalan yang sama: di bot, gagal pasang TLS mengembalikan TLS lama tetapi DB baru tetap terpasang (restore dilaporkan gagal), dan gagal terapkan prefs hanya jadi peringatan; di Settings kedua kegagalan itu jatuh ke catch luar yang mengembalikan DB LAMA — zip yang sama, hasil akhir berbeda (temuan audit putaran-7, #129).
+- Jalur Settings kini mencerminkan semantik bot: `pasangTlsRestore` dibungkus lokal (gagal → staging dibersihkan, TLS lama dikembalikan, dilaporkan gagal, DB baru dipertahankan) dan `applyPrefsFromJson` dibungkus lokal (gagal → peringatan di log, restore tetap selesai).
+
 ## [Belum rilis] — Audit 390: pesan gagal perintah sertifikat bot kini lewat redaksi galat
 - Tiga jalur sertifikat bot (`/careset`, `/ca`, `/cabackup`) mengirim `e.getMessage()` mentah ke chat; pesan pengecualian dari operasi berkas/API bisa memuat URL ber-token bot atau detail internal — jalur restore di berkas yang sama sudah lama membersihkannya lebih dulu (temuan audit putaran-7, #128).
 - Ketiganya kini melewati `TgBackup.redaksiDetailGalat` yang sama (token dan URL disamarkan, pesan dipangkas) sebelum dibalas ke chat.

@@ -2009,13 +2009,28 @@ public class SettingsActivity extends Activity {
                         + " kunci privat tidak ikut - TLS perangkat ini"
                         + " dipertahankan.");
             } else {
-                TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
+                try {
+                    TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
+                } catch (Exception eTls) {
+                    TgBackup.hapusStagingTls(new File(dataDir));
+                    TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
+                    toast(getString(R.string.restore_gagal,
+                            String.valueOf(eTls.getMessage())));
+                    appendUiLog("[app] Restore gagal di pemasangan TLS: " + eTls
+                            + " - database baru dipertahankan, TLS lama dikembalikan.");
+                    return;
+                }
             }
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
             if (zipCfg != null) {
                 paksaCacheUbah = true;
-                TgBackup.applyPrefsFromJson(SettingsActivity.this,
-                        zipCfg.optJSONObject("prefs"));
+                try {
+                    TgBackup.applyPrefsFromJson(SettingsActivity.this,
+                            zipCfg.optJSONObject("prefs"));
+                } catch (Exception eSet) {
+                    appendUiLog("[app] Peringatan: pengaturan dari backup gagal"
+                            + " diterapkan (" + eSet.getMessage() + ").");
+                }
                 sanitizePortPref();
 
                 SharedPreferences sp2 = getSharedPreferences(
