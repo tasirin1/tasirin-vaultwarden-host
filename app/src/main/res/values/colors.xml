@@ -23,7 +23,7 @@
     <color name="hero_start">#1565C0</color>
     <color name="hero_end">#0D47A1</color>
     <color name="chip_stopped">#5F6B7A</color>
-    <color name="chip_busy">#E8710A</color>
+    <color name="chip_busy">#BF5700</color>
 
     <color name="primary_container">#D8E7FC</color>
     <color name="primary_container_pressed">#C2D9F8</color>

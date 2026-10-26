@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 343: teks status putih terbaca lagi di banner Running (malam) dan Busy (dua mode)
+- Teks status selalu putih, tetapi dua warna latarnya terlalu terang: `status_on` versi malam (#34A853) kontrasnya hanya 3,06:1 dan `chip_busy` (#E8710A, kedua mode) 3,09:1 — di bawah 4,5:1 untuk teks 13–14sp pada indikator status utama yang di TV/STB dibaca dari jauh (siang `status_on` #2E7D32 aman di 5,13:1).
+- `status_on` malam disamakan dengan siang (#2E7D32, 5,13:1) dan `chip_busy` digelapkan ke #BF5700 (4,59:1) di kedua mode; keduanya juga dipakai titik status (`bg_dot_*`) yang ikut menggelap tanpa teks. Rasio dihitung dari luminansi relatif WCAG.
+
 ## [Belum rilis] — Audit 342: ikon Play/Stop mengikuti warna teks tombol, tak lagi pudar di mode malam
 - Ikon `ic_play`/`ic_stop` pada tombol Start/Stop bawah di Settings selalu putih (`@color/white`), padahal di mode malam latar tombolnya biru muda `primary` (#90CAF9) dan teks di sebelahnya sengaja dibalik gelap — segitiga putih di atasnya nyaris menyatu (kontras sekitar 1,75:1; siang 5,75:1). Kedua ikon hanya dipakai pada tombol itu (layout + tukar runtime di `SettingsActivity`).
 - `fillColor` kedua vektor kini `@color/btn_primary_text` sehingga ikon selalu sewarna label di sebelahnya di semua kombinasi: putih di biru siang dan di merah `status_off` siang, gelap di biru muda malam dan di merah muda `status_off` malam.
