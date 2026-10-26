@@ -1186,6 +1186,9 @@ public class LogActivity extends Activity {
 
         final String teks = msg == null ? "" : msg;
         ui.post(() -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
             try {
                 Toast.makeText(LogActivity.this, teks, Toast.LENGTH_LONG).show();
             } catch (Exception ignored) {

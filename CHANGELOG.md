@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 354: LogActivity.toast kini berpagar siklus hidup seperti activity lain
+- `LogActivity.toast()` memasang `Toast` lewat `ui.post` polos tanpa memeriksa keadaan activity — pola yang sama yang diperbaiki di SettingsActivity pada Audit 330 (#82), di berkas yang saat itu tidak ikut diperbaiki. try/catch memang mencegah crash `BadTokenException`, tetapi toast tetap dicoba tampil dengan token activity yang sudah mati dan perilakunya tidak konsisten dengan kelas lain (`MainActivity.uiHidup()`).
+- Runnable toast kini kembali lebih dulu bila `isFinishing() || isDestroyed()`, menutup semua pemanggil di berkas ini sekaligus.
+
 ## [Belum rilis] — Audit 353: penanda tawaran update hanya ditulis bila toast benar-benar bisa tampil
 - `kabariTersedia` di MainActivity (dan pola identiknya di SettingsActivity, berbagi kunci penanda yang sama) menulis penanda `KEY_TAWARAN_UPDATE` lebih dulu, baru memanggil `toast()` yang berpagar siklus hidup: bila activity sedang mati saat cek latar selesai, toast dibuang diam-diam tetapi versinya sudah ditandai pernah ditawarkan — toast "Update tersedia" untuk versi itu hilang permanen (tombol update punya jalur terpisah sehingga dampaknya terbatas pada toast).
 - Penanda kini hanya ditulis sesudah pemeriksaan `uiHidup()` (MainActivity) / `isFinishing() || isDestroyed()` (SettingsActivity) lolos, tepat sebelum toast dipasang; activity yang mati melewatkan keduanya sehingga instance berikutnya yang hidup menawarkan lagi.
