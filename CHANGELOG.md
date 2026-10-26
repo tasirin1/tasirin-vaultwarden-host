@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: bundel CA binary dipatok ke URL bertanggal
+- `build-binary.yml` mengunduh `https://curl.se/ca/cacert.pem` yang isinya berganti tiap Mozilla memperbarui bundel, padahal hash-nya hard-code: begitu curl.se menerbitkan bundel baru, build binary (termasuk jadwal bulanan) merah sampai hash diperbarui manual, dan binary Vaultwarden baru tak terbit.
+- URL diganti arsip bertanggal `https://curl.se/ca/cacert-2026-10-20.pem` (isinya tetap, hash `796f1389...` sudah diverifikasi lokal), jadi `sha256sum -c` tak lagi bergantung pada perubahan harian. Bila suatu saat bundel perlu diperbarui, pesan galat CI menunjuk `curl.se/docs/caextract.html` untuk memilih tanggal + hash baru.
+
 ## [Belum rilis] — Audit 311: unit test kebijakan retry unduhan benar-benar jalan
 - `UpdaterTest.bolehCobaLagiUnduh_hanyaGalatJaringan()` tidak ber-`@Test`, jadi JUnit melewatinya diam-diam. Isinya mengunci kebijakan penting: jaringan/timeout/HTTP 500 boleh dicoba lagi, sedangkan HTTP 404 dan "build belum tersedia" tidak.
 - Anotasi `@Test` ditambahkan (test kini ikut CI). Bila `bolehCobaLagiUnduh` berubah sehingga retry 404 atau berhenti retry timeout, test langsung merah.

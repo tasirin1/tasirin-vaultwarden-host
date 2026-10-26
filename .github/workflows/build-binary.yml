@@ -136,9 +136,12 @@ jobs:
         run: |
 
           CACERT_SHA256="796f1389bfea13c0ed78f663b765baaff54a508e5483786bd6ece73c5e3e3cbe"
-          curl -fsSL --retry 3 https://curl.se/ca/cacert.pem \
-            -o vaultwarden/mozilla-cacert.pem
-          echo "$CACERT_SHA256  vaultwarden/mozilla-cacert.pem" | sha256sum -c -
+          CACERT_URL="https://curl.se/ca/cacert-2026-10-20.pem"
+          curl -fsSL --retry 3 "$CACERT_URL" -o vaultwarden/mozilla-cacert.pem
+          if ! echo "$CACERT_SHA256  vaultwarden/mozilla-cacert.pem" | sha256sum -c -; then
+            echo "::error::Bundel CA berubah/URL kedaluwarsa - perbarui CACERT_URL dan CACERT_SHA256 (https://curl.se/docs/caextract.html)"
+            exit 1
+          fi
           grep -q "BEGIN CERTIFICATE" vaultwarden/mozilla-cacert.pem
 
       - name: Patch DNS resolver untuk Android (tanpa ndk-context)
