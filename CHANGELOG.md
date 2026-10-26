@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: startServer dan handleCommand dipecah per tanggung jawab
+- `ServerService.startServer` (320 baris) mencampur pemilihan binary, shim, smoke test, pembersihan proses yatim, cek port, TLS, env proses, start, notifikasi, dan pemasangan thread monitor; salah urutan (mis. cek port sebelum membersihkan proses yatim) mudah terulang.
+- Kini `startServer` hanya mengurutkan langkah melalui `SesiStart`: `siapkanFolderData`, `pilihBiner`, `siapkanShim`, `siapkanProsesDanPort`, `siapkanTls`, `bangunEnv`, `jalankanProses` (+ `umumkanJalan`). Seluruh langkah tetap di dalam satu `try` yang sama seperti sebelumnya, jadi penanganan galat start tidak berubah.
+- `TgBot.handleCommand` (347 baris) kini dispatcher kecil: `perintahKontrol`, `perintahCadangan`, `perintahSertifikat`, `perintahUpdate` (+ `unduhBinerDariBot`, `unduhWebVaultDariBot`, `balasHasilUnduh`), `perintahInfo`, dan `/help`. Nilai balik "perintah berbahaya terotorisasi" dipertahankan per cabang (mis. `/status` tanpa PIN tetap `false`, `/restart` yang ditolak tetap `true`).
+
 ## [Belum rilis] — Audit 311: SettingsActivity dipecah jadi metode bernama
 - `SettingsActivity.onCreate` (460 baris) dan `refreshFromService` (269 baris) mencampur banyak tanggung jawab dalam satu metode, sehingga perubahan kecil (mis. menambah pengaturan) mudah memicu efek samping dan sulit ditinjau.
 - Dipecah **tanpa mengubah urutan/perilaku**: `muatTampilan`, `pasangAksi`, `muatPreferensi`, `pasangSeksi`, `pasangListener`, `mulaiRefresh` untuk `onCreate`; `tampilkanSibukUnduhan`, `perbaruiStatusServer`, `perbaruiPenandaUbah`, `perbaruiPetunjukUpdate`, `teksVersiPerangkat`, `perbaruiKartuInfo`, `perbaruiUrlLokal`, `perbaruiBaterai` untuk `refreshFromService`. Lima tombol yang sebelumnya lokal (`showAdminBtn`, `showTgBtn`, `showPassBtn`, `randomAdminBtn`, `copyLoopbackBtn`) menjadi field agar bisa dipakai lintas metode.

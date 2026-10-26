@@ -1415,7 +1415,6 @@ public final class TgBot {
     }
 
     private static boolean handleCommand(Context ctx, String text, long idRuang) {
-        boolean berbahayaTerotorisasi = false;
         if (text == null || !text.startsWith("/")) {
             return false;
         }
@@ -1436,328 +1435,313 @@ public final class TgBot {
         String arg = ambilArgumen(text);
         switch (cmd) {
             case "/start":
-                if (authDangerous(ctx, arg, idRuang) == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-                if (ServerService.running || ServerService.isProcessAlive()) {
-                    balas(ctx, idRuang, "Server sudah jalan.");
-                } else {
-                    try {
-                        if (ServerService.start(ctx)) {
-                            balas(ctx, idRuang, "Perintah diterima: server start...");
-                        } else {
-                            balas(ctx, idRuang, "Gagal start dari background (batasan Android). "
-                                    + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
-                                    + "lalu reboot HP.");
-                        }
-                    } catch (Throwable t) {
+            case "/stop":
+            case "/restart":
+                return perintahKontrol(ctx, cmd, arg, idRuang);
+            case "/backup":
+            case "/restore":
+                return perintahCadangan(ctx, cmd, arg, idRuang);
+            case "/ca":
+            case "/cabackup":
+            case "/careset":
+                return perintahSertifikat(ctx, cmd, arg, idRuang);
+            case "/update":
+            case "/webvault":
+                return perintahUpdate(ctx, cmd, arg, idRuang);
+            case "/status":
+            case "/log":
+            case "/uptime":
+            case "/alive":
+            case "/versi":
+            case "/crashlog":
+                return perintahInfo(ctx, cmd, arg, idRuang);
+            case "/help":
+                TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA),
+                        keyboardMenu(MENU_UTAMA));
+                return false;
+            default:
+                balas(ctx, idRuang, "Perintah tidak dikenal. Ketik /help");
+                return false;
+        }
+    }
+
+    private static boolean perintahKontrol(Context ctx, String cmd, String arg, long idRuang) {
+        if (authDangerous(ctx, arg, idRuang) == null) {
+            return false;
+        }
+        if ("/start".equals(cmd)) {
+            if (ServerService.running || ServerService.isProcessAlive()) {
+                balas(ctx, idRuang, "Server sudah jalan.");
+            } else {
+                try {
+                    if (ServerService.start(ctx)) {
+                        balas(ctx, idRuang, "Perintah diterima: server start...");
+                    } else {
                         balas(ctx, idRuang, "Gagal start dari background (batasan Android). "
                                 + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
                                 + "lalu reboot HP.");
                     }
-                }
-                break;
-            case "/stop":
-                if (authDangerous(ctx, arg, idRuang) == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-                try {
-                    if (ServerService.stop(ctx)) {
-                        balas(ctx, idRuang, "Perintah diterima: server stop...");
-                    } else {
-                        balas(ctx, idRuang, "Gagal stop dari background (batasan Android). "
-                                + "Buka app lalu tekan Stop.");
-                    }
                 } catch (Throwable t) {
+                    balas(ctx, idRuang, "Gagal start dari background (batasan Android). "
+                            + "Buka app lalu tekan Start, atau aktifkan 'Auto start saat boot' "
+                            + "lalu reboot HP.");
+                }
+            }
+            return true;
+        }
+        if ("/stop".equals(cmd)) {
+            try {
+                if (ServerService.stop(ctx)) {
+                    balas(ctx, idRuang, "Perintah diterima: server stop...");
+                } else {
                     balas(ctx, idRuang, "Gagal stop dari background (batasan Android). "
                             + "Buka app lalu tekan Stop.");
                 }
-                break;
-            case "/restart":
-                if (authDangerous(ctx, arg, idRuang) == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
+            } catch (Throwable t) {
+                balas(ctx, idRuang, "Gagal stop dari background (batasan Android). "
+                        + "Buka app lalu tekan Stop.");
+            }
+            return true;
+        }
 
-                if (!ServerService.running && !ServerService.isProcessAlive()) {
-                    balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
-                    break;
-                }
+        if (!ServerService.running && !ServerService.isProcessAlive()) {
+            balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+            return true;
+        }
+        try {
+            if (ServerService.restart(ctx)) {
+                balas(ctx, idRuang, "Perintah diterima: server restart...");
+            } else {
+                balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+            }
+        } catch (Throwable t) {
+            balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+        }
+        return true;
+    }
+
+    private static boolean perintahCadangan(Context ctx, String cmd, String arg, long idRuang) {
+        if ("/backup".equals(cmd)) {
+            if (authDangerous(ctx, arg, idRuang) == null) {
+                return false;
+            }
+            runBeratDenganKunci(ctx, idRuang, () -> {
                 try {
-                    if (ServerService.restart(ctx)) {
-                        balas(ctx, idRuang, "Perintah diterima: server restart...");
-                    } else {
-                        balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
-                    }
-                } catch (Throwable t) {
-                    balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+                    balas(ctx, idRuang, TgBackup.backupNow(ctx));
+                } catch (Exception e) {
+                    balas(ctx, idRuang, TgBackup.pesanGalatBackup(e));
                 }
-                break;
-            case "/backup":
-                if (authDangerous(ctx, arg, idRuang) == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    try {
-                        balas(ctx, idRuang, TgBackup.backupNow(ctx));
-                    } catch (Exception e) {
-                        balas(ctx, idRuang, TgBackup.pesanGalatBackup(e));
-                    }
-                });
-                break;
-            case "/restore":
-                String cleanRestore = authDangerous(ctx, arg, idRuang);
-                if (cleanRestore == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-                if (isRestoreConfirm(cleanRestore)) {
-                    runBeratDenganKunci(ctx, idRuang, () -> {
-                        try {
-                            balas(ctx, idRuang, "Mengunduh backup terakhir...");
-                            balas(ctx, idRuang, doRestore(ctx)
-                                    + " Tekan /start untuk menjalankan.");
-                        } catch (Exception e) {
+            });
+            return true;
+        }
+        String cleanRestore = authDangerous(ctx, arg, idRuang);
+        if (cleanRestore == null) {
+            return false;
+        }
+        if (isRestoreConfirm(cleanRestore)) {
+            runBeratDenganKunci(ctx, idRuang, () -> {
+                try {
+                    balas(ctx, idRuang, "Mengunduh backup terakhir...");
+                    balas(ctx, idRuang, doRestore(ctx)
+                            + " Tekan /start untuk menjalankan.");
+                } catch (Exception e) {
 
-                            String mentah = e.getMessage() == null
-                                    ? String.valueOf(e) : e.getMessage();
-                            String aman = TgBackup.redaksiDetailGalat(mentah);
-                            ServerService.catatLog("[tg] Restore gagal: " + aman);
-                            balas(ctx, idRuang, "Restore gagal: " + aman + ". "
-                                    + Updater.saranKoneksi(e));
-                        }
-                    });
-                } else {
-                    balas(ctx, idRuang, restoreInfoText(ctx));
+                    String mentah = e.getMessage() == null
+                            ? String.valueOf(e) : e.getMessage();
+                    String aman = TgBackup.redaksiDetailGalat(mentah);
+                    ServerService.catatLog("[tg] Restore gagal: " + aman);
+                    balas(ctx, idRuang, "Restore gagal: " + aman + ". "
+                            + Updater.saranKoneksi(e));
                 }
-                break;
-            case "/ca":
+            });
+        } else {
+            balas(ctx, idRuang, restoreInfoText(ctx));
+        }
+        return true;
+    }
 
-                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "ca", idRuang) == null) {
-                        break;
-                    }
-                    berbahayaTerotorisasi = true;
+    private static boolean perintahSertifikat(Context ctx, String cmd, String arg, long idRuang) {
+        if ("/careset".equals(cmd)) {
+            if (authDangerous(ctx, arg, idRuang) == null) {
+                return false;
+            }
+            runBeratDenganKunci(ctx, idRuang, () -> {
+                try {
+                    balas(ctx, idRuang, TgBackup.resetSertifikat(ctx));
+                } catch (Exception e) {
+                    balas(ctx, idRuang, "Reset sertifikat gagal: " + e.getMessage());
                 }
+            });
+            return true;
+        }
+        boolean perluPin = pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx);
+        if (perluPin) {
+            if ("/ca".equals(cmd)) {
+                if (authDangerous(ctx, arg, "ca", idRuang) == null) {
+                    return false;
+                }
+            } else if (authDangerous(ctx, arg, "cabackup", idRuang) == null) {
+                return false;
+            }
+        }
+        if ("/ca".equals(cmd)) {
+            runBeratDenganKunci(ctx, idRuang, () -> {
+                try {
+                    balas(ctx, idRuang, TgBackup.kirimCa(ctx));
+                } catch (Exception e) {
+                    balas(ctx, idRuang, "Kirim CA gagal: " + e.getMessage());
+                }
+            });
+        } else {
+            runBeratDenganKunci(ctx, idRuang, () -> {
+                try {
+                    balas(ctx, idRuang, TgBackup.backupCaKeStorage(ctx));
+                } catch (Exception e) {
+                    balas(ctx, idRuang, "Backup CA gagal: " + e.getMessage());
+                }
+            });
+        }
+        return perluPin;
+    }
 
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    try {
-                        balas(ctx, idRuang, TgBackup.kirimCa(ctx));
-                    } catch (Exception e) {
-                        balas(ctx, idRuang, "Kirim CA gagal: " + e.getMessage());
-                    }
-                });
-                break;
-            case "/cabackup":
+    private static boolean perintahUpdate(Context ctx, String cmd, String arg, long idRuang) {
+        String bersih = authDangerous(ctx, arg, idRuang);
+        if (bersih == null) {
+            return false;
+        }
+        if (!argumenVersiValid(bersih)) {
+            balas(ctx, idRuang, "Versi tidak valid."
+                    + " Contoh: " + cmd + " 1.32.0 atau " + cmd + " terbaru");
+            return true;
+        }
+        boolean kunci = !bersih.isEmpty();
+        String versi = Updater.normalisasiPinVersi(bersih);
+        if ("/update".equals(cmd)) {
+            unduhBinerDariBot(ctx, idRuang, bersih, kunci, versi);
+        } else {
+            unduhWebVaultDariBot(ctx, idRuang, bersih, kunci, versi);
+        }
+        return true;
+    }
 
-                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "cabackup", idRuang) == null) {
-                        break;
-                    }
-                    berbahayaTerotorisasi = true;
-                }
-
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    try {
-                        balas(ctx, idRuang, TgBackup.backupCaKeStorage(ctx));
-                    } catch (Exception e) {
-                        balas(ctx, idRuang, "Backup CA gagal: " + e.getMessage());
-                    }
-                });
-                break;
-            case "/careset":
-                if (authDangerous(ctx, arg, idRuang) == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    try {
-                        balas(ctx, idRuang, TgBackup.resetSertifikat(ctx));
-                    } catch (Exception e) {
-                        balas(ctx, idRuang, "Reset sertifikat gagal: " + e.getMessage());
-                    }
-                });
-                break;
-            case "/status":
-
-                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "status", idRuang) == null) {
-                        break;
-                    }
-                    berbahayaTerotorisasi = true;
-                }
-                balas(ctx, idRuang, statusText(ctx));
-                break;
-            case "/log":
-
-                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "log", idRuang) == null) {
-                        break;
-                    }
-                    berbahayaTerotorisasi = true;
-                }
-                balas(ctx, idRuang, tailLog());
-                break;
-            case "/uptime":
-                long up = ServerService.uptimeMs();
-                if (up <= 0) {
-                    balas(ctx, idRuang, "Server sedang berhenti.");
-                } else {
-                    balas(ctx, idRuang, "Server jalan selama " + durationText(up) + ".");
-                }
-                break;
-            case "/alive":
-
-                if (!Util.jalankanBg(() -> balas(ctx, idRuang,
-                        pesanAlive(ServerService.pingAlive(ctx))))) {
-                    balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
-                }
-                break;
-            case "/update":
-                String bersihUpdate = authDangerous(ctx, arg, idRuang);
-                if (bersihUpdate == null) {
-                    break;
-                }
-                berbahayaTerotorisasi = true;
-                if (!argumenVersiValid(bersihUpdate)) {
+    private static void unduhBinerDariBot(Context ctx, long idRuang, String versiDiminta,
+                                          boolean kunci, String versi) {
+        runBeratDenganKunci(ctx, idRuang, () -> {
+            String pinLama = Updater.kuncianBinary(ctx);
+            try {
+                boolean was = ServerService.running || ServerService.isProcessAlive();
+                if (kunci && !Updater.simpanKuncianBinary(ctx, versiDiminta)) {
                     balas(ctx, idRuang, "Versi tidak valid."
                             + " Contoh: /update 1.32.0 atau /update terbaru");
-                    break;
+                    return;
                 }
-                final boolean kunciUpdate = !bersihUpdate.isEmpty();
-                final String versiUpdate = Updater.normalisasiPinVersi(bersihUpdate);
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    String pinLama = Updater.kuncianBinary(ctx);
+                String imbuhShim = "";
+                if (KernelCompat.legacyPerangkat()) {
                     try {
-                        boolean was = ServerService.running || ServerService.isProcessAlive();
-
-                        if (kunciUpdate) {
-                            if (!Updater.simpanKuncianBinary(ctx, bersihUpdate)) {
-                                balas(ctx, idRuang, "Versi tidak valid."
-                                        + " Contoh: /update 1.32.0 atau /update terbaru");
-                                return;
-                            }
-                        }
-
-                        String imbuhShim = "";
-                        if (KernelCompat.legacyPerangkat()) {
-                            try {
-                                Updater.ensureShimFile(ctx);
-                                imbuhShim = " Shim getrandom siap.";
-                            } catch (Exception se) {
-                                imbuhShim = " Shim gagal: " + se.getMessage();
-                            }
-                        }
-                        String msg = Updater.tryUpdateVersi(ctx, versiUpdate) + imbuhShim;
-                        if (Updater.binaryBerubah(msg)) {
-                            if (was) {
-                                if (ServerService.restart(ctx)) {
-                                    balas(ctx, idRuang, msg + " Restart otomatis...");
-                                } else {
-                                    balas(ctx, idRuang, msg + " Restart manual dari app"
-                                            + " (batasan background Android).");
-                                }
-                            } else {
-                                balas(ctx, idRuang, msg + " Tekan /start untuk memakai.");
-                            }
-                        } else {
-                            balas(ctx, idRuang, msg);
-                        }
-                    } catch (Exception e) {
-
-                        if (kunciUpdate && versiUpdate != null) {
-                            Updater.simpanKuncianBinary(ctx,
-                                    pinLama == null ? "" : pinLama);
-                        }
-                        String pesan = e.getMessage();
-                        String ramah = pesan != null && pesan.contains("Cek ")
-                                ? pesan : Updater.pesanGalatUnduh("Unduh binary", e);
-                        balas(ctx, idRuang, "Update gagal: " + ramah);
+                        Updater.ensureShimFile(ctx);
+                        imbuhShim = " Shim getrandom siap.";
+                    } catch (Exception se) {
+                        imbuhShim = " Shim gagal: " + se.getMessage();
                     }
-                });
-                break;
-            case "/webvault":
-                String bersihWv = authDangerous(ctx, arg, idRuang);
-                if (bersihWv == null) {
-                    break;
                 }
-                berbahayaTerotorisasi = true;
-                if (!argumenVersiValid(bersihWv)) {
+                String msg = Updater.tryUpdateVersi(ctx, versi) + imbuhShim;
+                balasHasilUnduh(ctx, idRuang, msg, Updater.binaryBerubah(msg), was);
+            } catch (Exception e) {
+
+                if (kunci && versi != null) {
+                    Updater.simpanKuncianBinary(ctx,
+                            pinLama == null ? "" : pinLama);
+                }
+                String pesan = e.getMessage();
+                String ramah = pesan != null && pesan.contains("Cek ")
+                        ? pesan : Updater.pesanGalatUnduh("Unduh binary", e);
+                balas(ctx, idRuang, "Update gagal: " + ramah);
+            }
+        });
+    }
+
+    private static void unduhWebVaultDariBot(Context ctx, long idRuang, String versiDiminta,
+                                             boolean kunci, String versi) {
+        runBeratDenganKunci(ctx, idRuang, () -> {
+            String pinLama = Updater.kuncianWebVault(ctx);
+            try {
+                boolean was = ServerService.running || ServerService.isProcessAlive();
+                if (kunci && !Updater.simpanKuncianWebVault(ctx, versiDiminta)) {
                     balas(ctx, idRuang, "Versi tidak valid."
                             + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
-                    break;
+                    return;
                 }
-                final boolean kunciWv = !bersihWv.isEmpty();
-                final String versiWv = Updater.normalisasiPinVersi(bersihWv);
-                runBeratDenganKunci(ctx, idRuang, () -> {
-                    String pinLamaWv = Updater.kuncianWebVault(ctx);
-                    try {
-                        boolean was = ServerService.running || ServerService.isProcessAlive();
+                String msg = Updater.updateWebVaultVersi(ctx, versi);
+                balasHasilUnduh(ctx, idRuang, msg, webVaultBerubah(msg), was);
+            } catch (Exception e) {
+                if (kunci && versi != null) {
+                    Updater.simpanKuncianWebVault(ctx,
+                            pinLama == null ? "" : pinLama);
+                }
+                String pesan = e.getMessage();
+                String ramah = pesan != null && pesan.contains("Cek ")
+                        ? pesan : Updater.pesanGalatUnduh("Unduh web-vault", e);
+                balas(ctx, idRuang, "Update web-vault gagal: " + ramah);
+            }
+        });
+    }
 
-                        if (kunciWv) {
-                            if (!Updater.simpanKuncianWebVault(ctx, bersihWv)) {
-                                balas(ctx, idRuang, "Versi tidak valid."
-                                        + " Contoh: /webvault 1.32.0 atau /webvault terbaru");
-                                return;
-                            }
-                        }
-                        String msg = Updater.updateWebVaultVersi(ctx, versiWv);
-                        if (webVaultBerubah(msg)) {
-                            if (was) {
-                                if (ServerService.restart(ctx)) {
-                                    balas(ctx, idRuang, msg + " Restart otomatis...");
-                                } else {
-                                    balas(ctx, idRuang, msg + " Restart manual dari app"
-                                            + " (batasan background Android).");
-                                }
-                            } else {
-                                balas(ctx, idRuang, msg + " Tekan /start untuk memakai.");
-                            }
-                        } else {
-                            balas(ctx, idRuang, msg);
-                        }
-                    } catch (Exception e) {
-                        if (kunciWv && versiWv != null) {
-                            Updater.simpanKuncianWebVault(ctx,
-                                    pinLamaWv == null ? "" : pinLamaWv);
-                        }
-                        String pesan = e.getMessage();
-                        String ramah = pesan != null && pesan.contains("Cek ")
-                                ? pesan : Updater.pesanGalatUnduh("Unduh web-vault", e);
-                        balas(ctx, idRuang, "Update web-vault gagal: " + ramah);
-                    }
-                });
-                break;
-            case "/versi":
-                balas(ctx, idRuang, teksVersi(ctx));
-                break;
-            case "/crashlog":
-
-                if (pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx)) {
-                    if (authDangerous(ctx, arg, "crashlog", idRuang) == null) {
-                        break;
-                    }
-                    berbahayaTerotorisasi = true;
-                }
-                String crash = ServerService.crashLogText(ctx);
-                if (crash == null || crash.trim().isEmpty()) {
-                    balas(ctx, idRuang, "Belum ada crash log tersimpan.");
-                } else {
-                    balas(ctx, idRuang, potongEkor(crash, 3500));
-                }
-                break;
-            case "/help":
-                TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA),
-                        keyboardMenu(MENU_UTAMA));
-                break;
-            default:
-                balas(ctx, idRuang, "Perintah tidak dikenal. Ketik /help");
+    private static void balasHasilUnduh(Context ctx, long idRuang, String msg,
+                                        boolean berubah, boolean was) {
+        if (!berubah) {
+            balas(ctx, idRuang, msg);
+            return;
         }
-        return berbahayaTerotorisasi;
+        if (!was) {
+            balas(ctx, idRuang, msg + " Tekan /start untuk memakai.");
+            return;
+        }
+        if (ServerService.restart(ctx)) {
+            balas(ctx, idRuang, msg + " Restart otomatis...");
+        } else {
+            balas(ctx, idRuang, msg + " Restart manual dari app"
+                    + " (batasan background Android).");
+        }
+    }
+
+    private static boolean perintahInfo(Context ctx, String cmd, String arg, long idRuang) {
+        if ("/uptime".equals(cmd)) {
+            long up = ServerService.uptimeMs();
+            if (up <= 0) {
+                balas(ctx, idRuang, "Server sedang berhenti.");
+            } else {
+                balas(ctx, idRuang, "Server jalan selama " + durationText(up) + ".");
+            }
+            return false;
+        }
+        if ("/alive".equals(cmd)) {
+            if (!Util.jalankanBg(() -> balas(ctx, idRuang,
+                    pesanAlive(ServerService.pingAlive(ctx))))) {
+                balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
+            }
+            return false;
+        }
+        if ("/versi".equals(cmd)) {
+            balas(ctx, idRuang, teksVersi(ctx));
+            return false;
+        }
+        boolean perluPin = pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx);
+        if (perluPin && authDangerous(ctx, arg, cmd.substring(1), idRuang) == null) {
+            return false;
+        }
+        if ("/status".equals(cmd)) {
+            balas(ctx, idRuang, statusText(ctx));
+        } else if ("/log".equals(cmd)) {
+            balas(ctx, idRuang, tailLog());
+        } else {
+            String crash = ServerService.crashLogText(ctx);
+            if (crash == null || crash.trim().isEmpty()) {
+                balas(ctx, idRuang, "Belum ada crash log tersimpan.");
+            } else {
+                balas(ctx, idRuang, potongEkor(crash, 3500));
+            }
+        }
+        return perluPin;
     }
 
     static boolean isRestoreConfirm(String arg) {

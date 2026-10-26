@@ -1584,297 +1584,28 @@ public class ServerService extends Service {
             TgBackup.healkanStringPrefs(this);
         } catch (Exception ignored) {
         }
-        String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
-        if (!dataDirAman(dataDir) || !dataDirKanonisAman(dataDir)) {
-            dataDir = dataDirBawaanSegar();
-            appendLog("[app] Folder data tidak valid, pakai bawaan: " + dataDir);
-            sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
-        } else {
-            dataDir = dataDir.trim();
-        }
-        String port = currentPort();
-
+        SesiStart sesi = new SesiStart();
         try {
-            String mentah = TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
-
-            String mRapi = mentah == null ? "" : mentah.trim();
-            if (!mRapi.isEmpty() && !port.equals(mRapi)) {
-                appendLog("[app] Port '" + mRapi + "' tidak valid/privileged - pakai default " + port
-                        + ". Pakai port >= 1024 di Settings bila ingin port lain.");
-            }
-        } catch (Exception ignored) {
-        }
-
-        File dataFolder = new File(dataDir);
-        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
-            setStatus("Gagal membuat folder: " + dataDir);
-            appendLog("[app] Gagal membuat folder data: " + dataDir);
-            return;
-        }
-
-        try {
-            String kanonAwal = dataFolder.getCanonicalPath();
-            if (!dataDirAman(kanonAwal)) {
-                throw new IOException("Folder data menunjuk lokasi tak valid.");
-            }
-            dataDir = kanonAwal;
-            dataFolder = new File(kanonAwal);
-            sp.edit().putString(KEY_DATA_DIR, dataDir).apply();
-        } catch (IOException e) {
-            setStatus("Folder data tidak valid - server TIDAK start.");
-            appendLog("[app] FATAL: folder data berubah/tak valid sesudah dibuat;"
-                    + " dibatalkan agar tak menulis ke folder asing.");
-            return;
-        } catch (Exception ignored) {
-        }
-        if (!dataFolder.canWrite()) {
-            setStatus("Folder tidak bisa ditulis: " + dataDir);
-            appendLog("[app] Folder data tidak writable: " + dataDir
-                    + " - beri izin Storage/Semua file di Pengaturan HP, lalu Start ulang.");
-            return;
-        }
-        if (dataDir.startsWith("/sdcard/")
-                || dataDir.startsWith("/storage/") || dataDir.equals("/sdcard")) {
-            appendLog("[app] PERINGATAN: folder data di storage bersama - DB plaintext"
-                    + " bisa dibaca app lain berizin storage. PIN hanya mengunci UI/bot,"
-                    + " bukan mengenkripsi database.");
-        }
-
-        cleanupTempFiles(dataDir);
-        appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
-                KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
-
-        lepasKunciData();
-        File binary = ensureBinary(stopAwal);
-        if (binary == null) {
-            return;
-        }
-
-        boolean legacy = KernelCompat.legacyPerangkat();
-        File shim = null;
-        if (legacy) {
-            shim = ensureShim();
-            if (shim == null) {
+            if (!siapkanFolderData(sp, sesi)) {
                 return;
             }
-            if (!detectBinaryVersion(binary)) {
-                appendLog("[app] FATAL: binary gagal --version walau shim terpasang"
-                        + " - start dibatalkan.");
-                setStatus("Binary tidak jalan di perangkat ini - cek log.");
+            if (!pilihBiner(stopAwal, sesi)) {
                 return;
             }
-            appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
-        }
-
-        if (isKernelRandomPanic(lastVersionOutput)) {
-            String kernel = KernelCompat.kernelSekarang();
-            String saran = KernelCompat.saranShimGagal(kernel.isEmpty() ? "?" : kernel);
-            autoRestart = false;
-            setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
-            appendLog("[app] FATAL: " + saran + " Web-vault & TLS tidak masalah.");
-            writeCrashLog("binary tak cocok kernel (smoke test)");
-            TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
-                    + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
-            return;
-        }
-
-        killStaleVaultwarden();
-
-        int portNum = Integer.parseInt(port);
-        if (isPortBusy(portNum)) {
-
-            setStatus("Port " + port + " sedang dipakai proses lain.\n"
-                    + "Stop server lain / ganti port di Settings, lalu Start lagi.");
-            appendLog("[app] Port " + port + " sedang dipakai - server TIDAK start (cegah loop).");
-            TgBackup.sendMessage(this, "Gagal start: port " + port
-                    + " sedang dipakai proses lain. Stop server lain / ganti port lalu coba lagi.");
-            return;
-        }
-
-        try {
-
-            if (!tungguKunciDataStart()) {
+            if (!siapkanShim(sesi)) {
                 return;
             }
-
-            sp.edit().putBoolean(KEY_HTTPS, true).apply();
-            File tlsDir = prepareTls(dataFolder);
-            if (tlsDir == null) {
-                appendLog("[app] FATAL: sertifikat TLS gagal dibuat - server TIDAK start.");
-                setStatus("Gagal buat sertifikat TLS - server tidak start.\n"
-                        + "Cek sisa storage & tanggal/jam STB, lalu Start lagi.");
-                TgBackup.sendMessage(this, "Gagal start: sertifikat TLS gagal dibuat. "
-                        + "Cek sisa storage & tanggal/jam STB lalu coba lagi.");
+            if (!siapkanProsesDanPort(sesi)) {
                 return;
             }
-            long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
-            if (TlsCert.daysLeft(new File(tlsDir, "ca.pem")) == -2) {
-
-                appendLog("[app] FATAL: jam STB miring (CA belum valid)"
-                        + " - CA dipertahankan, server TIDAK start. Aktifkan"
-                        + " Tanggal & waktu otomatis, lalu Start lagi.");
-                setStatus("Jam STB salah (CA belum valid) - server tidak start.\n"
-                        + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
-                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
-                        + " (CA TLS belum valid). CA tidak diganti; aktifkan"
-                        + " Tanggal & waktu otomatis lalu coba lagi.");
+            if (!siapkanTls(sp, sesi)) {
                 return;
             }
-            if (certDays >= 0 && certDays < 30) {
-                appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
-                        + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
-            } else if (certDays == -2) {
-
-                appendLog("[app] FATAL: jam STB miring (sertifikat belum valid)"
-                        + " - server TIDAK start. Aktifkan Tanggal & waktu otomatis,"
-                        + " lalu Start lagi.");
-                setStatus("Jam STB salah (sertifikat belum valid) - server tidak start.\n"
-                        + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
-                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
-                        + " (sertifikat TLS belum valid). Aktifkan Tanggal & waktu"
-                        + " otomatis lalu coba lagi.");
+            ProcessBuilder pb = bangunEnv(sp, sesi);
+            if (pb == null) {
                 return;
             }
-
-            ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath());
-            pb.environment().put("DATA_FOLDER", dataDir);
-            pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
-            pb.environment().put("ROCKET_PORT", port);
-
-            pb.environment().put("ROCKET_WORKERS", "1");
-            pb.environment().put("DATABASE_MAX_CONNS", "2");
-
-            String adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
-
-            String bersih = adminToken == null ? "" : adminToken.trim();
-            if (!bersih.isEmpty()) {
-                if (!tokenAdminValid(bersih)) {
-                    appendLog("[app] FATAL: admin token mengandung spasi/baris baru"
-                            + " - server TIDAK start. Perbaiki di Settings.");
-                    setStatus("Admin token tak valid (spasi/baris baru) - perbaiki di Settings.");
-                    TgBackup.sendMessage(this, "Gagal start: admin token tak valid"
-                            + " (spasi/baris baru). Perbaiki di Settings.");
-                    return;
-                }
-                pb.environment().put("ADMIN_TOKEN", bersih);
-                appendLog("[app] Admin token diaktifkan.");
-            }
-
-            File localWv = new File(dataFolder, "web-vault/index.html");
-            if (localWv.exists()) {
-                pb.environment().put("WEB_VAULT_ENABLED", "true");
-                String folderWv = localWv.getParentFile().getAbsolutePath();
-                pb.environment().put("WEB_VAULT_FOLDER", folderWv);
-                appendLog("[app] Web vault (updated): " + folderWv);
-            } else {
-                File webVault = extractWebVault();
-                if (webVault != null) {
-                    pb.environment().put("WEB_VAULT_ENABLED", "true");
-                    pb.environment().put("WEB_VAULT_FOLDER", webVault.getAbsolutePath());
-                } else {
-                    pb.environment().put("WEB_VAULT_ENABLED", "false");
-                }
-            }
-
-            String tlsCert = new File(tlsDir, "cert.pem").getAbsolutePath();
-            String tlsKey = new File(tlsDir, "key.pem").getAbsolutePath();
-            pb.environment().put("ROCKET_TLS", "{certs=\"" + kutipRocket(tlsCert) + "\",key=\"" + kutipRocket(tlsKey) + "\"}");
-            appendLog("[app] TLS cert: " + tlsCert);
-            appendLog("[app] TLS key:  " + tlsKey);
-            pb.environment().put("RUST_LOG", "info");
-            if (shim != null) {
-                pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
-                appendLog("[app] LD_PRELOAD shim getrandom aktif.");
-            }
-
-            String hostSegar = lanHost();
-            String domain = "https://" + formatHostUntukUrl(hostSegar) + ":" + port;
-            pb.environment().put("DOMAIN", domain);
-            pb.redirectErrorStream(true);
-
-            runningDataDir = dataDir;
-            runningPort = port;
-            runningAdminToken = sidikTokenAdmin(adminToken);
-            String wvFrom = Updater.webVaultFromVersion(this);
-            runningWvFrom = wvFrom == null ? "" : wvFrom;
-            runningLanHost = hostSegar;
-            ipBerubahDiperingatkan = "";
-            ipBaruKandidat = "";
-            ipBaruHitung = 0;
-
-            if (!dataDirKanonisAman(dataDir)) {
-                throw new IOException("Folder data berubah/tak valid saat start;"
-                        + " dibatalkan agar server tak jalan di folder asing.");
-            }
-
-            boolean batal;
-
-            Process lahir = null;
-            synchronized (KUNCI_PROSET) {
-                batal = batalStart;
-                if (batal) {
-                    batalStart = false;
-                } else {
-                    lahir = pb.start();
-                    process = lahir;
-
-                    prosesStopDisengaja = null;
-                    acquireWakeLock();
-                    running = true;
-
-                    idEpisodaProses = startIdTerakhir;
-                }
-            }
-            if (batal) {
-                appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
-                        + " - tekan Start lagi bila ingin jalan.");
-
-                if (idEpisoda == startIdTerakhir) {
-                    setStatus("Stopped");
-                }
-                return;
-            }
-
-            healthFails.set(0);
-            healthTcpLolos.set(0);
-            configSajaBeruntun.set(0);
-            lastStartElapsed = SystemClock.elapsedRealtime();
-
-            pindahLogFile(new File(dataFolder, "vaultwarden.log"));
-
-            boolean bolehUmumkan;
-            synchronized (KUNCI_PROSET) {
-                bolehUmumkan = bolehUmumkanJalan(process == lahir, running,
-                        alive(lahir), idEpisodaProses == startIdTerakhir);
-            }
-            if (bolehUmumkan) {
-                setStatus("Running (PID " + getPid(lahir) + ")\nData: " + dataDir
-                        + "\nURL lokal (di HP): https://127.0.0.1:" + port
-                        + "\nURL jaringan (dari PC/laptop): " + domain);
-                TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
-            } else {
-                appendLog("[app] Stop sudah diminta - status dan pesan"
-                        + " \"Server jalan\" dilewati.");
-            }
-            TgBackup.notifyLowStorage(this);
-
-            final Process p = lahir;
-            Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
-            reader.setDaemon(true);
-            pembacaOutput = reader;
-            reader.start();
-
-            Thread watcher = new Thread(() -> watchProcess(p), "vw-watch");
-            watcher.setDaemon(true);
-            watcher.start();
-
-            appendLog("[app] start: " + binary.getAbsolutePath()
-                    + " | versi: " + binaryVersion
-                    + " | data=" + dataDir + " | port=" + port);
-
-            for (String panduan : panduanLoginBitwarden(port, formatHostUntukUrl(hostSegar))) {
-                appendLog(panduan);
-            }
+            jalankanProses(sesi, pb, idEpisoda);
         } catch (Exception e) {
 
             Process gagal;
@@ -1893,6 +1624,333 @@ public class ServerService extends Service {
             appendLog("[app] ERROR start: " + e);
             setStatus("Gagal start: " + e.getMessage());
         }
+    }
+
+
+    private static final class SesiStart {
+        String dataDir;
+        File dataFolder;
+        String port;
+        File binary;
+        File shim;
+        File tlsDir;
+        String hostSegar;
+        String domain;
+        String adminToken;
+    }
+
+    private boolean siapkanFolderData(SharedPreferences sp, SesiStart sesi) {
+        sesi.dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
+        if (!dataDirAman(sesi.dataDir) || !dataDirKanonisAman(sesi.dataDir)) {
+            sesi.dataDir = dataDirBawaanSegar();
+            appendLog("[app] Folder data tidak valid, pakai bawaan: " + sesi.dataDir);
+            sp.edit().putString(KEY_DATA_DIR, sesi.dataDir).apply();
+        } else {
+            sesi.dataDir = sesi.dataDir.trim();
+        }
+        sesi.port = currentPort();
+
+        try {
+            String mentah = TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
+
+            String mRapi = mentah == null ? "" : mentah.trim();
+            if (!mRapi.isEmpty() && !sesi.port.equals(mRapi)) {
+                appendLog("[app] Port '" + mRapi + "' tidak valid/privileged - pakai default " + sesi.port
+                        + ". Pakai port >= 1024 di Settings bila ingin port lain.");
+            }
+        } catch (Exception ignored) {
+        }
+
+        sesi.dataFolder = new File(sesi.dataDir);
+        if (!sesi.dataFolder.exists() && !sesi.dataFolder.mkdirs()) {
+            setStatus("Gagal membuat folder: " + sesi.dataDir);
+            appendLog("[app] Gagal membuat folder data: " + sesi.dataDir);
+            return false;
+        }
+
+        try {
+            String kanonAwal = sesi.dataFolder.getCanonicalPath();
+            if (!dataDirAman(kanonAwal)) {
+                throw new IOException("Folder data menunjuk lokasi tak valid.");
+            }
+            sesi.dataDir = kanonAwal;
+            sesi.dataFolder = new File(kanonAwal);
+            sp.edit().putString(KEY_DATA_DIR, sesi.dataDir).apply();
+        } catch (IOException e) {
+            setStatus("Folder data tidak valid - server TIDAK start.");
+            appendLog("[app] FATAL: folder data berubah/tak valid sesudah dibuat;"
+                    + " dibatalkan agar tak menulis ke folder asing.");
+            return false;
+        } catch (Exception ignored) {
+        }
+        if (!sesi.dataFolder.canWrite()) {
+            setStatus("Folder tidak bisa ditulis: " + sesi.dataDir);
+            appendLog("[app] Folder data tidak writable: " + sesi.dataDir
+                    + " - beri izin Storage/Semua file di Pengaturan HP, lalu Start ulang.");
+            return false;
+        }
+        if (sesi.dataDir.startsWith("/sdcard/")
+                || sesi.dataDir.startsWith("/storage/") || sesi.dataDir.equals("/sdcard")) {
+            appendLog("[app] PERINGATAN: folder data di storage bersama - DB plaintext"
+                    + " bisa dibaca app lain berizin storage. PIN hanya mengunci UI/bot,"
+                    + " bukan mengenkripsi database.");
+        }
+        return true;
+    }
+
+    private boolean pilihBiner(long stopAwal, SesiStart sesi) {
+        cleanupTempFiles(sesi.dataDir);
+        appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
+                KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
+
+        lepasKunciData();
+        sesi.binary = ensureBinary(stopAwal);
+        if (sesi.binary == null) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean siapkanShim(SesiStart sesi) {
+        boolean legacy = KernelCompat.legacyPerangkat();
+        sesi.shim = null;
+        if (legacy) {
+            sesi.shim = ensureShim();
+            if (sesi.shim == null) {
+                return false;
+            }
+            if (!detectBinaryVersion(sesi.binary)) {
+                appendLog("[app] FATAL: binary gagal --version walau shim terpasang"
+                        + " - start dibatalkan.");
+                setStatus("Binary tidak jalan di perangkat ini - cek log.");
+                return false;
+            }
+            appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
+        }
+
+        if (isKernelRandomPanic(lastVersionOutput)) {
+            String kernel = KernelCompat.kernelSekarang();
+            String saran = KernelCompat.saranShimGagal(kernel.isEmpty() ? "?" : kernel);
+            autoRestart = false;
+            setStatus("Binary tidak cocok kernel STB - dihentikan.\n" + saran);
+            appendLog("[app] FATAL: " + saran + " Web-vault & TLS tidak masalah.");
+            writeCrashLog("binary tak cocok kernel (smoke test)");
+            TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
+                    + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean siapkanProsesDanPort(SesiStart sesi) {
+        killStaleVaultwarden();
+
+        int portNum = Integer.parseInt(sesi.port);
+        if (isPortBusy(portNum)) {
+
+            setStatus("Port " + sesi.port + " sedang dipakai proses lain.\n"
+                    + "Stop server lain / ganti port di Settings, lalu Start lagi.");
+            appendLog("[app] Port " + sesi.port + " sedang dipakai - server TIDAK start (cegah loop).");
+            TgBackup.sendMessage(this, "Gagal start: port " + sesi.port
+                    + " sedang dipakai proses lain. Stop server lain / ganti port lalu coba lagi.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean siapkanTls(SharedPreferences sp, SesiStart sesi) {
+        if (!tungguKunciDataStart()) {
+            return false;
+        }
+
+        sp.edit().putBoolean(KEY_HTTPS, true).apply();
+        sesi.tlsDir = prepareTls(sesi.dataFolder);
+        if (sesi.tlsDir == null) {
+            appendLog("[app] FATAL: sertifikat TLS gagal dibuat - server TIDAK start.");
+            setStatus("Gagal buat sertifikat TLS - server tidak start.\n"
+                    + "Cek sisa storage & tanggal/jam STB, lalu Start lagi.");
+            TgBackup.sendMessage(this, "Gagal start: sertifikat TLS gagal dibuat. "
+                    + "Cek sisa storage & tanggal/jam STB lalu coba lagi.");
+            return false;
+        }
+        long certDays = TlsCert.daysLeft(new File(sesi.tlsDir, "cert.pem"));
+        if (TlsCert.daysLeft(new File(sesi.tlsDir, "ca.pem")) == -2) {
+
+            appendLog("[app] FATAL: jam STB miring (CA belum valid)"
+                    + " - CA dipertahankan, server TIDAK start. Aktifkan"
+                    + " Tanggal & waktu otomatis, lalu Start lagi.");
+            setStatus("Jam STB salah (CA belum valid) - server tidak start.\n"
+                    + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
+            TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                    + " (CA TLS belum valid). CA tidak diganti; aktifkan"
+                    + " Tanggal & waktu otomatis lalu coba lagi.");
+            return false;
+        }
+        if (certDays >= 0 && certDays < 30) {
+            appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
+                    + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
+        } else if (certDays == -2) {
+
+            appendLog("[app] FATAL: jam STB miring (sertifikat belum valid)"
+                    + " - server TIDAK start. Aktifkan Tanggal & waktu otomatis,"
+                    + " lalu Start lagi.");
+            setStatus("Jam STB salah (sertifikat belum valid) - server tidak start.\n"
+                    + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
+            TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                    + " (sertifikat TLS belum valid). Aktifkan Tanggal & waktu"
+                    + " otomatis lalu coba lagi.");
+            return false;
+        }
+        return true;
+    }
+
+    private ProcessBuilder bangunEnv(SharedPreferences sp, SesiStart sesi) {
+        ProcessBuilder pb = new ProcessBuilder(sesi.binary.getAbsolutePath());
+        pb.environment().put("DATA_FOLDER", sesi.dataDir);
+        pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
+        pb.environment().put("ROCKET_PORT", sesi.port);
+
+        pb.environment().put("ROCKET_WORKERS", "1");
+        pb.environment().put("DATABASE_MAX_CONNS", "2");
+
+        sesi.adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
+
+        String bersih = sesi.adminToken == null ? "" : sesi.adminToken.trim();
+        if (!bersih.isEmpty()) {
+            if (!tokenAdminValid(bersih)) {
+                appendLog("[app] FATAL: admin token mengandung spasi/baris baru"
+                        + " - server TIDAK start. Perbaiki di Settings.");
+                setStatus("Admin token tak valid (spasi/baris baru) - perbaiki di Settings.");
+                TgBackup.sendMessage(this, "Gagal start: admin token tak valid"
+                        + " (spasi/baris baru). Perbaiki di Settings.");
+                return null;
+            }
+            pb.environment().put("ADMIN_TOKEN", bersih);
+            appendLog("[app] Admin token diaktifkan.");
+        }
+
+        File localWv = new File(sesi.dataFolder, "web-vault/index.html");
+        if (localWv.exists()) {
+            pb.environment().put("WEB_VAULT_ENABLED", "true");
+            String folderWv = localWv.getParentFile().getAbsolutePath();
+            pb.environment().put("WEB_VAULT_FOLDER", folderWv);
+            appendLog("[app] Web vault (updated): " + folderWv);
+        } else {
+            File webVault = extractWebVault();
+            if (webVault != null) {
+                pb.environment().put("WEB_VAULT_ENABLED", "true");
+                pb.environment().put("WEB_VAULT_FOLDER", webVault.getAbsolutePath());
+            } else {
+                pb.environment().put("WEB_VAULT_ENABLED", "false");
+            }
+        }
+
+        String tlsCert = new File(sesi.tlsDir, "cert.pem").getAbsolutePath();
+        String tlsKey = new File(sesi.tlsDir, "key.pem").getAbsolutePath();
+        pb.environment().put("ROCKET_TLS", "{certs=\"" + kutipRocket(tlsCert) + "\",key=\"" + kutipRocket(tlsKey) + "\"}");
+        appendLog("[app] TLS cert: " + tlsCert);
+        appendLog("[app] TLS key:  " + tlsKey);
+        pb.environment().put("RUST_LOG", "info");
+        if (sesi.shim != null) {
+            pb.environment().put("LD_PRELOAD", sesi.shim.getAbsolutePath());
+            appendLog("[app] LD_PRELOAD shim getrandom aktif.");
+        }
+
+        sesi.hostSegar = lanHost();
+        sesi.domain = "https://" + formatHostUntukUrl(sesi.hostSegar) + ":" + sesi.port;
+        pb.environment().put("DOMAIN", sesi.domain);
+        pb.redirectErrorStream(true);
+        return pb;
+    }
+
+    private void jalankanProses(SesiStart sesi, ProcessBuilder pb, int idEpisoda)
+            throws java.io.IOException {
+        runningDataDir = sesi.dataDir;
+        runningPort = sesi.port;
+        runningAdminToken = sidikTokenAdmin(sesi.adminToken);
+        String wvFrom = Updater.webVaultFromVersion(this);
+        runningWvFrom = wvFrom == null ? "" : wvFrom;
+        runningLanHost = sesi.hostSegar;
+        ipBerubahDiperingatkan = "";
+        ipBaruKandidat = "";
+        ipBaruHitung = 0;
+
+        if (!dataDirKanonisAman(sesi.dataDir)) {
+            throw new IOException("Folder data berubah/tak valid saat start;"
+                    + " dibatalkan agar server tak jalan di folder asing.");
+        }
+
+        boolean batal;
+
+        Process lahir = null;
+        synchronized (KUNCI_PROSET) {
+            batal = batalStart;
+            if (batal) {
+                batalStart = false;
+            } else {
+                lahir = pb.start();
+                process = lahir;
+
+                prosesStopDisengaja = null;
+                acquireWakeLock();
+                running = true;
+
+                idEpisodaProses = startIdTerakhir;
+            }
+        }
+        if (batal) {
+            appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
+                    + " - tekan Start lagi bila ingin jalan.");
+
+            if (idEpisoda == startIdTerakhir) {
+                setStatus("Stopped");
+            }
+            return;
+        }
+
+        healthFails.set(0);
+        healthTcpLolos.set(0);
+        configSajaBeruntun.set(0);
+        lastStartElapsed = SystemClock.elapsedRealtime();
+
+        pindahLogFile(new File(sesi.dataFolder, "vaultwarden.log"));
+        umumkanJalan(sesi, lahir);
+
+        final Process p = lahir;
+        Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
+        reader.setDaemon(true);
+        pembacaOutput = reader;
+        reader.start();
+
+        Thread watcher = new Thread(() -> watchProcess(p), "vw-watch");
+        watcher.setDaemon(true);
+        watcher.start();
+
+        appendLog("[app] start: " + sesi.binary.getAbsolutePath()
+                + " | versi: " + binaryVersion
+                + " | data=" + sesi.dataDir + " | port=" + sesi.port);
+
+        for (String panduan : panduanLoginBitwarden(sesi.port, formatHostUntukUrl(sesi.hostSegar))) {
+            appendLog(panduan);
+        }
+    }
+
+    private void umumkanJalan(SesiStart sesi, Process lahir) {
+        boolean bolehUmumkan;
+        synchronized (KUNCI_PROSET) {
+            bolehUmumkan = bolehUmumkanJalan(process == lahir, running,
+                    alive(lahir), idEpisodaProses == startIdTerakhir);
+        }
+        if (bolehUmumkan) {
+            setStatus("Running (PID " + getPid(lahir) + ")\nData: " + sesi.dataDir
+                    + "\nURL lokal (di HP): https://127.0.0.1:" + sesi.port
+                    + "\nURL jaringan (dari PC/laptop): " + sesi.domain);
+            TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
+        } else {
+            appendLog("[app] Stop sudah diminta - status dan pesan"
+                    + " \"Server jalan\" dilewati.");
+        }
+        TgBackup.notifyLowStorage(this);
     }
 
     private void stopServer() {
