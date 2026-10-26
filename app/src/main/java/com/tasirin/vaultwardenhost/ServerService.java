@@ -2905,28 +2905,28 @@ public class ServerService extends Service {
         }
 
         if (lama != null && !lama.isEmpty() && lamaWaktu > 0) {
-            Util.jalankanBg(() -> {
-                long kini = SystemClock.elapsedRealtime();
-                synchronized (IP_LOCK) {
-                    if (ipCacheSegar(kini, ipCacheTime, ipCache)) {
-                        return;
-                    }
-                }
-                String segar = lanHost();
-                synchronized (IP_LOCK) {
-                    ipCache = segar;
-                    ipCacheTime = kini;
-                }
-            });
+            jadwalSegarkanIp();
             return lama;
         }
 
-        String pilih = lanHost();
-        synchronized (IP_LOCK) {
-            ipCache = pilih;
-            ipCacheTime = now;
-        }
-        return pilih;
+        jadwalSegarkanIp();
+        return "127.0.0.1";
+    }
+
+    private static void jadwalSegarkanIp() {
+        Util.jalankanBg(() -> {
+            long kini = SystemClock.elapsedRealtime();
+            synchronized (IP_LOCK) {
+                if (ipCacheSegar(kini, ipCacheTime, ipCache)) {
+                    return;
+                }
+            }
+            String segar = lanHost();
+            synchronized (IP_LOCK) {
+                ipCache = segar;
+                ipCacheTime = kini;
+            }
+        });
     }
 
     public static String localUrl(Context context) {

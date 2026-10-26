@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 360: localIp tak lagi menghitung antarmuka jaringan di utas pemanggil saat cache dingin
+- `ServerService.localIp()` sudah benar untuk cache basi (jadwalkan penyegaran di latar, kembalikan nilai lama), tetapi pada cache DINGIN (proses baru) ia memanggil `lanHost()` — enumerasi `NetworkInterface` — sinkron di utas pemanggil. Pemanggilnya di utas UI: tick refresh MainActivity dan klik salin URL, jadi buka pertama aplikasi bisa tersendat menunggu enumerasi selesai.
+- Blok penyegaran latar diekstrak ke `jadwalSegarkanIp()` dan kini dipakai kedua jalur: cache dingin menjadwalkan penyegaran yang sama lalu mengembalikan `127.0.0.1` — nilai yang sama dengan hasil `lanHost()` saat tak ada jaringan — dan URL tampil terkoreksi sendiri pada tick berikutnya begitu cache terisi (hitungan detik).
+
 ## [Belum rilis] — Audit 359: arah fokus D-pad layar PIN landscape kini mengikuti posisi tombol sebenarnya
 - Di `layout-land/activity_pin.xml` kedua tombol tersusun menyamping (Buka kiri, Keluar kanan), tetapi atribut fokusnya tersalin utuh dari portrait tempat tombol bertumpuk vertikal: `pinBuka` punya `nextFocusDown=@id/pinKeluar` dan `pinKeluar` punya `nextFocusUp=@id/pinBuka` — di perangkat landscape/TV menekan Bawah pada "Buka" melompat menyamping ke "Keluar", dan menekan Atas pada "Keluar" melompat ke "Buka".
 - Landscape kini memakai arah sebenarnya: `pinBuka` `nextFocusRight=@id/pinKeluar`, `pinKeluar` `nextFocusLeft=@id/pinBuka` + `nextFocusUp=@id/pinInput` (kolom PIN membentang di atas kedua tombol). Portrait tidak berubah; paritas ID layout-land tetap utuh.
