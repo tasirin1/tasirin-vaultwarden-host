@@ -288,11 +288,11 @@ public class MainActivity extends Activity {
     }
 
     static boolean pinMenahanKonten(boolean pinBukaJalan, boolean pinAktif,
-            boolean dalamGrace, boolean hashAda) {
+            boolean dalamGrace) {
         if (pinBukaJalan) {
             return true;
         }
-        return pinAktif && !dalamGrace && hashAda;
+        return pinAktif && !dalamGrace;
     }
 
     private boolean pinMenahanKonten() {

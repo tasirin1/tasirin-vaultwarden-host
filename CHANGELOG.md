@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 426: cermin pinMenahanKonten selaras dengan PinGate pada keadaan hash hilang
+- Cermin keputusan penahan konten di MainActivity mensyaratkan hash PIN ada, sehingga pada keadaan `KUNCI_RUSAK` (PIN aktif, hash hilang/rusak) konten tetap ter-refresh di belakang layar PIN — padahal `PinGate.wajibLayarPin` mewajibkan layar PIN pada keadaan itu juga. Tes Audit untuk #164 ikut mengunci penyimpangan ini.
+- Parameter `hashAda` dibuang dari `pinMenahanKonten`: konten tertahan tepat saat PIN aktif dan di luar masa tenggang, sama seperti keputusan `PinGate` (BUKA maupun RUSAK). Tes diperbarui di commit yang sama — kasus hash-hilang kini tercakup oleh bentuk tiga-argumen dan menegaskan konten tertahan.
+
 ## [Belum rilis] — Audit 425: callback batal confirm() tidak lagi berjalan dua kali
 - Handler tombol Batal menjalankan callback `batal` tetapi tidak menandai `dipilih[0]`; dialog selalu men-dismiss sesudah klik, sehingga `OnDismissListener` (tambahan Audit untuk #136) mengira dialog tertutup tanpa pilihan dan menjalankan `batal` sekali lagi. Dampaknya tertutup selama ini hanya karena satu-satunya callback berkabel bersifat idempoten (menghapus berkas tmp).
 - Tombol Batal kini menandai `dipilih[0] = true` sebelum menjalankan callback, sehingga jalur dismiss hanya menanggung penutupan tanpa pilihan (rotasi, sentuh luar, tombol Back) seperti maksud semula.
