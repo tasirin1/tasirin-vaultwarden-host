@@ -277,16 +277,20 @@ def cek_manifest(gagal):
 
 def cek_duplikat_definisi(gagal):
     pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
+    per_folder = {}
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
-        if "/values" not in path.replace(os.sep, "/"):
+        rata = path.replace(os.sep, "/")
+        if "/values" not in rata:
             continue
-        hitung = {}
+        folder = rata.rsplit("/", 1)[0]
+        hitung = per_folder.setdefault(folder, {})
         for jenis, nama in pola.findall(baca(path)):
             kunci = jenis + "/" + nama
             hitung[kunci] = hitung.get(kunci, 0) + 1
-        ganda = sorted(k for k, n in hitung.items() if n > 1)
+    for folder in sorted(per_folder):
+        ganda = sorted(k for k, n in per_folder[folder].items() if n > 1)
         if ganda:
-            gagal.append("Definisi ganda di %s: %s" % (path, ", ".join(ganda[:5])))
+            gagal.append("Definisi ganda di folder %s: %s" % (folder, ", ".join(ganda[:5])))
 
 def berkas_dihapus(rentang, diff_biasa):
     r = rentang_normal(rentang)

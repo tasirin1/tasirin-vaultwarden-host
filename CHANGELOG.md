@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 414: cek definisi ganda gerbang kini per folder values, bukan per berkas
+- `cek_duplikat_definisi` mereset penghitungnya tiap berkas, jadi definisi yang sama (mis. `app_name` kedua) di dua berkas berbeda dalam folder `values/` yang sama lolos gerbang lokal dan baru merah di AAPT CI (temuan audit putaran-9, #168; terbukti eksekusi ulang saat audit).
+- Penghitung kini dikelompokkan per folder values — persis satuan konflik AAPT; definisi lintas folder (mis. `values/` vs `values-night/`) tetap sah sebagai timpaan dan tidak dilaporkan.
+
 ## [Belum rilis] — Audit 413: hash PIN yang lebih kuat dari standar tidak lagi diturunkan saat "upgrade"
 - `perluUpgradeHash` memakai `iter != iterasiStandar()`: di perangkat tanpa pabrik PBKDF2 (standar legasi 12.000), hash sah 30.000 iterasi dari perangkat lain ditandai perlu upgrade lalu ditulis ulang pada 12.000 — penurunan kekuatan hash secara diam-diam (temuan audit putaran-9, #167).
 - Keputusan kini `iter < iterasiStandar()`: hanya hash yang lebih lemah dari standar perangkat yang dinaikkan; yang lebih kuat dipertahankan (verifikasi memang memakai jumlah iterasi tersimpan). Uji `normalisasiIterasiLama` yang mengunci perilaku lama diperbarui di commit yang sama.
