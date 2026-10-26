@@ -2544,6 +2544,23 @@ public final class TgBackup {
         return new File(dir, PREFIX_PLAIN_TMP + label + "-" + unik + akhiran);
     }
 
+    private static final java.util.Map<String, Long> CAP_DEPAN_TERLIHAT =
+            new java.util.HashMap<String, Long>();
+
+    private static boolean capDepanStabil(File f) {
+        String kunci = f.getAbsolutePath();
+        long cap = f.lastModified();
+        synchronized (CAP_DEPAN_TERLIHAT) {
+            Long terlihat = CAP_DEPAN_TERLIHAT.get(kunci);
+            if (terlihat != null && terlihat.longValue() == cap) {
+                CAP_DEPAN_TERLIHAT.remove(kunci);
+                return true;
+            }
+            CAP_DEPAN_TERLIHAT.put(kunci, Long.valueOf(cap));
+            return false;
+        }
+    }
+
     static void sapuTmpPlainBasi(File dir, String... kecualikan) {
         if (dir == null) {
             return;
@@ -2574,7 +2591,9 @@ public final class TgBackup {
                     umur = 0;
                 }
                 boolean stempelDiMasaDepan = f.lastModified() - kini >= UMUR_DEC_TMP_MS;
-                if ((umur >= UMUR_DEC_TMP_MS || stempelDiMasaDepan) && f.isFile()) {
+                if (umur >= UMUR_DEC_TMP_MS && f.isFile()) {
+                    f.delete();
+                } else if (stempelDiMasaDepan && f.isFile() && capDepanStabil(f)) {
                     f.delete();
                 }
             } catch (Exception ignored) {

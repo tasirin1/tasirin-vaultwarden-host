@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 387: sapuan plaintext bercap masa depan kini menuntut cap yang stabil dua sapuan
+- Cabang cap-masa-depan dari perbaikan #103 menghapus berkas plaintext sementara hanya dari cap waktunya; daftar pengecualian hanya memuat berkas milik pemanggil sapuan itu sendiri — berkas yang sedang ditulis alur lain (dekripsi/restore berjalan bersamaan, jam perangkat melompat) bisa terhapus di tengah jalan (temuan audit putaran-7, #125).
+- Berkas bercap masa depan kini hanya dihapus bila capnya terlihat TIDAK BERUBAH pada dua sapuan berurutan dalam proses yang sama (`capDepanStabil`): berkas yang sedang aktif ditulis capnya terus bergerak dan lolos terus, sedangkan sisa yatim bercap depan tetap terhapus — satu sapuan lebih lambat dari sebelumnya.
+
 ## [Belum rilis] — Audit 386: sapuan .bak pemulihan kini hanya menyentuh berkas kelola aplikasi dan tercatat di log
 - `pulihkanBakDiFolder` memproses SEMUA `*.bak` di folder data dan `tls/`: yang berkas asalnya ada dihapus diam-diam, yang tidak ada diganti namanya menjadi berkas asal — berkas `.bak` manual milik pengguna (mis. salinan `db.sqlite3.bak` buatannya sendiri) bisa lenyap atau terpindah tanpa jejak (temuan audit putaran-7, #124).
 - Sapuan kini dibatasi daftar nama yang benar-benar ditukar atomik aplikasi (di folder data: `db.sqlite3` + `-wal`/`-shm`; di `tls/`: `ca.pem`, `cert.pem`, `key.pem`, `ca-key.pem` — selaras daftar sah restore), dan penghapusan sisa swap kini dicatat di log seperti pemulihannya. Nama di luar daftar tidak disentuh sama sekali.

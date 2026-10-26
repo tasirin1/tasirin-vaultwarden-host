@@ -795,6 +795,18 @@ public class TgBackupTest {
             assertTrue(segarIsi.exists());
             assertTrue(lain.exists());
 
+            java.io.File depan = new java.io.File(dir, "vwtg-dec-c.zip.tmp");
+            assertTrue(depan.createNewFile());
+            long depanMs = System.currentTimeMillis() + TgBackup.UMUR_DEC_TMP_MS + 60_000L;
+            assertTrue(depan.setLastModified(depanMs));
+            TgBackup.sapuTmpPlainBasi(dir, segar.getName(), segarIsi.getName());
+            assertTrue(depan.exists());
+            assertTrue(depan.setLastModified(depanMs + 60_000L));
+            TgBackup.sapuTmpPlainBasi(dir, segar.getName(), segarIsi.getName());
+            assertTrue(depan.exists());
+            TgBackup.sapuTmpPlainBasi(dir, segar.getName(), segarIsi.getName());
+            assertFalse(depan.exists());
+
             TgBackup.sapuTmpPlainBasi(dir, (String[]) null);
             assertTrue(segar.exists());
             assertTrue(segarIsi.exists());
