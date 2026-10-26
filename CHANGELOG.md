@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 308: build APK hijau lagi (lint i18n + compile unit test)
+- Dua sebab build merah beruntun: (a) `compileDebugUnitTestJavaWithJavac` gagal karena `TgBackupTest` memakai `TgBackup.ENC_MAGIC` yang `private`; (b) `lintDebug` gagal 16 error setelah i18n (#1).
+- Lint `StringFormatMatches` (8 lokasi, `MainActivity:434-443` + `SettingsActivity:1080-1088`): enam string port memakai `%1$s` padahal pemanggil memberi `int` (`portFix`/`portCekPort`). Specifier diganti `%1$d` di `values` **dan** `values-in` (paritas tetap). Lint `MissingQuantity` (error, aturan #12): `plurals pin_lockout` versi Indonesia hanya punya `other`; ditambah `one` ("Terkunci, coba lagi 1 menit.") seperti default.
+- Uji `TgBackupTest` memakai literal `"VWB1"` (konstanta `ENC_MAGIC` memang privat).
+- Langkah CI "Tampilkan laporan lint di log" dulu `cat app/build/reports/lint-results-debug.txt` yang **tidak pernah ada** di AGP 8 (teks laporan ada di `app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/`), sehingga log hanya memuat "First failure". Kini kedua path dicoba dan 400 baris pertama dicetak.
+- `verifikasi-patch.py`: `cek_paritas_resource` juga membandingkan quantity `plurals` `values` vs `values-in` (setara `MissingQuantity`) agar push berikut tak lagi baru ketahuan merah di CI. Diuji dengan menghapus sementara quantity `one`: GAGAL; setelah dipulihkan LOLOS.
+
 ## [Belum rilis] — Audit 307: backup .enc ditulis atomik & sisa terpotong tak mengusir backup sehat
 - `tulisTerenkripsi` dulu menulis `.enc` final di tempat. Bila STB mati/listrik putus/`kill -9` di tengah enkripsi, folder `backups/` menyimpan `.enc` parsial yang **tidak bisa didekripsi**, tetapi `lastModified`-nya paling baru sehingga ia menempati kuota `KEEP_BACKUPS` dan mengusir backup lama yang masih sehat — kebalikan tujuan retensi.
 - Enkripsi kini menulis ke `<nama>.enc.tmp` di folder yang sama, `flush` + `fsync`, lalu `rename` atomik (fallback hapus-lalu-rename); `finally` membuang sisa `.tmp`. `isFileBackup` menganggap nama ber-`.tmp` bukan backup sehingga sisa tulisan tak menempati kuota.

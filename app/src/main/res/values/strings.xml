@@ -163,10 +163,10 @@
     <string name="log_gagal_simpan">Failed to save log</string>
     <string name="ok">OK</string>
     <string name="folder_tidak_valid">Invalid data folder — reverted to default.</string>
-    <string name="port_root_judul">Port %1$s needs root access</string>
-    <string name="port_root_pesan">Main port (%1$s) below 1024 can only be used with root access.\nChange the port to >= 1024 (e.g. 8088) in Settings.</string>
-    <string name="port_dipakai_judul">Port %1$s is in use</string>
-    <string name="port_dipakai_pesan">Main port (%1$s) is already used by another process.\nStop the other app using it, change the port in Settings, or restart the phone first.</string>
+    <string name="port_root_judul">Port %1$d needs root access</string>
+    <string name="port_root_pesan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to >= 1024 (e.g. 8088) in Settings.</string>
+    <string name="port_dipakai_judul">Port %1$d is in use</string>
+    <string name="port_dipakai_pesan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port in Settings, or restart the phone first.</string>
     <string name="wv_belum_judul">Web vault not installed</string>
     <string name="wv_belum_pesan">The APK excludes the web vault to stay small.\nDownload once (~35 MB) so the web UI can be opened from a browser?\n\nWithout the web vault, the server and Bitwarden apps still work normally.</string>
     <string name="wv_unduh_mulai">Download &amp; Start</string>
@@ -198,8 +198,8 @@
     <string name="folder_bawaan">Invalid data folder, using default.</string>
     <string name="port_angka">Port must be a number 1-65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 needs root — using default %1$s.</string>
-    <string name="port_root_pesan_setelan">Main port (%1$s) below 1024 can only be used with root access.\nChange the port to &gt;= 1024 (e.g. 8088) above.</string>
-    <string name="port_dipakai_pesan_setelan">Main port (%1$s) is already used by another process.\nStop the other app using it, change the port above, or restart the phone first.</string>
+    <string name="port_root_pesan_setelan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to &gt;= 1024 (e.g. 8088) above.</string>
+    <string name="port_dipakai_pesan_setelan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port above, or restart the phone first.</string>
     <string name="wv_unduh_gagal_galat">Web-vault download failed — server was not started: %1$s</string>
     <string name="ca_belum">No CA yet. Press Start first so a CA is created.</string>
     <string name="ca_installer_gagal">Failed to open installer: %1$s</string>

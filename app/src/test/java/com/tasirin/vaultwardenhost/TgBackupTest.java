@@ -107,7 +107,7 @@ public class TgBackupTest {
         java.nio.file.Files.write(pas.toPath(), isi);
         assertFalse(TgBackup.encTerpotong(pas));
         assertTrue(TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC_V3)
-                > TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC));
+                > TgBackup.panjangMinimumEnc("VWB1"));
         assertEquals(-1, TgBackup.panjangMinimumEnc("ZZZZ"));
         assertEquals(-1, TgBackup.panjangMinimumEnc(null));
     }

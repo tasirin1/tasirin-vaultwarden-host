@@ -163,10 +163,10 @@
     <string name="log_gagal_simpan">Gagal menyimpan log</string>
     <string name="ok">OK</string>
     <string name="folder_tidak_valid">Folder data tidak valid — dikembalikan ke bawaan.</string>
-    <string name="port_root_judul">Port %1$s butuh akses root</string>
-    <string name="port_root_pesan">Port utama (%1$s) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di Setelan.</string>
-    <string name="port_dipakai_judul">Port %1$s sedang dipakai</string>
-    <string name="port_dipakai_pesan">Port utama (%1$s) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di Setelan, atau restart HP lebih dulu.</string>
+    <string name="port_root_judul">Port %1$d butuh akses root</string>
+    <string name="port_root_pesan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di Setelan.</string>
+    <string name="port_dipakai_judul">Port %1$d sedang dipakai</string>
+    <string name="port_dipakai_pesan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di Setelan, atau restart HP lebih dulu.</string>
     <string name="wv_belum_judul">Web vault belum terpasang</string>
     <string name="wv_belum_pesan">APK tidak menyertakan web vault agar tetap kecil.\nUnduh sekali (~35 MB) supaya tampilan web bisa dibuka dari browser?\n\nTanpa web vault, server dan aplikasi Bitwarden tetap berjalan normal.</string>
     <string name="wv_unduh_mulai">Unduh &amp; Mulai</string>
@@ -187,6 +187,7 @@
     <string name="pin_sibuk">Perangkat sibuk, coba lagi.</string>
     <string name="pin_proses_gagal">PIN gagal diproses, coba lagi.</string>
     <plurals name="pin_lockout">
+        <item quantity="one">Terkunci, coba lagi 1 menit.</item>
         <item quantity="other">Terkunci, coba lagi %1$d menit.</item>
     </plurals>
     <string name="acak_dibuat">Token acak dibuat — tekan Start untuk menerapkan.</string>
@@ -197,8 +198,8 @@
     <string name="folder_bawaan">Folder data tidak valid, memakai bawaan.</string>
     <string name="port_angka">Port harus angka 1-65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 butuh root — memakai bawaan %1$s.</string>
-    <string name="port_root_pesan_setelan">Port utama (%1$s) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di atas.</string>
-    <string name="port_dipakai_pesan_setelan">Port utama (%1$s) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di atas, atau restart HP lebih dulu.</string>
+    <string name="port_root_pesan_setelan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di atas.</string>
+    <string name="port_dipakai_pesan_setelan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di atas, atau restart HP lebih dulu.</string>
     <string name="wv_unduh_gagal_galat">Unduhan web-vault gagal — server tidak dijalankan: %1$s</string>
     <string name="ca_belum">Belum ada CA. Tekan Start dulu agar CA dibuat.</string>
     <string name="ca_installer_gagal">Gagal membuka installer: %1$s</string>
