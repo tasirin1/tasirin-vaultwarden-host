@@ -191,6 +191,7 @@ public class LogActivity extends Activity {
         }
 
         if (!redaksiJalan.compareAndSet(false, true)) {
+            lastLogKey = null;
             return;
         }
         lastLogKey = key;

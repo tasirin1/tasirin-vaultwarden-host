@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 352: hasil pencarian log lama tak lagi tampil sesaat saat redaksi sedang berjalan
+- Di `LogActivity.refreshLog`, permintaan kata kunci baru yang datang selagi redaksi lama berjalan ditolak `compareAndSet` SEBELUM `lastLogKey` diperbarui, sehingga cek anti-usang di callback tugas lama (`!kunci.equals(lastLogKey)`) menganggap hasil lama — tanpa saringan kata yang sedang tertulis — masih terbaru dan menampilkannya; baru terkoreksi pada tick berikutnya (sampai 1,5 detik).
+- Penolakan CAS kini mengosongkan `lastLogKey` (idiom yang sama dengan jalur antrean-penuh di fungsi yang sama): callback lama pasti terbuang karena kuncinya tak lagi cocok, dan tick berikutnya menjalankan ulang permintaan terbaru begitu redaksi bebas — tanpa jebakan dedupe kunci yang membuat tampilan tersaring tak pernah muncul pada log yang diam.
+
 ## [Belum rilis] — Audit 351: FileShareProvider hanya membagikan berkas datar langsung di backups/ dan tls/
 - Uji lokasi di `isShareable` hanya awalan jalur (`startsWith(data + "/backups/")`), jadi berkas bernama yang diizinkan di subfolder mana pun di bawah `backups/` ikut bisa dibagikan, padahal aplikasi hanya menulis berkas datar di sana — relevan terutama bila `data_dir` berada di storage bersama tempat pihak lain bisa menaruh berkas. Semua blok berbasis nama (db.sqlite3*, kunci privat, backup penuh, berkas sementara) memang tetap berlaku, tetapi batas lokasinya tidak seketat desainnya.
 - Uji lokasi kini penolong murni `anakLangsung`: sisa jalur sesudah awalan folder tidak boleh mengandung pemisah lagi. Diterapkan ke `backups/` sesuai temuan dan ke `tls/` yang strukturnya identik (aplikasi juga hanya menulis berkas datar di sana). Diuji di `FileShareProviderTest`.
