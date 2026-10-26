@@ -89,6 +89,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
         if (alarmApp && !TgBackup.rahasiaAlarmCocok(context, intent)) {
+            if (ACTION_HARIAN.equals(action)) {
+                jadwalUlangBilaOtomatis(context);
+            }
             return;
         }
 
@@ -179,9 +182,23 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
 
             simpanThrottle(context, kiniElapsed);
+            if (ACTION_HARIAN.equals(action)) {
+                jadwalUlangBilaOtomatis(context);
+            }
             return;
         }
         simpanThrottle(context, kiniElapsed);
         mulaiBackup(context);
+    }
+
+    private static void jadwalUlangBilaOtomatis(Context context) {
+        try {
+            SharedPreferences sp = context.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
+                TgBackup.schedule(context, true);
+            }
+        } catch (Exception ignored) {
+        }
     }
 }

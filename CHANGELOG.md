@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 405: rantai alarm backup harian kini dipasang ulang di jalur keluar awal
+- Alarm harian adalah alarm exact sekali tembak yang dipasang ulang oleh `mulaiBackup`; dua jalur keluar awal di `AlarmReceiver` tidak pernah mencapainya — rahasia alarm tak cocok dan throttle 60 detik — sehingga satu kejadian saja mematikan rantai: backup harian berhenti selamanya tanpa log maupun pesan (temuan audit putaran-9, #159).
+- Kedua jalur itu kini memasang ulang alarm hari berikutnya lebih dulu (`jadwalUlangBilaOtomatis`, hanya untuk aksi harian dan hanya bila backup otomatis aktif) sebelum kembali; isi backup dan throttle-nya sendiri tak berubah.
+
 ## [Belum rilis] — Audit 404: semua action workflow dipaku ke SHA dan rustup dipasang dari biner terpaku checksum
 - Tak satu pun `uses:` di kedua workflow dipaku ke commit (tag mayor bisa digeser pemilik repo action), dan rustup dipasang lewat `curl https://sh.rustup.rs | sh` tanpa verifikasi — kompromi pihak ketiga berarti eksekusi kode asing di job pembangun biner/APK rilis (temuan audit putaran-8, #142; catatan pengerasan).
 - Semua `uses:` kini menunjuk SHA commit persis (versi lama dipertahankan sebagai komentar), dan rustup dipasang dari `rustup-init` 1.28.2 resmi yang diverifikasi SHA-256 sebelum dijalankan — pola yang sama seperti bundel CA di berkas yang sama.
