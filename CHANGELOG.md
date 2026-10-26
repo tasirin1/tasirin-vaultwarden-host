@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: distribusi Gradle wrapper dipin SHA-256
+- `gradle-wrapper.properties` hanya mengandalkan `distributionUrl` + `validateDistributionUrl`, sehingga zip Gradle yang dieksekusi di runner (memegang `GITHUB_TOKEN` dan secret keystore) tidak diperiksa integritasnya bila layanan distribusi/proxy CI disusupi.
+- Ditambahkan `distributionSha256Sum=bd7110...f3531` untuk `gradle-8.14.3-bin.zip`, dicocokkan dari dua endpoint resmi Gradle (`distributions/...sha256` dan `versions/all`). Bila versi Gradle dinaikkan, hash wajib diperbarui bersamaan.
+
 ## [Belum rilis] — Audit 311: unggahan Telegram menghormati HTTP 429
 - `uploadTelegram` (sendDocument untuk backup/CA) langsung mengubah HTTP 429 menjadi `IOException`, sedangkan `kirimSatuPesan` sudah membaca `retry_after` lalu menunggu. Saat backup manual + terjadwal + `/cabackup` berdekatan, Telegram membatasi laju dan backup hari itu tidak terkirim.
 - Jalur unggah kini mencoba ulang sekali setelah `jedaRetryAfterMs` (log "[tg] Unggah kena limit Telegram ..."), lalu tetap melempar galat bila percobaan kedua masih 429 — tidak ada pengulangan tanpa batas.
