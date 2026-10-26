@@ -3674,12 +3674,83 @@ public class ServerService extends Service {
                 }
             }
             if (m == null) {
-                return -1;
+                return pidAnakDariProc(p);
             }
 
             return ((Number) m.invoke(p)).intValue();
         } catch (Throwable t) {
             return -1;
+        }
+    }
+
+    private static int pidAnakDariProc(Process p) {
+        try {
+            p.exitValue();
+            return -1;
+        } catch (IllegalThreadStateException e) {
+        } catch (Throwable t) {
+            return -1;
+        }
+        int myPid = android.os.Process.myPid();
+        for (int pid : kandidatPidSeUid()) {
+            if (pid == myPid) {
+                continue;
+            }
+            File dir = new File("/proc/" + pid);
+            if (!cmdlineServer(readProcCmdline(dir))) {
+                continue;
+            }
+            if (ppidDariStat(bacaBarisProc(new File(dir, "stat"))) == myPid) {
+                return pid;
+            }
+        }
+        return -1;
+    }
+
+    static int ppidDariStat(String stat) {
+        if (stat == null) {
+            return -1;
+        }
+        int tutup = stat.lastIndexOf(')');
+        if (tutup < 0) {
+            return -1;
+        }
+        int n = stat.length();
+        int i = tutup + 1;
+        while (i < n && (stat.charAt(i) == ' ' || stat.charAt(i) == '\t')) {
+            i++;
+        }
+        while (i < n && stat.charAt(i) != ' ' && stat.charAt(i) != '\t') {
+            i++;
+        }
+        while (i < n && (stat.charAt(i) == ' ' || stat.charAt(i) == '\t')) {
+            i++;
+        }
+        int j = i;
+        if (j < n && (stat.charAt(j) == '-' || stat.charAt(j) == '+')) {
+            j++;
+        }
+        int awalAngka = j;
+        while (j < n && stat.charAt(j) >= '0' && stat.charAt(j) <= '9') {
+            j++;
+        }
+        if (j == awalAngka) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(stat.substring(i, j));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private static String bacaBarisProc(File f) {
+        try (BufferedReader r = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f),
+                        StandardCharsets.UTF_8), 2048)) {
+            return r.readLine();
+        } catch (Exception e) {
+            return null;
         }
     }
 

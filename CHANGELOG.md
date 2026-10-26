@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 335: pidOf kini menemukan PID anak lewat /proc di API 21–25
+- Perbaikan Audit 313 (#65) mengecualikan proses anak yang sedang jalan dari pembersihan yatim lewat `pidOf()`, tetapi `pidOf()` hanya memakai refleksi `Process.pid()` yang baru ada di API 26+; di API 21–25 (perangkat sasaran utama) ia selalu mengembalikan -1, sehingga `bereskanServerYatim` dan `killStaleVaultwarden` bisa membunuh server yang sedang jalan sebagai yatim: watcher menafsirkannya sebagai crash, jatah restart terbakar, dan vault bisa mati sampai intervensi manual.
+- Bila metode `pid()` tak tersedia, `pidOf()` kini jatuh ke `pidAnakDariProc()`: proses yang masih hidup (`exitValue()` melempar `IllegalThreadStateException`) dicari di `/proc` sebagai proses server yang induk langsungnya adalah proses aplikasi ini (pengurai murni `ppidDariStat`, ppid == myPid) — yatim sejati yang induknya sudah mati tetap dibersihkan seperti sebelumnya. `ppidDariStat` diuji di `ServerServiceTest`.
+
 ## [Belum rilis] — Audit 334: pengingat uji di verifikasi-patch kini mengenali metode non-statis
 - `cek_uji_baru` di `tools/verifikasi-patch.py` hanya mencocokkan deklarasi satu baris berpola `(public)? static`, jadi metode instan dan metode paket-privat baru — yang justru paling mungkin berisi logika murni — lolos dari pengingat "uji logika murni baru" tanpa bunyi apa pun.
 - Pola kini menerima semua pengubah akses/`final`/`synchronized`/`default` dengan tipe pengembalian wajib berkarakter kata (bukan sekadar spasi indentasi); konstruktor disaring lewat nama kelas dari nama berkas + deklarasi `class`/`interface`/`enum` di diff yang sama, metode `@Override` (sebaris atau baris sebelumnya) dan deklarasi tanpa badan (`;`) dilewati, dan teks peringatan digeneralisasi menjadi "Metode baru". Terbukti dengan diff sintetis: metode instan/paket-privat/tipe multi-kata terdeteksi, konstruktor/`@Override`/panggilan metode tidak.

@@ -567,6 +567,20 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void ppidDariStat_uraiIndukDariBarisStat() {
+        assertEquals(999, ServerService.ppidDariStat(
+                "1234 (vaultwarden-armeabi-v7a) S 999 1234 1234 0 -1 4194304"));
+        assertEquals(1, ServerService.ppidDariStat(
+                "55 (nama proses aneh) R 1 55 55 0 -1 0"));
+        assertEquals(42, ServerService.ppidDariStat("7 (a)b) S 42 7 7 0 -1 0"));
+        assertEquals(-1, ServerService.ppidDariStat("bukan stat"));
+        assertEquals(-1, ServerService.ppidDariStat("123 (x) S"));
+        assertEquals(-1, ServerService.ppidDariStat("123 (x) S abc 0"));
+        assertEquals(-1, ServerService.ppidDariStat(""));
+        assertEquals(-1, ServerService.ppidDariStat(null));
+    }
+
+    @Test
     public void startGagalPermanenHanyaSaatTakAdaProsesDanTakDitunda() {
 
         assertTrue(ServerService.startGagalPermanen(false, false, false, true, false));
