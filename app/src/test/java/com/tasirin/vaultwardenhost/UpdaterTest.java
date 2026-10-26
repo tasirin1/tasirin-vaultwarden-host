@@ -1099,6 +1099,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void pindaiHexDariBaris_namaAssetBercabangDitolak() {
+        String hexLama = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        String hexBaru = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        java.util.List<String> bercabang = java.util.Arrays.asList(
+                hexLama + "  web-vault.zip", hexBaru + "  web-vault.zip");
+        assertNull(Updater.pindaiHexDariBaris(bercabang, "web-vault.zip"));
+        java.util.List<String> sepakat = java.util.Arrays.asList(
+                hexBaru + "  web-vault.zip", hexBaru + "  WEB-VAULT.ZIP");
+        assertEquals(hexBaru, Updater.pindaiHexDariBaris(sepakat, "web-vault.zip"));
+    }
+
+    @Test
     public void bolehCobaLagiUnduh_checksumCampuranDiulangDariNol() {
         assertTrue(Updater.bolehCobaLagiUnduh(
                 new java.io.IOException("Checksum SHA-256 tidak cocok; update dibatalkan.")));

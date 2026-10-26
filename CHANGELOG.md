@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 388: parser checksum bernama kini menolak kandidat bercabang
+- Jalur bernama `pindaiHexDariBaris` mengembalikan hex PERTAMA dari baris yang menyebut nama asset — dua baris untuk asset yang sama dengan hash berbeda (manifes rusak/tercampur) diterima begitu saja dari urutan baris, padahal jalur tanpa nama sejak perbaikan #100 menolak kandidat lebih dari satu (temuan audit putaran-7, #126).
+- Jalur bernama kini menghimpun kandidatnya: dua hex berbeda untuk nama yang sama → `null` (checksum dianggap tak terbit, unduhan dibatalkan) — baris sepakat dengan hex sama tetap diterima.
+
 ## [Belum rilis] — Audit 387: sapuan plaintext bercap masa depan kini menuntut cap yang stabil dua sapuan
 - Cabang cap-masa-depan dari perbaikan #103 menghapus berkas plaintext sementara hanya dari cap waktunya; daftar pengecualian hanya memuat berkas milik pemanggil sapuan itu sendiri — berkas yang sedang ditulis alur lain (dekripsi/restore berjalan bersamaan, jam perangkat melompat) bisa terhapus di tengah jalan (temuan audit putaran-7, #125).
 - Berkas bercap masa depan kini hanya dihapus bila capnya terlihat TIDAK BERUBAH pada dua sapuan berurutan dalam proses yang sama (`capDepanStabil`): berkas yang sedang aktif ditulis capnya terus bergerak dan lolos terus, sedangkan sisa yatim bercap depan tetap terhapus — satu sapuan lebih lambat dari sebelumnya.

@@ -2356,13 +2356,20 @@ public final class Updater {
         }
         String kunci = namaAsset == null ? "" : namaAsset.trim().toLowerCase(java.util.Locale.US);
         if (!kunci.isEmpty()) {
+            String kandidat = null;
             for (String b : baris) {
                 if (b != null && mengandungAbaikanHuruf(b, kunci)) {
                     String dapat = pindaiHexChecksum(b);
                     if (dapat != null) {
-                        return dapat;
+                        if (kandidat != null && !kandidat.equals(dapat)) {
+                            return null;
+                        }
+                        kandidat = dapat;
                     }
                 }
+            }
+            if (kandidat != null) {
+                return kandidat;
             }
         }
         String satuSatunya = null;
