@@ -164,7 +164,7 @@ jobs:
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           SIZE=$(stat -c %s "$APK")
           echo "Ukuran APK (${APK##*/}): $SIZE bytes"
-          # APK desain ~0,1 MB (binary & web-vault tidak dibundel); batas 2 MB
+          # APK desain ~0,25 MB / 247 KB (binary & web-vault tidak dibundel); batas 2 MB
           # agar membengkaknya APK langsung ketahuan di CI.
           if [ "$SIZE" -gt 2097152 ]; then
             echo "::error::APK terlalu besar: $SIZE > 2097152 bytes"

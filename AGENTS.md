@@ -75,10 +75,10 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   memanggil `ServerService.start/stop`. Tidak ada input pengaturan di sini.
 - **SettingsActivity** (titik tiga ⋮ → Settings) pemilik semua input
   pengaturan: menyimpan ke `vw_prefs` saat diubah. Status buka PIN dibagi
-  dengan MainActivity (`pinBaruSajaDibuka`/`catatPinDibuka`) agar tidak
-  diminta dua kali.
+  lewat `catatPinDibuka` + `PinGate.dalamGraceBersama()` agar tidak diminta
+  dua kali.
 - **ServerService.startServer()** (di worker thread):
-  1. `ensureBinary()` → `resolveBinary()`: pakai (a) binary update terbaru di
+  1. `ensureBinary()`: pakai (a) binary update terbaru di
      cache internal (`KEY_UPDATE_VERSION`), (b) binary user di folder data
      (disalin ke internal), (c) unduh dari release, (d) bundled fallback.
   2. `ProcessBuilder` dengan env `DATA_FOLDER`, `ROCKET_ADDRESS/PORT/WORKERS`,
@@ -142,7 +142,8 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
    (STB 32-bit). Menambah arm64 membuat APK/binary membengkak dan menambah
    waktu build.
 6. **Jangan membundel binary/web-vault ke APK, dan jangan commit
-   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,25 MB);
+   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,25 MB,
+   rilis terakhir 247 KB);
    binary & web-vault diunduh dari release dan diverifikasi SHA-256.
 7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API ≥ 21 tanpa fallback,
    jangan `NetworkOnMainThreadException` (semua tugas jaringan di thread),
@@ -228,7 +229,7 @@ ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`) dan
 
 1. `python3 tools/verifikasi-patch.py --rentang "<before>...<sha>"`
    (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
-   resource, locale tanpa Locale, cakupan uji).
+   resource, locale tanpa Locale, cakupan uji, acuan metode di `AGENTS.md`).
 2. `bash scripts/cek-cepat.sh` (vektor `0.x`, ID land, README, pola rahasia).
 
 Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
@@ -266,8 +267,7 @@ Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
 (APK hanya dibangun bila kodenya berubah, agar `versionCode` tak churn sia-sia):
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
-2. **perlu** — selalu bangun (pemicu push app + manual; tanpa logika lewati).
-3. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
+2. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
    `assembleDebug` + `lintDebug` + `testDebugUnitTest` + `assembleRelease`
    (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.
 

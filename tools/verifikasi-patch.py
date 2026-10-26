@@ -924,6 +924,26 @@ def cek_paritas_resource(gagal):
         gagal.append("Paritas resource tak terbaca: %s" % e)
 
 
+def cek_acuan_agents(gagal):
+    """Nama metode ber-`()` di AGENTS.md wajib benar-benar ada di app/src.
+
+    AGENTS.md satu-satunya sumber aturan agen. Rujukan basi (mis.
+    `resolveBinary()` yang sudah dihapus atau `pinBaruSajaDibuka`) membuat
+    sesi baru mencari kode yang tak ada lalu menyimpulkan ada kode hilang,
+    "memulihkan" logika yang sudah dipindah, atau menunggu job yang tak
+    pernah berjalan. Nama metode yang dibuang juga bisa tercipta ulang
+    (aturan #15) karena dokumen menganggapnya masih sah.
+    """
+    teks = baca("AGENTS.md")
+    if not teks.strip():
+        gagal.append("AGENTS.md tak terbaca — panduan agen wajib ada")
+        return
+    for nama in sorted(set(re.findall(r"`([A-Za-z_]\w*)\(\)`", teks))):
+        if not masih_didefinisikan(nama):
+            gagal.append("AGENTS.md menyebut metode %s() yang tak ada di app/src"
+                         " — perbarui dokumen (atau kode)" % nama)
+
+
 def cek_import_mati(gagal):
     """Import Java yang nama sederhananya tak dipakai di kode (GAGAL).
 
@@ -1118,6 +1138,7 @@ def utama():
     cek_duplikat_definisi(gagal)
     cek_sinkron_terjemah(gagal)
     cek_import_mati(gagal)
+    cek_acuan_agents(gagal)
     cek_paritas_resource(gagal)
     cek_daftar_hapusan(gagal)
     cek_aturan_repo(gagal, berubah)

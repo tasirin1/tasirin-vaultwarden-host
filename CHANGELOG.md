@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 304: AGENTS.md bebas rujukan metode/job yang tak ada
+- `AGENTS.md` menyebut `pinBaruSajaDibuka` (metode itu tak ada; yang ada `catatPinDibuka` + `PinGate.dalamGraceBersama()`), rantai `ensureBinary()` → `resolveBinary()` (`resolveBinary` tak pernah ada), dan job `perlu` di `build-apk.yml` (job sebenarnya `verifikasi`, `resolve`, `build-apk`). Rujukan basi membuat sesi baru mencari kode yang tak ada lalu "memulihkan" logika yang sudah dipindah — atau menciptakan ulang nama yang sudah dibuang (aturan #15).
+- Dokumen diperbarui ke nama nyata, ukuran APK disamakan (`~0,25 MB`, rilis terakhir 247 KB) termasuk komentar `build-apk.yml` yang masih menulis ~0,1 MB.
+- `tools/verifikasi-patch.py` mendapat cek baru `cek_acuan_agents`: setiap nama metode ber-`()` di `AGENTS.md` wajib punya deklarasi di `app/src` (main + test), selain itu verifikasi GAGAL. Dibuktikan dengan rujukan `resolveBinary()` lama: verifikator menolaknya, setelah dokumen diperbaiki kembali LOLOS.
+
 ## [Belum rilis] — Audit 303: verifikator menolak berkas warna/layout wajib yang hilang
 - `baca()` mengembalikan string kosong untuk berkas yang tak ada, sehingga paritas `values/colors.xml` vs `values-night/colors.xml` (dan `layout/` vs `layout-land/`) hanya dicek bila kedua himpunan tak kosong: menghapus `values-night/colors.xml` (mode gelap memakai warna terang) atau folder `layout-land/` (UI landscape rusak) berakhir **LOLOS** tanpa cek lain yang menangkapnya.
 - `cek_paritas_resource` kini memeriksa keberadaan berkas/folder wajib lebih dulu dan menggagalkan verifikasi bila hilang; `colors.xml` yang ada tetapi tanpa `<color>` juga gagal (paritas tak bisa dicek). Diuji lokal dengan memindahkan `values-night/colors.xml` dan `layout-land/`: dua temuan muncul; setelah dipulihkan verifikasi LOLOS.
