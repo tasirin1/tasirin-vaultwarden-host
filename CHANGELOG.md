@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 330: toast SettingsActivity kini memakai pagar siklus hidup uiPost
+- `SettingsActivity.toast()` memasang `Toast` lewat `ui.post` polos tanpa memeriksa keadaan activity, padahal kelas yang sama sudah punya `uiPost` berpagar `isFinishing()/isDestroyed()` dan `MainActivity.toast` memakai `uiHidup()`. Toast dari callback latar (cek auto-update dan auto-backup Telegram sama-sama meneruskan ke `toast()` ini) yang tiba sesudah activity ditutup bisa menempel pada window yang sudah mati.
+- `toast()` kini meneruskan ke `uiPost` — satu baris, menutup semua pemanggil sekaligus; toast yang terlambat sesudah activity selesai dibuang diam-diam seperti callback UI lain di kelas ini.
+
 ## [Belum rilis] — Audit 329: rotasi saat verifikasi PIN tak lagi membuang hasil yang berhasil
 - `PinGate.bukaKunciBersama()` hanya dipanggil di dalam `ui.post` sesudah pemeriksaan `isFinishing()/isDestroyed()`, jadi rotasi di tengah verifikasi PBKDF2 (yang memang lambat di perangkat tua) membuang hasil sukses: grace tak pernah dibuka dan PIN yang sudah benar harus diketik ulang, padahal `catatHasil` sudah mencatatnya.
 - Grace kini dibuka di utas pekerja tepat sesudah `catatHasil` bila PIN cocok, sebelum callback UI dipasang; callback UI tinggal `setResult(RESULT_OK)` + `finish`. Bila activity lama hancur karena rotasi, instance barunya langsung lolos lewat pemeriksaan `dalamGraceBersama()` di `onCreate` seperti jalur normal.

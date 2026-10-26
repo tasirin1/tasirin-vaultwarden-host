@@ -3708,7 +3708,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void toast(String message) {
-        ui.post(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+        uiPost(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
     private void uiPost(Runnable r) {
