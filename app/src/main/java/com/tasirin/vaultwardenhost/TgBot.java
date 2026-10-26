@@ -185,6 +185,62 @@ public final class TgBot {
      *  Validasi PIN numerik/kata kini loop char manual (Util) tanpa regex. */
     private static final java.util.regex.Pattern POLA_PIN_MARKER =
             java.util.regex.Pattern.compile("(?is)\\bPIN\\s*:");
+
+    /** Penanda PIN internal (bukan ketikan user) berisi hex UTF-8. Dipakai alur
+     *  tombol ber-PIN agar PIN yang memuat "PIN:" atau spasi di ujung tak salah
+     *  dipotong pemisah teks. U+0001 tak mungkin dikirim lewat kolom teks
+     *  Telegram, jadi penanda ini tak bisa bertabrakan dengan argumen user. */
+    private static final String PENANDA_PIN_HEX = "\u0001PINHEX:";
+
+    /** Bungkus PIN menjadi penanda internal (murni, bisa diuji JVM). */
+    static String pinKePenanda(String pin) {
+        if (pin == null || pin.isEmpty()) {
+            return "";
+        }
+        byte[] b = pin.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        StringBuilder o = new StringBuilder(PENANDA_PIN_HEX.length() + b.length * 2);
+        o.append(PENANDA_PIN_HEX);
+        for (byte x : b) {
+            o.append(Util.HEKS[(x >> 4) & 15]).append(Util.HEKS[x & 15]);
+        }
+        return o.toString();
+    }
+
+    /** Baca PIN dari penanda internal; "" bila tak ada/rusak. Murni. */
+    static String pinDariPenanda(String arg) {
+        String t = arg == null ? "" : arg;
+        int i = t.lastIndexOf(PENANDA_PIN_HEX);
+        if (i < 0) {
+            return "";
+        }
+        String h = t.substring(i + PENANDA_PIN_HEX.length()).trim();
+        if (h.isEmpty() || (h.length() % 2) != 0) {
+            return "";
+        }
+        byte[] b = new byte[h.length() / 2];
+        for (int k = 0; k < b.length; k++) {
+            int hi = hexNilai(h.charAt(2 * k));
+            int lo = hexNilai(h.charAt(2 * k + 1));
+            if (hi < 0 || lo < 0) {
+                return "";
+            }
+            b[k] = (byte) ((hi << 4) | lo);
+        }
+        return new String(b, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    private static int hexNilai(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 10;
+        }
+        if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 10;
+        }
+        return -1;
+    }
     private static final java.util.regex.Pattern POLA_OK_TRUE =
             java.util.regex.Pattern.compile("\"ok\"\\s*:\\s*true");
 
@@ -1380,7 +1436,10 @@ public final class TgBot {
         if (idRuang < 0 || !perintahPerluPin(cmd)) {
             return false;
         }
-        String p = pin == null ? "" : pin.trim();
+        // Tanpa trim: PIN adalah string persis seperti yang disetel (PIN boleh
+        // ber-spasi di ujung); dulu trim memotongnya sehingga PIN sah ditolak
+        // dan tiap percobaan menambah hitungan lockout.
+        String p = pin == null ? "" : pin;
         if (!pinPerangkatAktif(ctx)) {
             // PIN dimatikan dari app saat prompt masih terbuka: jalankan tanpa
             // PIN (jangan menempelkan "PIN:..." yang merusak argumen /update).
@@ -1390,7 +1449,7 @@ public final class TgBot {
             balas(ctx, idRuang, "PIN tidak valid. Ketuk tombol lagi untuk mencoba.");
             return false;
         }
-        return handleCommand(ctx, cmd + " PIN:" + p, idRuang);
+        return handleCommand(ctx, cmd + " " + pinKePenanda(p), idRuang);
     }
 
     /** True bila teks adalah perintah berbahaya (mengubah keadaan) sehingga
@@ -2269,6 +2328,16 @@ public final class TgBot {
      *  sia-sia. Return {sisa, pin}. */
     static String[] pisahkanPin(String arg) {
         String t = arg == null ? "" : arg.trim();
+        // Alur tombol ber-PIN menempelkan PIN sebagai penanda hex internal:
+        // PIN boleh memuat "PIN:" atau spasi di ujung sehingga pemisah teks
+        // di bawah akan memotongnya salah. Penanda dikenali lebih dulu.
+        int penanda = t.lastIndexOf(PENANDA_PIN_HEX);
+        if (penanda >= 0) {
+            String pin = pinDariPenanda(t);
+            if (!pin.isEmpty()) {
+                return new String[]{rapikanSpasi(t.substring(0, penanda).trim()), pin};
+            }
+        }
         // Flag s (DOTALL): '.' menelan newline sehingga PIN/argumen
         // multi-baris tak terpotong di baris pertama.
         java.util.regex.Matcher m = POLA_PIN_MARKER.matcher(t);
@@ -2278,9 +2347,26 @@ public final class TgBot {
         //  menutup peluang kemunculan berikut terbaca.)
         int awalMatch = -1;
         int akhirMarker = -1;
+        // Marka yang diikuti kutip mengapit diutamakan: PIN sendiri boleh
+        // memuat teks "PIN:" (mis. PIN:"kunci PIN:99") sehingga kemunculan
+        // terakhir justru berada DI DALAM PIN.
+        int awalKutip = -1;
+        int akhirKutip = -1;
         while (m.find()) {
             awalMatch = m.start();
             akhirMarker = m.end();
+            if (awalKutip < 0) {
+                String calon = t.substring(akhirMarker).trim();
+                if (!calon.isEmpty()
+                        && (calon.charAt(0) == '"' || calon.charAt(0) == '\'')) {
+                    awalKutip = m.start();
+                    akhirKutip = m.end();
+                }
+            }
+        }
+        if (awalKutip >= 0) {
+            awalMatch = awalKutip;
+            akhirMarker = akhirKutip;
         }
         if (awalMatch >= 0) {
             String mentah = t.substring(akhirMarker).trim();

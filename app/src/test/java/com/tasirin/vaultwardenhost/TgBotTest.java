@@ -232,6 +232,25 @@ public class TgBotTest {
     }
 
     @Test
+    public void pinBerisiMarkerAtauSpasiDipakaiLewatPenandaInternal() {
+        // Alur tombol ber-PIN menempelkan PIN sebagai penanda hex: PIN yang
+        // memuat "PIN:" atau spasi di ujung tak boleh terpotong pemisah teks
+        // (dulu setiap percobaan sah dihitung gagal sampai PIN terkunci).
+        String pinAneh = "kunci PIN:99 ";
+        assertEquals(pinAneh, TgBot.pinDariPenanda(TgBot.pinKePenanda(pinAneh)));
+        assertArrayEquals(new String[]{"/stop", pinAneh},
+                TgBot.pisahkanPin("/stop " + TgBot.pinKePenanda(pinAneh)));
+        assertEquals("", TgBot.pinDariPenanda("tanpa penanda"));
+        assertEquals("", TgBot.pinDariPenanda(TgBot.pinKePenanda("")));
+        // Bentuk eksplisit ber-kutip: marka "PIN:" di dalam PIN tak dipakai.
+        assertArrayEquals(new String[]{"", "kunci PIN:99"},
+                TgBot.pisahkanPin("PIN:\"kunci PIN:99\""));
+        assertArrayEquals(new String[]{"YA", "kunci PIN:99"},
+                TgBot.pisahkanPin("YA PIN:\"kunci PIN:99\""));
+        assertEquals("kunci PIN:99", TgBot.pinDariBalasan("PIN:\"kunci PIN:99\""));
+    }
+
+    @Test
     public void pisahkanPinSimbolDidukungKataHurufTetapArgumen() {
         assertArrayEquals(new String[]{"YA", "p@ss!9"}, TgBot.pisahkanPin("YA p@ss!9"));
         assertArrayEquals(new String[]{"YA", "ab12"}, TgBot.pisahkanPin("YA ab12"));
