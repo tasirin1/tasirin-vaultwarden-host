@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 315: Start dari Settings tak lagi terkunci proses yatim di port
+- Perbaikan Audit 312 (#50) hanya memasang pola "bersihkan yatim sebelum cek port" di `MainActivity.saveAndStart`; jalur kembarnya `SettingsActivity.saveAndStart` langsung memanggil `isPortBusy`, jadi Start dari Settings ditolak dialog "Port sedang dipakai proses lain" selamanya bila ada proses vaultwarden yatim memegang port — padahal Start yang sama dari layar utama berhasil.
+- `saveAndStart` Settings kini memanggil `ServerService.bereskanServerYatim()` lebih dulu di dalam tugas latar yang sama, persis pola MainActivity, sebelum `isPortBusy` diperiksa.
+
 ## [Belum rilis] — Audit 314: restore via Telegram kini membuat salinan pengaman DB lama
 - `TgBackup.restoreFromZipIsi` (jalur `/restore` Telegram dan restore Telegram dari Settings) memasang DB hasil restore tanpa pernah menyalin DB yang berjalan, jadi sekali restore lolos, vault versi lama hilang permanen — padahal jalur restore lokal membuat `db-backup-…-pre.sqlite3` dan retensi `KEEP_PRE_RESTORE` memang disiapkan untuk berkas itu.
 - Jalur Telegram kini meniru jalur lokal persis: sesudah server berhenti dan staging lama dibersihkan, DB lama di-checkpoint lalu disalin ke `backups/db-backup-<stempel>-pre.sqlite3`, retensi dibersihkan, dan nama salinan pengaman disebut dalam pesan hasil restore agar pemilik tahu berkas pemulihnya ada.

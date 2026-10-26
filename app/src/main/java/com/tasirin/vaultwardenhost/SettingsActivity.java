@@ -953,6 +953,7 @@ public class SettingsActivity extends Activity {
         final int portCekPort = portNum;
         final String dirCekPort = dataDirEfektif;
         boolean masukCek = Util.jalankanBg(() -> {
+            ServerService.bereskanServerYatim();
             final boolean portSibuk =
                     portCekPort > 0 && ServerService.isPortBusy(portCekPort);
 
