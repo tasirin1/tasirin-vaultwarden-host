@@ -598,6 +598,42 @@ public class ServerService extends Service {
         }
     }
 
+    static void pulihkanBakTersisa(File dataFolder) {
+        if (dataFolder == null) {
+            return;
+        }
+        pulihkanBakDiFolder(dataFolder);
+        pulihkanBakDiFolder(new File(dataFolder, "tls"));
+    }
+
+    private static void pulihkanBakDiFolder(File folder) {
+        File[] isi;
+        try {
+            isi = folder.listFiles();
+        } catch (Exception e) {
+            return;
+        }
+        if (isi == null) {
+            return;
+        }
+        for (File bak : isi) {
+            try {
+                String nama = bak.getName();
+                if (!bak.isFile() || !nama.endsWith(".bak")) {
+                    continue;
+                }
+                File asal = new File(folder, nama.substring(0, nama.length() - 4));
+                if (asal.exists()) {
+                    bak.delete();
+                } else if (bak.renameTo(asal)) {
+                    catatLog("[app] Berkas .bak dipulihkan (swap terpotong): "
+                            + asal.getName());
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private static boolean alive(Process p) {
         if (p == null) {
             return false;
@@ -1699,6 +1735,7 @@ public class ServerService extends Service {
     }
 
     private boolean pilihBiner(long stopAwal, SesiStart sesi) {
+        pulihkanBakTersisa(new File(sesi.dataDir));
         cleanupTempFiles(sesi.dataDir);
         appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
                 KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 364: sisa .bak swap DB/TLS kini dipulihkan saat start, bukan hanya binary
+- `gantiAtomik` memulihkan `.bak` hanya di dalam proses yang sama; bila proses mati (listrik padam/baterai habis) di antara kedua rename, berkas tujuan hilang dan `.bak`-nya yatim. Satu-satunya pemulihan saat start hanya ada untuk binary (`ensureBinary`), padahal pemakai `gantiAtomik` lain memasang berkas yang jauh lebih penting saat restore: `db.sqlite3` (#69) dan berkas TLS (#70). Jendela milidetik di tengah restore yang terpotong daya membuat start berikutnya menciptakan database vault baru yang kosong — vault tampak hilang total padahal data utuh di `db.sqlite3.bak` dan hanya terselamatkan lewat rename manual.
+- `pulihkanBakTersisa` kini berjalan di `pilihBiner` sebelum server dinyalakan: untuk folder data dan subfolder `tls/`, setiap `X.bak` yang berkas `X`-nya hilang diganti namanya kembali menjadi `X` (dengan catatan log), dan `X.bak` yang berkasnya sudah ada (swap selesai, penghapusan `.bak` yang terpotong) dibuang — pola yang sama dengan pemulihan binary.
+
 ## [Belum rilis] — Audit 363: pekerja verifikasi PIN selalu memulihkan UI lewat try/finally
 - Tubuh pekerja di `PinActivity.cobaBuka()` (verify → `catatHasil` → buka grace → upgrade hash → `ui.post`) tidak punya try/finally penyeluruh: `sedangPeriksa` dan pengaktifan lagi tombol Buka hanya dipulihkan di dalam `ui.post` itu. Satu lemparan tak terduga di tengah — mis. `catatHasil` gagal keras di penyimpanan rusak, atau `verify` melempar pada hash tersimpan yang korup — membuat `ui.post` tak pernah terpasang: tulisan "Memeriksa…" menetap dan tombol Buka mati sampai activity dibuat ulang.
 - Seluruh badan pekerja kini dibungkus try/finally dengan callback UI di blok finally (isi callback tidak berubah): apa pun yang gagal di tengah, keadaan UI selalu dipulihkan dan pengguna menerima hasil gagal biasa, bukan layar terkunci.
