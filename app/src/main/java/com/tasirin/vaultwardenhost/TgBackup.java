@@ -2837,6 +2837,20 @@ public final class TgBackup {
 
         hapusStagingRestore(dataFolder);
 
+        File preBackup = null;
+        if (dbFile.exists()) {
+            File backupDir = new File(dataFolder, "backups");
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
+            checkpointWal(dbFile);
+            String ts = stempelUnik() + "-pre";
+            preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
+            copyFile(dbFile, preBackup);
+            cleanupOldBackups(backupDir);
+            hapusWalShm(dataFolder);
+        }
+
         java.util.Map<String, byte[]> tlsAsal = potretTls(new File(dataFolder, "tls"));
         byte[] buf = new byte[64 * 1024];
         long totalUnzip = 0;
@@ -2969,7 +2983,12 @@ public final class TgBackup {
         TgBot.schedule(ctx);
         return "Database dipulihkan"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
-                + ". Ukuran DB: " + dbFile.length() + " bytes." + peringatan;
+                + ". Ukuran DB: " + dbFile.length() + " bytes."
+                + (preBackup != null
+                        ? " DB lama disimpan sebagai " + preBackup.getName()
+                                + " di folder backups."
+                        : "")
+                + peringatan;
     }
 
     static String namaStagingRestore(String nama) {

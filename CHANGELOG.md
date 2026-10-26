@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 314: restore via Telegram kini membuat salinan pengaman DB lama
+- `TgBackup.restoreFromZipIsi` (jalur `/restore` Telegram dan restore Telegram dari Settings) memasang DB hasil restore tanpa pernah menyalin DB yang berjalan, jadi sekali restore lolos, vault versi lama hilang permanen — padahal jalur restore lokal membuat `db-backup-…-pre.sqlite3` dan retensi `KEEP_PRE_RESTORE` memang disiapkan untuk berkas itu.
+- Jalur Telegram kini meniru jalur lokal persis: sesudah server berhenti dan staging lama dibersihkan, DB lama di-checkpoint lalu disalin ke `backups/db-backup-<stempel>-pre.sqlite3`, retensi dibersihkan, dan nama salinan pengaman disebut dalam pesan hasil restore agar pemilik tahu berkas pemulihnya ada.
+
 ## [Belum rilis] — Audit 313: bereskanServerYatim tak lagi membunuh server yang sedang aktif
 - `bereskanServerYatim` menganggap semua proses `vaultwarden-*` selain proses aplikasi sebagai yatim, termasuk anak yang sedang dilacak field `process` dan sedang melayani. Server sehat bisa kena SIGKILL mendadak (mis. server baru yang lahir di celah antar-percobaan pembersihan), tulisan DB terpotong, dan restore ikut batal.
 - `pidYatimServer` kini juga mengecualikan PID anak yang berjalan, `bereskanServerYatim` mengambil PID anak segar dari `process` di tiap pindai dan memeriksa ulang tepat sebelum membunuh (meniru pengecualian ganda `killStaleVaultwarden`), dan cek akhir juga melewati anak yang berjalan. Uji `pidYatimServer` diperbarui untuk mengunci pengecualian ini.
