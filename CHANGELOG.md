@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 386: sapuan .bak pemulihan kini hanya menyentuh berkas kelola aplikasi dan tercatat di log
+- `pulihkanBakDiFolder` memproses SEMUA `*.bak` di folder data dan `tls/`: yang berkas asalnya ada dihapus diam-diam, yang tidak ada diganti namanya menjadi berkas asal — berkas `.bak` manual milik pengguna (mis. salinan `db.sqlite3.bak` buatannya sendiri) bisa lenyap atau terpindah tanpa jejak (temuan audit putaran-7, #124).
+- Sapuan kini dibatasi daftar nama yang benar-benar ditukar atomik aplikasi (di folder data: `db.sqlite3` + `-wal`/`-shm`; di `tls/`: `ca.pem`, `cert.pem`, `key.pem`, `ca-key.pem` — selaras daftar sah restore), dan penghapusan sisa swap kini dicatat di log seperti pemulihannya. Nama di luar daftar tidak disentuh sama sekali.
+
 ## [Belum rilis] — Audit 385: localIp dingin kini menyelesaikan alamat LAN secara sinkron sekali
 - Pada cache yang belum pernah terisi, `localIp()` menjadwalkan penyegaran latar lalu langsung mengembalikan `127.0.0.1` — tampilan pertama URL akses (layar utama, Pengaturan, pesan bot) menunjukkan alamat loopback yang tak bisa dipakai perangkat lain sampai penyegaran latar keburu selesai dan layar digambar ulang (temuan audit putaran-7, #123).
 - Jalur dingin kini menyelesaikan `lanHost()` secara sinkron sekali dan mengisi cache (enumerasi antarmuka adalah operasi lokal, bukan I/O jaringan); jalur basi tetap melayani nilai lama + penyegaran latar seperti sebelumnya, dan `127.0.0.1` hanya tersisa sebagai hasil sah `lanHost()` bila memang tak ada antarmuka LAN.

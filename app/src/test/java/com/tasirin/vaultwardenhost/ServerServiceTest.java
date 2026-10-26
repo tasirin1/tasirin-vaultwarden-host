@@ -334,6 +334,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bakNamaSah_hanyaNamaKelolaAplikasi() {
+        String[] data = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+        assertTrue(ServerService.bakNamaSah("db.sqlite3", data));
+        assertTrue(ServerService.bakNamaSah("db.sqlite3-wal", data));
+        assertFalse(ServerService.bakNamaSah("cadangan-manual", data));
+        assertFalse(ServerService.bakNamaSah("db.sqlite3.bak", data));
+        assertFalse(ServerService.bakNamaSah("", data));
+        assertFalse(ServerService.bakNamaSah(null, data));
+        assertFalse(ServerService.bakNamaSah("db.sqlite3", null));
+    }
+
+    @Test
     public void konstantaPortDefaultDijepitLiteral() {
         assertEquals("8088", ServerService.DEFAULT_PORT);
     }

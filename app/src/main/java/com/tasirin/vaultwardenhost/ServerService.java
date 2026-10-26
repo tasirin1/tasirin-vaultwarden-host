@@ -602,11 +602,25 @@ public class ServerService extends Service {
         if (dataFolder == null) {
             return;
         }
-        pulihkanBakDiFolder(dataFolder);
-        pulihkanBakDiFolder(new File(dataFolder, "tls"));
+        pulihkanBakDiFolder(dataFolder,
+                new String[]{"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"});
+        pulihkanBakDiFolder(new File(dataFolder, "tls"),
+                new String[]{"ca.pem", "cert.pem", "key.pem", "ca-key.pem"});
     }
 
-    private static void pulihkanBakDiFolder(File folder) {
+    static boolean bakNamaSah(String namaAsal, String[] namaSah) {
+        if (namaAsal == null || namaSah == null) {
+            return false;
+        }
+        for (String sah : namaSah) {
+            if (sah.equals(namaAsal)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void pulihkanBakDiFolder(File folder, String[] namaSah) {
         File[] isi;
         try {
             isi = folder.listFiles();
@@ -622,9 +636,15 @@ public class ServerService extends Service {
                 if (!bak.isFile() || !nama.endsWith(".bak")) {
                     continue;
                 }
-                File asal = new File(folder, nama.substring(0, nama.length() - 4));
+                String namaAsal = nama.substring(0, nama.length() - 4);
+                if (!bakNamaSah(namaAsal, namaSah)) {
+                    continue;
+                }
+                File asal = new File(folder, namaAsal);
                 if (asal.exists()) {
-                    bak.delete();
+                    if (bak.delete()) {
+                        catatLog("[app] Berkas .bak sisa swap dihapus: " + nama);
+                    }
                 } else if (bak.renameTo(asal)) {
                     catatLog("[app] Berkas .bak dipulihkan (swap terpotong): "
                             + asal.getName());
