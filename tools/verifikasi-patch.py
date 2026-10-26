@@ -253,6 +253,10 @@ def cek_manifest(gagal):
     except (ET.ParseError, OSError):
         return
     ns = namespace_aplikasi()
+    if not ns:
+        gagal.append("Namespace aplikasi tak terbaca dari app/build.gradle.kts"
+                     " - cek komponen manifest dilewati")
+        return
     atribut = "{http://schemas.android.com/apk/res/android}"
     for el in pohon.getroot().iter():
         if el.tag == "activity-alias":

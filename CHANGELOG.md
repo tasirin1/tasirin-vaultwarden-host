@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 417: namespace kosong kini divalidasi eksplisit oleh cek manifest gerbang
+- Bila `namespace` di `app/build.gradle.kts` tak terbaca (format berubah), `namespace_aplikasi()` mengembalikan string kosong dan `cek_manifest` menyusun FQCN dari awalan kosong — hasilnya banjir kegagalan "komponen tanpa kelas" yang menyesatkan, menunjuk sebab yang salah (temuan audit putaran-9, #171).
+- Namespace kosong kini menghasilkan satu kegagalan yang jelas menyebut sebabnya dan cek komponen dilewati, bukan puluhan tuduhan komponen palsu.
+
 ## [Belum rilis] — Audit 416: cek import mati gerbang kini mengenali acuan Javadoc `{@see}`
 - `cek_import_mati` mengecualikan import yang dirujuk `{@link}`/`{@linkplain}`/`{@code}`, tetapi tidak `{@see}` — import yang hanya dirujuk tag `{@see}` ditandai mati (positif palsu) dan tekanan menghapusnya bisa memutus Javadoc (temuan audit putaran-9, #170).
 - Pola acuan Javadoc kini mencakup `see` dengan bentuk target yang sama (nama kelas, boleh berkualifikasi dan ber-`#anggota`); bentuk `{@see "..."}` dan `{@see <a ...>}` tetap tidak tertangkap karena token pertamanya bukan nama kelas.
