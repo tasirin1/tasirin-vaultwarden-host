@@ -13,15 +13,22 @@ if rg --version >/dev/null 2>&1; then ADA_RG=1; else ADA_RG=0; fi
 # Tiga tingkat: rg PCRE2, grep -P, grep -E portabel — selalu memeriksa,
 # tak pernah gagal-tertutup karena perkakas hilang.
 if [ "$ADA_RG" = 1 ] && rg --pcre2 -n '' app/src/main/res/drawable >/dev/null 2>&1; then
-  if rg -n --pcre2 '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null | grep -q .; then
+  # Tangkap keluaran dulu: `rg ... | grep -q` dengan pipefail membuat rg mati
+  # SIGPIPE (141) saat kecocokan banyak sehingga gate diam-diam lolos.
+  TEMUAN="$(rg -n --pcre2 '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
 elif grep -R -P '' . >/dev/null 2>&1; then
-  if grep -R -n -P '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null | grep -q .; then
+  TEMUAN="$(grep -R -n -P '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
-elif grep -R -E -n '(^|[^0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null | grep -q .; then
-  gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
+else
+  TEMUAN="$(grep -R -E -n '(^|[^0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  if [ -n "$TEMUAN" ]; then
+    gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
+  fi
 fi
 # 2. ID layout portrait vs landscape wajib sama persis.
 # Loop semua layout agar kartu baru ikut terjaga (portabel: bandingkan via cmp).
@@ -45,7 +52,7 @@ TERLARANG="$(
   git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
   git ls-files 2>/dev/null || true
 )"
-if printf '%s\n' "$TERLARANG" | sort -u | grep -E -q "$POLA_TERLARANG"; then
+if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -E "$POLA_TERLARANG" || true)" ]; then
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
 # 4. Jumlah section README Inggris vs Indonesia vs Rusia wajib sama (jaga sinkron).
