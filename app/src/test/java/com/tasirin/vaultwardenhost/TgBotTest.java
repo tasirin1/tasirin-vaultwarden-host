@@ -509,6 +509,18 @@ public class TgBotTest {
     }
 
     @Test
+    public void wajibHapusPesanPin_pinSalahIkutDihapus() {
+        assertTrue(TgBot.wajibHapusPesanPin(false, false, true, false, false, "123457"));
+        assertTrue(TgBot.wajibHapusPesanPin(false, false, true, false, true, "123456"));
+        assertFalse(TgBot.wajibHapusPesanPin(false, false, true, true, false, "halo"));
+        assertTrue(TgBot.wajibHapusPesanPin(false, false, false, false, false, "/stop 123457"));
+        assertFalse(TgBot.wajibHapusPesanPin(false, false, false, false, false, "/stop"));
+        assertTrue(TgBot.wajibHapusPesanPin(false, false, false, false, true, "/stop"));
+        assertTrue(TgBot.wajibHapusPesanPin(true, false, false, false, false, "apa pun"));
+        assertFalse(TgBot.wajibHapusPesanPin(false, false, false, false, false, "/status"));
+    }
+
+    @Test
     public void wajibPinSaatPinMatiUntukChatAnggapGrup() {
         assertTrue(TgBot.wajibPinSaatPinMati(true, false));
         assertTrue(TgBot.wajibPinSaatPinMati(false, true));

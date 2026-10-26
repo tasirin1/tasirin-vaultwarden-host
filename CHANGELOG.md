@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 349: pesan berisi PIN salah di chat pribadi Telegram kini ikut dihapus
+- Keputusan hapus pesan di `TgBot` mensyaratkan otorisasi untuk balasan sesi PIN dan perintah berargumen PIN, jadi PIN yang salah ketik — yang biasanya hanya beda satu digit dari PIN asli — tertinggal permanen di riwayat chat Telegram (cloud), padahal PIN basi dan PIN di grup selalu dihapus, dan teks balasan bot sendiri menyebut pesan PIN dihapus dari riwayat.
+- Predikatnya kini fungsi murni `wajibHapusPesanPin`: pesan dihapus kapan pun ia memuat bahan PIN — balasan sesi yang terurai sebagai PIN (benar atau salah) atau perintah dengan argumen PIN (`pinTebakan(text) != null`) — selain jalur lama (basi, grup, terotorisasi). Balasan obrolan biasa dan perintah tanpa argumen PIN tetap disimpan. Diuji tabel kebenarannya di `TgBotTest`.
+
 ## [Belum rilis] — Audit 348: cadangan pemindaian checksum hanya menerima kandidat tunggal tanpa nama
 - `pindaiHexDariBaris` di `Updater` punya lintasan cadangan tanpa syarat: bila tidak ada baris yang menyebut nama aset, hex 64 pertama dari baris mana pun diterima sebagai checksum aset itu. Selama berkas `.sha256` per-aset berisi satu baris bernama, ini tak terpakai — tetapi begitu format rilis berubah (berkas gabungan tanpa nama aset per baris), unduhan terikat ke hash aset lain: arah realistisnya semua update gagal checksum (fail-closed, aman tetapi update mati total sampai format diperbaiki), dan pengikatannya memang bukan lagi "hash milik aset ini".
 - Lintasan cadangan kini hanya menerima bila tepat SATU baris di seluruh berkas memuat checksum yang sah (tak ada ambiguitas untuk dipilih — berkas per-aset memang diunduh dari URL bernama aset itu); dua kandidat tanpa nama mengembalikan null sehingga update ditunda sebagai "belum terbit", bukan terikat ke hash yang salah. Uji `pindaiHexDariBaris_utamakanNamaAsset` diperbarui mengikuti perilaku baru di commit yang sama.

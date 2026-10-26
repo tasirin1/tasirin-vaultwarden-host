@@ -551,9 +551,8 @@ public final class TgBot {
                                 int idPesan = msg.optInt("message_id", 0);
 
                                 boolean pinGrup = idRuang < 0 && pinTebakan(text) != null;
-                                boolean hapusPin = pinBasi || pinGrup
-                                        || (terotorisasi
-                                        && (pinPending || pesanPinWajibHapus(text)));
+                                boolean hapusPin = wajibHapusPesanPin(pinBasi, pinGrup,
+                                        pinPending, obrolan, terotorisasi, text);
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     boolean terhapus = hapusPesanPerintah(ctx,
                                             idRuang, idPesan);
@@ -1263,6 +1262,21 @@ public final class TgBot {
 
     static boolean pesanPinWajibHapus(String text) {
         return perintahPerluPin(text);
+    }
+
+    static boolean wajibHapusPesanPin(boolean pinBasi, boolean pinGrup,
+                                      boolean pinPending, boolean obrolan,
+                                      boolean terotorisasi, String text) {
+        if (pinBasi || pinGrup) {
+            return true;
+        }
+        if (pinPending && !obrolan) {
+            return true;
+        }
+        if (pinTebakan(text) != null) {
+            return true;
+        }
+        return terotorisasi && (pinPending || pesanPinWajibHapus(text));
     }
 
     static String pinTebakanArgumen(String arg) {
