@@ -94,7 +94,6 @@ public final class PinGate {
         return wajibLayarPin(putus);
     }
 
-    @SuppressLint("ApplySharedPref")
     public static long sisaKunciMs(Context ctx, long sekarang) {
 
         if (ctx == null) {

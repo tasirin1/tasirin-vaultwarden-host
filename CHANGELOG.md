@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 437: anotasi SuppressLint mati di PinGate.sisaKunciMs dihapus
+- `sisaKunciMs` hanya memanggil `.apply()`, sehingga `@SuppressLint("ApplySharedPref")` di atasnya tidak menekan apa pun dan menyesatkan pembaca seolah ada `commit()` yang disengaja di sana. Anotasi yang benar-benar dibutuhkan hanya yang di `catatHasil` (memang memakai `commit()`), dan itu tidak disentuh.
+- Anotasi mati dihapus; tidak ada perubahan perilaku.
+
 ## [Belum rilis] — Audit 436: konstanta mati MainActivity.DEFAULT_PORT dihapus
 - Alias `DEFAULT_PORT` di MainActivity tidak dirujuk satu kali pun — semua logika port memakai `ServerService.DEFAULT_PORT` langsung (salinan di SettingsActivity memang terpakai dan tidak disentuh). Konstanta mati menyesatkan pembaca seolah MainActivity punya bawaan port sendiri.
 - Konstanta dihapus; tidak ada perubahan perilaku.
