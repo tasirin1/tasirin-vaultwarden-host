@@ -2365,13 +2365,17 @@ public final class Updater {
                 }
             }
         }
+        String satuSatunya = null;
         for (String b : baris) {
             String dapat = pindaiHexChecksum(b);
             if (dapat != null) {
-                return dapat;
+                if (satuSatunya != null) {
+                    return null;
+                }
+                satuSatunya = dapat;
             }
         }
-        return null;
+        return satuSatunya;
     }
 
     static String namaAssetDariUrl(String url) {

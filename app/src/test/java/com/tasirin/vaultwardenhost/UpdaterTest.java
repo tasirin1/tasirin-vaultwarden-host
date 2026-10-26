@@ -1023,7 +1023,9 @@ public class UpdaterTest {
         assertEquals(hexBaru, Updater.pindaiHexDariBaris(baris, "web-vault.zip"));
         assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, "vaultwarden-armeabi-v7a"));
 
-        assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, null));
+        assertNull(Updater.pindaiHexDariBaris(baris, null));
+        assertEquals(hexBaru, Updater.pindaiHexDariBaris(
+                java.util.Arrays.asList("tanpa nama", hexBaru), null));
     }
 
     @Test
