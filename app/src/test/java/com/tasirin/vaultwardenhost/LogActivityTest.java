@@ -17,6 +17,31 @@ public class LogActivityTest {
     }
 
     @Test
+    public void samarkanLog_emailDanIpPublikTersamar() {
+        String r = LogActivity.samarkanLog(
+                "login gagal untuk budi.santoso@gmail.com dari 36.68.221.10");
+        assertFalse(r.contains("budi.santoso@gmail.com"));
+        assertFalse(r.contains("36.68.221.10"));
+        assertTrue(r.contains("[email]"));
+        assertTrue(r.contains("[ip-publik]"));
+    }
+
+    @Test
+    public void samarkanLog_ipPrivatTetapIpPrivat() {
+        String r = LogActivity.samarkanLog("request dari 192.168.1.5 port 8080");
+        assertTrue(r.contains("[ip-privat]"));
+        assertFalse(r.contains("192.168.1.5"));
+    }
+
+    @Test
+    public void butuhSamaran_emailDanIpPublikMembukaGerbang() {
+        assertTrue(LogActivity.butuhSamaran("login gagal untuk budi.santoso@gmail.com"));
+        assertTrue(LogActivity.butuhSamaran("request dari 36.68.221.10 masuk"));
+        assertFalse(LogActivity.butuhSamaran("versi vaultwarden 1.35.2 jalan"));
+        assertFalse(LogActivity.butuhSamaran("ip aneh 999.1.1.1 bukan ip"));
+    }
+
+    @Test
     public void gerbangSamaranSekaliJalan() {
         assertTrue(LogActivity.butuhSamaran("gagal kirim TOKEN=abc"));
         assertTrue(LogActivity.butuhSamaran("api.telegram.org/bot123:ABC lanjut"));

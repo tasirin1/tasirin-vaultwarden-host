@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 344: samaran log kini menutup email pengguna vault dan IP publik
+- Penyamaran log digerbang `butuhSamaran()` (kata kunci rahasia atau substring IP privat) dan `samarkanLog()` tidak punya pola sama sekali untuk alamat email dan IP publik — padahal output proses Vaultwarden yang mengalir mentah ke buffer yang sama lazim memuat email pengguna vault pada login gagal dan IP klien pada baris request. Log yang diekspor ke Downloads, dibagikan, atau dikirim bot `/log` bisa membocorkan email pengguna vault (mis. anggota keluarga) dan IP publik mereka, utuh.
+- `samarkanLog()` kini mengganti email menjadi `[email]` dan IPv4 publik (oktet tervalidasi 0–255) menjadi `[ip-publik]`, sesudah giliran IP privat agar alamat privat tetap `[ip-privat]`; `butuhSamaran()` membuka gerbang juga bila salah satunya ada (`adaEmail`/`adaIpPublik`). Semua pemanggil (ekspor, bagikan, crash log, delta UI, bot) memakai pasangan fungsi yang sama sehingga tertutup sekaligus. Diuji di `LogActivityTest`.
+
 ## [Belum rilis] — Audit 343: teks status putih terbaca lagi di banner Running (malam) dan Busy (dua mode)
 - Teks status selalu putih, tetapi dua warna latarnya terlalu terang: `status_on` versi malam (#34A853) kontrasnya hanya 3,06:1 dan `chip_busy` (#E8710A, kedua mode) 3,09:1 — di bawah 4,5:1 untuk teks 13–14sp pada indikator status utama yang di TV/STB dibaca dari jauh (siang `status_on` #2E7D32 aman di 5,13:1).
 - `status_on` malam disamakan dengan siang (#2E7D32, 5,13:1) dan `chip_busy` digelapkan ke #BF5700 (4,59:1) di kedua mode; keduanya juga dipakai titik status (`bg_dot_*`) yang ikut menggelap tanpa teks. Rasio dihitung dari luminansi relatif WCAG.

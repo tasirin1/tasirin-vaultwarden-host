@@ -526,6 +526,12 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_IP_PRIVAT =
             java.util.regex.Pattern.compile("\\b(192\\.168\\.\\d{1,3}\\.\\d{1,3}|10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3})(:\\d+)?\\b");
 
+    private static final java.util.regex.Pattern POLA_EMAIL =
+            java.util.regex.Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
+
+    private static final java.util.regex.Pattern POLA_IP_PUBLIK =
+            java.util.regex.Pattern.compile("\\b(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(?:\\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}\\b");
+
     private static final java.util.regex.Pattern POLA_DOMAIN =
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
 
@@ -546,7 +552,8 @@ public class LogActivity extends Activity {
             return true;
         }
         return t.contains("192.168.") || t.contains("10.")
-                || t.contains("172.") || t.contains("127.0.0.1:");
+                || t.contains("172.") || t.contains("127.0.0.1:")
+                || adaEmail(t) || adaIpPublik(t);
     }
 
     static boolean pindaiKunciRahasia(String t) {
@@ -748,6 +755,12 @@ public class LogActivity extends Activity {
         if (adaIpPrivat(r)) {
             r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
         }
+        if (adaEmail(r)) {
+            r = POLA_EMAIL.matcher(r).replaceAll("[email]");
+        }
+        if (adaIpPublik(r)) {
+            r = POLA_IP_PUBLIK.matcher(r).replaceAll("[ip-publik]");
+        }
         return r;
     }
 
@@ -783,6 +796,14 @@ public class LogActivity extends Activity {
             digit = 0;
         }
         return false;
+    }
+
+    static boolean adaEmail(String t) {
+        return t != null && POLA_EMAIL.matcher(t).find();
+    }
+
+    static boolean adaIpPublik(String t) {
+        return t != null && POLA_IP_PUBLIK.matcher(t).find();
     }
 
     static boolean adaIpPrivat(String t) {
