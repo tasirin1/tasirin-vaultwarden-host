@@ -1266,73 +1266,82 @@ public final class Updater {
         final boolean[] pakaiTerbaru = {fallbackTercatat};
         final String[] urlAkhir = {urlAwalUnduhBinary(fallbackTercatat, assetUrl)};
         final String[] shaDapat = {null};
-        try {
-
-            unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
-                    new UrlCadangan() {
-                        @Override
-                        public String ganti(String url, int kode) throws IOException {
-                            if (bolehFallback && known && !pakaiTerbaru[0]
-                                    && url.equals(urlAkhir[0])) {
-
-                                pakaiTerbaru[0] = true;
-                                urlAkhir[0] = binaryFallbackUrl();
-                                return urlAkhir[0];
-                            }
-                            throw new IOException(known
-                                    ? "Build Android v" + latest + " belum tersedia"
-                                            + saranStabilPrerelease(latest)
-                                            + " (build otomatis ~12 jam). Coba lagi nanti."
-                                    : "Release binary Android belum tersedia. Coba lagi nanti.");
-                        }
-                    },
-                    shaDariRilis(ctx, 20000, 60000,
-                            "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat),
-                    batal);
-        } catch (IOException e) {
-
-            if (galatDibatalkan(e)) {
-                throw e;
-            }
-            if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
-                throw e;
-            }
-            throw new IOException(pesanGalatUnduh("Unduh binary", e));
-        }
-        boolean fallback = pakaiTerbaru[0];
-
-        String expectedSha = shaDapat[0];
-        if (tmp.length() < 1_000_000 || !isElf(tmp)) {
-            tmp.delete();
-            throw new IOException("File update tidak valid.");
-        }
-
-        tmp.setReadable(true, true);
-        tmp.setExecutable(true, true);
-
-        if (KernelCompat.legacyPerangkat()) {
+        boolean fallback;
+        String asap;
+        Object kunciTmpBin = kunciUnduh(tmp);
+        synchronized (kunciTmpBin) {
             try {
-                ensureShimFile(ctx);
-            } catch (Exception abaikan) {
+                try {
 
+                    unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
+                            new UrlCadangan() {
+                                @Override
+                                public String ganti(String url, int kode) throws IOException {
+                                    if (bolehFallback && known && !pakaiTerbaru[0]
+                                            && url.equals(urlAkhir[0])) {
+
+                                        pakaiTerbaru[0] = true;
+                                        urlAkhir[0] = binaryFallbackUrl();
+                                        return urlAkhir[0];
+                                    }
+                                    throw new IOException(known
+                                            ? "Build Android v" + latest + " belum tersedia"
+                                                    + saranStabilPrerelease(latest)
+                                                    + " (build otomatis ~12 jam). Coba lagi nanti."
+                                            : "Release binary Android belum tersedia. Coba lagi nanti.");
+                                }
+                            },
+                            shaDariRilis(ctx, 20000, 60000,
+                                    "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat),
+                            batal);
+                } catch (IOException e) {
+
+                    if (galatDibatalkan(e)) {
+                        throw e;
+                    }
+                    if (String.valueOf(e.getMessage()).contains("belum tersedia")) {
+                        throw e;
+                    }
+                    throw new IOException(pesanGalatUnduh("Unduh binary", e));
+                }
+                fallback = pakaiTerbaru[0];
+
+                String expectedSha = shaDapat[0];
+                if (tmp.length() < 1_000_000 || !isElf(tmp)) {
+                    tmp.delete();
+                    throw new IOException("File update tidak valid.");
+                }
+
+                tmp.setReadable(true, true);
+                tmp.setExecutable(true, true);
+
+                if (KernelCompat.legacyPerangkat()) {
+                    try {
+                        ensureShimFile(ctx);
+                    } catch (Exception abaikan) {
+
+                    }
+                }
+                asap = detectVersion(ctx, tmp);
+                if (asap == null) {
+                    boolean shimAda = shimValid(new File(ctx.getFilesDir(),
+                            "bin/" + KernelCompat.SHIM_ASSET));
+                    tmp.delete();
+                    throw new IOException(pesanUjiAsapGagal(
+                            KernelCompat.kernelSekarang(), shimAda));
+                }
+                try {
+                    pasangHasilUnduh(tmp, out, expectedSha);
+                } catch (IOException e) {
+                    try {
+                        tmp.delete();
+                    } catch (Exception ignored) {
+                    }
+                    throw e;
+                }
+            } finally {
+                lepasKunciUnduh(tmp);
             }
-        }
-        String asap = detectVersion(ctx, tmp);
-        if (asap == null) {
-            boolean shimAda = shimValid(new File(ctx.getFilesDir(),
-                    "bin/" + KernelCompat.SHIM_ASSET));
-            tmp.delete();
-            throw new IOException(pesanUjiAsapGagal(
-                    KernelCompat.kernelSekarang(), shimAda));
-        }
-        try {
-            pasangHasilUnduh(tmp, out, expectedSha);
-        } catch (IOException e) {
-            try {
-                tmp.delete();
-            } catch (Exception ignored) {
-            }
-            throw e;
         }
 
         out.setReadable(true, true);
