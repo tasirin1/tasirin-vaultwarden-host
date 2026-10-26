@@ -3727,7 +3727,7 @@ public class ServerService extends Service {
 
             return ((Number) m.invoke(p)).intValue();
         } catch (Throwable t) {
-            return -1;
+            return pidAnakDariProc(p);
         }
     }
 

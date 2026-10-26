@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 384: pidOf kini jatuh ke pemindaian /proc bila invoke pid() gagal
+- `pidOf` hanya memakai cadangan /proc bila metode `Process.pid()` tidak ada; bila metodenya ada tetapi `invoke`-nya gagal (akses refleksi ditolak), hasilnya permanen -1 — sapuan server yatim dan kawanannya kehilangan PID anak untuk Proses yang sebenarnya hidup (temuan audit putaran-7, #122).
+- Blok tangkap `pidOf` kini mengembalikan `pidAnakDariProc(p)` sebagai cadangan terakhir sebelum menyerah, sejalan jalur metode-tidak-ada.
+
 ## [Belum rilis] — Audit 383: keputusan symlink induk FileShareProvider kini bisa diuji di JVM
 - Satu-satunya tes `adaSymlinkInduk` berjalan lewat cabang pintas unit-test JVM yang selalu menjawab `false`; logika perangkat sungguhan (lstat tiap leluhur + uji bit symlink) tak pernah teruji — regresi di pemeriksaan keamanan berbagi berkas ini tak akan ketahuan tes (temuan audit putaran-9, #158).
 - Keputusan mode dipisah menjadi jahitan murni yang bisa disuntik: `modeAdalahLink` (bit `S_IFMT`/`S_IFLNK`) dan `adaSymlinkDariMode` (telusur leluhur lewat penyedia mode `ModeInduk`); jalur perangkat kini memasok mode dari lstat refleksi ke jahitan yang sama, pemeriksaan kanonis sesudahnya tak berubah. Tes baru mengunci bit link, leluhur link terdeteksi, dan mode tak diketahui yang diabaikan.
