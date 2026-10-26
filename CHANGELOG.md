@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 366: gerbang aturan repo kini membaca ekspresi targetSdk dan ABI baris lanjutan
+- `cek_aturan_repo` membaca angka pertama sesudah `targetSdk =` sehingga `targetSdk = 28 + 1` (efektif 29, melanggar aturan repo) terbaca 28, dan daftar ABI hanya dipindai dari baris yang memuat kata `abiFilters` sehingga ABI asing di baris lanjutan lolos — dua aturan repo paling keras bisa dilewati gerbangnya sendiri tanpa sengaja (temuan audit putaran-9, #143).
+- Nilai `targetSdk` kini dievaluasi sebagai literal/ekspresi aritmetika sederhana (fail-closed: bentuk yang tak bisa ditentukan ditolak), dan ABI dihimpun dengan pemindai yang mengikuti daftar string melewati baris lanjutan dan koma — kedua bentuk lolos di atas kini GAGAL, keadaan normal tetap LOLOS (terbukti eksekusi ulang di salinan buang).
+
 ## [Belum rilis] — Audit 365: pemeriksaan fd pasca-buka FileShareProvider kini fail-closed
 - Baris pertahanan terakhir anti-TOCTOU di `openFile` — membandingkan readlink `/proc/self/fd/N` berkas yang benar-benar terbuka dengan jalur kanonis yang lolos semua pemeriksaan — terhubung sebagai `if (jalurFd != null && !jalurFdCocok(...))`: bila `Os.readlink` sendiri gagal (null), penolakan dilewati diam-diam dan berkas tetap dilayani. Sisa dari perbaikan Audit 326 (#78); lapisan terakhir ini justru fail-open persis pada kegagalan yang seharusnya membuatnya menolak.
 - Kondisinya kini cukup `!jalurFdCocok(jalurFd, canonUlang)` — `jalurFdCocok` memang sudah mengembalikan false untuk null (dan perilaku itu teruji), jadi readlink yang gagal kini menolak akses seperti ketidakcocokan biasa: tak bisa diverifikasi, tak dilayani.

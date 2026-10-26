@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import ast
 import os
 import re
 import subprocess
@@ -488,16 +489,80 @@ def jenis_biner(path):
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
 
+def nilai_target_sdk(tetap):
+    m = re.search(r"targetSdk\s*=\s*([^\n]+)", tetap)
+    if not m:
+        return None
+    rhs = m.group(1).split("//", 1)[0].strip()
+    if re.fullmatch(r"\d+", rhs):
+        return int(rhs)
+    if not re.fullmatch(r"[\d\s+\-*/()%]+", rhs):
+        return -1
+    try:
+        pohon = ast.parse(rhs, mode="eval")
+    except SyntaxError:
+        return -1
+
+    def hitung(node):
+        if isinstance(node, ast.Expression):
+            return hitung(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, int):
+            return node.value
+        if isinstance(node, ast.UnaryOp) and isinstance(
+                node.op, (ast.UAdd, ast.USub)):
+            v = hitung(node.operand)
+            return v if isinstance(node.op, ast.UAdd) else -v
+        if isinstance(node, ast.BinOp) and isinstance(
+                node.op, (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod)):
+            kiri = hitung(node.left)
+            kanan = hitung(node.right)
+            if isinstance(node.op, ast.Add):
+                return kiri + kanan
+            if isinstance(node.op, ast.Sub):
+                return kiri - kanan
+            if isinstance(node.op, ast.Mult):
+                return kiri * kanan
+            if isinstance(node.op, ast.FloorDiv):
+                return kiri // kanan
+            return kiri % kanan
+        raise ValueError("simpul tak didukung")
+
+    try:
+        return hitung(pohon)
+    except Exception:
+        return -1
+
+
+def himpun_abi(tetap):
+    abi = set()
+    for m in re.finditer(r"abiFilters", tetap):
+        i = m.end()
+        while i < len(tetap):
+            while i < len(tetap) and tetap[i] in " \t\r\n,":
+                i += 1
+            if i < len(tetap) and tetap[i] == '"':
+                j = tetap.find('"', i + 1)
+                if j < 0:
+                    break
+                abi.add(tetap[i + 1:j])
+                i = j + 1
+                continue
+            if i < len(tetap) and tetap[i] in "+=":
+                i += 1
+                continue
+            break
+    return abi
+
+
 def cek_aturan_repo(gagal, berubah):
     tetap = baca("app/build.gradle.kts")
-    target = re.search(r"targetSdk\s*=\s*(\d+)", tetap)
-    if target and int(target.group(1)) >= 29:
-        gagal.append("targetSdk %s >= 29 memblokir execve binary (aturan repo)" % target.group(1))
-    abi = set()
-    for baris in tetap.splitlines():
-        if "abiFilters" in baris:
-            abi.update(re.findall(r'"([^"]+)"', baris))
-    asing = sorted(a for a in abi if a != "armeabi-v7a")
+    target = nilai_target_sdk(tetap)
+    if target == -1:
+        gagal.append("targetSdk bukan literal/ekspresi angka sederhana — "
+                     "gerbang tak bisa memastikan nilainya <= 28 (aturan repo)")
+    elif target is not None and target >= 29:
+        gagal.append("targetSdk %s >= 29 memblokir execve binary (aturan repo)" % target)
+    asing = sorted(a for a in himpun_abi(tetap) if a != "armeabi-v7a")
     if asing:
         gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
     for path in berubah:
