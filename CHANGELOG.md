@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 294: Rangkaian build APK merah (kelas uji kembar, `throws`, API 24)
+- `compileDebugJavaWithJavac` gagal 3 error: `URLEncoder.encode` dipindah ke `kirimKeDaftar` (commit "encode-once") tanpa ikut membawa `throws Exception`/`UnsupportedEncodingException`, sehingga seluruh build APK sesudahnya merah. `kirimKeDaftar` kini mendeklarasikan `throws Exception` dan kedua pemanggilnya (`kirimSinkron`, `kirimSinkronKe`) memakai jalur `catch` + `logTgFailure` yang sudah ada — tidak ada catch duplikat.
+- `compileDebugUnitTestJavaWithJavac` gagal karena kelas pembantu uji `ProsesPalsu` terdefinisi dua kali identik di `ServerServiceTest` (salinan kedua dihapus; salinan pertama tetap dipakai dua uji kunci proses/episode).
+- `lintDebug` gagal 2 error `NewApi`: `ConcurrentHashMap#compute`/`#computeIfPresent` baru ada di API 24 sedangkan `minSdk` 21. Mutasi peta kunci unduhan (naik/turun `pemakai` + buang entri saat pemakai terakhir) kini dalam satu blok `synchronized (KUNCI_PETA)` — atomik, tanpa API 24; kunci per path tetap `KunciUnduh.mutex` sehingga unduhan tak saling tertahan.
+- Gerbang verifikasi ikut diperbaiki agar tidak memberi false positive "metode dihapus tapi masih dipanggil" saat menghapus satu dari dua pembantu uji kembar (override `Process`): `masih_didefinisikan()` memindai `app/src` (main + test), sesuai aturan #15 "masih didefinisikan di berkas lain = pindah, bukan hapus".
+- Uji `TgBackupTest.sapuTmpPlainBasi_hanyaBasiDanBukanAktif` memanggil varargs dengan `null` tanpa cast sehingga javac memperingatkan "non-varargs call ... inexact argument type"; kini `(String[]) null` eksplisit (maksudnya: tanpa pengecualian).
+
 ## [Belum rilis] — Audit 293: Stop menghentikan unduhan binary yang sedang berjalan
 - `ACTION_STOP` hanya menyetel `batalStart`, yang baru dibaca sebelum `exec`; `Updater.unduhKeTmp` tak punya hook pembatalan. Start tanpa binary lalu Stop membuat ~20 MB tetap terunduh (menit-menitan di STB lambat) dan `starting` tetap true sampai selesai, sehingga restore/reset yang menunggu `stopAndWait` ditolak "server gagal berhenti" padahal tak ada server.
 - Ditambahkan `nomorStop` (nomor monotonik, dinaikkan tiap Stop) + `Updater.CekBatal`: episode Start mencatat nomornya, lalu unduhan berhenti di antara percobaan **dan** di tengah salinan badan (per 64 KB). Memakai nomor, bukan flag yang direset Start berikutnya, agar Start baru tidak menghidupkan lagi unduhan episode lama.

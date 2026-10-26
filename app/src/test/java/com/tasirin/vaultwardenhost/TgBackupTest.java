@@ -715,7 +715,10 @@ public class TgBackupTest {
             assertTrue(segar.exists());
             assertTrue(segarIsi.exists());
             assertTrue(lain.exists());
-            TgBackup.sapuTmpPlainBasi(dir, null);
+            // Null sebagai ARRAY pengecualian (bukan elemen): uji cabang
+            // "tanpa pengecualian"; cast eksplisit menghindari warning
+            // non-varargs call yang ambigu antara null-array dan null-String.
+            TgBackup.sapuTmpPlainBasi(dir, (String[]) null);
             assertTrue(segar.exists());
             assertTrue(segarIsi.exists());
         } finally {
