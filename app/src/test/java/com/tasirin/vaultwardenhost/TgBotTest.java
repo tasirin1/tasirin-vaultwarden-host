@@ -634,4 +634,10 @@ public class TgBotTest {
         assertTrue("harus menutup 35 MB @30 KB/s (" + mbDetik + " dtk)",
                 TgBot.WAKELOCK_TUGAS_BERAT_MS / 1000L > mbDetik);
     }
+
+    @Test
+    public void pesanAliveMembedakanSehatDanTidak() {
+        assertEquals("Server sehat (HTTPS 200 /alive).", TgBot.pesanAlive(true));
+        assertEquals("Server TIDAK merespon /alive!", TgBot.pesanAlive(false));
+    }
 }

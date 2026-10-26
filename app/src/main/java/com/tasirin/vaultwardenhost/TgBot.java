@@ -152,6 +152,12 @@ public final class TgBot {
         };
     }
 
+    /** Pesan hasil cek /alive (dipisah agar bisa diuji tanpa jaringan). Murni. */
+    static String pesanAlive(boolean sehat) {
+        return sehat ? "Server sehat (HTTPS 200 /alive)."
+                : "Server TIDAK merespon /alive!";
+    }
+
     /** True bila pesan hasil update web-vault berarti file berubah (perlu restart).
      *  Cek marker mesin dulu, fallback substring lama untuk pesan versi lama. */
     static boolean webVaultBerubah(String msg) {
@@ -1838,9 +1844,14 @@ public final class TgBot {
                 }
                 break;
             case "/alive":
-                balas(ctx, idRuang, ServerService.pingAlive(ctx)
-                        ? "Server sehat (HTTPS 200 /alive)."
-                        : "Server TIDAK merespon /alive!");
+                // Ping /alive = gerbang TCP + sampai dua request HTTPS: bisa
+                // beberapa detik. Dulu dijalankan inline di thread polling
+                // tunggal sehingga anggota grup bisa menahan /stop atau
+                // /restore dengan mengirim /alive berulang.
+                if (!Util.jalankanBg(() -> balas(ctx, idRuang,
+                        pesanAlive(ServerService.pingAlive(ctx))))) {
+                    balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
+                }
                 break;
             case "/update":
                 String bersihUpdate = authDangerous(ctx, arg, idRuang);
