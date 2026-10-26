@@ -104,7 +104,12 @@ public class MainActivity extends Activity {
      *  tanpa simpan-pulih, izin yang diberikan tak melanjutkan Start dan user
      *  harus menekan Start lagi tanpa tahu sebabnya. */
     private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
-    private volatile boolean uiBusy = false;
+    /** Status sibuk GLOBAL, bukan per-instance: unduhan web-vault (~35 MB)
+     *  berjalan dengan application context sehingga tetap lanjut walau layar
+     *  diputar/dibuat ulang. Dulu field instance membuat instance baru
+     *  melihat "tidak sibuk": tombol Start aktif lagi padahal ekstraksi
+     *  web-vault belum selesai, dan Start menyala tanpa web UI. */
+    private static volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
     // Cache URL lokal 10 detik: localUrl()/collectIps() tiap detik di UI thread
     // bikin ANR di STB lambat; pakai cache agar enumerasi jaringan jarang jalan.
@@ -206,6 +211,11 @@ public class MainActivity extends Activity {
         teksBerhenti = getString(R.string.stopped);
         teksSibuk = getString(R.string.busy_work);
         ui.post(refreshLoop);
+        // Unduhan web-vault milik Activity sebelumnya masih berjalan (application
+        // context): pulihkan penguncian tombol + status sibuk di instance ini.
+        if (uiBusy) {
+            setBusy(true);
+        }
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         // Cek update otomatis saat dibuka
@@ -477,6 +487,12 @@ public class MainActivity extends Activity {
                                 ServerService.start(appCtx);
                             }
                             ui.post(() -> {
+                                // Lepas kunci sibuk SEBELUM cek mati: uiBusy kini
+                                // global (dipakai antar-instance), jadi rotasi di
+                                // tengah unduhan dulu akan meninggalkan status
+                                // sibuk terkunci selamanya. setBusy sendiri sudah
+                                // aman untuk Activity mati (hanya melewati view).
+                                setBusy(false);
                                 if (isFinishing() || isDestroyed()) {
                                     return;
                                 }
@@ -484,7 +500,6 @@ public class MainActivity extends Activity {
                                 if (gagalFinal) {
                                     toast(getString(R.string.wv_unduh_gagal_server));
                                 }
-                                setBusy(false);
                                 // Backup otomatis di sini (bukan saat tekan tombol):
                                 // DB baru ada sesudah server jalan; bila di depan,
                                 // tunggu-DB 30 dtk hangus selama unduh 35 MB dan

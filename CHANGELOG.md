@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 306: status sibuk MainActivity bertahan lintas rotasi
+- `uiBusy` hanya field instance, padahal unduhan web-vault (~35 MB) sengaja berjalan di worker dengan application context sehingga tetap lanjut walau Activity dibuat ulang. Setelah rotasi, instance baru punya `uiBusy=false`: tombol Start aktif kembali dan indikator unduh hilang; Start yang ditekan di tengah unduhan membuat `extractWebVault()` tak menemukan `index.html` sehingga server menyala **tanpa web vault**, dan callback lama dibuang karena `isDestroyed()`.
+- `uiBusy` kini `static volatile`; `onCreate` memulihkan penguncian tombol + status sibuk bila unduhan masih berjalan. Jalur selesai unduhan melepas kunci (`setBusy(false)`) **sebelum** cek `isDestroyed()`, karena dengan status global rotasi di tengah unduhan dulu akan meninggalkan "sibuk" terkunci selamanya (setBusy sendiri sudah aman untuk Activity mati).
+
 ## [Belum rilis] — Audit 305: permintaan simpan log bertahan saat Activity dibuat ulang
 - `LogActivity.simpanUlangSetelahIzin` hanya field instance. Pada Android 6–9, menekan "Simpan" tanpa izin storage membuka dialog izin; bila Activity dibuat ulang saat dialog tampil (rotasi, "Don't keep activities", proses dibunuh), instance baru punya flag `false` sehingga callback "Izinkan" masuk ke instance baru dan **tidak** memanggil `exportLogTxt()`: tidak ada file tersimpan dan tidak ada pesan apa pun.
 - Flag kini disimpan di `onSaveInstanceState` (`simpan_ulang_izin`) dan dipulihkan di `onCreate`, cermin `STATE_MULAI_ULANG_IZIN` di MainActivity.
