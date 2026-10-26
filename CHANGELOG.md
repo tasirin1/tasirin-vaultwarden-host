@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 394: urutan keadaan bg_input_tv diselaraskan — pressed sebelum focused
+- `bg_input_tv.xml` adalah satu-satunya selector yang tertinggal dari penataan ulang #111: item `state_focused` mendahului `state_pressed`, dan karena selector mengambil kecocokan pertama, input yang sedang fokus sekaligus ditekan (khas navigasi D-pad TV) menampilkan gaya fokus, bukan gaya tekan (temuan audit putaran-7, #132).
+- Kedua item ditukar urutannya persis seperti selector lain; bentuk dan warna tiap keadaan tidak berubah sama sekali.
+
 ## [Belum rilis] — Audit 393: ikon Play/Stop kini berwujud selector agar terlihat saat pressed di mode malam
 - Warna isi vektor ikon bersifat statis: di mode malam ikon memakai `btn_primary_text` gelap `#1A1A1A`, tetapi latar pressed tombol utama/Stop juga gelap (`#0D47A1`/`#7A1A17`) — ikon lenyap selama tombol ditahan (2,02:1 dan 1,65:1), peninggalan perbaikan #94 yang memindahkan masalah dari keadaan default ke pressed (temuan audit putaran-7, #130).
 - Ikon kini dibungkus selector (`ic_play_state`/`ic_stop_state`): keadaan pressed memakai varian ikon putih (≥7:1 di kedua latar pressed), keadaan lain tetap ikon asal; kedua pemakai (layout Settings dan penukar ikon di `SettingsActivity`) diarahkan ke selector.
