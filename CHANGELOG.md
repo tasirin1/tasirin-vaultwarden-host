@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 320: unduhan binary/shim/web-vault kini berbatas ukuran
+- Loop unduhan `salinSambilHash` menulis terus sampai stream berakhir: tanpa `Content-Length` tidak ada pemeriksaan sama sekali, dan dengan `Content-Length` kegagalan baru dinyatakan sesudah semua byte tertulis — aset salah/korup atau respons raksasa bisa memenuhi disk STB (yang sama dengan folder data Vaultwarden) sebelum SHA-256 sempat menolaknya.
+- Kini ada batas per jenis unduhan (`batasUnduhUntuk`: binary 128 MB, shim 8 MB, web-vault 150 MB — jauh di atas ukuran aset sah). Panjang yang diketahui melebihi batas ditolak sebelum penulisan, dan penghitung berjalan diperiksa tiap potongan (`unduhanMelebihiBatas`) sehingga unduhan tanpa panjang pun berhenti tepat sesudah batas terlampaui; galatnya sengaja tidak memenuhi syarat coba-lagi. Diuji di `UpdaterTest`.
+
 ## [Belum rilis] — Audit 319: restore backup tanpa kunci privat tak lagi mencampur pasangan TLS dua perangkat
 - Zip backup selalu memuat `tls/ca.pem` + `tls/cert.pem`, tetapi kunci privat (`ca-key.pem`/`key.pem`) hanya ikut pada backup terenkripsi. Restore di perangkat lain memasang sertifikat perangkat asal menimpa milik perangkat tujuan sementara kuncinya tertinggal: pasangan TLS tercampur, CA efektif berganti diam-diam, dan semua klien harus memasang CA baru tanpa peringatan apa pun (server memang pulih sendiri lewat validasi pasangan di `TlsCert`, tetapi sesudah berganti).
 - Kedua jalur restore (Telegram `TgBackup` dan lokal `SettingsActivity`) kini hanya memasang TLS dari backup bila paketnya lengkap (`tlsRestoreLengkap`: kedua kunci privat ikut); paket tak lengkap dibuang dari staging, TLS perangkat tujuan dipertahankan, dan pemilik diperingatkan — lewat pesan hasil restore di Telegram dan log di Settings.

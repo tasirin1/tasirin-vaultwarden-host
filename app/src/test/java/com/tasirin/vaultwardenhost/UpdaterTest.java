@@ -1057,6 +1057,20 @@ public class UpdaterTest {
     }
 
     @Test
+    public void batasUnduhUntukLabelDikenal() {
+        assertTrue(Updater.batasUnduhUntuk("binary") == Updater.BATAS_UNDUH_BINARY);
+        assertTrue(Updater.batasUnduhUntuk("shim") == Updater.BATAS_UNDUH_SHIM);
+        assertTrue(Updater.batasUnduhUntuk("web vault") == Updater.BATAS_UNDUH_WEBVAULT);
+        assertTrue(Updater.batasUnduhUntuk("lain") == 0);
+        assertTrue(Updater.batasUnduhUntuk(null) == 0);
+        assertTrue(Updater.unduhanMelebihiBatas(101, 100));
+        assertFalse(Updater.unduhanMelebihiBatas(100, 100));
+        assertFalse(Updater.unduhanMelebihiBatas(10_000, 0));
+        assertFalse(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                Updater.pesanMelebihiBatas("binary", Updater.BATAS_UNDUH_BINARY))));
+    }
+
+    @Test
     public void dalamJedaCek_hematRequestSaatJaringanGangguan() {
         long sekarang = 1_000_000_000L;
         assertFalse(Updater.dalamJedaCek(0, sekarang));

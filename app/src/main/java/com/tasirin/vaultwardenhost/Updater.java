@@ -925,6 +925,34 @@ public final class Updater {
         }
     }
 
+    static final long BATAS_UNDUH_BINARY = 128L * 1024 * 1024;
+
+    static final long BATAS_UNDUH_SHIM = 8L * 1024 * 1024;
+
+    static final long BATAS_UNDUH_WEBVAULT = 150L * 1024 * 1024;
+
+    static long batasUnduhUntuk(String label) {
+        if ("binary".equals(label)) {
+            return BATAS_UNDUH_BINARY;
+        }
+        if ("shim".equals(label)) {
+            return BATAS_UNDUH_SHIM;
+        }
+        if ("web vault".equals(label)) {
+            return BATAS_UNDUH_WEBVAULT;
+        }
+        return 0;
+    }
+
+    static boolean unduhanMelebihiBatas(long done, long batas) {
+        return batas > 0 && done > batas;
+    }
+
+    static String pesanMelebihiBatas(String label, long batas) {
+        return "Unduhan " + label + " melebihi batas ukuran " + batas
+                + " byte - unduhan dibatalkan.";
+    }
+
     static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
                                   long lanjutDari, String label) throws IOException {
         return salinSambilHash(dl, tmp, kodeHttp, lanjutDari, label, null);
@@ -936,6 +964,10 @@ public final class Updater {
         long total = panjangKonten(dl);
         if (kodeHttp == 206 && total >= 0) {
             total += lanjutDari;
+        }
+        long batas = batasUnduhUntuk(label);
+        if (unduhanMelebihiBatas(total, batas)) {
+            throw new IOException(pesanMelebihiBatas(label, batas));
         }
         java.security.MessageDigest md;
         try {
@@ -966,6 +998,9 @@ public final class Updater {
                 fos.write(buf, 0, n);
                 md.update(buf, 0, n);
                 done += n;
+                if (unduhanMelebihiBatas(done, batas)) {
+                    throw new IOException(pesanMelebihiBatas(label, batas));
+                }
                 if (done - lastReport >= 256 * 1024) {
                     lastReport = done;
                     reportDownload(label, done, total);
