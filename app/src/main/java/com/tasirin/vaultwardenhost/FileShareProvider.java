@@ -256,6 +256,26 @@ public class FileShareProvider extends ContentProvider {
         return j.equals(canon);
     }
 
+    interface ModeInduk {
+        Integer modeDari(String path);
+    }
+
+    static boolean modeAdalahLink(int mode) {
+        return (mode & 0170000) == 0120000;
+    }
+
+    static boolean adaSymlinkDariMode(String canon, ModeInduk penyedia) {
+        File induk = new File(canon).getParentFile();
+        for (int i = 0; i < 256 && induk != null; i++) {
+            Integer mode = penyedia.modeDari(induk.getAbsolutePath());
+            if (mode != null && modeAdalahLink(mode.intValue())) {
+                return true;
+            }
+            induk = induk.getParentFile();
+        }
+        return false;
+    }
+
     static boolean adaSymlinkInduk(String canon) {
 
         if (diJvmUnitTest()) {
@@ -286,28 +306,32 @@ public class FileShareProvider extends ContentProvider {
 
             return true;
         }
-        File induk = new File(canon).getParentFile();
-
-        java.lang.reflect.Field fMode = MODE_CACHE;
-        for (int i = 0; i < 256 && induk != null; i++) {
-            try {
-                Object st = lstat.invoke(null, induk.getAbsolutePath());
-                if (fMode == null) {
-                    synchronized (FileShareProvider.class) {
-                        if (MODE_CACHE == null) {
-                            MODE_CACHE = st.getClass().getField("st_mode");
+        final java.lang.reflect.Method lstatFinal = lstat;
+        ModeInduk penyedia = new ModeInduk() {
+            @Override
+            public Integer modeDari(String path) {
+                try {
+                    Object st = lstatFinal.invoke(null, path);
+                    java.lang.reflect.Field fMode = MODE_CACHE;
+                    if (fMode == null) {
+                        synchronized (FileShareProvider.class) {
+                            if (MODE_CACHE == null) {
+                                MODE_CACHE = st.getClass().getField("st_mode");
+                            }
+                            fMode = MODE_CACHE;
                         }
-                        fMode = MODE_CACHE;
                     }
+                    return Integer.valueOf(fMode.getInt(st));
+                } catch (Exception e) {
+                    return null;
                 }
-                int mode = fMode.getInt(st);
-                if (Boolean.TRUE.equals(cekLink.invoke(null, mode))) {
-                    return true;
-                }
-            } catch (Exception e) {
-
             }
-
+        };
+        if (adaSymlinkDariMode(canon, penyedia)) {
+            return true;
+        }
+        File induk = new File(canon).getParentFile();
+        for (int i = 0; i < 256 && induk != null; i++) {
             try {
                 if (!induk.getCanonicalPath().equals(induk.getAbsolutePath())) {
                     return true;

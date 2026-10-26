@@ -95,6 +95,40 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void modeAdalahLink_kenaliBitTipeBerkas() {
+        assertTrue(FileShareProvider.modeAdalahLink(0120777));
+        assertFalse(FileShareProvider.modeAdalahLink(0040755));
+        assertFalse(FileShareProvider.modeAdalahLink(0100644));
+        assertFalse(FileShareProvider.modeAdalahLink(0));
+    }
+
+    @Test
+    public void adaSymlinkDariMode_indukLinkTerdeteksi() {
+        FileShareProvider.ModeInduk penyedia = new FileShareProvider.ModeInduk() {
+            @Override
+            public Integer modeDari(String path) {
+                if ("/a/b".equals(path)) {
+                    return Integer.valueOf(0120777);
+                }
+                return Integer.valueOf(0040755);
+            }
+        };
+        assertTrue(FileShareProvider.adaSymlinkDariMode("/a/b/c/cert.pem", penyedia));
+        assertFalse(FileShareProvider.adaSymlinkDariMode("/a/x/cert.pem", penyedia));
+    }
+
+    @Test
+    public void adaSymlinkDariMode_modeTakDiketahuiDiabaikan() {
+        FileShareProvider.ModeInduk gelap = new FileShareProvider.ModeInduk() {
+            @Override
+            public Integer modeDari(String path) {
+                return null;
+            }
+        };
+        assertFalse(FileShareProvider.adaSymlinkDariMode("/a/b/c/cert.pem", gelap));
+    }
+
+    @Test
     public void namaBiasaBerisiKeyTakIkutDitolak() {
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.pem"));

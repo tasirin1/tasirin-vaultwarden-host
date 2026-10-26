@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 383: keputusan symlink induk FileShareProvider kini bisa diuji di JVM
+- Satu-satunya tes `adaSymlinkInduk` berjalan lewat cabang pintas unit-test JVM yang selalu menjawab `false`; logika perangkat sungguhan (lstat tiap leluhur + uji bit symlink) tak pernah teruji — regresi di pemeriksaan keamanan berbagi berkas ini tak akan ketahuan tes (temuan audit putaran-9, #158).
+- Keputusan mode dipisah menjadi jahitan murni yang bisa disuntik: `modeAdalahLink` (bit `S_IFMT`/`S_IFLNK`) dan `adaSymlinkDariMode` (telusur leluhur lewat penyedia mode `ModeInduk`); jalur perangkat kini memasok mode dari lstat refleksi ke jahitan yang sama, pemeriksaan kanonis sesudahnya tak berubah. Tes baru mengunci bit link, leluhur link terdeteksi, dan mode tak diketahui yang diabaikan.
+
 ## [Belum rilis] — Audit 382: tes prioritas newline pecahPesan kini membedakan perilakunya
 - Tes `pecahPesan_utamakanNewlineDanGabungUtuh` hanya menegaskan potongan ≤ batas+16 dan gabungan utuh — lolos juga untuk pemotong keras per-batas yang mengabaikan newline, padahal prioritas newline-lah perilaku yang hendak dikunci (temuan audit putaran-9, #157).
 - Tes kini menegaskan daftar potongan persis (`baris1\n`, `baris2\n`, `baris3` untuk batas 10, diturunkan dari porting Python fungsi yang sama) dan tiap potongan ≤ batas tanpa kelonggaran grapheme untuk masukan ini.
