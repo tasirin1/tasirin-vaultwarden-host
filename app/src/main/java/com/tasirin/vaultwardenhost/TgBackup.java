@@ -1252,9 +1252,13 @@ public final class TgBackup {
         return satu;
     }
 
-    /** Kirim pesan ke daftar tujuan yang sudah tervalidasi (satu pintu). */
+    /** Kirim pesan ke daftar tujuan yang sudah tervalidasi (satu pintu).
+     *  Melempar Exception (termasuk UnsupportedEncodingException dari
+     *  URLEncoder) agar kedua pemanggil — kirimSinkron/kirimSinkronKe —
+     *  mencatatnya lewat jalur logTgFailure yang sama. */
     private static void kirimKeDaftar(Context app, String token,
-                                      java.util.List<String> tujuan, String msg, String markup) {
+                                      java.util.List<String> tujuan, String msg, String markup)
+            throws Exception {
         // Limit API Telegram 4096 char: pecah agar /status & /log panjang
         // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
         java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
