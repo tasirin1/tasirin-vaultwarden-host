@@ -2079,71 +2079,84 @@ public final class TgBackup {
         } catch (Exception e) {
             throw new java.io.IOException("URL Telegram tidak valid.");
         }
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) tujuanKirim.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setConnectTimeout(20000);
-
-            conn.setReadTimeout(60000);
-            conn.setInstanceFollowRedirects(false);
-
-            conn.setChunkedStreamingMode(0);
-            HttpsCompat.apply(conn, ctx);
-            String boundary;
+        for (int percobaan = 0; percobaan < 2; percobaan++) {
+            HttpURLConnection conn = null;
             try {
-                byte[] acakB = new byte[8];
-                SECURE_RANDOM.nextBytes(acakB);
-                boundary = "----vw" + Updater.toHex(acakB) + "bound";
-            } catch (Exception e) {
+                conn = (HttpURLConnection) tujuanKirim.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(20000);
 
-                boundary = "----vw"
-                        + java.util.UUID.randomUUID().toString().replace("-", "")
-                        + "bound";
-            }
-            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+                conn.setReadTimeout(60000);
+                conn.setInstanceFollowRedirects(false);
 
-            try (OutputStream os = conn.getOutputStream()) {
-                tulisAscii(os, "--" + boundary + "\r\n");
-                tulisAscii(os, "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
-                tulisAscii(os, chatId + "\r\n");
-                tulisAscii(os, "--" + boundary + "\r\n");
-                tulisAscii(os, "Content-Disposition: form-data; name=\"document\"; filename=\""
-                        + sanitasiNamaFile(file.getName()) + "\"\r\n");
-                tulisAscii(os, "Content-Type: application/octet-stream\r\n\r\n");
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    while ((n = fis.read(buf)) != -1) {
-                        os.write(buf, 0, n);
+                conn.setChunkedStreamingMode(0);
+                HttpsCompat.apply(conn, ctx);
+                String boundary;
+                try {
+                    byte[] acakB = new byte[8];
+                    SECURE_RANDOM.nextBytes(acakB);
+                    boundary = "----vw" + Updater.toHex(acakB) + "bound";
+                } catch (Exception e) {
+
+                    boundary = "----vw"
+                            + java.util.UUID.randomUUID().toString().replace("-", "")
+                            + "bound";
+                }
+                conn.setRequestProperty("Content-Type",
+                        "multipart/form-data; boundary=" + boundary);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    tulisAscii(os, "--" + boundary + "\r\n");
+                    tulisAscii(os, "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
+                    tulisAscii(os, chatId + "\r\n");
+                    tulisAscii(os, "--" + boundary + "\r\n");
+                    tulisAscii(os, "Content-Disposition: form-data; name=\"document\"; filename=\""
+                            + sanitasiNamaFile(file.getName()) + "\"\r\n");
+                    tulisAscii(os, "Content-Type: application/octet-stream\r\n\r\n");
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        byte[] buf = new byte[64 * 1024];
+                        int n;
+                        while ((n = fis.read(buf)) != -1) {
+                            os.write(buf, 0, n);
+                        }
+                    }
+                    tulisAscii(os, "\r\n--" + boundary + "--\r\n");
+                    os.flush();
+                }
+
+                tolakRedirectTelegram(conn);
+                int code = conn.getResponseCode();
+                InputStream mentah = (code >= 200 && code < 300)
+                        ? conn.getInputStream() : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        sb.append(bacaResponsBatas(is));
                     }
                 }
-                tulisAscii(os, "\r\n--" + boundary + "--\r\n");
-                os.flush();
-            }
 
-            tolakRedirectTelegram(conn);
-            int code = conn.getResponseCode();
-            InputStream mentah = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
-            StringBuilder sb = new StringBuilder();
-            if (mentah != null) {
-                try (InputStream is = mentah) {
-                    sb.append(bacaResponsBatas(is));
+                if (code == 429 && percobaan == 0) {
+                    long jeda = jedaRetryAfterMs(sb.toString());
+                    ServerService.catatLog("[tg] Unggah kena limit Telegram - tunggu "
+                            + (jeda / 1000) + " dtk lalu coba lagi.");
+                    Thread.sleep(jeda);
+                    continue;
+                }
+
+                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+
+                    throw new IOException("Telegram "
+                            + TgBot.ringkasGalatTelegram(sb.toString(), code));
+                }
+                return sb.toString();
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
                 }
             }
-
-            if (code != 200 || !TgBot.responsOk(sb.toString())) {
-
-                throw new IOException("Telegram "
-                        + TgBot.ringkasGalatTelegram(sb.toString(), code));
-            }
-            return sb.toString();
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
         }
+        throw new IOException("Telegram tetap membatasi unggahan.");
     }
 
     static String extractFileId(String body) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: unggahan Telegram menghormati HTTP 429
+- `uploadTelegram` (sendDocument untuk backup/CA) langsung mengubah HTTP 429 menjadi `IOException`, sedangkan `kirimSatuPesan` sudah membaca `retry_after` lalu menunggu. Saat backup manual + terjadwal + `/cabackup` berdekatan, Telegram membatasi laju dan backup hari itu tidak terkirim.
+- Jalur unggah kini mencoba ulang sekali setelah `jedaRetryAfterMs` (log "[tg] Unggah kena limit Telegram ..."), lalu tetap melempar galat bila percobaan kedua masih 429 — tidak ada pengulangan tanpa batas.
+
 ## [Belum rilis] — Audit 311: bundel CA binary dipatok ke URL bertanggal
 - `build-binary.yml` mengunduh `https://curl.se/ca/cacert.pem` yang isinya berganti tiap Mozilla memperbarui bundel, padahal hash-nya hard-code: begitu curl.se menerbitkan bundel baru, build binary (termasuk jadwal bulanan) merah sampai hash diperbarui manual, dan binary Vaultwarden baru tak terbit.
 - URL diganti arsip bertanggal `https://curl.se/ca/cacert-2026-10-20.pem` (isinya tetap, hash `796f1389...` sudah diverifikasi lokal), jadi `sha256sum -c` tak lagi bergantung pada perubahan harian. Bila suatu saat bundel perlu diperbarui, pesan galat CI menunjuk `curl.se/docs/caextract.html` untuk memilih tanggal + hash baru.
