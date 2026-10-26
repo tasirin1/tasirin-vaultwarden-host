@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 355: Back dan Keluar di layar PIN tak lagi membatalkan verifikasi yang sedang berjalan
+- Selama verifikasi PBKDF2 berjalan, `cobaBuka()` hanya menonaktifkan tombol Buka; Back (`onBackPressed`) dan tombol Keluar tetap memanggil `batalKeluar()` yang langsung `RESULT_CANCELED` + `finish()` — dan activity pemanggil ikut `finish()` — padahal pekerja tetap menyelesaikan verifikasi dan membuka grace. Pengguna yang refleks menekan Back saat layar terasa lambat di perangkat tua justru menutup aplikasi tepat ketika PIN-nya terbukti benar.
+- `batalKeluar()` kini kembali lebih dulu selama `sedangPeriksa` berjalan (satu titik untuk kedua pemanggilnya: tombol Keluar dan `onBackPressed`); verifikasi selalu berumur detik dan hasilnya — sukses yang menutup layar dengan `RESULT_OK`, atau pesan gagal — tetap sampai ke pengguna.
+
 ## [Belum rilis] — Audit 354: LogActivity.toast kini berpagar siklus hidup seperti activity lain
 - `LogActivity.toast()` memasang `Toast` lewat `ui.post` polos tanpa memeriksa keadaan activity — pola yang sama yang diperbaiki di SettingsActivity pada Audit 330 (#82), di berkas yang saat itu tidak ikut diperbaiki. try/catch memang mencegah crash `BadTokenException`, tetapi toast tetap dicoba tampil dengan token activity yang sudah mati dan perilakunya tidak konsisten dengan kelas lain (`MainActivity.uiHidup()`).
 - Runnable toast kini kembali lebih dulu bila `isFinishing() || isDestroyed()`, menutup semua pemanggil di berkas ini sekaligus.

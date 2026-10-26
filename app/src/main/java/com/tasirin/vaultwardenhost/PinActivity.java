@@ -124,6 +124,9 @@ public class PinActivity extends Activity {
     }
 
     private void batalKeluar() {
+        if (sedangPeriksa) {
+            return;
+        }
         setResult(RESULT_CANCELED);
         finish();
     }
