@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 419: dua tes tak lagi bisa lulus tanpa menjalankan asersi intinya
+- `folderBytesWalk_symlinkMelingkarTakMeledak` mengembalikan "lulus" diam-diam bila pembuatan symlink gagal dan memeriksa total dengan rentang longgar 100–100.000; `tautanSimbol_bedakanLinkDanBiasa` menaruh asersi positifnya di dalam try yang catch-nya kosong — keduanya bisa hijau tanpa pernah memeriksa hal yang dimaksud (temuan audit putaran-9, #173).
+- Kegagalan membuat symlink kini menjadi skip yang jujur lewat `Assume`, asersi berjalan di luar try/catch, dan total walk symlink melingkar dijepit tepat 3100 byte (31 kunjungan berkas 100 byte sampai batas kedalaman 32, dibuktikan dengan porting 1:1 ke Python).
+
 ## [Belum rilis] — Audit 418: pola berkas terlarang cek-cepat kini tak peka huruf besar/kecil
 - Pola berkas terlarang di `cek-cepat.sh` dicocokkan peka huruf: `app.APK`, `SECRET.JKS`, dan `.ENV` lolos dari gerbang larangan binary/secret padahal isinya sama terlarangnya (temuan audit putaran-9, #172).
 - Pencocokan kini `grep -iE`; daftar pola dan pesan kegagalannya tidak berubah. (Sisi verifikasi-patch sudah menurunkan huruf lebih dulu, jadi tak berubah.)

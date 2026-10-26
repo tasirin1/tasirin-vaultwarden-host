@@ -600,15 +600,18 @@ public class TgBackupTest {
         java.nio.file.Path dasar = java.nio.file.Files.createTempDirectory("vw-walk-");
         java.nio.file.Path sub = java.nio.file.Files.createDirectory(dasar.resolve("sub"));
         java.nio.file.Files.write(sub.resolve("data.bin"), new byte[100]);
+        boolean tautanDibuat = false;
         try {
             java.nio.file.Files.createSymbolicLink(
                     dasar.resolve("loop"), dasar);
+            tautanDibuat = true;
         } catch (Exception abaikan) {
-            return;
+            tautanDibuat = false;
         }
+        org.junit.Assume.assumeTrue("symlink tak bisa dibuat di mesin ini", tautanDibuat);
         try {
             long total = TgBackup.folderBytesWalk(dasar.toFile());
-            assertTrue("hitung berlebih: " + total, total >= 100 && total < 100000);
+            assertEquals(3100L, total);
         } finally {
             try {
                 java.nio.file.Files.deleteIfExists(dasar.resolve("loop"));

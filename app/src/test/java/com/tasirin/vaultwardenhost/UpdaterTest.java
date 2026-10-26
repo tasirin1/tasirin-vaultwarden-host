@@ -185,29 +185,35 @@ public class UpdaterTest {
         java.io.File biasa = new java.io.File(dir, "biasa.txt");
         assertTrue(biasa.createNewFile());
         assertFalse(Updater.tautanSimbol(biasa));
+        java.nio.file.Path link = new java.io.File(dir, "taut").toPath();
+        boolean tautDibuat = false;
         try {
-            java.nio.file.Path link = new java.io.File(dir, "taut").toPath();
             java.nio.file.Files.createSymbolicLink(link, biasa.toPath());
-            assertTrue(Updater.tautanSimbol(link.toFile()));
-            link.toFile().delete();
+            tautDibuat = true;
         } catch (UnsupportedOperationException | java.io.IOException e) {
-
+            tautDibuat = false;
         }
+        org.junit.Assume.assumeTrue("symlink tak bisa dibuat di mesin ini", tautDibuat);
+        assertTrue(Updater.tautanSimbol(link.toFile()));
+        link.toFile().delete();
+
+        java.io.File sub = new java.io.File(dir, "sub");
+        assertTrue(sub.mkdirs());
+        java.nio.file.Path indukLink = new java.io.File(dir, "induk-link").toPath();
+        boolean indukDibuat = false;
         try {
-
-            java.io.File sub = new java.io.File(dir, "sub");
-            assertTrue(sub.mkdirs());
-            java.nio.file.Path indukLink = new java.io.File(dir, "induk-link").toPath();
             java.nio.file.Files.createSymbolicLink(indukLink, sub.toPath());
-            java.io.File anak = new java.io.File(indukLink.toFile(), "anak.txt");
-            assertTrue(anak.createNewFile());
-            assertFalse(Updater.tautanSimbol(anak));
-            anak.delete();
-            indukLink.toFile().delete();
-            sub.delete();
+            indukDibuat = true;
         } catch (UnsupportedOperationException | java.io.IOException e) {
-
+            indukDibuat = false;
         }
+        org.junit.Assume.assumeTrue("symlink tak bisa dibuat di mesin ini", indukDibuat);
+        java.io.File anak = new java.io.File(indukLink.toFile(), "anak.txt");
+        assertTrue(anak.createNewFile());
+        assertFalse(Updater.tautanSimbol(anak));
+        anak.delete();
+        indukLink.toFile().delete();
+        sub.delete();
         biasa.delete();
         dir.delete();
     }
