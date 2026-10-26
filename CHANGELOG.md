@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 411: pemindaian pola petunjuk login kini ikut di-throttle, bukan hanya pancarannya
+- Cap throttle petunjuk login hanya maju saat sebuah petunjuk benar-benar terpancar; selama tak ada baris yang cocok, jendela selalu terbuka sehingga SETIAP baris log server membayar pindaian pola penuh (`minatLogin` + ~35 pola) tanpa henti di thread pembaca keluaran proses (temuan audit putaran-9, #165).
+- Pemindaian kini punya throttle sendiri (`LOGIN_PINDAI_JEDA_MS` 10 detik, `bolehPindaiLogin`): cap dicatat saat pindaian berjalan, jadi biaya pindaian terbatas ±6x/menit; jeda pancaran antar-petunjuk tetap 60 detik seperti sebelumnya.
+
 ## [Belum rilis] — Audit 410: konten layar awal tidak lagi dirender sebelum layar PIN menutupinya
 - `onResume` MainActivity menjadwalkan `refreshLoop` lebih dulu dan memanggil `maybeShowPinLock()` terakhir; refresh yang terposting bisa mengisi status dan log ke layar yang sudah terlihat sesaat sebelum PinActivity menutupinya — kilasan isi (termasuk baris log server) bocor di balik kunci PIN (temuan audit putaran-9, #164).
 - Urutan dibalik (layar PIN dipanggil pertama, refresh hanya diposting bila PIN tidak sedang dibuka) dan `refreshFromService` kini berhenti lebih awal selama PIN menahan konten (keputusan murni `pinMenahanKonten`, cermin bebas efek samping dari `PinGate.perlukanLayarPin`); sesudah PIN dibuka, `onResume` menjadwalkan refresh seperti biasa.

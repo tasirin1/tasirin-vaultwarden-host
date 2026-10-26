@@ -471,6 +471,13 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void throttlePindaiLogin10Detik() {
+        assertTrue(ServerService.bolehPindaiLogin(11000, 0));
+        assertFalse(ServerService.bolehPindaiLogin(9000, 0));
+        assertEquals(10000, ServerService.LOGIN_PINDAI_JEDA_MS);
+    }
+
+    @Test
     public void panduanLoginMemuatUrlDanAkun() {
         java.util.List<String> p1 = ServerService.panduanLoginBitwarden("8088", "192.168.1.5");
         assertEquals(3, p1.size());

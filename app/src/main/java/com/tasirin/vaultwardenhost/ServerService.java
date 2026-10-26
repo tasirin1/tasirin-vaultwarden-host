@@ -113,6 +113,9 @@ public class ServerService extends Service {
     private static volatile long loginHintTerakhirElapsed = 0;
     static final long LOGIN_HINT_JEDA_MS = 60 * 1000;
 
+    private static volatile long loginPindaiTerakhirElapsed = 0;
+    static final long LOGIN_PINDAI_JEDA_MS = 10 * 1000;
+
     static boolean tokenAdminValid(String token) {
         if (token == null || token.isEmpty()) {
             return false;
@@ -2392,6 +2395,10 @@ public class ServerService extends Service {
         return kiniElapsed - terakhirElapsed >= LOGIN_HINT_JEDA_MS;
     }
 
+    static boolean bolehPindaiLogin(long kiniElapsed, long terakhirElapsed) {
+        return kiniElapsed - terakhirElapsed >= LOGIN_PINDAI_JEDA_MS;
+    }
+
     static java.util.List<String> panduanLoginBitwarden(String port, String lanIp) {
         java.util.ArrayList<String> out = new java.util.ArrayList<String>();
         String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
@@ -2539,9 +2546,12 @@ public class ServerService extends Service {
             while ((line = reader.readLine()) != null) {
 
                 long kini = SystemClock.elapsedRealtime();
-                String hintLogin = bolehHintLogin(kini,
-                        loginHintTerakhirElapsed)
-                        ? saranLoginUntukBaris(line) : null;
+                String hintLogin = null;
+                if (bolehHintLogin(kini, loginHintTerakhirElapsed)
+                        && bolehPindaiLogin(kini, loginPindaiTerakhirElapsed)) {
+                    loginPindaiTerakhirElapsed = kini;
+                    hintLogin = saranLoginUntukBaris(line);
+                }
                 boolean noise = line.contains("CertificateUnknown")
                         || line.contains("tls handshake with 127.0.0.1")
                         || line.contains("Detected TLS-enabled liftoff")
