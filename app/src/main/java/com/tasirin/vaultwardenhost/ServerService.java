@@ -1892,6 +1892,16 @@ public class ServerService extends Service {
                 && !running && !prosesHidup;
     }
 
+    /** True bila pengumuman "Server jalan" + status "Running" masih sah:
+     *  proses yang lahir di episode ini masih aktif, running masih true, dan
+     *  belum ada perintah Start/Stop yang lebih baru. Stop yang masuk sesudah
+     *  pb.start() (kunci proses sudah dilepas) dulu tetap diumumkan sebagai
+     *  "Server jalan" untuk proses yang sedang dimatikan. Murni. */
+    static boolean bolehUmumkanJalan(boolean prosesSama, boolean running,
+                                     boolean prosesHidup, boolean episodeTerbaru) {
+        return prosesSama && running && prosesHidup && episodeTerbaru;
+    }
+
     /** True bila Start susulan (datang saat episode lain berjalan) wajib
      *  dijalankan sekarang: episode sebelumnya sudah selesai tanpa menunda,
      *  server belum hidup, dan user masih menginginkan server jalan. Murni. */
@@ -2324,10 +2334,28 @@ public class ServerService extends Service {
             // satu bagian kritis agar log folder lama tak tecampur ke folder baru.
             pindahLogFile(new File(dataFolder, "vaultwarden.log"));
 
-            setStatus("Running (PID " + getPid(lahir) + ")\nData: " + dataDir
-                    + "\nURL lokal (di HP): https://127.0.0.1:" + port
-                    + "\nURL jaringan (dari PC/laptop): " + domain);
-            TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
+            // Stop bisa masuk tepat setelah kunci proses dilepas (pb.start
+            // sudah jalan, tapi pengumuman belum): jangan timpa status
+            // "Menghentikan.../Stopped" dengan "Running" dan jangan kirim
+            // "Server jalan" untuk proses yang sudah dimatikan. Cek di dalam
+            // KUNCI_PROSET agar keputusan memakai state yang sama dengan
+            // stopServer(). Reader/watcher di bawah tetap dijalankan: proses
+            // yang masih hidup wajib terus dikuras output-nya (pipe penuh
+            // memblokir server) dan watcher yang menutup episode.
+            boolean bolehUmumkan;
+            synchronized (KUNCI_PROSET) {
+                bolehUmumkan = bolehUmumkanJalan(process == lahir, running,
+                        alive(lahir), idEpisodaProses == startIdTerakhir);
+            }
+            if (bolehUmumkan) {
+                setStatus("Running (PID " + getPid(lahir) + ")\nData: " + dataDir
+                        + "\nURL lokal (di HP): https://127.0.0.1:" + port
+                        + "\nURL jaringan (dari PC/laptop): " + domain);
+                TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
+            } else {
+                appendLog("[app] Stop sudah diminta - status dan pesan"
+                        + " \"Server jalan\" dilewati.");
+            }
             TgBackup.notifyLowStorage(this);
 
             // Pakai referensi yang ditangkap di bagian kritis, bukan process

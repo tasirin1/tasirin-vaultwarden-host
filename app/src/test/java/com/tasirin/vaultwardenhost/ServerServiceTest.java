@@ -604,6 +604,20 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bolehUmumkanJalanHanyaBilaProsesMasihMilikEpisode() {
+        // Stop yang masuk tepat setelah pb.start() (kunci proses sudah
+        // dilepas) tak boleh menghasilkan status "Running" + pesan
+        // "Server jalan" untuk proses yang sedang dimatikan.
+        assertTrue(ServerService.bolehUmumkanJalan(true, true, true, true));
+        // Stop: proses di-null-kan/dimatikan atau episode sudah berganti.
+        assertFalse(ServerService.bolehUmumkanJalan(false, true, true, true));
+        assertFalse(ServerService.bolehUmumkanJalan(true, false, true, true));
+        assertFalse(ServerService.bolehUmumkanJalan(true, true, false, true));
+        assertFalse(ServerService.bolehUmumkanJalan(true, true, true, false));
+        assertFalse(ServerService.bolehUmumkanJalan(false, false, false, false));
+    }
+
+    @Test
     public void fallbackTlsTakMenulisKunciKeStoragePublik() {
         // Storage bersama: kunci privat hanya boleh dipakai bila sudah ada &
         // valid (tanpa tulis); selain itu fail-closed, bukan membuat kunci
