@@ -549,7 +549,7 @@ public class TgBackupTest {
     }
 
     @Test
-    public void ukuranIsiZip_menjumlahkanEntri() throws Exception {
+    public void pindaiZipRestore_menjumlahkanUkuranEntri() throws Exception {
         java.io.File zip = java.io.File.createTempFile("vw-isi-", ".zip");
         try {
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
@@ -562,9 +562,9 @@ public class TgBackupTest {
                 zos.write(new byte[16]);
                 zos.closeEntry();
             }
-            assertEquals(1250L, TgBackup.ukuranIsiZip(zip));
-            assertEquals(-1L, TgBackup.ukuranIsiZip(
-                    new java.io.File(zip.getParentFile(), "tak-ada-uji.zip")));
+            assertEquals(1250L, TgBackup.pindaiZipRestore(zip).ukuran);
+            assertEquals(-1L, TgBackup.pindaiZipRestore(
+                    new java.io.File(zip.getParentFile(), "tak-ada-uji.zip")).ukuran);
         } finally {
             zip.delete();
         }

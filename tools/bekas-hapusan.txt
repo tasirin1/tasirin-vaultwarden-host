@@ -90,3 +90,6 @@ sertifikatPublikDiterima
 kunciBerbungkusZipTetapDitolak
 overloadPembatalan_tersedia
 punyaMetode
+# Audit 434: helper hanya-untuk-tes dihapus, tes memanggil pindaiZipRestore langsung.
+ukuranIsiZip
+ukuranIsiZip_menjumlahkanEntri

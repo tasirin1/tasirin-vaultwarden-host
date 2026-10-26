@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 434: helper hanya-untuk-tes ukuranIsiZip dihapus
+- `ukuranIsiZip` adalah pembungkus satu baris atas `pindaiZipRestore(zip).ukuran` tanpa satu pun pemanggil produksi — persis pola kode mati yang pernah dibersihkan repo ini (helper produksi yang hanya hidup untuk tesnya).
+- Helper dihapus; tesnya kini memanggil `pindaiZipRestore(...).ukuran` langsung dan berganti nama menjadi `pindaiZipRestore_menjumlahkanUkuranEntri` (kasus yang diuji tidak berubah: total 1250 dan -1 untuk berkas tak ada). Kedua nama lama dicatat di `tools/bekas-hapusan.txt` agar tidak dipakai lagi.
+
 ## [Belum rilis] — Audit 433: cek duplikat definisi kini mengupas komentar XML
 - `cek_duplikat_definisi` membaca berkas values mentah, sehingga definisi lama yang disimpan di dalam komentar XML ikut terhitung dan memicu GAGAL palsu "Definisi ganda" — padahal AAPT mengabaikan komentar. Fungsi tetangganya (`himpun_definisi`, `cek_sinkron_terjemah`) sudah memakai `kupas_komentar_xml` sejak Audit untuk #148/#153; cek ini tertinggal saat ditulis pada Audit untuk #168.
 - Pemindaian kini melewati `kupas_komentar_xml` lebih dulu. Dibuktikan di salinan buang: duplikat di dalam komentar kini LOLOS, duplikat nyata tetap GAGAL.

@@ -2812,10 +2812,6 @@ public final class TgBackup {
         return new PindaiZip(config, total);
     }
 
-    static long ukuranIsiZip(File zip) {
-        return pindaiZipRestore(zip).ukuran;
-    }
-
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
 
         ServerService.kunciData();
