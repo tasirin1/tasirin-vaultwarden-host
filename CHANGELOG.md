@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 327: penanda fallback binary kini memakai jam dinding, bukan elapsedRealtime
+- `KEY_BIN_FALLBACK_AT` disimpan persisten di SharedPreferences tetapi nilainya `elapsedRealtime` yang berumur sejak boot: sesudah reboot, begitu uptime boot baru masuk lagi ke rentang lama, fallback yang sudah kedaluwarsa dianggap segar kembali (bisa sehari kemudian) dan cek update memakai fallback basi.
+- Stempel kini ditulis dan dibaca sebagai jam dinding (`System.currentTimeMillis`, parameter `fallbackBinaryBerlaku` diganti nama menjadi `kiniWall`; logikanya tak berubah dan tetap menolak jam yang mundur). Stempel elapsed warisan versi lama otomatis tak berlaku lagi karena selisihnya terhadap jam dinding jauh melebihi jendela 6 jam — migrasi fail-closed tanpa langkah khusus.
+
 ## [Belum rilis] — Audit 326: openFile memverifikasi descriptor yang benar-benar terbuka
 - `FileShareProvider.openFile` memeriksa path kanonis + symlink induk lalu membuka ulang berdasarkan string path; penukar symlink yang menang balapan di antara pemeriksaan terakhir dan `open` bisa membuat descriptor menunjuk berkas yang tak pernah lolos `isShareable` (temuan ini berstatus dugaan di audit putaran-5 — jendelanya sempit dan butuh aplikasi jahat lokal).
 - Sesudah descriptor terbuka, jalur nyatanya dibaca dari `/proc/self/fd/<fd>` (`jalurFdTerbuka`) dan wajib persis sama dengan path kanonis yang lolos pemeriksaan (`jalurFdCocok`, akhiran ` (deleted)` ditoleransi); beda → descriptor ditutup dan akses ditolak. Bila readlink tak tersedia, perilaku lama dipertahankan. Penolong murni `jalurFdCocok` diuji di `FileShareProviderTest`.

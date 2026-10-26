@@ -300,17 +300,17 @@ public final class Updater {
     }
 
     static boolean fallbackBinaryBerlaku(String latest, String untuk, long at,
-            long kiniElapsed) {
+            long kiniWall) {
         if (latest == null || latest.isEmpty()) {
             return false;
         }
         if (!versiCocok(latest, untuk)) {
             return false;
         }
-        if (at <= 0 || kiniElapsed < at) {
+        if (at <= 0 || kiniWall < at) {
             return false;
         }
-        return kiniElapsed - at < WV_FALLBACK_TUNDA_MS;
+        return kiniWall - at < WV_FALLBACK_TUNDA_MS;
     }
 
     public static volatile String downloadStatus = "";
@@ -1224,7 +1224,7 @@ public final class Updater {
                 latest,
                 TgBackup.amanString(spBin, KEY_BIN_FALLBACK_FOR, ""),
                 TgBackup.amanLong(spBin, KEY_BIN_FALLBACK_AT, 0),
-                SystemClock.elapsedRealtime());
+                System.currentTimeMillis());
         File binDir = out.getParentFile();
         if (binDir != null && !binDir.exists()
                 && !binDir.mkdirs() && !binDir.exists()) {
@@ -1350,7 +1350,7 @@ public final class Updater {
         if (known) {
             if (fallback) {
                 spBin.edit().putString(KEY_BIN_FALLBACK_FOR, latest)
-                        .putLong(KEY_BIN_FALLBACK_AT, SystemClock.elapsedRealtime())
+                        .putLong(KEY_BIN_FALLBACK_AT, System.currentTimeMillis())
                         .apply();
             } else {
                 spBin.edit().remove(KEY_BIN_FALLBACK_FOR)
