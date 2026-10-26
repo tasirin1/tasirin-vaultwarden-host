@@ -3,7 +3,6 @@
     <string name="app_name">Tasirin Vaultwarden Host</string>
     <string name="quick_actions">Quick actions</string>
 
-    <!-- Common -->
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="stopped">Stopped</string>
@@ -33,7 +32,6 @@
     <string name="crash">Crash</string>
     <string name="busy_work">Working…</string>
 
-    <!-- Home -->
     <string name="copy_url">Copy URL</string>
     <string name="folder_data">Data folder</string>
     <string name="default_data_dir">/sdcard/vaultwarden</string>
@@ -91,7 +89,6 @@
     <string name="tg_bot_info">Create a bot via @BotFather on Telegram</string>
     <string name="open_log_full">Open Log (full screen)</string>
 
-    <!-- Group sub-titles in Settings -->
     <string name="sub_koneksi">Connection</string>
     <string name="sub_sistem">System</string>
     <string name="sub_pembaruan">Updates</string>
@@ -104,7 +101,6 @@
     <string name="cert_hint">The Install Cert button installs the active CA on this phone; Share CA sends its file to another phone; Backup CA copies ca.pem to the data folder so it can be picked up via file manager. Reset creates a new CA — reinstall it on every phone. Choose type “CA certificate”, without private key. If it worked before then fails after an update/IP change: delete the old CA on the phone, then reinstall the new CA. The server only serves HTTPS — install the CA on each phone so the Bitwarden app trusts it; the browser web-vault uses HTTPS too.</string>
     <string name="log_hint">View, search, and save the server log full-screen.</string>
 
-    <!-- Log page -->
     <string name="log_full_title">Realtime Log (full screen)</string>
     <string name="save_txt">Save .txt</string>
     <string name="search_hint">Search log…</string>
@@ -112,7 +108,6 @@
     <string name="log_lines">Lines: %1$d</string>
     <string name="log_lines_initial">Lines: 0</string>
 
-    <!-- Numbered step card titles (simple mode) -->
     <string name="card_title_server">Server</string>
     <string name="card_title_maintenance">Updates &amp; Certificate</string>
     <string name="card_title_telegram">Telegram</string>

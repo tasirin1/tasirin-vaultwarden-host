@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-/** Unit test pilihan TLS cache (murni, tanpa handshake). */
 public class HttpsCompatTest {
 
     @Test
@@ -45,8 +44,7 @@ public class HttpsCompatTest {
     public void cipherKuat_terimaModernTolakLemah() {
         assertTrue(HttpsCompat.cipherKuat("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"));
         assertTrue(HttpsCompat.cipherKuat("TLS_RSA_WITH_AES_256_CBC_SHA"));
-        // ChaCha20 = primitif kuat (TLS 1.3 & ECDHE): dulu dibuang karena
-        // filter hanya menerima ECDHE/AES.
+
         assertTrue(HttpsCompat.cipherKuat("TLS_CHACHA20_POLY1305_SHA256"));
         assertTrue(HttpsCompat.cipherKuat("TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"));
         assertFalse(HttpsCompat.cipherKuat("TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"));

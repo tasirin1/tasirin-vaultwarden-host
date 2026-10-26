@@ -45,38 +45,18 @@ public class ServerService extends Service {
     public static final String ACTION_TG_BACKUP = "com.tasirin.vaultwardenhost.TG_BACKUP";
 
     public static final String PREFS = "vw_prefs";
-    /** Folder data bawaan: penyimpanan eksternal perangkat + vaultwarden.
-     *  Dulunya hardcode "/sdcard/vaultwarden" yang tak ada di sebagian perangkat;
-     *  kini ikut Environment dengan fallback lama agar tetap bisa start.
-     *  Konstanta ini di-cache saat class-load (bisa basi bila storage belum
-     *  mount); kode baru wajib memakai {@link #dataDirBawaanSegar()} untuk
-     *  fallback agar selalu baca kondisi storage terkini.
-     *  @deprecated Basi bila class-load sebelum storage mount; dipertahankan
-     *  untuk test/kompat. */
+
     @Deprecated
     public static final String DEFAULT_DATA_DIR = defaultDataDir();
 
-    /** Folder data bawaan terkini. Nilai FALLBACK tidak pernah di-cache,
-     *  sehingga pemanggilan sesudah storage ter-mount mendapat path sebenarnya
-     *  (dulu fungsi ini mengklaim "dihitung ulang tiap dipanggil" padahal
-     *  {@link #defaultDataDir()} meng-cache hasil fallback selamanya). Path
-     *  yang berhasil di-resolve tetap di-cache per proses karena jalur storage
-     *  tak berubah tanpa reboot. Murni I/O ringan. */
     public static String dataDirBawaanSegar() {
         return defaultDataDir();
     }
 
-    /** Cadangan folder data bila storage eksternal belum bisa dibaca. */
     private static final String DATA_DIR_CADANGAN = "/sdcard/vaultwarden";
 
-    /** Cache folder bawaan per proses: argumen default amanString() dievaluasi
-     *  duluan tiap panggil (termasuk tick UI), jadi getExternalStorageDirectory
-     *  tak perlu dibayar tiap tick. HANYA hasil yang benar-benar ter-resolve
-     *  yang di-cache: meng-cache fallback membuat proses yang class-load
-     *  sebelum storage mount terkunci ke path cadangan selamanya. */
     private static volatile String cacheDirBawaan = null;
 
-    // getExternalStorageDirectory lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private static String defaultDataDir() {
         String c = cacheDirBawaan;
@@ -92,56 +72,47 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         if (hasil == null || hasil.trim().isEmpty()) {
-            // Storage belum ter-mount / tak terbaca: JANGAN cache.
+
             return DATA_DIR_CADANGAN;
         }
         cacheDirBawaan = hasil;
         return hasil;
     }
     public static final String DEFAULT_PORT = "8088";
-    /** Binary selalu 32-bit ARM (armeabi-v7a); HP arm64 tetap jalan via compat mode. */
+
     public static final String ABI = "armeabi-v7a";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
-    /** Niat user tersimpan: true setelah Start, false setelah Stop. Dipakai saat
-     *  sistem menghidupkan ulang service dengan intent null (START_STICKY)
-     *  setelah proses app dibunuh LMK — flag statik sudah hilang, prefs tetap. */
+
     static final String KEY_SERVER_DIMINTA = "server_diminta";
     public static final String KEY_UPDATE_VERSION = "update_version";
-    /** Selalu true (HTTPS-only: HTTP tak bisa dipakai). Dipertahankan agar
-     *  config/backup lama tetap bisa dibaca. */
+
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
     public static final String KEY_AUTO_UPDATE_WV = "auto_update_webvault";
     public static final String KEY_AUTO_RESTART_UPDATE = "auto_restart_update";
-    /** SHA-256 (hex) binary manual di folder data; wajib diisi bila pakai binary sendiri. */
+
     public static final String KEY_BIN_SHA = "bin_sha";
-    /** Revisi patch binary rilis (naikkan bila CI memperbaiki binary tanpa ganti versi). */
+
     public static final String KEY_BIN_PATCH = "bin_patch_rev";
-    /** Sidik (ukuran:mtime) file binary manual yang terakhir diterima; dipakai
-     *  agar cache internal tak disalin 20 MB + di-hash tiap Start. Milik
-     *  perangkat — jangan ikut export/import config. */
+
     public static final String KEY_BIN_MANUAL_FP = "bin_manual_fp";
-    /** 3 = binary pasca-patch DNS+TLS favicon (tanpa ndk-context/platform-verifier). */
+
     public static final int BIN_PATCH_REV = 3;
-    /** Versi binary yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
+
     public static final String KEY_BIN_PILIH = "bin_pin_version";
-    /** Versi web-vault yang dikunci user (mis. "1.32.0"); kosong = ikuti versi terbaru. */
+
     public static final String KEY_WV_PILIH = "wv_pin_version";
-    /** Kapan unduh binary terakhir gagal (elapsedRealtime ms); 0 = belum pernah.
-     *  Perangkat-lokal saja: jangan ikut export/import config. */
+
     public static final String KEY_BIN_DL_GAGAL_AT = "bin_dl_gagal_at";
-    /** Jeda coba-ulang unduh perbaikan bila cache valid masih ada (hemat kuota). */
+
     static final long TUNDA_ULANG_UNDUH_MS = 6L * 60 * 60 * 1000;
 
-    /** Throttle hint [login]: jeda antar hint agar brute-force tak membanjiri log (60 dtk). */
     private static volatile long loginHintTerakhirElapsed = 0;
     static final long LOGIN_HINT_JEDA_MS = 60 * 1000;
 
-    /** True bila admin token aman dipasang ke env (tanpa spasi/kontrol/baris baru).
-     *  Murni agar bisa unit test. */
     static boolean tokenAdminValid(String token) {
         if (token == null || token.isEmpty()) {
             return false;
@@ -155,13 +126,10 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** True bila binary rilis tersimpan berasal dari patch lama dan wajib diunduh ulang. */
     static boolean perluRefreshPatch(String tersimpan) {
         return tersimpan == null || !tersimpan.equals(String.valueOf(BIN_PATCH_REV));
     }
 
-    /** Sidik murah binary manual (ukuran + waktu ubah): cukup untuk tahu file
-     *  di folder data belum ditukar, tanpa membaca 20 MB tiap Start. Murni. */
     static String sidikManualFile(File f) {
         if (f == null || !f.isFile()) {
             return "";
@@ -169,10 +137,6 @@ public class ServerService extends Service {
         return f.length() + ":" + f.lastModified();
     }
 
-    /** True bila mode binary manual aktif (SHA diisi) tetapi file di folder
-     *  data bukan yang terakhir diterima (ditukar/dihapus): cache internal
-     *  wajib divalidasi ulang lewat jalur manual, bukan dipakai langsung.
-     *  Murni. */
     static boolean manualPerluValidasi(String shaDiatur, String sidikTersimpan, File userBin) {
         if (shaDiatur == null || shaDiatur.trim().isEmpty()) {
             return false;
@@ -181,24 +145,17 @@ public class ServerService extends Service {
         return !sidikManualFile(userBin).equals(lama);
     }
 
-    /** True bila unduh boleh dicoba lagi (belum pernah gagal / jeda terlampaui).
-     *  Murni agar bisa unit test. */
     static boolean bolehCobaUnduhLagi(long gagalAt, long sekarang) {
         if (gagalAt <= 0) {
             return true;
         }
         if (gagalAt > sekarang) {
-            // Jam mundur (reboot me-reset elapsedRealtime): cap basi,
-            // izinkan coba lagi daripada menahan unduhan 6 jam.
+
             return true;
         }
         return sekarang - gagalAt >= TUNDA_ULANG_UNDUH_MS;
     }
 
-    /** Sidik SHA-256 hex dari token admin ("" bila kosong/gagal; murni).
-     *  Dipakai membandingkan token prefs vs saat start tanpa menyimpan plaintext.
-     *  Cache sidik: refresh UI tiap detik tak perlu hash ulang bila token tak
-     *  berubah. Kunci sendiri agar commit() PIN tak menahannya. */
     private static final Object KUNCI_SIDIK = new Object();
     private static String sidikTokenMasuk = null;
     private static String sidikTokenHasil = "";
@@ -227,8 +184,6 @@ public class ServerService extends Service {
         return hasil;
     }
 
-    /** Potong pesan galat di batas code-point (murni). Belah pasangan surrogate
-     *  menghasilkan lone surrogate (tofu di layar / 400 Telegram). */
     static String potongPesanGalat(String msg, int maks) {
         if (maks <= 0) {
             return "";
@@ -243,7 +198,6 @@ public class ServerService extends Service {
         return potong;
     }
 
-    /** Kuncian versi binary user ("" = ikuti terbaru). Murni prefs. */
     static String pinBinaryTersimpan(SharedPreferences sp) {
         try {
             String pin = Updater.normalisasiPinVersi(
@@ -254,16 +208,9 @@ public class ServerService extends Service {
         }
     }
 
-    /** Pola statis: split/matches kompilasi regex tiap panggil di STB lama. */
     private static final java.util.regex.Pattern POLA_SUFIKS_VERSI =
             java.util.regex.Pattern.compile("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?");
 
-    /** True bila binary cache (hasil smoke test di binaryVersion) boleh dipakai:
-     *  tanpa kuncian selalu boleh; bila dikunci wajib sama dengan kuncian
-     *  termasuk sufiks prerelease ("1.37.3-beta" beda dengan "1.37.3"):
-     *  bandingVersi hanya banding angka sehingga tanpa ini pin beta lolos
-     *  diam-diam di cache stabil, padahal jalur unduh menolaknya lantang.
-     *  Murni agar bisa unit test. */
     static boolean cacheSesuaiPin(String pin, String terdeteksi) {
         if (pin == null || pin.isEmpty()) {
             return true;
@@ -275,8 +222,6 @@ public class ServerService extends Service {
         return sufiksPrerelease(terdeteksi).equalsIgnoreCase(sufiksPrerelease(pin));
     }
 
-    /** Sufiks prerelease versi ("-beta" dari "1.37.3-beta"); "" bila stabil
-     *  atau tak terpola. Murni agar bisa unit test. */
     static String sufiksPrerelease(String v) {
         if (v == null) {
             return "";
@@ -291,16 +236,13 @@ public class ServerService extends Service {
     private static final int NOTIF_ID = 1;
     private static final String CHANNEL_ID = "vaultwarden_server";
     private static final int MAX_LOG_CHARS = 300_000;
-    // Histeresis trim: pangkas hanya bila melampaui batas + 32 KB agar memmove
-    // O(n) tidak terjadi terlalu sering saat log deras.
+
     private static final int LOG_TRIM_THRESHOLD = MAX_LOG_CHARS + 32 * 1024;
     private static final long MAX_LOG_FILE = 2L * 1024 * 1024;
     private static final long HEALTH_INTERVAL_MS = 2 * 60 * 1000;
     private static final long HEALTH_FAST_MS = 5 * 60 * 1000;
     private static final long HEALTH_FAST_INTERVAL_MS = 30 * 1000;
-    /** Stempel jam log per thread: SimpleDateFormat tak thread-safe sehingga
-     *  instance statis bersama butuh synchronized di tiap baris log (jalur
-     *  panas thread pump output); ThreadLocal menghapus kunci itu. */
+
     private static final ThreadLocal<SimpleDateFormat> LOG_TS =
             new ThreadLocal<SimpleDateFormat>() {
                 @Override protected SimpleDateFormat initialValue() {
@@ -310,37 +252,29 @@ public class ServerService extends Service {
 
     public static volatile boolean running = false;
     public static volatile String statusLine = "Stopped";
-    /** True bila notifikasi service sedang dipasang sebagai foreground. Dipakai
-     *  setStatus() agar hanya MEMPERBARUI notifikasi yang memang ada — tanpa ini
-     *  status yang berubah setelah service turun akan memposting notifikasi
-     *  biasa yang menempel selamanya. */
+
     private volatile boolean notifForeground = false;
     public static volatile String binaryVersion = "";
     public static final StringBuilder logBuffer = new StringBuilder();
-    /** Versi log naik tiap baris/trim/clear: kunci refresh UI tanpa adu panjang. */
+
     private static volatile long logVer = 0;
 
-    /** Snapshot konfigurasi server yang sedang berjalan (untuk peringatan restart). */
     public static volatile String runningDataDir = "";
     public static volatile String runningPort = "";
-    /** Sidik SHA-256 token admin saat server start (untuk hint restart).
-     *  Sengaja bukan plaintext agar rahasia tak mengendap di heap statis;
-     *  bandingkan via sidikTokenAdmin(). */
+
     public static volatile String runningAdminToken = "";
-    /** Penanda versi web-vault saat server start (untuk hint restart di MainActivity). */
+
     public static volatile String runningWvFrom = "";
-    /** IP LAN saat server start (untuk DOMAIN); dibandingkan tiap health check
-     *  agar DHCP/WiFi yang berubah ketahuan tanpa restart membabi-buta. */
+
     public static volatile String runningLanHost = "";
-    /** IP perubahan terakhir yang sudah diperingatkan (anti-spam Telegram). */
+
     private static volatile String ipBerubahDiperingatkan = "";
-    /** Kandidat IP baru + hitungan tick beruntun: restart otomatis hanya bila
-     *  IP baru stabil 2x health tick agar IP flapping DHCP tak memicu loop restart. */
+
     private static volatile String ipBaruKandidat = "";
     private static volatile int ipBaruHitung = 0;
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
-    // Anti-loop: berhenti total bila restart beruntun ≥3x dalam 5 menit.
+
     private static final long RESTART_WINDOW_MS = 5 * 60 * 1000L;
     private static final int RESTART_WINDOW_MAX = 3;
     private static final int RESTART_HISTORY_MAX = 10;
@@ -348,8 +282,6 @@ public class ServerService extends Service {
     private static final List<Long> RESTART_TIMES = new ArrayList<>();
     private static final List<String> RESTART_REASONS = new ArrayList<>();
 
-    // Satu pintu Util (dulu handler+pos+batal ganda di sini): hemat duplikat
-    // sekaligus perbaiki balapan double-create tanpa kunci di handlerUtama lama.
     private static void posUtama(Runnable r, long tundaMs) {
         Util.postTunda(r, tundaMs);
     }
@@ -357,10 +289,6 @@ public class ServerService extends Service {
         Util.batalkanTunda(r);
     }
 
-    /** Nol-kan 7 penanda jalan sekaligus (satu pintu): blok reset identik
-     *  tersebar di 4 jalur (gagal start, stopper, stop-tanpa-proses,
-     *  healthFail) — tambah field baru dulu hanya di sebagian jalur =
-     *  status basi. WakeLock/log/status tetap di pemanggil (beda tiap jalur). */
     private static void resetPenandaJalan() {
         runningDataDir = "";
         runningPort = "";
@@ -372,26 +300,6 @@ public class ServerService extends Service {
         ipBaruHitung = 0;
     }
 
-    /** Lepas proses {@code p} dari state layanan dalam SATU bagian kritis
-     *  KUNCI_PROSET (kunci yang sama dengan fase exec Start).
-     *
-     *  Semua pemanggil dulu menulis {@code if (process == p) process = null;}
-     *  di luar kunci. Start baru yang exec di jeda cek-vs-tulis kehilangan
-     *  referensi prosesnya: UI "Stopped" padahal server baru hidup, wakelock
-     *  yang baru diambil ikut dilepas, dan penanda jalan milik episode baru
-     *  dihapus.
-     *
-     *  {@code efek} (wakelock/log/status) dijalankan di LUAR kunci: menulis
-     *  log ke /sdcard dan binder NotificationManager/WakeLock bisa lambat,
-     *  sedangkan main thread (`onStartCommand` → `stopServer`) membutuhkan
-     *  KUNCI_PROSET yang sama — dulu efek berjalan di dalam kunci sehingga UI
-     *  bisa beku sampai ANR. Efek pembersihan standar wajib memakai
-     *  {@link #efekProsesBerhenti()} yang menjaga diri agar tak menimpa
-     *  episode Start baru.
-     *
-     *  @return false bila {@code p} bukan proses aktif (sudah diganti atau
-     *          dibersihkan pihak lain) — pemanggil tak boleh menyentuh state.
-     */
     static boolean lepasProses(Process p, Runnable efek) {
         if (p == null) {
             return false;
@@ -410,18 +318,12 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** Efek pembersihan setelah proses dilepas: siram log, status "Stopped",
-     *  lepas wakelock. WAJIB dipanggil di luar KUNCI_PROSET (lihat
-     *  {@link #lepasProses}); tiap langkah dijaga agar Start baru yang sudah
-     *  berjalan tak kehilangan wakelock/statusnya. */
     private void efekProsesBerhenti() {
         flushLogFile();
         setStatusBilaBerhenti("Stopped");
         releaseWakeLockBilaBerhenti();
     }
 
-    /** Set status hanya bila tak ada episode proses yang aktif/berjalan.
-     *  Cek+set singkat di KUNCI_PROSET; notifikasi (binder) di luar kunci. */
     private void setStatusBilaBerhenti(String text) {
         synchronized (KUNCI_PROSET) {
             if (running || process != null || starting.get()) {
@@ -432,10 +334,6 @@ public class ServerService extends Service {
         perbaruiNotifikasi();
     }
 
-    /** Lepas wakelock hanya bila tak ada proses/episode baru yang
-     *  memegangnya. Dipanggil di luar KUNCI_PROSET; cek ulang di dalam
-     *  KUNCI_WAKELOCK menutup jeda cek-vs-release (acquire memakai kunci yang
-     *  sama sehingga tak bisa menyelip). */
     private void releaseWakeLockBilaBerhenti() {
         if (running || process != null) {
             return;
@@ -449,148 +347,91 @@ public class ServerService extends Service {
     }
 
     private static volatile Process process;
-    /** Thread pembaca stdout server terakhir: ditunggu sebentar setelah proses
-     *  mati agar baris panic terakhir sempat masuk buffer log sebelum tail
-     *  dibaca untuk saran crash. */
+
     private static volatile Thread pembacaOutput = null;
-    /** Proses yang diminta berhenti sengaja (per-proses, bukan boolean global):
-     *  watchProcess hanya mengabaikan exit milik proses ini agar Stop lalu Start cepat
-     *  tak salah menandai crash proses baru sebagai stop sengaja. */
+
     private static volatile Process prosesStopDisengaja = null;
-    /** Lolos TCP beruntun saat /alive gagal tapi port tersambung (anti livelock health).
-     *  Statis agar selamat dari recreate instance (selaras restartAttempt/healthFails). */
+
     private static final java.util.concurrent.atomic.AtomicInteger healthTcpLolos =
             new java.util.concurrent.atomic.AtomicInteger(0);
-    /** True bila Stop ditekan saat start masih persiapan (unduh binary):
-     *  start dibatalkan tepat sebelum exec agar server tak jalan tanpa diminta. */
+
     private static volatile boolean batalStart = false;
-    /** Nomor perintah Stop (monotonik). Episode Start mencatat nilainya di awal;
-     *  unduhan binary milik episode itu berhenti begitu nomor berubah (Stop
-     *  masuk). Memakai nomor — bukan flag yang direset Start berikutnya — agar
-     *  Start baru tidak "menghidupkan lagi" unduhan milik episode lama. */
+
     private static final java.util.concurrent.atomic.AtomicLong nomorStop =
             new java.util.concurrent.atomic.AtomicLong();
-    /** Start ditekan saat Stop masih mematikan proses lama (jendela 5-8 dtk):
-     *  jalankan sekali setelah proses benar-benar mati. Dulu perintah Start
-     *  hilang diam-diam karena guard `alive(process)` menganggap server masih
-     *  hidup, padahal prosesnya sedang dibunuh. */
+
     private static volatile boolean mulaiSetelahProsesMati = false;
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
-    /** Start kedua datang saat episode start pertama masih berjalan (unduh
-     *  binary/restore memegang KUNCI_DATA): jangan dibuang. Episode yang
-     *  berjalan menjalankannya sekali lagi di akhir, karena episode itu tak
-     *  boleh menutup state milik perintah yang lebih baru. */
+
     private static volatile boolean startSusulanDiminta = false;
-    /** Kunci transisi Start↔Stop pada exec proses: fase "cek batalStart lalu
-     *  pb.start() + pasang process/running/wakelock" dan keputusan Stop
-     *  ("proses ada?" + tandai stop sengaja) harus satu bagian kritis. Tanpa
-     *  ini Stop yang masuk di jeda cek-vs-exec bisa meninggalkan server hidup
-     *  setelah status "Stopped", atau start menimpa running=true sesudah
-     *  stopper membersihkan (UI "Running" tanpa proses + wakelock nyangkut). */
+
     private static final Object KUNCI_PROSET = new Object();
-    /** startId perintah terakhir: start yang gagal permanen hanya menurunkan
-     *  service bila tak ada intent yang lebih baru menunggu diproses (intent
-     *  baru otomatis membatalkan {@code stopSelfResult} id lama). */
+
     private volatile int startIdTerakhir = 0;
-    /** startId episode yang melahirkan proses yang sedang/baru dipantau; -1 =
-     *  episode ini belum melahirkan proses. Dipakai watcher untuk menutup
-     *  episode yang benar saat menyerah (kernel/port/restart habis), dan oleh
-     *  finally startServerAsync agar start yang prosesnya sudah lahir tak
-     *  mematikan restart yang baru dijadwalkan watcher. Single-flight lewat
-     *  {@code starting}, jadi tak ada dua episode menulisnya bersamaan. */
+
     private volatile int idEpisodaProses = -1;
-    /** Kunci operasi data (restore DB) vs Start: restore memegang kunci ini
-     *  selama menimpa folder data; Start memakai tryLock agar tak menyalakan
-     *  server di tengah ekstraksi. Restore selalu dipanggil dari worker. */
+
     private static final java.util.concurrent.locks.ReentrantLock KUNCI_DATA =
             new java.util.concurrent.locks.ReentrantLock();
 
-    /** Berapa kali Start sudah ditunda karena KUNCI_DATA dipegang restore/reset.
-     *  Dipakai membatasi percobaan ulang agar Start dari bot tak hilang diam-diam
-     *  (lihat startServerAsync) tanpa memutar tugas selamanya. */
     private static final java.util.concurrent.atomic.AtomicInteger startTertundaData =
             new java.util.concurrent.atomic.AtomicInteger(0);
-    /** Batas percobaan ulang Start tertunda kunci data (5 dtk x 60 = 5 menit). */
+
     static final int BATAS_START_TERTUNDA_DATA = 60;
-    /** Batas tunggu kunci data sebelum fase tulis (TLS/web-vault/exec) setelah
-     *  unduhan binary selesai. Restore/reset yang masih berjalan ditunggu
-     *  sampai batas ini, lalu Start dibatalkan dengan pesan jelas. */
+
     static final long BATAS_TUNGGU_KUNCI_DATA_MS = 5L * 60 * 1000;
 
-    /** Ambil kunci data untuk restore (blocking; wajib dari worker thread). */
     public static void kunciData() {
         KUNCI_DATA.lock();
     }
 
-    /** Lepas kunci data; aman dipanggil walau bukan pemegang (no-op). */
     public static void lepasKunciData() {
         if (KUNCI_DATA.isHeldByCurrentThread()) {
             KUNCI_DATA.unlock();
         }
     }
-    /** Statis agar recreate transien tak memegang dua kunci 12 jam (bocor baterai). */
+
     private static PowerManager.WakeLock wakeLock;
-    /** Kunci field wakelock (dulu menumpang monitor kelas yang juga dipakai
-     *  hashing CA/SSL sehingga acquire bisa menunggu I/O tak terkait). */
+
     private static final Object KUNCI_WAKELOCK = new Object();
     private static volatile File logFile;
-    /** Ditulis thread watch/health, dibaca UI thread (restartTunda): volatile agar
-     *  stop fatal tak dibaca basi lalu restart jalan tanpa diminta.
-     *  Statis agar selamat dari recreate instance service oleh sistem
-     *  (batas 5x di restartAttempt juga statis). */
+
     private static volatile boolean autoRestart = false;
-    /** Hitungan restart beruntun: statis agar tetap berlaku bila sistem membuat
-     *  ulang instance service (batas 5x tak bisa di-reset oleh recreate).
-     *  AtomicInteger karena scheduleRestart dipanggil dari thread watch proses
-     *  dan thread health/main bersamaan. */
+
     private static final java.util.concurrent.atomic.AtomicInteger restartAttempt =
             new java.util.concurrent.atomic.AtomicInteger(0);
-    /** Kunci statis pendamping restartAttempt (sinkron instance tak
-     *  melindungi antar instance hasil recreate). */
+
     private static final Object KUNCI_RESTART = new Object();
-    /** Jangkar monotonik start (elapsedRealtime); wall-clock bisa mundur. */
+
     private static volatile long lastStartElapsed = 0;
-    /** Statis agar hitungan gagal tak di-reset recreate sistem (selaras restartAttempt). */
+
     private static final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
-    /** Episode beruntun "server melayani tapi DB rusak" (/alive 5xx + /api/config 200):
-     *  pingRinci() menganggapnya sehat sehingga DB korup tak pernah restart.
-     *  Dihitung terpisah dari healthFails agar 500 sesaat (backup/migrasi di
-     *  STB lambat) tak langsung membunuh server. Statis agar episode DB-rusak
-     *  tak di-reset recreate (selaras healthFails). */
+
     private static final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
             new java.util.concurrent.atomic.AtomicInteger(0);
-    /** Batas episode config-saja sebelum dianggap gantung lalu restart: 10x tick
-     *  (~5 mnt mode cepat / ~20 mnt mode normal) — jauh di atas 500 sesaat. */
+
     static final int BATAS_CONFIG_SAJA_BERUNTUN = 10;
 
-    /** Statis seperti autoRestart: recreate instance tak boleh mematikan
-     *  health-check diam-diam. */
     private static volatile boolean healthActive = false;
-    /** Cek health yang sedang jalan: tiap tick hanya satu (timeout total
-     *  worst-case 32 dtk > interval cepat 30 dtk sehingga thread bisa
-     *  menumpuk bila server macet). Statis agar dua instance hasil recreate
-     *  tak cek health bersamaan. */
+
     private static final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private final Runnable healthTick = new Runnable() {
         @Override
         public void run() {
-            // Jangan repost bila service sudah berhenti atau auto-restart mati
-            // (gagal 5x / Stop): cegah polling tiap 2 menit selamanya.
+
             if (!healthActive || !autoRestart) {
                 return;
             }
             jagaWakeLock();
-            // Adaptif: tiap 30 detik di 5 menit pertama (crash dini cepat
-            // ketahuan), lalu tiap 2 menit setelah server stabil.
+
             long delay = HEALTH_INTERVAL_MS;
             long up = SystemClock.elapsedRealtime() - lastStartElapsed;
             if (lastStartElapsed > 0 && up < HEALTH_FAST_MS) {
                 delay = HEALTH_FAST_INTERVAL_MS;
             }
             if (process == null || !alive(process) || !running) {
-                // Proses mati ditangani restartTunda; tetap jadwalkan tick
-                // berikut sekali saja (bukan sebelum cek agar tak ganda).
+
                 posUtama(this, delay);
                 return;
             }
@@ -599,11 +440,10 @@ public class ServerService extends Service {
                 return;
             }
             posUtama(this, delay);
-            // Episode saat ping dimulai: hasil ping yang kembali setelah Stop
-            // lalu Start baru tak boleh dihitung ke server yang baru lahir.
+
             final Process pCek = process;
             final int epCek = idEpisodaProsesAktif();
-            // Pool bersama (bukan new Thread per tick): hemat stack 1 MB tiap 30 dtk di STB.
+
             boolean masuk = Util.jalankanBg(() -> {
                 try {
                     checkHealthOnce(pCek, epCek);
@@ -612,8 +452,7 @@ public class ServerService extends Service {
                 }
             });
             if (!masuk) {
-                // Antrean penuh: lepas flag agar tick berikutnya tetap memeriksa
-                // (tick sudah dijadwalkan di atas; tanpa ini watchdog mati diam-diam).
+
                 healthBerjalan.set(false);
             }
         }
@@ -623,10 +462,6 @@ public class ServerService extends Service {
         return mulaiService(context, ACTION_START);
     }
 
-    /** Start service tahan penolakan background Android 12+
-     *  (ForegroundServiceStartNotAllowedException): catat ke log, jangan crash
-     *  pemanggil (bot/receiver sudah memberi tahu user secara terpisah).
-     *  commit() di bawah disengaja (sinkron anti-hilang, lihat komentar) — bukan apply(). */
     @SuppressLint("ApplySharedPref")
     private static boolean mulaiService(Context context, String aksi) {
         try {
@@ -640,10 +475,7 @@ public class ServerService extends Service {
         } catch (Exception e) {
             catatLog("[app] Gagal start service (" + aksi + "): " + e);
             if (ACTION_START.equals(aksi)) {
-                // Android 12+ menolak start dari background: tandai agar
-                // MainActivity menjalankan susulan saat dibuka berikutnya.
-                // commit() sinkron (bukan apply()): flag daya-tahan wajib awet
-                // di disk sebelum reboot/kill (lihat BootReceiver).
+
                 try {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                             .edit().putBoolean(KEY_START_TERTUNDA, true).commit();
@@ -658,23 +490,16 @@ public class ServerService extends Service {
         return mulaiService(context, ACTION_STOP);
     }
 
-    /** Restart proses server tanpa mematikan service (dipakai dari perintah bot). */
     public static boolean restart(Context context) {
         return mulaiService(context, ACTION_RESTART);
     }
 
-    /** Flag susulan auto-start: start dari background ditolak sistem
-     *  (Android 12+). MainActivity mengeksekusinya saat dibuka berikutnya. */
     public static final String KEY_START_TERTUNDA = "auto_start_tertunda";
 
-    /** Jalankan backup Telegram terjadwal (via AlarmReceiver).
-     *  Return false bila sistem menolak start background (AlarmReceiver
-     *  wajib menandai susulan agar backup tak hilang diam-diam). */
     public static boolean backupNow(Context context) {
         return mulaiService(context, ACTION_TG_BACKUP);
     }
 
-    /** Apakah proses vaultwarden masih hidup (dipakai sebelum restore DB). */
     public static boolean isProcessAlive() {
         Process p = process;
         return alive(p);
@@ -696,23 +521,17 @@ public class ServerService extends Service {
         }
     }
 
-    /** Pulihkan binary aktif dari `.bak` bila swap terpotong crash
-     *  ({@link #gantiAtomik}: out -> .bak lalu tmp -> out). Tanpa ini STB
-     *  offline harus mengunduh ulang 20 MB padahal salinan sehat ada. Hanya
-     *  memulihkan bila `.bak` benar-benar binary ARM; return true bila
-     *  penukaran berhasil. Murni I/O agar bisa diuji JVM. */
     static boolean pulihkanBakBiner(File out, File bak) {
         if (out == null || bak == null || !bak.isFile()
                 || bak.length() < 1_000_000 || !Updater.isElf(bak)) {
             return false;
         }
         if (out.isFile() && out.length() >= 1_000_000 && Updater.isElf(out)) {
-            return false; // binary aktif sehat, tak perlu dipulihkan
+            return false;
         }
         return bak.renameTo(out);
     }
 
-    /** Ganti file atomik via cadangan: tanpa jendela tanpa-binary bila crash di tengah. */
     static void gantiAtomik(File tmp, File out) throws java.io.IOException {
         if (tmp == null || out == null || out.getParentFile() == null) {
             throw new java.io.IOException("Path binary tidak valid.");
@@ -727,9 +546,7 @@ public class ServerService extends Service {
         }
         boolean ok = false;
         try {
-            // fsync isi file dulu (best-effort): rename hanya mengawetkan nama
-            // di direktori; tanpa ini isi binary bisa nol/terpotong bila STB
-            // mati tepat sesudah pasang (FAT). getFD().sync() ada sejak API 1.
+
             try {
                 java.io.FileInputStream fis = new java.io.FileInputStream(tmp);
                 try {
@@ -759,9 +576,7 @@ public class ServerService extends Service {
                     bak.delete();
                 } catch (Exception ignored) {
                 }
-                // Best-effort: fsync direktori agar rename awet bila STB mati
-                // tepat sesudah pasang binary (tanpa ini file bisa hilang di FAT).
-                // Os.open ada sejak API 21 (minSdk repo ini) sehingga tanpa cek versi.
+
                 try {
                     java.io.File dir = out.getParentFile();
                     if (dir != null) {
@@ -783,7 +598,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Process.isAlive() baru ada di API 26; fallback exitValue() untuk Android 5/6. */
     private static boolean alive(Process p) {
         if (p == null) {
             return false;
@@ -796,21 +610,18 @@ public class ServerService extends Service {
         }
     }
 
-    /** Kosongkan buffer log (in-memory) + buffer tulis file, dan hapus file
-     *  log di folder data (termasuk sisa rotasi .1). */
     public static void clearLog() {
         synchronized (logBuffer) {
             logBuffer.setLength(0);
             logVer++;
         }
-        // Baris yang belum di-flush (<16 KB) dulu akan ditulis lagi sesudah
-        // file dihapus sehingga log lama muncul kembali: buang buffernya dulu.
+
         synchronized (LOG_FILE_LOCK) {
             logFileBuf.setLength(0);
             File f = logFile;
             if (f != null) {
                 f.delete();
-                // .1 adalah rotasi file yang sama: "Hapus log" harus bersih.
+
                 File lama = f.getParentFile() == null ? null
                         : new File(f.getParentFile(), f.getName() + ".1");
                 if (lama != null) {
@@ -820,7 +631,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Lama server sudah berjalan (ms, jam monotonik); 0 bila sedang berhenti. */
     public static long uptimeMs() {
         if (!running) {
             return 0;
@@ -829,12 +639,10 @@ public class ServerService extends Service {
         return t == 0 ? 0 : Math.max(0, SystemClock.elapsedRealtime() - t);
     }
 
-    /** Cek sehat sekali tanpa efek samping; true bila HTTPS 200 di /alive atau /api/config. */
     public static boolean pingAlive(Context ctx) {
         return pingRinci(ctx).sehat;
     }
 
-    /** Hasil cek sehat rinci (untuk log diagnosa tanpa bocor token). */
     static final class HasilPing {
         final boolean sehat;
         final int aliveCode;
@@ -848,22 +656,14 @@ public class ServerService extends Service {
         }
     }
 
-    /** Sehat bila /alive atau /api/config balas 200 (murni agar bisa diuji).
-     *  /alive butuh DB (DbConn) sehingga di STB lambat bisa timeout/500
-     *  sementara /api/config tetap 200 — server seperti itu tetap sehat. */
     static boolean sehatDariKode(int aliveCode, int configCode) {
         return aliveCode == 200 || configCode == 200;
     }
 
-    /** True bila server melayani tapi DB rusak: /alive galat server (5xx) sementara
-     *  /api/config 200. Murni agar bisa unit test. */
     static boolean aliveRusakTapiConfigSehat(int aliveCode, int configCode) {
         return aliveCode >= 500 && aliveCode < 600 && configCode == 200;
     }
 
-    /** Cek berurutan /alive lalu /api/config; sehat bila salah satu 200.
-     *  Server selalu HTTPS (HTTP tak didukung), sehingga skema tak lagi
-     *  diteruskan sebagai parameter yang nilainya selalu sama. */
     static HasilPing pingRinci(Context ctx) {
         String port;
         try {
@@ -876,11 +676,9 @@ public class ServerService extends Service {
         } catch (Exception e) {
             return new HasilPing(false, -1, -1, "baca prefs gagal");
         }
-        // Tanpa trim: port dari effectivePort() selalu ternormalisasi
-        // (String.valueOf/default, tanpa whitespace).
+
         String p = port == null ? "" : port;
-        // Gerbang TCP murah dulu: server mati tak membayar 2x handshake TLS
-        // (2x4 dtk) tiap tick di CPU ARMv7 lambat; cukup 1x TCP ~3 dtk.
+
         try {
             int pn = Integer.parseInt(p);
             if (!tcpTersambung(pn)) {
@@ -890,11 +688,7 @@ public class ServerService extends Service {
         }
         HasilCoba alive = cobaKode(ctx, p, "/alive");
         HasilCoba config;
-        // /alive butuh DB; fallback ringan /api/config memastikan server
-        // yang masih melayani tidak dibunuh sia-sia (kasus log: config 200).
-        // Galat transport (-1) tak perlu fallback: /api/config memakai TLS yang
-        // sama sehingga ikut gagal dan hanya membayar handshake kedua sia-sia
-        // di CPU ARMv7 lambat. Kode -2 = dilewati (lihat ringkasKode).
+
         if (alive.kode != 200 && alive.kode != -1) {
             config = cobaKode(ctx, p, "/api/config");
         } else {
@@ -911,15 +705,10 @@ public class ServerService extends Service {
         return new HasilPing(sehat, alive.kode, config.kode, rincian);
     }
 
-    /** Verifikator loopback bersama: lambda per tick health (30 dtk/2 mnt)
-     *  mengalokasi objek tiap cek di STB; loopback selalu 127.0.0.1 sehingga
-     *  satu instans cukup. Murni tanpa state. */
     private static final javax.net.ssl.HostnameVerifier VERIF_LOOPBACK =
             (host, session) -> "127.0.0.1".equals(host)
                     || "localhost".equalsIgnoreCase(host);
 
-    /** Hasil satu request GET loopback (kode + pesan galat lokal tanpa field
-     *  statis bersama agar panggilan konkuren health/bot tak tukar pesan error). */
     static final class HasilCoba {
         final int kode;
         final String galat;
@@ -929,8 +718,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Satu request GET loopback HTTPS; balas kode HTTP atau -1 bila gagal
-     *  jaring/TLS. Server selalu TLS, jadi skema/percabangan HTTP tak ada. */
     private static HasilCoba cobaKode(Context ctx, String port, String path) {
         HttpsURLConnection c = null;
         try {
@@ -954,7 +741,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Ringkas kode + pesan error untuk log (tanpa token, tanpa stacktrace). Murni. */
     static String ringkasKode(int code, String err) {
         if (code > 0) {
             return String.valueOf(code);
@@ -965,7 +751,6 @@ public class ServerService extends Service {
         return err == null || err.isEmpty() ? "tak tersambung" : "tak tersambung (" + err + ")";
     }
 
-    /** TCP loopback ke port utama; true bila port masih menerima koneksi. */
     static boolean tcpTersambung(int portNum) {
         if (portNum < 1 || portNum > 65535) {
             return false;
@@ -987,14 +772,11 @@ public class ServerService extends Service {
         }
     }
 
-    /** Port loopback yang sedang dipakai (running dulu, fallback prefs). */
     int portLoopback() {
         try {
             String p = !runningPort.isEmpty() ? runningPort
                     : effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
-            // Tanpa trim: kedua sumber ternormalisasi tanpa whitespace.
-            // Saring dulu seperti normalisasiPort agar prefs korup tak
-            // melempar (isi stack trace tiap health gagal di ART lama).
+
             if (!portTampakAngka(p)) {
                 return -1;
             }
@@ -1004,24 +786,10 @@ public class ServerService extends Service {
         }
     }
 
-    /** Anggaran minimum tunggu stop untuk pemanggil yang butuh DB benar-benar
-     *  bebas (restore).
-     *
-     *  Worst-case stopper = {@code matikanProsesTegas(p, 5000)} (destroy + tunggu
-     *  5 dtk, lalu destroyForcibly + tunggu 3 dtk = 8 dtk) DITAMBAH jeda start
-     *  thread "vw-stop" dan polling 500 ms di {@link #stopAndWait}. Pemanggil
-     *  dulu memberi 8000 ms — persis batas worst-case tanpa sisa — sehingga
-     *  restore dibatalkan dengan peringatan "DB bisa korup" padahal server hanya
-     *  butuh sedikit lebih lama untuk mati (STB lambat menutup WAL). */
     public static final long ANGGARAN_STOP_MIN_MS = 15000;
 
-    /** Stop server dan tunggu proses benar-benar mati.
-     *  True bila proses sudah mati; false bila masih hidup (pemanggil wajib
-     *  membatalkan operasi file DB agar SQLite tidak korup).
-     *  @WorkerThread — jangan panggil dari UI thread (ada sleep di dalam). */
     public static boolean stopAndWait(Context context, long timeoutMs) {
-        // Guard: sleep di UI thread = ANR; batalkan agar pemanggil sadar salah thread.
-        // Aman di JVM unit test (stub Looper melempar): anggap bukan UI.
+
         try {
             android.os.Looper ui = android.os.Looper.getMainLooper();
             if (ui != null && android.os.Looper.myLooper() == ui) {
@@ -1030,16 +798,12 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
-        // Start yang belum melahirkan process (masih mengunduh/menyiapkan binary)
-        // juga wajib ditunggu: process==null bukan berarti tak ada yang akan
-        // menyalakan server. Dulu stopAndWait langsung true sehingga restore
-        // menimpa DB, lalu task Start (yang lolos cek) exec di tengah restore.
+
         if (!isProcessAlive() && !starting.get()) {
             return true;
         }
         stop(context);
-        // Anggaran di bawah minimum worst-case stopper selalu berakhir
-        // "masih hidup" palsu: naikkan ke minimum (dokumentasi di konstanta).
+
         long anggaran = timeoutMs < ANGGARAN_STOP_MIN_MS
                 ? ANGGARAN_STOP_MIN_MS : timeoutMs;
         long deadline = SystemClock.elapsedRealtime() + anggaran;
@@ -1064,22 +828,16 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         createChannel();
-        // Keraskan hash PIN legasi di rest (tanpa menunggu buka activity):
-        // pemakaian bot-only/boot tak pernah menyentuh MainActivity sehingga
-        // SHA-256 tanpa salt bertahan selamanya. Worker thread (PBKDF2 30k).
+
         try {
             final android.content.Context appPin = getApplicationContext();
             Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
         } catch (Exception ignored) {
         }
-        // Recreate transien oleh sistem tanpa intent baru: pasang ulang
-        // health-check/wakelock/restart bila server masih diminta jalan.
-        // Tanpa ini monitoring berhenti diam-diam selagi binary masih hidup.
+
         try {
             if (running && autoRestart && healthActive) {
-                // Wajib foreground seperti action lain: tanpa ini service hasil
-                // recreate bekerja (health/wakelock) tanpa notifikasi dan bisa
-                // dibunuh sistem sebagai background.
+
                 try {
                     startForegroundCompat();
                 } catch (Exception ignoredFg) {
@@ -1103,9 +861,7 @@ public class ServerService extends Service {
         startIdTerakhir = startId;
         String action = intent != null ? intent.getAction() : null;
         if (ACTION_STOP.equals(action)) {
-            // Foreground dulu seperti action lain: STOP datang via
-            // startForegroundService sehingga wajib startForeground() dalam
-            // ~5 dtk; stopper di bawah menunggu proses sampai ~9 dtk.
+
             try {
                 startForegroundCompat();
             } catch (Exception ignoredFg) {
@@ -1116,23 +872,16 @@ public class ServerService extends Service {
             batalUtama(healthTick);
             batalUtama(restartTunda);
             batalStart = true;
-            // Stop juga menghentikan unduhan binary yang sedang berjalan milik
-            // episode Start ini (bukan hanya flag exec sesudahnya): dulu 20 MB
-            // tetap terunduh setelah user menekan Stop dan `starting` tetap
-            // true sampai selesai sehingga restore/reset menunggu sia-sia.
+
             nomorStop.incrementAndGet();
-            // Stop membatalkan Start yang menunggu proses lama mati; tanpa ini
-            // thread stopper akan menyalakan server tepat setelah user Stop.
+
             mulaiSetelahProsesMati = false;
-            // Stop juga membatalkan Start susulan yang menunggu episode lain.
+
             startSusulanDiminta = false;
             stopServer();
-            // stopper di stopServer() butuh hingga ~8 dtk (destroy + destroyForcibly):
-            // stopForeground/stopSelf langsung di sini mematikan service sebelum
-            // proses mati sehingga watcher bocor dan restore mengira DB bebas.
-            // Tunda sampai proses benar-benar mati, maks ~9 dtk.
+
             final int stopId = startId;
-            // Pool lama (bukan thread baru): tunggu ~9 dtk tanpa thread baru per Stop.
+
             boolean masuk = Util.jalankanLama(() -> {
                 try {
                     long tenggat = SystemClock.elapsedRealtime() + 9000;
@@ -1146,8 +895,7 @@ public class ServerService extends Service {
                     }
                 } catch (Exception ignored) {
                 } finally {
-                    // Bila user sudah menekan Start lagi selagi kita menunggu,
-                    // jangan cabut foreground/stopSelf yang baru (niat=true).
+
                     if (!niatJalanTersimpan()) {
                         turunkanForeground(true);
                         try {
@@ -1158,11 +906,10 @@ public class ServerService extends Service {
                 }
             });
             if (!masuk) {
-                // Antrean penuh: tetap tutup foreground/service setelah jeda
-                // (tanpa ini notifikasi foreground menggantung selamanya).
+
                 Util.postTunda(() -> {
                     if (niatJalanTersimpan()) {
-                        return; // user sudah Start lagi: foreground itu milik server baru
+                        return;
                     }
                     turunkanForeground(true);
                     try {
@@ -1177,20 +924,16 @@ public class ServerService extends Service {
             autoRestart = true;
             batalStart = false;
             startForegroundCompat();
-            // Pool lama agar restart bot tak menambah thread saat Start jalan.
+
             boolean masuk = Util.jalankanLama(() -> {
                 appendLog("[app] Restart server diminta.");
-                // Jangan menyalakan server yang sedang Stop: restart hanya sah
-                // saat server berjalan. Tanpa guard ini /restart menyalakan
-                // server yang sengaja di-Stop user (lihat TgBot "/restart").
+
                 if (!running && !alive(process)) {
                     appendLog("[app] Restart dilewati: server tidak berjalan.");
                     turunkanForegroundBilaTakDiminta(startId);
                     return;
                 }
-                // Baca + tandai dalam satu bagian kritis: `p = process` di
-                // luar kunci bisa menandai/mematikan proses yang sudah
-                // diganti Start baru di jeda baca-vs-tulis.
+
                 final Process p;
                 synchronized (KUNCI_PROSET) {
                     p = process;
@@ -1208,11 +951,7 @@ public class ServerService extends Service {
                         hapusTandaStop(p);
                     }
                 }
-                // Lewat konteks aplikasi + aksi START agar instance hidup yang
-                // mengeksekusi, bukan runnable berkonteks instance mati ini.
-                // start() statis dan aman-thread sehingga fallback langsung
-                // dipakai bila Looper utama tak tersedia (praktis tak terjadi
-                // di perangkat, tapi tanpa guard ini restart hilang + crash).
+
                 final android.content.Context appCtx = getApplicationContext();
                 try {
                     android.os.Looper ui = android.os.Looper.getMainLooper();
@@ -1221,7 +960,7 @@ public class ServerService extends Service {
                             ServerService.start(appCtx);
                         }
                     } else {
-                        // Handler bersama (bukan new Handler per restart).
+
                         Util.postUtama(() -> {
                             if (autoRestart) {
                                 ServerService.start(appCtx);
@@ -1238,9 +977,7 @@ public class ServerService extends Service {
                 }
             });
             if (!masuk) {
-                // Antrean pool lama penuh: restart tak jalan. Jangan biarkan
-                // foreground menggantung, dan beri tahu user untuk mencoba lagi
-                // (server lama tetap hidup; tak ada yang dibunuh diam-diam).
+
                 appendLog("[app] Restart gagal: antrean tugas penuh - coba lagi sebentar.");
                 TgBackup.sendMessage(this,
                         "Restart gagal: tugas lain sedang berjalan. Coba lagi sebentar.");
@@ -1250,13 +987,12 @@ public class ServerService extends Service {
         }
         if (ACTION_TG_BACKUP.equals(action)) {
             startForegroundCompat();
-            // Pool lama (backup menit-lama tak monopoli / tak bikin thread baru).
+
             boolean masuk = Util.jalankanLama(() -> {
                 try {
                     SharedPreferences cek = getSharedPreferences(PREFS, MODE_PRIVATE);
                     if (!TgBackup.amanBoolean(cek, TgBackup.KEY_TG_AUTO, false)) {
-                        // Alarm basi/duplikat yang terlanjur terjadwal tak boleh
-                        // mengunggah setelah user mematikan auto-backup.
+
                         appendLog("[tg] Backup terjadwal dilewati: auto-backup sudah dimatikan.");
                         return;
                     }
@@ -1269,12 +1005,11 @@ public class ServerService extends Service {
                         appendLog("[tg] " + tolak);
                         TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + tolak);
                     } else {
-                        // STB baru hidup: tunda via alarm satu pintu (tanpa
-                        // menidurkan thread pool lama, selaras susulan/saat-Start).
+
                         if (TgBackup.tundaBilaBootBaru(this, "backup terjadwal")) {
                             return;
                         }
-                        // Terjadwal = otomatis: wajib terenkripsi (fail-closed).
+
                         String msg = TgBackup.backupOtomatis(this);
                         appendLog("[tg] " + msg);
                         TgBackup.sendMessage(this, "Backup otomatis: " + msg);
@@ -1288,19 +1023,14 @@ public class ServerService extends Service {
                 }
             });
             if (!masuk) {
-                // Antrean pool lama penuh (2 thread + 16 antre): backup hari ini
-                // tak jalan, tetapi jadwal berikutnya WAJIB tetap terpasang dan
-                // foreground tak boleh menggantung tanpa pekerjaan.
+
                 appendLog("[tg] Backup terjadwal digeser: antrean tugas penuh"
                         + " - jadwal berikutnya tetap dipasang.");
                 selesaikanBackupTerjadwal(startId);
             }
             return START_NOT_STICKY;
         }
-        // Sistem menghidupkan ulang service (START_STICKY) dengan intent null
-        // setelah proses app dibunuh LMK: flag statik sudah hilang, jadi pakai
-        // niat user tersimpan. Tanpa ini START_STICKY tak pernah menepati janji
-        // dan server yang diminta jalan tak pulih otomatis.
+
         if (intent == null) {
             if (!niatJalanTersimpan()) {
                 return START_NOT_STICKY;
@@ -1313,16 +1043,14 @@ public class ServerService extends Service {
             if (process == null || !alive(process)) {
                 startServerAsync();
             } else if (isStopDisengaja(process)) {
-                // Proses lama sedang dimatikan (recreate di tengah Stop):
-                // jangan buang perintah start, jalankan setelah ia mati.
+
                 mulaiSetelahProsesMati = true;
             }
             batalUtama(healthTick);
             posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
             return START_STICKY;
         }
-        // Aksi tak dikenal bukan perintah start: abaikan agar service tak
-        // menyala sendiri tanpa persetujuan user.
+
         if (!ACTION_START.equals(action)) {
             return START_NOT_STICKY;
         }
@@ -1330,25 +1058,19 @@ public class ServerService extends Service {
         batalStart = false;
         healthActive = true;
         simpanNiatJalan(true);
-        // Start eksplisit = persetujuan baru user: lupakan riwayat restart lama
-        // agar penjaga anti-loop tak langsung mematikan start yang diminta.
-        // Restart otomatis (restartTunda -> startServer) tidak lewat jalur ini,
-        // jadi riwayatnya tetap utuh dan loop tetap terdeteksi.
+
         lupakanRiwayatRestart();
         startForegroundCompat();
         mulaiSetelahProsesMati = false;
         if (process == null || !alive(process)) {
             startServerAsync();
         } else if (isStopDisengaja(process)) {
-            // Proses lama masih dimatikan thread "vw-stop" (jendela 5-8 dtk):
-            // perintah Start ini jangan dibuang, jalankan begitu ia benar-benar
-            // mati (dulu server tetap mati sampai user menekan Start lagi).
+
             mulaiSetelahProsesMati = true;
         }
         batalUtama(healthTick);
         posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
-        // ACTION_START wajib STICKY agar sistem menghidupkan ulang service bila
-        // dibunuh saat server diminta jalan; aksi lain tetap NOT_STICKY.
+
         return START_STICKY;
     }
 
@@ -1357,8 +1079,6 @@ public class ServerService extends Service {
         return null;
     }
 
-    /** Simpan niat user (Start/Stop) secara sinkron: harus tahan proses dibunuh
-     *  tepat sesudah perintah agar START_STICKY tahu harus menghidupkan ulang. */
     @SuppressLint("ApplySharedPref")
     private void simpanNiatJalan(boolean jalan) {
         try {
@@ -1368,7 +1088,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Baca niat user tersimpan; false (jangan start) bila prefs tak terbaca. */
     private boolean niatJalanTersimpan() {
         try {
             return getSharedPreferences(PREFS, MODE_PRIVATE)
@@ -1378,10 +1097,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Tutup foreground/service bila user tak meminta server jalan. Dipakai
-     *  jalur restart yang batal (antrean penuh / server sudah mati) agar
-     *  notifikasi foreground tak menggantung tanpa pekerjaan. Bila niat jalan
-     *  masih tersimpan, notifikasi itu memang milik server yang hidup. */
     private void turunkanForegroundBilaTakDiminta(int startId) {
         if (niatJalanTersimpan()) {
             return;
@@ -1393,31 +1108,19 @@ public class ServerService extends Service {
         }
     }
 
-    /** Rapikan service setelah tugas backup terjadwal (normal maupun saat
-     *  antrean pool penuh): pasang jadwal berikutnya lalu turunkan foreground
-     *  bila tak ada alasan hidup. Service yang dimatikan di sini memaksa alarm
-     *  berikutnya startForegroundService dari background (Android 12+ bisa
-     *  ditolak); jadi pertahankan hidup bila server jalan atau auto-backup
-     *  masih aktif, dan hanya berhenti total saat idle. */
     private void selesaikanBackupTerjadwal(int startId) {
-        // Baca tahan korup: getBoolean mentah melempar sehingga stopForeground/
-        // stopSelf di bawah tak jalan.
+
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         boolean autoAktif = TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false);
         TgBackup.schedule(this, autoAktif);
         boolean serverJalan = process != null && alive(process);
-        // Start yang masih berjalan (task Start bisa antre di pool yang sama
-        // dengan backup) belum melahirkan process; jangan stopSelf di tengah
-        // jalan. stopSelf(startId) juga membuat intent Start yang lebih baru
-        // membatalkan stop ini.
+
         boolean mulai = starting.get();
         if (!serverJalan && !mulai && !autoAktif) {
             turunkanForeground(true);
             stopSelf(startId);
         } else if (!serverJalan && !mulai) {
-            // Demote foreground di sini (stopForeground(false)) berisiko:
-            // service kehilangan notifikasi tapi tetap hidup tanpa alasan.
-            // Pilih stopSelf(): aman karena alarm berikutnya start ulang bila perlu.
+
             try {
                 stopSelf(startId);
             } catch (Exception ignored) {
@@ -1425,20 +1128,13 @@ public class ServerService extends Service {
         }
     }
 
-    // Konstruktor Builder tanpa channel sengaja untuk pra-Oreo (API 21-25).
     @SuppressWarnings("deprecation")
     private void startForegroundCompat() {
-        // Channel sudah dibuat sekali di onCreate (satu instance service selalu
-        // melewati onCreate sebelum foreground); panggilan kedua tak berguna.
+
         startForeground(NOTIF_ID, bangunNotifikasi());
         notifForeground = true;
     }
 
-    /** Bangun notifikasi foreground dari keadaan server saat ini. Dipakai
-     *  startForegroundCompat() dan perbaruiNotifikasi() agar isinya tak basi:
-     *  dulu teks dihitung sekali saat service dinaikkan (pada ACTION_START
-     *  `running` masih false) sehingga berbunyi "Menjalankan tugas latar..."
-     *  sepanjang server melayani, atau tetap "Server aktif" setelah mati. */
     @SuppressWarnings("deprecation")
     private Notification bangunNotifikasi() {
         Intent open = new Intent(this, MainActivity.class);
@@ -1458,8 +1154,6 @@ public class ServerService extends Service {
                 .build();
     }
 
-    /** Isi notifikasi: saat server melayani tampilkan port; saat belum, baris
-     *  pertama status yang dirapikan & dibatasi 80 karakter. Murni (diuji). */
     static String teksNotifikasi(boolean jalan, String port, String status) {
         if (jalan) {
             return "Server aktif di port " + (port == null || port.isEmpty() ? "?" : port);
@@ -1475,8 +1169,6 @@ public class ServerService extends Service {
         return s.length() > 80 ? s.substring(0, 77) + "..." : s;
     }
 
-    /** Segarkan notifikasi foreground bila status berubah (hanya bila memang
-     *  sedang foreground; notify() pada service biasa akan menempel permanen). */
     private void perbaruiNotifikasi() {
         if (!notifForeground) {
             return;
@@ -1491,8 +1183,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Satu pintu menurunkan notifikasi foreground: bersihkan penanda lebih
-     *  dulu agar setStatus() berikutnya tak memposting notifikasi biasa. */
     @SuppressWarnings("deprecation")
     private void turunkanForeground(boolean hapus) {
         notifForeground = false;
@@ -1502,7 +1192,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila folder data aman dipakai: absolut, kanonis sederhana, di luar area sistem. Murni. */
     public static boolean dataDirAman(String d) {
         if (d == null) {
             return false;
@@ -1514,8 +1203,7 @@ public class ServerService extends Service {
         if (t.contains("\"") || t.contains("\n") || t.contains("\r") || t.contains("\0")) {
             return false;
         }
-        // Karakter kontrol/format tak terlihat (RTL override U+202E dkk.)
-        // membuat nama folder menipu di UI; tolak eksplisit.
+
         for (int i = 0; i < t.length(); i++) {
             char c = t.charAt(i);
             if (c < 0x20 || c == 0x7F || c == 0xFEFF
@@ -1525,24 +1213,19 @@ public class ServerService extends Service {
                 return false;
             }
         }
-        // Tolak traversal per segmen agar /sdcard/../data tak lolos, tapi
-        // folder sah bernama "my..folder" tetap diterima.
+
         if (t.contains("//") || t.contains("\\")) {
             return false;
         }
-        // Koma/kurawal merusak parse ROCKET_TLS ({certs="...",key="..."})
-        // sehingga folder data yang memuatnya ditolak dengan pesan jelas.
+
         if (t.contains(",") || t.contains("{") || t.contains("}")) {
             return false;
         }
-        // Batas panjang: path raksasa (ketikan/ekspor rusak) membuat mkdirs gagal
-        // misterius dan pesan /status Telegram jebol >4096 char (gagal 400 diam-diam).
+
         if (t.length() > 512) {
             return false;
         }
-        // Pindai segmen manual tanpa split regex + tanpa alokasi byte[] per
-        // segmen (dipanggil tiap tick cache prefs): satu pass menolak "."
-        // / ".." sekaligus menghitung byte UTF-8 manual (surrogate = 4 byte).
+
         int segmenIsiAwal = 0;
         int pos = 0;
         int batasT = t.length();
@@ -1560,8 +1243,7 @@ public class ServerService extends Service {
                 return false;
             }
             if (panjangSeg > 0) {
-                // Segmen >255 byte tak bisa dibuat di ext4/f2fs (ENAMETOOLONG):
-                // hitung byte UTF-8, bukan char (200 emoji = 800 byte lolos cek char).
+
                 int byteSeg = 0;
                 int k = pos;
                 while (k < miring) {
@@ -1588,7 +1270,7 @@ public class ServerService extends Service {
             }
             pos = miring + 1;
         }
-        // Kupas slash akhir agar /data/ tak lolos dari cek persis.
+
         String n = t;
         while (n.length() > 1 && n.endsWith("/")) {
             n = n.substring(0, n.length() - 1);
@@ -1597,8 +1279,7 @@ public class ServerService extends Service {
                 || n.equals("/proc") || n.equals("/sys") || n.equals("/dev")) {
             return false;
         }
-        // Tolak seluruh isi area sistem; kecuali privat milik app
-        // (/data/data dan /data/user yang merupakan path kanonis sama).
+
         if (n.startsWith("/system/") || n.startsWith("/vendor/")
                 || n.startsWith("/proc/") || n.startsWith("/sys/")
                 || n.startsWith("/dev/")) {
@@ -1627,37 +1308,28 @@ public class ServerService extends Service {
                 return false;
             }
         }
-        // Mount mentah tak boleh jadi folder data walau subfolder
-        // (/mnt/media_rw/XXXX = FUSE mentah, /mnt/runtime/* = namespace,
-        // /storage/self/* = symlink primer): tolak prefix, bukan exact saja.
+
         if (n.equals("/mnt/media_rw") || n.startsWith("/mnt/media_rw/")
                 || n.equals("/mnt/runtime") || n.startsWith("/mnt/runtime/")
                 || n.equals("/mnt/runtime_default") || n.startsWith("/mnt/runtime_default/")
                 || n.equals("/storage/self") || n.startsWith("/storage/self/")) {
             return false;
         }
-        // Folder data wajib subfolder (mis. /sdcard/vaultwarden): root storage
-        // (/sdcard, /storage/emulated/0, /mnt/media_rw) membuat DB+web-vault+log
-        // tercecer di root dan rawan terhapus.
+
         if (n.equals("/sdcard") || n.equals("/storage/emulated")
                 || n.equals("/storage/emulated/0") || n.equals("/storage/self")
                 || n.equals("/storage/sdcard0") || n.equals("/mnt/sdcard")
                 || n.equals("/mnt/media_rw") || n.equals("/mnt/runtime")) {
             return false;
         }
-        // n hanya t tanpa slash akhir (segmen kosong tak dihitung di atas)
-        // sehingga cacah segmen sama: pakai ulang tanpa split kedua.
+
         return segmenIsiAwal >= 2;
     }
 
-    /** Kembalikan folder data aman atau bawaan segar bila input berbahaya. Murni. */
     public static String amankanDataDir(String d) {
         return dataDirAman(d) ? d.trim() : dataDirBawaanSegar();
     }
 
-    /** True bila path kanonis folder data lolos aturan yang sama. Murni I/O.
-     *  Menutup celah symlink (/sdcard/vault -> /data/...) yang lolos cek string:
-     *  symlink di-resolve dulu via getCanonicalPath baru dinilai. */
     static boolean dataDirKanonisAman(String d) {
         if (d == null) {
             return false;
@@ -1669,14 +1341,8 @@ public class ServerService extends Service {
         }
     }
 
-    /** Baca port tersimpan (murni, tanpa tulis disk agar aman dipanggil tiap detik UI).
-     *  Migrasi 8080 -> default hanya lewat migrasiPortSekali() saat service dibuat.
-     *  Nilai rusak (huruf/kosong/di luar 1024-65535) jatuh ke default agar health
-     *  check tak membangun URL invalid lalu restart beruntun. Port privileged
-     *  (<1024) butuh root dan selalu gagal bind di STB/HP tanpa root. */
     public static String effectivePort(SharedPreferences sp) {
-        // Baca tahan korup: prefs korup di tengah jalan tak boleh
-        // ClassCastException tiap detik UI/health (jatuh ke default).
+
         String p = null;
         try {
             p = sp == null ? null : TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
@@ -1685,14 +1351,9 @@ public class ServerService extends Service {
         return normalisasiPort(p);
     }
 
-    /** Port valid 1024-65535, selain itu pakai default (murni agar bisa diuji).
-     *  Port privileged (<1024) butuh root: sebelumnya lolos lalu FATAL tiap
-     *  Start. Kini jatuh ke default agar prefs lama berisi 80/443 tetap bisa start. */
     static String normalisasiPort(String p) {
         String t = p == null ? "" : p.trim();
-        // Saring dulu: port salah ketik (huruf/titik/...) melempar
-        // NumberFormatException + isi stack trace tiap tick UI/health
-        // di ART lama selama kolom port belum dibetulkan.
+
         if (!portTampakAngka(t)) {
             return DEFAULT_PORT;
         }
@@ -1706,10 +1367,6 @@ public class ServerService extends Service {
         return DEFAULT_PORT;
     }
 
-    /** True bila trim menyerupai angka ([+-]?digit, 1-6 char): string yang
-     *  lolos pasti ter-parse (maks 999999 muat int) sehingga parseInt di
-     *  bawah tak pernah melempar; yang ditolak pun ditolak parseInt
-     *  (keluar rentang 1024-65535 butuh 4-5 digit). Murni. */
     static boolean portTampakAngka(String t) {
         if (t == null || t.isEmpty() || t.length() > 6) {
             return false;
@@ -1730,7 +1387,6 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** Kutip path untuk nilai ROCKET_TLS (escape backslash + kutip). Murni. */
     static String kutipRocket(String path) {
         if (path == null) {
             return "";
@@ -1738,16 +1394,12 @@ public class ServerService extends Service {
         return path.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    /** Penanda migrasi port selesai (agar port 8080 pilihan user tak ditimpa). */
     public static final String KEY_PORT_MIGRATED = "port_migrated_8088";
 
-    /** True bila migrasi 8080 -> default perlu jalan (murni, mudah diuji). */
     static boolean perluMigrasiPort(String tersimpan, boolean sudahMigrasi) {
         return !sudahMigrasi && "8080".equals(tersimpan == null ? null : tersimpan.trim());
     }
 
-    /** Migrasi default lama 8080 -> default baru, sekali saja (dipanggil onCreate/start).
-     *  Flag mencegah port 8080 yang disengaja user ikut tergusur di start berikutnya. */
     public static void migrasiPortSekali(SharedPreferences sp) {
         if (sp == null) {
             return;
@@ -1777,38 +1429,24 @@ public class ServerService extends Service {
         }
     }
 
-    /** Jalankan startServer di worker thread (unduh binary butuh jaringan;
-     *  di main thread Android memblokir dengan NetworkOnMainThreadException).
-     *  Guard mencegah Start ganda saat unduh binary masih berjalan. */
     private void startServerAsync() {
         final int idAwal = startIdTerakhir;
         if (!starting.compareAndSet(false, true)) {
-            // Jangan buang perintah Start: episode yang sedang berjalan
-            // (unduh binary/restore) akan menjalankannya sekali lagi di akhir.
-            // Dulu Start kedua hanya dicatat "dilewati", padahal startIdTerakhir
-            // sudah naik sehingga episode pertama tak boleh menutup state
-            // (foreground/health/niat) milik perintah baru itu — hasilnya
-            // notifikasi + health menggantung tanpa proses dan tanpa restart.
+
             startSusulanDiminta = true;
             appendLog("[app] Start masih berjalan (unduh binary?), dijalankan setelahnya.");
             return;
         }
-        // Pool lama (unduh binary menit-lama, bukan thread baru per Start).
+
         boolean masuk = Util.jalankanLama(() -> {
             boolean kunci = false;
-            // True bila Start masih akan dicoba lagi (restore/reset memegang
-            // KUNCI_DATA): episode Start belum berakhir, jangan turunkan apa pun.
+
             boolean tunda = false;
             idEpisodaProses = -1;
             try {
                 kunci = KUNCI_DATA.tryLock();
                 if (!kunci) {
-                    // Restore/reset sedang menimpa DB atau file TLS: menyalakan
-                    // server sekarang berisiko membaca setengah jadi. Start
-                    // diulang tiap 5 dtk (maks 5 mnt) lewat restartTunda yang
-                    // sudah dibatalkan otomatis oleh Stop; dulu permintaan ini
-                    // hilang begitu saja sehingga /start dari bot tak berefek
-                    // walau restore selesai sedetik kemudian.
+
                     int n = startTertundaData.getAndIncrement();
                     if (n == 0) {
                         appendLog("[app] Start ditunda: operasi data (restore/reset)"
@@ -1830,34 +1468,16 @@ public class ServerService extends Service {
                 startTertundaData.set(0);
                 startServer();
             } finally {
-                // startServer melepas kunci selama unduh binary lalu mengambilnya
-                // kembali; lepasKunciData() aman walau kunci tak dipegang thread
-                // ini (dulu unlock() langsung bisa melempar IllegalMonitorState
-                // dan melewati starting.set(false) di bawah).
+
                 lepasKunciData();
-                // Server tak lahir dan tak ada percobaan susulan = start gagal
-                // permanen (sebabnya sudah tampil di status/log/Telegram).
-                // Bila proses SEMPAT lahir, watcher pemilik takdirnya: ia yang
-                // menjadwalkan restart atau menutup episode saat menyerah.
-                // Dulu finally ikut menilai "tak running" lalu mematikan health
-                // + niat, sehingga restart yang baru dijadwalkan watcher (proses
-                // crash dalam milidetik) tak pernah jalan padahal status &
-                // Telegram menjanjikan "restart otomatis".
-                // Episode basi (sudah ada perintah Start/Stop lebih baru) TIDAK
-                // ikut membersihkan: dulu simpanNiatJalan(false) + stopForeground
-                // milik episode lama menghapus niat & notifikasi perintah baru,
-                // sehingga server yang baru diminta tak pulih setelah LMK.
+
                 if (startGagalPermanen(running,
                         process != null && alive(process), tunda,
                         idAwal == startIdTerakhir, idEpisodaProses >= 0)) {
                     akhiriEpisodeGagal(idAwal);
                 }
                 starting.set(false);
-                // Start yang datang selagi episode ini berjalan: jalankan
-                // sekarang (setelah guard dilepas) agar episodenya tak
-                // menggantung tanpa proses. Dilewati bila episode ini masih
-                // ditunda (restartTunda sudah menjadwalkan ulang) atau server
-                // sudah hidup; flag selalu direset agar tak memicu start liar.
+
                 if (startSusulanDiminta) {
                     startSusulanDiminta = false;
                     if (perluStartSusulan(!tunda, running,
@@ -1870,21 +1490,13 @@ public class ServerService extends Service {
             }
         });
         if (!masuk) {
-            // Antrean penuh: lepas guard agar Start berikutnya tak terkunci
-            // selamanya ("Start masih berjalan..." palsu).
+
             starting.set(false);
             appendLog("[app] Antrean tugas penuh - Start ditunda, coba lagi.");
             setStatus("Antrean penuh - Start ditunda. Tekan Start lagi.");
         }
     }
 
-    /** True bila start berakhir tanpa melahirkan proses dan tanpa percobaan
-     *  susulan: episode Start harus diakhiri (health tick + notifikasi ikut
-     *  turun). {@code intentTerbaru} salah bila sudah ada perintah Start/Stop
-     *  yang lebih baru: episode basi tak boleh mematikan health/notifikasi/niat
-     *  milik perintah baru itu. {@code prosesPernahLahir} benar bila episode
-     *  ini sempat mengeksekusi binary: kelanjutannya milik watcher (restart
-     *  atau penutupan episode), bukan lagi keputusan thread start. Murni. */
     static boolean startGagalPermanen(boolean running, boolean prosesHidup,
                                      boolean ditunda, boolean intentTerbaru,
                                      boolean prosesPernahLahir) {
@@ -1892,76 +1504,45 @@ public class ServerService extends Service {
                 && !running && !prosesHidup;
     }
 
-    /** True bila pengumuman "Server jalan" + status "Running" masih sah:
-     *  proses yang lahir di episode ini masih aktif, running masih true, dan
-     *  belum ada perintah Start/Stop yang lebih baru. Stop yang masuk sesudah
-     *  pb.start() (kunci proses sudah dilepas) dulu tetap diumumkan sebagai
-     *  "Server jalan" untuk proses yang sedang dimatikan. Murni. */
     static boolean bolehUmumkanJalan(boolean prosesSama, boolean running,
                                      boolean prosesHidup, boolean episodeTerbaru) {
         return prosesSama && running && prosesHidup && episodeTerbaru;
     }
 
-    /** True bila Start susulan (datang saat episode lain berjalan) wajib
-     *  dijalankan sekarang: episode sebelumnya sudah selesai tanpa menunda,
-     *  server belum hidup, dan user masih menginginkan server jalan. Murni. */
     static boolean perluStartSusulan(boolean takDitunda, boolean running,
                                      boolean prosesHidup, boolean niatJalan) {
         return takDitunda && !running && !prosesHidup && niatJalan;
     }
 
-    /** Tutup episode Start yang sudah pasti tak dilanjutkan: matikan watchdog
-     *  health + restart tertunda, cabut niat START_STICKY, dan turunkan
-     *  notifikasi foreground bila tak ada backup terjadwal yang memang butuh
-     *  service tetap hidup. Satu pintu untuk start yang gagal sebelum proses
-     *  lahir dan untuk watcher yang menyerah (kernel tak cocok, port direbut,
-     *  restart habis/berulang) — dulu jalur watcher meninggalkan service
-     *  foreground + niat hidup tanpa pekerjaan, sehingga START_STICKY terus
-     *  menghidupkan ulang percobaan yang sudah dinyatakan gagal.
-     *  {@code idAwal} menjaga episode basi (sudah ada perintah Start/Stop lebih
-     *  baru) tak mencabut state milik perintah baru itu. */
     private void akhiriEpisodeGagal(int idAwal) {
         if (idAwal != startIdTerakhir) {
-            return; // perintah lebih baru sudah datang: biarkan ia memutuskan
+            return;
         }
         healthActive = false;
-        // Tak ada proses yang boleh dianggap hidup lagi: UI/bot membaca
-        // `running`, dan penanda jalan yang basi membuat health/tautan
-        // menunjuk server yang sudah mati.
+
         running = false;
         resetPenandaJalan();
         releaseWakeLock();
         batalUtama(healthTick);
         batalUtama(restartTunda);
-        // Niat jalan disimpan ulang agar recreate START_STICKY tak mengulang
-        // start yang sudah pasti gagal; user diminta menekan Start lagi.
+
         simpanNiatJalan(false);
         SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
         if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
             turunkanForeground(true);
             try {
-                // stopSelfResult: intent yang lebih baru (id lain) membatalkan
-                // ini sehingga Start baru tak ikut mati.
+
                 stopSelfResult(idAwal);
             } catch (Exception ignored) {
             }
         }
     }
 
-    /** startId pemilik proses yang sedang dipantau; startId terakhir bila
-     *  penandanya hilang karena service di-recreate sistem (penanda instance
-     *  tidak selamat, sedangkan proses bisa masih hidup). */
     private int idEpisodaProsesAktif() {
         int id = idEpisodaProses;
         return id >= 0 ? id : startIdTerakhir;
     }
 
-    /** Ambil kembali kunci data sebelum fase yang menulis folder data (TLS,
-     *  ekstrak web-vault, exec). Selama fase unduh binary kunci sengaja
-     *  dilepas agar Restore/reset tak menunggu; di sini operasi data yang
-     *  sedang berjalan ditunggu sampai {@link #BATAS_TUNGGU_KUNCI_DATA_MS}
-     *  sambil tetap menghormati Stop (batalStart). False = start dibatalkan
-     *  (pesan sebabnya sudah ditulis). */
     private boolean tungguKunciDataStart() {
         long tenggat = SystemClock.elapsedRealtime() + BATAS_TUNGGU_KUNCI_DATA_MS;
         while (true) {
@@ -1994,13 +1575,9 @@ public class ServerService extends Service {
     }
 
     private void startServer() {
-        // Episode milik panggilan ini. Dipakai guard "jangan timpa status
-        // perintah Start yang lebih baru" di blok batal; dulu guard itu memakai
-        // idAwal milik startServerAsync() yang tak ada di sini sehingga build
-        // gagal (cannot find symbol).
+
         final int idEpisoda = startIdTerakhir;
-        // Nomor Stop saat episode ini mulai: unduhan binary di bawah batal bila
-        // nomor berubah (Stop masuk) — lihat nomorStop/Updater.CekBatal.
+
         final long stopAwal = nomorStop.get();
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         try {
@@ -2016,11 +1593,10 @@ public class ServerService extends Service {
             dataDir = dataDir.trim();
         }
         String port = currentPort();
-        // Transparansi fallback: currentPort() sudah menormalisasi (<1024/invalid -> default),
-        // jadi bandingkan dengan nilai mentah agar user paham port 80/443 tak bisa dipakai tanpa root.
+
         try {
             String mentah = TgBackup.amanString(sp, KEY_PORT, DEFAULT_PORT);
-            // Trim sekali (dulu 3x trim per Start): perilaku sama persis.
+
             String mRapi = mentah == null ? "" : mentah.trim();
             if (!mRapi.isEmpty() && !port.equals(mRapi)) {
                 appendLog("[app] Port '" + mRapi + "' tidak valid/privileged - pakai default " + port
@@ -2035,9 +1611,7 @@ public class ServerService extends Service {
             appendLog("[app] Gagal membuat folder data: " + dataDir);
             return;
         }
-        // Symlink folder data yang ditukar sesudah cek awal (TOCTOU) membuat
-        // unduhan web-vault/tls tertulis ke lokasi asing: kunci ke kanonis
-        // dan pakai kanonis ke depannya, bukan string mentah prefs.
+
         try {
             String kanonAwal = dataFolder.getCanonicalPath();
             if (!dataDirAman(kanonAwal)) {
@@ -2066,24 +1640,16 @@ public class ServerService extends Service {
                     + " bukan mengenkripsi database.");
         }
 
-        // Bersihkan sisa unduhan gagal agar tidak memakan storage.
         cleanupTempFiles(dataDir);
         appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
                 KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
-        // Lepas kunci data selama fase panjang yang TIDAK menulis folder data:
-        // unduh binary (~20 MB) + uji --version bisa berjalan menit-menitan di
-        // koneksi STB lambat. Dulu kunci dipegang sepanjang startServer sehingga
-        // Restore/reset (bot & UI) menunggu unduhan selesai tanpa penjelasan,
-        // lalu startServerAsync menilainya "Start masih berjalan". Kunci diambil
-        // kembali sebelum TLS/web-vault/exec (lihat tungguKunciDataStart).
+
         lepasKunciData();
         File binary = ensureBinary(stopAwal);
         if (binary == null) {
             return;
         }
 
-        // Kernel lama: pastikan shim getrandom, lalu uji --version sekali lagi
-        // dengan shim agar smoke test menilai kondisi start yang sebenarnya.
         boolean legacy = KernelCompat.legacyPerangkat();
         File shim = null;
         if (legacy) {
@@ -2100,8 +1666,6 @@ public class ServerService extends Service {
             appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
         }
 
-        // Smoke test kernel: tanpa shim, binary panic getrandom() di kernel 3.x.
-        // Digagalkan di sini dengan pesan jelas — jangan sampai start setengah jalan.
         if (isKernelRandomPanic(lastVersionOutput)) {
             String kernel = KernelCompat.kernelSekarang();
             String saran = KernelCompat.saranShimGagal(kernel.isEmpty() ? "?" : kernel);
@@ -2114,19 +1678,11 @@ public class ServerService extends Service {
             return;
         }
 
-        // Bersihkan proses vaultwarden lama yang masih nyangkut (biasanya masih
-        // memegang port) sebelum start - penyebab utama "looping" saat start.
         killStaleVaultwarden();
-        // currentPort() → effectivePort() → normalisasiPort() sudah menjamin
-        // port 1024..65535 berupa angka tanpa spasi, jadi parse berikut tak
-        // pernah gagal dan tak perlu penyembuhan ulang (dulu ada cabang
-        // <1024/>65535 yang tak terjangkau dan trim kedua).
+
         int portNum = Integer.parseInt(port);
         if (isPortBusy(portNum)) {
-            // Cek ini hanya saran pra-start (TOCTOU bind-lalu-lepas): penentu
-            // sah adalah gagal bind Rocket saat exec + mitigasi portDirebut.
-            // Port dijamin >=1024, jadi kegagalan bind pasti EADDRINUSE (bukan
-            // EACCES) dan pesan "dipakai proses lain" benar untuk semua kasus.
+
             setStatus("Port " + port + " sedang dipakai proses lain.\n"
                     + "Stop server lain / ganti port di Settings, lalu Start lagi.");
             appendLog("[app] Port " + port + " sedang dipakai - server TIDAK start (cegah loop).");
@@ -2136,14 +1692,11 @@ public class ServerService extends Service {
         }
 
         try {
-            // Fase di bawah menulis folder data (sertifikat TLS, ekstrak
-            // web-vault, exec). Kunci data wajib dipegang lagi: restore/reset
-            // yang berjalan selama unduhan tadi ditunggu (maks 5 menit) agar
-            // server tak menyala di tengah ekstraksi.
+
             if (!tungguKunciDataStart()) {
                 return;
             }
-            // HTTPS-only: HTTP tak bisa dipakai, server selalu TLS (fail-closed).
+
             sp.edit().putBoolean(KEY_HTTPS, true).apply();
             File tlsDir = prepareTls(dataFolder);
             if (tlsDir == null) {
@@ -2156,10 +1709,7 @@ public class ServerService extends Service {
             }
             long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
             if (TlsCert.daysLeft(new File(tlsDir, "ca.pem")) == -2) {
-                // Jam mundur: CA yang sudah dipercaya semua klien belum valid
-                // menurut jam perangkat. TlsCert.ensure sengaja TIDAK membuat
-                // CA baru (itu menghanguskan identitas TLS terpasang), jadi
-                // start ditolak di sini sampai jam dibetulkan.
+
                 appendLog("[app] FATAL: jam STB miring (CA belum valid)"
                         + " - CA dipertahankan, server TIDAK start. Aktifkan"
                         + " Tanggal & waktu otomatis, lalu Start lagi.");
@@ -2174,9 +1724,7 @@ public class ServerService extends Service {
                 appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
                         + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
             } else if (certDays == -2) {
-                // Fail-closed: sertifikat belum valid (jam STB miring ke masa lalu)
-                // membuat semua klien menolak TLS; start hanya membuang health-check
-                // dan restart beruntun. Minta betulkan jam dulu.
+
                 appendLog("[app] FATAL: jam STB miring (sertifikat belum valid)"
                         + " - server TIDAK start. Aktifkan Tanggal & waktu otomatis,"
                         + " lalu Start lagi.");
@@ -2192,15 +1740,12 @@ public class ServerService extends Service {
             pb.environment().put("DATA_FOLDER", dataDir);
             pb.environment().put("ROCKET_ADDRESS", "0.0.0.0");
             pb.environment().put("ROCKET_PORT", port);
-            // STB 1 GB (mis. ZTE B860H): 1 worker + pool DB kecil agar
-            // tidak dibunuh LowMemoryKiller tepat setelah "Rocket has launched"
-            // (exit 9/SIGKILL tanpa panic). 1 worker cukup untuk pemakaian rumahan.
+
             pb.environment().put("ROCKET_WORKERS", "1");
             pb.environment().put("DATABASE_MAX_CONNS", "2");
 
-            // Admin token: tolak karakter kontrol/spasi agar env Rocket tak rusak.
             String adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
-            // Trim sekali (dulu dua kali di tiap Start).
+
             String bersih = adminToken == null ? "" : adminToken.trim();
             if (!bersih.isEmpty()) {
                 if (!tokenAdminValid(bersih)) {
@@ -2215,7 +1760,6 @@ public class ServerService extends Service {
                 appendLog("[app] Admin token diaktifkan.");
             }
 
-            // Web vault: prioritaskan yang di-update di dataDir, baru fallback ke bundled
             File localWv = new File(dataFolder, "web-vault/index.html");
             if (localWv.exists()) {
                 pb.environment().put("WEB_VAULT_ENABLED", "true");
@@ -2242,8 +1786,7 @@ public class ServerService extends Service {
                 pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 appendLog("[app] LD_PRELOAD shim getrandom aktif.");
             }
-            // Selalu IP LAN (fitur domain lokal dihapus: butuh DNS sendiri di jaringan).
-            // Satu enumerasi interface (dulu lanHost() 2x saat Start).
+
             String hostSegar = lanHost();
             String domain = "https://" + formatHostUntukUrl(hostSegar) + ":" + port;
             pb.environment().put("DOMAIN", domain);
@@ -2259,28 +1802,13 @@ public class ServerService extends Service {
             ipBaruKandidat = "";
             ipBaruHitung = 0;
 
-            // Validasi ulang tepat sebelum exec: unduh binary/web-vault di atas
-            // makan waktu bermenit-menit; symlink folder data yang ditukar di
-            // tengah jalan (TOCTOU) wajib menggagalkan start, bukan meluncurkan
-            // server di folder asing.
             if (!dataDirKanonisAman(dataDir)) {
                 throw new IOException("Folder data berubah/tak valid saat start;"
                         + " dibatalkan agar server tak jalan di folder asing.");
             }
-            // Stop yang ditekan selama persiapan (unduh binary ber-menit-menit)
-            // membatalkan start di sini: jangan luncurkan server tanpa diminta.
-            // Keputusan batal-vs-luncur dan pemasangan state proses dijadikan
-            // satu bagian kritis dengan stopServer(): Stop yang masuk di jeda
-            // cek-vs-exec dulu bisa meninggalkan server hidup setelah status
-            // "Stopped", atau start menimpa running=true sesudah stopper
-            // membersihkan (UI "Running" tanpa proses + wakelock nyangkut).
+
             boolean batal;
-            // Referensi proses lahir DITANGKAP di dalam KUNCI_PROSET. Dulu
-            // `final Process p = process;` dibaca di luar kunci sesudah
-            // notifikasi Telegram (jaringan): Stop yang men-null-kan process
-            // di jendela itu membuat p=null lalu watchProcess(null) melempar
-            // NPE di thread "vw-watch" — NPE tanpa handler mematikan seluruh
-            // proses aplikasi dan server Rust jadi yatim.
+
             Process lahir = null;
             synchronized (KUNCI_PROSET) {
                 batal = batalStart;
@@ -2289,59 +1817,31 @@ public class ServerService extends Service {
                 } else {
                     lahir = pb.start();
                     process = lahir;
-                    // Proses baru milik start ini: hapus tanda stop lama agar
-                    // crash dini tak dianggap "stop disengaja" (race stopper
-                    // 5-8 dtk). Wajib di bagian kritis yang sama dengan
-                    // tandaiStopDisengaja() di stopServer().
+
                     prosesStopDisengaja = null;
                     acquireWakeLock();
                     running = true;
-                    // Proses lahir: episode ini diserahkan ke watcher (restart
-                    // atau penutupan), jadi finally startServerAsync tak boleh
-                    // mengakhirinya.
+
                     idEpisodaProses = startIdTerakhir;
                 }
             }
             if (batal) {
                 appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
                         + " - tekan Start lagi bila ingin jalan.");
-                // Jangan timpa status perintah Start yang lebih baru (mis.
-                // Start ditekan lagi tepat sesudah Stop ini).
+
                 if (idEpisoda == startIdTerakhir) {
                     setStatus("Stopped");
                 }
                 return;
             }
-            // Riwayat restart SENGAJA tidak dibersihkan di sini: start otomatis
-            // (restartTunda -> startServer) juga lewat jalur ini. Menghapusnya
-            // membuat "≥3 restart/5 menit" mustahil tercapai sehingga crash
-            // pendek berulang jadi loop 2 detik selamanya. Riwayat hanya
-            // dilupakan saat user menekan Start (lupakanRiwayatRestart), dan
-            // ringkasan dibatasi jendela 5 menit agar tak tampil basi.
-            // Episode baru = hitungan health lama tak berlaku. Dulu hanya
-            // healthFails yang direset: healthTcpLolos/configSajaBeruntun sisa
-            // run sebelumnya membuat server baru langsung divonis "gantung"/
-            // "DB rusak" pada kegagalan pertama (mis. 2 sisa + 1 gagal).
+
             healthFails.set(0);
             healthTcpLolos.set(0);
             configSajaBeruntun.set(0);
             lastStartElapsed = SystemClock.elapsedRealtime();
-            // restartAttempt TIDAK di-reset tiap start: itu mematikan batas 5x
-            // untuk crash beruntun ber-uptime pendek. Reset hanya terjadi saat
-            // uptime sudah >60 dtk (scheduleRestart) atau Start eksplisit user.
 
-            // Siram buffer milik folder lama lalu tukar tujuan file log dalam
-            // satu bagian kritis agar log folder lama tak tecampur ke folder baru.
             pindahLogFile(new File(dataFolder, "vaultwarden.log"));
 
-            // Stop bisa masuk tepat setelah kunci proses dilepas (pb.start
-            // sudah jalan, tapi pengumuman belum): jangan timpa status
-            // "Menghentikan.../Stopped" dengan "Running" dan jangan kirim
-            // "Server jalan" untuk proses yang sudah dimatikan. Cek di dalam
-            // KUNCI_PROSET agar keputusan memakai state yang sama dengan
-            // stopServer(). Reader/watcher di bawah tetap dijalankan: proses
-            // yang masih hidup wajib terus dikuras output-nya (pipe penuh
-            // memblokir server) dan watcher yang menutup episode.
             boolean bolehUmumkan;
             synchronized (KUNCI_PROSET) {
                 bolehUmumkan = bolehUmumkanJalan(process == lahir, running,
@@ -2358,8 +1858,6 @@ public class ServerService extends Service {
             }
             TgBackup.notifyLowStorage(this);
 
-            // Pakai referensi yang ditangkap di bagian kritis, bukan process
-            // yang bisa sudah di-null-kan Stop di jeda notifikasi di atas.
             final Process p = lahir;
             Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
             reader.setDaemon(true);
@@ -2373,35 +1871,23 @@ public class ServerService extends Service {
             appendLog("[app] start: " + binary.getAbsolutePath()
                     + " | versi: " + binaryVersion
                     + " | data=" + dataDir + " | port=" + port);
-            // Pakai hostSegar (bukan lanHost() kedua): satu enumerasi interface
-            // sesuai komentar di atas + DOMAIN dan panduan tak bisa beda IP
-            // bila DHCP flap tepat di tengah Start.
+
             for (String panduan : panduanLoginBitwarden(port, formatHostUntukUrl(hostSegar))) {
                 appendLog(panduan);
             }
         } catch (Exception e) {
-            // Proses yang sudah lahir tapi bookkeeping start gagal (mis. kirim
-            // notifikasi Telegram melempar) wajib dimatikan. process di-null-kan
-            // DULU agar watcher — bila sudah berjalan — tak menganggapnya crash
-            // lalu auto-restart. Dulu process=null tanpa kill meninggalkan server
-            // yatim yang tetap memegang port + DB tanpa reader/watcher, sehingga
-            // Start berikutnya melihat "port dipakai proses lain".
+
             Process gagal;
             synchronized (KUNCI_PROSET) {
-                // Lepas state proses dalam kunci yang sama dengan fase exec:
-                // dulu process=null/running=false ditulis di luar kunci.
+
                 gagal = process;
                 process = null;
                 running = false;
-                // Proses sudah dimatikan di sini dan tak ada watcher yang
-                // memantau: episode kembali "belum melahirkan proses" agar
-                // finally menutupnya (health/niat/notifikasi) seperti jalur
-                // gagal start lainnya.
+
                 idEpisodaProses = -1;
             }
             matikanProsesTegas(gagal, 3000);
-            // Bersihkan penanda jalan agar health tak menunjuk
-            // port/folder basi walau status sudah "Gagal start".
+
             resetPenandaJalan();
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
@@ -2410,47 +1896,35 @@ public class ServerService extends Service {
     }
 
     private void stopServer() {
-        // Keputusan "proses ada?" + tandai stop sengaja + flag batalStart
-        // diambil di bagian kritis yang sama dengan fase exec startServer():
-        // tanpa itu Stop di jeda cek-vs-exec bisa mendahului pb.start()
-        // sehingga server tetap lahir setelah status "Stopped", atau start
-        // menghapus tanda stop sengaja yang baru dipasang.
+
         final Process p;
         final boolean pengulangan;
         synchronized (KUNCI_PROSET) {
             batalStart = true;
             p = process;
-            // Stop berulang atas proses yang sedang dimatikan: jangan kirim
-            // "Server dihentikan" lagi (dua pesan untuk satu penghentian).
+
             pengulangan = p != null && isStopDisengaja(p);
             if (p == null) {
                 prosesStopDisengaja = null;
                 running = false;
                 resetPenandaJalan();
             } else {
-                // Proses dipertahankan sampai benar-benar mati agar
-                // stopAndWait()/restore tak menimpa DB selagi proses lama
-                // hidup. Per-proses agar Start baru tak ikut ditandai.
+
                 tandaiStopDisengaja(p);
             }
         }
         if (p != null) {
-            // Jangan klaim "Stopped" selagi proses lama masih dimatikan
-            // (hingga 8 dtk): status + flag dibersihkan thread stopper agar
-            // UI/bot/restore tak mengira DB sudah bebas dikunci.
+
             setStatus("Menghentikan...");
             p.destroy();
             Thread stopper = new Thread(() -> {
                 try {
                     matikanProsesTegas(p, 5000);
                 } finally {
-                    // Cek-dan-lepas atomik (KUNCI_PROSET): Start yang exec di
-                    // jeda ini dulu kehilangan referensi proses barunya.
+
                     lepasProses(p, this::efekProsesBerhenti);
                     hapusTandaStop(p);
-                    // Start yang ditekan selagi Stop berjalan dijalankan di sini
-                    // (proses sudah benar-benar mati). Aman bila watcher menang
-                    // balapan: flag sudah direset di sana.
+
                     jalankanStartTertundaStop();
                 }
             }, "vw-stop");
@@ -2461,38 +1935,29 @@ public class ServerService extends Service {
             releaseWakeLock();
             flushLogFile();
         }
-        // Kabari hanya bila benar-benar ada proses yang dihentikan dan Stop ini
-        // bukan pengulangan atas proses yang sedang dimatikan. Dulu pesan
-        // dikirim tanpa syarat sehingga Stop berulang (atau Stop saat server
-        // memang tak jalan) mengirim "Server dihentikan" palsu/ganda.
+
         if (p != null && !pengulangan) {
             TgBackup.sendMessage(this, "Server dihentikan.");
         }
     }
 
-    /** Jalankan Start yang tertunda karena proses lama masih dimatikan thread
-     *  stopper. Satu pintu: dipanggil thread "vw-stop" dan watcher tepat setelah
-     *  proses benar-benar mati (yang menang balapan duluan menjalankan Start).
-     *  Flag direset lebih dulu agar kegagalan start tak mengulang tanpa henti. */
     private void jalankanStartTertundaStop() {
         if (!mulaiSetelahProsesMati) {
             return;
         }
         mulaiSetelahProsesMati = false;
         if (process != null && alive(process)) {
-            // Proses baru sudah lahir: permintaan Start ini sudah terpenuhi.
+
             return;
         }
         if (!niatJalanTersimpan()) {
-            // User sudah Stop setelah menekan Start: jangan nyalakan server.
+
             return;
         }
         appendLog("[app] Start tertunda dijalankan: proses lama sudah mati.");
         startServerAsync();
     }
 
-    /** Tunggu pembaca output menuntaskan baris terakhir (maks 500 ms) setelah
-     *  proses server mati. Aman dipanggil dari thread mana pun. */
     private static void tungguPembacaOutput() {
         Thread baca = pembacaOutput;
         if (baca == null || baca == Thread.currentThread()) {
@@ -2508,40 +1973,22 @@ public class ServerService extends Service {
     private void watchProcess(Process p) {
         try {
             int code = p.waitFor();
-            // Panic Rust sering jadi baris TERAKHIR: beri pembaca output
-            // kesempatan menuntaskannya sebelum tail dibaca. Dulu tailLog()
-            // dipanggil lebih dulu sehingga saran crash kehilangan pesan asli.
+
             tungguPembacaOutput();
             if (isStopDisengaja(p) || process != p) {
-                // Stop sengaja atau sudah diganti proses baru: jangan timpa status.
-                // Pembersihan penuh + atomik di sini, bukan hanya process=null:
-                // watcher ini dan thread "vw-stop" sama-sama menunggu proses
-                // mati, dan yang menang balapan duluan harus menyelesaikan
-                // SEMUA state. Dulu watcher hanya men-null-kan process,
-                // sehingga guard process==p di finally stopper ikut gagal
-                // dan running/status "Menghentikan..." menggantung selamanya.
-                // Guard cek-dan-lepas wajib di dalam KUNCI_PROSET agar tak
-                // menghapus referensi proses Start baru.
+
                 lepasProses(p, this::efekProsesBerhenti);
                 hapusTandaStop(p);
-                // Start yang tertunda (ditekan saat Stop berjalan) dijalankan
-                // di sini bila watcher yang lebih dulu melihat proses mati.
+
                 jalankanStartTertundaStop();
                 return;
             }
             if (lepasProses(p, this::releaseWakeLockBilaBerhenti)) {
-                // Penanda jalan (port/folder/token/web-vault/host) wajib
-                // dikosongkan juga saat proses mati sendiri: dulu hanya jalur
-                // stop/gagal-start yang membersihkan, sehingga setelah crash
-                // (dan dua jalur fatal di bawah) status "Stopped" masih
-                // menyimpan port + sidik admin token server yang sudah mati.
-                // resetPenandaJalan() ikut di dalam lepasProses().
+
                 appendLog("[app] process exit: " + code);
                 String tail = tailLog(18);
                 if (isKernelRandomPanic(tail)) {
-                    // Binary Rust terbaru butuh getrandom() kernel baru; di kernel
-                    // STB Android 5/6 (errno=22) selalu panic saat start.
-                    // Retry tidak ada gunanya — langsung berhenti + beri saran.
+
                     autoRestart = false;
                     String kernel2 = KernelCompat.kernelSekarang();
                     String saran = KernelCompat.saranShimGagal(
@@ -2552,15 +1999,12 @@ public class ServerService extends Service {
                     writeCrashLog("binary tak cocok kernel (getrandom)");
                     TgBackup.sendMessage(this, "Binary tidak cocok kernel STB lama"
                             + " (getrandom errno=22) - auto-restart dimatikan.\n" + saran);
-                    // Menyerah: tutup episode agar health/foreground/niat tak
-                    // menggantung dan START_STICKY tak mengulang start yang pasti
-                    // gagal ini.
+
                     akhiriEpisodeGagal(idEpisodaProsesAktif());
                     return;
                 }
                 if (portDirebut(tail)) {
-                    // Port direbut proses lain di jeda cek-vs-start (TOCTOU):
-                    // restart tak ada gunanya — langsung berhenti + beri saran.
+
                     autoRestart = false;
                     int portNyata = portLoopback();
                     setStatus("Port " + portNyata + " direbut proses lain - dihentikan.\n"
@@ -2577,7 +2021,7 @@ public class ServerService extends Service {
                 if (autoRestart) {
                     writeCrashLog("crash (exit " + code + ")");
                     if (recordRestart("crash (exit " + code + ")")) {
-                        // Loop terdeteksi: recordRestart sudah set status + kirim Telegram.
+
                     } else {
                         String saran = saranCrash(code);
                         if (!saran.isEmpty()) {
@@ -2605,8 +2049,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Restart tertunda sebagai field (bukan anonim) agar onDestroy/STOP bisa
-     *  membatalkannya; tanpa ini restart jalan di service yang sudah mati. */
     private final Runnable restartTunda = new Runnable() {
         @Override
         public void run() {
@@ -2614,10 +2056,7 @@ public class ServerService extends Service {
                 return;
             }
             if (starting.get()) {
-                // Episode Start lain masih menyelesaikan bookkeeping (mis. kirim
-                // notifikasi Telegram). Dulu startServerAsync membuang permintaan
-                // ini sebagai "Start masih berjalan, dilewati" tanpa menjadwalkan
-                // ulang, sehingga restart yang sudah dijanjikan hilang diam-diam.
+
                 posUtama(restartTunda, 2000);
                 return;
             }
@@ -2627,8 +2066,6 @@ public class ServerService extends Service {
         }
     };
 
-    /** Lupakan riwayat restart + hitungan backoff. Hanya dipakai Start eksplisit
-     *  user; restart otomatis sengaja tidak memanggilnya agar loop terdeteksi. */
     private static void lupakanRiwayatRestart() {
         synchronized (RESTART_TIMES) {
             RESTART_TIMES.clear();
@@ -2643,15 +2080,11 @@ public class ServerService extends Service {
             menyerah = scheduleRestartTerkunci();
         }
         if (menyerah) {
-            // Di luar KUNCI_RESTART: penutupan episode menulis prefs + memanggil
-            // stopForeground, sedangkan kunci itu dipakai bersama jalur restart
-            // lain (watcher proses vs health) yang tak perlu menunggu I/O ini.
+
             akhiriEpisodeGagal(idEpisodaProsesAktif());
         }
     }
 
-    /** @return true bila batas restart habis (episode harus ditutup pemanggil
-     *  di luar kunci). */
     private boolean scheduleRestartTerkunci() {
         long uptime = SystemClock.elapsedRealtime() - lastStartElapsed;
         if (uptime > 60_000) {
@@ -2678,10 +2111,6 @@ public class ServerService extends Service {
         return false;
     }
 
-    /** Saran spesifik untuk exit code proses (logika murni agar bisa diuji).
-     *  Exit 9 = SIGKILL tanpa panic: di STB 1 GB hampir selalu LowMemoryKiller
-     *  (RAM penuh) tepat setelah "Rocket has launched", bukan shim getrandom
-     *  (getrandom panic = exit 101/1 + pesan getrandom). */
     static String saranCrash(int code) {
         if (code == 9) {
             return "Proses dihentikan sistem (exit 9/SIGKILL), kemungkinan RAM penuh. "
@@ -2690,10 +2119,6 @@ public class ServerService extends Service {
         return "";
     }
 
-    /** Satu pemindaian semua kunci minat login (ASCII, tanpa alokasi).
-     *  Dispatch huruf pertama: tiap posisi maksimal 4 banding pendek, bukan
-     *  16 pindaian penuh. Frasa panjang tahap lanjut tetap dicek pemanggil
-     *  hanya bila gerbang ini lolos. Murni agar bisa unit test. */
     static boolean minatLogin(String b) {
         if (b == null || b.isEmpty()) {
             return false;
@@ -2769,7 +2194,6 @@ public class ServerService extends Service {
         return false;
     }
 
-    /** Cocok kunci login abaikan-huruf di posisi i (batas-aman, tanpa eksepsi). */
     private static boolean cocokLoginAt(String b, int pos, String kunci) {
         int m = kunci.length();
         if (pos + m > b.length()) {
@@ -2783,26 +2207,16 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** Saran [login] untuk satu baris output Vaultwarden; null bila baris tak terkait login.
-     *  Murni agar bisa diuji unit (tanpa runtime Android).
-     *  Tanpa parameter https: server ini SELALU HTTPS (lihat manifest/ServerService),
-     *  jadi dulu flag itu tak pernah dibaca dan hanya menambah cabang mati. */
     static String saranLoginUntukBaris(String baris) {
         if (baris == null || baris.isEmpty()) {
             return null;
         }
-        // Baris loopback (probe TCP/health internal, mis. "tls handshake with
-        // 127.0.0.1"): bukan klien nyata sehingga saran install-CA tiap 60 dtk
-        // hanya spam yang menakuti user padahal login LAN sukses (lihat log:
-        // token/sync 200 OK). Klien nyata selalu ber-IP LAN di baris Rocket.
-        // Tanpa ini probe tiap health-tick lolos filter noise (hint dihitung
-        // sebelum filter) lalu nag tiap jendela throttle. Murni.
+
         if (Util.mengandungAbaikanHuruf(baris, "127.0.0.1")
                 || Util.mengandungAbaikanHuruf(baris, "localhost")) {
             return null;
         }
-        // Tanpa toLowerCase (alokasi per baris log deras): satu pemindaian
-        // dispatch huruf-pertama (dulu 16 pindaian penuh untuk tiap baris noise).
+
         if (!minatLogin(baris)) {
             return null;
         }
@@ -2838,14 +2252,10 @@ public class ServerService extends Service {
         return null;
     }
 
-    /** True bila hint [login] boleh tampil (throttle 60 dtk). Murni agar bisa diuji. */
     static boolean bolehHintLogin(long kiniElapsed, long terakhirElapsed) {
         return kiniElapsed - terakhirElapsed >= LOGIN_HINT_JEDA_MS;
     }
 
-    /** Baris panduan [login] aplikasi Bitwarden saat start (URL benar + HTTPS +
-     *  akun; server selalu HTTPS sehingga skema tak perlu parameter yang
-     *  nilainya selalu sama). Murni agar bisa diuji unit (tanpa runtime Android). */
     static java.util.List<String> panduanLoginBitwarden(String port, String lanIp) {
         java.util.ArrayList<String> out = new java.util.ArrayList<String>();
         String ip = (lanIp == null || lanIp.isEmpty()) ? "<IP-STB>" : lanIp.trim();
@@ -2862,13 +2272,6 @@ public class ServerService extends Service {
         return out;
     }
 
-    /** True bila log mengandung gagal acak kernel lama: panic getrandom Rust
-     *  ("failed to generate random data" dari std::sys::random) atau gagal
-     *  ticketer TLS Rocket ("bad TLS ticketer: failed to get random bytes"
-     *  dari ring/rustls) — tanda binary tidak cocok dengan kernel Android
-     *  lama (STB Android 5/6, errno=22). Server selalu HTTPS sehingga kedua
-     *  varian sama-sama fatal saat start.
-     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
     static boolean isKernelRandomPanic(String logTail) {
         if (logTail == null) {
             return false;
@@ -2884,9 +2287,6 @@ public class ServerService extends Service {
                 && Util.mengandungAbaikanHuruf(logTail, "getrandom");
     }
 
-    /** True bila ekor log menunjukkan bind gagal karena port direbut proses
-     *  lain (EADDRINUSE): restart tak ada gunanya, langsung berhenti + saran.
-     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
     static boolean portDirebut(String logTail) {
         if (logTail == null || logTail.isEmpty()) {
             return false;
@@ -2897,27 +2297,18 @@ public class ServerService extends Service {
                 || Util.mengandungAbaikanHuruf(logTail, "os error 98");
     }
 
-    /** True bila baris output binary hanya noise linker STB lama
-     *  ("WARNING: linker: ... unsupported flags DT_FLAGS_1 ...") — tidak fatal,
-     *  disaring dari deteksi versi agar versi terbaca benar.
-     *  Package-private agar bisa diuji unit (tanpa runtime Android). */
     static boolean isNoiseLinker(String baris) {
         return baris != null && baris.trim().startsWith("WARNING: linker");
     }
 
-    /** Catat restart otomatis + deteksi loop. Return true bila harus berhenti
-     *  (≥3 restart dalam 5 menit): matikan auto-restart, tulis crash log,
-     *  beri tahu via status & Telegram. */
     private boolean recordRestart(String reason) {
-        // Monotonik: wall-clock yang melompat (NTP/user) memicu "restart berulang"
-        // palsu atau menyembunyikan loop asli; stempel tampil tetap wall-clock.
+
         long now = SystemClock.elapsedRealtime();
         String stamp;
         stamp = LOG_TS.get().format(tanggalLog());
         int n;
         synchronized (RESTART_TIMES) {
-            // Buang entri di luar jendela anti-loop: daftar tak penuh oleh
-            // kejadian lama dan ringkasan selalu mencerminkan 5 menit terakhir.
+
             while (!RESTART_TIMES.isEmpty()
                     && now - RESTART_TIMES.get(0) > RESTART_WINDOW_MS) {
                 RESTART_TIMES.remove(0);
@@ -2942,16 +2333,13 @@ public class ServerService extends Service {
             TgBackup.sendPenting(this, "Server restart berulang (" + n
                     + "x dalam 5 menit) - auto-restart dimatikan.\n"
                     + shorten(tail, 600));
-            // Di luar synchronized(RESTART_TIMES): penutupan episode menulis
-            // prefs + stopForeground, sedangkan kunci itu juga dibaca
-            // restartSummary() di UI thread.
+
             akhiriEpisodeGagal(idEpisodaProsesAktif());
             return true;
         }
         return false;
     }
 
-    /** Hitung restart dalam jendela loop (murni agar bisa unit test). */
     static int hitungRestartBaru(java.util.List<Long> riwayat, long kini) {
         int n = 0;
         for (long t : riwayat) {
@@ -2962,7 +2350,6 @@ public class ServerService extends Service {
         return n;
     }
 
-    /** Ringkasan restart dalam jendela anti-loop (5 menit) untuk UI/Telegram. */
     public static String restartSummary() {
         synchronized (RESTART_TIMES) {
             int n = hitungRestartBaru(RESTART_TIMES, SystemClock.elapsedRealtime());
@@ -2974,7 +2361,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Isi crash log terakhir (crash-last.log internal); null bila belum ada crash. */
     public static String crashLogText(Context ctx) {
         File f = new File(ctx.getFilesDir(), CRASH_LOG_NAME);
         if (!f.exists()) {
@@ -2993,13 +2379,11 @@ public class ServerService extends Service {
         }
     }
 
-    /** Tulis ~100 baris log terakhir ke file internal (crash-last.log). */
     private void writeCrashLog(String reason) {
         try {
             String stamp;
             stamp = LOG_TS.get().format(tanggalLog());
-            // Samarkan dulu: file ini dibaca dialog crash + dikirim /crashlog
-            // ke Telegram (keluar perangkat), seperti jalur share/clipboard.
+
             String ekor = tailLog(100);
             String body = "=== " + stamp + " [" + reason + "] ===\n"
                     + (LogActivity.butuhSamaran(ekor) ? LogActivity.samarkanLog(ekor) : ekor) + "\n";
@@ -3017,11 +2401,7 @@ public class ServerService extends Service {
                 new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Hint [login]: jelaskan ke log realtime mengapa aplikasi Bitwarden
-                // gagal login (kredensial salah, 2FA, atau TLS self-signed ditolak app).
-                // Dihitung SEBELUM filter noise agar handshake gagal tetap bersaran.
-                // Gerbang throttle dulu: saat ditahan hasilnya tak dipakai sehingga
-                // pindai mahal (lowercase + puluhan contains) boleh dilewati.
+
                 long kini = SystemClock.elapsedRealtime();
                 String hintLogin = bolehHintLogin(kini,
                         loginHintTerakhirElapsed)
@@ -3032,9 +2412,7 @@ public class ServerService extends Service {
                         || line.contains("unsupported flags DT_FLAGS_1")
                         || line.contains("Shield has enabled a default HSTS policy");
                 if (hintLogin != null) {
-                    // Tanpa cek throttle ulang: gerbang bolehHintLogin di atas
-                    // sudah lolos (satu-satunya penulis di thread ini, kini
-                    // sama) sehingga cabang else lama tak terjangkau.
+
                     loginHintTerakhirElapsed = kini;
                     if (noise) {
                         appendLog(hintLogin);
@@ -3044,9 +2422,7 @@ public class ServerService extends Service {
                     }
                     continue;
                 }
-                // Redam log bising yang tidak berguna: handshake TLS lokal
-                // (cert self-signed), peringatan HSTS bawaan Vaultwarden, dan
-                // warning linker DT_FLAGS_1 di STB lama (tidak fatal).
+
                 if (noise) {
                     continue;
                 }
@@ -3054,26 +2430,23 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         } finally {
-            // Lepas rujukan agar watcher berikutnya tak menunggu thread basi.
+
             if (pembacaOutput == Thread.currentThread()) {
                 pembacaOutput = null;
             }
         }
     }
 
-    // Buffer tulis file log: flush tiap 16 KB agar tidak buka-tutup file per baris.
     private static final int LOG_FILE_FLUSH_CHARS = 16 * 1024;
     private static final StringBuilder logFileBuf = new StringBuilder();
     private static final Object LOG_FILE_LOCK = new Object();
 
-    /** Tanggal milik thread untuk stempel log (tanpa new Date per panggil). */
     private static java.util.Date tanggalLog() {
         java.util.Date tgl = LOG_TGL.get();
         tgl.setTime(System.currentTimeMillis());
         return tgl;
     }
 
-    /** Date milik thread (format pakai ulang tanpa new Date per baris log deras). */
     private static final ThreadLocal<java.util.Date> LOG_TGL =
             new ThreadLocal<java.util.Date>() {
                 @Override protected java.util.Date initialValue() {
@@ -3081,20 +2454,14 @@ public class ServerService extends Service {
                 }
             };
 
-    /** Stempel + tempel satu baris ke buffer bersama (satu pintu
-     *  appendLog/catatLog): Date milik thread dipakai ulang + rantai append
-     *  (bukan stamp + " " + line) agar log deras tak alokasi per baris di
-     *  STB lama. Kembalikan stempel untuk kelanjutan file-log pemanggil. */
     private static String tulisBarisLog(String line) {
-        // Date milik thread dipakai ulang (pola appendLog): log deras
-        // tak alokasi Date per baris di STB lama.
+
         String stamp;
         java.util.Date tgl = LOG_TGL.get();
         tgl.setTime(System.currentTimeMillis());
         stamp = LOG_TS.get().format(tgl);
         synchronized (logBuffer) {
-            // Rantai append (bukan stamp + " " + line): hemat satu String
-            // perantara tiap baris log deras di STB lama.
+
             logBuffer.append(stamp).append(' ').append(line).append('\n');
             pangkasBufferTerkunci();
             logVer++;
@@ -3107,9 +2474,7 @@ public class ServerService extends Service {
             return;
         }
         String stamp = tulisBarisLog(line);
-        // Cek logFile DI DALAM kunci: dulu cek di luar lalu append di dalam,
-        // sehingga baris yang masuk tepat saat tujuan file ditukar
-        // (pindahLogFile) bisa tertulis ke file folder BARU.
+
         synchronized (LOG_FILE_LOCK) {
             if (logFile == null) {
                 return;
@@ -3121,17 +2486,12 @@ public class ServerService extends Service {
         }
     }
 
-    /** Tulis buffer log ke file (panggil saat stop/destroy agar tak ada yang hilang). */
     private static void flushLogFile() {
         synchronized (LOG_FILE_LOCK) {
             flushLogFileLocked();
         }
     }
 
-    /** Siram buffer milik folder lama lalu tukar tujuan file log dalam SATU
-     *  bagian kritis. Dulu flushLogFile() dan penggantian logFile dua akuisisi
-     *  kunci terpisah: baris yang masuk di jeda itu ikut tertulis ke file
-     *  folder BARU, sehingga log folder lama tecampur ke folder baru. */
     static void pindahLogFile(File baru) {
         synchronized (LOG_FILE_LOCK) {
             flushLogFileLocked();
@@ -3148,8 +2508,7 @@ public class ServerService extends Service {
             logFileBuf.setLength(0);
             return;
         }
-        // Rotasi DULU bila penuh: tulis-dulu-rotasi-kemudian + rename gagal
-        // = truncate menghapus tulisan yang baru saja ditulis.
+
         if (f.length() >= MAX_LOG_FILE) {
             File old = new File(f.getParentFile(), f.getName() + ".1");
             if (old.exists()) {
@@ -3171,12 +2530,6 @@ public class ServerService extends Service {
         }
     }
 
-    // ─── Health check (/alive) ─────────────────────────────────────────
-
-    /** True bila hasil ping masih milik proses + episode yang sama. Ping
-     *  loopback bisa menggantung sampai timeout; bila Stop+lalu Start terjadi
-     *  selagi menunggu, kegagalan milik episode lama tak boleh menambah
-     *  healthFails episode baru (dulu memicu restart palsu). Murni. */
     static boolean pingMilikEpisodeSama(Process diukur, Process sekarang,
             int epDiukur, int epSekarang) {
         return diukur != null && diukur == sekarang
@@ -3189,21 +2542,14 @@ public class ServerService extends Service {
         }
         peringatkanIpBerubah();
         HasilPing h = pingRinci(this);
-        // Episode bisa berganti selama ping berjalan: hasil basi dibuang,
-        // jangan sampai masuk hitungan episode baru.
+
         if (!pingMilikEpisodeSama(pCek, process, epCek, idEpisodaProsesAktif())) {
             return;
         }
         if (h.sehat) {
-            // Sehat via /api/config tapi /alive 5xx beruntun = DB rusak yang
-            // tak pernah pulih sendiri: restart setelah ambang, bukan selamanya.
+
             if (aliveRusakTapiConfigSehat(h.aliveCode, h.configCode)) {
-                // Server MENJAWAB (config 200), jadi tick ini bukan kegagalan
-                // /alive biasa: reset hitungan timeout/lolos agar ambang
-                // "3x beruntun" benar-benar beruntun. Dulu counter lama
-                // tertinggal, sehingga satu timeout baru setelah dua timeout
-                // berjam-jam lalu langsung memicu restart palsu (server sehat
-                // dibunuh dan jatah restartAttempt terpakai).
+
                 healthFails.set(0);
                 healthTcpLolos.set(0);
                 int n = configSajaBeruntun.incrementAndGet();
@@ -3226,10 +2572,6 @@ public class ServerService extends Service {
         healthFail("tidak merespon (" + h.rincian + ")");
     }
 
-    /** Bandingkan IP LAN kini dengan snapshot start: DOMAIN Vaultwarden hanya
-     *  dibaca saat start sehingga tautan reset password menunjuk IP lama bila
-     *  DHCP/WiFi berubah. Peringatkan sekali per IP baru (log + Telegram) lalu
-     *  restart lewat jalur ACTION_RESTART bila IP baru stabil 2x tick. */
     private void peringatkanIpBerubah() {
         try {
             if (!running || runningLanHost == null || runningLanHost.isEmpty()) {
@@ -3259,13 +2601,7 @@ public class ServerService extends Service {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
                 appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
-                // Jangan scheduleRestart(): jalur itu hanya menunda start saat
-                // proses sudah mati (restartTunda melewati proses yang hidup),
-                // sehingga dulu tak pernah ada restart padahal status/Telegram
-                // menjanjikannya - bahkan status sempat berbunyi "Server crash".
-                // Jalur kanonik (ACTION_RESTART) menghentikan proses lama dulu.
-                // Tandai IP baru sebagai acuan agar tick berikutnya tak memicu
-                // restart kedua selagi proses lama sedang berhenti.
+
                 runningLanHost = kini;
                 if (!restart(getApplicationContext())) {
                     appendLog("[app] Restart karena IP baru gagal diminta;"
@@ -3277,17 +2613,14 @@ public class ServerService extends Service {
     }
 
     private void healthFail(String reason) {
-        // Stop ditekan saat cek health terbang: jangan hidupkan ulang server
-        // yang baru dihentikan user (autoRestart=true di bawah membatalkannya).
+
         if (!healthActive) {
             return;
         }
         int gagal = healthFails.incrementAndGet();
         appendLog("[health] /alive gagal: " + reason + " (ke-" + gagal + "/3)");
         if (gagal >= 3) {
-            // Pengaman positif-palsu: /alive butuh DB sehingga di STB lambat
-            // bisa gagal sementara server tetap melayani (/api/config 200 di log).
-            // Bila proses hidup dan port masih menerima TCP, jangan bunuh server.
+
             boolean prosesHidup = process != null && alive(process);
             boolean tcpOk = tcpTersambung(portLoopback());
             if (prosesHidup && tcpOk) {
@@ -3301,18 +2634,11 @@ public class ServerService extends Service {
                 appendLog("[health] /alive gagal 9x tapi TCP hidup"
                         + " - dianggap gantung, server dihentikan.");
             }
-            // Jangan terminal: coba restart otomatis terbatas (maks 5x via
-            // scheduleRestart) agar gangguan sesaat tak mematikan server
-            // selamanya; spam Telegram dicegah karena tiap episode hanya
-            // kirim satu pesan di bawah + scheduleRestart membatasi percobaan.
+
             autoRestart = true;
             healthFails.set(0);
             healthTcpLolos.set(0);
-            // Flag mati tanpa syarat (bukan hanya bila proses masih ada):
-            // proses bisa mati tepat di jeda cek-vs-eksekusi sehingga p null.
-            // Baca proses + tandai stop sengaja + matikan flag dalam satu
-            // bagian kritis KUNCI_PROSET: dulu semuanya di luar kunci sehingga
-            // Start baru yang exec di jeda itu ikut dihapus/ditandai.
+
             final Process p;
             synchronized (KUNCI_PROSET) {
                 p = process;
@@ -3329,56 +2655,39 @@ public class ServerService extends Service {
                     + shorten(tailLog(15), 500));
             if (p != null) {
                 releaseWakeLock();
-                // Tunggu sinkron di worker health (bukan UI): restartTunda
-                // 2 dtk yang menyala selagi proses lama masih sekarat akan
-                // dilewati sekali lalu restart hilang diam-diam. Mati dulu,
-                // baru jadwalkan.
+
                 try {
                     matikanProsesTegas(p, 5000);
                 } finally {
-                    // Cek-dan-lepas atomik: dulu `if (process == p) process =
-                    // null` di luar KUNCI_PROSET bisa menghapus referensi
-                    // proses Start baru yang exec di jeda itu.
+
                     lepasProses(p, null);
                     hapusTandaStop(p);
                 }
             }
-            // Rem loop seperti jalur crash: tanpa ini restart health (uptime
-            // selalu >60 dtk sehingga restartAttempt selalu di-reset)
-            // jalan selamanya + spam Telegram tiap siklus bila DB rusak permanen.
+
             if (recordRestart("health 3x")) {
                 return;
             }
-            // Lanjut restart terbatas (maks 5x, backoff di scheduleRestart).
+
             scheduleRestart();
             return;
         }
-        // Toleransi: gagal 1-2x hanya dicatat, tunggu cek berikutnya.
-        // Restart/penghentian hanya setelah 3x gagal beruntun agar
-        // timeout sesaat tidak memicu restart penuh.
+
         return;
     }
 
     private static volatile javax.net.ssl.SSLSocketFactory sslFactory;
-    /** Cap CA aktif (mtime+ukuran+hash isi); cache factory gugur bila CA regenerasi. */
+
     private static volatile long sslCaCap = -1L;
-    /** Kunci khusus cache SSL/CA. Dulu memakai monitor kelas ServerService yang
-     *  sama dengan wakelock + lookup pid: hashing ca.pem dan init SSLContext
-     *  (pekerjaan I/O berat) menahan monitor itu sehingga perpanjangan wakelock
-     *  health-tick ikut tertunda. */
+
     private static final Object KUNCI_SSL = new Object();
 
-    /** Trust khusus health-check loopback: pin CA milik app; gagal tertutup
-     *  bila CA tak tersedia (tanpa fallback trust-all agar server 200 palsu
-     *  milik app lokal lain tak menutupi outage). Tak dipakai koneksi luar. */
     private static javax.net.ssl.SSLSocketFactory loopbackSslFactory(Context ctx) throws Exception {
         long cap = capCaAktif(ctx);
         javax.net.ssl.SSLSocketFactory f = sslFactory;
         if (f == null || cap != sslCaCap) {
             synchronized (KUNCI_SSL) {
-                // Hitung ulang di dalam kunci (reentrant): cap di luar bisa basi bila
-                // ca.pem regenerasi antar baca-cap dan masuk-kunci, lalu factory basi
-                // menimpa factory segar milik thread lain (cermin HttpsCompat).
+
                 cap = capCaAktif(ctx);
                 f = sslFactory;
                 if (f == null || cap != sslCaCap) {
@@ -3396,36 +2705,26 @@ public class ServerService extends Service {
         return f;
     }
 
-    /** Acak bersama init SSL (thread-safe): seed /dev/urandom kernel lama bisa blokir. */
     private static final java.security.SecureRandom ACAK_SSL = new java.security.SecureRandom();
 
     static java.security.SecureRandom acakSsl() {
         return ACAK_SSL;
     }
 
-    /** Kunci stat murah (mtime+ukuran) untuk capCaAktif: bila stat tak berubah,
-     *  cap penuh dipakai ulang tanpa baca+hash seluruh isi di tiap health-check. */
     private static volatile long capCaStat = Long.MIN_VALUE;
     private static volatile long capCaNilai = 0L;
-    /** Waktu stat CA terakhir (elapsedRealtime): stat ulang maks 1x/menit. */
+
     private static volatile long capCaWaktu = 0;
 
-    /** Cap file CA aktif agar factory segar setelah regenerasi cert (ganti IP). */
     private static long capCaAktif(Context ctx) {
-        // Gerbang TTL 60 dtk tanpa kunci/syscall: ca.pem hanya berubah saat
-        // Start/restore/ganti folder (semua menginvalidasi eksplisit di
-        // prepareTls), sehingga stat (getFilesDir + isFile + mtime + length)
-        // tiap cobaKode (1-2x per health tick + ping perintah Telegram)
-        // mubazir di eMMC STB lama + berebut kunci kelas dengan thread UI.
+
         long kini = SystemClock.elapsedRealtime();
         if (capCaStat != Long.MIN_VALUE && kini - capCaWaktu < 60_000) {
             return capCaNilai;
         }
-        // Sinkron (reentrant, cermin HttpsCompat.capOverride): dua thread
-        // (health-tick + ping UI) tak boleh berlomba baca-tulis capCaStat/
-        // capCaNilai — satu bisa menimpa hasil segar dengan nilai basi.
+
         synchronized (KUNCI_SSL) {
-        // Cek ulang dalam kunci: thread lain bisa menyegarkan saat antre.
+
         long kini2 = SystemClock.elapsedRealtime();
         if (capCaStat != Long.MIN_VALUE && kini2 - capCaWaktu < 60_000) {
             return capCaNilai;
@@ -3450,16 +2749,11 @@ public class ServerService extends Service {
             if (ca != null && ca.isFile()) {
                 long stat = ca.lastModified() * 31 + ca.length();
                 if (stat == capCaStat) {
-                    // Stat cocok: perbarui stempel agar gerbang TTL 60 dtk
-                    // tak jatuh ke jalur lambat di tiap tick berikut.
+
                     capCaWaktu = kini2;
                     return capCaNilai;
                 }
-                // Tanpa perkalian raksasa (rawan overflow): gabung mtime + panjang
-                // lalu campur hash SELURUH isi agar perubahan ekor file tak lolos
-                // (sama seperti HttpsCompat.capOverride; mtime FAT 2 detik saja
-                // tak cukup membedakan CA hasil regenerasi cepat — factory basi
-                // bikin health HTTPS gagal + restart beruntun).
+
                 long h = stat;
                 try (java.io.InputStream in = new java.io.FileInputStream(ca)) {
                     byte[] buf = new byte[8192];
@@ -3478,19 +2772,16 @@ public class ServerService extends Service {
             }
         } catch (Exception ignored) {
         }
-        // CA tak ada/rusak: stempel juga agar tick tak menghujani stat
-        // tiap 30 dtk; prepareTls mereset saat sertifikat lahir.
+
         capCaWaktu = kini2;
         return 0L;
         }
     }
 
-    /** Muat tls/ca.pem milik app sebagai trust anchor bila tersedia. */
     private static javax.net.ssl.SSLSocketFactory cobaPinnedCa(Context ctx) {
         try {
             if (ctx == null) return null;
-            // Cert aktif tinggal di internal (migrasi dari /sdcard); cek internal
-            // dulu agar CA sesuai cert yang dipakai Rocket, baru fallback lama.
+
             java.io.File ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
             if (!ca.isFile()) {
                 android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
@@ -3515,9 +2806,7 @@ public class ServerService extends Service {
             tmf.init(ks);
             SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, tmf.getTrustManagers(), acakSsl());
-            // Paksa TLSv1.2+ seperti HttpsCompat: konteks "TLS" di API 21/22
-            // default hanya TLSv1 sehingga health-check loopback ke Rocket
-            // (min 1.2) gagal selamanya lalu restart beruntun sia-sia.
+
             return HttpsCompat.bungkusTls12(sc.getSocketFactory());
         } catch (Exception ignored) {
             return null;
@@ -3534,15 +2823,9 @@ public class ServerService extends Service {
 
     private static volatile long ipCacheTime = 0;
     private static volatile String ipCache = "";
-    /** Kunci pasangan cache IP: dibaca UI thread tiap detik sekaligus health
-     *  worker, tulis berurutan tanpa kunci bisa memberi versi campur. */
+
     private static final Object IP_LOCK = new Object();
 
-    /** True bila cache IP masih segar (umur < 60 dtk, isi tak kosong). Murni.
-     *  IP LAN/STB jarang berubah; TTL 60 dtk (dulu 3 dtk) agar tick UI 1-2 dtk
-     *  + health 30 dtk tak membayar enumerasi interface (ioctl per kartu +
-     *  isUp + sortir) tiap detik di CPU ARMv7. Keterlambatan deteksi IP baru
-     *  maks 1 menit masih aman (restart butuh IP stabil 2x tick). */
     static boolean ipCacheSegar(long kini, long cacheTime, String cache) {
         return cache != null && !cache.isEmpty() && kini >= cacheTime
                 && kini - cacheTime < 60_000;
@@ -3551,8 +2834,6 @@ public class ServerService extends Service {
     private static volatile List<String> collectCache = new ArrayList<>();
     private static final Object COLLECT_LOCK = new Object();
 
-    /** IP lokal pertama (untuk akses dari perangkat lain di jaringan sama).
-     *  Di-cache 60 detik agar tidak enumerasi network interface tiap detik (dipanggil UI). */
     public static String localIp() {
         long now = SystemClock.elapsedRealtime();
         String lama;
@@ -3564,11 +2845,7 @@ public class ServerService extends Service {
             lama = ipCache;
             lamaWaktu = ipCacheTime;
         }
-        // Cache basi tapi ada isinya: pakai nilai lama dulu (IP LAN praktis
-        // statis) dan segarkan di worker. Dulu pemanggil UI (localUrl di kartu
-        // info + tombol salin) yang membayar enumerasi NetworkInterface + isUp
-        // per kartu tepat saat TTL habis, sehingga layar terasa patah di STB
-        // lambat. Nilai basi paling lama 1 menit — hanya untuk tampilan URL.
+
         if (lama != null && !lama.isEmpty() && lamaWaktu > 0) {
             Util.jalankanBg(() -> {
                 long kini = SystemClock.elapsedRealtime();
@@ -3585,8 +2862,7 @@ public class ServerService extends Service {
             });
             return lama;
         }
-        // Seleksi satu pintu via lanHost() (dulu salinan logika pilih
-        // IPv4-pertama di sini + di lanHost): hasil identik persis.
+
         String pilih = lanHost();
         synchronized (IP_LOCK) {
             ipCache = pilih;
@@ -3595,26 +2871,19 @@ public class ServerService extends Service {
         return pilih;
     }
 
-    /** URL akses lengkap dari perangkat lain (selalu HTTPS; HTTP tak bisa dipakai). */
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String port = effectivePort(sp);
-        // Tanpa trim: effectivePort() ternormalisasi tanpa whitespace.
+
         return "https://" + formatHostUntukUrl(localIp()) + ":" + port;
     }
 
     private void setStatus(String text) {
         statusLine = text;
-        // Notifikasi foreground ikut menampilkan status (lihat teksNotifikasi):
-        // perbarui di sini agar tak basi sampai startForegroundCompat berikutnya.
+
         perbaruiNotifikasi();
     }
 
-    /** Bersihkan sisa ekstrak yatim; file .tmp unduhan dipertahankan untuk resume.
-     *  Dikunci KUNCI_WEBVAULT bersama Updater agar sapu tak berebut rename swap.
-     *  Staging yang sedang diekstrak/ditukar dilindungi registry STAGING_AKTIF
-     *  (nama unik saja tak cukup: polanya cocok ke semua staging); yang dibuang
-     *  hanya yatim crash/versi lama. */
     private void cleanupTempFiles(String dataDir) {
         synchronized (Updater.KUNCI_WEBVAULT) {
             cleanupTempFilesTerkunci(dataDir);
@@ -3622,11 +2891,7 @@ public class ServerService extends Service {
     }
 
     private void cleanupTempFilesTerkunci(String dataDir) {
-        // File .tmp unduhan (binary/web-vault) SENGAJA dipertahankan agar Start
-        // berikutnya melanjutkan via rentang byte HTTPS (Range, hemat kuota ~15/35 MB).
-        // Updater menghapusnya sendiri bila korup/checksum tak cocok.
-        // Hanya folder staging yatim yang dibersihkan di sini (termasuk
-        // web-vault.new lama + web-vault.new-<cap> unik yang yatim crash).
+
         try {
             File induk = new File(dataDir);
             File[] isi = induk.listFiles();
@@ -3641,8 +2906,7 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
             Updater.deleteRecursive(new File(dataDir, "web-vault.new"));
         }
-        // Pulihkan sisa swap web-vault yang terpotong crash: bila folder aktif
-        // hilang/rusak tapi .bak ada, kembalikan; bila aktif sehat, buang .bak.
+
         try {
             java.io.File target = new java.io.File(dataDir, "web-vault");
             java.io.File bak = new java.io.File(dataDir, "web-vault.bak");
@@ -3662,48 +2926,29 @@ public class ServerService extends Service {
         }
     }
 
-    /** Pastikan binary vaultwarden siap dipakai. Prioritas (sesuai urutan kode):
-     *  1) cache hasil tombol Perbarui ({@code KEY_UPDATE_VERSION}) — didahulukan
-     *     agar Start tak memakai binary lama selamanya; dilewati bila revisi
-     *     patch berubah atau file manual di folder data sudah ditukar,
-     *  2) binary yang ditaruh manual di folder data (mis. /sdcard/vaultwarden) —
-     *     disalin ke internal karena /sdcard tidak bisa dieksekusi (noexec),
-     *  3) cache internal milik APK ini (tidak diunduh ulang),
-     *  4) unduh dari release repo (dibangun dari sumber resmi, verifikasi SHA-256).
-     *  Return null bila gagal (status sudah diisi pesan) atau bila Start
-     *  dibatalkan user (Stop) saat unduhan berjalan.
-     *  @param stopAwal nomorStop saat episode Start ini mulai; unduhan batal
-     *                  begitu nomor berubah. */
     private File ensureBinary(long stopAwal) {
         File binDir = new File(getFilesDir(), "bin");
         if (!binDir.exists() && !binDir.mkdirs()) {
             appendLog("[app] Gagal membuat folder binary.");
             return null;
         }
-        // STB kernel lama: pastikan shim duluan agar semua smoke test --version
-        // di bawah (cache, manual, unduhan) menilai kondisi start sebenarnya.
-        // Tanpa ini binary bagus gagal uji saat shim belum ada (bin kosong).
-        // Murah bila shim sudah valid (tanpa jaringan).
+
         if (KernelCompat.legacyPerangkat()) {
             try {
                 Updater.ensureShimFile(this);
             } catch (Exception abaikan) {
-                // Gagal unduh shim (mis. offline): smoke test di bawah yang
-                // menentukan, lalu pesan unduh binary yang menjelaskan.
+
             }
         }
         File out = new File(binDir, "vaultwarden-" + ABI);
         File verFile = new File(binDir, "version.txt");
-        // Pemulihan sisa swap binary yang terpotong crash: gantiAtomik menukar
-        // out -> .bak lalu tmp -> out. Bila proses mati di antara keduanya,
-        // out hilang tapi salinan sehat ada di .bak; tanpa pemulihan ini STB
-        // offline harus unduh ulang 20 MB (atau tak bisa Start sama sekali).
+
         File bakBin = new File(binDir, out.getName() + ".bak");
         if (bakBin.exists()) {
             if (pulihkanBakBiner(out, bakBin)) {
                 appendLog("[app] Binary .bak dipulihkan (swap sebelumnya terpotong).");
             } else if (isValidBinary(out) || !isValidBinary(bakBin)) {
-                // Aktif sudah sehat, atau .bak sendiri rusak: sisa tak berguna.
+
                 try {
                     bakBin.delete();
                 } catch (Exception ignored) {
@@ -3716,22 +2961,13 @@ public class ServerService extends Service {
             dataDir = dataDirBawaanSegar();
         }
 
-        // Revisi patch binary: bila CI memperbaiki binary tanpa ganti versi Vaultwarden
-        // (mis. patch TLS favicon), cache lama wajib diunduh ulang sekali.
         boolean butuhRefresh = perluRefreshPatch(TgBackup.amanString(sp, KEY_BIN_PATCH, ""));
 
-        // Mode binary manual: cache internal (hasil salin yang sudah lolos
-        // SHA-256 + smoke test) boleh dipakai ulang selama file di folder data
-        // belum ditukar. Tanpa ini tiap Start menyalin 20 MB + hash + smoke
-        // test lagi hanya karena jalur cache dilewati revisi patch.
         File userBin = new File(dataDir, "vaultwarden-" + ABI);
         boolean manualBerubah = manualPerluValidasi(
                 TgBackup.amanString(sp, KEY_BIN_SHA, ""),
                 TgBackup.amanString(sp, KEY_BIN_MANUAL_FP, ""), userBin);
 
-        // 1) Binary update terbaru hasil tombol Perbarui (KEY_UPDATE_VERSION).
-        //    Didahulukan agar Start tidak memakai binary lama selamanya.
-        //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
         if (!butuhRefresh && !manualBerubah && isValidBinary(out)) {
             String updated = TgBackup.amanString(sp, KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
@@ -3746,8 +2982,7 @@ public class ServerService extends Service {
                                     + " - unduh ulang versi pilihan.");
                         } else {
                             appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
-                            // Visibilitas: file manual tak dipakai selama cache update
-                            // aktif (bukan diabaikan diam-diam seperti sebelumnya).
+
                             if (isValidBinary(userBin)) {
                                 appendLog("[app] Binary manual di folder data dilewati:"
                                         + " cache update (" + updated + ") sedang aktif.");
@@ -3758,17 +2993,13 @@ public class ServerService extends Service {
                         appendLog("[app] Binary update gagal smoke test --version - diunduh ulang.");
                     }
                 } catch (Exception e) {
-                    // Jangan telan sebabnya: tanpa pesan ini diagnosa "cache
-                    // rusak" (izin/ETXTBSY/prefs korup) hanya bisa ditebak.
+
                     appendLog("[app] Cek binary update gagal: " + e
                             + " - lanjut jalur lain.");
                 }
             }
         }
 
-        // 2) Binary dari folder data (user menaruh sendiri di /sdcard/vaultwarden).
-        // Cek kanonis dini: symlink folder data yang ditukar sebelum salin
-        // wajib menggagalkan jalur manual, bukan menyalin file asing.
         boolean dataKanonisOk = dataDirKanonisAman(dataDir);
         if (!dataKanonisOk) {
             appendLog("[app] Folder data tak valid/symlink asing - jalur manual dilewati.");
@@ -3776,14 +3007,9 @@ public class ServerService extends Service {
         if (dataKanonisOk && isValidBinary(userBin)) {
             String wantSha = TgBackup.amanString(sp, KEY_BIN_SHA, "");
             if (wantSha != null && !wantSha.trim().isEmpty()) {
-                // Salin dulu ke internal privat, baru hash + uji salinannya:
-                // file di /sdcard bisa ditukar app lain di jeda hash-vs-salin
-                // (TOCTOU) sehingga byte yang dieksekusi tak terverifikasi.
-                // Salinan internal (privat milik app) tak bisa ditukar pihak luar.
+
                 File tmpManual = new File(binDir, "vaultwarden-" + ABI + ".manual-tmp");
-                // Sidik diambil sebelum salin: bila file ditukar di tengah
-                // salin, sidik tersimpan tak cocok sehingga Start berikut
-                // memvalidasi ulang (bukan memakai salinan lama diam-diam).
+
                 String sidikAwal = sidikManualFile(userBin);
                 try {
                     copyBinary(userBin, tmpManual);
@@ -3794,9 +3020,7 @@ public class ServerService extends Service {
                         setStatus("Binary manual ditolak: SHA-256 tidak cocok.");
                         TgBackup.sendMessage(this, "Binary manual ditolak: SHA-256 tidak cocok.");
                     } else {
-                    // Uji di file sementara dulu: binary manual korup tak boleh
-                    // menghancurkan cache yang sedang jalan (STB offline tak bisa
-                    // unduh ulang). Penimpaan hanya bila smoke test lolos.
+
                     if (!detectBinaryVersion(tmpManual)) {
                             appendLog("[app] Binary manual GAGAL smoke test --version"
                                     + " (arsitektur salah/rusak?) - diabaikan,"
@@ -3818,16 +3042,12 @@ public class ServerService extends Service {
                             } else {
                                 gantiAtomik(tmpManual, out);
                                 writeText(verFile, Updater.appVersionName(this));
-                                // Tandai cache ini sudah ber-revisi patch terkini
-                                // dan simpan sidik file manual: Start berikut
-                                // memakai cache tanpa salin 20 MB + hash +
-                                // smoke test, selama file manual belum ditukar.
+
                                 sp.edit().putString(KEY_BIN_PATCH,
                                                 String.valueOf(BIN_PATCH_REV))
                                         .putString(KEY_BIN_MANUAL_FP, sidikAwal)
                                         .apply();
-                                // Catat versi terpasang agar cek update tak mengunduh ulang
-                                // binary manual yang memang lebih lama dari rilis.
+
                                 if (realManual != null && !realManual.isEmpty()) {
                                     sp.edit().putString(KEY_UPDATE_VERSION, realManual).apply();
                                 }
@@ -3852,8 +3072,6 @@ public class ServerService extends Service {
             }
         }
 
-        // 3) Cache internal milik APK ini (version.txt = versi APK saat diunduh).
-        //    Dilewati bila revisi patch berubah agar binary basi tidak dipakai terus.
         if (!butuhRefresh && isValidBinary(out) && verFile.exists()) {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
@@ -3878,15 +3096,8 @@ public class ServerService extends Service {
             }
         }
 
-        // 4) Unduh dari release repo.
-        // Throttle: unduhan perbaikan yang terakhir gagal tak dicoba tiap Start
-        // bila cache valid masih ada (hemat kuota + Start cepat); dicoba lagi
-        // setelah jeda. Instalasi pertama (tanpa cache) selalu mencoba.
         if (butuhRefresh && isValidBinary(out)) {
-            // Baca tahan-korup seperti pembaca kunci yang sama di AutoUpdate:
-            // getLong mentah melempar ClassCastException tiap Start bila prefs
-            // dikorup bertipe String lalu jatuh ke 0 (coba unduh tiap Start,
-            // bakar kuota, tak sembuh sendiri).
+
             long gagalAt = TgBackup.amanLong(sp, KEY_BIN_DL_GAGAL_AT, 0);
             if (!bolehCobaUnduhLagi(gagalAt, SystemClock.elapsedRealtime())) {
                 try {
@@ -3927,18 +3138,13 @@ public class ServerService extends Service {
             }
             return out;
         } catch (Exception e) {
-            // Stop ditekan saat unduhan: episode ini memang dibatalkan, bukan
-            // gagal — jangan catat KEY_BIN_DL_GAGAL_AT, jangan tampilkan saran
-            // koneksi, dan jangan jatuh ke cache (server tak boleh start).
+
             if (Updater.galatDibatalkan(e)) {
                 appendLog("[app] Unduh binary dibatalkan (Stop ditekan)"
                         + " - server tidak dijalankan.");
                 return null;
             }
-            // Catat kegagalan unduhan perbaikan agar Start berikut tak
-            // langsung mencoba lagi bila cache valid masih ada (throttle di
-            // atas). Kegagalan lain (instalasi pertama/kuncian) tak dicatat
-            // agar tetap dicoba tiap Start sesuai desain.
+
             if (butuhRefresh) {
                 try {
                     sp.edit().putLong(KEY_BIN_DL_GAGAL_AT,
@@ -3946,11 +3152,7 @@ public class ServerService extends Service {
                 } catch (Exception ignored) {
                 }
             }
-            // Versi pilihan gagal dipenuhi (offline/asset belum ada) tapi cache
-            // valid masih ada: pakai cache agar server tetap jalan; kuncian
-            // dicoba lagi saat Start berikutnya (bukan gagal total).
-            // Kuncian versi dihormati: cache beda versi tak boleh dipakai
-            // diam-diam agar user tak jalan di versi yang salah.
+
             if (isValidBinary(out)) {
                 try {
                     if (detectBinaryVersion(out)) {
@@ -3975,7 +3177,7 @@ public class ServerService extends Service {
                 } catch (Exception ignored) {
                 }
             }
-            // Pesan Updater sudah ramah (isi saran koneksi); jangan ditimpa pesan generik.
+
             String msgBin = e.getMessage();
             String ramah = msgBin != null && msgBin.contains("Cek ")
                     ? msgBin : Updater.pesanGalatUnduh("Unduh binary", e);
@@ -3989,15 +3191,12 @@ public class ServerService extends Service {
     }
 
     private boolean isValidBinary(File f) {
-        // Satu pintu dengan Updater.isElf (dulu blok ELF kembar di sini):
-        // ukuran wajar + magic ELF + e_machine ARM 32-bit, termasuk varian
-        // big-endian yang dulu diterima salah oleh salinan lokal.
+
         return f != null && f.exists() && f.length() >= 1_000_000 && Updater.isElf(f);
     }
 
     private void copyBinary(File src, File dst) throws IOException {
-        // Tulis ke tmp + rename agar biner parsial (storage penuh/crash) tak
-        // lolos isValidBinary() yang cek ukuran + magic + e_machine ARM.
+
         File tmp = new File(dst.getParentFile(), dst.getName() + ".tmp");
         try {
             try (InputStream in = new java.io.FileInputStream(src);
@@ -4009,8 +3208,7 @@ public class ServerService extends Service {
                 }
                 fos.getFD().sync();
             }
-            // ownerOnly=true: hanya UID app yang membaca binary (proses anak jalan
-            // sebagai UID sama) — tidak perlu world-readable.
+
             if (!tmp.setReadable(true, true) || !tmp.setExecutable(true, true)) {
                 throw new IOException("Gagal pasang izin eksekusi binary (storage tak dukung exec).");
             }
@@ -4025,8 +3223,7 @@ public class ServerService extends Service {
     }
 
     private File extractWebVault() {
-        // APK tidak lagi membundel web-vault; unduh sekali lewat tombol
-        // "Update Web Vault" (tersimpan di <data>/web-vault dan dipakai ulang).
+
         File dir = new File(getFilesDir(), "web-vault");
         File index = new File(dir, "index.html");
         if (index.exists()) {
@@ -4037,10 +3234,8 @@ public class ServerService extends Service {
         return null;
     }
 
-    /** Output mentah "--version" terakhir (maks ~8 KB) untuk smoke test panic kernel. */
     static volatile String lastVersionOutput = "";
 
-    /** Pastikan shim getrandom ada (khusus kernel lama); null + status bila gagal. */
     private File ensureShim() {
         try {
             File shim = Updater.ensureShimFile(this);
@@ -4056,12 +3251,10 @@ public class ServerService extends Service {
         }
     }
 
-    /** Smoke test --version; false bila binary tak bisa dieksekusi. */
     private boolean detectBinaryVersion(File binary) {
         Process p = null;
         BufferedReader r = null;
-        // Di luar try agar terlihat di catch: lokal di dalam try tak tampak
-        // di catch (gagal kompilasi cannot find symbol).
+
         final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         Thread versiWatchdog = null;
@@ -4075,23 +3268,17 @@ public class ServerService extends Service {
                 }
             }
             p = pb.start();
-            // Watchdog 10 detik: readLine() memblokir selamanya bila binary
-            // macet tanpa output; destroy terjadwal menutup pipa sehingga
-            // baca balik EOF dan thread Start tak nyangkut "Bekerja...".
-            // Satu pintu Util (dulu blok identik di Updater.detectVersion).
+
             versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai, 10000,
                     "vw-version-watchdog");
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            // Cukup 2 baris pertama (versi + kemungkinan panic getrandom di
-            // baris kedua), lalu matikan proses sedini mungkin agar Start tak
-            // tertahan belasan detik bila binary aneh/macet.
+
             String first = null;
             StringBuilder semua = new StringBuilder();
             String baris;
             int dibaca = 0;
-            // Batas total 50 baris (termasuk noise): binary aneh yang mengoceh
-            // tanpa henti tak boleh menggantung thread Start selamanya.
+
             int total = 0;
             while (total < 50 && (baris = r.readLine()) != null) {
                 total++;
@@ -4111,14 +3298,9 @@ public class ServerService extends Service {
             }
             versiSelesai.set(true);
             versiWatchdog.interrupt();
-            // Simpan SEMUA baris yang dibaca (bukan hanya baris versi):
-            // panic getrandom muncul di baris berikutnya dan dulu terbuang
-            // sehingga isKernelRandomPanic tak pernah menyala.
+
             lastVersionOutput = semua.length() == 0 ? "" : semua.toString().trim();
-            // Satu pintu matikan proses (destroy → paksa setelah 2 dtk). Dulu
-            // blok destroy+wait ini disalin sendiri dan tak memaksa, sehingga
-            // binary aneh yang mengabaikan SIGTERM tetap hidup sambil memegang
-            // berkas binary (penulisan/penggantian binary bisa ETXTBSY).
+
             matikanProsesTegas(p, 2000);
             if (first == null || first.trim().isEmpty()) {
                 binaryVersion = "?";
@@ -4128,8 +3310,7 @@ public class ServerService extends Service {
             binaryVersion = first.trim();
             return true;
         } catch (Exception e) {
-            // Hentikan watchdog yang menunggu 10 detik agar thread Start gagal
-            // tak menyisakan thread daemon tiap Start (bocor saat exec ditolak).
+
             try {
                 versiSelesai.set(true);
             } catch (Exception ignored) {
@@ -4151,8 +3332,7 @@ public class ServerService extends Service {
                 }
             }
             if (p != null) {
-                // Jalur galat (mis. baca output melempar) juga wajib benar-benar
-                // mematikan proses, bukan hanya destroy yang bisa diabaikan.
+
                 matikanProsesTegas(p, 1000);
             }
         }
@@ -4163,7 +3343,7 @@ public class ServerService extends Service {
         if (ips.isEmpty()) {
             return "127.0.0.1";
         }
-        // Prefer IPv4 untuk DOMAIN/URL: IPv6 tanpa kurung merusak parsing port.
+
         for (String ip : ips) {
             if (ip != null && !ip.isEmpty() && ip.indexOf(':') < 0) {
                 return ip;
@@ -4172,7 +3352,6 @@ public class ServerService extends Service {
         return ips.get(0);
     }
 
-    /** Format host untuk URL: IPv6 dibungkus kurung agar port tak ambigu. Murni. */
     static String formatHostUntukUrl(String host) {
         if (host == null || host.isEmpty()) {
             return "127.0.0.1";
@@ -4186,12 +3365,9 @@ public class ServerService extends Service {
 
     private static List<String> collectIps() {
         synchronized (COLLECT_LOCK) {
-            // Monotonik: wall-clock mundur membuat now-cache negatif dan cache basi beku.
+
             long now = SystemClock.elapsedRealtime();
-            // TTL 60 dtk (dulu 5 dtk): tick health 30 dtk/2 mnt + URL UI 10 dtk
-            // selalu gagal-hit lalu membayar getNetworkInterfaces + isUp()
-            // tiap kartu tiap tick. IP praktis statis sehingga basi 1 menit
-            // tak masalah; Start selalu bisa paksa segar via writeText ips.txt.
+
             if (now - collectCacheTime < 60_000 && !collectCache.isEmpty()) {
                 return collectCache;
             }
@@ -4205,7 +3381,7 @@ public class ServerService extends Service {
                         if (addr instanceof java.net.Inet4Address) {
                             ips.add(addr.getHostAddress());
                         } else if (addr instanceof java.net.Inet6Address) {
-                            // Kupas zona (%wlan0) agar stabil sebagai SAN sertifikat.
+
                             String mentah = addr.getHostAddress();
                             int persen = mentah.indexOf('%');
                             String bersih = persen < 0 ? mentah : mentah.substring(0, persen);
@@ -4219,19 +3395,15 @@ public class ServerService extends Service {
                 }
             } catch (Exception ignored) {
             }
-            // Urutkan: urutan enumerasi interface tak stabil sehingga string
-            // ips.txt bisa beda tiap Start dan memicu regen sertifikat sia-sia.
+
             Collections.sort(ips);
-            // Tak-berubah: pemanggil hanya membaca (kecuali prepareTls, ia menyalin
-            // sendiri) sehingga cache-hit tanpa alokasi salinan per panggilan.
+
             collectCache = Collections.unmodifiableList(ips);
             collectCacheTime = now;
             return collectCache;
         }
     }
 
-    /** Path kanonis file/folder; null bila gagal (pemanggil memperlakukan
-     *  null sebagai "tak diketahui" = anggap storage publik). */
     private static String kanonAman(File f) {
         try {
             return f == null ? null : f.getCanonicalPath();
@@ -4240,10 +3412,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila path kanonis berada di storage bersama (/sdcard, /storage,
-     *  /mnt/sdcard, /mnt/media_rw). Kunci privat TLS tak boleh ditulis ke
-     *  sana karena FAT tak mengenal chmod. Null = tak diketahui, anggap
-     *  publik (fail-closed). Murni agar bisa diuji. */
     static boolean diStoragePublik(String kanon) {
         if (kanon == null) {
             return true;
@@ -4254,10 +3422,6 @@ public class ServerService extends Service {
                 || kanon.equals("/mnt/media_rw") || kanon.startsWith("/mnt/media_rw/");
     }
 
-    /** True bila fallback TLS ke folder lama boleh dipakai. Folder di storage
-     *  publik hanya boleh dipakai bila materialnya sudah lengkap & valid
-     *  (tanpa menulis apa pun); folder internal boleh ditulis seperti biasa.
-     *  Murni agar bisa diuji. */
     static boolean bolehFallbackTls(boolean publik, boolean siapPakai) {
         return !publik || siapPakai;
     }
@@ -4267,27 +3431,17 @@ public class ServerService extends Service {
             List<String> ips = new ArrayList<>(collectIps());
             ips.add(0, "127.0.0.1");
             ips.add("::1");
-            // SAN DNS sengaja kosong: fitur domain lokal dihapus (butuh DNS
-            // sendiri di jaringan). TlsCert.daftarDns dipertahankan sebagai
-            // util teruji untuk pemakaian mendatang; format "|dns=" penanda
-            // dipertahankan agar ips.txt lama tak memicu regen massal.
+
             List<String> dns = new ArrayList<>();
             String cur = joinIps(ips) + "|dns=" + joinIps(dns);
 
-            // Kunci TLS di internal (bukan /sdcard FAT yang chmod-nya tak berlaku):
-            // migrasi sekali dari folder data lama agar CA tetap sama (HP lain
-            // tak perlu install ulang), lalu pakai internal seterusnya.
             File internal = new File(getFilesDir(), "tls");
             File tlsLama = new File(dataFolder, "tls");
             migrasiTlsKeInternal(tlsLama, internal);
             File ipFile = new File(internal, "ips.txt");
             File dir = ensureCertWithIps(internal, ipFile, ips, dns, cur);
             if (dir == null) {
-                // Fallback ke folder data: bila folder itu di storage publik
-                // (/sdcard), JANGAN menulis kunci privat baru ke sana — FAT
-                // tak mengenal chmod sehingga ca-key.pem/key.pem bisa disalin
-                // app lain berizin storage. Material lama yang sudah lengkap
-                // masih boleh dipakai apa adanya agar server tetap hidup.
+
                 File lama = new File(dataFolder, "tls");
                 boolean publik = diStoragePublik(kanonAman(lama));
                 boolean siap = TlsCert.siapPakaiTanpaTulis(lama);
@@ -4328,8 +3482,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Salin tls lama (/sdcard) ke internal sekali bila internal kosong.
-     *  Best-effort: gagal migrasi bukan fatal (fallback folder lama dipakai). */
     private void migrasiTlsKeInternal(File lama, File baru) {
         try {
             if (!new File(lama, "ca.pem").isFile()
@@ -4356,10 +3508,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Hapus kunci privat lama di folder data publik setelah internal terbukti jadi.
-     *  Hanya ca-key.pem/key.pem; sertifikat publik dibiarkan untuk fallback bila
-     *  suatu saat internal gagal. Best-effort: kunci di /sdcard (FAT) bisa dibaca
-     *  app berizin storage sehingga tak boleh mengendap pasca-migrasi. */
     private void bersihKunciTlsLama(File lama, File dirAktif, File internal) {
         try {
             if (lama == null || dirAktif == null || internal == null) {
@@ -4367,12 +3515,12 @@ public class ServerService extends Service {
             }
             String kanonAktif = dirAktif.getCanonicalPath();
             String kanonInternal = internal.getCanonicalPath();
-            // Fallback folder lama: kunci masih dipakai, jangan hapus.
+
             if (!kanonAktif.equals(kanonInternal)) {
                 return;
             }
             String kanonLama = lama.getCanonicalPath();
-            // Folder data memang di internal: tak ada yang perlu dibersihkan.
+
             if (kanonLama.equals(kanonInternal)) {
                 return;
             }
@@ -4393,12 +3541,7 @@ public class ServerService extends Service {
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips,
             List<String> dns, String cur) throws Exception {
         String saved = readText(ipFile);
-        // Regen dipaksa via flag (bukan hapus-dulu): TlsCert.ensure menukar
-        // atomik (.baru -> aktif) sehingga leaf lama yang masih bagus tetap
-        // dipakai bila generate gagal (mis. storage penuh) — server tak mati
-        // sia-sia. Hanya leaf yang dibuat ulang; CA (ca.pem) dipertahankan
-        // agar HP lain tak perlu install ulang. Penanda hilang (saved null)
-        // ikut regen: daun lama bisa berisi SAN basi.
+
         boolean ipBerubah = saved == null || !saved.equals(cur);
         if (ipBerubah) {
             appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
@@ -4406,11 +3549,7 @@ public class ServerService extends Service {
         File dir = TlsCert.ensure(tlsDir, ips, dns, ipBerubah);
         if (dir != null) {
             writeText(ipFile, cur);
-            // Sertifikat bisa baru dibuat: buang cache SSL agar health check
-            // memakai CA terbaru, bukan trust-all lama. Cap CA ikut reset
-            // agar gerbang TTL tak menyajikan cap basi 60 dtk. Di dalam
-            // KUNCI_SSL: pembaca yang sedang menyegarkan factory tak boleh
-            // menyimpan hasil CA lama sesudah reset ini.
+
             synchronized (KUNCI_SSL) {
                 sslFactory = null;
                 sslCaCap = -1L;
@@ -4453,10 +3592,9 @@ public class ServerService extends Service {
         return pid < 0 ? "?" : String.valueOf(pid);
     }
 
-    // Cache Method "pid" (API 26+): lookup refleksi hanya sekali, bukan tiap panggil.
     private static volatile java.lang.reflect.Method pidMethod;
     private static volatile boolean pidMethodLookedUp = false;
-    /** Kunci lookup refleksi pid (dulu menumpang monitor kelas). */
+
     private static final Object KUNCI_PID = new Object();
 
     private static int pidOf(Process p) {
@@ -4480,30 +3618,25 @@ public class ServerService extends Service {
             if (m == null) {
                 return -1;
             }
-            // Process.pid() mengembalikan long (bukan int): pakai Number agar tak ClassCastException.
+
             return ((Number) m.invoke(p)).intValue();
         } catch (Throwable t) {
             return -1;
         }
     }
 
-    // PID anak vaultwarden di-cache 120 dtk agar info RAM (tick status
-    // 5 dtk) tidak memindai /proc terus-menerus.
     private static volatile int cachedChildPid = -1;
     private static volatile long cachedChildPidAt = 0;
-    // TTL 120 dtk (PID stabil selama proses hidup): pindai /proc penuh
-    // tiap 30 dtk boros I/O di API<26 yang selalu lewat jalur ini.
+
     private static final long CHILD_PID_TTL_MS = 120_000;
-    // Memo VmRSS 5 dtk: satu baca /proc/<pid>/status dipakai bersama worker
-    // status Pengaturan dan perintah /status bot yang bisa berdekatan.
+
     private static volatile long rssCacheKb = -1;
     private static volatile int rssCachePid = -1;
     private static volatile long rssCacheAt = 0;
     private static final long RSS_CACHE_TTL_MS = 5_000;
 
-    /** RAM (VmRSS, kB) proses vaultwarden; -1 bila tidak terbaca. */
     public static long processRssKb() {
-        // Server mati tak punya PID: jangan pindai /proc sia-sia.
+
         if (!running) {
             return -1;
         }
@@ -4538,7 +3671,7 @@ public class ServerService extends Service {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("VmRSS:")) {
-                    // Tanpa split regex (compile Pattern per baris): "VmRSS:   1234 kB".
+
                     String angka = line.substring(6).trim();
                     int sp = angka.indexOf(' ');
                     if (sp >= 0) {
@@ -4560,17 +3693,11 @@ public class ServerService extends Service {
         return hasil;
     }
 
-    /** Cache pindai /proc 8 detik: findChildPid + killStaleVaultwarden jalan
-     *  berurutan tiap Start sehingga tanpa cache membayar listFiles + baca
-     *  status per PID dua kali. Basi aman: pemakai ulang-verifikasi cmdline
-     *  + PID anak berjalan tepat sebelum bunuh (anti PID-recycle). */
     private static final Object KUNCI_PROC = new Object();
     private static java.util.List<Integer> cachePidSeUid = null;
     private static long cachePidSeUidAt = 0;
     private static final long PID_CACHE_TTL_MS = 8000;
 
-    /** Kosongkan cache pindai /proc agar pemanggil melihat proses yang baru
-     *  lahir/mati (dipakai sebelum & sesudah membersihkan server yatim). */
     private static void segarkanCachePid() {
         synchronized (KUNCI_PROC) {
             cachePidSeUid = null;
@@ -4578,10 +3705,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Kandidat PID se-UID (bukan proses kita): satu pindai /proc dipakai
-     *  findChildPid + killStaleVaultwarden agar Start tak membayar listFiles
-     *  + baca status per PID dua kali. Tanpa baca cmdline (mahal, beda
-     *  predikat per pemanggil). Murni I/O. */
     private static java.util.List<Integer> kandidatPidSeUid() {
         long kiniCache = SystemClock.elapsedRealtime();
         synchronized (KUNCI_PROC) {
@@ -4625,7 +3748,6 @@ public class ServerService extends Service {
         return beku;
     }
 
-    /** Cari pid anak vaultwarden via /proc (fallback API < 26 tanpa Process.pid()). */
     private static int findChildPid() {
         try {
             for (int pid : kandidatPidSeUid()) {
@@ -4642,8 +3764,6 @@ public class ServerService extends Service {
         return -1;
     }
 
-    /** Bunuh proses vaultwarden lama (UID sama, bukan proses kita) yang masih
-     *  nyangkut & memegang port setelah app di-restart/update. */
     private void killStaleVaultwarden() {
         try {
             int myPid = android.os.Process.myPid();
@@ -4655,10 +3775,7 @@ public class ServerService extends Service {
                     }
                     String cmd = readProcCmdline(new File("/proc/" + pid));
                     if (bolehBunuhBasi(cmd)) {
-                        // Verifikasi ulang tepat sebelum bunuh: start konkuren
-                        // (ketuk Start 2x / auto-restart vs manual) bisa lahir di
-                        // jeda cek-vs-bunuh, dan PID bisa dipakai ulang proses
-                        // lain se-UID. Tanpa ini server fresh ikut terbunuh.
+
                         if (pid == myPid || pid == runningChildPid()) {
                             continue;
                         }
@@ -4675,18 +3792,10 @@ public class ServerService extends Service {
         }
     }
 
-    /** Pastikan tak ada proses vaultwarden se-UID yang masih hidup sebelum
-     *  db.sqlite3 ditimpa restore. Anak server yang selamat saat app dibunuh
-     *  sistem/update menjadi yatim (di-reparent ke init) sehingga tak terlihat
-     *  lewat Process statis {@link #isProcessAlive()} — menimpa DB yang masih
-     *  dipegangnya bisa merusak DB/WAL. Bunuh lalu pastikan hilang (maks
-     *  ~1,2 dtk). Return false bila masih bertahan (restore wajib dibatalkan).
-     *  Wajib dipanggil dari worker thread (ada jeda tunggu), bukan UI. */
     public static boolean bereskanServerYatim() {
         int myPid = android.os.Process.myPid();
         for (int percobaan = 0; percobaan < 3; percobaan++) {
-            // Paksa pindai /proc segar: cache 8 dtk bisa belum memuat proses
-            // yang lahir/mati tepat sebelum restore dimulai.
+
             segarkanCachePid();
             boolean ada = false;
             for (int pid : kandidatPidSeUid()) {
@@ -4700,8 +3809,7 @@ public class ServerService extends Service {
                     continue;
                 }
                 ada = true;
-                // Verifikasi ulang tepat sebelum bunuh: PID bisa dipakai ulang
-                // proses lain se-UID di jeda baca-cmdline vs kill (anti recycle).
+
                 if (!pidMilikiServer(pid)) {
                     continue;
                 }
@@ -4715,8 +3823,7 @@ public class ServerService extends Service {
             if (!ada) {
                 return true;
             }
-            // SIGKILL: beri jeda singkat agar entri /proc/<pid> hilang sebelum
-            // verifikasi ulang (killProcess sudah memastikan sinyal terkirim).
+
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -4735,29 +3842,19 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** True bila cmdline milik binary server app (bukan smoke-test
-     *  "--version" milik flow update/start konkuren). Murni.
-     *  Ketat: path internal selalu ".../bin/vaultwarden-armeabi-v7a";
-     *  substring longgar "bin/vaultwarden" berisiko menjodohkan file
-     *  asing se-UID bila skema exec bertambah nanti. */
     static boolean cmdlineServer(String cmd) {
         return cmd != null && cmd.contains("/bin/vaultwarden-")
                 && !cmd.contains("--version");
     }
 
-    /** True bila cmdline milik server basi yang boleh dibunuh. Murni. */
     static boolean bolehBunuhBasi(String cmd) {
         return cmdlineServer(cmd);
     }
 
-    /** True bila pid kandidat adalah server yatim yang boleh dibersihkan
-     *  sebelum restore: bukan proses app sendiri dan cmdline-nya binary server
-     *  (bukan smoke-test "--version"). Murni. */
     static boolean pidYatimServer(int pid, int myPid, String cmd) {
         return pid >= 0 && pid != myPid && cmdlineServer(cmd);
     }
 
-    /** True bila pid masih milik binary server (anti PID-reuse basi di cache). */
     static boolean pidMilikiServer(int pid) {
         if (pid < 0) {
             return false;
@@ -4792,15 +3889,13 @@ public class ServerService extends Service {
     }
 
     private static int readProcUid(File dir) {
-        // Buffer 2KB (bukan 8KB bawaan): berkas status hanya ~1KB dan
-        // dipanggil per kandidat PID sehingga alokasi menumpuk di STB lama.
+
         try (BufferedReader r = new BufferedReader(
                 new java.io.FileReader(new File(dir, "status")), 2048)) {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("Uid:")) {
-                    // Parse manual tanpa split regex: dipanggil per kandidat
-                    // saat pindai /proc di STB lama.
+
                     int i = 4;
                     int n = line.length();
                     while (i < n && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) {
@@ -4820,26 +3915,17 @@ public class ServerService extends Service {
         return -1;
     }
 
-    /** True bila port sedang dipakai proses lain (listening).
-     *  Cek dua tumpukan (0.0.0.0 dan "::"): Rocket melayani keduanya,
-     *  jadi sibuk bila salah satu tak bisa bind. Pengecualian: di perangkat
-     *  tanpa stack IPv6, gagal "::" bukan berarti sibuk (lihat bisaBind).
-     *  Saran pra-start saja (TOCTOU bind-lalu-lepas): penentu sah adalah
-     *  gagal bind Rocket saat exec + mitigasi portDirebut di watchProcess. */
     public static boolean isPortBusy(int port) {
         if (port < 1 || port > 65535) {
             return true;
         }
-        // Rocket melayani dua tumpukan; sibuk bila salah satu tak bisa bind.
-        // Perangkat tanpa stack IPv6 mengembalikan bebas untuk "::" di bisaBind.
+
         return !bisaBind("0.0.0.0", port) || !bisaBind("::", port);
     }
 
-    /** True bila alamat:port masih bisa di-bind (bebas). Murni agar bisa diuji. */
     static boolean bisaBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
-            // REUSEADDR agar Start langsung setelah Stop tak dikira "port sibuk"
-            // (TIME_WAIT). Dipanggil per tumpukan oleh isPortBusy (0.0.0.0 dan ::).
+
             try {
                 s.setReuseAddress(true);
             } catch (Exception ignored) {
@@ -4847,8 +3933,7 @@ public class ServerService extends Service {
             s.bind(new InetSocketAddress(host, port));
             return true;
         } catch (Exception e) {
-            // Perangkat tanpa stack IPv6 gagal bind "::" walau IPv4 bebas:
-            // kegagalan keluarga protokol bukan berarti port sibuk.
+
             if (host.contains(":")) {
                 String rendah = String.valueOf(e.getMessage()).toLowerCase(java.util.Locale.US);
                 if (rendah.contains("family") || rendah.contains("protonosupport")
@@ -4860,8 +3945,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila bind gagal karena hak akses (port privileged <1024 tanpa
-     *  root), bukan karena dipakai proses lain. Murni I/O agar bisa diuji. */
     static boolean gagalIzinBind(String host, int port) {
         try (ServerSocket s = new ServerSocket()) {
             try {
@@ -4877,8 +3960,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila port tak bisa dipakai karena butuh root (privileged),
-     *  agar pesan galat tak menuduh "dipakai proses lain". */
     public static boolean portButuhRoot(int port) {
         if (port < 1 || port > 65535) {
             return false;
@@ -4886,15 +3967,10 @@ public class ServerService extends Service {
         return gagalIzinBind("0.0.0.0", port) || gagalIzinBind("::", port);
     }
 
-    /** N baris terakhir log (tanpa baris kosong), untuk pesan crash.
-     *  Pindai mundur dari akhir buffer: hanya ekor kecil yang disalin,
-     *  bukan seluruh buffer (≤300 KB) + split ribuan baris. */
     static String tailLog(int lines) {
         synchronized (logBuffer) {
             int len = logBuffer.length();
-            // Kumpulkan rentang [mulai, akhir) lalu tempel langsung dari buffer:
-            // tanpa ArrayList<String> + substring per baris (hemat N salinan
-            // string perantara di jalur crash). Murni, signature tetap.
+
             int[] mulai = new int[Math.max(0, lines)];
             int[] akhir = new int[Math.max(0, lines)];
             int hitung = 0;
@@ -4926,7 +4002,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** True bila rentang buffer hanya whitespace (tanpa alokasi substring). Murni. */
     static boolean rentangKosong(CharSequence s, int start, int end) {
         for (int i = start; i < end; i++) {
             if (!Character.isWhitespace(s.charAt(i))) {
@@ -4936,20 +4011,16 @@ public class ServerService extends Service {
         return true;
     }
 
-    /** Panjang buffer log tanpa menyalin (untuk deteksi perubahan murah). */
     public static int logLength() {
         synchronized (logBuffer) {
             return logBuffer.length();
         }
     }
 
-    /** Versi log monotonik: kunci refresh UI (anti balapan trim+append). */
     public static long logVersion() {
         return logVer;
     }
 
-    /** Tulis satu baris log dari mana saja (UI/bot): stempel + trim + versi.
-     *  Wajib dipakai penulis luar agar tak lewati batas 300 KB dan UI refresh. */
     public static void catatLog(String line) {
         if (line == null) {
             return;
@@ -4957,11 +4028,6 @@ public class ServerService extends Service {
         tulisBarisLog(line);
     }
 
-    /** Pangkas buffer log di batas code-point (wajib dalam lock logBuffer).
-     *  Belah pasangan surrogate emoji menghasilkan lone surrogate (tofu di
-     *  layar / 400 Telegram) sehingga titik potong digeser bila perlu.
-     *  Titik potong dimajukan ke awal baris berikut agar tak menyisakan
-     *  potongan baris di kepala buffer (pindai terbatas 4 KB). */
     private static void pangkasBufferTerkunci() {
         if (logBuffer.length() > LOG_TRIM_THRESHOLD) {
             int potongBuf = logBuffer.length() - MAX_LOG_CHARS / 2;
@@ -4986,7 +4052,7 @@ public class ServerService extends Service {
             return s == null ? "" : s;
         }
         int mulai = s.length() - max;
-        // Jangan belah pasangan surrogate emoji (lone surrogate = teks rusak).
+
         if (mulai > 0 && Character.isLowSurrogate(s.charAt(mulai))
                 && Character.isHighSurrogate(s.charAt(mulai - 1))) {
             mulai++;
@@ -4994,16 +4060,11 @@ public class ServerService extends Service {
         return s.substring(mulai);
     }
 
-    /** Tunggu proses mati maks timeout (dipakai internal + Updater): O+ memakai
-     *  waitFor(timeout), pra-O waiter+join agar exitValue() tak melempar +
-     *  isi stack trace tiap poll di ART lama. Murni JVM. */
     static boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
         }
-        // Pra-Oreo tanpa waitFor(timeout): waiter join lebih murah daripada
-        // poll alive() tiap 500 ms — exitValue() melempar + isi stack trace
-        // tiap proses masih hidup di ART lama.
+
         final java.util.concurrent.atomic.AtomicBoolean mati =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         Thread penunggu = new Thread(() -> {
@@ -5020,9 +4081,6 @@ public class ServerService extends Service {
         return mati.get();
     }
 
-    /** Matikan proses dengan tegas: destroy, tunggu {@code tungguMs}, lalu
-     *  destroyForcibly (pra-Oreo hanya destroy) + tunggu 3 dtk. Satu pintu untuk
-     *  semua jalur stop/restart/bersih (dulu urutan ini disalin empat kali). */
     static void matikanProsesTegas(Process p, long tungguMs) {
         if (p == null) {
             return;
@@ -5042,9 +4100,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Perpanjang wakelock bila server masih jalan tapi kunci lepas/kedaluwarsa.
-     *  acquire() memakai timeout 12 jam agar lint lolos; tanpa segarkan,
-     *  server jalan >12 jam kena Doze lalu health gagal. Dipanggil tiap healthTick. */
     private void jagaWakeLock() {
         try {
             boolean perlu;
@@ -5059,18 +4114,14 @@ public class ServerService extends Service {
     }
 
     private void acquireWakeLock() {
-        // Lepas dulu bila ada sisa (tak boleh menimpa field: kunci lama bocor
-        // sampai timeout 12 jam bila referensinya hilang).
+
         synchronized (KUNCI_WAKELOCK) {
             releaseWakeLockDalam();
             try {
                 PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
                 if (pm != null) {
                     wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:server");
-                    // Timeout 12 jam: bila jalur stop()/destroy terlewat, kunci
-                    // tetap dilepas sistem agar baterai tak terkuras selamanya.
-                    // Selalu pakai timeout agar lint WakelockTimeout lolos dan
-                    // baterai tak terkuras bila release terlewat.
+
                     try {
                         wakeLock.acquire(12L * 3600 * 1000L);
                     } catch (Exception e) {
@@ -5082,7 +4133,6 @@ public class ServerService extends Service {
         }
     }
 
-    /** Badan pelepas tanpa kunci ulang (dipanggil dari dalam blok sinkron). */
     private void releaseWakeLockDalam() {
         if (wakeLock != null && wakeLock.isHeld()) {
             try {
@@ -5101,21 +4151,13 @@ public class ServerService extends Service {
 
     @Override
     public void onDestroy() {
-        // Notifikasi foreground ikut hilang bersama service: jangan biarkan
-        // thread yang masih hidup memposting notifikasi biasa lewat setStatus().
+
         notifForeground = false;
-        // Jangan nol-kan autoRestart/healthActive: keduanya statis agar selamat
-        // dari recreate transien tanpa intent baru. Jalur STOP eksplisit sudah
-        // mematikannya sebelum stopSelf; membersihkan di sini menghentikan
-        // monitoring diam-diam selagi binary mungkin masih jalan.
+
         batalUtama(healthTick);
         batalUtama(restartTunda);
         flushLogFile();
-        // Tandai proses sebagai stop sengaja SEBELUM destroy: tanpa ini
-        // watchProcess menganggap service mati sebagai crash lalu menjadwalkan
-        // restart, sehingga binary hidup lagi tanpa service/notifikasi (proses
-        // yatim) sampai sistem membunuhnya. Recreate START_STICKY tetap
-        // memulihkan server lewat jalur intent null bila memang diminta.
+
         Process p = process;
         if (p != null) {
             tandaiStopDisengaja(p);
@@ -5124,11 +4166,7 @@ public class ServerService extends Service {
             } catch (Exception ignored) {
             }
         }
-        // destroy() asinkron: sesaat sesudahnya exitValue() masih melempar
-        // (isProcessAlive() tetap true) sehingga kunci dulu tak pernah dilepas
-        // dan PARTIAL_WAKE_LOCK bertahan sampai timeout 12 jam padahal binary
-        // sudah dibunuh. Di jalur ini proses memang dihentikan, jadi kunci tak
-        // berguna lagi; recreate START_STICKY memasangnya ulang di onCreate.
+
         releaseWakeLock();
         super.onDestroy();
     }

@@ -15,7 +15,6 @@ import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/** Unit test util murni (tanpa Android runtime). */
 public class TgBackupTest {
 
     @Test
@@ -55,24 +54,24 @@ public class TgBackupTest {
     @Test
     public void cleanupOldBackups_buangEncTerpotongDanTmpBasi() throws Exception {
         File dir = java.nio.file.Files.createTempDirectory("vwretensienc").toFile();
-        // Backup sehat hasil enkripsi sungguhan (VWB3 lengkap).
+
         File asli = java.nio.file.Files.createTempFile("vwdata", ".bin").toFile();
         java.nio.file.Files.write(asli.toPath(), "isi vault".getBytes(
                 java.nio.charset.StandardCharsets.UTF_8));
         File sehat = new File(dir, "backup-telegram-1.zip.enc");
         TgBackup.encryptFile(asli, sehat, "katasandi");
         asli.delete();
-        // .enc parsial: header VWB3 + beberapa byte (listrik mati saat menulis).
+
         File potong = new File(dir, "backup-telegram-2.zip.enc");
         try (FileOutputStream o = new FileOutputStream(potong)) {
             o.write(TgBackup.ENC_MAGIC_V3.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
             o.write(new byte[]{1, 2, 3});
         }
         potong.setLastModified(System.currentTimeMillis());
-        // .enc kosong: magic tak terbaca sekalipun.
+
         File kosong = new File(dir, "backup-telegram-3.zip.enc");
         assertTrue(kosong.createNewFile());
-        // .tmp basi (sisa mati listrik) vs .tmp baru (enkripsi masih jalan).
+
         File tmpBasi = new File(dir, "backup-telegram-4.zip.enc.tmp");
         assertTrue(tmpBasi.createNewFile());
         tmpBasi.setLastModified(System.currentTimeMillis()
@@ -99,7 +98,7 @@ public class TgBackupTest {
         java.nio.file.Files.write(pendek.toPath(), "VWB3".getBytes(
                 java.nio.charset.StandardCharsets.US_ASCII));
         assertTrue(TgBackup.encTerpotong(pendek));
-        // Berkas dengan panjang header minimum lengkap bukan "terpotong".
+
         File pas = new File(dir, "b.enc");
         byte[] isi = new byte[TgBackup.panjangMinimumEnc(TgBackup.ENC_MAGIC_V3)];
         System.arraycopy(TgBackup.ENC_MAGIC_V3.getBytes(
@@ -129,7 +128,7 @@ public class TgBackupTest {
         try {
             TgBackup.encryptFile(asli, enc, "katasandi");
             assertTrue(enc.isFile());
-            // .enc final hanya muncul lewat rename: sisa .tmp tak boleh tertinggal.
+
             assertFalse(new File(enc.getAbsolutePath() + ".tmp").exists());
         } finally {
             asli.delete();
@@ -185,7 +184,7 @@ public class TgBackupTest {
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_path\":\"d/f.zip\",\"file_size\":12345}}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons(null));
-        // Spasi / baris baru di sekitar titik-dua wajib tetap terbaca.
+
         assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\" : true, \"result\" : {\"file_path\" : \"d/f.zip\", \"file_size\" : 12345}}"));
         assertEquals(99L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":99}}"));
         assertEquals(7L, TgBackup.fileSizeDariRespons("{\"file_size\"\n:\n7}"));
@@ -207,8 +206,6 @@ public class TgBackupTest {
         assertFalse(keluar.exists());
     }
 
-    /** Tulis backup terenkripsi gaya VWB1/VWB2/VWB3 manual (header +
-     *  AES-GCM) untuk uji kompatibel mundur dan lintas perangkat. */
     private static void tulisTerenkripsiManual(java.io.File keluar, String magic,
             int iter, String pass, boolean sha256, byte[] data) throws Exception {
         java.security.SecureRandom acak = new java.security.SecureRandom();
@@ -228,7 +225,7 @@ public class TgBackupTest {
             spec.clearPassword();
         }
         if (iter > 0 && "VWB3".equals(magic)) {
-            // Jalur STB: KDF manual wajib hasilkan kunci yang sama.
+
             byte[] manual = com.tasirin.vaultwardenhost.PinCrypto
                     .pbkdf2Manual(pass, salt, iter);
             org.junit.Assert.assertArrayEquals(kunci, manual);
@@ -251,8 +248,7 @@ public class TgBackupTest {
 
     @Test
     public void vwb3_iterasiRinganLintasPerangkat() throws Exception {
-        // File gaya STB lama (VWB3 iterasi 30rb via KDF manual) wajib terbaca
-        // di perangkat modern (factory) dan sebaliknya — iterasi ikut header.
+
         java.io.File enc = java.io.File.createTempFile("vw-v3ringan", ".enc");
         java.io.File pulih = new java.io.File(enc.getParentFile(),
                 "vw-v3pulih-" + System.nanoTime() + ".bin");
@@ -273,8 +269,7 @@ public class TgBackupTest {
 
     @Test
     public void vwb3_iterasiRaksasaDitolakFailClosed() throws Exception {
-        // Header utak-atik beriterasi 1 jt wajib ditolak sebelum KDF membakar
-        // CPU STB; tak ada plaintext parsial yang tersisa.
+
         java.io.File enc = java.io.File.createTempFile("vw-v3jahat", ".enc");
         java.io.File pulih = new java.io.File(enc.getParentFile(),
                 "vw-v3jahatpulih-" + System.nanoTime() + ".bin");
@@ -327,7 +322,6 @@ public class TgBackupTest {
         }
     }
 
-
     @Test
     public void magicBaru_dikenaliDanKompatibelLama() throws Exception {
         java.io.File asli = java.io.File.createTempFile("vw-magic", ".bin");
@@ -345,8 +339,7 @@ public class TgBackupTest {
             assertTrue(TgBackup.isEncrypted(enc));
             TgBackup.decryptFile(enc, pulih, "katasandi");
             org.junit.Assert.assertArrayEquals(data, java.nio.file.Files.readAllBytes(pulih.toPath()));
-            // Kompatibel mundur: file VWB2 (SHA256 100rb, tanpa iterasi header)
-            // dan VWB1 (SHA1 100rb) rakitan manual tetap terbaca.
+
             tulisTerenkripsiManual(lawas, "VWB2", 0, "katasandi", true, data);
             assertEquals("VWB2", TgBackup.magicEnkripsi(lawas));
             assertTrue(TgBackup.isEncrypted(lawas));
@@ -470,7 +463,7 @@ public class TgBackupTest {
         File lama = File.createTempFile("ca-lama", ".pem");
         assertEquals(internal, TgBackup.caAktif(internal, lama));
         assertEquals(lama, TgBackup.caAktif(new File("/tidak/ada/ca.pem"), lama));
-        // Keduanya tak ada: kembalikan fallback agar pemanggil bisa lapor galat jelas.
+
         assertEquals(new File("/tidak/ada/juga.pem"),
                 TgBackup.caAktif(new File("/tidak/ada/ca.pem"), new File("/tidak/ada/juga.pem")));
         internal.delete();
@@ -635,10 +628,7 @@ public class TgBackupTest {
     public void tundaBilaBootBaru_wrapperTakCrash() {
         boolean hasil;
         try {
-            // Di JVM murni jam SystemClock stub (melempar) atau 0
-            // (default-value): keduanya jatuh ke jalur tunda tanpa crash.
-            // Di perangkat asli hasilnya ikut uptime (>5 mnt = false),
-            // tapi uji ini hanya jalan di JVM host sehingga deterministik.
+
             hasil = TgBackup.tundaBilaBootBaru(null, "uji");
         } catch (RuntimeException e) {
             hasil = TgBackup.tundaBilaBootBaruPada(null, "uji", 0);
@@ -648,8 +638,7 @@ public class TgBackupTest {
 
     @Test
     public void tundaBilaBootBaru_tundaBilaBootBaru() {
-        // ctx null: jadwal alarm gagal (ditangkap di dalam) tapi status tunda
-        // tetap true + tercatat di log; deterministik di JVM.
+
         assertTrue(TgBackup.tundaBilaBootBaruPada(null, "uji", 0));
     }
 
@@ -657,15 +646,15 @@ public class TgBackupTest {
     public void bolehBackupSusulanBoot_hanyaHariBaruDanJamWajar() {
         long sehari = 24L * 3600 * 1000;
         long wajar = TgBackup.BATAS_JAM_WAJAR_MS + 10L * sehari;
-        // Belum pernah backup + jam wajar: jalan (backup pertama).
+
         assertTrue(TgBackup.bolehBackupSusulanBoot(0, wajar));
-        // Hari yang sama: jangan backup.
+
         assertFalse(TgBackup.bolehBackupSusulanBoot(wajar, wajar + 3600_000L));
-        // Sudah ganti hari: langsung backup.
+
         assertTrue(TgBackup.bolehBackupSusulanBoot(wajar, wajar + sehari));
-        // Jam reset ke 1999: jangan backup walau beda hari kalender.
+
         assertFalse(TgBackup.bolehBackupSusulanBoot(wajar, 915_148_800_000L));
-        // Jam mundur di bawah backup terakhir: jangan backup.
+
         assertFalse(TgBackup.bolehBackupSusulanBoot(wajar + sehari, wajar));
     }
 
@@ -783,7 +772,7 @@ public class TgBackupTest {
             java.io.File basi = new java.io.File(dir, "vwtg-dec-a.zip.tmp");
             java.io.File segar = new java.io.File(dir, "vwtg-dec-b.zip.tmp");
             java.io.File lain = new java.io.File(dir, "app-config-x.json");
-            // File verifikasi plaintext (nama unik) juga wajib disapu saat basi.
+
             java.io.File basiIsi = new java.io.File(dir, "vwtg-plain-isi-db-a.sqlite3");
             java.io.File segarIsi = new java.io.File(dir, "vwtg-plain-roundtrip-b.zip");
             assertTrue(basi.createNewFile());
@@ -800,9 +789,7 @@ public class TgBackupTest {
             assertTrue(segar.exists());
             assertTrue(segarIsi.exists());
             assertTrue(lain.exists());
-            // Null sebagai ARRAY pengecualian (bukan elemen): uji cabang
-            // "tanpa pengecualian"; cast eksplisit menghindari warning
-            // non-varargs call yang ambigu antara null-array dan null-String.
+
             TgBackup.sapuTmpPlainBasi(dir, (String[]) null);
             assertTrue(segar.exists());
             assertTrue(segarIsi.exists());
@@ -821,43 +808,41 @@ public class TgBackupTest {
         java.io.File b = TgBackup.berkasPlainSementara(dir, "isi-db", ".sqlite3");
         assertTrue(a.getName().startsWith(TgBackup.PREFIX_PLAIN_TMP));
         assertTrue(a.getName().endsWith(".sqlite3"));
-        // Nama unik: dua backup (jadwal + bot) tak boleh berebut satu file.
+
         assertNotEquals(a.getName(), b.getName());
-        // Awalan vwtg- otomatis dilarang dibagikan via FileShareProvider.
+
         assertTrue(com.tasirin.vaultwardenhost.FileShareProvider.berkasSementara(a.getName()));
     }
 
     @Test
     public void redaksiDetailGalatBuangTokenDanRapikanBaris() {
-        // URL bot yang tercecer di body proxy/captive portal tak boleh masuk log
-        // (log bisa diekspor / dikirim /log): token pola <angka>:<rahasia> diredaksi.
+
         assertEquals("<token>",
                 TgBackup.redaksiDetailGalat("123456789:AAHfoo_bar-bazQUUX1234"));
         assertEquals("HTTP 400 {\"ok\":false}",
                 TgBackup.redaksiDetailGalat("HTTP 400\n  {\"ok\":false} "));
-        // Jam/waktu bukan token (kiri < 5 angka).
+
         assertEquals("12:34:56 mulai", TgBackup.redaksiDetailGalat("12:34:56 mulai"));
-        // URL/Location portal disamarkan: bisa memuat token di query string.
+
         assertEquals("Redirect ditolak: <url>",
                 TgBackup.redaksiDetailGalat(
                         "Redirect ditolak: https://portal.local/login?t=rahasia123"));
         assertEquals("", TgBackup.redaksiDetailGalat(null));
-        // Panjang tetap dibatasi 200 + elipsis.
+
         String panjang = TgBackup.redaksiDetailGalat(new String(new char[300]).replace('\0', 'a'));
         assertEquals(203, panjang.length());
     }
 
     @Test
     public void jedaRetryAfterMsDibatasiSatuSampaiLimaDetik() {
-        // Balasan 429 Telegram: pakai parameters.retry_after, tetapi antrean
-        // pesan STB tak boleh tertahan lama -> dibatasi 1-5 dtk.
+
         assertEquals(3000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":3}}"));
         assertEquals(1000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":0}}"));
         assertEquals(5000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"parameters\":{\"retry_after\":120}}"));
-        // Tak terbaca/None: default 1 dtk (tetap beri jeda sebelum ulang).
+
         assertEquals(1000L, TgBackup.jedaRetryAfterMs("{\"ok\":false}"));
         assertEquals(1000L, TgBackup.jedaRetryAfterMs(null));
     }
@@ -996,7 +981,7 @@ public class TgBackupTest {
         File zip = File.createTempFile("vwbaik", ".zip");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
             zos.putNextEntry(new ZipEntry("db.sqlite3"));
-            // verifikasiZip menolak DB <512 byte: fixture valid wajib berukuran penuh
+
             byte[] magic = "SQLite format 3\0isi-palsu".getBytes("UTF-8");
             zos.write(magic);
             zos.write(new byte[1024 - magic.length]);
@@ -1015,7 +1000,7 @@ public class TgBackupTest {
         assertEquals("", TgBackup.extractFileId("{\"ok\":false}"));
         assertEquals("", TgBackup.extractFileId(null));
         assertEquals("", TgBackup.extractFileId("bukan json"));
-        // Fallback manual bila struktur result/document hilang
+
         assertEquals("ZZZ9", TgBackup.extractFileId(
                 "bla \"document\":{\"file_id\":\"ZZZ9\"} ekor"));
     }
@@ -1063,8 +1048,7 @@ public class TgBackupTest {
 
     @Test
     public void normalisasiEntriZip_tolakSiblingLicik() {
-        // Entri berawalan nama folder data tapi di luar folder (tanpa separator)
-        // wajib ditolak di allowlist, bukan hanya di cek canonical.
+
         assertEquals(null, TgBackup.normalisasiEntriZip("../vaultwarden-evil/x"));
         assertEquals(null, TgBackup.normalisasiEntriZip("db.sqlite3/../../evil"));
     }
@@ -1128,8 +1112,7 @@ public class TgBackupTest {
 
     @Test
     public void pesanGalatBackup_jamWajarPakaiIntiSekali() {
-        // Jam dibaca sekali (cek vs pesan satu instant): hasil memakai inti
-        // + saran koneksi, bukan cabang jam salah.
+
         String out = TgBackup.pesanGalatBackup(new java.io.IOException("jaringan putus"));
         assertTrue(out.startsWith("Backup gagal: jaringan putus"));
     }
@@ -1174,14 +1157,14 @@ public class TgBackupTest {
         tulisTeks(new java.io.File(tls, "ca.pem"), "CA-LAMA");
         tulisTeks(new java.io.File(tls, "key.pem"), "KEY-LAMA");
         java.util.Map<String, byte[]> potret = TgBackup.potretTls(tls);
-        // Simulasi ekstraksi zip: timpa yang ada + buat berkas baru.
+
         tulisTeks(new java.io.File(tls, "ca.pem"), "CA-ZIP");
         tulisTeks(new java.io.File(tls, "cert.pem"), "CERT-ZIP");
         TgBackup.kembalikanTls(tls, potret);
         assertEquals("CA-LAMA", bacaTeks(new java.io.File(tls, "ca.pem")));
         assertEquals("KEY-LAMA", bacaTeks(new java.io.File(tls, "key.pem")));
         assertFalse(new java.io.File(tls, "cert.pem").exists());
-        // Potret null = no-op (jalur non-zip).
+
         TgBackup.kembalikanTls(tls, null);
         assertEquals("CA-LAMA", bacaTeks(new java.io.File(tls, "ca.pem")));
     }
@@ -1202,16 +1185,16 @@ public class TgBackupTest {
 
     @Test
     public void normalisasiEntriZip_tolakBungkusBersarang() {
-        // Satu pembungkus tetap diterima (kompatibel zip manual).
+
         assertEquals("db.sqlite3",
                 TgBackup.normalisasiEntriZip("vaultwarden/db.sqlite3"));
         assertEquals("tls/cert.pem",
                 TgBackup.normalisasiEntriZip("vaultwarden/tls/cert.pem"));
-        // Sarang dua tingkat ditolak walau ujungnya nama sah.
+
         assertEquals(null, TgBackup.normalisasiEntriZip("a/b/db.sqlite3"));
         assertEquals(null,
                 TgBackup.normalisasiEntriZip("vaultwarden/sub/tls/cert.pem"));
-        // Awalan "./" dikupas (jinak), "../" tetap ditolak.
+
         assertEquals("db.sqlite3", TgBackup.normalisasiEntriZip("./db.sqlite3"));
         assertEquals(null, TgBackup.normalisasiEntriZip("../db.sqlite3"));
     }
@@ -1226,7 +1209,7 @@ public class TgBackupTest {
 
     @Test
     public void kunciBackupDanRestoreSalingMengesampingkan() {
-        // Satu kunci bersama: backup tak boleh jalan bersamaan dengan restore.
+
         assertTrue(TgBackup.kunciBackup());
         try {
             assertFalse(TgBackup.kunciRestore());
@@ -1274,7 +1257,7 @@ public class TgBackupTest {
             gabung.append(b);
         }
         assertEquals(panjang.toString(), gabung.toString());
-        // Emoji di batas potong tak boleh terbelah (high surrogate ikut pindah).
+
         StringBuilder emoji = new StringBuilder();
         for (int i = 0; i < 3999; i++) {
             emoji.append('x');
@@ -1340,7 +1323,7 @@ public class TgBackupTest {
 
     @Test
     public void kirimKeSatuChatAbaikanMasukanTakSah() {
-        // Context null / chat kosong tak boleh melempar: antrean tak tersentuh.
+
         TgBackup.sendMessageKe(null, "123456789", "halo");
         TgBackup.sendMessageKbKe(null, "123456789", "halo", null);
         TgBackup.sendPentingKe(null, "", "halo");
@@ -1349,8 +1332,7 @@ public class TgBackupTest {
 
     @Test
     public void tujuanBalasanHanyaChatPengirim() {
-        // Balasan perintah tak boleh menyiarkan ke semua chat config: satu
-        // tujuan saja, yaitu chat pengirim (termasuk bila itu grup).
+
         assertEquals(java.util.Arrays.asList("123456789"),
                 TgBackup.tujuanBalasan("123456789"));
         assertEquals(java.util.Arrays.asList("123456789"),
@@ -1408,8 +1390,7 @@ public class TgBackupTest {
 
     @Test
     public void editMessageKb_abaikanMasukanTakSah() {
-        // Context hilang (service dibunuh) atau ID tak sah: edit menu hanya
-        // dilewati, bukan melempar keluar ke pemanggil bot.
+
         TgBackup.editMessageKb(null, 1, 1, "menu", null);
         TgBackup.editMessageKb(null, 0, 0, null, null);
     }
@@ -1443,8 +1424,7 @@ public class TgBackupTest {
     public void namaStagingRestoreIkutPenamaanWalSqlite() {
         assertEquals("db.sqlite3.restore-tmp", TgBackup.namaStagingRestore("db.sqlite3"));
         String dbStaging = TgBackup.namaStagingRestore("db.sqlite3");
-        // WAL/SHM staging wajib mengikuti turunan SQLite dari DB staging agar
-        // checkpoint staging menemukan kompanionnya.
+
         assertEquals(dbStaging + "-wal", TgBackup.namaStagingRestore("db.sqlite3-wal"));
         assertEquals(dbStaging + "-shm", TgBackup.namaStagingRestore("db.sqlite3-shm"));
         assertNull(TgBackup.namaStagingRestore("tls/ca.pem"));
@@ -1478,7 +1458,7 @@ public class TgBackupTest {
         assertEquals("bukan SQLite", TgBackup.pasangDbRestoreAtomik(dir));
         assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
                 java.nio.charset.StandardCharsets.UTF_8));
-        // Tanpa staging: restore ditolak, DB lama tetap.
+
         assertTrue(staging.delete());
         assertEquals("tidak berisi db.sqlite3", TgBackup.pasangDbRestoreAtomik(dir));
         assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
@@ -1516,15 +1496,14 @@ public class TgBackupTest {
         TgBackup.pulihkanDbLama(dir, db, salinan);
         assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
                 java.nio.charset.StandardCharsets.UTF_8));
-        // Tanpa salinan (install baru): DB parsial dibuang, bukan dibiarkan.
+
         TgBackup.pulihkanDbLama(dir, db, null);
         assertFalse(db.exists());
     }
 
     @Test
     public void rahasiaAlarm_pakaiSesiProsesBilaTersimpanGagal() {
-        // commit() gagal (storage penuh) membuat prefs kosong; sesi proses
-        // wajib menang agar alarm yang sudah terjadwal tetap cocok.
+
         String sesi = "0123456789abcdef0123456789abcdef";
         String lain = "fedcba9876543210fedcba9876543210";
         assertEquals(sesi, TgBackup.pilihRahasiaAlarm(sesi, lain));
@@ -1536,15 +1515,13 @@ public class TgBackupTest {
 
     @Test
     public void folderCekRuangBackupIkutCacheSaatTerenkripsi() {
-        // Zip plaintext dibangun di cache internal saat terenkripsi, hasil
-        // akhirnya di folder data: kedua volume wajib diukur.
+
         assertEquals(java.util.Arrays.asList("/cache", "/data"),
                 TgBackup.folderCekRuangBackup("/data", true, "/cache"));
-        // Tanpa enkripsi zip langsung ke folder data; cache tak dipakai.
+
         assertEquals(java.util.Arrays.asList("/data"),
                 TgBackup.folderCekRuangBackup("/data", false, "/cache"));
-        // Cache sama dengan folder data (perangkat tanpa partisi terpisah):
-        // jangan diukur dua kali.
+
         assertEquals(java.util.Arrays.asList("/data"),
                 TgBackup.folderCekRuangBackup("/data", true, "/data"));
         assertTrue(TgBackup.folderCekRuangBackup(null, true, null).isEmpty());
@@ -1554,16 +1531,16 @@ public class TgBackupTest {
     @Test
     public void ruangBackupDibutuhkanIkutUkuranDb() {
         long mb = 1024L * 1024L;
-        // Lantai 10 MB: DB kosong/kecil tetap butuh ruang kerja minimum.
+
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(0, false, false));
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, false, false));
-        // Folder data menerima hasil akhir zip/.enc ≈ isi DB + margin 5 MB.
+
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, false));
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, true));
-        // Cache terenkripsi: zip plaintext + salinan verifikasi = 2x isi DB.
+
         assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, true));
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, false));
-        // Panjang negatif (berkas tak terbaca) diperlakukan nol.
+
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(-5, true, true));
     }
 
@@ -1589,7 +1566,7 @@ public class TgBackupTest {
             String hasil = TgBackup.cekIntegritasDbSalinan(f);
             assertNotNull(hasil);
             assertFalse(TgBackup.dbSibuk(hasil));
-            // Berkas non-DB: false (bukan melempar) agar pemanggil bisa mengulang.
+
             assertFalse(TgBackup.checkpointWal(f));
         } finally {
             f.delete();
@@ -1605,7 +1582,7 @@ public class TgBackupTest {
                     "db".getBytes(java.nio.charset.StandardCharsets.UTF_8));
             java.nio.file.Files.write(new File(asal, "db.sqlite3-wal").toPath(),
                     "wal".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            // SHM sengaja tak ada: harus dilewati, bukan menggagalkan salinan.
+
             assertTrue(TgBackup.salinBerkasDb(asal, tujuan));
             assertEquals(2, tujuan.listFiles().length);
             assertTrue(new File(tujuan, "db.sqlite3").isFile());
@@ -1653,7 +1630,7 @@ public class TgBackupTest {
         assertFalse(TgBackup.restoreJalan());
         assertTrue(TgBackup.kunciBackup());
         try {
-            // Backup biasa tak menimpa prefs -> editan setelan tak boleh ditahan.
+
             assertFalse(TgBackup.restoreJalan());
             assertFalse(TgBackup.kunciRestore());
         } finally {
@@ -1676,11 +1653,9 @@ public class TgBackupTest {
         java.nio.file.Files.write(f.toPath(), "bukan-db".getBytes(
                 java.nio.charset.StandardCharsets.UTF_8));
         String hasil = TgBackup.cekIntegritasDbUlang(f);
-        // JVM tanpa SQLite Android: galat dikembalikan sebagai pesan (bukan
-        // dilempar) dan tak boleh berlabel SIBUK agar UI tak menyuruh coba lagi.
+
         assertNotNull(hasil);
         assertFalse(TgBackup.dbSibuk(hasil));
     }
 }
-
 

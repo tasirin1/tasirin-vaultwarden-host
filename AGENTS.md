@@ -123,7 +123,9 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
    lokal (SDK Android/cmdline-tools, emulator/system-image, NDK, dan sejenisnya)
    — jangan unduh ratusan MB–GB ke mesin kerja untuk alasan apa pun, termasuk
    "cuma SDK saja" atau "cuma emulator".
-2. **Bahasa**: kode, komentar, dan commit memakai **Bahasa Indonesia**;
+2. **Bahasa**: identifier dan commit memakai **Bahasa Indonesia**; berkas kode
+  dipelihara **tanpa komentar/docstring** (code only — hemat token; penjelasan
+  keputusan ditulis di commit, `CHANGELOG.md`, atau README);
   bahasa default aplikasi (resource string + teks UI) dan README memakai
   **Inggris** (`README.md` default, `README.id.md` Indonesia, `README.ru.md`
   Rusia); log diagnostik dan pesan bot Telegram tetap Indonesia.
@@ -161,7 +163,7 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
     (lint `InvalidVectorPath` menggagalkan build + crash di sebagian HP).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
     lewat workflow; jangan edit asset release lewat web/UI manual.
-12. **Resource yatim terdeteksi otomatis di CI** — `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` dipasang sebagai error lint (`app/build.gradle.kts`): push yang menyisakan drawable/warna/string/gaya/id/plurals tak terpakai langsung gagal build. Alias gaya lintas-aplikasi yang disengaja wajib `tools:ignore="UnusedResources"` + komentar.
+12. **Resource yatim terdeteksi otomatis di CI** — `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` dipasang sebagai error lint (`app/build.gradle.kts`): push yang menyisakan drawable/warna/string/gaya/id/plurals tak terpakai langsung gagal build. Alias gaya lintas-aplikasi yang disengaja wajib `tools:ignore="UnusedResources"`.
 13. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
     menunda push, jangan menunggu perintah, jangan menumpuk perubahan di
     working tree. Alur wajib tiap selesai satu tujuan logis: `git add` →

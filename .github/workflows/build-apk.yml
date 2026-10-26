@@ -3,9 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-    # Otomatis tiap ada perbaikan/perubahan app. Commit dokumen + shim saja
-    # tak menyentuh APK: hemat satu build. Rilis binary bulanan tak memicu
-    # APK (workflow_run disengaja dihapus): APK hanya ikut bila kodenya berubah.
+
     paths-ignore:
       - '*.md'
       - '.gitignore'
@@ -13,18 +11,9 @@ on:
       - '.github/workflows/build-binary.yml'
   workflow_dispatch:
 
-# Default minimal: hanya baca. Hanya job yang benar-benar menerbitkan aset
-# (build-apk) yang diberi contents: write, agar langkah lain — termasuk
-# lint/unit-test yang menjalankan toolchain pihak ketiga — tak memegang token
-# yang bisa menulis rilis.
 permissions:
   contents: read
 
-# Grup sendiri agar bisa jalan paralel dengan workflow binary (unggahan APK
-# ke rilis yang sama idempoten: ganti isi per nama aset + coba ulang).
-# cancel-in-progress: false — jangan hentikan run yang sedang menghapus/
-# mengganti asset APK (dulu cancel di tengah publish bisa meninggalkan rilis
-# tanpa APK); build berikutnya cukup mengantre.
 concurrency:
   group: vw-apk
   cancel-in-progress: false
@@ -37,11 +26,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          # Token tak disimpan di .git/config: langkah berikutnya tak butuh push.
+
           persist-credentials: false
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
-          # Gagal di sini = job build tidak jalan.
+
           python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
@@ -56,16 +45,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Fallback curl membawa token (limit 5000/jam, bukan 60/jam anonim)
-          # agar resolve tak gagal spurios saat cron + push berdekatan.
+
           HDR=()
           if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
           TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
             || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
           case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
-          # Tag upstream = data eksternal: wajib berbentuk versi rilis sebelum
-          # dipakai di env/run. Tanpa ini tag berisi $(...) / backtick dieksekusi
-          # shell runner (runner memegang GITHUB_TOKEN walau job ini baca).
+
           if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
             echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
           fi
@@ -76,7 +62,7 @@ jobs:
     name: Assemble APK
     needs: [resolve, verifikasi]
     runs-on: ubuntu-24.04
-    # Satu-satunya job yang menulis rilis (buat rilis + unggah APK).
+
     permissions:
       contents: write
     env:
@@ -113,9 +99,7 @@ jobs:
       - name: Tampilkan laporan lint di log
         if: always()
         run: |
-          # AGP 8 menaruh teks laporan di intermediates; app/build/reports hanya
-          # HTML. Dulu path yang di-cat tak pernah ada sehingga log hanya memuat
-          # "First failure" dan sisa temuan lint tak terlihat.
+
           for f in \
             app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt \
             app/build/reports/lint-results-debug.txt; do
@@ -125,9 +109,6 @@ jobs:
             fi
           done
 
-      # Secret signing hanya dipasang di langkah ini (dulu KEYSTORE_BASE64 di
-      # level job sehingga ikut terlihat langkah lint/unit-test yang menjalankan
-      # toolchain pihak ketiga).
       - name: Build signed release APK
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -135,9 +116,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          # Empat nilai wajib lengkap. Bila satu kosong, AGP menghasilkan
-          # app-release-unsigned.apk yang tetap cocok pola *release*.apk dan
-          # dulu bisa menimpa APK signed di rilis (tidak bisa install/update).
+
           for v in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
             if [ -z "${!v}" ]; then
               echo "::error::Secret $v kosong - APK release tidak boleh diterbitkan unsigned."
@@ -145,21 +124,20 @@ jobs:
             fi
           done
           echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
-          # Password dibaca Gradle dari env (bukan -P) agar tidak tampil di argv.
+
           ./gradlew --no-daemon :app:assembleRelease \
             -PstoreFile=keystore.jks
 
       - name: Verify APK contents
         run: |
-          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
-          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           echo "== $APK"
           case "$APK" in
             *unsigned*) echo "::error::APK release unsigned - jangan diterbitkan."; exit 1;;
           esac
-          # Buktikan tanda tangan benar-benar ada (bukan hanya nama berkas).
+
           if ! keytool -printcert -jarfile "$APK" >/dev/null 2>&1; then
             echo "::error::APK release tidak bertanda tangan (keytool gagal baca sertifikat)."
             exit 1
@@ -169,51 +147,37 @@ jobs:
 
       - name: Cek ukuran APK (jaga APK tetap kecil)
         run: |
-          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
-          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           SIZE=$(stat -c %s "$APK")
           echo "Ukuran APK (${APK##*/}): $SIZE bytes"
-          # APK desain ~0,25 MB / 247 KB (binary & web-vault tidak dibundel); batas 2 MB
-          # agar membengkaknya APK langsung ketahuan di CI.
+
           if [ "$SIZE" -gt 2097152 ]; then
             echo "::error::APK terlalu besar: $SIZE > 2097152 bytes"
             exit 1
           fi
 
       - name: Publish APK ke rilis
-        # Hanya commit di main yang boleh menulis rilis resmi. Dulu
-        # `workflow_dispatch` bisa dijalankan pada branch/tag mana pun lalu
-        # `--clobber` menimpa APK rilis v<tag upstream> dengan hasil build
-        # branch itu (setara mengedit aset rilis manual, aturan repo #11).
-        # Build di branch lain tetap berjalan (artifact), publish dilewati.
+
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # -print -quit: hindari pipa find|head (head keluar lebih dulu,
-          # find kena SIGPIPE 141 dan pipefail menggagalkan langkah).
+
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
           test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
           cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
           ls -lh tasirin-*.apk
           TAG="v$VW"
-          # Buat rilis bila belum ada ('|| true' agar tak gagal bila workflow
-          # binary membuatnya bersamaan); APK hanya menimpa asset APK.
-          # --latest=false: rilis yang belum punya binary/web-vault TIDAK boleh
-          # jadi "latest", karena URL /releases/latest/download/... dipakai app
-          # sebagai fallback unduhan binary. Dulu rilis APK-only menjadi latest
-          # sehingga instalasi baru 404 sampai workflow binary jalan (bisa ~1
-          # bulan). Workflow binary menandai latest setelah 6 asetnya lengkap.
+
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --latest=false \
               --title "Tasirin Vaultwarden Host $VW (Android)" \
               --notes "APK armv7 (32-bit ARM) ditandatangani keystore tasirin. Binary + shim getrandom (untuk STB kernel lama/Android 5-6) untuk update di dalam app. Web-vault.zip untuk update web vault." || true
           gh release view "$TAG" >/dev/null 2>&1
           APK_NAME=tasirin-vaultwarden-host-armeabi-v7a.apk
-          # --clobber mengganti asset bernama sama dalam satu perintah (tanpa
-          # hapus manual + jeda tetap); coba ulang untuk gangguan sesaat.
+
           percobaan=1
           while :; do
             if gh release upload "$TAG" "$APK_NAME" --clobber; then
@@ -227,8 +191,7 @@ jobs:
             sleep 15
             percobaan=$((percobaan + 1))
           done
-          # Verifikasi isi: ukuran asset di rilis wajib sama dengan APK hasil
-          # build (cek nama saja bisa lolos walau unggahan lama tertinggal).
+
           LOKAL=$(stat -c %s "$APK_NAME")
           OK=false
           for t in 1 2 3; do

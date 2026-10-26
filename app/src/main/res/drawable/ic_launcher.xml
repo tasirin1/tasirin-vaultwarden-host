@@ -4,27 +4,22 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Perisai utama -->
     <path
         android:fillColor="#1B5FD9"
         android:pathData="M54,4 L100,26 L100,74 Q100,94 54,106 Q8,94 8,74 L8,26 Z" />
 
-    <!-- Aksen kiri-atas perisai -->
     <path
         android:fillColor="#164FBE"
         android:pathData="M54,8 L96,27.5 L96,40 L54,21 Z" />
 
-    <!-- Cincin kunci -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M54,28 m-7,0 a7,7 0 1,1 14,0 a7,7 0 1,1 -14,0" />
 
-    <!-- Tangkai kunci -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M51,34 h6 v12 h-6 z" />
 
-    <!-- Huruf V -->
     <path
         android:fillColor="#00000000"
         android:strokeColor="#FFFFFF"

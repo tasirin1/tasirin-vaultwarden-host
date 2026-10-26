@@ -17,18 +17,11 @@ import android.widget.TextView;
 
 import java.io.File;
 
-/** Satu-satunya dialog "Tentang" (MainActivity dan SettingsActivity).
- *  Dulu Settings punya versi HTML sendiri: isinya berbeda (panduan pakai,
- *  tanpa baris ikon/footer) sehingga info versi & tombol GitHub/Update tak
- *  ikut berubah saat dialog utama diperbaiki. Satu implementasi menghapus
- *  duplikasi itu. */
 final class AboutDialog {
 
     private AboutDialog() {
     }
 
-    /** Tampilkan dialog Tentang khas Tasirin Download Manager: ikon, judul,
-     *  versi, baris ikon-teks, tombol GitHub + Cek Update, tombol tutup, footer. */
     @SuppressLint("InflateParams")
     static void tampil(Activity a) {
         if (a == null || a.isFinishing() || a.isDestroyed()) {
@@ -98,11 +91,7 @@ final class AboutDialog {
         }
         TextView kaki = (TextView) lihat.findViewById(R.id.about_footer);
         kaki.setText(a.getString(R.string.about_tech, 21, targetSdk, build));
-        // ScrollView tak mengenal android:maxHeight (dulu dipasang sia-sia di
-        // XML dan tinggi 0dp+bobot ikut runtuh karena root wrap_content).
-        // Batasi tinggi daftar baris secara adaptif: 40% tinggi layar, hanya
-        // bila isinya memang lebih panjang, agar tombol Tutup tetap terjangkau
-        // di TV 480p.
+
         ScrollView gulir = (ScrollView) lihat.findViewById(R.id.about_scroll);
         int lebarLayar = a.getResources().getDisplayMetrics().widthPixels;
         int lebar = Math.min((int) (560 * kepadatan + 0.5f),
@@ -139,8 +128,7 @@ final class AboutDialog {
         }
         View tombolUpdate = lihat.findViewById(R.id.btn_about_update);
         if (a instanceof SettingsActivity) {
-            // Sudah di Settings: tombol Cek Update cukup menutup dialog lalu
-            // memfokuskan tombol Update di kartu, bukan membuka Settings kedua.
+
             tombolUpdate.setOnClickListener(v -> {
                 dialog.dismiss();
                 ((SettingsActivity) a).fokuskanTombolUpdate();

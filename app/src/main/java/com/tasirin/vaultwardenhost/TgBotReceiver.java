@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 
-/** Pemicu polling perintah Telegram bot (AlarmManager tiap 20 detik). */
 public class TgBotReceiver extends BroadcastReceiver {
 
     @Override
@@ -13,13 +12,7 @@ public class TgBotReceiver extends BroadcastReceiver {
         if (intent == null || !TgBot.ACTION_POLL.equals(intent.getAction())) {
             return;
         }
-        // Anti-spoof selaras AlarmReceiver: action milik app wajib membawa
-        // rahasia alarm yang cocok. Alarm lawas pra-rahasia tak lagi
-        // diizinkan sekali jalan (lubang kompat: satu spoof tiap
-        // fresh-install/update lolos): langsung dijadwalkan ulang
-        // ber-rahasia agar tick berikut valid, lalu intent ini ditolak.
-        // Galat baca prefs pun fail-closed (tolak) agar polling buta
-        // tanpa verifikasi tak pernah jalan.
+
         try {
             if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
                 try {
@@ -31,16 +24,11 @@ public class TgBotReceiver extends BroadcastReceiver {
         } catch (Exception ignored) {
             return;
         }
-        // Tanpa heal penuh di sini: getAll() mem-parse ulang seluruh XML prefs
-        // tiap 20 detik di STB lama; baca aman* di bawah sembuh-sendiri per
-        // kunci bila korup, dan heal penuh tetap jalan di onCreate/start.
-        // Tanpa token/chat polling pasti nir-op: keluar sebelum pegang
-        // wakelock agar tak membangunkan perangkat sia-sia tiap 20 detik.
+
         if (!adaKonfig(context)) {
             return;
         }
-        // goAsync dulu, wakelock kemudian: bila goAsync melempar, belum ada
-        // wakelock yang bocor.
+
         final PendingResult pr;
         try {
             pr = goAsync();
@@ -55,9 +43,7 @@ public class TgBotReceiver extends BroadcastReceiver {
                 selesaikan(pr, wl);
             }
         };
-        // Pool bot bersama dulu (hemat thread baru tiap 20 dtk di STB 1 GB);
-        // fallback thread sendiri bila pool penuh agar goAsync/wakelock
-        // tetap selesai dan polling berikut tak macet.
+
         if (!TgBot.cobaJalankanBg(tugas)) {
             boolean jalan = false;
             try {
@@ -68,17 +54,13 @@ public class TgBotReceiver extends BroadcastReceiver {
             } catch (Exception ignored) {
             }
             if (!jalan) {
-                // JANGAN jalankan poll di main thread: long-poll 15-35 dtk
-                // memblokir onReceive sampai ANR + receiver dibunuh. Cukup
-                // selesaikan goAsync/wakelock; alarm 20 dtk berikutnya
-                // memicu ulang polling saat thread tersedia lagi.
+
                 selesaikan(pr, wl);
                 ServerService.catatLog("[tg] Poll dilewati: thread bot gagal dibuat.");
             }
         }
     }
 
-    /** Tutup PendingResult lalu lepas wakelock (urutan aman di semua jalur). */
     private static void selesaikan(PendingResult pr, PowerManager.WakeLock wl) {
         try {
             pr.finish();
@@ -106,12 +88,7 @@ public class TgBotReceiver extends BroadcastReceiver {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot");
-            // Timeout 60 dtk hanya pengaman thread macet (poll terburuk
-            // ~50 dtk saat timeout jaring 15/35 dtk): kunci dilepas di
-            // finally tepat setelah poll selesai sehingga CPU boleh tidur
-            // antar-poll, tak ditahan penuh 60 dtk tiap 20 dtk. Batas 20 dtk
-            // lama kedaluwarsa di tengah poll panjang saat Doze sehingga
-            // CPU tidur sebelum poll selesai dan perintah hilang.
+
             wl.acquire(60_000);
             return wl;
         } catch (Exception e) {

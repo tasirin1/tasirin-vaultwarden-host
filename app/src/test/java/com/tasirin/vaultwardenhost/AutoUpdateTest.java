@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test throttle auto-update (tanpa Android runtime). */
 public class AutoUpdateTest {
 
     @Test

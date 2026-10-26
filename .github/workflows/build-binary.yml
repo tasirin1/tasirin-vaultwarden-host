@@ -3,24 +3,18 @@ name: Build Binary & Web-Vault
 on:
   push:
     branches: [ main ]
-    # Hanya jalur berat yang memicu workflow ini (patch workflow/shim).
-    # Perbaikan aplikasi (app/**) TIDAK ikut membangun ulang binary (~15 mnt).
+
     paths:
       - '.github/workflows/build-binary.yml'
       - 'shim/**'
   workflow_dispatch:
-  # Cek bulanan tiap tanggal 1: hanya bangun bila keenam aset non-APK untuk
-  # tag upstream terbaru belum lengkap; resolve mengisi skip=yes bila sudah.
+
   schedule:
     - cron: '0 0 1 * *'
 
-# Default minimal: hanya baca. Hanya publish-binary yang memegang contents:
-# write (buat rilis + unggah aset); build-binary tak perlu akses tulis.
 permissions:
   contents: read
 
-# Grup sendiri agar bisa jalan paralel dengan workflow APK (unggahan asset
-# ke rilis yang sama aman: gh release upload --clobber menimpa nama yang sama).
 concurrency:
   group: vw-binary
   cancel-in-progress: false
@@ -36,11 +30,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          # Token tak disimpan di .git/config: langkah berikutnya tak butuh push.
+
           persist-credentials: false
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
-          # Gagal di sini = job build tidak jalan.
+
           python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
@@ -56,36 +50,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Fallback curl membawa token (limit 5000/jam, bukan 60/jam anonim)
-          # agar resolve tak gagal spurios saat cron + push berdekatan.
+
           HDR=()
           if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
           TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
             || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
           case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
-          # Tag upstream = data eksternal: wajib berbentuk versi rilis sebelum
-          # dipakai di env/run. Tanpa ini tag berisi $(...) / backtick dieksekusi
-          # shell runner (runner memegang GITHUB_TOKEN walau job ini baca).
+
           if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
             echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
           fi
           echo "Latest Vaultwarden: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          # Repo TIDAK boleh di-hardcode: dulu tertulis tasirin1/... sehingga
-          # fork/rename repo melihat EXISTING kosong -> cek "sudah ada" meleset,
-          # build binary ~15 mnt jalan terus tiap cron padahal asetnya ada.
-          # Skip cron HANYA bila keenam aset non-APK sudah ada: tag rilis bisa
-          # dibuat workflow APK lebih dulu (hanya berisi APK), dan dulu
-          # keberadaan tag saja sudah membuat cron bulanan skip selamanya —
-          # binary/web-vault untuk versi itu tak pernah terbit.
-          # Daftar aset dibaca dengan coba-ulang: `gh` bisa gagal sesaat
-          # (502/rate-limit/timeout). Dulu `|| true` membuat DAFTAR kosong
-          # sehingga cron menyimpulkan "aset belum lengkap" lalu membangun
-          # ulang binary ~15 mnt padahal asetnya ada. Kini galat sesaat
-          # dibedakan dari rilis yang memang belum ada (404 = perlu build).
-          # Job ini TANPA checkout, jadi `gh` tak bisa menebak repo dari git
-          # remote ("fatal: not a git repository") — dulu galat itu tertelan
-          # `|| true` sehingga DAFTAR selalu kosong. `--repo` wajib di sini.
+
           DAFTAR=""
           TERBACA=no
           for coba in 1 2 3 4; do
@@ -97,7 +74,7 @@ jobs:
             fi
             case "$KELUAR" in
               *"not found"*|*"Not Found"*|*"HTTP 404"*)
-                # Rilis belum ada: memang belum lengkap, build perlu jalan.
+
                 DAFTAR=""
                 TERBACA=yes
                 break
@@ -109,8 +86,7 @@ jobs:
             fi
           done
           if [ "$TERBACA" != yes ]; then
-            # Tanpa daftar aset, "belum lengkap" bukan kesimpulan yang sah:
-            # gagalkan resolve agar cron tak membangun ulang tanpa alasan.
+
             echo "::error::Daftar aset rilis v$TAG tak terbaca (bukan bukti aset hilang)."
             exit 1
           fi
@@ -118,8 +94,7 @@ jobs:
           for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
               libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
               web-vault.zip web-vault.zip.sha256; do
-            # grep TANPA -q: dengan -q ia keluar di kecocokan pertama, printf
-            # kena SIGPIPE (141) dan pipefail membuat LENGKAP=no palsu.
+
             printf '%s\n' "$DAFTAR" | grep -x "$a" >/dev/null || LENGKAP=no
           done
           echo "Aset non-APK v$TAG lengkap: $LENGKAP"
@@ -130,8 +105,7 @@ jobs:
   build-binary:
     name: Build binary + shim (armeabi-v7a)
     needs: [resolve, verifikasi]
-    # Satu job untuk binary Rust (~15 mnt) + shim (detik) agar NDK (~500 MB)
-    # cukup diunduh sekali. Push ke workflow ini sudah difilter paths.
+
     if: needs.resolve.outputs.skip != 'yes'
     runs-on: ubuntu-24.04
     env:
@@ -143,9 +117,7 @@ jobs:
 
       - name: Install rustup (tanpa toolchain)
         run: |
-          # Hanya rustup-nya (~10 MB); toolchain yang diunduh cukup SATU:
-          # versi pinned Vaultwarden (langkah khusus di bawah). Menghemat
-          # satu unduhan toolchain stable yang tak dipakai.
+
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | sh -s -- -y --profile minimal --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
@@ -162,11 +134,7 @@ jobs:
 
       - name: Unduh bundel CA Mozilla (verifier TLS Android)
         run: |
-          # Kunci integritas bundel root Mozilla: isi cacert.pem di curl.se
-          # berubah saat Mozilla memperbarui root, dan tanpa pin file yang
-          # berubah/diretas ikut masuk binary. Bila curl.se merilis bundel
-          # baru, langkah ini GAGAL dengan sengaja — periksa perubahan lalu
-          # perbarui hash (curl -s https://curl.se/ca/cacert.pem | sha256sum).
+
           CACERT_SHA256="796f1389bfea13c0ed78f663b765baaff54a508e5483786bd6ece73c5e3e3cbe"
           curl -fsSL --retry 3 https://curl.se/ca/cacert.pem \
             -o vaultwarden/mozilla-cacert.pem
@@ -181,12 +149,7 @@ jobs:
           p = 'vaultwarden/src/http_client.rs'
           src = open(p).read()
           lock = open('vaultwarden/Cargo.lock').read()
-          # Keputusan "patch DNS masih perlu" HARUS dari sumber yang dikompilasi
-          # (http_client.rs), bukan dari nama crate di lockfile: upstream bisa
-          # memindahkan CustomDnsResolver ke modul lain atau mengganti crate
-          # konteks JNI, dan lockfile tanpa string 'ndk-context' bukan bukti
-          # sumbernya sudah aman untuk proses standalone. Satu-satunya jalan
-          # melewati patch adalah penanda eksplisit PATCH_DNS=0 (disengaja).
+
           sumber_masih_jni = ('CustomDnsResolver' in src) or ('ndk-context' in src)
           dns_dipatch = False
           if os.environ.get('PATCH_DNS', '1') == '0':
@@ -203,8 +166,7 @@ jobs:
                       indent + 'if cfg!(target_os = "android") {\n' +
                       indent + '    return Arc::new(Self::Default());\n' +
                       indent + '}\n')
-                  # Jangan tulis dulu: patch TLS di bawah memakai variabel src yang sama.
-                  # Tulis sekali di akhir agar patch tidak saling menimpa.
+
                   src = src[:m.end(1)] + guard + src[m.end(1):]
                   dns_dipatch = True
                   print('Patch DNS Android diterapkan.')
@@ -216,10 +178,6 @@ jobs:
               else:
                   print('CustomDnsResolver/ndk-context sudah tidak dipakai upstream; patch tidak perlu.')
 
-          # Patch TLS verifier Android: rustls-platform-verifier (bawaan reqwest)
-          # wajib di-init dari JavaVM; proses standalone tak punya JVM sehingga
-          # tiap HTTPS keluar (ikon vault) panic 'to be initialized' -> 500.
-          # Di Android pakai bundel root Mozilla + verifier webpki murni.
           old_builder = ('    Client::builder()\n'
               '        .default_headers(headers)\n'
               '        .redirect(redirect_policy)\n'
@@ -256,9 +214,7 @@ jobs:
               raise SystemExit('Anchor patch TLS tidak ditemukan, periksa http_client.rs upstream!')
           src = src.replace(old_builder, new_builder, 1)
           open(p, 'w').write(src)
-          # Verifikasi kedua patch benar-benar ada di file hasil (anti saling
-          # menimpa). Cek DNS tidak boleh bergantung pada isi lockfile: bila
-          # patch diterapkan, hasilnya wajib memuat guard-nya.
+
           hasil = open(p).read()
           if dns_dipatch:
               assert 'return Arc::new(Self::Default());' in hasil, \
@@ -281,9 +237,7 @@ jobs:
             vaultwarden/target
             ~/.cargo/registry
           key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}
-          # Prefiks lebar: cache versi lama masih dipakai untuk crate yang tak
-          # berubah (cargo memvalidasi fingerprint). Dulu restore-key memakai
-          # versi yang sama + "-" sehingga tak pernah cocok dengan key mana pun.
+
           restore-keys: |
             vw-cargo-armv7-
 
@@ -312,20 +266,17 @@ jobs:
           cd vaultwarden
           RUST_VERSION=$(grep -oP 'channel = "\K[^"]+' rust-toolchain.toml)
           export RUSTUP_TOOLCHAIN="$RUST_VERSION"
-          # Profil ukuran: strip simbol + LTO + 1 codegen unit + optimasi ukuran.
+
           export CARGO_PROFILE_RELEASE_STRIP=true
           export CARGO_PROFILE_RELEASE_LTO=thin
           export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
           export CARGO_PROFILE_RELEASE_OPT_LEVEL=s
-          # --locked: build wajib memakai Cargo.lock bawaan tag upstream apa
-          # adanya. Tanpa ini cargo boleh menarik versi crate semver-terbaru
-          # (build tak reprodusibel, dan crate baru bisa menuntut toolchain
-          # lebih baru daripada rust-toolchain.toml tag tersebut).
+
           cargo build --release --locked --target armv7-linux-androideabi \
             --features sqlite,vendored_openssl
           BIN=target/armv7-linux-androideabi/release/vaultwarden
           ls -lh "$BIN"
-          # Strip ganda demi keamanan (llvm-strip dari NDK).
+
           "$TOOLCHAIN/llvm-strip" -s "$BIN" || true
           mkdir -p ../app/src/main/assets/bin/armeabi-v7a
           cp "$BIN" ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
@@ -371,13 +322,10 @@ jobs:
   publish-binary:
     name: Publish binary & web-vault
     needs: [resolve, build-binary]
-    # Publish hanya dari commit main: dulu `workflow_dispatch` pada branch/tag
-    # mana pun bisa menimpa 6 aset rilis resmi (--clobber) lalu menandainya
-    # `--latest`, sehingga pengguna mengunduh build yang belum di-merge tanpa
-    # bisa membedakannya. Build di branch lain tetap jalan, publish dilewati.
+
     if: needs.resolve.outputs.skip != 'yes' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    # Satu-satunya job yang menulis rilis (buat rilis + unggah 6 aset).
+
     permissions:
       contents: write
     env:
@@ -402,31 +350,21 @@ jobs:
       - name: Siapkan & publish 6 asset non-APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Wajib: langkah ini cd ke /tmp/pub (di luar repo git) sehingga
-          # gh tak bisa menebak owner/repo dari remote — pin eksplisit.
+
           GH_REPO: ${{ github.repository }}
         run: |
           set -e
           TAG="v$VW"
           mkdir -p /tmp/pub
           cd /tmp/pub
-          # Binary + shim selalu hasil build baru dari job di atas.
+
           cp /tmp/baru-bin/vaultwarden vaultwarden-armeabi-v7a
           cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
-          # Web-vault hanya tergantung versi upstream: pakai ulang dari rilis
-          # bila sudah ada (hemat Docker + kuota pada push shim-only).
-          # Digest web-vault untuk tag ini dibaca LEBIH DULU dan dipakai sebagai
-          # pengikat versi zip yang dipakai ulang: dulu cuma `unzip -t` (integritas),
-          # sehingga zip dari digest lain untuk tag yang sama tetap diterima dan
-          # isinya bisa web-vault versi berbeda dengan binary yang dirilis.
-          # Tanpa `head -n 1` di ujung pipa: head keluar lebih dulu sehingga
-          # grep kena SIGPIPE (141) dan pipefail menggagalkan langkah ini acak.
+
           DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW/docker/DockerSettings.yaml" \
             | grep 'vault_image_digest' \
             | sed -nE '1{s/.*"(sha256:[a-f0-9]+)".*/\1/;p;}')
-          # Format ketat: saring keluaran multi-baris/sampah bila format
-          # upstream berubah (multi-arch) agar gagal lantang di sini, bukan
-          # di docker create di tengah publish.
+
           case "$DIGEST" in sha256:*) ;; *) echo "Digest web-vault tidak valid: $DIGEST"; exit 1;; esac
           echo "Web-vault digest: $DIGEST"
           PAKAI_ULANG=0
@@ -445,18 +383,12 @@ jobs:
             docker create --name vwweb "vaultwarden/web-vault@$DIGEST"
             docker cp vwweb:/web-vault /tmp/web-vault
             docker rm vwweb
-            # Penanda pengikat versi di dalam zip (dibaca cek pemakaian ulang di
-            # atas): zip lama tanpa penanda otomatis dibangun ulang sekali.
+
             (cd /tmp/web-vault && printf '%s\n' "$DIGEST" > .vaultwarden-web-digest \
               && zip -qr /tmp/pub/web-vault.zip .)
             ls -lh /tmp/pub/web-vault.zip
           fi
-          # Verifikasi isi web-vault SEBELUM diunggah, termasuk zip yang
-          # dipakai ulang dari rilis lama: `unzip -t` mendeteksi entri
-          # korup/terpotong, index.html wajib ada di akar (app menolak
-          # web-vault tanpa index.html dan menjawab 404), dan ukuran minimum
-          # menyaring zip kosong. Dulu yang diperiksa hanya .sha256 yang kita
-          # buat sendiri — sirkular, isi zip tak pernah disentuh.
+
           if ! unzip -tq web-vault.zip >/dev/null 2>&1; then
             echo "::error::web-vault.zip korup (unzip -t gagal)"; exit 1
           fi
@@ -472,12 +404,7 @@ jobs:
           sha256sum libgetrandom-shim-armeabi-v7a.so > libgetrandom-shim-armeabi-v7a.so.sha256
           sha256sum web-vault.zip > web-vault.zip.sha256
           ls -lh vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip
-          # Buat rilis bila belum ada (upload APK menyusul via workflow APK;
-          # '|| true' agar tak gagal bila workflow APK membuatnya bersamaan).
-          # --latest=false: penanda latest baru dipasang di akhir setelah 6
-          # aset non-APK terbukti ada. Rilis setengah jadi (mis. unggahan
-          # gagal di tengah) tak boleh jadi tujuan /releases/latest/download
-          # yang dipakai app untuk fallback unduhan.
+
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --latest=false \
               --title "Tasirin Vaultwarden Host $VW (Android)" \
@@ -487,11 +414,7 @@ jobs:
             berkas="$1"
             percobaan=1
             while [ "$percobaan" -le 6 ]; do
-              # --clobber: timpa asset bernama sama tanpa perlu mencari ID dan
-              # menghapus manual lebih dulu (dulu: hapus per ID + tidur 5 dtk,
-              # lalu "already exists" ditunggu 15 dtk x 6). gh melakukan
-              # hapus+unggah berurutan dalam satu perintah, jadi jendela asset
-              # hilang sesingkat mungkin.
+
               if gh release upload "$TAG" "$berkas" --clobber 2>"$berkas.gagal.log"; then
                 rm -f "$berkas.gagal.log"
                 return 0
@@ -511,20 +434,12 @@ jobs:
               web-vault.zip web-vault.zip.sha256; do
             unggah_asset "$a"
           done
-          # Verifikasi: 6 asset non-APK wajib ada (APK diterbitkan workflow APK).
-          # Daftar asset API kadang basi sesaat setelah unggah, jadi coba ulang.
-          # Selain nama, ukuran + digest SHA-256 (dihitung server GitHub) tiap
-          # payload dibandingkan dengan berkas lokal, dan isi .sha256 dicek:
-          # unggahan terpotong/diam-diam memakai asset lama tak boleh lolos
-          # lalu ditandai "latest".
+
           PAYLOAD="vaultwarden-armeabi-v7a libgetrandom-shim-armeabi-v7a.so web-vault.zip"
           OK=false
           for t in 1 2 3; do
             OK=true
-            # `|| true`: gh bisa gagal sesaat (502/rate-limit/timeout) tepat
-            # setelah unggah. Tanpa ini `set -e` mematikan seluruh langkah,
-            # sehingga loop coba-ulang 3x tak pernah berjalan dan aset yang
-            # sebenarnya sudah lengkap tetap menggagalkan rilis.
+
             DAFTAR=$(gh release view "$TAG" --json assets -q '.assets[].name' || true)
             for a in vaultwarden-armeabi-v7a vaultwarden-armeabi-v7a.sha256 \
                 libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so.sha256 \
@@ -539,9 +454,7 @@ jobs:
                 echo "::error::Ukuran $a di rilis ($JAUH) != lokal ($LOKAL)"
                 OK=false
               fi
-              # Digest dihitung server GitHub saat unggah: bukti payload di
-              # rilis benar-benar sama dengan berkas lokal. Membandingkan
-              # .sha256 saja sirkular karena sidecar itu juga kita yang buat.
+
               JAUH_DIGEST=$(gh api "repos/$GH_REPO/releases/tags/$TAG" \
                 --jq ".assets[] | select(.name==\"$a\") | .digest // \"\"" || true)
               LOKAL_DIGEST="sha256:$(sha256sum "$a" | cut -d' ' -f1)"
@@ -564,9 +477,6 @@ jobs:
             sleep 10
           done
           [ "$OK" = true ]
-          # Baru sekarang rilis ini layak jadi "latest": 6 aset non-APK sudah
-          # lengkap, sehingga /releases/latest/download/... (jalur fallback
-          # app) pasti menemukan berkasnya. Gagal menandai bukan alasan
-          # menggagalkan rilis (aset sudah benar); cukup dilaporkan.
+
           gh release edit "$TAG" --latest || \
             echo "::warning::Gagal menandai $TAG sebagai latest (aset tetap lengkap)."

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/** Unit test fungsi murni halaman login PIN — tanpa Android runtime. */
 public class PinActivityTest {
 
     @Test

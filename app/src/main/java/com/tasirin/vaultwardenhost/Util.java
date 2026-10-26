@@ -3,34 +3,20 @@ package com.tasirin.vaultwardenhost;
 import java.io.File;
 import java.io.IOException;
 
-/** Kumpulan logika murni lintas modul (murni JVM agar bisa unit test).
- *  Dibuat untuk menampung duplikasi yang tersebar: cocok chat, redirect aman,
- *  batas unzip, dan kebersihan file temp. */
 public final class Util {
 
-    /** Batas total unzip web-vault (~35 MB zip -> maks 300 MB, anti zip-bomb). */
     public static final long BATAS_UNZIP_WEBVAULT = 300L * 1024 * 1024;
-    /** Batas total unzip restore database + tls (anti zip-bomb di STB 1 GB). */
+
     public static final long BATAS_UNZIP_RESTORE = 200L * 1024 * 1024;
-    /** Batas jumlah entri zip (anti zip-bomb entri kecil). */
+
     public static final int BATAS_JUMLAH_ENTRI = 20000;
 
     private Util() {
     }
 
-    // Pool bersama tugas ringan UI (cek port, refresh berat, auto-check): hemat
-    // thread dibanding new Thread per tugas di STB 1 GB. Antrean dibatasi 32 agar
-    // spam tak menumpuk OOM; tugas baru DITOLAK saat penuh (bukan membuang tugas
-    // lama) supaya pemanggil bisa melepas flag yang sudah diset sebelum submit.
-    // Penolakan dicatat (bukan sunyi) agar tugas gugur bisa dilacak di log.
     private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
             penanganAntreanPenuh("Util");
 
-    /** Penanganan antrean penuh bersama: catat lalu TOLAK tugas baru dengan
-     *  RejectedExecutionException. Satu pintu untuk Util/TgBot/PinGate.
-     *  Dulu tugas tertua dibuang diam-diam: bila tugas itu memegang flag
-     *  (health/start/runBusy/PIN), flag tak pernah dilepas dan fitur terkunci
-     *  selamanya. Tanpa execute() ulang di dalam handler (anti-rekursi). */
     public static java.util.concurrent.RejectedExecutionHandler penanganAntreanPenuh(
             final String tag) {
         final String t = tag == null ? "Util" : tag;
@@ -46,11 +32,7 @@ public final class Util {
             }
         };
     }
-    /** Buat pool berukuran tetap dengan antrean terbatas + thread daemon.
-     *  core = max (dulu core 0 membuat ThreadPoolExecutor hanya memakai SATU
-     *  worker sampai antrean penuh, sehingga verifikasi PIN/Start ikut antre di
-     *  belakang unduhan 20 MB). allowCoreThreadTimeOut membuang thread idle
-     *  setelah 60 dtk agar RAM STB 1 GB tetap hemat. */
+
     private static java.util.concurrent.ExecutorService buatPool(
             int ukuran, int antrean, final String nama) {
         java.util.concurrent.ThreadPoolExecutor p =
@@ -69,13 +51,9 @@ public final class Util {
     private static final java.util.concurrent.ExecutorService BG_RINGAN =
             buatPool(3, 32, "vw-ui-bg");
 
-    // Pool tugas lama (unduh binary/web-vault, auto-update, hash PIN): tugas
-    // menit-lama tak boleh memonopoli pool ringan hingga cek port terbuang.
     private static final java.util.concurrent.ExecutorService BG_LAMA =
             buatPool(2, 16, "vw-bg-lama");
 
-    /** Jalankan tugas lama (menit-lama) di pool sendiri; false bila antrean
-     *  penuh (tugas TIDAK dijalankan) agar pemanggil melepas flag/kuncinya. */
     public static boolean jalankanLama(Runnable r) {
         if (r == null) {
             return false;
@@ -88,22 +66,17 @@ public final class Util {
         }
     }
 
-    /** Digest SHA-256 per thread: getInstance lookup provider tiap panggil boros. */
     private static final ThreadLocal<java.security.MessageDigest> MD_SHA256 =
             new ThreadLocal<java.security.MessageDigest>() {
             };
 
-    /** Ambil digest SHA-256 milik thread ini (digest() me-reset sehingga aman
-     *  pakai ulang); lempar bila provider tak ada agar pemanggil fallback.
-     *  Murni JVM agar bisa unit test. */
     public static java.security.MessageDigest mdSha256() throws Exception {
         java.security.MessageDigest m = MD_SHA256.get();
         if (m == null) {
             m = java.security.MessageDigest.getInstance("SHA-256");
             MD_SHA256.set(m);
         } else {
-            // Bersihkan sisa update() yang gagal digest (exception di tengah):
-            // tanpa ini hash berikut di thread sama tercemar state basi.
+
             try {
                 m.reset();
             } catch (Exception ignored) {
@@ -112,12 +85,8 @@ public final class Util {
         return m;
     }
 
-    /** Digit heksa kecil bersama (tanpa Locale): satu tabel dipakai LogExport,
-     *  TgBackup, TgBot, PinCrypto agar tak triplikat di tiap berkas. Murni. */
     static final char[] HEKS = "0123456789abcdef".toCharArray();
 
-    /** Tulis 12 digit heksa (48-bit) manual tanpa String.format.
-     *  Satu implementasi dipakai LogExport + TgBackup. Murni. */
     static String hex12(long v) {
         char[] o = new char[12];
         for (int i = 11; i >= 0; i--) {
@@ -127,9 +96,6 @@ public final class Util {
         return new String(o);
     }
 
-    /** Byte -> heks kecil satu pintu (tanpa String.format/append per nibble).
-     *  Dipakai sidikClip, sidikBerkas, rahasiaAlarm, Updater.toHex agar
-     *  tabel + loop tak triplikat di tiap berkas. Murni. */
     static String heks(byte[] data) {
         if (data == null) {
             return "";
@@ -143,8 +109,6 @@ public final class Util {
         return new String(o);
     }
 
-    /** Rendahkan ASCII A-Z tanpa Locale (tanpa alokasi Locale tiap panggil).
-     *  Untuk host/hex/username/versi yang murni ASCII; bukan teks lokal. Murni. */
     public static String rendahAscii(String s) {
         if (s == null) {
             return "";
@@ -167,7 +131,6 @@ public final class Util {
         return s;
     }
 
-    /** True bila s numerik 4+ digit (pengganti regex "\d{4,}"). Murni. */
     static boolean numerik4Plus(String s) {
         if (s == null || s.length() < 4) {
             return false;
@@ -181,8 +144,6 @@ public final class Util {
         return true;
     }
 
-    /** True bila kandidat PIN implisit valid: min 4 char tanpa spasi dan
-     *  berdigit ATAU bersimbol (pengganti 3 regex PIN). Murni. */
     static boolean pinKataValid(String s) {
         if (s == null || s.length() < 4) {
             return false;
@@ -203,14 +164,9 @@ public final class Util {
         return digit || simbol;
     }
 
-    /** Cache formatter tanggal per pola (satu pintu): ganti 4 ThreadLocal
-     *  pola sama yang tersebar (LogExport/TgBackup/TgBot) agar thread tak
-     *  memegang Calendar+TimeZone ganda di STB 1 GB. LOG_TS ServerService
-     *  sengaja tetap langsung (jalur log terpanas, tanpa lookup map). Murni. */
     private static final java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
             new java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();
 
-    /** Format tanggal pola Locale.US ("" bila gagal). Murni. */
     public static String formatTanggal(String pola, java.util.Date t) {
         if (pola == null || t == null) {
             return "";
@@ -235,10 +191,6 @@ public final class Util {
         }
     }
 
-    /** Format tanggal STB locale Indonesia per thread ("d MMM yyyy HH:mm"):
-     *  satu pintu pengganti ThreadLocal kembar identik di Updater + TgBackup
-     *  (tiap ThreadLocal memegang Calendar+TimeZone+Locale sendiri per thread).
-     *  Locale Indonesia disengaja (nama bulan "Mei"/"Agu"), bukan Locale.US. */
     private static final ThreadLocal<java.text.SimpleDateFormat> FMT_STB_ID =
             new ThreadLocal<java.text.SimpleDateFormat>() {
                 @Override protected java.text.SimpleDateFormat initialValue() {
@@ -247,7 +199,6 @@ public final class Util {
                 }
             };
 
-    /** Tanggal STB terbaca ("d MMM yyyy HH:mm", fallback millis bila gagal). */
     public static String tanggalStb(long kiniMs) {
         try {
             return FMT_STB_ID.get().format(new java.util.Date(kiniMs));
@@ -256,7 +207,6 @@ public final class Util {
         }
     }
 
-    /** Format waktu kini pola Locale.US ("" bila gagal). Murni. */
     public static String formatTanggalSekarang(String pola) {
         try {
             return formatTanggal(pola, new java.util.Date());
@@ -265,14 +215,10 @@ public final class Util {
         }
     }
 
-    /** Handler utama bersama: hemat alokasi Handler per operasi clipboard/timer. */
     private static volatile android.os.Handler HANDLER_UTAMA = null;
-    /** Kunci pembuatan handler: tanpa ini dua thread bersamaan membuat dua
-     *  Handler lalu satu bocor (volatile check-then-act tak atomik). */
+
     private static final Object KUNCI_HANDLER = new Object();
 
-    /** Handler utama bersama satu pintu (ganti blok ambil-handler ganda
-     *  di postTunda/postUtama yang rawan drift). */
     private static android.os.Handler handlerUtama() {
         try {
             android.os.Looper looper = android.os.Looper.getMainLooper();
@@ -295,7 +241,6 @@ public final class Util {
         }
     }
 
-    /** Tunda runnable di looper utama (best-effort, abaikan bila tak ada). */
     public static void postTunda(Runnable r, long tundaMs) {
         if (r == null) {
             return;
@@ -310,7 +255,6 @@ public final class Util {
         }
     }
 
-    /** Kirim ke looper utama tanpa tunda (hemat alokasi Handler per panggil). */
     public static void postUtama(Runnable r) {
         if (r == null) {
             return;
@@ -325,17 +269,12 @@ public final class Util {
         }
     }
 
-    /** Batalkan runnable tertunda di looper utama (best-effort, abaikan bila tak ada).
-     *  Satu pintu pasangan postTunda: ServerService dulunya punya salinan
-     *  batalUtama+handler sendiri (duplikat + balapan double-create tanpa kunci).
-     *  Nama batalkanTunda (bukan batalTunda): nama pendeknya terlarang di
-     *  tools/bekas-hapusan.txt (metode mati yang dibuang audit-38). */
     public static void batalkanTunda(Runnable r) {
         if (r == null) {
             return;
         }
         try {
-            // Tanpa membuat handler: belum pernah post = tak ada yang dibatalkan.
+
             android.os.Handler h = HANDLER_UTAMA;
             if (h == null) {
                 return;
@@ -345,12 +284,6 @@ public final class Util {
         }
     }
 
-    /** Nyalakan watchdog proses --version (satu pintu ServerService + Updater).
-     *  readLine() pemanggil bisa memblokir selamanya bila binary macet tanpa
-     *  output; destroy terjadwal menutup pipa sehingga baca balik EOF.
-     *  Selesai lebih awal = interrupt oleh pemanggil (tanpa destroy).
-     *  AtomicBoolean (bukan boolean[]): tulis pemanggil wajib terlihat thread
-     *  watchdog tanpa synchronized. Murni JVM agar bisa unit test. */
     public static Thread pasangWatchdogProses(final Process proc,
             final java.util.concurrent.atomic.AtomicBoolean selesai,
             final long timeoutMs, final String nama) {
@@ -377,7 +310,6 @@ public final class Util {
         return w;
     }
 
-    /** Pecah hash PIN "A$B$C$D" tanpa regex (split kompilasi Pattern tiap panggil di API 21). */
     public static String[] pecahPin(String s) {
         if (s == null) {
             return null;
@@ -402,13 +334,11 @@ public final class Util {
         return out;
     }
 
-    /** Contains abaikan-huruf tanpa alokasi toLowerCase (hemat GC log deras STB). */
     public static boolean mengandungAbaikanHuruf(String hay, String needle) {
         if (hay == null || needle == null || needle.isEmpty() || hay.length() < needle.length()) {
             return false;
         }
-        // Jalur cepat ASCII (token/bot/admin/... semua ASCII): banding (c|32)
-        // tanpa lipatan case Unicode regionMatches yang mahal di ART lama.
+
         boolean ascii = true;
         for (int k = 0; k < needle.length(); k++) {
             if (needle.charAt(k) >= 128) {
@@ -428,8 +358,6 @@ public final class Util {
         return false;
     }
 
-    /** Pencocokan case-insensitive khusus ASCII (huruf A-Z saja dilipat).
-     *  Murni agar bisa unit test. */
     public static boolean cocokAscii(String hay, String needle) {
         int n = hay.length() - needle.length();
         for (int i = 0; i <= n; i++) {
@@ -444,7 +372,6 @@ public final class Util {
         return false;
     }
 
-    /** Sama-huruf ASCII: sama persis, atau kedua huruf yang beda case saja. */
     static boolean samaHurufAscii(char a, char b) {
         if (a == b) {
             return true;
@@ -458,8 +385,6 @@ public final class Util {
         return a == b;
     }
 
-    /** Jalankan tugas ringan di pool bersama; false bila antrean penuh (tugas
-     *  TIDAK dijalankan) agar pemanggil melepas flag yang sudah diset. */
     public static boolean jalankanBg(Runnable r) {
         if (r == null) {
             return false;
@@ -472,9 +397,6 @@ public final class Util {
         }
     }
 
-    /** True bila s menyerupai integer desimal ([+-]?digit, min 1 digit):
-     *  parseLong di bawah tak melempar untuk panjang wajar; digit raksasa
-     *  (overflow) tetap ditangkap catch pemanggil. Murni. */
     static boolean angkaBulat(String s) {
         if (s == null || s.isEmpty()) {
             return false;
@@ -496,7 +418,6 @@ public final class Util {
         return true;
     }
 
-    /** True bila s hanya digit ASCII (tanpa kompilasi regex matches). */
     static boolean semuaDigit(String s) {
         if (s == null || s.isEmpty()) {
             return false;
@@ -510,19 +431,10 @@ public final class Util {
         return true;
     }
 
-    /** Trim aman untuk hasil prefs yang bisa null (tanpa NPE). Murni. */
     public static String amanTrim(String s) {
         return s == null ? "" : s.trim();
     }
 
-    /** True bila pesan Telegram berasal dari chat resmi.
-      *  Dukung ID numerik ("123456") dan username ("@nama" / "nama",
-      *  tanpa peka huruf). Murni agar bisa unit test.
-      *  Catatan keamanan: username (@nama) tidak aman sebagai identitas —
-      *  username bisa dilepas lalu diklaim orang lain, beda dengan ID numerik
-      *  yang permanen. Demi kompatibilitas lama, username tetap dicocokkan,
-      *  tapi pemakaian username dicatat sebagai peringatan sekali per proses
-      *  dan pemilik dianjurkan memakai ID numerik di pengaturan bot. */
     private static volatile boolean peringatanUsernameSudah = false;
 
     public static boolean cocokChat(String config, long id, String username) {
@@ -533,22 +445,18 @@ public final class Util {
         if (c.isEmpty()) {
             return false;
         }
-        // ID tempel dari nomor telepon ("+628...") disamakan ke ID numerik
-        // Telegram agar bot tak diam tanpa pesan galat.
+
         if (c.startsWith("+") && c.length() > 1) {
             c = c.substring(1).trim();
             if (c.isEmpty()) {
                 return false;
             }
         }
-        // Nol-depan ("0123") bukan format ID Telegram: tolak agar tak
-        // cocok longgar dengan ID 123 (fail-closed ke tidak-cocok).
+
         if (c.length() > 1 && c.startsWith("0")) {
             return false;
         }
-        // Saring digit dulu: config username tak melempar NumberFormatException
-        // + isi stack trace tiap pesan masuk di ART lama. Digit raksasa
-        // (overflow) tetap jatuh ke cocok username selaras perilaku lama.
+
         if (angkaBulat(c)) {
             try {
                 return id == Long.parseLong(c);
@@ -559,11 +467,9 @@ public final class Util {
         if (norm.isEmpty() || username == null) {
             return false;
         }
-        // Username murni angka (mis. "@12345") diperlakukan sebagai ID agar
-        // tak bisa diklaim lewat username; config numerik wajib cocok ID.
+
         if (semuaDigit(norm)) {
-            // 20+ digit pasti overflow (selaras catch -> false di bawah)
-            // sehingga tak membayar eksepsi tiap pesan masuk.
+
             if (norm.length() > 19) {
                 return false;
             }
@@ -576,8 +482,7 @@ public final class Util {
                 return false;
             }
         }
-        // Peringatan sekali: config masih memakai username (bukan ID numerik).
-        // Username tetap dicocokkan agar kompatibel, tapi ID numerik dianjurkan.
+
         if (!peringatanUsernameSudah) {
             peringatanUsernameSudah = true;
             try {
@@ -587,8 +492,7 @@ public final class Util {
             } catch (Throwable ignored) {
             }
         }
-        // Kupas satu @ depan manual: replaceFirst mengkompilasi regex tiap
-        // pesan masuk di API 21 (aturan repo: tanpa regex per panggil).
+
         String u = username.trim();
         if (u.startsWith("@") && u.length() > 1) {
             u = u.substring(1);
@@ -596,23 +500,16 @@ public final class Util {
         return norm.equalsIgnoreCase(u);
     }
 
-    /** Batas jumlah chat tujuan Telegram (hemat bandwidth/CPU STB). Murni. */
     public static final int MAKS_CHAT_TUJUAN = 5;
-    /** Batas keras entri parser daftar chat (anti-DoS config impor/edit manual
-     *  raksasa: contains() kuadrat + kirim per chat tiap tick). Validasi resmi
-     *  tetap MAKS_CHAT_TUJUAN; auth/kirim konsisten karena satu parser. Murni. */
+
     public static final int BATAS_ENTRI_CHAT = 32;
 
-    /** Pecah config chat jadi daftar tujuan (pisah koma/titik-koma/spasi/baris).
-     *  Urutan dipertahankan, duplikat dibuang, kosong diabaikan. Tanpa regex
-     *  (aturan repo: tanpa kompilasi pola per panggil). Murni agar bisa unit test. */
     public static java.util.List<String> pecahDaftarChat(String config) {
         java.util.List<String> hasil = new java.util.ArrayList<String>();
         if (config == null) {
             return hasil;
         }
-        // Set pendamping: contains() di daftar adalah pindai O(n) sehingga
-        // dedup murni-kuadrat; set menjaga O(1) dengan urutan tetap di daftar.
+
         java.util.Set<String> terlihat = new java.util.HashSet<String>();
         int n = config.length();
         int awal = -1;
@@ -638,8 +535,6 @@ public final class Util {
         return hasil;
     }
 
-    /** True bila pengirim cocok dengan salah satu chat di daftar config.
-     *  Config satu ID lama tetap jalan (daftar satu entri). Murni. */
     public static boolean cocokChatBanyak(String config, long id, String username) {
         java.util.List<String> daftar = pecahDaftarChat(config);
         for (int i = 0; i < daftar.size(); i++) {
@@ -650,7 +545,6 @@ public final class Util {
         return false;
     }
 
-    /** Banding dua string digit sama panjang: -1/0/1. Tanpa alokasi. Murni. */
     static int bandingDigit(String a, String b) {
         for (int i = 0; i < a.length() && i < b.length(); i++) {
             char x = a.charAt(i);
@@ -665,13 +559,6 @@ public final class Util {
         return a.length() < b.length() ? -1 : 1;
     }
 
-    /** Satu sumber kebenaran validitas satu entri chat: ID numerik (awalan
-     *  + opsional ala tempel nomor telepon, - untuk grup) atau username
-     *  (aturan Telegram: huruf-digit-garisbawah, min 5, @ opsional).
-     *  Selaras cocokChat: valid selalu berarti bisa cocok (nol-depan dan
-     *  digit-murni ber-@ ditolak), plus tanpa whitespace/kontrol agar aman
-     *  dipakai di header multipart. Dipakai UI, impor, dan upload agar satu
-     *  suara. Tanpa regex. Murni agar bisa unit test. */
     public static boolean chatTunggalValid(String entri) {
         if (entri == null) {
             return false;
@@ -693,8 +580,7 @@ public final class Util {
         if (isi.isEmpty()) {
             return false;
         }
-        // Numerik dulu (cocokChat juga menyaring digit sebelum parse agar
-        // config username tak melempar di ART lama).
+
         boolean negatif = isi.startsWith("-");
         String angka = negatif ? isi.substring(1) : isi;
         if (!angka.isEmpty() && semuaDigit(angka)) {
@@ -704,10 +590,7 @@ public final class Util {
             if (angka.length() > 1 && angka.startsWith("0")) {
                 return false;
             }
-            // 19 digit bisa lewat Long.MAX (9,2e18): cocokChat pasti gagal
-            // parse lalu jatuh ke banding username (tak cocok). Tolak di sini
-            // agar valid selalu berarti bisa cocok. Banding leksikografis
-            // manual (sama panjang) tanpa alokasi/eksepsi. Murni.
+
             if (angka.length() == 19) {
                 String batas = negatif ? "9223372036854775808"
                         : "9223372036854775807";
@@ -732,9 +615,6 @@ public final class Util {
         return true;
     }
 
-    /** True bila salah satu chat di daftar wajib diperlakukan seperti grup.
-     *  Fail-closed: satu entri grup/username mengetatkan semua (butuh PIN).
-     *  Murni agar bisa unit test. */
     public static boolean daftarPerluAnggapGrup(String config) {
         java.util.List<String> daftar = pecahDaftarChat(config);
         for (int i = 0; i < daftar.size(); i++) {
@@ -745,9 +625,6 @@ public final class Util {
         return false;
     }
 
-    /** True bila config chat menunjuk grup/supergrup (ID numerik negatif).
-     *  Username (@grup) tak bisa dipastikan pemiliknya sehingga dianggap
-     *  bukan grup. Murni agar bisa unit test. */
     public static boolean chatAdalahGrup(String config) {
         if (config == null) {
             return false;
@@ -759,7 +636,7 @@ public final class Util {
         if (c.startsWith("+") && c.length() > 1) {
             c = c.substring(1).trim();
         }
-        // Tanpa eksepsi untuk config username (tiap perintah bot di ART lama).
+
         if (!angkaBulat(c)) {
             return false;
         }
@@ -770,12 +647,6 @@ public final class Util {
         }
     }
 
-    /** True bila chat wajib diperlakukan seperti grup (selalu butuh PIN).
-     *  ID negatif = grup pasti; config username/tak-terurai (mis. "@grup")
-     *  tak bisa dipastikan chat pribadi sehingga fail-closed dianggap grup —
-     *  kalau tidak, bot yang dipasang di grup via username diperlakukan
-     *  sebagai chat pribadi dan semua anggota bisa memerintah. Kosong/null =
-     *  bot belum dikonfigurasi (bukan grup). Murni agar bisa unit test. */
     public static boolean chatPerluAnggapGrup(String config) {
         if (chatAdalahGrup(config)) {
             return true;
@@ -797,25 +668,20 @@ public final class Util {
         if (norm.isEmpty()) {
             return false;
         }
-        // Tanpa eksepsi untuk username; non-angka = anggap grup (fail-closed).
+
         if (!angkaBulat(norm)) {
             return true;
         }
         try {
             return Long.parseLong(norm) < 0;
         } catch (NumberFormatException ignored) {
-            // Digit raksasa (overflow): pemilik tak pasti, anggap grup.
+
             return true;
         }
     }
 
-    /** True bila pesan masih segar (tidak basi). Pesan sedikit di masa depan
-     *  (jam STB lambat) tetap diterima; masa depan jauh ditolak seperti tombol
-     *  inline (toleransi selebar jendela basi) agar antrean Telegram bertanggal
-     *  menyimpang tak bisa mengeksekusi perintah kapan pun. Murni. */
     public static boolean pesanSegar(long dateMs, long sekarang, long basiMs) {
-        // Tanpa tanggal = basi (fail-closed): perintah berbahaya basi
-        // (mis. /stop tertunda) tak boleh lolos karena field date hilang.
+
         if (dateMs <= 0) {
             return false;
         }
@@ -828,17 +694,13 @@ public final class Util {
         return sekarang - dateMs <= basiMs;
     }
 
-    /** True bila redirect boleh diikuti: hanya skema https (atau path relatif).
-     *  Cegah downgrade https -> http saat unduh binary/checksum. Murni. */
     public static boolean bolehIkutiRedirect(String asal, String lokasi) {
         if (lokasi == null || lokasi.isEmpty()) {
             return false;
         }
         String l = lokasi.trim();
         if (l.startsWith("//")) {
-            // Protokol-relatif ganti host: hanya boleh se-host dengan asal
-            // (mis. CDN), bukan host sembarang. Mutlak https tetap dicek
-            // di sambungRedirect via warisan skema dasar.
+
             return hostSama(asal, l.substring(2));
         }
         if (l.startsWith("/")) {
@@ -851,18 +713,11 @@ public final class Util {
         return "https".equals(rendahAscii(l.substring(0, kol)));
     }
 
-    /** True bila host termasuk rilis GitHub (unduhan binary/web-vault).
-     *  Redirect asset github.com hanya ke objects.githubusercontent.com /
-     *  release-assets.githubusercontent.com; wildcard *.githubusercontent.com
-     *  ditolak karena konten user (gist/raw) bisa menyajikan binary + sha256
-     *  palsu yang cocok bila DNS/MITM. Murni agar bisa unit test. */
     public static boolean hostGithubAman(String host) {
         if (host == null) {
             return false;
         }
-        // Kupas ":port" dulu seperti hostTelegramAman: cabang "//host"
-        // memberi otoritas mentah sehingga redirect sah berport eksplisit
-        // ("//github.com:443/...") tertolak tanpa ini.
+
         String kupas = kupasHostPort(host.trim());
         if (kupas == null || kupas.isEmpty()) {
             return false;
@@ -877,9 +732,7 @@ public final class Util {
                 || h.equals("release-assets.githubusercontent.com")) {
             return true;
         }
-        // CDN produksi lama (github-production-release-asset-*.s3 / *.githubusercontent.com):
-        // wildcard umum *.githubusercontent.com tetap ditolak (konten user bisa
-        // menyajikan binary + sha256 palsu), hanya prefix produksi resmi yang lolos.
+
         if (h.startsWith("github-production-release-asset-")
                 && h.endsWith(".githubusercontent.com")) {
             return true;
@@ -887,10 +740,6 @@ public final class Util {
         return false;
     }
 
-    /** True bila host milik Telegram (unduhan file bot).
-     *  URL unduh file membawa token bot di path sehingga host sembarang wajib
-     *  ditolak: 302 nakal (MITM/CDN jahat) bisa membocorkan token. Keluarga
-     *  telegram.org + cdn-telegram.org mencakup API dan CDN resmi. Murni. */
     public static boolean hostTelegramAman(String host) {
         if (host == null) {
             return false;
@@ -909,22 +758,14 @@ public final class Util {
         return h.equals("cdn-telegram.org") || h.endsWith(".cdn-telegram.org");
     }
 
-    /** True bila redirect unduhan file Telegram boleh diikuti: https + host
-     *  Telegram (lihat hostTelegramAman). Dipakai bukaFileTelegram agar token
-     *  di path URL tak bocor ke host asing via 302. Murni agar bisa unit test. */
     public static boolean bolehIkutiRedirectTelegram(String asal, String lokasi) {
         return bolehIkutiRedirectHost(asal, lokasi, true);
     }
 
-    /** True bila redirect unduhan GitHub boleh diikuti: https + host GitHub.
-     *  Dipakai Updater (binary/web-vault/shim).
-     *  Murni agar bisa unit test. */
     public static boolean bolehIkutiRedirectGithub(String asal, String lokasi) {
         return bolehIkutiRedirectHost(asal, lokasi, false);
     }
 
-    /** Inti tunggal validasi redirect host (Telegram bila telegram=true,
-     *  else GitHub): satu parse + satu lower skema, bukan ganda. Murni. */
     private static boolean bolehIkutiRedirectHost(String asal, String lokasi, boolean telegram) {
         if (!bolehIkutiRedirect(asal, lokasi)) {
             return false;
@@ -933,10 +774,7 @@ public final class Util {
             return false;
         }
         String l = lokasi.trim();
-        // Protokol-relatif ("//host/...") sudah divalidasi bolehIkutiRedirect
-        // di atas: hanya host yang sama dengan asal yang lolos, jadi cabang
-        // "/" di bawah sudah benar. Dulu host di-parse ulang di sini (alokasi
-        // baru tiap redirect) dan hasilnya selalu true.
+
         if (l.startsWith("/")) {
             return true;
         }
@@ -957,8 +795,6 @@ public final class Util {
         }
     }
 
-    /** True bila sisa lokasi "//host/..." menunjuk host yang sama dengan asal.
-     *  Murni agar bisa unit test. */
     static boolean hostSama(String asal, String sisa) {
         if (asal == null || sisa == null || sisa.isEmpty()) {
             return false;
@@ -984,10 +820,6 @@ public final class Util {
         }
     }
 
-    /** Kupas "host", "host:port", "[v6]", "[v6]:port", atau literal IPv6 tanpa
-     *  kurung-siku menjadi nama host (tanpa port/kurung). Null bila tak jelas.
-     *  Potong-di-':'-pertama merusak IPv6 (isinya banyak ':') sehingga redirect
-     *  se-host "[2001:db8::1]" dulu ditolak walau sah. Murni. */
     static String kupasHostPort(String hostPort) {
         if (hostPort == null || hostPort.isEmpty()) {
             return null;
@@ -1017,8 +849,7 @@ public final class Util {
             int i = hostPort.indexOf(':');
             String h = hostPort.substring(0, i);
             String port = hostPort.substring(i + 1);
-            // Port wajib angka: "host:abc" bukan otoritas valid sehingga
-            // null (ditolak) alih-alih terkupas jadi host telanjang.
+
             if (h.isEmpty() || port.isEmpty() || !semuaDigit(port)) {
                 return null;
             }
@@ -1027,9 +858,6 @@ public final class Util {
         return hostPort;
     }
 
-    /** Samakan bentuk host: buang kurung-siku IPv6 ("[::1]" -> "::1").
-     *  getHost() tak pernah membawa port sehingga replaceFirst hapus-port
-     *  yang lama mati (malah menggerogoti IPv6). Murni. */
     static String normalisasiHost(String host) {
         if (host == null) {
             return "";
@@ -1042,7 +870,6 @@ public final class Util {
         return h;
     }
 
-    /** Selesaikan URL redirect relatif terhadap URL dasar. Murni. */
     public static String sambungRedirect(String dasar, String lokasi) {
         if (lokasi == null) {
             return dasar;
@@ -1051,15 +878,12 @@ public final class Util {
         if (l.regionMatches(true, 0, "https://", 0, 8)) {
             return l;
         }
-        // Fail-closed: absolut http:// tak pernah diteruskan (downgrade
-        // cleartext). Pemanggil memvalidasi via bolehIkutiRedirect* dulu,
-        // tapi pemanggil langsung yang lupa validasi tetap aman: tahan di
-        // URL dasar agar loop redirect berakhir "Terlalu banyak redirect".
+
         if (l.regionMatches(true, 0, "http://", 0, 7)) {
             return dasar;
         }
         if (l.startsWith("//")) {
-            // Protokol-relatif: warisi skema dasar (tetap https), ganti host.
+
             try {
                 java.net.URL u = new java.net.URL(dasar);
                 return u.getProtocol() + ":" + l;
@@ -1073,9 +897,7 @@ public final class Util {
                 return u.getProtocol() + "://" + u.getHost()
                         + (u.getPort() < 0 ? "" : ":" + u.getPort()) + l;
             } catch (Exception e) {
-                // Dasar rusak: jangan kembalikan path relatif mentah (pemanggil
-                // gagal "no protocol" membingungkan) — tahan di URL terakhir
-                // yang baik agar loop redirect berakhir "Terlalu banyak redirect".
+
                 return dasar;
             }
         }
@@ -1086,8 +908,6 @@ public final class Util {
         }
     }
 
-    /** True bila file temp aman dihapus: hanya di dalam cache/files internal.
-     *  Cegah hapus file user di /sdcard saat restore gagal. Murni. */
     public static boolean bolehHapusFile(File cacheDir, File filesDir, File target) {
         if (target == null) {
             return false;
@@ -1112,8 +932,6 @@ public final class Util {
         }
     }
 
-    /** Akumulasi ukuran unzip; lempar IOException bila lewati batas/maks entri.
-     *  Murni agar bisa unit test. */
     public static long tambahUkuranUnzip(long total, long tambah, long batas,
             int jumlah, int batasJumlah) throws IOException {
         if (jumlah > batasJumlah) {

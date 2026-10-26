@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Palet seragam Tasirin (ikut Tasirin Download Manager):
-         biru #1565C0 + aksen jingga #F57C00, latar abu terang.
-         Kartu putih agar konten terasa mengambang. -->
+
     <color name="primary">#1565C0</color>
-    <!-- Bilah judul sendiri: tetap biru tua di mode malam karena judul,
-         subversi, dan ikon toolbar berwarna putih (kontras ≥ 4,5:1). -->
+
     <color name="toolbar_bg">#1565C0</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="accent">#F57C00</color>
@@ -18,7 +15,7 @@
     <color name="status_off">#C62828</color>
     <color name="card_bg">#FFFFFF</color>
     <color name="card_stroke">#E5E9F0</color>
-    <!-- Alias nama TDM untuk komponen bersama (dialog About, dsb). -->
+
     <color name="chip_bg">#F4F6FA</color>
     <color name="chip_pressed">#E3F0FB</color>
     <color name="line">#E5E9F0</color>
@@ -27,10 +24,10 @@
     <color name="hero_end">#0D47A1</color>
     <color name="chip_stopped">#5F6B7A</color>
     <color name="chip_busy">#E8710A</color>
-    <!-- Kontainer tonal gaya M3 (ikut TDM): tombol sekunder. -->
+
     <color name="primary_container">#D8E7FC</color>
     <color name="primary_container_pressed">#C2D9F8</color>
-    <!-- Aksen tiap kartu Settings agar mudah dibedakan via remote TV. -->
+
     <color name="accent_server">#1565C0</color>
     <color name="accent_pengaturan">#2E7D32</color>
     <color name="accent_rawat">#7B1FA2</color>
@@ -38,10 +35,10 @@
     <color name="accent_log">#546E7A</color>
     <color name="log_error">#C62828</color>
     <color name="log_warn">#8A5A00</color>
-    <!-- Sorot kata kunci pencarian di log layar penuh. -->
+
     <color name="search_highlight">#FFE082</color>
-    <!-- Teks tombol primer siang: putih di atas biru tua, kontras aman. -->
+
     <color name="btn_primary_text">#FFFFFF</color>
-    <!-- Tombol Stop saat ditekan: merah tua pekat. -->
+
     <color name="btn_stop_pressed">#7A1A17</color>
 </resources>

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Padanan Indonesia untuk baris dialog Tentang (values/arrays.xml).
-     Ikon sengaja tidak diduplikasi: emoji sama di semua bahasa dan
-     string-array yang tak ada di locale ini otomatis jatuh ke default. -->
+
 <resources>
     <string-array name="about_rows">
         <item>Pengembang: Julius Rudi Tasirin</item>

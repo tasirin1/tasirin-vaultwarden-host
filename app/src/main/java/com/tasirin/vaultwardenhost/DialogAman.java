@@ -7,10 +7,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Satu pintu menampilkan dialog milik Activity: dialog dilacak lalu ditutup
- *  di onDestroy. Manifest sengaja tanpa configChanges, jadi setiap rotasi
- *  membongkar Activity; dialog yang masih terbuka saat itu membocorkan window
- *  (WindowLeaked di log) dan isinya hilang tanpa jejak. */
 final class DialogAman {
 
     private DialogAman() {
@@ -28,9 +24,6 @@ final class DialogAman {
 
     private static final List<Pasangan> DAFTAR = new ArrayList<>();
 
-    /** Tampilkan dialog dan lacak agar ditutup saat Activity dibongkar.
-     *  Dialog tidak ditampilkan bila Activity sedang selesai/dibongkar
-     *  (window-nya sudah tidak sah). */
     static <T extends Dialog> T tampil(Activity a, T d) {
         if (a == null || d == null) {
             return d;
@@ -46,7 +39,6 @@ final class DialogAman {
         return d;
     }
 
-    /** Tutup semua dialog milik Activity ini (panggil dari onDestroy). */
     static void tutup(Activity a) {
         if (a == null) {
             return;
@@ -65,7 +57,6 @@ final class DialogAman {
         }
     }
 
-    /** Buang entri yang Activity-nya sudah GC atau dialognya sudah ditutup. */
     private static void sapu() {
         for (int i = DAFTAR.size() - 1; i >= 0; i--) {
             Pasangan p = DAFTAR.get(i);

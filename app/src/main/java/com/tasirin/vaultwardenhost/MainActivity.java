@@ -24,23 +24,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-/** Layar awal sederhana: status server + Start/Stop + log realtime.
- *  Semua pengaturan pindah ke SettingsActivity lewat tombol titik tiga. */
 public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
     private static final int REQ_PIN = 1002;
     private static final String DEFAULT_PORT = ServerService.DEFAULT_PORT;
-    /** Ekor log layar awal dibatasi agar STB RAM kecil tidak patah (item saran 6). */
+
     private static final int MAKS_BARIS_LOG = 150;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
-    /** Satu instans loop refresh: tiap postDelayed/post method-ref baru
-     *  adalah objek beda sehingga removeCallbacks tak bisa membatalkan
-     *  titikan basi — rantai ganda menumpuk permanen tiap onResume/
-     *  setBusy/appendUiLog (CPU + baterai terbuang di STB 1 GB).
-     *  Semua titik memakai ini + hapus-sebelum-post agar selalu satu rantai. */
+
     private final Runnable refreshLoop = this::refreshFromService;
 
     private TextView statusView;
@@ -61,66 +54,53 @@ public class MainActivity extends Activity {
     private String bundledVersion = "?";
     private String bundledRaw = null;
     private String lastShownStatus = "";
-    /** Teks status cache (pola Settings): tanpa getString tiap tick. */
+
     private String teksBerjalan = "";
     private String teksBerhenti = "";
     private String teksSibuk = "";
     private String lastShownNet = "";
     private String lastShownVersion = "";
     private String lastShownUptime = "";
-    private boolean lastUpdBtnVisible = true; // paksa selaras rantai fokus saat refresh pertama
-    private String lastUpdText = ""; // cegah setText+layout tiap tick saat teks sama
-    private String memoCocokA = "\0"; // memo versiCocok(real, pending): regex tiap detik boros
+    private boolean lastUpdBtnVisible = true;
+    private String lastUpdText = "";
+    private String memoCocokA = "\0";
     private String memoCocokB = "\0";
     private boolean memoCocokHasil = false;
     private String memoCocokA2 = "\0";
     private String memoCocokB2 = "\0";
     private boolean memoCocokHasil2 = false;
-    private String lastVersiApp = "\0"; // gerbang versi sebelum StringBuilder tiap tick
+    private String lastVersiApp = "\0";
     private String lastVersiBin = "\0";
     private String lastVersiBundled = "\0";
-    private long lastUpDetik = -1; // gerbang uptime: durationText+getString hanya saat detik berubah
+    private long lastUpDetik = -1;
     private int lastLogLen = 0;
-    /** Cache nilai prefs untuk deteksi "setting berubah": baca prefs tiap
-     *  tick 1-2 dtk boros map-lookup; segarkan tiap 5 tick + saat onResume
-     *  (pulang dari Settings) agar hint restart tetap akurat. */
+
     private int tickCachePrefs = 0;
     private boolean paksaCachePrefs = true;
     private String cacheD = "";
     private String cacheP = "";
     private String cacheA = "";
     private String cacheWv = "";
-    /** Ikuti ekor log otomatis; mati saat pengguna menggulir manual (saran 6). */
+
     private boolean ikutiLog = true;
-    /** Status tombol Start/Stop yang sedang tampil (hindari set tiap tick). */
+
     private boolean tombolJalan = false;
     private boolean tombolSelaras = false;
     private boolean hintShown = false;
     private boolean refreshActive = true;
-    /** Start ditahan karena dialog izin storage; dilanjutkan setelah izin diberi. */
+
     private boolean mulaiUlangSetelahIzin = false;
-    /** Kunci instance state untuk {@link #mulaiUlangSetelahIzin}. Dialog izin
-     *  bisa membunuh Activity (rotasi/proses dibunuh saat dialog tampil);
-     *  tanpa simpan-pulih, izin yang diberikan tak melanjutkan Start dan user
-     *  harus menekan Start lagi tanpa tahu sebabnya. */
+
     private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
-    /** Status sibuk GLOBAL, bukan per-instance: unduhan web-vault (~35 MB)
-     *  berjalan dengan application context sehingga tetap lanjut walau layar
-     *  diputar/dibuat ulang. Dulu field instance membuat instance baru
-     *  melihat "tidak sibuk": tombol Start aktif lagi padahal ekstraksi
-     *  web-vault belum selesai, dan Start menyala tanpa web UI. */
+
     private static volatile boolean uiBusy = false;
     private long lastUiLogRefresh = 0;
-    // Cache URL lokal 10 detik: localUrl()/collectIps() tiap detik di UI thread
-    // bikin ANR di STB lambat; pakai cache agar enumerasi jaringan jarang jalan.
+
     private static volatile String cacheUrl = "";
     private static volatile long cacheWaktu = 0;
 
-    /** Guard agar onResume beruntun tak menumpuk dialog PIN. */
     private boolean pinBukaJalan = false;
 
-    /** Catat buka PIN sebagai milik bersama (tanpa panggil balik antar-activity).
-     *  Satu-satunya sumber keputusan grace adalah PinGate; tanpa cermin lokal. */
     static void catatPinDibuka() {
         if (!PinGate.dalamGraceBersama()) {
             PinGate.bukaKunciBersama();
@@ -128,26 +108,24 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    // getPackageInfo lama sengaja agar satu jalur kode untuk API 21-32.
+
     @SuppressWarnings("deprecation")
-    // commit() susulan di bawah disengaja (sinkron anti-ganda, lihat komentar) — bukan apply().
+
     @SuppressLint("ApplySharedPref")
     protected void onCreate(Bundle savedInstanceState) {
-        // Splash ditampilkan lewat theme manifest, ganti ke tema utama di sini.
+
         setTheme(R.style.Theme_TasirinVaultwardenHost);
         super.onCreate(savedInstanceState);
-        // Pulihkan permintaan Start yang tertahan izin sebelum dialog izin
-        // sempat kembali (Activity dibuat ulang saat dialog tampil).
+
         if (savedInstanceState != null) {
             mulaiUlangSetelahIzin = savedInstanceState.getBoolean(
                     STATE_MULAI_ULANG_IZIN, false);
         }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
-        // Sisa salinan clipboard yang penghapusnya tak sempat jalan karena
-        // proses mati dibersihkan/dipasang ulang di sini (satu pintu LogActivity).
+
         LogActivity.bersihkanClipBasiJikaAda(this);
-        // Privasi: nonaktifkan screenshot + preview recents dikosongkan.
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
 
@@ -172,24 +150,20 @@ public class MainActivity extends Activity {
             }
         });
         overflowBtn.setOnClickListener(v -> showOverflowMenu());
-        // Ketuk URL untuk menyalin (pengganti tombol Salin URL yang pindah ke Settings)
+
         netInfoView.setOnClickListener(v -> copyShownUrl());
-        // Tombol update melompat ke Settings tempat Cek Update berada
+
         updateBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
-        // Pengguna menggulir manual = berhenti mengikuti ekor; kembali ke
-        // bawah = ikuti lagi. Hemat CPU: cukup dengar perubahan gulir.
+
         homeLogScroll.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (homeLogScroll.getChildCount() > 0) {
                 ikutiLog = sedangDiBawah();
             }
         });
 
-        // Izin storage untuk semua Android (izin tulis runtime; targetSdk 28
-        // tetap legacy di Android 11+, All files tidak diwajibkan).
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
-        // Satu IPC PackageManager (dulu dua getPackageInfo): hemat cold-start di STB lama.
         try {
             android.content.pm.PackageInfo infoBar = getPackageManager()
                     .getPackageInfo(getPackageName(), 0);
@@ -211,34 +185,29 @@ public class MainActivity extends Activity {
         teksBerhenti = getString(R.string.stopped);
         teksSibuk = getString(R.string.busy_work);
         ui.post(refreshLoop);
-        // Unduhan web-vault milik Activity sebelumnya masih berjalan (application
-        // context): pulihkan penguncian tombol + status sibuk di instance ini.
+
         if (uiBusy) {
             setBusy(true);
         }
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-        // Cek update otomatis saat dibuka
+
         Util.jalankanLama(this::autoUpdateCheck);
-        // Keraskan hash PIN legasi di rest (tanpa menunggu login) agar prefs
-        // bocor tak memberi SHA-256 tanpa salt yang retak dalam detik.
+
         final android.content.Context appPin = getApplicationContext();
         Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
-        // Pastikan jadwal backup harian tetap terpasang
+
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
-        // Remote kontrol via Telegram bot
+
         TgBot.schedule(this);
-        // Susulan backup boot yang ditolak sistem (Android 12+ batasi start background).
+
         if (TgBackup.amanBoolean(sp, TgBackup.KEY_BACKUP_TERTUNDA, false)) {
-            // commit() sinkron (bukan apply()): flag wajib hilang sebelum backup
-            // susulan jalan agar kill tepat sesudahnya tak memicu backup ganda
-            // di buka berikutnya, selaras AlarmReceiver/BootReceiver.
+
             try {
                 sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).commit();
             } catch (Exception ignored) {
             }
-            // Alarm basi: user mematikan auto-backup sebelum app dibuka -
-            // jangan mengunggah tanpa persetujuan (selaras ACTION_TG_BACKUP).
+
             if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 ServerService.catatLog("[tg] Backup susulan boot dilewati:"
                         + " auto-backup sudah dimatikan.");
@@ -246,19 +215,18 @@ public class MainActivity extends Activity {
             final android.content.Context app = getApplicationContext();
             Util.jalankanBg(() -> {
                 try {
-                    // Fail-fast: tanpa password otomatis wajib ditolak.
+
                     if (!TgBackup.bolehBackupOtomatis(
                             TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""))) {
                         ServerService.catatLog("[tg] " + TgBackup.pesanTolakPlainOtomatis()
                                 + " (susulan boot).");
                         return;
                     }
-                    // STB baru hidup: tunda via alarm (tanpa menidurkan
-                    // thread pool, selaras jalur terjadwal/saat-Start).
+
                     if (TgBackup.tundaBilaBootBaru(app, "backup susulan boot")) {
                         return;
                     }
-                    // Susulan boot = otomatis: wajib terenkripsi (fail-closed).
+
                     String msg = TgBackup.backupOtomatis(app);
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
                 } catch (InterruptedException ignored) {
@@ -269,20 +237,12 @@ public class MainActivity extends Activity {
             });
             }
         }
-        // Susulan auto-start yang ditolak sistem dari background (Android 12+
-        // membatasi start service): mulaiService menandainya, eksekusi di sini
-        // saat app dibuka (sudah foreground sehingga diizinkan).
+
         if (TgBackup.amanBoolean(sp, ServerService.KEY_START_TERTUNDA, false)) {
             if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)
                     && !ServerService.running) {
                 appendUiLog("[app] Auto-start susulan: start background sempat ditolak sistem.");
-                // Buang flag begitu intent start DITERIMA sistem: sumber masalah
-                // (penolakan start dari background) sudah hilang karena app kini
-                // foreground. Dulu flag hanya dihapus bila ServerService.running
-                // sudah true padahal start berjalan asinkron, sehingga flag awet
-                // dan server menyala sendiri tiap app dibuka walau user sudah
-                // menekan Stop. Kegagalan exec setelah intent diterima sudah
-                // tampil di log/status dan bisa diulang lewat tombol Start.
+
                 boolean diterima = false;
                 try {
                     diterima = ServerService.start(this);
@@ -295,7 +255,7 @@ public class MainActivity extends Activity {
                     }
                 }
             } else {
-                // Auto-start mati / server sudah jalan: flag basi, buang.
+
                 try {
                     sp.edit().remove(ServerService.KEY_START_TERTUNDA).apply();
                 } catch (Exception ignored) {
@@ -311,7 +271,7 @@ public class MainActivity extends Activity {
         paksaCachePrefs = true;
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);
-        // Auto-lock PIN setiap kali app kembali ke depan
+
         maybeShowPinLock();
     }
 
@@ -336,8 +296,7 @@ public class MainActivity extends Activity {
             if (!diberi) {
                 StoragePerm.tanganiPenolakan(this);
             }
-            // Start yang tadi ditahan menunggu izin dilanjutkan sekali di sini;
-            // flag selalu direset agar penolakan/kegagalan tak memicu Start liar.
+
             boolean lanjut = mulaiUlangSetelahIzin;
             mulaiUlangSetelahIzin = false;
             if (diberi && lanjut && !isFinishing() && !isDestroyed()) {
@@ -356,21 +315,18 @@ public class MainActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // Simpan permintaan Start tertahan izin: dialog izin bisa membuat
-        // Activity dibuat ulang sebelum hasilnya kembali.
+
         outState.putBoolean(STATE_MULAI_ULANG_IZIN, mulaiUlangSetelahIzin);
     }
 
     @Override
     protected void onDestroy() {
-        // Dialog yang masih terbuka (mis. Tentang/konfirmasi) wajib ditutup
-        // sebelum window Activity dibongkar; rotasi membongkar Activity ini.
+
         DialogAman.tutup(this);
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }
 
-    /** Titik tiga: popup menempel di bawah tombol (ramah D-pad). */
     private void showOverflowMenu() {
         PopupMenu popup = new PopupMenu(this, overflowBtn, Gravity.END);
         popup.getMenu().add(0, 1, 0, getString(R.string.open_settings));
@@ -393,9 +349,7 @@ public class MainActivity extends Activity {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        // Tolak folder berbahaya lebih awal (traversal, root storage, area
-        // sistem): service juga menolak, tapi UI wajib memberi tahu jelas
-        // sebelum cek port agar tak gagal start secara misterius.
+
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
             toast(getString(R.string.folder_tidak_valid));
@@ -406,20 +360,17 @@ public class MainActivity extends Activity {
             }
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
+
         if (!StoragePerm.siapStart(this, dataDir, REQ_WRITE)) {
-            // Dialog izin baru dimunculkan: lanjutkan Start otomatis begitu
-            // izin diberikan, jangan memaksa pengguna menekan Start dua kali.
+
             mulaiUlangSetelahIzin = true;
             appendUiLog("[app] Start dibatalkan: izin penyimpanan belum diberikan.");
             return;
         }
         final String finalDataDir = dataDir;
-        // effectivePort() selalu mengembalikan angka 1024-65535 (normalisasiPort),
-        // jadi cabang penolakan port di sini tak pernah bisa tercapai.
+
         final int portFix = Integer.parseInt(ServerService.effectivePort(sp));
-        // Cek bind di worker thread: bind ServerSocket di UI thread rawan ANR/
-        // StrictMode, dan hasilnya tetap TOCTOU (service cek ulang sebelum start).
+
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {
             final boolean busy = ServerService.isPortBusy(portFix);
@@ -449,24 +400,22 @@ public class MainActivity extends Activity {
             });
         });
         if (!masuk) {
-            // Antrean penuh: lepas status sibuk agar banner tidak terkunci.
+
             setBusy(false);
             toast(getString(R.string.antrean_penuh));
         }
     }
 
-    /** Lanjutan Start setelah cek port selesai (berjalan di UI thread). */
     private void lanjutStart(String dataDir) {
         final String finalDataDir = dataDir;
         if (!Updater.webVaultReady(this, finalDataDir)) {
-            // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
+
             DialogAman.tampil(this, new AlertDialog.Builder(this)
                     .setTitle(R.string.wv_belum_judul)
                     .setMessage(R.string.wv_belum_pesan)
                     .setPositiveButton(R.string.wv_unduh_mulai, (d, w) -> {
                         setBusy(true);
-                        // Pakai app context di worker agar tekan back saat unduh
-                        // 35 MB tak menahan Activity yang sudah destroy (bocor).
+
                         final android.content.Context appCtx = getApplicationContext();
                         boolean masuk = Util.jalankanLama(() -> {
                             String msg;
@@ -479,19 +428,12 @@ public class MainActivity extends Activity {
                             }
                             final String info = "[app] " + msg;
                             final boolean gagalFinal = gagal;
-                            // Gagal unduh tak boleh auto-start tanpa web UI:
-                            // pilihan tombolnya "Download & Start" satu paket.
-                            // Start dulu baru update UI agar indikator sibuk
-                            // tak mati sebelum server mulai jalan.
+
                             if (!gagal) {
                                 ServerService.start(appCtx);
                             }
                             ui.post(() -> {
-                                // Lepas kunci sibuk SEBELUM cek mati: uiBusy kini
-                                // global (dipakai antar-instance), jadi rotasi di
-                                // tengah unduhan dulu akan meninggalkan status
-                                // sibuk terkunci selamanya. setBusy sendiri sudah
-                                // aman untuk Activity mati (hanya melewati view).
+
                                 setBusy(false);
                                 if (isFinishing() || isDestroyed()) {
                                     return;
@@ -500,18 +442,14 @@ public class MainActivity extends Activity {
                                 if (gagalFinal) {
                                     toast(getString(R.string.wv_unduh_gagal_server));
                                 }
-                                // Backup otomatis di sini (bukan saat tekan tombol):
-                                // DB baru ada sesudah server jalan; bila di depan,
-                                // tunggu-DB 30 dtk hangus selama unduh 35 MB dan
-                                // backup dilewati diam-diam.
+
                                 if (!gagalFinal) {
                                     maybeAutoBackup();
                                 }
                             });
                         });
                         if (!masuk) {
-                            // Antrean penuh: setBusy(true) di atas tak akan
-                            // dilepas oleh finally tugas yang tak pernah jalan.
+
                             setBusy(false);
                             toast(getString(R.string.antrean_penuh));
                         }
@@ -531,11 +469,9 @@ public class MainActivity extends Activity {
         if (!uiHidup()) {
             return;
         }
-        // Runtuhkan rantai ganda jadi satu: suntikan "refresh sekarang"
-        // (setBusy/appendUiLog/onResume) ikut menjadwalkan penerus sehingga
-        // tanpa ini tiap suntikan menjadi loop abadi tambahan.
+
         ui.removeCallbacks(refreshLoop);
-        // Sedang sibuk (unduh web-vault)? Kunci chip status agar tidak tertimpa polling.
+
         if (uiBusy) {
             String dl = Updater.downloadStatus;
             String sibuk = dl.isEmpty()
@@ -556,11 +492,8 @@ public class MainActivity extends Activity {
             return;
         }
 
-        // Chip status: Berjalan / Berhenti + tombol Start/Stop tunggal
         boolean running = ServerService.running;
-        // Tanpa getString + concat tiap 1-2 dtk (sampah di ART lama):
-        // kunci boolean cukup karena cabang sibuk memakai namespace
-        // "sibuk|..." yang tak bertabrakan dengan "on"/"off".
+
         String statusText = running ? teksBerjalan : teksBerhenti;
         String key = running ? "on" : "off";
         if (!key.equals(lastShownStatus)) {
@@ -572,7 +505,7 @@ public class MainActivity extends Activity {
                     ? R.drawable.bg_dot_running : R.drawable.bg_dot_stopped);
             lastShownStatus = key;
         }
-        // Tombol Stop merah + deskripsi aksesibilitas (saran 4)
+
         if (!tombolSelaras || tombolJalan != running) {
             tombolJalan = running;
             tombolSelaras = true;
@@ -583,14 +516,12 @@ public class MainActivity extends Activity {
                     getString(running ? R.string.stop_desc : R.string.start_desc));
         }
 
-        // Peringatan bila setting diubah di Settings tapi server belum di-restart
         boolean changed = false;
         if (running) {
             if (paksaCachePrefs || tickCachePrefs++ % 5 == 0) {
                 paksaCachePrefs = false;
                 SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-                // Baca tahan korup: tipe prefs salah tak boleh melempar
-                // ClassCastException tiap detik di UI thread (pola aman* bot).
+
                 String d = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
                 if (d == null || d.trim().isEmpty()) {
                     d = ServerService.dataDirBawaanSegar();
@@ -610,7 +541,7 @@ public class MainActivity extends Activity {
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
             String wv = cacheWv;
             String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
-            // Trim sekali per nilai (dulu 2x tiap tick 1 dtk): hemat alokasi String di STB lama.
+
             String dRapi = d.trim();
             String pRapi = p.trim();
             String rdRapi = rd.trim();
@@ -623,14 +554,12 @@ public class MainActivity extends Activity {
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
 
-        // Peringatan bila update binary tersedia tapi belum dipasang
         boolean updAvail = false;
         String pend = pendingVersion;
         if (pend != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            // Memo pasangan (real, pending): normVersion+regex tiap detik boros
-            // di STB; hasil hanya berubah bila salah satunya berubah.
+
             String ra = real == null ? "" : real;
             boolean cocok1;
             if (ra.equals(memoCocokA) && pend.equals(memoCocokB)) {
@@ -641,12 +570,10 @@ public class MainActivity extends Activity {
                 memoCocokB = pend;
                 memoCocokHasil = cocok1;
             }
-            // Fallthrough aman: baca di bawah pakai amanString (lihat cur/up).
-            // Banding semantik (bukan equals mentah): "v"-prefix/sufiks beta
-            // tak boleh membuat banner update macet padahal versi sama.
+
             if (cocok1) {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pend).apply();
-                pendingVersion = null; // update sudah terpasang
+                pendingVersion = null;
             } else {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
@@ -662,7 +589,7 @@ public class MainActivity extends Activity {
                     memoCocokHasil2 = cocok2;
                 }
                 if (cocok2) {
-                    pendingVersion = null; // update sudah terpasang
+                    pendingVersion = null;
                 } else {
                     updAvail = !running;
                 }
@@ -678,15 +605,13 @@ public class MainActivity extends Activity {
         } else {
             updateBtn.setVisibility(View.GONE);
         }
-        // Rantai D-pad tak boleh menunjuk ke tombol yang gone: status kini
-        // di footer, jadi yang dialihkan adalah tetangga updateBtn (info URL & Start)
+
         if (updAvail != lastUpdBtnVisible) {
             lastUpdBtnVisible = updAvail;
             netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
             startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
         }
 
-        // Cache 10 detik agar tak enumerasi IP tiap tick UI (cegah ANR).
         String net;
         long now = SystemClock.elapsedRealtime();
         if (!cacheUrl.isEmpty() && now - cacheWaktu < 10000) {
@@ -701,8 +626,6 @@ public class MainActivity extends Activity {
             lastShownNet = net;
         }
 
-        // Gerbang detik: durationText+getString hanya saat detik berubah
-        // (dulu dibangun tiap tick walau teks sama). Mati/stop langsung kosong.
         long upDetik = -1;
         if (running) {
             long up = ServerService.uptimeMs();
@@ -723,7 +646,6 @@ public class MainActivity extends Activity {
             }
         }
 
-        // Gerbang komponen sebelum menyusun teks versi: tanpa alokasi saat tak berubah.
         String binVer = ServerService.binaryVersion;
         if (binVer == null) {
             binVer = "";
@@ -745,26 +667,17 @@ public class MainActivity extends Activity {
         refreshHomeLog();
 
         if (refreshActive) {
-            // Idle 2 dtk saat server mati: hemat bangun CPU di STB lama.
+
             ui.postDelayed(refreshLoop, ServerService.running ? 1000 : 2000);
         }
     }
 
-    /** Pratinjau log realtime di layar awal (ringan, tanpa pencarian). */
     private void refreshHomeLog() {
-        // Hanya tempel selisih baris baru (delta): salin+setText seluruh buffer
-        // (<=300 KB) tiap tick (1-2 dtk) bikin UI patah-patah saat log deras.
+
         String delta = "";
         synchronized (ServerService.logBuffer) {
             int n = ServerService.logBuffer.length();
-            // Cek trim di dalam lock: snapshot di luar lock bisa basi bila
-            // catatLog memangkas buffer di jeda baca, membuat log beku
-            // sampai buffer tumbuh melewati nilai basi. Saat buffer dipangkas
-            // ATAU log meledak melewati jendela tick, lompat ke EKOR: dulu
-            // offset direset ke 0 sehingga layar menampilkan bagian tertua dan
-            // tak pernah mengejar ekor bila laju log > BATAS_DELTA_TICK/tick.
-            // Mulai dari batas baris utuh agar rahasia tak tampil separuh
-            // (penyamaran bekerja per baris).
+
             if (n < lastLogLen || n - lastLogLen > BATAS_LOMPATAN) {
                 lastLogLen = awalBarisSetelah(ServerService.logBuffer,
                         Math.max(0, n - BATAS_DELTA_TICK), n);
@@ -772,32 +685,23 @@ public class MainActivity extends Activity {
                 hintShown = false;
             } else if (lastLogLen > 0 && lastLogLen <= n
                     && ServerService.logBuffer.charAt(lastLogLen - 1) != '\n') {
-                // Offset bisa jatuh di tengah baris: baris raksasa yang dilewati
-                // tick sebelumnya, atau kepala buffer hasil pangkas yang berhenti
-                // di tengah baris. Tampilkan mulai baris utuh berikutnya agar
-                // tak ada potongan baris (rahasia bisa lolos setengah).
+
                 lastLogLen = awalBarisSetelah(ServerService.logBuffer, lastLogLen, n);
             }
             if (n > lastLogLen) {
-                // Batas kerja per tick di UI thread: 13 pass regex di atas delta
-                // puluhan KB tiap tick bikin patah di STB lama. Ambil baris utuh
-                // paling banyak satu jendela tick; sisa mengalir di tick berikut.
-                // Baris yang lebih panjang dari jendela dilewati utuh (bukan
-                // dipotong di tengah) agar rahasianya tak tampil separuh.
+
                 int akhir = ujungBarisUtuh(ServerService.logBuffer, lastLogLen,
                         lastLogLen + BATAS_DELTA_TICK, n);
                 if (akhir > lastLogLen) {
                     delta = ServerService.logBuffer.substring(lastLogLen, akhir);
                     lastLogLen = akhir;
                 } else if (akhir < 0) {
-                    // Belum ada newline sampai ujung buffer: lewati baris itu
-                    // (tick ini kosong), tick berikut lanjut dari baris baru.
+
                     lastLogLen = n;
                 }
             }
         }
-        // Samarkan seperti jalur LogActivity/bagi/Telegram: token bot dan
-        // rahasia di teks exception tak boleh tampil mentah di layar.
+
         if (!delta.isEmpty() && LogActivity.butuhSamaran(delta)) {
             delta = LogActivity.samarkanLog(delta);
         }
@@ -812,10 +716,9 @@ public class MainActivity extends Activity {
             homeLogView.setText("");
             hintShown = false;
         }
-        // lastLogLen sudah maju pakai panjang mentah di atas (samaran
-        // mengubah panjang sehingga tak boleh dipakai untuk offset).
+
         tempelLogBerwarna(delta);
-        // Pengaman memori STB: tampilkan ekor saja bila teks membengkak.
+
         if (homeLogView.length() > 40000) {
             CharSequence penuh = homeLogView.getText();
             int potong = penuh.length() - 30000;
@@ -827,7 +730,7 @@ public class MainActivity extends Activity {
                 }
             }
             int awalTampil = nl < 0 ? potong : nl;
-            // Jangan belah pasangan surrogate emoji di titik potong.
+
             if (awalTampil > 0 && awalTampil < penuh.length()
                     && Character.isLowSurrogate(penuh.charAt(awalTampil))
                     && Character.isHighSurrogate(penuh.charAt(awalTampil - 1))) {
@@ -835,22 +738,19 @@ public class MainActivity extends Activity {
             }
             homeLogView.setText(penuh.subSequence(awalTampil, penuh.length()));
         }
-        // Batas 150 baris tampil: hitungBaris memindai seluruh teks tiap
-        // tick sehingga hanya jalan bila panjang mengisyaratkan over batas
-        // (150 baris pendek ~15 KB; di bawah 25 KB pasti aman, hemat CPU STB).
+
         if (homeLogView.length() > 25000) {
             int total = hitungBaris(homeLogView.getText());
             if (total > MAKS_BARIS_LOG) {
                 homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
             }
         }
-        // Gulir otomatis hanya bila pengguna tidak sedang membaca atas (saran 6).
+
         if (ikutiLog) {
             homeLogScroll.post(() -> homeLogScroll.fullScroll(View.FOCUS_DOWN));
         }
     }
 
-    /** Ekor ScrollView sudah di bawah (toleransi 8px untuk pembulatan). */
     private boolean sedangDiBawah() {
         if (homeLogScroll.getChildCount() == 0) {
             return true;
@@ -860,7 +760,6 @@ public class MainActivity extends Activity {
         return sisa <= 8;
     }
 
-    /** Jumlah baris = jumlah '\n' (satu baris terakhir tanpa newline ikut dihitung). */
     private int hitungBaris(CharSequence teks) {
         if (teks == null || teks.length() == 0) {
             return 0;
@@ -874,7 +773,6 @@ public class MainActivity extends Activity {
         return teks.charAt(teks.length() - 1) == '\n' ? n : n + 1;
     }
 
-    /** Buang sejumlah baris dari depan, span warna ikut terjaga. */
     private CharSequence buangBarisDepan(CharSequence teks, int buang) {
         int pos = 0;
         int ketemu = 0;
@@ -887,8 +785,6 @@ public class MainActivity extends Activity {
         return teks.subSequence(pos, teks.length());
     }
 
-    /** Indeks sesudah '\n' pertama pada [dari, n), atau n bila tak ada.
-     *  Pratinjau log selalu mulai dari batas baris utuh. */
     static int awalBarisSetelah(CharSequence buf, int dari, int n) {
         if (buf == null || n <= 0) {
             return 0;
@@ -901,9 +797,6 @@ public class MainActivity extends Activity {
         return n;
     }
 
-    /** Ujung potong satu tick: sesudah '\n' terakhir pada [mulai, batas], atau
-     *  n bila sisa buffer muat seluruhnya, atau -1 bila baris pertama lebih
-     *  panjang dari jendela (tak ada baris utuh yang boleh ditampilkan). */
     static int ujungBarisUtuh(CharSequence buf, int mulai, int batas, int n) {
         if (buf == null || n <= mulai) {
             return mulai;
@@ -919,19 +812,14 @@ public class MainActivity extends Activity {
         return -1;
     }
 
-    /** Warna log di-cache: getColor tiap tick boros lookup resource di STB. */
     private int warnaGalatCache = 0;
     private int warnaAwasCache = 0;
     private boolean warnaCacheSiap = false;
-    /** Batas olah log per tick layar awal (redaksi regex + span): sisa
-     *  ditunda ke tick berikut agar UI thread tak tersedak log deras. */
+
     private static final int BATAS_DELTA_TICK = 8192;
-    /** Bila tertinggal lebih dari ini (log meledak / buffer dipangkas), lompat
-     *  ke ekor alih-alih mengejar dari awal: mengejar 8 KB/tick tak akan
-     *  pernah selesai bila laju log lebih cepat dari itu. */
+
     private static final int BATAS_LOMPATAN = BATAS_DELTA_TICK * 4;
 
-    // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private void tempelLogBerwarna(String delta) {
         if (!warnaCacheSiap) {
@@ -945,9 +833,7 @@ public class MainActivity extends Activity {
         int mulai = 0;
         for (int i = 0; i <= delta.length(); i++) {
             if (i == delta.length() || delta.charAt(i) == '\n') {
-                // Sisa tanpa newline di ujung (baris parsial) ditempel apa adanya
-                // agar chunk berikut menyambung; bukan baris kosong baru.
-                // Tanpa substring per baris: uji + tempel langsung dari rentang.
+
                 if (i < delta.length() || i > mulai) {
                     int awal = tempel.length();
                     tempel.append(delta, mulai, i);
@@ -968,14 +854,11 @@ public class MainActivity extends Activity {
         homeLogView.append(tempel);
     }
 
-    /** Kata kunci pewarna log (huruf kecil semua, untuk cocok tanpa peka huruf). */
     private static final String[] KATA_GALAT =
             {"error", "exception", "panic", "gagal", "fatal", "traceback"};
     private static final String[] KATA_AWAS =
             {"warn", "peringatan", "deprecated", "awas"};
 
-    /** Varian rentang [dari, sampai): uji keyword langsung di buffer delta
-     *  tanpa substring per baris (hemat puluhan alokasi per tick). Murni. */
     static int indeksTakPekaRentang(String s, int dari, int sampai, String kata) {
         int m = kata.length();
         if (m == 0 || dari < 0 || sampai > s.length() || dari > sampai) {
@@ -996,7 +879,6 @@ public class MainActivity extends Activity {
         return -1;
     }
 
-    /** True bila salah satu kata muncul di rentang tanpa peka huruf. Murni. */
     static boolean muatKataRentang(String teks, int mulai, int akhir, String[] daftar) {
         if (teks == null || daftar == null) {
             return false;
@@ -1009,8 +891,6 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    /** Salin URL yang tampil di kartu info (pengganti tombol Salin URL).
-     *  Bersih otomatis tahan mati proses via satu pintu LogActivity. */
     private void copyShownUrl() {
         String url = ServerService.localUrl(this);
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -1025,12 +905,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Dialog Tentang: satu implementasi bersama SettingsActivity. */
     private void showAboutDialog() {
         AboutDialog.tampil(this);
     }
-
-    // ─── Auto-update check (versi binary yang benar-benar dipakai) ──────
 
     private void autoUpdateCheck() {
         AutoUpdate.cek(this, new AutoUpdate.Aksi() {
@@ -1041,7 +918,7 @@ public class MainActivity extends Activity {
                 appendUiLog(baris);
             }
             @Override public void kabariTersedia(String versi) {
-                // Toast sekali per versi: tiap buka app menawar ulang itu spam.
+
                 SharedPreferences psp = getSharedPreferences(ServerService.PREFS,
                         MODE_PRIVATE);
                 if (AutoUpdate.tawarkanBaru(
@@ -1059,8 +936,7 @@ public class MainActivity extends Activity {
             @Override public void restartServer() {
             }
         }, new AutoUpdate.AturPending() {
-            // Dipanggil dari worker thread AutoUpdate: post ke UI agar tulis
-            // terkurung di UI thread (baca banner/status juga di UI).
+
             @Override public void atur(String versi) {
                 try {
                     ui.post(() -> pendingVersion = versi);
@@ -1071,8 +947,6 @@ public class MainActivity extends Activity {
         }, false);
     }
 
-
-    /** Backup Telegram otomatis saat Start (satu implementasi di TgBackup). */
     private void maybeAutoBackup() {
         TgBackup.maybeAutoBackup(this, new TgBackup.BackupStartUi() {
             @Override public void toast(String s) {
@@ -1091,16 +965,13 @@ public class MainActivity extends Activity {
         });
     }
 
-    // ─── Kunci PIN ──────────────────────────────────────────────────────
-
     private void maybeShowPinLock() {
-        // Aturan PIN mati / grace / hash rusak ada di PinGate (satu pintu,
-        // diuji); activity hanya membuka layar kunci + guard anti-tumpuk.
+
         if (!PinGate.perlukanLayarPin(this) || pinBukaJalan) {
             return;
         }
         pinBukaJalan = true;
-        // Halaman login PIN layar penuh (bukan popup): hasil via onActivityResult.
+
         try {
             startActivityForResult(new Intent(this, PinActivity.class), REQ_PIN);
         } catch (Exception e) {
@@ -1108,11 +979,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** True bila Activity masih boleh menyentuh view/dialog. Wajib dicek DI
-     *  DALAM runnable yang diposting worker: callback AutoUpdate/backup bisa
-     *  mendarat sesudah onDestroy (Handler tetap menerima post baru walau
-     *  removeCallbacksAndMessages sudah jalan). Dulu runnable itu menulis
-     *  view/Toast milik Activity yang sudah mati (crash/log ActivityManager). */
     private boolean uiHidup() {
         return !isFinishing() && !isDestroyed();
     }
@@ -1139,9 +1005,7 @@ public class MainActivity extends Activity {
             return;
         }
         ServerService.catatLog(line);
-        // Jam elapsed (bukan dinding): jam yang dimundurkan membuat selisih
-        // negatif sehingga refresh macet sampai jam menyusul. Ledakan log
-        // tidak boleh membanjiri UI thread.
+
         long now = SystemClock.elapsedRealtime();
         if (now - lastUiLogRefresh > 500) {
             lastUiLogRefresh = now;

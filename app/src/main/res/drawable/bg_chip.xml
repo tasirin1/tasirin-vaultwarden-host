@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Chip navigasi pil ala TDM: normal terang + stroke garis, fokus jingga
-     3dp agar seragam, tekan biru muda.
-     Warna adaptif siang/malam. -->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">

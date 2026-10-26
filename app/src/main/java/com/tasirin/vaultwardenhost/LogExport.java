@@ -13,24 +13,19 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-/** Simpan log ke .txt di Download (dipakai LogActivity).
- *  Return nama file bila sukses, null bila gagal. */
 public final class LogExport {
 
     private LogExport() {
     }
 
-    /** Acak bersama: new SecureRandom tiap export bisa blokir seed di kernel lama. */
     private static final java.security.SecureRandom ACAK =
             new java.security.SecureRandom();
-    // API lawas sengaja: Downloads publik pra-29 + getPackageInfo satu jalur API 21-32.
+
     @SuppressWarnings("deprecation")
     public static String simpanKeDownload(Activity act, String logMentah) {
         String log = LogActivity.butuhSamaran(logMentah)
                 ? LogActivity.samarkanLog(logMentah) : (logMentah == null ? "" : logMentah);
-        // Kepala tetap kecil: badan log ditulis streaming terpisah agar tak
-        // ada salinan String+byte ganda 300 KB di heap STB (dulu header
-        // menampung seluruh log lalu toString+getBytes menggandakannya).
+
         StringBuilder kepala = new StringBuilder(256);
         kepala.append("=== Tasirin Vaultwarden Host - Server Log (realtime) ===\n");
         kepala.append("Time: ")
@@ -46,15 +41,11 @@ public final class LogExport {
         }
         kepala.append("Android: ").append(Build.VERSION.RELEASE)
                 .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        // Privasi: sidik perangkat (merek + model) sengaja tak diekspor agar
-        // berkas log yang dibagikan tak memuat fingerprint perangkat.
+
         kepala.append("Device: [perangkat disamarkan]\n\n");
         String kepalaTeks = kepala.toString();
         String badan = log.isEmpty() ? "(No server activity yet)\n" : log;
 
-        // Milidetik + akhiran acak 48-bit: dua export dalam ms yang sama
-        // (ketuk ganda) tak saling timpa; acak 16-bit lama tabrakan 1/65536
-        // dan jalur legacy menimpa file yang sudah ada.
         String stamp = Util.formatTanggalSekarang("yyyyMMdd-HHmmss-SSS");
         String name = namaLog(stamp, ACAK);
         boolean ok = false;
@@ -100,9 +91,7 @@ public final class LogExport {
                     }
                 }
             } catch (Exception ignored) {
-                // Lempar di jeda insert-vs-tulis (mis. openOutputStream melempar
-                // sebelum masuk try dalam): hapus pending agar tak jadi orphan
-                // tak terlihat di Download.
+
                 try {
                     if (!ok && pendingUri != null) {
                         act.getContentResolver().delete(pendingUri, null, null);
@@ -111,9 +100,7 @@ public final class LogExport {
                 }
             }
         } else {
-            // Lapis kedua (pemanggil LogActivity sudah cek dulu): tanpa izin
-            // tulis, FileOutputStream pasti gagal — tolak eksplisit agar tak
-            // dikira galat I/O misterius.
+
             try {
                 if (!StoragePerm.sudahPunyaAkses(act)) {
                     return null;
@@ -125,8 +112,7 @@ public final class LogExport {
                 File dir = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 if (dir != null && (dir.isDirectory() || dir.mkdirs())) {
-                    // createNewFile atomik (bukan timpa): nama yang sudah ada
-                    // (tabrakan acak / file lama) tak akan ditimpa atau dihapus.
+
                     for (int coba = 0; coba < 5 && tujuan == null; coba++) {
                         if (coba > 0) {
                             name = namaLog(stamp, ACAK);
@@ -137,17 +123,14 @@ public final class LogExport {
                                 tujuan = cand;
                             }
                         } catch (Exception ignored) {
-                            // Galat I/O bisa transient (balap nama/ledakan sesaat):
-                            // coba nama acak baru, terbatas 5x agar tak putar sia-sia.
+
                             continue;
                         }
                     }
                     if (tujuan == null) {
                         return null;
                     }
-                    // Tutup TOCTOU cek-vs-buka: pastikan file baru masih di
-                    // dalam Download dan bukan symlink yang ditukar app lain
-                    // di jeda createNewFile-vs-tulis.
+
                     try {
                         String kanonDir = dir.getCanonicalPath();
                         String kanonTujuan = tujuan.getCanonicalPath();
@@ -177,7 +160,6 @@ public final class LogExport {
         return ok ? name : null;
     }
 
-    /** Nama file log unik (acak 48-bit agar ketuk ganda dalam ms sama tak tabrakan). */
     private static String namaLog(String stamp, java.security.SecureRandom rnd) {
         long acak = rnd.nextLong() & 0xFFFFFFFFFFFFL;
         return "tasirin-vaultwarden-host-log-" + stamp + "-"

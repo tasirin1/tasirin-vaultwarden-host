@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test throttle alarm umum (murni waktu, tanpa Android runtime). */
 public class AlarmReceiverTest {
 
     @Test

@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Gaya Tasirin Download Manager: bilah atas ramping (tanpa hero) + chip
-     navigasi + 5 seksi lipat (Server, Keamanan, Perawatan, Telegram, Log).
-     Semua ID fungsional dipertahankan; findViewById tetap bekerja via <include>.
-     Tiap header bisa difokus D-pad (@drawable/item_focus_bg). -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Bilah atas ala Toolbar TDM: primary solid + panah kembali + judul putih. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
@@ -41,7 +37,6 @@
 
     </LinearLayout>
 
-    <!-- Chip navigasi ala Download Manager: ketuk = buka + gulir ke seksi -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -141,7 +136,6 @@
             android:paddingStart="@dimen/side_padding"
             android:paddingEnd="@dimen/side_padding">
 
-        <!-- Rincian versi, DB & storage -->
         <TextView
             android:id="@+id/version"
             style="@style/TasirinInfo"
@@ -150,7 +144,6 @@
             android:background="@drawable/bg_info_box"
             android:padding="12dp" />
 
-        <!-- ===================== SEKSI: SERVER ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -218,7 +211,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SEKSI: KEAMANAN ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -286,7 +278,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SEKSI: PERAWATAN ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -354,7 +345,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SEKSI: TELEGRAM ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -422,7 +412,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SEKSI: LOG ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

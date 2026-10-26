@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-/** Unit test fungsi murni Settings — tanpa Android runtime (jalan di CI via JVM). */
 public class SettingsActivityTest {
 
     @Test
@@ -131,7 +130,7 @@ public class SettingsActivityTest {
         assertNull(SettingsActivity.galatChat("-1001234567890", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("abc", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("12.5", "SALAH"));
-        // Username selaras Util.cocokChat (huruf/angka/garis-bawah, min 5).
+
         assertNull(SettingsActivity.galatChat("@namabot", "SALAH"));
         assertNull(SettingsActivity.galatChat("namabot123", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("@12345", "SALAH"));
@@ -151,7 +150,7 @@ public class SettingsActivityTest {
 
     @Test
     public void galatChatSatuEntriTanpaAlokasi() {
-        // Jalur cepat satu token (tanpa pemisah) wajib setara parser daftar.
+
         assertNull(SettingsActivity.galatChat("  123456789  ", "SALAH"));
         assertNull(SettingsActivity.galatChat("  @namabot  ", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("  abc  ", "SALAH"));
@@ -177,8 +176,7 @@ public class SettingsActivityTest {
 
     @Test
     public void startDitahanSaatTugasDataUiAtauLatar() {
-        // Dipakai saveAndStart(): jangan menulis prefs dari form selagi
-        // backup/restore berjalan (nilai bisa pra-restore dan prefs ditimpa).
+
         assertFalse(SettingsActivity.startDitahanSaatTugasData(false, false));
         assertTrue(SettingsActivity.startDitahanSaatTugasData(true, false));
         assertTrue(SettingsActivity.startDitahanSaatTugasData(false, true));
@@ -216,29 +214,25 @@ public class SettingsActivityTest {
 
     @Test
     public void gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda() {
-        // Mengetik PIN baru saat PIN aktif = MENGGANTI PIN lama: wajib konfirmasi
-        // (dulu hash langsung ditimpa tanpa tanya, salah ketik = app terkunci).
+
         assertTrue(SettingsActivity.perluKonfirmasiGantiPin(true, true));
-        // Pemasangan awal (belum ada hash) tetap tanpa dialog.
+
         assertFalse(SettingsActivity.perluKonfirmasiGantiPin(true, false));
-        // Centang mati: hash tak ditulis, jadi tak perlu dialog.
+
         assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, true));
         assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, false));
     }
 
     @Test
     public void aktivasiPinBasiTidakBolehMenyalakanPin() {
-        // Worker PBKDF2 hanya menulis pin_on=true bila permintaannya masih
-        // terbaru; centang mati / onDestroy menaikkan epoch sehingga worker
-        // basi tak menghidupkan PIN di belakang user.
+
         assertTrue(SettingsActivity.aktivasiPinMasihBerlaku(3, 3));
         assertFalse(SettingsActivity.aktivasiPinMasihBerlaku(2, 3));
     }
 
     @Test
     public void dialogPinDilarangSejakOnDestroy() {
-        // Rotasi memanggil onDestroy dengan isFinishing()/isDestroyed() masih
-        // false: flag onDestroy-lah yang mencegah dialog menempel ke window mati.
+
         assertTrue(SettingsActivity.bolehDialogPin(true, false, false));
         assertFalse(SettingsActivity.bolehDialogPin(false, false, false));
         assertFalse(SettingsActivity.bolehDialogPin(true, true, false));

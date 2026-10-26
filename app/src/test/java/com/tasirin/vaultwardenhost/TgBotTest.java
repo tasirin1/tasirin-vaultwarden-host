@@ -8,13 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test logika murni perintah Telegram (tanpa Android runtime). */
 public class TgBotTest {
-
 
     @Test
     public void peringatkanHapusPinAbaikanContextNull() {
-        // Tanpa Context (atau sudah tercatat) tak boleh melempar di thread bot.
+
         TgBot.peringatkanBilaTakBisaHapus(null, true, 123456789L);
         TgBot.peringatkanBilaTakBisaHapus(null, false, -1001234567890L);
     }
@@ -76,8 +74,7 @@ public class TgBotTest {
         long mundur = maks - 3600_000L;
         assertTrue(TgBot.jamMundur(mundur));
         TgBot.catatMundurDanBolehIngatkan(mundur);
-        // Tanda air bertahan: rollback yang sama tetap terdeteksi (tak pulih
-        // palsu), dan jam normal tak dianggap mundur.
+
         assertTrue(TgBot.jamMundur(mundur));
         assertFalse(TgBot.jamMundur(maks));
         TgBot.catatWall(maks);
@@ -139,7 +136,7 @@ public class TgBotTest {
                 "m:sertifikat", "m:info"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
-        // Panel tak dikenal jatuh ke menu utama (fail-safe).
+
         assertEquals(json, TgBot.keyboardMenu("tidak-ada"));
         assertTrue(TgBot.panelMenuValid(TgBot.MENU_KONTROL));
         assertFalse(TgBot.panelMenuValid("batal"));
@@ -221,8 +218,7 @@ public class TgBotTest {
 
     @Test
     public void pisahkanPinAlfanumerikDidukung() {
-        // Kata tunggal huruf bukan PIN (argumen salah ketik tak boleh makan
-        // lockout): PIN alnum kata tunggal wajib bentuk eksplisit PIN:.
+
         assertArrayEquals(new String[]{"ab12", ""}, TgBot.pisahkanPin("ab12"));
         assertArrayEquals(new String[]{"", "ab12"}, TgBot.pisahkanPin("PIN:ab12"));
         assertArrayEquals(new String[]{"webvault", ""}, TgBot.pisahkanPin("webvault"));
@@ -233,16 +229,14 @@ public class TgBotTest {
 
     @Test
     public void pinBerisiMarkerAtauSpasiDipakaiLewatPenandaInternal() {
-        // Alur tombol ber-PIN menempelkan PIN sebagai penanda hex: PIN yang
-        // memuat "PIN:" atau spasi di ujung tak boleh terpotong pemisah teks
-        // (dulu setiap percobaan sah dihitung gagal sampai PIN terkunci).
+
         String pinAneh = "kunci PIN:99 ";
         assertEquals(pinAneh, TgBot.pinDariPenanda(TgBot.pinKePenanda(pinAneh)));
         assertArrayEquals(new String[]{"/stop", pinAneh},
                 TgBot.pisahkanPin("/stop " + TgBot.pinKePenanda(pinAneh)));
         assertEquals("", TgBot.pinDariPenanda("tanpa penanda"));
         assertEquals("", TgBot.pinDariPenanda(TgBot.pinKePenanda("")));
-        // Bentuk eksplisit ber-kutip: marka "PIN:" di dalam PIN tak dipakai.
+
         assertArrayEquals(new String[]{"", "kunci PIN:99"},
                 TgBot.pisahkanPin("PIN:\"kunci PIN:99\""));
         assertArrayEquals(new String[]{"YA", "kunci PIN:99"},
@@ -260,17 +254,16 @@ public class TgBotTest {
 
     @Test
     public void pinDariBalasanBedakanPinDanObrolan() {
-        // PIN implisit: satu token, min 4, berdigit.
+
         assertEquals("123456", TgBot.pinDariBalasan("123456"));
         assertEquals("123456", TgBot.pinDariBalasan("  123456 "));
         assertEquals("ab12", TgBot.pinDariBalasan("ab12"));
-        // Bentuk eksplisit: PIN boleh ber-spasi/huruf murni tanpa digit.
+
         assertEquals("123456", TgBot.pinDariBalasan("PIN:123456"));
         assertEquals("hunter2", TgBot.pinDariBalasan("pin: hunter2"));
         assertEquals("kunci saya", TgBot.pinDariBalasan("PIN:\"kunci saya\""));
         assertEquals("p@ss", TgBot.pinDariBalasan("PIN:p@ss"));
-        // Obrolan biasa bukan percobaan PIN: dulu lima pesan seperti ini
-        // mengunci PIN app 5 menit lewat PinGate bersama.
+
         assertNull(TgBot.pinDariBalasan("halo"));
         assertNull(TgBot.pinDariBalasan("tolong bantu"));
         assertNull(TgBot.pinDariBalasan("webvault"));
@@ -284,8 +277,7 @@ public class TgBotTest {
 
     @Test
     public void pisahkanPinVersiBukanPin() {
-        // Nomor versi di posisi akhir bukan PIN: salah ketik versi tak boleh
-        // membakar lockout; PIN numerik murni tetap dimakan sebagai PIN.
+
         assertArrayEquals(new String[]{"1.32.0", ""}, TgBot.pisahkanPin("1.32.0"));
         assertArrayEquals(new String[]{"terbaru 1.32.0", ""},
                 TgBot.pisahkanPin("terbaru 1.32.0"));
@@ -303,8 +295,7 @@ public class TgBotTest {
 
     @Test
     public void pisahkanPinTelanjangBukanPin() {
-        // Token "PIN:" tanpa isi bukan PIN: salah ketik tak boleh dimakan
-        // agar tak menambah hitungan lockout sia-sia.
+
         assertArrayEquals(new String[]{"foo PIN:", ""}, TgBot.pisahkanPin("foo PIN:"));
         assertArrayEquals(new String[]{"PIN:", ""}, TgBot.pisahkanPin("PIN:"));
     }
@@ -355,7 +346,7 @@ public class TgBotTest {
         assertTrue(TgBot.perintahBerbahaya("/stop"));
         assertTrue(TgBot.perintahBerbahaya("/stop 123456"));
         assertTrue(TgBot.perintahBerbahaya("/restore YA 123456"));
-        // Perintah baca bukan pengubah keadaan (dijaga perintahPerluPin).
+
         assertFalse(TgBot.perintahBerbahaya("/status"));
         assertFalse(TgBot.perintahBerbahaya("/status 123456"));
         assertFalse(TgBot.perintahBerbahaya("/log"));
@@ -402,7 +393,7 @@ public class TgBotTest {
         assertFalse(TgBot.isRestoreConfirm("tidak"));
         assertFalse(TgBot.isRestoreConfirm("backup"));
         assertFalse(TgBot.isRestoreConfirm("YA sekarang"));
-        // Kata umum yang dulu diterima kini ditolak (anti-restore nyasar).
+
         assertFalse(TgBot.isRestoreConfirm("ok"));
         assertFalse(TgBot.isRestoreConfirm("Y"));
         assertFalse(TgBot.isRestoreConfirm("lanjut"));
@@ -412,12 +403,12 @@ public class TgBotTest {
     public void potongEkor_takMemenggalTengahBaris() {
         assertEquals("", TgBot.potongEkor(null, 10));
         assertEquals("abc", TgBot.potongEkor("abc", 10));
-        // Potong di batas baris: sisa mulai setelah newline pertama di jendela.
+
         String panjang = "baris-satu-panjang\ndua\ntiga";
         String potong = TgBot.potongEkor(panjang, 8);
         assertTrue(potong.startsWith("..."));
         assertFalse(potong.contains("baris-satu-panjang"));
-        // Tanpa newline di jendela: fallback potong persis.
+
         assertEquals("...cdef", TgBot.potongEkor("abcdef", 4));
     }
 
@@ -472,7 +463,7 @@ public class TgBotTest {
         assertEquals("", TgBot.lolosJson(null));
         assertEquals("a\\\"b\\\\c", TgBot.lolosJson("a\"b\\c"));
         assertEquals("x\\ny", TgBot.lolosJson("x\ny"));
-        // Escape \\uXXXX wajib digit ASCII walau locale berdigit non-Latin.
+
         java.util.Locale semula = java.util.Locale.getDefault();
         try {
             java.util.Locale.setDefault(new java.util.Locale("ar", "EG"));
@@ -489,7 +480,7 @@ public class TgBotTest {
     public void lolosJson_amankanUnicodeKhususDanSurrogate() {
         assertEquals("\\u2028", TgBot.lolosJson("\u2028"));
         assertEquals("\\u2029", TgBot.lolosJson("\u2029"));
-        // Surrogate yatim di-escape, pasangan valid (emoji) dibiarkan utuh.
+
         assertEquals("\\ud800", TgBot.lolosJson("\ud800"));
         assertEquals("\\udc00", TgBot.lolosJson("\udc00"));
         assertEquals("\ud83d\ude00", TgBot.lolosJson("\ud83d\ude00"));
@@ -503,8 +494,7 @@ public class TgBotTest {
 
     @Test
     public void pesanPinWajibHapus_crashlogIkutDihapus() {
-        // Semua perintah yang dijaga PIN wajib dihapus dari riwayat setelah
-        // lolos (membawa PIN asli + isi sensitif).
+
         assertTrue(TgBot.pesanPinWajibHapus("/crashlog 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/log 123456"));
         assertTrue(TgBot.pesanPinWajibHapus("/status 123456"));
@@ -520,8 +510,7 @@ public class TgBotTest {
 
     @Test
     public void pinTebakan_grupHanyaKenaliTebakanSah() {
-        // Jalur tolak grup: hanya tebakan PIN sungguhan yang dihitung gagal
-        // dan pesannya dihapus — spam tanpa PIN tak boleh mengunci pemilik.
+
         assertEquals("123456", TgBot.pinTebakan("/stop 123456"));
         assertEquals("123456", TgBot.pinTebakan("/status 123456"));
         assertEquals("ab12", TgBot.pinTebakan("/stop PIN:ab12"));
@@ -562,8 +551,7 @@ public class TgBotTest {
     public void idBotDariToken_kenaliPemilikToken() {
         assertEquals("123456789", TgBot.idBotDariToken("123456789:AAF-abc_xyz"));
         assertEquals("123456789", TgBot.idBotDariToken("  123456789:AAF  "));
-        // Token tak berpola = "" (bukan "bot baru"), agar typo tak memicu
-        // getMe berulang tiap poll.
+
         assertEquals("", TgBot.idBotDariToken(null));
         assertEquals("", TgBot.idBotDariToken(""));
         assertEquals("", TgBot.idBotDariToken("tanpa-titik-dua"));
@@ -614,11 +602,11 @@ public class TgBotTest {
                         "{\"ok\": false, \"error_code\": 409, "
                                 + "\"description\": \"Conflict: terminated by other getUpdates request\"}",
                         409));
-        // Body hilang/bukan JSON: kode HTTP saja (body mentah tak boleh dicatat).
+
         assertEquals("HTTP 500", TgBot.ringkasGalatTelegram(null, 500));
         assertEquals("HTTP 502", TgBot.ringkasGalatTelegram("<html>bad gateway</html>", 502));
         assertEquals("tanpa keterangan", TgBot.ringkasGalatTelegram(null, 0));
-        // Deskripsi panjang dipangkas agar log STB tetap ringkas.
+
         StringBuilder isiPanjang = new StringBuilder();
         for (int i = 0; i < 300; i++) {
             isiPanjang.append('x');
@@ -631,21 +619,20 @@ public class TgBotTest {
     @Test
     public void wallBolehMaju_tolakJam1970DanLompatanRaksasa() {
         long sane = 1_700_000_000_000L;
-        assertTrue(TgBot.wallBolehMaju(0, sane));                  // patokan pertama
-        assertTrue(TgBot.wallBolehMaju(sane, sane + 3_600_000L));  // maju 1 jam
+        assertTrue(TgBot.wallBolehMaju(0, sane));
+        assertTrue(TgBot.wallBolehMaju(sane, sane + 3_600_000L));
         assertTrue(TgBot.wallBolehMaju(sane,
-                sane + TgBot.BATAS_LOMPATAN_JAM_MS));               // tepat batas
+                sane + TgBot.BATAS_LOMPATAN_JAM_MS));
         assertFalse(TgBot.wallBolehMaju(sane,
-                sane + TgBot.BATAS_LOMPATAN_JAM_MS + 1));           // lewat batas
-        assertFalse(TgBot.wallBolehMaju(sane, sane));               // tidak maju
-        assertFalse(TgBot.wallBolehMaju(sane, sane - 1_000L));      // mundur
-        assertFalse(TgBot.wallBolehMaju(0, 5_000L));                // RTC 1970
+                sane + TgBot.BATAS_LOMPATAN_JAM_MS + 1));
+        assertFalse(TgBot.wallBolehMaju(sane, sane));
+        assertFalse(TgBot.wallBolehMaju(sane, sane - 1_000L));
+        assertFalse(TgBot.wallBolehMaju(0, 5_000L));
     }
 
     @Test
     public void wakelockTugasBeratCukupUntukUnduhanLambat() {
-        // /webvault mengunduh ~35 MB: pada 30 KB/s perlu ~20 menit. Batas 3
-        // menit (nilai lama) membuat CPU tidur di tengah transfer.
+
         long menit = TgBot.WAKELOCK_TUGAS_BERAT_MS / 60_000L;
         assertTrue("wakelock tugas berat minimal 15 menit, kini " + menit,
                 menit >= 15);

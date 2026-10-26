@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test logika izin storage murni (tanpa Android runtime). */
 public class StoragePermTest {
 
     @Test
@@ -38,7 +37,7 @@ public class StoragePermTest {
     public void cukupAkses_api30TerimaLegacyAtauKelola() {
         assertTrue(StoragePerm.cukupAkses(30, true, false));
         assertTrue(StoragePerm.cukupAkses(34, true, true));
-        // targetSdk 28 tetap legacy: izin tulis runtime cukup di Android 11+.
+
         assertTrue(StoragePerm.cukupAkses(30, false, true));
         assertTrue(StoragePerm.cukupAkses(33, false, true));
         assertFalse(StoragePerm.cukupAkses(33, false, false));

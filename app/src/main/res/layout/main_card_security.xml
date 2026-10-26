@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Kartu Keamanan: Admin Token + PIN. Pindahan dari kartu Server agar Server ramping. -->
+
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-                <!-- Dulu ada baris ringkasan + tombol Ubah yang selalu GONE
-                     (tak pernah dimunculkan kode), sehingga nextFocus di
-                     kartu lain menunjuk view tak terlihat. Detail kini
-                     selalu tampil penuh: baris itu dibuang. -->
             <TextView
                 style="@style/TasirinSub"
                 android:layout_width="match_parent"

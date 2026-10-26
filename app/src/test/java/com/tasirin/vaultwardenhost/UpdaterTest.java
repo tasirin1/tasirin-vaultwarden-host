@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test fungsi murni — tanpa Android runtime (jalan di CI via JVM). */
 public class UpdaterTest {
 
     @Test
@@ -17,7 +16,7 @@ public class UpdaterTest {
         assertTrue(Updater.kodeSementara(408));
         assertTrue(Updater.kodeSementara(500));
         assertTrue(Updater.kodeSementara(503));
-        // GitHub membalas 403 (bukan 429) saat rate-limit: wajib dicoba ulang.
+
         assertTrue(Updater.kodeSementara(403));
         assertFalse(Updater.kodeSementara(404));
         assertFalse(Updater.kodeSementara(200));
@@ -41,11 +40,11 @@ public class UpdaterTest {
                 "vw-wvpayload-" + System.nanoTime());
         assertTrue(dir.mkdirs());
         assertFalse(Updater.wvPayloadAda(dir));
-        // Penanda versi saja bukan payload: web UI tetap 404 tanpa index.html.
+
         java.io.File json = new java.io.File(dir, "vw-version.json");
         assertTrue(json.createNewFile());
         assertFalse(Updater.wvPayloadAda(dir));
-        // index.html kosong juga bukan payload (swap terputus).
+
         java.io.File idx = new java.io.File(dir, "index.html");
         assertTrue(idx.createNewFile());
         assertFalse(Updater.wvPayloadAda(dir));
@@ -69,7 +68,7 @@ public class UpdaterTest {
         assertTrue(out.isFile());
         assertFalse(tmp.exists());
         assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
-        // Checksum salah: berkas tujuan lama tak boleh tersentuh dan tmp dibuang.
+
         java.io.File tmp2 = new java.io.File(dir, "bin2.tmp");
         java.nio.file.Files.write(tmp2.toPath(), new byte[]{9});
         boolean gagal = false;
@@ -93,10 +92,10 @@ public class UpdaterTest {
         byte[] isi = new byte[]{5, 6, 7, 8};
         java.nio.file.Files.write(out.toPath(), isi);
         String sha = Updater.sha256Hex(out);
-        // Unduhan paralel versi sama sudah me-rename tmp -> out: bukan galat.
+
         Updater.pasangHasilUnduh(tmp, out, sha);
         assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
-        // Tujuan tak cocok + tmp hilang = gagal jelas, bukan sukses palsu.
+
         boolean gagal = false;
         try {
             Updater.pasangHasilUnduh(tmp, new java.io.File(dir, "bin-lain"), sha);
@@ -122,12 +121,10 @@ public class UpdaterTest {
             assertTrue(Updater.tautanSimbol(link.toFile()));
             link.toFile().delete();
         } catch (UnsupportedOperationException | java.io.IOException e) {
-            // FS tanpa symlink: lewati bagian link, file biasa tetap teruji.
+
         }
         try {
-            // Induk berupa symlink (seperti /sdcard di Android): anak biasa
-            // tidak boleh dianggap tautan, kalau tidak hapus rekursif berhenti
-            // di satu entri dan sisa folder menumpuk.
+
             java.io.File sub = new java.io.File(dir, "sub");
             assertTrue(sub.mkdirs());
             java.nio.file.Path indukLink = new java.io.File(dir, "induk-link").toPath();
@@ -139,7 +136,7 @@ public class UpdaterTest {
             indukLink.toFile().delete();
             sub.delete();
         } catch (UnsupportedOperationException | java.io.IOException e) {
-            // FS tanpa symlink: lewati.
+
         }
         biasa.delete();
         dir.delete();
@@ -163,12 +160,11 @@ public class UpdaterTest {
         Object kedua = Updater.kunciUnduh(a);
         assertTrue(pertama == kedua);
         Updater.lepasKunciUnduh(a);
-        // Masih ada satu pemakai: kunci yang sama wajib dipakai ulang.
+
         assertTrue(pertama == Updater.kunciUnduh(a));
         Updater.lepasKunciUnduh(a);
         Updater.lepasKunciUnduh(a);
-        // Pemakai terakhir selesai: entri dibuang, path yang sama boleh
-        // mendapat objek baru tanpa menahan memori selamanya.
+
         Object baru = Updater.kunciUnduh(a);
         assertTrue(pertama != baru);
         Updater.lepasKunciUnduh(a);
@@ -274,8 +270,7 @@ public class UpdaterTest {
 
     @Test
     public void parseBinaryVersion_memoAmanAntarThread() throws Exception {
-        // Regresi balapan memo: dua field terpisah dulu bisa terbaca silang
-        // (masuk baru + hasil lama) sehingga versi terbaca salah.
+
         final String a = "vaultwarden 1.2.3";
         final String b = "vaultwarden 4.5.6";
         final java.util.concurrent.atomic.AtomicBoolean gagal =
@@ -448,8 +443,7 @@ public class UpdaterTest {
             h[3] = 'F';
             h[4] = 1;
             h[5] = 1;
-            // e_type ET_DYN=3 di 16-17: guard agar implementasi tak tertukar
-            // membaca e_type (3 != 40 sehingga binary valid akan ditolak).
+
             if (total > 16) {
                 h[16] = 3;
             }
@@ -575,9 +569,7 @@ public class UpdaterTest {
 
     @Test
     public void pindaiTag_satuPintuUntukRilisTunggalDanDaftar() {
-        // Dulu extractTag langsung menyerah (null) begitu nilai tag_name bukan
-        // string, sedangkan parseDaftarTag melewatinya. Kini keduanya memakai
-        // pemindai yang sama: nilai non-string dilewati, tag sah berikutnya dipakai.
+
         String body = "{\"tag_name\": 123, \"r\": {\"tag_name\": \"v1.2.3\"}}";
         assertEquals("v1.2.3", Updater.extractTag(body));
         assertEquals(1, Updater.parseDaftarTag(body, 5).size());
@@ -586,8 +578,7 @@ public class UpdaterTest {
 
     @Test
     public void shimValid_terimaShimRilis2712Byte() throws Exception {
-        // Regresi: shim rilis v1.37.3 hanya 2712 byte (stripped) sehingga
-        // batas minimum lama 4096 byte selalu menolaknya sebagai tidak valid.
+
         assertTrue(KernelCompat.SHIM_MIN_BYTES <= 2712);
         java.io.File elf = buatBerkasElf(2712);
         try {
@@ -623,7 +614,7 @@ public class UpdaterTest {
         assertFalse(Updater.amanEntriZip("C:evil"));
         assertFalse(Updater.amanEntriZip(""));
         assertFalse(Updater.amanEntriZip(null));
-        // Tolak entri "." dan "./" (current dir)
+
         assertFalse(Updater.amanEntriZip("."));
         assertFalse(Updater.amanEntriZip("./file.txt"));
         assertFalse(Updater.amanEntriZip("dir/./file.txt"));
@@ -682,8 +673,7 @@ public class UpdaterTest {
         java.io.File f = java.io.File.createTempFile("shim", ".so");
         java.io.FileOutputStream o = new java.io.FileOutputStream(f);
         try {
-            // Header ELF ARM 32-bit valid (magic + EI_DATA little-endian +
-            // e_type ET_DYN=3 + e_machine EM_ARM=40) agar isElf() menerimanya.
+
             byte[] kepala = new byte[ukuran];
             kepala[0] = 0x7F;
             kepala[1] = (byte) 'E';
@@ -753,16 +743,15 @@ public class UpdaterTest {
 
     @Test
     public void wvBedaVersiServer_hanyaDariPenanda() {
-        // Penanda KEY_WV_FROM memakai namespace Vaultwarden: boleh dibandingkan.
+
         assertTrue(Updater.wvBedaVersiServer("1.32.0", "1.33.0"));
         assertFalse(Updater.wvBedaVersiServer("1.32.0", "v1.32.0"));
         assertFalse(Updater.wvBedaVersiServer("1.32", "1.32.0"));
-        // Tanpa penanda (mis. hanya vw-version.json Bitwarden) tak boleh
-        // dianggap "beda": namespace berbeda, dulu memicu tawaran 35 MB.
+
         assertFalse(Updater.wvBedaVersiServer(null, "1.32.0"));
         assertFalse(Updater.wvBedaVersiServer("", "1.32.0"));
         assertFalse(Updater.wvBedaVersiServer("   ", "1.32.0"));
-        // Versi server tak diketahui: jangan menawarkan update.
+
         assertFalse(Updater.wvBedaVersiServer("1.32.0", null));
         assertFalse(Updater.wvBedaVersiServer("1.32.0", ""));
     }
@@ -775,7 +764,7 @@ public class UpdaterTest {
 
     @Test
     public void bandingVersi_titikEkorDanTengah() {
-        // Samakan split(limit 0): ekor kosong dibuang, tengah = rusak.
+
         assertTrue(Updater.bandingVersi("1.37.", "1.37") == 0);
         assertTrue(Updater.bandingVersi("1.37.", "1.37.0") == 0);
         assertTrue(Updater.bandingVersi("1..2", "1.37.1") < 0);
@@ -872,7 +861,6 @@ public class UpdaterTest {
         assertNull(Updater.readWvVersion(new java.io.File("/tmp/vw-tidak-ada-xyz.json")));
     }
 
-
     @Test
     public void normalisasiPinVersi_kupasBuildMetadata() {
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0+build5"));
@@ -943,15 +931,14 @@ public class UpdaterTest {
 
     @Test
     public void namaTmpUnduh_pisahkanPerVersiAgarByteTakTercampur() {
-        // Versi berbeda wajib memakai file .tmp berbeda: sisa unduhan versi
-        // lama tak boleh dilanjutkan (Range) oleh versi baru.
+
         assertEquals("vaultwarden-armeabi-v7a.1.37.3.tmp",
                 Updater.namaTmpUnduh("vaultwarden-armeabi-v7a", "1.37.3"));
         assertEquals("vaultwarden-armeabi-v7a.1.38.0.tmp",
                 Updater.namaTmpUnduh("vaultwarden-armeabi-v7a", "v1.38.0"));
         assertFalse(Updater.namaTmpUnduh("bin", "1.37.3")
                 .equals(Updater.namaTmpUnduh("bin", "1.38.0")));
-        // Versi tak dikenal (API gagal) punya nama sendiri, bukan berbaur.
+
         assertEquals("web-vault.zip.terbaru.tmp",
                 Updater.namaTmpUnduh("web-vault.zip", null));
         assertEquals("web-vault.zip.terbaru.tmp",
@@ -1043,7 +1030,7 @@ public class UpdaterTest {
                 hexLama + "  vaultwarden-armeabi-v7a", hexBaru + "  web-vault.zip");
         assertEquals(hexBaru, Updater.pindaiHexDariBaris(baris, "web-vault.zip"));
         assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, "vaultwarden-armeabi-v7a"));
-        // Tanpa nama: fallback hex pertama (kompatibel perilaku lama).
+
         assertEquals(hexLama, Updater.pindaiHexDariBaris(baris, null));
     }
 
@@ -1059,8 +1046,7 @@ public class UpdaterTest {
 
     @Test
     public void bolehCobaLagiUnduh_badanTerputusDilanjutkan() {
-        // Badan berhenti sebelum Content-Length: diulang TANPA membuang parsial
-        // (byte yang sudah masuk masih berurutan benar -> lanjut via Range).
+
         assertTrue(Updater.bolehCobaLagiUnduh(
                 new java.io.IOException("Unduhan terputus di 12000 dari 20000 byte"
                         + " - dilanjutkan dari titik terakhir.")));
@@ -1081,11 +1067,11 @@ public class UpdaterTest {
     @Test
     public void dalamJedaCek_hematRequestSaatJaringanGangguan() {
         long sekarang = 1_000_000_000L;
-        assertFalse(Updater.dalamJedaCek(0, sekarang)); // belum pernah gagal
+        assertFalse(Updater.dalamJedaCek(0, sekarang));
         assertTrue(Updater.dalamJedaCek(sekarang - 1000, sekarang));
         assertTrue(Updater.dalamJedaCek(sekarang - Updater.JEDA_CEK_GANGGUAN_MS + 1, sekarang));
         assertFalse(Updater.dalamJedaCek(sekarang - Updater.JEDA_CEK_GANGGUAN_MS, sekarang));
-        // Jam STB mundur: jangan pernah menahan probe selamanya.
+
         assertFalse(Updater.dalamJedaCek(sekarang + 60_000, sekarang));
     }
 
@@ -1098,8 +1084,7 @@ public class UpdaterTest {
             target.ambil("http://127.0.0.1:1/vaultwarden.sha256");
             org.junit.Assert.fail("checksum via http polos wajib ditolak");
         } catch (java.io.IOException e) {
-            // Fail-closed sebelum jaringan: tidak ada checksum palsu dari
-            // kanal tanpa TLS, dan tak ada nilai yang tersimpan.
+
             assertTrue(e.getMessage().contains("demi keamanan"));
         }
         assertNull(simpan[0]);
@@ -1154,8 +1139,7 @@ public class UpdaterTest {
 
     @Test
     public void kuncianDuaBagianDitolak() {
-        // "1.32" lolos bandingVersi tapi URL asset v1.32 selalu 404:
-        // wajib ditolak di normalisasi agar pin lama bertahan.
+
         assertNull(Updater.normalisasiPinVersi("1.32"));
         assertNull(Updater.normalisasiPinVersi("v1.32"));
         assertEquals("1.32.0", Updater.normalisasiPinVersi("1.32.0"));
@@ -1178,9 +1162,7 @@ public class UpdaterTest {
 
     @Test
     public void fallbackTercatatUntuk_tanpaBatasUmur() {
-        // Penanda fallback versi yang sama tetap dianggap tercatat walau sudah
-        // lama: isi payload tak berubah selama versi target belum terbit, jadi
-        // tak boleh memicu unduh ulang 20 MB (dulu dibatasi timer 6 jam).
+
         assertTrue(Updater.fallbackTercatatUntuk("1.34.3", "1.34.3"));
         assertTrue(Updater.fallbackTercatatUntuk("1.34.3", "v1.34.3"));
         assertFalse(Updater.fallbackTercatatUntuk("1.34.4", "1.34.3"));
@@ -1201,23 +1183,20 @@ public class UpdaterTest {
     public void urlAwalUnduhBinary_pakaiFallbackSaatPenandaBerlaku() {
         String aset = Updater.binaryAssetUrl("1.34.3", ServerService.ABI);
         assertEquals(aset, Updater.urlAwalUnduhBinary(false, aset));
-        // Penanda fallback aktif: jangan ulang 404 asset versi target; mulai
-        // dari rilis terbaru agar checksum diambil dari URL yang sama.
+
         assertEquals(Updater.binaryFallbackUrl(),
                 Updater.urlAwalUnduhBinary(true, aset));
     }
 
     @Test
     public void pesanDibatalkan_tidakMemicuUlangAtauHapusParsial() {
-        // Stop ditekan = keputusan user, bukan galat jaringan: unduhan tak
-        // boleh diulang dan byte parsial tak boleh dihapus (dilanjutkan Range).
+
         java.io.IOException e = new java.io.IOException(
                 Updater.pesanDibatalkan("binary"));
         assertTrue(Updater.galatDibatalkan(e));
         assertFalse(Updater.bolehCobaLagiUnduh(e));
         assertFalse(Updater.galatDibatalkan(new java.io.IOException("timeout")));
-        // Kata "dibatalkan" juga dipakai kegagalan checksum — itu BUKAN
-        // pembatalan user, jadi harus tetap dilaporkan sebagai kegagalan.
+
         assertFalse(Updater.galatDibatalkan(new java.io.IOException(
                 "Checksum SHA-256 tidak cocok setelah 2 percobaan; update"
                         + " dibatalkan (aset rilis mungkin korup).")));
@@ -1225,10 +1204,7 @@ public class UpdaterTest {
 
     @Test
     public void overloadPembatalan_tersedia() {
-        // Stop harus bisa menghentikan unduhan binary (hook CekBatal): pastikan
-        // overload berparameter 9/6/3/4 itu benar-benar ada di kelas.
-        // Overload yang dijaga uji ini: unduhKeTmp(...), salinSambilHash(...),
-        // downloadBinary(...), downloadBinaryVersi(...) — semuanya ber-CekBatal.
+
         assertTrue(punyaMetode("unduhKeTmp", 9));
         assertTrue(punyaMetode("salinSambilHash", 6));
         assertTrue(punyaMetode("downloadBinary", 3));
@@ -1262,11 +1238,11 @@ public class UpdaterTest {
         Updater.reportDownload("binary", 1, 2);
         assertFalse("progres unduhan harus tampil", Updater.downloadStatus.isEmpty());
         Updater.selesaiUnduhan();
-        // Unduhan lain masih berjalan: statusnya tak boleh dikosongkan.
+
         assertFalse(Updater.downloadStatus.isEmpty());
         Updater.selesaiUnduhan();
         assertEquals("", Updater.downloadStatus);
-        // Panggilan berlebih tak membuat penanda negatif (status tetap kosong).
+
         Updater.selesaiUnduhan();
         Updater.mulaiUnduhan();
         Updater.reportDownload("shim", 5, 10);

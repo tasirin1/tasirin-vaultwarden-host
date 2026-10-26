@@ -1,24 +1,4 @@
-// Shim getrandom() + syscall(SYS_getrandom) untuk kernel STB lama
-// (mis. 3.14.x di Android 5/6).
-//
-// Latar: binary Vaultwarden (Rust modern) mengambil acak lewat dua jalur:
-//  - std Rust via pembungkus libc getrandom(buf, len, flags) (PLT), dan
-//  - crate getrandom 0.2 (dipakai ring 0.17 ke ticketer TLS Rocket rustls)
-//    via syscall mentah libc::syscall(SYS_getrandom, ...) (PLT).
-// Di kernel 3.14 (getrandom hadir sejak 3.17) keduanya gagal — bionic
-// mengembalikan EINVAL (errno=22), bukan ENOSYS, sehingga fallback
-// /dev/urandom di getrandom 0.2 tidak aktif: std panic setiap start
-// (exit 101, "failed to generate random data") dan TLS Rocket gagal
-// ("bad TLS ticketer: failed to get random bytes") walau HTTP jalan.
-// Shim ini mencegat kedua simbol (LD_PRELOAD) dan melayaninya dari
-// /dev/urandom — cukup untuk kebutuhan Vaultwarden (UUID, token, salt,
-// kunci ticketer TLS).
-//
-// Build (CI, NDK r25, API 21):
-//   armv7a-linux-androideabi21-clang -shared -fPIC -Os
-//     -o libgetrandom-shim-armeabi-v7a.so getrandom_shim.c
-// Hasil hanya belasan KB; tanpa dependensi selain libc dasar
-// (open/read/close/dlsym).
+
 
 #include <errno.h>
 #include <fcntl.h>
@@ -28,8 +8,6 @@
 #include <dlfcn.h>
 #include <pthread.h>
 
-// Nomor syscall getrandom bila header NDK (API 21) tak menyediakannya.
-// Target rilis: ARM 32-bit (armeabi-v7a) = 384; sisanya untuk uji host CI.
 #ifndef SYS_getrandom
 #if defined(__arm__)
 #define SYS_getrandom 384
@@ -46,7 +24,6 @@
 #endif
 #endif
 
-// fd /dev/urandom dipakai ulang antar panggilan (hemat open/close saat TLS sibuk).
 static int fd_urandom = -1;
 static pthread_mutex_t kunci_urandom = PTHREAD_MUTEX_INITIALIZER;
 static pthread_once_t sekali_syscall = PTHREAD_ONCE_INIT;
@@ -56,37 +33,27 @@ static void init_syscall_nyata(void) {
     *(void **) (&nyata_syscall) = dlsym(RTLD_NEXT, "syscall");
 }
 
-// Selesaikan penerusan sedini mungkin (load library): hook syscall() tak lagi
-// memanggil pthread_once/dlsym saat ada panggilan syscall berjalan sehingga
-// jendela deadlock reentransi (dlsym -> malloc -> syscall -> hook) tertutup.
-// Bila constructor gagal (tak mungkin di bionic), hook jatuh ke pthread_once.
 __attribute__((constructor)) static void init_syscall_dini(void) {
     init_syscall_nyata();
 }
 
-// Isi buf dari /dev/urandom; 0 bila len 0, -1 + errno bila gagal.
 static ssize_t isi_urandom(void *buf, size_t len) {
     if (len == 0) {
         return 0;
     }
     if (buf == 0) {
-        errno = EINVAL; // Samakan perilaku glibc untuk argumen buruk.
+        errno = EINVAL;
         return -1;
     }
     size_t sudah = 0;
     int coba_ebadf = 0;
-    // Kunci dipegang selama read. Dulu read berjalan di luar kunci sementara
-    // jalur EBADF menutup fd dan membuka ulang di dalam kunci: thread lain
-    // bisa membaca fd yang sudah ditutup (EBADF) atau — bila nomornya sudah
-    // dipakai ulang app lain — menyalin byte dari berkas/socket yang salah
-    // sebagai "acak" (kunci TLS/token jadi tak acak). /dev/urandom tak pernah
-    // memblokir, jadi serialisasi ini murah.
+
     pthread_mutex_lock(&kunci_urandom);
     for (;;) {
         if (fd_urandom < 0) {
             int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
-                int e = errno; // errno sudah diisi open().
+                int e = errno;
                 pthread_mutex_unlock(&kunci_urandom);
                 errno = e;
                 return -1;
@@ -97,29 +64,27 @@ static ssize_t isi_urandom(void *buf, size_t len) {
             ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
             if (n < 0) {
                 int e = errno;
-                if (e == EINTR) { // Coba lagi bila disela sinyal, bukan gagal.
+                if (e == EINTR) {
                     continue;
                 }
                 if (e == EBADF) {
-                    // fd rusak: buka ulang. Batas percobaan agar /dev/urandom
-                    // yang gagal permanen pulang -1 (gagal tertutup), bukan
-                    // berputar selamanya.
+
                     if (++coba_ebadf > 3) {
                         pthread_mutex_unlock(&kunci_urandom);
-                        errno = EIO; // Gagal permanen, pulang galat I/O.
+                        errno = EIO;
                         return -1;
                     }
                     close(fd_urandom);
                     fd_urandom = -1;
-                    break; // Buka ulang di iterasi luar, masih di dalam kunci.
+                    break;
                 }
                 pthread_mutex_unlock(&kunci_urandom);
                 errno = e;
                 return -1;
             }
-            if (n == 0) { // /dev/urandom tak pernah EOF; anggap galat bila terjadi.
+            if (n == 0) {
                 pthread_mutex_unlock(&kunci_urandom);
-                errno = EIO; // Galat I/O umum.
+                errno = EIO;
                 return -1;
             }
             sudah += (size_t) n;
@@ -132,22 +97,13 @@ static ssize_t isi_urandom(void *buf, size_t len) {
     return (ssize_t) sudah;
 }
 
-// Tanda tangan sama persis dengan getrandom(2) agar interposisi PLT tepat.
-// Catatan: parameter flags sengaja diabaikan — /dev/urandom tidak pernah
-// blokir (GRND_NONBLOCK/GRND_RANDOM tak relevan), jadi semua flag aman dilayani.
 ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
-    (void) flags; // flag diabaikan: /dev/urandom tidak pernah blokir.
+    (void) flags;
     return isi_urandom(buf, buflen);
 }
 
-// Mencegat syscall(SYS_getrandom, buf, len, flags) mentah dari getrandom 0.2
-// (jalur ring/rustls ticketer TLS). Nomor lain diteruskan ke syscall asli
-// via dlsym(RTLD_NEXT). Argumen dibaca sebagai long (seukuran pointer di
-// LP32/LP64). Hanya argumen yang dipakai yang dibaca: jalur getrandom cukup
-// a/b, sisanya hanya dibaca di jalur penerusan yang memang butuh semuanya.
 long syscall(long n, ...) {
-    // Baca a/b dulu: getrandom hanya butuh buf+len sehingga pemanggil
-    // ber-argumen sedikit tak tersentuh baca-lebih di jalur panas ini.
+
     va_list ap;
     va_start(ap, n);
     long a = va_arg(ap, long);
@@ -160,21 +116,18 @@ long syscall(long n, ...) {
         va_end(ap);
         return (long) isi_urandom((void *) a, (size_t) b);
     }
-    // Jalur penerusan (praktis tak dipakai binary ini: Rust memakai SVC
-    // langsung, bukan simbol syscall): baca sisanya lalu teruskan.
-    // Kernel dan syscall asli mengabaikan kelebihan argumen.
+
     long c = va_arg(ap, long);
     long d = va_arg(ap, long);
     long e = va_arg(ap, long);
     long f = va_arg(ap, long);
     va_end(ap);
-    // Umumnya sudah diisi constructor; pthread_once hanya cadangan bila
-    // constructor gagal, agar hook tak pernah memblokir tanpa penerusan.
+
     if (!nyata_syscall) {
         pthread_once(&sekali_syscall, init_syscall_nyata);
     }
     if (!nyata_syscall) {
-        errno = ENOSYS; // Penerusan tak ditemukan, anggap fungsi tak tersedia.
+        errno = ENOSYS;
         return -1;
     }
     return nyata_syscall(n, a, b, c, d, e, f);

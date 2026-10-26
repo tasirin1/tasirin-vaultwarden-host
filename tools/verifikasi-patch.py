@@ -1,17 +1,4 @@
 #!/usr/bin/env python3
-"""Verifikasi otomatis patch yang baru dikerjakan.
-
-Memastikan penghapusan kode tak merusak acuan dan aturan repo tetap
-ditaati, tanpa toolchain Android (hanya baca kode + git diff + parse XML).
-
-Pakai:
-    python3 tools/verifikasi-patch.py                 # kerja lokal + belum push
-    python3 tools/verifikasi-patch.py --semua         # seluruh repo
-    python3 tools/verifikasi-patch.py --rentang A...B # rentang commit (dipakai CI)
-    python3 tools/verifikasi-patch.py app/... Main.java
-
-Keluar 0 bila lolos (peringatan tak menggagalkan), 1 bila ada yang gagal.
-"""
 import argparse
 import os
 import re
@@ -26,21 +13,8 @@ KATA_KUNCI_JAVA = {
     "if", "for", "while", "switch", "catch", "return", "new", "throw",
     "else", "do", "try", "synchronized", "assert", "case",
 }
-# Nama metode yang sengaja dihapus total dimuat dari tools/bekas-hapusan.txt
-# (satu nama per baris, # = komentar): bila baris baru masih memanggilnya,
-# itu regresi hapusan. Tambahkan nama ke berkas itu tiap menghapus metode —
-# cek_metode_hilang hanya melihat diff saat itu, daftar inilah yang menjaga
-# push-push berikut. (Pelajaran ronde 22: grep --include BusyBox gagal diam
-# dan pipa menutupi statusnya sehingga "hilang" palsu dilaporkan; skrip ini
-# membaca berkas langsung via Python agar tak kena jebakan shell itu.)
-def muat_bekas_hapusan():
-    """Muat daftar nama metode terhapus; None bila berkas tak terbaca.
 
-    Sengaja TIDAK kembali diam-diam ke {"batalTunda"}: dulu daftar yang
-    hilang/tak terbaca membuat penjagaan regresi hapusan praktis mati tanpa
-    satu pun peringatan (fail-open). Pemanggil melaporkannya sebagai
-    kegagalan lewat cek_daftar_hapusan().
-    """
+def muat_bekas_hapusan():
     nama = set()
     try:
         with open(os.path.join(AKAR, "tools", "bekas-hapusan.txt"),
@@ -53,17 +27,9 @@ def muat_bekas_hapusan():
         return None
     return nama
 
-
 BEKAS_HAPUSAN = muat_bekas_hapusan()
 
-
 def cek_daftar_hapusan(gagal):
-    """Daftar bekas-hapusan wajib terbaca dan berisi.
-
-    Tanpa daftar, cek_panggil_bekas_hapusan tak punya nama untuk dijaga —
-    nama yang pernah dihapus bisa dipakai ulang tanpa terdeteksi. Dulu
-    kegagalan baca hanya diam (fail-open).
-    """
     if BEKAS_HAPUSAN is None:
         gagal.append("tools/bekas-hapusan.txt tak terbaca — penjagaan nama "
                      "metode terhapus tidak bisa dijalankan")
@@ -71,11 +37,8 @@ def cek_daftar_hapusan(gagal):
         gagal.append("tools/bekas-hapusan.txt kosong — daftar nama metode "
                      "terhapus wajib berisi")
 
-
 def di_github_actions():
-    """True bila jalan di runner GitHub Actions (punya SDK GitHub: GITHUB_*)."""
     return os.environ.get("GITHUB_ACTIONS") == "true"
-
 
 def _lolos_properti(s):
     s = str(s)
@@ -84,21 +47,13 @@ def _lolos_properti(s):
         s = s.replace(lama, baru)
     return s
 
-
 def _lolos_pesan(s):
     s = str(s)
     for lama, baru in (("%", "%25"), ("\r", "%0D"), ("\n", "%0A")):
         s = s.replace(lama, baru)
     return s
 
-
 def anotasi(jenis, pesan):
-    """Tulis temuan sebagai annotation GitHub (error/warning) bila di CI.
-
-    Lokasi berkas:baris pertama dalam pesan dipakai agar anotasi menempel di
-    baris kode yang tepat (bug/kode sampah/celah keamanan langsung terlihat
-    di tab Files); tanpa lokasi = anotasi level-run. Di luar CI tak mencetak
-    apa-apa sehingga output lokal tak berubah."""
     if not di_github_actions():
         return
     m = re.search(r"([A-Za-z0-9_./-]+\.(?:java|xml|kts|yml|sh|py|txt)):(\d+)",
@@ -109,13 +64,12 @@ def anotasi(jenis, pesan):
                  _lolos_pesan(pesan)))
     else:
         print("::%s::%s" % (jenis, _lolos_pesan(pesan)))
-# Callback siklus hidup: menghapusnya aman dari sisi acuan (turunkan jadi peringatan).
+
 OVERRIDE_AMAN = {
     "onCreate", "onStart", "onResume", "onPause", "onStop", "onDestroy",
     "onReceive", "onHandleIntent", "onBind", "onUnbind", "onUpgrade",
     "onAlarm", "onBoot", "onClick", "onFocusChange",
 }
-
 
 def jalan(*args):
     try:
@@ -125,27 +79,12 @@ def jalan(*args):
         return None
     return hasil.stdout if hasil.returncode == 0 else None
 
-
 def rentang_cadangan():
-    """Rentang pengganti HEAD~1...HEAD, atau None bila repo hanya satu commit.
-
-    Dipakai saat rentang CI kosong/tak valid agar cek berbasis diff tidak
-    fail-open (dulu langsung "cek keadaan penuh" padahal diff kosong).
-    """
     if jalan("git", "rev-parse", "--verify", "HEAD~1") is None:
         return None
     return ("HEAD~1", "...", "HEAD")
 
-
 def rentang_normal(rentang):
-    """Ubah rentang mentah jadi (a, pemisah, b) yang bisa dipakai git diff.
-
-    `workflow_dispatch`/`schedule` tidak punya `github.event.before` (kosong),
-    dan push pertama memakai SHA nol. Dulu `a` kosong membuat seluruh cek
-    berbasis diff dilewati diam-diam. Di kasus itu pakai `<b>~1` (commit
-    sebelumnya) sebagai pembanding; bila b tak punya induk (repo satu commit)
-    kembalikan None agar pemanggil memakai rentang_cadangan() atau cek penuh.
-    """
     if not rentang:
         return None
     for pemisah in ("...", ".."):
@@ -158,9 +97,7 @@ def rentang_normal(rentang):
             return a, pemisah, b
     return None
 
-
 def daftar_berkas_berubah(rentang):
-    """Nama file berubah pada rentang diff (None bila revisi tak valid)."""
     r = rentang_normal(rentang)
     if r is None:
         return None
@@ -169,11 +106,9 @@ def daftar_berkas_berubah(rentang):
         return [x for x in out.splitlines() if x]
     return None
 
-
 def nama_tak_lacak():
     out = jalan("git", "ls-files", "--others", "--exclude-standard")
     return out.splitlines() if out else []
-
 
 def baca(path):
     try:
@@ -182,23 +117,18 @@ def baca(path):
     except OSError:
         return ""
 
-
 def jalan_repo(rel, ext=(".java",)):
     for akar, dirs, berkas in os.walk(os.path.join(AKAR, rel)):
-        # Hasil build (app/build, .gradle) bukan sumber: dulu ikut dipindai
-        # saat verifikasi lokal sehingga R.java/XML generated memunculkan
-        # temuan palsu yang tak ada di CI (checkout selalu bersih).
+
         dirs[:] = [d for d in dirs if d not in ("build", ".gradle", ".git")]
         for nama in berkas:
             if ext is None or nama.endswith(ext):
                 yield os.path.relpath(os.path.join(akar, nama), AKAR)
 
-
 def himpun_definisi():
-    """Kembalikan (definisi, acuan): nama sumber daya terdefinisi vs terpakai."""
     definisi = {}
     acuan = {}
-    # Titik pada nama style (Theme.A.B) menjadi garis bawah di R (aturan aapt).
+
     def rapikan(jenis, nama):
         return nama.replace(".", "_") if jenis == "style" else nama
 
@@ -217,11 +147,7 @@ def himpun_definisi():
             tambah("array", nama)
         for nama in re.findall(r'@\+id/([A-Za-z0-9_]+)', isi):
             tambah("id", nama)
-    # Definisi berbasis berkas: semua subdir res kecuali values* (layout-land,
-    # drawable, xml, ...). Kualifikasi (-land/-night) digabung ke tipe dasar.
-    # os.listdir melempar OSError bila folder res hilang; cek_xml yang
-    # melaporkannya sebagai temuan, di sini cukup lewati agar verifikator
-    # tidak mati dengan traceback sebelum sempat menulis temuan lain.
+
     subdir_res = sorted(os.listdir(akar_res)) if os.path.isdir(akar_res) else []
     for nama_dir in subdir_res:
         if nama_dir.startswith("values"):
@@ -234,8 +160,6 @@ def himpun_definisi():
             for nama in berkas:
                 tambah(tipe, os.path.splitext(nama)[0])
 
-    # (?<!android\.) mengecualikan kerangka (android.R.*, @android:*) yang
-    # bukan milik repo; style membolehkan titik (Theme.A.B).
     pola_pakai = [
         ("style", r"@style/([A-Za-z0-9_.]+)", r"(?<!android\.)R\.style\.([A-Za-z0-9_]+)"),
         ("string", r"@string/([A-Za-z0-9_]+)", r"(?<!android\.)R\.string\.([A-Za-z0-9_]+)"),
@@ -268,15 +192,7 @@ def himpun_definisi():
             acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
     return definisi, acuan
 
-
 def parse_xml_aman(path):
-    """(jenis, pesan) galat parse, atau None bila XML sehat.
-
-    ET.parse melempar OSError (berkas hilang/tak terbaca/izin) selain
-    ParseError. Dulu hanya ParseError yang ditangkap sehingga satu berkas
-    hilang mematikan verifikator dengan traceback: temuan lain tak pernah
-    ditulis dan exit code-nya bukan 1 yang jelas.
-    """
     try:
         ET.parse(os.path.join(AKAR, path))
         return None
@@ -285,12 +201,9 @@ def parse_xml_aman(path):
     except OSError as e:
         return ("tak terbaca", "%s (%s)" % (path, e))
 
-
 def cek_xml(gagal):
     akar_res = os.path.join(MAIN, "res")
-    # os.walk pada folder hilang diam-diam menghasilkan nol berkas: tanpa cek
-    # ini repo yang kehilangan res/ lolos "XML sehat" padahal tak ada yang
-    # diperiksa sama sekali.
+
     if not os.path.isdir(akar_res):
         gagal.append("Folder resource hilang: app/src/main/res")
     temuan = {"rusak": [], "tak terbaca": []}
@@ -305,10 +218,9 @@ def cek_xml(gagal):
         if temuan[jenis]:
             gagal.append("XML %s: %s" % (jenis, ", ".join(temuan[jenis])))
 
-
 def cek_acuan_yatim(gagal):
     if not os.path.isdir(os.path.join(MAIN, "res")):
-        return  # cek_xml sudah melaporkan folder resource hilang
+        return
     definisi, acuan = himpun_definisi()
     for jenis, dipakai in sorted(acuan.items()):
         ada = definisi.get(jenis, set())
@@ -317,19 +229,16 @@ def cek_acuan_yatim(gagal):
             gagal.append("Acuan %s yatim (dipakai tapi tak terdefinisi): %s"
                          % (jenis, ", ".join(yatim[:10])))
 
-
 def namespace_aplikasi():
     tetap = baca("app/build.gradle.kts")
     cocok = re.search(r'namespace\s*=\s*"([^"]+)"', tetap)
     return cocok.group(1) if cocok else ""
 
-
 def cek_manifest(gagal):
-    """Komponen di manifest wajib ada kelasnya (tangkap hapus berkas Java)."""
     try:
         pohon = ET.parse(os.path.join(AKAR, "app/src/main/AndroidManifest.xml"))
     except (ET.ParseError, OSError):
-        return  # sudah dilaporkan cek_xml
+        return
     ns = namespace_aplikasi()
     for el in pohon.getroot().iter():
         nama = el.get("{http://schemas.android.com/apk/res/android}name", "")
@@ -337,7 +246,7 @@ def cek_manifest(gagal):
                 "activity", "service", "receiver", "provider"):
             continue
         if not nama.startswith(".") and not nama.startswith(ns):
-            continue  # kerangka / pustaka
+            continue
         kelas = (nama[1:] if nama.startswith(".") else nama[len(ns) + 1:]).split(".")[0]
         berkas = os.path.join(
             MAIN, "java", *ns.split("."), kelas + ".java")
@@ -345,10 +254,7 @@ def cek_manifest(gagal):
             gagal.append("Komponen manifest tanpa kelas: %s (hapus %s.java?)"
                          % (nama, kelas))
 
-
 def cek_duplikat_definisi(gagal):
-    """Nama ganda dalam SATU berkas values = galat aapt (override beda
-    berkas seperti values-night tetap sah)."""
     pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
         if "/values" not in path.replace(os.sep, "/"):
@@ -361,9 +267,7 @@ def cek_duplikat_definisi(gagal):
         if ganda:
             gagal.append("Definisi ganda di %s: %s" % (path, ", ".join(ganda[:5])))
 
-
 def berkas_dihapus(rentang, diff_biasa):
-    """Daftar path yang dihapus pada diff (butuh status; kosong bila tak tahu)."""
     r = rentang_normal(rentang)
     if r is not None:
         out = jalan("git", "diff", "--name-status", r[0] + r[1] + r[2])
@@ -373,7 +277,6 @@ def berkas_dihapus(rentang, diff_biasa):
                 if x.startswith("D")]
     out = jalan("git", "diff", "--name-status")
     return [x.split(None, 1)[1] for x in (out or "").splitlines() if x.startswith("D")]
-
 
 def disebut_kata(nama, lewat=()):
     pola = re.compile(r"\b%s\b" % re.escape(nama))
@@ -388,7 +291,6 @@ def disebut_kata(nama, lewat=()):
                     return temu
     return temu
 
-
 def cek_berkas_java_dihapus(gagal, hapus):
     for path in hapus:
         if not (path.startswith("app/src/main/java/") and path.endswith(".java")):
@@ -399,12 +301,7 @@ def cek_berkas_java_dihapus(gagal, hapus):
             gagal.append("Berkas %s dihapus tapi %s masih disebut: %s"
                          % (path, kelas, ", ".join(siapa)))
 
-
 def tambah_java(diff):
-    """Hasilkan (path, isi) tiap baris tambah dari hunk berkas .java.
-
-    Mencegah skrip menuduh dirinya sendiri (prosa Python/tabel pola yang
-    memuat kata String.format/new Thread) maupun berkas non-Java."""
     path = ""
     for baris in diff.splitlines():
         if baris.startswith("diff --git "):
@@ -414,9 +311,7 @@ def tambah_java(diff):
             if path.endswith(".java"):
                 yield path, baris[1:]
 
-
 def hapus_java(diff):
-    """Hasilkan (path, isi) tiap baris hapus dari hunk berkas .java."""
     path = ""
     for baris in diff.splitlines():
         if baris.startswith("diff --git "):
@@ -426,13 +321,7 @@ def hapus_java(diff):
             if path.endswith(".java"):
                 yield path, baris[1:]
 
-
 def kupas_java(isi):
-    """Buang komentar + literal sekali-jalan (URL dalam string tak
-    boleh dianggap komentar //, dan kutip dalam komentar tak boleh
-    membuka string). Text block Java (\"\"\"...\"\"\") ikut dikupas utuh:
-    dulu kutip pertama menutup string kosong dan kutip ketiga membuka string
-    liar yang menelan kode sesudahnya sehingga cek kurung/import meleset."""
     petik_ganda = chr(34)
     petik_satu = chr(39)
     garis_miring_balik = chr(92)
@@ -478,14 +367,13 @@ def kupas_java(isi):
             i += 1
     return "".join(keluar)
 
-
 def cek_kurung_java(gagal, berubah):
     for path in berubah:
         if not path.endswith(".java"):
             continue
         penuh = os.path.join(AKAR, path)
         if not os.path.isfile(penuh):
-            continue  # berkas dihapus: ditangani cek lain
+            continue
         isi = kupas_java(baca(path))
         for buka, tutup, nama in (("{", "}", "kurawal"), ("(", ")", "lengkung"), ("[", "]", "siku")):
             selisih = isi.count(buka) - isi.count(tutup)
@@ -494,8 +382,6 @@ def cek_kurung_java(gagal, berubah):
                              % (nama, path, selisih))
                 break
 
-
-# Pola boros khas STB lama: muncul di baris tambah = peringatan + saran hemat.
 POLA_BOROS = [
     ("String.format(", "Formatter+Locale mahal di ART lama; pakai concat/manual"),
     ("new SimpleDateFormat(", "buat sekali per thread (ThreadLocal bersama)"),
@@ -506,14 +392,13 @@ POLA_BOROS = [
     (".printStackTrace()", "telan/abaikan eksplisit + catat log"),
 ]
 
-
 def cek_pola_boros(peringatan, diff):
     tampil = set()
     for _, isi in tambah_java(diff):
         for pola, saran in POLA_BOROS:
             if pola in isi and pola not in tampil:
                 if pola == ".split(" and "matcher" in isi.lower():
-                    continue  # POLA_X.matcher().split() sah
+                    continue
                 tampil.add(pola)
                 peringatan.append("Pola boros di baris baru %s — %s: %s"
                                   % (pola.strip(), saran, isi.strip()[:70]))
@@ -525,8 +410,6 @@ def cek_pola_boros(peringatan, diff):
                               "kompilasi regex tiap panggil; pakai Pattern statis: %s"
                               % isi.strip()[:70])
 
-
-
 def cek_izin_baru(peringatan, diff):
     for baris in diff.splitlines():
         if baris.startswith("+") and "uses-permission" in baris:
@@ -534,7 +417,6 @@ def cek_izin_baru(peringatan, diff):
             if cocok:
                 peringatan.append("Izin baru %s — pastikan perlu di TV/STB + tercatat README"
                                   % cocok.group(1))
-
 
 def cek_definisi_baru(peringatan, diff):
     pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)\s+name="([^"]+)"')
@@ -550,7 +432,6 @@ def cek_definisi_baru(peringatan, diff):
                 peringatan.append("Definisi baru %s/%s tanpa acuan — hapus bila tak jadi dipakai"
                                   % (kunci, nama))
 
-
 def cek_pengingat_changelog(peringatan, berubah):
     if not berubah or "CHANGELOG.md" in berubah:
         return
@@ -558,7 +439,6 @@ def cek_pengingat_changelog(peringatan, berubah):
                           "app/src/main/AndroidManifest.xml", "shim/",
                           "app/build.gradle.kts")) for b in berubah):
         peringatan.append("Kode aplikasi berubah tanpa CHANGELOG.md — catat per rilis (aturan repo)")
-
 
 def cek_sinkron_terjemah(gagal):
     def nama_string(path):
@@ -576,8 +456,7 @@ def cek_sinkron_terjemah(gagal):
             gagal.append("values-in kurang string: " + ", ".join(kurang[:10]))
         if lebih:
             gagal.append("values-in berlebih string: " + ", ".join(lebih[:10]))
-    # Plurals ikut diperiksa: resource plurals yang lupa diterjemahkan jatuh
-    # diam-diam ke teks Inggris (dulu hanya <string> yang dibandingkan).
+
     pl_inggris = nama_plurals("app/src/main/res/values/strings.xml")
     pl_indonesia = nama_plurals("app/src/main/res/values-in/strings.xml")
     if pl_inggris or pl_indonesia:
@@ -588,13 +467,7 @@ def cek_sinkron_terjemah(gagal):
         if lebih:
             gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
 
-
 def jenis_biner(path):
-    """Kenali berkas biner dari magic-nya (bukan ekstensi).
-
-    Ekstensi mudah dilewati (binary ELF tanpa ekstensi, zip bernama .dat),
-    sedangkan aturan repo melarang membundel binary/web-vault/arsip ke repo.
-    """
     try:
         with open(os.path.join(AKAR, path), "rb") as f:
             kepala = f.read(4)
@@ -612,11 +485,8 @@ def jenis_biner(path):
         return "DEX"
     return None
 
-
-# Berkas biner yang memang bagian repo (wrapper Gradle diunduh CI, bukan aset app).
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
-
 
 def cek_aturan_repo(gagal, berubah):
     tetap = baca("app/build.gradle.kts")
@@ -631,8 +501,7 @@ def cek_aturan_repo(gagal, berubah):
     if asing:
         gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
     for path in berubah:
-        # Berkas yang dihapus justru dianjurkan (revert/bersih-bersih): jangan
-        # diblokir cek ekstensi/ukuran/biner — path-nya tak ada di pohon kerja.
+
         if not os.path.exists(os.path.join(AKAR, path)):
             continue
         rendah = path.lower()
@@ -644,8 +513,7 @@ def cek_aturan_repo(gagal, berubah):
             continue
         if path in BINER_DIIZINKAN:
             continue
-        # Cek biner magic berlaku untuk SEMUA lokasi, bukan hanya app/src/main:
-        # zip/binary ELF tanpa ekstensi di root/tools/test dulu lolos.
+
         jenis = jenis_biner(path)
         if jenis:
             gagal.append("Berkas biner (%s) tak boleh masuk repo: %s" % (jenis, path))
@@ -655,24 +523,17 @@ def cek_aturan_repo(gagal, berubah):
             gagal.append("Berkas >1 MB tak boleh masuk repo"
                          " (binary/web-vault diunduh CI): " + path)
 
-
 def nama_metode_hilang(diff, lewati_berkas=()):
-    """Nama metode pada baris dihapus yang definisinya hilang dari pohon kerja."""
     hilang = []
     for path, baris in hapus_java(diff):
-        # Baris panggilan (mis. assertEquals(4, ...) di tes) bukan definisi.
-        # Definisi sejati: punya modifier, dibuka kurawal, atau berbentuk
-        # "Tipe nama(" tanpa titik-koma (panggilan selalu diakhiri titik-koma
-        # atau menempel titik/sama-dengan). Ini menangkap package-private dan
-        # definisi yang kurawalnya di baris berikut.
+
         rapi = baris.rstrip()
         if not re.search(r"\b(public|protected|private|static)\b", baris) \
                 and not rapi.endswith("{") \
                 and (rapi.endswith(";")
                      or not re.match(r"\s*\w[\w<>\[\].,? ]*\s+\w+\s*\(", baris)):
             continue
-        # Berkas hapus total ditangani cek_berkas_java_dihapus (satu jalan);
-        # cek per-metode di sini hanya menghambur puluhan pemindaian penuh.
+
         if path in lewati_berkas or not os.path.isfile(os.path.join(AKAR, path)):
             continue
         cocok = re.match(
@@ -680,21 +541,13 @@ def nama_metode_hilang(diff, lewati_berkas=()):
             r"[\w<>\[\].,? ]+\s+(\w+)\s*\(", baris)
         if not cocok or cocok.group(1) in KATA_KUNCI_JAVA:
             continue
-        # `new Tipe(` adalah PEMANGGILAN konstruktor, bukan definisi metode.
-        # Dulu baris bungkus `new FileInputStream(new File(...))) {` (panggilan
-        # yang dipecah ke beberapa baris dan diakhiri kurawal) terbaca sebagai
-        # definisi `FileInputStream()`, sehingga penghapusan sah dianggap
-        # metode hilang dan gerbang gagal palsu.
+
         if re.search(r"\bnew\s+" + re.escape(cocok.group(1)) + r"\b", baris):
             continue
         hilang.append(cocok.group(1))
     return hilang
 
-
 def baris_tanpa_komentar(isi):
-    """(nomor, baris) kode saja: komentar blok/Javadoc dan // dibuang agar
-    nama metode di dokumentasi tak dianggap pemanggilan hidup. Nomor baris
-    tetap asli supaya laporan menunjuk lokasi yang benar."""
     dalam = False
     for i, baris in enumerate(isi.splitlines(), 1):
         s = baris.strip()
@@ -710,14 +563,8 @@ def baris_tanpa_komentar(isi):
             continue
         yield i, kupas_java(baris)
 
-
-# Kata kunci yang tak pernah menjadi tipe kembalian: baris berawalan ini
-# bukan deklarasi metode (mis. `return foo();` atau `throw new ...`).
 BUKAN_TIPE = KATA_KUNCI_JAVA | {"break", "continue", "super", "this", "yield"}
 
-# Deklarasi metode: [anotasi] [modifier] [<generik>] TIPE<spasi>NAMA(.
-# Pemanggilan sengaja tidak cocok: `Util.foo(1)` / `foo(1)` tak punya
-# "TIPE<spasi>" sebelum nama, sedangkan deklarasi selalu punya tipe kembalian.
 POLA_DEKLARASI = re.compile(
     r"^(?:@[\w.]+(?:\([^)]*\))?\s+)*"
     r"(?:(?:public|protected|private|static|final|abstract|synchronized"
@@ -725,14 +572,7 @@ POLA_DEKLARASI = re.compile(
     r"(?:<[^<>]*>\s+)?"
     r"([\w$][\w$<>\[\].,?& ]*)\s+(\w+)\s*\(")
 
-
 def nama_metode_dideklarasikan(baris):
-    """Nama metode bila `baris` adalah DEKLARASI; None bila bukan.
-
-    Dibedakan dari pemanggilan dengan mewajibkan tipe kembalian sebelum nama.
-    Dulu `masih_didefinisikan` memakai pola `\\bnama\\s*\\(` yang juga cocok
-    pada baris pemanggilan, sehingga cek "metode dihapus tapi masih dipanggil"
-    tak pernah menyala (gerbang hijau palsu)."""
     s = baris.strip()
     if not s:
         return None
@@ -741,12 +581,7 @@ def nama_metode_dideklarasikan(baris):
         return None
     return cocok.group(2)
 
-
-# Cache nama metode terdeklarasi per berkas: `masih_didefinisikan` dipanggil
-# sekali per nama yang dihapus, jadi tanpa cache berkas yang sama dipindai
-# ulang O(nama) kali.
 _CACHE_DEKLARASI = {}
-
 
 def nama_terdeklarasi(path):
     if path not in _CACHE_DEKLARASI:
@@ -758,22 +593,11 @@ def nama_terdeklarasi(path):
         _CACHE_DEKLARASI[path] = nama
     return _CACHE_DEKLARASI[path]
 
-
 def masih_didefinisikan(nama):
-    """True bila masih ada DEKLARASI metode `nama` di app/src (main + test).
-
-    Overload/kembaran di berkas lain tetap terdeteksi (semua berkas dipindai);
-    pemanggilan sisa sengaja tidak dihitung sebagai definisi.
-
-    Berkas uji ikut dipindai: menghapus satu dari dua pembantu uji kembar
-    (mis. kelas palsu `ProsesPalsu` yang terdefinisi dua kali sehingga build
-    gagal) bukan menghapus metode — deklarasinya masih ada di berkas uji yang
-    sama, dan pemanggil sisa memang memakai deklarasi itu (override Process)."""
     for path in jalan_repo(os.path.join("app", "src")):
         if nama in nama_terdeklarasi(path):
             return True
     return False
-
 
 def pemanggil(nama):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
@@ -786,29 +610,27 @@ def pemanggil(nama):
                     return temu
     return temu
 
-
 def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
     lewati_berkas = set(hapus)
     for nama in sorted(nama_metode_hilang(diff, lewati_berkas)):
         if masih_didefinisikan(nama):
-            continue  # overload/kembaran masih ada: aman
+            continue
         siapa = pemanggil(nama)
         if not siapa:
-            continue  # tak ada pemanggil sisa: hapus bersih
+            continue
         pesan = "Metode %s() dihapus tapi masih dipanggil: %s" % (nama, ", ".join(siapa))
         if nama in OVERRIDE_AMAN:
             peringatan.append(pesan + " (callback siklus hidup?)")
         else:
             gagal.append(pesan)
 
-
 def cek_panggil_bekas_hapusan(gagal, diff):
     if not BEKAS_HAPUSAN:
-        return  # daftar hilang/kosong: dilaporkan cek_daftar_hapusan()
+        return
     for nama in sorted(BEKAS_HAPUSAN):
         pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
         for _, baris in tambah_java(diff):
-            # Baris dokumentasi/komentar bukan pemanggilan (mis. {@link foo()}).
+
             if baris.lstrip().startswith(("*", "//", "/*")):
                 continue
             if pola.search(kupas_java(baris)):
@@ -817,14 +639,7 @@ def cek_panggil_bekas_hapusan(gagal, diff):
                     % (nama, baris.strip()[:80]))
                 break
 
-
 def hunk_fungsi(diff):
-    """Hasilkan (path, nama_fungsi) dari kepala hunk diff (konteks xfuncname git).
-
-    Dipakai menandai metode yang TUBUHNYA diubah agar dicek cakupan ujinya —
-    sebelumnya hanya metode BARU yang ditagih tes, metode lama yang diubah
-    diam-diam lolos tanpa tes (celah salah-fix).
-    """
     path = ""
     for baris in diff.splitlines():
         if baris.startswith("diff --git "):
@@ -836,25 +651,23 @@ def hunk_fungsi(diff):
             if cocok:
                 yield path, cocok.group(1)
 
-
 def cek_uji_ubah(peringatan, diff):
     sudah = set()
     for _, nama in hunk_fungsi(diff):
         if not nama or nama in sudah or nama in KATA_KUNCI_JAVA:
             continue
         if nama[:1].isupper():
-            continue  # kelas/konstruktor, bukan metode biasa
+            continue
         sudah.add(nama)
         if not disebut_di_uji(nama):
             peringatan.append(
                 "Metode %s() diubah tapi tanpa jejak di app/src/test — "
                 "tambah/cek uji logika murninya agar salah-fix ketahuan" % nama)
 
-
 def cek_hapusan_belum_tercatat(peringatan, diff):
     tercatat = BEKAS_HAPUSAN
     if not tercatat:
-        return  # daftar hilang/kosong: dilaporkan cek_daftar_hapusan()
+        return
     for nama in sorted(set(nama_metode_hilang(diff))):
         if nama in tercatat or masih_didefinisikan(nama):
             continue
@@ -862,13 +675,9 @@ def cek_hapusan_belum_tercatat(peringatan, diff):
             "Metode %s() dihapus tapi belum di tools/bekas-hapusan.txt — "
             "tambahkan agar push berikut tetap terjaga" % nama)
 
-
 def cek_locale_baru(gagal, diff):
     for _, isi in tambah_java(diff):
-        # Komentar & literal dikupas dulu: prosa "jangan pakai .toLowerCase()"
-        # atau contoh di dalam string bukan pemanggilan sungguhan. Dulu baris
-        # komentar saja sudah menggagalkan push (false positive), dan baris
-        # lanjutan komentar blok (diawali "*") juga dilewati di sini.
+
         rapih = isi.strip()
         if not rapih or rapih.startswith(("*", "//", "/*", "*/")):
             continue
@@ -878,33 +687,18 @@ def cek_locale_baru(gagal, diff):
                          "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
                          % kode.strip()[:80])
 
-
 def nama_warna(path):
     return set(re.findall(r'<color\s+name="([^"]+)"', baca(path)))
 
-
 def quantities_plurals(path):
-    """Peta nama plurals -> himpunan quantity di satu berkas strings.xml.
-
-    Lint `MissingQuantity` (dipasang sebagai error di build.gradle.kts)
-    menggagalkan build bila terjemahan kehilangan quantity yang ada di
-    default; verifikator lokal dulu tak memeriksanya sehingga push pertama
-    baru ketahuan merah di CI (values-in/pin_lockout hanya punya "other").
-    """
     hasil = {}
     for m in re.finditer(r'<plurals\s+name="([^"]+)"(.*?)</plurals>', baca(path), re.S):
         hasil[m.group(1)] = set(re.findall(r'quantity="([^"]+)"', m.group(2)))
     return hasil
 
-
 def cek_paritas_resource(gagal):
-    """Paritas yang dulu dicek manual tiap audit kini otomatis (GAGAL bila miring)."""
     try:
-        # Berkas/folder WAJIB diperiksa keberadaannya lebih dulu: dulu
-        # `baca()` mengembalikan "" untuk berkas hilang sehingga dua himpunan
-        # kosong dianggap "paritas cocok" dan penghapusan values-night/
-        # colors.xml (mode gelap jadi terang) atau layout-land/ (UI landscape
-        # rusak) lolos gate tanpa jejak.
+
         warna_siang = "app/src/main/res/values/colors.xml"
         warna_malam = "app/src/main/res/values-night/colors.xml"
         warna_hilang = [p for p in (warna_siang, warna_malam)
@@ -948,11 +742,7 @@ def cek_paritas_resource(gagal):
                                  % (nama, nama,
                                     ", ".join(sorted(port - land)[:5]) or "-",
                                     ", ".join(sorted(land - port)[:5]) or "-"))
-        # Quantity plurals mengikuti aturan CLDR: bahasa Indonesia hanya punya
-        # "other" (lint: `MissingQuantity` = error bila "other" hilang,
-        # `UnusedQuantity` = error bila ada quantity lain seperti "one").
-        # Dulu verifikator tak memeriksanya sehingga kesalahan begini baru
-        # ketahuan merah di CI.
+
         pl_in = quantities_plurals("app/src/main/res/values-in/strings.xml")
         for nama in sorted(pl_in):
             q = pl_in[nama]
@@ -967,17 +757,7 @@ def cek_paritas_resource(gagal):
     except OSError as e:
         gagal.append("Paritas resource tak terbaca: %s" % e)
 
-
 def cek_acuan_agents(gagal):
-    """Nama metode ber-`()` di AGENTS.md wajib benar-benar ada di app/src.
-
-    AGENTS.md satu-satunya sumber aturan agen. Rujukan basi (mis.
-    `resolveBinary()` yang sudah dihapus atau `pinBaruSajaDibuka`) membuat
-    sesi baru mencari kode yang tak ada lalu menyimpulkan ada kode hilang,
-    "memulihkan" logika yang sudah dipindah, atau menunggu job yang tak
-    pernah berjalan. Nama metode yang dibuang juga bisa tercipta ulang
-    (aturan #15) karena dokumen menganggapnya masih sah.
-    """
     teks = baca("AGENTS.md")
     if not teks.strip():
         gagal.append("AGENTS.md tak terbaca — panduan agen wajib ada")
@@ -987,22 +767,12 @@ def cek_acuan_agents(gagal):
             gagal.append("AGENTS.md menyebut metode %s() yang tak ada di app/src"
                          " — perbarui dokumen (atau kode)" % nama)
 
-
 def cek_import_mati(gagal):
-    """Import Java yang nama sederhananya tak dipakai di kode (GAGAL).
-
-    Pengganti ID lint "UnusedImports" yang tak dikenal AGP 8.5.2 (warning
-    "Unknown issue id" di CI): penjagaan setara di SDK GitHub. Wildcard
-    (.*) dilewati karena tak bisa dipastikan; komentar+string dikupas dulu
-    via kupas_java agar acuan palsu tak dihitung.
-    """
     for path in jalan_repo("app", ext=(".java",)):
         mentah = baca(path)
         bersih = kupas_java(mentah)
         tanpa = re.sub(r"^\s*import\s+.*$", "", bersih, flags=re.M)
-        # Acuan javadoc ({@link Nama}, {@linkplain Nama#metode()}) sah memakai
-        # import walau komentar dikupas dari kode: dulu import semacam ini
-        # dilaporkan "mati" (false positive) dan memaksa dokumentasi dihapus.
+
         acuan_javadoc = set()
         for taut in re.findall(r"\{@link(?:plain|code)?\s+([\w.#$]+)", mentah):
             target = taut.split("#", 1)[0].split(".")[-1]
@@ -1014,13 +784,10 @@ def cek_import_mati(gagal):
             if jalan_imp.endswith(".*"):
                 continue
             nama = jalan_imp.split(".")[-1]
-            # Pemakaian bernama-penuh (java.security.SecureRandom) bukan bukti
-            # import ini dipakai — dulu ia lolos karena \b tetap cocok, sehingga
-            # import mati menumpuk tanpa terdeteksi.
+
             if (not re.search(r"(?<![\w.])%s\b" % re.escape(nama), tanpa)
                     and nama not in acuan_javadoc):
                 gagal.append("Import mati di %s: %s" % (path, jalan_imp))
-
 
 def disebut_di_uji(nama):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
@@ -1029,10 +796,14 @@ def disebut_di_uji(nama):
             return True
     return False
 
-
 def cek_uji_baru(peringatan, diff):
     pola = re.compile(
         r"\s*(?:public\s+)?static\s+[\w<>\[\].,? ]+\s+(\w+)\s*\(")
+
+    def inti(baris):
+        return re.sub(r"\s+", " ", kupas_java(baris)).strip()
+
+    lama = set(inti(baris) for _, baris in hapus_java(diff))
     sudah = set()
     for _, baris in tambah_java(diff):
         cocok = pola.match(baris)
@@ -1040,11 +811,12 @@ def cek_uji_baru(peringatan, diff):
             nama = cocok.group(1)
             if nama not in sudah:
                 sudah.add(nama)
+                if inti(baris) in lama:
+                    continue
                 if not disebut_di_uji(nama):
                     peringatan.append(
                         "Metode statis baru %s() tanpa jejak di app/src/test "
                         "(aturan: uji logika murni baru)" % nama)
-
 
 def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
     for _, isi in tambah_java(diff):
@@ -1052,9 +824,7 @@ def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
             peringatan.append("System.out.println di diff (pakai log/Toast): " + isi.strip()[:80])
         if ".printStackTrace()" in isi:
             peringatan.append("printStackTrace di diff (telan/abaikan eksplisit): " + isi.strip()[:80])
-    # Di CI checkout bersih: `git diff --check` tanpa rentang tak memeriksa
-    # apa pun (selalu kosong) sehingga spasi/penanda konflik di commit yang
-    # di-push lolos. Periksa rentang yang sama dengan diff.
+
     r = rentang_normal(rentang) if rentang else None
     if r is not None:
         cek = jalan("git", "diff", "--check", r[0] + "..." + r[2])
@@ -1063,21 +833,11 @@ def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
     if cek:
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
 
-
 def jalan_diff(*args):
-    """Jalankan perintah git yang menghasilkan diff: (teks, berhasil).
-
-    `jalan()` mengembalikan None untuk exit≠0/timeout, dan pemanggil dulu
-    menulis `jalan(...) or ""` sehingga kegagalan git tak bisa dibedakan dari
-    diff kosong. Akibatnya sepuluh cek berbasis diff dilewati diam-diam dan
-    skrip tetap mencetak LOLOS. Pemisahan ini membuat kegagalan git menjadi
-    temuan keras.
-    """
     hasil = jalan(*args)
     if hasil is None:
         return "", False
     return hasil, True
-
 
 def utama():
     parser = argparse.ArgumentParser(description="Verifikasi patch yang baru dikerjakan.")
@@ -1089,8 +849,7 @@ def utama():
     gagal = []
     peringatan = []
     diff = ""
-    # True bila ada perintah `git diff` yang GAGAL (bukan sekadar kosong):
-    # cek berbasis diff tak punya bahan, jadi hasil tak boleh LOLOS.
+
     diff_gagal = False
     rentang_cek = ""
     if args.jalur:
@@ -1100,8 +859,7 @@ def utama():
     elif args.rentang:
         r = rentang_normal(args.rentang)
         if r is None:
-            # Rentang kosong/aneh (workflow_dispatch, schedule, push pertama
-            # dengan before nol): jangan lewati cek berbasis diff diam-diam.
+
             r = rentang_cadangan()
             if r is None:
                 print("info: rentang kosong dan repo satu commit — cek keadaan penuh.")
@@ -1113,8 +871,7 @@ def utama():
             rentang_cek = r[0] + r[1] + r[2]
             daftar = daftar_berkas_berubah(rentang_cek)
             if daftar is None:
-                # Revisi di rentang tak ada (force-push / SHA asing / repo
-                # dangkal): dulu cek diff dilewati dan hasilnya tetap LOLOS.
+
                 r = rentang_cadangan()
                 if r is not None:
                     rentang_cek = r[0] + r[1] + r[2]
@@ -1124,10 +881,7 @@ def utama():
                 berubah = [p for p in jalan_repo("app") if not p.endswith(".md")]
             else:
                 berubah = daftar
-            # Selalu ambil diff dari rentang yang sudah dinormalkan: pada
-            # workflow_dispatch/schedule `before` kosong, dan tanpa ini cek
-            # berbasis diff (metode hilang, hapusan tercatat, uji baru, pola
-            # berisiko) dilewati tanpa jejak.
+
             if r is not None:
                 diff, ok = jalan_diff("git", "diff", r[0] + "..." + r[2])
                 diff_gagal = diff_gagal or not ok
@@ -1147,8 +901,7 @@ def utama():
             nama = baris[3:].strip().strip('"')
             if nama and nama not in berubah:
                 berubah.append(nama)
-        # Diff kerja yang belum commit ikut diperiksa agar hapusan salah
-        # tertangkap sebelum commit, bukan sesudah push.
+
         teks, ok = jalan_diff("git", "diff")
         diff += teks
         diff_gagal = diff_gagal or not ok
@@ -1157,16 +910,10 @@ def utama():
         diff_gagal = diff_gagal or not ok
     berubah += [b for b in nama_tak_lacak() if b not in berubah]
     if args.semua:
-        # Seluruh repo, bukan hanya .java di app/: aturan repo (berkas
-        # terlarang, binary >1 MB) dan cek XML/workflow/skrip juga harus
-        # kena. Dulu daftar ini hanya .java sehingga --semua buta terhadap
-        # resource, workflow, dan skrip.
+
         berubah = list(jalan_repo(".", ext=None))
         if not diff:
-            # Delapan cek berbasis diff (metode hilang, hapusan tercatat,
-            # uji baru/ubah, pola berisiko/boros, izin/definisi baru) tak
-            # punya bahan di repo bersih dan dulu dilewati diam-diam. Pakai
-            # commit terakhir agar --semua tetap memeriksanya.
+
             r = rentang_cadangan()
             if r is not None:
                 rentang_cek = r[0] + r[1] + r[2]
@@ -1206,9 +953,7 @@ def utama():
         cek_izin_baru(peringatan, diff)
         cek_definisi_baru(peringatan, diff)
     if diff_gagal:
-        # Kegagalan `git diff` dulu menyisakan diff kosong: sepuluh cek
-        # berbasis diff dilewati dan skrip tetap mencetak LOLOS. Gerbang
-        # integritas CI tak boleh hijau tanpa bahan.
+
         gagal.append(
             "git diff gagal (riwayat tak berhubungan, safe.directory, atau "
             "timeout): cek berbasis diff tak bisa dijalankan — bukan alasan LOLOS.")
@@ -1225,7 +970,6 @@ def utama():
     print("Hasil: LOLOS (%d berkas diperiksa%s)." % (
         len(berubah), (", %d peringatan" % len(peringatan)) if peringatan else ""))
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(utama())

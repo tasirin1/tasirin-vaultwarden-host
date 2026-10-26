@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Landscape layar lebar (tablet besar): margin 48dp terlalu menjepit dua kolom;
-         32dp cukup agar kolom log realtime dapat ruang lebih lebar. -->
+
     <dimen name="side_padding">32dp</dimen>
     <dimen name="log_text_size">15sp</dimen>
 </resources>

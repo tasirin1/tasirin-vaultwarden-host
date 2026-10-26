@@ -42,7 +42,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONObject;
 
-/** Backup database ke Telegram + jadwal harian via AlarmManager. */
 public final class TgBackup {
 
     public static final String KEY_TG_TOKEN = "tg_token";
@@ -52,14 +51,10 @@ public final class TgBackup {
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
-    /** Susulan backup terjadwal yang ditolak sistem (dipakai Alarm/Boot/Main). */
+
     public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
 
-    /** Migrasi sekali jalan: gabungan toggle lama ke KEY_TG_AUTO.
-     *  Baca via getAll+koersi (tak lempar ClassCastException): kunci legacy tak
-     *  ada di himpunan heal, dan migrasi jalan sebelum heal — getBoolean mentah
-     *  di sini dulu bikin crash-loop tiap onCreate bila korup jadi String. */
     public static void migrateAutoPref(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -90,15 +85,9 @@ public final class TgBackup {
 
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
 
-    /** Magic header SQLite ("SQLite format 3\0") sekali-encode satu pintu:
-     *  3 situs cek header (isSqliteFile, cek header zip, validasi restore
-     *  SettingsActivity) dulu getBytes per panggil — termasuk loop tunggu-DB
-     *  500 ms hingga 60x per backup. Murni data (hanya dibaca). */
     static final byte[] MAGIC_SQLITE =
             "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
 
-    /** Pabrik thread daemon satu pola untuk kedua antrean pesan (biasa +
-     *  penting): nama beda agar jejak thread terpilah di logcat. */
     private static java.util.concurrent.ThreadFactory pabrikPesan(final String nama) {
         return r -> {
             Thread t = new Thread(r, nama);
@@ -107,12 +96,6 @@ public final class TgBackup {
         };
     }
 
-    /** Penangan tolak antrean pesan: buang tertua + jejak log, tanpa
-     *  execute() ulang (antrean bisa penuh lagi oleh thread lain di antara
-     *  poll-offer sehingga ber-rekursi hingga StackOverflow di STB).
-     *  Varian lokal TgBackup (bukan Util.penanganAntreanPenuh): membawa
-     *  catatLog server + cek shutdown yang tak berlaku umum. Teks dibedakan
-     *  biasa/penting agar saringan logcat tetap memisahkan sumbernya. */
     private static java.util.concurrent.RejectedExecutionHandler tolakPesan(
             final String gugur, final String penuh, final String catat) {
         return (tugas, eksekutor) -> {
@@ -138,13 +121,7 @@ public final class TgBackup {
             }
         };
     }
-    // Satu worker berantre untuk pesan Telegram: hemat thread (sebelumnya satu
-    // thread baru per pesan) sekaligus menjaga urutan pengiriman.
-    // Antrean dibatasi 20 + buang tertua: saat Telegram lama tak terjangkau,
-    // pesan basi (mis. "Server jalan" berjam-jam lalu) tak menumpuk OOM di
-    // STB 1 GB dan tak terkirim menyesatkan; pesan terbaru selalu diprioritaskan.
-    // Tetap anti-OOM (buang tertua) tapi jangan bungkam: pesan kritis
-    // (PIN terkunci, restore gagal, crash) yang gugur wajib jejak di log.
+
     private static final ExecutorService TG_MSG_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
                     java.util.concurrent.TimeUnit.MILLISECONDS,
@@ -155,34 +132,23 @@ public final class TgBackup {
                             "[tg] Antrean pesan penuh, pesan tertua dibuang."));
 
     private static final String ENC_MAGIC = "VWB1";
-    /** Magic file baru (PBKDF2-HMAC-SHA256 saja): penanda KDF agar password salah
-     *  pada file baru langsung gagal tanpa 2x PBKDF2 (fallback SHA1 hanya untuk VWB1). */
+
     static final String ENC_MAGIC_V2 = "VWB2";
-    /** Magic VWB3: header menyertakan iterasi KDF (4 byte big-endian sesudah
-     *  magic) sehingga STB lama boleh menulis iterasi ringan tanpa merusak
-     *  dekripsi lintas perangkat. VWB1/VWB2 tetap terbaca (iterasi tersirat
-     *  100rb). */
+
     static final String ENC_MAGIC_V3 = "VWB3";
 
-    /** True bila magic backup terenkripsi yang dikenal (VWB1/VWB2/VWB3). Murni. */
     static boolean magicDikenal(String m) {
         return ENC_MAGIC.equals(m) || ENC_MAGIC_V2.equals(m) || ENC_MAGIC_V3.equals(m);
     }
 
-    /** Iterasi KDF backup file baru: penuh (100rb) di perangkat modern,
-     *  diringankan (30rb) di STB lama tanpa factory yang jalur manualnya
-     *  lambat. Iterasi tersimpan di header VWB3 sehingga dekripsi di perangkat
-     *  mana pun memakai angka yang benar. */
     static int iterasiKdfBackup() {
         return PinCrypto.pabrikTersedia() ? 100_000 : 30_000;
     }
 
-    /** Iterasi 4 byte big-endian untuk header VWB3. Murni agar bisa unit test. */
     static byte[] iterKeByte(int v) {
         return new byte[]{(byte) (v >>> 24), (byte) (v >>> 16), (byte) (v >>> 8), (byte) v};
     }
 
-    /** Kebalikan iterKeByte. Murni agar bisa unit test. */
     static int byteKeIter(byte[] b) {
         if (b == null || b.length != 4) {
             return -1;
@@ -193,18 +159,14 @@ public final class TgBackup {
 
     private static final String TG_API = "https://api.telegram.org/bot";
     private static final int KEEP_BACKUPS = 10;
-    /** Batas bawah jam wajar (1 Jan 2024 UTC): STB tanpa RTC/baterai sering
-     *  reset ke 2015 saat listrik mati; TLS Telegram pasti gagal sebelum ini. */
+
     static final long BATAS_JAM_WAJAR_MS = 1704067200000L;
 
     private TgBackup() {
     }
 
-    /** Kunci penamaan backup: dua backup se-milidetik (bot vs UI, create vs
-     *  pre-backup) tak boleh memakai nama file yang sama. */
     private static final Object KUNCI_NAMA_BACKUP = new Object();
 
-    /** Nama bebas tabrakan: tambah -1, -2 bila dasar sudah dipakai. */
     static String namaBackupUnik(String dasar, java.util.Set<String> dipakai) {
         if (dipakai == null || !dipakai.contains(dasar)) {
             return dasar;
@@ -220,7 +182,6 @@ public final class TgBackup {
         return nama;
     }
 
-    /** Daftar nama file di folder (kunci unik butuh tahu yang sudah ada). */
     static java.util.Set<String> namaFileDi(File dir) {
         java.util.Set<String> ada = new java.util.HashSet<>();
         File[] isi = dir == null ? null : dir.listFiles();
@@ -232,34 +193,22 @@ public final class TgBackup {
         return ada;
     }
 
-    /** True bila file DB siap di-backup (ada + berisi + header SQLite valid). */
     static boolean dbSiap(File f) {
         return f != null && f.isFile() && f.length() > 0 && isSqliteFile(f);
     }
 
-    /** Jeda backup otomatis setelah STB hidup (5 menit): beri waktu sistem
-     *  stabil (I/O, jam, jaringan) sebelum beban backup+upload Telegram. */
     public static final long TUNGGU_BOOT_MS = 5L * 60 * 1000;
-    /** Request code alarm tunda-boot (beda dari jadwal harian agar tak tertimpa). */
+
     static final int REQ_TUNDA_BOOT = 101;
-    /** Request code jadwal backup harian (0, historis). Alokasi terpusat:
-     *  0 = harian (dipakai schedule di bawah), 3 = polling bot (TgBot.REQ_POLL),
-     *  101 = tunda-boot (di atas). Nilai historis dipertahankan agar alarm
-     *  lama yang sudah terjadwal tetap bisa dibatalkan (cancel beda kode gagal). */
+
     static final int REQ_HARIAN = 0;
-    /** Penanda intent alarm tunda-boot: keputusan backup diambil saat menyala
-     *  (jam sudah stabil), bukan saat dijadwalkan. */
+
     static final String EXTRA_TUNDA_BOOT = "tunda_boot";
-    /** Kunci rahasia alarm milik app (anti-spoof explicit-intent dari app lain).
-     *  Nilai acak per install, disimpan di prefs dan dibawa tiap PendingIntent
-     *  alarm; receiver menolak action milik app tanpa extra ini. */
+
     static final String KEY_ALARM_SECRET = "alarm_secret";
 
-    /** Rahasia alarm yang dipakai proses ini: sumber kebenaran saat commit()
-     *  ke prefs gagal, agar alarm terjadwal & verifikasinya memakai nilai sama. */
     private static volatile String rahasiaAlarmSesi = null;
 
-    /** Rahasia alarm milik app (heks 128-bit, dibuat sekali per install). Murni I/O prefs. */
     @android.annotation.SuppressLint("ApplySharedPref")
     static String rahasiaAlarm(android.content.Context ctx) {
         try {
@@ -274,15 +223,11 @@ public final class TgBackup {
             byte[] b = new byte[16];
             SECURE_RANDOM.nextBytes(b);
             String buat = Util.heks(b);
-            // Simpan dulu di sesi proses: bila commit() gagal (storage penuh),
-            // alarm yang sudah terjadwal tetap lolos verifikasi di proses ini
-            // alih-alih ditolak karena rahasia baru yang berbeda — dulu
-            // kegagalan commit diabaikan diam-diam dan backup susulan hilang.
+
             rahasiaAlarmSesi = buat;
             boolean tersimpan = false;
             try {
-                // commit() sinkron: rahasia wajib awet sebelum alarm terjadwal
-                // memakainya, bila tidak alarm berikut ditolak lalu backup hilang.
+
                 tersimpan = sp.edit().putString(KEY_ALARM_SECRET, buat).commit();
             } catch (Exception ignored) {
             }
@@ -297,9 +242,6 @@ public final class TgBackup {
         }
     }
 
-    /** Rahasia alarm yang dipakai (murni): nilai sesi proses menang atas prefs
-     *  agar commit() yang gagal tidak membuat verifikasi memakai rahasia lain;
-     *  null bila keduanya bukan 32 hex. */
     static String pilihRahasiaAlarm(String sesi, String tersimpan) {
         if (hex32(sesi)) {
             return sesi;
@@ -307,7 +249,6 @@ public final class TgBackup {
         return hex32(tersimpan) ? tersimpan : null;
     }
 
-    /** True bila extra rahasia alarm pada intent cocok dengan milik app. Murni. */
     static boolean rahasiaAlarmCocok(android.content.Context ctx, android.content.Intent intent) {
         if (intent == null) {
             return false;
@@ -326,10 +267,6 @@ public final class TgBackup {
         }
     }
 
-    /** Boleh backup susulan boot sekarang? Jalan hanya bila jam wajar
-     *  (>= 2024), tidak mundur di bawah backup terakhir, dan sudah ganti hari.
-     *  Menolak jam reset (mis. tahun 1999) yang oleh sudahGantiHari saja
-     *  terbaca sebagai beda hari. Murni agar bisa unit test. */
     static boolean bolehBackupSusulanBoot(long lastBackupMs, long sekarangMs) {
         if (!jamStbWajar(sekarangMs)) {
             return false;
@@ -340,25 +277,15 @@ public final class TgBackup {
         return sudahGantiHari(lastBackupMs, sekarangMs);
     }
 
-    /** Sisa tunggu (ms) agar uptime mencapai 5 menit; 0 bila sudah lewat. Murni. */
     public static long sisaTungguBootMs(long elapsedMs) {
         long sisa = TUNGGU_BOOT_MS - Math.max(0, elapsedMs);
         return sisa > 0 ? sisa : 0;
     }
 
-    /** Tunda backup via alarm bila STB baru hidup (<5 mnt); true = pemanggil
-     *  wajib pulang tanpa backup (AlarmReceiver menilai ulang + mengeksekusi
-     *  saat alarm tunda menyala). Satu pintu pengganti metode tidur-blokir
-     *  lama yang menidurkan thread pool bersama menit-lama (BG lama 2 slot,
-     *  BG ringan 3 slot di STB 1 GB): unduh binary/hash PIN ikut antre di
-     *  belakang tidur 5 menit itu. Tanpa tidur sehingga aman dari thread
-     *  mana pun (receiver/activity/worker). */
     public static boolean tundaBilaBootBaru(Context ctx, String label) {
         return tundaBilaBootBaruPada(ctx, label, SystemClock.elapsedRealtime());
     }
 
-    /** Varian waktu-suntik dari tundaBilaBootBaru (murni + alarm) agar bisa
-     *  unit test JVM tanpa memalsukan jam uptime perangkat. */
     static boolean tundaBilaBootBaruPada(Context ctx, String label, long elapsedMs) {
         if (sisaTungguBootMs(elapsedMs) <= 0) {
             return false;
@@ -370,9 +297,6 @@ public final class TgBackup {
         return true;
     }
 
-    /** Jadwalkan satu tembakan backup susulan tepat saat 5 menit setelah boot.
-     *  Dipakai BootReceiver (catch-up) dan AlarmReceiver bila alarm menyala
-     *  saat uptime < 5 menit. Tak menyentuh jadwal tengah malam. */
     public static boolean jadwalTundaBoot(Context ctx) {
         try {
             AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
@@ -398,9 +322,7 @@ public final class TgBackup {
                         am.setExactAndAllowWhileIdle(
                                 AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
                     } catch (Exception e) {
-                        // Fallback tetap boleh saat idle (Doze): set() biasa bisa
-                        // tertunda berjam-jam di STB. Cabang luar sudah menjamin
-                        // API 23+ sehingga tanpa fallback set() lawas yang mati.
+
                         am.setAndAllowWhileIdle(
                                 AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi);
                     }
@@ -416,9 +338,6 @@ public final class TgBackup {
         }
     }
 
-    /** Tunggu DB terbentuk setelah Start (cek tiap 500 ms, maks 30 dtk) lalu backup.
-     *  Pengganti sleep(5000) tebakan: di STB lambat DB belum tentu jadi dalam 5 dtk,
-     *  di HP cepat tak perlu menunggu selama itu. */
     public static String backupTungguDb(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -441,31 +360,25 @@ public final class TgBackup {
                 throw new IOException("Backup otomatis dibatalkan.");
             }
         }
-        // STB baru hidup: tunda via alarm satu pintu (tanpa menidurkan
-        // thread pool menit-lama); AlarmReceiver menilai ulang saat menyala.
+
         if (tundaBilaBootBaru(ctx, "backup otomatis saat Start")) {
             return "STB baru hidup - backup otomatis saat Start ditunda"
                     + " sampai sistem stabil (alarm terpasang).";
         }
-        // Jalur otomatis: wajib terenkripsi (fail-closed bila tanpa password).
+
         return backupOtomatis(ctx);
     }
 
-    /** Callback UI untuk backup otomatis saat Start (toast + catat + pos UI). */
     public interface BackupStartUi {
         void toast(String s);
         void catat(String s);
         void jalankanUi(Runnable r);
     }
 
-    /** True bila jam STB wajar (tak reset ke tahun lama). Murni agar bisa unit test. */
     static boolean jamStbWajar(long kiniMs) {
         return kiniMs >= BATAS_JAM_WAJAR_MS;
     }
 
-    /** Pesan jam STB salah untuk backup (sertakan tanggal terbaca + cara betulkan).
-     *  Tanggal via Util.tanggalStb satu pintu (dulu ThreadLocal ganda
-     *  yang duplikat di tiap modul). */
     static String pesanJamStbSalah(long kiniMs) {
         String terbaca = Util.tanggalStb(kiniMs);
         return "Tanggal & jam STB salah (terbaca " + terbaca + ")."
@@ -474,7 +387,6 @@ public final class TgBackup {
                 + " (butuh internet), atau atur manual ke hari ini, lalu ulangi backup.";
     }
 
-    /** Bungkus galat backup jadi pesan tindak-lanjut (jam salah dijelaskan khusus). */
     static String pesanGalatBackup(Exception e) {
         String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
         long kini = System.currentTimeMillis();
@@ -484,8 +396,6 @@ public final class TgBackup {
         return "Backup gagal: " + redaksiDetailGalat(inti) + ". " + Updater.saranKoneksi(e);
     }
 
-    /** Backup Telegram otomatis saat Start (sekali sehari, bila hari berganti).
-     *  Satu implementasi untuk Main & Settings (dulu duplikat). */
     public static void maybeAutoBackup(Context ctx, BackupStartUi ui) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -502,14 +412,12 @@ public final class TgBackup {
         if (last > 0 && !sudahGantiHari(last, System.currentTimeMillis())) {
             return;
         }
-        // Fail-fast sebelum tunggu DB/boot: tanpa password otomatis wajib ditolak.
+
         if (!bolehBackupOtomatis(amanString(sp, KEY_TG_PASS, ""))) {
             ui.catat("[tg] " + pesanTolakPlainOtomatis());
             return;
         }
-        // Backup/restore lain sudah memegang kunci data: jangan buang satu slot
-        // pool lama untuk menunggu DB 30 dtk lalu "gagal" dengan pesan yang
-        // menyesatkan (dulu user mengira backup harian gagal, padahal dilewati).
+
         if (tugasDataJalan()) {
             ui.catat("[tg] Backup otomatis saat Start dilewati:"
                     + " tugas backup/restore lain sedang berjalan.");
@@ -517,7 +425,7 @@ public final class TgBackup {
         }
         ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
         final Context app = ctx.getApplicationContext();
-        // Pool tugas lama bersama (hemat thread baru tiap Start di STB 1 GB).
+
         Util.jalankanLama(() -> {
             try {
                 final String msg = backupTungguDb(app);
@@ -533,13 +441,10 @@ public final class TgBackup {
         });
     }
 
-    /** True bila backup otomatis boleh jalan: password backup wajib diisi agar
-     *  database vault tak terkirim plaintext ke cloud Telegram. Murni. */
     static boolean bolehBackupOtomatis(String pass) {
         return pass != null && !pass.trim().isEmpty();
     }
 
-    /** Penjelasan penolakan backup otomatis tanpa password (murni). */
     static String pesanTolakPlainOtomatis() {
         return "Backup otomatis dilewati: isi password backup di"
                 + " Pengaturan agar backup ke Telegram terenkripsi. Tanpa password,"
@@ -547,11 +452,6 @@ public final class TgBackup {
                 + " manual bila memang mau tanpa enkripsi.";
     }
 
-    /** Backup otomatis (jadwal/saat Start/susulan boot) yang wajib terenkripsi.
-     *  Tanpa password, isi vault melenggang plaintext ke cloud Telegram dan
-     *  tersimpan di sana permanen — jalur otomatis yang sunyi (tanpa klik user)
-     *  tak boleh memicunya. Backup manual (tombol/bot) tetap lewat
-     *  {@link #backupNow} dengan peringatan plaintext di pesan hasil. */
     public static String backupOtomatis(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -561,7 +461,6 @@ public final class TgBackup {
         return backupNow(ctx);
     }
 
-    /** Backup sekarang; melempar Exception bila gagal. Mengembalikan pesan sukses. */
     public static String backupNow(Context ctx) throws Exception {
         if (!kunciBackup()) {
             throw new IOException("Tugas backup/restore lain sedang berjalan,"
@@ -594,29 +493,16 @@ public final class TgBackup {
             throw new IOException("Database belum ada.");
         }
 
-        // Password dibaca SEKALI di awal lalu dipakai untuk tiga keputusan:
-        // ikutkan kunci privat TLS, enkripsi zip, dan teks peringatan. Dulu
-        // password dibaca ulang setelah zip dibangun; bila user mengosongkannya
-        // di tengah backup, zip plaintext berisi kunci privat tetap terkirim
-        // dan pesan sukses tidak memperingatkan apa pun.
         String pass = amanString(sp, KEY_TG_PASS, "");
         boolean terenkripsi = pass != null && !pass.trim().isEmpty();
-        // Cek ruang di SEMUA volume yang dipakai: zip plaintext dibangun di
-        // cache internal saat backup dienkripsi, sedangkan hasil akhir
-        // (.enc/zip) ditulis ke <dataDir>/backups. Dulu hanya folder data yang
-        // diukur, sehingga storage internal yang penuh baru ketahuan di tengah
-        // pembuatan zip (pesan galat membingungkan) walau volume data lega.
+
         String cachePath = "";
         try {
             File c = ctx.getCacheDir();
             cachePath = c == null ? "" : c.getAbsolutePath();
         } catch (Exception ignored) {
         }
-        // Proyeksi ruang dari isi DB, bukan ambang tetap 10 MB: zip backup
-        // memuat salinan DB (+WAL/SHM), sedangkan jalur terenkripsi juga
-        // membangun zip plaintext + salinan verifikasi di cache. Dulu DB besar
-        // lolos gerbang 10 MB lalu gagal di tengah pembuatan zip dengan pesan
-        // membingungkan dan sisa file .tmp.
+
         long isiDb = panjangBerkas(db)
                 + panjangBerkas(new File(dataDir, "db.sqlite3-wal"))
                 + panjangBerkas(new File(dataDir, "db.sqlite3-shm"));
@@ -633,13 +519,8 @@ public final class TgBackup {
             }
         }
 
-        // Kunci konsistensi: pindahkan isi WAL ke DB utama dulu supaya salinan
-        // file tidak menangkap transaksi setengah jalan saat server sedang jalan.
         checkpointWal(db);
-        // Integritas SQLite penuh (bukan cuma magic header): tolak DB robek
-        // akibat salin saat server menulis, sebelum diunggah ke Telegram.
-        // Terkunci sesaat (SIBUK) bukan korup: coba ulang 3x selang 1 detik
-        // sebelum menyerah agar backup tak gugur oleh tulis sesaat server.
+
         String cekDb = cekIntegritasDbUlang(db);
         if (dbSibuk(cekDb)) {
             throw new IOException("Database sibuk (server sedang menulis)"
@@ -649,16 +530,8 @@ public final class TgBackup {
             throw new IOException("Database korup (" + cekDb + ") - backup dibatalkan.");
         }
 
-        // Backup selalu menyertakan pengaturan + sertifikat (checkbox dihapus).
-        // Tanpa password, backup melenggang plaintext ke cloud Telegram:
-        // kunci privat TLS tidak ikut (sertifikat publik + DB tetap ikut).
-        // Bangun + verifikasi dengan satu kali ulangan: server tetap jalan saat
-        // backup sehingga salinan bisa robek di tengah tulis; ulangan diawali
-        // snapshot konsisten yang baru agar percobaan kedua membaca DB tenang.
-        // Gagal dua kali = dilempar (bukan loop) agar storage/STB tak terkuras.
         File zip = null;
-        // Folder snapshot milik percobaan ini. Nama unik + sisa percobaan
-        // sebelumnya disapu agar kill di tengah backup tak menumpuk puluhan MB.
+
         File snapDir = new File(ctx.getCacheDir(), "vwsnap-" + System.nanoTime());
         sapuSnapshotBasi(ctx.getCacheDir());
         try {
@@ -670,9 +543,7 @@ public final class TgBackup {
                     }
                     zip = null;
                 }
-                // Snapshot WAJIB konsisten: checkpoint yang SIBUK + salin tiga
-                // berkas berurutan dulu menghasilkan db/WAL dari waktu berbeda
-                // yang tetap lolos verifikasi (hanya db yang diuji).
+
                 String galatSnap = snapshotDbKonsisten(new File(dataDir), snapDir);
                 if (galatSnap != null) {
                     if (percobaan < 2) {
@@ -683,11 +554,9 @@ public final class TgBackup {
                 }
                 zip = createBackupZip(ctx, dataDir, snapDir, true, configJson(sp),
                         terenkripsi,
-                        // Zip berisi kunci privat TLS tak boleh mampir ke storage
-                        // publik (folder data user) walau hanya sesaat sebelum
-                        // dienkripsi: bangun di cache privat app saat hasilnya .enc.
+
                         terenkripsi ? ctx.getCacheDir() : null);
-                // Verifikasi sebelum diunggah: jangan kirim backup korup ke Telegram.
+
                 String galat = verifikasiZip(zip);
                 if (galat != null) {
                     if (percobaan < 2) {
@@ -696,9 +565,7 @@ public final class TgBackup {
                     zip.delete();
                     throw new IOException("Backup gagal verifikasi: " + galat);
                 }
-                // Isi DB (beserta WAL-nya) ikut di-quick_check dari hasil
-                // ekstrak: magic saja tak cukup, dan WAL tanpa db yang cocok
-                // baru ketahuan saat restore.
+
                 File tmpIsi = berkasPlainSementara(ctx.getCacheDir(), "isi-db", ".sqlite3");
                 sapuTmpPlainBasi(ctx.getCacheDir(), tmpIsi.getName());
                 try {
@@ -724,9 +591,7 @@ public final class TgBackup {
         if (zip == null || !zip.exists()) {
             throw new IOException("Backup gagal dibuat.");
         }
-        // Zip lolos verifikasi: baru sekarang retensi boleh mengusir yang lama
-        // (jalan tanpa password = zip disimpan di folder backup). Jalur
-        // terenkripsi menyapu setelah .enc jadi, di bawah.
+
         if (!terenkripsi) {
             cleanupOldBackups(new File(dataDir, "backups"));
         }
@@ -735,14 +600,13 @@ public final class TgBackup {
             File backupDir = new File(dataDir, "backups");
             File enc = new File(backupDir,
                     namaBackupUnik(zip.getName() + ".enc", namaFileDi(backupDir)));
-            // Round-trip di cache internal (bukan /sdcard) agar plaintext
-            // sementara tak terekspos ke app lain di storage publik.
+
             File tmpDec = berkasPlainSementara(ctx.getCacheDir(), "roundtrip", ".zip");
             sapuTmpPlainBasi(ctx.getCacheDir(), tmpDec.getName());
             boolean sah = false;
             try {
                 encryptFile(zip, enc, pass.trim());
-                // Round-trip: pastikan hasil enkripsi bisa dibuka dengan password ini.
+
                 decryptFile(enc, tmpDec, pass.trim());
                 String galat2 = verifikasiZip(tmpDec);
                 if (galat2 != null) {
@@ -751,21 +615,16 @@ public final class TgBackup {
                 }
                 sah = true;
             } finally {
-                // Plaintext (berisi kunci privat TLS) wajib hilang juga saat
-                // enkripsi/verifikasi gagal — dulu zip.delete() hanya jalan
-                // setelah sukses sehingga zip plaintext tertinggal di folder
-                // backup yang bisa dibaca app lain.
+
                 zip.delete();
                 tmpDec.delete();
                 if (!sah) {
-                    // .enc gagal verifikasi tak pernah diunggah dan tak layak
-                    // di-restore: jangan biarkan ia memakan kuota retensi lalu
-                    // mengusir backup bagus pada sapuan berikutnya.
+
                     enc.delete();
                 }
             }
             upload = enc;
-            // .enc baru masuk folder backup di sini, sapu retensi setelahnya.
+
             cleanupOldBackups(backupDir);
         }
         if (!semuaChatAman(chat)) {
@@ -773,9 +632,7 @@ public final class TgBackup {
                     + " - periksa pengaturan bot.");
         }
         java.util.List<String> tujuan = daftarChatTujuan(chat);
-        // Coba semua chat walau satu gagal: dulu chat-0 gagal melempar
-        // sebelum chat-1 dicoba (kirim parsial tanpa laporan), dan fileId
-        // hanya dari chat terakhir. Kumpulkan per-chat di sini.
+
         String respTerakhir = null;
         java.util.List<String> gagalChat = new java.util.ArrayList<>();
         for (int ci = 0; ci < tujuan.size(); ci++) {
@@ -796,11 +653,7 @@ public final class TgBackup {
         String peringatanChat = gagalChat.isEmpty() ? ""
                 : " (sebagian chat gagal: " + gabungGagalChat(gagalChat)
                         + " - dicoba lagi otomatis backup berikutnya)";
-        // Stempel harian HANYA dimajukan bila semua chat tujuan menerima
-        // backup. Dulu stempel tetap ditulis walau satu chat gagal, sehingga
-        // cek "sudah backup hari ini" menganggap selesai dan chat yang gagal
-        // tak pernah menerima backup hari itu. File terakhir tetap dicatat
-        // agar /restore dan info ukuran memakai berkas yang benar.
+
         SharedPreferences.Editor edLast = sp.edit()
                 .putString(KEY_TG_LAST_FILE, fileId)
                 .putString(KEY_TG_LAST_NAME, upload.getName());
@@ -817,8 +670,7 @@ public final class TgBackup {
         String peringatan = terenkripsi ? ""
                 : " (TANPA enkripsi: kunci privat tak ikut; isi password backup"
                         + " agar terenkripsi penuh)";
-        // File >20 MB tak bisa diunduh kembali via bot (batas Bot API):
-        // peringatkan sekarang agar user menyimpan salinan manual dari chat.
+
         String batas = upload.length() > BATAS_UNDUH_TELEGRAM
                 ? " (CATATAN: >20 MB sehingga tak bisa direstore via bot"
                         + " - unduh manual dari chat bila perlu restore)"
@@ -828,8 +680,6 @@ public final class TgBackup {
                 + "/" + tujuan.size() + " chat)" + peringatanChat + peringatan + batas;
     }
 
-    /** Gabung daftar gagal per-chat dengan "; " tanpa alokasi TextUtils.
-     *  Murni agar bisa unit test JVM. */
     static String gabungGagalChat(java.util.List<String> gagal) {
         if (gagal == null || gagal.isEmpty()) {
             return "";
@@ -845,13 +695,9 @@ public final class TgBackup {
         return sb.toString();
     }
 
-    /** Siapkan POST Telegram tanpa ikuti redirect otomatis.
-     *  Redirect POST ditolak mentah (Telegram API tak memakai redirect;
-     *  mengikuti redirect bisa bocorkan token bot ke host lain). */
     static HttpURLConnection bukaPostTelegram(Context ctx, String url, byte[] body,
             String contentType, int connectMs, int readMs) throws Exception {
-        // URL POST membawa token bot di path: kunci ke host Telegram resmi agar
-        // bug pemanggil tak mengirim token ke host asing via MITM/typo.
+
         final java.net.URL tujuan;
         try {
             tujuan = new java.net.URL(url);
@@ -876,7 +722,6 @@ public final class TgBackup {
         return c;
     }
 
-    /** Tolak redirect Telegram (fail-closed agar token tak bocor ke http/host lain). */
     static void tolakRedirectTelegram(HttpURLConnection c) throws java.io.IOException {
         int kode = c.getResponseCode();
         if (kode == 301 || kode == 302 || kode == 303 || kode == 307 || kode == 308) {
@@ -885,17 +730,12 @@ public final class TgBackup {
         }
     }
 
-    /** Buka URL file Telegram sambil ikuti redirect hanya yang https + host Telegram.
-     *  URL unduh membawa token bot di path sehingga 302 ke host asing wajib
-     *  ditolak (lihat bolehIkutiRedirectTelegram) agar token tak bocor. */
     static HttpURLConnection bukaFileTelegram(Context ctx, String url,
             int connectMs, int readMs) throws Exception {
         String kini = url;
         for (int i = 0; i < 5; i++) {
             HttpURLConnection c = (HttpURLConnection) new java.net.URL(kini).openConnection();
-            // Koneksi yang tak diserahkan ke pemanggil wajib ditutup di sini:
-            // galat jaringan/header (SocketTimeoutException) dulu meninggalkan
-            // socket + buffer terbuka tiap percobaan.
+
             boolean serah = false;
             try {
                 c.setConnectTimeout(connectMs);
@@ -930,9 +770,6 @@ public final class TgBackup {
         throw new java.io.IOException("Terlalu banyak redirect Telegram.");
     }
 
-    /** Jalur prioritas untuk pesan penting (restart berulang, crash, PIN terkunci,
-     *  restore gagal): eksekutor terpisah agar tak tertahan antrean pesan biasa
-     *  saat health-check/restart spam. */
     private static final ExecutorService TG_PENTING_EXEC =
             new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
                     java.util.concurrent.TimeUnit.MILLISECONDS,
@@ -942,13 +779,10 @@ public final class TgBackup {
                             "Antrean pesan penting penuh, pesan tertua dibuang.",
                             "[tg] Antrean pesan penting penuh, pesan tertua dibuang."));
 
-    /** Kirim pesan teks ke chat ID yang dikonfigurasi (async, silent bila belum diisi).
-     *  Async agar tidak pernah memblokir thread pemanggil (mis. main thread saat start/stop). */
     public static void sendMessage(Context ctx, String text) {
         kirimPesan(ctx, text, null);
     }
 
-    /** Varian penting: lewat antrean prioritas terpisah (lihat TG_PENTING_EXEC). */
     public static void sendPenting(Context ctx, String text) {
         final Context app;
         try {
@@ -963,26 +797,18 @@ public final class TgBackup {
         }
     }
 
-    /** Kirim pesan + keyboard inline (mis. tombol perintah di /help). */
     public static void sendMessageKb(Context ctx, String text, String markupJson) {
         kirimPesan(ctx, text, markupJson);
     }
 
-    /** Balas HANYA ke satu chat (chat pengirim perintah), bukan siaran.
-     *  Dipakai seluruh balasan bot: dulu balasan /status, /log, /crashlog,
-     *  /backup, /restore ... disiarkan ke semua chat di KEY_TG_CHAT sehingga
-     *  grup ikut menerima path folder data, URL LAN/port, potongan log, dan
-     *  nama berkas backup yang secara eksplisit tak boleh mereka minta. */
     public static void sendMessageKe(Context ctx, String chatId, String text) {
         kirimPesanKe(ctx, chatId, text, null, false);
     }
 
-    /** Varian penting dari {@link #sendMessageKe}: antrean prioritas. */
     public static void sendPentingKe(Context ctx, String chatId, String text) {
         kirimPesanKe(ctx, chatId, text, null, true);
     }
 
-    /** Balasan + keyboard inline ke satu chat saja. */
     public static void sendMessageKbKe(Context ctx, String chatId, String text, String markupJson) {
         kirimPesanKe(ctx, chatId, text, markupJson, false);
     }
@@ -1011,9 +837,6 @@ public final class TgBackup {
         }
     }
 
-    /** Ubah pesan menu yang sudah ada (edit-in-place) agar riwayat tak menumpuk.
-     *  Bila edit gagal (pesan terlalu lama / bukan milik bot), kirim pesan baru
-     *  dengan keyboard yang sama; async di antrean pesan biasa. */
     public static void editMessageKb(Context ctx, long chatId, int messageId,
                                      String text, String markupJson) {
         final Context app;
@@ -1030,8 +853,7 @@ public final class TgBackup {
         try {
             TG_MSG_EXEC.execute(() -> {
                 if (!ubahSinkron(app, chatId, messageId, msg, markup)) {
-                    // Fallback WAJIB ke chat yang sama: dulu kirimSinkron()
-                    // menyiarkan menu baru ke semua chat config (bocor ke grup).
+
                     kirimSinkronKe(app, String.valueOf(chatId), msg, markup);
                 }
             });
@@ -1058,15 +880,11 @@ public final class TgBackup {
         }
     }
 
-    /** True bila pesan wajib lewat antrean prioritas (gagal/terkunci/berhenti/
-     *  crash/restore): antrean biasa membuang tertua saat penuh sehingga kabar
-     *  kritis bisa hilang tepat saat Telegram lama tak terjangkau. Murni. */
     static boolean pesanPenting(String msg) {
         if (msg == null || msg.isEmpty()) {
             return false;
         }
-        // Tanpa toLowerCase salinan penuh: helper ASCII tanpa alokasi
-        // (kata kunci semua ASCII); pesan log panjang tak disalin tiap kirim.
+
         return Util.mengandungAbaikanHuruf(msg, "gagal")
                 || Util.mengandungAbaikanHuruf(msg, "terkunci")
                 || Util.mengandungAbaikanHuruf(msg, "berhenti")
@@ -1076,14 +894,8 @@ public final class TgBackup {
                 || Util.mengandungAbaikanHuruf(msg, "darurat");
     }
 
-    /** Batas aman teks per pesan Telegram (limit API 4096 char; margin 96). */
     static final int BATAS_PESAN_TELEGRAM = 4000;
 
-    /** Pecah teks panjang jadi potongan <= batas char tanpa membelah surrogate
-     *  pair (emoji). Utamakan belah di akhir baris agar potongan log tak
-     *  memenggal tengah baris; ekor grapheme (combining/ZWJ/variant) ikut ke
-     *  potongan ini (margin 96 char ke limit 4096 aman). Gabungan potongan
-     *  selalu sama dengan teks asli (tanpa char hilang). Murni agar bisa unit test. */
     static java.util.List<String> pecahPesan(String msg, int batas) {
         java.util.List<String> out = new java.util.ArrayList<String>();
         String s = msg == null ? "" : msg;
@@ -1097,11 +909,7 @@ public final class TgBackup {
                     && Character.isLowSurrogate(s.charAt(akhir))) {
                 akhir--;
             }
-            // Belah di newline terakhir dalam jangkauan bila menyisakan isi
-            // wajar (>separuh batas) agar baris raksasa tanpa newline tak jadi
-            // potongan mungil dan progres selalu maju (akhir > i). Pindai manual
-            // terbatas jendela: lastIndexOf(fromIndex) memindai mundur sampai
-            // indeks 0 per potongan (O(n^2) untuk log crash multi-potongan).
+
             if (akhir - i > 1) {
                 int minNl = i + batas / 2;
                 for (int k = akhir - 1; k > minNl; k--) {
@@ -1111,14 +919,13 @@ public final class TgBackup {
                     }
                 }
             }
-            // Tanda lanjut grapheme di awal potongan berikut (combining mark,
-            // ZWJ, variation selector) ikut potongan ini agar emoji tak rusak.
+
             int tumbuh = 0;
             while (akhir < s.length() && tumbuh < 16 && ekorGrapheme(s.charAt(akhir))) {
                 akhir++;
                 tumbuh++;
             }
-            // Guard progres: tanpa ini newline di i (akhir == i) mengulang selamanya.
+
             if (akhir <= i) {
                 akhir = Math.min(i + batas, s.length());
             }
@@ -1131,9 +938,6 @@ public final class TgBackup {
         return out;
     }
 
-    /** Rakit body form sendMessage dari nilai yang sudah di-encode (satu pintu:
-     *  keyboard hanya di potongan terakhir — keputusan di pemanggil via mk null).
-     *  Builder pra-ukuran agar tak regrow per potongan. Murni agar bisa unit test. */
     static String bangunParamPesan(String chatEnk, String teksEnk, String mkEnk) {
         String c = chatEnk == null ? "" : chatEnk;
         String t = teksEnk == null ? "" : teksEnk;
@@ -1146,8 +950,6 @@ public final class TgBackup {
         return b.toString();
     }
 
-    /** Rakit body form editMessageText (chat_id + message_id + text + keyboard).
-     *  Satu pintu dengan bangunParamPesan agar encoding tak drift. Murni. */
     static String bangunParamEdit(String chatEnk, String pesanEnk, String teksEnk, String mkEnk) {
         String c = chatEnk == null ? "" : chatEnk;
         String p = pesanEnk == null ? "" : pesanEnk;
@@ -1162,8 +964,6 @@ public final class TgBackup {
         return b.toString();
     }
 
-    /** True bila char adalah lanjutan grapheme yang tak boleh membuka potongan:
-     *  combining mark, ZWJ, variation selector. Murni agar bisa unit test. */
     static boolean ekorGrapheme(char c) {
         if (c == '\u200D' || c == '\uFE0E' || c == '\uFE0F') {
             return true;
@@ -1173,13 +973,10 @@ public final class TgBackup {
                 || t == Character.COMBINING_SPACING_MARK;
     }
 
-    /** Daftar chat tujuan dari config (satu ID lama tetap satu entri). Murni. */
     static java.util.List<String> daftarChatTujuan(String chatConfig) {
         return Util.pecahDaftarChat(chatConfig);
     }
 
-    /** True bila daftar chat layak dikirim (tiap entri ikut chatIdAman,
-     *  jumlah tak lewat batas STB). Murni agar bisa unit test. */
     static boolean semuaChatAman(String chatConfig) {
         java.util.List<String> daftar = Util.pecahDaftarChat(chatConfig);
         if (daftar.isEmpty() || daftar.size() > Util.MAKS_CHAT_TUJUAN) {
@@ -1193,7 +990,6 @@ public final class TgBackup {
         return true;
     }
 
-    /** Inti pengiriman sinkron (dipanggil dari worker TG_MSG_EXEC/TG_PENTING_EXEC). */
     private static void kirimSinkron(Context app, String msg, String markup) {
         try {
             SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
@@ -1204,9 +1000,7 @@ public final class TgBackup {
             if (token.isEmpty() || tujuan.isEmpty()) {
                 return;
             }
-            // Config edit manual/import bisa lolos dari validasi UI: jangan
-            // kirim ke puluhan chat (self-spam bandwidth STB). Backup/CA sudah
-            // melempar via semuaChatAman; pesan cukup ditolak + jejak log.
+
             if (tujuan.size() > Util.MAKS_CHAT_TUJUAN) {
                 logTgFailure("kirim pesan", -1, "daftar chat melebihi batas");
                 return;
@@ -1217,8 +1011,6 @@ public final class TgBackup {
         }
     }
 
-    /** Kirim sinkron ke SATU chat (balasan perintah). Chat divalidasi seperti
-     *  daftar config: ID aneh dari luar (config rusak) tak boleh masuk URL API. */
     private static void kirimSinkronKe(Context app, String chatId, String msg, String markup) {
         try {
             java.util.List<String> satu = tujuanBalasan(chatId);
@@ -1238,10 +1030,6 @@ public final class TgBackup {
         }
     }
 
-    /** Tujuan balasan perintah: TEPAT satu chat (pengirim), bukan seluruh
-     *  KEY_TG_CHAT. Null bila ID tak layak kirim. Murni agar bisa unit test:
-     *  inilah gerbang yang mencegah balasan /status, /log, /backup bocor ke
-     *  grup yang ikut terdaftar di config. */
     static java.util.List<String> tujuanBalasan(String chatId) {
         String id = Util.amanTrim(chatId);
         if (!chatIdAman(id)) {
@@ -1252,19 +1040,12 @@ public final class TgBackup {
         return satu;
     }
 
-    /** Kirim pesan ke daftar tujuan yang sudah tervalidasi (satu pintu).
-     *  Melempar Exception (termasuk UnsupportedEncodingException dari
-     *  URLEncoder) agar kedua pemanggil — kirimSinkron/kirimSinkronKe —
-     *  mencatatnya lewat jalur logTgFailure yang sama. */
     private static void kirimKeDaftar(Context app, String token,
                                       java.util.List<String> tujuan, String msg, String markup)
             throws Exception {
-        // Limit API Telegram 4096 char: pecah agar /status & /log panjang
-        // tak gagal 400 diam-diam. Keyboard hanya di potongan terakhir.
+
         java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
-        // Encode sekali per chat/potongan (bukan per kombinasi): teks sama
-        // untuk semua tujuan sehingga /log 4KB ke 5 chat dulu membayar
-        // URLEncoder 5x per potongan di CPU STB.
+
         java.util.List<String> enkChat = new java.util.ArrayList<String>(tujuan.size());
         for (int ci = 0; ci < tujuan.size(); ci++) {
             enkChat.add(URLEncoder.encode(tujuan.get(ci), "UTF-8"));
@@ -1279,12 +1060,10 @@ public final class TgBackup {
             String chatEnk = enkChat.get(ci);
             for (int bi = 0; bi < bagian.size(); bi++) {
                 String mk = (bi == bagian.size() - 1) ? enkMk : null;
-                // POST (bukan GET): token tidak bocor ke log URL/proxy.
+
                 String param = bangunParamPesan(chatEnk, enkBagian.get(bi), mk);
                 byte[] body = param.getBytes(StandardCharsets.UTF_8);
-                // Galat satu chat/potongan tak boleh menghentikan chat lain:
-                // dulu satu exception melewati sisa tujuan, padahal jalur
-                // upload sengaja "coba semua chat".
+
                 try {
                     kirimSatuPesan(app, token, body, bi, bagian.size());
                 } catch (Exception e) {
@@ -1295,10 +1074,6 @@ public final class TgBackup {
         }
     }
 
-    /** Kirim satu potongan pesan ke satu chat. Balasan 429 diulang sekali
-     *  setelah jeda `retry_after` (dibatasi 5 dtk agar antrean pesan tak
-     *  tertahan lama); galat lain dicatat lalu dilempar ke pemanggil agar
-     *  chat berikutnya tetap dicoba. */
     private static void kirimSatuPesan(Context app, String token, byte[] body,
                                        int bi, int total) throws Exception {
         for (int percobaan = 0; percobaan < 2; percobaan++) {
@@ -1326,8 +1101,7 @@ public final class TgBackup {
                     Thread.sleep(jeda);
                     continue;
                 }
-                // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
-                // contains mentah menolak respons sah ber-spasi.
+
                 if (code != 200 || !TgBot.responsOk(sb.toString())) {
                     logTgFailure("kirim pesan " + (bi + 1) + "/" + total,
                             code, sb.toString());
@@ -1341,9 +1115,6 @@ public final class TgBackup {
         }
     }
 
-    /** Jeda (ms) dari `parameters.retry_after` pada balasan 429 Telegram.
-     *  Default 1 dtk bila tak terbaca; dibatasi 1-5 dtk agar antrean pesan
-     *  tak tertahan lama di STB. Murni agar bisa diuji. */
     static long jedaRetryAfterMs(String body) {
         if (body == null) {
             return 1000L;
@@ -1376,9 +1147,6 @@ public final class TgBackup {
         return Math.min(ms, 5000L);
     }
 
-    /** Edit satu pesan (menu) secara sinkron. False = pemanggil kirim pesan baru.
-     *  "message is not modified" dianggap sukses agar panel yang sama tak
-     *  memicu pesan duplikat. Teks multi-potongan tak diedit (fallback kirim). */
     private static boolean ubahSinkron(Context app, long chatId, int messageId,
                                        String msg, String markup) {
         HttpURLConnection conn = null;
@@ -1434,24 +1202,18 @@ public final class TgBackup {
         }
     }
 
-    /** Paksa SQLite menulis isi WAL ke DB utama.
-     *  Return true bila checkpoint benar-benar selesai (busy=0). Dulu galat
-     *  dan status SIBUK ditelan diam-diam, sehingga pemanggil mengira WAL
-     *  sudah kosong padahal server masih menulis — salinan db/WAL lalu berasal
-     *  dari waktu berbeda. */
     static boolean checkpointWal(File dbFile) {
         SQLiteDatabase db = null;
         boolean selesai = false;
         try {
-            // READWRITE disengaja: wal_checkpoint(TRUNCATE) butuh tulis sehingga
-            // mode READONLY selalu gagal diam-diam dan WAL tak pernah disatukan.
+
             db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
                     SQLiteDatabase.OPEN_READWRITE);
             android.database.Cursor c = null;
             try {
                 c = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE);", null);
                 if (c != null && c.moveToFirst()) {
-                    // Kolom 0 = busy (0 = seluruh WAL berhasil dipindahkan).
+
                     selesai = c.getInt(0) == 0;
                 }
             } finally {
@@ -1474,11 +1236,8 @@ public final class TgBackup {
         return selesai;
     }
 
-    /** Berkas DB yang ikut snapshot backup (urutan salin: utama lalu WAL/SHM). */
     static final String[] BERKAS_DB = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
 
-    /** Salin db+WAL+SHM apa adanya ke folder tujuan; berkas yang tak ada
-     *  dilewati. Murni I/O agar bisa unit test JVM. */
     static boolean salinBerkasDb(File dataFolder, File tujuan) {
         if (dataFolder == null || tujuan == null) {
             return false;
@@ -1500,15 +1259,6 @@ public final class TgBackup {
         }
     }
 
-    /** Snapshot konsisten db+WAL+SHM untuk backup.
-     *
-     *  Dulu ketiga berkas disalin berurutan tanpa pemeriksaan apa pun: server
-     *  yang terus menulis membuat db dari T1, WAL dari T2, SHM dari T3, dan
-     *  checkpoint yang SIBUK ditelan diam-diam. Kini tiap percobaan dimulai
-     *  dengan checkpoint, salinan ditolak bila sumber berubah selama penyalinan
-     *  (mtime/ukuran berbeda), lalu salinan diuji quick_check dengan WAL-nya
-     *  sendiri. Return null bila sah, pesan galat bila tak layak diarsipkan.
-     *  Wajib worker thread (ada tidur). */
     static String snapshotDbKonsisten(File dataFolder, File tujuan) {
         File db = new File(dataFolder, "db.sqlite3");
         if (!db.isFile()) {
@@ -1518,8 +1268,7 @@ public final class TgBackup {
         File shm = new File(dataFolder, "db.sqlite3-shm");
         String galat = "salinan tidak stabil";
         for (int coba = 1; coba <= 3; coba++) {
-            // Checkpoint yang SIBUK tak langsung menggagalkan: salinan tetap
-            // diuji keutuhannya (SQLite memakai WAL di sebelah salinan).
+
             checkpointWal(db);
             long mDb = db.lastModified();
             long uDb = db.length();
@@ -1532,7 +1281,7 @@ public final class TgBackup {
             } else if (db.lastModified() != mDb || db.length() != uDb
                     || wal.lastModified() != mWal || wal.length() != uWal
                     || shm.lastModified() != mShm || shm.length() != uShm) {
-                // Server menulis di tengah salin: potret campuran waktu.
+
                 galat = "database berubah saat disalin (server sedang menulis)";
             } else {
                 String rusak = cekIntegritasDbSalinan(new File(tujuan, "db.sqlite3"));
@@ -1555,9 +1304,6 @@ public final class TgBackup {
         return galat;
     }
 
-    /** Sapu folder snapshot backup sisa proses yang dibunuh (kill di tengah
-     *  backup meninggalkan salinan db+WAL puluhan MB di cache). Backup
-     *  diserialkan kunciBackup(), jadi tak ada snapshot hidup saat dipanggil. */
     static void sapuSnapshotBasi(File cacheDir) {
         if (cacheDir == null) {
             return;
@@ -1573,7 +1319,7 @@ public final class TgBackup {
         }
     }
 
-    /** Hapus isi folder (foldernya tetap), tanpa melempar. */    static void hapusIsiFolder(File folder) {
+    static void hapusIsiFolder(File folder) {
         if (folder == null) {
             return;
         }
@@ -1586,7 +1332,6 @@ public final class TgBackup {
         }
     }
 
-    /** Hapus berkas/folder secara rekursif, tanpa melempar. */
     static void hapusPohon(File f) {
         if (f == null) {
             return;
@@ -1605,16 +1350,10 @@ public final class TgBackup {
         }
     }
 
-    /** PRAGMA quick_check baca-saja; null bila OK, pesan singkat bila korup,
-     *  "SIBUK: ..." bila DB terkunci sesaat (server sedang menulis). */
     static String cekIntegritasDb(File dbFile) {
         return cekIntegritasDbMode(dbFile, SQLiteDatabase.OPEN_READONLY);
     }
 
-    /** quick_check pada SALINAN snapshot: dibuka READWRITE agar SQLite boleh
-     *  memulihkan WAL salinan. Mode read-only pada DB ber-WAL butuh -shm yang
-     *  layak tulis, sehingga salinan yang sebenarnya sehat bisa dilaporkan
-     *  gagal. Salinan berada di folder sementara milik app, jadi aman ditulis. */
     static String cekIntegritasDbSalinan(File dbFile) {
         return cekIntegritasDbMode(dbFile, SQLiteDatabase.OPEN_READWRITE);
     }
@@ -1651,17 +1390,10 @@ public final class TgBackup {
         }
     }
 
-    /** True bila hasil cek berarti terkunci sesaat (layak coba ulang),
-     *  bukan korup. Murni agar bisa unit test. */
     static boolean dbSibuk(String hasilCek) {
         return hasilCek != null && hasilCek.startsWith("SIBUK:");
     }
 
-    /** Cek integritas dengan ulang saat DB terkunci sesaat (server sedang
-     *  menulis): SIBUK bukan korup. Maks 2 ulangan selang 1 detik; tetap
-     *  SIBUK = pemanggil memberi pesan "coba lagi", bukan "korup".
-     *  Wajib worker thread (ada tidur). Interrupt ditandai SIBUK agar
-     *  pemanggil tak salah melaporkannya sebagai DB rusak. */
     static String cekIntegritasDbUlang(File dbFile) {
         String hasil = cekIntegritasDb(dbFile);
         for (int tunggu = 0; dbSibuk(hasil) && tunggu < 2; tunggu++) {
@@ -1676,25 +1408,17 @@ public final class TgBackup {
         return hasil;
     }
 
-    /** Redaksi detail galat sebelum masuk log: token bot (pola
-     *  {@code <angka>:<rahasia>}) diganti {@code <token>}, spasi/baris
-     *  dirapatkan, dan panjang dipotong 200 char. Body respons proxy/captive
-     *  portal bisa memuat URL bertoken, sedangkan log bisa diekspor atau
-     *  dikirim lewat /log. Murni agar bisa diuji. */
     static String redaksiDetailGalat(String detail) {
         if (detail == null) {
             return "";
         }
         String d = detail.replaceAll("[0-9]{5,}:[A-Za-z0-9_-]{10,}", "<token>");
-        // URL (header Location dari portal/proksi, callback proxy) bisa memuat
-        // token/parameter sensitif dan pesan galat dikirim ke chat/grup: samarkan
-        // tautannya, bukan hanya pola token bot.
+
         d = d.replaceAll("https?://\\S+", "<url>");
         d = d.replaceAll("\\s+", " ").trim();
         return d.length() > 200 ? d.substring(0, 200) + "..." : d;
     }
 
-    /** Catat kegagalan Telegram ke log app (detail diredaksi + dipotong 200 char). */
     static void logTgFailure(String aksi, int code, String detail) {
         try {
             String line = "[tg] Gagal " + aksi + " (HTTP " + code + "): "
@@ -1704,7 +1428,6 @@ public final class TgBackup {
         }
     }
 
-    /** Kirim peringatan storage ke Telegram sekali saat sisa < 500 MB; reset bila lega. */
     public static void notifyLowStorage(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -1731,8 +1454,6 @@ public final class TgBackup {
         }
     }
 
-    /** Verifikasi isi zip backup: wajib ada db.sqlite3 ber-header SQLite valid.
-     *  Kembalikan null bila OK, atau pesan galat bila korup (tanpa Android runtime). */
     static String verifikasiZip(File zip) {
         if (zip == null || !zip.isFile() || zip.length() == 0) {
             return "file backup kosong/hilang";
@@ -1748,14 +1469,11 @@ public final class TgBackup {
             if (db.getSize() == 0) {
                 return "db.sqlite3 kosong (0 byte)";
             }
-            // Selaras isSqliteFile(): DB buntung bermagic valid wajib ditolak
-            // sebelum diunggah, bukan baru gagal saat restore.
+
             if (db.getSize() >= 0 && db.getSize() < 512) {
                 return "db.sqlite3 terpotong (<512 byte)";
             }
-            // Baca 512 byte pertama: ukuran entri bisa -1 (tak diketahui,
-            // zip streaming) sehingga cek <512 di atas lolos — hitung langsung
-            // dari stream agar DB buntung bermagic valid tetap ditolak.
+
             byte[] head = new byte[512];
             int off = 0;
             try (InputStream in = zf.getInputStream(db)) {
@@ -1782,19 +1500,11 @@ public final class TgBackup {
         }
     }
 
-    /** Verifikasi isi DB di dalam zip backup: ekstrak db.sqlite3 **beserta
-     *  WAL/SHM**-nya ke satu folder sementara lalu quick_check penuh pada
-     *  gabungan itu. Magic saja tak cukup, dan memeriksa db tanpa WAL membuat
-     *  arsip dengan WAL robek/tak cocok tetap lolos verifikasi padahal restore
-     *  akan memutar ulang WAL tersebut. Return null bila sehat, pesan galat
-     *  bila tidak. File sementara selalu dibersihkan. */
     static String verifikasiIsiDbZip(File zip, File tmpDb) {
         if (zip == null || tmpDb == null) {
             return "file backup hilang";
         }
-        // Folder kerja di sebelah tmpDb (pemanggil sudah menyapu pola
-        // vwtg-plain-*): db + WAL + SHM harus satu folder agar SQLite melihat
-        // ketiganya sebagai satu database.
+
         File dir = new File(tmpDb.getAbsoluteFile().getParentFile(),
                 tmpDb.getName() + ".isi");
         hapusPohon(dir);
@@ -1835,24 +1545,18 @@ public final class TgBackup {
                 String sebab = msgSebab != null ? msgSebab : e.toString();
                 return "zip tak terbaca (" + sebab + ")";
             }
-            // READWRITE: SQLite boleh memulihkan WAL salinan (read-only butuh
-            // -shm layak tulis sehingga salinan sehat bisa divonis gagal).
+
             String rusak = cekIntegritasDbSalinan(new File(dir, "db.sqlite3"));
             if (rusak != null) {
                 return "isi DB korup (" + rusak + ")";
             }
             return null;
         } finally {
-            // Salinan sementara tak boleh tertinggal (berisi data vault),
-            // termasuk saat keluar lebih awal (entri hilang/terlalu besar).
+
             hapusPohon(dir);
         }
     }
 
-    /** Folder TLS sumber backup: internal dulu (CA aktif sejak migrasi TLS
-     *  internal), folder data hanya fallback. Tanpa ini backup berisi salinan
-     *  basi / tanpa CA lalu restore diam-diam tak mengganti identitas server.
-     *  Murni I/O agar bisa unit test JVM. */
     static File tlsAktifUntukBackup(File internalTls, File dataTls) {
         if (internalTls != null && new File(internalTls, "ca.pem").isFile()) {
             return internalTls;
@@ -1860,7 +1564,6 @@ public final class TgBackup {
         return dataTls;
     }
 
-    /** Pilih folder TLS aktif milik perangkat ini (internal-first). */
     private static File tlsAktifUntukBackup(Context ctx, File dataFolder) {
         File dataTls = new File(dataFolder, "tls");
         try {
@@ -1870,12 +1573,9 @@ public final class TgBackup {
         }
     }
 
-    /** Nama-nama berkas TLS yang disinkronkan antara folder data & internal. */
     static final String[] BERKAS_TLS = {"ca.pem", "ca-key.pem", "cert.pem",
             "key.pem", "ips.txt", "version.txt"};
 
-    /** Salin berkas TLS asal -> tujuan (timpa). Kembalikan jumlah tersalin.
-     *  Murni I/O agar bisa unit test JVM. */
     static int salinTls(File asal, File tujuan) throws Exception {
         if (asal == null || tujuan == null) {
             return 0;
@@ -1894,9 +1594,6 @@ public final class TgBackup {
         return n;
     }
 
-    /** Potret isi berkas TLS resmi sebelum restore (murni I/O, bisa unit test).
-     *  Peta nama -> isi; berkas yang tak ada tak masuk peta. Dipakai rollback
-     *  bila restore ditolak/gagal setelah ekstraksi menimpa tls/*. */
     static java.util.Map<String, byte[]> potretTls(File tlsDir) {
         java.util.Map<String, byte[]> m = new java.util.LinkedHashMap<>();
         if (tlsDir == null) {
@@ -1907,8 +1604,7 @@ public final class TgBackup {
             if (!f.isFile()) {
                 continue;
             }
-            // Try-with-resources (D8 aman API 21): tutup otomatis tanpa
-            // finally ganda per berkas; galat baca/tutup sama-sama abaikan.
+
             try (java.io.InputStream in = new java.io.FileInputStream(f)) {
                 m.put(nama, bacaTerbatas(in, BATAS_TLS_POTRET));
             } catch (Exception ignored) {
@@ -1917,9 +1613,6 @@ public final class TgBackup {
         return m;
     }
 
-    /** Kembalikan berkas TLS ke potret (rollback restore ditolak/gagal).
-     *  Berkas resmi yang tak ada di potret (buatan zip) dihapus; potret null
-     *  = no-op agar aman dipanggil dari jalur non-zip. Murni I/O. */
     static void kembalikanTls(File tlsDir, java.util.Map<String, byte[]> potret) {
         if (tlsDir == null || potret == null) {
             return;
@@ -1953,9 +1646,6 @@ public final class TgBackup {
         }
     }
 
-    /** Sinkronkan tls/* hasil restore dari folder data ke internal (best-effort).
-     *  Runtime membaca internal dulu (lihat caAktif): tanpa ini CA hasil restore
-     *  diabaikan dan server tetap memakai identitas lama. */
     static void sinkronTlsKeInternal(Context ctx, File dataFolder) {
         try {
             File asal = new File(dataFolder, "tls");
@@ -1967,9 +1657,6 @@ public final class TgBackup {
         }
     }
 
-    /** Zip db + WAL (opsional config & sertifikat) ke <data>/backups/,
-     *  lalu bersihkan backup lama (sisakan 10). Kunci privat hanya ikut bila
-     *  backup terenkripsi (denganKunci=true); tanpa itu plaintext ke cloud. */
     private static File createBackupZip(Context ctx, String dataDir, File sumberDb,
                                         boolean full, String configJson,
                                         boolean denganKunci, File dirZipSementara)
@@ -1979,9 +1666,7 @@ public final class TgBackup {
         if (!backupDir.exists() && !backupDir.mkdirs()) {
             throw new IOException("Gagal membuat folder backup");
         }
-        // dirZipSementara != null: hasil zip akan dienkripsi, jadi plaintext-nya
-        // (beserta kunci privat TLS) ditulis di folder privat app, bukan di
-        // /sdcard/.../backups yang bisa dibaca app lain.
+
         File dirZip = dirZipSementara != null ? dirZipSementara : backupDir;
         if (!dirZip.exists() && !dirZip.mkdirs()) {
             throw new IOException("Gagal menyiapkan folder backup sementara");
@@ -1990,9 +1675,7 @@ public final class TgBackup {
         File zip;
         File tmp;
         synchronized (KUNCI_NAMA_BACKUP) {
-            // Nama unik + klaim .tmp di dalam kunci agar thread lain (bot vs UI)
-            // tak memilih nama yang sama dalam milidetik yang sama; .tmp yang
-            // diklaim langsung dibuat agar pemegang lain melihatnya.
+
             java.util.Set<String> ada = namaFileDi(dirZip);
             File z = null;
             File t = null;
@@ -2015,10 +1698,7 @@ public final class TgBackup {
             zip = z;
             tmp = t;
         }
-        // Tulis ke tmp + rename agar zip parsial (disk penuh/crash) tak masuk
-        // retensi dan mengusir backup bagus via cleanupOldBackups().
-        // sumberDb = snapshot konsisten (db+WAL+SHM) yang sudah diverifikasi;
-        // tanpa itu (null) berkas dibaca langsung dari folder data.
+
         File asalDb = sumberDb != null ? sumberDb : dataFolder;
         try {
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmp))) {
@@ -2055,9 +1735,7 @@ public final class TgBackup {
             }
             throw e;
         }
-        // Retensi TIDAK dijalankan di sini: zip baru belum diverifikasi, dan
-        // zip korup yang langsung mengusir backup lama membuat riwayat menipis
-        // justru saat backup sedang bermasalah. Pemanggil menyapu setelah lolos.
+
         return zip;
     }
 
@@ -2076,17 +1754,11 @@ public final class TgBackup {
         zos.closeEntry();
     }
 
-    /** Kredensial perangkat-lokal: tidak ikut backup/export agar token tidak
-     *  mampir ke cloud Telegram / file polos. Restore/import mempertahankan
-     *  nilai yang sudah ada di perangkat (lihat applyPrefsFromJson). */
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
                     "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
                     PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET));
 
-    /** Kunci milik perangkat yang tak ikut export config: folder data selalu
-     *  milik perangkat (import mengabaikannya), sisanya state runtime/notifikasi
-     *  yang basi bila dipindah ke perangkat lain. */
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
@@ -2099,7 +1771,6 @@ public final class TgBackup {
                     AutoUpdate.KEY_TAWARAN_UPDATE,
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA));
 
-    /** JSON pengaturan (format sama dengan export/import config di app). */
     public static String configJson(SharedPreferences sp) throws Exception {
         JSONObject root = new JSONObject();
         root.put("app", "tasirin-vaultwarden-host");
@@ -2128,9 +1799,6 @@ public final class TgBackup {
         return root.toString(2);
     }
 
-    /** True bila nama file adalah backup database (bukan export config).
-     *  Sisa tulisan terputus (…tmp) sengaja bukan backup: ia tak bisa
-     *  dipakai memulihkan apa pun, jadi tak boleh menempati kuota retensi. */
     public static boolean isFileBackup(String nama) {
         if (nama == null || nama.endsWith(".tmp")) {
             return false;
@@ -2138,14 +1806,8 @@ public final class TgBackup {
         return nama.startsWith("backup-telegram-") || nama.startsWith("db-backup-");
     }
 
-    /** Umur minimum sisa .tmp sebelum disapu retensi (1 jam): enkripsi lain
-     *  yang sedang berjalan tetap aman, sisa mati listrik tetap dibuang. */
     static final long TMP_BASI_MS = 60L * 60L * 1000L;
 
-    /** Panjang minimum berkas .enc yang mungkin sah (header + tag GCM) untuk
-     *  magic tertentu; -1 bila magic tak dikenal. Berkas lebih pendek pasti
-     *  terpotong (listrik mati saat menulis) sehingga tak bisa didekripsi.
-     *  Murni agar bisa unit test. */
     static int panjangMinimumEnc(String magic) {
         if (ENC_MAGIC_V3.equals(magic)) {
             return 4 + 4 + 16 + 12 + 16;
@@ -2156,10 +1818,6 @@ public final class TgBackup {
         return -1;
     }
 
-    /** True bila berkas .enc jelas terpotong (tak mungkin didekripsi): panjang
-     *  kurang dari header minimum untuk magic-nya. Magic yang tak dikenal
-     *  diperlakukan sebagai format asing dan hanya ditolak bila lebih pendek
-     *  dari header VWB1/VWB2 (salt 16 + IV 12 + tag 16). Murni I/O. */
     static boolean encTerpotong(File f) {
         if (f == null || !f.getName().endsWith(".enc")) {
             return false;
@@ -2169,17 +1827,12 @@ public final class TgBackup {
         return min > 0 && f.length() < min;
     }
 
-    /** Maks salinan pengaman pra-restore (*-pre.sqlite3) yang dipertahankan. */
     static final int KEEP_PRE_RESTORE = 2;
 
-    /** True bila file adalah salinan pengaman pra-restore (bukan backup rutin). */
     static boolean isPreRestore(String nama) {
         return nama != null && nama.startsWith("db-backup-") && nama.endsWith("-pre.sqlite3");
     }
 
-    /** Hapus backup terlama di folder backups, sisakan KEEP_BACKUPS terbaru.
-     *  Hanya file backup (backup-telegram-*, db-backup-*) yang dihitung;
-     *  export pengaturan (app-config-*.json) tidak ikut terhapus. */
     public static void cleanupOldBackups(File backupDir) {
         if (backupDir == null) {
             return;
@@ -2188,12 +1841,7 @@ public final class TgBackup {
         if (all == null) {
             return;
         }
-        // Sisa tulisan terenkripsi yang terputus (listrik mati / kill -9) BUKAN
-        // backup yang bisa dipakai: .tmp basi dibuang (yang baru mungkin milik
-        // enkripsi yang sedang berjalan), dan .enc yang lebih pendek dari
-        // header minimum pasti tak bisa didekripsi. Dulu keduanya ikut dihitung
-        // sebagai backup rutin, dan karena lastModified-nya paling baru ia
-        // menempati kuota KEEP_BACKUPS serta mengusir backup sehat.
+
         long sekarang = System.currentTimeMillis();
         for (File f : all) {
             String nama = f.getName();
@@ -2208,14 +1856,12 @@ public final class TgBackup {
                 f.delete();
             }
         }
-        // Daftar ulang: berkas yang baru dibuang tak boleh menempati kuota.
+
         all = backupDir.listFiles();
         if (all == null) {
             return;
         }
-        // Pisahkan salinan pengaman pra-restore dari backup rutin: tiap restore
-        // membuat satu *-pre.sqlite3 sehingga tanpa partisi ia mengusir backup
-        // bagus dari kuota KEEP_BACKUPS. Pre dibatasi KEEP_PRE_RESTORE sendiri.
+
         java.util.List<File> biasa = new java.util.ArrayList<>();
         java.util.List<File> pre = new java.util.ArrayList<>();
         for (File f : all) {
@@ -2228,8 +1874,7 @@ public final class TgBackup {
                 biasa.add(f);
             }
         }
-        // Stat hanya berkas backup (bukan seluruh isi folder): folder backups
-        // bisa memuat zip besar lain dan lastModified = syscall per berkas.
+
         final java.util.Map<File, Long> waktuUbah = new java.util.HashMap<>();
         for (File f : biasa) {
             waktuUbah.put(f, f.lastModified());
@@ -2257,8 +1902,6 @@ public final class TgBackup {
         }
     }
 
-    /** Pilih file CA aktif: internal dulu, arsip folder data hanya fallback.
-     *  Murni agar bisa unit test JVM. */
     static File caAktif(File internal, File lama) {
         if (internal != null && internal.isFile()) {
             return internal;
@@ -2266,10 +1909,6 @@ public final class TgBackup {
         return lama;
     }
 
-    /** Kirim CA HTTPS aktif (publik, tanpa kunci privat) ke chat Telegram resmi.
-     *  Nama file diberi timestamp unik (sama seperti backup storage) agar tak
-     *  tertukar dengan CA lama di riwayat chat setelah reset. Di HP tujuan:
-     *  pakai file terbaru lalu install sebagai “CA certificate”. */
     public static String kirimCa(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -2309,8 +1948,6 @@ public final class TgBackup {
                 + " File ca lama di riwayat chat tak berlaku lagi setelah reset.";
     }
 
-    /** Salin CA ke folder cache dengan nama unik bertimestamp agar berkas
-     *  Telegram tak tertukar dengan CA lama. Murni agar bisa unit test JVM. */
     static File siapkanFileKirimCa(File caAktif, File dirCache, String timestamp)
             throws Exception {
         if (caAktif == null || !caAktif.isFile()) {
@@ -2327,8 +1964,6 @@ public final class TgBackup {
         return tujuan;
     }
 
-    /** Backup CA publik (ca.pem) ke folder data di storage agar bisa diambil
-     *  via file manager tanpa Telegram. Hanya file publik, tanpa kunci privat. */
     public static String backupCaKeStorage(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -2348,17 +1983,11 @@ public final class TgBackup {
                 + " sebagai CA certificate.";
     }
 
-    /** Reset sertifikat (hapus CA + leaf) agar CA baru dibuat saat Start berikut.
-     *  Wajib install ulang CA di semua HP setelahnya. */
     public static String resetSertifikat(Context ctx) throws Exception {
-        // Serial dengan Start/restore lewat kunci data yang sama: dulu reset
-        // bisa menghapus CA tepat saat TlsCert.ensure sedang membuat/memasang
-        // pasangan baru, sehingga Start gagal atau pesan reset menyesatkan.
+
         ServerService.kunciData();
         try {
-            // Reset saat server HTTPS jalan menembak kaki sendiri: Rocket memegang
-            // cert di memori, tapi health check loopback kehilangan CA → 3x gagal →
-            // server dibunuh sebagai "tidak sehat". Tolak dengan pesan jelas.
+
             if (ServerService.isProcessAlive()) {
                 throw new IOException("Server masih berjalan (HTTPS) - Stop dulu,"
                         + " lalu reset agar health check tak salah menilai.");
@@ -2383,18 +2012,12 @@ public final class TgBackup {
         }
     }
 
-    /** Batas upload Bot API Telegram (50 MB): tolak lebih awal agar tak menahan slot tugas. */
     static final long BATAS_UPLOAD_TELEGRAM = 48L * 1024 * 1024;
 
-    /** True bila chat ID layak dikirim: delegasi ke satu validator bersama
-     *  (Util.chatTunggalValid) agar UI, impor, dan upload satu suara; config
-     *  sampah ditolak lokal dengan pesan jelas, bukan 400 dari API. Murni. */
     static boolean chatIdAman(String chat) {
         return Util.chatTunggalValid(chat);
     }
 
-    /** Sanitasi nama file untuk header multipart: tanpa kutip/CRLF/slash agar
-     *  nama licik tak merusak batas multipart. Murni agar bisa unit test. */
     static String sanitasiNamaFile(String nama) {
         if (nama == null || nama.trim().isEmpty()) {
             return "backup.zip";
@@ -2409,9 +2032,7 @@ public final class TgBackup {
             return n;
         }
         int potong = n.length() - 120;
-        // Jangan belah pasangan surrogate emoji: geser ke batas code-point
-        // (selaras potongEkor/pangkasBufferTerkunci) agar header multipart
-        // tak membawa lone surrogate.
+
         if (Character.isLowSurrogate(n.charAt(potong))
                 && Character.isHighSurrogate(n.charAt(potong - 1))) {
             potong++;
@@ -2428,15 +2049,12 @@ public final class TgBackup {
             throw new java.io.IOException("File backup terlalu besar untuk Telegram"
                     + " (>48 MB). Ambil manual via Settings > Backup DB.");
         }
-        // chat_id ditulis mentah ke body multipart (bukan URL-encoded seperti
-        // kirim pesan): tolak nilai aneh lebih awal dengan pesan jelas.
+
         if (!chatIdAman(chatId)) {
             throw new java.io.IOException("Chat ID Telegram tidak valid"
                     + " - periksa pengaturan bot.");
         }
-        // Kunci host sebelum POST sendDocument (selaras bukaPostTelegram):
-        // URL membawa token bot di path sehingga host asing wajib ditolak
-        // agar token tak bocor via MITM/typo; redirect pun ditolak di bawah.
+
         final java.net.URL tujuanKirim;
         try {
             tujuanKirim = new URL(TG_API + token + "/sendDocument");
@@ -2455,12 +2073,10 @@ public final class TgBackup {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setConnectTimeout(20000);
-            // 60 dtk (bukan 180): read timeout = jeda idle maks antar byte,
-            // bukan total waktu — upload lambat namun jalan tetap lolos,
-            // sementara upload macet tak menahan slot pool/kunci tugas 3 menit.
+
             conn.setReadTimeout(60000);
             conn.setInstanceFollowRedirects(false);
-            // Chunked: body backup (MB) mengalir langsung tanpa di-buffer penuh di RAM.
+
             conn.setChunkedStreamingMode(0);
             HttpsCompat.apply(conn, ctx);
             String boundary;
@@ -2469,17 +2085,13 @@ public final class TgBackup {
                 SECURE_RANDOM.nextBytes(acakB);
                 boundary = "----vw" + Updater.toHex(acakB) + "bound";
             } catch (Exception e) {
-                // STB tua yang SecureRandom-nya gagal: fallback UUID agar
-                // upload tetap jalan dengan boundary unik, bukan gagal total.
+
                 boundary = "----vw"
                         + java.util.UUID.randomUUID().toString().replace("-", "")
                         + "bound";
             }
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-            // Tanpa DataOutputStream: writeBytes tersinkron per baris dan konversi
-            // char-per-char; header multipart selalu ASCII sehingga tulisAscii
-            // (byte rendah, tanpa lock) menghasilkan byte identik. Murni I/O.
             try (OutputStream os = conn.getOutputStream()) {
                 tulisAscii(os, "--" + boundary + "\r\n");
                 tulisAscii(os, "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n");
@@ -2508,13 +2120,9 @@ public final class TgBackup {
                     sb.append(bacaResponsBatas(is));
                 }
             }
-            // Kanonis via TgBot.responsOk (toleran spasi "ok": true);
-            // contains mentah menolak respons sah ber-spasi.
+
             if (code != 200 || !TgBot.responsOk(sb.toString())) {
-                // Ringkas lewat satu pintu (error_code + description, maks 160
-                // karakter): body mentah Telegram bisa panjang/berisi HTML dan
-                // pesan ini ikut terkirim ke chat lewat pesanGalatBackup /
-                // gabungGagalChat ("Backup gagal ke semua chat (...)").
+
                 throw new IOException("Telegram "
                         + TgBot.ringkasGalatTelegram(sb.toString(), code));
             }
@@ -2526,8 +2134,6 @@ public final class TgBackup {
         }
     }
 
-    /** Ambil file_id dokumen dari respons sendDocument (JSONObject; fallback
-     *  parsing manual bila format Telegram berubah). Murni agar bisa unit test. */
     static String extractFileId(String body) {
         if (body != null) {
             try {
@@ -2561,7 +2167,6 @@ public final class TgBackup {
         }
     }
 
-    /** Unduh backup terakhir yang pernah dikirim dari app ini. */
     public static String downloadLastBackup(Context ctx, File dest) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
@@ -2587,7 +2192,7 @@ public final class TgBackup {
                 long total = 0;
                 while ((n = in.read(buf)) != -1) {
                     total += n;
-                    // Backup DB wajar puluhan MB; tolak file jumbo agar storage tak penuh.
+
                     if (total > Util.BATAS_UNZIP_RESTORE) {
                         throw new IOException("Backup terlalu besar (>200 MB)"
                                 + " - unduhan dibatalkan.");
@@ -2613,7 +2218,7 @@ public final class TgBackup {
         HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
-            // POST agar token tidak nangkring di URL (konsisten dengan sendMessage).
+
             byte[] body = ("file_id=" + URLEncoder.encode(fileId, "UTF-8"))
                     .getBytes(StandardCharsets.UTF_8);
             conn = bukaPostTelegram(ctx,
@@ -2642,10 +2247,7 @@ public final class TgBackup {
         if (!filePathTelegramAman(hasil)) {
             throw new IOException("file_path tidak aman - unduhan dibatalkan.");
         }
-        // Cek storage di depan (bukan di tengah unduhan): getFile menyertakan
-        // file_size sehingga STB sesak gagal cepat dengan pesan jelas.
-        // Sekalian tolak file >20 MB: Bot API tak bisa mengunduhnya kembali
-        // sehingga restore via bot mustahil — arahkan ke restore manual.
+
         long ukuran = fileSizeDariRespons(sb.toString());
         if (!bolehUnduhUlangTelegram(ukuran)) {
             throw new IOException("Backup terlalu besar (" + humanBytes(ukuran)
@@ -2672,9 +2274,6 @@ public final class TgBackup {
         return hasil;
     }
 
-    /** True bila file_path Telegram aman ditempel ke URL unduh (tanpa I/O).
-     *  Respons datang via HTTPS terotentikasi, tapi tolak pola traversal /
-     *  absolut agar respons menyimpang tak bisa mengarahkan unduhan. Murni. */
     static boolean filePathTelegramAman(String path) {
         if (path == null || path.isEmpty()) {
             return false;
@@ -2682,9 +2281,7 @@ public final class TgBackup {
         if (path.startsWith("/") || path.contains("..") || path.contains("\\")) {
             return false;
         }
-        // file_path sah hanya "tipe/nama-berkas" Telegram (mis. documents/file_1.pdf):
-        // tolak ? # % : @ & = + spasi agar tak mengubah makna URL unduh
-        // (query/fragment/skema semu dari respons menyimpang).
+
         for (int i = 0; i < path.length(); i++) {
             char c = path.charAt(i);
             if (c < 0x20 || c == 0x7F) {
@@ -2698,9 +2295,6 @@ public final class TgBackup {
         return true;
     }
 
-    /** Ambil file_path dari respons getFile Telegram; "" bila tak ada.
-     *  Pakai JSONObject agar spasi ("file_path" : ...) dan escape (\/)
-     *  yang sah tetap terbaca; indexOf manual gagal untuk keduanya. Murni. */
     static String parseFilePathTelegram(String body) {
         if (body == null || body.isEmpty()) {
             return "";
@@ -2721,24 +2315,12 @@ public final class TgBackup {
         }
     }
 
-    /** Batas unduh file Bot API Telegram (20 MB): backup lebih besar berhasil
-     *  diunggah (batas 50 MB) tapi tak bisa diunduh kembali via getFile,
-     *  sehingga /restore selalu gagal. Tolak di depan dengan pesan jelas. */
     static final long BATAS_UNDUH_TELEGRAM = 20L * 1024 * 1024;
 
-    /** True bila ukuran file masih bisa diunduh kembali via Bot API (murni).
-     *  Tak-terbaca (-1) dianggap boleh: gerbang "ok"/path tetap di pemanggil,
-     *  dan unduhan streaming tetap dibatasi 200 MB. */
     static boolean bolehUnduhUlangTelegram(long ukuran) {
         return ukuran < 0 || ukuran <= BATAS_UNDUH_TELEGRAM;
     }
 
-    /** Ukuran file Telegram dari respons getFile; -1 bila tak terbaca. Murni.
-     *  Parse manual tahan spasi/baris-baru di sekitar ':' (pretty-print),
-     *  tanpa JSONObject: stub android.jar di unit test JVM melempar untuk
-     *  org.json sehingga jalur JSONObject mustahil diuji CI (dan di produksi
-     *  pun parse manual ini identik). Hanya pre-check storage; gerbang
-     *  "ok" tetap di parseFilePathTelegram/getFilePath pemanggil. */
     static long fileSizeDariRespons(String body) {
         if (body == null) {
             return -1;
@@ -2776,8 +2358,6 @@ public final class TgBackup {
         }
     }
 
-    // ─── Enkripsi AES-GCM (PBKDF2) ──────────────────────────────────────
-
     public static boolean isEncrypted(File f) {
         try (FileInputStream fis = new FileInputStream(f)) {
             byte[] magic = new byte[4];
@@ -2801,15 +2381,12 @@ public final class TgBackup {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    /** Enkripsi + hapus output bila gagal (jangan sisakan .enc parsial di
-     *  cache saat mis. disk penuh), simetris dengan decryptFile. */
     public static void encryptFile(File in, File out, String pass) throws Exception {
         boolean sudahAda = out != null && out.exists();
         try {
             tulisTerenkripsi(in, out, pass);
         } catch (Exception e) {
-            // Hapus sisa parsial hanya bila file ini dibuat panggilan ini;
-            // file bagus milik sebelumnya tak boleh jadi korban.
+
             if (!sudahAda) {
                 try {
                     out.delete();
@@ -2829,11 +2406,7 @@ public final class TgBackup {
         Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(deriveKey(pass, salt, true, iter), "AES"),
                 new GCMParameterSpec(128, iv));
-        // Tulis ke .tmp di folder yang sama lalu rename atomik (pola sama
-        // dengan createBackupZip). Dulu .enc final ditulis di tempat: listrik
-        // mati/proses dibunuh di tengah enkripsi meninggalkan .enc parsial
-        // yang TIDAK bisa didekripsi, tetapi lastModified-nya paling baru
-        // sehingga menempati kuota retensi dan mengusir backup sehat.
+
         File tmp = new File(out.getAbsolutePath() + ".tmp");
         try {
             try (FileInputStream fis = new FileInputStream(in);
@@ -2852,8 +2425,7 @@ public final class TgBackup {
                 }
                 fos.write(c.doFinal());
                 fos.flush();
-                // fsync sebelum rename: nama baru hanya boleh mengawetkan isi
-                // yang sudah utuh (rename saja tak menjamin isi ter-flush).
+
                 try {
                     fos.getFD().sync();
                 } catch (Exception ignored) {
@@ -2865,21 +2437,19 @@ public final class TgBackup {
                 }
             }
         } finally {
-            // Sisa .tmp (galat/rename gagal) tak boleh tertinggal di folder backup.
+
             if (tmp.exists()) {
                 tmp.delete();
             }
         }
     }
 
-    /** Dekripsi + hapus output bila gagal (jangan sisakan plaintext parsial). */
     public static void decryptFile(File in, File out, String pass) throws Exception {
         boolean sudahAda = out != null && out.exists();
         try {
             decryptToFile(in, out, pass);
         } catch (Exception e) {
-            // Seperti encryptFile: kegagalan (mis. password salah) tak boleh
-            // menghapus file baik yang sudah ada sebelumnya.
+
             if (!sudahAda) {
                 try {
                     out.delete();
@@ -2890,7 +2460,6 @@ public final class TgBackup {
         }
     }
 
-    /** Magic enkripsi file ("VWB1"/"VWB2"); null bila bukan file terenkripsi. Murni. */
     static String magicEnkripsi(File f) {
         try (FileInputStream fis = new FileInputStream(f)) {
             byte[] magic = new byte[4];
@@ -2906,23 +2475,14 @@ public final class TgBackup {
     }
 
     private static void decryptToFile(File in, File out, String pass) throws Exception {
-        // File baru (VWB2) selalu SHA256: password salah langsung gagal tanpa
-        // 2x PBKDF2 100k yang boros CPU/baterai STB. Fallback SHA1 hanya untuk
-        // file lama (VWB1) yang memang memakai PBKDF2-HMAC-SHA1.
-        // Dekrip ke file sementara dulu: Cipher GCM menulis plaintext update()
-        // sebelum doFinal() memverifikasi tag, sehingga kill tepat sebelum
-        // gagal verifikasi menyisakan plaintext di disk bila langsung ke out.
-        // Pemasangan ke out hanya bila tag lolos (rename se-direktori).
+
         String magicAwal = magicEnkripsi(in);
         boolean baru = magicDikenal(magicAwal) && !ENC_MAGIC.equals(magicAwal);
         File induk = out.getParentFile();
         if (induk == null) {
             throw new java.io.IOException("Path keluaran tidak valid.");
         }
-        // Prefix vwtg-dec-: dilarang dibagikan via FileShareProvider
-        // (berkasSementara) dan disapu basi di bawah bila kill menyisakannya.
-        // Nama unik per panggilan (nanoTime + acak): dua dekrip paralel
-        // dengan nama out sama tak boleh berebut satu file sementara.
+
         String unik = Long.toHexString(System.nanoTime())
                 + Long.toHexString(SECURE_RANDOM.nextLong());
         File tmp = new File(induk, PREFIX_DEC_TMP + unik + "-" + out.getName() + ".tmp");
@@ -2938,9 +2498,7 @@ public final class TgBackup {
                 if (baru) {
                     throw e;
                 }
-                // Fallback: backup lama memakai PBKDF2-HMAC-SHA1. Hanya untuk galat
-                // autentikasi (password salah/KDF beda); galat I/O (disk penuh/hilang)
-                // langsung dilempar agar tak 2x PBKDF2 sia-sia dan sebab asli tak tertutup.
+
                 try {
                     tmp.delete();
                 } catch (Exception ignored) {
@@ -2962,31 +2520,18 @@ public final class TgBackup {
         }
     }
 
-    /** Awalan file sementara dekripsi GCM (plaintext sampai tag lolos). */
     static final String PREFIX_DEC_TMP = "vwtg-dec-";
-    /** Awalan file sementara plaintext verifikasi (isi DB / round-trip zip).
-     *  Awalan vwtg- membuatnya dilarang dibagikan via FileShareProvider. */
+
     static final String PREFIX_PLAIN_TMP = "vwtg-plain-";
-    /** Umur minimum sisa tmp dekripsi yang boleh disapu (dekrip aktif tak ikut). */
+
     static final long UMUR_DEC_TMP_MS = 10 * 60 * 1000L;
 
-    /** File sementara plaintext ber-nama unik di direktori cache. Nama tetap
-     *  dulu membuat dua operasi bisa berebut satu file dan sisa kill mengendap
-     *  dengan nama yang dipakai ulang; nama unik + penyapu membuat sisanya
-     *  terhapus tanpa menebak. Murni java.io agar aman JVM/unit test. */
     static File berkasPlainSementara(File dir, String label, String akhiran) {
         String unik = Long.toHexString(System.nanoTime())
                 + Long.toHexString(SECURE_RANDOM.nextLong());
         return new File(dir, PREFIX_PLAIN_TMP + label + "-" + unik + akhiran);
     }
 
-    /** Sapu sisa plaintext sementara yang basi di direktori (best-effort):
-     *  tmp dekripsi (vwtg-dec-*.tmp) dan file verifikasi plaintext
-     *  (vwtg-plain-*). Kill tepat sebelum rename/hapus menyisakan file berisi
-     *  DB vault atau kunci privat TLS; tanpa sapuan ia mengendap selamanya di
-     *  cache. Hanya yang lewat ambang umur yang dihapus agar operasi yang
-     *  sedang berjalan (file segar) tak terganggu. Murni java.io agar aman
-     *  JVM/unit test. */
     static void sapuTmpPlainBasi(File dir, String... kecualikan) {
         if (dir == null) {
             return;
@@ -3024,7 +2569,6 @@ public final class TgBackup {
         }
     }
 
-    /** fsync isi file (best-effort, murni java.io agar aman JVM/unit test). */
     private static void fsyncFile(File f) {
         java.io.FileInputStream fis = null;
         try {
@@ -3046,8 +2590,7 @@ public final class TgBackup {
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
             byte[] magic = new byte[4];
-            // read() boleh short-read (<4 byte walau belum EOF): baca sampai
-            // penuh agar file terenkripsi tak dikira plaintext.
+
             try {
                 readFully(fis, magic);
             } catch (IOException e) {
@@ -3059,10 +2602,7 @@ public final class TgBackup {
             }
             int iter = 100000;
             if (ENC_MAGIC_V3.equals(magicStr)) {
-                // VWB3 menyimpan iterasi KDF penulisnya (STB lama menulis angka
-                // ringan): validasi batas dulu agar file utak-atik beriterasi
-                // raksasa tak membakar CPU STB (DoS) dan iterasi mini (KDF lemah
-                // hasil utak-atik) ditolak fail-closed.
+
                 byte[] iterB = new byte[4];
                 readFully(fis, iterB);
                 iter = byteKeIter(iterB);
@@ -3090,10 +2630,9 @@ public final class TgBackup {
         }
     }
 
-    /** Varian iterasi eksplisit untuk baca/tulis header VWB3. */
     private static byte[] deriveKey(String pass, byte[] salt, boolean sha256, int iter)
             throws Exception {
-        // Salinan char dinolkan di finally agar password tak mengendap di heap.
+
         char[] chars = pass == null ? new char[0] : pass.toCharArray();
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, 256);
         try {
@@ -3102,10 +2641,7 @@ public final class TgBackup {
                         sha256 ? "PBKDF2WithHmacSHA256" : "PBKDF2WithHmacSHA1");
                 return f.generateSecret(spec).getEncoded();
             } catch (Exception e) {
-                // STB Android lama tanpa factory SHA256 (kasus yang sama dengan
-                // PIN app): tanpa ini backup terenkripsi gagal total di STB.
-                // Iterasi mengikuti header agar hasil identik lintas perangkat;
-                // jalur SHA1 lama tak perlu fallback (ada di semua API).
+
                 if (!sha256) {
                     throw e;
                 }
@@ -3128,32 +2664,20 @@ public final class TgBackup {
         }
     }
 
-    /** Kunci tugas data global (backup + restore, UI + bot + jadwal): satu
-     *  boolean bersama agar backup tak jalan bersamaan dengan restore
-     *  (zip backup / salinan pengaman bisa menangkap DB tengah-restore) dan
-     *  dua backup tak mengunggah bareng (hemat kuota + slot Telegram di STB).
-     *  Urutan kunci selalu luar-dalam (TUGAS_BERAT/runBusy dulu, kunci ini
-     *  kemudian) sehingga tak ada inversi yang deadlock. */
     private static final java.util.concurrent.atomic.AtomicBoolean TUGAS_DATA_JALAN =
             new java.util.concurrent.atomic.AtomicBoolean(false);
 
-    /** Coba kunci backup; false bila tugas backup/restore lain sedang berjalan. */
     public static boolean kunciBackup() {
         return TUGAS_DATA_JALAN.compareAndSet(false, true);
     }
 
-    /** Lepas kunci backup (wajib di finally pemegang). */
     public static void lepasBackup() {
         TUGAS_DATA_JALAN.set(false);
     }
 
-    /** True khusus saat RESTORE berjalan: hanya restore yang menimpa prefs
-     *  (app-config.json), jadi hanya restore yang boleh menahan tulis setelan
-     *  dari layar Pengaturan. Backup/update tak menyentuh data_dir/port/token. */
     private static final java.util.concurrent.atomic.AtomicBoolean RESTORE_JALAN =
             new java.util.concurrent.atomic.AtomicBoolean(false);
 
-    /** Coba kunci restore; false bila tugas backup/restore lain sedang berjalan. */
     public static boolean kunciRestore() {
         boolean dapat = TUGAS_DATA_JALAN.compareAndSet(false, true);
         if (dapat) {
@@ -3162,28 +2686,19 @@ public final class TgBackup {
         return dapat;
     }
 
-    /** Lepas kunci restore (wajib di finally pemegang). */
     public static void lepasRestore() {
         RESTORE_JALAN.set(false);
         TUGAS_DATA_JALAN.set(false);
     }
 
-    /** True bila tugas backup/restore (UI maupun bot) sedang berjalan. */
     public static boolean tugasDataJalan() {
         return TUGAS_DATA_JALAN.get();
     }
 
-    /** True bila RESTORE sedang berjalan (prefs bisa ditimpa app-config.json).
-     *  Dipakai layar Pengaturan untuk menunda tulis setelan; backup/update
-     *  biasa tidak menahannya. */
     public static boolean restoreJalan() {
         return RESTORE_JALAN.get();
     }
 
-    /** Hasil satu lintasan zip restore: isi app-config.json (null bila tak ada/
-     *  rusak) + total ukuran isi tak terkompresi (-1 bila zip tak terbaca).
-     *  Probe config dan cek ruang digabung agar zip tak dibuka dua kali sebelum
-     *  ekstraksi (ekstraksi tetap lintasan sendiri karena menulis berkas). */
     static final class PindaiZip {
         final String config;
         final long ukuran;
@@ -3194,7 +2709,6 @@ public final class TgBackup {
         }
     }
 
-    /** Satu lintasan: baca app-config.json + jumlahkan ukuran isi (batas zip-bomb). */
     static PindaiZip pindaiZipRestore(File zip) {
         if (zip == null || !zip.isFile()) {
             return new PindaiZip(null, -1);
@@ -3221,7 +2735,7 @@ public final class TgBackup {
                 }
                 total += ukuran;
                 if (total > Util.BATAS_UNZIP_RESTORE) {
-                    // Cukup tahu "melebihi batas": jangan jumlahkan zip bom.
+
                     return new PindaiZip(config, Util.BATAS_UNZIP_RESTORE + 1);
                 }
             }
@@ -3231,30 +2745,12 @@ public final class TgBackup {
         return new PindaiZip(config, total);
     }
 
-    /** Total ukuran isi (tak terkompresi) seluruh entri zip, atau -1 bila zip
-     *  tak terbaca. Dipakai cek ruang sebelum restore: db + WAL + tls di
-     *  dalam zip bisa jauh lebih besar dari file zip-nya. Murni I/O. */
     static long ukuranIsiZip(File zip) {
         return pindaiZipRestore(zip).ukuran;
     }
 
-    // ─── Restore dari zip backup (dipakai tombol UI & bot /restore) ──────────
-
-    /** Restore database dari file zip backup (unduhan bot Telegram atau file
-     *  yang dipilih di Pengaturan).
-     *  Server dihentikan dulu, lalu DB hasil ekstrak divalidasi + dipasang
-     *  atomik (rename): DB lama baru hilang setelah backup baru lolos
-     *  header + quick_check, jadi tak perlu salinan pengaman ganda (dulu
-     *  dibuat tetapi tak pernah dipakai — kebutuhan ruang jadi ~2×).
-     *  Pengaturan di {@code app-config.json} ikut diterapkan, kecuali identitas
-     *  bot (token/chat/password/offset) yang dipertahankan agar bot tetap
-     *  terhubung. Gagal menerapkan pengaturan TIDAK membatalkan DB yang sudah
-     *  terpasang (dilaporkan sebagai peringatan). */
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
-        // Kunci data selama restore: Start yang datang belakangan ditolak
-        // startServerAsync (tryLock), dan Start yang sudah berjalan ditunggu
-        // selesai sebelum DB ditimpa. Tanpa ini server bisa menyala di tengah
-        // ekstraksi (bot /restore berjalan di pool berbeda dari Start UI).
+
         ServerService.kunciData();
         try {
             return restoreFromZipIsi(ctx, zip);
@@ -3274,12 +2770,6 @@ public final class TgBackup {
             curDir = ServerService.dataDirBawaanSegar();
         }
 
-        // Selalu pulihkan ke folder data perangkat saat ini. Nilai data_dir
-        // di dalam zip tak tepercaya (bisa menunjuk path arbitrer) sehingga
-        // sengaja diabaikan; pengaturan non-rahasia tetap diterapkan
-        // belakangan via applyPrefsFromJson (kecuali data_dir).
-        // Satu lintasan sekaligus: config + total isi untuk cek ruang di bawah
-        // (dulu zip dibuka dua kali sebelum ekstraksi).
         PindaiZip pindai = pindaiZipRestore(zip);
         JSONObject cfg = null;
         if (pindai.config != null) {
@@ -3295,10 +2785,6 @@ public final class TgBackup {
         }
         File dbFile = new File(dataFolder, "db.sqlite3");
 
-        // Cek ruang SEBELUM server dihentikan dan apa pun ditimpa: ekstraksi
-        // menulis db (+WAL) + tls yang bisa jauh lebih besar dari zip. Salinan
-        // pengaman DB lama tak lagi dihitung karena memang tak dibuat (staging
-        // + rename atomik sudah menjaga DB lama sampai backup baru valid).
         long isiZip = pindai.ukuran;
         if (isiZip > Util.BATAS_UNZIP_RESTORE) {
             throw new IOException("Isi zip melebihi batas aman restore ("
@@ -3314,10 +2800,6 @@ public final class TgBackup {
             }
         }
 
-        // Tanpa guard isProcessAlive(): Start yang masih tertunda (process
-        // masih null, starting=true) juga wajib dibatalkan lewat Stop. Bila
-        // dilewati, episode Start itu exec setelah restore selesai dengan
-        // dataDir/port yang dibaca SEBELUM restore.
         if (!ServerService.stopAndWait(ctx, ServerService.ANGGARAN_STOP_MIN_MS)) {
             throw new IOException("Server gagal berhenti - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");
@@ -3326,28 +2808,21 @@ public final class TgBackup {
             throw new IOException("Server masih berjalan - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");
         }
-        // Proses yatim (anak server yang selamat saat app dibunuh sistem/update)
-        // tak terlihat isProcessAlive tetapi masih memegang db.sqlite3.
+
         if (!ServerService.bereskanServerYatim()) {
             throw new IOException("Proses server lama masih berjalan - restore"
                     + " dibatalkan agar database tidak korup. Stop manual lalu ulangi.");
         }
 
-        // Sisa staging restore lama (kill di tengah) tak boleh ikut terbaca
-        // sebagai bagian backup baru.
         hapusStagingRestore(dataFolder);
 
-        // Potret TLS dulu: ekstraksi di bawah menimpa tls/* sebelum tahu
-        // zip berisi db.sqlite3; tanpa ini restore ditolak meninggalkan
-        // identitas TLS baru tanpa DB (split-brain vs internal).
         java.util.Map<String, byte[]> tlsAsal = potretTls(new File(dataFolder, "tls"));
         byte[] buf = new byte[64 * 1024];
         long totalUnzip = 0;
         int jumlahEntri = 0;
         String basePath = dataFolder.getCanonicalPath();
         String awalanAman = basePath + File.separator;
-        // Entri DB (db.sqlite3 + WAL/SHM) diekstrak ke staging; checkpoint
-        // staging menyatukan WAL sehingga swap ke DB hidup cukup satu file.
+
         boolean adaDb = false;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
@@ -3356,8 +2831,7 @@ public final class TgBackup {
                 totalUnzip = Util.tambahUkuranUnzip(totalUnzip, 0,
                         Util.BATAS_UNZIP_RESTORE, jumlahEntri,
                         Util.BATAS_JUMLAH_ENTRI);
-                // Allowlist sama seperti restore UI lokal: hanya db.sqlite3*,
-                // tls/*, dan app-config.json (diterapkan langsung, tak ditulis).
+
                 String nama = normalisasiEntriZip(entry.getName());
                 if (nama == null || "app-config.json".equals(nama)) {
                     try {
@@ -3367,15 +2841,14 @@ public final class TgBackup {
                     continue;
                 }
                 if ("tls".equals(nama) && !entry.isDirectory()) {
-                    // "tls" hanya sah sebagai direktori; file bernama sama
-                    // akan merusak folder tls lalu menggagalkan entri berikut.
+
                     try {
                         zis.closeEntry();
                     } catch (Exception ignored) {
                     }
                     continue;
                 }
-                // Pintu allowlist bersama UI (lihat bolehTulisRestore).
+
                 if (!bolehTulisRestore(nama)) {
                     try {
                         zis.closeEntry();
@@ -3383,11 +2856,10 @@ public final class TgBackup {
                     }
                     continue;
                 }
-                // Entri DB ditulis ke staging, bukan DB hidup: hasil ekstrak
-                // divalidasi dulu lalu dipasang atomik (pasangDbRestoreAtomik).
+
                 String staging = namaStagingRestore(nama);
                 if (staging != null && entry.isDirectory()) {
-                    // "db.sqlite3/" sebagai direktori bukan DB sah.
+
                     try {
                         zis.closeEntry();
                     } catch (Exception ignored) {
@@ -3404,7 +2876,7 @@ public final class TgBackup {
                         zis.closeEntry();
                     } catch (Exception ignored) {
                     }
-                    continue; // cegah zip-slip (mis. basePath-evil tanpa separator)
+                    continue;
                 }
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
@@ -3426,9 +2898,7 @@ public final class TgBackup {
                 zis.closeEntry();
             }
         } catch (Exception eEkstrak) {
-            // Ekstraksi bisa terpotong di tengah (storage penuh/proses dibunuh).
-            // DB hidup belum tersentuh (entri DB masuk staging), jadi cukup buang
-            // staging + kembalikan TLS; DB lama tetap utuh.
+
             try {
                 hapusStagingRestore(dataFolder);
             } catch (Exception eBersih) {
@@ -3444,16 +2914,13 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
         }
-        // Zip berisi -wal/-shm tanpa db.sqlite3 wajib ditolak tegas: WAL asing
-        // tak boleh menempel ke DB lama yang memang valid.
+
         if (!adaDb) {
             hapusStagingRestore(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
-        // Validasi + swap atomik: DB lama baru diganti setelah hasil ekstrak
-        // lolos header + quick_check, jadi kill di tengah restorasi tak bisa
-        // meninggalkan db.sqlite3 parsial.
+
         String galatDb = pasangDbRestoreAtomik(dataFolder);
         if (galatDb != null) {
             hapusStagingRestore(dataFolder);
@@ -3461,8 +2928,7 @@ public final class TgBackup {
             throw new IOException("Backup rusak (" + galatDb + ")"
                     + " - database lama dipertahankan.");
         }
-        // Runtime membaca TLS internal dulu: sinkronkan hasil restore agar
-        // identitas server benar-benar berganti (bukan diam-diam memakai CA lama).
+
         sinkronTlsKeInternal(ctx, dataFolder);
         boolean lengkap = false;
         String peringatan = "";
@@ -3471,9 +2937,7 @@ public final class TgBackup {
                 applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
                 lengkap = true;
             } catch (Exception eSet) {
-                // DB baru sudah terpasang & lolos quick_check: kegagalan
-                // pengaturan tak boleh dilaporkan "restore gagal" (DB lama sudah
-                // tak ada; rollback justru membuang data yang baru dipulihkan).
+
                 peringatan = " Peringatan: pengaturan dari backup gagal diterapkan ("
                         + eSet.getMessage() + ").";
             }
@@ -3487,10 +2951,6 @@ public final class TgBackup {
                 + ". Ukuran DB: " + dbFile.length() + " bytes." + peringatan;
     }
 
-    /** Nama staging untuk entri DB restore: DB hidup tak disentuh sampai hasil
-     *  ekstrak valid, dan kompanion WAL/SHM mengikuti penamaan SQLite
-     *  ({@code <db>-wal}/{@code <db>-shm}) agar checkpoint staging bekerja.
-     *  Null bila bukan entri DB. Murni. */
     static String namaStagingRestore(String nama) {
         if ("db.sqlite3".equals(nama)) {
             return "db.sqlite3.restore-tmp";
@@ -3504,8 +2964,6 @@ public final class TgBackup {
         return null;
     }
 
-    /** Hapus sisa staging restore DB (sesudah sukses/gagal) agar tak menumpuk
-     *  dan tak ikut terbaca restore berikutnya. Best-effort. */
     static void hapusStagingRestore(File dataFolder) {
         if (dataFolder == null) {
             return;
@@ -3519,21 +2977,12 @@ public final class TgBackup {
         }
     }
 
-    /** Pasang DB hasil restore dari staging ke db.sqlite3 secara atomik.
-     *  Alur: satukan WAL staging ke DB staging (checkpoint), validasi header +
-     *  quick_check, hapus WAL/SHM lama (sudah di-checkpoint pemanggil), lalu
-     *  rename(2) staging -&gt; db.sqlite3 yang mengganti file lama dalam satu
-     *  langkah. Kill di tengah ekstraksi/validasi tak menyentuh DB lama; DB
-     *  hidup tak pernah ditulis parsial.
-     *  Return null bila berhasil, atau pesan galat bila backup tak layak
-     *  (DB lama tetap utuh). Wajib worker thread (SQLite + I/O). */
     static String pasangDbRestoreAtomik(File dataFolder) throws Exception {
         File staging = new File(dataFolder, namaStagingRestore("db.sqlite3"));
         if (!staging.isFile()) {
             return "tidak berisi db.sqlite3";
         }
-        // WAL staging (bila ada) disatukan dulu: swap jadi satu file sehingga
-        // mati setelah rename tak meninggalkan DB baru tanpa transaksi WAL-nya.
+
         checkpointWal(staging);
         sinkronBerkas(staging);
         if (!isSqliteFile(staging)) {
@@ -3543,19 +2992,16 @@ public final class TgBackup {
         if (rusak != null) {
             return "DB korup: " + rusak;
         }
-        // WAL/SHM lama milik DB lama (sudah di-checkpoint sebelum restore):
-        // buang agar tak menempel ke DB baru.
+
         hapusWalShm(dataFolder);
         if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
             throw new IOException("Gagal memasang database hasil restore");
         }
-        // Sisa WAL/SHM staging (checkpoint TRUNCATE biasanya mengosongkannya).
+
         hapusStagingRestore(dataFolder);
         return null;
     }
 
-    /** Salin DB pengaman ke db.sqlite3 lewat staging + rename agar mati di
-     *  tengah rollback tak meninggalkan DB parsial. */
     static void pasangDbDariSalinan(File dataFolder, File sumber) throws Exception {
         File staging = new File(dataFolder, namaStagingRestore("db.sqlite3"));
         hapusStagingRestore(dataFolder);
@@ -3567,8 +3013,6 @@ public final class TgBackup {
         }
     }
 
-    /** Paksa isi file ke disk sebelum rename: app dibunuh tepat setelah swap
-     *  tak boleh meninggalkan DB yang isinya masih di page cache. */
     private static void sinkronBerkas(File f) {
         try (FileOutputStream fos = new FileOutputStream(f, true)) {
             fos.getFD().sync();
@@ -3576,14 +3020,10 @@ public final class TgBackup {
         }
     }
 
-    /** Pulihkan DB + WAL/SHM ke kondisi sebelum restore gagal (satu pintu).
-     *  WAL/SHM selalu dibuang karena isinya milik DB zip yang gagal dan akan
-     *  menempel ke DB lama bila dibiarkan. */
     static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup)
             throws Exception {
         if (preBackup != null && preBackup.exists()) {
-            // Salin lewat staging + rename: rollback yang dibunuh di tengah
-            // salin dulu meninggalkan db.sqlite3 parsial.
+
             pasangDbDariSalinan(dataFolder, preBackup);
         } else {
             hapusStagingRestore(dataFolder);
@@ -3592,18 +3032,14 @@ public final class TgBackup {
         }
     }
 
-    /** PIN hanya aktif bila ada hash tersimpan; murni agar bisa unit test. */
     static boolean pinAktif(boolean pinOn, String pinHash) {
         return pinOn && pinHash != null && !pinHash.isEmpty();
     }
 
-    /** Status PIN hasil restore: selalu ikut perangkat, tak pernah ikut zip.
-     *  Mencegah zip tak tepercaya mematikan PIN perangkat. Murni. */
     static boolean pinOnHasilRestore(boolean pinPerangkat, String hashPerangkat) {
         return pinAktif(pinPerangkat, hashPerangkat);
     }
 
-    /** Kunci String yang wajib String (pembaca memakai getString). */
     static final java.util.Set<String> KUNCI_STRING = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
                     ServerService.KEY_UPDATE_VERSION, ServerService.KEY_ADMIN_TOKEN,
@@ -3616,9 +3052,6 @@ public final class TgBackup {
                     "wv_fallback_for", Updater.KEY_TRUST_TGL,
                     PinGate.KEY_PIN_HASH, "clip_hash"));
 
-    /** Kunci pengaturan yang boleh dipulihkan dari zip tak tepercaya.
-     *  State perangkat (jadwal, offset, notifikasi, UI) selalu dipertahankan.
-     *  Statis agar impor tak alokasi HashSet + array tiap kali. */
     static final java.util.Set<String> BOLEH_IMPOR = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_PORT,
                     ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
@@ -3629,7 +3062,6 @@ public final class TgBackup {
                     ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
                     KEY_TG_AUTO));
 
-    /** Kunci Boolean yang wajib Boolean (pembaca memakai getBoolean). */
     static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_AUTO_START, ServerService.KEY_HTTPS,
                     ServerService.KEY_AUTO_UPDATE, ServerService.KEY_AUTO_UPDATE_WV,
@@ -3640,17 +3072,14 @@ public final class TgBackup {
                     "tg_low_storage_notified", "home_log_expanded",
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN));
 
-    /** Kunci Integer yang wajib Integer (pembaca memakai getInt). */
     static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
             java.util.Arrays.asList(PinGate.KEY_GAGAL));
 
-    /** Kunci Long yang wajib Long (pembaca memakai getLong). */
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
             java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,
                     KEY_TG_LAST, TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
                     "wv_fallback_at", "clip_kedaluwarsa"));
 
-    /** True bila teks adalah SHA-256 hex valid (64 digit heksa). Murni. */
     static boolean shaHexValid(String s) {
         if (s == null) {
             return false;
@@ -3667,7 +3096,6 @@ public final class TgBackup {
         return true;
     }
 
-    /** Koersi nilai Boolean dari String/Number edit manual ("true"/1 -> true). Null bila tak jelas. Murni. */
     static Boolean koersiBoolean(Object v) {
         if (v instanceof Boolean) {
             return (Boolean) v;
@@ -3680,8 +3108,7 @@ public final class TgBackup {
             return null;
         }
         if (v instanceof String) {
-            // Tanpa trim()/toLowerCase() (dua alokasi): banding ASCII langsung
-            // dengan spasi tepi dilewati. Jalur sembuh-korup, jarang dipanggil.
+
             String t = (String) v;
             int dari = 0;
             int sampai = t.length();
@@ -3709,7 +3136,6 @@ public final class TgBackup {
         return null;
     }
 
-    /** Cocok kata ASCII abaikan-huruf di offset (tanpa substring). Murni. */
     private static boolean cocokKata(String t, int dari, String kata) {
         for (int i = 0; i < kata.length(); i++) {
             if (!Util.samaHurufAscii(t.charAt(dari + i), kata.charAt(i))) {
@@ -3719,8 +3145,6 @@ public final class TgBackup {
         return true;
     }
 
-    /** Koersi nilai Long dari String/Number edit manual ("123"/123 -> 123).
-     *  Null bila tak jelas (termasuk Boolean agar tak jadi 0/1). Murni. */
     static Long koersiLong(Object v) {
         if (v instanceof Long) {
             return (Long) v;
@@ -3738,8 +3162,6 @@ public final class TgBackup {
         return null;
     }
 
-    /** Baca String tahan ClassCastException: kembalikan default dan sembuhkan
-     *  (koersi ke String) agar tak lempar berulang. */
     static String amanString(SharedPreferences sp, String kunci, String bawaan) {
         if (sp == null) {
             return bawaan;
@@ -3768,8 +3190,6 @@ public final class TgBackup {
         }
     }
 
-    /** Baca boolean tahan ClassCastException: kembalikan default dan sembuhkan
-     *  (koersi "true"/1) atau hapus bila tak jelas. */
     static boolean amanBoolean(SharedPreferences sp, String kunci, boolean bawaan) {
         if (sp == null) {
             return bawaan;
@@ -3794,8 +3214,6 @@ public final class TgBackup {
         }
     }
 
-    /** Baca int tahan ClassCastException (prefs korup bertipe String): kembalikan
-     *  default dan hapus kunci rusak agar tak lempar berulang. */
     static int amanInt(SharedPreferences sp, String kunci, int bawaan) {
         if (sp == null) {
             return bawaan;
@@ -3821,8 +3239,6 @@ public final class TgBackup {
         }
     }
 
-    /** Baca long tahan ClassCastException (prefs korup bertipe String): kembalikan
-     *  default dan sembuhkan/hapus kunci rusak agar tak lempar berulang. */
     static long amanLong(SharedPreferences sp, String kunci, long bawaan) {
         if (sp == null) {
             return bawaan;
@@ -3847,8 +3263,6 @@ public final class TgBackup {
         }
     }
 
-    /** Baca stempel throttle tersimpan (0 bila tak ada/rusak). Satu pintu
-     *  AlarmReceiver + BootReceiver (dulunya salinan baca identik beda kunci). */
     static long bacaStempelThrottle(Context ctx, String kunci) {
         if (ctx == null) {
             return 0;
@@ -3862,9 +3276,6 @@ public final class TgBackup {
         }
     }
 
-    /** Simpan stempel throttle (best-effort apply: dipanggil dari onReceive di
-     *  main thread sehingga commit() sinkron berisiko ANR; stempel hilang hanya
-     *  berarti satu bangun ekstra). Satu pintu AlarmReceiver + BootReceiver. */
     static void simpanStempelThrottle(Context ctx, String kunci, long kini) {
         if (ctx == null) {
             return;
@@ -3876,11 +3287,6 @@ public final class TgBackup {
         }
     }
 
-    /** Sembuhkan prefs bertipe salah (impor lama / config edit manual berisi
-     *  angka): baca via getAll (tak lempar CCE), tulis ulang sesuai tipe yang
-     *  diharapkan pembaca. Mencakup String/Boolean/int/long agar getInt/getLong
-     *  (PinGate, TgBot) tak ClassCastException berulang. Dipanggil di awal
-     *  onCreate agar getString/getBoolean tak crash sebelum sempat sanitasi. */
     static void healkanStringPrefs(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -3947,11 +3353,6 @@ public final class TgBackup {
         }
     }
 
-    /** Terapkan prefs dari JSON backup; identitas bot & penanda notifikasi
-     *  dipertahankan agar bot tetap terhubung setelah restore. Kredensial
-     *  tak pernah diimpor dari file (termasuk backup lama yang masih
-     *  menyimpannya): nilai perangkat dipertahankan, atau dikosongkan bila
-     *  perangkat memang tak punya. */
     static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
         if (prefs == null) {
             return;
@@ -3975,12 +3376,9 @@ public final class TgBackup {
                 keepWv.put(e.getKey(), (Boolean) e.getValue());
             }
         }
-        // Allowlist impor dipakai langsung dari konstanta statis (tanpa
-        // bangun HashSet + array tiap impor).
+
         SharedPreferences.Editor ed = cur.edit();
-        // Tanpa clear(): timpa hanya kunci dari backup agar file rusak
-        // tak menghapus seluruh pengaturan perangkat. Folder data selalu
-        // milik perangkat (abaikan data_dir dari zip tak tepercaya).
+
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
             String k = keys.next();
@@ -3991,10 +3389,7 @@ public final class TgBackup {
                 continue;
             }
             Object v = prefs.get(k);
-            // Tipe mengikuti pembaca, bukan tipe JSON: String yang ditulis angka
-            // dikoersi ke String, Boolean yang ditulis String/angka dikoersi ke
-            // Boolean. Tipe salah diabaikan agar tak jadi ClassCastException
-            // permanen tiap buka Settings/Start.
+
             if (KUNCI_STRING.contains(k)) {
                 String teks = null;
                 if (v instanceof String) {
@@ -4004,24 +3399,19 @@ public final class TgBackup {
                 }
                 if (teks != null) {
                     if (ServerService.KEY_PORT.equals(k)) {
-                        // Port rusak ("abc"/"99999") jangan tersimpan mentah:
-                        // normalisasi ke default agar Start berikutnya tak gagal.
+
                         ed.putString(k, ServerService.normalisasiPort(teks));
                     } else if (ServerService.KEY_UPDATE_VERSION.equals(k)) {
-                        // Penanda versi sampah ("../../x", biner 500 KB) jangan
-                        // mengendap: normalisasi, kosong = selesaikan ulang
-                        // otomatis dari binary cache saat Start berikut.
+
                         String normal = Updater.normVersion(teks);
                         ed.putString(k, normal == null ? "" : normal);
                     } else if (ServerService.KEY_BIN_PILIH.equals(k)
                             || ServerService.KEY_WV_PILIH.equals(k)) {
-                        // Kuncian versi sampah ("../../x", "abc") jangan
-                        // mengendap di prefs: normalisasi, kosong = terbaru.
+
                         String normal = Updater.normalisasiPinVersi(teks);
                         ed.putString(k, normal == null ? "" : normal);
                     } else if (ServerService.KEY_BIN_SHA.equals(k)) {
-                        // SHA-256 wajib 64 hex; nilai sampah diabaikan agar
-                        // binary manual tak selalu ditolak tanpa pesan jelas.
+
                         if (shaHexValid(teks)) {
                             ed.putString(k, teks.trim().toLowerCase(
                                     java.util.Locale.US));
@@ -4043,11 +3433,7 @@ public final class TgBackup {
                 }
                 continue;
             }
-            // Tak terjangkau selama setiap kunci BOLEH_IMPOR terdaftar di salah
-            // satu set tipe di atas (KUNCI_STRING/BOOLEAN/INT/LONG) dan semua
-            // cabang di atas memakai continue. Kunci baru WAJIB didaftarkan di
-            // set tipe yang sesuai; cabang "tebak tipe" lama dihapus karena
-            // tak pernah dieksekusi (kode mati yang menyamarkan kesalahan).
+
         }
         ed.putString(KEY_TG_TOKEN, keepToken);
         ed.putString(KEY_TG_CHAT, keepChat);
@@ -4062,17 +3448,12 @@ public final class TgBackup {
         } else {
             ed.remove(PinGate.KEY_PIN_HASH);
         }
-        // Konsistensi PIN: tanpa hash, kunci PIN wajib mati agar tak fail-open
-        // (pin_on impor true + hash kosong = bot tanpa PIN & UI tak mengunci).
-        // Status PIN selalu milik perangkat: zip tak tepercaya tak boleh
-        // mematikan PIN perangkat (downgrade pengaman). Murni via pinOnHasilRestore.
+
         ed.putInt(PinGate.KEY_GAGAL, keepGagal);
         ed.putLong(PinGate.KEY_KUNCI_SAMPAI, keepKunci);
         ed.putBoolean(PinGate.KEY_PIN_ON,
                 pinOnHasilRestore(amanBoolean(cur, PinGate.KEY_PIN_ON, false), keepPinHash));
-        // Offset bot selalu milik perangkat: zip jahat dengan offset raksasa
-        // bisa membrick bot (semua update dilewati). Impor diabaikan; pesan basi
-        // tetap ditolak via umur 5 menit sehingga replay tak lolos.
+
         ed.putLong(TgBot.KEY_TG_OFFSET, keepOffset);
         if (!prefs.has("tg_notified_version") && !keepNotified.isEmpty()) {
             ed.putString("tg_notified_version", keepNotified);
@@ -4088,9 +3469,6 @@ public final class TgBackup {
         ed.apply();
     }
 
-    /** Hapus -wal/-shm milik DB lama agar tak menempel ke DB hasil restore/
-     *  rollback. Pemanggil wajib sudah checkpoint WAL (isinya kosong) atau
-     *  memang membuang DB lama. */
     static void hapusWalShm(File dataFolder) {
         if (dataFolder == null) {
             return;
@@ -4099,7 +3477,6 @@ public final class TgBackup {
         new File(dataFolder, "db.sqlite3-shm").delete();
     }
 
-    /** Salin file (dipakai juga restore/backup UI agar satu implementasi). */
     static void copyFile(File src, File dst) throws Exception {
         try (FileInputStream fis = new FileInputStream(src);
              FileOutputStream fos = new FileOutputStream(dst)) {
@@ -4110,9 +3487,7 @@ public final class TgBackup {
             }
             fos.getFD().sync();
         }
-        // Salinan pengaman pra-restore/rollback wajib utuh: storage penuh di
-        // tengah salin menghasilkan file parsial yang lalu dipakai rollback
-        // sehingga DB bagus ikut rusak. Buang + gagalkan bila tak sama.
+
         if (src.length() != dst.length()) {
             try {
                 dst.delete();
@@ -4123,10 +3498,8 @@ public final class TgBackup {
         }
     }
 
-    /** True bila path memuat segmen ".." (traversal); nama sah seperti
-     *  "my..folder/x" tetap lolos karena titik ganda bukan segmen utuh. */
     static boolean adaSegmenDotDot(String n) {
-        // Manual tanpa split regex: dipanggil per entri zip (ribuan) saat restore di STB.
+
         if (n == null || n.isEmpty()) {
             return false;
         }
@@ -4144,10 +3517,6 @@ public final class TgBackup {
         return false;
     }
 
-    /** Normalisasi nama entri zip jadi path relatif di folder data; null bila ditolak.
-     *  Menerima entri top-level (db.sqlite3, tls/..., app-config.json) maupun yang
-     *  terbungkus folder (mis. vaultwarden/db.sqlite3 dari zip manual): folder
-     *  pembungkus dikupas. Entri licik (.., drive, absolut) selalu ditolak. */
     static String normalisasiEntriZip(String name) {
         if (name == null) {
             return null;
@@ -4165,10 +3534,7 @@ public final class TgBackup {
         if (diterimaEntriZip(n)) {
             return n;
         }
-        // Kupas maksimal satu folder pembungkus (mis. "vaultwarden/db.sqlite3"
-        // atau "vaultwarden/tls/cert.pem"): kupas berulang menerima sarang
-        // dalam "a/b/db.sqlite3" dari zip asing yang menyuntik DB. Pembungkus
-        // wajib satu segmen jinak (tak kosong, bukan "." / "..").
+
         int i = n.indexOf('/');
         if (i > 0) {
             String bungkus = n.substring(0, i);
@@ -4181,10 +3547,6 @@ public final class TgBackup {
         return null;
     }
 
-    /** True bila entri restore boleh ditulis ke folder data: 3 file DB resmi,
-     *  folder tls, + 4 file TLS resmi. "app-config.json" ditangani terpisah
-     *  (diterapkan langsung, tak ditulis). Satu pintu untuk restore Telegram
-     *  & UI agar allowlist tak drift. Murni agar bisa unit test. */
     static boolean bolehTulisRestore(String nama) {
         if (nama == null) {
             return false;
@@ -4205,20 +3567,18 @@ public final class TgBackup {
         if (n.equals("app-config.json") || n.equals("tls")) {
             return true;
         }
-        // Hanya 3 file DB resmi (awalan longgar mis. db.sqlite3-evil ditolak).
+
         if (n.equals("db.sqlite3") || n.equals("db.sqlite3-wal")
                 || n.equals("db.sqlite3-shm")) {
             return true;
         }
-        // Hanya 4 file TLS resmi; file asing di tls/ (mis. tls/evil.sh) ditolak.
+
         return n.equals("tls/ca.pem") || n.equals("tls/cert.pem")
                 || n.equals("tls/key.pem") || n.equals("tls/ca-key.pem");
     }
 
-    /** True bila file ber-header SQLite ("SQLite format 3\0"). */
     static boolean isSqliteFile(File f) {
-        // Header saja tak cukup: DB terpotong 16 byte tetap bermagic valid.
-        // SQLite terkecil (1 page) ratusan byte; tolak yang jelas buntung.
+
         try {
             if (f == null || f.length() < 512) {
                 return false;
@@ -4248,21 +3608,14 @@ public final class TgBackup {
         return true;
     }
 
-    /** Batas baca app-config.json dari zip tak tepercaya (anti zip-bomb di STB 1 GB). */
     static final int BATAS_CONFIG_JSON = 1024 * 1024;
-    /** Batas potret berkas TLS saat restore (cert/key/ca buatan app: jauh di
-     *  bawah 1 MB; batas ini hanya jaring pengaman bila folder disusupi). */
+
     static final int BATAS_TLS_POTRET = 1024 * 1024;
 
-    /** Baca app-config.json dari zip berbatas BATAS_CONFIG_JSON (bukan pembaca
-     *  berkas umum; nama dipertahankan karena pemindai CI memakai pola nama ini). */
     static byte[] readAllBytes(InputStream in) throws Exception {
         return bacaTerbatas(in, BATAS_CONFIG_JSON);
     }
 
-    /** Tulis string ASCII murni ke stream (semantik DataOutputStream.writeBytes:
-     *  byte rendah tiap char, tanpa sinkronisasi per panggil). Header multipart
-     *  selalu ASCII sehingga byte yang dihasilkan identik. Murni I/O. */
     static void tulisAscii(OutputStream os, String s) throws IOException {
         if (os == null || s == null || s.isEmpty()) {
             return;
@@ -4275,8 +3628,6 @@ public final class TgBackup {
         os.write(b);
     }
 
-    /** Baca respons HTTP kecil (maks 1 MB, kosong bila lebih): anti OOM bila
-     *  proksi nakal membanjiri respons JSON Telegram/GitHub di STB 1 GB. */
     static String bacaResponsBatas(InputStream in) {
         try {
             return new String(bacaTerbatas(in, 1024 * 1024), StandardCharsets.UTF_8);
@@ -4285,10 +3636,8 @@ public final class TgBackup {
         }
     }
 
-    /** Baca stream sampai habis; lempar IOException bila melebihi batas byte. */
     static byte[] bacaTerbatas(InputStream in, long batas) throws Exception {
-        // Pra-alokasi 8 KB: respons JSON umum muat tanpa regrow (dulu 32 B
-        // bawaan mengganda + menyalin berulang hingga ~1 MB di STB 1 GB).
+
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
         byte[] buf = new byte[64 * 1024];
         int n;
@@ -4303,24 +3652,17 @@ public final class TgBackup {
         return bos.toByteArray();
     }
 
-    // ─── Util ───────────────────────────────────────────────────────────
-
-    // Cache ukuran folder (TTL 60 dtk): jalan rekursif web-vault (~35 MB,
-    // ribuan file) terlalu mahal untuk diulang tiap 5-10 detik oleh UI.
     private static final java.util.Map<String, long[]> FOLDER_SIZE_CACHE =
             new java.util.HashMap<>();
     private static final long FOLDER_SIZE_TTL_MS = 60_000;
 
-    /** Total byte isi folder (rekursif) dengan cache 60 dtk per path. */
     public static long folderBytesCached(File dir) {
         if (dir == null) {
             return 0;
         }
-        // Kunci absolute path (tanpa I/O): getCanonicalPath() memanggil syscall
-        // sehingga cache-hit pun tetap mahal bila dipakai sebagai kunci.
+
         String key = dir.getAbsolutePath();
-        // Jam monotonik: currentTimeMillis yang mundur (NTP/pengguna) membekukan
-        // angka ukuran sampai jam mengejar TTL; elapsedRealtime kebal jam.
+
         long now = SystemClock.elapsedRealtime();
         synchronized (FOLDER_SIZE_CACHE) {
             long[] hit = FOLDER_SIZE_CACHE.get(key);
@@ -4338,17 +3680,13 @@ public final class TgBackup {
         return size;
     }
 
-    /** Total byte rekursif (tanpa cache); package-private agar bisa unit test. */
     static long folderBytesWalk(File file) {
         return folderBytesWalk(file, 0, new java.util.HashSet<String>());
     }
 
     private static long folderBytesWalk(File file, int dalam,
             java.util.Set<String> kunjung) {
-        // Batas 32 tingkat + jejak absolute path (tanpa syscall kanonis yang
-        // mahal): symlink melingkar di folder data tak boleh meledak jadi
-        // StackOverflowError (tak tertangkap catch Exception) atau menghitung
-        // ulang folder yang sama berulang kali.
+
         if (dalam > 32) {
             return 0;
         }
@@ -4373,7 +3711,6 @@ public final class TgBackup {
         return file.length();
     }
 
-    /** True bila s 32 digit heksa kecil (tanpa kompilasi regex matches). */
     static boolean hex32(String s) {
         if (s == null || s.length() != 32) {
             return false;
@@ -4388,29 +3725,20 @@ public final class TgBackup {
         return true;
     }
 
-    /** Nomor hari lokal (untuk banding ganti-hari tanpa Calendar berat). */
     static long hariLokal(long ms) {
         long offset = java.util.TimeZone.getDefault().getOffset(ms);
         return (ms + offset) / 86400000L;
     }
 
-    /** Stamp "yyyyMMdd-HHmmss-SSS" untuk nama file backup/export (satu format). */
     public static String backupTimestamp() {
         return Util.formatTanggalSekarang("yyyyMMdd-HHmmss-SSS");
     }
 
-    /** Stempel nama file anti-timpa (timestamp + 12 hex acak): dua backup/export
-     *  dalam milidetik yang sama (ketuk ganda, bot + UI) tak saling menimpa.
-     *  Acak 16-bit lama tabrakan 1/65536 dan menimpa export/staging sejawat
-     *  (termasuk staging unik web-vault). Dipakai semua nama file berbasis
-     *  waktu kecuali jalur yang sudah punya klaim unik sendiri
-     *  (createBackupZip via createNewFile). */
     public static String stempelUnik() {
         long acak = SECURE_RANDOM.nextLong() & 0xFFFFFFFFFFFFL;
         return backupTimestamp() + "-" + Util.hex12(acak);
     }
 
-    /** Sisa ruang penyimpanan (bytes) pada partisi path, atau -1 bila gagal dibaca. */
     @SuppressLint("UsableSpace")
     public static long freeBytes(String dirPath) {
         try {
@@ -4421,11 +3749,6 @@ public final class TgBackup {
         }
     }
 
-    /** Folder yang wajib punya ruang sebelum backup dibuat: cache internal (zip
-     *  plaintext sementara) bila backup dienkripsi, plus folder data (hasil
-     *  akhir .enc/zip). Keduanya bisa beda volume — dulu hanya folder data yang
-     *  diukur sehingga ENOSPC di storage internal baru muncul di tengah
-     *  pembuatan zip. Duplikat dibuang. Murni. */
     static java.util.List<String> folderCekRuangBackup(String dataDir,
                                                       boolean terenkripsi,
                                                       String cacheDir) {
@@ -4440,16 +3763,10 @@ public final class TgBackup {
         return hasil;
     }
 
-    /** Panjang berkas aman (0 bila tak ada/tak terbaca). */
     static long panjangBerkas(File f) {
         return f != null && f.isFile() ? f.length() : 0;
     }
 
-    /** Perkiraan ruang minimum (byte) untuk satu folder backup. Folder data
-     *  menerima hasil akhir (.zip/.enc) ≈ isi DB; cache internal tempat zip
-     *  plaintext + salinan verifikasi dibangun butuh ±2x isi DB saat backup
-     *  dienkripsi. Margin 5 MB menutup overhead zip/TLS/config, dengan lantai
-     *  10 MB agar DB kecil tak lolos hanya karena isinya 0. Murni (diuji). */
     static long ruangBackupDibutuhkan(long isiDb, boolean folderCache,
                                       boolean terenkripsi) {
         long isi = Math.max(0L, isiDb);
@@ -4458,19 +3775,10 @@ public final class TgBackup {
         return Math.max(butuh, 10L * 1024 * 1024);
     }
 
-    /** Memo ruang bebas 30 dtk per path (pola folderBytesCached): tick info
-     *  5 dtk + gerbang unduh/backup memanggil getUuidForPath +
-     *  getAllocatableBytes (2x binder IPC + statfs) — angka GB tak berubah
-     *  tiap detik di STB. Basi 30 dtk aman: tulis gagal (ENOSPC) tetap
-     *  ditangani tiap aliran unduh/backup.
-     *  Monotonik: wall-clock mundur membekukan memo sampai jam mengejar. */
     private static final java.util.Map<String, long[]> MEMO_BEBAS =
             new java.util.HashMap<>();
     private static final long MEMO_BEBAS_TTL_MS = 30_000;
 
-    /** Sisa ruang alokabel (bytes): di API 26+ memakai StorageManager agar
-     *  cache yang bisa dibersihkan ikut dihitung, fallback ke StatFs di
-     *  Android 5/6/7. */
     public static long freeBytes(Context ctx, String dirPath) {
         if (dirPath != null) {
             long now = SystemClock.elapsedRealtime();
@@ -4492,7 +3800,6 @@ public final class TgBackup {
         return freeBytes(dirPath);
     }
 
-    /** Ukur aktual ruang bebas (binder StorageManager di API 26+). */
     private static long freeBytesAktual(Context ctx, String dirPath) {
         if (ctx != null && dirPath != null && Build.VERSION.SDK_INT >= 26) {
             try {
@@ -4529,14 +3836,11 @@ public final class TgBackup {
         return satuDesimal(bytes, 1099511627776L, "TB");
     }
 
-    /** Format "x.y UNIT" tanpa String.format (dipanggil tiap refresh).
-     *  Murni agar bisa unit test. */
     static String satuDesimal(long bytes, long unit, String suffix) {
         if (unit <= 0) {
             return bytes + " " + suffix;
         }
-        // Bagi-dulu agar bytes raksasa tak overflow di bytes*10; carry bila
-        // pembulatan desimal mencapai 10 (mis. 9.95 -> 10.0).
+
         long bulat = bytes / unit;
         long desimal = (bytes % unit * 10 + unit / 2) / unit;
         if (desimal >= 10) {
@@ -4546,8 +3850,6 @@ public final class TgBackup {
         return bulat + "." + desimal + " " + suffix;
     }
 
-    /** True bila backup terakhir beda hari kalender dengan sekarang (murni, bisa unit test).
-     *  last<=0 (belum pernah backup) dianggap sudah ganti hari agar backup pertama jalan. */
     static boolean sudahGantiHari(long lastBackupMs, long sekarangMs) {
         if (lastBackupMs <= 0) {
             return true;
@@ -4555,19 +3857,12 @@ public final class TgBackup {
         return hariLokal(lastBackupMs) != hariLokal(sekarangMs);
     }
 
-    /** Waktu tengah malam berikutnya (00:01) dari acuan, murni agar bisa unit test.
-     *  +1 menit supaya tanggal pasti sudah berganti dan terhindar dari balapan
-     *  tepat di detik 00:00:00. */
     static long nextMidnight(long acuanMs) {
         long offset = java.util.TimeZone.getDefault().getOffset(acuanMs);
         long hari = (acuanMs + offset) / 86400000L;
         return (hari + 1) * 86400000L - offset + 60000L;
     }
 
-    /** Jadwalkan backup harian via AlarmManager (atau batalkan bila enable=false).
-     *  Alarm dipasang tepat saat tanggal berganti (tengah malam 00:01) +
-     *  dijadwalkan ulang tiap selesai, jadi backup jalan sekali sehari.
-     *  Dipakai alarm EXACT (tidak di-batch Doze). */
     public static void schedule(Context ctx, boolean enable) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) {
@@ -4583,8 +3878,7 @@ public final class TgBackup {
             long trigger = nextMidnight(System.currentTimeMillis());
             boolean exact = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
             if (exact && Build.VERSION.SDK_INT >= 31) {
-                // Android 12+: exact alarm butuh izin/kuota; cek dulu agar
-                // tak lempar SecurityException tiap pasang jadwal.
+
                 try {
                     exact = am.canScheduleExactAlarms();
                 } catch (Exception ignored) {
@@ -4597,16 +3891,14 @@ public final class TgBackup {
             }
             try {
                 if (exact) {
-                    // Tepat waktu walau dalam Doze. exact=true hanya mungkin
-                    // saat API 23+ (inisialisasi di atas) sehingga tanpa
-                    // fallback set() lawas yang mati.
+
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
                 } else {
                     am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
                             AlarmManager.INTERVAL_DAY, pi);
                 }
             } catch (Exception e) {
-                // Fallback aman bila perangkat menolak exact alarm.
+
                 try {
                     am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
                             AlarmManager.INTERVAL_DAY, pi);
@@ -4615,9 +3907,7 @@ public final class TgBackup {
             }
         } else {
             am.cancel(pi);
-            // Batalkan juga varian bare-intent lawas (tanpa action, sebelum
-            // penandaan ACTION_HARIAN): PendingIntent beda action tak cocok
-            // sehingga alarm yatim terus membunyikan receiver tiap tengah malam.
+
             try {
                 Intent lawas = new Intent(ctx, AlarmReceiver.class);
                 PendingIntent piLawas = PendingIntent.getBroadcast(ctx, REQ_HARIAN, lawas, flags);

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Sorot fokus D-pad seragam: selalu jingga aksen 3dp di semua kontrol
-     (checkbox, kartu, kotak log) agar tak tertukar dengan status tekan. -->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape>

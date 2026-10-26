@@ -8,28 +8,15 @@ import android.content.SharedPreferences;
 
 public class BootReceiver extends BroadcastReceiver {
 
-    /** Throttle spoof BOOT_COMPLETED explicit-intent (boot legit sekali jalan).
-     *  Siaran sistem tak ber-rahasia, jadi tanpa ini app lain bisa memicu
-     *  auto-start + jadwal backup berulang-ulang. */
     static final long THROTTLE_BOOT_MS = 60_000;
     private static volatile long terakhirBootElapsed = 0;
-    /** Penanda throttle di prefs (tahan mati proses): statik saja reset tiap
-     *  proses mati sehingga spoof BOOT_COMPLETED lolos lagi. */
+
     static final String KEY_THROTTLE_BOOT_ELAPSED = "boot_throttle_elapsed";
 
-    /** Kunci keputusan throttle boot: dulu seluruh onReceive berjalan di main
-     *  thread sehingga berurutan, kini kerja pindah ke worker (goAsync) dan dua
-     *  siaran beruntun bisa menilai throttle bersamaan. */
     private static final Object KUNCI_BOOT = new Object();
 
-    /** Aksi siaran sistem saat APK diperbarui. Protected broadcast: hanya
-     *  sistem yang bisa mengirim, jadi tak perlu throttle anti-spoof. */
     static final String AKSI_GANTI_PAKET = "android.intent.action.MY_PACKAGE_REPLACED";
 
-    /** Hanya BOOT_COMPLETED yang di-throttle. MY_PACKAGE_REPLACED bisa tiba
-     *  <60 dtk setelah boot (update dipasang tepat sesudah reboot); bila ikut
-     *  jendela throttle bersama, seluruh isinya dibuang dan jadwal backup +
-     *  bot remote mati sampai app dibuka manual. */
     static boolean perluThrottleBoot(String action) {
         return !AKSI_GANTI_PAKET.equals(action);
     }
@@ -37,23 +24,15 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
-        // Hanya dua aksi protected milik sistem. QUICKBOOT_POWERON (vendor)
-        // sengaja ditolak: bukan protected, app lain bisa mengirim intent
-        // eksplisit ke receiver exported ini dan memicu auto-start palsu.
+
         if (!Intent.ACTION_BOOT_COMPLETED.equals(action)
                 && !Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
             return;
         }
         final Context ctx = context.getApplicationContext();
-        // MY_PACKAGE_REPLACED bukan perintah start: update APK tak boleh
-        // menyalakan server yang sengaja di-Stop user. Hanya BOOT yang
-        // boleh auto-start; selepas update cukup jadwalkan ulang alarm/bot.
+
         final boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
-        // onReceive jalan di main thread dan dibatasi ~10 dtk. getAll() prefs
-        // (parse XML penuh, dua kali lewat heal + migrasi), penulisan heal, dan
-        // stat db.sqlite3 di sini menahan UI sampai ANR di STB lambat. Validasi
-        // action tetap di main (murah); sisa kerja pindah ke worker lewat
-        // goAsync agar proses tetap hidup sampai siaran selesai.
+
         final PendingResult pending = goAsync();
         Runnable kerja = () -> {
             try {
@@ -64,8 +43,7 @@ public class BootReceiver extends BroadcastReceiver {
                                 bacaThrottleBoot(ctx));
                         if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot,
                                 THROTTLE_BOOT_MS)) {
-                            // Jendela geser agar spoof BOOT_COMPLETED beruntun tak lolos
-                            // tiap 60 dtk; boot legit berjarak menit sehingga tak terdampak.
+
                             terakhirBootElapsed = kiniElapsed;
                             simpanThrottleBoot(ctx, kiniElapsed);
                             return;
@@ -79,9 +57,7 @@ public class BootReceiver extends BroadcastReceiver {
                 TgBackup.healkanStringPrefs(ctx);
                 TgBackup.migrateAutoPref(ctx);
                 if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
-                    // mulaiService tak melempar: penolakan background dicatat di
-                    // dalam + ditandai KEY_START_TERTUNDA untuk susulan MainActivity.
-                    // Cek boolean agar boot yang ditolak tercatat di log.
+
                     boolean jalan = false;
                     try {
                         jalan = ServerService.start(ctx);
@@ -93,8 +69,7 @@ public class BootReceiver extends BroadcastReceiver {
                                 + " - dijalankan susulan saat app dibuka.");
                     }
                 }
-                // Pertahankan jadwal backup tengah malam setelah reboot;
-                // kejar backup bila tanggal sudah berganti saat device mati.
+
                 if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                     TgBackup.schedule(ctx, true);
                     try {
@@ -102,33 +77,28 @@ public class BootReceiver extends BroadcastReceiver {
                         String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
                         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                                 ServerService.dataDirBawaanSegar());
-                        // Trim sekali (dulu 2x): perilaku sama persis.
+
                         String dRapi = dataDir == null ? "" : dataDir.trim();
                         boolean dbAda = !dRapi.isEmpty()
                                 && new java.io.File(dRapi, "db.sqlite3").exists();
-                        // Jam saat boot belum tepercaya (bisa 1999/NTP belum sinkron):
-                        // hanya jadwalkan tembakan 5 menit setelah hidup; keputusan
-                        // backup (ganti hari + jam wajar) diambil AlarmReceiver
-                        // saat menyala. Jadwal harian tak tersentuh.
+
                         if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
                             if (!TgBackup.jadwalTundaBoot(ctx)) {
                                 tandaiBackupTertunda(sp);
                             }
                         }
                     } catch (Exception ignored) {
-                        // Android 12+ bisa menolak start dari background: tandai agar
-                        // MainActivity menjalankan susulan saat dibuka berikutnya.
+
                         try {
                             tandaiBackupTertunda(sp);
                         } catch (Exception ignored2) {
                         }
                     }
                 }
-                // Remote kontrol bot tetap aktif setelah reboot
+
                 TgBot.schedule(ctx);
             } catch (Exception e) {
-                // Jangan biarkan galat tak terduga mematikan proses saat boot;
-                // catat kelasnya agar penyebab bisa dilacak dari log.
+
                 ServerService.catatLog("[app] Penanganan boot gagal: "
                         + e.getClass().getSimpleName());
             } finally {
@@ -136,24 +106,19 @@ public class BootReceiver extends BroadcastReceiver {
             }
         };
         if (!Util.jalankanBg(kerja)) {
-            // Antrean worker penuh (langka saat boot): jalankan di thread ini
-            // agar auto-start tak hilang; pending tetap ditutup di finally.
+
             kerja.run();
         }
     }
 
-    /** Baca penanda throttle boot tersimpan (satu pintu TgBackup, sama dengan AlarmReceiver). */
     static long bacaThrottleBoot(Context context) {
         return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED);
     }
 
-    /** Simpan penanda throttle boot (satu pintu TgBackup, sama dengan AlarmReceiver). */
     static void simpanThrottleBoot(Context context, long kini) {
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED, kini);
     }
 
-    /** Flag daya-tahan boot: commit() sinkron agar tak hilang bila
-     *  perangkat mati/kill tepat sesudah tulis (apply() async bisa lenyap). */
     @SuppressLint("ApplySharedPref")
     private static void tandaiBackupTertunda(SharedPreferences sp) {
         try {

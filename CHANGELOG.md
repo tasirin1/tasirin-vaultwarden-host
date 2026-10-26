@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Audit 310: kode tanpa komentar (code only, hemat token)
+- Seluruh komentar dan docstring dihapus dari berkas kode: 42 `*.java`, 68 `*.xml` (resource + manifest), 3 `*.kts`, 2 `*.sh`, 1 `*.py`, 2 `*.yml`, 2 `*.c`, 1 `*.pro`, 2 `*.properties` (80 berkas berubah, 5.128 baris penjelasan hilang). Dokumen (`*.md`, `LICENSE`), data (`tools/bekas-hapusan.txt`, `*.pem`), dan wrapper Gradle hasil-generate (`gradlew`, `gradlew.bat`, jar) sengaja tidak disentuh.
+- Penghapusan dilakukan dengan pemindai sadar-string/heredoc, bukan regex buta: `//` di URL, `/*` di string, `#` di `${...}`/regex/`::error::`, komentar XML di atribut, dan komentar di dalam heredoc `run: |` tetap aman. Validasi tiap berkas sebelum ditulis: token C-like sama persis (Java/Kotlin/C), pohon XML identik, AST Python identik (docstring dibuang terkontrol), struktur YAML identik, properti sama, serta `bash -n`/`sh -n`/`py_compile`/`gcc -fsyntax-only` lolos.
+- `tools/pasang-hook.sh`: penanda hook yang dulu berupa teks komentar diganti baris kode `exec bash scripts/cek-cepat.sh` agar pemeriksaan "hook ini milik kita" tetap bekerja setelah komentar dihapus.
+- `tools/verifikasi-patch.py`: `cek_uji_baru` tidak lagi salah menuduh metode statis lama sebagai "baru" ketika komentar yang menempel di baris deklarasi ikut terhapus (bandingkan baris tambah vs baris hapus setelah komentar dikupas).
+- Aturan repo diperbarui: berkas kode dipelihara tanpa komentar/docstring; penjelasan keputusan ditulis di commit, `CHANGELOG.md`, atau README.
+
 ## [Belum rilis] — Audit 309: 6 peringatan lint dihilangkan (tanpa suppress)
 - `TypographyDashes` (`values`/`values-in` `port_angka`): "1-65535" memakai tanda hubung; kini en dash `1&#8211;65535` di kedua locale.
 - `PluralsCandidate` `port_root_judul`: kalimat dibalik menjadi "Root access is required for port %1$d" (Indonesia: "Akses root diperlukan untuk port %1$d") sehingga angka port tak lagi diikuti kata benda — bukan angka yang dihitung, jadi plurals memang tidak tepat di sini.

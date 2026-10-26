@@ -3,15 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Izin storage untuk semua Android agar folder data eksternal
-         (/sdcard/vaultwarden) tetap writable. maxSdkVersion sengaja
-         tidak dipakai: di Android 10+ tanpa deklarasi ini folder
-         eksternal gagal dibuat/ditulis. targetSdk 28 masih model legacy,
-         jadi All files access (MANAGE_EXTERNAL_STORAGE) tidak didaftarkan:
-         izin itu hanya bisa diberikan lewat layar pengaturan sistem dan
-         tak pernah diminta app ini, sehingga deklarasinya cuma menambah
-         permukaan izin tanpa manfaat (cukupAkses tetap menerimanya bila
-         perangkat memang sudah memberikannya). -->
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -19,20 +11,13 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- Sinkron data server di foreground (API 29+); targetSdk 28 jadi hanya deklarasi. -->
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
         tools:targetApi="29" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- Aplikasi dipakai di TV (tanpa layar sentuh): jangan wajibkan touchscreen. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <!-- usesCleartextTraffic=false: server selalu HTTPS (HTTPS-only) dan
-         Telegram/GitHub selalu HTTPS (https hardcode, redirect http ditolak),
-         sehingga cleartext tak dibutuhkan sama sekali. Flag true membuka
-         cleartext WAN di API 23 (network_security_config baru berlaku API 24+).
-         Loopback HTTP tetap diizinkan eksplisit di network_security_config
-         untuk API 24+ bila sewaktu-waktu dibutuhkan. -->
     <application
         android:allowBackup="false"
         android:supportsRtl="true"
@@ -42,16 +27,6 @@
         android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Sengaja TANPA android:configChanges: rotasi wajib membuat ulang
-             activity agar layout-land/activity_pin.xml dan dimensi
-             values-sw480dp-land / values-sw600dp-land benar-benar dipakai
-             (activity_main.xml sengaja satu layout untuk kedua orientasi).
-             Dulu configChanges dipasang tanpa onConfigurationChanged,
-             sehingga tata letak landscape tak pernah dimuat setelah rotasi
-             (tampilan portrait yang diregangkan). State aman: SettingsActivity
-             menyiram tulis tertunda + menyimpan setelan valid di onPause, dan
-             tugas backup/restore dikunci statis di TgBackup (kunciBackup/
-             kunciRestore) sehingga activity baru tak bisa menjalankan tugas ganda. -->
         <activity
             android:name=".MainActivity"
             android:excludeFromRecents="true"
@@ -79,18 +54,12 @@
             android:exported="false"
             android:theme="@style/Theme.TasirinVaultwardenHost" />
 
-        <!-- foregroundServiceType dataSync: sinkronisasi data server di foreground. -->
         <service
             android:name=".ServerService"
             android:exported="false"
             android:foregroundServiceType="dataSync"
             tools:targetApi="29" />
 
-        <!-- exported=true: DATE_CHANGED/TIME_SET/TIMEZONE_CHANGED adalah
-             protected broadcast (hanya sistem yang bisa mengirim); dengan
-             exported=false sistem tak bisa menyampaikan di Android 12+.
-             Alarm eksplisit milik app (explicit intent) tetap sampai apa pun
-             nilainya. Pemicu asing aman: mulaiBackup cek auto + token/chat. -->
         <receiver
             android:name=".AlarmReceiver"
             android:exported="true">
@@ -111,12 +80,6 @@
             android:exported="false"
             android:grantUriPermissions="true" />
 
-        <!-- exported=true: BOOT_COMPLETED/MY_PACKAGE_REPLACED adalah protected
-             broadcast (hanya sistem yang bisa mengirim), dan contoh resmi
-             mewajibkan exported agar sampai di Android modern.
-             QUICKBOOT_POWERON sengaja TIDAK didaftarkan: itu aksi vendor
-             non-protected, sehingga app lain bisa mengirim intent eksplisit
-             ke receiver ini dan memicu auto-start/jadwal backup tanpa reboot. -->
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

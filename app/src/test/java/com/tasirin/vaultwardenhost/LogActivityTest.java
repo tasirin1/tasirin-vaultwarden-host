@@ -6,12 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test penyamaran secret di log (tanpa Android runtime). */
 public class LogActivityTest {
 
     @Test
     public void logBolehTampilHanyaSaatPinMatiAtauSesiDibuka() {
-        // onResume LogActivity: PIN aktif tanpa sesi terbuka = layar ditutup.
+
         assertTrue(LogActivity.logBolehTampil(false, false));
         assertTrue(LogActivity.logBolehTampil(true, true));
         assertFalse(LogActivity.logBolehTampil(true, false));
@@ -70,7 +69,6 @@ public class LogActivityTest {
         String c = LogActivity.samarkanLog("konfig tg_chat=987654 lanjut");
         assertFalse(c.contains("987654"));
     }
-
 
     @Test
     public void sandiSpasiDisamarkanPenuh() {

@@ -147,8 +147,7 @@ public class UtilTest {
         assertFalse(Util.hostGithubAman("raw.githubusercontent.com"));
         assertFalse(Util.hostGithubAman("jahat.example"));
         assertFalse(Util.hostGithubAman("github.com.jahat.example"));
-        // Otoritas "//host" membawa ":port" mentah: redirect sah berport
-        // eksplisit wajib diterima, bukan ditolak.
+
         assertTrue(Util.hostGithubAman("github-production-release-asset-abc123.githubusercontent.com"));
         assertFalse(Util.hostGithubAman("evil-github-production-release-asset-abc.githubusercontent.com.evil.example"));
         assertTrue(Util.hostGithubAman("github.com:443"));
@@ -211,8 +210,7 @@ public class UtilTest {
 
     @Test
     public void sambungRedirectTolakDowngradeHttp() {
-        // Absolut http:// fail-closed ke dasar (anti downgrade cleartext),
-        // bukan diteruskan seperti https://.
+
         assertEquals("https://a/b", Util.sambungRedirect("https://a/b", "http://c/d"));
         assertEquals("https://a/b", Util.sambungRedirect("https://a/b", "HTTP://c/d"));
     }
@@ -413,8 +411,7 @@ public class UtilTest {
         ex.execute(antre);
         boolean lempar = false;
         try {
-            // Antrean penuh -> tugas BARU ditolak (melempar) agar pemanggil
-            // melepas flag-nya; tugas lama TIDAK dibuang diam-diam.
+
             ex.execute(jalan::incrementAndGet);
         } catch (java.util.concurrent.RejectedExecutionException e) {
             lempar = true;
@@ -431,7 +428,7 @@ public class UtilTest {
 
     @Test
     public void jalankanBgLamaLaporPenolakanDanMenerimaTugas() throws Exception {
-        // null = tidak dijalankan (false) agar pemanggil melepas flag-nya.
+
         assertFalse(Util.jalankanBg(null));
         assertFalse(Util.jalankanLama(null));
         final java.util.concurrent.CountDownLatch ringan =
@@ -446,14 +443,13 @@ public class UtilTest {
 
     @Test
     public void batalkanTundaAmanTanpaLooper() {
-        // JVM unit test tanpa Looper: best-effort tanpa-lempar (termasuk null).
+
         Util.batalkanTunda(null);
         Util.batalkanTunda(() -> {
         });
         Util.postTunda(null, 100);
     }
 
-    /** Proses palsu: catat destroy(), selainnya nir-op. */
     static class ProsesPalsu extends Process {
         volatile boolean hancur = false;
         @Override public java.io.OutputStream getOutputStream() {
@@ -527,7 +523,7 @@ public class UtilTest {
         try {
             assertTrue(Util.jalankanLama(tugas));
             assertTrue(Util.jalankanLama(tugas));
-            // Dua worker harus benar-benar paralel (dulu core=0: efektif 1).
+
             assertTrue(dua.await(2, java.util.concurrent.TimeUnit.SECONDS));
         } finally {
             lepas.countDown();

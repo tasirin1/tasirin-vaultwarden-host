@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tombol tonal gaya M3 (seragam TDM): terisi primary_container +
-     teks primary (di style). Stroke 1dp primary di state normal/pressed
-     agar tak menyatu dengan kartu putih; fokus D-pad selalu jingga aksen
-     3dp agar seragam dengan kontrol lain dan jelas via remote TV.
-     Warna adaptif siang/malam via primary_container. -->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">

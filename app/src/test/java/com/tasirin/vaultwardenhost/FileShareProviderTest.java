@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test fungsi murni — tanpa Android runtime (jalan di CI via JVM). */
 public class FileShareProviderTest {
 
     @Test

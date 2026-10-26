@@ -1,13 +1,5 @@
-// Uji interposisi shim via LD_PRELOAD (jalan di runner CI, host x86_64).
-// Tiga jalur yang dipakai binary Vaultwarden di kernel STB lama:
-//  1) getrandom() libc (std Rust), dan
-//  2) syscall(SYS_getrandom, ...) mentah (getrandom 0.2 via ring 0.17 ke
-//     ticketer TLS Rocket rustls — jalur yang merusak HTTPS walau HTTP jalan),
-//  3) syscall() non-getrandom (wajib diteruskan apa adanya; hook mencegat
-//     seluruh simbol syscall sehingga penerusan yang rusak mematikan syscall
-//     lain yang dipakai libc/Rust).
-// Semua dipanggil dengan flag bogus: libc/kernel asli menolak (EINVAL),
-// shim harus tetap melayani 32 byte acak. Return 0 = lolos.
+
+
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,9 +7,6 @@
 #include <sys/random.h>
 #include <sys/syscall.h>
 
-// Deklarasi eksplisit: pada header bionic (mis. Termux) getrandom hanya
-// tersedia untuk API >= 28 sehingga uji host bisa gagal kompilasi walau
-// glibc di runner sudah mendeklarasikannya. Signature sama persis.
 extern ssize_t getrandom(void *buf, size_t buflen, unsigned int flags);
 
 #ifndef SYS_getrandom
@@ -43,7 +32,6 @@ static unsigned long cek(const char *nama, unsigned char *b) {
     return x;
 }
 
-// Kembalikan 1 bila seluruh 32 byte bernilai sama (acak palsu/rusak).
 static int semua_byte_sama(unsigned char *b) {
     for (int i = 1; i < 32; i++) {
         if (b[i] != b[0]) {
@@ -69,10 +57,7 @@ int main(void) {
     unsigned long x = cek("getrandom", b);
     unsigned long y = cek("syscall", c);
     printf("OK n=%zd m=%ld\n", n, m);
-    // Tolak bila kosong (all-zero) atau tiap buffer semua-bytenya sama
-    // (mis. 0xFF semua). Dua jalur TIDAK dibandingkan lewat checksum: jumlah
-    // 32 byte acak punya ruang hanya ~8 ribu nilai sehingga tabrakan sesekali
-    // menggagalkan CI tanpa bug nyata (flaky). Bandingkan isi buffer penuh.
+
     if (x == 0 || y == 0) {
         printf("GAGAL: entropi nol\n");
         return 1;
@@ -85,11 +70,7 @@ int main(void) {
         printf("GAGAL: buffer semua-byte-sama\n");
         return 1;
     }
-    // Pass-through syscall() non-getrandom: shim mencegat SEMUA panggilan
-    // syscall(), jadi penerusan yang rusak (dlsym gagal, argumen kacau,
-    // deadlock reentransi) mematikan syscall lain yang dipakai libc/Rust di
-    // perangkat. Dulu uji ini hanya memanggil jalur getrandom sehingga
-    // regresi penerusan lolos CI.
+
     long pid = syscall(SYS_getpid, 0, 0, 0, 0, 0, 0);
     if (pid <= 0 || pid != (long) getpid()) {
         printf("GAGAL pass-through SYS_getpid (%ld vs %ld)\n",

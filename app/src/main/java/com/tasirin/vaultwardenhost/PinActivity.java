@@ -13,11 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-/** Halaman login PIN layar penuh (pengganti popup dialog).
- *  Dipakai MainActivity & SettingsActivity saat PIN aktif dan grace habis:
- *  hasil sukses/keluar disampaikan via setResult agar pemanggil bisa
- *  lanjut (catatPinDibuka) atau finish. Tombol Back = Keluar (finish),
- *  pemanggil yang dibatalkan ikut finish sehingga kunci tak bisa dilewat. */
 public class PinActivity extends Activity {
 
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -40,9 +35,7 @@ public class PinActivity extends Activity {
         }
         String pinHash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
         if (pinHash == null || pinHash.isEmpty()) {
-            // Fail-closed: hash hilang/rusak jangan dimatikan & jangan RESULT_OK.
-            // Akses ditolak; user wajib setup ulang PIN dari pengaturan.
-            // (View belum di-inflate di titik ini, jadi hanya log + tolak.)
+
             ServerService.catatLog("[app] PIN rusak: butuh setup ulang, akses ditolak.");
             setResult(RESULT_CANCELED);
             finish();
@@ -53,7 +46,7 @@ public class PinActivity extends Activity {
         pinError = findViewById(R.id.pinError);
         bukaBtn = findViewById(R.id.pinBuka);
         Button keluarBtn = findViewById(R.id.pinKeluar);
-        // Cegah NPE bila layout tak memuat semua view yang dibutuhkan.
+
         if (pinInput == null || pinError == null || bukaBtn == null || keluarBtn == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -83,8 +76,7 @@ public class PinActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Cabut callback hasil PBKDF2: tanpa ini runnable ui.post menahan
-        // activity yang sudah finish sampai hash selesai (detik di STB lama).
+
         try {
             ui.removeCallbacksAndMessages(null);
         } catch (Exception ignored) {
@@ -108,17 +100,12 @@ public class PinActivity extends Activity {
         sedangPeriksa = true;
         bukaBtn.setEnabled(false);
         tampilInfo(getString(R.string.pin_memeriksa));
-        // Residu sadar: String PIN tak bisa di-wipe (immutable) dan singgah di heap
-        // selama PBKDF2. Diterima: umur pendek (thread selesai → eligible GC),
-        // layar FLAG_SECURE anti-screenshot, PIN tersimpan selalu PBKDF2+salt.
-        // Editable sumber langsung dibersihkan di bawah agar tak ganda.
+
         final String entered = pinInput.getText() == null
                 ? "" : pinInput.getText().toString();
         bersihkanInput();
         final android.content.Context appCtx = getApplicationContext();
-        // Pool tugas lama bersama: verifikasi PBKDF2 30rb iterasi itu CPU-bound
-        // detik di STB 1 GB (bukan thread baru tiap ketukan). Hasil tetap
-        // kembali via ui.post di bawah.
+
         boolean masuk = Util.jalankanLama(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
@@ -139,8 +126,7 @@ public class PinActivity extends Activity {
             final boolean hasil = cocok;
             ui.post(() -> {
                 sedangPeriksa = false;
-                // Cegah race: rotate/keluar saat PBKDF2 jalan — jangan sentuh
-                // view mati di semua cabang (bukan hanya sukses).
+
                 if (isFinishing() || isDestroyed()) {
                     return;
                 }
@@ -156,8 +142,7 @@ public class PinActivity extends Activity {
             });
         });
         if (!masuk) {
-            // Antrean penuh: pulihkan tombol + status agar layar kunci tak macet
-            // di "Checking PIN..." dengan tombol mati.
+
             sedangPeriksa = false;
             bukaBtn.setEnabled(true);
             tampilGalat(getString(R.string.pin_sibuk));
@@ -183,21 +168,17 @@ public class PinActivity extends Activity {
         }
     }
 
-    /** Menit lockout brute-force (ceiling). Murni agar bisa unit test. */
     static long menitSisaKunci(long sisaMs) {
         long menit = (sisaMs + 59999) / 60000;
         return menit < 1 ? 1 : menit;
     }
 
-    /** Teks lockout Inggris (fallback + dikunci test). Untuk UI pakai
-     *  {@link #teksSisaKunci(android.content.Context, long)} agar ikut locale. */
     static String teksSisaKunci(long sisaMs) {
         long menit = menitSisaKunci(sisaMs);
         return menit == 1 ? "Locked, try again in 1 minute."
                 : "Locked, try again in " + menit + " minutes.";
     }
 
-    /** Teks lockout ikut locale perangkat (Indonesia bila locale ID). */
     static String teksSisaKunci(android.content.Context ctx, long sisaMs) {
         long menit = menitSisaKunci(sisaMs);
         try {

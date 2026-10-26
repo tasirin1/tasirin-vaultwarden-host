@@ -24,45 +24,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Membuat CA lokal + sertifikat server (RSA 2048, SHA256withRSA) tanpa library eksternal.
- * Digunakan untuk HTTPS lokal (ROCKET_TLS_*).
- *
- * <p>Skema: CA self-signed (ca.pem, CA:TRUE, 10 tahun) menandatangani sertifikat
- * server (cert.pem, CA:FALSE + SAN IP/DNS, 397 hari). Yang dipasang di HP lain cukup
- * ca.pem sebagai "CA certificate" (tanpa private key); CA stabil saat IP/domain berubah
- * sehingga tidak perlu install ulang, hanya cert.pem yang dibuat ulang.</p>
- */
 public final class TlsCert {
 
     private TlsCert() {
     }
 
-    /** Bump kalau struktur cert diubah; memaksa regenerasi cert lama. */
     private static final int CERT_VERSION = 6;
 
-    /** Nama file CA (boleh disebar ke HP lain untuk dipasang sebagai CA). */
     public static final String CA_CERT_FILE = "ca.pem";
 
-    /** Nama file kunci privat CA (milik server, jangan disebar). */
     public static final String CA_KEY_FILE = "ca-key.pem";
 
-    /** Nama file sertifikat server (dipakai Rocket, bukan untuk dipasang). */
     public static final String LEAF_CERT_FILE = "cert.pem";
 
-    /** Nama file kunci privat server (milik server, jangan disebar). */
     public static final String LEAF_KEY_FILE = "key.pem";
 
     static final String CA_CN = "Vaultwarden Android CA";
     static final String LEAF_CN = "Vaultwarden Android";
-    /** Regen dini leaf bila sisa < 30 hari agar tak kedaluwarsa di tengah jalan. */
+
     static final long BATAS_REGEN_MS = 30L * 24 * 3600 * 1000;
-    /** Umur leaf maksimal 397 hari agar klien modern tak menolak (398+ hari ditolak Chrome/Android baru). */
+
     static final long LEAF_MAX_MS = 397L * 24 * 3600 * 1000;
 
-    /** True bila dipanggil dari thread UI Android (anti-ANR).
-      *  Aman di JVM unit test: stub android.os.Looper melempar "Stub!" —
-      *  tangkap dan anggap bukan UI agar test hijau. Murni. */
     static boolean diUiThread() {
         try {
             android.os.Looper ui = android.os.Looper.getMainLooper();
@@ -75,18 +58,10 @@ public final class TlsCert {
         }
     }
 
-    /** Sisa milidetik masa berlaku cert; 0 bila kedaluwarsa, -2 bila belum
-      *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
-      *  Dipakai keputusan regenerasi agar sisa hitungan jam tak disangka
-      *  kedaluwarsa (pembagian hari integer membuat sisa 5 jam jadi 0). */
     public static long sisaMs(File certFile) {
         long hasil = sisaMsSekali(certFile);
         if (hasil == -1) {
-            // Jendela tukar atomik (.cad/.baru) membuat cert sesaat hilang:
-            // coba sekali lagi selang 100 ms agar pembaca konkuren (Start,
-            // Settings) tak mengira cert rusak. Cert yang memang tak ada
-            // tetap -1 seperti semula.
-            // Jangan tidur di thread UI agar tak ANR; panggil dari worker thread saja.
+
             if (diUiThread()) {
                 return -1;
             }
@@ -101,11 +76,6 @@ public final class TlsCert {
         return hasil;
     }
 
-    /** Memo [notBefore, notAfter] per file (kunci path+panjang+mtime):
-     *  lookup provider CertificateFactory + parse ASN.1 tiap 30 dtk (tick
-     *  Settings) boros di ARMv7; tanggal cert tak berubah tanpa tulis file
-     *  baru (panjang/mtime berganti sehingga memo gugur sendiri). Gagal
-     *  parse ikut di-memo agar cert rusak/hilang tak di-parse berulang. */
     private static final java.util.Map<String, long[]> MEMO_MASA =
             new java.util.LinkedHashMap<String, long[]>(64, 0.75f, true) {
                 @Override protected boolean removeEldestEntry(
@@ -114,14 +84,8 @@ public final class TlsCert {
                 }
             };
 
-    /** Umur memo tanggal cert (elapsed): stat path+panjang+mtime buta bila
-     *  cert ditulis ulang berukuran sama dalam granularitas mtime FAT (2 dtk)
-     *  sehingga memo basi tak boleh hidup selamanya. Selaras TTL 60 dtk
-     *  cap trust (HttpsCompat/ServerService): parse ulang maks 1x/menit. */
     static final long MEMO_MASA_TTL_MS = 60_000;
 
-    /** Jam monotonik aman: stub android.jar di JVM unit test melempar
-     *  sehingga memo tak kedaluwarsa di test (0 = abaikan TTL). Murni. */
     static long elapsedAman() {
         try {
             return android.os.SystemClock.elapsedRealtime();
@@ -130,14 +94,12 @@ public final class TlsCert {
         }
     }
 
-    /** Sekali baca sisa masa berlaku (dipanggil ulang oleh sisaMs bila -1). */
     private static long sisaMsSekali(File certFile) {
         String kunci = kunciStat(certFile);
         synchronized (MEMO_MASA) {
             long[] memo = kunci == null ? null : MEMO_MASA.get(kunci);
             if (memo != null) {
-                // TTL hanya bila kedua stempel valid; di JVM unit test
-                // (elapsedAman 0) memo dipakai seperti semula agar hijau.
+
                 long kini = elapsedAman();
                 if (memo.length < 3 || memo[2] <= 0 || kini <= 0
                         || kini - memo[2] < MEMO_MASA_TTL_MS) {
@@ -155,21 +117,18 @@ public final class TlsCert {
         return sisaDariMemo(masa);
     }
 
-    /** Kunci stat file (null bila info tak bisa dibaca — tetap parse sekali). */
     private static String kunciStat(File f) {
         try {
             if (f == null) {
                 return null;
             }
-            // Absolute (tanpa I/O) cukup: canonical memanggil syscall padahal
-            // penghematan justru menghindari kerja file + parse tiap tick.
+
             return f.getAbsolutePath() + '|' + f.length() + '|' + f.lastModified();
         } catch (Exception e) {
             return null;
         }
     }
 
-    /** Baca [notBefore, notAfter] sekali; gagal parse = sentinel MIN_VALUE. */
     private static long[] bacaMasa(File certFile) {
         try (FileInputStream in = new FileInputStream(certFile)) {
             X509Certificate cert = (X509Certificate) CertificateFactory
@@ -180,7 +139,6 @@ public final class TlsCert {
         }
     }
 
-    /** Sisa ms dari memo (cermin checkValidity: -2 belum valid, 0 lewat). Murni. */
     static long sisaDariMemo(long[] masa) {
         if (masa == null || masa[0] == Long.MIN_VALUE) {
             return -1;
@@ -195,9 +153,6 @@ public final class TlsCert {
         return Math.max(0, masa[1] - kini);
     }
 
-    /** Sisa hari masa berlaku cert.pem; 0 bila kedaluwarsa, -2 bila belum
-     *  valid (jam STB miring ke masa lalu), -1 bila tidak bisa dibaca.
-     *  Hanya untuk tampilan; keputusan regenerasi memakai sisaMs. */
     public static long daysLeft(File certFile) {
         long ms = sisaMs(certFile);
         if (ms < 0) {
@@ -206,18 +161,11 @@ public final class TlsCert {
         return ms / (24L * 3600 * 1000);
     }
 
-    /** Kunci antar-thread untuk ensure(): Start bersamaan dari UI + perintah
-     *  Telegram /start tak boleh generate CA/leaf bersamaan (rusak ca.pem/cert.pem). */
     private static final Object KUNCI_ENSURE = new Object();
 
-    /** Varian paksa-regen-leaf: dipakai pemanggil saat IP berubah agar SAN ikut baru.
-     *  Tanpa ini leaf valid-waktu dipakai ulang dengan SAN basi, dan pemanggil
-     *  terpaksa menghapus leaf dulu (destruktif bila generate gagal).
-     *  Atomik seperti biasa: tulis .baru dulu, tukar hanya bila jadi sehingga
-     *  leaf lama dipertahankan bila generate gagal. */
     public static File ensure(File dir, List<String> ips, List<String> dns,
             boolean paksaLeaf) {
-        // Jangan jalankan generate berat di thread UI agar tak ANR; panggil dari worker saja.
+
         if (diUiThread()) {
             try {
                 android.util.Log.w("TlsCert", "[tls] ensure dipanggil dari UI thread, batal agar tak ANR");
@@ -234,16 +182,10 @@ public final class TlsCert {
             File caKey = new File(dir, CA_KEY_FILE);
             File certFile = new File(dir, LEAF_CERT_FILE);
             File keyFile = new File(dir, LEAF_KEY_FILE);
-            // CA baru dibuat/dipasang: leaf lama (ditandatangani CA lama) wajib
-            // dibuat ulang. Ditandai flag, bukan lewat delete() yang hasilnya
-            // bisa gagal (berkas terkunci) sehingga leaf basi tetap lolos cek
-            // "masih cukup umur" dan semua klien dengan CA baru ditolak TLS.
+
             boolean caBaru = false;
             if (!caOk(caCert, caKey, dir)) {
-                // CA hilang / rusak / versi lama / kedaluwarsa: buat ulang semuanya.
-                // Atomik: tulis ke .baru dulu, ganti lama hanya bila pengganti jadi.
-                // Sebelumnya file lama dihapus dulu sehingga gagal generate
-                // menghilangkan CA bagus yang masih ada.
+
                 File caCertBaru = new File(dir, CA_CERT_FILE + ".baru");
                 File caKeyBaru = new File(dir, CA_KEY_FILE + ".baru");
                 caCertBaru.delete();
@@ -259,20 +201,14 @@ public final class TlsCert {
                     caKeyBaru.delete();
                     return null;
                 }
-                // CA berganti: leaf lama wajib dibuat ulang (ditandatangani CA baru).
-                // delete() boleh gagal (berkas terkunci) — penentu regenerasi
-                // adalah caBaru, bukan keberhasilan hapus.
+
                 certFile.delete();
                 keyFile.delete();
                 caBaru = true;
                 writeVersion(dir);
             }
             if (sisaMs(caCert) == -2) {
-                // Jam STB mundur: CA ada tapi belum valid menurut jam perangkat.
-                // Jangan sentuh CA/leaf sama sekali — regen CA menghanguskan CA
-                // yang sudah dipasang di semua klien, dan leaf baru tetap tak
-                // lolos rantai CA yang belum valid. ServerService fail-closed
-                // pada ca.pem sisa -2 dan meminta jam dibetulkan.
+
                 try {
                     ServerService.catatLog("[tls] jam STB mundur - TLS tidak diubah,"
                             + " betulkan tanggal & jam lalu Start lagi");
@@ -282,8 +218,7 @@ public final class TlsCert {
             }
             long sisaLeaf = sisaMs(certFile);
             if (sisaLeaf == -2) {
-                // Jam mundur > 1 hari: leaf belum valid. Regenerasi di bawah
-                // memakai jam sekarang sehingga notBefore = kini - 1 hari.
+
                 try {
                     ServerService.catatLog("[tls] leaf belum valid (jam mundur) - dibuat ulang");
                 } catch (Exception ignored) {
@@ -292,12 +227,7 @@ public final class TlsCert {
             if (!paksaLeaf && !caBaru && certFile.exists() && keyFile.exists()
                     && certFile.length() > 100 && keyFile.length() > 100
                     && leafCukup(sisaLeaf) && !leafTerlaluLama(sisaLeaf)) {
-                // Cert dan kunci bisa berasal dari dua restore berbeda: backup
-                // tanpa password hanya membawa ca.pem + cert.pem, bukan
-                // key.pem, sehingga leaf lama tertinggal dengan kunci baru.
-                // Rocket lalu gagal TLS dan log menunjuk storage/jam (salah
-                // arah). Wajib pastikan pasangan cocok dan leaf memang
-                // ditandatangani CA yang ada sebelum dipakai ulang.
+
                 if (pasanganCertKeyCocok(certFile, keyFile)
                         && ditandatanganiCa(certFile, caCert)) {
                     return dir;
@@ -308,9 +238,7 @@ public final class TlsCert {
                 } catch (Exception ignored) {
                 }
             }
-            // Leaf hilang / rusak / kedaluwarsa / dipaksa (IP berubah): buat
-            // ulang, CA tetap. Atomik seperti CA: tulis .baru dulu, tukar hanya
-            // bila jadi — leaf lama dipertahankan bila generate gagal.
+
             File certBaru = new File(dir, LEAF_CERT_FILE + ".baru");
             File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
             certBaru.delete();
@@ -334,11 +262,6 @@ public final class TlsCert {
         }
     }
 
-    /** Tukar pasangan cert+key (.baru -> aktif) dengan cadangan `.cad`.
-     *  Tanpa ini gagal rename kedua mencampur cert baru + key lama (server
-     *  gagal TLS), atau menghilangkan key CA (paksa regen CA + install ulang
-     *  di semua HP). Bila gagal, pasangan lama dikembalikan sebisa mungkin.
-     *  Murni I/O agar bisa unit test JVM. */
     static boolean tukarPasanganAtomik(File dir, String namaCert, String namaKey,
             File certBaru, File keyBaru) {
         if (dir == null || namaCert == null || namaKey == null
@@ -396,22 +319,13 @@ public final class TlsCert {
         return true;
     }
 
-    /** True bila CA bisa dipakai: file ada, versi cocok, sisa > 30 hari.
-     *  Regen dini seperti leaf agar CA tak kedaluwarsa mendadak di tengah jalan.
-     *  Sisa -2 (belum valid karena jam mundur) TIDAK memicu regen: itu bukan
-     *  CA rusak, dan membuat CA baru menghanguskan CA yang sudah dipercaya
-     *  semua klien. CA dipertahankan; ServerService fail-closed pada
-     *  certDays(ca.pem) == -2 dan meminta pengguna membetulkan jam. */
     static boolean caOk(File caCert, File caKey, File dir) {
         if (!caCert.exists() || !caKey.exists()
                 || caCert.length() <= 100 || caKey.length() <= 100
                 || !certVersionOk(dir)) {
             return false;
         }
-        // CA bisa datang dari restore backup tanpa kunci privatnya (kunci CA
-        // sengaja tak ikut backup tanpa password) atau pasangan tertukar.
-        // Leaf baru yang ditandatangani kunci lain tak akan lolos verifikasi
-        // klien, jadi pasangan wajib diperiksa sebelum CA dipakai ulang.
+
         if (!pasanganCertKeyCocok(caCert, caKey)) {
             try {
                 ServerService.catatLog(
@@ -422,7 +336,7 @@ public final class TlsCert {
         }
         long sisa = sisaMs(caCert);
         if (sisa == -2) {
-            // Catat sebabnya agar log tak tampak seperti CA hilang/rusak.
+
             try {
                 ServerService.catatLog("[tls] CA belum valid (jam mundur)"
                         + " - CA dipertahankan, betulkan jam STB");
@@ -432,35 +346,22 @@ public final class TlsCert {
         return caLayakDipakai(sisa);
     }
 
-    /** True bila CA boleh dipertahankan apa adanya. Sisa -2 berarti CA belum
-     *  valid menurut jam perangkat (STB mundur), bukan CA rusak — meregen
-     *  akan mengganti identitas TLS yang sudah dipasang di semua klien, jadi
-     *  CA dipakai terus dan start ditolak sampai jam dibetulkan. Murni. */
     static boolean caLayakDipakai(long sisa) {
         return sisa == -2 || caSisaCukup(sisa);
     }
 
-    /** Ambang sisa CA untuk dipakai ulang (> 30 hari); -2 (belum valid) dan
-     *  -1 (tak terbaca) selalu false di sini — pemanggil yang membedakan
-     *  jam mundur memakai {@link #caLayakDipakai(long)}. Murni. */
     static boolean caSisaCukup(long sisa) {
         return sisa > BATAS_REGEN_MS;
     }
 
-    /** True bila leaf boleh dipakai ulang: sisa > 30 hari. Sisa -2 (belum valid
-     *  karena jam mundur) sengaja false agar ensure() meregen dengan jam
-     *  sekarang; lihat caOk. Murni. */
     static boolean leafCukup(long sisa) {
         return sisa > BATAS_REGEN_MS;
     }
 
-    /** True bila leaf warisan kepanjangan (>397 hari) wajib diregen agar klien
-     *  modern tak menolak walau belum kedaluwarsa. Murni. */
     static boolean leafTerlaluLama(long sisa) {
         return sisa > LEAF_MAX_MS;
     }
 
-    /** Buat CA self-signed baru (CA:TRUE). Return false bila gagal. */
     private static boolean buatCa(File caCert, File caKey) {
         try {
             KeyPair kp = buatRsa2048();
@@ -474,7 +375,6 @@ public final class TlsCert {
         }
     }
 
-    /** Pola statis: split/matches per label kompilasi regex tiap panggil. */
     private static final java.util.regex.Pattern POLA_LABEL_DNS =
             java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?", java.util.regex.Pattern.CASE_INSENSITIVE);
     private static final java.util.regex.Pattern POLA_TITIK =
@@ -484,7 +384,6 @@ public final class TlsCert {
     private static final java.util.regex.Pattern POLA_SPASI_APA =
             java.util.regex.Pattern.compile("\\s");
 
-    /** True bila s hanya [A-Za-z0-9_-] 1-64 char (tanpa kompilasi regex). */
     private static boolean tokenAman(String s) {
         if (s == null || s.isEmpty() || s.length() > 64) {
             return false;
@@ -502,7 +401,6 @@ public final class TlsCert {
         return true;
     }
 
-    /** Validasi nama DNS (ASCII, label 1-63 char, boleh satu label lokal); false untuk IP. */
     static boolean namaDnsValid(String host) {
         if (host == null || host.isEmpty() || host.length() > 253) {
             return false;
@@ -525,7 +423,6 @@ public final class TlsCert {
         return true;
     }
 
-    /** Varian dengan SAN DNS tambahan (domain lokal). */
     private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
             List<String> ips, List<String> dns) {
         try {
@@ -544,9 +441,8 @@ public final class TlsCert {
         }
     }
 
-    /** SecureRandom bersama (thread-safe): hemat seed /dev/random di kernel lama. */
     private static final SecureRandom ACAK_BERSAMA = new SecureRandom();
-    /** Zona UTC bersama: getTimeZone("UTC") mengurai ID + klon tiap panggil. */
+
     private static final java.util.TimeZone ZONA_UTC =
             java.util.TimeZone.getTimeZone("UTC");
 
@@ -556,7 +452,6 @@ public final class TlsCert {
         return kpg.generateKeyPair();
     }
 
-    /** Tandatangani TBS dengan kunci privat (SHA256withRSA), bungkus jadi sertifikat DER. */
     private static byte[] tandatangani(byte[] tbs, PrivateKey key) throws Exception {
         Signature sig = Signature.getInstance("SHA256withRSA");
         sig.initSign(key);
@@ -569,10 +464,9 @@ public final class TlsCert {
         }, 0x30);
     }
 
-    /** Baca kunci privat RSA PKCS#8 dari file PEM; null bila gagal. */
     private static PrivateKey bacaPrivateKey(File pem) {
         try {
-            // Batasi ukuran kunci agar file raksasa tak bikin OOM saat dibaca ke memori.
+
             if (pem != null && pem.length() > 32768) {
                 throw new java.io.IOException("kunci terlalu besar");
             }
@@ -582,7 +476,7 @@ public final class TlsCert {
                 int n;
                 while ((n = in.read(tmp)) != -1) {
                     buf.write(tmp, 0, n);
-                    // Pengaman ganda bila berkas membesar di tengah baca.
+
                     if (buf.size() > 32768) {
                         throw new java.io.IOException("kunci terlalu besar");
                     }
@@ -600,7 +494,6 @@ public final class TlsCert {
         }
     }
 
-    /** Baca sertifikat X.509 dari PEM; null bila gagal. */
     private static X509Certificate bacaCert(File pem) {
         try (FileInputStream in = new FileInputStream(pem)) {
             return (X509Certificate) CertificateFactory
@@ -610,9 +503,6 @@ public final class TlsCert {
         }
     }
 
-    /** True bila kunci privat memang pasangan kunci publik sertifikat
-     *  (modulus RSA sama). Murni java.security agar bisa diuji JVM: pasangan
-     *  tertukar membuat Rocket gagal handshake TLS tanpa sebab yang jelas. */
     static boolean kunciCocokCert(PublicKey publik, PrivateKey privat) {
         if (!(publik instanceof java.security.interfaces.RSAPublicKey)
                 || !(privat instanceof java.security.interfaces.RSAPrivateKey)) {
@@ -625,8 +515,6 @@ public final class TlsCert {
         return modulusPub != null && modulusPub.equals(modulusPriv);
     }
 
-    /** True bila cert+key di disk bisa dipakai bersama: keduanya terbaca dan
-     *  modulusnya cocok. False bila salah satu hilang/rusak/tak berpasangan. */
     static boolean pasanganCertKeyCocok(File certFile, File keyFile) {
         try {
             X509Certificate cert = bacaCert(certFile);
@@ -638,9 +526,6 @@ public final class TlsCert {
         }
     }
 
-    /** True bila sertifikat leaf ditandatangani CA yang ada di disk (rantai
-     *  utuh). Restore yang hanya membawa ca.pem + cert.pem meninggalkan leaf
-     *  lama yang tak lagi cocok dengan CA pengganti. */
     static boolean ditandatanganiCa(File leafFile, File caFile) {
         try {
             X509Certificate leaf = bacaCert(leafFile);
@@ -655,11 +540,6 @@ public final class TlsCert {
         }
     }
 
-    /** True bila folder sudah berisi CA + leaf utuh dan masih layak dipakai
-     *  TANPA menulis apa pun. Dipakai fallback folder data publik: kunci
-     *  privat tak boleh dibuat di storage bersama (chmod mati, app lain bisa
-     *  menyalinnya), jadi hanya material lama yang sudah ada yang boleh
-     *  dipakai apa adanya. */
     public static boolean siapPakaiTanpaTulis(File dir) {
         if (dir == null) {
             return false;
@@ -684,14 +564,13 @@ public final class TlsCert {
                 && ditandatanganiCa(certFile, caCert);
     }
 
-    /** Susun TBS sertifikat v3 dengan issuer/subject/ekstensi/masa berlaku pilihan. */
     private static byte[] buildTbs(PublicKey subjectPub, String issuerCn, String subjectCn,
             byte[] exts, long masaHari) throws Exception {
         SecureRandom rnd = ACAK_BERSAMA;
         byte[] serialBytes = new byte[16];
         rnd.nextBytes(serialBytes);
-        serialBytes[0] &= 0x7F; // positif
-        // Serial nol tidak valid (RFC 5280): paksa non-nol bila kebetulan semua nol.
+        serialBytes[0] &= 0x7F;
+
         boolean nolSemua = true;
         for (byte b : serialBytes) {
             if (b != 0) {
@@ -707,7 +586,6 @@ public final class TlsCert {
         Date notBefore = new Date(now.getTime() - TimeUnit.DAYS.toMillis(1));
         Date notAfter = new Date(now.getTime() + TimeUnit.DAYS.toMillis(masaHari));
 
-        // version [0] EXPLICIT INTEGER 2 (v3)
         byte[] version = der(b -> b.raw(integer(BigInteger.valueOf(2))), 0xA0);
         byte[] serial = integer(new BigInteger(serialBytes));
         byte[] sigAlg = sha256RsaAlgorithmId();
@@ -731,11 +609,10 @@ public final class TlsCert {
         }, 0x30);
     }
 
-    /** Ekstensi CA: BasicConstraints CA:TRUE + KeyUsage keyCertSign agar diterima installer. */
     private static byte[] caExtensionsBlock() throws Exception {
         byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
                 octetString(der(b -> b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}), 0x30)));
-        // KeyUsage: digitalSignature + keyCertSign + cRLSign.
+
         byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
                 octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0x86}));
         byte[] extensions = der(b -> {
@@ -743,7 +620,6 @@ public final class TlsCert {
             b.raw(keyUsage);
         }, 0x30);
 
-        // extensions [3] EXPLICIT Extensions
         return der(b -> b.raw(extensions), 0xA3);
     }
 
@@ -782,17 +658,15 @@ public final class TlsCert {
             }
         }, 0x30);
 
-        // subjectAltName: IP + localhost + DNS lokal
         byte[] san = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11}, false,
                 octetString(generalNames));
-        // BasicConstraints CA:FALSE - cert server biasa, BUKAN CA: bila key bocor,
-        // penyerang tidak bisa menerbitkan cert untuk host lain atas nama perangkat.
+
         byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
                 octetString(der(b -> b.raw(new byte[]{0x01, 0x01, 0x00}), 0x30)));
-        // KeyUsage: digitalSignature + keyEncipherment saja (tanpa keyCertSign).
+
         byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
                 octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0xA0}));
-        // ExtendedKeyUsage: serverAuth saja (1.3.6.1.5.5.7.3.1).
+
         byte[] eku = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x25}, false,
                 octetString(der(b -> b.raw(new byte[]{0x06, 0x08, 0x2B, 0x06,
                         0x01, 0x05, 0x05, 0x07, 0x03, 0x01}), 0x30)));
@@ -804,7 +678,6 @@ public final class TlsCert {
             b.raw(eku);
         }, 0x30);
 
-        // extensions [3] EXPLICIT Extensions
         return der(b -> b.raw(extensions), 0xA3);
     }
 
@@ -812,7 +685,7 @@ public final class TlsCert {
         byte[] ext = der(b -> {
             b.raw(oid);
             if (critical) {
-                b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}); // BOOLEAN TRUE
+                b.raw(new byte[]{0x01, 0x01, (byte) 0xFF});
             }
             b.raw(extValue);
         }, 0x30);
@@ -831,9 +704,7 @@ public final class TlsCert {
         if (ip.isEmpty()) {
             return null;
         }
-        // Urai manual tanpa split/parseInt: hemat alokasi regex di STB lama
-        // sekaligus ketat (dulu "1.2.3.4." lolos karena split membuang ekor
-        // kosong, dan "+1" lolos via parseInt). Hanya digit + tepat 3 titik.
+
         int[] nilai = new int[4];
         int bagian = 0;
         int angka = 0;
@@ -867,7 +738,6 @@ public final class TlsCert {
         return new byte[]{(byte) nilai[0], (byte) nilai[1], (byte) nilai[2], (byte) nilai[3]};
     }
 
-    /** Urai literal IPv6 (termasuk kompresi ::) jadi 16 byte; null bila bukan IPv6. Murni. */
     static byte[] ipv6(String ip) {
         if (ip == null) {
             return null;
@@ -876,7 +746,7 @@ public final class TlsCert {
         if (t.isEmpty() || !t.contains(":")) {
             return null;
         }
-        // Kupas zona (%wlan0) dan kurung ([::1]) bila ada.
+
         int persen = t.indexOf('%');
         if (persen >= 0) {
             t = t.substring(0, persen);
@@ -887,8 +757,7 @@ public final class TlsCert {
         if (t.isEmpty() || t.contains(" ") || t.contains("/")) {
             return null;
         }
-        // Bentuk embedded-IPv4 (::ffff:192.168.1.1): ubah ekor desimal
-        // jadi dua grup heksa agar parser di bawah tetap murni heksa.
+
         if (t.contains(".")) {
             int titikDua = t.lastIndexOf(':');
             if (titikDua < 0) {
@@ -965,8 +834,6 @@ public final class TlsCert {
         }
     }
 
-    /** True bila g 1-4 digit heksa murni: parseInt radix menerima tanda
-     *  +-$ sehingga "+ff" lolos validator tanpa ini. Murni. */
     static boolean grupHeksaValid(String g) {
         if (g == null || g.isEmpty() || g.length() > 4) {
             return false;
@@ -984,19 +851,19 @@ public final class TlsCert {
     }
 
     private static byte[] nameCn(String cn) throws Exception {
-        // AttributeTypeAndValue: SEQUENCE { OID 2.5.4.3, UTF8String }
+
         byte[] attr = der(b -> {
             b.oidCn();
             b.utf8(cn);
         }, 0x30);
-        // RDN: SET OF AttributeTypeAndValue
+
         byte[] rdn = der(b -> b.raw(attr), 0x31);
-        // Name: SEQUENCE OF RDN
+
         return der(b -> b.raw(rdn), 0x30);
     }
 
     private static byte[] sha256RsaAlgorithmId() {
-        // SEQUENCE { OID 1.2.840.113549.1.1.11, NULL }
+
         return new byte[]{0x30, 0x0D, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
                 (byte) 0x86, (byte) 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00};
     }
@@ -1025,15 +892,10 @@ public final class TlsCert {
     }
 
     private static void writeVersion(File dir) throws IOException {
-        // Atomik seperti writePem/tukarPasanganAtomik: tulis .baru dulu, fsync,
-        // baru ganti nama. Menulis langsung ke version.txt (truncate lalu isi)
-        // membuat berkas kosong/terpotong bila STB mati di tengah; certVersionOk()
-        // lalu false -> CA dianggap rusak dan dibuat ulang, semua HP wajib
-        // install CA baru. fsync saja tidak menolong berkas yang sudah
-        // ter-truncate, jadi urutan tulis-ke-.baru + rename ini wajib.
+
         File tujuan = new File(dir, "version.txt");
         File baru = new File(dir, "version.txt.baru");
-        baru.delete(); // sisa percobaan sebelumnya (tak pernah dipakai pembaca)
+        baru.delete();
         FileOutputStream w = new FileOutputStream(baru);
         try {
             w.write((CERT_VERSION + "\n").getBytes(StandardCharsets.US_ASCII));
@@ -1048,8 +910,7 @@ public final class TlsCert {
             } catch (Exception ignored) {
             }
         }
-        // rename menimpa versi lama secara atomik di filesystem POSIX; bila
-        // gagal (FS aneh) coba hapus dulu supaya penanda versi tetap terpasang.
+
         if (!baru.renameTo(tujuan)) {
             if (!tujuan.delete() || !baru.renameTo(tujuan)) {
                 baru.delete();
@@ -1070,10 +931,7 @@ public final class TlsCert {
             }
             w.write("-----END " + type + "-----\n");
             w.flush();
-            // fsync sebelum rename atomik: rename hanya mengawetkan NAMA di
-            // direktori, isi berkas bisa nol/terpotong bila STB mati tepat
-            // sesudah tukar. Dulu tanpa ini CA bisa terbaca rusak lalu dibuat
-            // ulang — semua HP wajib install CA baru tanpa sebab yang jelas.
+
             try {
                 fos.getFD().sync();
             } catch (Exception ignored) {
@@ -1085,14 +943,13 @@ public final class TlsCert {
             }
         }
         if (type.contains("PRIVATE") || f.getName().contains("key")) {
-            // Best-effort: batasi kunci hanya untuk pemilik (0600) bila FS mendukung chmod.
-            // Di storage bersama (FAT/sdcard) chmod tak berpengaruh.
+
             try {
                 f.setReadable(false, false);
                 f.setReadable(true, true);
                 f.setWritable(false, false);
                 f.setWritable(true, true);
-                // Bila file kunci di luar internal storage, chmod tak melindungi.
+
                 try {
                     String p = f.getCanonicalPath();
                     if (!p.startsWith("/data/")) {
@@ -1106,7 +963,6 @@ public final class TlsCert {
         }
     }
 
-    /** Builder ASN.1 DER sederhana. */
     private interface DerFn {
         void build(Der b) throws Exception;
     }
@@ -1160,7 +1016,7 @@ public final class TlsCert {
         void bitString(byte[] data) throws IOException {
             out.write(0x03);
             len(data.length + 1, out);
-            out.write(0); // unused bits
+            out.write(0);
             out.write(data, 0, data.length);
         }
 
@@ -1171,22 +1027,18 @@ public final class TlsCert {
             out.write(data, 0, data.length);
         }
 
-        /** Dua digit desimal manual tanpa Formatter/Locale (murah di ART lama). */
         static void dua(StringBuilder b, int v) {
             b.append((char) ('0' + (v / 10) % 10));
             b.append((char) ('0' + v % 10));
         }
 
-        /** Empat digit desimal manual (tahun). */
         static void empat(StringBuilder b, int v) {
             dua(b, v / 100);
             dua(b, v % 100);
         }
 
-        /** UTCTime (<2050) atau GeneralizedTime (>=2050) agar CA 10 tahun tetap valid. */
         void waktu(Date d) throws IOException {
-            // Satu Calendar per tanggal: dulu utcTime() membuat instance kedua
-            // untuk tanggal yang sama (2x TimeZone+Locale di tiap field cert).
+
             java.util.Calendar c = java.util.Calendar.getInstance(ZONA_UTC, Locale.US);
             c.setTime(d);
             int tahun = c.get(java.util.Calendar.YEAR);
@@ -1230,20 +1082,18 @@ public final class TlsCert {
         }
 
         void oidSha256Rsa() throws IOException {
-            // SHA256withRSA: 1.2.840.113549.1.1.11 + NULL params.
-            // 30 0D: SEQUENCE panjang 13 (OID 11 byte + NULL 2 byte)
+
             raw(new byte[]{0x30, 0x0D, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
                     (byte) 0x86, (byte) 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00});
         }
 
         void oidCn() throws IOException {
-            // commonName: 2.5.4.3
+
             raw(new byte[]{0x06, 0x03, 0x55, 0x04, 0x03});
         }
 
     }
 
-    /** Sanitasi timestamp agar tak jadi path traversal (../) di nama file backup. Murni. */
     private static String amanTs(String ts) {
         if (ts == null) {
             return "tanpa-waktu";
@@ -1254,14 +1104,12 @@ public final class TlsCert {
         return ts;
     }
 
-    /** Nama file cadangan CA publik di storage: ca-cadangan-<timestamp>.pem. Murni. */
     static String namaBackupCa(String timestamp) {
-        // Pakai amanTs agar timestamp kiriman pemanggil tak bisa menyisip ../ atau /.
+
         String ts = amanTs(timestamp == null ? null : timestamp.trim());
         return "ca-cadangan-" + ts + ".pem";
     }
 
-    /** Salin ca.pem aktif ke folder backup (storage). Hanya file publik, tanpa kunci privat. Murni. */
     static File salinCaKeStorage(File caAktif, File dirBackup, String timestamp) throws IOException {
         if (caAktif == null || !caAktif.isFile()) {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
@@ -1284,17 +1132,14 @@ public final class TlsCert {
         return tujuan;
     }
 
-    /** Hapus semua file TLS (ca, leaf, ips, versi) agar CA baru dibuat saat Start. Murni. */
     static int resetTls(File tlsDir) {
         if (tlsDir == null || !tlsDir.isDirectory()) {
             return 0;
         }
         int hapus = 0;
-        // Kunci yang sama dengan ensure: jangan hapus file saat CA/leaf baru
-        // sedang ditukar (dulu reset bisa menyisakan pasangan CA/leaf tak cocok).
+
         synchronized (KUNCI_ENSURE) {
-            // Hapus juga sisa cadangan .cad/.baru agar reset bersih (tak ada
-            // cert/key/penanda versi basi tertinggal).
+
             for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
                     LEAF_KEY_FILE, "ips.txt", "version.txt", "version.txt.baru",
                     CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",

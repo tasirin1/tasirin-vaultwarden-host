@@ -12,7 +12,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-/** Unit test logika murni TLS — tanpa Android runtime (jalan di CI via JVM). */
 public class TlsCertTest {
 
     @Test
@@ -144,8 +143,7 @@ public class TlsCertTest {
     @Test
     public void leafCukupTerimaSisaPanjangTolakJamMundur() {
         assertTrue(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS + 1));
-        // -2 = belum valid (jam mundur): wajib regen, bukan dipakai — kalau
-        // dipakai, startServer fail-closed dan server tak pernah start.
+
         assertFalse(TlsCert.leafCukup(-2));
         assertFalse(TlsCert.leafCukup(TlsCert.BATAS_REGEN_MS));
         assertFalse(TlsCert.leafCukup(0));
@@ -163,9 +161,7 @@ public class TlsCertTest {
 
     @Test
     public void caLayakDipakaiPertahankanCaSaatJamMundur() {
-        // -2 = CA belum valid karena jam STB mundur, bukan rusak: CA yang sudah
-        // dipasang di semua klien wajib dipertahankan (start ditolak sampai jam
-        // dibetulkan), bukan diganti CA baru yang menghanguskan kepercayaan itu.
+
         assertTrue(TlsCert.caLayakDipakai(-2));
         assertTrue(TlsCert.caLayakDipakai(TlsCert.BATAS_REGEN_MS + 1));
         assertFalse(TlsCert.caLayakDipakai(TlsCert.BATAS_REGEN_MS));
@@ -181,8 +177,7 @@ public class TlsCertTest {
         java.security.KeyPair a = g.generateKeyPair();
         java.security.KeyPair b = g.generateKeyPair();
         assertTrue(TlsCert.kunciCocokCert(a.getPublic(), a.getPrivate()));
-        // Kunci dari pasangan lain (mis. key.pem lama setelah restore cert
-        // baru) wajib ditolak agar leaf diregen, bukan dipakai lalu gagal TLS.
+
         assertFalse(TlsCert.kunciCocokCert(a.getPublic(), b.getPrivate()));
         assertFalse(TlsCert.kunciCocokCert(null, a.getPrivate()));
         assertFalse(TlsCert.kunciCocokCert(a.getPublic(), null));
@@ -191,7 +186,7 @@ public class TlsCertTest {
     @Test
     public void siapPakaiTanpaTulisTolakFolderKosongAtauRusak() throws Exception {
         File dir = Files.createTempDirectory("tlssiap").toFile();
-        // Folder kosong: fallback publik wajib fail-closed (jangan generate).
+
         assertFalse(TlsCert.siapPakaiTanpaTulis(dir));
         assertFalse(TlsCert.siapPakaiTanpaTulis(null));
         Files.write(new File(dir, "version.txt").toPath(),
@@ -200,7 +195,7 @@ public class TlsCertTest {
             Files.write(new File(dir, nama).toPath(),
                     "bukan-pem".getBytes(StandardCharsets.US_ASCII));
         }
-        // Isi rusak: false (tak boleh dipakai apa adanya).
+
         assertFalse(TlsCert.siapPakaiTanpaTulis(dir));
     }
 
@@ -210,10 +205,10 @@ public class TlsCertTest {
         File cert = new File(dir, "cert.pem");
         File key = new File(dir, "key.pem");
         File ca = new File(dir, "ca.pem");
-        // Hilang: wajib false agar ensure() meregen, bukan memakai berkas hantu.
+
         assertFalse(TlsCert.pasanganCertKeyCocok(cert, key));
         assertFalse(TlsCert.ditandatanganiCa(cert, ca));
-        // Isi rusak juga false: pasangan/rantai tak valid tak boleh dipakai.
+
         Files.write(cert.toPath(), "bukan-sertifikat".getBytes(StandardCharsets.US_ASCII));
         Files.write(key.toPath(), "bukan-kunci".getBytes(StandardCharsets.US_ASCII));
         Files.write(ca.toPath(), "bukan-ca".getBytes(StandardCharsets.US_ASCII));
@@ -312,8 +307,7 @@ public class TlsCertTest {
 
     @Test
     public void resetTls_hapusSisaVersionBaru() throws Exception {
-        // Penanda versi ditulis ke version.txt.baru lalu di-rename; sisa .baru
-        // dari percobaan yang gagal tak boleh tertinggal setelah reset.
+
         File dir = Files.createTempDirectory("tlsresetbaru").toFile();
         File sisa = new File(dir, "version.txt.baru");
         Files.write(sisa.toPath(), "5\n".getBytes(StandardCharsets.US_ASCII));

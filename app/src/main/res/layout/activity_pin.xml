@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Halaman login PIN (portrait): kartu tengah + brand + kolom PIN.
-     Rantai nextFocus* dijaga untuk D-pad TV.
-     Varian landscape ada di res/layout-land/activity_pin.xml (ID sama). -->
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

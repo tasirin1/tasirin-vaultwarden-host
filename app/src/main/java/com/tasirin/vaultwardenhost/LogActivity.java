@@ -25,16 +25,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-/** Halaman log server realtime layar penuh (di-port dari LogActivity download manager). */
 public class LogActivity extends Activity {
 
     private static final int REQ_WRITE = 1002;
-    /** Kunci instance state untuk {@link #simpanUlangSetelahIzin}. Dialog izin
-     *  storage bisa membuat Activity dibuat ulang (rotasi, "Don't keep
-     *  activities", proses dibunuh) sebelum hasilnya kembali; tanpa ini
-     *  instance baru tak melanjutkan export sehingga log tidak tersimpan
-     *  tanpa pesan apa pun. Cermin STATE_MULAI_ULANG_IZIN di MainActivity. */
+
     private static final String STATE_SIMPAN_ULANG_IZIN = "simpan_ulang_izin";
     private boolean simpanUlangSetelahIzin = false;
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -43,8 +37,7 @@ public class LogActivity extends Activity {
     private TextView logCount;
     private String logSearch = "";
     private boolean logAutoScroll = false;
-    /** Polling log tiap detik; dihentikan di onPause agar tak sedot CPU/baterai
-     *  saat layar log tak terlihat (Home), jalan lagi di onResume. */
+
     private final Runnable logTick = new Runnable() {
         @Override
         public void run() {
@@ -55,44 +48,39 @@ public class LogActivity extends Activity {
             ui.postDelayed(this, 1500);
         }
     };
-    /** Tunda refresh pencarian 300 ms: tiap ketikan menyalin buffer 300 KB
-     *  di UI thread sehingga mengetik di STB 1 GB tersendat tanpa jeda ini. */
+
     private final Runnable refreshCari = new Runnable() {
         @Override
         public void run() {
-            // Guard seperti logTick: ketik lalu rotate/destroy dalam 300 ms
-            // membuat runnable jalan di activity mati (crash).
+
             if (isDestroyed() || isFinishing()) {
                 return;
             }
             refreshLog();
         }
     };
-    /** Kunci olahan redaksi+sorot: satu dalam penerbangan agar antrean
-     *  worker tak menumpuk saat log deras (tick menyusul dilewati). */
+
     private final java.util.concurrent.atomic.AtomicBoolean redaksiJalan =
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private String lastLogKey = null;
     private int lastLogLen = 0;
     private long lastLogVer = -1;
     private int lineCount = 0;
-    /** Warna sorot pencarian + baris galat dari tema (sinkron terang/gelap). */
+
     private int warnaSorotCari = 0xFFFFE082;
     private int warnaGalat = 0xFFFF0000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Privasi: nonaktifkan screenshot + preview recents dikosongkan (sama dengan MainActivity).
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         super.onCreate(savedInstanceState);
-        // Pulihkan permintaan simpan yang tertahan izin sebelum dialog izin
-        // sempat kembali (Activity dibuat ulang saat dialog tampil).
+
         if (savedInstanceState != null) {
             simpanUlangSetelahIzin = savedInstanceState.getBoolean(
                     STATE_SIMPAN_ULANG_IZIN, false);
         }
-        // Sisa salinan clipboard yang penghapus 60 dtk-nya tak sempat jalan
-        // karena proses mati dibersihkan (atau dipasang ulang) di sini.
+
         bersihkanClipBasiJikaAda();
         setContentView(R.layout.activity_log);
 
@@ -148,9 +136,7 @@ public class LogActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Sesi melewati grace PIN: tutup log dan kembalikan ke MainActivity
-        // (yang meminta PIN). Tanpa ini log penuh terlihat tanpa kunci.
-        // Fail-closed: bila prefs tak terbaca, log dianggap terkunci.
+
         boolean bolehTampil = false;
         try {
             android.content.SharedPreferences sp =
@@ -184,26 +170,20 @@ public class LogActivity extends Activity {
     }
 
     private void refreshLog() {
-        // Salinan 300 KB hanya dibuat bila panjang berubah (hampir selalu sama
-        // antar refresh tiap detik); sebelumnya menyalin dulu baru membandingkan.
+
         long ver = ServerService.logVersion();
         int len = ServerService.logLength();
         if (len < lastLogLen || ver < lastLogVer) {
-            // Log terpotong (trim buffer) - hitung ulang dari awal di renderLog.
-            // Jangan set lineCount = 0 di sini karena renderLog akan menghitung ulang.
+
             lastLogLen = 0;
             lastLogVer = ver;
         }
-        // Konten log append-only (trim hanya memendekkan) - panjang cukup sebagai
-        // penanda perubahan, tanpa perlu menyalin/membandingkan teks 300 KB tiap detik.
+
         String key = ver + "\u0000" + len + "\u0000" + logSearch;
         if (key.equals(lastLogKey)) {
             return;
         }
-        // Redaksi 13 regex + sorot ribuan span di worker: jalan penuh tiap
-        // detik di UI thread bikin patah/ANR di STB 1 GB. Coalesce: tick yang
-        // datang saat olahan lama belum selesai dilewati; tick berikut
-        // mengambil buffer terbaru. Salin/bagi/simpan tetap pakai buffer penuh.
+
         if (!redaksiJalan.compareAndSet(false, true)) {
             return;
         }
@@ -214,11 +194,7 @@ public class LogActivity extends Activity {
         final String cari = logSearch;
         final boolean ikutBawah = logAutoScroll;
         final int prevScroll = logScroll.getScrollY();
-        // Salin ekor HANYA di worker, bukan di UI thread: kunci logBuffer juga
-        // dipegang pumpOutput server, sehingga menyalin 100-300 KB di UI thread
-        // menahan penulisan log server tiap tick dan membuat layar terasa berat
-        // di STB 1 GB. Salin ekor saja (+ margin 512 agar potong batas baris di
-        // bawah tetap tepat): buffer bisa 300 KB sementara tampil max 100 KB.
+
         boolean masuk = Util.jalankanBg(() -> {
             try {
                 final String text;
@@ -228,29 +204,23 @@ public class LogActivity extends Activity {
                             ? n - (BATAS_TAMPIL_LOG + 512) : 0;
                     text = ServerService.logBuffer.substring(dari);
                 }
-                // Buffer jumbo (server aktif menambah baris tiap detik):
-                // tampilkan ekor saja agar regex + span tetap ringan.
+
                 String tampil = text.length() > BATAS_TAMPIL_LOG
                         ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
-                // Hitung ulang jumlah baris dari teks yang tampil (handle trim
-                // dengan benar) agar label cocok dengan isi layar.
+
                 int hitung = 0;
                 for (int i = 0; i < tampil.length(); i++) {
                     if (tampil.charAt(i) == '\n') {
                         hitung++;
                     }
                 }
-                // Privasi layar: tampilkan versi tersamar (token/chat_id/IP
-                // disensor); buffer internal tetap mentah agar salin/bagi/
-                // export bisa menyamarkan sendiri dengan pola terbaru.
+
                 String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
                 final CharSequence sorot = highlightLog(tampilAman, cari);
                 final int baris = hitung;
                 ui.post(() -> {
                     try {
-                        // Basis/cari berubah saat olahan jalan (ketik cepat,
-                        // bersihkan log): hasil basi dibuang, tick berikut
-                        // me-render ulang dari buffer terbaru.
+
                         if (!kunci.equals(lastLogKey)) {
                             return;
                         }
@@ -279,34 +249,24 @@ public class LogActivity extends Activity {
             }
         });
         if (!masuk) {
-            // Antrean penuh: lepas flag + paksa tick berikut memproses konten
-            // yang sama (lastLogKey sudah diperbarui sehingga tick identik
-            // akan dilewati bila dibiarkan).
+
             redaksiJalan.set(false);
             lastLogKey = null;
         }
     }
 
-    // getColor(int) lawas sengaja agar satu jalur kode untuk API 21-32.
     @SuppressWarnings("deprecation")
     private int warnaTema(int id) {
         return getResources().getColor(id);
     }
 
-    /** Sorot baris GAGAL/ERROR/FAILED dan kata kunci pencarian (warna tema).
-     *  Tanpa toLowerCase()/substring() per baris: pencocokan case-insensitive
-     *  via regionMatches agar tidak ada salinan besar tiap refresh. */
     private CharSequence highlightLog(String text, String q) {
-        // Buffer bisa 300 KB: membangun ribuan span tiap detik bikin STB patah.
-        // Di atas 150 KB tampilkan polos (pencarian teks browser tetap jalan).
+
         if (text.length() > 150_000) {
             return text;
         }
         boolean adaQ = q != null && !q.isEmpty();
-        // Sekali-jalan per baris (dulu pra-cek 3x full-text Unicode + pindai
-        // ulang per baris): galat + query ditandai dalam satu walk ASCII.
-        // Span malas (lazy): teks bersih tanpa galat/query pulang tanpa
-        // alokasi Spannable. Kueri non-ASCII (jarang) lewat jalur lambat.
+
         boolean qAscii = adaQ && asciiSemua(q);
         if (adaQ && !qAscii) {
             return highlightLambat(text, q);
@@ -339,7 +299,7 @@ public class LogActivity extends Activity {
                     }
                     j++;
                 }
-                // Ekor baris lebih pendek dari query masih bisa memuat galat.
+
                 if (!galat) {
                     galat = pindaiGalatBaris(text, Math.max(j, lineStart), lineEnd);
                 }
@@ -362,7 +322,6 @@ public class LogActivity extends Activity {
         return sb != null ? sb : text;
     }
 
-    /** Pindai satu baris [s, e) untuk GAGAL/ERROR/FAILED (ASCII, tanpa alokasi). */
     private static boolean pindaiGalatBaris(String text, int s, int e) {
         for (int j = s; j < e; j++) {
             if (awalGalatAt(text, j, e)) {
@@ -372,7 +331,6 @@ public class LogActivity extends Activity {
         return false;
     }
 
-    /** True bila kata galat mulai di pos (dispatch huruf pertama G/E/F). */
     private static boolean awalGalatAt(String text, int pos, int e) {
         char c = text.charAt(pos);
         if (c >= 'a' && c <= 'z') {
@@ -390,7 +348,6 @@ public class LogActivity extends Activity {
         return false;
     }
 
-    /** Cocok kata ASCII abaikan-huruf dalam [pos, e). */
     private static boolean cocokAsciiRentangKata(String text, int pos, int e, String kata) {
         int m = kata.length();
         if (pos + m > e) {
@@ -404,7 +361,6 @@ public class LogActivity extends Activity {
         return true;
     }
 
-    /** Cocok query ASCII abaikan-huruf di pos (batas-aman). */
     private static boolean cocokAsciiRentang(String text, int pos, String kunci) {
         int m = kunci.length();
         if (pos + m > text.length()) {
@@ -418,7 +374,6 @@ public class LogActivity extends Activity {
         return true;
     }
 
-    /** True bila seluruh char < 128 (jalur cepat ASCII berlaku). */
     private static boolean asciiSemua(String k) {
         for (int i = 0; i < k.length(); i++) {
             if (k.charAt(i) >= 128) {
@@ -428,7 +383,6 @@ public class LogActivity extends Activity {
         return true;
     }
 
-    /** Jalur lambat kueri non-ASCII: pertahankan semantik lama via regionMatches. */
     private CharSequence highlightLambat(String text, String q) {
         SpannableStringBuilder sb = null;
         int from = 0;
@@ -468,7 +422,6 @@ public class LogActivity extends Activity {
         return sb != null ? sb : text;
     }
 
-    /** indexOf case-insensitive dalam rentang [from, end) tanpa alokasi baru. */
     private static int rangeIndexOf(String text, String keyword, int from, int end) {
         int max = end - keyword.length();
         boolean ascii = true;
@@ -497,13 +450,10 @@ public class LogActivity extends Activity {
         return -1;
     }
 
-    /** Tampilkan dialog berisi crash log terakhir (bisa disalin). */
     private void showCrashDialog() {
-        // Baca file di worker: storage STB lambat bisa ANR bila dibaca di UI thread.
+
         boolean masuk = Util.jalankanBg(() -> {
-            // Samarkan ulang di sini (bukan andalkan isi file): pola samaran
-            // bisa bertambah setelah file ditulis (mis. chat_id JSON), dan
-            // jalur tampil/salin ini tak lewat shareLog/copyLog/export.
+
             String mentahCrash = ServerService.crashLogText(LogActivity.this);
             final String crash = butuhSamaran(mentahCrash) ? samarkanLog(mentahCrash) : mentahCrash;
             ui.post(() -> {
@@ -522,7 +472,6 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Bangun dialog crash-log di UI thread (dipanggil setelah baca worker selesai). */
     private void tampilDialogCrash(final String crash) {
         float d = getResources().getDisplayMetrics().density;
         TextView tv = new TextView(this);
@@ -555,9 +504,7 @@ public class LogActivity extends Activity {
             java.util.regex.Pattern.compile("(?i)(chat_id\\s*[\"']?\\s*[:=]\\s*[\"']?)[^&\\s,\"'}\\]]+");
     private static final java.util.regex.Pattern POLA_BOT_TOKEN =
             java.util.regex.Pattern.compile("bot\\d+:[A-Za-z0-9_-]{6,}");
-    /** Token bot mentah tanpa awalan "bot" (mis. "123456:AAEc..." di pesan galat).
-     *  Minimal 6 digit + 10 karakter: jam "12:30" (2 digit) dan port "8088"
-     *  (4 digit) tetap aman karena awalan digit tak memenuhi syarat. */
+
     private static final java.util.regex.Pattern POLA_TOKEN_MENTAH =
             java.util.regex.Pattern.compile("(?<!\\w)\\d{6,12}:[A-Za-z0-9_-]{10,}");
     private static final java.util.regex.Pattern POLA_BOT_URL =
@@ -566,52 +513,29 @@ public class LogActivity extends Activity {
             java.util.regex.Pattern.compile("(?i)(ADMIN_TOKEN\\s*=\\s*)[^\\s]+");
     private static final java.util.regex.Pattern POLA_BEARER =
             java.util.regex.Pattern.compile("(?i)(Authorization\\s*:\\s*Bearer\\s+)\\S+");
-    /** Kredensial bentuk mentah key=value (bukan JSON): tg_token=..., tg_chat=...,
-      *  tg_pass=..., pin_hash=..., admin_token:... — tak ikut POLA_TOKEN_JSON
-      *  (butuh tanda kutip) maupun POLA_CHAT_ID (butuh kata chat_id) sehingga
-      *  disamarkan di sini. Kunci tambahan: alarm_secret (rahasia anti-spoof
-      *  alarm), tg_last_file (file_id backup), bin_sha (checksum binary) —
-      *  ketiganya sensitif bila bocor via bagi log. */
+
     private static final java.util.regex.Pattern POLA_KREDENSIAL_NILAI =
             java.util.regex.Pattern.compile("(?i)((?:tg_token|tg_chat|pin_hash|admin_token|alarm_secret|tg_last_file|bin_sha)\\s*[:=]\\s*)([^\\s&,;\"']+)");
-    /** Alamat IPv4 privat + port URL (mis. 192.168.1.5:8080 di DOMAIN/log):
-      *  peta jaringan LAN tak boleh bocor via bagi log. Disamarkan menjadi
-      *  "[ip-privat]" agar struktur baris tetap terbaca tanpa alamat aslinya. */
+
     private static final java.util.regex.Pattern POLA_IP_PRIVAT =
             java.util.regex.Pattern.compile("\\b(192\\.168\\.\\d{1,3}\\.\\d{1,3}|10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3})(:\\d+)?\\b");
-    /** Nilai DOMAIN (https://IP:port) ikut disamarkan agar IP/port LAN
-     *  tak bocor via bagi log. */
+
     private static final java.util.regex.Pattern POLA_DOMAIN =
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
-    /** Kata sandi backup boleh ber-spasi sehingga nilainya disamarkan sampai
-     *  akhir baris (bukan sampai spasi pertama) agar sisa frasa tak bocor.
-     *  Berhenti sebelum kunci kredensial berikut (lookahead tanpa menelan) agar
-     *  sisa baris seperti DOMAIN tetap disamarkan polanya sendiri, bukan hilang
-     *  ditelan pola ini. */
+
     private static final java.util.regex.Pattern POLA_SANDI_SPASI =
             java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+?)"
                     + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
 
-    /** True bila layar log boleh dilihat: PIN mati, atau sesi PIN sudah
-     *  dibuka (grace bersama PinGate). Satu parameter grace saja: dulu ada
-     *  dua (grace Main + grace Settings) yang selalu diisi dari sumber yang
-     *  sama, sehingga cabangnya tak pernah bisa berbeda. Fail-closed di
-     *  pemanggil (galat baca prefs = false). Murni. */
     static boolean logBolehTampil(boolean pinOn, boolean grace) {
         return !pinOn || grace;
     }
 
-    /** True bila teks mungkin memuat rahasia (penanda kasar tanpa regex).
-     *  Gerbang murah sebelum 13 pass regex: teks log biasa lolos tanpa
-     *  membayar kompilasi/pindai pola di UI thread tiap tick. Murni. */
     static boolean butuhSamaran(String t) {
         if (t == null || t.isEmpty()) {
             return false;
         }
-        // Sekali-jalan (dulu 8x regionMatches-penuh + 15x contains): satu loop
-        // dispatch huruf-pertama, kunci ASCII via (c|32). IP privat (native
-        // indexOf, murah) tetap di akhir. Over-aproksimasi aman: "172." tunggal
-        // mencakup semua varian 172.16-31, "pin" mencakup pin_hash/PIN:/pin:.
+
         if (pindaiKunciRahasia(t)) {
             return true;
         }
@@ -619,9 +543,6 @@ public class LogActivity extends Activity {
                 || t.contains("172.") || t.contains("127.0.0.1:");
     }
 
-    /** Satu pemindaian semua kunci rahasia (ASCII, tanpa alokasi).
-     *  Dispatch huruf pertama agar tiap posisi maksimal 3 banding pendek,
-     *  bukan 8 pemindaian penuh. Murni. */
     static boolean pindaiKunciRahasia(String t) {
         int n = t.length();
         for (int i = 0; i < n; i++) {
@@ -669,7 +590,6 @@ public class LogActivity extends Activity {
         return false;
     }
 
-    /** Bit topeng kunci rahasia untuk gerbang samarkanLog (satu pemindaian). */
     private static final int BIT_TOKEN_EQ = 1;
     private static final int BIT_CHAT = 1 << 1;
     private static final int BIT_BOT = 1 << 2;
@@ -683,11 +603,6 @@ public class LogActivity extends Activity {
     private static final int BIT_BINSHA = 1 << 10;
     private static final int BIT_DOMAIN = 1 << 11;
 
-    /** Satu pemindaian semua kunci gerbang (ganti ~8 pindai cocokAscii penuh).
-     *  Semantik setara substring abaikan-huruf seperti cocokAscii sehingga
-     *  over-aproksimasi aman tetap terjaga; redaksi berikutnya tak pernah
-     *  menghapus kunci gerbang pola sesudahnya (kunci dipertahankan di $1)
-     *  sehingga topeng di muka setara gerbang per pola. Murni. */
     private static int topengKunci(String t) {
         int topeng = 0;
         int n = t.length();
@@ -698,8 +613,7 @@ public class LogActivity extends Activity {
             }
             switch (c) {
                 case 't':
-                    // Tanpa "=": "token=" mengandung "token" sehingga satu cek
-                    // mencakup keduanya, termasuk kunci JSON ("token": "...").
+
                     if (cocokKunciAt(t, i, "token")) {
                         topeng |= BIT_TOKEN_EQ;
                     }
@@ -763,7 +677,6 @@ public class LogActivity extends Activity {
         return topeng;
     }
 
-    /** Cocok kunci ASCII abaikan-huruf di posisi i (batas-aman, tanpa eksepsi). */
     private static boolean cocokKunciAt(String t, int pos, String kunci) {
         int m = kunci.length();
         if (pos + m > t.length()) {
@@ -781,23 +694,13 @@ public class LogActivity extends Activity {
         if (log == null) {
             return "";
         }
-        // Samarkan token, chat_id, dan token bot agar tak bocor via bagi/clipboard.
-        // Pola dikompilasi sekali (polling log tiap detik di STB 1 GB).
-        // Gerbang murah per pola: 13 replaceAll di 100 KB tiap tick memberatkan
-        // STB — pola yang penandanya tak ada dilewati tanpa membayar salinan
-        // string + mesin regex. Gerbang selalu over-aproksimasi aman (pola tak
-        // mungkin cocok bila penandanya tak ada di teks). Murni.
+
         String r = log;
         int topeng = topengKunci(r);
         if ((topeng & BIT_TOKEN_EQ) != 0) {
             r = POLA_TOKEN_URL.matcher(r).replaceAll("$1***");
         }
-        // Format JSON ("tg_token": "abc") yang muncul di dump config juga disamarkan.
-        // Gerbang topeng dulu (tanpa itu tiap tick membayar 2 pindai kutip
-        // penuh + regex di teks biasa); kutip dicek sekali bila gerbang lolos.
-        // Aman tanpa redaksi hilang: tiap alternatif kunci JSON (admin_token,
-        // tg_token/tg_chat/tg_pass, pin_hash, token) mengeset BIT-nya di
-        // topengKunci, dan redaksi di atas tak menambah/menghapus kunci.
+
         if ((topeng & (BIT_TOKEN_EQ | BIT_TG | BIT_ADMIN | BIT_PIN)) != 0) {
             if (r.indexOf('"') >= 0) {
                 r = POLA_TOKEN_JSON.matcher(r).replaceAll("$1***\"");
@@ -812,15 +715,11 @@ public class LogActivity extends Activity {
         if ((topeng & BIT_BOT) != 0) {
             r = POLA_BOT_TOKEN.matcher(r).replaceAll("bot***:***");
         }
-        // Token mentah selalu disamarkan: pola menuntut 6-12 digit + 10+
-        // karakter sehingga jam "12:30" dan teks biasa tak ikut rusak,
-        // sementara token bocor di log generik tetap tertutup. Pra-cek bentuk
-        // (tanpa mesin regex) agar tick biasa tanpa token tak membayar regex.
+
         if (adaBentukTokenMentah(r)) {
             r = POLA_TOKEN_MENTAH.matcher(r).replaceAll("***:***");
         }
-        // Token bot mentah tanpa awalan "bot" (mis. URL api.telegram.org/.../123:ABC
-        // di pesan galat) + secret admin via env/query/Bearer.
+
         if ((topeng & BIT_TELEGRAM) != 0) {
             r = POLA_BOT_URL.matcher(r).replaceAll("$1***:***");
         }
@@ -839,20 +738,13 @@ public class LogActivity extends Activity {
         if ((topeng & BIT_DOMAIN) != 0) {
             r = POLA_DOMAIN.matcher(r).replaceAll("$1***");
         }
-        // IP privat LAN (termasuk :port) disamarkan paling akhir agar sisa
-        // alamat yang lolos pola DOMAIN/URL tetap tertutup. Satu pra-cek
-        // sekali jalan (bukan 4 contains = 4 pindai penuh tiap tick).
+
         if (adaIpPrivat(r)) {
             r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
         }
         return r;
     }
 
-    /** True bila t memuat bentuk token mentah (6+ digit + ':' + 10+ char token).
-     *  Pra-cek longgar untuk POLA_TOKEN_MENTAH: run digit boleh >12 dan tanpa
-     *  lookbehind sehingga tak pernah lebih ketat dari regex (tanpa redaksi
-     *  hilang), tapi jam "12:30"/port "8088" gugur murah tanpa mesin regex.
-     *  Murni agar bisa unit test. */
     static boolean adaBentukTokenMentah(String t) {
         if (t == null) {
             return false;
@@ -887,10 +779,6 @@ public class LogActivity extends Activity {
         return false;
     }
 
-    /** True bila t memuat penanda IP privat (pra-cek longgar POLA_IP_PRIVAT).
-     *  "10."/"172." menuntut digit sesudahnya (regex selalu begitu) sehingga
-     *  versi "1.10.2" tak memicu regex sia-sia; tetap over-aproksimasi aman.
-     *  Murni agar bisa unit test. */
     static boolean adaIpPrivat(String t) {
         if (t == null) {
             return false;
@@ -904,7 +792,7 @@ public class LogActivity extends Activity {
             if (t.startsWith("192.168.", i) || t.startsWith("127.0.0.1:", i)) {
                 return true;
             }
-            // "10."/"172." hanya bila digit sesudahnya (seperti regex).
+
             boolean sepuluh = t.startsWith("10.", i);
             boolean seratusTujuh = !sepuluh && t.startsWith("172.", i);
             if ((sepuluh && i + 3 < n) || (seratusTujuh && i + 4 < n)) {
@@ -918,9 +806,7 @@ public class LogActivity extends Activity {
     }
 
     private void shareLog() {
-        // Salin buffer + penyamaran di worker: belasan regex di atas 300 KB dan
-        // penyalinan isi buffer menahan lock log global (dipakai pumpOutput
-        // server) sekaligus membekukan UI di STB lemah.
+
         toast(getString(R.string.log_menyiapkan));
         boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
@@ -952,16 +838,12 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Kunci penanda salinan clipboard agar penghapus 30 dtk selamat dari mati proses. */
     static final String KEY_CLIP_HASH = "clip_hash";
     static final String KEY_CLIP_KEDALUWARSA = "clip_kedaluwarsa";
     static final long CLIP_BERSIH_MS = 30_000;
-    /** Batas teks log yang disamar + tampil per refresh (100 KB): buffer bisa
-     *  300 KB sehingga mask penuh tiap detik memberatkan UI thread di STB.
-     *  Di bawah batas sorot 150 KB agar highlight tetap jalan di teks tampil. */
+
     static final int BATAS_TAMPIL_LOG = 100_000;
 
-    /** Sidik SHA-256 isi clipboard (heks). Murni agar bisa unit test. */
     static String sidikClip(String s) {
         if (s == null) {
             return "";
@@ -974,12 +856,6 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Salin ke clipboard + bersih otomatis 30 dtk yang tahan mati proses.
-     *  Satu pintu untuk Log/Settings/Main agar token rahasia tak mengendap
-     *  bila proses mati sebelum penghapus jalan (sidik + kedaluwarsa di prefs,
-     *  dipasang ulang saat activity dibuka lagi). Banding via sidik agar
-     *  lambda tak menahan plaintext di heap.
-     *  @return true bila teks berhasil masuk clipboard (timer bersih best-effort). */
     public static boolean salinBersihOtomatis(Context ctx, String label, String isi) {
         if (ctx == null || isi == null) {
             return false;
@@ -1019,9 +895,7 @@ public class LogActivity extends Activity {
                     .putLong(KEY_CLIP_KEDALUWARSA, kedaluwarsa).apply();
         } catch (Exception ignored) {
         }
-        // Looper utama bisa null di proses awal: tanpa guard ini salin yang
-        // sudah berhasil malah crash. Timer hanya best-effort (penanda prefs
-        // dipasang ulang oleh bersihkanClipBasiJikaAda saat activity dibuka).
+
         try {
             Util.postTunda(() -> {
                 try {
@@ -1036,9 +910,6 @@ public class LogActivity extends Activity {
         return true;
     }
 
-    /** Pasang ulang sisa timer clipboard bila masih dalam jendela, atau langsung
-     *  bersihkan sisa salinan basi bila kedaluwarsa sudah lewat (tahan mati proses).
-     *  Dipanggil tiap activity yang memakai clipboard dibuka. */
     public static void bersihkanClipBasiJikaAda(Context ctx) {
         if (ctx == null) {
             return;
@@ -1073,9 +944,6 @@ public class LogActivity extends Activity {
         bersihkanBilaIsiKita(app, "vaultwarden", sidik);
     }
 
-    /** Bersihkan clipboard hanya bila isinya masih salinan pembuat timer ini
-     *  (cocok sidik tangkapan, bukan sidik prefs terkini): timer basi salinan A
-     *  tak boleh menghapus salinan B yang dibuat sesudahnya. */
     private static void bersihkanBilaIsiKita(Context ctx, String label, String sidikTangkap) {
         if (sidikTangkap == null || sidikTangkap.isEmpty()) {
             return;
@@ -1096,8 +964,6 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Hapus penanda clipboard hanya bila masih milik sidik ini: timer basi
-     *  tak boleh menghapus penanda salinan baru dari layar lain. */
     private static void hapusPenandaClipJikaCocok(Context ctx, String sidikKita) {
         if (ctx == null || sidikKita == null || sidikKita.isEmpty()) {
             return;
@@ -1118,25 +984,16 @@ public class LogActivity extends Activity {
         return salinBersihOtomatis(this, label, isi);
     }
 
-    /** Pasang ulang sisa timer bila masih dalam jendela, atau langsung bersihkan
-     *  sisa salinan basi bila kedaluwarsa sudah lewat saat dibuka kembali. */
     private void bersihkanClipBasiJikaAda() {
         bersihkanClipBasiJikaAda(this);
     }
 
-    /** Pemisah jam dinding vs elapsedRealtime (4e11 ms = tahun 1982 sebagai
-     *  wall-clock, atau 12,7 tahun uptime sebagai elapsed): STB tak mungkin
-     *  uptime belasan tahun tanpa reboot, dan app ini lahir era 2020-an. */
     static final long BATAS_CLIP_WALL_MS = 400_000_000_000L;
 
-    /** True bila penanda clipboard memakai jam dinding (nilai lawas). Murni. */
     static boolean clipPakaiWallClock(long kedaluwarsa) {
         return kedaluwarsa > BATAS_CLIP_WALL_MS;
     }
 
-    /** Sisa timer clipboard (ms); 0 bila kedaluwarsa. Nilai lawas era wall-clock
-     *  dimigrasi dengan jam dinding, nilai baru memakai elapsedRealtime
-     *  agar utak-atik tanggal tak memperpanjang sensitif log di clipboard. Murni. */
     static long sisaClipMs(long kedaluwarsa) {
         if (kedaluwarsa <= 0) {
             return 0;
@@ -1151,7 +1008,6 @@ public class LogActivity extends Activity {
         }
     }
 
-    /** Varian murni 2-arg agar bisa unit test JVM (tanpa SystemClock). */
     static long sisaClipMs(long kedaluwarsa, long kiniElapsed) {
         if (kedaluwarsa <= 0) {
             return 0;
@@ -1159,10 +1015,6 @@ public class LogActivity extends Activity {
         return Math.max(0, kedaluwarsa - kiniElapsed);
     }
 
-    /** Ekor teks sepanjang maks char, dipotong di batas baris agar tak ada
-     *  setengah baris di tampilan. Newline di ujung diabaikan dulu agar
-     *  jendela yang mendarat tepat di baris terakhir tak menghasilkan ekor
-     *  kosong lalu jatuh ke tengah-baris. Murni agar bisa unit test. */
     static String potongEkorBaris(String text, int maks) {
         if (text == null || maks <= 0) {
             return "";
@@ -1181,11 +1033,7 @@ public class LogActivity extends Activity {
             return text.substring(0, akhir);
         }
         int mulai = akhir - maks;
-        // Jendela mendarat di baris pertama (newline pertama di/pada mulai):
-        // memenggal hanya membuang awal baris ("aa\nbb\n" maks 4 jadi "bb")
-        // sehingga kembalikan seluruh teks strip. Tanpa newline sama sekali
-        // tetap potong keras ("abcde" -> "cde"). Kelebihan maks dibatasi
-        // sepanjang baris pertama dan hanya dipakai untuk cap tampilan.
+
         int pertamaNl = text.indexOf('\n');
         if (pertamaNl >= mulai && pertamaNl < akhir) {
             return text.substring(0, akhir);
@@ -1197,11 +1045,8 @@ public class LogActivity extends Activity {
         return text.substring(mulai, akhir);
     }
 
-
     private void copyLog() {
-        // Salin buffer + penyamaran di worker (lihat shareLog): regex berat tak
-        // boleh menahan lock log global, dan penyalinan 300 KB tak boleh
-        // membekukan UI di STB lemah.
+
         toast(getString(R.string.log_menyiapkan));
         boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
@@ -1229,31 +1074,23 @@ public class LogActivity extends Activity {
         }
     }
 
-/** Simpan log ke .txt di Download (satu implementasi di LogExport). */
     private void exportLogTxt() {
-        // Android 6-9: tulis Download publik butuh izin runtime; tawarkan
-        // izin ulang di sini agar tombol Simpan tak selalu "Gagal menyimpan
-        // log" bila izin ditolak di layar utama (API 29+ via MediaStore).
+
         if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
             simpanUlangSetelahIzin = true;
-            // Dialog izin dan toast tak boleh menumpuk (selaras
-            // StoragePerm.siapStart): pesan hanya bila permintaan tak bisa
-            // ditampilkan, dan khusus konteks simpan (bukan "Start dibatalkan").
+
             if (!StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE)) {
                 simpanUlangSetelahIzin = false;
                 toast(getString(R.string.izin_simpan_belum));
             }
             return;
         }
-        // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
-        // bikin tap Simpan freeze di storage STB lambat. Salinan buffer juga
-        // diambil di worker agar lock log global tak ditahan UI thread.
+
         toast(getString(R.string.log_menyimpan));
         boolean masuk = Util.jalankanBg(() -> {
             final String log;
             synchronized (ServerService.logBuffer) {
-                // Mentah saja: penyamaran token sekali di LogExport agar regex
-                // berat tak jalan dua kali per export di STB 1 GB.
+
                 log = ServerService.logBuffer.toString();
             }
             final String nama = LogExport.simpanKeDownload(LogActivity.this, log);
@@ -1273,8 +1110,7 @@ public class LogActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // Simpan permintaan simpan tertahan izin: dialog izin bisa membuat
-        // Activity dibuat ulang sebelum hasilnya kembali.
+
         outState.putBoolean(STATE_SIMPAN_ULANG_IZIN, simpanUlangSetelahIzin);
     }
 
@@ -1295,8 +1131,7 @@ public class LogActivity extends Activity {
     }
 
     private void toast(String msg) {
-        // Via ui.post (selaras Main/Settings): Toast dari worker melempar
-        // "Can't toast on a thread that has not called Looper.prepare()".
+
         final String teks = msg == null ? "" : msg;
         ui.post(() -> {
             try {

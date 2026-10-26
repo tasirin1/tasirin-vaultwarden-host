@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tombol sekunder tonal (seragam TDM): primary_container + teks primary. -->
+
     <style name="TasirinBtn">
         <item name="android:background">@drawable/bg_btn_tv</item>
         <item name="android:stateListAnimator">@null</item>
@@ -12,8 +12,6 @@
         <item name="android:paddingEnd">14dp</item>
     </style>
 
-    <!-- Tombol utama: tinggi seragam 48dp seperti semua tombol (ikut TDM:
-         tombol aksi dan sekunder seukuran, beda hanya di isi/teks). -->
     <style name="TasirinBtnPrimary" parent="TasirinBtn">
         <item name="android:background">@drawable/bg_btn_primary</item>
         <item name="android:textColor">@color/btn_primary_text</item>
@@ -29,7 +27,6 @@
         <item name="android:paddingEnd">10dp</item>
     </style>
 
-    <!-- Chip navigasi pil ala TDM: 40dp, teks 13sp tebal. -->
     <style name="TasirinChip" parent="TasirinBtnSmall">
         <item name="android:background">@drawable/bg_chip</item>
         <item name="android:textColor">@color/text_primary</item>
@@ -48,7 +45,6 @@
         <item name="android:minHeight">48dp</item>
     </style>
 
-    <!-- Judul seksi kartu: warna brand agar hirarki jelas. -->
     <style name="TasirinSection">
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
@@ -65,7 +61,6 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
-    <!-- Sub-judul dalam kartu: pemisah grup pengaturan, lebih kecil dari seksi. -->
     <style name="TasirinSub">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
@@ -75,7 +70,6 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
-    <!-- Teks bantuan kecil di bawah judul kartu. -->
     <style name="TasirinHint">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/text_secondary</item>
@@ -83,14 +77,12 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
-    <!-- Teks di atas hero gradien (layar PIN). -->
     <style name="TasirinHeroTitle">
         <item name="android:textSize">19sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Judul + subversi bar atas ala Toolbar TDM (putih di atas toolbar_bg). -->
     <style name="TasirinToolbarTitle">
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -101,12 +93,11 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Teks info (URL, rincian versi) di kotak info. -->
     <style name="TasirinInfo">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/text_secondary</item>
     </style>
-    <!-- Kotak centang: teks seukuran tombol, area sentuh 48dp, fokus D-pad jelas. -->
+
     <style name="TasirinCheck">
         <item name="android:background">@drawable/item_focus_bg</item>
         <item name="android:textColor">@color/text_primary</item>
@@ -115,7 +106,6 @@
         <item name="android:layout_marginTop">4dp</item>
     </style>
 
-    <!-- Pemisah grup: garis 1dp konsisten di semua kartu Settings. -->
     <style name="TasirinDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
@@ -123,8 +113,6 @@
         <item name="android:background">@color/card_stroke</item>
     </style>
 
-    <!-- Kartu baku semua layar (radius+elevasi satu pintu via bg_card).
-         Varian ramping (pengaturan/landscape) pakai gaya ini + padding 12dp. -->
     <style name="TasirinCard">
         <item name="android:background">@drawable/bg_card</item>
         <item name="android:padding">16dp</item>

@@ -166,7 +166,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/backup_auto_24h" />
 
-
                 <View style="@style/TasirinDivider" />
 
                 <TextView

@@ -10,7 +10,6 @@ import android.os.ParcelFileDescriptor;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-/** Provider sederhana agar file konfigurasi bisa dibagikan ke app lain. */
 public class FileShareProvider extends ContentProvider {
 
     public static final String AUTHORITY = "com.tasirin.vaultwardenhost.fileprovider";
@@ -36,8 +35,7 @@ public class FileShareProvider extends ContentProvider {
             if (!isShareable(kanon)) {
                 return null;
             }
-            // Samakan dengan openFile(): cek ulang kanonis + tolak symlink induk
-            // agar tukar symlink di jeda cek-vs-baca tak membocorkan nama/ukuran.
+
             String kanonUlang = new File(kanon).getCanonicalPath();
             if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
                     || adaSymlinkInduk(kanonUlang)) {
@@ -64,8 +62,7 @@ public class FileShareProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        // Tanpa cek isShareable, getType menjadi oracle ekstensi path
-        // privat (beda MIME untuk ada/tak-ada). Samakan dengan query().
+
         try {
             if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
                 return null;
@@ -79,16 +76,13 @@ public class FileShareProvider extends ContentProvider {
             if (!isShareable(kanon)) {
                 return null;
             }
-            // Sama seperti query(): kanon dihitung ulang lalu tolak symlink induk,
-            // supaya tukar symlink di jeda cek-vs-jawab tak membocorkan tipe file
-            // di luar area share.
+
             String kanonUlang = new File(kanon).getCanonicalPath();
             if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
                     || adaSymlinkInduk(kanonUlang)) {
                 return null;
             }
-            // Tanpa cek keberadaan, getType membedakan folder shareable vs tidak
-            // walau file tak ada (oracle struktur). Samakan dengan query().
+
             if (!new File(kanonUlang).isFile()) {
                 return null;
             }
@@ -98,29 +92,23 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
-    /** MIME sesuai ekstensi agar app penerima bisa preview/handle.
-     *  Tak dikenal jatuh ke octet-stream. Murni agar bisa unit test. */
     static String tipeMime(Uri uri) {
         return tipeMimeDariPath(uri == null ? null : uri.getPath());
     }
 
-    /** Akhiran abaikan-huruf tanpa alokasi toLowerCase (buka file jarang tapi path panjang). */
     static boolean berakhirAbaikanHuruf(String s, String akhir) {
         return s != null && akhir != null && s.length() >= akhir.length()
                 && s.regionMatches(true, s.length() - akhir.length(), akhir, 0, akhir.length());
     }
 
-    /** Ekstensi pembungkus yang dikupas berulang (statis agar tak alokasi array tiap buka file). */
     private static final String[] EKSTENSI_BUNGKUS =
             {".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"};
 
-    /** Awalan abaikan-huruf tanpa alokasi toLowerCase. */
     static boolean mulaiAbaikanHuruf(String s, String awal) {
         return s != null && awal != null && s.length() >= awal.length()
                 && s.regionMatches(true, 0, awal, 0, awal.length());
     }
 
-    /** Varian path polos agar bisa diuji JVM tanpa runtime Android. */
     static String tipeMimeDariPath(String path) {
         if (path == null) {
             return "application/octet-stream";
@@ -158,8 +146,6 @@ public class FileShareProvider extends ContentProvider {
         return 0;
     }
 
-    /** True bila mode buka hanya-baca ("r"/"rt"); tolak tulis agar berkas
-     *  berbagi tak bisa diubah pemegang URI. Murni agar bisa unit test. */
     static boolean modeBacaSaja(String mode) {
         if (mode == null || mode.isEmpty()) {
             return true;
@@ -170,8 +156,7 @@ public class FileShareProvider extends ContentProvider {
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        // Samakan dengan query()/getType(): tolak otoritas asing sebelum
-        // menyentuh filesystem agar tak jadi oracle/confused-deputy.
+
         if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
             throw new FileNotFoundException("Akses ditolak.");
         }
@@ -183,12 +168,7 @@ public class FileShareProvider extends ContentProvider {
         if (f == null) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
-        // Kanonis dulu sebelum cek exists/isFile: cek pra-kanonis membuka
-        // jendela TOCTOU symlink di jeda cek-vs-buka.
-        // Hanya file di lokasi yang memang perlu dibagikan (cert, backup,
-        // export config, cache): tolak yang lain meski provider internal.
-        // Buka file KANONIS yang lolos cek (bukan path asli) agar symlink
-        // yang ditukar di jeda cek-vs-buka tak bisa mengalihkan ke file lain.
+
         final String canon;
         try {
             canon = f.getCanonicalPath();
@@ -204,9 +184,7 @@ public class FileShareProvider extends ContentProvider {
         if (!target.isFile()) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
-        // Cek ulang kanonis tepat sebelum open: symlink induk yang ditukar app
-        // lain di jeda cek-vs-buka mengubah kanonis kedua sehingga open batal.
-        // Tanpa ini jendela TOCTOU bisa mengarahkan open keluar folder.
+
         try {
             String canonUlang = target.getCanonicalPath();
             if (!canonUlang.equals(canon) || !isShareable(canonUlang)) {
@@ -227,11 +205,6 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
-    /** True bila jalan di JVM unit test (bukan perangkat).
-      *  Kriteria ganda: properti eksplisit vaultwardenhost.unittest=true ATAU
-      *  vm.name bukan dalvik/ART (perangkat asli selalu ART, emulator Dalvik).
-      *  Cek ART menutup lubang lama (vm.name=ART lolos sebagai "unit test"
-      *  sehingga cek symlink mati di perangkat). Murni agar bisa diuji. */
     static boolean diJvmUnitTest() {
         try {
             if ("true".equalsIgnoreCase(System.getProperty("vaultwardenhost.unittest"))) {
@@ -248,26 +221,17 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
-    /** Cache lookup refleksi Os (Class.forName + getMethod per open boros di ART lama). */
     private static volatile java.lang.reflect.Method LSTAT_CACHE = null;
     private static volatile java.lang.reflect.Method CEK_LINK_CACHE = null;
     private static volatile boolean REFLEKSI_DICARI = false;
     private static volatile java.lang.reflect.Field MODE_CACHE = null;
 
-    /** True bila rantai induk memuat symlink (lstat per segmen): tolak agar
-     *  tukar symlink induk di jeda cek-vs-buka tak mengalihkan open keluar folder.
-     *  Di JVM unit test (tanpa android.system.Os) dianggap bersih agar test hijau. Murni I/O. */
     static boolean adaSymlinkInduk(String canon) {
-        // Mode unit test eksplisit boleh longgar agar test hijau; di perangkat selalu fail-closed.
+
         if (diJvmUnitTest()) {
             return false;
         }
-        // Pemanggil SELALU memberi path kanonis (hasil getCanonicalPath), dan
-        // untuk path kanonis "canonical == absolute" selalu benar. Jalur cepat
-        // lama membandingkan keduanya sehingga selalu melaporkan "tak ada
-        // symlink" dan walk lstat di bawah tak pernah jalan — klaim proteksi
-        // TOCTOU di komentar tidak nyata. Walk karena itu selalu dijalankan;
-        // biayanya beberapa lstat per open (path app pendek), bukan 256.
+
         java.lang.reflect.Method lstat = LSTAT_CACHE;
         java.lang.reflect.Method cekLink = CEK_LINK_CACHE;
         if (!REFLEKSI_DICARI) {
@@ -289,14 +253,11 @@ public class FileShareProvider extends ContentProvider {
             }
         }
         if (lstat == null || cekLink == null) {
-            // Kelas Os tak ada / lookup gagal: fail-closed, anggap ada symlink/tolak.
-            // Jangan fail-open. Unit test eksplisit sudah pulang lewat diJvmUnitTest() di atas.
+
             return true;
         }
         File induk = new File(canon).getParentFile();
-        // Walk penuh hingga root (batas 256) agar symlink jauh di atas tak lolos.
-        // Field refleksi di-cache di luar loop: getField() per segmen (s.d.
-        // 256x per open) mahal di ART lama; kelas StructStat sama di semua segmen.
+
         java.lang.reflect.Field fMode = MODE_CACHE;
         for (int i = 0; i < 256 && induk != null; i++) {
             try {
@@ -314,11 +275,9 @@ public class FileShareProvider extends ContentProvider {
                     return true;
                 }
             } catch (Exception e) {
-                // lstat sesaat gagal (izin/SELinux): JANGAN tolak total agar satu
-                // segmen gagal tak men-DoS file valid; symlink tetap ketahuan
-                // via cek kanonis-vs-absolut di bawah untuk segmen ini.
+
             }
-            // Cek tambahan murni-Java: canonical vs absolute menyimpang = ada symlink.
+
             try {
                 if (!induk.getCanonicalPath().equals(induk.getAbsolutePath())) {
                     return true;
@@ -328,7 +287,7 @@ public class FileShareProvider extends ContentProvider {
             }
             induk = induk.getParentFile();
         }
-        // Cek tambahan akhir: canonical vs absolute path penuh menyimpang = ada symlink.
+
         try {
             File f = new File(canon);
             if (!f.getCanonicalPath().equals(f.getAbsolutePath())) {
@@ -340,25 +299,17 @@ public class FileShareProvider extends ContentProvider {
         return false;
     }
 
-    /** True bila nama file adalah kunci privat TLS (ca-key.pem, key.pem, *.key,
-     *  termasuk yang dibungkus zip/enc mis. key.pem.zip).
-     *  Murni agar bisa unit test; cocok tepat agar monkey.zip maupun
-     *  backup-ca-key-info.txt tak ikut ditolak. */
     static boolean kunciPrivat(String name) {
         if (name == null) {
             return false;
         }
-        // Tangkal bypass pembungkus (mis. key.pem.json): nama yang SAMA dengan
-        // kunci atau diawali kunci+titik tetap dianggap kunci privat.
-        // startsWith (bukan contains) agar monkey.pem dan backup-ca-key-info.txt
-        // tetap lolos — hanya key.pem.* dan ca-key.pem.* yang ditolak.
+
         if (name.equalsIgnoreCase("key.pem") || name.equalsIgnoreCase("ca-key.pem")
                 || mulaiAbaikanHuruf(name, "key.pem.") || mulaiAbaikanHuruf(name, "ca-key.pem.")) {
             return true;
         }
         String rendah = name;
-        // Kupas pembungkus (zip/enc/txt) agar key.pem.zip tak lolos;
-        // monkey.pem/monkey.zip tetap lolos karena intinya bukan kunci.
+
         String inti = rendah;
         boolean kupas = true;
         while (kupas) {
@@ -378,9 +329,6 @@ public class FileShareProvider extends ContentProvider {
         return berakhirAbaikanHuruf(inti, ".key");
     }
 
-    /** Ekstensi file yang aman dibagikan (cert, backup, export, log, blob terenkripsi).
-     *  Kunci privat (ca-key.pem, key.pem, *.key) tidak boleh dibagikan walau
-     *  ekstensinya terlihat aman — hanya sertifikat publik yang boleh lewat. */
     static boolean namaBolehDibagikan(String name) {
         if (name == null) {
             return false;
@@ -393,9 +341,6 @@ public class FileShareProvider extends ContentProvider {
                 || berakhirAbaikanHuruf(name, ".enc");
     }
 
-    /** Nama file di files/cache app yang boleh dibagikan: hanya yang memang
-     *  dibagikan app (CA + export config). Daftar sempit agar file internal
-     *  lain tak ikut terekspos bila URI grant bocor. Murni agar bisa unit test. */
     static boolean namaCacheBolehDibagikan(String name) {
         if (name == null) {
             return false;
@@ -410,21 +355,16 @@ public class FileShareProvider extends ContentProvider {
                 && (berakhirAbaikanHuruf(name, ".json") || berakhirAbaikanHuruf(name, ".json.enc"));
     }
 
-    /** True bila nama file sementara restore/dekrip yang tak boleh dibagikan (murni). */
     static boolean berkasSementara(String nama) {
         if (nama == null) {
             return false;
         }
-        // app-config-enctmp-*.json = plaintext sementara cabang export terenkripsi
-        // yang tak pernah boleh dibagikan (lolos pola app-config-* di bawah).
-        // "vwtg-restore*" sudah tercakup awalan "vwtg-" (dulu ditulis dua kali).
+
         return mulaiAbaikanHuruf(nama, "vwtg-")
                 || mulaiAbaikanHuruf(nama, "verifikasi-tmp")
                 || mulaiAbaikanHuruf(nama, "app-config-enctmp-");
     }
 
-    /** True bila file boleh dibagikan: internal/cache app, atau tls/ & backups/
-     *  di folder data. Database mentah (db.sqlite3*) dan binary tidak ikut. */
     private boolean isShareable(String canon) {
         try {
             if (canon == null || getContext() == null) {
@@ -434,16 +374,12 @@ public class FileShareProvider extends ContentProvider {
             String cache = getContext().getCacheDir().getCanonicalPath();
             if (canon.startsWith(files + File.separator)
                     || canon.startsWith(cache + File.separator)) {
-                // Jangan bagikan binary server / file decrypt sementara dari
-                // files/cache: hanya ekstensi aman yang boleh lewat.
-                // Kunci privat TLS (key.pem/ca-key.pem) juga ditolak di sini
-                // sebagai lapis kedua selain namaBolehDibagikan().
+
                 String nama = new File(canon).getName();
                 if (nama.startsWith("db.sqlite3")) {
                     return false;
                 }
-                // Plaintext sementara restore (vwtg-plain-restore-bot-*.zip /
-                // arsip vwtg-restore-bot-*.zip) tak boleh bocor via grant URI.
+
                 if (berkasSementara(nama)) {
                     return false;
                 }
@@ -459,8 +395,7 @@ public class FileShareProvider extends ContentProvider {
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.dataDirBawaanSegar();
             }
-            // Validasi kanonis data_dir agar prefs jahat tak melebarkan area share ke sembarang path.
-            // Tolak bila kosong, "/" , atau di luar /data/ /storage/ /sdcard/; fallback ke internal.
+
             String data;
             try {
                 String kanonData = new File(dataDir).getCanonicalPath();

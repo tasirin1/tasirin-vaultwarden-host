@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar awal (satu layout untuk portrait & landscape): brand ringkas +
-     kartu info (tautan) di atas + kartu log realtime di tengah + footer
-     sticky (banner status di atas tombol Start/Stop). Rantai nextFocus*
-     dijaga untuk D-pad TV; rantai yang melewati updateBtn yang kadang gone
-     diperbaiki dinamis di MainActivity. Sengaja tanpa varian layout-land:
-     duplikat penuh dengan beda 4dp padding hanya menambah berkas yang harus
-     disinkronkan ID-nya. -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-<!-- Baris judul ala Toolbar TDM: primary solid setinggi action bar,
-         judul + subversi putih, ikon titik-tiga vektor di kanan. Tetap di
-         atas (di luar ScrollView) seperti Toolbar TDM. -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
@@ -75,7 +66,6 @@
             android:paddingStart="@dimen/side_padding"
             android:paddingEnd="@dimen/side_padding">
 
-            <!-- ===================== INFO ===================== -->
             <LinearLayout
                 style="@style/TasirinCard"
                 android:layout_width="match_parent"
@@ -132,7 +122,6 @@
                     android:padding="10dp" />
             </LinearLayout>
 
-            <!-- ===================== LOG REALTIME ===================== -->
             <LinearLayout
                 style="@style/TasirinCard"
                 android:layout_width="match_parent"
@@ -140,8 +129,6 @@
                 android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
-                <!-- Pratinjau log scroll mandiri (autoscroll via kode): abaikan NestedScrolling. -->
-                <!-- nestedScrollingEnabled agar gulir jari di pratinjau tak berebut scroll halaman. -->
                 <ScrollView
                     android:id="@+id/homeLogScroll"
                     android:nestedScrollingEnabled="true"
@@ -164,7 +151,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Footer sticky: banner status + Start/Stop full-width selalu terlihat -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

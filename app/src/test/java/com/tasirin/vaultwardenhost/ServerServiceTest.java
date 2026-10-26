@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test deteksi binary tak cocok kernel lama (tanpa Android runtime). */
 public class ServerServiceTest {
 
     @Test
@@ -69,8 +68,6 @@ public class ServerServiceTest {
         assertFalse(ServerService.bolehBunuhBasi("bin/vaultwarden-tanpa-slash"));
         assertFalse(ServerService.bolehBunuhBasi("/data/app/bin/vaultwarden --version"));
     }
-
-
 
     @Test
     public void rentangKosong_tanpaAlokasiSubstring() {
@@ -256,7 +253,7 @@ public class ServerServiceTest {
 
     @Test
     public void dataDirAmanTolakSegmenMultibyte255Byte() {
-        // 200 emoji = 200 char tapi 800 byte: wajib ditolak seperti 256 'a'.
+
         StringBuilder emoji = new StringBuilder();
         for (int i = 0; i < 200; i++) {
             emoji.append("\uD83D\uDE00");
@@ -328,10 +325,7 @@ public class ServerServiceTest {
 
     @Test
     public void dataDirBawaanSegarTakKosongDanStabil() {
-        // defaultDataDir() meng-cache hasil yang berhasil di-resolve, tetapi
-        // TIDAK meng-cache nilai cadangan (di JVM Environment melempar, jadi
-        // yang terpakai cadangan): panggilan berulang tetap path yang sama dan
-        // tak pernah kosong.
+
         String a = ServerService.dataDirBawaanSegar();
         assertNotNull(a);
         assertFalse(a.trim().isEmpty());
@@ -356,9 +350,7 @@ public class ServerServiceTest {
 
     @Test
     public void portLoopback_tolakKorupTanpaLempar() {
-        // Saring portTampakAngka sebelum parseInt: prefs korup tak melempar
-        // (isi stack trace tiap health gagal di ART lama). runningPort
-        // non-kosong murni JVM (tanpa runtime Android).
+
         String dulu = ServerService.runningPort;
         try {
             ServerService.runningPort = "8088";
@@ -412,7 +404,7 @@ public class ServerServiceTest {
 
     @Test
     public void saranLoginAbaikanLoopback() {
-        // Probe internal (health/TCP) tak boleh menakut-nakuti user tiap 60 dtk.
+
         assertNull(ServerService.saranLoginUntukBaris(
                 "tls handshake with 127.0.0.1 failed: certificate unknown"));
         assertNull(ServerService.saranLoginUntukBaris(
@@ -455,7 +447,7 @@ public class ServerServiceTest {
         assertTrue(p1.get(0).contains("https://192.168.1.5:8088"));
         assertTrue(p1.get(1).contains("HTTPS WAJIB"));
         assertTrue(p1.get(2).contains("Create Account"));
-        // Port/IP kosong: pakai default dan penanda "<IP-STB>" (bukan URL rusak).
+
         java.util.List<String> p2 = ServerService.panduanLoginBitwarden("", null);
         assertEquals(3, p2.size());
         assertTrue(p2.get(0).contains("https://<IP-STB>:" + ServerService.DEFAULT_PORT));
@@ -564,7 +556,7 @@ public class ServerServiceTest {
     public void pidYatimServer_lewatiProsesSendiriDanSmokeTest() {
         String server = "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a";
         assertTrue(ServerService.pidYatimServer(1234, 99, server));
-        // Proses app sendiri (mis. pid basi dari prefs) tak boleh dibunuh.
+
         assertFalse(ServerService.pidYatimServer(99, 99, server));
         assertFalse(ServerService.pidYatimServer(-1, 99, server));
         assertFalse(ServerService.pidYatimServer(1234, 99, server + " --version"));
@@ -574,28 +566,21 @@ public class ServerServiceTest {
 
     @Test
     public void startGagalPermanenHanyaSaatTakAdaProsesDanTakDitunda() {
-        // Gerbang akhir startServerAsync: start yang tak melahirkan proses
-        // wajib menghentikan health tick + notifikasi; start yang masih
-        // ditunda (restore memegang KUNCI_DATA) tidak boleh diakhiri.
+
         assertTrue(ServerService.startGagalPermanen(false, false, false, true, false));
         assertFalse(ServerService.startGagalPermanen(true, false, false, true, false));
         assertFalse(ServerService.startGagalPermanen(false, true, false, true, false));
         assertFalse(ServerService.startGagalPermanen(false, false, true, true, false));
         assertFalse(ServerService.startGagalPermanen(true, true, true, true, false));
-        // Episode basi (perintah lebih baru sudah datang) tak boleh membersihkan
-        // health/niat/notifikasi milik perintah baru itu.
+
         assertFalse(ServerService.startGagalPermanen(false, false, false, false, false));
-        // Proses sempat lahir: watcher pemilik takdirnya (restart atau tutup
-        // episode). Thread start tak boleh mematikan restart yang baru
-        // dijadwalkan watcher hanya karena proses sudah mati saat finally.
+
         assertFalse(ServerService.startGagalPermanen(false, false, false, true, true));
     }
 
     @Test
     public void perluStartSusulanHanyaSaatEpisodeSelesaiDanBelumHidup() {
-        // Start kedua saat episode pertama masih berjalan tidak boleh hilang:
-        // dijalankan bila episode selesai normal, server belum hidup, dan user
-        // masih menginginkan jalan. Ditunda = restartTunda sudah menjadwalkan.
+
         assertTrue(ServerService.perluStartSusulan(true, false, false, true));
         assertFalse(ServerService.perluStartSusulan(false, false, false, true));
         assertFalse(ServerService.perluStartSusulan(true, true, false, true));
@@ -605,11 +590,9 @@ public class ServerServiceTest {
 
     @Test
     public void bolehUmumkanJalanHanyaBilaProsesMasihMilikEpisode() {
-        // Stop yang masuk tepat setelah pb.start() (kunci proses sudah
-        // dilepas) tak boleh menghasilkan status "Running" + pesan
-        // "Server jalan" untuk proses yang sedang dimatikan.
+
         assertTrue(ServerService.bolehUmumkanJalan(true, true, true, true));
-        // Stop: proses di-null-kan/dimatikan atau episode sudah berganti.
+
         assertFalse(ServerService.bolehUmumkanJalan(false, true, true, true));
         assertFalse(ServerService.bolehUmumkanJalan(true, false, true, true));
         assertFalse(ServerService.bolehUmumkanJalan(true, true, false, true));
@@ -619,13 +602,11 @@ public class ServerServiceTest {
 
     @Test
     public void fallbackTlsTakMenulisKunciKeStoragePublik() {
-        // Storage bersama: kunci privat hanya boleh dipakai bila sudah ada &
-        // valid (tanpa tulis); selain itu fail-closed, bukan membuat kunci
-        // baru di FAT yang bisa dibaca app lain.
+
         assertTrue(ServerService.diStoragePublik("/sdcard/vaultwarden/tls"));
         assertTrue(ServerService.diStoragePublik("/storage/emulated/0/vw/tls"));
         assertTrue(ServerService.diStoragePublik("/mnt/media_rw/1234/tls"));
-        // Null = tak diketahui: anggap publik (fail-closed).
+
         assertTrue(ServerService.diStoragePublik(null));
         assertFalse(ServerService.diStoragePublik("/data/data/com.tasirin.vaultwardenhost/files/tls"));
         assertFalse(ServerService.diStoragePublik("/data/user/0/com.tasirin.vaultwardenhost/files/tls"));
@@ -634,8 +615,6 @@ public class ServerServiceTest {
         assertTrue(ServerService.bolehFallbackTls(false, false));
     }
 
-    /** Proses palsu: lepasProses() hanya membandingkan identitas, tak pernah
-     *  memanggil metode Process, jadi cukup implementasi kosong. */
     private static final class ProsesPalsu extends Process {
         @Override public java.io.OutputStream getOutputStream() {
             return null;
@@ -674,11 +653,10 @@ public class ServerServiceTest {
             assertTrue(ServerService.lepasProses(lama, () -> efek[0] = true));
             assertTrue("efek pembersihan wajib jalan saat proses aktif", efek[0]);
             assertNull("proses aktif wajib dilepas", f.get(null));
-            // Pembersihan kedua untuk proses yang sama tak boleh jalan lagi.
+
             assertFalse(ServerService.lepasProses(lama, () -> efek[0] = false));
             assertTrue(efek[0]);
-            // Proses sudah diganti Start baru: pembersihan lama TIDAK boleh
-            // melepas/menghapus referensi proses baru (bug check-then-act).
+
             f.set(null, baru);
             assertFalse(ServerService.lepasProses(lama, null));
             assertEquals(baru, f.get(null));
@@ -703,8 +681,7 @@ public class ServerServiceTest {
             fLog.set(null, lama);
             buf.append("baris-folder-lama\n");
             ServerService.pindahLogFile(baru);
-            // Buffer lama wajib sudah disiram ke file LAMA, bukan tertinggal
-            // untuk ditulis ke file folder baru sesudah tujuan ditukar.
+
             assertEquals(baru, fLog.get(null));
             assertEquals(0, buf.length());
             String isi = new String(java.nio.file.Files.readAllBytes(lama.toPath()),
@@ -719,13 +696,12 @@ public class ServerServiceTest {
 
     @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
-        // Server melayani: port yang tampil. Port kosong/null jangan jadi "null".
+
         assertEquals("Server aktif di port 8080",
                 ServerService.teksNotifikasi(true, "8080", "apa saja"));
         assertEquals("Server aktif di port ?",
                 ServerService.teksNotifikasi(true, null, ""));
 
-        // Belum melayani: baris pertama status, tanpa newline/tail panjang.
         assertEquals("Server crash - restart dalam 2 dtk",
                 ServerService.teksNotifikasi(false, "8080",
                         "Server crash - restart dalam 2 dtk\n" + "tail " + "x".repeat(300)));
@@ -734,7 +710,6 @@ public class ServerServiceTest {
         assertEquals("Menjalankan tugas latar...",
                 ServerService.teksNotifikasi(false, "8080", null));
 
-        // Batas 80 karakter: 77 + "..." agar notifikasi tak meluber di TV.
         String panjang = "y".repeat(200);
         String hasil = ServerService.teksNotifikasi(false, "8080", panjang);
         assertEquals(80, hasil.length());
@@ -745,20 +720,20 @@ public class ServerServiceTest {
     public void manualPerluValidasiHanyaSaatSidikFileBerubah() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwmanual").toFile();
         java.io.File bin = new java.io.File(dir, "vaultwarden-" + ServerService.ABI);
-        // Tanpa mode manual (SHA kosong): cache internal bebas dipakai.
+
         assertFalse(ServerService.manualPerluValidasi(null, "", bin));
         assertFalse(ServerService.manualPerluValidasi("", "", bin));
-        // Sidik kosong = file belum ada: tak ada yang perlu divalidasi ulang.
+
         assertFalse(ServerService.manualPerluValidasi("abc", "", bin));
         java.nio.file.Files.write(bin.toPath(), new byte[]{1, 2, 3});
         String sidik = ServerService.sidikManualFile(bin);
         assertFalse(sidik.isEmpty());
-        // File belum ditukar: cache hasil salin boleh dipakai (hemat 20 MB).
+
         assertFalse(ServerService.manualPerluValidasi("abc", sidik, bin));
-        // File ditukar: wajib validasi ulang.
+
         java.nio.file.Files.write(bin.toPath(), new byte[]{4, 5, 6, 7});
         assertTrue(ServerService.manualPerluValidasi("abc", sidik, bin));
-        // File dihapus: cache lama tak boleh dianggap mewakili file manual.
+
         assertTrue(bin.delete());
         assertTrue(ServerService.manualPerluValidasi("abc", sidik, bin));
         assertEquals("", ServerService.sidikManualFile(null));
@@ -767,7 +742,7 @@ public class ServerServiceTest {
 
     @Test
     public void unduhBolehDicobaBilaJamMundur() {
-        // Reboot me-reset elapsedRealtime: cap lebih besar dari kini = basi.
+
         assertTrue(ServerService.bolehCobaUnduhLagi(10_000_000L, 1000));
     }
 
@@ -820,7 +795,6 @@ public class ServerServiceTest {
         }
     }
 
-    /** Proses langsung mati: waitForOrKill true cepat (jalur waiter+join pra-O di JVM). */
     static class ProsesMati extends Process {
         @Override public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
@@ -863,18 +837,16 @@ public class ServerServiceTest {
         };
         long mulai = System.nanoTime();
         assertFalse(ServerService.waitForOrKill(macet, 300));
-        // Kembali sekitar timeout, bukan 30 detik penuh.
+
         assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
     }
 
-    /** Proses yang sudah mati (atau null) tak membuat jalur pembersihan melempar. */
     @Test
     public void matikanProsesTegas_prosesMatiAtauNullAman() {
         ServerService.matikanProsesTegas(new ProsesMati(), 200);
         ServerService.matikanProsesTegas(null, 200);
     }
 
-    /** Proses macet: setelah tunggu habis wajib dipaksa mati (destroy kedua kali). */
     @Test
     public void matikanProsesTegas_macetDipaksaMati() {
         final java.util.concurrent.atomic.AtomicInteger destroy =
@@ -897,7 +869,7 @@ public class ServerServiceTest {
             }
         };
         ServerService.matikanProsesTegas(macet, 100);
-        // destroy pertama (sopan) + destroyForcibly/destroy kedua setelah timeout.
+
         assertEquals(2, destroy.get());
     }
 
@@ -916,7 +888,7 @@ public class ServerServiceTest {
                     }
                 });
         try {
-            // Selagi restore memegang kunci, Start (thread lain) wajib menunggu.
+
             assertFalse(masuk.await(150, java.util.concurrent.TimeUnit.MILLISECONDS));
         } finally {
             ServerService.lepasKunciData();
@@ -925,7 +897,6 @@ public class ServerServiceTest {
         f.get(2, java.util.concurrent.TimeUnit.SECONDS);
     }
 
-    /** Tulis berkas berukuran 1 MB dengan header ELF ARM32 yang sah. */
     private static void tulisElfArm(java.io.File f) throws Exception {
         try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "rw")) {
             r.setLength(1_200_000);
@@ -934,9 +905,9 @@ public class ServerServiceTest {
             h[1] = 'E';
             h[2] = 'L';
             h[3] = 'F';
-            h[4] = 1;      // ELFCLASS32
-            h[5] = 1;      // little-endian
-            h[18] = 40;    // EM_ARM
+            h[4] = 1;
+            h[5] = 1;
+            h[18] = 40;
             r.write(h);
         }
     }
@@ -946,17 +917,17 @@ public class ServerServiceTest {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwbak").toFile();
         java.io.File out = new java.io.File(dir, "vaultwarden-armeabi-v7a");
         java.io.File bak = new java.io.File(dir, "vaultwarden-armeabi-v7a.bak");
-        // Aktif sehat + .bak sehat: jangan menukar (pemanggil yang membuang .bak).
+
         tulisElfArm(out);
         tulisElfArm(bak);
         assertFalse(ServerService.pulihkanBakBiner(out, bak));
         assertTrue(bak.isFile());
-        // Swap terpotong: aktif hilang/rusak, .bak sehat -> dipulihkan.
+
         java.nio.file.Files.write(out.toPath(), new byte[]{1, 2, 3});
         assertTrue(ServerService.pulihkanBakBiner(out, bak));
         assertFalse(bak.exists());
         assertTrue(out.length() >= 1_000_000);
-        // .bak bukan ELF ARM: tidak dipulihkan (jangan menukar sampah).
+
         java.nio.file.Files.write(out.toPath(), new byte[]{1, 2, 3});
         java.nio.file.Files.write(bak.toPath(), new byte[]{4, 5, 6, 7});
         assertFalse(ServerService.pulihkanBakBiner(out, bak));
@@ -969,11 +940,11 @@ public class ServerServiceTest {
         Process a = new ProsesPalsu();
         Process b = new ProsesPalsu();
         assertTrue(ServerService.pingMilikEpisodeSama(a, a, 3, 3));
-        // Proses sudah diganti Start baru.
+
         assertFalse(ServerService.pingMilikEpisodeSama(a, b, 3, 3));
-        // Episode Start baru (startId berbeda).
+
         assertFalse(ServerService.pingMilikEpisodeSama(a, a, 3, 4));
-        // Belum ada proses/episode.
+
         assertFalse(ServerService.pingMilikEpisodeSama(null, null, 3, 3));
         assertFalse(ServerService.pingMilikEpisodeSama(a, a, -1, -1));
     }

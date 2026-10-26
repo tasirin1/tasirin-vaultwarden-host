@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test kripto PIN murni (tanpa Android runtime). */
 public class PinCryptoTest {
 
     @Test
@@ -19,8 +18,7 @@ public class PinCryptoTest {
 
     @Test
     public void pbkdf2ManualSamadenganFactory() throws Exception {
-        // Jalur darurat STB Android lama (tanpa factory PBKDF2-SHA256) wajib
-        // bit-identik dengan factory agar hash HP baru lolos verifikasi di STB.
+
         byte[] salt = new byte[16];
         for (int i = 0; i < salt.length; i++) {
             salt[i] = (byte) (i * 7 + 3);
@@ -39,8 +37,7 @@ public class PinCryptoTest {
 
     @Test
     public void standarLegasiDibawahModernDiatasBatas() {
-        // STB lama (tanpa factory) memakai iterasi ringan agar buka PIN tetap
-        // ~1 detik, tapi tak boleh di bawah batas verifikasi.
+
         int legasi = PinCrypto.iterasiStandar(false);
         int modern = PinCrypto.iterasiStandar(true);
         org.junit.Assert.assertTrue(legasi >= 10000);
@@ -50,8 +47,7 @@ public class PinCryptoTest {
 
     @Test
     public void hashLegasiLolosVerifikasiAntarPerangkat() {
-        // Hash beriterasi legasi (dibuat STB lama) wajib lolos verify di HP dan
-        // sebaliknya: format + derive identik, hanya iterasi yang beda.
+
         byte[] salt = new byte[16];
         for (int i = 0; i < salt.length; i++) {
             salt[i] = (byte) (i * 3 + 1);
@@ -66,8 +62,7 @@ public class PinCryptoTest {
 
     @Test
     public void pbkdf2ManualIterasiBesarSamadenganFactory() throws Exception {
-        // KDF backup memakai 100rb iterasi: fallback manual STB lama wajib
-        // identik dengan factory agar backup HP terbaca di STB dan sebaliknya.
+
         byte[] salt = new byte[16];
         for (int i = 0; i < salt.length; i++) {
             salt[i] = (byte) (i * 11 + 5);
@@ -88,8 +83,7 @@ public class PinCryptoTest {
 
     @Test
     public void iterasiRendahDitolak() {
-        // Hash beriterasi sangat rendah (hasil utak-atik) wajib ditolak
-        // fail-closed walau formatnya valid.
+
         String palsu = "PBKDF2$100$"
                 + "00112233445566778899aabbccddeeff"
                 + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
@@ -99,8 +93,7 @@ public class PinCryptoTest {
 
     @Test
     public void iterasiRaksasaDitolak() {
-        // Hash utak-atik beriterasi 1 jt memaksa PBKDF2 puluhan kali (stall STB):
-        // wajib ditolak sebelum derive, hash bawaan tetap lolos.
+
         String raksasa = "PBKDF2$1000000$"
                 + "00112233445566778899aabbccddeeff"
                 + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
@@ -110,8 +103,7 @@ public class PinCryptoTest {
 
     @Test
     public void heksRaksasaDitolak() {
-        // Heks 100rb char dari prefs utak-atik/import jahat wajib ditolak
-        // sebelum unhex mengalokasi puluhan KB; hash sah tetap lolos.
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 100000; i++) {
             sb.append('a');
@@ -135,14 +127,14 @@ public class PinCryptoTest {
         String lama = PinCrypto.sha256("9999");
         String bungkus = PinCrypto.bungkusLegasi(lama);
         assertTrue(bungkus.startsWith("PBKDF2W$30000$"));
-        // Hasil bungkusan lolos verifikasi PIN benar, tolak yang salah.
+
         assertTrue(PinCrypto.verify(bungkus, "9999"));
         assertFalse(PinCrypto.verify(bungkus, "0000"));
         assertFalse(PinCrypto.verify(bungkus, ""));
-        // Bungkusan dinormalkan ke format standar saat login sukses.
+
         assertTrue(PinCrypto.perluUpgradeHash(bungkus));
         assertFalse(PinCrypto.perluMigrasi(bungkus));
-        // Bukan hash legasi = tak ada yang dibungkus.
+
         assertTrue(PinCrypto.bungkusLegasi(null) == null);
         assertTrue(PinCrypto.bungkusLegasi("") == null);
         assertTrue(PinCrypto.bungkusLegasi("xyz") == null);
@@ -152,7 +144,7 @@ public class PinCryptoTest {
     @Test
     public void bungkusDiniTolakUtakAtik() {
         String bungkus = PinCrypto.bungkusLegasi(PinCrypto.sha256("9999"));
-        // Iterasi raksasa/mini hasil utak-atik ditolak seperti format standar.
+
         assertFalse(PinCrypto.verify(
                 bungkus.replace("PBKDF2W$30000$", "PBKDF2W$1000000$"), "9999"));
         assertFalse(PinCrypto.verify(
@@ -162,15 +154,14 @@ public class PinCryptoTest {
 
     @Test
     public void normalisasiIterasiLama() {
-        // Hash baru memakai standar 30rb: tak perlu upgrade.
+
         String kini = PinCrypto.hash("1234");
         assertTrue(kini.startsWith("PBKDF2$30000$"));
         assertFalse(PinCrypto.perluUpgradeHash(kini));
-        // Hash lama 120rb (versi app sebelumnya) dinormalisasi ke standar
-        // saat login sukses agar buka PIN di STB cepat.
+
         String berat = kini.replace("PBKDF2$30000$", "PBKDF2$120000$");
         assertTrue(PinCrypto.perluUpgradeHash(berat));
-        // Hash utak-atik 10k juga dinormalisasi, bukan dipertahankan.
+
         String lemah = kini.replace("PBKDF2$30000$", "PBKDF2$10000$");
         assertTrue(PinCrypto.perluUpgradeHash(lemah));
     }
@@ -185,7 +176,7 @@ public class PinCryptoTest {
 
     @Test
     public void kunciLimaGagalBeruntun() {
-        // Wall-clock agar reboot tak mereset lockout.
+
         long sekarang = 1_700_000_000_000L;
         assertTrue(PinCrypto.sisaKunciMs(4, 0, sekarang) == 0);
         long sampai = PinCrypto.kunciBerikutnyaMs(5, sekarang);
@@ -197,8 +188,7 @@ public class PinCryptoTest {
 
     @Test
     public void kunciTanpaStempelFailClosed() {
-        // Hitungan gagal tanpa stempel (prefs korup/kunci dihapus) tak boleh
-        // membuka lockout: fail-closed dengan kunci penuh.
+
         long sekarang = 1_700_000_000_000L;
         assertTrue(PinCrypto.sisaKunciMs(5, 0, sekarang) == PinCrypto.KUNCI_MS);
         assertTrue(PinCrypto.sisaKunciMs(6, -1, sekarang) == PinCrypto.KUNCI_MS);
@@ -207,15 +197,13 @@ public class PinCryptoTest {
 
     @Test
     public void kunciElapsedLamaDianggapKedaluwarsa() {
-        // Format lama era elapsedRealtime tak boleh mengunci permanen.
+
         assertTrue(PinCrypto.sisaKunciMs(5, 1_300_000L, 1_700_000_000_000L) == 0);
     }
 
     @Test
     public void kunciJam1970TetapMengunci() {
-        // STB tanpa RTC/NTP: lima PIN salah terjadi saat jam masih 1970.
-        // Stempel kecil hasil jam itu tak boleh dianggap sisa era elapsed
-        // (dulu langsung lolos sehingga brute-force PIN tanpa jeda).
+
         long sekarang = 5_000L;
         long sampai = PinCrypto.kunciBerikutnyaMs(5, sekarang);
         assertTrue(PinCrypto.sisaKunciMs(5, sampai, sekarang) == PinCrypto.KUNCI_MS);
@@ -226,7 +214,7 @@ public class PinCryptoTest {
 
     @Test
     public void kunciWallBertahanSeolahReboot() {
-        // Simulasi reboot: jam monoton reset tapi wall-clock jalan terus.
+
         long terkunci = 1_700_000_000_000L + PinCrypto.KUNCI_MS;
         assertTrue(PinCrypto.sisaKunciMs(5, terkunci, 1_700_000_000_000L + 60_000L) > 0);
     }
@@ -246,9 +234,7 @@ public class PinCryptoTest {
 
     @Test
     public void stempelMasaDepanDipangkasSatuKunci() {
-        // Lima PIN salah terjadi saat jam diset ke masa depan, lalu jam
-        // dibetulkan mundur: sisa tak boleh ikut bertahun-tahun (dulu
-        // dikembalikan apa adanya sehingga PIN terkunci praktis permanen).
+
         long sekarang = 1_700_000_000_000L;
         long jauh = sekarang + 3L * 365 * 24 * 3600 * 1000;
         assertTrue(PinCrypto.sisaKunciMs(5, jauh, sekarang) == PinCrypto.KUNCI_MS);
@@ -267,7 +253,7 @@ public class PinCryptoTest {
 
     @Test
     public void kunciElapsedTahanResetJam() {
-        // Jam di-reset ke 1970 setelah 5 gagal: wall lolos tapi elapsed tetap kunci.
+
         long elapsed = 500_000L;
         long sampai = PinCrypto.kunciElapsedBerikutnyaMs(5, elapsed);
         assertTrue(sampai == elapsed + PinCrypto.KUNCI_MS);
@@ -279,7 +265,7 @@ public class PinCryptoTest {
 
     @Test
     public void kunciElapsedBasiSehabisRebootTakMengunci() {
-        // Reboot me-reset elapsed: selisih meledak di atas KUNCI_MS -> dianggap basi.
+
         assertTrue(PinCrypto.sisaKunciElapsed(500_000L, 10_000L) == 0);
         assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L) == 0);
     }
@@ -298,10 +284,10 @@ public class PinCryptoTest {
 
     @Test
     public void hanyaFactoryHilangPermanenYangDiingat() {
-        // "Algoritma tak ada" = kondisi perangkat tetap: aman di-cache FALSE.
+
         assertTrue(PinCrypto.pabrikHilangPermanen(
                 new java.security.NoSuchAlgorithmException("PBKDF2WithHmacSHA256")));
-        // Galat transien (provider sibuk/OOM) tak boleh mengunci jalur manual.
+
         assertFalse(PinCrypto.pabrikHilangPermanen(new RuntimeException("sibuk")));
         assertFalse(PinCrypto.pabrikHilangPermanen(new OutOfMemoryError("penuh")));
         assertFalse(PinCrypto.pabrikHilangPermanen(null));

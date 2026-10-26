@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** Unit test deteksi kernel lama (tanpa Android runtime). */
 public class KernelCompatTest {
 
     @Test
@@ -35,7 +34,7 @@ public class KernelCompatTest {
 
     @Test
     public void parseKernelTanpaAlokasiSetara() {
-        // Tepi pola: spasi, sufiks, titik ganda, non-angka, digit Unicode, raksasa.
+
         assertEquals(14, KernelCompat.parseKernel("3.14.29-g123")[1]);
         assertEquals(17, KernelCompat.parseKernel("  03.017  ")[1]);
         assertEquals(5, KernelCompat.parseKernel("3.5.")[1]);
@@ -44,11 +43,9 @@ public class KernelCompatTest {
         assertEquals(null, KernelCompat.parseKernel("3..5"));
         assertEquals(null, KernelCompat.parseKernel("v3.14"));
         assertEquals(null, KernelCompat.parseKernel("+3.14"));
-        // Digit Unicode dulu lolos pindai lalu gagal parseInt (eksepsi tiap
-        // Start); kini ditolak langsung tanpa eksepsi, hasil tetap modern.
+
         assertEquals(null, KernelCompat.parseKernel("\u0663.\u0661\u0664"));
-        // Angka raksasa dulu melempar NumberFormatException; kini jenuh tapi
-        // hasil legacy sama (modern, bukan legacy).
+
         assertFalse(KernelCompat.isLegacyKernel("99999999999999999999.5"));
         assertFalse(KernelCompat.isLegacyKernel("3.99999999999999999999"));
     }
