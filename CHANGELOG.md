@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 377: cek_manifest kini memeriksa semua nama komponen dan targetActivity alias
+- `cek_manifest` melewati (`continue`) setiap nama kelas penuh yang tidak diawali namespace aplikasi, dan tidak pernah melihat `activity-alias` — manifest boleh menunjuk kelas hantu di luar paket atau target alias yang tidak ada dan gerbang tetap LOLOS (temuan audit putaran-9, #152).
+- Semua nama komponen kini diselesaikan ke jalur sumbernya (relatif, nama penuh, atau tanpa titik) dan wajib ada berkasnya; `activity-alias` diperiksa lewat `android:targetActivity`-nya. Terbukti di salinan buang: kelas asing hantu dan alias hantu kini GAGAL, manifest normal tetap LOLOS.
+
 ## [Belum rilis] — Audit 376: mode jalur verifikasi-patch kini membandingkan ke HEAD, bukan ke index
 - Mode jalur (`verifikasi-patch.py <path>`) hanya menjalankan `git diff -- <path>` (worktree vs index): baris bermasalah terdeteksi sebelum `git add` tetapi LOLOS sesudahnya — pemeriksaan lokal memberi rasa aman palsu tepat pada keadaan paling umum, sesudah staging (temuan audit putaran-9, #151).
 - Diff mode jalur kini `git diff HEAD -- <path>` sehingga perubahan staged dan belum staged sama-sama terlihat; terbukti di salinan buang: baris `toLowerCase()` yang sudah ter-stage kini tetap GAGAL, berkas bersih tetap LOLOS.
