@@ -37,6 +37,12 @@ def cek_daftar_hapusan(gagal):
     elif not BEKAS_HAPUSAN:
         gagal.append("tools/bekas-hapusan.txt kosong — daftar nama metode "
                      "terhapus wajib berisi")
+    else:
+        for nama in sorted(BEKAS_HAPUSAN):
+            if masih_didefinisikan(nama):
+                gagal.append("Nama %s di tools/bekas-hapusan.txt masih "
+                             "terdefinisi di pohon — keluarkan dari daftar "
+                             "atau ganti nama metodenya" % nama)
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"
@@ -722,17 +728,20 @@ def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
 def cek_panggil_bekas_hapusan(gagal, diff):
     if not BEKAS_HAPUSAN:
         return
+    baris_tambah = [(path, baris) for path, baris in tambah_java(diff)
+                    if not baris.lstrip().startswith(("*", "//", "/*"))]
     for nama in sorted(BEKAS_HAPUSAN):
         pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
-        for _, baris in tambah_java(diff):
-
-            if baris.lstrip().startswith(("*", "//", "/*")):
-                continue
-            if pola.search(kupas_java(baris)):
+        sebelumnya = {}
+        for path, baris in baris_tambah:
+            kode = kupas_java(baris)
+            gabung = sebelumnya.get(path, "").rstrip() + kode.lstrip()
+            if pola.search(kode) or pola.search(gabung):
                 gagal.append(
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))
                 break
+            sebelumnya[path] = kode
 
 def hunk_fungsi(diff):
     path = ""

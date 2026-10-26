@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 401: penjaga bekas-hapusan kini memeriksa panggilan terbelah baris dan keabsahan daftarnya
+- Dua lubang pada penjaga nama metode terhapus: (1) `cek_panggil_bekas_hapusan` memindai baris tambah satu per satu, jadi panggilan yang dibelah dua baris (`nama` di akhir baris, `(` di baris berikut) lolos; (2) daftar `tools/bekas-hapusan.txt` tak pernah divalidasi ke pohon — nama yang terdefinisi lagi diam-diam tetap terdaftar dan menyesatkan penjagaan (temuan audit putaran-8, #139).
+- Pemindaian kini juga menguji gabungan tiap baris dengan baris sebelumnya dalam berkas yang sama, dan `cek_daftar_hapusan` menolak nama terdaftar yang masih terdefinisi di pohon. Terbukti di salinan buang: panggilan terbelah dan nama basi kini GAGAL, pohon bersih tetap LOLOS.
+
 ## [Belum rilis] — Audit 400: pengisian nama bot getMe tak lagi menahan antrean perintah
 - `pollOnce` memanggil `isiNamaBotBilaKosong` secara sinkron SEBELUM `getUpdates`; panggilan `getMe`-nya bisa menggantung sampai ±50 detik (timeout sambung + baca) di jaringan mati — selama itu benang polling tunggal tertahan dan perintah pengguna tak diproses (temuan audit putaran-8, #138).
 - Pengisian nama kini dikirim ke latar (`Util.jalankanBg`) dengan konteks aplikasi; polling langsung lanjut ke `getUpdates`. Nama bot hanya pelengkap tampilan/penyebutan, jadi keterlambatan latar tak mengubah perilaku perintah.
