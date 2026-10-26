@@ -910,4 +910,43 @@ public class ServerServiceTest {
         assertTrue(masuk.await(2, java.util.concurrent.TimeUnit.SECONDS));
         f.get(2, java.util.concurrent.TimeUnit.SECONDS);
     }
+
+    /** Tulis berkas berukuran 1 MB dengan header ELF ARM32 yang sah. */
+    private static void tulisElfArm(java.io.File f) throws Exception {
+        try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "rw")) {
+            r.setLength(1_200_000);
+            byte[] h = new byte[20];
+            h[0] = 0x7F;
+            h[1] = 'E';
+            h[2] = 'L';
+            h[3] = 'F';
+            h[4] = 1;      // ELFCLASS32
+            h[5] = 1;      // little-endian
+            h[18] = 40;    // EM_ARM
+            r.write(h);
+        }
+    }
+
+    @Test
+    public void pulihkanBakBiner_hanyaSaatAktifRusak() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwbak").toFile();
+        java.io.File out = new java.io.File(dir, "vaultwarden-armeabi-v7a");
+        java.io.File bak = new java.io.File(dir, "vaultwarden-armeabi-v7a.bak");
+        // Aktif sehat + .bak sehat: jangan menukar (pemanggil yang membuang .bak).
+        tulisElfArm(out);
+        tulisElfArm(bak);
+        assertFalse(ServerService.pulihkanBakBiner(out, bak));
+        assertTrue(bak.isFile());
+        // Swap terpotong: aktif hilang/rusak, .bak sehat -> dipulihkan.
+        java.nio.file.Files.write(out.toPath(), new byte[]{1, 2, 3});
+        assertTrue(ServerService.pulihkanBakBiner(out, bak));
+        assertFalse(bak.exists());
+        assertTrue(out.length() >= 1_000_000);
+        // .bak bukan ELF ARM: tidak dipulihkan (jangan menukar sampah).
+        java.nio.file.Files.write(out.toPath(), new byte[]{1, 2, 3});
+        java.nio.file.Files.write(bak.toPath(), new byte[]{4, 5, 6, 7});
+        assertFalse(ServerService.pulihkanBakBiner(out, bak));
+        assertTrue(bak.exists());
+        assertEquals(3, out.length());
+    }
 }

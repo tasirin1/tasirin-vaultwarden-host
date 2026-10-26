@@ -692,6 +692,22 @@ public class ServerService extends Service {
         }
     }
 
+    /** Pulihkan binary aktif dari `.bak` bila swap terpotong crash
+     *  ({@link #gantiAtomik}: out -> .bak lalu tmp -> out). Tanpa ini STB
+     *  offline harus mengunduh ulang 20 MB padahal salinan sehat ada. Hanya
+     *  memulihkan bila `.bak` benar-benar binary ARM; return true bila
+     *  penukaran berhasil. Murni I/O agar bisa diuji JVM. */
+    static boolean pulihkanBakBiner(File out, File bak) {
+        if (out == null || bak == null || !bak.isFile()
+                || bak.length() < 1_000_000 || !Updater.isElf(bak)) {
+            return false;
+        }
+        if (out.isFile() && out.length() >= 1_000_000 && Updater.isElf(out)) {
+            return false; // binary aktif sehat, tak perlu dipulihkan
+        }
+        return bak.renameTo(out);
+    }
+
     /** Ganti file atomik via cadangan: tanpa jendela tanpa-binary bila crash di tengah. */
     static void gantiAtomik(File tmp, File out) throws java.io.IOException {
         if (tmp == null || out == null || out.getParentFile() == null) {
@@ -3621,6 +3637,22 @@ public class ServerService extends Service {
         }
         File out = new File(binDir, "vaultwarden-" + ABI);
         File verFile = new File(binDir, "version.txt");
+        // Pemulihan sisa swap binary yang terpotong crash: gantiAtomik menukar
+        // out -> .bak lalu tmp -> out. Bila proses mati di antara keduanya,
+        // out hilang tapi salinan sehat ada di .bak; tanpa pemulihan ini STB
+        // offline harus unduh ulang 20 MB (atau tak bisa Start sama sekali).
+        File bakBin = new File(binDir, out.getName() + ".bak");
+        if (bakBin.exists()) {
+            if (pulihkanBakBiner(out, bakBin)) {
+                appendLog("[app] Binary .bak dipulihkan (swap sebelumnya terpotong).");
+            } else if (isValidBinary(out) || !isValidBinary(bakBin)) {
+                // Aktif sudah sehat, atau .bak sendiri rusak: sisa tak berguna.
+                try {
+                    bakBin.delete();
+                } catch (Exception ignored) {
+                }
+            }
+        }
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
         if (dataDir == null || dataDir.trim().isEmpty()) {
