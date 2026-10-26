@@ -958,7 +958,7 @@ def utama():
     rentang_cek = ""
     if args.jalur:
         berubah = [j for j in args.jalur if os.path.exists(os.path.join(AKAR, j))]
-        diff, ok = jalan_diff("git", "diff", "--", *berubah)
+        diff, ok = jalan_diff("git", "diff", "HEAD", "--", *berubah)
         diff_gagal = diff_gagal or not ok
     elif args.rentang:
         r = rentang_normal(args.rentang)

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 376: mode jalur verifikasi-patch kini membandingkan ke HEAD, bukan ke index
+- Mode jalur (`verifikasi-patch.py <path>`) hanya menjalankan `git diff -- <path>` (worktree vs index): baris bermasalah terdeteksi sebelum `git add` tetapi LOLOS sesudahnya — pemeriksaan lokal memberi rasa aman palsu tepat pada keadaan paling umum, sesudah staging (temuan audit putaran-9, #151).
+- Diff mode jalur kini `git diff HEAD -- <path>` sehingga perubahan staged dan belum staged sama-sama terlihat; terbukti di salinan buang: baris `toLowerCase()` yang sudah ter-stage kini tetap GAGAL, berkas bersih tetap LOLOS.
+
 ## [Belum rilis] — Audit 375: pendeteksi deklarasi metode di gerbang kini membaca signature yang dibungkus dua baris
 - `nama_terdeklarasi` hanya mencocokkan deklarasi per baris; metode yang signature-nya dibungkus (nama dan kurung buka terpisah baris) tidak terdaftar sebagai masih terdeklarasi — memformat ulang signature menjadi dua baris dituduh "metode dihapus tapi masih dipanggil" oleh `cek_metode_hilang` (temuan audit putaran-9, #150).
 - Pemindaian kini juga mencoba gabungan tiap baris dengan baris berikutnya sebelum mencocokkan pola deklarasi; terbukti di salinan buang: format ulang signature menjadi terbungkus kini LOLOS, penghapusan sungguhan tetap GAGAL.
