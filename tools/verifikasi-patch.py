@@ -137,8 +137,8 @@ def himpun_definisi():
     def rapikan(jenis, nama):
         return nama.replace(".", "_") if jenis == "style" else nama
 
-    pola_def = re.compile(r'<(style|string|color|dimen|plurals)\b[^>]*?\bname="([^"]+)"')
-    pola_array = re.compile(r'<(string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
+    pola_def = re.compile(r'<(style|string|color|dimen|plurals)(?=[\s/>])[^>]*?\bname="([^"]+)"')
+    pola_array = re.compile(r'<(string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
 
     def tambah(kunci, nama):
         definisi.setdefault(kunci, set()).add(rapikan(kunci, nama))
@@ -270,7 +270,7 @@ def cek_manifest(gagal):
                          % (nama, fqcn.replace(".", "/")))
 
 def cek_duplikat_definisi(gagal):
-    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
+    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
         if "/values" not in path.replace(os.sep, "/"):
             continue
@@ -434,7 +434,7 @@ def cek_izin_baru(peringatan, diff):
                                   % cocok.group(1))
 
 def cek_definisi_baru(peringatan, diff):
-    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)\b[^>]*?\bname="([^"]+)"')
+    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
     _, acuan = himpun_definisi()
     sudah = set()
     for baris in diff.splitlines():
@@ -456,14 +456,23 @@ def cek_pengingat_changelog(peringatan, berubah):
         peringatan.append("Kode aplikasi berubah tanpa CHANGELOG.md — catat per rilis (aturan repo)")
 
 def cek_sinkron_terjemah(gagal):
-    def nama_string(path):
-        return set(re.findall(r'<string\b[^>]*?\bname="([^"]+)"', baca(path)))
+    def himpun(folder, pola):
+        hasil = set()
+        relatif = os.path.join("app", "src", "main", "res", folder)
+        wadah = os.path.join(AKAR, relatif)
+        if os.path.isdir(wadah):
+            for nama in sorted(os.listdir(wadah)):
+                if nama.endswith(".xml"):
+                    isi = kupas_komentar_xml(
+                        baca(os.path.join(relatif, nama)))
+                    hasil.update(re.findall(pola, isi))
+        return hasil
 
-    def nama_plurals(path):
-        return set(re.findall(r'<plurals\b[^>]*?\bname="([^"]+)"', baca(path)))
+    pola_string = r'<string(?=[\s/>])[^>]*?\bname="([^"]+)"'
+    pola_plurals = r'<plurals(?=[\s/>])[^>]*?\bname="([^"]+)"'
 
-    inggris = nama_string("app/src/main/res/values/strings.xml")
-    indonesia = nama_string("app/src/main/res/values-in/strings.xml")
+    inggris = himpun("values", pola_string)
+    indonesia = himpun("values-in", pola_string)
     if inggris or indonesia:
         kurang = sorted(inggris - indonesia)
         lebih = sorted(indonesia - inggris)
@@ -472,8 +481,8 @@ def cek_sinkron_terjemah(gagal):
         if lebih:
             gagal.append("values-in berlebih string: " + ", ".join(lebih[:10]))
 
-    pl_inggris = nama_plurals("app/src/main/res/values/strings.xml")
-    pl_indonesia = nama_plurals("app/src/main/res/values-in/strings.xml")
+    pl_inggris = himpun("values", pola_plurals)
+    pl_indonesia = himpun("values-in", pola_plurals)
     if pl_inggris or pl_indonesia:
         kurang = sorted(pl_inggris - pl_indonesia)
         lebih = sorted(pl_indonesia - pl_inggris)

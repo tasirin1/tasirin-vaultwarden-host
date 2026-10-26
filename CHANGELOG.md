@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 378: sinkron terjemahan kini memeriksa semua berkas values, bukan hanya strings.xml
+- `cek_sinkron_terjemah` hanya membaca `values/strings.xml` dan `values-in/strings.xml`; string Inggris baru di berkas values lain (mis. berkas fitur tersendiri) tanpa padanan Indonesia sama sekali lolos — UI diam-diam jatuh ke Inggris untuk string itu (temuan audit putaran-9, #153).
+- Nama string dan plurals kini dihimpun dari semua berkas `.xml` di folder `values/` dan `values-in/` (dengan komentar XML dikupas, sejalan Audit 373); terbukti di salinan buang: string Inggris yatim di berkas terpisah kini GAGAL, keadaan normal tetap LOLOS. Sekalian diperketat: pola definisi longgar Audit 374 kini memakai penengok batas tag `(?=[\s/>])` agar `<string>` tidak lagi tertukar dengan `<string-array>` (nama array `about_icons` sempat tertuduh sebagai string yang hilang).
+
 ## [Belum rilis] — Audit 377: cek_manifest kini memeriksa semua nama komponen dan targetActivity alias
 - `cek_manifest` melewati (`continue`) setiap nama kelas penuh yang tidak diawali namespace aplikasi, dan tidak pernah melihat `activity-alias` — manifest boleh menunjuk kelas hantu di luar paket atau target alias yang tidak ada dan gerbang tetap LOLOS (temuan audit putaran-9, #152).
 - Semua nama komponen kini diselesaikan ke jalur sumbernya (relatif, nama penuh, atau tanpa titik) dan wajib ada berkasnya; `activity-alias` diperiksa lewat `android:targetActivity`-nya. Terbukti di salinan buang: kelas asing hantu dan alias hantu kini GAGAL, manifest normal tetap LOLOS.
