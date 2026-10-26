@@ -25,6 +25,21 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void jalurFdCocokPersisDenganKanon() {
+        assertTrue(FileShareProvider.jalurFdCocok(
+                "/storage/emulated/0/vw/tls/ca.pem", "/storage/emulated/0/vw/tls/ca.pem"));
+        assertTrue(FileShareProvider.jalurFdCocok(
+                "/storage/emulated/0/vw/tls/ca.pem (deleted)",
+                "/storage/emulated/0/vw/tls/ca.pem"));
+        assertFalse(FileShareProvider.jalurFdCocok(
+                "/storage/emulated/0/vw/shared_prefs/vw_prefs.xml",
+                "/storage/emulated/0/vw/tls/ca.pem"));
+        assertFalse(FileShareProvider.jalurFdCocok(null, "/x"));
+        assertFalse(FileShareProvider.jalurFdCocok("/x", null));
+        assertTrue(FileShareProvider.jalurFdTerbuka(-1) == null);
+    }
+
+    @Test
     public void berkasBackupPenuhDikenali() {
         assertTrue(FileShareProvider.berkasBackupPenuh("backup-telegram-20260101-120000.zip"));
         assertTrue(FileShareProvider.berkasBackupPenuh("db-backup-20260101.zip"));

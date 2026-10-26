@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 326: openFile memverifikasi descriptor yang benar-benar terbuka
+- `FileShareProvider.openFile` memeriksa path kanonis + symlink induk lalu membuka ulang berdasarkan string path; penukar symlink yang menang balapan di antara pemeriksaan terakhir dan `open` bisa membuat descriptor menunjuk berkas yang tak pernah lolos `isShareable` (temuan ini berstatus dugaan di audit putaran-5 — jendelanya sempit dan butuh aplikasi jahat lokal).
+- Sesudah descriptor terbuka, jalur nyatanya dibaca dari `/proc/self/fd/<fd>` (`jalurFdTerbuka`) dan wajib persis sama dengan path kanonis yang lolos pemeriksaan (`jalurFdCocok`, akhiran ` (deleted)` ditoleransi); beda → descriptor ditutup dan akses ditolak. Bila readlink tak tersedia, perilaku lama dipertahankan. Penolong murni `jalurFdCocok` diuji di `FileShareProviderTest`.
+
 ## [Belum rilis] — Audit 325: FileShareProvider tak lagi boleh membagikan berkas backup penuh
 - Daftar boleh-bagi untuk folder data hanya menyaring nama/akhiran, jadi `backup-telegram-*.zip` dan `db-backup-*.zip` di folder `backups/` lolos — padahal isinya snapshot `db.sqlite3` + config utuh, dan `db.sqlite3` lepas justru ditolak eksplisit oleh provider yang sama. Kelonggaran laten: belum ada alur yang menerbitkan grant ke folder itu, tetapi satu grant keliru langsung membocorkan seluruh vault.
 - Cabang folder-data `isShareable` kini menolak nama berkas cadangan penuh (`backup-*`/`db-backup-*`, tak peka huruf, lewat penolong murni `berkasBackupPenuh` yang diuji); ekspor yang sah tak berubah (`ca.pem`/`cert.pem` dari `tls/`, `app-config-*.json(.enc)` tetap boleh).

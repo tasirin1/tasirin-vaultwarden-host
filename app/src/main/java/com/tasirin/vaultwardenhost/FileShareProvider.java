@@ -197,7 +197,17 @@ public class FileShareProvider extends ContentProvider {
             if (!buka.isFile()) {
                 throw new FileNotFoundException("Berkas tidak ditemukan.");
             }
-            return ParcelFileDescriptor.open(buka, ParcelFileDescriptor.MODE_READ_ONLY);
+            ParcelFileDescriptor pfd = ParcelFileDescriptor.open(buka,
+                    ParcelFileDescriptor.MODE_READ_ONLY);
+            String jalurFd = jalurFdTerbuka(pfd.getFd());
+            if (jalurFd != null && !jalurFdCocok(jalurFd, canonUlang)) {
+                try {
+                    pfd.close();
+                } catch (Exception ignored) {
+                }
+                throw new FileNotFoundException("Akses ditolak.");
+            }
+            return pfd;
         } catch (FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -225,6 +235,26 @@ public class FileShareProvider extends ContentProvider {
     private static volatile java.lang.reflect.Method CEK_LINK_CACHE = null;
     private static volatile boolean REFLEKSI_DICARI = false;
     private static volatile java.lang.reflect.Field MODE_CACHE = null;
+
+    static String jalurFdTerbuka(int fd) {
+        try {
+            return android.system.Os.readlink("/proc/self/fd/" + fd);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static boolean jalurFdCocok(String jalurFd, String canon) {
+        if (jalurFd == null || canon == null) {
+            return false;
+        }
+        String j = jalurFd;
+        String ekor = " (deleted)";
+        if (j.endsWith(ekor)) {
+            j = j.substring(0, j.length() - ekor.length());
+        }
+        return j.equals(canon);
+    }
 
     static boolean adaSymlinkInduk(String canon) {
 
