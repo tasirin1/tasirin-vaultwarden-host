@@ -507,6 +507,34 @@ public class UtilTest {
     }
 
     @Test
+    public void jalankanPinTetapJalanSaatPoolLamaSibuk() throws Exception {
+        final java.util.concurrent.CountDownLatch dua =
+                new java.util.concurrent.CountDownLatch(2);
+        final java.util.concurrent.CountDownLatch lepas =
+                new java.util.concurrent.CountDownLatch(1);
+        Runnable berat = () -> {
+            dua.countDown();
+            try {
+                lepas.await(5, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        };
+        try {
+            assertTrue(Util.jalankanLama(berat));
+            assertTrue(Util.jalankanLama(berat));
+            assertTrue(dua.await(2, java.util.concurrent.TimeUnit.SECONDS));
+            final java.util.concurrent.CountDownLatch pin =
+                    new java.util.concurrent.CountDownLatch(1);
+            assertTrue(Util.jalankanPin(pin::countDown));
+            assertTrue(pin.await(2, java.util.concurrent.TimeUnit.SECONDS));
+        } finally {
+            lepas.countDown();
+        }
+        assertFalse(Util.jalankanPin(null));
+    }
+
+    @Test
     public void jalankanLamaBenarBenarParalel() throws Exception {
         final java.util.concurrent.CountDownLatch dua =
                 new java.util.concurrent.CountDownLatch(2);

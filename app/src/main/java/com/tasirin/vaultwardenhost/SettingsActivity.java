@@ -695,7 +695,7 @@ public class SettingsActivity extends Activity {
             }
             pinAktifJalan = true;
             toast(getString(R.string.pin_diproses));
-            boolean masuk = Util.jalankanLama(() -> {
+            boolean masuk = Util.jalankanPin(() -> {
                 String hasil;
                 try {
                     hasil = PinCrypto.hash(pinBaru);

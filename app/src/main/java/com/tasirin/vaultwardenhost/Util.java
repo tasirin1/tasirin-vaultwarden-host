@@ -54,12 +54,27 @@ public final class Util {
     private static final java.util.concurrent.ExecutorService BG_LAMA =
             buatPool(2, 16, "vw-bg-lama");
 
+    private static final java.util.concurrent.ExecutorService BG_PIN =
+            buatPool(1, 8, "vw-pin");
+
     public static boolean jalankanLama(Runnable r) {
         if (r == null) {
             return false;
         }
         try {
             BG_LAMA.execute(r);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean jalankanPin(Runnable r) {
+        if (r == null) {
+            return false;
+        }
+        try {
+            BG_PIN.execute(r);
             return true;
         } catch (Exception e) {
             return false;

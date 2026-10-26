@@ -106,7 +106,7 @@ public class PinActivity extends Activity {
         bersihkanInput();
         final android.content.Context appCtx = getApplicationContext();
 
-        boolean masuk = Util.jalankanLama(() -> {
+        boolean masuk = Util.jalankanPin(() -> {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
             String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");

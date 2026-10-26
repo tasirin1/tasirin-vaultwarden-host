@@ -96,7 +96,9 @@ Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pul
   ke latest bila asset-nya 404.
 - **Satu pintu (jangan duplikat)**: `Util.postTunda`/`batalkanTunda`
   (handler utama), `Util.pasangWatchdogProses` (watchdog `--version`
-  ServerService + Updater), `ServerService.waitForOrKill` (tunggu proses),
+  ServerService + Updater), `Util.jalankanPin` (hash/verifikasi PIN, pool
+  sendiri agar tak mengantre di belakang unduhan/backup),
+  `ServerService.waitForOrKill` (tunggu proses),
   `TgBackup.bacaStempelThrottle`/`simpanStempelThrottle` (throttle
   AlarmReceiver + BootReceiver). Duplikat yang dihapus dicatat di
   `tools/bekas-hapusan.txt` (lihat aturan #15).

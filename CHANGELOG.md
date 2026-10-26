@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: verifikasi PIN tak lagi mengantre di pool unduhan
+- `PinActivity.cobaBuka` dan aktivasi PIN di `SettingsActivity` memakai `Util.jalankanLama` (pool `vw-bg-lama`, 2 thread) yang juga dipakai unduhan web-vault ≥150 MB, update binary, serta backup/restore. Saat dua tugas berat berjalan, PBKDF2 PIN mengantre bermenit-menit dan layar kunci menampilkan "Memeriksa PIN…" tanpa tombol aktif.
+- Pool khusus 1 thread `vw-pin` + `Util.jalankanPin` kini dipakai kedua jalur; `BG_LAMA` tetap untuk tugas berat. Unit test baru menahan kedua thread `jalankanLama` lalu memastikan tugas PIN tetap selesai <2 detik.
+
 ## [Belum rilis] — Audit 311: tebakan PIN dari grup tak bisa mengunci pemilik
 - `handleCommand` dan `authDangerous` dulu menghitung setiap tebakan PIN dari chat grup sebagai kegagalan **global** (`PinGate.catatHasil(ctx, false, ...)`), padahal perintah ber-PIN dari grup memang selalu ditolak. Anggota grup mana pun bisa mengirim `/stop 0000` lima kali lalu mengulang tiap 5 menit untuk menjaga pemilik tetap terkunci — DoS dari dalam grup.
 - `hitungTebakanPinGrup` dihapus total (dicatat di `tools/bekas-hapusan.txt`); perintah ber-PIN dari grup tetap ditolak dan pesannya tetap dihapus, tetapi penghitung PIN pribadi tidak tersentuh. Pesan "dihitung sebagai percobaan gagal" ikut dihapus.
