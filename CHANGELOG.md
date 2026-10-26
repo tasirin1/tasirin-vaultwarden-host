@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 361: DialogAman.tampil menelan kegagalan show dan membersihkan registernya
+- `DialogAman.tampil()` memanggil `d.show()` telanjang sesudah cek hidup dan sesudah mendaftarkan dialog ke `DAFTAR` — berbeda dengan `tutupDiam` di berkas yang sama yang memakai try-catch. Bila token jendela keburu tidak valid saat `show()` dipanggil dari jalur asinkron (callback `ui.post` tepat ketika activity dihancurkan), `BadTokenException` lolos ke pemanggil sebagai crash dan entri dialog yang tak pernah tampil tertinggal di register.
+- `show()` kini dibungkus try-catch sesuai filosofi kelas ini (gagal tampil = dialog dilewati diam-diam); pada kegagalan, entri yang baru didaftarkan itu juga dikeluarkan dari `DAFTAR` agar register tidak menampung dialog hantu.
+
 ## [Belum rilis] — Audit 360: localIp tak lagi menghitung antarmuka jaringan di utas pemanggil saat cache dingin
 - `ServerService.localIp()` sudah benar untuk cache basi (jadwalkan penyegaran di latar, kembalikan nilai lama), tetapi pada cache DINGIN (proses baru) ia memanggil `lanHost()` — enumerasi `NetworkInterface` — sinkron di utas pemanggil. Pemanggilnya di utas UI: tick refresh MainActivity dan klik salin URL, jadi buka pertama aplikasi bisa tersendat menunggu enumerasi selesai.
 - Blok penyegaran latar diekstrak ke `jadwalSegarkanIp()` dan kini dipakai kedua jalur: cache dingin menjadwalkan penyegaran yang sama lalu mengembalikan `127.0.0.1` — nilai yang sama dengan hasil `lanHost()` saat tak ada jaringan — dan URL tampil terkoreksi sendiri pada tick berikutnya begitu cache terisi (hitungan detik).

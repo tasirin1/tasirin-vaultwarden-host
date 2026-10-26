@@ -35,7 +35,17 @@ final class DialogAman {
             sapu();
             DAFTAR.add(new Pasangan(a, d));
         }
-        d.show();
+        try {
+            d.show();
+        } catch (Exception e) {
+            synchronized (DAFTAR) {
+                for (int i = DAFTAR.size() - 1; i >= 0; i--) {
+                    if (DAFTAR.get(i).dialog == d) {
+                        DAFTAR.remove(i);
+                    }
+                }
+            }
+        }
         return d;
     }
 
