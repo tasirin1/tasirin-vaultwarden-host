@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 425: callback batal confirm() tidak lagi berjalan dua kali
+- Handler tombol Batal menjalankan callback `batal` tetapi tidak menandai `dipilih[0]`; dialog selalu men-dismiss sesudah klik, sehingga `OnDismissListener` (tambahan Audit untuk #136) mengira dialog tertutup tanpa pilihan dan menjalankan `batal` sekali lagi. Dampaknya tertutup selama ini hanya karena satu-satunya callback berkabel bersifat idempoten (menghapus berkas tmp).
+- Tombol Batal kini menandai `dipilih[0] = true` sebelum menjalankan callback, sehingga jalur dismiss hanya menanggung penutupan tanpa pilihan (rotasi, sentuh luar, tombol Back) seperti maksud semula.
+
 ## [Belum rilis] — Audit 424: pesan ber-PIN kini dihapus juga pada jalur penolakan jam-mundur
 - Bila jam dinding STB mundur melewati toleransi, loop poll Telegram menolak pesan tanpa memprosesnya (demi keamanan), tetapi juga tanpa menghapusnya — pesan berisi PIN (perintah ber-PIN atau balasan PIN) menetap di riwayat chat selamanya, kelas kebocoran yang sama dengan yang ditutup Audit untuk jalur pesan basi.
 - Cabang jam-mundur kini mencoba penghapusan yang sama dengan jalur basi sebelum `continue`: predikat `pinBasiPerluHapus` yang sama (teks tebakan PIN, atau balasan saat sesi PIN tertunda), pemanggil `hapusPesanPerintah` yang sama, dan pagar `pinPerangkatAktif` yang sama. Pesan tetap tidak diproses.

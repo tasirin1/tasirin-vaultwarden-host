@@ -3567,6 +3567,7 @@ public class SettingsActivity extends Activity {
                     action.run();
                 })
                 .setNegativeButton(R.string.batal, (d, w) -> {
+                    dipilih[0] = true;
                     if (batal != null) {
                         batal.run();
                     }
