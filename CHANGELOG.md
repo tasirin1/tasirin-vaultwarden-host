@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 396: pengumpulan IP kini memeringkat antarmuka — LAN di atas seluler dan VPN
+- `collectIps` menghimpun alamat dari SEMUA antarmuka up (VPN/seluler ikut) lalu mengurutkan leksikografis, sehingga pilihan pertama `lanHost` bisa jatuh ke alamat VPN/seluler yang tak terjangkau klien LAN; naik-turunnya VPN terbaca sebagai "IP berubah" dan memicu regenerasi sertifikat/restart yang tak perlu (temuan audit putaran-8, #134).
+- Antarmuka kini diurutkan menurut peringkat (`peringkatAntarmuka`: wlan/eth/en 0, lain-lain 1, seluler rmnet/ccmni/pdp 2, VPN tun/tap/ppp/wg/ipsec 3) sebelum alamatnya dihimpun — pilihan utama dan deteksi perubahan IP stabil di alamat LAN; alamat IPv4 link-local `169.254.` tak lagi dihimpun. Daftar lengkap tetap dipakai untuk SAN sertifikat.
+
 ## [Belum rilis] — Audit 395: bit eksekusi scripts/cek-cepat.sh dipulihkan
 - Mode berkas `scripts/cek-cepat.sh` di git turun menjadi `100644` (dari `100755`) sejak commit penghapusan komentar massal — clone segar di mesin normal tak bisa menjalankan `./scripts/cek-cepat.sh` langsung dan gerbang lokal terasa "rusak" padahal isinya sehat (temuan audit putaran-7, #133).
 - Mode dikembalikan ke `100755` lewat `git update-index --chmod=+x`; isi skrip tidak berubah sehuruf pun.

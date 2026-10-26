@@ -3500,6 +3500,24 @@ public class ServerService extends Service {
         return h;
     }
 
+    static int peringkatAntarmuka(String nama) {
+        if (nama == null) {
+            return 3;
+        }
+        String n = nama.toLowerCase(java.util.Locale.US);
+        if (n.startsWith("wlan") || n.startsWith("eth") || n.startsWith("en")) {
+            return 0;
+        }
+        if (n.startsWith("tun") || n.startsWith("tap") || n.startsWith("ppp")
+                || n.startsWith("wg") || n.startsWith("ipsec")) {
+            return 3;
+        }
+        if (n.startsWith("rmnet") || n.startsWith("ccmni") || n.startsWith("pdp")) {
+            return 2;
+        }
+        return 1;
+    }
+
     private static List<String> collectIps() {
         synchronized (COLLECT_LOCK) {
 
@@ -3510,13 +3528,20 @@ public class ServerService extends Service {
             }
             List<String> ips = new ArrayList<>();
             try {
-                for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                List<NetworkInterface> antarmuka =
+                        Collections.list(NetworkInterface.getNetworkInterfaces());
+                Collections.sort(antarmuka, (a, b) -> Integer.compare(
+                        peringkatAntarmuka(a.getName()), peringkatAntarmuka(b.getName())));
+                for (NetworkInterface ni : antarmuka) {
                     if (!ni.isUp() || ni.isLoopback()) {
                         continue;
                     }
                     for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
                         if (addr instanceof java.net.Inet4Address) {
-                            ips.add(addr.getHostAddress());
+                            String mentah = addr.getHostAddress();
+                            if (mentah != null && !mentah.startsWith("169.254.")) {
+                                ips.add(mentah);
+                            }
                         } else if (addr instanceof java.net.Inet6Address) {
 
                             String mentah = addr.getHostAddress();
@@ -3532,8 +3557,6 @@ public class ServerService extends Service {
                 }
             } catch (Exception ignored) {
             }
-
-            Collections.sort(ips);
 
             collectCache = Collections.unmodifiableList(ips);
             collectCacheTime = now;

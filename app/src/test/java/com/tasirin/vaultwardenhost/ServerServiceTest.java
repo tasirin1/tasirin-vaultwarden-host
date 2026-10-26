@@ -334,6 +334,19 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void peringkatAntarmuka_lanDiAtasSelulerDanVpn() {
+        assertTrue(ServerService.peringkatAntarmuka("wlan0")
+                < ServerService.peringkatAntarmuka("rmnet_data0"));
+        assertTrue(ServerService.peringkatAntarmuka("eth0")
+                < ServerService.peringkatAntarmuka("tun0"));
+        assertTrue(ServerService.peringkatAntarmuka("rmnet0")
+                < ServerService.peringkatAntarmuka("tun0"));
+        assertEquals(0, ServerService.peringkatAntarmuka("wlan1"));
+        assertEquals(3, ServerService.peringkatAntarmuka("wg0"));
+        assertEquals(3, ServerService.peringkatAntarmuka(null));
+    }
+
+    @Test
     public void bakNamaSah_hanyaNamaKelolaAplikasi() {
         String[] data = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
         assertTrue(ServerService.bakNamaSah("db.sqlite3", data));
