@@ -166,7 +166,11 @@ public final class PinCrypto {
             return false;
         }
         byte[] got = derive(input, salt, iter);
-        return MessageDigest.isEqual(got, want);
+        if (MessageDigest.isEqual(got, want)) {
+            return true;
+        }
+        byte[] cadangan = deriveCadangan(input, salt, iter);
+        return cadangan != null && MessageDigest.isEqual(cadangan, want);
     }
 
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
@@ -269,12 +273,37 @@ public final class PinCrypto {
         }
     }
 
+    static byte[] byteRendah(String pin) {
+        if (pin == null) {
+            return new byte[0];
+        }
+        byte[] hasil = new byte[pin.length()];
+        for (int i = 0; i < pin.length(); i++) {
+            hasil[i] = (byte) pin.charAt(i);
+        }
+        return hasil;
+    }
+
+    static byte[] deriveCadangan(String pin, byte[] salt, int iter) {
+        if (pabrikTersedia()) {
+            return pbkdf2Manual(pin, salt, iter);
+        }
+        return pbkdf2ManualByte(byteRendah(pin), salt, iter);
+    }
+
     static byte[] pbkdf2Manual(String pin, byte[] salt, int iter) {
+        byte[] sandi = pin == null
+                ? new byte[0] : pin.getBytes(StandardCharsets.UTF_8);
+        return pbkdf2ManualByte(sandi, salt, iter);
+    }
+
+    static byte[] pbkdf2ManualByte(byte[] sandi, byte[] salt, int iter) {
         if (iter < 1) {
             throw new IllegalStateException("PBKDF2 tidak tersedia");
         }
-        byte[] sandi = pin == null
-                ? new byte[0] : pin.getBytes(StandardCharsets.UTF_8);
+        if (sandi == null) {
+            sandi = new byte[0];
+        }
         try {
             javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
             mac.init(new javax.crypto.spec.SecretKeySpec(sandi, "HmacSHA256"));

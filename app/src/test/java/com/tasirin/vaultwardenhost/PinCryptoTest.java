@@ -61,6 +61,40 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void pbkdf2Manual_cocokVektorReferensi() {
+        byte[] salt = "salt".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b",
+                PinCrypto.hex(PinCrypto.pbkdf2Manual("password", salt, 1)));
+        assertEquals("c5e478d59288c841aa530db6845c4c8d962893a001ce4e11a4963873aa98134a",
+                PinCrypto.hex(PinCrypto.pbkdf2Manual("password", salt, 4096)));
+    }
+
+    @Test
+    public void pengkodeanNonAscii_keduaJalurSesuaiReferensi() {
+        byte[] salt = new byte[16];
+        for (int i = 0; i < salt.length; i++) {
+            salt[i] = (byte) i;
+        }
+        assertEquals("74991ed4e4f7ecb60f08848ae643309dd95eeccd8570b907d95aadba1cb21db2",
+                PinCrypto.hex(PinCrypto.pbkdf2Manual("päss12", salt, 30000)));
+        assertEquals("1ff577891850574904fe8a7d08bb3429a313651ea654b386457a995864f54698",
+                PinCrypto.hex(PinCrypto.pbkdf2ManualByte(
+                        PinCrypto.byteRendah("päss12"), salt, 30000)));
+        org.junit.Assert.assertArrayEquals(
+                new byte[]{112, -28, 115, 115, 49, 50},
+                PinCrypto.byteRendah("päss12"));
+    }
+
+    @Test
+    public void hashNonAsciiDariJalurManual_tetapLolosVerifikasi() {
+        String simpan = "PBKDF2$30000$000102030405060708090a0b0c0d0e0f$"
+                + "74991ed4e4f7ecb60f08848ae643309dd95eeccd8570b907d95aadba1cb21db2";
+        assertTrue(PinCrypto.verify(simpan, "päss12"));
+        assertFalse(PinCrypto.verify(simpan, "päss13"));
+        assertFalse(PinCrypto.verify(simpan, "pass12"));
+    }
+
+    @Test
     public void pbkdf2ManualIterasiBesarSamadenganFactory() throws Exception {
 
         byte[] salt = new byte[16];

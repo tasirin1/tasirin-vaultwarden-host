@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 371: verifikasi PIN dan dekripsi backup kini mencoba kedua pengkodean PBKDF2
+- Jalur pabrik `PBEKeySpec` mengkodekan kata sandi per byte-rendah tiap karakter (PKCS #5) sedangkan jalur manual memakai UTF-8 penuh; untuk sandi non-ASCII hasil turunannya beda dan format `PBKDF2$` maupun header `VWB3` tidak mencatat jalur mana yang dipakai — backup/PIN non-ASCII yang dibuat di perangkat tanpa pabrik tak bisa dibuka di perangkat berpabrik, dan sebaliknya (temuan audit putaran-9, #146).
+- `verifikasiPbkdf2` kini mencoba derivasi cadangan (`PinCrypto.deriveCadangan`: pengkodean lawan dari jalur utama perangkat itu, dihitung manual sehingga selalu tersedia) bila derivasi utama tak cocok — hash yang cocok lewat jalur mana pun diterima dan penulisan ulang hash sesudah login menyembuhkan catatannya ke jalur utama. Dekripsi backup memakai pola sama: kegagalan tag GCM pada kunci utama dicoba sekali lagi dengan kunci cadangan sebelum menyerah. Vektor referensi independen (termasuk sandi non-ASCII kedua pengkodean) dikunci di `PinCryptoTest`.
+
 ## [Belum rilis] — Audit 370: perintah restart tak lagi membatalkan Stop yang sedang menahan persiapan start
 - Handler `ACTION_RESTART` menghapus `batalStart` tanpa syarat saat intent diterima — membalap pemeriksaan batal di akhir persiapan start: Start lalu Stop (persiapan tertahan) lalu sebuah restart yang tiba bisa membuat proses tetap lahir walau user sudah Stop; dan cabang "Restart dilewati" dapat `stopSelf` di tengah persiapan yang masih berjalan sehingga proses anak lahir dari service yang sudah hancur (temuan audit putaran-9, #145).
 - `batalStart` kini tak disentuh handler restart. Keputusan lewati disatukan di `restartDilewati` (teruji): bila persiapan start sedang berjalan, restart dilewati tanpa menurunkan foreground/`stopSelf` — alur start sendiri yang menentukan hasil akhirnya; cabang antrean penuh memakai penjaga yang sama.

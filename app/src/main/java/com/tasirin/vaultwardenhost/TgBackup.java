@@ -2600,6 +2600,19 @@ public final class TgBackup {
 
     private static void decryptWithKdf(File in, File out, String pass, boolean sha256)
             throws Exception {
+        try {
+            dekripsiSekali(in, out, pass, sha256, false);
+        } catch (javax.crypto.BadPaddingException e) {
+            if (!sha256) {
+                throw e;
+            }
+            dekripsiSekali(in, out, pass, sha256, true);
+        }
+    }
+
+    private static void dekripsiSekali(File in, File out, String pass, boolean sha256,
+            boolean cadangan)
+            throws Exception {
         try (FileInputStream fis = new FileInputStream(in);
              FileOutputStream fos = new FileOutputStream(out)) {
             byte[] magic = new byte[4];
@@ -2629,7 +2642,7 @@ public final class TgBackup {
             readFully(fis, iv);
             Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
             c.init(Cipher.DECRYPT_MODE,
-                    new SecretKeySpec(deriveKey(pass, salt, sha256, iter), "AES"),
+                    new SecretKeySpec(deriveKey(pass, salt, sha256, iter, cadangan), "AES"),
                     new GCMParameterSpec(128, iv));
             byte[] buf = new byte[64 * 1024];
             int n;
@@ -2645,6 +2658,18 @@ public final class TgBackup {
 
     private static byte[] deriveKey(String pass, byte[] salt, boolean sha256, int iter)
             throws Exception {
+        return deriveKey(pass, salt, sha256, iter, false);
+    }
+
+    private static byte[] deriveKey(String pass, byte[] salt, boolean sha256, int iter,
+            boolean cadangan)
+            throws Exception {
+        if (cadangan) {
+            if (!sha256) {
+                throw new IllegalStateException("PBKDF2 cadangan hanya untuk SHA-256");
+            }
+            return PinCrypto.deriveCadangan(pass, salt, iter);
+        }
 
         char[] chars = pass == null ? new char[0] : pass.toCharArray();
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iter, 256);
