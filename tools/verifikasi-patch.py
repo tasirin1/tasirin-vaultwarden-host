@@ -777,7 +777,7 @@ def cek_locale_baru(gagal, diff):
         if not rapih or rapih.startswith(("*", "//", "/*", "*/")):
             continue
         kode = kupas_java(isi)
-        if re.search(r"\.to(Lower|Upper)Case\(\)", kode):
+        if re.search(r"\.to(Lower|Upper)Case\s*\(\s*\)", kode):
             gagal.append("Baris baru toLower/UpperCase() tanpa Locale — bug locale "
                          "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
                          % kode.strip()[:80])

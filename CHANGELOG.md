@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 379: cek locale gerbang tak lagi terkecoh spasi sebelum kurung
+- Pola `cek_locale_baru` menuntut teks persis `.toLowerCase()`; bentuk sah Java `"ABC".toLowerCase ();` (spasi sebelum kurung) atau `( )` lolos dari larangan toLower/UpperCase tanpa Locale — gerbang hijau untuk kode yang justru hendak dicegahnya (temuan audit putaran-9, #154).
+- Pola kini menoleransi spasi di sekitar kurung (`\s*\(\s*\)`) sambil tetap membiarkan varian berargumen `Locale` lewat; terbukti di salinan buang: bentuk berspasi kini GAGAL, bentuk `toLowerCase(Locale.US)` tetap LOLOS.
+
 ## [Belum rilis] — Audit 378: sinkron terjemahan kini memeriksa semua berkas values, bukan hanya strings.xml
 - `cek_sinkron_terjemah` hanya membaca `values/strings.xml` dan `values-in/strings.xml`; string Inggris baru di berkas values lain (mis. berkas fitur tersendiri) tanpa padanan Indonesia sama sekali lolos — UI diam-diam jatuh ke Inggris untuk string itu (temuan audit putaran-9, #153).
 - Nama string dan plurals kini dihimpun dari semua berkas `.xml` di folder `values/` dan `values-in/` (dengan komentar XML dikupas, sejalan Audit 373); terbukti di salinan buang: string Inggris yatim di berkas terpisah kini GAGAL, keadaan normal tetap LOLOS. Sekalian diperketat: pola definisi longgar Audit 374 kini memakai penengok batas tag `(?=[\s/>])` agar `<string>` tidak lagi tertukar dengan `<string-array>` (nama array `about_icons` sempat tertuduh sebagai string yang hilang).
