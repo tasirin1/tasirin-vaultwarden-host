@@ -449,7 +449,7 @@ def cek_sinkron_terjemah(gagal):
 
     inggris = nama_string("app/src/main/res/values/strings.xml")
     indonesia = nama_string("app/src/main/res/values-in/strings.xml")
-    if inggris and indonesia:
+    if inggris or indonesia:
         kurang = sorted(inggris - indonesia)
         lebih = sorted(indonesia - inggris)
         if kurang:

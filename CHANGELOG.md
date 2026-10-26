@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 345: paritas string values-in di verifikasi-patch tak lagi fail-open
+- `cek_sinkron_terjemah` di `tools/verifikasi-patch.py` hanya membandingkan string Inggris↔Indonesia bila KEDUA sisi tak kosong (`if inggris and indonesia:`), sedangkan cabang plurals di fungsi yang sama sudah fail-closed (`or`). Mengosongkan seluruh `<string>` di `values-in/strings.xml` — atau menghapus berkasnya — membuat gerbang LOLOS dan aplikasi diam-diam jatuh ke UI Inggris penuh; tak ada jaring lain karena daftar error lint CI tidak memuat `MissingTranslation`. Kelas bug yang sama dengan Audit 303 (#45) pada paritas colors/layout.
+- Syaratnya kini `if inggris or indonesia:` seperti plurals: satu sisi kosong/hilang langsung GAGAL dengan daftar string yang kurang. Terbukti eksekusi di salinan buang: berkas utuh LOLOS, string dikosongkan GAGAL, berkas dihapus GAGAL.
+
 ## [Belum rilis] — Audit 344: samaran log kini menutup email pengguna vault dan IP publik
 - Penyamaran log digerbang `butuhSamaran()` (kata kunci rahasia atau substring IP privat) dan `samarkanLog()` tidak punya pola sama sekali untuk alamat email dan IP publik — padahal output proses Vaultwarden yang mengalir mentah ke buffer yang sama lazim memuat email pengguna vault pada login gagal dan IP klien pada baris request. Log yang diekspor ke Downloads, dibagikan, atau dikirim bot `/log` bisa membocorkan email pengguna vault (mis. anggota keluarga) dan IP publik mereka, utuh.
 - `samarkanLog()` kini mengganti email menjadi `[email]` dan IPv4 publik (oktet tervalidasi 0–255) menjadi `[ip-publik]`, sesudah giliran IP privat agar alamat privat tetap `[ip-privat]`; `butuhSamaran()` membuka gerbang juga bila salah satunya ada (`adaEmail`/`adaIpPublik`). Semua pemanggil (ekspor, bagikan, crash log, delta UI, bot) memakai pasangan fungsi yang sama sehingga tertutup sekaligus. Diuji di `LogActivityTest`.
