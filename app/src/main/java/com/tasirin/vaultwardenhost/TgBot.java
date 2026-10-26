@@ -1837,7 +1837,11 @@ public final class TgBot {
                     }
                     berbahayaTerotorisasi = true;
                 }
-                runWithWakeLock(ctx, () -> {
+                // Kunci tugas berat, bukan runWithWakeLock polos: /careset
+                // menghapus/mengganti berkas TLS, jadi /ca yang menyalin
+                // ca.pem harus menunggu (dulu bisa mengirim CA lama yang
+                // sedang diganti -> klien memasang CA basi dan HTTPS gagal).
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     try {
                         balas(ctx, idRuang, TgBackup.kirimCa(ctx));
                     } catch (Exception e) {
@@ -1854,7 +1858,9 @@ public final class TgBot {
                     }
                     berbahayaTerotorisasi = true;
                 }
-                runWithWakeLock(ctx, () -> {
+                // Sama seperti /ca: salinan ca.pem ikut menunggu /careset
+                // (dan backup/restore lain) agar tidak menangkap setengah set.
+                runBeratDenganKunci(ctx, idRuang, () -> {
                     try {
                         balas(ctx, idRuang, TgBackup.backupCaKeStorage(ctx));
                     } catch (Exception e) {

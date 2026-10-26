@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 298: /ca & /cabackup ikut kunci tugas berat (balapan dengan /careset)
+- `/careset` mengambil `TUGAS_BERAT` agar tidak berjalan bersamaan dengan backup/restore, tetapi `/ca` dan `/cabackup` memakai `runWithWakeLock` polos. Akibatnya `/ca` yang dikirim beruntun setelah `/careset` bisa membaca `ca.pem` lama yang sedang dihapus/diganti, sehingga pengguna memasang CA basi (HTTPS gagal) atau menerima pesan galat membingungkan.
+- Keduanya kini memakai `runBeratDenganKunci` seperti `/careset`, jadi salinan CA menunggu operasi TLS/backup lain selesai dan ditolak halus ("Tugas lain masih berjalan") bila ada tugas berat berjalan.
+
 ## [Belum rilis] — Audit 297: version.txt TLS ditulis atomik (CA tak dibuat ulang saat listrik mati)
 - `TlsCert.writeVersion` dulu menulis langsung ke `version.txt` (truncate lalu isi). Bila STB mati/IO gagal di tengah, berkas kosong/terpotong; `certVersionOk()` jadi false, CA dianggap rusak, lalu CA baru dibuat dan **semua HP wajib memasang CA baru**. fsync di komentar lama tidak menolong berkas yang sudah ter-truncate.
 - Kini pola sama dengan `writePem`/`tukarPasanganAtomik`: tulis `version.txt.baru` → `flush` → `fsync` → `rename` atomik menimpa `version.txt` (fallback hapus-lalu-rename bila FS menolak menimpa, lalu `IOException`). `resetTls` juga menyapu sisa `version.txt.baru` agar reset bersih; unit test baru memeriksa sisa itu terhapus.
