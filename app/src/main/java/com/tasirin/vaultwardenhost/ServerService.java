@@ -2384,9 +2384,13 @@ public class ServerService extends Service {
         // sehingga server tetap lahir setelah status "Stopped", atau start
         // menghapus tanda stop sengaja yang baru dipasang.
         final Process p;
+        final boolean pengulangan;
         synchronized (KUNCI_PROSET) {
             batalStart = true;
             p = process;
+            // Stop berulang atas proses yang sedang dimatikan: jangan kirim
+            // "Server dihentikan" lagi (dua pesan untuk satu penghentian).
+            pengulangan = p != null && isStopDisengaja(p);
             if (p == null) {
                 prosesStopDisengaja = null;
                 running = false;
@@ -2425,10 +2429,13 @@ public class ServerService extends Service {
             releaseWakeLock();
             flushLogFile();
         }
-        // Pesan tetap dikirim langsung; pembersihan flag/DB dilakukan thread
-        // yang lebih dulu melihat proses mati (watcher atau stopper), dengan
-        // guard process==p agar Start baru tak ikut dibersihkan.
-        TgBackup.sendMessage(this, "Server dihentikan.");
+        // Kabari hanya bila benar-benar ada proses yang dihentikan dan Stop ini
+        // bukan pengulangan atas proses yang sedang dimatikan. Dulu pesan
+        // dikirim tanpa syarat sehingga Stop berulang (atau Stop saat server
+        // memang tak jalan) mengirim "Server dihentikan" palsu/ganda.
+        if (p != null && !pengulangan) {
+            TgBackup.sendMessage(this, "Server dihentikan.");
+        }
     }
 
     /** Jalankan Start yang tertunda karena proses lama masih dimatikan thread
