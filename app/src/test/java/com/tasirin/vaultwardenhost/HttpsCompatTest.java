@@ -53,6 +53,17 @@ public class HttpsCompatTest {
     }
 
     @Test
+    public void sinyalGagalTrust_hanyaUntukKegagalanBaru() {
+        assertTrue(HttpsCompat.sinyalGagalTrust(null, "chain kosong"));
+        assertTrue(HttpsCompat.sinyalGagalTrust("chain kosong", "parse gagal"));
+        assertFalse(HttpsCompat.sinyalGagalTrust("chain kosong", "chain kosong"));
+        assertFalse(HttpsCompat.sinyalGagalTrust(null, null));
+        HttpsCompat.catatGagalTrust(new Exception("uji-sinyal"));
+        assertTrue("java.lang.Exception: uji-sinyal".equals(
+                HttpsCompat.gagalTrustTerakhir()));
+    }
+
+    @Test
     public void aliasCaSistem_tolakCaPengguna() {
         assertTrue(HttpsCompat.aliasCaSistem("system:1"));
         assertTrue(HttpsCompat.aliasCaSistem("added:0"));

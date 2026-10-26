@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 328: kegagalan trust tambahan HttpsCompat kini memberi sinyal di log aplikasi
+- Bila rantai aset `certs/github-chain.pem` gagal dimuat/diurai, `HttpsCompat.apply` hanya menulis satu baris `Log.w` lalu lanjut dengan factory bawaan — himpunan trust diam-diam berbeda dari desain (terutama di Android 5/6) dan gejala akhirnya kegagalan handshake generik yang sulit didiagnosis.
+- Kegagalan kini dicatat lewat `catatGagalTrust`: tetap ada di logcat, dan kegagalan yang baru/berbeda juga ditulis sekali ke log aplikasi (`ServerService.catatLog`, terlihat di UI log dan ekspor log) lewat penolong murni `sinyalGagalTrust`; pesan yang sama berulang tidak membanjiri log. Keadaan gagal terakhir bisa dibaca lewat `gagalTrustTerakhir()`. Perilaku koneksi tak berubah (verifier bawaan tetap memvalidasi) — yang ditambah adalah sinyalnya. Diuji di `HttpsCompatTest`.
+
 ## [Belum rilis] — Audit 327: penanda fallback binary kini memakai jam dinding, bukan elapsedRealtime
 - `KEY_BIN_FALLBACK_AT` disimpan persisten di SharedPreferences tetapi nilainya `elapsedRealtime` yang berumur sejak boot: sesudah reboot, begitu uptime boot baru masuk lagi ke rentang lama, fallback yang sudah kedaluwarsa dianggap segar kembali (bisa sehari kemudian) dan cek update memakai fallback basi.
 - Stempel kini ditulis dan dibaca sebagai jam dinding (`System.currentTimeMillis`, parameter `fallbackBinaryBerlaku` diganti nama menjadi `kiniWall`; logikanya tak berubah dan tetap menolak jam yang mundur). Stempel elapsed warisan versi lama otomatis tak berlaku lagi karena selisihnya terhadap jam dinding jauh melebihi jendela 6 jam — migrasi fail-closed tanpa langkah khusus.

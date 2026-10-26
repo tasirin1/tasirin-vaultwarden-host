@@ -93,11 +93,34 @@ public final class HttpsCompat {
             try {
                 ((HttpsURLConnection) c).setSSLSocketFactory(socketFactory(ctx));
             } catch (Exception e) {
+                catatGagalTrust(e);
+            }
+        }
+    }
 
-                try {
-                    android.util.Log.w("HttpsCompat", "Gagal pasang trust tambahan: " + e);
-                } catch (Exception ignored) {
-                }
+    private static volatile String gagalTrustTerakhir;
+
+    static String gagalTrustTerakhir() {
+        return gagalTrustTerakhir;
+    }
+
+    static boolean sinyalGagalTrust(String sebelumnya, String kini) {
+        return kini != null && !kini.equals(sebelumnya);
+    }
+
+    static void catatGagalTrust(Exception e) {
+        String kini = String.valueOf(e);
+        try {
+            android.util.Log.w("HttpsCompat", "Gagal pasang trust tambahan: " + e);
+        } catch (Exception ignored) {
+        }
+        if (sinyalGagalTrust(gagalTrustTerakhir, kini)) {
+            gagalTrustTerakhir = kini;
+            try {
+                ServerService.catatLog("[app] Trust tambahan GitHub gagal"
+                        + " dipasang (" + kini + "); koneksi memakai trust"
+                        + " bawaan Android.");
+            } catch (Exception ignored) {
             }
         }
     }
