@@ -1280,13 +1280,13 @@ public class TgBackupTest {
     public void pecahPesan_utamakanNewlineDanGabungUtuh() {
         String msg = "baris1\nbaris2\nbaris3";
         java.util.List<String> b = TgBackup.pecahPesan(msg, 10);
+        assertEquals(java.util.Arrays.asList("baris1\n", "baris2\n", "baris3"), b);
         StringBuilder gabung = new StringBuilder();
         for (String x : b) {
             gabung.append(x);
-            assertTrue(x.length() <= 10 + 16);
+            assertTrue(x.length() <= 10);
         }
         assertEquals(msg, gabung.toString());
-        assertTrue(b.size() >= 2);
         assertTrue(TgBackup.ekorGrapheme('\u0301'));
         assertTrue(TgBackup.ekorGrapheme('\u200D'));
         assertFalse(TgBackup.ekorGrapheme('a'));

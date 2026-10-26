@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 382: tes prioritas newline pecahPesan kini membedakan perilakunya
+- Tes `pecahPesan_utamakanNewlineDanGabungUtuh` hanya menegaskan potongan ≤ batas+16 dan gabungan utuh — lolos juga untuk pemotong keras per-batas yang mengabaikan newline, padahal prioritas newline-lah perilaku yang hendak dikunci (temuan audit putaran-9, #157).
+- Tes kini menegaskan daftar potongan persis (`baris1\n`, `baris2\n`, `baris3` untuk batas 10, diturunkan dari porting Python fungsi yang sama) dan tiap potongan ≤ batas tanpa kelonggaran grapheme untuk masukan ini.
+
 ## [Belum rilis] — Audit 381: konstanta produksi yang diuji kini dijepit nilai literal di tes
 - Sejumlah tes menurunkan nilai harapan dari konstanta produksi itu sendiri (`KUNCI_MS`, `DEFAULT_PORT`, `LEAF_MAX_MS`/`BATAS_REGEN_MS`, `KEEP_PRE_RESTORE`, `BATAS_ENTRI_CHAT`): mengubah konstantanya diam-diam mengubah pula "harapannya", jadi tes tetap hijau dan pergeseran nilai yang disengaja maupun tak disengaja tak pernah ketahuan (temuan audit putaran-9, #156).
 - Tiap berkas tes terkait kini punya tes penjepit yang menegaskan konstanta sama dengan literal yang dimaksud (300000 ms, "8088", 397 dan 30 hari dalam ms, 2, 32) — perubahan konstanta mulai sekarang menggagalkan tes dengan sengaja dan terlihat.
