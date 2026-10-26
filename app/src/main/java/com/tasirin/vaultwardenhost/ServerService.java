@@ -3999,19 +3999,27 @@ public class ServerService extends Service {
     }
 
     private static int findChildPid() {
+        int myPid = android.os.Process.myPid();
+        java.util.List<Integer> cocok = new java.util.ArrayList<>();
         try {
             for (int pid : kandidatPidSeUid()) {
+                if (pid == myPid) {
+                    continue;
+                }
                 try {
-                    String cmd = readProcCmdline(new File("/proc/" + pid));
-                    if (cmdlineServer(cmd)) {
-                        return pid;
+                    File dir = new File("/proc/" + pid);
+                    if (!cmdlineServer(readProcCmdline(dir))) {
+                        continue;
+                    }
+                    if (ppidDariStat(bacaBarisProc(new File(dir, "stat"))) == myPid) {
+                        cocok.add(pid);
                     }
                 } catch (Exception ignored) {
                 }
             }
         } catch (Exception ignored) {
         }
-        return -1;
+        return pidDariKecocokan(cocok);
     }
 
     private void killStaleVaultwarden() {

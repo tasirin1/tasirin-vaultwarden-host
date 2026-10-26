@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 430: findChildPid kini mensyaratkan kepemilikan dan kecocokan tunggal
+- Pencari PID anak untuk tampilan RSS mengembalikan proses pertama se-UID yang cmdline-nya cocok — tanpa cek induk dan tanpa cek tunggal — sehingga bila anak asli tak terdeteksi, angka RSS yang tampil di Settings/pesan bot bisa milik proses vaultwarden yatim sisa crash.
+- `findChildPid` kini mencerminkan disiplin `pidAnakDariProc` (Audit untuk #120): kandidat wajib ber-cmdline server DAN ber-PPID sama dengan PID aplikasi, dan hasil hanya diakui bila kecocokannya tunggal (`pidDariKecocokan`); selain itu -1 (RSS tidak ditampilkan) daripada angka milik proses lain.
+
 ## [Belum rilis] — Audit 429: siapPakaiTanpaTulis memakai kaLayakDipakai yang sama dengan ensure
 - Jalur fallback baca-saja menilai kelayakan CA dengan `caSisaCukup` yang ketat, sedangkan `ensure()` memakai `caLayakDipakai` yang mempertahankan CA saat jam STB mundur (sisa `-2`, notBefore belum tercapai). Dua fungsi menjawab pertanyaan yang sama dengan jawaban berlawanan untuk keadaan jam yang sama: fallback ditolak dan Start gagal total, padahal sertifikat yang sama diterima jalur normal.
 - Sisi CA `siapPakaiTanpaTulis` kini memakai `caLayakDipakai` (semantiknya sudah terkunci uji `TlsCertTest.caLayakDipakaiPertahankanCaSaatJamMundur`); sisi leaf tetap ketat, sama seperti `ensure()` yang membuat ulang leaf pada keadaan itu.
