@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 403: pindai rahasia cek-cepat kini meliputi worktree dan token terbungkus baris
+- Pindai rahasia hanya membaca indeks (`git grep --cached`): menjalankan cek-cepat manual sebelum `git add` melaporkan LOLOS atas token yang hidup di berkas kerja; dan pemindaian per baris melewatkan token yang terbungkus ke dua baris (temuan audit putaran-8, #141).
+- Pindai per baris kini menggabungkan indeks DAN worktree, ditambah lintasan kedua yang menggabungkan baris tiap berkas terlacak sebelum mencocokkan pola token — terbukti di salinan buang: token belum ter-stage dan token `ghp_` terbelah dua baris kini GAGAL, pohon bersih tetap LOLOS.
+
 ## [Belum rilis] — Audit 402: pola kunci privat cek-cepat tak lagi berjangkar akhir baris
 - Alternatif PEM pada `POLA_RAHASIA` diakhiri `$`: baris `-----BEGIN ... PRIVATE KEY-----` yang diikuti spasi ekor atau berujung CRLF tidak cocok dan lolos dari satu-satunya gerbang rahasia lokal (temuan audit putaran-8, #140).
 - Jangkar akhir diganti jangkar AWAL baris (`^`): kop PEM sungguhan selalu mulai di kolom pertama, sedangkan literal kop di dalam kode (pengurai PEM `TlsCert`) tidak — terbukti di salinan buang: varian spasi ekor dan CRLF kini GAGAL, pohon bersih (termasuk literal kode itu) tetap LOLOS.
