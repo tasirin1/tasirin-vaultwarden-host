@@ -567,6 +567,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void restartDilewati_saatPersiapanAtauServerMati() {
+        assertTrue(ServerService.restartDilewati(true, false, false));
+        assertTrue(ServerService.restartDilewati(true, true, true));
+        assertTrue(ServerService.restartDilewati(false, false, false));
+        assertFalse(ServerService.restartDilewati(false, true, true));
+        assertFalse(ServerService.restartDilewati(false, false, true));
+        assertFalse(ServerService.restartDilewati(false, true, false));
+    }
+
+    @Test
     public void pidDariKecocokan_hanyaTunggalYangDiakui() {
         assertEquals(-1, ServerService.pidDariKecocokan(null));
         assertEquals(-1, ServerService.pidDariKecocokan(

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 370: perintah restart tak lagi membatalkan Stop yang sedang menahan persiapan start
+- Handler `ACTION_RESTART` menghapus `batalStart` tanpa syarat saat intent diterima — membalap pemeriksaan batal di akhir persiapan start: Start lalu Stop (persiapan tertahan) lalu sebuah restart yang tiba bisa membuat proses tetap lahir walau user sudah Stop; dan cabang "Restart dilewati" dapat `stopSelf` di tengah persiapan yang masih berjalan sehingga proses anak lahir dari service yang sudah hancur (temuan audit putaran-9, #145).
+- `batalStart` kini tak disentuh handler restart. Keputusan lewati disatukan di `restartDilewati` (teruji): bila persiapan start sedang berjalan, restart dilewati tanpa menurunkan foreground/`stopSelf` — alur start sendiri yang menentukan hasil akhirnya; cabang antrean penuh memakai penjaga yang sama.
+
 ## [Belum rilis] — Audit 369: pesan PIN basi kini ikut dihapus dari riwayat chat, bukan dilewati selamanya
 - Pemeriksaan kesegaran pesan di `pollOnce` membuang pesan berumur >5 menit dengan `continue` sebelum blok penghapusan PIN (#101) tercapai: PIN yang dikirim user saat bot sedang mati/offline tertinggal permanen di riwayat chat Telegram dan tak pernah dikunjungi lagi karena offset sudah maju (temuan audit putaran-7, #121).
 - Cabang basi kini memeriksa bentuk pesannya lebih dulu (`pinBasiPerluHapus`, teruji): perintah berargumen PIN dan balasan PIN untuk sesi pending (aktif maupun kedaluwarsa) dihapus lewat jalur hapus yang sama sebelum pesan dilewati; pesan basi biasa tetap dilewati tanpa disentuh, dan tidak ada perintah basi yang dijalankan.

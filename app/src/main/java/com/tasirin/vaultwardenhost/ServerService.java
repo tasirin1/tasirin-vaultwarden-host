@@ -958,15 +958,19 @@ public class ServerService extends Service {
         }
         if (ACTION_RESTART.equals(action)) {
             autoRestart = true;
-            batalStart = false;
             startForegroundCompat();
 
             boolean masuk = Util.jalankanLama(() -> {
                 appendLog("[app] Restart server diminta.");
 
-                if (!running && !alive(process)) {
-                    appendLog("[app] Restart dilewati: server tidak berjalan.");
-                    turunkanForegroundBilaTakDiminta(startId);
+                if (restartDilewati(starting.get(), running, alive(process))) {
+                    if (starting.get()) {
+                        appendLog("[app] Restart dilewati: persiapan start"
+                                + " sedang berjalan.");
+                    } else {
+                        appendLog("[app] Restart dilewati: server tidak berjalan.");
+                        turunkanForegroundBilaTakDiminta(startId);
+                    }
                     return;
                 }
 
@@ -1017,7 +1021,9 @@ public class ServerService extends Service {
                 appendLog("[app] Restart gagal: antrean tugas penuh - coba lagi sebentar.");
                 TgBackup.sendMessage(this,
                         "Restart gagal: tugas lain sedang berjalan. Coba lagi sebentar.");
-                turunkanForegroundBilaTakDiminta(startId);
+                if (!starting.get()) {
+                    turunkanForegroundBilaTakDiminta(startId);
+                }
             }
             return START_NOT_STICKY;
         }
@@ -1131,6 +1137,11 @@ public class ServerService extends Service {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    static boolean restartDilewati(boolean starting, boolean running,
+            boolean prosesHidup) {
+        return starting || (!running && !prosesHidup);
     }
 
     private void turunkanForegroundBilaTakDiminta(int startId) {
