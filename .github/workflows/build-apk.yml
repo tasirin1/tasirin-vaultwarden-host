@@ -112,7 +112,18 @@ jobs:
 
       - name: Tampilkan laporan lint di log
         if: always()
-        run: cat app/build/reports/lint-results-debug.txt || true
+        run: |
+          # AGP 8 menaruh teks laporan di intermediates; app/build/reports hanya
+          # HTML. Dulu path yang di-cat tak pernah ada sehingga log hanya memuat
+          # "First failure" dan sisa temuan lint tak terlihat.
+          for f in \
+            app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt \
+            app/build/reports/lint-results-debug.txt; do
+            if [ -f "$f" ]; then
+              echo "===== $f ====="
+              sed -n '1,400p' "$f"
+            fi
+          done
 
       # Secret signing hanya dipasang di langkah ini (dulu KEYSTORE_BASE64 di
       # level job sehingga ikut terlihat langkah lint/unit-test yang menjalankan
