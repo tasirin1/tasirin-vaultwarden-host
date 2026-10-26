@@ -679,4 +679,14 @@ public class TgBotTest {
         assertEquals("Server sehat (HTTPS 200 /alive).", TgBot.pesanAlive(true));
         assertEquals("Server TIDAK merespon /alive!", TgBot.pesanAlive(false));
     }
+
+    @Test
+    public void kunciMasihDijagaBerhentiSaatSelesaiAtauLewatBatas() {
+        assertTrue(TgBot.kunciMasihDijaga(1_000L, 2_000L, false));
+        assertFalse(TgBot.kunciMasihDijaga(1_000L, 2_000L, true));
+        long lewat = 1_000L + TgBot.BATAS_JAGA_KUNCI_MS;
+        assertFalse(TgBot.kunciMasihDijaga(1_000L, lewat, false));
+        assertTrue(TgBot.kunciMasihDijaga(1_000L, lewat - 1L, false));
+        org.junit.Assert.assertEquals(6L * 3600L * 1000L, TgBot.BATAS_JAGA_KUNCI_MS);
+    }
 }

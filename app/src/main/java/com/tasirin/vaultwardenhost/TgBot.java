@@ -2145,6 +2145,15 @@ public final class TgBot {
 
     static final long WAKELOCK_TUGAS_BERAT_MS = 20L * 60L * 1000L;
 
+    static final long BATAS_JAGA_KUNCI_MS = 6L * 3600L * 1000L;
+
+    static boolean kunciMasihDijaga(long mulaiMs, long kiniMs, boolean tugasSelesai) {
+        if (tugasSelesai) {
+            return false;
+        }
+        return kiniMs - mulaiMs < BATAS_JAGA_KUNCI_MS;
+    }
+
     private static boolean runWithWakeLock(Context ctx, Runnable task) {
 
         PowerManager.WakeLock wl = null;
@@ -2152,6 +2161,7 @@ public final class TgBot {
             PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
             if (pm != null) {
                 wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot-task");
+                wl.setReferenceCounted(false);
 
                 wl.acquire(WAKELOCK_TUGAS_BERAT_MS);
             }
@@ -2159,10 +2169,12 @@ public final class TgBot {
             wl = null;
         }
         final PowerManager.WakeLock milik = wl;
+        final AtomicBoolean selesai = new AtomicBoolean(false);
         boolean masuk = cobaJalankanBg(() -> {
             try {
                 task.run();
             } finally {
+                selesai.set(true);
                 try {
                     if (milik != null && milik.isHeld()) {
                         milik.release();
@@ -2178,8 +2190,34 @@ public final class TgBot {
                 }
             } catch (Exception ignored) {
             }
+            return false;
         }
-        return masuk;
+        if (milik != null) {
+            final long mulai = SystemClock.elapsedRealtime();
+            Thread jaga = new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(WAKELOCK_TUGAS_BERAT_MS / 2L);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    if (!kunciMasihDijaga(mulai, SystemClock.elapsedRealtime(),
+                            selesai.get())) {
+                        return;
+                    }
+                    try {
+                        if (milik.isHeld()) {
+                            milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
+                        }
+                    } catch (Exception ignored) {
+                        return;
+                    }
+                }
+            }, "vw-jaga-kunci");
+            jaga.setDaemon(true);
+            jaga.start();
+        }
+        return true;
     }
 
     static final long TOMBOL_KEDALUWARSA_MS = 24L * 3600 * 1000;

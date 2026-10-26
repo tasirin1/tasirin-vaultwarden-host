@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 408: wakelock tugas berat Telegram kini diperpanjang selama tugas berjalan
+- Wakelock tugas berat (update, restore, backup) dipasang dengan batas tunggal 20 menit; unduhan besar di koneksi lambat yang melewatinya kehilangan wakelock di tengah jalan dan perangkat bisa tertidur sehingga tugas macet/gagal tanpa jejak jelas (temuan audit putaran-9, #162).
+- Kini ada thread penjaga `vw-jaga-kunci` yang memperpanjang wakelock tiap 10 menit selama tugas belum selesai (keputusan murni `kunciMasihDijaga`), dengan batas total penjagaan 6 jam agar tugas yang benar-benar menggantung tidak menguras baterai tanpa batas; pelepasan saat tugas selesai tidak berubah.
+
 ## [Belum rilis] — Audit 407: nextMidnight kini dihitung dengan Calendar yang menghormati DST hari target
 - `nextMidnight` memakai offset zona pada INSTAN acuan untuk menghitung tengah malam berikutnya; pada malam pergantian DST offset hari target berbeda dan alarm backup meleset ±1 jam (diuji dengan angka: zona America/New_York menjelang spring-forward meleset tepat 3600 detik; Indonesia tak ber-DST jadi tak terpengaruh) (temuan audit putaran-9, #161).
 - Perhitungan kini memakai `Calendar` (tengah malam lokal hari berikutnya menurut aturan zona pada hari itu) + 60 detik seperti sebelumnya; nilai untuk zona tanpa DST tidak berubah.
