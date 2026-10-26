@@ -156,7 +156,14 @@ jobs:
             exit 1
           fi
           echo "Sidik jari sertifikat cocok: $SERT"
-          unzip -l "$APK" | grep -E 'vw_version|classes.dex|AndroidManifest'
+          ISI=$(unzip -l "$APK")
+          for wajib in vw_version.txt classes.dex AndroidManifest.xml; do
+            printf '%s\n' "$ISI" | grep -q "$wajib" || {
+              echo "::error::Isi APK wajib hilang: $wajib"
+              exit 1
+            }
+          done
+          echo "Isi APK wajib lengkap: vw_version.txt, classes.dex, AndroidManifest.xml"
           ls -lh "$APK"
 
       - name: Cek ukuran APK (jaga APK tetap kecil)
