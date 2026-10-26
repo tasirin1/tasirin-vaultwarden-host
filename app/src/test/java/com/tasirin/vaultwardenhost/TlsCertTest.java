@@ -162,6 +162,18 @@ public class TlsCertTest {
     }
 
     @Test
+    public void caLayakDipakaiPertahankanCaSaatJamMundur() {
+        // -2 = CA belum valid karena jam STB mundur, bukan rusak: CA yang sudah
+        // dipasang di semua klien wajib dipertahankan (start ditolak sampai jam
+        // dibetulkan), bukan diganti CA baru yang menghanguskan kepercayaan itu.
+        assertTrue(TlsCert.caLayakDipakai(-2));
+        assertTrue(TlsCert.caLayakDipakai(TlsCert.BATAS_REGEN_MS + 1));
+        assertFalse(TlsCert.caLayakDipakai(TlsCert.BATAS_REGEN_MS));
+        assertFalse(TlsCert.caLayakDipakai(0));
+        assertFalse(TlsCert.caLayakDipakai(-1));
+    }
+
+    @Test
     public void kunciCocokCertBandingkanModulusRsa() throws Exception {
         java.security.KeyPairGenerator g =
                 java.security.KeyPairGenerator.getInstance("RSA");

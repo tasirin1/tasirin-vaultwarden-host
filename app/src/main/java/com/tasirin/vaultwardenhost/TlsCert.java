@@ -267,6 +267,19 @@ public final class TlsCert {
                 caBaru = true;
                 writeVersion(dir);
             }
+            if (sisaMs(caCert) == -2) {
+                // Jam STB mundur: CA ada tapi belum valid menurut jam perangkat.
+                // Jangan sentuh CA/leaf sama sekali — regen CA menghanguskan CA
+                // yang sudah dipasang di semua klien, dan leaf baru tetap tak
+                // lolos rantai CA yang belum valid. ServerService fail-closed
+                // pada ca.pem sisa -2 dan meminta jam dibetulkan.
+                try {
+                    ServerService.catatLog("[tls] jam STB mundur - TLS tidak diubah,"
+                            + " betulkan tanggal & jam lalu Start lagi");
+                } catch (Exception ignored) {
+                }
+                return dir;
+            }
             long sisaLeaf = sisaMs(certFile);
             if (sisaLeaf == -2) {
                 // Jam mundur > 1 hari: leaf belum valid. Regenerasi di bawah
@@ -385,11 +398,10 @@ public final class TlsCert {
 
     /** True bila CA bisa dipakai: file ada, versi cocok, sisa > 30 hari.
      *  Regen dini seperti leaf agar CA tak kedaluwarsa mendadak di tengah jalan.
-     *  Sisa -2 (belum valid karena jam mundur) sengaja TIDAK dipakai: klien
-     *  menolak TLS dan ServerService fail-closed pada certDays == -2 sehingga
-     *  server mustahil start. Regen memakai jam sekarang membuat
-     *  notBefore = kini - 1 hari sehingga valid lagi — sekali jalan, bukan
-     *  tiap Start (sesudahnya sisa > 0). */
+     *  Sisa -2 (belum valid karena jam mundur) TIDAK memicu regen: itu bukan
+     *  CA rusak, dan membuat CA baru menghanguskan CA yang sudah dipercaya
+     *  semua klien. CA dipertahankan; ServerService fail-closed pada
+     *  certDays(ca.pem) == -2 dan meminta pengguna membetulkan jam. */
     static boolean caOk(File caCert, File caKey, File dir) {
         if (!caCert.exists() || !caKey.exists()
                 || caCert.length() <= 100 || caKey.length() <= 100
@@ -410,21 +422,27 @@ public final class TlsCert {
         }
         long sisa = sisaMs(caCert);
         if (sisa == -2) {
-            // Catat sebab regen agar log tak tampak seperti CA hilang/rusak.
+            // Catat sebabnya agar log tak tampak seperti CA hilang/rusak.
             try {
-                ServerService.catatLog("[tls] CA belum valid (jam mundur) - dibuat ulang");
+                ServerService.catatLog("[tls] CA belum valid (jam mundur)"
+                        + " - CA dipertahankan, betulkan jam STB");
             } catch (Exception ignored) {
             }
-            try {
-                android.util.Log.w("TlsCert", "[tls] CA notYetValid, dibuat ulang dengan jam sekarang");
-            } catch (Exception ignored2) {
-            }
         }
-        return caSisaCukup(sisa);
+        return caLayakDipakai(sisa);
+    }
+
+    /** True bila CA boleh dipertahankan apa adanya. Sisa -2 berarti CA belum
+     *  valid menurut jam perangkat (STB mundur), bukan CA rusak — meregen
+     *  akan mengganti identitas TLS yang sudah dipasang di semua klien, jadi
+     *  CA dipakai terus dan start ditolak sampai jam dibetulkan. Murni. */
+    static boolean caLayakDipakai(long sisa) {
+        return sisa == -2 || caSisaCukup(sisa);
     }
 
     /** Ambang sisa CA untuk dipakai ulang (> 30 hari); -2 (belum valid) dan
-     *  -1 (tak terbaca) selalu false agar ensure() meregen. Murni. */
+     *  -1 (tak terbaca) selalu false di sini — pemanggil yang membedakan
+     *  jam mundur memakai {@link #caLayakDipakai(long)}. Murni. */
     static boolean caSisaCukup(long sisa) {
         return sisa > BATAS_REGEN_MS;
     }

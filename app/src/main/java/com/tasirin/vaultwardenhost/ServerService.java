@@ -2125,6 +2125,21 @@ public class ServerService extends Service {
                 return;
             }
             long certDays = TlsCert.daysLeft(new File(tlsDir, "cert.pem"));
+            if (TlsCert.daysLeft(new File(tlsDir, "ca.pem")) == -2) {
+                // Jam mundur: CA yang sudah dipercaya semua klien belum valid
+                // menurut jam perangkat. TlsCert.ensure sengaja TIDAK membuat
+                // CA baru (itu menghanguskan identitas TLS terpasang), jadi
+                // start ditolak di sini sampai jam dibetulkan.
+                appendLog("[app] FATAL: jam STB miring (CA belum valid)"
+                        + " - CA dipertahankan, server TIDAK start. Aktifkan"
+                        + " Tanggal & waktu otomatis, lalu Start lagi.");
+                setStatus("Jam STB salah (CA belum valid) - server tidak start.\n"
+                        + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
+                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                        + " (CA TLS belum valid). CA tidak diganti; aktifkan"
+                        + " Tanggal & waktu otomatis lalu coba lagi.");
+                return;
+            }
             if (certDays >= 0 && certDays < 30) {
                 appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
                         + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
