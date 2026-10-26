@@ -808,12 +808,21 @@ public final class Updater {
      *  Entri dihitung pemakainya lalu DILEPAS saat pemakai terakhir selesai:
      *  nama tmp memuat versi target, jadi tanpa pelepasan peta ini tumbuh satu
      *  entri per update binary/shim/web-vault seumur proses (bocor kecil tetapi
-     *  permanen di STB 1 GB yang hidup berbulan-bulan). Penghapusan dilakukan
-     *  atomik bersama penurunan hitungan lewat {@code compute}, sehingga tak ada
+     *  permanen di STB 1 GB yang hidup berbulan-bulan). Penurunan hitungan dan
+     *  penghapusan entri dilakukan dalam satu blok kunci peta, sehingga tak ada
      *  celah "entri dihapus padahal masih ada pemakai" yang bisa melahirkan dua
-     *  kunci berbeda untuk path yang sama. */
+     *  kunci berbeda untuk path yang sama.
+     *
+     *  Tak memakai ConcurrentHashMap.compute/computeIfPresent: keduanya baru
+     *  ada di API 24, sedangkan minSdk 21 (lint NewApi menggagalkan build).
+     *  KUNCI_PETA hanya menjaga operasi peta (mikrodetik, tanpa kerja unduhan)
+     *  jadi kontensinya tak terasa; kunci per path tetap `mutex` di bawah. */
     private static final java.util.concurrent.ConcurrentHashMap<String, KunciUnduh> KUNCI_UNDUH =
             new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Penjaga mutasi KUNCI_UNDUH (hitung pemakai + buang entri) — pengganti
+     *  `compute`/`computeIfPresent` yang butuh API 24. */
+    private static final Object KUNCI_PETA = new Object();
 
     private static final class KunciUnduh {
         final Object mutex = new Object();
@@ -832,21 +841,30 @@ public final class Updater {
      *  diimbangi {@link #lepasKunciUnduh(File)} di blok {@code finally}. */
     static Object kunciUnduh(File tmp) {
         String kunci = pathKunciUnduh(tmp);
-        KunciUnduh isi = KUNCI_UNDUH.compute(kunci, (k, ada) -> {
-            KunciUnduh hasil = ada == null ? new KunciUnduh() : ada;
-            hasil.pemakai++;
-            return hasil;
-        });
-        return isi.mutex;
+        synchronized (KUNCI_PETA) {
+            KunciUnduh isi = KUNCI_UNDUH.get(kunci);
+            if (isi == null) {
+                isi = new KunciUnduh();
+                KUNCI_UNDUH.put(kunci, isi);
+            }
+            isi.pemakai++;
+            return isi.mutex;
+        }
     }
 
     /** Lepas kunci; entri peta dibuang saat pemakai terakhir selesai. */
     static void lepasKunciUnduh(File tmp) {
         String kunci = pathKunciUnduh(tmp);
-        KUNCI_UNDUH.computeIfPresent(kunci, (k, isi) -> {
+        synchronized (KUNCI_PETA) {
+            KunciUnduh isi = KUNCI_UNDUH.get(kunci);
+            if (isi == null) {
+                return;  // lepas berlebih (pemanggil ganda): jangan sentuh entri lain
+            }
             isi.pemakai--;
-            return isi.pemakai <= 0 ? null : isi;
-        });
+            if (isi.pemakai <= 0) {
+                KUNCI_UNDUH.remove(kunci);
+            }
+        }
     }
 
     /** Pasang hasil unduhan ke tujuan: verifikasi ulang SHA-256 + rename atomik
