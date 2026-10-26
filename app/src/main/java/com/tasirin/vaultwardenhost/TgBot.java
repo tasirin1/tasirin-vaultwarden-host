@@ -2194,28 +2194,22 @@ public final class TgBot {
         }
         if (milik != null) {
             final long mulai = SystemClock.elapsedRealtime();
-            Thread jaga = new Thread(() -> {
-                while (true) {
-                    try {
-                        Thread.sleep(WAKELOCK_TUGAS_BERAT_MS / 2L);
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    if (!kunciMasihDijaga(mulai, SystemClock.elapsedRealtime(),
-                            selesai.get())) {
-                        return;
-                    }
-                    try {
-                        if (milik.isHeld()) {
-                            milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
-                        }
-                    } catch (Exception ignored) {
-                        return;
-                    }
+            final Runnable[] jaga = new Runnable[1];
+            jaga[0] = () -> {
+                if (!kunciMasihDijaga(mulai, SystemClock.elapsedRealtime(),
+                        selesai.get())) {
+                    return;
                 }
-            }, "vw-jaga-kunci");
-            jaga.setDaemon(true);
-            jaga.start();
+                try {
+                    if (milik.isHeld()) {
+                        milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
+                    }
+                } catch (Exception ignored) {
+                    return;
+                }
+                Util.postTunda(jaga[0], WAKELOCK_TUGAS_BERAT_MS / 2L);
+            };
+            Util.postTunda(jaga[0], WAKELOCK_TUGAS_BERAT_MS / 2L);
         }
         return true;
     }

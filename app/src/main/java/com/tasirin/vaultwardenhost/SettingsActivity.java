@@ -226,6 +226,7 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
     private void simpanGagalImporKeduanya(String sidik, int gagal) {
         simpanGagalImpor(sidik, gagal);
         try {

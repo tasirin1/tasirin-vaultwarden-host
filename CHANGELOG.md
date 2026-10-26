@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 422: bersihkan tiga warning yang tertinggal dari maraton putaran 7–9
+- Tiga warning non-fatal tertinggal dari perbaikan maraton: lint `ApplySharedPref` untuk `commit()` penghitung gagal impor (Audit 409) yang belum beranotasi penekan seperti semua situs `commit()` lain; peringatan gerbang "pola boros" untuk `Calendar.getInstance(` di `nextMidnight` (Audit 407) dan `new Thread(` di penjaga wakelock (Audit 408).
+- `simpanGagalImporKeduanya` kini ber-`@SuppressLint("ApplySharedPref")` (commit tetap disengaja); `nextMidnight` dihitung manual dua lintasan — offset hari target dikoreksi sekali bila berbeda, hasil DST spring-forward dan fall-back identik dengan versi Calendar (dibuktikan porting Python); penjaga wakelock kini rantai `Util.postTunda` yang menjadwalkan dirinya sendiri, tanpa thread khusus dan tanpa menahan thread pool.
+
 ## [Belum rilis] — Audit 421: tes duplikat dan trivial digabung/dihapus tanpa kehilangan kasus
 - Beberapa tes mengasersi ulang hal yang sama atau tak membuktikan perilaku: dua tes normalisasi port yang tumpang tindih, dua tes samaran log yang tercakup penuh oleh tes gabungannya, tiga tes `namaBolehDibagikan` yang tercerai, dan satu tes refleksi Updater yang hanya memeriksa nama + jumlah parameter metode (temuan audit putaran-9, #175).
 - Pasangan port digabung (semua masukan unik dipertahankan; asersi `portTampakAngka` pindah ke tesnya sendiri), dua tes log yang tercakup dihapus, tiga tes nama berkas digabung jadi satu, dan tes refleksi trivial beserta penolongnya dihapus — keberadaan overload memang dijamin kompilasi karena dipanggil kode produksi. Nama metode tes yang dihapus dicatat di `tools/bekas-hapusan.txt`.

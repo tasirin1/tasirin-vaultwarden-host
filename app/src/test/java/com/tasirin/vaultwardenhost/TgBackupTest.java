@@ -928,6 +928,7 @@ public class TgBackupTest {
             java.util.TimeZone.setDefault(
                     java.util.TimeZone.getTimeZone("America/New_York"));
             assertEquals(1773028860000L, TgBackup.nextMidnight(1772947800000L));
+            assertEquals(1793595660000L, TgBackup.nextMidnight(1793507400000L));
         } finally {
             java.util.TimeZone.setDefault(asal);
         }
