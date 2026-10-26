@@ -1813,6 +1813,7 @@ public class SettingsActivity extends Activity {
             }
 
             boolean restored = false;
+            java.util.List<String> tlsTerStaging = new java.util.ArrayList<>();
             byte[] buf = new byte[64 * 1024];
             try (InputStream raw = getContentResolver().openInputStream(uri)) {
                 if (raw == null) {
@@ -1875,12 +1876,14 @@ public class SettingsActivity extends Activity {
                         }
 
                         String staging = TgBackup.namaStagingRestore(name);
+                        String stagingTls = TgBackup.namaStagingTls(name);
                         if (staging != null && entry.isDirectory()) {
 
                             zis.closeEntry();
                             continue;
                         }
-                        File out = new File(dataFolder, staging != null ? staging : name);
+                        File out = new File(dataFolder, staging != null ? staging
+                                : (stagingTls != null ? stagingTls : name));
 
                         String kanon = out.getCanonicalPath();
                         if (!kanon.equals(canonBase) && !kanon.startsWith(awalanAman)) {
@@ -1902,6 +1905,16 @@ public class SettingsActivity extends Activity {
                                             Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, len);
                                 }
+                                if (staging != null || stagingTls != null) {
+                                    fos.flush();
+                                    try {
+                                        fos.getFD().sync();
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                            }
+                            if (stagingTls != null) {
+                                tlsTerStaging.add(name);
                             }
                         }
                         zis.closeEntry();
@@ -1969,6 +1982,7 @@ public class SettingsActivity extends Activity {
             if (!restored) {
 
                 TgBackup.hapusStagingRestore(new File(dataDir));
+                TgBackup.hapusStagingTls(new File(dataDir));
                 TgBackup.hapusWalShm(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast(getString(R.string.restore_tanpa_db));
@@ -1979,12 +1993,14 @@ public class SettingsActivity extends Activity {
             String galatDb = TgBackup.pasangDbRestoreAtomik(new File(dataDir));
             if (galatDb != null) {
                 TgBackup.hapusStagingRestore(new File(dataDir));
+                TgBackup.hapusStagingTls(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast(getString(R.string.restore_backup_rusak, galatDb));
                 appendUiLog("[app] Restore gagal: " + galatDb + ", DB lama dipertahankan.");
                 return;
             }
 
+            TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
             if (zipCfg != null) {
                 paksaCacheUbah = true;
@@ -2005,6 +2021,7 @@ public class SettingsActivity extends Activity {
         } catch (Exception e) {
 
             try {
+                TgBackup.hapusStagingTls(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
                 appendUiLog(preBackup != null && preBackup.exists()

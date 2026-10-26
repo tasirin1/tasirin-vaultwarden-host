@@ -1433,6 +1433,46 @@ public class TgBackupTest {
     }
 
     @Test
+    public void namaStagingTlsHanyaUntukEntriTls() {
+        assertEquals("tls/ca.pem.restore-tmp", TgBackup.namaStagingTls("tls/ca.pem"));
+        assertEquals("tls/key.pem.restore-tmp", TgBackup.namaStagingTls("tls/key.pem"));
+        assertNull(TgBackup.namaStagingTls("tls"));
+        assertNull(TgBackup.namaStagingTls("db.sqlite3"));
+        assertNull(TgBackup.namaStagingTls(null));
+    }
+
+    @Test
+    public void hapusStagingTlsBersihkanSemuaSisa() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwtlsstage").toFile();
+        assertTrue(new File(dir, "tls").mkdirs());
+        for (String nama : TgBackup.ENTRI_TLS_RESTORE) {
+            assertTrue(new File(dir, TgBackup.namaStagingTls(nama)).createNewFile());
+        }
+        TgBackup.hapusStagingTls(dir);
+        for (String nama : TgBackup.ENTRI_TLS_RESTORE) {
+            assertFalse(new File(dir, TgBackup.namaStagingTls(nama)).exists());
+        }
+        TgBackup.hapusStagingTls(null);
+    }
+
+    @Test
+    public void pasangTlsRestorePasangStagingKeBerkasHidup() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwtlspasang").toFile();
+        File tls = new File(dir, "tls");
+        assertTrue(tls.mkdirs());
+        java.nio.file.Files.write(new File(tls, "ca.pem").toPath(),
+                "LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        File staging = new File(dir, TgBackup.namaStagingTls("tls/ca.pem"));
+        java.nio.file.Files.write(staging.toPath(),
+                "BARU".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        TgBackup.pasangTlsRestore(dir, java.util.Arrays.asList("tls/ca.pem"));
+        assertFalse(staging.exists());
+        assertEquals("BARU", new String(java.nio.file.Files.readAllBytes(
+                new File(tls, "ca.pem").toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
     public void hapusStagingRestoreBersihkanSemuaSisa() throws Exception {
         File dir = java.nio.file.Files.createTempDirectory("vwstage").toFile();
         String[] asal = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};

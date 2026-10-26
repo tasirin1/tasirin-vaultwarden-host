@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 318: sisa penulisan non-atomik restore/enkripsi/dekripsi ditutup
+- Ekstraksi restore (jalur Telegram di `TgBackup` dan jalur lokal di `SettingsActivity`) menulis entri TLS langsung ke berkas hidup tanpa fsync — listrik padam di tengah penulisan meninggalkan sertifikat/kunci separuh tertulis, dan rollback dari potret memori tak menolong untuk kerusakan di cakram. Enkripsi/dekripsi juga masih memakai pola hapus-dulu-baru-rename: ada jendela berkas tujuan hilang bila rename kedua gagal.
+- Entri TLS kini ditulis ke staging `tls/*.restore-tmp` + fsync lebih dulu dan baru dipasang atomik per berkas lewat `ServerService.gantiAtomik` sesudah DB restore terpasang (`pasangTlsRestore`); semua jalur gagal membersihkan staging (`hapusStagingTls`) sehingga TLS hidup tak tersentuh restore yang gagal. `tulisTerenkripsi` dan `decryptToFile` kini juga memasang hasilnya lewat `gantiAtomik` (berkas lama dicadangkan dan dikembalikan bila pemasangan gagal), bukan hapus-dulu. Diuji: penamaan staging TLS di `TgBackupTest`.
+
 ## [Belum rilis] — Audit 317: pasang DB restore kini atomik, WAL lama aman sampai DB baru terpasang
 - `pasangDbRestoreAtomik` menghapus WAL/SHM DB lama lebih dulu lalu memakai `renameTo` polos: bila rename gagal, DB lama diklaim "dipertahankan" padahal WAL-nya (yang bisa berisi transaksi terakhir) sudah dibuang, dan lemparan `IOException`-nya melewati pengembalian TLS di `restoreFromZipIsi` karena jalur itu hanya menangani nilai balik galat.
 - Pemasangan kini memakai `ServerService.gantiAtomik` (DB lama dicadangkan ke `.bak`, staging di-fsync, rename, direktori di-fsync; gagal pasang mengembalikan DB lama utuh termasuk WAL-nya), WAL/SHM lama baru dibuang sesudah DB baru terpasang, dan `restoreFromZipIsi` menangkap lemparan dari pemasangan untuk membersihkan staging + mengembalikan TLS sebelum melempar ulang.

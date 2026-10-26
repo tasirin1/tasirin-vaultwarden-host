@@ -2452,11 +2452,7 @@ public final class TgBackup {
                 } catch (Exception ignored) {
                 }
             }
-            if (!tmp.renameTo(out)) {
-                if (!out.delete() || !tmp.renameTo(out)) {
-                    throw new IOException("Gagal menyimpan backup terenkripsi.");
-                }
-            }
+            ServerService.gantiAtomik(tmp, out);
         } finally {
 
             if (tmp.exists()) {
@@ -2527,12 +2523,7 @@ public final class TgBackup {
                 decryptWithKdf(in, tmp, pass, false);
             }
             fsyncFile(tmp);
-            if (out.exists() && !out.delete()) {
-                throw new java.io.IOException("Gagal mengganti file lama.");
-            }
-            if (!tmp.renameTo(out)) {
-                throw new java.io.IOException("Gagal memasang hasil dekripsi.");
-            }
+            ServerService.gantiAtomik(tmp, out);
         } finally {
             try {
                 tmp.delete();
@@ -2859,6 +2850,7 @@ public final class TgBackup {
         String awalanAman = basePath + File.separator;
 
         boolean adaDb = false;
+        java.util.List<String> tlsTerStaging = new java.util.ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -2904,7 +2896,10 @@ public final class TgBackup {
                 if ("db.sqlite3".equals(nama)) {
                     adaDb = true;
                 }
-                File outFile = new File(dataFolder, staging != null ? staging : nama);
+                String stagingTls = namaStagingTls(nama);
+                String namaTulis = staging != null ? staging
+                        : (stagingTls != null ? stagingTls : nama);
+                File outFile = new File(dataFolder, namaTulis);
                 String kanon = outFile.getCanonicalPath();
                 if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
                     try {
@@ -2928,6 +2923,16 @@ public final class TgBackup {
                                     Util.BATAS_JUMLAH_ENTRI);
                             fos.write(buf, 0, n);
                         }
+                        if (staging != null || stagingTls != null) {
+                            fos.flush();
+                            try {
+                                fos.getFD().sync();
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                    if (stagingTls != null) {
+                        tlsTerStaging.add(nama);
                     }
                 }
                 zis.closeEntry();
@@ -2936,6 +2941,7 @@ public final class TgBackup {
 
             try {
                 hapusStagingRestore(dataFolder);
+                hapusStagingTls(dataFolder);
             } catch (Exception eBersih) {
                 eEkstrak.addSuppressed(eBersih);
             }
@@ -2952,6 +2958,7 @@ public final class TgBackup {
 
         if (!adaDb) {
             hapusStagingRestore(dataFolder);
+            hapusStagingTls(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
@@ -2961,16 +2968,24 @@ public final class TgBackup {
             galatDb = pasangDbRestoreAtomik(dataFolder);
         } catch (Exception ePasang) {
             hapusStagingRestore(dataFolder);
+            hapusStagingTls(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw ePasang;
         }
         if (galatDb != null) {
             hapusStagingRestore(dataFolder);
+            hapusStagingTls(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup rusak (" + galatDb + ")"
                     + " - database lama dipertahankan.");
         }
 
+        try {
+            pasangTlsRestore(dataFolder, tlsTerStaging);
+        } catch (Exception eTls) {
+            kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+            throw eTls;
+        }
         sinkronTlsKeInternal(ctx, dataFolder);
         boolean lengkap = false;
         String peringatan = "";
@@ -2996,6 +3011,35 @@ public final class TgBackup {
                                 + " di folder backups."
                         : "")
                 + peringatan;
+    }
+
+    static final String[] ENTRI_TLS_RESTORE = {"tls/ca.pem", "tls/ca-key.pem",
+            "tls/cert.pem", "tls/key.pem"};
+
+    static String namaStagingTls(String nama) {
+        if (nama != null && nama.startsWith("tls/")) {
+            return nama + ".restore-tmp";
+        }
+        return null;
+    }
+
+    static void hapusStagingTls(File dataFolder) {
+        if (dataFolder == null) {
+            return;
+        }
+        for (String nama : ENTRI_TLS_RESTORE) {
+            new File(dataFolder, namaStagingTls(nama)).delete();
+        }
+    }
+
+    static void pasangTlsRestore(File dataFolder, java.util.List<String> daftar)
+            throws Exception {
+        for (String nama : daftar) {
+            File staging = new File(dataFolder, namaStagingTls(nama));
+            if (staging.isFile()) {
+                ServerService.gantiAtomik(staging, new File(dataFolder, nama));
+            }
+        }
     }
 
     static String namaStagingRestore(String nama) {
