@@ -56,9 +56,20 @@ if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -E "$POLA_TERLARANG" || t
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
 # 4. Jumlah section README Inggris vs Indonesia vs Rusia wajib sama (jaga sinkron).
-a=$(rg -c '^## ' README.md 2>/dev/null || grep -c '^## ' README.md)
-b=$(rg -c '^## ' README.id.md 2>/dev/null || grep -c '^## ' README.id.md)
-c=$(rg -c '^## ' README.ru.md 2>/dev/null || grep -c '^## ' README.ru.md)
+# Hitung via fungsi: `a=$(rg -c ... || grep -c ...)` dulu gagal di bawah set -e
+# saat tak ada heading '## ' (rg & grep sama-sama keluar 1) sehingga cek rahasia
+# di bawahnya tak pernah jalan. Berkas hilang/heading kosong dihitung 0.
+hitung_judul() {
+  local n
+  n="$(rg -c '^## ' "$1" 2>/dev/null || true)"
+  if [ -z "$n" ]; then
+    n="$(grep -c '^## ' "$1" 2>/dev/null || true)"
+  fi
+  echo "${n:-0}"
+}
+a=$(hitung_judul README.md)
+b=$(hitung_judul README.id.md)
+c=$(hitung_judul README.ru.md)
 if [ "$a" != "$b" ]; then gagal_msg "jumlah ## README.md ($a) != README.id.md ($b)"; fi
 if [ "$a" != "$c" ]; then gagal_msg "jumlah ## README.md ($a) != README.ru.md ($c)"; fi
 # 5. Isi berkas tracked/staged: pola rahasia nyata (private key, token cloud).
