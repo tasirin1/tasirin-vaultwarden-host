@@ -487,10 +487,8 @@ public class SettingsActivity extends Activity {
 
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
-        revertBtn.setOnClickListener(v -> confirm("Reset Binary",
-                "Delete the saved binary. The chosen version (or latest if unpinned)"
-                        + " will be re-downloaded automatically on next Start"
-                        + " (needs internet). Continue?",
+        revertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_biner_judul),
+                getString(R.string.reset_biner_pesan),
                 () -> runBusy(this::revertToBundled)));
         installCertBtn.setOnClickListener(v -> installCertificate());
         shareCaBtn = findViewById(R.id.shareCa);
@@ -499,9 +497,8 @@ public class SettingsActivity extends Activity {
         }
         resetCertBtn = findViewById(R.id.resetCert);
         if (resetCertBtn != null) {
-            resetCertBtn.setOnClickListener(v -> confirm("Reset Certificate",
-                    "Delete the old CA + certificates and create a new CA on next Start. "
-                            + "Every phone must reinstall the new CA. Continue?",
+            resetCertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_sert_judul),
+                    getString(R.string.reset_sert_pesan),
                     () -> runBusy(this::resetSertifikat)));
         }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
@@ -536,10 +533,10 @@ public class SettingsActivity extends Activity {
             netInfoView.setOnClickListener(v -> copyLocalUrl());
         }
         copyLoopbackBtn.setOnClickListener(v -> salinTeks("https://127.0.0.1:"
-                + portEfektifUntukSalin(), "Local URL copied"));
+                + portEfektifUntukSalin(), getString(R.string.url_lokal_disalin)));
         randomAdminBtn.setOnClickListener(v -> {
             adminTokenInput.setText(buatTokenAcak(ACAK_DADU));
-            toast("Random token created — press Start to apply.");
+            toast(getString(R.string.acak_dibuat));
         });
         exportCfgBtn.setOnClickListener(v -> mintaExport());
         importCfgBtn.setOnClickListener(v -> pickImportFile());
@@ -547,10 +544,12 @@ public class SettingsActivity extends Activity {
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
         if (copyAdminBtn != null) {
-            copyAdminBtn.setOnClickListener(v -> salinTeks(adminTokenInput.getText().toString(), "Admin Token"));
+            copyAdminBtn.setOnClickListener(v -> salinTeks(adminTokenInput.getText().toString(),
+                    getString(R.string.label_admin_token)));
         }
         if (copyTgBtn != null) {
-            copyTgBtn.setOnClickListener(v -> salinTeks(tgTokenInput.getText().toString(), "Bot token"));
+            copyTgBtn.setOnClickListener(v -> salinTeks(tgTokenInput.getText().toString(),
+                    getString(R.string.label_bot_token)));
         }
         if (certInfoToggle != null) {
             certInfoToggle.setOnClickListener(v -> {
@@ -614,7 +613,7 @@ public class SettingsActivity extends Activity {
             spTg.edit().putBoolean(TgBackup.KEY_TG_AUTO, checked).apply();
             TgBackup.schedule(SettingsActivity.this, checked);
             if (lama != checked) {
-                toast(checked ? "Automatic backup enabled." : "Automatic backup disabled.");
+                toast(getString(checked ? R.string.backup_auto_aktif : R.string.backup_auto_mati));
             }
         });
         autoUpdateCb.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
@@ -769,7 +768,7 @@ public class SettingsActivity extends Activity {
             if (fieldPin.length() < 4) {
                 // Hash lama di prefs tak boleh dipakai: aktif dengan field
                 // pendek/kosong menghidupkan PIN lama yang tak terlihat user.
-                toast("Enter a PIN first (min. 4 letters/digits).");
+                toast(getString(R.string.pin_min));
                 pinCentangProgram = true;
                 b.setChecked(false);
                 pinCentangProgram = false;
@@ -803,7 +802,7 @@ public class SettingsActivity extends Activity {
                 epAktif = ++epAktifPin;
             }
             pinAktifJalan = true;
-            toast("Processing PIN…");
+            toast(getString(R.string.pin_diproses));
             boolean masuk = Util.jalankanLama(() -> {
                 String hasil;
                 try {
@@ -859,7 +858,7 @@ public class SettingsActivity extends Activity {
                     pinCentangProgram = true;
                     pinEnabledCheck.setChecked(true);
                     pinCentangProgram = false;
-                    toast("PIN is active.");
+                    toast(getString(R.string.pin_aktif));
                 });
             });
             // Antrean penuh (tugas tak pernah jalan): jangan biarkan pinAktifJalan
@@ -997,7 +996,7 @@ public class SettingsActivity extends Activity {
         // dan prefs bisa ditimpa hasil restore. Tanpa guard, Start menulis
         // folder/port/token basi di tengah restore lalu menyalakan server.
         if (startDitahanSaatTugasData(tugasBerjalan.get(), TgBackup.tugasDataJalan())) {
-            toast("Still working, please wait.");
+            toast(getString(R.string.masih_bekerja));
             appendUiLog("[app] Start dibatalkan: tugas backup/restore masih berjalan.");
             return;
         }
@@ -1017,7 +1016,7 @@ public class SettingsActivity extends Activity {
         String dataDirEfektif = ServerService.amankanDataDir(dataDir);
         if ((!ServerService.dataDirAman(dataDir) || !ServerService.dataDirKanonisAman(dataDir))
                 && !TextUtils.isEmpty(dataDir)) {
-            toast("Invalid data folder, using default.");
+            toast(getString(R.string.folder_bawaan));
             appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + ServerService.dataDirBawaanSegar());
         }
         // Folder eksternal tanpa izin pasti gagal writable — minta dulu, batalkan Start.
@@ -1036,7 +1035,7 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
         if (portNum < 1 || portNum > 65535) {
-            toast("Port must be a number 1-65535.");
+            toast(getString(R.string.port_angka));
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
@@ -1049,7 +1048,7 @@ public class SettingsActivity extends Activity {
             portNum = Integer.parseInt(portEfektif);
             portInput.setText(portEfektif);
             validasiInline();
-            toast("Port <1024 needs root — using default " + portEfektif + ".");
+            toast(getString(R.string.port_kecil_bawaan, portEfektif));
             appendUiLog("[app] Port privileged '" + port + "' - pakai default "
                     + portEfektif + ".");
         }
@@ -1078,20 +1077,16 @@ public class SettingsActivity extends Activity {
                 if (portSibuk) {
                     if (butuhRoot) {
                         DialogAman.tampil(this, new AlertDialog.Builder(this)
-                                .setTitle("Port " + portCekPort + " needs root access")
-                                .setMessage("Main port (" + portCekPort + ") below 1024 can only be"
-                                        + " used with root access.\n"
-                                        + "Change the port to >= 1024 (e.g. 8088) above.")
-                                .setPositiveButton("OK", null)
+                                .setTitle(getString(R.string.port_root_judul, portCekPort))
+                                .setMessage(getString(R.string.port_root_pesan_setelan, portCekPort))
+                                .setPositiveButton(R.string.ok, null)
                                 .create());
                         return;
                     }
                     DialogAman.tampil(this, new AlertDialog.Builder(this)
-                            .setTitle("Port " + portCekPort + " is in use")
-                            .setMessage("Main port (" + portCekPort + ") is already used by another process.\n"
-                                    + "Stop the other app using it, change the port above, "
-                                    + "or restart the phone first.")
-                            .setPositiveButton("OK", null)
+                            .setTitle(getString(R.string.port_dipakai_judul, portCekPort))
+                            .setMessage(getString(R.string.port_dipakai_pesan_setelan, portCekPort))
+                            .setPositiveButton(R.string.ok, null)
                             .create());
                     return;
                 }
@@ -1100,11 +1095,9 @@ public class SettingsActivity extends Activity {
                     // APK baru tidak membundel web-vault (ukuran jauh lebih kecil);
                     // unduh sekali saat Start pertama bila diizinkan.
                     DialogAman.tampil(this, new AlertDialog.Builder(this)
-                            .setTitle("Web vault not installed")
-                            .setMessage("The APK excludes the web vault to stay small.\n"
-                                    + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
-                                    + "Without the web vault, the server and Bitwarden apps still work normally.")
-                            .setPositiveButton("Download & Start", (d, w) -> {
+                            .setTitle(R.string.wv_belum_judul)
+                            .setMessage(R.string.wv_belum_pesan)
+                            .setPositiveButton(R.string.wv_unduh_mulai, (d, w) -> {
                                 // App context: unduh 35 MB di worker tak boleh menahan
                                 // Activity yang sudah di-back (bocor) + start dari
                                 // konteks mati (selaras MainActivity).
@@ -1116,8 +1109,8 @@ public class SettingsActivity extends Activity {
                                         appendUiLog("[app] " + msg);
                                     } catch (Exception e) {
                                         gagal = true;
-                                        toast("Web-vault download failed"
-                                                + " \u2014 server was not started: " + e.getMessage());
+                                        toast(getString(R.string.wv_unduh_gagal_galat,
+                                                String.valueOf(e.getMessage())));
                                         appendUiLog("[app] Web-vault download failed: " + e);
                                     }
                                     if (!gagal && ServerService.start(appCtx)) {
@@ -1128,7 +1121,7 @@ public class SettingsActivity extends Activity {
                                     }
                                 });
                             })
-                            .setNegativeButton("Start without web vault", (d, w) -> {
+                            .setNegativeButton(R.string.wv_mulai_tanpa, (d, w) -> {
                                 if (ServerService.start(this)) {
                                     maybeAutoBackup();
                                 }
@@ -1324,13 +1317,9 @@ public class SettingsActivity extends Activity {
             lastVersiApp = appVersion;
             lastVersiBin = binVerSet;
             lastVersiBundled = bundledSet;
-            StringBuilder versiB = new StringBuilder("App ").append(appVersion);
-            if (!binVerSet.isEmpty()) {
-                versiB.append(" \u00B7 Binary: ").append(binVerSet);
-            } else {
-                versiB.append(" \u00B7 ").append(bundledSet);
-            }
-            versiCache = versiB.toString();
+            versiCache = binVerSet.isEmpty()
+                    ? getString(R.string.versi_app, appVersion, bundledSet)
+                    : getString(R.string.versi_app_biner, appVersion, binVerSet);
         }
         String version = versiCache;
         // I/O berat (stat DB, jalan folder backup/web-vault) di worker thread;
@@ -1460,7 +1449,7 @@ public class SettingsActivity extends Activity {
                 cert = new File(dataDir, "tls/ca.pem");
             }
             if (!cert.exists()) {
-                toast("No CA yet. Press Start first so a CA is created.");
+                toast(getString(R.string.ca_belum));
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
@@ -1470,7 +1459,7 @@ public class SettingsActivity extends Activity {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(intent);
         } catch (Exception e) {
-            toast("Failed to open installer: " + e.getMessage());
+            toast(getString(R.string.ca_installer_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -1488,7 +1477,7 @@ public class SettingsActivity extends Activity {
                 cert = new File(dataDir, "tls/ca.pem");
             }
             if (!cert.exists()) {
-                toast("No CA yet. Press Start first so a CA is created.");
+                toast(getString(R.string.ca_belum));
                 return;
             }
             Uri uri = Uri.parse("content://" + FileShareProvider.AUTHORITY
@@ -1498,12 +1487,13 @@ public class SettingsActivity extends Activity {
             send.putExtra(Intent.EXTRA_STREAM, uri);
             send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
-                startActivity(Intent.createChooser(send, "Share CA to another phone"));
+                startActivity(Intent.createChooser(send,
+                        getString(R.string.ca_bagikan_chooser)));
             } catch (Exception e2) {
-                toast("Share failed: " + e2.getMessage());
+                toast(getString(R.string.bagikan_gagal, String.valueOf(e2.getMessage())));
             }
         } catch (Exception e) {
-            toast("Failed to share CA: " + e.getMessage());
+            toast(getString(R.string.ca_bagikan_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -1516,7 +1506,7 @@ public class SettingsActivity extends Activity {
             toast(msg);
             appendUiLog("[app] " + msg);
         } catch (Exception e) {
-            toast("Certificate reset failed: " + e.getMessage());
+            toast(getString(R.string.ca_reset_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Certificate reset failed: " + e.getMessage());
         }
     }
@@ -1539,7 +1529,7 @@ public class SettingsActivity extends Activity {
                         TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
                         versi)) {
                     psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
-                    SettingsActivity.this.toast("Update available: v" + versi);
+                    SettingsActivity.this.toast(getString(R.string.update_tersedia_singkat, versi));
                 }
             }
             @Override public void tawarkanWebVault() {
@@ -1598,20 +1588,16 @@ public class SettingsActivity extends Activity {
                 // karena Activity mati, tawaran tetap muncul di kunjungan berikut.
                 sp.edit().putBoolean(key, true).apply();
                 DialogAman.tampil(this, new AlertDialog.Builder(this)
-                        .setTitle("Web Vault update available")
-                        .setMessage("Current web vault v" + updated
-                                + ", while the server is v" + server + ".\n\n"
-                                + (dikunciDlg
-                                        ? "Web vault version pinned to v" + pinWvDlg
-                                                + ": sync now? (one ~35 MB download, "
-                                                + "takes effect after a server restart)"
-                                        : "Update the web vault now? (one ~35 MB download, "
-                                                + "takes effect after a server restart)"))
-                        .setPositiveButton("Update & Restart",
+                        .setTitle(R.string.wv_update_judul)
+                        .setMessage(dikunciDlg
+                                ? getString(R.string.wv_update_pesan_kunci,
+                                        updated, server, pinWvDlg)
+                                : getString(R.string.wv_update_pesan, updated, server))
+                        .setPositiveButton(R.string.wv_update_restart,
                                 (d, w) -> runWebVaultUpdate(true))
-                        .setNeutralButton("Update only",
+                        .setNeutralButton(R.string.wv_update_saja,
                                 (d, w) -> runWebVaultUpdate(false))
-                        .setNegativeButton("Later", null)
+                        .setNegativeButton(R.string.nanti, null)
                         .create());
             });
         } catch (Exception ignored) {
@@ -1638,7 +1624,7 @@ public class SettingsActivity extends Activity {
                     ServerService.restart(app);
                 }
             } catch (Exception e) {
-                toast("Web-vault update failed: " + e.getMessage());
+                toast(getString(R.string.wv_update_gagal, String.valueOf(e.getMessage())));
                 appendUiLog("[app] Web-vault update failed: " + e);
             }
         });
@@ -1664,12 +1650,12 @@ public class SettingsActivity extends Activity {
 
     private void requestBatteryExemption() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            toast("Battery optimization is for Android 6+ only.");
+            toast(getString(R.string.baterai_android6));
             return;
         }
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         if (pm != null && pm.isIgnoringBatteryOptimizations(getPackageName())) {
-            toast("Already exempt from battery optimization.");
+            toast(getString(R.string.baterai_sudah));
             return;
         }
         try {
@@ -1678,7 +1664,7 @@ public class SettingsActivity extends Activity {
             intent.setData(Uri.parse("package:" + getPackageName()));
             startActivity(intent);
         } catch (Exception e) {
-            toast("Failed to open settings: " + e.getMessage());
+            toast(getString(R.string.setelan_buka_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -1690,7 +1676,7 @@ public class SettingsActivity extends Activity {
         // tanpa kunci, satu pihak bisa menghapus temp pihak lain lalu backup sah
         // dinyatakan korup dan dibuang.
         if (!TgBackup.kunciBackup()) {
-            toast("Another backup/restore task is already running, try again shortly.");
+            toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Backup ditolak: tugas backup/restore lain sedang berjalan.");
             return;
         }
@@ -1709,21 +1695,21 @@ public class SettingsActivity extends Activity {
             }
             if (!ServerService.dataDirAman(dataDir)
                     || !ServerService.dataDirKanonisAman(dataDir)) {
-                toast("Invalid data folder — reverted to default.");
+                toast(getString(R.string.folder_tidak_valid));
                 appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
                 dataDir = ServerService.dataDirBawaanSegar();
             }
 
             File dbFile = new File(dataDir, "db.sqlite3");
             if (!dbFile.exists()) {
-                toast("No database yet: " + dbFile.getAbsolutePath());
+                toast(getString(R.string.db_belum_ada, dbFile.getAbsolutePath()));
                 return;
             }
             // Tulis WAL ke DB utama dulu agar backup konsisten seperti backup Telegram.
             TgBackup.checkpointWal(dbFile);
             long free = TgBackup.freeBytes(this, dataDir);
             if (free >= 0 && free < 50L * 1024 * 1024) {
-                toast("Warning: storage almost full, only " + TgBackup.humanBytes(free));
+                toast(getString(R.string.penyimpanan_hampir_penuh, TgBackup.humanBytes(free)));
                 appendUiLog("[app] Peringatan storage tinggal " + TgBackup.humanBytes(free));
             }
 
@@ -1737,12 +1723,12 @@ public class SettingsActivity extends Activity {
             try {
                 String rusakDb = TgBackup.cekIntegritasDbUlang(dbFile);
                 if (TgBackup.dbSibuk(rusakDb)) {
-                    toast("Database busy (server is writing) — backup cancelled, try again shortly.");
+                    toast(getString(R.string.db_sibuk_backup));
                     appendUiLog("[app] Backup dibatalkan: DB sibuk (" + rusakDb + ").");
                     return;
                 }
                 if (rusakDb != null) {
-                    toast("Corrupt database (" + rusakDb + ") — backup cancelled.");
+                    toast(getString(R.string.db_rusak_backup, rusakDb));
                     appendUiLog("[app] Backup dibatalkan: DB korup (" + rusakDb + ").");
                     return;
                 }
@@ -1776,10 +1762,10 @@ public class SettingsActivity extends Activity {
                     }
                 }
                 if (backup.exists() && !backup.delete()) {
-                    throw new java.io.IOException("Failed to replace the old backup.");
+                    throw new java.io.IOException(getString(R.string.galat_backup_ganti));
                 }
                 if (!tmpZip.renameTo(backup)) {
-                    throw new java.io.IOException("Failed to install the backup.");
+                    throw new java.io.IOException(getString(R.string.galat_backup_pasang));
                 }
             } catch (Exception e) {
                 try {
@@ -1797,7 +1783,7 @@ public class SettingsActivity extends Activity {
                 String galatIsi = TgBackup.verifikasiIsiDbZip(backup, tmpIsi);
                 if (galatIsi != null) {
                     backup.delete();
-                    toast("Corrupt backup (" + galatIsi + ") — discarded, try again.");
+                    toast(getString(R.string.backup_rusak_dibuang, galatIsi));
                     appendUiLog("[app] Backup dibuang: isi DB korup (" + galatIsi + ").");
                     return;
                 }
@@ -1808,10 +1794,10 @@ public class SettingsActivity extends Activity {
                 }
             }
             TgBackup.cleanupOldBackups(backupDir);
-            toast("Backup saved:\n" + backup.getAbsolutePath());
+            toast(getString(R.string.backup_tersimpan, backup.getAbsolutePath()));
             appendUiLog("[app] Backup DB: " + backup.getName() + " (" + backup.length() + " bytes)");
         } catch (Exception e) {
-            toast("Backup failed: " + e.getMessage());
+            toast(getString(R.string.backup_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Backup failed: " + e);
         }
     }
@@ -1857,7 +1843,7 @@ public class SettingsActivity extends Activity {
             intent.setType("*/*");
             startActivityForResult(intent, REQ_RESTORE);
         } catch (Exception e) {
-            toast("Failed to open the file picker: " + e.getMessage());
+            toast(getString(R.string.pemilih_berkas_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -1877,9 +1863,8 @@ public class SettingsActivity extends Activity {
                 dir = ServerService.dataDirBawaanSegar();
             }
             final String dataDir = dir;
-            confirm("Restore Database",
-                    "The current database will be replaced with the selected file. "
-                            + "An automatic backup is made first. Continue?",
+            confirm(getString(R.string.restore_db_judul),
+                    getString(R.string.restore_db_pesan),
                     () -> runBusy(() -> restoreDatabase(uri, dataDir)));
         }
         if (requestCode == REQ_PIN) {
@@ -1900,8 +1885,8 @@ public class SettingsActivity extends Activity {
             if (uri == null) {
                 return;
             }
-            confirm("Import Settings",
-                    "All app settings will be replaced from this file. Continue?",
+            confirm(getString(R.string.impor_setelan_judul),
+                    getString(R.string.impor_setelan_pesan),
                     () -> runBusy(() -> importConfig(uri)));
         }
     }
@@ -1911,7 +1896,7 @@ public class SettingsActivity extends Activity {
         // bot /restore, tombol UI, dan backup terjadwal menulis/membaca
         // folder data yang sama sehingga tak boleh tumpang tindih.
         if (!TgBackup.kunciRestore()) {
-            toast("Another backup/restore task is already running, try again shortly.");
+            toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
         }
@@ -1936,7 +1921,7 @@ public class SettingsActivity extends Activity {
         }
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
-            toast("Invalid data folder — reverted to default.");
+            toast(getString(R.string.folder_tidak_valid));
             appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
             dataDir = ServerService.dataDirBawaanSegar();
         }
@@ -1955,19 +1940,19 @@ public class SettingsActivity extends Activity {
             // dengan dataDir/port yang dibaca SEBELUM restore.
             if (!ServerService.stopAndWait(SettingsActivity.this,
                     ServerService.ANGGARAN_STOP_MIN_MS)) {
-                toast("Server failed to stop — restore cancelled to protect the DB.");
+                toast(getString(R.string.restore_server_gagal_stop));
                 appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
                 return;
             }
             if (ServerService.isProcessAlive()) {
-                toast("Server is still running — restore cancelled to protect the DB.");
+                toast(getString(R.string.restore_server_jalan));
                 appendUiLog("[app] Restore dibatalkan: server masih berjalan.");
                 return;
             }
             // Proses yatim (anak server yang selamat saat app dibunuh sistem)
             // tak terlihat isProcessAlive tetapi masih memegang db.sqlite3.
             if (!ServerService.bereskanServerYatim()) {
-                toast("An old server process is still running — restore cancelled to protect the DB.");
+                toast(getString(R.string.restore_proses_lama));
                 appendUiLog("[app] Restore dibatalkan: proses vaultwarden yatim masih hidup.");
                 return;
             }
@@ -1993,7 +1978,7 @@ public class SettingsActivity extends Activity {
             byte[] buf = new byte[64 * 1024];
             try (InputStream raw = getContentResolver().openInputStream(uri)) {
                 if (raw == null) {
-                    toast("Restore failed: file cannot be opened.");
+                    toast(getString(R.string.restore_berkas_gagal));
                     appendUiLog("[app] Restore gagal: stream null");
                     return;
                 }
@@ -2099,7 +2084,7 @@ public class SettingsActivity extends Activity {
                 } else {
                     // File .sqlite3 mentah (backup lama) - wajib header SQLite.
                     if (n <= 0) {
-                        toast("Empty file — restore cancelled.");
+                        toast(getString(R.string.restore_kosong));
                         appendUiLog("[app] Restore gagal: file kosong");
                         return;
                     }
@@ -2124,7 +2109,7 @@ public class SettingsActivity extends Activity {
                         }
                     }
                     if (!ok) {
-                        toast("File is not a SQLite database — restore cancelled.");
+                        toast(getString(R.string.restore_bukan_sqlite));
                         appendUiLog("[app] Restore gagal: header SQLite tidak cocok");
                         return;
                     }
@@ -2137,14 +2122,14 @@ public class SettingsActivity extends Activity {
                         while ((len = in.read(buf)) != -1) {
                             salin += len;
                             if (salin > Util.BATAS_UNZIP_RESTORE) {
-                                throw new java.io.IOException("Database file exceeds "
-                                        + Util.BATAS_UNZIP_RESTORE + " bytes.");
+                                throw new java.io.IOException(getString(R.string.galat_db_besar,
+                                        Util.BATAS_UNZIP_RESTORE));
                             }
                             fos.write(buf, 0, len);
                         }
                     }
                     if (salin < 512) {
-                        throw new java.io.IOException("Database file truncated (not a complete SQLite file).");
+                        throw new java.io.IOException(getString(R.string.galat_db_terpotong));
                     }
                     // WAL lama milik DB lama: buang agar tak ditempel ke DB baru
                     // (checkpoint sebelum restore sudah mengosongkannya).
@@ -2159,7 +2144,7 @@ public class SettingsActivity extends Activity {
                 TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.hapusWalShm(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                toast("Backup file does not contain db.sqlite3.");
+                toast(getString(R.string.restore_tanpa_db));
                 appendUiLog("[app] Restore gagal: file zip tanpa db.sqlite3");
                 return;
             }
@@ -2170,7 +2155,7 @@ public class SettingsActivity extends Activity {
             if (galatDb != null) {
                 TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                toast("Corrupt backup (" + galatDb + ") — old database kept.");
+                toast(getString(R.string.restore_backup_rusak, galatDb));
                 appendUiLog("[app] Restore gagal: " + galatDb + ", DB lama dipertahankan.");
                 return;
             }
@@ -2195,7 +2180,7 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
                 uiPost(this::reloadSettingsFromPrefs);
             }
-            toast("Database restored. Restart the server to use it.");
+            toast(getString(R.string.restore_selesai_restart));
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
             // Gagal sebelum swap: DB lama belum tersentuh, cukup buang staging.
@@ -2209,7 +2194,7 @@ public class SettingsActivity extends Activity {
                         : "[app] Restore gagal: file parsial dibuang.");
             } catch (Exception ignored) {
             }
-            toast("Restore failed: " + e.getMessage());
+            toast(getString(R.string.restore_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Restore failed: " + e);
         }
     }
@@ -2223,7 +2208,7 @@ public class SettingsActivity extends Activity {
             // prefs tak keracunan sebelum restore berjalan.
             String aman = ServerService.amankanDataDir(inputDir);
             if (!ServerService.dataDirAman(inputDir) || !ServerService.dataDirKanonisAman(inputDir)) {
-                toast("Invalid data folder, using default.");
+                toast(getString(R.string.folder_bawaan));
             }
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                     .putString(ServerService.KEY_DATA_DIR, aman).apply();
@@ -2254,8 +2239,8 @@ public class SettingsActivity extends Activity {
                         }
                         return;
                     }
-                    confirm("Restore from Telegram",
-                            "Use backup '" + fname + "'? The server will be stopped first. Continue?",
+                    confirm(getString(R.string.restore_tg_judul),
+                            getString(R.string.restore_tg_pesan, fname),
                             () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp)),
                             // Batal = arsip tak dipakai: hapus sekarang, jangan
                             // menunggu sapu basi 1 jam.
@@ -2271,7 +2256,7 @@ public class SettingsActivity extends Activity {
                     tmp.delete();
                 } catch (Exception ignored) {
                 }
-                toast("Failed to fetch backup: " + e.getMessage());
+                toast(getString(R.string.backup_ambil_gagal, String.valueOf(e.getMessage())));
                 appendUiLog("[tg] Failed to fetch backup: " + e);
             }
         });
@@ -2290,7 +2275,7 @@ public class SettingsActivity extends Activity {
             String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
             if (TgBackup.isEncrypted(unduhan)) {
                 if (pass == null || pass.trim().isEmpty()) {
-                    toast("Backup is encrypted \u2014 enter the backup password first.");
+                    toast(getString(R.string.backup_terenkripsi));
                     return;
                 }
                 TgBackup.decryptFile(unduhan, plain, pass.trim());
@@ -2298,7 +2283,7 @@ public class SettingsActivity extends Activity {
             }
             restoreFromZip(zip);
         } catch (Exception e) {
-            toast("Restore failed: " + e.getMessage());
+            toast(getString(R.string.restore_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Restore failed: " + e);
         } finally {
             try {
@@ -2319,7 +2304,7 @@ public class SettingsActivity extends Activity {
     // folder tujuan.
     private void restoreFromZip(File zip) {
         if (!TgBackup.kunciRestore()) {
-            toast("Another backup/restore task is already running, try again shortly.");
+            toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
         }
@@ -2330,11 +2315,11 @@ public class SettingsActivity extends Activity {
             String msg = TgBackup.restoreFromZip(getApplicationContext(), zip);
             uiPost(() -> {
                 reloadSettingsFromPrefs();
-                toast("Restore done. Press Start to run it.");
+                toast(getString(R.string.restore_selesai_mulai));
             });
             appendUiLog("[app] " + msg);
         } catch (Exception e) {
-            toast("Restore failed: " + e.getMessage());
+            toast(getString(R.string.restore_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Restore failed: " + e);
         } finally {
             TgBackup.lepasRestore();
@@ -2349,12 +2334,9 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
         boolean terkunci = pass != null && !pass.trim().isEmpty();
-        confirm("Export Settings",
-                "The file contains no token/PIN/password (they stay on this device)."
-                        + (terkunci ? " File is encrypted with the backup password."
-                                : " Without a backup password this file is PLAINTEXT and readable"
-                                        + " by other apps — store it carefully.")
-                        + " Still, do not share it with others. Continue?",
+        confirm(getString(R.string.ekspor_setelan_judul),
+                terkunci ? getString(R.string.ekspor_setelan_pesan_enkrip)
+                        : getString(R.string.ekspor_setelan_pesan_plain),
                 () -> {
                     // Baca widget di UI thread (bukan di worker runBusy).
                     String dir = dataDirInput.getText() == null ? ""
@@ -2561,7 +2543,7 @@ public class SettingsActivity extends Activity {
             }
             if (!ServerService.dataDirAman(dataDir)
                     || !ServerService.dataDirKanonisAman(dataDir)) {
-                toast("Invalid data folder — reverted to default.");
+                toast(getString(R.string.folder_tidak_valid));
                 appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
                 dataDir = ServerService.dataDirBawaanSegar();
             }
@@ -2623,19 +2605,20 @@ public class SettingsActivity extends Activity {
                     // agar tak mengendap di cache (target membaca
                     // stream saat ia foreground, sebelum kita kembali).
                     startActivityForResult(
-                            Intent.createChooser(send, "Share configuration file"),
+                            Intent.createChooser(send,
+                                    getString(R.string.config_bagikan_chooser)),
                             REQ_SHARE_CONFIG);
                 } catch (Exception e2) {
                     exportPlainTertunda = null;
-                    toast("File saved: " + path);
+                    toast(getString(R.string.berkas_tersimpan, path));
                     appendUiLog("[app] Config tersimpan (bagi gagal): " + path);
                     return;
                 }
-                toast("Configuration exported: " + path);
+                toast(getString(R.string.config_diekspor, path));
                 appendUiLog("[app] Config export: " + path);
             });
         } catch (Exception e) {
-            toast("Config export failed: " + e.getMessage());
+            toast(getString(R.string.config_ekspor_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Config export failed: " + e);
         }
     }
@@ -2651,7 +2634,7 @@ public class SettingsActivity extends Activity {
                     new String[]{"application/json", "application/octet-stream"});
             startActivityForResult(intent, REQ_IMPORT);
         } catch (Exception e) {
-            toast("Failed to open the file picker: " + e.getMessage());
+            toast(getString(R.string.pemilih_berkas_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -2664,7 +2647,7 @@ public class SettingsActivity extends Activity {
             try (InputStream awal = getContentResolver().openInputStream(uri);
                  FileOutputStream fos = new FileOutputStream(tmp)) {
                 if (awal == null) {
-                    toast("Config import failed: file cannot be opened.");
+                    toast(getString(R.string.config_impor_berkas));
                     appendUiLog("[app] Import ditolak: stream file null");
                     tmp.delete();
                     return;
@@ -2675,8 +2658,7 @@ public class SettingsActivity extends Activity {
                 while ((n = awal.read(buf)) != -1) {
                     total += n;
                     if (total > 512 * 1024) {
-                        throw new java.io.IOException(
-                                "File too large (>512 KB) — not a valid config.");
+                        throw new java.io.IOException(getString(R.string.config_terlalu_besar));
                     }
                     fos.write(buf, 0, n);
                 }
@@ -2689,7 +2671,7 @@ public class SettingsActivity extends Activity {
                 if (imporDiblokir(ambilGagalImpor(sidikImpor))) {
                     tmp.delete();
                     sapuSisaImpor();
-                    toast("Too many wrong attempts — import cancelled.");
+                    toast(getString(R.string.config_impor_salah_terlalu));
                     appendUiLog("[app] Import diblokir: password salah 5x (berkas sama)");
                     return;
                 }
@@ -2699,7 +2681,7 @@ public class SettingsActivity extends Activity {
                     // Tanpa password perangkat, langsung tanya password asal
                     // (file bisa dari password mana pun, bukan harus kini).
                     tanyaPasswordImpor(tmp, capImpor,
-                            "Config is encrypted — enter the password used when the file was created.",
+                            getString(R.string.config_terenkripsi_tanya),
                             sidikImpor);
                     return;
                 }
@@ -2711,7 +2693,7 @@ public class SettingsActivity extends Activity {
                     // lama): tanya password asal tanpa mengubah password perangkat.
                     appendUiLog("[app] Import: password perangkat tak cocok, tanya password asal");
                     tanyaPasswordImpor(tmp, capImpor,
-                            "Device password does not match — enter the password used when the file was created.",
+                            getString(R.string.config_sandi_beda),
                             sidikImpor);
                     return;
                 }
@@ -2721,7 +2703,7 @@ public class SettingsActivity extends Activity {
             terapkanImporJson(src);
         } catch (Exception e) {
             sapuSisaImpor();
-            toast("Config import failed: " + e.getMessage());
+            toast(getString(R.string.config_impor_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Config import failed: " + e);
         }
     }
@@ -2731,18 +2713,19 @@ public class SettingsActivity extends Activity {
         try {
             String json;
             try (InputStream in = new java.io.FileInputStream(src)) {
-                json = new String(readCapped(in, 512 * 1024), StandardCharsets.UTF_8);
+                json = new String(readCapped(in, 512 * 1024,
+                        getString(R.string.config_terlalu_besar)), StandardCharsets.UTF_8);
             }
             src.delete();
             JSONObject root = new JSONObject(json);
             if (!"tasirin-vaultwarden-host".equals(root.optString("app", ""))) {
-                toast("Invalid config file (not this app's export).");
+                toast(getString(R.string.config_tidak_valid_app));
                 appendUiLog("[app] Import ditolak: marker app tidak cocok");
                 return;
             }
             JSONObject prefs = root.optJSONObject("prefs");
             if (prefs == null) {
-                toast("Invalid config file.");
+                toast(getString(R.string.config_tidak_valid));
                 return;
             }
             paksaCacheUbah = true;
@@ -2759,11 +2742,11 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] Config import selesai.");
             uiPost(() -> {
                 reloadSettingsFromPrefs();
-                toast("Settings imported. Press Start to apply.");
+                toast(getString(R.string.config_diimpor));
             });
         } catch (Exception e) {
             sapuSisaImpor();
-            toast("Config import failed: " + e.getMessage());
+            toast(getString(R.string.config_impor_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Config import failed: " + e);
         }
     }
@@ -2788,11 +2771,11 @@ public class SettingsActivity extends Activity {
                     | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             input.setMaxLines(1);
             final AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Config file password")
+                    .setTitle(R.string.config_sandi_judul)
                     .setMessage(pesan)
                     .setView(input)
-                    .setPositiveButton("Try import", null)
-                    .setNegativeButton("Cancel", (d, w) -> {
+                    .setPositiveButton(R.string.config_coba_impor, null)
+                    .setNegativeButton(R.string.batal, (d, w) -> {
                         try {
                             tmpEnkrip.delete();
                         } catch (Exception ignored) {
@@ -2816,7 +2799,7 @@ public class SettingsActivity extends Activity {
                     .setOnClickListener(v -> {
                         String coba = input.getText().toString();
                         if (coba == null || coba.trim().isEmpty()) {
-                            input.setError("Enter the password first");
+                            input.setError(getString(R.string.sandi_dulu));
                             return;
                         }
                         final String rahasia = coba.trim();
@@ -2858,10 +2841,10 @@ public class SettingsActivity extends Activity {
                                             dialog.dismiss();
                                         } catch (Exception ignored2) {
                                         }
-                                        toast("Too many wrong attempts — import cancelled.");
+                                        toast(getString(R.string.config_impor_salah_terlalu));
                                         appendUiLog("[app] Import dibatalkan: password salah 5x");
                                     } else {
-                                        input.setError("Wrong password / corrupt file (" + sudah + "/5)");
+                                        input.setError(getString(R.string.sandi_salah, sudah));
                                         appendUiLog("[app] Import ditolak: password asal tak cocok");
                                     }
                                 });
@@ -2881,7 +2864,7 @@ public class SettingsActivity extends Activity {
                 tmpEnkrip.delete();
             } catch (Exception ignored) {
             }
-            toast("Config import failed: " + e.getMessage());
+            toast(getString(R.string.config_impor_gagal, String.valueOf(e.getMessage())));
         }
         });
     }
@@ -2930,9 +2913,9 @@ public class SettingsActivity extends Activity {
     private void copyLocalUrl() {
         String url = ServerService.localUrl(this);
         if (url.contains("127.0.0.1") || url.contains("localhost")) {
-            salinTeks(url, "Loopback URL copied (LAN IP not detected)");
+            salinTeks(url, getString(R.string.url_loopback_disalin));
         } else {
-            salinTeks(url, "Network URL copied");
+            salinTeks(url, getString(R.string.url_jaringan_disalin));
         }
     }
 
@@ -2944,7 +2927,8 @@ public class SettingsActivity extends Activity {
     }
 
     /** Baca maksimal max byte; lempar bila lebih (tolak file raksasa agar tidak OOM). */
-    private static byte[] readCapped(InputStream in, int max) throws Exception {
+    private static byte[] readCapped(InputStream in, int max, String pesanBesar)
+            throws Exception {
         // Pra-alokasi 8 KB selaras buffer baca (alasan sama dengan bacaTerbatas).
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
         byte[] buf = new byte[8192];
@@ -2953,7 +2937,7 @@ public class SettingsActivity extends Activity {
         while ((n = in.read(buf)) != -1) {
             total += n;
             if (total > max) {
-                throw new java.io.IOException("File too large (>512 KB) — not a valid config.");
+                throw new java.io.IOException(pesanBesar);
             }
             bos.write(buf, 0, n);
         }
@@ -3037,7 +3021,7 @@ public class SettingsActivity extends Activity {
             }
             File[] files = daftarBackup(new File(dataDir, "backups"));
             int n = files == null ? 0 : files.length;
-            dbLine = "DB: " + TgBackup.humanBytes(db.length()) + " | Local backups: " + n;
+            dbLine = getString(R.string.info_db, TgBackup.humanBytes(db.length()), n);
         } catch (Exception e) {
             dbLine = "";
         }
@@ -3063,10 +3047,10 @@ public class SettingsActivity extends Activity {
             File backups = new File(data, "backups");
             File webVault = new File(data, "web-vault");
             File bin = new File(getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
-            StringBuilder sb = new StringBuilder("Storage: ");
+            StringBuilder sb = new StringBuilder(getString(R.string.info_storage)).append(' ');
             boolean first = true;
             if (db.exists()) {
-                sb.append("DB ").append(TgBackup.humanBytes(db.length()));
+                sb.append(getString(R.string.info_db_item, TgBackup.humanBytes(db.length())));
                 first = false;
             }
             File[] files = daftarBackup(backups);
@@ -3074,8 +3058,8 @@ public class SettingsActivity extends Activity {
                 if (!first) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append("Backup ").append(TgBackup.humanBytes(TgBackup.folderBytesCached(backups)))
-                        .append(" (").append(files.length).append(")");
+                sb.append(getString(R.string.info_backup_item,
+                        TgBackup.humanBytes(TgBackup.folderBytesCached(backups)), files.length));
                 first = false;
             }
             long wvBytes = TgBackup.folderBytesCached(webVault);
@@ -3083,14 +3067,14 @@ public class SettingsActivity extends Activity {
                 if (!first) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append("Web ").append(TgBackup.humanBytes(wvBytes));
+                sb.append(getString(R.string.info_web_item, TgBackup.humanBytes(wvBytes)));
                 first = false;
             }
             if (bin.exists()) {
                 if (!first) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append("Binary ").append(TgBackup.humanBytes(bin.length()));
+                sb.append(getString(R.string.info_binary_item, TgBackup.humanBytes(bin.length())));
             }
             storageLine = sb.toString();
         } catch (Exception e) {
@@ -3124,11 +3108,12 @@ public class SettingsActivity extends Activity {
                 wvLine = "";
                 return wvLine;
             }
-            StringBuilder sb = new StringBuilder("Web vault: ").append(wv)
-                    .append(updated != null ? " (updated)" : " (bundled)");
+            StringBuilder sb = new StringBuilder(getString(R.string.info_wv, wv,
+                    getString(updated != null ? R.string.info_wv_updated
+                            : R.string.info_wv_bundled)));
             String server = Updater.currentServerVersion(this);
             if (server != null && !server.equals(wv)) {
-                sb.append(" \u26A0 server version differs v").append(server);
+                sb.append(' ').append(getString(R.string.info_wv_beda, server));
             }
             wvLine = sb.toString();
         } catch (Exception e) {
@@ -3152,14 +3137,14 @@ public class SettingsActivity extends Activity {
         if (ServerService.running) {
             long rss = ServerService.processRssKb();
             if (rss > 0) {
-                sb.append("RAM ").append(TgBackup.humanBytes(rss * 1024));
+                sb.append(getString(R.string.info_ram, TgBackup.humanBytes(rss * 1024)));
             }
             long up = ServerService.uptimeMs();
             if (up > 0) {
                 if (sb.length() > 0) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append("Uptime ").append(TgBot.durationText(up));
+                sb.append(getString(R.string.info_uptime, TgBot.durationText(up)));
             }
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
@@ -3169,7 +3154,7 @@ public class SettingsActivity extends Activity {
             if (sb.length() > 0) {
                 sb.append(" \u00B7 ");
             }
-            sb.append("Free ").append(TgBackup.humanBytes(free));
+            sb.append(getString(R.string.info_free, TgBackup.humanBytes(free)));
         }
         String restarts = ServerService.restartSummary();
         if (!restarts.isEmpty()) {
@@ -3214,9 +3199,9 @@ public class SettingsActivity extends Activity {
                 return "";
             }
             if (days < 30) {
-                return "\u26A0 TLS certificate expires in " + days + " days";
+                return getString(R.string.info_tls_exp, days);
             }
-            return "TLS certificate: " + days + " days";
+            return getString(R.string.info_tls, days);
         } catch (Exception e) {
             return "";
         }
@@ -3241,10 +3226,11 @@ public class SettingsActivity extends Activity {
                 try {
                     Updater.ensureShimFile(app);
                     imbuhShimLog = " Shim getrandom siap.";
-                    imbuhShimUi = " Shim getrandom ready.";
+                    imbuhShimUi = " " + getString(R.string.shim_siap);
                 } catch (Exception se) {
                     imbuhShimLog = " Shim gagal: " + se.getMessage();
-                    imbuhShimUi = " Shim failed: " + se.getMessage();
+                    imbuhShimUi = " " + getString(R.string.shim_gagal,
+                            String.valueOf(se.getMessage()));
                 }
             }
             String msg = Updater.tryUpdate(app);
@@ -3253,10 +3239,10 @@ public class SettingsActivity extends Activity {
             }
             appendUiLog("[app] " + msg + imbuhShimLog);
             toast(Updater.binaryBerubah(msg)
-                    ? msg + imbuhShimUi + " Press Start to use it."
+                    ? msg + imbuhShimUi + " " + getString(R.string.update_press_start)
                     : msg + imbuhShimUi);
         } catch (Exception e) {
-            toast("Update check failed: " + e.getMessage());
+            toast(getString(R.string.cek_update_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Update check failed: " + e);
         }
     }
@@ -3425,7 +3411,7 @@ public class SettingsActivity extends Activity {
                         segarkanLabelVersi();
                         perbaruiStatusIsian();
                     }
-                    toast("Failed to install binary: " + e.getMessage());
+                    toast(getString(R.string.biner_pasang_gagal, String.valueOf(e.getMessage())));
                     appendUiLog("[app] Failed to install binary: " + e);
                 }
             });
@@ -3448,7 +3434,7 @@ public class SettingsActivity extends Activity {
                         segarkanLabelVersi();
                         perbaruiStatusIsian();
                     }
-                    toast("Web-vault update failed: " + e.getMessage());
+                    toast(getString(R.string.wv_update_gagal, String.valueOf(e.getMessage())));
                     appendUiLog("[app] Web-vault update failed: " + e);
                 }
             });
@@ -3460,7 +3446,7 @@ public class SettingsActivity extends Activity {
         // dengan inode lama tapi penanda versi ikut terhapus sehingga restart
         // berikut gagal sebelum unduh ulang selesai.
         if (ServerService.running || ServerService.isProcessAlive()) {
-            toast("Stop the server before resetting the binary.");
+            toast(getString(R.string.biner_stop_dulu));
             appendUiLog("[app] Reset binary ditolak: server masih berjalan - Stop dulu.");
             return;
         }
@@ -3471,10 +3457,10 @@ public class SettingsActivity extends Activity {
                     .remove(ServerService.KEY_UPDATE_VERSION)
                     .remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
             ServerService.binaryVersion = "";
-            toast("Binary deleted. It will be re-downloaded (chosen version) on Start.");
+            toast(getString(R.string.biner_dihapus));
             appendUiLog("[app] Binary di-reset; akan diunduh ulang saat Start.");
         } else {
-            toast("No saved binary.");
+            toast(getString(R.string.biner_tidak_ada));
         }
     }
 
@@ -3805,8 +3791,8 @@ public class SettingsActivity extends Activity {
         DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("Yes", (d, w) -> action.run())
-                .setNegativeButton("Cancel", (d, w) -> {
+                .setPositiveButton(R.string.ya, (d, w) -> action.run())
+                .setNegativeButton(R.string.batal, (d, w) -> {
                     if (batal != null) {
                         batal.run();
                     }
@@ -3938,7 +3924,7 @@ public class SettingsActivity extends Activity {
 
     private void runBusy(final Runnable task) {
         if (!tugasBerjalan.compareAndSet(false, true)) {
-            toast("Still working, please wait.");
+            toast(getString(R.string.masih_bekerja));
             return;
         }
         setBusy(true);
@@ -3965,7 +3951,8 @@ public class SettingsActivity extends Activity {
                 } catch (Exception ignored) {
                 }
                 try {
-                    toast("Task failed: " + (t.getMessage() == null ? t.toString() : t.getMessage()));
+                    toast(getString(R.string.tugas_gagal,
+                    t.getMessage() == null ? t.toString() : t.getMessage()));
                 } catch (Exception ignored) {
                 }
             } finally {
@@ -3978,7 +3965,7 @@ public class SettingsActivity extends Activity {
             // permanen sampai Activity dibuat ulang.
             tugasBerjalan.set(false);
             setBusy(false);
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
