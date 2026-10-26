@@ -151,6 +151,7 @@ public class LogActivity extends Activity {
             return;
         }
         refreshLog();
+        tampilBagikanTertunda();
         ui.removeCallbacks(logTick);
         ui.postDelayed(logTick, 1500);
     }
@@ -165,6 +166,11 @@ public class LogActivity extends Activity {
     @Override
     protected void onDestroy() {
         DialogAman.tutup(this);
+        if (isFinishing()) {
+            synchronized (KUNCI_BAGIKAN) {
+                bagikanTertunda = null;
+            }
+        }
         super.onDestroy();
         ui.removeCallbacksAndMessages(null);
     }
@@ -805,6 +811,9 @@ public class LogActivity extends Activity {
         return false;
     }
 
+    private static final Object KUNCI_BAGIKAN = new Object();
+    private static volatile String bagikanTertunda = null;
+
     private void shareLog() {
 
         toast(getString(R.string.log_menyiapkan));
@@ -814,27 +823,45 @@ public class LogActivity extends Activity {
                 mentah = ServerService.logBuffer.toString();
             }
             final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
-            ui.post(() -> {
-                if (isFinishing() || isDestroyed()) {
-                    return;
-                }
-                if (log.isEmpty()) {
+            if (log.isEmpty()) {
+                ui.post(() -> {
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
                     toast(getString(R.string.log_kosong));
-                    return;
-                }
-                Intent send = new Intent(Intent.ACTION_SEND);
-                send.setType("text/plain");
-                send.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.log_bagikan_subjek));
-                send.putExtra(Intent.EXTRA_TEXT, log);
-                try {
-                    startActivity(Intent.createChooser(send, getString(R.string.log_bagikan)));
-                } catch (Exception e) {
-                    toast(getString(R.string.log_bagikan_gagal, String.valueOf(e.getMessage())));
-                }
-            });
+                });
+                return;
+            }
+            synchronized (KUNCI_BAGIKAN) {
+                bagikanTertunda = log;
+            }
+            ui.post(() -> tampilBagikanTertunda());
         });
         if (!masuk) {
             toast(getString(R.string.antrean_penuh));
+        }
+    }
+
+    private void tampilBagikanTertunda() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        final String log;
+        synchronized (KUNCI_BAGIKAN) {
+            log = bagikanTertunda;
+            bagikanTertunda = null;
+        }
+        if (log == null) {
+            return;
+        }
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.log_bagikan_subjek));
+        send.putExtra(Intent.EXTRA_TEXT, log);
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.log_bagikan)));
+        } catch (Exception e) {
+            toast(getString(R.string.log_bagikan_gagal, String.valueOf(e.getMessage())));
         }
     }
 
@@ -1054,19 +1081,22 @@ public class LogActivity extends Activity {
                 mentah = ServerService.logBuffer.toString();
             }
             final String log = butuhSamaran(mentah) ? samarkanLog(mentah) : mentah;
+            if (log.isEmpty()) {
+                ui.post(() -> {
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+                    toast(getString(R.string.log_kosong));
+                });
+                return;
+            }
+            final boolean tersalin = salinClipboardBersihOtomatis("vaultwarden-log", log);
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
                     return;
                 }
-                if (log.isEmpty()) {
-                    toast(getString(R.string.log_kosong));
-                    return;
-                }
-                if (!salinClipboardBersihOtomatis("vaultwarden-log", log)) {
-                    toast(getString(R.string.papan_klip_tak_tersedia));
-                    return;
-                }
-                toast(getString(R.string.log_disalin));
+                toast(getString(tersalin
+                        ? R.string.log_disalin : R.string.papan_klip_tak_tersedia));
             });
         });
         if (!masuk) {
