@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 402: pola kunci privat cek-cepat tak lagi berjangkar akhir baris
+- Alternatif PEM pada `POLA_RAHASIA` diakhiri `$`: baris `-----BEGIN ... PRIVATE KEY-----` yang diikuti spasi ekor atau berujung CRLF tidak cocok dan lolos dari satu-satunya gerbang rahasia lokal (temuan audit putaran-8, #140).
+- Jangkar akhir diganti jangkar AWAL baris (`^`): kop PEM sungguhan selalu mulai di kolom pertama, sedangkan literal kop di dalam kode (pengurai PEM `TlsCert`) tidak — terbukti di salinan buang: varian spasi ekor dan CRLF kini GAGAL, pohon bersih (termasuk literal kode itu) tetap LOLOS.
+
 ## [Belum rilis] — Audit 401: penjaga bekas-hapusan kini memeriksa panggilan terbelah baris dan keabsahan daftarnya
 - Dua lubang pada penjaga nama metode terhapus: (1) `cek_panggil_bekas_hapusan` memindai baris tambah satu per satu, jadi panggilan yang dibelah dua baris (`nama` di akhir baris, `(` di baris berikut) lolos; (2) daftar `tools/bekas-hapusan.txt` tak pernah divalidasi ke pohon — nama yang terdefinisi lagi diam-diam tetap terdaftar dan menyesatkan penjagaan (temuan audit putaran-8, #139).
 - Pemindaian kini juga menguji gabungan tiap baris dengan baris sebelumnya dalam berkas yang sama, dan `cek_daftar_hapusan` menolak nama terdaftar yang masih terdefinisi di pohon. Terbukti di salinan buang: panggilan terbelah dan nama basi kini GAGAL, pohon bersih tetap LOLOS.
