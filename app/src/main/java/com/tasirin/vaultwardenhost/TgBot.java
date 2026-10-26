@@ -1624,7 +1624,8 @@ public final class TgBot {
                 try {
                     balas(ctx, idRuang, TgBackup.resetSertifikat(ctx));
                 } catch (Exception e) {
-                    balas(ctx, idRuang, "Reset sertifikat gagal: " + e.getMessage());
+                    balas(ctx, idRuang, "Reset sertifikat gagal: "
+                            + TgBackup.redaksiDetailGalat(e.getMessage()));
                 }
             });
             return true;
@@ -1644,7 +1645,8 @@ public final class TgBot {
                 try {
                     balas(ctx, idRuang, TgBackup.kirimCa(ctx));
                 } catch (Exception e) {
-                    balas(ctx, idRuang, "Kirim CA gagal: " + e.getMessage());
+                    balas(ctx, idRuang, "Kirim CA gagal: "
+                            + TgBackup.redaksiDetailGalat(e.getMessage()));
                 }
             });
         } else {
@@ -1652,7 +1654,8 @@ public final class TgBot {
                 try {
                     balas(ctx, idRuang, TgBackup.backupCaKeStorage(ctx));
                 } catch (Exception e) {
-                    balas(ctx, idRuang, "Backup CA gagal: " + e.getMessage());
+                    balas(ctx, idRuang, "Backup CA gagal: "
+                            + TgBackup.redaksiDetailGalat(e.getMessage()));
                 }
             });
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 390: pesan gagal perintah sertifikat bot kini lewat redaksi galat
+- Tiga jalur sertifikat bot (`/careset`, `/ca`, `/cabackup`) mengirim `e.getMessage()` mentah ke chat; pesan pengecualian dari operasi berkas/API bisa memuat URL ber-token bot atau detail internal — jalur restore di berkas yang sama sudah lama membersihkannya lebih dulu (temuan audit putaran-7, #128).
+- Ketiganya kini melewati `TgBackup.redaksiDetailGalat` yang sama (token dan URL disamarkan, pesan dipangkas) sebelum dibalas ke chat.
+
 ## [Belum rilis] — Audit 389: pemulihan .bak kini menjangkau folder backups
 - `gantiAtomik` juga dipakai menulis backup di folder `backups/`, tetapi `pulihkanBakTersisa` hanya menyapu folder data dan `tls/` — swap backup yang terpotong meninggalkan backup bagus hanya sebagai `.bak` tanpa pernah dipulihkan, dan rotasi bisa menganggapnya hilang (temuan audit putaran-7, #127).
 - Sapuan kini menjangkau `backups/` dengan predikat nama yang sama dengan pengenal berkas backup (`TgBackup.isFileBackup`: awalan `backup-telegram-`/`db-backup-`), lewat kelebihan-beban predikat pada penyapu yang sama — batasan nama sah Audit 386 tetap berlaku di semua folder.
