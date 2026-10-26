@@ -10,9 +10,10 @@ public class KernelCompatTest {
 
     @Test
     public void legacyMemoKonsistenDenganMurni() {
-        assertEquals(KernelCompat.isLegacyKernel(KernelCompat.kernelSekarang()),
-                KernelCompat.legacyPerangkat());
-        assertEquals(KernelCompat.legacyPerangkat(), KernelCompat.legacyPerangkat());
+        boolean harapan = KernelCompat.isLegacyKernel(
+                System.getProperty("os.version"));
+        assertEquals(harapan, KernelCompat.legacyPerangkat());
+        assertEquals(harapan, KernelCompat.legacyPerangkat());
     }
 
     @Test

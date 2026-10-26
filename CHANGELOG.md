@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 380: tes memo kernel legacy tak lagi tautologi
+- `KernelCompatTest.legacyMemoKonsistenDenganMurni` membandingkan `legacyPerangkat()` dengan dirinya sendiri — selalu hijau walau memo menyimpang dari versi kernel perangkat, jadi regresi di jalur memo lolos tanpa jejak (temuan audit putaran-9, #155).
+- Nilai harapan kini diturunkan secara independen dari `System.getProperty("os.version")` lewat `isLegacyKernel` (bukan lewat `kernelSekarang()` yang sedang diuji), lalu dibandingkan ke `legacyPerangkat()` dua kali untuk kestabilan memo.
+
 ## [Belum rilis] — Audit 379: cek locale gerbang tak lagi terkecoh spasi sebelum kurung
 - Pola `cek_locale_baru` menuntut teks persis `.toLowerCase()`; bentuk sah Java `"ABC".toLowerCase ();` (spasi sebelum kurung) atau `( )` lolos dari larangan toLower/UpperCase tanpa Locale — gerbang hijau untuk kode yang justru hendak dicegahnya (temuan audit putaran-9, #154).
 - Pola kini menoleransi spasi di sekitar kurung (`\s*\(\s*\)`) sambil tetap membiarkan varian berargumen `Locale` lewat; terbukti di salinan buang: bentuk berspasi kini GAGAL, bentuk `toLowerCase(Locale.US)` tetap LOLOS.
