@@ -872,9 +872,24 @@ def nama_warna(path):
 def cek_paritas_resource(gagal):
     """Paritas yang dulu dicek manual tiap audit kini otomatis (GAGAL bila miring)."""
     try:
-        siang = nama_warna("app/src/main/res/values/colors.xml")
-        malam = nama_warna("app/src/main/res/values-night/colors.xml")
-        if siang and malam:
+        # Berkas/folder WAJIB diperiksa keberadaannya lebih dulu: dulu
+        # `baca()` mengembalikan "" untuk berkas hilang sehingga dua himpunan
+        # kosong dianggap "paritas cocok" dan penghapusan values-night/
+        # colors.xml (mode gelap jadi terang) atau layout-land/ (UI landscape
+        # rusak) lolos gate tanpa jejak.
+        warna_siang = "app/src/main/res/values/colors.xml"
+        warna_malam = "app/src/main/res/values-night/colors.xml"
+        warna_hilang = [p for p in (warna_siang, warna_malam)
+                        if not os.path.isfile(os.path.join(AKAR, p))]
+        if warna_hilang:
+            gagal.append("Berkas warna wajib hilang: " + ", ".join(warna_hilang)
+                         + " (mode siang & gelap butuh keduanya)")
+        else:
+            siang = nama_warna(warna_siang)
+            malam = nama_warna(warna_malam)
+            if not siang or not malam:
+                gagal.append("colors.xml tanpa <color> — paritas siang/gelap"
+                             " tak bisa dicek")
             if siang - malam:
                 gagal.append("colors.xml siang berlebih vs night: "
                              + ", ".join(sorted(siang - malam)[:10]))
@@ -883,7 +898,13 @@ def cek_paritas_resource(gagal):
                              + ", ".join(sorted(malam - siang)[:10]))
         tata = os.path.join(AKAR, "app", "src", "main", "res", "layout")
         darat_dir = os.path.join(AKAR, "app", "src", "main", "res", "layout-land")
-        if os.path.isdir(tata) and os.path.isdir(darat_dir):
+        folder_hilang = [p for p in ("layout", "layout-land")
+                         if not os.path.isdir(os.path.join(AKAR, "app", "src",
+                                                           "main", "res", p))]
+        if folder_hilang:
+            gagal.append("Folder layout wajib hilang: " + ", ".join(folder_hilang)
+                         + " (portrait & landscape butuh keduanya)")
+        else:
             for nama in sorted(os.listdir(tata)):
                 if not nama.endswith(".xml"):
                     continue

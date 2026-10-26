@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 303: verifikator menolak berkas warna/layout wajib yang hilang
+- `baca()` mengembalikan string kosong untuk berkas yang tak ada, sehingga paritas `values/colors.xml` vs `values-night/colors.xml` (dan `layout/` vs `layout-land/`) hanya dicek bila kedua himpunan tak kosong: menghapus `values-night/colors.xml` (mode gelap memakai warna terang) atau folder `layout-land/` (UI landscape rusak) berakhir **LOLOS** tanpa cek lain yang menangkapnya.
+- `cek_paritas_resource` kini memeriksa keberadaan berkas/folder wajib lebih dulu dan menggagalkan verifikasi bila hilang; `colors.xml` yang ada tetapi tanpa `<color>` juga gagal (paritas tak bisa dicek). Diuji lokal dengan memindahkan `values-night/colors.xml` dan `layout-land/`: dua temuan muncul; setelah dipulihkan verifikasi LOLOS.
+
 ## [Belum rilis] — Audit 302: pasang-hook membuktikan eksekusi & mencadangkan hook lama
 - `tools/pasang-hook.sh` dulu memakai `[ -x "$HOOK" ]` sebagai bukti "kait bisa dieksekusi". `test -x` hanya membaca **bit izin**, bukan opsi mount: di penyimpanan `noexec` (`/sdcard`, tempat repo ini berada) `chmod +x` tetap "berhasil" tetapi `execve` ditolak kernel, sehingga skrip mencetak sukses padahal git mengabaikan hook dan setiap push lolos tanpa verifikasi. Sekarang hook dijalankan sungguhan (`pre-push --self-test` yang langsung `exit 0`); bila ditolak kernel, skrip menampilkan peringatan noexec. Diuji di repo ini (`/storage/emulated/0`): deteksi berhasil (sebelumnya akan salah lapor sukses) dan di `/tmp` (exec normal) lapor sukses.
 - Hook `pre-push` lama (bukan buatan skrip ini) kini dicadangkan ke `pre-push.bak` (atau `.bak.N` bila sudah ada) sebelum ditimpa; bila pencadangan gagal, hook tidak diubah. Skrip juga menolak berjalan di luar akar repo.
