@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 412: start tertunda kunci data kini membatalkan jadwal restartTunda sebelumnya
+- Jalur penundaan start saat kunci data sibuk menjadwalkan `restartTunda` dengan `posUtama` tanpa `batalUtama` lebih dulu — satu-satunya situs penjadwalan yang tidak berpasangan; `postTunda` tidak mendedupe, jadi penundaan beruntun menumpuk callback yang sama dan rantai restart bisa bercabang (temuan audit putaran-9, #166).
+- `batalUtama(restartTunda)` kini dipanggil tepat sebelum penjadwalan itu, menyamai pola di `scheduleRestartTerkunci` dan situs lainnya.
+
 ## [Belum rilis] — Audit 411: pemindaian pola petunjuk login kini ikut di-throttle, bukan hanya pancarannya
 - Cap throttle petunjuk login hanya maju saat sebuah petunjuk benar-benar terpancar; selama tak ada baris yang cocok, jendela selalu terbuka sehingga SETIAP baris log server membayar pindaian pola penuh (`minatLogin` + ~35 pola) tanpa henti di thread pembaca keluaran proses (temuan audit putaran-9, #165).
 - Pemindaian kini punya throttle sendiri (`LOGIN_PINDAI_JEDA_MS` 10 detik, `bolehPindaiLogin`): cap dicatat saat pindaian berjalan, jadi biaya pindaian terbatas ±6x/menit; jeda pancaran antar-petunjuk tetap 60 detik seperti sebelumnya.

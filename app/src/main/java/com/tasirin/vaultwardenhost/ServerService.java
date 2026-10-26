@@ -1535,6 +1535,7 @@ public class ServerService extends Service {
                     }
                     if (n < BATAS_START_TERTUNDA_DATA) {
                         tunda = true;
+                        batalUtama(restartTunda);
                         posUtama(restartTunda, 5000);
                     } else {
                         startTertundaData.set(0);
