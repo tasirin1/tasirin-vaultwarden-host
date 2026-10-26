@@ -388,7 +388,7 @@ public class MainActivity extends Activity {
         // sebelum cek port agar tak gagal start secara misterius.
         if (!ServerService.dataDirAman(dataDir)
                 || !ServerService.dataDirKanonisAman(dataDir)) {
-            toast("Invalid data folder — reverted to default.");
+            toast(getString(R.string.folder_tidak_valid));
             appendUiLog("[app] Folder data tidak valid: '" + dataDir + "' - direset ke bawaan.");
             try {
                 sp.edit().putString(ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()).apply();
@@ -421,21 +421,17 @@ public class MainActivity extends Activity {
                 }
                 if (butuhRoot) {
                     DialogAman.tampil(MainActivity.this, new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Port " + portFix + " needs root access")
-                            .setMessage("Main port (" + portFix + ") below 1024 can only be"
-                                    + " used with root access.\n"
-                                    + "Change the port to >= 1024 (e.g. 8088) in Settings.")
-                            .setPositiveButton("OK", null)
+                            .setTitle(getString(R.string.port_root_judul, portFix))
+                            .setMessage(getString(R.string.port_root_pesan, portFix))
+                            .setPositiveButton(R.string.ok, null)
                             .create());
                     return;
                 }
                 if (busy) {
                     DialogAman.tampil(MainActivity.this, new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Port " + portFix + " is in use")
-                            .setMessage("Main port (" + portFix + ") is already used by another process.\n"
-                                    + "Stop the other app using it, change the port in Settings, "
-                                    + "or restart the phone first.")
-                            .setPositiveButton("OK", null)
+                            .setTitle(getString(R.string.port_dipakai_judul, portFix))
+                            .setMessage(getString(R.string.port_dipakai_pesan, portFix))
+                            .setPositiveButton(R.string.ok, null)
                             .create());
                     return;
                 }
@@ -445,7 +441,7 @@ public class MainActivity extends Activity {
         if (!masuk) {
             // Antrean penuh: lepas status sibuk agar banner tidak terkunci.
             setBusy(false);
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
@@ -455,11 +451,9 @@ public class MainActivity extends Activity {
         if (!Updater.webVaultReady(this, finalDataDir)) {
             // APK tidak membundel web-vault; unduh sekali saat Start pertama bila diizinkan.
             DialogAman.tampil(this, new AlertDialog.Builder(this)
-                    .setTitle("Web vault not installed")
-                    .setMessage("The APK excludes the web vault to stay small.\n"
-                            + "Download once (~35 MB) so the web UI can be opened from a browser?\n\n"
-                            + "Without the web vault, the server and Bitwarden apps still work normally.")
-                    .setPositiveButton("Download & Start", (d, w) -> {
+                    .setTitle(R.string.wv_belum_judul)
+                    .setMessage(R.string.wv_belum_pesan)
+                    .setPositiveButton(R.string.wv_unduh_mulai, (d, w) -> {
                         setBusy(true);
                         // Pakai app context di worker agar tekan back saat unduh
                         // 35 MB tak menahan Activity yang sudah destroy (bocor).
@@ -488,8 +482,7 @@ public class MainActivity extends Activity {
                                 }
                                 appendUiLog(info);
                                 if (gagalFinal) {
-                                    toast("Web-vault download failed"
-                                            + " — server was not started.");
+                                    toast(getString(R.string.wv_unduh_gagal_server));
                                 }
                                 setBusy(false);
                                 // Backup otomatis di sini (bukan saat tekan tombol):
@@ -505,10 +498,10 @@ public class MainActivity extends Activity {
                             // Antrean penuh: setBusy(true) di atas tak akan
                             // dilepas oleh finally tugas yang tak pernah jalan.
                             setBusy(false);
-                            toast("Task queue is full, try again shortly.");
+                            toast(getString(R.string.antrean_penuh));
                         }
                     })
-                    .setNegativeButton("Start without web vault", (d, w) -> {
+                    .setNegativeButton(R.string.wv_mulai_tanpa, (d, w) -> {
                         ServerService.start(this);
                         maybeAutoBackup();
                     })
@@ -715,7 +708,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        // Gerbang komponen sebelum StringBuilder: tanpa alokasi saat tak berubah.
+        // Gerbang komponen sebelum menyusun teks versi: tanpa alokasi saat tak berubah.
         String binVer = ServerService.binaryVersion;
         if (binVer == null) {
             binVer = "";
@@ -725,13 +718,9 @@ public class MainActivity extends Activity {
             lastVersiApp = appVersion;
             lastVersiBin = binVer;
             lastVersiBundled = bundledVersion;
-            StringBuilder versiB = new StringBuilder("App ").append(appVersion);
-            if (!binVer.isEmpty()) {
-                versiB.append(" \u00B7 Binary: ").append(binVer);
-            } else {
-                versiB.append(" \u00B7 ").append(bundledVersion);
-            }
-            String version = versiB.toString();
+            String version = binVer.isEmpty()
+                    ? getString(R.string.versi_app, appVersion, bundledVersion)
+                    : getString(R.string.versi_app_biner, appVersion, binVer);
             if (!version.equals(lastShownVersion)) {
                 versionView.setText(version);
                 lastShownVersion = version;
@@ -1012,7 +1001,7 @@ public class MainActivity extends Activity {
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null && LogActivity.salinBersihOtomatis(this, "vaultwarden-url", url)) {
             if (url.contains("127.0.0.1") || url.contains("localhost")) {
-                toast(getString(R.string.url_copied, url) + " (loopback — IP LAN tak terdeteksi)");
+                toast(getString(R.string.url_disalin_loopback, url));
             } else {
                 toast(getString(R.string.url_copied, url));
             }
@@ -1044,8 +1033,7 @@ public class MainActivity extends Activity {
                         TgBackup.amanString(psp, AutoUpdate.KEY_TAWARAN_UPDATE, ""),
                         versi)) {
                     psp.edit().putString(AutoUpdate.KEY_TAWARAN_UPDATE, versi).apply();
-                    MainActivity.this.toast("Update available: v" + versi
-                            + " — open Settings to update.");
+                    MainActivity.this.toast(getString(R.string.update_tersedia, versi));
                 }
             }
             @Override public void tawarkanWebVault() {

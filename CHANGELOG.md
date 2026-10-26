@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Audit 295: Teks UI layar Log & awal pindah ke resource (i18n)
+- Teks tampilan yang masih ditulis langsung di `LogActivity` dan `MainActivity` dipindah ke `res/values/strings.xml` (Inggris) + `res/values-in/strings.xml` (Indonesia): toast crash-log, dialog "Crash Log", bagikan/salin/simpan log, dialog port (<1024/in use), tawaran web-vault, folder data tidak valid, baris versi `App … · Binary …`, dan pemberitahuan update. Nilai Inggris tiap resource dibuktikan sama dengan literal lama (bandingkan parse XML vs teks asli; format `%1$s` menggantikan konkatenasi).
+- Sekalian memperbaiki teks Inggris yang kemarin mencampur bahasa Indonesia: toast URL loopback kini `… (loopback — LAN IP not detected)` dengan padanan Indonesia `… (loopback — IP LAN tak terdeteksi)`.
+- Dialog port/web-vault dipakai bersama layar awal dan Setelan; resource-nya bernama netral (`port_root_*`, `port_dipakai_*`, `wv_*`) agar `SettingsActivity` memakai salinan yang sama pada tahap berikutnya.
+
 ## [Belum rilis] — Audit 294: Rangkaian build APK merah (kelas uji kembar, `throws`, API 24)
 - `compileDebugJavaWithJavac` gagal 3 error: `URLEncoder.encode` dipindah ke `kirimKeDaftar` (commit "encode-once") tanpa ikut membawa `throws Exception`/`UnsupportedEncodingException`, sehingga seluruh build APK sesudahnya merah. `kirimKeDaftar` kini mendeklarasikan `throws Exception` dan kedua pemanggilnya (`kirimSinkron`, `kirimSinkronKe`) memakai jalur `catch` + `logTgFailure` yang sudah ada — tidak ada catch duplikat.
 - `compileDebugUnitTestJavaWithJavac` gagal karena kelas pembantu uji `ProsesPalsu` terdefinisi dua kali identik di `ServerServiceTest` (salinan kedua dihapus; salinan pertama tetap dipakai dua uji kunci proses/episode).

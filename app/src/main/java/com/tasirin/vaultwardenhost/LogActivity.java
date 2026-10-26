@@ -499,14 +499,14 @@ public class LogActivity extends Activity {
                     return;
                 }
                 if (crash == null || crash.trim().isEmpty()) {
-                    toast("No crash log yet.");
+                    toast(getString(R.string.log_crash_belum_ada));
                     return;
                 }
                 tampilDialogCrash(crash);
             });
         });
         if (!masuk) {
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
@@ -523,11 +523,11 @@ public class LogActivity extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(tv);
         DialogAman.tampil(this, new AlertDialog.Builder(this)
-                .setTitle("Crash Log")
+                .setTitle(R.string.log_crash_judul)
                 .setView(sv)
-                .setPositiveButton("Copy", (dlg, w) -> {
+                .setPositiveButton(R.string.salin, (dlg, w) -> {
                     salinClipboardBersihOtomatis("vaultwarden-crash", crash);
-                    toast("Crash log copied to clipboard.");
+                    toast(getString(R.string.log_crash_disalin));
                 })
                 .setNegativeButton(getString(R.string.close), null)
                 .create());
@@ -909,7 +909,7 @@ public class LogActivity extends Activity {
         // Salin buffer + penyamaran di worker: belasan regex di atas 300 KB dan
         // penyalinan isi buffer menahan lock log global (dipakai pumpOutput
         // server) sekaligus membekukan UI di STB lemah.
-        toast("Preparing log…");
+        toast(getString(R.string.log_menyiapkan));
         boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
             synchronized (ServerService.logBuffer) {
@@ -921,22 +921,22 @@ public class LogActivity extends Activity {
                     return;
                 }
                 if (log.isEmpty()) {
-                    toast("Log is still empty.");
+                    toast(getString(R.string.log_kosong));
                     return;
                 }
                 Intent send = new Intent(Intent.ACTION_SEND);
                 send.setType("text/plain");
-                send.putExtra(Intent.EXTRA_SUBJECT, "Tasirin Vaultwarden Host - Log");
+                send.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.log_bagikan_subjek));
                 send.putExtra(Intent.EXTRA_TEXT, log);
                 try {
-                    startActivity(Intent.createChooser(send, "Share log"));
+                    startActivity(Intent.createChooser(send, getString(R.string.log_bagikan)));
                 } catch (Exception e) {
-                    toast("Failed to share log: " + e.getMessage());
+                    toast(getString(R.string.log_bagikan_gagal, String.valueOf(e.getMessage())));
                 }
             });
         });
         if (!masuk) {
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
@@ -1190,7 +1190,7 @@ public class LogActivity extends Activity {
         // Salin buffer + penyamaran di worker (lihat shareLog): regex berat tak
         // boleh menahan lock log global, dan penyalinan 300 KB tak boleh
         // membekukan UI di STB lemah.
-        toast("Preparing log…");
+        toast(getString(R.string.log_menyiapkan));
         boolean masuk = Util.jalankanBg(() -> {
             final String mentah;
             synchronized (ServerService.logBuffer) {
@@ -1202,18 +1202,18 @@ public class LogActivity extends Activity {
                     return;
                 }
                 if (log.isEmpty()) {
-                    toast("Log is still empty.");
+                    toast(getString(R.string.log_kosong));
                     return;
                 }
                 if (!salinClipboardBersihOtomatis("vaultwarden-log", log)) {
-                    toast("Clipboard unavailable.");
+                    toast(getString(R.string.papan_klip_tak_tersedia));
                     return;
                 }
-                toast("Log copied to clipboard.");
+                toast(getString(R.string.log_disalin));
             });
         });
         if (!masuk) {
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
@@ -1236,7 +1236,7 @@ public class LogActivity extends Activity {
         // Tulis file di worker: buffer 300 KB + IPC MediaStore di UI thread
         // bikin tap Simpan freeze di storage STB lambat. Salinan buffer juga
         // diambil di worker agar lock log global tak ditahan UI thread.
-        toast("Saving log…");
+        toast(getString(R.string.log_menyimpan));
         boolean masuk = Util.jalankanBg(() -> {
             final String log;
             synchronized (ServerService.logBuffer) {
@@ -1249,11 +1249,12 @@ public class LogActivity extends Activity {
                 if (isFinishing() || isDestroyed()) {
                     return;
                 }
-                toast(nama != null ? "Log saved: Download/" + nama : "Failed to save log");
+                toast(nama != null ? getString(R.string.log_tersimpan, nama)
+                        : getString(R.string.log_gagal_simpan));
             });
         });
         if (!masuk) {
-            toast("Task queue is full, try again shortly.");
+            toast(getString(R.string.antrean_penuh));
         }
     }
 
