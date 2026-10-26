@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 362: tombol Check Update di About dari MainActivity kini menutup dialog lebih dulu
+- Di `AboutDialog`, cabang Settings men-`dismiss()` dialog sebelum bertindak, tetapi cabang selain Settings (dari MainActivity) langsung `startActivity(SettingsActivity)` tanpa menutup dialog: sesudah selesai di Settings dan menekan Back, dialog About lama masih terbuka menunggu ditutup manual. Sisa inkonsistensi di sekitar perbaikan Audit 322 (#74).
+- Cabang non-Settings kini men-`dismiss()` lebih dulu, sama seperti cabang Settings.
+
 ## [Belum rilis] — Audit 361: DialogAman.tampil menelan kegagalan show dan membersihkan registernya
 - `DialogAman.tampil()` memanggil `d.show()` telanjang sesudah cek hidup dan sesudah mendaftarkan dialog ke `DAFTAR` — berbeda dengan `tutupDiam` di berkas yang sama yang memakai try-catch. Bila token jendela keburu tidak valid saat `show()` dipanggil dari jalur asinkron (callback `ui.post` tepat ketika activity dihancurkan), `BadTokenException` lolos ke pemanggil sebagai crash dan entri dialog yang tak pernah tampil tertinggal di register.
 - `show()` kini dibungkus try-catch sesuai filosofi kelas ini (gagal tampil = dialog dilewati diam-diam); pada kegagalan, entri yang baru didaftarkan itu juga dikeluarkan dari `DAFTAR` agar register tidak menampung dialog hantu.

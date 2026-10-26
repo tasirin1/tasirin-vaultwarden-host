@@ -135,6 +135,7 @@ final class AboutDialog {
             });
         } else {
             tombolUpdate.setOnClickListener(v -> {
+                dialog.dismiss();
                 try {
                     a.startActivity(new Intent(a, SettingsActivity.class));
                 } catch (Exception ignored) {
