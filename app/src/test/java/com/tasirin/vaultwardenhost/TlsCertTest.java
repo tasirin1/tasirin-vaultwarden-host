@@ -310,4 +310,15 @@ public class TlsCertTest {
         assertEquals(0, TlsCert.resetTls(new File(dir.toFile(), "tak-ada")));
     }
 
+    @Test
+    public void resetTls_hapusSisaVersionBaru() throws Exception {
+        // Penanda versi ditulis ke version.txt.baru lalu di-rename; sisa .baru
+        // dari percobaan yang gagal tak boleh tertinggal setelah reset.
+        File dir = Files.createTempDirectory("tlsresetbaru").toFile();
+        File sisa = new File(dir, "version.txt.baru");
+        Files.write(sisa.toPath(), "5\n".getBytes(StandardCharsets.US_ASCII));
+        assertEquals(1, TlsCert.resetTls(dir));
+        assertFalse(sisa.exists());
+    }
+
 }

@@ -1025,12 +1025,19 @@ public final class TlsCert {
     }
 
     private static void writeVersion(File dir) throws IOException {
-        FileOutputStream w = new FileOutputStream(new File(dir, "version.txt"));
+        // Atomik seperti writePem/tukarPasanganAtomik: tulis .baru dulu, fsync,
+        // baru ganti nama. Menulis langsung ke version.txt (truncate lalu isi)
+        // membuat berkas kosong/terpotong bila STB mati di tengah; certVersionOk()
+        // lalu false -> CA dianggap rusak dan dibuat ulang, semua HP wajib
+        // install CA baru. fsync saja tidak menolong berkas yang sudah
+        // ter-truncate, jadi urutan tulis-ke-.baru + rename ini wajib.
+        File tujuan = new File(dir, "version.txt");
+        File baru = new File(dir, "version.txt.baru");
+        baru.delete(); // sisa percobaan sebelumnya (tak pernah dipakai pembaca)
+        FileOutputStream w = new FileOutputStream(baru);
         try {
             w.write((CERT_VERSION + "\n").getBytes(StandardCharsets.US_ASCII));
-            // fsync: version.txt hilang/terpotong membuat certVersionOk() false
-            // -> CA dianggap rusak dan dibuat ulang (semua HP wajib install CA
-            // baru). Sama seperti isi PEM, wajib tahan mati listrik.
+            w.flush();
             try {
                 w.getFD().sync();
             } catch (Exception ignored) {
@@ -1039,6 +1046,14 @@ public final class TlsCert {
             try {
                 w.close();
             } catch (Exception ignored) {
+            }
+        }
+        // rename menimpa versi lama secara atomik di filesystem POSIX; bila
+        // gagal (FS aneh) coba hapus dulu supaya penanda versi tetap terpasang.
+        if (!baru.renameTo(tujuan)) {
+            if (!tujuan.delete() || !baru.renameTo(tujuan)) {
+                baru.delete();
+                throw new IOException("gagal menulis version.txt");
             }
         }
     }
@@ -1278,9 +1293,10 @@ public final class TlsCert {
         // Kunci yang sama dengan ensure: jangan hapus file saat CA/leaf baru
         // sedang ditukar (dulu reset bisa menyisakan pasangan CA/leaf tak cocok).
         synchronized (KUNCI_ENSURE) {
-            // Hapus juga sisa cadangan .cad agar reset bersih (tak ada cert/key basi tertinggal).
+            // Hapus juga sisa cadangan .cad/.baru agar reset bersih (tak ada
+            // cert/key/penanda versi basi tertinggal).
             for (String nama : new String[]{CA_CERT_FILE, CA_KEY_FILE, LEAF_CERT_FILE,
-                    LEAF_KEY_FILE, "ips.txt", "version.txt",
+                    LEAF_KEY_FILE, "ips.txt", "version.txt", "version.txt.baru",
                     CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
                     LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru",
                     CA_CERT_FILE + ".cad", CA_KEY_FILE + ".cad",

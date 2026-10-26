@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 297: version.txt TLS ditulis atomik (CA tak dibuat ulang saat listrik mati)
+- `TlsCert.writeVersion` dulu menulis langsung ke `version.txt` (truncate lalu isi). Bila STB mati/IO gagal di tengah, berkas kosong/terpotong; `certVersionOk()` jadi false, CA dianggap rusak, lalu CA baru dibuat dan **semua HP wajib memasang CA baru**. fsync di komentar lama tidak menolong berkas yang sudah ter-truncate.
+- Kini pola sama dengan `writePem`/`tukarPasanganAtomik`: tulis `version.txt.baru` → `flush` → `fsync` → `rename` atomik menimpa `version.txt` (fallback hapus-lalu-rename bila FS menolak menimpa, lalu `IOException`). `resetTls` juga menyapu sisa `version.txt.baru` agar reset bersih; unit test baru memeriksa sisa itu terhapus.
+
 ## [Belum rilis] — Audit 296: Verifikator menolak biner/berkas besar di semua lokasi
 - Cek "berkas >1 MB" dulu hanya berlaku untuk `app/src/main/`, sehingga `web-vault.zip` 36 MB, binary ELF tanpa ekstensi, atau arsip apa pun di root/`tools/`/`app/src/test/` lolos gate. Daftar ekstensi terlarang juga terbatas `.apk/.aab/.dex/.jks/.keystore`.
 - `cek_aturan_repo` kini memeriksa magic berkas (ELF, PE/EXE, ZIP/JAR/APK, Mach-O/class, DEX) di **semua** berkas berubah dan menegakkan batas 1 MB di semua path, dengan pengecualian eksplisit hanya `gradle/wrapper/gradle-wrapper.jar` (bagian repo, bukan aset app). Berkas yang dihapus (tak terbaca) tetap lolos agar revert tak diblokir.
