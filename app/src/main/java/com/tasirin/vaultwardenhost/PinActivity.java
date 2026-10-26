@@ -113,6 +113,9 @@ public class PinActivity extends Activity {
             boolean cocok = !segar.isEmpty()
                     && PinCrypto.verify(segar, entered);
             PinGate.catatHasil(appCtx, cocok, System.currentTimeMillis());
+            if (cocok) {
+                PinGate.bukaKunciBersama();
+            }
             if (cocok && PinCrypto.perluUpgradeHash(segar)) {
                 String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                 if (segar.equals(kini)) {
@@ -133,7 +136,6 @@ public class PinActivity extends Activity {
                 bukaBtn.setEnabled(true);
                 bersihkanInput();
                 if (hasil) {
-                    PinGate.bukaKunciBersama();
                     setResult(RESULT_OK);
                     finish();
                 } else {

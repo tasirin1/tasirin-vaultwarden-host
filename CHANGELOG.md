@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 329: rotasi saat verifikasi PIN tak lagi membuang hasil yang berhasil
+- `PinGate.bukaKunciBersama()` hanya dipanggil di dalam `ui.post` sesudah pemeriksaan `isFinishing()/isDestroyed()`, jadi rotasi di tengah verifikasi PBKDF2 (yang memang lambat di perangkat tua) membuang hasil sukses: grace tak pernah dibuka dan PIN yang sudah benar harus diketik ulang, padahal `catatHasil` sudah mencatatnya.
+- Grace kini dibuka di utas pekerja tepat sesudah `catatHasil` bila PIN cocok, sebelum callback UI dipasang; callback UI tinggal `setResult(RESULT_OK)` + `finish`. Bila activity lama hancur karena rotasi, instance barunya langsung lolos lewat pemeriksaan `dalamGraceBersama()` di `onCreate` seperti jalur normal.
+
 ## [Belum rilis] — Audit 328: kegagalan trust tambahan HttpsCompat kini memberi sinyal di log aplikasi
 - Bila rantai aset `certs/github-chain.pem` gagal dimuat/diurai, `HttpsCompat.apply` hanya menulis satu baris `Log.w` lalu lanjut dengan factory bawaan — himpunan trust diam-diam berbeda dari desain (terutama di Android 5/6) dan gejala akhirnya kegagalan handshake generik yang sulit didiagnosis.
 - Kegagalan kini dicatat lewat `catatGagalTrust`: tetap ada di logcat, dan kegagalan yang baru/berbeda juga ditulis sekali ke log aplikasi (`ServerService.catatLog`, terlihat di UI log dan ekspor log) lewat penolong murni `sinyalGagalTrust`; pesan yang sama berulang tidak membanjiri log. Keadaan gagal terakhir bisa dibaca lewat `gagalTrustTerakhir()`. Perilaku koneksi tak berubah (verifier bawaan tetap memvalidasi) — yang ditambah adalah sinyalnya. Diuji di `HttpsCompatTest`.
