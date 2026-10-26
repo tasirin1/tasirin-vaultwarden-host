@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 358: state pressed tak lagi tertutup state focused di selector tombol
+- Kelima selector latar tombol (`bg_btn_primary`, `bg_btn_stop`, `bg_btn_tv`, `bg_chip`, `item_focus_bg`) menulis item `state_focused` sebelum `state_pressed`; selector Android mengambil kecocokan pertama dan gaya tombol mematikan animator state, jadi di TV/STB menahan OK pada tombol yang sedang fokus tidak mengubah tampilan sama sekali sampai aksi sibuk berjalan — tidak ada umpan balik bahwa tekanan diterima.
+- Blok item `state_pressed` kini mendahului `state_focused` di kelima berkas (isi tiap item tidak berubah, hanya urutannya); melengkapi Audit 341 yang membetulkan warna teks saat ditekan. Keadaan nonaktif tetap paling dulu sehingga tombol mati tidak menunjukkan gaya tekan/fokus.
+
 ## [Belum rilis] — Audit 357: petunjuk "update tersedia" tak lagi oranye pudar di mode siang
 - Baris `updateHint` di kartu Server memakai `@color/accent` (#F57C00) untuk teks 11sp di atas kartu putih — kontrasnya hanya 2,70:1 sehingga mudah terlewat, padahal baris itu satu-satunya petunjuk di kartu bahwa ada update (di malam pasangan yang sama aman, 9,52:1, karena aksen malam #FFB74D di atas kartu gelap). `accent` dipakai di 19 tempat lain sehingga tidak bisa digelapkan global.
 - Warna khusus baru `update_hint`: siang #BF5700 (4,59:1 di atas putih, sejajar pilihan `chip_busy` di Audit 343), malam tetap #FFB74D seperti aksen malam — tampilan malam tidak berubah sama sekali.
