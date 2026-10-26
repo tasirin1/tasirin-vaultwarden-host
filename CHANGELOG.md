@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 369: pesan PIN basi kini ikut dihapus dari riwayat chat, bukan dilewati selamanya
+- Pemeriksaan kesegaran pesan di `pollOnce` membuang pesan berumur >5 menit dengan `continue` sebelum blok penghapusan PIN (#101) tercapai: PIN yang dikirim user saat bot sedang mati/offline tertinggal permanen di riwayat chat Telegram dan tak pernah dikunjungi lagi karena offset sudah maju (temuan audit putaran-7, #121).
+- Cabang basi kini memeriksa bentuk pesannya lebih dulu (`pinBasiPerluHapus`, teruji): perintah berargumen PIN dan balasan PIN untuk sesi pending (aktif maupun kedaluwarsa) dihapus lewat jalur hapus yang sama sebelum pesan dilewati; pesan basi biasa tetap dilewati tanpa disentuh, dan tidak ada perintah basi yang dijalankan.
+
 ## [Belum rilis] — Audit 368: pencarian PID anak lewat /proc tak lagi menebak identitas di antara dua proses server
 - `pidAnakDariProc` mengembalikan proses server pertama yang cmdline-nya cocok dan induknya aplikasi ini, tanpa memastikan ia proses yang sedang dilacak; dengan dua proses server seinduk (sisa tumpang-tindih restart), PID yang dikembalikan bisa milik saudara yang salah — dan `bereskanServerYatim` mempercayainya sebagai pengecualian sehingga server yang hidup justru bisa dibunuh sebagai "yatim" (temuan audit putaran-7, #120).
 - Pencarian kini mengumpulkan semua kecocokan dan hanya mengakui PID bila tepat satu yang cocok (`pidDariKecocokan`, teruji); lebih dari satu berarti identitas tak pasti dan hasilnya -1. `bereskanServerYatim` juga berhenti fail-closed (kembali false) bila server terlacak masih hidup tetapi PID-nya tak bisa dipastikan, dan memakai satu nilai PID anak yang konsisten selama satu percobaan sapuan.

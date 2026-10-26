@@ -360,6 +360,19 @@ public class TgBotTest {
     }
 
     @Test
+    public void pinBasiPerluHapus_hanyaPinYangTertinggal() {
+        assertTrue(TgBot.pinBasiPerluHapus("/stop 123456", false, false));
+        assertTrue(TgBot.pinBasiPerluHapus("/log 123456", false, false));
+        assertTrue(TgBot.pinBasiPerluHapus("123456", false, true));
+        assertTrue(TgBot.pinBasiPerluHapus("PIN:123456", true, false));
+        assertFalse(TgBot.pinBasiPerluHapus("123456", false, false));
+        assertFalse(TgBot.pinBasiPerluHapus("halo semua", false, true));
+        assertFalse(TgBot.pinBasiPerluHapus("/status", false, true));
+        assertFalse(TgBot.pinBasiPerluHapus("", true, false));
+        assertFalse(TgBot.pinBasiPerluHapus(null, true, true));
+    }
+
+    @Test
     public void perintahPerluPin_termasukPembacaSensitif() {
         assertTrue(TgBot.perintahPerluPin("/stop 123456"));
         assertTrue(TgBot.perintahPerluPin("/careset"));

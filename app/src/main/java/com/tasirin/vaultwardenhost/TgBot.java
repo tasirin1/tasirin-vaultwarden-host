@@ -492,6 +492,29 @@ public final class TgBot {
                                 }
                                 if (!Util.pesanSegar(dateMs, kiniPoll,
                                         STALE_MSG_MS)) {
+                                    String teksBasi = msg.optString("text", "")
+                                            .trim();
+                                    int idPesanBasi = msg.optInt("message_id", 0);
+                                    if (idPesanBasi != 0
+                                            && pinPerangkatAktif(ctx)) {
+                                        boolean adaPending = false;
+                                        boolean pendingBasi = false;
+                                        if (!teksBasi.isEmpty()
+                                                && !teksBasi.startsWith("/")) {
+                                            AksiPending pb = ambilPending(ctx,
+                                                    idRuang, kiniPoll);
+                                            adaPending = !pb.cmd.isEmpty();
+                                            pendingBasi = pb.kedaluwarsa;
+                                        }
+                                        if (pinBasiPerluHapus(teksBasi, adaPending,
+                                                pendingBasi)) {
+                                            boolean terhapus =
+                                                    hapusPesanPerintah(ctx,
+                                                            idRuang, idPesanBasi);
+                                            peringatkanBilaTakBisaHapus(ctx,
+                                                    terhapus, idRuang);
+                                        }
+                                    }
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
@@ -1289,6 +1312,24 @@ public final class TgBot {
             return null;
         }
         return pinTebakanArgumen(ambilArgumen(text));
+    }
+
+    static boolean pinBasiPerluHapus(String teks, boolean adaPending,
+            boolean pendingBasi) {
+        if (teks == null) {
+            return false;
+        }
+        String t = teks.trim();
+        if (pinTebakan(t) != null) {
+            return true;
+        }
+        if (t.isEmpty() || t.startsWith("/")) {
+            return false;
+        }
+        if (!adaPending && !pendingBasi) {
+            return false;
+        }
+        return pinDariBalasan(t) != null;
     }
 
     static boolean perluPinTombol(android.content.Context ctx, String data) {
