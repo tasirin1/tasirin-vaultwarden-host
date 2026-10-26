@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Audit 432: penjaga bekas-hapusan kini mengenali rujukan metode ::
+- Pola `cek_panggil_bekas_hapusan` hanya mencari panggilan `nama(`, sehingga nama metode terhapus yang dipakai ulang sebagai rujukan metode (`this::namaTerhapus`) lolos — celah yang sama yang ditutup `pemanggil()` pada Audit untuk #147 untuk cek tetangganya.
+- Pola kini sama dengan `pemanggil()`: `\bnama\s*\(|::\s*nama\b`, termasuk lewat jalur baris gabungan untuk panggilan pisah baris. Dibuktikan di salinan buang: `this::sendMessageKb` kini GAGAL, rujukan ke nama yang tidak terlarang tetap LOLOS.
+
+## [Belum rilis] — Audit 431: pola PEM cek-cepat menoleransi indentasi di awal baris
+- Jangkar `^` pada pola kunci privat (dipindah ke awal baris oleh Audit untuk #141) membuat header PEM berindentasi — bentuk umum saat kunci ditempel sebagai blok kode di catatan/dokumentasi — lolos dari satu-satunya gerbang isi-rahasia.
+- Pola kini `^[[:space:]]*-----BEGIN ...` sehingga spasi/tab di awal baris tetap tertangkap. Dibuktikan di salinan buang: PEM berindentasi kini GAGAL, PEM kolom 0 tetap GAGAL, dan pohon asli tetap LOLOS (literal header di tengah baris kode `TlsCert` tidak ikut tertangkap).
+
 ## [Belum rilis] — Audit 430: findChildPid kini mensyaratkan kepemilikan dan kecocokan tunggal
 - Pencari PID anak untuk tampilan RSS mengembalikan proses pertama se-UID yang cmdline-nya cocok — tanpa cek induk dan tanpa cek tunggal — sehingga bila anak asli tak terdeteksi, angka RSS yang tampil di Settings/pesan bot bisa milik proses vaultwarden yatim sisa crash.
 - `findChildPid` kini mencerminkan disiplin `pidAnakDariProc` (Audit untuk #120): kandidat wajib ber-cmdline server DAN ber-PPID sama dengan PID aplikasi, dan hasil hanya diakui bila kecocokannya tunggal (`pidDariKecocokan`); selain itu -1 (RSS tidak ditampilkan) daripada angka milik proses lain.

@@ -748,7 +748,8 @@ def cek_panggil_bekas_hapusan(gagal, diff):
     baris_tambah = [(path, baris) for path, baris in tambah_java(diff)
                     if not baris.lstrip().startswith(("*", "//", "/*"))]
     for nama in sorted(BEKAS_HAPUSAN):
-        pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+        pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
+                          % (re.escape(nama), re.escape(nama)))
         sebelumnya = {}
         for path, baris in baris_tambah:
             kode = kupas_java(baris)
