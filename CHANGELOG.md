@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 424: pesan ber-PIN kini dihapus juga pada jalur penolakan jam-mundur
+- Bila jam dinding STB mundur melewati toleransi, loop poll Telegram menolak pesan tanpa memprosesnya (demi keamanan), tetapi juga tanpa menghapusnya — pesan berisi PIN (perintah ber-PIN atau balasan PIN) menetap di riwayat chat selamanya, kelas kebocoran yang sama dengan yang ditutup Audit untuk jalur pesan basi.
+- Cabang jam-mundur kini mencoba penghapusan yang sama dengan jalur basi sebelum `continue`: predikat `pinBasiPerluHapus` yang sama (teks tebakan PIN, atau balasan saat sesi PIN tertunda), pemanggil `hapusPesanPerintah` yang sama, dan pagar `pinPerangkatAktif` yang sama. Pesan tetap tidak diproses.
+
 ## [Belum rilis] — Audit 423: gerbang ABI kini mengenali bentuk listOf/addAll/setOf
 - Pengumpul ABI gerbang hanya membaca string tepat sesudah `abiFilters`/`+=`, sehingga bentuk idiomatik Kotlin `abiFilters += listOf(...)`, `abiFilters.addAll(listOf(...))`, dan `abiFilters = setOf(...)` yang memuat `arm64-v8a` lolos dari aturan repo ABI tunggal (armeabi-v7a saja) — sisa celah Audit untuk #143.
 - `himpun_abi` kini melewati token pengisi `listOf`/`setOf`/`addAll`/`add` serta tanda `.`/`(`/`)` saat memindai sesudah `abiFilters`. Dibuktikan di salinan buang: ketiga bentuk berisi arm64 kini GAGAL, bentuk kelanjutan polos tetap GAGAL, berkas asli tetap LOLOS.

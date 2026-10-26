@@ -486,6 +486,29 @@ public final class TgBot {
                                     if (catatMundurDanBolehIngatkan(kiniPoll)) {
                                         rollbackDitolak++;
                                     }
+                                    String teksMundur = msg.optString("text", "")
+                                            .trim();
+                                    int idPesanMundur = msg.optInt("message_id", 0);
+                                    if (idPesanMundur != 0
+                                            && pinPerangkatAktif(ctx)) {
+                                        boolean adaPending = false;
+                                        boolean pendingBasi = false;
+                                        if (!teksMundur.isEmpty()
+                                                && !teksMundur.startsWith("/")) {
+                                            AksiPending pb = ambilPending(ctx,
+                                                    idRuang, kiniPoll);
+                                            adaPending = !pb.cmd.isEmpty();
+                                            pendingBasi = pb.kedaluwarsa;
+                                        }
+                                        if (pinBasiPerluHapus(teksMundur, adaPending,
+                                                pendingBasi)) {
+                                            boolean terhapus =
+                                                    hapusPesanPerintah(ctx,
+                                                            idRuang, idPesanMundur);
+                                            peringatkanBilaTakBisaHapus(ctx,
+                                                    terhapus, idRuang);
+                                        }
+                                    }
                                     continue;
                                 } else {
                                     catatWall(kiniPoll);
