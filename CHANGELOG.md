@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 428: rantai alarm harian dipasang ulang juga pada jalur eksepsi mulaiBackup
+- Pemasangan ulang alarm harian di `mulaiBackup()` berada di dalam blok `try` yang `catch`-nya langsung pulang — bila membaca prefs melempar sesaat (prefs rusak, kasus yang memang ditangani `healkanStringPrefs` di STB), alarm satu-tembak tidak terpasang lagi dan backup harian berhenti diam-diam sampai pemicu lain. Jalur pulang-dini lain sudah ditambal Audit untuk #159; jalur eksepsi ini belum.
+- Blok `catch` kini memanggil `jadwalUlangBilaOtomatis(context)` — pembantu yang sama dari #159, yang membaca ulang prefs dengan penjaganya sendiri — sebelum pulang, sehingga rantai tetap hidup bila kegagalannya sesaat dan tetap diam bila backup otomatis memang mati.
+
 ## [Belum rilis] — Audit 427: SettingsActivity kini menahan konten di balik gerbang PIN seperti MainActivity
 - Penahan konten Audit untuk #164 hanya dipasang di MainActivity: `onResume` Settings memposting loop refresh lebih dulu dan memanggil `maybeShowPinLock()` paling akhir, dan `refreshFromService`-nya tidak pernah memeriksa keadaan PIN — selama layar PIN tampil/bertransisi, isi Settings (URL server, status, petunjuk update) ter-render penuh.
 - `maybeShowPinLock()` kini dipanggil sebelum loop refresh diposting, dan `refreshFromService` pulang dini selama PIN menahan konten (helper `pinMenahanKonten` setempat: transisi buka-PIN berjalan, atau `PinGate.perlukanLayarPin` benar) — pola yang sama persis dengan MainActivity.

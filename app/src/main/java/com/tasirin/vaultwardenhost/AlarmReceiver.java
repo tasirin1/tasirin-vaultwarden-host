@@ -53,7 +53,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 return;
             }
         } catch (Exception ignored) {
-
+            jadwalUlangBilaOtomatis(context);
             return;
         }
 

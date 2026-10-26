@@ -1102,11 +1102,26 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    private boolean pinMenahanKonten() {
+        if (pinBukaJalan) {
+            return true;
+        }
+        try {
+            return PinGate.perlukanLayarPin(this);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void refreshFromService() {
 
         ui.removeCallbacks(refreshLoop);
 
         if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        if (pinMenahanKonten()) {
             return;
         }
 
