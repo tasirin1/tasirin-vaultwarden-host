@@ -403,6 +403,18 @@ public class FileShareProvider extends ContentProvider {
                 || mulaiAbaikanHuruf(nama, "app-config-enctmp-");
     }
 
+    static boolean anakLangsung(String canon, String folder) {
+        if (canon == null || folder == null) {
+            return false;
+        }
+        String awalan = folder.endsWith(File.separator)
+                ? folder : folder + File.separator;
+        if (!canon.startsWith(awalan)) {
+            return false;
+        }
+        return !canon.substring(awalan.length()).contains(File.separator);
+    }
+
     private boolean isShareable(String canon) {
         try {
             if (canon == null || getContext() == null) {
@@ -465,8 +477,8 @@ public class FileShareProvider extends ContentProvider {
             if (berkasBackupPenuh(name)) {
                 return false;
             }
-            boolean diTls = canon.startsWith(data + File.separator + "tls" + File.separator);
-            boolean diBackup = canon.startsWith(data + File.separator + "backups" + File.separator);
+            boolean diTls = anakLangsung(canon, data + File.separator + "tls");
+            boolean diBackup = anakLangsung(canon, data + File.separator + "backups");
             if (!diTls && !diBackup) {
                 return false;
             }

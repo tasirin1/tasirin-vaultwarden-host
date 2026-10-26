@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 351: FileShareProvider hanya membagikan berkas datar langsung di backups/ dan tls/
+- Uji lokasi di `isShareable` hanya awalan jalur (`startsWith(data + "/backups/")`), jadi berkas bernama yang diizinkan di subfolder mana pun di bawah `backups/` ikut bisa dibagikan, padahal aplikasi hanya menulis berkas datar di sana — relevan terutama bila `data_dir` berada di storage bersama tempat pihak lain bisa menaruh berkas. Semua blok berbasis nama (db.sqlite3*, kunci privat, backup penuh, berkas sementara) memang tetap berlaku, tetapi batas lokasinya tidak seketat desainnya.
+- Uji lokasi kini penolong murni `anakLangsung`: sisa jalur sesudah awalan folder tidak boleh mengandung pemisah lagi. Diterapkan ke `backups/` sesuai temuan dan ke `tls/` yang strukturnya identik (aplikasi juga hanya menulis berkas datar di sana). Diuji di `FileShareProviderTest`.
+
 ## [Belum rilis] — Audit 350: sapu plaintext sementara tetap bekerja sesudah jam perangkat dimundurkan
 - `TgBackup.sapuTmpPlainBasi` menilai umur sisa berkas dekripsi (`vwtg-dec-*`/`vwtg-plain-*`, berisi zip DB plaintext) murni dari jam dinding: `kini - lastModified`, negatif dipatok 0, hapus hanya bila ≥ 10 menit. Bila jam STB dimundurkan, sisa dari proses yang mati tidak pernah menua dan tidak tersapu sampai jam dibetulkan — plaintext vault bertahan tanpa batas di direktori privat.
 - Berkas yang stempel waktunya berada ≥ 10 menit di MASA DEPAN menurut jam sekarang kini ikut disapu: stempel seperti itu hanya mungkin lahir dari perubahan jam (mundur sesudah berkas dibuat, atau maju lalu mundur), dan berkas sementara plaintext tidak punya alasan sah berstempel masa depan. Operasi yang sedang berjalan tetap aman karena pemanggil mengecualikan berkasnya sendiri dan tugas data terserialisasi.

@@ -18,6 +18,16 @@ public class FileShareProviderTest {
     }
 
     @Test
+    public void anakLangsungHanyaBerkasDatarDiFolder() {
+        assertTrue(FileShareProvider.anakLangsung("/data/backups/a.zip", "/data/backups"));
+        assertFalse(FileShareProvider.anakLangsung("/data/backups/sub/a.zip", "/data/backups"));
+        assertFalse(FileShareProvider.anakLangsung("/data/backups", "/data/backups"));
+        assertFalse(FileShareProvider.anakLangsung("/data/backups2/a.zip", "/data/backups"));
+        assertFalse(FileShareProvider.anakLangsung(null, "/data/backups"));
+        assertFalse(FileShareProvider.anakLangsung("/data/backups/a.zip", null));
+    }
+
+    @Test
     public void berkasSementaraTolakDecTmp() {
         assertTrue(FileShareProvider.berkasSementara("vwtg-dec-a.zip.tmp"));
         assertTrue(FileShareProvider.berkasSementara("vwtg-restore-bot.zip"));
