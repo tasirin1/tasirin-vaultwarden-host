@@ -567,6 +567,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void pidDariKecocokan_hanyaTunggalYangDiakui() {
+        assertEquals(-1, ServerService.pidDariKecocokan(null));
+        assertEquals(-1, ServerService.pidDariKecocokan(
+                new java.util.ArrayList<Integer>()));
+        assertEquals(4321, ServerService.pidDariKecocokan(
+                java.util.Collections.singletonList(4321)));
+        assertEquals(-1, ServerService.pidDariKecocokan(
+                java.util.Arrays.asList(4321, 8765)));
+    }
+
+    @Test
     public void ppidDariStat_uraiIndukDariBarisStat() {
         assertEquals(999, ServerService.ppidDariStat(
                 "1234 (vaultwarden-armeabi-v7a) S 999 1234 1234 0 -1 4194304"));

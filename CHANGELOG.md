@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 368: pencarian PID anak lewat /proc tak lagi menebak identitas di antara dua proses server
+- `pidAnakDariProc` mengembalikan proses server pertama yang cmdline-nya cocok dan induknya aplikasi ini, tanpa memastikan ia proses yang sedang dilacak; dengan dua proses server seinduk (sisa tumpang-tindih restart), PID yang dikembalikan bisa milik saudara yang salah — dan `bereskanServerYatim` mempercayainya sebagai pengecualian sehingga server yang hidup justru bisa dibunuh sebagai "yatim" (temuan audit putaran-7, #120).
+- Pencarian kini mengumpulkan semua kecocokan dan hanya mengakui PID bila tepat satu yang cocok (`pidDariKecocokan`, teruji); lebih dari satu berarti identitas tak pasti dan hasilnya -1. `bereskanServerYatim` juga berhenti fail-closed (kembali false) bila server terlacak masih hidup tetapi PID-nya tak bisa dipastikan, dan memakai satu nilai PID anak yang konsisten selama satu percobaan sapuan.
+
 ## [Belum rilis] — Audit 367: tes SHA-256 kini punya vektor emas independen dan cakupan berkas besar
 - Tes pemasangan hasil unduhan memasok checksum dari `Updater.sha256Hex` itu sendiri dan datanya hanya 1–4 byte, padahal produksi membaca per blok 64 KB — bug hash sistematis (hanya blok pertama ter-hash, hex terpotong) tak akan pernah memerahkan tes, padahal checksum ini gerbang keamanan biner/web vault berukuran MB (temuan audit putaran-9, #144).
 - `UpdaterTest` kini mengunci vektor emas yang dihitung implementasi independen (keluarga vektor uji SHA-256 yang diterbitkan + pola 200.000 byte): berkas kosong, `abc`, 1.000.000 huruf `a`, dan pola biner 200 KB; plus jalur `pasangHasilUnduh` untuk berkas besar memakai checksum emas tertulis — cocok terpasang, beda satu digit hex ditolak.

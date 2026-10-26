@@ -3729,6 +3729,7 @@ public class ServerService extends Service {
             return -1;
         }
         int myPid = android.os.Process.myPid();
+        java.util.List<Integer> cocok = new java.util.ArrayList<>();
         for (int pid : kandidatPidSeUid()) {
             if (pid == myPid) {
                 continue;
@@ -3738,10 +3739,14 @@ public class ServerService extends Service {
                 continue;
             }
             if (ppidDariStat(bacaBarisProc(new File(dir, "stat"))) == myPid) {
-                return pid;
+                cocok.add(pid);
             }
         }
-        return -1;
+        return pidDariKecocokan(cocok);
+    }
+
+    static int pidDariKecocokan(java.util.List<Integer> cocok) {
+        return cocok != null && cocok.size() == 1 ? cocok.get(0) : -1;
     }
 
     static int ppidDariStat(String stat) {
@@ -3960,9 +3965,13 @@ public class ServerService extends Service {
 
     public static boolean bereskanServerYatim() {
         int myPid = android.os.Process.myPid();
+        if (isProcessAlive() && pidOf(process) < 0) {
+            return false;
+        }
         for (int percobaan = 0; percobaan < 3; percobaan++) {
 
             segarkanCachePid();
+            int childPid = pidOf(process);
             boolean ada = false;
             for (int pid : kandidatPidSeUid()) {
                 String cmd;
@@ -3971,7 +3980,7 @@ public class ServerService extends Service {
                 } catch (Exception e) {
                     continue;
                 }
-                if (!pidYatimServer(pid, myPid, pidOf(process), cmd)) {
+                if (!pidYatimServer(pid, myPid, childPid, cmd)) {
                     continue;
                 }
                 ada = true;
@@ -3979,7 +3988,7 @@ public class ServerService extends Service {
                 if (!pidMilikiServer(pid)) {
                     continue;
                 }
-                if (pid == myPid || pid == pidOf(process)) {
+                if (pid == myPid || pid == childPid) {
                     continue;
                 }
                 try {
