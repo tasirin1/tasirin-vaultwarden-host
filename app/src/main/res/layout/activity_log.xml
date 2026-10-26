@@ -148,7 +148,7 @@
             android:id="@+id/logAutoScroll"
             android:textColor="@color/text_primary"
             android:minHeight="48dp"
-            android:nextFocusDown="@id/logBack"
+            android:nextFocusDown="@id/logScroll"
             android:nextFocusUp="@id/logSearch"
             android:background="@drawable/item_focus_bg"
             android:layout_width="wrap_content"
@@ -173,7 +173,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusDown="@id/logBack"
+        android:nextFocusUp="@id/logAutoScroll"
+        android:background="@drawable/item_focus_bg">
 
         <TextView
             android:id="@+id/log"
