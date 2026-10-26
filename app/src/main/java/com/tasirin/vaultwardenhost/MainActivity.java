@@ -446,6 +446,7 @@ public class MainActivity extends Activity {
 
                             if (!gagal) {
                                 ServerService.start(appCtx);
+                                maybeAutoBackup();
                             }
                             ui.post(() -> {
 
@@ -456,10 +457,6 @@ public class MainActivity extends Activity {
                                 appendUiLog(info);
                                 if (gagalFinal) {
                                     toast(getString(R.string.wv_unduh_gagal_server));
-                                }
-
-                                if (!gagalFinal) {
-                                    maybeAutoBackup();
                                 }
                             });
                         });

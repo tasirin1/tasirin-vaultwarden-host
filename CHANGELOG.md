@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 338: backup otomatis sesudah unduh web-vault tak lagi hilang karena rotasi
+- Pada jalur "Unduh & mulai", server dinyalakan dari utas pekerja dengan konteks aplikasi sehingga selamat dari rotasi, tetapi `maybeAutoBackup()` hanya dipanggil di dalam callback UI berpagar `isFinishing()/isDestroyed()`: rotasi selama unduhan (sekitar 35 MB) membuat backup Telegram otomatis untuk start itu terlewat tanpa catatan, dan pengguna tidak akan menekan Start lagi karena server sudah menyala.
+- `maybeAutoBackup()` kini dipanggil di utas pekerja tepat sesudah `ServerService.start(...)` berhasil — jembatan UI-nya memang sudah berpagar dan aman dari utas mana pun (toast lewat `ui.post` + `uiHidup()`, catatan lewat `catatLog` bersama), dan `TgBackup.maybeAutoBackup` sendiri menolak jalan ganda (prefs `tg_auto`, jatah sekali sehari, `tugasDataJalan()`). Callback UI tinggal melaporkan hasil unduhan seperti sebelumnya.
+
 ## [Belum rilis] — Audit 337: tekanan Start yang terpotong rotasi saat cek port kini diteruskan instance baru
 - Kelanjutan Start sesudah cek port latar (`lanjutStart()` dan dialog port) hanya hidup di callback `ui.post` berpagar `isFinishing()/isDestroyed()` di `saveAndStart()`, tanpa penanda tertunda yang disimpan: rotasi selama `bereskanServerYatim()`/`isPortBusy()` berjalan membuang perintah Start diam-diam — server tidak jadi menyala dan pengguna harus menebak untuk menekan Start lagi.
 - `saveAndStart()` kini menandai `startTertundaPort` sebelum pekerjaan latar dimulai dan membersihkannya saat callback tiba atau antrean menolak; penanda itu disimpan lewat `onSaveInstanceState` (pola yang sama dengan `STATE_MULAI_ULANG_IZIN`), dan instance hasil buat-ulang yang memulihkannya menjalankan ulang `saveAndStart()` sekali dari `onResume`. Jeda/resume biasa pada instance yang sama tidak memicu pengulangan.
