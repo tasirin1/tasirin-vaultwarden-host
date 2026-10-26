@@ -657,10 +657,16 @@ _CACHE_DEKLARASI = {}
 def nama_terdeklarasi(path):
     if path not in _CACHE_DEKLARASI:
         nama = set()
-        for _, baris in baris_tanpa_komentar(baca(path)):
+        daftar = [b for _, b in baris_tanpa_komentar(baca(path))]
+        for i, baris in enumerate(daftar):
             metode = nama_metode_dideklarasikan(baris)
             if metode:
                 nama.add(metode)
+            if i + 1 < len(daftar):
+                gabungan = baris.strip() + " " + daftar[i + 1].strip()
+                metode = nama_metode_dideklarasikan(gabungan)
+                if metode:
+                    nama.add(metode)
         _CACHE_DEKLARASI[path] = nama
     return _CACHE_DEKLARASI[path]
 

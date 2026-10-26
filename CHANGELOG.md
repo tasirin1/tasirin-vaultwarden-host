@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 375: pendeteksi deklarasi metode di gerbang kini membaca signature yang dibungkus dua baris
+- `nama_terdeklarasi` hanya mencocokkan deklarasi per baris; metode yang signature-nya dibungkus (nama dan kurung buka terpisah baris) tidak terdaftar sebagai masih terdeklarasi — memformat ulang signature menjadi dua baris dituduh "metode dihapus tapi masih dipanggil" oleh `cek_metode_hilang` (temuan audit putaran-9, #150).
+- Pemindaian kini juga mencoba gabungan tiap baris dengan baris berikutnya sebelum mencocokkan pola deklarasi; terbukti di salinan buang: format ulang signature menjadi terbungkus kini LOLOS, penghapusan sungguhan tetap GAGAL.
+
 ## [Belum rilis] — Audit 374: pola definisi resource di gerbang tak lagi mensyaratkan atribut name pertama
 - Delapan pola regex definisi resource (himpun definisi, duplikat, definisi baru, sinkron terjemahan, paritas) mensyaratkan `name` sebagai atribut pertama; `<string translatable="false" name="...">` yang sah tak terbaca sebagai definisi sehingga layout yang merujuknya dituduh "acuan yatim" — GAGAL palsu yang mengganggu push sah (temuan audit putaran-9, #149).
 - Semua pola kini mencocokkan `name=` di posisi atribut mana pun dalam tag (`\b[^>]*?\bname=`); terbukti di salinan buang: string sah ber-atribut lain lebih dulu kini LOLOS, string hilang sungguhan tetap GAGAL.
