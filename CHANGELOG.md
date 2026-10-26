@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 300: staging web-vault selalu dibersihkan lewat try/finally
+- Ekstrak + tukar web-vault hanya menangani `ZipException`/`IOException`; `RuntimeException`/`Error` (mis. `OutOfMemoryError` saat ekstrak di STB 1 GB) melewati semua pembersih per-cabang sehingga folder `web-vault.new-<cap>` puluhan MB dan tanda `STAGING_AKTIF` tertinggal. Pembersih Start melewati nama bertanda aktif, jadi folder itu tak pernah disapu sampai proses mati — storage menyusut diam-diam dan update berikutnya bisa gagal karena "ruang kurang".
+- Seluruh blok ekstrak + swap kini dibungkus `try/finally`: apa pun yang keluar (termasuk `Error`), tanda staging dilepas dan folder dibuang bila belum terpasang (`terpasang` baru true setelah `rename` ke `web-vault` berhasil). Hapus di `finally` dibungkus `catch (Throwable ignored)` agar tak menutupi galat asli.
+
 ## [Belum rilis] — Audit 299: tawaran update web-vault tak lagi lintas namespace versi
 - `autoOfferWebVaultUpdate` memakai `webVaultFromVersion()` (penanda `KEY_WV_FROM`) **atau**, bila kosong, versi dari `web-vault/vw-version.json` milik web-vault Bitwarden (mis. `2024.6.2`). Nilai fallback itu lalu dibandingkan dengan `currentServerVersion()` (mis. `1.32.0`) sehingga selalu "beda": dialog "Web Vault update available" muncul sekali per versi server dan menawarkan unduhan ~35 MB yang tidak mengubah apa pun; baris info Setelan juga menampilkan "server version differs" permanen.
 - Helper murni baru `Updater.wvBedaVersiServer(penanda, versiServer)` hanya membandingkan penanda Vaultwarden dengan versi server (pakai `versiCocok`, toleran `v`/segmen hilang) dan bernilai false bila penanda atau versi server tak diketahui. Tawaran update dan peringatan di baris info kini memakainya; `vw-version.json` tetap boleh ditampilkan sebagai versi terpasang, tetapi tak pernah dibandingkan dengan versi server. Unit test mencakup penanda kosong/spasi, versi server kosong, dan `1.32` vs `1.32.0`.

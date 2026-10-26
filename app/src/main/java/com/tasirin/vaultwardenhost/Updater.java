@@ -2210,118 +2210,136 @@ public final class Updater {
         // Direktori yang sudah dibuat: mkdirs per berkas = stat sia-sia
         // ribuan kali di FAT /sdcard (banyak berkas berbagi induk sama).
         java.util.Set<String> dirSiap = new java.util.HashSet<>();
-        long totalUnzip = 0;
-        int jumlahEntri = 0;
+        // try/finally: RuntimeException/Error (mis. OutOfMemoryError saat ekstrak
+        // di STB 1 GB) dulu melewati semua pembersih per-cabang sehingga folder
+        // staging + tanda STAGING_AKTIF tertinggal; pembersih Start melewati nama
+        // bertanda aktif, jadi puluhan MB tak pernah disapu. finally di bawah
+        // selalu melepas tanda dan membuang staging yang gagal dipasang.
+        boolean terpasang = false;
         try {
-            try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    String namaEntri = entry.getName();
-                    jumlahEntri++;
-                    // Batas jumlah entri dijaga tiap entri; ukuran byte
-                    // diakumulasi di loop tulis di bawah (totalUnzip).
-                    Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_WEBVAULT,
-                            jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
-                    // Cek zip-slip leksikal tanpa syscall canonical per entri.
-                    if (!amanEntriZip(namaEntri)) {
-                        zis.closeEntry();
-                        continue;
-                    }
-                    File outFile = new File(newDir, namaEntri);
-                    // Verifikasi kanonis agar symlink/entri licik tak keluar folder.
-                    try {
-                        String kanon = outFile.getCanonicalPath();
-                        if (!kanon.equals(kanonBasis) && !kanon.startsWith(awalanAman)) {
+            long totalUnzip = 0;
+            int jumlahEntri = 0;
+            try {
+                try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        String namaEntri = entry.getName();
+                        jumlahEntri++;
+                        // Batas jumlah entri dijaga tiap entri; ukuran byte
+                        // diakumulasi di loop tulis di bawah (totalUnzip).
+                        Util.tambahUkuranUnzip(0, 0, Util.BATAS_UNZIP_WEBVAULT,
+                                jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
+                        // Cek zip-slip leksikal tanpa syscall canonical per entri.
+                        if (!amanEntriZip(namaEntri)) {
                             zis.closeEntry();
                             continue;
                         }
-                    } catch (Exception e) {
+                        File outFile = new File(newDir, namaEntri);
+                        // Verifikasi kanonis agar symlink/entri licik tak keluar folder.
                         try {
-                            zis.closeEntry();
-                        } catch (Exception ignored) {
+                            String kanon = outFile.getCanonicalPath();
+                            if (!kanon.equals(kanonBasis) && !kanon.startsWith(awalanAman)) {
+                                zis.closeEntry();
+                                continue;
+                            }
+                        } catch (Exception e) {
+                            try {
+                                zis.closeEntry();
+                            } catch (Exception ignored) {
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-                    if (entry.isDirectory()) {
-                        if (dirSiap.add(outFile.getAbsolutePath())) {
-                            outFile.mkdirs();
-                        }
-                    } else {
-                        File parent = outFile.getParentFile();
-                        if (parent != null
-                                && dirSiap.add(parent.getAbsolutePath())) {
-                            parent.mkdirs();
-                        }
-                        try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                            int n;
-                            while ((n = zis.read(buf)) != -1) {
-                                totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
-                                        Util.BATAS_UNZIP_WEBVAULT, jumlahEntri,
-                                        Util.BATAS_JUMLAH_ENTRI);
-                                fos.write(buf, 0, n);
+                        if (entry.isDirectory()) {
+                            if (dirSiap.add(outFile.getAbsolutePath())) {
+                                outFile.mkdirs();
+                            }
+                        } else {
+                            File parent = outFile.getParentFile();
+                            if (parent != null
+                                    && dirSiap.add(parent.getAbsolutePath())) {
+                                parent.mkdirs();
+                            }
+                            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                int n;
+                                while ((n = zis.read(buf)) != -1) {
+                                    totalUnzip = Util.tambahUkuranUnzip(totalUnzip, n,
+                                            Util.BATAS_UNZIP_WEBVAULT, jumlahEntri,
+                                            Util.BATAS_JUMLAH_ENTRI);
+                                    fos.write(buf, 0, n);
+                                }
                             }
                         }
+                        zis.closeEntry();
                     }
-                    zis.closeEntry();
                 }
-            }
-        } catch (java.util.zip.ZipException e) {
-            // Zip korup di tengah ekstrak (mis. "invalid stored block lengths"
-            // karena unduhan terpotong): buang hasil + sisa zip agar Start
-            // berikutnya unduh ulang bersih, versi lama tetap dipakai.
-            lepasStagingAktif(newDir);
-            deleteRecursive(newDir);
-            tmpZip.delete();
-            throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
-        } catch (IOException e) {
-            String rendah = (e.getClass().getSimpleName() + " " + String.valueOf(e.getMessage()))
-                    .toLowerCase(Locale.US);
-            if (rendah.contains("zipexception") || rendah.contains("stored block")
-                    || rendah.contains("invalid block") || rendah.contains("eocd")
-                    || rendah.contains("truncated") || rendah.contains("not a zip")) {
+            } catch (java.util.zip.ZipException e) {
+                // Zip korup di tengah ekstrak (mis. "invalid stored block lengths"
+                // karena unduhan terpotong): buang hasil + sisa zip agar Start
+                // berikutnya unduh ulang bersih, versi lama tetap dipakai.
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 tmpZip.delete();
                 throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
-            }
-            lepasStagingAktif(newDir);
-            deleteRecursive(newDir);
-            throw e;
-        }
-        tmpZip.delete();
-
-        File index = new File(newDir, "index.html");
-        if (!index.exists()) {
-            lepasStagingAktif(newDir);
-            deleteRecursive(newDir);
-            throw new IOException("Web vault updated tapi index.html tidak ditemukan"
-                    + " - versi lama dipertahankan.");
-        }
-        // Tukar via .bak agar crash di tengah tak menghilangkan web-vault lama.
-        // Dikunci bersama cleanupTempFiles agar swap tak berebut rename target.
-        synchronized (KUNCI_WEBVAULT) {
-            File bakDir = new File(dataFolder, "web-vault.bak");
-            deleteRecursive(bakDir);
-            boolean adaLama = targetDir.exists();
-            if (adaLama && !targetDir.renameTo(bakDir)) {
-                // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
-                // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
-                lepasStagingAktif(newDir);
-                deleteRecursive(newDir);
-                throw new IOException("Gagal mencadangkan web vault lama"
-                        + " - versi lama dipertahankan.");
-            }
-            if (!newDir.renameTo(targetDir)) {
-                lepasStagingAktif(newDir);
-                deleteRecursive(newDir);
-                if (adaLama) {
-                    bakDir.renameTo(targetDir);
+            } catch (IOException e) {
+                String rendah = (e.getClass().getSimpleName() + " " + String.valueOf(e.getMessage()))
+                        .toLowerCase(Locale.US);
+                if (rendah.contains("zipexception") || rendah.contains("stored block")
+                        || rendah.contains("invalid block") || rendah.contains("eocd")
+                        || rendah.contains("truncated") || rendah.contains("not a zip")) {
+                    lepasStagingAktif(newDir);
+                    deleteRecursive(newDir);
+                    tmpZip.delete();
+                    throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
                 }
-                throw new IOException("Gagal memasang web vault baru"
+                lepasStagingAktif(newDir);
+                deleteRecursive(newDir);
+                throw e;
+            }
+            tmpZip.delete();
+
+            File index = new File(newDir, "index.html");
+            if (!index.exists()) {
+                lepasStagingAktif(newDir);
+                deleteRecursive(newDir);
+                throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                         + " - versi lama dipertahankan.");
             }
-            deleteRecursive(bakDir);
+            // Tukar via .bak agar crash di tengah tak menghilangkan web-vault lama.
+            // Dikunci bersama cleanupTempFiles agar swap tak berebut rename target.
+            synchronized (KUNCI_WEBVAULT) {
+                File bakDir = new File(dataFolder, "web-vault.bak");
+                deleteRecursive(bakDir);
+                boolean adaLama = targetDir.exists();
+                if (adaLama && !targetDir.renameTo(bakDir)) {
+                    // Gagal mencadangkan (mis. storage penuh): JANGAN hapus versi lama.
+                    // Batalkan update agar web UI tetap ada; buang hasil baru, coba lagi nanti.
+                    lepasStagingAktif(newDir);
+                    deleteRecursive(newDir);
+                    throw new IOException("Gagal mencadangkan web vault lama"
+                            + " - versi lama dipertahankan.");
+                }
+                if (!newDir.renameTo(targetDir)) {
+                    lepasStagingAktif(newDir);
+                    deleteRecursive(newDir);
+                    if (adaLama) {
+                        bakDir.renameTo(targetDir);
+                    }
+                    throw new IOException("Gagal memasang web vault baru"
+                            + " - versi lama dipertahankan.");
+                }
+                deleteRecursive(bakDir);
+                terpasang = true;
+                lepasStagingAktif(newDir);
+            }
+        } finally {
             lepasStagingAktif(newDir);
+            if (!terpasang) {
+                try {
+                    deleteRecursive(newDir);
+                } catch (Throwable ignored) {
+                    // Best-effort: jangan menutupi galat asli (mis. OOM).
+                }
+            }
         }
         String capWv = versiWvUntukCap(latest, wvFallback);
         if (capWv != null) {
