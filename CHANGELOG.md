@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 397: tekanan Start di Settings kini diteruskan sesudah rotasi di tengah cek port
+- Kelanjutan `saveAndStart` Settings (dialog port sibuk/web-vault/`ServerService.start`) digantungkan ke `ui.post` instance yang berjalan; rotasi di tengah cek port menghancurkan instance itu dan kelanjutannya gugur diam-diam — server tak jadi menyala tanpa pesan apa pun (temuan audit putaran-8, #135; pola yang sama sudah diperbaiki untuk MainActivity pada #89).
+- Penanda `startTertundaPort` yang sama kini diterapkan: disimpan ke Bundle lewat `onSaveInstanceState`, dipulihkan sebagai `startTertundaDariPutaran`, dan `onResume` instance baru menjalankan ulang `saveAndStart()` — cek port diulang dari keadaan tersimpan dan alur Start selesai seperti tanpa rotasi.
+
 ## [Belum rilis] — Audit 396: pengumpulan IP kini memeringkat antarmuka — LAN di atas seluler dan VPN
 - `collectIps` menghimpun alamat dari SEMUA antarmuka up (VPN/seluler ikut) lalu mengurutkan leksikografis, sehingga pilihan pertama `lanHost` bisa jatuh ke alamat VPN/seluler yang tak terjangkau klien LAN; naik-turunnya VPN terbaca sebagai "IP berubah" dan memicu regenerasi sertifikat/restart yang tak perlu (temuan audit putaran-8, #134).
 - Antarmuka kini diurutkan menurut peringkat (`peringkatAntarmuka`: wlan/eth/en 0, lain-lain 1, seluler rmnet/ccmni/pdp 2, VPN tun/tap/ppp/wg/ipsec 3) sebelum alamatnya dihimpun — pilihan utama dan deteksi perubahan IP stabil di alamat LAN; alamat IPv4 link-local `169.254.` tak lagi dihimpun. Daftar lengkap tetap dipakai untuk SAN sertifikat.

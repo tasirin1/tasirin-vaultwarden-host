@@ -85,8 +85,11 @@ public class SettingsActivity extends Activity {
     private int epAktifPin = 0;
 
     private boolean mulaiUlangSetelahIzin = false;
+    private boolean startTertundaPort = false;
+    private boolean startTertundaDariPutaran = false;
 
     private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
+    private static final String STATE_START_TERTUNDA_PORT = "start_tertunda_port";
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -329,6 +332,8 @@ public class SettingsActivity extends Activity {
         if (savedInstanceState != null) {
             mulaiUlangSetelahIzin = savedInstanceState.getBoolean(
                     STATE_MULAI_ULANG_IZIN, false);
+            startTertundaDariPutaran = savedInstanceState.getBoolean(
+                    STATE_START_TERTUNDA_PORT, false);
         }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
@@ -812,6 +817,11 @@ public class SettingsActivity extends Activity {
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);
 
+        if (startTertundaDariPutaran) {
+            startTertundaDariPutaran = false;
+            saveAndStart();
+        }
+
         maybeShowPinLock();
     }
 
@@ -820,6 +830,7 @@ public class SettingsActivity extends Activity {
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(STATE_MULAI_ULANG_IZIN, mulaiUlangSetelahIzin);
+        outState.putBoolean(STATE_START_TERTUNDA_PORT, startTertundaPort);
     }
 
     @Override
@@ -952,6 +963,7 @@ public class SettingsActivity extends Activity {
 
         final int portCekPort = portNum;
         final String dirCekPort = dataDirEfektif;
+        startTertundaPort = true;
         boolean masukCek = Util.jalankanBg(() -> {
             ServerService.bereskanServerYatim();
             final boolean portSibuk =
@@ -959,6 +971,7 @@ public class SettingsActivity extends Activity {
 
             final boolean butuhRoot = portSibuk && ServerService.portButuhRoot(portCekPort);
             ui.post(() -> {
+                startTertundaPort = false;
                 if (isFinishing() || isDestroyed()) {
                     return;
                 }
@@ -1018,7 +1031,7 @@ public class SettingsActivity extends Activity {
             });
         });
         if (!masukCek) {
-
+            startTertundaPort = false;
             toast(getString(R.string.pin_sibuk));
             appendUiLog("[app] Cek port ditolak: antrean tugas penuh.");
         }
