@@ -193,6 +193,11 @@ public class SettingsActivity extends Activity {
     private Button startStopBawah;
     private Button copyAdminBtn;
     private Button copyTgBtn;
+    private Button showAdminBtn;
+    private Button showTgBtn;
+    private Button showPassBtn;
+    private Button randomAdminBtn;
+    private Button copyLoopbackBtn;
     private TextView adminStatus;
     private TextView tgStatus;
     private TextView adminError;
@@ -335,6 +340,16 @@ public class SettingsActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_settings);
 
+        muatTampilan();
+        pasangAksi();
+        SharedPreferences sp = muatPreferensi();
+        pasangSeksi();
+        pasangListener();
+        mulaiRefresh(sp);
+
+    }
+
+    private void muatTampilan() {
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
         adminTokenInput = findViewById(R.id.adminToken);
@@ -378,9 +393,9 @@ public class SettingsActivity extends Activity {
         exportCfgBtn = findViewById(R.id.exportCfg);
         importCfgBtn = findViewById(R.id.importCfg);
         installCertBtn = findViewById(R.id.installCert);
-        Button showAdminBtn = findViewById(R.id.showAdmin);
-        Button showTgBtn = findViewById(R.id.showTg);
-        Button showPassBtn = findViewById(R.id.showPass);
+        showAdminBtn = findViewById(R.id.showAdmin);
+        showTgBtn = findViewById(R.id.showTg);
+        showPassBtn = findViewById(R.id.showPass);
         aboutBtn = findViewById(R.id.aboutBtn);
         startStopBawah = findViewById(R.id.startStopBawah);
         httpsBadge = findViewById(R.id.httpsBadge);
@@ -403,8 +418,8 @@ public class SettingsActivity extends Activity {
         teksSibuk = getString(R.string.busy_work);
         teksHttpsAktif = getString(R.string.https_badge_on);
         teksHttpsKosong = getString(R.string.https_badge_none);
-        Button randomAdminBtn = findViewById(R.id.randomAdmin);
-        Button copyLoopbackBtn = findViewById(R.id.copyLoopback);
+        randomAdminBtn = findViewById(R.id.randomAdmin);
+        copyLoopbackBtn = findViewById(R.id.copyLoopback);
         copyAdminBtn = findViewById(R.id.copyAdmin);
         copyTgBtn = findViewById(R.id.copyTg);
         adminStatus = findViewById(R.id.adminStatus);
@@ -417,7 +432,9 @@ public class SettingsActivity extends Activity {
         awaliGalat(chatError, R.string.chat_error);
         certInfoToggle = findViewById(R.id.certInfoToggle);
         certHintView = findViewById(R.id.certHint);
+    }
 
+    private void pasangAksi() {
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
         revertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_biner_judul),
@@ -495,7 +512,9 @@ public class SettingsActivity extends Activity {
             });
         }
         aboutBtn.setOnClickListener(v -> showAboutDialog());
+    }
 
+    private SharedPreferences muatPreferensi() {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
@@ -518,6 +537,10 @@ public class SettingsActivity extends Activity {
         }
         bersihkanPin(pinInput);
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
+        return sp;
+    }
+
+    private void pasangSeksi() {
         pasangSeksi(R.id.headerServer, R.id.bodyServer, R.id.chevronServer, KEY_SEC_SERVER);
         pasangSeksi(R.id.headerKeamanan, R.id.bodyKeamanan, R.id.chevronKeamanan, KEY_SEC_KEAMANAN);
         pasangSeksi(R.id.headerRawat, R.id.bodyRawat, R.id.chevronRawat, KEY_SEC_RAWAT);
@@ -531,7 +554,9 @@ public class SettingsActivity extends Activity {
                 KEY_SEC_TELEGRAM);
         pasangChip(R.id.navLog, R.id.headerLog, R.id.bodyLog, R.id.chevronLog, KEY_SEC_LOG);
         segarkanLabelVersi();
+    }
 
+    private void pasangListener() {
         autoStartCheck.setOnCheckedChangeListener((CompoundButton b, boolean checked) ->
                 getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit()
                         .putBoolean(ServerService.KEY_AUTO_START, checked).apply());
@@ -757,7 +782,9 @@ public class SettingsActivity extends Activity {
                 toast(getString(R.string.pin_proses_gagal));
             }
         });
+    }
 
+    private void mulaiRefresh(SharedPreferences sp) {
         StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
 
         bundledVersion = Updater.readBundledVersionLabel(this);
@@ -774,7 +801,6 @@ public class SettingsActivity extends Activity {
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
 
         TgBot.schedule(this);
-
     }
 
     @Override
@@ -1005,33 +1031,54 @@ public class SettingsActivity extends Activity {
             return;
         }
 
-        if (uiBusy) {
-            String dl = Updater.downloadStatus;
-            String sibuk = dl.isEmpty() ? teksSibuk : dl;
-            if (!sibuk.equals(lastBusyText)) {
-                lastBusyText = sibuk;
-                statusView.setText(sibuk);
-                statusView.setBackgroundResource(R.drawable.bg_status_busy);
-            }
-            lastShownStatus = "";
-            int persen = Updater.persenUnduhan(dl);
-
-            unduhBar.setVisibility(View.VISIBLE);
-            if (persen >= 0) {
-                unduhBar.setIndeterminate(false);
-                unduhBar.setProgress(persen);
-            } else {
-                unduhBar.setIndeterminate(true);
-            }
-            if (refreshActive) {
-                ui.postDelayed(refreshLoop, 1500);
-            }
+        if (tampilkanSibukUnduhan()) {
             return;
         }
 
         lastBusyText = "";
 
         boolean running = ServerService.running;
+        perbaruiStatusServer(running);
+        perbaruiPenandaUbah(running);
+        perbaruiPetunjukUpdate(running);
+        String version = teksVersiPerangkat();
+        perbaruiKartuInfo(running, version);
+        perbaruiUrlLokal();
+        perbaruiBaterai();
+
+        if (refreshActive) {
+            ui.postDelayed(refreshLoop, 1000);
+        }
+    }
+
+    private boolean tampilkanSibukUnduhan() {
+        if (!uiBusy) {
+            return false;
+        }
+        String dl = Updater.downloadStatus;
+        String sibuk = dl.isEmpty() ? teksSibuk : dl;
+        if (!sibuk.equals(lastBusyText)) {
+            lastBusyText = sibuk;
+            statusView.setText(sibuk);
+            statusView.setBackgroundResource(R.drawable.bg_status_busy);
+        }
+        lastShownStatus = "";
+        int persen = Updater.persenUnduhan(dl);
+
+        unduhBar.setVisibility(View.VISIBLE);
+        if (persen >= 0) {
+            unduhBar.setIndeterminate(false);
+            unduhBar.setProgress(persen);
+        } else {
+            unduhBar.setIndeterminate(true);
+        }
+        if (refreshActive) {
+            ui.postDelayed(refreshLoop, 1500);
+        }
+        return true;
+    }
+
+    private void perbaruiStatusServer(boolean running) {
         perbaruiEnabledStartStop();
         String statusText = running ? teksBerjalan : teksBerhenti;
 
@@ -1054,7 +1101,9 @@ public class SettingsActivity extends Activity {
             startStopBawah.setBackgroundResource(running
                     ? R.drawable.bg_btn_stop : R.drawable.bg_btn_primary);
         }
+    }
 
+    private void perbaruiPenandaUbah(boolean running) {
         boolean changed = false;
         if (running) {
             if (paksaCacheUbah || tickCacheUbah++ % 5 == 0) {
@@ -1094,7 +1143,9 @@ public class SettingsActivity extends Activity {
             tandaiLabel(labelAdmin, R.string.admin_token, false);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
+    }
 
+    private void perbaruiPetunjukUpdate(boolean running) {
         boolean updAvail = false;
         String pendSet = pendingVersion;
         if (pendSet != null) {
@@ -1151,7 +1202,9 @@ public class SettingsActivity extends Activity {
                 updateHint.setVisibility(View.GONE);
             }
         }
+    }
 
+    private String teksVersiPerangkat() {
         String binVerSet = ServerService.binaryVersion;
         if (binVerSet == null) {
             binVerSet = "";
@@ -1166,8 +1219,10 @@ public class SettingsActivity extends Activity {
                     ? getString(R.string.versi_app, appVersion, bundledSet)
                     : getString(R.string.versi_app_biner, appVersion, binVerSet);
         }
-        String version = versiCache;
+        return versiCache;
+    }
 
+    private void perbaruiKartuInfo(boolean running, String version) {
         long nowHeavy = SystemClock.elapsedRealtime();
         boolean heavyDue = nowHeavy - lastDbCheck >= DB_CHECK_MS
                 || nowHeavy - lastStorageCheck >= STORAGE_CHECK_MS
@@ -1229,7 +1284,9 @@ public class SettingsActivity extends Activity {
             versionView.setText(full);
             lastShownVersion = full;
         }
+    }
 
+    private void perbaruiUrlLokal() {
         String net;
         long nowUrl = SystemClock.elapsedRealtime();
         if (!cacheUrlSet.isEmpty() && nowUrl - cacheWaktuSet < 10000) {
@@ -1243,7 +1300,9 @@ public class SettingsActivity extends Activity {
             netInfoView.setText(net);
             lastShownNet = net;
         }
+    }
 
+    private void perbaruiBaterai() {
         long nowBattery = SystemClock.elapsedRealtime();
         if (nowBattery - lastBatteryCheck >= BATTERY_CHECK_MS) {
             lastBatteryCheck = nowBattery;
@@ -1261,11 +1320,8 @@ public class SettingsActivity extends Activity {
             lastBatteryTampil = tampilBaterai;
             perbaikiFokusBaterai(tampilBaterai);
         }
-
-        if (refreshActive) {
-            ui.postDelayed(refreshLoop, 1000);
-        }
     }
+
 
     private void showAboutDialog() {
         AboutDialog.tampil(this);

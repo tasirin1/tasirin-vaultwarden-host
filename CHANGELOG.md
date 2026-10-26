@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: SettingsActivity dipecah jadi metode bernama
+- `SettingsActivity.onCreate` (460 baris) dan `refreshFromService` (269 baris) mencampur banyak tanggung jawab dalam satu metode, sehingga perubahan kecil (mis. menambah pengaturan) mudah memicu efek samping dan sulit ditinjau.
+- Dipecah **tanpa mengubah urutan/perilaku**: `muatTampilan`, `pasangAksi`, `muatPreferensi`, `pasangSeksi`, `pasangListener`, `mulaiRefresh` untuk `onCreate`; `tampilkanSibukUnduhan`, `perbaruiStatusServer`, `perbaruiPenandaUbah`, `perbaruiPetunjukUpdate`, `teksVersiPerangkat`, `perbaruiKartuInfo`, `perbaruiUrlLokal`, `perbaruiBaterai` untuk `refreshFromService`. Lima tombol yang sebelumnya lokal (`showAdminBtn`, `showTgBtn`, `showPassBtn`, `randomAdminBtn`, `copyLoopbackBtn`) menjadi field agar bisa dipakai lintas metode.
+
 ## [Belum rilis] — Audit 311: hapus sendMessageKb yang tak dipakai
 - `TgBackup.sendMessageKb(ctx, text, markup)` publik tapi tak pernah dipanggil (yang dipakai `sendMessageKbKe` dengan chat id), sehingga pembaca kode bisa salah pilih varian dan pesan tak terkirim ke chat yang dituju.
 - Metode dihapus; `kirimPesan` tetap dipakai `sendMessage`. Nama dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.
