@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 413: hash PIN yang lebih kuat dari standar tidak lagi diturunkan saat "upgrade"
+- `perluUpgradeHash` memakai `iter != iterasiStandar()`: di perangkat tanpa pabrik PBKDF2 (standar legasi 12.000), hash sah 30.000 iterasi dari perangkat lain ditandai perlu upgrade lalu ditulis ulang pada 12.000 — penurunan kekuatan hash secara diam-diam (temuan audit putaran-9, #167).
+- Keputusan kini `iter < iterasiStandar()`: hanya hash yang lebih lemah dari standar perangkat yang dinaikkan; yang lebih kuat dipertahankan (verifikasi memang memakai jumlah iterasi tersimpan). Uji `normalisasiIterasiLama` yang mengunci perilaku lama diperbarui di commit yang sama.
+
 ## [Belum rilis] — Audit 412: start tertunda kunci data kini membatalkan jadwal restartTunda sebelumnya
 - Jalur penundaan start saat kunci data sibuk menjadwalkan `restartTunda` dengan `posUtama` tanpa `batalUtama` lebih dulu — satu-satunya situs penjadwalan yang tidak berpasangan; `postTunda` tidak mendedupe, jadi penundaan beruntun menumpuk callback yang sama dan rantai restart bisa bercabang (temuan audit putaran-9, #166).
 - `batalUtama(restartTunda)` kini dipanggil tepat sebelum penjadwalan itu, menyamai pola di `scheduleRestartTerkunci` dan situs lainnya.

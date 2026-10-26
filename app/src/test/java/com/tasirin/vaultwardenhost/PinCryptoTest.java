@@ -194,7 +194,7 @@ public class PinCryptoTest {
         assertFalse(PinCrypto.perluUpgradeHash(kini));
 
         String berat = kini.replace("PBKDF2$30000$", "PBKDF2$120000$");
-        assertTrue(PinCrypto.perluUpgradeHash(berat));
+        assertFalse(PinCrypto.perluUpgradeHash(berat));
 
         String lemah = kini.replace("PBKDF2$30000$", "PBKDF2$10000$");
         assertTrue(PinCrypto.perluUpgradeHash(lemah));
