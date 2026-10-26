@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 356: rebase lockout PIN tak lagi menulis disk sinkron di UI thread
+- `PinActivity.cobaBuka()` memanggil `PinGate.sisaKunciMs(...)` dari utas UI, dan cabang rebase pasca-reboot (#68) di dalamnya menulis ulang kedua stempel kunci dengan `commit()` sinkron: tepat pada skenario 5× gagal + reboot + buka aplikasi, UI membeku sesaat sebelum pesan lockout tampil. PBKDF2-nya sendiri sudah benar di utas pekerja, dan jalur tulis `catatHasil` dari UI sudah dialihkan async — jalur baca rebase ini yang tertinggal.
+- Penulisan rebase kini `apply()`: nilai baru terbaca seketika di proses yang sama (memori SharedPreferences diperbarui sinkron), dan bila proses mati sebelum penulisan asinkron sempat tuntas, stempel lama yang basi membuat cabang rebase menghitung ulang hasil yang sama pada buka berikutnya — sembuh sendiri tanpa mengubah semantik kunci. Pencatatan kegagalan di `catatHasil` tetap `commit()` karena penghitung keamanan itu wajib awet sebelum kembali.
+
 ## [Belum rilis] — Audit 355: Back dan Keluar di layar PIN tak lagi membatalkan verifikasi yang sedang berjalan
 - Selama verifikasi PBKDF2 berjalan, `cobaBuka()` hanya menonaktifkan tombol Buka; Back (`onBackPressed`) dan tombol Keluar tetap memanggil `batalKeluar()` yang langsung `RESULT_CANCELED` + `finish()` — dan activity pemanggil ikut `finish()` — padahal pekerja tetap menyelesaikan verifikasi dan membuka grace. Pengguna yang refleks menekan Back saat layar terasa lambat di perangkat tua justru menutup aplikasi tepat ketika PIN-nya terbukti benar.
 - `batalKeluar()` kini kembali lebih dulu selama `sedangPeriksa` berjalan (satu titik untuk kedua pemanggilnya: tombol Keluar dan `onBackPressed`); verifikasi selalu berumur detik dan hasilnya — sukses yang menutup layar dengan `RESULT_OK`, atau pesan gagal — tetap sampai ke pengguna.

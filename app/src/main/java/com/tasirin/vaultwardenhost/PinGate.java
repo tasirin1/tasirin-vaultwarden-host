@@ -113,7 +113,7 @@ public final class PinGate {
             try {
                 sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
                         .putLong(KEY_KUNCI_ELAPSED, elapsedKini + sisaBaru)
-                        .commit();
+                        .apply();
             } catch (Exception ignored) {
             }
             return sisaBaru;
