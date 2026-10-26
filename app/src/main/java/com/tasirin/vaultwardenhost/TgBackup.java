@@ -2573,7 +2573,8 @@ public final class TgBackup {
                 if (umur < 0) {
                     umur = 0;
                 }
-                if (umur >= UMUR_DEC_TMP_MS && f.isFile()) {
+                boolean stempelDiMasaDepan = f.lastModified() - kini >= UMUR_DEC_TMP_MS;
+                if ((umur >= UMUR_DEC_TMP_MS || stempelDiMasaDepan) && f.isFile()) {
                     f.delete();
                 }
             } catch (Exception ignored) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 350: sapu plaintext sementara tetap bekerja sesudah jam perangkat dimundurkan
+- `TgBackup.sapuTmpPlainBasi` menilai umur sisa berkas dekripsi (`vwtg-dec-*`/`vwtg-plain-*`, berisi zip DB plaintext) murni dari jam dinding: `kini - lastModified`, negatif dipatok 0, hapus hanya bila ≥ 10 menit. Bila jam STB dimundurkan, sisa dari proses yang mati tidak pernah menua dan tidak tersapu sampai jam dibetulkan — plaintext vault bertahan tanpa batas di direktori privat.
+- Berkas yang stempel waktunya berada ≥ 10 menit di MASA DEPAN menurut jam sekarang kini ikut disapu: stempel seperti itu hanya mungkin lahir dari perubahan jam (mundur sesudah berkas dibuat, atau maju lalu mundur), dan berkas sementara plaintext tidak punya alasan sah berstempel masa depan. Operasi yang sedang berjalan tetap aman karena pemanggil mengecualikan berkasnya sendiri dan tugas data terserialisasi.
+
 ## [Belum rilis] — Audit 349: pesan berisi PIN salah di chat pribadi Telegram kini ikut dihapus
 - Keputusan hapus pesan di `TgBot` mensyaratkan otorisasi untuk balasan sesi PIN dan perintah berargumen PIN, jadi PIN yang salah ketik — yang biasanya hanya beda satu digit dari PIN asli — tertinggal permanen di riwayat chat Telegram (cloud), padahal PIN basi dan PIN di grup selalu dihapus, dan teks balasan bot sendiri menyebut pesan PIN dihapus dari riwayat.
 - Predikatnya kini fungsi murni `wajibHapusPesanPin`: pesan dihapus kapan pun ia memuat bahan PIN — balasan sesi yang terurai sebagai PIN (benar atau salah) atau perintah dengan argumen PIN (`pinTebakan(text) != null`) — selain jalur lama (basi, grup, terotorisasi). Balasan obrolan biasa dan perintah tanpa argumen PIN tetap disimpan. Diuji tabel kebenarannya di `TgBotTest`.
