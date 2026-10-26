@@ -706,11 +706,16 @@ def nama_terdeklarasi(path):
 
 
 def masih_didefinisikan(nama):
-    """True bila masih ada DEKLARASI metode `nama` di app/src/main/java.
+    """True bila masih ada DEKLARASI metode `nama` di app/src (main + test).
 
     Overload/kembaran di berkas lain tetap terdeteksi (semua berkas dipindai);
-    pemanggilan sisa sengaja tidak dihitung sebagai definisi."""
-    for path in jalan_repo(os.path.join("app", "src", "main", "java")):
+    pemanggilan sisa sengaja tidak dihitung sebagai definisi.
+
+    Berkas uji ikut dipindai: menghapus satu dari dua pembantu uji kembar
+    (mis. kelas palsu `ProsesPalsu` yang terdefinisi dua kali sehingga build
+    gagal) bukan menghapus metode — deklarasinya masih ada di berkas uji yang
+    sama, dan pemanggil sisa memang memakai deklarasi itu (override Process)."""
+    for path in jalan_repo(os.path.join("app", "src")):
         if nama in nama_terdeklarasi(path):
             return True
     return False
