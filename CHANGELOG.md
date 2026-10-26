@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 367: tes SHA-256 kini punya vektor emas independen dan cakupan berkas besar
+- Tes pemasangan hasil unduhan memasok checksum dari `Updater.sha256Hex` itu sendiri dan datanya hanya 1–4 byte, padahal produksi membaca per blok 64 KB — bug hash sistematis (hanya blok pertama ter-hash, hex terpotong) tak akan pernah memerahkan tes, padahal checksum ini gerbang keamanan biner/web vault berukuran MB (temuan audit putaran-9, #144).
+- `UpdaterTest` kini mengunci vektor emas yang dihitung implementasi independen (keluarga vektor uji SHA-256 yang diterbitkan + pola 200.000 byte): berkas kosong, `abc`, 1.000.000 huruf `a`, dan pola biner 200 KB; plus jalur `pasangHasilUnduh` untuk berkas besar memakai checksum emas tertulis — cocok terpasang, beda satu digit hex ditolak.
+
 ## [Belum rilis] — Audit 366: gerbang aturan repo kini membaca ekspresi targetSdk dan ABI baris lanjutan
 - `cek_aturan_repo` membaca angka pertama sesudah `targetSdk =` sehingga `targetSdk = 28 + 1` (efektif 29, melanggar aturan repo) terbaca 28, dan daftar ABI hanya dipindai dari baris yang memuat kata `abiFilters` sehingga ABI asing di baris lanjutan lolos — dua aturan repo paling keras bisa dilewati gerbangnya sendiri tanpa sengaja (temuan audit putaran-9, #143).
 - Nilai `targetSdk` kini dievaluasi sebagai literal/ekspresi aritmetika sederhana (fail-closed: bentuk yang tak bisa ditentukan ditolak), dan ABI dihimpun dengan pemindai yang mengikuti daftar string melewati baris lanjutan dan koma — kedua bentuk lolos di atas kini GAGAL, keadaan normal tetap LOLOS (terbukti eksekusi ulang di salinan buang).

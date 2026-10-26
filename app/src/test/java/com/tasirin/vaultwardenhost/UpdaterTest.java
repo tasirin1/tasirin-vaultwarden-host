@@ -85,6 +85,76 @@ public class UpdaterTest {
     }
 
     @Test
+    public void sha256Hex_cocokVektorEmasIndependen() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwsha").toFile();
+
+        java.io.File kosong = new java.io.File(dir, "kosong");
+        java.nio.file.Files.write(kosong.toPath(), new byte[0]);
+        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                Updater.sha256Hex(kosong));
+
+        java.io.File abc = new java.io.File(dir, "abc");
+        java.nio.file.Files.write(abc.toPath(), new byte[]{'a', 'b', 'c'});
+        assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+                Updater.sha256Hex(abc));
+
+        java.io.File sejuta = new java.io.File(dir, "sejuta");
+        byte[] blokA = new byte[8192];
+        java.util.Arrays.fill(blokA, (byte) 'a');
+        try (java.io.OutputStream os = new java.io.FileOutputStream(sejuta)) {
+            int sisa = 1_000_000;
+            while (sisa > 0) {
+                int n = Math.min(sisa, blokA.length);
+                os.write(blokA, 0, n);
+                sisa -= n;
+            }
+        }
+        assertEquals("cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0",
+                Updater.sha256Hex(sejuta));
+
+        java.io.File pola = new java.io.File(dir, "pola");
+        java.nio.file.Files.write(pola.toPath(), polaUji(200_000));
+        assertEquals("8f9d1bf454d63cd9fc6edbe8f3f2331cc1f9b195c7ec90533717bf243ae966c7",
+                Updater.sha256Hex(pola));
+        dir.delete();
+    }
+
+    private static byte[] polaUji(int panjang) {
+        byte[] isi = new byte[panjang];
+        for (int i = 0; i < panjang; i++) {
+            isi[i] = (byte) ((i * 31 + 7) % 256);
+        }
+        return isi;
+    }
+
+    @Test
+    public void pasangHasilUnduh_berkasBesarChecksumEmas() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwpasang3").toFile();
+        java.io.File tmp = new java.io.File(dir, "bin.tmp");
+        java.io.File out = new java.io.File(dir, "bin");
+        byte[] isi = polaUji(200_000);
+        java.nio.file.Files.write(tmp.toPath(), isi);
+        Updater.pasangHasilUnduh(tmp, out,
+                "8f9d1bf454d63cd9fc6edbe8f3f2331cc1f9b195c7ec90533717bf243ae966c7");
+        assertTrue(out.isFile());
+        assertFalse(tmp.exists());
+        assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
+
+        java.io.File tmp2 = new java.io.File(dir, "bin2.tmp");
+        java.nio.file.Files.write(tmp2.toPath(), isi);
+        boolean gagal = false;
+        try {
+            Updater.pasangHasilUnduh(tmp2, out,
+                    "8f9d1bf454d63cd9fc6edbe8f3f2331cc1f9b195c7ec90533717bf243ae966c8");
+        } catch (java.io.IOException e) {
+            gagal = true;
+        }
+        assertTrue(gagal);
+        assertArrayEquals(isi, java.nio.file.Files.readAllBytes(out.toPath()));
+        dir.delete();
+    }
+
+    @Test
     public void pasangHasilUnduh_tmpHilangTapiTujuanCocokDianggapSukses() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwpasang2").toFile();
         java.io.File tmp = new java.io.File(dir, "bin.tmp");
