@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 302: pasang-hook membuktikan eksekusi & mencadangkan hook lama
+- `tools/pasang-hook.sh` dulu memakai `[ -x "$HOOK" ]` sebagai bukti "kait bisa dieksekusi". `test -x` hanya membaca **bit izin**, bukan opsi mount: di penyimpanan `noexec` (`/sdcard`, tempat repo ini berada) `chmod +x` tetap "berhasil" tetapi `execve` ditolak kernel, sehingga skrip mencetak sukses padahal git mengabaikan hook dan setiap push lolos tanpa verifikasi. Sekarang hook dijalankan sungguhan (`pre-push --self-test` yang langsung `exit 0`); bila ditolak kernel, skrip menampilkan peringatan noexec. Diuji di repo ini (`/storage/emulated/0`): deteksi berhasil (sebelumnya akan salah lapor sukses) dan di `/tmp` (exec normal) lapor sukses.
+- Hook `pre-push` lama (bukan buatan skrip ini) kini dicadangkan ke `pre-push.bak` (atau `.bak.N` bila sudah ada) sebelum ditimpa; bila pencadangan gagal, hook tidak diubah. Skrip juga menolak berjalan di luar akar repo.
+
 ## [Belum rilis] — Audit 301: Stop tepat setelah exec tak lagi diumumkan "Server jalan"
 - Setelah `pb.start()` dan `KUNCI_PROSET` dilepas, thread Start masih mereset health, memindah file log, lalu menulis status `Running (PID …)` dan mengirim Telegram "Server jalan". Stop yang masuk di jeda itu sudah mematikan proses, sehingga status "Menghentikan…/Stopped" tertimpa "Running" dan pemilik yang mengandalkan bot mengira server hidup (padahal proses sedang dibunuh).
 - Helper murni baru `ServerService.bolehUmumkanJalan(prosesSama, running, prosesHidup, episodeTerbaru)`; pengumuman + status kini hanya ditulis bila proses yang lahir masih aktif, `running` masih true, dan `idEpisodaProses == startIdTerakhir` (dicek di dalam `KUNCI_PROSET`). Bila tidak, jalur itu mencatat "Stop sudah diminta - status dan pesan Server jalan dilewati". Reader/watcher tetap dijalankan agar output proses yang masih hidup terus dikuras (pipe penuh memblokir server) dan watcher menutup episode.
