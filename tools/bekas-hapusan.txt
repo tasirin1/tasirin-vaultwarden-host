@@ -80,3 +80,5 @@ segarkanTrustAnchor
 validasiRantai
 capOverride
 validasiRantai_tolakSampahFailClosed
+# Audit 311: varian tanpa chat id tak pernah dipanggil (yang dipakai sendMessageKbKe).
+sendMessageKb

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: hapus sendMessageKb yang tak dipakai
+- `TgBackup.sendMessageKb(ctx, text, markup)` publik tapi tak pernah dipanggil (yang dipakai `sendMessageKbKe` dengan chat id), sehingga pembaca kode bisa salah pilih varian dan pesan tak terkirim ke chat yang dituju.
+- Metode dihapus; `kirimPesan` tetap dipakai `sendMessage`. Nama dicatat di `tools/bekas-hapusan.txt` agar tak diciptakan ulang.
+
 ## [Belum rilis] — Audit 311: verifikator mengenali kelas manifest sub-paket
 - `cek_manifest` mengambil segmen pertama nama komponen setelah namespace, jadi `.ui.MainActivity` dicari sebagai `ui.java` dan komponen sah dilaporkan "Komponen manifest tanpa kelas" — push ke sub-paket baru pasti gagal.
 - Nama relatif kini dipetakan utuh ke direktori (`ui/MainActivity.java`) untuk bentuk `.Nama` maupun nama absolut; pesan galat ikut menampilkan path relatif. Diuji dengan fixture: kelas sub-paket yang ada lolos, yang hilang tetap terdeteksi.

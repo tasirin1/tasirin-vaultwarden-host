@@ -797,10 +797,6 @@ public final class TgBackup {
         }
     }
 
-    public static void sendMessageKb(Context ctx, String text, String markupJson) {
-        kirimPesan(ctx, text, markupJson);
-    }
-
     public static void sendMessageKe(Context ctx, String chatId, String text) {
         kirimPesanKe(ctx, chatId, text, null, false);
     }
