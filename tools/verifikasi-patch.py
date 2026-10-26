@@ -890,7 +890,7 @@ def cek_import_mati(gagal):
         tanpa = re.sub(r"^\s*import\s+.*$", "", bersih, flags=re.M)
 
         acuan_javadoc = set()
-        for taut in re.findall(r"\{@link(?:plain|code)?\s+([\w.#$]+)", mentah):
+        for taut in re.findall(r"\{@(?:link(?:plain|code)?|see)\s+([\w.#$]+)", mentah):
             target = taut.split("#", 1)[0].split(".")[-1]
             if target:
                 acuan_javadoc.add(target)

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 416: cek import mati gerbang kini mengenali acuan Javadoc `{@see}`
+- `cek_import_mati` mengecualikan import yang dirujuk `{@link}`/`{@linkplain}`/`{@code}`, tetapi tidak `{@see}` — import yang hanya dirujuk tag `{@see}` ditandai mati (positif palsu) dan tekanan menghapusnya bisa memutus Javadoc (temuan audit putaran-9, #170).
+- Pola acuan Javadoc kini mencakup `see` dengan bentuk target yang sama (nama kelas, boleh berkualifikasi dan ber-`#anggota`); bentuk `{@see "..."}` dan `{@see <a ...>}` tetap tidak tertangkap karena token pertamanya bukan nama kelas.
+
 ## [Belum rilis] — Audit 415: deteksi berkas biner gerbang kini mengenali magic gzip
 - `jenis_biner` di verifikasi-patch mengenali ELF/PE/ZIP/Mach-O/DEX dari byte magic, tetapi bukan gzip — berkas `.gz` berisi biner (mis. binary server terkompres) yang ter-commit akan lolos gerbang larangan biner (temuan audit putaran-9, #169).
 - Magic gzip (`1f 8b`) kini dikenali dan dilaporkan sebagai berkas biner seperti jenis lainnya.
