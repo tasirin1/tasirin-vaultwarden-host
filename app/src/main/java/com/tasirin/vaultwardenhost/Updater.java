@@ -368,6 +368,27 @@ public final class Updater {
     }
     // Status unduhan yang sedang berjalan (dibaca UI realtime); kosong = tidak ada unduhan.
     public static volatile String downloadStatus = "";
+    // Unduhan binary, shim, dan web-vault bisa berjalan bersamaan (bot + UI).
+    // Dulu tiap finally mengosongkan downloadStatus sehingga unduhan yang
+    // selesai lebih dulu menghapus progres unduhan lain; kini status hanya
+    // dikosongkan setelah unduhan terakhir selesai.
+    private static final java.util.concurrent.atomic.AtomicInteger unduhanAktif =
+            new java.util.concurrent.atomic.AtomicInteger();
+
+    /** Tandai satu unduhan mulai (dipasangkan selesaiUnduhan di finally). */
+    static void mulaiUnduhan() {
+        unduhanAktif.incrementAndGet();
+    }
+
+    /** Tandai satu unduhan selesai; kosongkan status hanya bila tak ada lagi
+     *  unduhan berjalan. Aman dipanggil berlebih (penanda tak jadi negatif). */
+    static void selesaiUnduhan() {
+        int sisa = unduhanAktif.decrementAndGet();
+        if (sisa <= 0) {
+            unduhanAktif.set(0);
+            downloadStatus = "";
+        }
+    }
     // Unduhan di STB sering timeout TCP ke github.com; coba ulang 3x sebelum gagal.
     private static final int MAX_COBA_UNDUH = 3;
 
@@ -1382,10 +1403,11 @@ public final class Updater {
     /** Seperti {@link #downloadBinaryVersi(Context, File, String)} + pembatalan. */
     public static String downloadBinaryVersi(Context ctx, File out, String versi,
                                              CekBatal batal) throws Exception {
+        mulaiUnduhan();
         try {
             return downloadBinaryInner(ctx, out, versi, batal);
         } finally {
-            downloadStatus = "";
+            selesaiUnduhan();
         }
     }
 
@@ -1726,10 +1748,11 @@ public final class Updater {
 
     /** Unduh shim getrandom dari release repo ke out (verifikasi SHA-256). */
     public static String downloadShim(Context ctx, File out) throws Exception {
+        mulaiUnduhan();
         try {
             return downloadShimInner(ctx, out);
         } finally {
-            downloadStatus = "";
+            selesaiUnduhan();
         }
     }
 
@@ -1909,10 +1932,11 @@ public final class Updater {
      *  Pemanggil menyimpan kuncian dulu agar auto-update tak langsung menaikkan lagi. */
     public static String updateWebVaultVersi(Context ctx, String versi) throws Exception {
         synchronized (KUNCI_UPDATE_WV) {
+            mulaiUnduhan();
             try {
                 return updateWebVaultInner(ctx, versi);
             } finally {
-                downloadStatus = "";
+                selesaiUnduhan();
             }
         }
     }

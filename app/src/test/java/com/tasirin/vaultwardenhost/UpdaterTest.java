@@ -1214,4 +1214,24 @@ public class UpdaterTest {
             throw new IllegalStateException("callback rusak");
         }));
     }
+
+    @Test
+    public void statusUnduhanBaruKosongSetelahUnduhanTerakhir() {
+        Updater.downloadStatus = "";
+        Updater.mulaiUnduhan();
+        Updater.mulaiUnduhan();
+        Updater.reportDownload("binary", 1, 2);
+        assertFalse("progres unduhan harus tampil", Updater.downloadStatus.isEmpty());
+        Updater.selesaiUnduhan();
+        // Unduhan lain masih berjalan: statusnya tak boleh dikosongkan.
+        assertFalse(Updater.downloadStatus.isEmpty());
+        Updater.selesaiUnduhan();
+        assertEquals("", Updater.downloadStatus);
+        // Panggilan berlebih tak membuat penanda negatif (status tetap kosong).
+        Updater.selesaiUnduhan();
+        Updater.mulaiUnduhan();
+        Updater.reportDownload("shim", 5, 10);
+        Updater.selesaiUnduhan();
+        assertEquals("", Updater.downloadStatus);
+    }
 }
