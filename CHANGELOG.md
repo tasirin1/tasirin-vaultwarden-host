@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 399: penanda hapus ekspor config polos kini selamat dari rotasi
+- Berkas ekspor config polos (`app-config-*.json` — token bot, sandi cadangan, token admin teks terang) dijadwalkan terhapus 2 menit sesudah dibuat, tetapi penandanya field instance `exportPlainTertunda`: rotasi saat lembar berbagi tampil membuang penanda itu dan berkas hanya bergantung pada sapuan umur dari lifecycle Settings — bisa bertahan jauh melampaui TTL (temuan audit putaran-8, #137).
+- Jalur + cap waktu penanda kini disimpan ke Bundle (`onSaveInstanceState`) dan dipulihkan di `onCreate`, sehingga instance sesudah rotasi meneruskan jadwal hapus yang sama (cap `elapsedRealtime` tetap sah dalam boot yang sama).
+
 ## [Belum rilis] — Audit 398: dialog konfirmasi kini menjalankan callback batal saat tertutup tanpa pilihan
 - Penghapusan berkas unduhan restore Telegram (`vwtg-restore-*.zip`, isi database vault) hanya digantungkan pada tombol Batal dialog konfirmasi; rotasi menutup dialog lewat `dismiss()` yang tak memanggil listener tombol — berkas tertinggal di cache sampai sapuan TTL 1 jam yang sendirinya hanya terpicu dari Settings (temuan audit putaran-8, #136).
 - Pembantu `confirm(...)` kini memasang `setOnDismissListener`: callback batal berjalan juga saat dialog tertutup tanpa pilihan (rotasi/back), dengan penanda pilihan agar jalur "Ya" yang sudah berjalan tidak ikut dibatalkan — pola yang sama seperti dialog sandi impor di berkas yang sama.

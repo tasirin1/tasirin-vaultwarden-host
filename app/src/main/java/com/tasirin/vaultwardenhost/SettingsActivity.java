@@ -90,6 +90,8 @@ public class SettingsActivity extends Activity {
 
     private static final String STATE_MULAI_ULANG_IZIN = "mulai_ulang_izin";
     private static final String STATE_START_TERTUNDA_PORT = "start_tertunda_port";
+    private static final String STATE_EXPORT_PLAIN_PATH = "export_plain_path";
+    private static final String STATE_EXPORT_PLAIN_PADA = "export_plain_pada";
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -334,6 +336,11 @@ public class SettingsActivity extends Activity {
                     STATE_MULAI_ULANG_IZIN, false);
             startTertundaDariPutaran = savedInstanceState.getBoolean(
                     STATE_START_TERTUNDA_PORT, false);
+            String pathExport = savedInstanceState.getString(STATE_EXPORT_PLAIN_PATH);
+            if (pathExport != null) {
+                exportPlainTertunda = new File(pathExport);
+                exportPlainPada = savedInstanceState.getLong(STATE_EXPORT_PLAIN_PADA, 0);
+            }
         }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
@@ -831,6 +838,11 @@ public class SettingsActivity extends Activity {
 
         outState.putBoolean(STATE_MULAI_ULANG_IZIN, mulaiUlangSetelahIzin);
         outState.putBoolean(STATE_START_TERTUNDA_PORT, startTertundaPort);
+        File pendingExport = exportPlainTertunda;
+        if (pendingExport != null) {
+            outState.putString(STATE_EXPORT_PLAIN_PATH, pendingExport.getAbsolutePath());
+            outState.putLong(STATE_EXPORT_PLAIN_PADA, exportPlainPada);
+        }
     }
 
     @Override
