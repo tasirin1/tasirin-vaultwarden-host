@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 341: teks tombol Start/Stop tetap terbaca saat ditekan di mode malam
+- Di mode malam teks tombol primer sengaja gelap (`btn_primary_text=#1A1A1A`) agar terbaca di atas biru muda `primary` (#90CAF9), tetapi latar keadaan ditekan pada `bg_btn_primary` (`primary_dark=#0D47A1`) dan `bg_btn_stop` (`btn_stop_pressed=#7A1A17`) gelap di kedua mode dan daftar warna teks tidak punya item `state_pressed`: selama tombol ditahan, tulisannya nyaris hilang (kontras sekitar 2,0:1 dan 1,65:1). Tombol yang sama berganti latar primer/stop saat runtime di MainActivity dan SettingsActivity, jadi satu daftar teks melayani keduanya.
+- `btn_primary_text_state` kini punya item `state_pressed` berwarna putih — di atas kedua latar tekan itu kontrasnya 8,6:1 dan 10,6:1; mode siang tidak berubah karena teks tekannya memang sudah putih.
+
 ## [Belum rilis] — Audit 340: tekanan Buka dengan PIN kosong/pendek tak lagi dihitung tebakan gagal
 - `PinActivity.cobaBuka()` mengirim masukan apa pun — termasuk kolom kosong — ke verifikasi PBKDF2, dan setiap hasil tak cocok menaikkan penghitung gagal `PinGate`: lima ketukan tak sengaja pada tombol Buka mengunci pengguna sah selama 5 menit tanpa satu pun tebakan PIN nyata. Jalur lain sudah konsisten menolaknya lebih dulu: pembuatan PIN mewajibkan minimal 4 karakter (`SettingsActivity`) dan bot Telegram menolak PIN < 4 sebelum verifikasi tanpa menghitung gagal.
 - `cobaBuka()` kini menolak masukan kurang dari 4 karakter dengan pesan `R.string.pin_min` yang sama seperti di Settings, sebelum verifikasi dimulai dan tanpa menyentuh penghitung gagal maupun lockout.
