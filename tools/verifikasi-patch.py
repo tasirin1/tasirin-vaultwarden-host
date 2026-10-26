@@ -126,6 +126,10 @@ def jalan_repo(rel, ext=(".java",)):
             if ext is None or nama.endswith(ext):
                 yield os.path.relpath(os.path.join(akar, nama), AKAR)
 
+def kupas_komentar_xml(isi):
+    return re.sub(r"<!--.*?-->", "", isi, flags=re.S)
+
+
 def himpun_definisi():
     definisi = {}
     acuan = {}
@@ -141,7 +145,7 @@ def himpun_definisi():
 
     akar_res = os.path.join(MAIN, "res")
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
-        isi = baca(path)
+        isi = kupas_komentar_xml(baca(path))
         for jenis, nama in pola_def.findall(isi):
             tambah(jenis, nama)
         for jenis, nama in pola_array.findall(isi):
@@ -181,6 +185,8 @@ def himpun_definisi():
         isi = baca(path)
         if not isi:
             continue
+        if path.endswith(".xml"):
+            isi = kupas_komentar_xml(isi)
         isi = pola_android.sub("", isi)
         for jenis, pola_xml, pola_r in pola_pakai:
             for pola in (pola_xml, pola_r):
