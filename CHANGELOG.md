@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 311: unit test kebijakan retry unduhan benar-benar jalan
+- `UpdaterTest.bolehCobaLagiUnduh_hanyaGalatJaringan()` tidak ber-`@Test`, jadi JUnit melewatinya diam-diam. Isinya mengunci kebijakan penting: jaringan/timeout/HTTP 500 boleh dicoba lagi, sedangkan HTTP 404 dan "build belum tersedia" tidak.
+- Anotasi `@Test` ditambahkan (test kini ikut CI). Bila `bolehCobaLagiUnduh` berubah sehingga retry 404 atau berhenti retry timeout, test langsung merah.
+
 ## [Belum rilis] — Audit 311: chat @username benar-benar butuh PIN
 - Saat chat bot diisi `@username`, UI/log memperingatkan "diperlakukan seperti grup (selalu butuh PIN)", tetapi `authDangerous` hanya menolak berdasarkan `idRuang < 0`. Dari chat pribadi (ID positif) dengan PIN app **nonaktif**, `/status`, `/log`, `/crashlog`, `/ca`, dan `/cabackup` lolos tanpa PIN karena `berbahaya == false` — username yang kedaluwarsa/diklaim ulang bisa membaca status, log, path, versi, dan URL.
 - Aturan PIN-mati kini `wajibPinSaatPinMati(berbahaya, chatAnggapGrup)`: perintah baca ber-PIN juga ditolak bila konfigurasi chat memakai username/tak-terurai (fail-closed), bukan hanya saat pengirim benar-benar grup. Dengan PIN aktif perilakunya tetap (verifikasi PIN). README tiga bahasa menjelaskan konsekuensinya.
