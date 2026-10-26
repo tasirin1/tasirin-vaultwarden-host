@@ -912,8 +912,7 @@ public class ServerServiceTest {
     }
 
     /** Tulis berkas berukuran 1 MB dengan header ELF ARM32 yang sah. */
-    private static void tulisElfArm(java.io.File f) throws Exception {
-        try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "rw")) {
+    private static void tulisElfArm(java.io.File f) throws Exception {        try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "rw")) {
             r.setLength(1_200_000);
             byte[] h = new byte[20];
             h[0] = 0x7F;
@@ -948,5 +947,51 @@ public class ServerServiceTest {
         assertFalse(ServerService.pulihkanBakBiner(out, bak));
         assertTrue(bak.exists());
         assertEquals(3, out.length());
+    }
+
+    /** Proses palsu tanpa OS: cukup untuk menguji perbandingan identitas. */
+    private static final class ProsesPalsu extends Process {
+        @Override
+        public java.io.OutputStream getOutputStream() {
+            return null;
+        }
+
+        @Override
+        public java.io.InputStream getInputStream() {
+            return null;
+        }
+
+        @Override
+        public java.io.InputStream getErrorStream() {
+            return null;
+        }
+
+        @Override
+        public int waitFor() {
+            return 0;
+        }
+
+        @Override
+        public int exitValue() {
+            return 0;
+        }
+
+        @Override
+        public void destroy() {
+        }
+    }
+
+    @Test
+    public void pingMilikEpisodeSama_tolakProsesAtauEpisodeBeda() {
+        Process a = new ProsesPalsu();
+        Process b = new ProsesPalsu();
+        assertTrue(ServerService.pingMilikEpisodeSama(a, a, 3, 3));
+        // Proses sudah diganti Start baru.
+        assertFalse(ServerService.pingMilikEpisodeSama(a, b, 3, 3));
+        // Episode Start baru (startId berbeda).
+        assertFalse(ServerService.pingMilikEpisodeSama(a, a, 3, 4));
+        // Belum ada proses/episode.
+        assertFalse(ServerService.pingMilikEpisodeSama(null, null, 3, 3));
+        assertFalse(ServerService.pingMilikEpisodeSama(a, a, -1, -1));
     }
 }

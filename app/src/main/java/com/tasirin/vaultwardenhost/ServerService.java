@@ -599,10 +599,14 @@ public class ServerService extends Service {
                 return;
             }
             posUtama(this, delay);
+            // Episode saat ping dimulai: hasil ping yang kembali setelah Stop
+            // lalu Start baru tak boleh dihitung ke server yang baru lahir.
+            final Process pCek = process;
+            final int epCek = idEpisodaProsesAktif();
             // Pool bersama (bukan new Thread per tick): hemat stack 1 MB tiap 30 dtk di STB.
             boolean masuk = Util.jalankanBg(() -> {
                 try {
-                    checkHealthOnce();
+                    checkHealthOnce(pCek, epCek);
                 } finally {
                     healthBerjalan.set(false);
                 }
@@ -3141,9 +3145,27 @@ public class ServerService extends Service {
 
     // ─── Health check (/alive) ─────────────────────────────────────────
 
-    private void checkHealthOnce() {
+    /** True bila hasil ping masih milik proses + episode yang sama. Ping
+     *  loopback bisa menggantung sampai timeout; bila Stop+lalu Start terjadi
+     *  selagi menunggu, kegagalan milik episode lama tak boleh menambah
+     *  healthFails episode baru (dulu memicu restart palsu). Murni. */
+    static boolean pingMilikEpisodeSama(Process diukur, Process sekarang,
+            int epDiukur, int epSekarang) {
+        return diukur != null && diukur == sekarang
+                && epDiukur >= 0 && epDiukur == epSekarang;
+    }
+
+    private void checkHealthOnce(Process pCek, int epCek) {
+        if (!pingMilikEpisodeSama(pCek, process, epCek, idEpisodaProsesAktif())) {
+            return;
+        }
         peringatkanIpBerubah();
         HasilPing h = pingRinci(this);
+        // Episode bisa berganti selama ping berjalan: hasil basi dibuang,
+        // jangan sampai masuk hitungan episode baru.
+        if (!pingMilikEpisodeSama(pCek, process, epCek, idEpisodaProsesAktif())) {
+            return;
+        }
         if (h.sehat) {
             // Sehat via /api/config tapi /alive 5xx beruntun = DB rusak yang
             // tak pernah pulih sendiri: restart setelah ambang, bukan selamanya.
