@@ -606,6 +606,8 @@ public class ServerService extends Service {
                 new String[]{"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"});
         pulihkanBakDiFolder(new File(dataFolder, "tls"),
                 new String[]{"ca.pem", "cert.pem", "key.pem", "ca-key.pem"});
+        pulihkanBakDiFolder(new File(dataFolder, "backups"),
+                namaAsal -> TgBackup.isFileBackup(namaAsal));
     }
 
     static boolean bakNamaSah(String namaAsal, String[] namaSah) {
@@ -621,6 +623,11 @@ public class ServerService extends Service {
     }
 
     private static void pulihkanBakDiFolder(File folder, String[] namaSah) {
+        pulihkanBakDiFolder(folder, namaAsal -> bakNamaSah(namaAsal, namaSah));
+    }
+
+    private static void pulihkanBakDiFolder(File folder,
+            java.util.function.Predicate<String> sah) {
         File[] isi;
         try {
             isi = folder.listFiles();
@@ -637,7 +644,7 @@ public class ServerService extends Service {
                     continue;
                 }
                 String namaAsal = nama.substring(0, nama.length() - 4);
-                if (!bakNamaSah(namaAsal, namaSah)) {
+                if (!sah.test(namaAsal)) {
                     continue;
                 }
                 File asal = new File(folder, namaAsal);

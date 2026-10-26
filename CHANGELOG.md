@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 389: pemulihan .bak kini menjangkau folder backups
+- `gantiAtomik` juga dipakai menulis backup di folder `backups/`, tetapi `pulihkanBakTersisa` hanya menyapu folder data dan `tls/` — swap backup yang terpotong meninggalkan backup bagus hanya sebagai `.bak` tanpa pernah dipulihkan, dan rotasi bisa menganggapnya hilang (temuan audit putaran-7, #127).
+- Sapuan kini menjangkau `backups/` dengan predikat nama yang sama dengan pengenal berkas backup (`TgBackup.isFileBackup`: awalan `backup-telegram-`/`db-backup-`), lewat kelebihan-beban predikat pada penyapu yang sama — batasan nama sah Audit 386 tetap berlaku di semua folder.
+
 ## [Belum rilis] — Audit 388: parser checksum bernama kini menolak kandidat bercabang
 - Jalur bernama `pindaiHexDariBaris` mengembalikan hex PERTAMA dari baris yang menyebut nama asset — dua baris untuk asset yang sama dengan hash berbeda (manifes rusak/tercampur) diterima begitu saja dari urutan baris, padahal jalur tanpa nama sejak perbaikan #100 menolak kandidat lebih dari satu (temuan audit putaran-7, #126).
 - Jalur bernama kini menghimpun kandidatnya: dua hex berbeda untuk nama yang sama → `null` (checksum dianggap tak terbit, unduhan dibatalkan) — baris sepakat dengan hex sama tetap diterima.
