@@ -1769,7 +1769,7 @@ public final class TgBackup {
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
                     "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
-                    PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET));
+                    PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET, LogActivity.KEY_CLIP_HASH));
 
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
@@ -1781,7 +1781,8 @@ public final class TgBackup {
                     ServerService.KEY_BIN_DL_GAGAL_AT,
                     ServerService.KEY_BIN_MANUAL_FP,
                     AutoUpdate.KEY_TAWARAN_UPDATE,
-                    KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA));
+                    KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,
+                    LogActivity.KEY_CLIP_KEDALUWARSA));
 
     public static String configJson(SharedPreferences sp) throws Exception {
         JSONObject root = new JSONObject();

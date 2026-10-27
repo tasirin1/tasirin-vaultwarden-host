@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 450: hash clipboard tidak lagi ikut diekspor ke config backup
+- `configJson` mengekspor seluruh prefs kecuali dua daftar pengecualian, dan `clip_hash` — SHA-256 tanpa garam dari isi clipboard, termasuk token admin/bot yang disalin lewat tombol salin — tidak ada di daftar mana pun, sehingga ikut ke `app-config.json` dalam zip backup dan menjadi bahan tebak-tebakan offline. Jalur impor justru sudah memblokir kunci ini; ekspornya yang tertinggal.
+- `LogActivity.KEY_CLIP_HASH` kini masuk `SECRET_PREF_KEYS` (sejajar `pin_hash` dan rahasia alarm) dan pasangan kedaluwarsanya `KEY_CLIP_KEDALUWARSA` masuk `TAK_DIEKSPOR_KEYS`; uji `secretTakIkutBackup` diperluas menutup keduanya.
+
 ## [Belum rilis] — Audit 449: penanda IP tidak lagi dimajukan sebelum restart terbukti berjalan
 - `peringatkanIpBerubah()` memajukan `runningLanHost` ke IP baru sebelum `restart(...)` dipastikan berhasil; bila permintaan restart gagal atau intent RESTART dibuang karena antrean tugas penuh, tick berikutnya menganggap IP sudah ditangani dan DOMAIN menunjuk IP lama selamanya.
 - Penanda kini hanya dicatat sebagai `ipRestartDiminta` sesudah `restart(...)` diterima; sesi start yang benar-benar berjalan tetap yang menulis `runningLanHost` dari host segar. Cabang antrean-penuh membersihkan penanda itu agar health mencoba lagi, dan keputusan meminta restart diekstrak ke penolong murni `restartIpBolehDiminta` yang teruji.

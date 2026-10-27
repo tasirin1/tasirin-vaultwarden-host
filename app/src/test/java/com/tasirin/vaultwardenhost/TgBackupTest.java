@@ -989,6 +989,8 @@ public class TgBackupTest {
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("tg_pass"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("pin_hash"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains(TgBackup.KEY_ALARM_SECRET));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains(LogActivity.KEY_CLIP_HASH));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(LogActivity.KEY_CLIP_KEDALUWARSA));
     }
 
     @Test
