@@ -505,6 +505,21 @@ def cek_sinkron_terjemah(gagal):
         if lebih:
             gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
 
+def berkas_teks(path):
+    try:
+        with open(os.path.join(AKAR, path), "rb") as f:
+            contoh = f.read(65536)
+    except OSError:
+        return False
+    if b"\x00" in contoh:
+        return False
+    try:
+        contoh.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
 def jenis_biner(path):
     try:
         with open(os.path.join(AKAR, path), "rb") as f:
@@ -630,7 +645,7 @@ def cek_aturan_repo(gagal, berubah):
             gagal.append("Berkas biner (%s) tak boleh masuk repo: %s" % (jenis, path))
             continue
         ukuran = os.path.getsize(os.path.join(AKAR, path))
-        if ukuran > BATAS_UKURAN_BERKAS:
+        if ukuran > BATAS_UKURAN_BERKAS and not berkas_teks(path):
             gagal.append("Berkas >1 MB tak boleh masuk repo"
                          " (binary/web-vault diunduh CI): " + path)
 

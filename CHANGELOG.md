@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 445: batas berkas 1 MB gerbang kini mengecualikan berkas teks
+- Batas ukuran gerbang berlaku untuk semua berkas kecuali `gradle-wrapper.jar`, termasuk teks polos — padahal `CHANGELOG.md` (500 KB, wajib diedit di setiap commit perbaikan) sedang menuju ambang itu dan suatu hari akan menggagalkan semua push perbaikan dengan pesan yang menyalahkan binary/web-vault.
+- Berkas yang terbaca sebagai teks (cuplikan 64 KB tanpa byte NUL dan ter-decode UTF-8, penolong `berkas_teks`) kini dikecualikan dari batas ukuran; berkas biner tak dikenal tetap tertahan. Dibuktikan di salinan buang: `.md` 1,29 MB LOLOS, blob biner 1,2 MB tetap GAGAL.
+
 ## [Belum rilis] — Audit 444: kontras text_secondary mode siang dinaikkan melewati AA teks kecil
 - `text_secondary` siang `#6B7280` di atas `window_bg` `#F2F4F8` hanya 4,39:1 — sedikit di bawah ambang WCAG AA 4,5:1 untuk teks kecil, dan warna ini dipakai label/petunjuk kecil yang duduk langsung di latar jendela.
 - Warna digelapkan satu langkah menjadi `#666D7B` (4,72:1 di latar jendela, 5,20:1 di atas kartu putih), tetap keluarga abu-biru yang sama. Mode malam tidak disentuh (sudah 10,84:1).
