@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 443: blok throttle dan jadwal-otomatis AlarmReceiver disatukan
+- Blok throttle 60 detik di `onReceive` tertulis dua kali hampir identik (jalur siaran waktu dan jalur utama), dan pola cek `KEY_TG_AUTO` → `schedule` tersebar di banyak salinan — pola yang terbukti membuat perbaikan rantai alarm (Audit #159, #181) mudah tertinggal di satu salinan.
+- Blok throttle diekstrak menjadi `lolosThrottleAlarm` (stempel throttle tetap ditulis pada kedua jalur, sama seperti sebelumnya) dan salinan jadwal-otomatis di jalur tunda-boot kini memanggil `jadwalUlangBilaOtomatis` yang sudah ada. Inventaris pernyataan sebelum/sesudah cocok persis dengan dedupe yang dimaksud; perilaku tidak berubah.
+
 ## [Belum rilis] — Audit 442: alur ketik PIN Settings kini memakai pool PIN bersama Util
 - SettingsActivity memelihara executor satu-thread kedua (`pinExec`) khusus untuk hash PIN alur mengetik/mengganti, di samping `Util.jalankanPin` yang dipakai alur mengaktifkan — dua antrean untuk pekerjaan yang sama, melanggar pola satu pintu `Util` (AGENTS.md) dan membuat tugas hash dua alur tidak terserialisasi satu sama lain.
 - `Util` kini menyediakan `kirimPin` (versi `submit` dari pintu yang sama, mengembalikan `Future` atau null bila antrean menolak); `tulisHashPin` memakainya dan `pinExec` dihapus. Pembaca `pinPending` memang sudah aman-null, dan penjaga `pinSeq` tetap membuang hasil basi.

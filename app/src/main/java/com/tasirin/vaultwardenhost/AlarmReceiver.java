@@ -118,12 +118,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 mulaiBackup(context);
             } else {
 
-                try {
-                    if (TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
-                        TgBackup.schedule(context, true);
-                    }
-                } catch (Exception ignored) {
-                }
+                jadwalUlangBilaOtomatis(context);
                 if (!TgBackup.jamStbWajar(kini)
                         || (last > 0 && kini < last)) {
                     ServerService.catatLog("[tg] Backup susulan boot dilewati:"
@@ -149,15 +144,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                 return;
             }
 
-            long kiniElapsedTgl = android.os.SystemClock.elapsedRealtime();
-            if (!bolehAlarmJalan(kiniElapsedTgl,
-                    throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context)),
-                    THROTTLE_ALARM_MS)) {
-
-                simpanThrottle(context, kiniElapsedTgl);
+            if (!lolosThrottleAlarm(context)) {
                 return;
             }
-            simpanThrottle(context, kiniElapsedTgl);
 
             TgBackup.schedule(context, true);
             String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
@@ -177,18 +166,21 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
 
-        long kiniElapsed = android.os.SystemClock.elapsedRealtime();
-        long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
-        if (!bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS)) {
-
-            simpanThrottle(context, kiniElapsed);
+        if (!lolosThrottleAlarm(context)) {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
             }
             return;
         }
-        simpanThrottle(context, kiniElapsed);
         mulaiBackup(context);
+    }
+
+    private boolean lolosThrottleAlarm(Context context) {
+        long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+        long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
+        boolean boleh = bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS);
+        simpanThrottle(context, kiniElapsed);
+        return boleh;
     }
 
     private static void jadwalUlangBilaOtomatis(Context context) {
