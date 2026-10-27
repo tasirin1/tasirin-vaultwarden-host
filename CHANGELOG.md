@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 456: syarat IP stabil kini menuntut sampel jaringan kedua yang sungguhan
+- `peringatkanIpBerubah` menghitung dua tick berurutan sebagai bukti IP baru stabil, tetapi kedua tick itu membaca `collectIps()` yang sama dari cache 60 detik — selama fase health cepat (interval 30 detik) satu enumerasi sesaat langsung dianggap stabil dan memicu restart yang belum tentu perlu.
+- Kandidat IP kini dicatat waktu pertama terlihatnya (`ipBaruSejak`) dan restart hanya diminta bila kandidat bertahan >= 60 detik (satu umur cache penuh), sehingga bacaan penentu selalu berasal dari enumerasi jaringan yang berbeda. Keputusan tetap di penolong murni `restartIpBolehDiminta` (tanda tangan diperluas dengan sejak/kini) dan ujinya diperbarui + ditambah kasus batas umur cache.
+
 ## [Belum rilis] — Audit 455: penolong berkas_teks memindai seluruh berkas, bukan cuplikan 64 KB pertama
 - `berkas_teks` (pengecualian teks untuk batas 1 MB, Audit 445) hanya membaca 64 KB pertama: berkas poliglot 1,3 MB berawalan teks dengan ekor biner dinilai teks dan lolos batas ukuran, membuka jalan memasukkan blob biner besar ke repo selama ekstensinya netral.
 - Berkas kini dipindai per potongan sampai habis (cek byte NUL di semua potongan; dekode UTF-8 inkremental agar karakter multibita di batas potongan tidak salah nilai). Dibuktikan di salinan buang: poliglot 1,3 MB → GAGAL, teks murni 1,3 MB → tetap LOLOS (pengecualian Audit 445 utuh), biner murni 1,2 MB → GAGAL.

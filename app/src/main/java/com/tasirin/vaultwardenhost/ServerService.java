@@ -276,6 +276,8 @@ public class ServerService extends Service {
     private static volatile String ipBaruKandidat = "";
     private static volatile int ipBaruHitung = 0;
     private static volatile String ipRestartDiminta = "";
+    private static volatile long ipBaruSejak = 0;
+    private static final long IP_STABIL_MS = 60_000;
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
 
@@ -303,6 +305,7 @@ public class ServerService extends Service {
         ipBaruKandidat = "";
         ipBaruHitung = 0;
         ipRestartDiminta = "";
+        ipBaruSejak = 0;
     }
 
     static boolean lepasProses(Process p, Runnable efek) {
@@ -1959,6 +1962,7 @@ public class ServerService extends Service {
         ipBaruKandidat = "";
         ipBaruHitung = 0;
         ipRestartDiminta = "";
+        ipBaruSejak = 0;
 
         if (!dataDirKanonisAman(sesi.dataDir)) {
             throw new IOException("Folder data berubah/tak valid saat start;"
@@ -2722,9 +2726,10 @@ public class ServerService extends Service {
         healthFail("tidak merespon (" + h.rincian + ")");
     }
 
-    static boolean restartIpBolehDiminta(int hitung, boolean healthAktif, boolean prosesHidup,
-            String kini, String diminta) {
-        return hitung >= 2 && healthAktif && prosesHidup
+    static boolean restartIpBolehDiminta(int hitung, long sejakMs, long kiniMs,
+            boolean healthAktif, boolean prosesHidup, String kini, String diminta) {
+        return hitung >= 2 && sejakMs > 0 && kiniMs - sejakMs >= IP_STABIL_MS
+                && healthAktif && prosesHidup
                 && kini != null && !kini.isEmpty() && !kini.equals(diminta);
     }
 
@@ -2738,6 +2743,7 @@ public class ServerService extends Service {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
                 ipRestartDiminta = "";
+                ipBaruSejak = 0;
                 return;
             }
             if (kini.equals(ipBaruKandidat)) {
@@ -2745,6 +2751,7 @@ public class ServerService extends Service {
             } else {
                 ipBaruKandidat = kini;
                 ipBaruHitung = 1;
+                ipBaruSejak = SystemClock.elapsedRealtime();
             }
             if (!kini.equals(ipBerubahDiperingatkan)) {
                 ipBerubahDiperingatkan = kini;
@@ -2754,10 +2761,12 @@ public class ServerService extends Service {
                 TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
                         + " Server di-restart otomatis agar tautan memakai IP baru.");
             }
-            if (restartIpBolehDiminta(ipBaruHitung, healthActive, isProcessAlive(),
+            if (restartIpBolehDiminta(ipBaruHitung, ipBaruSejak,
+                    SystemClock.elapsedRealtime(), healthActive, isProcessAlive(),
                     kini, ipRestartDiminta)) {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
+                ipBaruSejak = 0;
                 appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
                 if (restart(getApplicationContext())) {
                     ipRestartDiminta = kini;

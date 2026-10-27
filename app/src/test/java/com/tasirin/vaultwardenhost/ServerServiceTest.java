@@ -629,14 +629,22 @@ public class ServerServiceTest {
 
     @Test
     public void restartIpBolehDiminta_hanyaSekaliPerIpSelamaBelumTerkonfirmasi() {
-        assertTrue(ServerService.restartIpBolehDiminta(2, true, true, "192.168.1.9", ""));
-        assertTrue(ServerService.restartIpBolehDiminta(3, true, true, "192.168.1.9", "192.168.1.8"));
-        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, "192.168.1.9", "192.168.1.9"));
-        assertFalse(ServerService.restartIpBolehDiminta(1, true, true, "192.168.1.9", ""));
-        assertFalse(ServerService.restartIpBolehDiminta(2, false, true, "192.168.1.9", ""));
-        assertFalse(ServerService.restartIpBolehDiminta(2, true, false, "192.168.1.9", ""));
-        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, "", ""));
-        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, null, ""));
+        assertTrue(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "192.168.1.9", ""));
+        assertTrue(ServerService.restartIpBolehDiminta(3, 1_000, 90_000, true, true, "192.168.1.9", "192.168.1.8"));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "192.168.1.9", "192.168.1.9"));
+        assertFalse(ServerService.restartIpBolehDiminta(1, 1_000, 61_000, true, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, false, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, false, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, null, ""));
+    }
+
+    @Test
+    public void restartIpBolehDiminta_tuntutBertahanSatuUmurCache() {
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 31_000, true, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 60_999, true, true, "192.168.1.9", ""));
+        assertTrue(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 0, 999_000, true, true, "192.168.1.9", ""));
     }
 
     @Test
