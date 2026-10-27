@@ -82,6 +82,7 @@ capOverride
 validasiRantai_tolakSampahFailClosed
 # Audit 311: varian tanpa chat id tak pernah dipanggil (yang dipakai sendMessageKbKe).
 sendMessageKb
+# Audit 421: tes digabung/dihapus pada #175.
 jamBiasaTakIkutDisamarkan
 logNormalTakBerubah
 normalisasiPort_tanpaEksepsiUntukInputAneh

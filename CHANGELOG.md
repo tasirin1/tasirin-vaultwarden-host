@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 448: komentar grup untuk nama bekas-hapusan dari Audit 421 ditambahkan
+- Delapan nama tes yang dicatat pada Audit 421 (#175) masuk `tools/bekas-hapusan.txt` tanpa komentar grup `# Audit NNN:` seperti konvensi berkas itu, sehingga asal-usulnya sulit ditelusuri sesi berikutnya.
+- Komentar grup `# Audit 421: tes digabung/dihapus pada #175.` kini memayungi kedelapan nama itu; isi daftar tidak berubah.
+
 ## [Belum rilis] — Audit 447: inti job resolve disatukan menjadi action komposit bersama
 - Inti job `resolve` (ambil + validasi tag rilis Vaultwarden terbaru, termasuk jalur cadangan gh→curl) tertulis identik di `build-apk.yml` dan `build-binary.yml`, sehingga perbaikan pola validasi tag harus dilakukan dua kali dan mudah tertinggal di satu sisi.
 - Inti itu kini menjadi action komposit `.github/actions/resolve-vw` yang dipakai kedua workflow (kedua job memasang checkout lebih dulu karena action lokal membutuhkannya). Blok cek kelengkapan aset khusus binary tetap menjadi langkah tersendiri di job-nya dan membaca tag dari keluaran action. Skrip yang dipindah terbukti identik byte-per-byte dengan aslinya, blok aset terbukti verbatim, ketiga berkas ter-parse sebagai YAML valid, dan kedua skrip lolos `bash -n`.
