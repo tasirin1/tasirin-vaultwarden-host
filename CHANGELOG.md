@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 464: kontras text_hint mode siang dinaikkan melewati AA
+- `text_hint` siang `#9AA0A6` — warna hint semua kolom isian bergaya `TasirinInput` (folder data, port, token, sandi backup, PIN) — hanya 2,64:1 di atas kartu putih dan 2,40:1 di latar jendela, jauh di bawah patokan AA 4,5:1 yang dipakai proyek ini untuk teks kecil (Audit 444), dan di TV kolom-kolom itu dibaca dari jauh dengan hint sebagai satu-satunya petunjuk isinya.
+- Warna digelapkan ke `#68707C` (5,00:1 di atas kartu putih, 4,54:1 di latar jendela — dihitung dengan rumus luminansi relatif WCAG), tetap keluarga abu-biru yang sama dan sedikit lebih terang dari `text_secondary`. Mode malam tidak disentuh (sudah 5,39:1).
+
 ## [Belum rilis] — Audit 463: log realtime di layar awal kini bisa digulir dengan D-pad
 - `homeLogScroll` di `activity_main.xml` tidak fokusable dan tidak masuk rantai `nextFocus*` mana pun (`netInfo` melompat langsung ke `startStop`), sehingga pengguna TV/STB tidak pernah bisa menggulir mundur log beranda (viewport 360dp, isi sampai 150 baris) — berbeda dengan layar log penuh yang sudah benar.
 - `homeLogScroll` kini `focusable` + `focusableInTouchMode` (pola `activity_log.xml`) dan disisipkan ke rantai vertikal: `netInfo` ↓ `homeLogScroll` ↓ `startStop`, arah atas sebaliknya.
