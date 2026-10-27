@@ -20,7 +20,7 @@ Panduan lengkap untuk pengguna ada di `README.md` (Inggris, default),
 `README.id.md` (Indonesia), dan `README.ru.md` (Rusia) — jaga ketiganya
 sinkron dengan fitur terbaru.
 Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
-Kontinuitas antar-sesi: di awal sesi jalankan `git -C /root/memori-agents-ai pull --ff-only`, lalu baca `/root/memori-agents-ai/SOUL.md` + `/root/memori-agents-ai/tasirin-vaultwarden-host.md` + `git status --short` + `git log --oneline -5` di repo ini; di akhir sesi update file memori itu, lalu commit + push ke repo memori (`memory: ...`).
+**Memori terpusat:** repo ini terhubung ke repo memori pusat `tasirin1/memori-agents-ai` (privat — https://github.com/tasirin1/memori-agents-ai), sumber kebenaran antar-sesi semua repo Tasirin. Awal sesi: `git pull --ff-only` di clone lokal repo memori (path menyesuaikan mesin; di mesin Muse: `~/workspace/memori-agents-ai`), lalu baca `SOUL.md` + `tasirin-vaultwarden-host.md` di sana, plus `git status --short` + `git log --oneline -5` di repo ini. Akhir sesi: update `tasirin-vaultwarden-host.md`, jalankan `python3 scripts/check_memory.py` di repo memori, lalu commit + push (`memory: tasirin-vaultwarden-host - <ringkasan>`). `AGENTS.md` ini mengatur pekerjaan di repo ini; aturan lintas repo versi kanoniknya di `SOUL.md` repo memori.
 
 ## Struktur repository
 
