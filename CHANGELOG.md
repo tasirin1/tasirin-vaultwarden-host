@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 444: kontras text_secondary mode siang dinaikkan melewati AA teks kecil
+- `text_secondary` siang `#6B7280` di atas `window_bg` `#F2F4F8` hanya 4,39:1 — sedikit di bawah ambang WCAG AA 4,5:1 untuk teks kecil, dan warna ini dipakai label/petunjuk kecil yang duduk langsung di latar jendela.
+- Warna digelapkan satu langkah menjadi `#666D7B` (4,72:1 di latar jendela, 5,20:1 di atas kartu putih), tetap keluarga abu-biru yang sama. Mode malam tidak disentuh (sudah 10,84:1).
+
 ## [Belum rilis] — Audit 443: blok throttle dan jadwal-otomatis AlarmReceiver disatukan
 - Blok throttle 60 detik di `onReceive` tertulis dua kali hampir identik (jalur siaran waktu dan jalur utama), dan pola cek `KEY_TG_AUTO` → `schedule` tersebar di banyak salinan — pola yang terbukti membuat perbaikan rantai alarm (Audit #159, #181) mudah tertinggal di satu salinan.
 - Blok throttle diekstrak menjadi `lolosThrottleAlarm` (stempel throttle tetap ditulis pada kedua jalur, sama seperti sebelumnya) dan salinan jadwal-otomatis di jalur tunda-boot kini memanggil `jadwalUlangBilaOtomatis` yang sudah ada. Inventaris pernyataan sebelum/sesudah cocok persis dengan dedupe yang dimaksud; perilaku tidak berubah.
