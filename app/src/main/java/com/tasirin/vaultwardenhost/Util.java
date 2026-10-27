@@ -81,6 +81,17 @@ public final class Util {
         }
     }
 
+    public static java.util.concurrent.Future<?> kirimPin(Runnable r) {
+        if (r == null) {
+            return null;
+        }
+        try {
+            return BG_PIN.submit(r);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private static final ThreadLocal<java.security.MessageDigest> MD_SHA256 =
             new ThreadLocal<java.security.MessageDigest>() {
             };

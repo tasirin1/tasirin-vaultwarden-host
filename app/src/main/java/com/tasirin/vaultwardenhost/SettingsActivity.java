@@ -64,12 +64,6 @@ public class SettingsActivity extends Activity {
     private EditText pinInput;
     private CheckBox pinEnabledCheck;
 
-    private static final java.util.concurrent.ExecutorService pinExec =
-            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-                Thread t = new Thread(r, "vw-pin-hash");
-                t.setDaemon(true);
-                return t;
-            });
     private volatile int pinSeq;
     private volatile java.util.concurrent.Future<?> pinPending;
 
@@ -3794,7 +3788,7 @@ public class SettingsActivity extends Activity {
 
     private void tulisHashPin(final String pin, final int seq,
             final boolean pinAktif, final boolean beriKabar) {
-        pinPending = pinExec.submit(() -> {
+        pinPending = Util.kirimPin(() -> {
             String h;
             try {
                 h = PinCrypto.hash(pin);

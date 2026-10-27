@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 442: alur ketik PIN Settings kini memakai pool PIN bersama Util
+- SettingsActivity memelihara executor satu-thread kedua (`pinExec`) khusus untuk hash PIN alur mengetik/mengganti, di samping `Util.jalankanPin` yang dipakai alur mengaktifkan — dua antrean untuk pekerjaan yang sama, melanggar pola satu pintu `Util` (AGENTS.md) dan membuat tugas hash dua alur tidak terserialisasi satu sama lain.
+- `Util` kini menyediakan `kirimPin` (versi `submit` dari pintu yang sama, mengembalikan `Future` atau null bila antrean menolak); `tulisHashPin` memakainya dan `pinExec` dihapus. Pembaca `pinPending` memang sudah aman-null, dan penjaga `pinSeq` tetap membuang hasil basi.
+
 ## [Belum rilis] — Audit 441: peta CAP_DEPAN_TERLIHAT kini dibatasi dan disapu dari berkas yang lenyap
 - Peta penanda stempel masa depan (Audit untuk #125/#160) hanya menghapus entri bila berkas yang sama terlihat lagi dengan stempel identik; berkas yang lenyap lewat jalur lain meninggalkan entri permanen selama proses hidup, tanpa batas ukuran — kebocoran memori lambat justru di perangkat yang jamnya sering melompat.
 - Saat peta mencapai 128 entri, entri yang berkasnya sudah tidak ada dibuang; bila masih penuh sesudahnya peta dikosongkan (stempel dapat diamati ulang — berkas berstempel masa depan paling lambat terhapus satu siklus sapuan berikutnya, semantik dua-sapuan tidak berubah).
