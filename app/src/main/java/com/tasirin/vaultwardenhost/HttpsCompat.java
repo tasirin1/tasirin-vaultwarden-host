@@ -21,6 +21,17 @@ public final class HttpsCompat {
 
     private static volatile SSLSocketFactory cached;
 
+    private static volatile long bangunGagalAt = 0;
+
+    static final long JEDA_BANGUN_GAGAL_MS = 60_000;
+
+    private static final class JedaBangunTrust extends Exception {
+    }
+
+    static boolean bolehBangunTrust(long gagalAt, long kini) {
+        return gagalAt <= 0 || kini < gagalAt || kini - gagalAt >= JEDA_BANGUN_GAGAL_MS;
+    }
+
     private static volatile String[] protokolCache = null;
     private static volatile String[] cipherCache = null;
 
@@ -92,7 +103,9 @@ public final class HttpsCompat {
         if (c instanceof HttpsURLConnection) {
             try {
                 ((HttpsURLConnection) c).setSSLSocketFactory(socketFactory(ctx));
+            } catch (JedaBangunTrust ignored) {
             } catch (Exception e) {
+                bangunGagalAt = android.os.SystemClock.elapsedRealtime();
                 catatGagalTrust(e);
             }
         }
@@ -144,6 +157,10 @@ public final class HttpsCompat {
 
             if (cached != null) {
                 return cached;
+            }
+            if (!bolehBangunTrust(bangunGagalAt,
+                    android.os.SystemClock.elapsedRealtime())) {
+                throw new JedaBangunTrust();
             }
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
@@ -197,6 +214,7 @@ public final class HttpsCompat {
             }
             sc.init(null, tmf.getTrustManagers(), acakBersama());
             cached = new PabrikTls12(sc.getSocketFactory());
+            bangunGagalAt = 0;
 
             protokolCache = null;
             cipherCache = null;

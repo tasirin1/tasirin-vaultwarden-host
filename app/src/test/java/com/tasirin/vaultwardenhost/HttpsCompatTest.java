@@ -13,6 +13,15 @@ import org.junit.Test;
 public class HttpsCompatTest {
 
     @Test
+    public void bolehBangunTrust_jedaSesudahGagal() {
+        assertTrue(HttpsCompat.bolehBangunTrust(0, 5_000));
+        assertTrue(HttpsCompat.bolehBangunTrust(10_000, 5_000));
+        assertFalse(HttpsCompat.bolehBangunTrust(10_000, 10_000));
+        assertFalse(HttpsCompat.bolehBangunTrust(10_000, 69_999));
+        assertTrue(HttpsCompat.bolehBangunTrust(10_000, 70_000));
+    }
+
+    @Test
     public void pilihProtokol_hanyaModernBerurutan() {
         assertArrayEquals(new String[]{"TLSv1.3", "TLSv1.2"},
                 HttpsCompat.pilihProtokol(new String[]{"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1"}));
