@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 453: gerbang menggagalkan targetSdk yang hilang, bukan hanya yang >= 29
+- `cek_aturan_repo` hanya menggagalkan `targetSdk` tak terparse (-1) atau >= 29; baris yang dihapus total menghasilkan `None` dari `nilai_target_sdk` dan lolos diam-diam — padahal tanpa baris itu AGP memakai compileSdk (34) sebagai target dan `execve` binary terblokir W^X di Android 10+, persis yang dijaga aturan repo No. 4.
+- Nilai `None` kini digagalkan dengan pesan eksplisit. Dibuktikan di salinan buang: baris dihapus → GAGAL, nilai 28 → LOLOS, nilai 29 → GAGAL (perilaku lama utuh).
+
 ## [Belum rilis] — Audit 452: rantai fokus D-pad antar-kartu Settings disambung ulang mengikuti seksi terlipat
 - Kontrol batas antar-kartu (`port`→`adminToken`, `pinEnabled`→`autoStart`, `restoreDb`→`tgToken`, `restoreTg`→`logOpen`, dan arah sebaliknya) statis dari XML dan menunjuk kontrol di seksi tetangga; bila seksi itu dilipat (badannya GONE), target fokus tidak tampil dan navigasi remote TV berhenti/melompat — pola yang sama dengan yang diperbaiki Audit 180 untuk satu titik, sedangkan `perbaikiRantaiFokus` selama ini hanya menyambung ulang fokus header.
 - `perbaikiRantaiFokus` kini juga menyambung ulang keempat batas itu lewat penolong baru `aturFokusBatas`: target diarahkan ke isi seksi tetangga bila terbuka, atau ke headernya bila terlipat, untuk kedua arah (bawah dan atas). Nilai statis XML tidak berubah (tetap benar untuk keadaan semua seksi terbuka).

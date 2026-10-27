@@ -618,7 +618,11 @@ def himpun_abi(tetap):
 def cek_aturan_repo(gagal, berubah):
     tetap = baca("app/build.gradle.kts")
     target = nilai_target_sdk(tetap)
-    if target == -1:
+    if target is None:
+        gagal.append("targetSdk tak ditemukan di app/build.gradle.kts — "
+                     "tanpa baris itu AGP memakai compileSdk sebagai target "
+                     "(aturan repo: targetSdk wajib tertulis dan <= 28)")
+    elif target == -1:
         gagal.append("targetSdk bukan literal/ekspresi angka sederhana — "
                      "gerbang tak bisa memastikan nilainya <= 28 (aturan repo)")
     elif target is not None and target >= 29:
