@@ -3606,14 +3606,13 @@ public class ServerService extends Service {
             ips.add(0, "127.0.0.1");
             ips.add("::1");
 
-            List<String> dns = new ArrayList<>();
-            String cur = joinIps(ips) + "|dns=" + joinIps(dns);
+            String cur = joinIps(ips);
 
             File internal = new File(getFilesDir(), "tls");
             File tlsLama = new File(dataFolder, "tls");
             migrasiTlsKeInternal(tlsLama, internal);
             File ipFile = new File(internal, "ips.txt");
-            File dir = ensureCertWithIps(internal, ipFile, ips, dns, cur);
+            File dir = ensureCertWithIps(internal, ipFile, ips, cur);
             if (dir == null) {
 
                 File lama = new File(dataFolder, "tls");
@@ -3626,7 +3625,7 @@ public class ServerService extends Service {
                         dir = lama;
                     } else {
                         dir = ensureCertWithIps(lama, new File(lama, "ips.txt"),
-                                ips, dns, cur);
+                                ips, cur);
                     }
                 } else {
                     appendLog("[app] Gagal siapkan TLS di internal; kunci privat TIDAK"
@@ -3713,14 +3712,14 @@ public class ServerService extends Service {
     }
 
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips,
-            List<String> dns, String cur) throws Exception {
+            String cur) throws Exception {
         String saved = readText(ipFile);
 
         boolean ipBerubah = saved == null || !saved.equals(cur);
         if (ipBerubah) {
             appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
         }
-        File dir = TlsCert.ensure(tlsDir, ips, dns, ipBerubah);
+        File dir = TlsCert.ensure(tlsDir, ips, ipBerubah);
         if (dir != null) {
             writeText(ipFile, cur);
 

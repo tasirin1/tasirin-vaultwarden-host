@@ -163,7 +163,7 @@ public final class TlsCert {
 
     private static final Object KUNCI_ENSURE = new Object();
 
-    public static File ensure(File dir, List<String> ips, List<String> dns,
+    public static File ensure(File dir, List<String> ips,
             boolean paksaLeaf) {
 
         if (diUiThread()) {
@@ -243,7 +243,7 @@ public final class TlsCert {
             File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
             certBaru.delete();
             keyBaru.delete();
-            if (!buatLeaf(caKey, certBaru, keyBaru, ips, dns)) {
+            if (!buatLeaf(caKey, certBaru, keyBaru, ips)) {
                 certBaru.delete();
                 keyBaru.delete();
                 return null;
@@ -375,10 +375,6 @@ public final class TlsCert {
         }
     }
 
-    private static final java.util.regex.Pattern POLA_LABEL_DNS =
-            java.util.regex.Pattern.compile("[a-z0-9]([a-z0-9-]*[a-z0-9])?", java.util.regex.Pattern.CASE_INSENSITIVE);
-    private static final java.util.regex.Pattern POLA_TITIK =
-            java.util.regex.Pattern.compile("\\.");
     private static final java.util.regex.Pattern POLA_KOLON =
             java.util.regex.Pattern.compile(":");
     private static final java.util.regex.Pattern POLA_SPASI_APA =
@@ -401,30 +397,9 @@ public final class TlsCert {
         return true;
     }
 
-    static boolean namaDnsValid(String host) {
-        if (host == null || host.isEmpty() || host.length() > 253) {
-            return false;
-        }
-        if (ipv4(host) != null || ipv6(host) != null) {
-            return false;
-        }
-        String[] label = POLA_TITIK.split(host, -1);
-        if (label.length == 0) {
-            return false;
-        }
-        for (String l : label) {
-            if (l.isEmpty() || l.length() > 63) {
-                return false;
-            }
-            if (!POLA_LABEL_DNS.matcher(l).matches()) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
-            List<String> ips, List<String> dns) {
+            List<String> ips) {
         try {
             PrivateKey caPriv = bacaPrivateKey(caKeyFile);
             if (caPriv == null) {
@@ -432,7 +407,7 @@ public final class TlsCert {
             }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips, dns), 397);
+                    extensionsBlock(ips), 397);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
@@ -623,21 +598,7 @@ public final class TlsCert {
         return der(b -> b.raw(extensions), 0xA3);
     }
 
-    private static byte[] extensionsBlock(List<String> ips, List<String> dns) throws Exception {
-        final List<String> bersihDns = new java.util.ArrayList<>();
-        if (dns != null) {
-            for (String mentah : dns) {
-                String d = mentah == null ? "" : mentah.trim()
-                        .toLowerCase(java.util.Locale.US);
-                if (d.endsWith(".")) {
-                    d = d.substring(0, d.length() - 1);
-                }
-                if (namaDnsValid(d) && !bersihDns.contains(d) && bersihDns.size() < 5
-                        && d.getBytes(StandardCharsets.US_ASCII).length <= 127) {
-                    bersihDns.add(d);
-                }
-            }
-        }
+    private static byte[] extensionsBlock(List<String> ips) throws Exception {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -651,11 +612,6 @@ public final class TlsCert {
             }
             b.raw(new byte[]{(byte) 0x82, 9});
             b.raw("localhost".getBytes(StandardCharsets.US_ASCII));
-            for (String d : bersihDns) {
-                byte[] encoded = d.getBytes(StandardCharsets.US_ASCII);
-                b.raw(new byte[]{(byte) 0x82, (byte) encoded.length});
-                b.raw(encoded);
-            }
         }, 0x30);
 
         byte[] san = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x11}, false,

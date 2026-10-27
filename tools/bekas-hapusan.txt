@@ -95,3 +95,7 @@ ukuranIsiZip
 ukuranIsiZip_menjumlahkanEntri
 # Audit 435: pembungkus mati tanpa pemanggil; yang hidup fetchChecksumRinci.
 fetchChecksum
+# Audit 438: sisa fitur domain lokal kustom (sudah dihapus) dibersihkan dari jalur TLS.
+namaDnsValid
+namaDnsTolakIpv6
+namaDnsValidTerimaLokalTolakIpDanRusak

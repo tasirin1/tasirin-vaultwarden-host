@@ -100,12 +100,6 @@ public class TlsCertTest {
     }
 
     @Test
-    public void namaDnsTolakIpv6() {
-        assertFalse(TlsCert.namaDnsValid("::1"));
-        assertFalse(TlsCert.namaDnsValid("fe80::1"));
-    }
-
-    @Test
     public void versiLamaDitolakVersiBaruDiterima() throws Exception {
         File dir = Files.createTempDirectory("tlscert").toFile();
         assertFalse(TlsCert.certVersionOk(dir));

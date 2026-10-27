@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 438: sisa plumbing dns fitur domain lokal yang sudah dihapus dibersihkan
+- Fitur domain lokal kustom sudah dihapus (akses selalu IP LAN), tetapi daftar `dns` tetap dibuat kosong di `prepareTls`, diteruskan lewat `ensureCertWithIps` → `TlsCert.ensure` → `buatLeaf` → `extensionsBlock`, dan ikut dihitung dalam sidik perubahan sertifikat — kode mati yang menyesatkan seolah SAN DNS masih didukung.
+- Seluruh rantai parameter `dns` dibuang; sidik `ips.txt` kini hanya daftar IP (sekali sesudah pembaruan, sidik lama terbaca berbeda sehingga leaf dievaluasi ulang satu kali — CA tetap, sama seperti saat IP berubah). Validator yatim `namaDnsValid` beserta dua pola regex dan dua tesnya ikut dihapus dan namanya dicatat di `tools/bekas-hapusan.txt`; SAN `localhost` yang tertanam tetap ada.
+
 ## [Belum rilis] — Audit 437: anotasi SuppressLint mati di PinGate.sisaKunciMs dihapus
 - `sisaKunciMs` hanya memanggil `.apply()`, sehingga `@SuppressLint("ApplySharedPref")` di atasnya tidak menekan apa pun dan menyesatkan pembaca seolah ada `commit()` yang disengaja di sana. Anotasi yang benar-benar dibutuhkan hanya yang di `catatHasil` (memang memakai `commit()`), dan itu tidak disentuh.
 - Anotasi mati dihapus; tidak ada perubahan perilaku.
