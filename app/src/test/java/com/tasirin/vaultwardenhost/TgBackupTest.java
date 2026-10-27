@@ -65,6 +65,36 @@ public class TgBackupTest {
     }
 
     @Test
+    public void capDepanStabil_sapuSelektifSaatPetaPenuh() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwcap128a").toFile();
+        java.io.File nyata = new java.io.File(dir, "nyata.zip.tmp");
+        assertTrue(nyata.createNewFile());
+        assertTrue(nyata.setLastModified(1_700_000_000_000L));
+        assertFalse(TgBackup.capDepanStabil(nyata));
+        for (int i = 0; i < 127; i++) {
+            assertFalse(TgBackup.capDepanStabil(new java.io.File(dir, "lenyap-" + i + ".tmp")));
+        }
+        assertFalse(TgBackup.capDepanStabil(new java.io.File(dir, "pemicu.tmp")));
+        assertTrue("entri berkas yang masih ada wajib selamat dari sapuan selektif",
+                TgBackup.capDepanStabil(nyata));
+    }
+
+    @Test
+    public void capDepanStabil_bersihkanTotalBilaSapuTakMengurangi() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwcap128b").toFile();
+        java.io.File[] berkas = new java.io.File[128];
+        for (int i = 0; i < berkas.length; i++) {
+            berkas[i] = new java.io.File(dir, "ada-" + i + ".tmp");
+            assertTrue(berkas[i].createNewFile());
+            assertTrue(berkas[i].setLastModified(1_700_000_000_000L + i));
+            assertFalse(TgBackup.capDepanStabil(berkas[i]));
+        }
+        assertFalse(TgBackup.capDepanStabil(new java.io.File(dir, "pemicu.tmp")));
+        assertFalse("sesudah clear total, berkas lama dianggap penampakan pertama lagi",
+                TgBackup.capDepanStabil(berkas[0]));
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() {
         TgBackup.cleanupOldBackups(null);
         TgBackup.cleanupOldBackups(new java.io.File("/jalan/tak/ada/vw-uji-nol"));

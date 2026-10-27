@@ -2562,7 +2562,7 @@ public final class TgBackup {
     private static final java.util.Map<String, Long> CAP_DEPAN_TERLIHAT =
             new java.util.HashMap<String, Long>();
 
-    private static boolean capDepanStabil(File f) {
+    static boolean capDepanStabil(File f) {
         String kunci = f.getAbsolutePath();
         long cap = f.lastModified();
         synchronized (CAP_DEPAN_TERLIHAT) {

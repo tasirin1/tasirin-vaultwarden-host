@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 471: cabang batas peta 128 capDepanStabil kini teruji
+- Logika pembatas baru dari Audit 441 (#194) — saat peta penanda cap depan penuh (128), sapu entri yang berkasnya lenyap, dan `clear()` total bila tetap penuh — tidak pernah dijalankan uji mana pun; uji yang ada hanya membuktikan semantik dua-penampakan lama dengan satu entri. (Separuh temuan ini, pilihan TTL `collectIps` dari #192, sudah ditutup Audit 470 lewat `collectCacheSegar` + ujinya.)
+- `capDepanStabil` kini package-private agar bisa diuji langsung, dan dua uji baru mengunci kedua cabang pembatas persis pada perilakunya yang membedakan: entri berkas yang masih ada selamat dari sapuan selektif (penampakan kedua tetap "stabil"), sedangkan sesudah `clear()` total berkas lama dihitung sebagai penampakan pertama lagi. Perilaku produksi tidak berubah.
+
 ## [Belum rilis] — Audit 470: cache awal collectIps tidak lagi dipercaya sebagai hasil enumerasi segar
 - Patch Audit 438 (#192) membuang syarat cache tak kosong dari `collectIps`, sehingga keadaan awal "belum pernah enumerasi" (`collectCacheTime = 0`, daftar kosong) tak bisa dibedakan dari hasil kosong yang baru di-cache: panggilan pertama pada 10 detik pertama sejak boot mengembalikan daftar kosong tanpa pernah enumerasi, dan sertifikat TLS yang disiapkan pada jendela itu hanya berisi SAN loopback sampai sidik IP berubah.
 - Keputusan segar kini diekstrak ke penolong murni `collectCacheSegar` (sejajar `ipCacheSegar` di sebelahnya): stempel 0 tidak pernah dianggap segar, TTL tetap 10 detik untuk hasil kosong dan 60 detik untuk hasil terisi, dan jam yang mundur membatalkan kesegaran. Uji batas TTL + stempel awal ditambahkan (sekaligus menutup separuh celah uji Audit 471 untuk pilihan TTL ini).
