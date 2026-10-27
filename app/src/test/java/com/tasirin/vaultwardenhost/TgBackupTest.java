@@ -992,6 +992,11 @@ public class TgBackupTest {
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains(LogActivity.KEY_CLIP_HASH));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(LogActivity.KEY_CLIP_KEDALUWARSA));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(ServerService.KEY_WV_DL_GAGAL_AT));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_MENU_FP));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(SettingsActivity.KEY_GAGAL_IMPOR_PETA));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(Updater.KEY_BIN_FALLBACK_FOR));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(Updater.KEY_BIN_FALLBACK_AT));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(Updater.KEY_CEK_GANGGUAN_AT));
     }
 
     @Test

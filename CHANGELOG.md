@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 461: sidik menu bot dan kunci keadaan lokal lain kini ikut dikecualikan dari ekspor config
+- Daftar pengecualian ekspor `configJson` tertinggal lima kunci keadaan lokal: `tg_menu_fp` (sidik SHA-256 token bot + revisi menu — turunan kredensial yang tak pernah disebut di `TgBackup`), `impor_gagal_peta` (Audit 409 mengklaim kunci ini tak diekspor, faktanya hanya impornya yang terblokir whitelist), serta `bin_fallback_for`/`bin_fallback_at`/`cek_gangguan_at` sementara padanan web-vault-nya sudah dikecualikan. Tak satu pun dibutuhkan restore (restore hanya membaca whitelist `BOLEH_IMPOR`).
+- Kelimanya kini masuk `TAK_DIEKSPOR_KEYS` lewat konstanta pemiliknya masing-masing (`TgBot`, `SettingsActivity`, `Updater`), dan uji `secretTakIkutBackup` diperluas menutup kelimanya.
+
 ## [Belum rilis] — Audit 460: kegagalan update web-vault otomatis kini diberi jeda gagal seperti jalur binary
 - Zip web-vault yang sudah lolos verifikasi SHA-256 dibuang sebelum validasi isi selesai, dan cabang web-vault `AutoUpdate.cek` tidak punya stempel gagal: bila aset rilisnya sendiri rusak (hash cocok tetapi `index.html` tak ada / zip tak terurai), setiap cek berkala mengunduh ulang ±35 MB yang identik dan gagal dengan cara yang sama, tanpa jeda — jalur binary sudah lama punya perlindungan ini (`KEY_BIN_DL_GAGAL_AT`), jalur web-vault tertinggal.
 - Cabang web-vault kini memakai kunci baru `KEY_WV_DL_GAGAL_AT` dengan penjaga yang sama (`ServerService.bolehCobaUnduhLagi`, jeda 6 jam): kegagalan dicap, percobaan berikutnya dilewati sampai jeda lewat, dan cap dihapus pada keberhasilan. Kunci itu juga masuk `TAK_DIEKSPOR_KEYS` sejajar padanan binary-nya. Di `Updater`, penghapusan `tmpZip` dipindah ke sesudah cek `index.html` lolos agar artefak terverifikasi tidak dihancurkan sebelum validasi isi selesai (cabang zip rusak tetap membuangnya seperti semula).
