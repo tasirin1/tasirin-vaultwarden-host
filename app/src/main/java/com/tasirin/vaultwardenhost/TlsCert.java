@@ -182,6 +182,8 @@ public final class TlsCert {
             File caKey = new File(dir, CA_KEY_FILE);
             File certFile = new File(dir, LEAF_CERT_FILE);
             File keyFile = new File(dir, LEAF_KEY_FILE);
+            pulihkanTukarTersisa(dir, CA_CERT_FILE, CA_KEY_FILE);
+            pulihkanTukarTersisa(dir, LEAF_CERT_FILE, LEAF_KEY_FILE);
 
             boolean caBaru = false;
             if (!caOk(caCert, caKey, dir)) {
@@ -317,6 +319,47 @@ public final class TlsCert {
         } catch (Exception ignored) {
         }
         return true;
+    }
+
+    static void pulihkanTukarTersisa(File dir, String namaCert, String namaKey) {
+        if (dir == null || namaCert == null || namaKey == null) {
+            return;
+        }
+        File certFile = new File(dir, namaCert);
+        File keyFile = new File(dir, namaKey);
+        File certCad = new File(dir, namaCert + ".cad");
+        File keyCad = new File(dir, namaKey + ".cad");
+        File certBaru = new File(dir, namaCert + ".baru");
+        File keyBaru = new File(dir, namaKey + ".baru");
+        try {
+            if (!certFile.exists() && certCad.exists()) {
+                certCad.renameTo(certFile);
+            }
+            if (!keyFile.exists()) {
+                if (keyBaru.exists() && certFile.exists()
+                        && pasanganCertKeyCocok(certFile, keyBaru)) {
+                    keyBaru.renameTo(keyFile);
+                } else if (keyCad.exists()) {
+                    keyCad.renameTo(keyFile);
+                }
+            }
+            if (certFile.exists() && keyFile.exists()
+                    && !pasanganCertKeyCocok(certFile, keyFile)
+                    && certCad.exists() && keyCad.exists()) {
+                certFile.delete();
+                keyFile.delete();
+                certCad.renameTo(certFile);
+                keyCad.renameTo(keyFile);
+            }
+            if (certFile.exists() && keyFile.exists()
+                    && pasanganCertKeyCocok(certFile, keyFile)) {
+                certCad.delete();
+                keyCad.delete();
+                certBaru.delete();
+                keyBaru.delete();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     static boolean caOk(File caCert, File caKey, File dir) {

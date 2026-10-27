@@ -278,6 +278,32 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pulihkanTukarTersisa_kembalikanPasanganCadSaatResmiHilang() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulih");
+        File d = dir.toFile();
+        Files.write(new File(d, "cert.pem.cad").toPath(), "CAD-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "key.pem.cad").toPath(), "CAD-K".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertEquals("CAD-C", new String(Files.readAllBytes(new File(d, "cert.pem").toPath()), StandardCharsets.UTF_8));
+        assertEquals("CAD-K", new String(Files.readAllBytes(new File(d, "key.pem").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "cert.pem.cad").exists());
+        assertFalse(new File(d, "key.pem.cad").exists());
+    }
+
+    @Test
+    public void pulihkanTukarTersisa_kembalikanSertifikatSajaDanAmanNull() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulih2");
+        File d = dir.toFile();
+        Files.write(new File(d, "cert.pem.cad").toPath(), "CAD-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "key.pem").toPath(), "KUNCI-LAMA".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertEquals("CAD-C", new String(Files.readAllBytes(new File(d, "cert.pem").toPath()), StandardCharsets.UTF_8));
+        assertEquals("KUNCI-LAMA", new String(Files.readAllBytes(new File(d, "key.pem").toPath()), StandardCharsets.UTF_8));
+        TlsCert.pulihkanTukarTersisa(null, "cert.pem", "key.pem");
+        TlsCert.pulihkanTukarTersisa(d, null, null);
+    }
+
+    @Test
     public void resetTls_hapusEnamFile() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsreset");
         for (String n : new String[]{"ca.pem", "ca-key.pem", "cert.pem", "key.pem", "ips.txt", "version.txt"}) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 458: sisa tukar pasangan sertifikat (.cad) kini dipulihkan saat ensure
+- `tukarPasanganAtomik` menukar pasangan sertifikat lewat rangkaian rename (resmi → `.cad`, `.baru` → resmi); mati listrik di antara langkahnya meninggalkan sertifikat/kunci hilang atau tak berpasangan, dan tidak ada pemulihan saat start — `caOk` menilai pasangan rusak lalu `ensure` membuat CA sama sekali baru, memaksa semua klien memasang CA baru padahal pasangan lama utuh di berkas `.cad`.
+- Penolong baru `pulihkanTukarTersisa` berjalan di awal `ensure` untuk pasangan CA dan leaf: berkas resmi yang hilang dikembalikan dari `.cad`; kunci yang hilang dilengkapi dari `.baru` hanya bila `pasanganCertKeyCocok` membuktikan ia pasangan sertifikat resmi (swap diteruskan), selain itu dari `.cad` (swap dibatalkan); pasangan resmi yang tak cocok dengan cadangan lengkap tersedia dikembalikan utuh ke pasangan lama; dan sisa `.cad`/`.baru` dibersihkan bila pasangan resmi terbukti cocok. Uji JVM menutup jalur pengembalian cadangan dan keamanan null (pencocokan pasangan memakai `pasanganCertKeyCocok` yang sudah teruji gagal-tertutup).
+
 ## [Belum rilis] — Audit 457: waitForOrKill pra-API 26 kini memakai satu thread penunggu per proses
 - Jalur pra-API 26 `waitForOrKill` membuat thread daemon `vw-wait` baru pada setiap panggilan dan meninggalkannya terblokir di `waitFor()` setiap kali batas tunggu terlampaui; `matikanProsesTegas` saja memanggilnya dua kali per upaya, sehingga proses bandel di STB lama menumpuk thread + stack selama ia hidup.
 - Penunggu kini disimpan per proses (`PENUNGGU_PROSES`, `WeakHashMap` tersinkronisasi): panggilan berikutnya untuk proses yang sama bergabung ke thread yang sudah ada, jadi jumlah thread penunggu dibatasi satu per proses. Semantik nilai kembali tidak berubah; uji baru membuktikan panggilan kedua tak menambah thread.
