@@ -1,0 +1,28 @@
+name: Resolve versi Vaultwarden terbaru
+
+description: Ambil tag rilis Vaultwarden terbaru dari dani-garcia/vaultwarden dan validasi bentuknya.
+
+outputs:
+  tag:
+    description: Tag rilis Vaultwarden terbaru yang valid
+    value: ${{ steps.vw.outputs.tag }}
+
+runs:
+  using: composite
+  steps:
+    - id: vw
+      env:
+        GH_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        HDR=()
+        if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
+        TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
+          || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
+        case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
+
+        if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
+          echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
+        fi
+        echo "Latest Vaultwarden: $TAG"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"

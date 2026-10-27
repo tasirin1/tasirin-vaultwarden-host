@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 447: inti job resolve disatukan menjadi action komposit bersama
+- Inti job `resolve` (ambil + validasi tag rilis Vaultwarden terbaru, termasuk jalur cadangan gh→curl) tertulis identik di `build-apk.yml` dan `build-binary.yml`, sehingga perbaikan pola validasi tag harus dilakukan dua kali dan mudah tertinggal di satu sisi.
+- Inti itu kini menjadi action komposit `.github/actions/resolve-vw` yang dipakai kedua workflow (kedua job memasang checkout lebih dulu karena action lokal membutuhkannya). Blok cek kelengkapan aset khusus binary tetap menjadi langkah tersendiri di job-nya dan membaca tag dari keluaran action. Skrip yang dipindah terbukti identik byte-per-byte dengan aslinya, blok aset terbukti verbatim, ketiga berkas ter-parse sebagai YAML valid, dan kedua skrip lolos `bash -n`.
+
 ## [Belum rilis] — Audit 446: verifikasi pasca-unggah APK kini mencocokkan digest SHA-256 juga
 - Sesudah unggah, APK hanya dicocokkan ukurannya dengan aset rilis (3 kali coba), sedangkan aset binary mendapat verifikasi tiga lapis (ukuran + digest SHA-256 API + isi berkas `.sha256`). Padahal APK bertanda tangan adalah artefak yang dipasang pengguna; unggahan rusak berukuran sama akan lolos tanpa alarm.
 - Langkah rilis `build-apk.yml` kini juga membandingkan digest SHA-256 aset di rilis dengan hash lokal dan menggagalkan rilis bila digest tak tersedia atau berbeda — pola yang sama dengan `build-binary.yml`. Sintaks shell terverifikasi `bash -n` dan YAML ter-parse bersih.
