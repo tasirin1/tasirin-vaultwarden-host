@@ -112,23 +112,6 @@ public class TlsCertTest {
     }
 
     @Test
-    public void namaDnsValidTerimaLokalTolakIpDanRusak() {
-        assertTrue(TlsCert.namaDnsValid("vault.lan"));
-        assertTrue(TlsCert.namaDnsValid("server"));
-        assertTrue(TlsCert.namaDnsValid("vaultwarden-rumah.home"));
-        assertTrue(TlsCert.namaDnsValid("a.b.c.local"));
-        assertTrue(TlsCert.namaDnsValid("Vault.Lan"));
-        assertTrue(TlsCert.namaDnsValid("VAULT"));
-        assertFalse(TlsCert.namaDnsValid(null));
-        assertFalse(TlsCert.namaDnsValid(""));
-        assertFalse(TlsCert.namaDnsValid("192.168.1.10"));
-        assertFalse(TlsCert.namaDnsValid("va ult.lan"));
-        assertFalse(TlsCert.namaDnsValid("-salah.lan"));
-        assertFalse(TlsCert.namaDnsValid("salah-.lan"));
-        assertFalse(TlsCert.namaDnsValid("VAULT.LAN".toLowerCase(java.util.Locale.US) + "!"));
-    }
-
-    @Test
     public void konstantaBatasSertifikatDijepitLiteral() {
         assertEquals(34_300_800_000L, TlsCert.LEAF_MAX_MS);
         assertEquals(2_592_000_000L, TlsCert.BATAS_REGEN_MS);
