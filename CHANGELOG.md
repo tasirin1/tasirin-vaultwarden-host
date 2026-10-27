@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 468: penjaga bekas-hapusan kini tahan panggilan yang dipisah baris kosong
+- Pencocokan lintas baris `cek_panggil_bekas_hapusan` menggabungkan baris tambah saat ini dengan satu baris tambah sebelumnya, tetapi baris kosong ikut menimpa penanda "sebelumnya" — panggilan metode terhapus yang ditulis nama dan kurungnya dipisah satu baris kosong (Java sah) memutus rantai gabungan dan lolos, padahal aturan repo No. 15 bertumpu pada penjaga ini.
+- Baris kosong kini tidak lagi menimpa penanda gabungan, sehingga pasangan nama+kurung tetap diperiksa melintasi baris kosong. Dibuktikan di salinan buang dengan commit uji: panggilan normal → GAGAL (utuh), varian terpisah baris kosong → GAGAL (sebelumnya LOLOS), kode sah terpisah baris tanpa nama terhapus → LOLOS.
+
 ## [Belum rilis] — Audit 467: cek-cepat kini menggagalkan README yang hilang, bukan menyamakan hitungan nol
 - Cek sinkron README membandingkan jumlah judul `## ` antar ketiga berkas, dan `hitung_judul` mengembalikan 0 baik untuk berkas tak ada maupun berkas tanpa judul — menghapus KETIGA README sekaligus menghasilkan 0 == 0 == 0 yang dianggap sinkron (fail-open dua himpunan kosong, pola yang sudah diperbaiki untuk colors/layout di gerbang patch tetapi tertinggal di sini). `verifikasi-patch.py` memang tidak memeriksa README sama sekali.
 - Keberadaan ketiga berkas kini diperiksa eksplisit lebih dulu; hilang satu pun digagalkan dengan pesan `berkas wajib hilang`. Dibuktikan di salinan buang: ketiganya dipindah keluar → GAGAL, satu dipindah → GAGAL, utuh → LOLOS.

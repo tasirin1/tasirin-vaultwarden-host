@@ -811,7 +811,8 @@ def cek_panggil_bekas_hapusan(gagal, diff):
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))
                 break
-            sebelumnya[path] = kode
+            if kode.strip():
+                sebelumnya[path] = kode
 
 def hunk_fungsi(diff):
     path = ""
