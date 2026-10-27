@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 470: cache awal collectIps tidak lagi dipercaya sebagai hasil enumerasi segar
+- Patch Audit 438 (#192) membuang syarat cache tak kosong dari `collectIps`, sehingga keadaan awal "belum pernah enumerasi" (`collectCacheTime = 0`, daftar kosong) tak bisa dibedakan dari hasil kosong yang baru di-cache: panggilan pertama pada 10 detik pertama sejak boot mengembalikan daftar kosong tanpa pernah enumerasi, dan sertifikat TLS yang disiapkan pada jendela itu hanya berisi SAN loopback sampai sidik IP berubah.
+- Keputusan segar kini diekstrak ke penolong murni `collectCacheSegar` (sejajar `ipCacheSegar` di sebelahnya): stempel 0 tidak pernah dianggap segar, TTL tetap 10 detik untuk hasil kosong dan 60 detik untuk hasil terisi, dan jam yang mundur membatalkan kesegaran. Uji batas TTL + stempel awal ditambahkan (sekaligus menutup separuh celah uji Audit 471 untuk pilihan TTL ini).
+
 ## [Belum rilis] — Audit 469: pasang-hook.sh kini bekerja di git worktree
 - Skrip mengeras-tertulis `HOOK=".git/hooks/pre-push"` dan mensyaratkan `[ -d .git ]`; di worktree `.git` adalah berkas penunjuk gitdir dan hook tinggal di gitdir bersama, sehingga skrip menolak dengan pesan "folder .git tidak ada" yang menyesatkan dan pengembang worktree kehilangan kait pre-push lokal.
 - Folder hook kini dicari lewat `git rev-parse --git-path hooks` (benar untuk clone biasa maupun worktree) dan dibuat bila belum ada; di luar repo pesan gagalnya menyebut penyebab sebenarnya. Isi hook dan bukti eksekusi `--self-test` tidak berubah. Dibuktikan di salinan buang: clone biasa terpasang + self-test lolos, worktree terpasang ke gitdir bersama, di luar repo gagal dengan pesan baru.

@@ -2998,6 +2998,11 @@ public class ServerService extends Service {
         return cache != null && !cache.isEmpty() && kini >= cacheTime
                 && kini - cacheTime < 60_000;
     }
+
+    static boolean collectCacheSegar(long kini, long cacheTime, boolean kosong) {
+        long ttl = kosong ? 10_000L : 60_000L;
+        return cacheTime > 0 && kini >= cacheTime && kini - cacheTime < ttl;
+    }
     private static volatile long collectCacheTime = 0;
     private static volatile List<String> collectCache = new ArrayList<>();
     private static final Object COLLECT_LOCK = new Object();
@@ -3558,8 +3563,7 @@ public class ServerService extends Service {
 
             long now = SystemClock.elapsedRealtime();
 
-            long ttlCache = collectCache.isEmpty() ? 10_000L : 60_000L;
-            if (now - collectCacheTime < ttlCache) {
+            if (collectCacheSegar(now, collectCacheTime, collectCache.isEmpty())) {
                 return collectCache;
             }
             List<String> ips = new ArrayList<>();

@@ -874,6 +874,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void collectCacheSegar_ttlIkutIsiDanStempelAwalTakSegar() {
+        assertFalse(ServerService.collectCacheSegar(5_000, 0, true));
+        assertFalse(ServerService.collectCacheSegar(5_000, 0, false));
+        assertTrue(ServerService.collectCacheSegar(9_999, 100, true));
+        assertFalse(ServerService.collectCacheSegar(10_100, 100, true));
+        assertTrue(ServerService.collectCacheSegar(10_100, 100, false));
+        assertTrue(ServerService.collectCacheSegar(60_099, 100, false));
+        assertFalse(ServerService.collectCacheSegar(60_100, 100, false));
+        assertFalse(ServerService.collectCacheSegar(50, 100, false));
+    }
+
+    @Test
     public void portTerikat_loopbackTerdeteksiSibuk() throws Exception {
         java.net.ServerSocket tahan = new java.net.ServerSocket(0);
         try {
