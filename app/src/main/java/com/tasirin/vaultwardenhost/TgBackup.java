@@ -2566,6 +2566,19 @@ public final class TgBackup {
                 CAP_DEPAN_TERLIHAT.remove(kunci);
                 return true;
             }
+            if (CAP_DEPAN_TERLIHAT.size() >= 128
+                    && !CAP_DEPAN_TERLIHAT.containsKey(kunci)) {
+                java.util.Iterator<String> it =
+                        CAP_DEPAN_TERLIHAT.keySet().iterator();
+                while (it.hasNext()) {
+                    if (!new File(it.next()).exists()) {
+                        it.remove();
+                    }
+                }
+                if (CAP_DEPAN_TERLIHAT.size() >= 128) {
+                    CAP_DEPAN_TERLIHAT.clear();
+                }
+            }
             CAP_DEPAN_TERLIHAT.put(kunci, Long.valueOf(cap));
             return false;
         }

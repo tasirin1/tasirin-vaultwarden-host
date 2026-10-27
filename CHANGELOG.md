@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 441: peta CAP_DEPAN_TERLIHAT kini dibatasi dan disapu dari berkas yang lenyap
+- Peta penanda stempel masa depan (Audit untuk #125/#160) hanya menghapus entri bila berkas yang sama terlihat lagi dengan stempel identik; berkas yang lenyap lewat jalur lain meninggalkan entri permanen selama proses hidup, tanpa batas ukuran — kebocoran memori lambat justru di perangkat yang jamnya sering melompat.
+- Saat peta mencapai 128 entri, entri yang berkasnya sudah tidak ada dibuang; bila masih penuh sesudahnya peta dikosongkan (stempel dapat diamati ulang — berkas berstempel masa depan paling lambat terhapus satu siklus sapuan berikutnya, semantik dua-sapuan tidak berubah).
+
 ## [Belum rilis] — Audit 440: akar berbagi FileShareProvider dihitung sekali per operasi
 - Setiap panggilan `isShareable()` mengulang kanonikalisasi `getFilesDir()`/`getCacheDir()` ke filesystem dan membaca SharedPreferences, dan setiap operasi provider (query/getType/openFile) memanggilnya dua kali penuh untuk cek awal + cek ulang anti-TOCTOU.
 - Akar berbagi kini dibungkus snapshot `AkarBagi` yang dihitung sekali per operasi dan diteruskan ke kedua pemeriksaan; folder data divalidasi malas (`dataBagi`, ter-cache di snapshot) hanya bila jalurnya dibutuhkan, sama seperti sebelumnya. Semantik cek ganda anti-TOCTOU tidak berubah — yang dihemat hanya penurunan akarnya.
