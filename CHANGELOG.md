@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 465: penjaga ABI mengenal bentuk arrayOf/mutableSetOf dan menggagalkan blok yang hilang
+- `himpun_abi` hanya mengenal token pengisi `listOf`/`setOf`/`addAll`/`add` (Audit 423); bentuk Kotlin yang sama sahnya — `arrayOf`, `mutableSetOf`, dst. — menghentikan pemindaian sebelum string dibaca, dan menghapus seluruh blok `abiFilters` menghasilkan himpunan kosong yang dianggap patuh. Aturan ABI tunggal (aturan repo No. 5) bisa dilanggar tanpa alarm.
+- Himpunan token pengisi diperluas ke pabrik koleksi Kotlin yang lazim (`arrayOf`, `mutableListOf`, `mutableSetOf`, `arrayListOf`, `hashSetOf`, `linkedSetOf`), dan `cek_aturan_repo` kini menggagalkan bila `abiFilters` tak ditemukan atau tak terbaca sama sekali. Dibuktikan di salinan buang: `arrayOf`/`mutableSetOf` berisi arm64 → GAGAL, blok dihapus → GAGAL, bentuk `listOf` arm64 → GAGAL (utuh), berkas saat ini → LOLOS.
+
 ## [Belum rilis] — Audit 464: kontras text_hint mode siang dinaikkan melewati AA
 - `text_hint` siang `#9AA0A6` — warna hint semua kolom isian bergaya `TasirinInput` (folder data, port, token, sandi backup, PIN) — hanya 2,64:1 di atas kartu putih dan 2,40:1 di latar jendela, jauh di bawah patokan AA 4,5:1 yang dipakai proyek ini untuk teks kecil (Audit 444), dan di TV kolom-kolom itu dibaca dari jauh dengan hint sebagai satu-satunya petunjuk isinya.
 - Warna digelapkan ke `#68707C` (5,00:1 di atas kartu putih, 4,54:1 di latar jendela — dihitung dengan rumus luminansi relatif WCAG), tetap keluarga abu-biru yang sama dan sedikit lebih terang dari `text_secondary`. Mode malam tidak disentuh (sudah 5,39:1).

@@ -608,7 +608,8 @@ def nilai_min_sdk(tetap):
 
 def himpun_abi(tetap):
     abi = set()
-    pengisi = {"listOf", "setOf", "addAll", "add"}
+    pengisi = {"listOf", "setOf", "arrayOf", "mutableListOf", "mutableSetOf",
+               "arrayListOf", "hashSetOf", "linkedSetOf", "addAll", "add"}
     for m in re.finditer(r"abiFilters", tetap):
         i = m.end()
         while i < len(tetap):
@@ -655,7 +656,11 @@ def cek_aturan_repo(gagal, berubah):
                      "gerbang tak bisa memastikan nilainya 21 (aturan repo)")
     elif minimum != 21:
         gagal.append("minSdk %s != 21 memutus dukungan Android 5 (aturan repo)" % minimum)
-    asing = sorted(a for a in himpun_abi(tetap) if a != "armeabi-v7a")
+    abi = himpun_abi(tetap)
+    if "abiFilters" not in tetap or not abi:
+        gagal.append("abiFilters tak ditemukan/tak terbaca di app/build.gradle.kts "
+                     "(aturan repo: ABI wajib tertulis, armeabi-v7a saja)")
+    asing = sorted(a for a in abi if a != "armeabi-v7a")
     if asing:
         gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
     for path in berubah:
