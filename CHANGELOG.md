@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 460: kegagalan update web-vault otomatis kini diberi jeda gagal seperti jalur binary
+- Zip web-vault yang sudah lolos verifikasi SHA-256 dibuang sebelum validasi isi selesai, dan cabang web-vault `AutoUpdate.cek` tidak punya stempel gagal: bila aset rilisnya sendiri rusak (hash cocok tetapi `index.html` tak ada / zip tak terurai), setiap cek berkala mengunduh ulang ±35 MB yang identik dan gagal dengan cara yang sama, tanpa jeda — jalur binary sudah lama punya perlindungan ini (`KEY_BIN_DL_GAGAL_AT`), jalur web-vault tertinggal.
+- Cabang web-vault kini memakai kunci baru `KEY_WV_DL_GAGAL_AT` dengan penjaga yang sama (`ServerService.bolehCobaUnduhLagi`, jeda 6 jam): kegagalan dicap, percobaan berikutnya dilewati sampai jeda lewat, dan cap dihapus pada keberhasilan. Kunci itu juga masuk `TAK_DIEKSPOR_KEYS` sejajar padanan binary-nya. Di `Updater`, penghapusan `tmpZip` dipindah ke sesudah cek `index.html` lolos agar artefak terverifikasi tidak dihancurkan sebelum validasi isi selesai (cabang zip rusak tetap membuangnya seperti semula).
+
 ## [Belum rilis] — Audit 459: kegagalan membangun trust store HttpsCompat kini diberi jeda, bukan diulang tiap koneksi
 - `socketFactory()` hanya mengisi cache bila pembangunan trust store berhasil; satu kegagalan permanen untuk proses itu (aset rantai tak terurai, `AndroidCAStore` melempar di STB tertentu) membuat SETIAP koneksi berikutnya mengulang penyalinan seluruh CA sistem + parse aset yang pasti gagal, baru jatuh ke trust bawaan — biaya CPU/latensi tanpa batas di perangkat lambat (Audit 328 baru menutup sisi log-nya).
 - Kegagalan kini dicap waktunya (`bangunGagalAt`) dan pembangunan ulang ditahan 60 detik lewat penolong murni teruji `bolehBangunTrust` (jam mundur tetap membolehkan, sejajar pola penjaga lain di repo); selama jeda, `apply` langsung memakai trust bawaan tanpa mencatat ulang. Cap dibersihkan pada pembangunan pertama yang berhasil.

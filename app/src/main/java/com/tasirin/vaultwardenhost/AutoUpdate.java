@@ -124,15 +124,29 @@ public final class AutoUpdate {
                             String marker = Updater.webVaultFromVersion(ctx);
                             if (targetWv != null
                                     && (marker == null || !Updater.versiCocok(marker, targetWv))) {
-                                String msg = Updater.updateWebVault(ctx);
-                                if (TgBot.webVaultBerubah(msg)) {
-                                    adaTerpasang = true;
+                                long gagalWvAt = TgBackup.amanLong(sp,
+                                        ServerService.KEY_WV_DL_GAGAL_AT, 0);
+                                if (ServerService.bolehCobaUnduhLagi(gagalWvAt,
+                                        SystemClock.elapsedRealtime())) {
+                                    String msg = Updater.updateWebVault(ctx);
+                                    if (TgBot.webVaultBerubah(msg)) {
+                                        adaTerpasang = true;
+                                    }
+                                    aksi.toast(msg);
+                                    aksi.catat("[app] " + msg);
+                                    try {
+                                        sp.edit().remove(ServerService.KEY_WV_DL_GAGAL_AT).apply();
+                                    } catch (Exception ignored) {
+                                    }
                                 }
-                                aksi.toast(msg);
-                                aksi.catat("[app] " + msg);
                             }
                         }
                     } catch (Exception e) {
+                        try {
+                            sp.edit().putLong(ServerService.KEY_WV_DL_GAGAL_AT,
+                                    SystemClock.elapsedRealtime()).apply();
+                        } catch (Exception ignored) {
+                        }
                         aksi.catat("[app] Auto-update web-vault gagal: " + e.getMessage());
                     }
                 }

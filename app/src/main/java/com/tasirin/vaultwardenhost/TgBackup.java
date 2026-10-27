@@ -1779,6 +1779,7 @@ public final class TgBackup {
                     "wv_fallback_for", "wv_fallback_at",
                     Updater.KEY_WV_SHA,
                     ServerService.KEY_BIN_DL_GAGAL_AT,
+                    ServerService.KEY_WV_DL_GAGAL_AT,
                     ServerService.KEY_BIN_MANUAL_FP,
                     AutoUpdate.KEY_TAWARAN_UPDATE,
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,

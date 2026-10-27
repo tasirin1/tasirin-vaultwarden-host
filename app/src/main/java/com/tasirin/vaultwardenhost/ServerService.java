@@ -107,6 +107,7 @@ public class ServerService extends Service {
     public static final String KEY_WV_PILIH = "wv_pin_version";
 
     public static final String KEY_BIN_DL_GAGAL_AT = "bin_dl_gagal_at";
+    public static final String KEY_WV_DL_GAGAL_AT = "wv_dl_gagal_at";
 
     static final long TUNDA_ULANG_UNDUH_MS = 6L * 60 * 60 * 1000;
 

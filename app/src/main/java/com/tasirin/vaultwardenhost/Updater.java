@@ -1830,8 +1830,6 @@ public final class Updater {
                 deleteRecursive(newDir);
                 throw e;
             }
-            tmpZip.delete();
-
             File index = new File(newDir, "index.html");
             if (!index.exists()) {
                 lepasStagingAktif(newDir);
@@ -1839,6 +1837,7 @@ public final class Updater {
                 throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                         + " - versi lama dipertahankan.");
             }
+            tmpZip.delete();
 
             synchronized (KUNCI_WEBVAULT) {
                 File bakDir = new File(dataFolder, "web-vault.bak");
