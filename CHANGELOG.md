@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 467: cek-cepat kini menggagalkan README yang hilang, bukan menyamakan hitungan nol
+- Cek sinkron README membandingkan jumlah judul `## ` antar ketiga berkas, dan `hitung_judul` mengembalikan 0 baik untuk berkas tak ada maupun berkas tanpa judul — menghapus KETIGA README sekaligus menghasilkan 0 == 0 == 0 yang dianggap sinkron (fail-open dua himpunan kosong, pola yang sudah diperbaiki untuk colors/layout di gerbang patch tetapi tertinggal di sini). `verifikasi-patch.py` memang tidak memeriksa README sama sekali.
+- Keberadaan ketiga berkas kini diperiksa eksplisit lebih dulu; hilang satu pun digagalkan dengan pesan `berkas wajib hilang`. Dibuktikan di salinan buang: ketiganya dipindah keluar → GAGAL, satu dipindah → GAGAL, utuh → LOLOS.
+
 ## [Belum rilis] — Audit 466: pindai rahasia dan nama terlarang cek-cepat kini mencakup berkas belum terlacak
 - Ketiga sumber daftar berkas `cek-cepat.sh` hanya melihat berkas terlacak git (`git grep`, `git ls-files`), sehingga token/kunci privat di berkas BARU yang belum pernah `git add` lolos pemeriksaan manual terakhir pengembang — bertentangan dengan klaim Audit 403 bahwa pindai meliputi worktree. Berkas terlarang bernama sensitif (`.env`, keystore) yang belum terlacak juga lolos cek nama.
 - Daftar berkas kini ditambah `git ls-files --others --exclude-standard` (berkas ter-`gitignore` tetap dikecualikan karena memang tak akan ter-commit): lingkaran pindai token terbungkus dan cek nama terlarang mencakupnya, dan berkas belum terlacak juga dipindai utuh terhadap pola rahasia lengkap (termasuk kepala PEM). Dibuktikan di salinan buang: token di berkas tak-terlacak → GAGAL, PEM di berkas tak-terlacak → GAGAL, berkas baru bersih → LOLOS, token ter-stage (kontrol) → GAGAL.

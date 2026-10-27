@@ -59,6 +59,9 @@ hitung_judul() {
   fi
   echo "${n:-0}"
 }
+for r in README.md README.id.md README.ru.md; do
+  if [ ! -f "$r" ]; then gagal_msg "berkas wajib hilang: $r"; fi
+done
 a=$(hitung_judul README.md)
 b=$(hitung_judul README.id.md)
 c=$(hitung_judul README.ru.md)
