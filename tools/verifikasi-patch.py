@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import ast
+import codecs
 import os
 import re
 import subprocess
@@ -506,16 +507,24 @@ def cek_sinkron_terjemah(gagal):
             gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
 
 def berkas_teks(path):
+    dek = codecs.getincrementaldecoder("utf-8")()
     try:
         with open(os.path.join(AKAR, path), "rb") as f:
-            contoh = f.read(65536)
+            while True:
+                contoh = f.read(65536)
+                if not contoh:
+                    break
+                if b"\x00" in contoh:
+                    return False
+                try:
+                    dek.decode(contoh)
+                except UnicodeDecodeError:
+                    return False
+            try:
+                dek.decode(b"", True)
+            except UnicodeDecodeError:
+                return False
     except OSError:
-        return False
-    if b"\x00" in contoh:
-        return False
-    try:
-        contoh.decode("utf-8")
-    except UnicodeDecodeError:
         return False
     return True
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 455: penolong berkas_teks memindai seluruh berkas, bukan cuplikan 64 KB pertama
+- `berkas_teks` (pengecualian teks untuk batas 1 MB, Audit 445) hanya membaca 64 KB pertama: berkas poliglot 1,3 MB berawalan teks dengan ekor biner dinilai teks dan lolos batas ukuran, membuka jalan memasukkan blob biner besar ke repo selama ekstensinya netral.
+- Berkas kini dipindai per potongan sampai habis (cek byte NUL di semua potongan; dekode UTF-8 inkremental agar karakter multibita di batas potongan tidak salah nilai). Dibuktikan di salinan buang: poliglot 1,3 MB → GAGAL, teks murni 1,3 MB → tetap LOLOS (pengecualian Audit 445 utuh), biner murni 1,2 MB → GAGAL.
+
 ## [Belum rilis] — Audit 454: minSdk kini ikut dijaga gerbang (wajib tetap 21)
 - `cek_aturan_repo` hanya memeriksa `targetSdk` dan ABI; `minSdk` tidak disebut sama sekali di gerbang, sehingga menaikkannya (mis. ke 26) lolos tanpa alarm — padahal perangkat sasaran utama repo ini adalah STB Android 5 yang langsung tidak bisa memasang APK, dan seluruh mesin kompatibilitas (shim getrandom, `KernelCompat`, `HttpsCompat`) ada untuk mereka.
 - Penolong baru `nilai_min_sdk` membaca nilai dari `app/build.gradle.kts`; hilang, tak terparse, atau != 21 kini digagalkan. Dibuktikan di salinan buang: 26 → GAGAL, baris dihapus → GAGAL, 21 → LOLOS.
