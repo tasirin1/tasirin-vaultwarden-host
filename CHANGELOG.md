@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 457: waitForOrKill pra-API 26 kini memakai satu thread penunggu per proses
+- Jalur pra-API 26 `waitForOrKill` membuat thread daemon `vw-wait` baru pada setiap panggilan dan meninggalkannya terblokir di `waitFor()` setiap kali batas tunggu terlampaui; `matikanProsesTegas` saja memanggilnya dua kali per upaya, sehingga proses bandel di STB lama menumpuk thread + stack selama ia hidup.
+- Penunggu kini disimpan per proses (`PENUNGGU_PROSES`, `WeakHashMap` tersinkronisasi): panggilan berikutnya untuk proses yang sama bergabung ke thread yang sudah ada, jadi jumlah thread penunggu dibatasi satu per proses. Semantik nilai kembali tidak berubah; uji baru membuktikan panggilan kedua tak menambah thread.
+
 ## [Belum rilis] — Audit 456: syarat IP stabil kini menuntut sampel jaringan kedua yang sungguhan
 - `peringatkanIpBerubah` menghitung dua tick berurutan sebagai bukti IP baru stabil, tetapi kedua tick itu membaca `collectIps()` yang sama dari cache 60 detik — selama fase health cepat (interval 30 detik) satu enumerasi sesaat langsung dianggap stabil dan memicu restart yang belum tentu perlu.
 - Kandidat IP kini dicatat waktu pertama terlihatnya (`ipBaruSejak`) dan restart hanya diminta bila kandidat bertahan >= 60 detik (satu umur cache penuh), sehingga bacaan penentu selalu berasal dari enumerasi jaringan yang berbeda. Keputusan tetap di penolong murni `restartIpBolehDiminta` (tanda tangan diperluas dengan sejak/kini) dan ujinya diperbarui + ditambah kasus batas umur cache.

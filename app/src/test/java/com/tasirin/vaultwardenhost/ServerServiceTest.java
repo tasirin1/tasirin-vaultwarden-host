@@ -929,6 +929,39 @@ public class ServerServiceTest {
         assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
     }
 
+    private static int hitungThreadTunggu() {
+        int n = 0;
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if ("vw-wait".equals(t.getName()) && t.isAlive()) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    @Test
+    public void tungguProsesMacet_pakaiSatuThreadPenungguPerProses() throws Exception {
+        Process macet = new ProsesMati() {
+            @Override public int waitFor() {
+                try {
+                    Thread.sleep(30_000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                return 0;
+            }
+            @Override public int exitValue() {
+                throw new IllegalThreadStateException();
+            }
+        };
+        assertFalse(ServerService.waitForOrKill(macet, 200));
+        int sesudahPertama = hitungThreadTunggu();
+        assertFalse(ServerService.waitForOrKill(macet, 200));
+        assertEquals("panggilan kedua untuk proses yang sama tak boleh"
+                + " menyisakan thread penunggu baru",
+                sesudahPertama, hitungThreadTunggu());
+    }
+
     @Test
     public void matikanProsesTegas_prosesMatiAtauNullAman() {
         final java.util.concurrent.atomic.AtomicInteger destroy =

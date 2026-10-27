@@ -4345,25 +4345,43 @@ public class ServerService extends Service {
         return s.substring(mulai);
     }
 
+    private static final class PenungguProses {
+        final java.util.concurrent.atomic.AtomicBoolean mati =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread thread;
+    }
+
+    private static final java.util.Map<Process, PenungguProses> PENUNGGU_PROSES =
+            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+
     static boolean waitForOrKill(Process p, long timeoutMillis) throws InterruptedException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return p.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
         }
-
-        final java.util.concurrent.atomic.AtomicBoolean mati =
-                new java.util.concurrent.atomic.AtomicBoolean(false);
-        Thread penunggu = new Thread(() -> {
-            try {
-                p.waitFor();
-            } catch (Exception ignored) {
-            } finally {
-                mati.set(true);
+        PenungguProses penunggu;
+        synchronized (PENUNGGU_PROSES) {
+            penunggu = PENUNGGU_PROSES.get(p);
+            if (penunggu == null) {
+                penunggu = new PenungguProses();
+                PENUNGGU_PROSES.put(p, penunggu);
             }
-        }, "vw-wait");
-        penunggu.setDaemon(true);
-        penunggu.start();
-        penunggu.join(timeoutMillis);
-        return mati.get();
+            if (penunggu.thread == null) {
+                final PenungguProses pegangan = penunggu;
+                Thread t = new Thread(() -> {
+                    try {
+                        p.waitFor();
+                    } catch (Exception ignored) {
+                    } finally {
+                        pegangan.mati.set(true);
+                    }
+                }, "vw-wait");
+                t.setDaemon(true);
+                penunggu.thread = t;
+                t.start();
+            }
+        }
+        penunggu.thread.join(timeoutMillis);
+        return penunggu.mati.get();
     }
 
     static void matikanProsesTegas(Process p, long tungguMs) {
