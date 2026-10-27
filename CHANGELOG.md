@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 446: verifikasi pasca-unggah APK kini mencocokkan digest SHA-256 juga
+- Sesudah unggah, APK hanya dicocokkan ukurannya dengan aset rilis (3 kali coba), sedangkan aset binary mendapat verifikasi tiga lapis (ukuran + digest SHA-256 API + isi berkas `.sha256`). Padahal APK bertanda tangan adalah artefak yang dipasang pengguna; unggahan rusak berukuran sama akan lolos tanpa alarm.
+- Langkah rilis `build-apk.yml` kini juga membandingkan digest SHA-256 aset di rilis dengan hash lokal dan menggagalkan rilis bila digest tak tersedia atau berbeda — pola yang sama dengan `build-binary.yml`. Sintaks shell terverifikasi `bash -n` dan YAML ter-parse bersih.
+
 ## [Belum rilis] — Audit 445: batas berkas 1 MB gerbang kini mengecualikan berkas teks
 - Batas ukuran gerbang berlaku untuk semua berkas kecuali `gradle-wrapper.jar`, termasuk teks polos — padahal `CHANGELOG.md` (500 KB, wajib diedit di setiap commit perbaikan) sedang menuju ambang itu dan suatu hari akan menggagalkan semua push perbaikan dengan pesan yang menyalahkan binary/web-vault.
 - Berkas yang terbaca sebagai teks (cuplikan 64 KB tanpa byte NUL dan ter-decode UTF-8, penolong `berkas_teks`) kini dikecualikan dari batas ukuran; berkas biner tak dikenal tetap tertahan. Dibuktikan di salinan buang: `.md` 1,29 MB LOLOS, blob biner 1,2 MB tetap GAGAL.

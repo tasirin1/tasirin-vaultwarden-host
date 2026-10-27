@@ -236,6 +236,19 @@ jobs:
           done
           [ "$OK" = true ] || { echo "::error::APK di rilis tidak cocok dengan hasil build"; exit 1; }
 
+          JAUH_DIGEST=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
+            --jq '.assets[] | select(.name=="'"$APK_NAME"'") | .digest // ""' 2>/dev/null || true)
+          LOKAL_DIGEST="sha256:$(sha256sum "$APK_NAME" | cut -d' ' -f1)"
+          if [ -z "$JAUH_DIGEST" ]; then
+            echo "::error::Digest SHA-256 $APK_NAME tak tersedia di rilis"
+            exit 1
+          fi
+          if [ "$JAUH_DIGEST" != "$LOKAL_DIGEST" ]; then
+            echo "::error::Digest $APK_NAME di rilis ($JAUH_DIGEST) != lokal ($LOKAL_DIGEST)"
+            exit 1
+          fi
+          echo "Digest APK terverifikasi di $TAG: $LOKAL_DIGEST"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
