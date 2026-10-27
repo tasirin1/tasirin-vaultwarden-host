@@ -3537,7 +3537,8 @@ public class ServerService extends Service {
 
             long now = SystemClock.elapsedRealtime();
 
-            if (now - collectCacheTime < 60_000 && !collectCache.isEmpty()) {
+            long ttlCache = collectCache.isEmpty() ? 10_000L : 60_000L;
+            if (now - collectCacheTime < ttlCache) {
                 return collectCache;
             }
             List<String> ips = new ArrayList<>();

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 439: collectIps kini meng-cache hasil kosong dengan TTL pendek
+- Syarat cache lama mengharuskan hasil tidak kosong, sehingga di perangkat tanpa LAN setiap panggilan `lanHost()`/`localIp()` (termasuk dari health tick berkala) meng-enumerasi ulang semua antarmuka jaringan di bawah kunci, tanpa jeda, sepanjang server jalan.
+- Hasil kosong kini ikut ter-cache dengan TTL 10 detik (hasil berisi tetap 60 detik): enumerasi berulang terputus, dan keterlambatan mengenali LAN yang baru tersambung terbatas 10 detik.
+
 ## [Belum rilis] — Audit 438: sisa plumbing dns fitur domain lokal yang sudah dihapus dibersihkan
 - Fitur domain lokal kustom sudah dihapus (akses selalu IP LAN), tetapi daftar `dns` tetap dibuat kosong di `prepareTls`, diteruskan lewat `ensureCertWithIps` → `TlsCert.ensure` → `buatLeaf` → `extensionsBlock`, dan ikut dihitung dalam sidik perubahan sertifikat — kode mati yang menyesatkan seolah SAN DNS masih didukung.
 - Seluruh rantai parameter `dns` dibuang; sidik `ips.txt` kini hanya daftar IP (sekali sesudah pembaruan, sidik lama terbaca berbeda sehingga leaf dievaluasi ulang satu kali — CA tetap, sama seperti saat IP berubah). Validator yatim `namaDnsValid` beserta dua pola regex dan dua tesnya ikut dihapus dan namanya dicatat di `tools/bekas-hapusan.txt`; SAN `localhost` yang tertanam tetap ada.
