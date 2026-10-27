@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 449: penanda IP tidak lagi dimajukan sebelum restart terbukti berjalan
+- `peringatkanIpBerubah()` memajukan `runningLanHost` ke IP baru sebelum `restart(...)` dipastikan berhasil; bila permintaan restart gagal atau intent RESTART dibuang karena antrean tugas penuh, tick berikutnya menganggap IP sudah ditangani dan DOMAIN menunjuk IP lama selamanya.
+- Penanda kini hanya dicatat sebagai `ipRestartDiminta` sesudah `restart(...)` diterima; sesi start yang benar-benar berjalan tetap yang menulis `runningLanHost` dari host segar. Cabang antrean-penuh membersihkan penanda itu agar health mencoba lagi, dan keputusan meminta restart diekstrak ke penolong murni `restartIpBolehDiminta` yang teruji.
+
 ## [Belum rilis] — Audit 448: komentar grup untuk nama bekas-hapusan dari Audit 421 ditambahkan
 - Delapan nama tes yang dicatat pada Audit 421 (#175) masuk `tools/bekas-hapusan.txt` tanpa komentar grup `# Audit NNN:` seperti konvensi berkas itu, sehingga asal-usulnya sulit ditelusuri sesi berikutnya.
 - Komentar grup `# Audit 421: tes digabung/dihapus pada #175.` kini memayungi kedelapan nama itu; isi daftar tidak berubah.

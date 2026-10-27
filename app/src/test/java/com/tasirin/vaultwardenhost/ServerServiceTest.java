@@ -628,6 +628,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void restartIpBolehDiminta_hanyaSekaliPerIpSelamaBelumTerkonfirmasi() {
+        assertTrue(ServerService.restartIpBolehDiminta(2, true, true, "192.168.1.9", ""));
+        assertTrue(ServerService.restartIpBolehDiminta(3, true, true, "192.168.1.9", "192.168.1.8"));
+        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, "192.168.1.9", "192.168.1.9"));
+        assertFalse(ServerService.restartIpBolehDiminta(1, true, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, false, true, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, true, false, "192.168.1.9", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, "", ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, true, true, null, ""));
+    }
+
+    @Test
     public void pidDariKecocokan_hanyaTunggalYangDiakui() {
         assertEquals(-1, ServerService.pidDariKecocokan(null));
         assertEquals(-1, ServerService.pidDariKecocokan(

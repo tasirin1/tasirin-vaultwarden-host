@@ -275,6 +275,7 @@ public class ServerService extends Service {
 
     private static volatile String ipBaruKandidat = "";
     private static volatile int ipBaruHitung = 0;
+    private static volatile String ipRestartDiminta = "";
 
     private static final long[] RESTART_DELAYS = {2000, 5000, 10000, 20000, 40000};
 
@@ -301,6 +302,7 @@ public class ServerService extends Service {
         ipBerubahDiperingatkan = "";
         ipBaruKandidat = "";
         ipBaruHitung = 0;
+        ipRestartDiminta = "";
     }
 
     static boolean lepasProses(Process p, Runnable efek) {
@@ -1050,7 +1052,7 @@ public class ServerService extends Service {
                 }
             });
             if (!masuk) {
-
+                ipRestartDiminta = "";
                 appendLog("[app] Restart gagal: antrean tugas penuh - coba lagi sebentar.");
                 TgBackup.sendMessage(this,
                         "Restart gagal: tugas lain sedang berjalan. Coba lagi sebentar.");
@@ -1956,6 +1958,7 @@ public class ServerService extends Service {
         ipBerubahDiperingatkan = "";
         ipBaruKandidat = "";
         ipBaruHitung = 0;
+        ipRestartDiminta = "";
 
         if (!dataDirKanonisAman(sesi.dataDir)) {
             throw new IOException("Folder data berubah/tak valid saat start;"
@@ -2719,6 +2722,12 @@ public class ServerService extends Service {
         healthFail("tidak merespon (" + h.rincian + ")");
     }
 
+    static boolean restartIpBolehDiminta(int hitung, boolean healthAktif, boolean prosesHidup,
+            String kini, String diminta) {
+        return hitung >= 2 && healthAktif && prosesHidup
+                && kini != null && !kini.isEmpty() && !kini.equals(diminta);
+    }
+
     private void peringatkanIpBerubah() {
         try {
             if (!running || runningLanHost == null || runningLanHost.isEmpty()) {
@@ -2728,6 +2737,7 @@ public class ServerService extends Service {
             if (kini == null || kini.isEmpty() || kini.equals(runningLanHost)) {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
+                ipRestartDiminta = "";
                 return;
             }
             if (kini.equals(ipBaruKandidat)) {
@@ -2744,15 +2754,16 @@ public class ServerService extends Service {
                 TgBackup.sendMessage(this, "IP LAN berubah (" + runningLanHost + " -> " + kini + ")."
                         + " Server di-restart otomatis agar tautan memakai IP baru.");
             }
-            if (ipBaruHitung >= 2 && healthActive && isProcessAlive()) {
+            if (restartIpBolehDiminta(ipBaruHitung, healthActive, isProcessAlive(),
+                    kini, ipRestartDiminta)) {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
                 appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
-
-                runningLanHost = kini;
-                if (!restart(getApplicationContext())) {
+                if (restart(getApplicationContext())) {
+                    ipRestartDiminta = kini;
+                } else {
                     appendLog("[app] Restart karena IP baru gagal diminta;"
-                            + " tekan Stop lalu Start untuk memperbarui DOMAIN.");
+                            + " akan dicoba lagi sesudah IP terbaca stabil.");
                 }
             }
         } catch (Exception ignored) {
