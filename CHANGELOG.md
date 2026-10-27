@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 452: rantai fokus D-pad antar-kartu Settings disambung ulang mengikuti seksi terlipat
+- Kontrol batas antar-kartu (`port`→`adminToken`, `pinEnabled`→`autoStart`, `restoreDb`→`tgToken`, `restoreTg`→`logOpen`, dan arah sebaliknya) statis dari XML dan menunjuk kontrol di seksi tetangga; bila seksi itu dilipat (badannya GONE), target fokus tidak tampil dan navigasi remote TV berhenti/melompat — pola yang sama dengan yang diperbaiki Audit 180 untuk satu titik, sedangkan `perbaikiRantaiFokus` selama ini hanya menyambung ulang fokus header.
+- `perbaikiRantaiFokus` kini juga menyambung ulang keempat batas itu lewat penolong baru `aturFokusBatas`: target diarahkan ke isi seksi tetangga bila terbuka, atau ke headernya bila terlipat, untuk kedua arah (bawah dan atas). Nilai statis XML tidak berubah (tetap benar untuk keadaan semua seksi terbuka).
+
 ## [Belum rilis] — Audit 451: cabang tunggu-boot AlarmReceiver tidak lagi bisa mematikan rantai alarm harian
 - Alarm yang jatuh pada 5 menit pertama sejak boot memanggil `jadwalTundaBoot` tanpa memeriksa hasil dan menelan eksepsi baca prefs; bila penjadwalan tunda itu gagal (AlarmManager null / izin exact ditolak), tidak ada alarm tunda, tidak ada alarm harian berikutnya, tidak ada log — backup harian berhenti diam-diam, tertinggal dari pola perbaikan Audit 405/428.
 - Hasil penjadwalan kini diperiksa: bila gagal (atau prefs tak terbaca), rantai harian dipasang ulang lewat `jadwalUlangBilaOtomatis`, backup ditandai tertunda (`KEY_BACKUP_TERTUNDA`, pola yang sama dengan jalur gagal `mulaiBackup` dan `BootReceiver`), dan kegagalannya dicatat di log.

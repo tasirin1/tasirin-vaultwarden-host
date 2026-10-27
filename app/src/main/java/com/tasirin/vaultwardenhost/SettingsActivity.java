@@ -3611,6 +3611,14 @@ public class SettingsActivity extends Activity {
         aturFokusBawah(R.id.headerRawat, R.id.bodyRawat, R.id.autoStart, R.id.headerTelegram);
         aturFokusBawah(R.id.headerTelegram, R.id.bodyTelegram, R.id.tgToken, R.id.headerLog);
         aturFokusBawah(R.id.headerLog, R.id.bodyLog, R.id.logOpen, R.id.aboutBtn);
+        aturFokusBatas(R.id.port, R.id.bodyServer, R.id.headerServer,
+                R.id.adminToken, R.id.bodyKeamanan, R.id.headerKeamanan);
+        aturFokusBatas(R.id.pinEnabled, R.id.bodyKeamanan, R.id.headerKeamanan,
+                R.id.autoStart, R.id.bodyRawat, R.id.headerRawat);
+        aturFokusBatas(R.id.restoreDb, R.id.bodyRawat, R.id.headerRawat,
+                R.id.tgToken, R.id.bodyTelegram, R.id.headerTelegram);
+        aturFokusBatas(R.id.restoreTg, R.id.bodyTelegram, R.id.headerTelegram,
+                R.id.logOpen, R.id.bodyLog, R.id.headerLog);
     }
 
     private void aturFokusBawah(int idHeader, int idBadan, int idIsi, int idLanjut) {
@@ -3619,6 +3627,18 @@ public class SettingsActivity extends Activity {
             return;
         }
         header.setNextFocusDownId(seksiTerbuka(idBadan) ? idIsi : idLanjut);
+    }
+
+    private void aturFokusBatas(int idIsiAtas, int idBadanAtas, int idHeaderAtas,
+            int idIsiBawah, int idBadanBawah, int idHeaderBawah) {
+        View atas = findViewById(idIsiAtas);
+        if (atas != null) {
+            atas.setNextFocusDownId(seksiTerbuka(idBadanBawah) ? idIsiBawah : idHeaderBawah);
+        }
+        View bawah = findViewById(idIsiBawah);
+        if (bawah != null) {
+            bawah.setNextFocusUpId(seksiTerbuka(idBadanAtas) ? idIsiAtas : idHeaderAtas);
+        }
     }
 
     private void pasangChip(int idChip, final int idHeader, final int idBadan,
