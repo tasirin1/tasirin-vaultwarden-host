@@ -31,13 +31,14 @@ public class FileShareProvider extends ContentProvider {
             if (f == null) {
                 return null;
             }
+            AkarBagi akar = akarBagi();
             String kanon = f.getCanonicalPath();
-            if (!isShareable(kanon)) {
+            if (!isShareable(kanon, akar)) {
                 return null;
             }
 
             String kanonUlang = new File(kanon).getCanonicalPath();
-            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
+            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
                     || adaSymlinkInduk(kanonUlang)) {
                 return null;
             }
@@ -72,13 +73,14 @@ public class FileShareProvider extends ContentProvider {
             if (f == null) {
                 return null;
             }
+            AkarBagi akar = akarBagi();
             String kanon = f.getCanonicalPath();
-            if (!isShareable(kanon)) {
+            if (!isShareable(kanon, akar)) {
                 return null;
             }
 
             String kanonUlang = new File(kanon).getCanonicalPath();
-            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang)
+            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
                     || adaSymlinkInduk(kanonUlang)) {
                 return null;
             }
@@ -169,10 +171,11 @@ public class FileShareProvider extends ContentProvider {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
 
+        final AkarBagi akar = akarBagi();
         final String canon;
         try {
             canon = f.getCanonicalPath();
-            if (!isShareable(canon)) {
+            if (!isShareable(canon, akar)) {
                 throw new FileNotFoundException("Akses ditolak.");
             }
         } catch (FileNotFoundException e) {
@@ -187,7 +190,7 @@ public class FileShareProvider extends ContentProvider {
 
         try {
             String canonUlang = target.getCanonicalPath();
-            if (!canonUlang.equals(canon) || !isShareable(canonUlang)) {
+            if (!canonUlang.equals(canon) || !isShareable(canonUlang, akar)) {
                 throw new FileNotFoundException("Akses ditolak.");
             }
             if (adaSymlinkInduk(canonUlang)) {
@@ -439,15 +442,72 @@ public class FileShareProvider extends ContentProvider {
         return !canon.substring(awalan.length()).contains(File.separator);
     }
 
-    private boolean isShareable(String canon) {
+    private static final class AkarBagi {
+        final String files;
+        final String cache;
+        String data;
+
+        AkarBagi(String files, String cache) {
+            this.files = files;
+            this.cache = cache;
+        }
+    }
+
+    private AkarBagi akarBagi() {
         try {
-            if (canon == null || getContext() == null) {
+            if (getContext() == null) {
+                return null;
+            }
+            return new AkarBagi(getContext().getFilesDir().getCanonicalPath(),
+                    getContext().getCacheDir().getCanonicalPath());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String dataBagi(AkarBagi akar) {
+        if (akar.data != null) {
+            return akar.data;
+        }
+        String data = akar.files;
+        try {
+            android.content.SharedPreferences sp = getContext().getSharedPreferences(
+                    ServerService.PREFS, android.content.Context.MODE_PRIVATE);
+            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
+                    ServerService.dataDirBawaanSegar());
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = ServerService.dataDirBawaanSegar();
+            }
+            String kanonData = new File(dataDir).getCanonicalPath();
+            if (kanonData == null || kanonData.trim().isEmpty() || kanonData.equals("/")
+                    || (!kanonData.startsWith("/data/") && !kanonData.startsWith("/storage/")
+                    && !kanonData.startsWith("/sdcard/"))) {
+                try {
+                    android.util.Log.w("FileShare",
+                            "[share] data_dir tak valid, pakai internal: " + dataDir);
+                } catch (Exception ignored) {
+                }
+            } else {
+                data = kanonData;
+            }
+        } catch (Exception e) {
+            data = akar.files;
+        }
+        akar.data = data;
+        return data;
+    }
+
+    private boolean isShareable(String canon) {
+        return isShareable(canon, akarBagi());
+    }
+
+    private boolean isShareable(String canon, AkarBagi akar) {
+        try {
+            if (canon == null || akar == null) {
                 return false;
             }
-            String files = getContext().getFilesDir().getCanonicalPath();
-            String cache = getContext().getCacheDir().getCanonicalPath();
-            if (canon.startsWith(files + File.separator)
-                    || canon.startsWith(cache + File.separator)) {
+            if (canon.startsWith(akar.files + File.separator)
+                    || canon.startsWith(akar.cache + File.separator)) {
 
                 String nama = new File(canon).getName();
                 if (nama.startsWith("db.sqlite3")) {
@@ -462,32 +522,7 @@ public class FileShareProvider extends ContentProvider {
                 }
                 return namaCacheBolehDibagikan(nama);
             }
-            android.content.SharedPreferences sp = getContext().getSharedPreferences(
-                    ServerService.PREFS, android.content.Context.MODE_PRIVATE);
-            String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
-                    ServerService.dataDirBawaanSegar());
-            if (dataDir == null || dataDir.trim().isEmpty()) {
-                dataDir = ServerService.dataDirBawaanSegar();
-            }
-
-            String data;
-            try {
-                String kanonData = new File(dataDir).getCanonicalPath();
-                if (kanonData == null || kanonData.trim().isEmpty() || kanonData.equals("/")
-                        || (!kanonData.startsWith("/data/") && !kanonData.startsWith("/storage/")
-                        && !kanonData.startsWith("/sdcard/"))) {
-                    try {
-                        android.util.Log.w("FileShare",
-                                "[share] data_dir tak valid, pakai internal: " + dataDir);
-                    } catch (Exception ignored) {
-                    }
-                    data = files;
-                } else {
-                    data = kanonData;
-                }
-            } catch (Exception e) {
-                data = files;
-            }
+            String data = dataBagi(akar);
             String name = new File(canon).getName();
             if (name.startsWith("db.sqlite3")) {
                 return false;

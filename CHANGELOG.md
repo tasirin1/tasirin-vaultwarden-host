@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 440: akar berbagi FileShareProvider dihitung sekali per operasi
+- Setiap panggilan `isShareable()` mengulang kanonikalisasi `getFilesDir()`/`getCacheDir()` ke filesystem dan membaca SharedPreferences, dan setiap operasi provider (query/getType/openFile) memanggilnya dua kali penuh untuk cek awal + cek ulang anti-TOCTOU.
+- Akar berbagi kini dibungkus snapshot `AkarBagi` yang dihitung sekali per operasi dan diteruskan ke kedua pemeriksaan; folder data divalidasi malas (`dataBagi`, ter-cache di snapshot) hanya bila jalurnya dibutuhkan, sama seperti sebelumnya. Semantik cek ganda anti-TOCTOU tidak berubah — yang dihemat hanya penurunan akarnya.
+
 ## [Belum rilis] — Audit 439: collectIps kini meng-cache hasil kosong dengan TTL pendek
 - Syarat cache lama mengharuskan hasil tidak kosong, sehingga di perangkat tanpa LAN setiap panggilan `lanHost()`/`localIp()` (termasuk dari health tick berkala) meng-enumerasi ulang semua antarmuka jaringan di bawah kunci, tanpa jeda, sepanjang server jalan.
 - Hasil kosong kini ikut ter-cache dengan TTL 10 detik (hasil berisi tetap 60 detik): enumerasi berulang terputus, dan keterlambatan mengenali LAN yang baru tersambung terbatas 10 detik.
