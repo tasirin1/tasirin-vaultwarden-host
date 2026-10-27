@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 462: alarm TUNDA yang rahasianya tak cocok kini menandai backup tertunda
+- Jalur rahasia-tak-cocok di `AlarmReceiver` hanya menyembuhkan aksi HARIAN (pasang ulang); aksi TUNDA langsung kembali tanpa penanda dan tanpa log. Keadaan itu tercapai bila rahasia alarm gagal tersimpan persisten (commit prefs gagal) lalu proses mati: rahasia dibangkitkan baru, alarm tunda terjadwal tak cocok, dan backup susulan boot hari itu hilang tanpa jejak.
+- Cabang TUNDA kini menandai `KEY_BACKUP_TERTUNDA` (pola yang sama dengan jalur gagal `mulaiBackup` dan `BootReceiver`) dan mencatat kegugurannya di log, sehingga backup susulan tetap terjadi pada kesempatan berikutnya.
+
 ## [Belum rilis] — Audit 461: sidik menu bot dan kunci keadaan lokal lain kini ikut dikecualikan dari ekspor config
 - Daftar pengecualian ekspor `configJson` tertinggal lima kunci keadaan lokal: `tg_menu_fp` (sidik SHA-256 token bot + revisi menu — turunan kredensial yang tak pernah disebut di `TgBackup`), `impor_gagal_peta` (Audit 409 mengklaim kunci ini tak diekspor, faktanya hanya impornya yang terblokir whitelist), serta `bin_fallback_for`/`bin_fallback_at`/`cek_gangguan_at` sementara padanan web-vault-nya sudah dikecualikan. Tak satu pun dibutuhkan restore (restore hanya membaca whitelist `BOLEH_IMPOR`).
 - Kelimanya kini masuk `TAK_DIEKSPOR_KEYS` lewat konstanta pemiliknya masing-masing (`TgBot`, `SettingsActivity`, `Updater`), dan uji `secretTakIkutBackup` diperluas menutup kelimanya.

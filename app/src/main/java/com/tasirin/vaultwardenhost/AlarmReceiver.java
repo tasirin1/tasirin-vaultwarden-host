@@ -91,6 +91,14 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (alarmApp && !TgBackup.rahasiaAlarmCocok(context, intent)) {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
+            } else if (ACTION_TUNDA.equals(action)) {
+                try {
+                    context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                            .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
+                } catch (Exception ignored) {
+                }
+                ServerService.catatLog("[tg] Alarm tunda boot gugur: rahasia alarm"
+                        + " tak cocok - backup ditandai tertunda.");
             }
             return;
         }
