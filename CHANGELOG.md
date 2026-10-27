@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 466: pindai rahasia dan nama terlarang cek-cepat kini mencakup berkas belum terlacak
+- Ketiga sumber daftar berkas `cek-cepat.sh` hanya melihat berkas terlacak git (`git grep`, `git ls-files`), sehingga token/kunci privat di berkas BARU yang belum pernah `git add` lolos pemeriksaan manual terakhir pengembang — bertentangan dengan klaim Audit 403 bahwa pindai meliputi worktree. Berkas terlarang bernama sensitif (`.env`, keystore) yang belum terlacak juga lolos cek nama.
+- Daftar berkas kini ditambah `git ls-files --others --exclude-standard` (berkas ter-`gitignore` tetap dikecualikan karena memang tak akan ter-commit): lingkaran pindai token terbungkus dan cek nama terlarang mencakupnya, dan berkas belum terlacak juga dipindai utuh terhadap pola rahasia lengkap (termasuk kepala PEM). Dibuktikan di salinan buang: token di berkas tak-terlacak → GAGAL, PEM di berkas tak-terlacak → GAGAL, berkas baru bersih → LOLOS, token ter-stage (kontrol) → GAGAL.
+
 ## [Belum rilis] — Audit 465: penjaga ABI mengenal bentuk arrayOf/mutableSetOf dan menggagalkan blok yang hilang
 - `himpun_abi` hanya mengenal token pengisi `listOf`/`setOf`/`addAll`/`add` (Audit 423); bentuk Kotlin yang sama sahnya — `arrayOf`, `mutableSetOf`, dst. — menghentikan pemindaian sebelum string dibaca, dan menghapus seluruh blok `abiFilters` menghasilkan himpunan kosong yang dianggap patuh. Aturan ABI tunggal (aturan repo No. 5) bisa dilanggar tanpa alarm.
 - Himpunan token pengisi diperluas ke pabrik koleksi Kotlin yang lazim (`arrayOf`, `mutableListOf`, `mutableSetOf`, `arrayListOf`, `hashSetOf`, `linkedSetOf`), dan `cek_aturan_repo` kini menggagalkan bila `abiFilters` tak ditemukan atau tak terbaca sama sekali. Dibuktikan di salinan buang: `arrayOf`/`mutableSetOf` berisi arm64 → GAGAL, blok dihapus → GAGAL, bentuk `listOf` arm64 → GAGAL (utuh), berkas saat ini → LOLOS.
