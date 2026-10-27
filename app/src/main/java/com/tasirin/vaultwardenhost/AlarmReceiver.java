@@ -97,13 +97,27 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         if (TgBackup.sisaTungguBootMs(
                 android.os.SystemClock.elapsedRealtime()) > 0) {
+            boolean terjadwal = false;
             try {
                 SharedPreferences cekAwal = context.getSharedPreferences(
                         ServerService.PREFS, Context.MODE_PRIVATE);
                 if (TgBackup.amanBoolean(cekAwal, TgBackup.KEY_TG_AUTO, false)) {
-                    TgBackup.jadwalTundaBoot(context);
+                    terjadwal = TgBackup.jadwalTundaBoot(context);
+                } else {
+                    terjadwal = true;
                 }
             } catch (Exception ignored) {
+            }
+            if (!terjadwal) {
+                jadwalUlangBilaOtomatis(context);
+                try {
+                    context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                            .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
+                } catch (Exception ignored) {
+                }
+                ServerService.catatLog("[tg] Alarm jatuh pada masa tunggu boot dan"
+                        + " penjadwalan tunda gagal - rantai harian dipasang ulang"
+                        + " dan backup ditandai tertunda.");
             }
             return;
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 451: cabang tunggu-boot AlarmReceiver tidak lagi bisa mematikan rantai alarm harian
+- Alarm yang jatuh pada 5 menit pertama sejak boot memanggil `jadwalTundaBoot` tanpa memeriksa hasil dan menelan eksepsi baca prefs; bila penjadwalan tunda itu gagal (AlarmManager null / izin exact ditolak), tidak ada alarm tunda, tidak ada alarm harian berikutnya, tidak ada log — backup harian berhenti diam-diam, tertinggal dari pola perbaikan Audit 405/428.
+- Hasil penjadwalan kini diperiksa: bila gagal (atau prefs tak terbaca), rantai harian dipasang ulang lewat `jadwalUlangBilaOtomatis`, backup ditandai tertunda (`KEY_BACKUP_TERTUNDA`, pola yang sama dengan jalur gagal `mulaiBackup` dan `BootReceiver`), dan kegagalannya dicatat di log.
+
 ## [Belum rilis] — Audit 450: hash clipboard tidak lagi ikut diekspor ke config backup
 - `configJson` mengekspor seluruh prefs kecuali dua daftar pengecualian, dan `clip_hash` — SHA-256 tanpa garam dari isi clipboard, termasuk token admin/bot yang disalin lewat tombol salin — tidak ada di daftar mana pun, sehingga ikut ke `app-config.json` dalam zip backup dan menjadi bahan tebak-tebakan offline. Jalur impor justru sudah memblokir kunci ini; ekspornya yang tertinggal.
 - `LogActivity.KEY_CLIP_HASH` kini masuk `SECRET_PREF_KEYS` (sejajar `pin_hash` dan rahasia alarm) dan pasangan kedaluwarsanya `KEY_CLIP_KEDALUWARSA` masuk `TAK_DIEKSPOR_KEYS`; uji `secretTakIkutBackup` diperluas menutup keduanya.
