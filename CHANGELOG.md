@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 469: pasang-hook.sh kini bekerja di git worktree
+- Skrip mengeras-tertulis `HOOK=".git/hooks/pre-push"` dan mensyaratkan `[ -d .git ]`; di worktree `.git` adalah berkas penunjuk gitdir dan hook tinggal di gitdir bersama, sehingga skrip menolak dengan pesan "folder .git tidak ada" yang menyesatkan dan pengembang worktree kehilangan kait pre-push lokal.
+- Folder hook kini dicari lewat `git rev-parse --git-path hooks` (benar untuk clone biasa maupun worktree) dan dibuat bila belum ada; di luar repo pesan gagalnya menyebut penyebab sebenarnya. Isi hook dan bukti eksekusi `--self-test` tidak berubah. Dibuktikan di salinan buang: clone biasa terpasang + self-test lolos, worktree terpasang ke gitdir bersama, di luar repo gagal dengan pesan baru.
+
 ## [Belum rilis] — Audit 468: penjaga bekas-hapusan kini tahan panggilan yang dipisah baris kosong
 - Pencocokan lintas baris `cek_panggil_bekas_hapusan` menggabungkan baris tambah saat ini dengan satu baris tambah sebelumnya, tetapi baris kosong ikut menimpa penanda "sebelumnya" — panggilan metode terhapus yang ditulis nama dan kurungnya dipisah satu baris kosong (Java sah) memutus rantai gabungan dan lolos, padahal aturan repo No. 15 bertumpu pada penjaga ini.
 - Baris kosong kini tidak lagi menimpa penanda gabungan, sehingga pasangan nama+kurung tetap diperiksa melintasi baris kosong. Dibuktikan di salinan buang dengan commit uji: panggilan normal → GAGAL (utuh), varian terpisah baris kosong → GAGAL (sebelumnya LOLOS), kode sah terpisah baris tanpa nama terhapus → LOLOS.

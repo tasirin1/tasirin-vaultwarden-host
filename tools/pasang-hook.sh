@@ -1,11 +1,12 @@
 #!/bin/sh
 
 set -e
-HOOK=".git/hooks/pre-push"
-if [ ! -d .git ]; then
-    echo "GAGAL: jalankan skrip ini dari akar repo (folder .git tidak ada)." >&2
+HOOK_DIR=$(git rev-parse --git-path hooks 2>/dev/null) || {
+    echo "GAGAL: jalankan skrip ini dari dalam repo git (git rev-parse gagal)." >&2
     exit 1
-fi
+}
+HOOK="$HOOK_DIR/pre-push"
+mkdir -p "$HOOK_DIR"
 sementara="$HOOK.baru-$$"
 cat > "$sementara" <<'HOOK'
 #!/bin/sh
