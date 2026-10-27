@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 463: log realtime di layar awal kini bisa digulir dengan D-pad
+- `homeLogScroll` di `activity_main.xml` tidak fokusable dan tidak masuk rantai `nextFocus*` mana pun (`netInfo` melompat langsung ke `startStop`), sehingga pengguna TV/STB tidak pernah bisa menggulir mundur log beranda (viewport 360dp, isi sampai 150 baris) — berbeda dengan layar log penuh yang sudah benar.
+- `homeLogScroll` kini `focusable` + `focusableInTouchMode` (pola `activity_log.xml`) dan disisipkan ke rantai vertikal: `netInfo` ↓ `homeLogScroll` ↓ `startStop`, arah atas sebaliknya.
+
 ## [Belum rilis] — Audit 462: alarm TUNDA yang rahasianya tak cocok kini menandai backup tertunda
 - Jalur rahasia-tak-cocok di `AlarmReceiver` hanya menyembuhkan aksi HARIAN (pasang ulang); aksi TUNDA langsung kembali tanpa penanda dan tanpa log. Keadaan itu tercapai bila rahasia alarm gagal tersimpan persisten (commit prefs gagal) lalu proses mati: rahasia dibangkitkan baru, alarm tunda terjadwal tak cocok, dan backup susulan boot hari itu hilang tanpa jejak.
 - Cabang TUNDA kini menandai `KEY_BACKUP_TERTUNDA` (pola yang sama dengan jalur gagal `mulaiBackup` dan `BootReceiver`) dan mencatat kegugurannya di log, sehingga backup susulan tetap terjadi pada kesempatan berikutnya.

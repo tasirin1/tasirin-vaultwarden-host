@@ -107,7 +107,7 @@
                     android:id="@+id/netInfo"
                     android:maxLines="3"
                     android:ellipsize="end"
-                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusDown="@id/homeLogScroll"
                     android:nextFocusUp="@id/overflowBtn"
                     style="@style/TasirinInfo"
                     android:layout_width="match_parent"
@@ -131,6 +131,10 @@
 
                 <ScrollView
                     android:id="@+id/homeLogScroll"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:nextFocusDown="@id/startStop"
+                    android:nextFocusUp="@id/netInfo"
                     android:nestedScrollingEnabled="true"
                     tools:ignore="NestedScrolling"
                     android:layout_width="match_parent"
@@ -223,7 +227,7 @@
         <Button
             android:id="@+id/startStop"
             android:nextFocusDown="@id/overflowBtn"
-            android:nextFocusUp="@id/netInfo"
+            android:nextFocusUp="@id/homeLogScroll"
             style="@style/TasirinBtnPrimary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
