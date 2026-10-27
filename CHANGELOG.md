@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 454: minSdk kini ikut dijaga gerbang (wajib tetap 21)
+- `cek_aturan_repo` hanya memeriksa `targetSdk` dan ABI; `minSdk` tidak disebut sama sekali di gerbang, sehingga menaikkannya (mis. ke 26) lolos tanpa alarm — padahal perangkat sasaran utama repo ini adalah STB Android 5 yang langsung tidak bisa memasang APK, dan seluruh mesin kompatibilitas (shim getrandom, `KernelCompat`, `HttpsCompat`) ada untuk mereka.
+- Penolong baru `nilai_min_sdk` membaca nilai dari `app/build.gradle.kts`; hilang, tak terparse, atau != 21 kini digagalkan. Dibuktikan di salinan buang: 26 → GAGAL, baris dihapus → GAGAL, 21 → LOLOS.
+
 ## [Belum rilis] — Audit 453: gerbang menggagalkan targetSdk yang hilang, bukan hanya yang >= 29
 - `cek_aturan_repo` hanya menggagalkan `targetSdk` tak terparse (-1) atau >= 29; baris yang dihapus total menghasilkan `None` dari `nilai_target_sdk` dan lolos diam-diam — padahal tanpa baris itu AGP memakai compileSdk (34) sebagai target dan `execve` binary terblokir W^X di Android 10+, persis yang dijaga aturan repo No. 4.
 - Nilai `None` kini digagalkan dengan pesan eksplisit. Dibuktikan di salinan buang: baris dihapus → GAGAL, nilai 28 → LOLOS, nilai 29 → GAGAL (perilaku lama utuh).

@@ -587,6 +587,16 @@ def nilai_target_sdk(tetap):
         return -1
 
 
+def nilai_min_sdk(tetap):
+    m = re.search(r"minSdk\s*=\s*([^\n]+)", tetap)
+    if not m:
+        return None
+    rhs = m.group(1).split("//", 1)[0].strip()
+    if re.fullmatch(r"\d+", rhs):
+        return int(rhs)
+    return -1
+
+
 def himpun_abi(tetap):
     abi = set()
     pengisi = {"listOf", "setOf", "addAll", "add"}
@@ -627,6 +637,15 @@ def cek_aturan_repo(gagal, berubah):
                      "gerbang tak bisa memastikan nilainya <= 28 (aturan repo)")
     elif target is not None and target >= 29:
         gagal.append("targetSdk %s >= 29 memblokir execve binary (aturan repo)" % target)
+    minimum = nilai_min_sdk(tetap)
+    if minimum is None:
+        gagal.append("minSdk tak ditemukan di app/build.gradle.kts "
+                     "(aturan repo: minSdk = 21)")
+    elif minimum == -1:
+        gagal.append("minSdk bukan literal angka sederhana — "
+                     "gerbang tak bisa memastikan nilainya 21 (aturan repo)")
+    elif minimum != 21:
+        gagal.append("minSdk %s != 21 memutus dukungan Android 5 (aturan repo)" % minimum)
     asing = sorted(a for a in himpun_abi(tetap) if a != "armeabi-v7a")
     if asing:
         gagal.append("ABI tambahan %s membengkakkan APK (aturan: armeabi-v7a saja)" % asing)
