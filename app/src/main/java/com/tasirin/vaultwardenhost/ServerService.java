@@ -161,16 +161,32 @@ public class ServerService extends Service {
     }
 
     private static final Object KUNCI_SIDIK = new Object();
-    private static String sidikTokenMasuk = null;
+    private static long sidikTokenKunci = 0;
+    private static int sidikTokenPanjang = -1;
     private static String sidikTokenHasil = "";
+
+    static long sidikCepat(String s) {
+        long h = 0xcbf29ce484222325L;
+        for (int i = 0; i < s.length(); i++) {
+            h ^= s.charAt(i);
+            h *= 0x100000001b3L;
+        }
+        return h;
+    }
 
     static String sidikTokenAdmin(String token) {
         String bersih = token == null ? "" : token.trim();
         if (bersih.isEmpty()) {
+            synchronized (KUNCI_SIDIK) {
+                sidikTokenKunci = 0;
+                sidikTokenPanjang = -1;
+                sidikTokenHasil = "";
+            }
             return "";
         }
+        long kunci = sidikCepat(bersih);
         synchronized (KUNCI_SIDIK) {
-            if (bersih.equals(sidikTokenMasuk)) {
+            if (sidikTokenPanjang == bersih.length() && sidikTokenKunci == kunci) {
                 return sidikTokenHasil;
             }
         }
@@ -182,10 +198,19 @@ public class ServerService extends Service {
             return "";
         }
         synchronized (KUNCI_SIDIK) {
-            sidikTokenMasuk = bersih;
+            sidikTokenKunci = kunci;
+            sidikTokenPanjang = bersih.length();
             sidikTokenHasil = hasil;
         }
         return hasil;
+    }
+
+    static void bersihkanCacheSidikToken() {
+        synchronized (KUNCI_SIDIK) {
+            sidikTokenKunci = 0;
+            sidikTokenPanjang = -1;
+            sidikTokenHasil = "";
+        }
     }
 
     static String potongPesanGalat(String msg, int maks) {
@@ -297,6 +322,7 @@ public class ServerService extends Service {
     }
 
     private static void resetPenandaJalan() {
+        bersihkanCacheSidikToken();
         runningDataDir = "";
         runningPort = "";
         runningAdminToken = "";

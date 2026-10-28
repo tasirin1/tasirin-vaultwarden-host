@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 476: cache sidik token admin tidak lagi menyimpan token plaintext
+- Memo `sidikTokenAdmin` menyimpan token admin utuh di field statik `sidikTokenMasuk` seumur proses app dan tidak pernah dibersihkan (token kosong pun tidak membersihkannya; reset penanda jalan tidak menyentuhnya) — padahal fungsi itu ada justru untuk tidak memegang plaintext, dan aplikasi ini secara aktif meminimalkan jejak token (redaksi log, ekspor tanpa sandi).
+- Memo kini dikunci oleh sidik cepat FNV-1a 64-bit + panjang token (`sidikCepat`), bukan tokennya: tabrakan praktis mustahil dan dampak teoretisnya terbatas pada deteksi perubahan token di UI. Plaintext tidak lagi disimpan di mana pun di jalur ini, token kosong membersihkan memo, dan `resetPenandaJalan` kini ikut membersihkannya. Uji referensi FNV-1a ditambahkan (nilai dibuktikan dengan porting Python 1:1).
+
 ## [Belum rilis] — Audit 475: throttle alarm dipisah per jalur, penolakan tidak lagi menggeser jendela, backup harian yang tertelan ditandai tertunda
 - `AlarmReceiver` memakai satu throttle global untuk semua aksi: broadcast perubahan jam (DATE/TIME/TIMEZONE_CHANGED) yang tidak menghasilkan backup ikut mengonsumsi jendela 60 detik alarm harian, stempel diperbarui juga saat ditolak sehingga rentetan broadcast bisa menunda tanpa batas (jendela geser), dan alarm harian yang tertelan hanya dipasang ulang ke tengah malam berikutnya — backup hari itu hilang diam-diam tanpa tanda tertunda.
 - Throttle kini dua jalur terpisah (harian memakai kunci lama `alarm_throttle_elapsed`; siaran waktu memakai kunci baru `alarm_throttle_waktu_elapsed` + field statik sendiri), stempel hanya ditulis bila lolos (jendela tetap — semantik `bolehAlarmJalan` tidak berubah dan sudah terkunci uji), dan jalur harian yang tertelan kini menandai `KEY_BACKUP_TERTUNDA` serta mencatat log, sejajar jalur gugur lain di berkas yang sama.

@@ -17,6 +17,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void sidikCepat_fnv1a64SesuaiReferensi() {
+        org.junit.Assert.assertEquals(-3750763034362895579L, ServerService.sidikCepat(""));
+        org.junit.Assert.assertEquals(-5808556873153909620L, ServerService.sidikCepat("a"));
+        org.junit.Assert.assertEquals(-8370662061801826386L,
+                ServerService.sidikCepat("rahasia123"));
+        org.junit.Assert.assertFalse(ServerService.sidikCepat("rahasia123")
+                == ServerService.sidikCepat("lain456"));
+    }
+
+    @Test
     public void sidikTokenAdmin_konsistenTanpaPlaintext() {
         String a = ServerService.sidikTokenAdmin("rahasia123");
         assertEquals(a, ServerService.sidikTokenAdmin("  rahasia123  "));
