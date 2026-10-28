@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 566: checkout CodeQL kini persist-credentials: false, konsisten dengan workflow build
+- Semua checkout di `build-apk.yml`/`build-binary.yml` memakai `persist-credentials: false`, tetapi checkout CodeQL tidak — padahal job `analyze` memegang `security-events: write` dan Autobuild mengeksekusi build Gradle dari tree hasil checkout, termasuk untuk PR. Tanpa pengaturan itu token job tersimpan di `.git/config` lokal selama job dan dapat dibaca kode build di runner yang sama.
+- Checkout CodeQL kini memakai `persist-credentials: false` seperti pola repo. Analisis CodeQL memakai akses API-nya sendiri, bukan kredensial git lokal, jadi perilaku analisis tak berubah.
+
 ## [Belum rilis] — Audit 565: pola grup dependabot gradle-tools kini cocok dengan nama AGP nyata
 - Grup `gradle-tools` memakai pola `com.android.tools*`, padahal tak ada dependensi bernama itu di repo; Dependabot menamai AGP `com.android.application` (terbukti dari entri `ignore` di berkas yang sama yang bekerja atas nama itu). Grup itu tak akan pernah mengelompokkan apa pun dan update AGP selalu datang tak tergrup — konfigurasi mati yang menyesatkan.
 - Pola grup diganti menjadi `com.android.application`, sesuai nama nyata plugin di `build.gradle.kts` akar. Entri `ignore` untuk major AGP tidak berubah.
