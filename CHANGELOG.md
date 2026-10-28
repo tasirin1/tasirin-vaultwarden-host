@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 682: callback tombol kini commit offset sebelum eksekusi, seperti perintah teks ber-PIN
+- Perintah teks berbahaya sudah lama dilindungi anti-putar-ulang (offset di-commit *sebelum* eksekusi), tetapi callback tombol — jalur UI utama untuk aksi yang sama (`/careset`, `/backup`, `/update`, `/stop`, `/restart`) — offset-nya baru disimpan di akhir seluruh batch. Proses yang mati di tengah batch membuat Telegram mengirim ulang callback yang sama dan aksinya berjalan dua kali; pada `/careset` itu berarti CA hasil reset pertama langsung basi oleh reset kedua dan HTTPS rusak sampai CA ketiga dipasang. Offset kini di-commit sebelum `tanganiCallback` untuk semua callback: aksi berbahaya tak bisa diputar ulang oleh kematian proses, dan harga untuk callback navigasi biasa hanyalah satu ketukan yang mungkin perlu diulang bila proses mati tepat di antaranya.
+
 ## [Belum rilis] — Audit 681: unlock kunci pasang global kini tak bisa terlewati finally
 - Di kedua pintu kunci pasang global, `unlock()` berada sesudah `selesaiUnduhan()` dalam `finally` yang sama: bila `selesaiUnduhan()` suatu hari melempar (saat ini ia murni operasi atomik + volatile sehingga belum bisa — kerapuhan struktural temuan self-review), satu hold bocor dan semua pemasangan berikutnya mengantre selamanya. Urutannya kini finally bersarang sehingga `unlock()` adalah tindakan terakhir yang dijamin berjalan apa pun yang terjadi di pembukuan unduhan.
 
