@@ -2878,6 +2878,12 @@ public class SettingsActivity extends Activity {
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
+        // Nilai hasil reload adalah keadaan prefs, bukan suntingan user:
+        // segarkan dasar simpan agar onPause tak menulisnya menang atas
+        // perubahan eksternal berikutnya (Audit 596).
+        dasarDataDir = dataDirInput.getText().toString();
+        dasarPort = portInput.getText().toString();
+        dasarAdmin = adminTokenInput.getText().toString();
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 596: reloadSettingsFromPrefs menyegarkan dasar simpan
+- Jalur reload sesudah restore/impor lokal menulis ulang input folder/port/admin dari prefs, tetapi dasar simpan Audit 588 hanya ditangkap di `muatPreferensi`. Dasar yang basi membuat onPause berikutnya memperlakukan teks hasil reload sebagai suntingan user — kelas bug input basi #344 masuk lagi lewat reload: bila restore bot mendarat di antara reload dan onPause, nilai reload ditulis menang. Kini ketiga dasar disegarkan tepat sesudah input dimuat ulang, sama seperti di muatPreferensi.
+
 ## [Belum rilis] — Audit 595: sapuan cache tak lagi menghapus berkas impor yang dialognya tertunda
 - Perbaikan Audit 592 dikalahkan sapuan yang sudah ada: `sapuCacheLatar` memanggil `sapuSisaImpor` di onCreate/onResume instance baru, dan sapuan itu menghapus semua berkas `vwcfg-import*` tanpa syarat — berkas yang dipertahankan untuk dialog lintas rotasi pasti tersapu. Bila sapuan menang lebih dulu, dialog tak pernah kembali; bila menang sesudahnya, berkas hilang di bawah dialog yang terbuka dan password yang benar tercatat sebagai percobaan gagal, sampai berkas backup ditolak permanen pada hitungan ke-5.
 - Kini `sapuSisaImpor` mengecualikan berkas impor tertunda (penanda dibuat volatile karena dibaca thread sapuan latar), dan blok tampil-lagi di onResume sengaja tidak membersihkan penanda sebelum dialog memasang penandanya sendiri, menutup celah balapan di antaranya.
