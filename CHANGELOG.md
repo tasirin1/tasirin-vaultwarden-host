@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 538: catatan log dari receiver kini sampai ke berkas log dan langsung di-flush
+- Dua jalur log tak simetris: `appendLog` (milik service) menulis buffer memori + buffer berkas (flush pada 16 KB), tetapi `catatLog` — jalur yang dipakai BootReceiver, AlarmReceiver, dan pembersih proses yatim — hanya menulis buffer memori, sehingga catatan boot/alarm (termasuk penolakan throttle boot) tak pernah ada di `vaultwarden.log` sama sekali. Dan flush berkas yang bertumpu pada ambang 16 KB + onDestroy membuat ekor log hilang bila STB mati listrik/dibunuh paksa sebelum ambang tercapai.
+- Penulisan berkas disatukan ke helper `tulisKeBerkasLog` yang dipakai kedua jalur; `catatLog` kini juga mengantre ke berkas dan langsung mem-flush (kejadian boot/alarm jarang, biaya tulisnya kecil) — catatan itu kini persisten begitu dibuat, sementara aliran log server yang deras tetap di-batch pada ambang 16 KB seperti sebelumnya.
+
 ## [Belum rilis] — Audit 537: notifikasi dan localUrl menampilkan port yang benar-benar didengarkan server
 - Teks notifikasi (`bangunNotifikasi` lewat `currentPort()`) dan `localUrl()` membaca port dari prefs, berbeda dari `pingRinci`/`portLoopback` yang mendahulukan `runningPort`. Server yang sudah berjalan tetap di port lama sampai restart, tetapi notifikasi "Server aktif di port ..." dan URL bagikan langsung berubah mengikuti suntingan Settings — pengguna mengira server pindah port atau mati.
 - Jalur tampil kini mendahulukan `runningPort` bila server sudah terikat (helper `portTampil()` untuk notifikasi; `localUrl` meniru pilihan `pingRinci` persis), dan jatuh ke port prefs hanya bila belum ada port berjalan. `currentPort()` sendiri SENGAJA tidak diubah: ia juga mengisi `sesi.port` saat persiapan start, yang memang harus port target dari prefs.

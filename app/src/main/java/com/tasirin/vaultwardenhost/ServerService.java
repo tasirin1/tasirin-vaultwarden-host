@@ -2661,12 +2661,7 @@ public class ServerService extends Service {
         return stamp;
     }
 
-    private void appendLog(String line) {
-        if (line == null) {
-            return;
-        }
-        String stamp = tulisBarisLog(line);
-
+    private static void tulisKeBerkasLog(String stamp, String line) {
         synchronized (LOG_FILE_LOCK) {
             if (logFile == null) {
                 return;
@@ -2676,6 +2671,14 @@ public class ServerService extends Service {
                 flushLogFileLocked();
             }
         }
+    }
+
+    private void appendLog(String line) {
+        if (line == null) {
+            return;
+        }
+        String stamp = tulisBarisLog(line);
+        tulisKeBerkasLog(stamp, line);
     }
 
     private static void flushLogFile() {
@@ -4364,7 +4367,9 @@ public class ServerService extends Service {
         if (line == null) {
             return;
         }
-        tulisBarisLog(line);
+        String stamp = tulisBarisLog(line);
+        tulisKeBerkasLog(stamp, line);
+        flushLogFile();
     }
 
     private static void pangkasBufferTerkunci() {
