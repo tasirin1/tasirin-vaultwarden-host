@@ -12,6 +12,7 @@ jobs:
   auto-merge:
     name: Auto-merge PR Dependabot
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     concurrency:
       group: auto-merge-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false

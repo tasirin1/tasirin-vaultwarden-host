@@ -16,6 +16,7 @@ jobs:
   label:
     name: Pasang label audit dari penanda badan issue
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Pasang label audit bila badan memuat penanda ronde audit
         env:

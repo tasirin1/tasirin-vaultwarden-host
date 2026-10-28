@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 558: semua job workflow kini punya timeout-minutes eksplisit
+- Hanya CodeQL yang membatasi job-nya (60 menit); job lain mewarisi batas default platform 360 menit. Build binary atau panggilan `gh` yang menggantung dapat membakar jam runner berjam-jam dan — karena grup concurrency repo memakai cancel-in-progress: false — menahan run berikutnya di belakang job yang sebenarnya sudah mati.
+- timeout-minutes kini terpasang di semua job: verifikasi/resolve 15/10, build-apk 90, build-binary 120, publish-binary 30, gitleaks/stale/auto-merge 15, labeler/label-audit 5 (CodeQL tetap 60). Seluruh YAML terverifikasi parse sesudah perubahan (dan kini juga dijaga gerbang Audit 553).
+
 ## [Belum rilis] — Audit 557: label audit untuk pengecualian stale kini terpasang otomatis
 - Pengecualian stale bagi antrean audit (#245) bekerja hanya karena label `audit` dipasang manual sekali itu; tak ada workflow/template yang memasangnya. Issue audit putaran berikutnya yang lupa dilabeli akan ditandai stale di hari ke-45 dan ditutup otomatis di hari ke-59 — antrean kerja hilang tanpa keputusan.
 - Workflow baru `label-audit.yml` berjalan pada issue dibuka/diedit: badan yang memuat penanda baku "Ronde audit" otomatis mendapat label `audit` (badan diteruskan lewat env, bukan interpolasi run, agar aman dari injeksi). Issue non-audit tak disentuh.

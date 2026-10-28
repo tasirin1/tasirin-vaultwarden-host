@@ -29,6 +29,7 @@ jobs:
   verifikasi:
     name: Cek patch yang berubah
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -50,6 +51,7 @@ jobs:
   resolve:
     name: Resolve latest Vaultwarden
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     outputs:
       vw: ${{ steps.ambil.outputs.tag }}
     steps:
@@ -63,6 +65,7 @@ jobs:
     name: Assemble APK
     needs: [resolve, verifikasi]
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
 
     permissions:
       contents: write
