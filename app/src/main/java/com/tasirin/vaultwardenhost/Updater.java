@@ -1148,7 +1148,13 @@ public final class Updater {
                 TgBackup.amanString(sp, ServerService.KEY_BIN_PATCH, ""));
         String sebutan = (paksa || adaKuncianBinary(ctx))
                 ? "Sudah versi pilihan: v" : "Sudah versi terbaru: v";
-        String realJalan = parseBinaryVersion(ServerService.binaryVersion);
+        // binaryVersion tidak dibersihkan saat server berhenti, jadi
+        // nilainya hanya boleh dipercaya selagi proses benar-benar
+        // berjalan; sesudah Stop, keputusan wajib berdasar berkas di
+        // disk (versiFileBinary di bawah), bukan ingatan proses lama
+        // (Audit 648).
+        String realJalan = ServerService.running
+                ? parseBinaryVersion(ServerService.binaryVersion) : null;
 
         if (!paksa && !butuhRefresh && bandingVersi(realJalan, latest) >= 0) {
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 648: keputusan update tak lagi memakai versi proses yang sudah berhenti
+- `tryUpdateVersi` bisa menyimpulkan "sudah versi terbaru" dari `ServerService.binaryVersion` — nilai yang tidak dibersihkan saat server berhenti dan bertahan selama proses aplikasi hidup. Bila binary di disk diganti/diturunkan lewat restore sesudah Stop, Cek Update tetap menyatakan terbaru tanpa mem-probe berkas. Nilai proses kini hanya dipercaya selagi server benar-benar berjalan; sesudah Stop keputusan berdasar probe berkas di disk.
+
 ## [Belum rilis] — Audit 646: shim gagal terpasang tak lagi membatalkan Start bila binary terbukti jalan tanpanya
 - Klasifikasi legacy menggerbang Start secara keras: shim gagal terpasang (mis. pemasangan pertama offline) = Start batal, padahal sebagian kernel 3.x vendor membawa backport getrandom sehingga binary sebenarnya tidak butuh shim sama sekali — dan deteksi versi tak bisa melihat backport itu. Kini kegagalan pasang shim dibuktikan dulu lewat uji asap `--version` tanpa shim: lolos → Start lanjut tanpa `LD_PRELOAD` dengan catatan log; gagal → batal seperti semula. Perangkat legacy murni tanpa backport tidak berubah perilakunya (uji asapnya memang gagal tanpa shim).
 
