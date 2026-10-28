@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 604: pasang manual kini ikut membatalkan notifikasi update
+- Sisa Audit 600 yang ditemukan self-review: notifikasi "update tersedia" (ID 2) hanya dibatalkan pada `AutoUpdate.cek()` berikutnya, padahal jalur pasang paling lazim justru manual — tombol Update dan pilih versi di Settings serta perintah `/update` bot. Ketiga jalur itu kini memanggil `batalkanNotifikasiUpdate` pada titik yang sama dengan pengosongan `pendingVersion` (saat binary benar-benar berubah), jadi notifikasi basi tak lagi tergantung selama sisa sesi Settings.
+
 ## [Belum rilis] — Audit 603: penjaga dialog impor tak lagi macet bila dialog gagal tampil
 - Self-review menemukan celah penjaga Audit 597: `DialogAman.tampil` menelan kegagalan tampil (activity selesai atau `show()` melempar) tanpa dismiss maupun pengecualian, sehingga `dialogImporTampil` bisa macet `true` dan impor config terenkripsi mati total sampai Settings dibuka ulang. Kini sesudah `tampil(...)` hasilnya diperiksa: bila dialog ternyata tak tampil (`!isShowing()`), penjaga dilepas dan berkas + penanda tertunda dibiarkan agar `onResume` berikutnya menampilkan dialog lagi.
 

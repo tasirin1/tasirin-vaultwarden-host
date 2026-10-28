@@ -1804,6 +1804,9 @@ public final class TgBot {
                     }
                 }
                 String msg = Updater.tryUpdateVersi(ctx, versi) + imbuhShim;
+                if (Updater.binaryBerubah(msg)) {
+                    AutoUpdate.batalkanNotifikasiUpdate(ctx);
+                }
                 balasHasilUnduh(ctx, idRuang, msg, Updater.binaryBerubah(msg), was);
             } catch (Exception e) {
 

@@ -3225,6 +3225,7 @@ public class SettingsActivity extends Activity {
             String msg = Updater.tryUpdate(app);
             if (Updater.binaryBerubah(msg)) {
                 pendingVersion = null;
+                AutoUpdate.batalkanNotifikasiUpdate(app);
             }
             appendUiLog("[app] " + msg + imbuhShimLog);
             toast(Updater.binaryBerubah(msg)
@@ -3377,6 +3378,7 @@ public class SettingsActivity extends Activity {
                     String msg = Updater.tryUpdateVersi(this, target);
                     if (Updater.binaryBerubah(msg)) {
                         pendingVersion = null;
+                        AutoUpdate.batalkanNotifikasiUpdate(this);
                     }
                     appendUiLog("[app] " + msg);
                     toast(Updater.binaryBerubah(msg)
