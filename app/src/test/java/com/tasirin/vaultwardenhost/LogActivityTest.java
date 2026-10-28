@@ -17,6 +17,21 @@ public class LogActivityTest {
     }
 
     @Test
+    public void samarkanLog_pathAbsolutTersamar() {
+        // Audit 601: folder data kustom + nama berkas backup tak boleh
+        // terbaca dari log yang dibagikan; URL biasa tak tersentuh.
+        String r = LogActivity.samarkanLog(
+                "[app] Config export: /storage/emulated/0/DocsKu/app-config-2025.json"
+                        + " dan CA ke /data/data/com.tasirin.vaultwardenhost/files/ca.pem");
+        assertFalse(r.contains("/storage/emulated"));
+        assertFalse(r.contains("DocsKu"));
+        assertFalse(r.contains("/data/data"));
+        assertTrue(r.contains("[path]"));
+        String url = LogActivity.samarkanLog("cek https://github.com/tasirin1/rilis");
+        assertTrue(url.contains("https://github.com/tasirin1/rilis"));
+    }
+
+    @Test
     public void samarkanLog_emailDanIpPublikTersamar() {
         String r = LogActivity.samarkanLog(
                 "login gagal untuk budi.santoso@gmail.com dari 36.68.221.10");

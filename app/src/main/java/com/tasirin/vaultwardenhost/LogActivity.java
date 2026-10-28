@@ -553,6 +553,14 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_DOMAIN =
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
 
+    // Path absolut di akar penyimpanan Android: folder data kustom,
+    // nama berkas backup/ekspor, dan path cache internal adalah
+    // metadata tata-letak perangkat yang tak boleh ikut terbagikan
+    // (Audit 601).
+    private static final java.util.regex.Pattern POLA_PATH_ABSOLUT =
+            java.util.regex.Pattern.compile(
+                    "(?:/storage|/sdcard|/data|/mnt)/[^\\s\"',;\\]]*");
+
     private static final java.util.regex.Pattern POLA_SANDI_SPASI =
             java.util.regex.Pattern.compile("(?i)((?:tg_pass)\\s*[:=]\\s*)([^\n&]+?)"
                     + "(?=\\s+(?:tg_token|tg_chat|pin_hash|admin_token|DOMAIN|chat_id|token)\\s*[:=]|\\n|$)");
@@ -779,7 +787,15 @@ public class LogActivity extends Activity {
         if (adaIpPublik(r)) {
             r = POLA_IP_PUBLIK.matcher(r).replaceAll("[ip-publik]");
         }
+        if (adaPathAbsolut(r)) {
+            r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");
+        }
         return r;
+    }
+
+    static boolean adaPathAbsolut(String t) {
+        return t != null && (t.contains("/storage/") || t.contains("/sdcard/")
+                || t.contains("/data/") || t.contains("/mnt/"));
     }
 
     static boolean adaBentukTokenMentah(String t) {

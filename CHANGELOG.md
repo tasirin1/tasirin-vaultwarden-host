@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 601: path absolut disamarkan pada log yang keluar
+- Gerbang samaran log menutup token/IP/email/domain/perangkat, tetapi tidak path berkas: log yang dibagikan/disimpan/dikirim bot membocorkan lokasi folder data kustom user, nama berkas backup/ekspor beserta stempelnya, dan path cache internal ke penerima log — metadata tata-letak yang user kira sudah "disamarkan".
+- Kini `samarkanLog` mengganti path absolut berakar `/storage`, `/sdcard`, `/data`, dan `/mnt` dengan `[path]` (pola `POLA_PATH_ABSOLUT` dengan penjaga cepat `adaPathAbsolut`, mengikuti gaya pola yang ada). URL biasa tak tersentuh. Dikunci uji JVM baru.
+
 ## [Belum rilis] — Audit 600: notifikasi update dibatalkan saat tak ada lagi update tertunda
 - Notifikasi "update tersedia" (ID 2) hanya hilang bila diketuk (autoCancel); tidak ada satu pun `NotificationManager.cancel` di basis kode. Update yang terpasang lewat bot/Settings meninggalkan notifikasi "vX available" tergantung tanpa batas untuk versi yang sudah terpasang — menyesatkan dan bisa memicu unduh ulang.
 - Kini helper `batalkanNotifikasiUpdate` dipanggil di ketiga titik `cek()` yang mengosongkan keadaan tertunda (sudah versi terbaru, versi lebih baru dari rilis, dan sesudah auto-update terpasang), jadi pemeriksaan berkala berikutnya membersihkan laci begitu update tak lagi tertunda.
