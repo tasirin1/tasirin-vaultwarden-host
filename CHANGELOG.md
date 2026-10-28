@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 571: asersi uji potongEkorBaris diketatkan ke nilai eksak
+- Uji `potongEkor_jumboMulaiBatasBaris` memakai disjungsi longgar (`startsWith("baru") || tak ada newline || contains("baru")`) yang juga lolos untuk keluaran salah seperti potongan tengah-baris — persis regresi yang dicegah metode itu. Nilai harapan eksaknya ("baru2" untuk masukan uji, dibuktikan porting Python 1:1 dari implementasi) kini dikunci dengan `assertEquals`, selaras uji-uji saudara di berkas yang sama.
+
 ## [Belum rilis] — Audit 570: pohon struktur AGENTS.md diselaraskan dengan isi repo nyata
 - Pohon "Struktur repository" di AGENTS.md tertinggal: hanya memuat 2 dari 8 workflow (codeql/gitleaks/labeler/label-audit/stale/auto-merge dan action komposit resolve-vw tak tercantum), pohon java memuat 21 dari 23 kelas (AboutDialog dan DialogAman hilang), dan daftar varian `res/values` menghilangkan `values-in` (folder terjemahan yang wajib sinkron) serta `values-sw600dp`.
 - Pohon kini menyebut seluruh workflow dan action komposit, kedua kelas yang hilang, dan varian values yang lengkap — peta pertama pengelola/agen kembali bisa dipercaya.

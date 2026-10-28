@@ -192,7 +192,7 @@ public class LogActivityTest {
         String ekor = LogActivity.potongEkorBaris(teks, 11);
         assertTrue(ekor.length() <= 11);
         assertFalse(ekor.contains("lama1"));
-        assertTrue(ekor.startsWith("baru") || !ekor.contains("\n") || ekor.contains("baru"));
+        assertEquals("baru2", ekor);
     }
 
     @Test
