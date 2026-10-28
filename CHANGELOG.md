@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 624: auto-merge Dependabot kini menunggu hasil Build APK, bukan hanya gerbang patch
+- Langkah "Auto-merge setelah CI hijau" sebelumnya menipu namanya: `--auto` hanya menunggu check wajib branch, dan satu-satunya check wajib adalah `Cek patch yang berubah` (gerbang patch tanpa compile/lint/uji) — bump major grup GitHub Actions yang mematahkan build bisa ter-merge otomatis. Workflow auto-merge kini menunggu run Build APK untuk head SHA PR itu: bila ada, auto-merge hanya diaktifkan sesudah run itu `success` (gagal/batal/timeout menunggu = dibatalkan); bila tak ada run (PR tersaring path sehingga build memang tak berjalan), jalur lama berlaku. Batas waktu job dinaikkan 15 → 25 menit untuk memberi ruang tunggu itu.
+
 ## [Belum rilis] — Audit 622: gerbang killStale dikoreksi — anak basi sesudah Stop kembali dibersihkan
 - Self-review menemukan regresi pada perbaikan Audit 612: `lewatiBunuhBasi` memakai `childPid < 0` sebagai tanda ambiguitas, padahal nilai itu juga muncul pada keadaan normal sesudah Stop (tak ada proses terlacak sama sekali) — akibatnya anak basi berinduk aplikasi yang lolos dari Stop tak pernah dibunuh dan Start gugur "port dipakai proses lain" selamanya. Gerbang kini digerakkan keadaan yang sebenarnya dimaksud: hanya bila ada proses terlacak yang BENAR-BENAR hidup (`isProcessAlive()`) tetapi PID-nya tak teridentifikasi, kandidat ber-PPID aplikasi dilewati. Tanpa proses hidup, semua kandidat memang basi dan dibersihkan seperti sebelum Audit 612. Tanda tangan predikat berubah dan uji diperbarui di commit yang sama, termasuk kasus regresinya.
 

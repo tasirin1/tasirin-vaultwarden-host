@@ -12,7 +12,7 @@ jobs:
   auto-merge:
     name: Auto-merge PR Dependabot
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     concurrency:
       group: auto-merge-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false
@@ -67,7 +67,43 @@ jobs:
           echo "::error::Cek wajib 'Cek patch yang berubah' tak muncul di PR ini - auto-merge dibatalkan (proteksi branch mungkin berubah)."
           exit 1
 
-      - name: Auto-merge setelah CI hijau (bukan dependensi Gradle)
+      - name: Tunggu hasil Build APK untuk head PR ini (bila ada)
+        if: env.GRADLE_DEPS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ github.event.pull_request.head.sha }}"
+          RUN_ID=""
+          for i in 1 2 3 4 5 6 7 8; do
+            RUN_ID=$(gh run list -R ${{ github.repository }} --workflow build-apk.yml --commit "$SHA" --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)
+            if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+              break
+            fi
+            sleep 15
+          done
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "Tak ada run Build APK untuk head ini (PR tersaring path) - lanjut hanya dengan cek wajib."
+            exit 0
+          fi
+          echo "Menunggu run Build APK $RUN_ID selesai..."
+          for i in $(seq 1 36); do
+            BARIS=$(gh run view "$RUN_ID" -R ${{ github.repository }} --json status,conclusion --jq '[.status, (.conclusion // "")] | @tsv' 2>/dev/null || true)
+            STATUS=$(printf '%s' "$BARIS" | cut -f1)
+            CONCL=$(printf '%s' "$BARIS" | cut -f2)
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCL" = "success" ]; then
+                echo "Build APK hijau untuk head ini."
+                exit 0
+              fi
+              echo "::error::Build APK berakhir '$CONCL' - auto-merge dibatalkan."
+              exit 1
+            fi
+            sleep 20
+          done
+          echo "::error::Build APK belum selesai dalam batas tunggu - auto-merge dibatalkan."
+          exit 1
+
+      - name: Auto-merge sesudah build dan cek wajib hijau (bukan dependensi Gradle)
         if: env.GRADLE_DEPS != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
