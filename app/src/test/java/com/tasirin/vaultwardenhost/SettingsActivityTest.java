@@ -292,4 +292,19 @@ public class SettingsActivityTest {
         assertFalse(SettingsActivity.bolehDialogPin(true, true, false));
         assertFalse(SettingsActivity.bolehDialogPin(true, false, true));
     }
+
+    @Test
+    public void berkasImporTertundaTidakBolehDisapu() {
+        String tertunda = "/cache/vwcfg-import-111.enc";
+        assertFalse(SettingsActivity.berkasImporBolehDisapu(
+                "vwcfg-import-111.enc", tertunda, tertunda));
+        assertTrue(SettingsActivity.berkasImporBolehDisapu(
+                "vwcfg-import-222.enc", "/cache/vwcfg-import-222.enc", tertunda));
+        assertTrue(SettingsActivity.berkasImporBolehDisapu(
+                "vwcfg-import-111.enc", tertunda, null));
+        assertFalse(SettingsActivity.berkasImporBolehDisapu(
+                "berkas-lain.txt", "/cache/berkas-lain.txt", tertunda));
+        assertFalse(SettingsActivity.berkasImporBolehDisapu(
+                null, tertunda, tertunda));
+    }
 }

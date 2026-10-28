@@ -2869,6 +2869,14 @@ public class SettingsActivity extends Activity {
         });
     }
 
+    static boolean berkasImporBolehDisapu(String nama, String path,
+            String pathTertunda) {
+        if (nama == null || !nama.startsWith("vwcfg-import")) {
+            return false;
+        }
+        return pathTertunda == null || !pathTertunda.equals(path);
+    }
+
     private void sapuSisaImpor() {
         try {
             File tertunda = imporTertundaFile;
@@ -2877,17 +2885,14 @@ public class SettingsActivity extends Activity {
             File[] sisa = getCacheDir().listFiles();
             if (sisa != null) {
                 for (File f : sisa) {
-                    String n = f.getName();
-                    if (n.startsWith("vwcfg-import")) {
-                        // Berkas impor yang dialog passwordnya sedang
-                        // tampil/tertunda BUKAN sisa: menghapusnya
-                        // membatalkan impor dan membuat password yang
-                        // benar tercatat sebagai percobaan gagal
-                        // (Audit 595).
-                        if (pathTertunda != null
-                                && pathTertunda.equals(f.getAbsolutePath())) {
-                            continue;
-                        }
+                    // Berkas impor yang dialog passwordnya sedang
+                    // tampil/tertunda BUKAN sisa: menghapusnya
+                    // membatalkan impor dan membuat password yang
+                    // benar tercatat sebagai percobaan gagal
+                    // (Audit 595). Predikatnya murni agar terkunci
+                    // uji (Audit 610).
+                    if (berkasImporBolehDisapu(f.getName(),
+                            f.getAbsolutePath(), pathTertunda)) {
                         f.delete();
                     }
                 }

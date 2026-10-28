@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 610: predikat pengecualian sapuan impor diekstrak dan dikunci uji
+- Pengecualian Audit 595 (berkas impor tertunda tak boleh disapu) sebelumnya inline di metode privat `sapuSisaImpor` sehingga tak terjangkau uji — refactor sapuan berikutnya bisa menghilangkannya lagi tanpa sinyal, persis pola yang melahirkan temuan Sedang itu. Logikanya kini predikat murni statis `berkasImporBolehDisapu(nama, path, pathTertunda)` yang dipakai pemanggil yang sama, dikunci uji: path tertunda persis → tahan; berkas impor lain → sapu; tanpa penanda → sapu; nama bukan impor/null → jangan sentuh.
+
 ## [Belum rilis] — Audit 609: keputusan penanda pengumuman update diekstrak dan dikunci uji
 - Aturan Audit 599 (penanda `tg_notified_version` dicatat sesudah pengumuman dicoba, tidak digerbang keberhasilan notifikasi sistem) sebelumnya hidup inline di `AutoUpdate.cek()` sehingga tak terjangkau uji — mengembalikan gerbang lama akan menghijaukan seluruh suite sambil menghidupkan lagi spam Telegram. Keputusan itu kini predikat murni `catatPenandaPengumuman(tercatat, versi, pengumumanDicoba)` yang tanda tangannya sengaja tidak menerima hasil notifikasi sistem, dikunci uji tabel keputusan (versi baru + sudah dicoba → catat; versi sama → tidak; belum dicoba → tidak).
 
