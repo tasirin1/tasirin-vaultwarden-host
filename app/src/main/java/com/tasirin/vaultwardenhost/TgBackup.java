@@ -2713,7 +2713,8 @@ public final class TgBackup {
         for (File f : isi) {
             try {
                 String n = f.getName();
-                boolean calon = n.startsWith("backup-telegram-")
+                boolean calon = (n.startsWith("backup-telegram-")
+                        || n.startsWith("vwtg-restore-bot-"))
                         && (n.endsWith(".zip") || n.endsWith(".zip.tmp"));
                 if (!calon) {
                     continue;

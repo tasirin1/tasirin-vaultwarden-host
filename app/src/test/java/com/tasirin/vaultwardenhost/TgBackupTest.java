@@ -847,19 +847,30 @@ public class TgBackupTest {
             java.io.File basiTmp = new java.io.File(dir, "backup-telegram-20260101-000001.zip.tmp");
             java.io.File segar = new java.io.File(dir, "backup-telegram-20260102-000000.zip");
             java.io.File enc = new java.io.File(dir, "backup-telegram-20260101-000000.zip.enc");
+            java.io.File restoreBotBasi = new java.io.File(dir, "vwtg-restore-bot-20260101-000000.zip");
+            java.io.File restoreBotSegar = new java.io.File(dir, "vwtg-restore-bot-20260102-000000.zip");
+            java.io.File restoreSettingsBasi = new java.io.File(dir, "vwtg-restore-20260101-000000.zip");
             assertTrue(basi.createNewFile());
             assertTrue(basiTmp.createNewFile());
             assertTrue(segar.createNewFile());
             assertTrue(enc.createNewFile());
+            assertTrue(restoreBotBasi.createNewFile());
+            assertTrue(restoreBotSegar.createNewFile());
+            assertTrue(restoreSettingsBasi.createNewFile());
             long basiMs = System.currentTimeMillis() - TgBackup.UMUR_DEC_TMP_MS - 60_000L;
             assertTrue(basi.setLastModified(basiMs));
             assertTrue(basiTmp.setLastModified(basiMs));
             assertTrue(enc.setLastModified(basiMs));
+            assertTrue(restoreBotBasi.setLastModified(basiMs));
+            assertTrue(restoreSettingsBasi.setLastModified(basiMs));
             TgBackup.sapuZipPlainCacheBasi(dir);
             assertFalse(basi.exists());
             assertFalse(basiTmp.exists());
             assertTrue(segar.exists());
             assertTrue(enc.exists());
+            assertFalse(restoreBotBasi.exists());
+            assertTrue(restoreBotSegar.exists());
+            assertTrue(restoreSettingsBasi.exists());
         } finally {
             java.io.File[] sisa = dir.listFiles();
             if (sisa != null) {
