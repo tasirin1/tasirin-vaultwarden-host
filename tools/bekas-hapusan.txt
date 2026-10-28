@@ -100,3 +100,4 @@ fetchChecksum
 namaDnsValid
 namaDnsTolakIpv6
 namaDnsValidTerimaLokalTolakIpDanRusak
+isi_urandom

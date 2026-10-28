@@ -44,12 +44,32 @@ static int semua_byte_sama(unsigned char *b) {
 int main(void) {
     unsigned char b[32];
     unsigned char c[32];
-    ssize_t n = getrandom(b, sizeof b, 0xFFFFu);
+    errno = 0;
+    ssize_t tolak = getrandom(b, sizeof b, 0xFFFFu);
+    if (tolak != -1 || errno != EINVAL) {
+        printf("GAGAL flags tak dikenal harus EINVAL (ret=%zd errno=%d)\n",
+               tolak, errno);
+        return 1;
+    }
+    errno = 0;
+    long tolak2 = syscall(SYS_getrandom, c, sizeof c, 0xFFFFu);
+    if (tolak2 != -1 || errno != EINVAL) {
+        printf("GAGAL syscall flags tak dikenal harus EINVAL (ret=%ld errno=%d)\n",
+               tolak2, errno);
+        return 1;
+    }
+    unsigned char r[32];
+    ssize_t nr = getrandom(r, sizeof r, 0x0002u);
+    if (nr != 32) {
+        printf("GAGAL getrandom GRND_RANDOM n=%zd\n", nr);
+        return 1;
+    }
+    ssize_t n = getrandom(b, sizeof b, 0);
     if (n != 32) {
         printf("GAGAL getrandom n=%zd\n", n);
         return 1;
     }
-    long m = syscall(SYS_getrandom, c, sizeof c, 0xFFFFu);
+    long m = syscall(SYS_getrandom, c, sizeof c, 0);
     if (m != 32) {
         printf("GAGAL syscall(SYS_getrandom) m=%ld\n", m);
         return 1;

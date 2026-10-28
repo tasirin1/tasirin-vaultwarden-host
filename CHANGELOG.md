@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 493: shim getrandom kini menghormati flags, bukan membuangnya
+- Kedua pintu shim (`getrandom()` dan interposisi `syscall(SYS_getrandom)`) membuang argumen `flags` sepenuhnya: flags tak dikenal yang menurut kontrak Linux harus `EINVAL` diterima diam-diam, dan `GRND_RANDOM` dilayani dari `/dev/urandom` — dan uji host justru mengunci penyimpangan itu dengan menuntut sukses untuk flags `0xFFFF`.
+- Shim kini memvalidasi flags lewat `getrandom_bendera` (gabungan yang dikenal hanya NONBLOCK/RANDOM/INSECURE; sisanya -1/EINVAL), melayani `GRND_RANDOM` dari `/dev/random` lewat jalur baca yang sama (`isi_dari` berparameter sumber, fd terpisah), dan jalur syscall membaca argumen ketiga untuk meneruskannya. Uji host dibalik: `0xFFFF` wajib EINVAL di kedua pintu, `GRND_RANDOM` wajib terisi 32 byte, flags 0 tetap jalan. Pembungkus `isi_urandom` yang tak lagi terpakai dihapus dan dicatat di `tools/bekas-hapusan.txt`. Bukti lokal sebatas `gcc -fsyntax-only` bersih (aturan repo: tanpa build/test); uji interposisi penuh berjalan di CI build-binary.
+
 ## [Belum rilis] — Audit 492: cache cap CA kini dibersihkan saat berkas CA hilang, tak lagi bergantian 0/hash lama
 - Cabang "CA tidak ada" di `capCaAktif` memperbarui `capCaWaktu` tetapi membiarkan `capCaStat`/`capCaNilai` lama: panggilan pertama sesudah cache kedaluwarsa mengembalikan 0 (health-check gagal), panggilan berikutnya dalam 60 detik mengembalikan hash CA lama dari jalur cepat (health-check lolos) — kondisi berkas yang sama menghasilkan hasil bergantian dan bisa memicu hitungan gagal palsu atau menutupi CA yang hilang.
 - Cabang itu kini mengosongkan pasangan cache (`capCaStat = MIN_VALUE`, `capCaNilai = 0`) sebelum memperbarui waktu, sehingga "CA hilang" adalah satu-satunya hasil sampai CA benar-benar ada lagi.

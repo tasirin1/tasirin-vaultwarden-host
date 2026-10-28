@@ -25,6 +25,7 @@
 #endif
 
 static int fd_urandom = -1;
+static int fd_random = -1;
 static pthread_mutex_t kunci_urandom = PTHREAD_MUTEX_INITIALIZER;
 static pthread_once_t sekali_syscall = PTHREAD_ONCE_INIT;
 static long (*nyata_syscall)(long, long, long, long, long, long, long) = 0;
@@ -37,7 +38,7 @@ __attribute__((constructor)) static void init_syscall_dini(void) {
     init_syscall_nyata();
 }
 
-static ssize_t isi_urandom(void *buf, size_t len) {
+static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
     if (len == 0) {
         return 0;
     }
@@ -47,21 +48,23 @@ static ssize_t isi_urandom(void *buf, size_t len) {
     }
     size_t sudah = 0;
     int coba_ebadf = 0;
+    int *wadah_fd = pakai_random ? &fd_random : &fd_urandom;
+    const char *sumber = pakai_random ? "/dev/random" : "/dev/urandom";
 
     pthread_mutex_lock(&kunci_urandom);
     for (;;) {
-        if (fd_urandom < 0) {
-            int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+        if (*wadah_fd < 0) {
+            int fd = open(sumber, O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
                 int e = errno;
                 pthread_mutex_unlock(&kunci_urandom);
                 errno = e;
                 return -1;
             }
-            fd_urandom = fd;
+            *wadah_fd = fd;
         }
         while (sudah < len) {
-            ssize_t n = read(fd_urandom, (char *) buf + sudah, len - sudah);
+            ssize_t n = read(*wadah_fd, (char *) buf + sudah, len - sudah);
             if (n < 0) {
                 int e = errno;
                 if (e == EINTR) {
@@ -74,8 +77,8 @@ static ssize_t isi_urandom(void *buf, size_t len) {
                         errno = EIO;
                         return -1;
                     }
-                    close(fd_urandom);
-                    fd_urandom = -1;
+                    close(*wadah_fd);
+                    *wadah_fd = -1;
                     break;
                 }
                 pthread_mutex_unlock(&kunci_urandom);
@@ -97,9 +100,22 @@ static ssize_t isi_urandom(void *buf, size_t len) {
     return (ssize_t) sudah;
 }
 
+#define GRND_NONBLOCK_SHIM 0x0001u
+#define GRND_RANDOM_SHIM 0x0002u
+#define GRND_INSECURE_SHIM 0x0004u
+#define GRND_DIKENAL_SHIM \
+    (GRND_NONBLOCK_SHIM | GRND_RANDOM_SHIM | GRND_INSECURE_SHIM)
+
+static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
+    if (flags & ~GRND_DIKENAL_SHIM) {
+        errno = EINVAL;
+        return -1;
+    }
+    return isi_dari(buf, buflen, (flags & GRND_RANDOM_SHIM) != 0);
+}
+
 ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
-    (void) flags;
-    return isi_urandom(buf, buflen);
+    return getrandom_bendera(buf, buflen, flags);
 }
 
 long syscall(long n, ...) {
@@ -108,16 +124,17 @@ long syscall(long n, ...) {
     va_start(ap, n);
     long a = va_arg(ap, long);
     long b = va_arg(ap, long);
+    long c = va_arg(ap, long);
     if (n == (long) SYS_getrandom
 #ifdef __NR_getrandom
         || n == (long) __NR_getrandom
 #endif
     ) {
         va_end(ap);
-        return (long) isi_urandom((void *) a, (size_t) b);
+        return (long) getrandom_bendera((void *) a, (size_t) b,
+                (unsigned int) c);
     }
 
-    long c = va_arg(ap, long);
     long d = va_arg(ap, long);
     long e = va_arg(ap, long);
     long f = va_arg(ap, long);
