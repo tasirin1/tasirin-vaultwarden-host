@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 513: potongEkorBaris tak lagi melanggar batasnya sendiri + hitungan baris jalur terpotong lurus
+- `potongEkorBaris` punya cabang khusus: bila newline PERTAMA seluruh teks jatuh di dalam jendela ekor, fungsi mengembalikan seluruh teks dari awal (terbukti dengan porting Python: teks 156 karakter lolos untuk batas 100) — batas `BATAS_TAMPIL_LOG` dilanggar persis pada log berbaris pertama raksasa. Cabang itu dihapus; ekor selalu dipotong pada batas baris pertama sesudah awal jendela atau potongan keras.
+- Hitungan baris hanya menghitung `\n`, sedangkan jalur terpotong membuang newline penutup — jumlah "baris" yang ditampilkan kurang 1 dari yang terlihat. `hitungBaris` (dipakai juga jalur delta Audit 512 dan menggantikan loop hitung inline) kini menghitung baris terakhir tanpa newline penutup sebagai satu baris. Satu ekspektasi uji lama yang mengunci pelanggaran batas (`"aa\nbb\n"` maks 4 → `"aa\nbb"`) diperbarui ke `"bb"` di commit yang sama, plus uji regresi baris-pertama-raksasa dan uji `hitungBaris`.
+
 ## [Belum rilis] — Audit 512: LogActivity menempel delta log, bukan membangun ulang seluruh teks tiap baris baru
 - Setiap baris log baru memicu pembangunan ulang total di layar log penuh: substring ekor ±100 rb karakter + hitung baris + samarkan seluruh teks + sorot seluruh teks + `setText` penuh, tiap tick 1,5 detik selama log mengalir — pola yang di layar utama sudah lama diganti tempel delta (`MainActivity.refreshHomeLog`), tetapi di sini tertinggal.
 - Bila tidak ada kata pencarian dan teks tampil sebelumnya berakhir baris utuh serta teks baru adalah lanjutannya, kini hanya delta yang disamarkan, disorot, dan ditempel (`append`), dengan hitungan baris diakumulasi (helper murni `hitungBaris`). Keadaan lain (pencarian aktif, buffer menyusut/bergeser, baris terakhir belum utuh) tetap jalur bangun-ulang penuh seperti sebelumnya.

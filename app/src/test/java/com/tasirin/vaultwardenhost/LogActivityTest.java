@@ -202,9 +202,31 @@ public class LogActivityTest {
 
     @Test
     public void potongEkor_newlineUjungTakBikinEkorKosong() {
-        assertEquals("aa\nbb", LogActivity.potongEkorBaris("aa\nbb\n", 4));
+        assertEquals("bb", LogActivity.potongEkorBaris("aa\nbb\n", 4));
         assertEquals("ccc", LogActivity.potongEkorBaris("aaa\nbbb\nccc\n", 5));
         assertEquals("", LogActivity.potongEkorBaris("\n\n\n", 2));
+    }
+
+    @Test
+    public void potongEkor_barisPertamaRaksasaTetapDibatasi() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 150; i++) {
+            sb.append('a');
+        }
+        sb.append("\nbbbbb");
+        String ekor = LogActivity.potongEkorBaris(sb.toString(), 100);
+        assertTrue(ekor.length() <= 100);
+        assertEquals("bbbbb", ekor);
+    }
+
+    @Test
+    public void hitungBarisSertakanBarisTerakhirTanpaNewline() {
+        assertEquals(2, LogActivity.hitungBaris("a\nb"));
+        assertEquals(2, LogActivity.hitungBaris("a\nb\n"));
+        assertEquals(0, LogActivity.hitungBaris(""));
+        assertEquals(0, LogActivity.hitungBaris(null));
+        assertEquals(1, LogActivity.hitungBaris("satu"));
+        assertEquals(3, LogActivity.hitungBaris("a\n\nb\n"));
     }
     @Test
     public void praCekTokenMentah_longgarTapiTakPernahMiss() {

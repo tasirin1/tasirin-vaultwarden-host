@@ -217,12 +217,7 @@ public class LogActivity extends Activity {
                 String tampil = text.length() > BATAS_TAMPIL_LOG
                         ? potongEkorBaris(text, BATAS_TAMPIL_LOG) : text;
 
-                int hitung = 0;
-                for (int i = 0; i < tampil.length(); i++) {
-                    if (tampil.charAt(i) == '\n') {
-                        hitung++;
-                    }
-                }
+                int hitung = hitungBaris(tampil);
 
                 String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
                 final CharSequence sorot = highlightLog(tampilAman, cari);
@@ -915,7 +910,7 @@ public class LogActivity extends Activity {
     static final int BATAS_TAMPIL_LOG = 100_000;
 
     static int hitungBaris(CharSequence teks) {
-        if (teks == null) {
+        if (teks == null || teks.length() == 0) {
             return 0;
         }
         int n = 0;
@@ -923,6 +918,9 @@ public class LogActivity extends Activity {
             if (teks.charAt(i) == '\n') {
                 n++;
             }
+        }
+        if (teks.charAt(teks.length() - 1) != '\n') {
+            n++;
         }
         return n;
     }
@@ -1117,10 +1115,6 @@ public class LogActivity extends Activity {
         }
         int mulai = akhir - maks;
 
-        int pertamaNl = text.indexOf('\n');
-        if (pertamaNl >= mulai && pertamaNl < akhir) {
-            return text.substring(0, akhir);
-        }
         int nl = text.indexOf('\n', mulai);
         if (nl >= 0 && nl + 1 < akhir) {
             return text.substring(nl + 1, akhir);
