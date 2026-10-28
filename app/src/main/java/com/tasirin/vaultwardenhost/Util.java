@@ -956,7 +956,11 @@ public final class Util {
         if (jumlah > batasJumlah) {
             throw new IOException("Terlalu banyak entri zip (" + jumlah + ").");
         }
-        long hasil = total + Math.max(0, tambah);
+        long t = Math.max(0, tambah);
+        if (total > Long.MAX_VALUE - t) {
+            throw new IOException("Ukuran unzip melebihi batas " + batas + " byte.");
+        }
+        long hasil = total + t;
         if (hasil > batas) {
             throw new IOException("Ukuran unzip melebihi batas " + batas + " byte.");
         }

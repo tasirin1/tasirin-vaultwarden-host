@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 673: tambahUkuranUnzip kini menjaga luapan long di dalam fungsi
+- Penjaga akuntansi ukuran unzip menjumlahkan `total + tambah` tanpa cek luapan: hasil yang membungkus melewati `Long.MAX_VALUE` menjadi negatif, lolos dari pemeriksaan batas, dan mengembalikan total negatif — pemeriksaan berikutnya mulai dari angka rusak. Semua pemanggil saat ini meneruskan byte yang benar-benar terbaca sehingga luapan belum terjangkau, tetapi invariant itu dipegang pemanggil, bukan fungsinya. Penjumlahan kini dijaga eksplisit: luapan diperlakukan sebagai pelampauan batas (lempar `IOException`), terkunci uji di tepi `Long.MAX_VALUE`.
+
 ## [Belum rilis] — Audit 672: mdSha256 kini mengembalikan digest baru — tak ada lagi keadaan bersama per thread
 - `mdSha256()` sebelumnya membagikan satu `MessageDigest` per thread lewat ThreadLocal dan me-*reset* pada setiap pengambilan. Itu rapuh terhadap pemakaian bersarang: kode yang sedang mengakumulasi hash streaming (unduhan, sidik berkas) akan kehilangan seluruh akumulasinya bila fungsi lain di thread yang sama mengambil digest di tengah — checksum akhir salah dan unduhan sah ditolak. Semua pemanggil saat ini terverifikasi tidak bersarang, tetapi invariant-nya dipegang disiplin pemanggil, bukan API-nya. Kini setiap pengambilan mengembalikan instance baru: keadaan bersama hilang, pemakaian bersarang aman menurut konstruksi, dan harga yang dibayar hanya pencarian provider per pengambilan (murah, dan pengambilan terjadi per berkas/unduhan — bukan per byte).
 

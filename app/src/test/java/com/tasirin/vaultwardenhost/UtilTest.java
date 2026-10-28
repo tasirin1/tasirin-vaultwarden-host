@@ -229,6 +229,11 @@ public class UtilTest {
             fail("harus lempar batas entri");
         } catch (java.io.IOException diharapkan) {
         }
+        try {
+            Util.tambahUkuranUnzip(Long.MAX_VALUE - 5, 10, Long.MAX_VALUE, 1, 10);
+            fail("harus lempar luapan long");
+        } catch (java.io.IOException diharapkan) {
+        }
     }
 
     @Test
