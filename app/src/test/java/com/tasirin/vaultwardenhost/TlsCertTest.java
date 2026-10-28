@@ -306,6 +306,54 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pulihkanTukarTersisa_pasangPasanganBaruAsli() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulihbaru");
+        File d = dir.toFile();
+        assertTrue(TlsCert.buatCa(new File(d, "cert.pem.baru"), new File(d, "key.pem.baru")));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertTrue(new File(d, "cert.pem").isFile());
+        assertTrue(new File(d, "key.pem").isFile());
+        assertTrue(TlsCert.pasanganCertKeyCocok(
+                new File(d, "cert.pem"), new File(d, "key.pem")));
+        assertFalse(new File(d, "cert.pem.baru").exists());
+        assertFalse(new File(d, "key.pem.baru").exists());
+    }
+
+    @Test
+    public void pulihkanTukarTersisa_pasangKunciBaruUntukSertifikatResmi() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulihkunci");
+        File d = dir.toFile();
+        assertTrue(TlsCert.buatCa(new File(d, "cert.pem"), new File(d, "key.pem.baru")));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertTrue(new File(d, "key.pem").isFile());
+        assertTrue(TlsCert.pasanganCertKeyCocok(
+                new File(d, "cert.pem"), new File(d, "key.pem")));
+    }
+
+    @Test
+    public void pulihkanTukarTersisa_perbaikiPasanganTakCocokDariCadAsli() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulihcad");
+        File d = dir.toFile();
+        File tmp = new File(d, "tmp.pem");
+        File tmpKey = new File(d, "tmp-key.pem");
+        assertTrue(TlsCert.buatCa(new File(d, "cert.pem"), tmpKey));
+        assertTrue(TlsCert.buatCa(tmp, new File(d, "key.pem")));
+        assertTrue(TlsCert.buatCa(new File(d, "cert.pem.cad"), new File(d, "key.pem.cad")));
+        String certCad = new String(Files.readAllBytes(
+                new File(d, "cert.pem.cad").toPath()), StandardCharsets.UTF_8);
+        assertFalse(TlsCert.pasanganCertKeyCocok(
+                new File(d, "cert.pem"), new File(d, "key.pem")));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertTrue(TlsCert.pasanganCertKeyCocok(
+                new File(d, "cert.pem"), new File(d, "key.pem")));
+        assertEquals(certCad, new String(Files.readAllBytes(
+                new File(d, "cert.pem").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "cert.pem.cad").exists());
+        assertFalse(new File(d, "cert.pem.rusak").exists());
+        assertFalse(new File(d, "key.pem.rusak").exists());
+    }
+
+    @Test
     public void pulihkanTukarTersisa_kembalikanSertifikatSajaDanAmanNull() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlspulih2");
         File d = dir.toFile();

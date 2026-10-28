@@ -464,7 +464,7 @@ public final class TlsCert {
         return sisa > LEAF_MAX_MS;
     }
 
-    private static boolean buatCa(File caCert, File caKey) {
+    static boolean buatCa(File caCert, File caKey) {
         try {
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, CA_CN,

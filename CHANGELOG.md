@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 607: jalur pemulihan pasangan asli pulihkanTukarTersisa kini teruji
+- Ketiga uji lama `pulihkanTukarTersisa` memakai berkas teks sehingga `pasanganCertKeyCocok` selalu false — seluruh jalur yang digerbang kecocokan kriptografis tak pernah berjalan. Ditambah tiga uji berpasangan asli (dibuat generator produksi `buatCa`, yang visibilitasnya dibuka setingkat ke paket mengikuti pola helper teruji lain): pasangan `.baru` terpasang, kunci `.baru` dipasang untuk sertifikat resmi, dan pasangan resmi tak cocok diperbaiki dari pasangan `.cad`. Dua sub-cabang gagal-rename di tengah (gulung-balik sertifikat dan fallback keyCad sesudah rename kunci gagal) tidak dapat diinduksi pada sistem berkas JVM — rename berkas ke path saudara yang belum ada dalam folder yang sama tak bisa gagal selektif — jadi keduanya tetap hanya dijaga kodenya, dicatat apa adanya.
+
 ## [Belum rilis] — Audit 606: uji nextMidnight kini mengunci zona DST transisi tengah malam
 - Uji DST yang ada (America/New_York, transisi 02:00) lolos identik di algoritma lama maupun baru, jadi iterasi titik-tetap Audit 590 sebenarnya tak terkunci: refactor yang mengembalikan koreksi satu lintasan akan menghijaukan seluruh suite. Ditambah uji `nextMidnight_dstTransisiTengahMalam` untuk Asia/Beirut dan America/Santiago — dua zona yang transisinya tepat tengah malam — dengan nilai epoch yang dibuktikan porting 1:1 (algoritma lama menghasilkan nilai berbeda pada kedua kasus).
 
