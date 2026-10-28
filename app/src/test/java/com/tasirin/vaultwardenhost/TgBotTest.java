@@ -27,9 +27,10 @@ public class TgBotTest {
 
     @Test
     public void peringatkanHapusPinAbaikanContextNull() {
-
+        assertTrue(TgBot.sudahUjiHapus(null));
         TgBot.peringatkanBilaTakBisaHapus(null, true, 123456789L);
         TgBot.peringatkanBilaTakBisaHapus(null, false, -1001234567890L);
+        assertTrue(TgBot.sudahUjiHapus(null));
     }
 
     @Test

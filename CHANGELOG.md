@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 555: dua uji tanpa asersi terakhir kini memeriksa postcondition nyata
+- Sisa pola yang pernah diperbaiki di #174: `cleanupOldBackups_nolAman` dan `peringatkanHapusPinAbaikanContextNull` hanya membuktikan "tidak crash untuk null" tanpa satu pun asersi — regresi yang membuat cleanup menciptakan folder atau menghapus isi pada masukan nol akan tetap hijau.
+- Uji cleanup kini menegaskan folder tak-ada tetap tak ada sesudah panggilan dan folder kosong tetap ada serta tetap kosong. Uji peringatan menegaskan invarian fail-closed `sudahUjiHapus(null)` tetap true sebelum dan sesudah kedua cabang panggilan null — keadaan "sudah diuji" tak bisa tercipta dari konteks null.
+
 ## [Belum rilis] — Audit 554: empat kelas utama terakhir kini punya uji JVM
 - `AboutDialog`, `DialogAman`, `LogExport`, dan `TgBotReceiver` adalah empat kelas utama tanpa satu pun uji (0 dari 23), sehingga regresi di pengelolaan dialog, ekspor log, dan receiver bot hanya tertangkap uji perangkat manual. Sebagian besar logikanya terikat Android, jadi yang diuji adalah jahitan murninya — dua di antaranya dibuka persis untuk itu tanpa mengubah perilaku:
 - `AboutDialog.rangkaianVersi` diekstrak kata-demi-kata dari `tampil` (komposisi baris versi: "?" bila kosong, sufiks binary/vault hanya bila ada) dan diuji 6 kombinasi. `LogExport.namaLog` dibuka paket dan diuji formatnya (awalan + stempel + 12 hex acak + .txt, dua panggilan berbeda). `TgBotReceiver.konfigBotSiap` diekstrak dari `adaKonfig` (token+chat wajib terisi sesudah trim) dan diuji 8 kombinasi termasuk null/spasi. `DialogAman` diuji keamanan-null jalur tampil/tutup. Jumlah kelas uji di AGENTS.md diperbarui 19 → 23.

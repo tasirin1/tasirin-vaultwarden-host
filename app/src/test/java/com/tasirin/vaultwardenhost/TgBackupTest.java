@@ -117,9 +117,19 @@ public class TgBackupTest {
     }
 
     @Test
-    public void cleanupOldBackups_nolAman() {
+    public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
-        TgBackup.cleanupOldBackups(new java.io.File("/jalan/tak/ada/vw-uji-nol"));
+        java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");
+        TgBackup.cleanupOldBackups(takAda);
+        org.junit.Assert.assertFalse(takAda.exists());
+        java.io.File kosong = java.nio.file.Files.createTempDirectory("vwcleanupnol").toFile();
+        try {
+            TgBackup.cleanupOldBackups(kosong);
+            org.junit.Assert.assertTrue(kosong.isDirectory());
+            org.junit.Assert.assertEquals(0, kosong.list().length);
+        } finally {
+            kosong.delete();
+        }
     }
 
     @Test
