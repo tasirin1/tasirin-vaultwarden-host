@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 539: penghitung start tertunda kini per-episode, bukan warisan antar-episode
+- `startTertundaData` statik hanya di-reset saat kunci data berhasil didapat atau batas 60 percobaan tercapai. Bila pengguna menekan Stop di tengah penundaan (restore/reset masih berjalan), hitungan berhenti di nilai tengah dan tak dibersihkan — episode tertunda berikutnya mewarisi sisa itu, sehingga jatah ±5 menitnya menyusut dan start bisa menyerah ("tekan Start lagi") jauh lebih awal pada restore panjang berikutnya.
+- Penghitung kini di-reset di ketiga titik batas episode: handler ACTION_START dan jalur sticky intent-null (episode baru dimulai → jatah penuh) serta handler ACTION_STOP (episode diakhiri paksa → sisa hitungan dibuang). Jalur kelanjutan episode yang sama (restartTunda dan start susulan) tidak menyentuhnya.
+
 ## [Belum rilis] — Audit 538: catatan log dari receiver kini sampai ke berkas log dan langsung di-flush
 - Dua jalur log tak simetris: `appendLog` (milik service) menulis buffer memori + buffer berkas (flush pada 16 KB), tetapi `catatLog` — jalur yang dipakai BootReceiver, AlarmReceiver, dan pembersih proses yatim — hanya menulis buffer memori, sehingga catatan boot/alarm (termasuk penolakan throttle boot) tak pernah ada di `vaultwarden.log` sama sekali. Dan flush berkas yang bertumpu pada ambang 16 KB + onDestroy membuat ekor log hilang bila STB mati listrik/dibunuh paksa sebelum ambang tercapai.
 - Penulisan berkas disatukan ke helper `tulisKeBerkasLog` yang dipakai kedua jalur; `catatLog` kini juga mengantre ke berkas dan langsung mem-flush (kejadian boot/alarm jarang, biaya tulisnya kecil) — catatan itu kini persisten begitu dibuat, sementara aliran log server yang deras tetap di-batch pada ambang 16 KB seperti sebelumnya.

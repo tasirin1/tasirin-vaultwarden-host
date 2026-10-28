@@ -975,6 +975,7 @@ public class ServerService extends Service {
             batalUtama(healthTick);
             batalUtama(restartTunda);
             batalStart = true;
+            startTertundaData.set(0);
 
             nomorStop.incrementAndGet();
 
@@ -1148,6 +1149,7 @@ public class ServerService extends Service {
             }
             autoRestart = true;
             batalStart = false;
+            startTertundaData.set(0);
             healthActive = true;
             startForegroundCompat();
             mulaiSetelahProsesMati = false;
@@ -1167,6 +1169,7 @@ public class ServerService extends Service {
         }
         autoRestart = true;
         batalStart = false;
+        startTertundaData.set(0);
         healthActive = true;
         simpanNiatJalan(true);
 
