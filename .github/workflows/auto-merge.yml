@@ -12,6 +12,9 @@ jobs:
   auto-merge:
     name: Auto-merge PR Dependabot
     runs-on: ubuntu-24.04
+    concurrency:
+      group: auto-merge-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
     if: github.actor == 'dependabot[bot]'
     steps:
       - name: Deteksi perubahan dependensi Gradle
@@ -46,6 +49,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} -R ${{ github.repository }} --body "PR ini mengubah dependensi Gradle. Sesuai aturan repo, perubahan dependensi ditangani manual: pastikan gerbang Verifikasi Patch dan build CI hijau dulu, lalu merge manual."
+
+      - name: Pastikan cek wajib muncul di PR ini
+        if: env.GRADLE_DEPS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in 1 2 3 4 5 6 7 8; do
+            CHECKS=$(gh pr checks ${{ github.event.pull_request.number }} -R ${{ github.repository }} 2>/dev/null || true)
+            if printf '%s' "$CHECKS" | grep -q 'Cek patch yang berubah'; then
+              echo "Cek wajib 'Cek patch yang berubah' terdaftar di PR ini."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Cek wajib 'Cek patch yang berubah' tak muncul di PR ini - auto-merge dibatalkan (proteksi branch mungkin berubah)."
+          exit 1
 
       - name: Auto-merge setelah CI hijau (bukan dependensi Gradle)
         if: env.GRADLE_DEPS != 'true'
