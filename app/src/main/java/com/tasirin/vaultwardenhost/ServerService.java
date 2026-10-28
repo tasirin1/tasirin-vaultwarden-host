@@ -1947,10 +1947,10 @@ public class ServerService extends Service {
             appendLog("[app] Admin token diaktifkan.");
         }
 
-        File localWv = new File(sesi.dataFolder, "web-vault/index.html");
-        if (localWv.exists()) {
+        File localWv = new File(sesi.dataFolder, "web-vault");
+        if (Updater.wvPayloadAda(localWv)) {
             pb.environment().put("WEB_VAULT_ENABLED", "true");
-            String folderWv = localWv.getParentFile().getAbsolutePath();
+            String folderWv = localWv.getAbsolutePath();
             pb.environment().put("WEB_VAULT_FOLDER", folderWv);
             appendLog("[app] Web vault (updated): " + folderWv);
         } else {
@@ -3120,8 +3120,7 @@ public class ServerService extends Service {
             java.io.File target = new java.io.File(dataDir, "web-vault");
             java.io.File bak = new java.io.File(dataDir, "web-vault.bak");
             if (bak.exists()) {
-                boolean aktifSehat = target.exists()
-                        && new java.io.File(target, "index.html").exists();
+                boolean aktifSehat = Updater.wvPayloadAda(target);
                 if (!aktifSehat) {
                     Updater.deleteRecursive(target);
                     if (!bak.renameTo(target)) {
@@ -3434,8 +3433,7 @@ public class ServerService extends Service {
     private File extractWebVault() {
 
         File dir = new File(getFilesDir(), "web-vault");
-        File index = new File(dir, "index.html");
-        if (index.exists()) {
+        if (Updater.wvPayloadAda(dir)) {
             return dir;
         }
         appendLog("[app] Web vault belum terpasang - tekan 'Update Web Vault' "

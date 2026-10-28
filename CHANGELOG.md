@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 525: gerbang kesehatan web-vault di ServerService memakai cek payload yang sama dengan Updater
+- Residu #235: perbaikan Audit 479 (`Updater.wvPayloadAda` — `index.html` wajib berkas dan berukuran > 0) hanya diterapkan di Updater. Tiga titik di ServerService masih memakai `exists()` polos: pengaktifan `WEB_VAULT_ENABLED` saat start, penilaian `aktifSehat` pada pemulihan `web-vault.bak`, dan `extractWebVault()`. `index.html` 0 byte (sisa ekstrak terpotong) dianggap sehat: server menyalakan web-vault kosong, dan cadangan `.bak` yang baik dibuang karena yang aktif dianggap sehat.
+- Ketiga titik kini memakai `Updater.wvPayloadAda(...)` yang sama — satu definisi "payload sehat" untuk seluruh app; jalur `.bak` akan memulihkan cadangan bila indeks aktif kosong, dan start tak lagi mengaktifkan web-vault tanpa isi.
+
 ## [Belum rilis] — Audit 524: cache cipher PabrikTls12 kini divalidasi per soket seperti jalur protokol
 - Sisa #254: jalur protokol di `PabrikTls12.nyalakan` sudah divalidasi per soket (irisan `protokolCadangan` bila cache tak sepenuhnya didukung), tetapi jalur cipher memakai `cipherCache` global mentah-mentah. Soket berikutnya dengan dukungan cipher berbeda membuat `setEnabledCipherSuites` melempar, eksepsi hanya dicatat, dan soket berjalan dengan cipher bawaan tanpa penyaringan `saringCipher` — filter cipher kuat hilang diam-diam untuk koneksi itu.
 - Daftar dukungan cipher soket kini selalu dibaca; cache yang tak sepenuhnya didukung dipotong ke irisan yang didukung soket ini (`cipherCadangan` baru, semantik sama dengan `protokolCadangan`), dan bila pemasangan tetap melempar, dicoba sekali lagi dengan irisan itu sebelum menyerah ke bawaan soket — persis pola jalur protokol. Uji JVM baru mengunci semantik irisan (urutan mengikuti pilihan, kosong untuk asing/null) dengan nilai harapan terverifikasi porting Python 1:1.
