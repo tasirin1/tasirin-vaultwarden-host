@@ -647,6 +647,7 @@ public class ServerServiceTest {
         assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, false, "192.168.1.9", ""));
         assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "", ""));
         assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, null, ""));
+        assertFalse(ServerService.restartIpBolehDiminta(2, 1_000, 61_000, true, true, "127.0.0.1", ""));
     }
 
     @Test

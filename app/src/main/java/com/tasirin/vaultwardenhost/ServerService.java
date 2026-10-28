@@ -300,6 +300,7 @@ public class ServerService extends Service {
     public static volatile String runningLanHost = "";
 
     private static volatile String ipBerubahDiperingatkan = "";
+    private static volatile boolean ipMatiDiperingatkan = false;
 
     private static volatile String ipBaruKandidat = "";
     private static volatile int ipBaruHitung = 0;
@@ -2816,7 +2817,8 @@ public class ServerService extends Service {
             boolean healthAktif, boolean prosesHidup, String kini, String diminta) {
         return hitung >= 2 && sejakMs > 0 && kiniMs - sejakMs >= IP_STABIL_MS
                 && healthAktif && prosesHidup
-                && kini != null && !kini.isEmpty() && !kini.equals(diminta);
+                && kini != null && !kini.isEmpty() && !kini.equals(diminta)
+                && !"127.0.0.1".equals(kini);
     }
 
     private void peringatkanIpBerubah() {
@@ -2832,6 +2834,19 @@ public class ServerService extends Service {
                 ipBaruSejak = 0;
                 return;
             }
+            if ("127.0.0.1".equals(kini)) {
+                ipBaruKandidat = "";
+                ipBaruHitung = 0;
+                ipBaruSejak = 0;
+                if (!ipMatiDiperingatkan) {
+                    ipMatiDiperingatkan = true;
+                    appendLog("[app] Jaringan LAN tidak terdeteksi (semua"
+                            + " antarmuka turun) - server TIDAK di-restart;"
+                            + " menunggu jaringan pulih.");
+                }
+                return;
+            }
+            ipMatiDiperingatkan = false;
             if (kini.equals(ipBaruKandidat)) {
                 ipBaruHitung++;
             } else {

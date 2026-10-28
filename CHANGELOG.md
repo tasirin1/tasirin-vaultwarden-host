@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 697: jaringan mati total tidak lagi dibaca sebagai perubahan IP
+- `lanHost()` mengembalikan `127.0.0.1` bila semua antarmuka turun, dan mekanisme perubahan IP tidak punya pengecualian untuk nilai itu: kepadaman jaringan yang cukup lama (router reboot) dibaca sebagai "IP berubah → 127.0.0.1", server di-restart ke mode loopback dengan pesan Telegram yang menyesatkan, lalu di-restart sekali lagi saat jaringan pulih walau IP-nya sama persis — dua restart dan satu jendela sertifikat tanpa SAN LAN untuk satu kepadaman. Keadaan loopback kini diperlakukan sebagai jaringan mati, bukan perubahan: kandidat perubahan dibersihkan, tidak ada restart dan tidak ada pengumuman "IP berubah", hanya satu catatan log jujur "jaringan tidak terdeteksi — menunggu pulih". Predikat murni `restartIpBolehDiminta` juga menolak loopback sebagai lapis kedua (terkunci uji).
+
 ## [Belum rilis] — Audit 692: gagal meluncurkan layar PIN kini gagal-tertutup
 - Bila `startActivityForResult(PinActivity)` melempar, kedua activity dulu hanya menyetel ulang penanda dan berjalan terus: refresh memang terhalang, tetapi kontrol dan menu tetap bisa dipakai tanpa gerbang pada sesi itu — arah gagal yang terbuka. Kini kegagalan peluncuran menutup activity (`finish()`): gerbang yang tidak bisa ditegakkan tidak digantikan dengan sesi tanpa gerbang. Pemicunya sangat langka (komponen internal nonaktif/keadaan sistem rusak); pengguna cukup membuka ulang aplikasi.
 
