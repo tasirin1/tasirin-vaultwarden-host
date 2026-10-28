@@ -230,6 +230,7 @@
     <string name="restore_tanpa_db">Backup file does not contain db.sqlite3.</string>
     <string name="restore_backup_rusak">Corrupt backup (%1$s) — old database kept.</string>
     <string name="restore_selesai_restart">Database restored. Restart the server to use it.</string>
+    <string name="restore_selesai_tls_gagal">Database restored, but the backup\'s certificates could not be installed — this device\'s TLS was kept. Restart the server to use it.</string>
     <string name="restore_gagal">Restore failed: %1$s</string>
     <string name="backup_ambil_gagal">Failed to fetch backup: %1$s</string>
     <string name="backup_terenkripsi">Backup is encrypted — enter the backup password first.</string>

@@ -2090,6 +2090,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
 
+            boolean tlsGagalPasang = false;
             if (!tlsTerStaging.isEmpty()
                     && !TgBackup.tlsRestoreSiapPasang(new File(dataDir), tlsTerStaging)) {
                 TgBackup.hapusStagingTls(new File(dataDir));
@@ -2102,11 +2103,9 @@ public class SettingsActivity extends Activity {
                 } catch (Exception eTls) {
                     TgBackup.hapusStagingTls(new File(dataDir));
                     TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                    toast(getString(R.string.restore_gagal,
-                            String.valueOf(eTls.getMessage())));
-                    appendUiLog("[app] Restore gagal di pemasangan TLS: " + eTls
+                    tlsGagalPasang = true;
+                    appendUiLog("[app] Sertifikat dari backup gagal dipasang: " + eTls
                             + " - database baru dipertahankan, TLS lama dikembalikan.");
-                    return;
                 }
             }
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
@@ -2129,7 +2128,9 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
                 uiPost(this::reloadSettingsFromPrefs);
             }
-            toast(getString(R.string.restore_selesai_restart));
+            toast(getString(tlsGagalPasang
+                    ? R.string.restore_selesai_tls_gagal
+                    : R.string.restore_selesai_restart));
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
 

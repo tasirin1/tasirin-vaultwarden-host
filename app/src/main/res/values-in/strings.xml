@@ -229,6 +229,7 @@
     <string name="restore_tanpa_db">Berkas backup tidak memuat db.sqlite3.</string>
     <string name="restore_backup_rusak">Backup rusak (%1$s) — database lama dipertahankan.</string>
     <string name="restore_selesai_restart">Database dipulihkan. Restart server untuk memakainya.</string>
+    <string name="restore_selesai_tls_gagal">Database dipulihkan, tetapi sertifikat dari backup gagal dipasang — TLS perangkat ini dipertahankan. Restart server untuk memakainya.</string>
     <string name="restore_gagal">Restore gagal: %1$s</string>
     <string name="backup_ambil_gagal">Gagal mengambil backup: %1$s</string>
     <string name="backup_terenkripsi">Backup terenkripsi — isi sandi backup dulu.</string>

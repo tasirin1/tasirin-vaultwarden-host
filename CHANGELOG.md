@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 544: restore Settings tak lagi melapor gagal total bila hanya pemasangan TLS yang gagal
+- Residual #261 pada jalur kembarannya: di `SettingsActivity`, kegagalan `pasangTlsRestore` (sesudah DB baru SAH terpasang atomik) memunculkan toast "Restore failed" dan `return` — prefs dari backup tak pernah diterapkan, sinkronisasi TLS internal terlewat, dan pengguna menyangka seluruh restore gagal lalu berpotensi mengulang restore. Jalur Telegram untuk keadaan yang sama sudah memperlakukannya sebagai peringatan sejak Audit 506.
+- Kegagalan itu kini menjadi peringatan yang melanjutkan alur (semantik sama persis dengan jalur Telegram): TLS lama dikembalikan, prefs tetap diterapkan, dan toast penutup memakai string baru `restore_selesai_tls_gagal` (Inggris + Indonesia) yang menyatakan DB berhasil direstore tetapi sertifikat backup gagal dipasang — bukan lagi `restore_gagal`.
+
 ## [Belum rilis] — Audit 543: penanda zip gagal kini di-fsync dan bersidik SHA-256
 - Residual #255: `catatZipGagal` menutup FileOutputStream tanpa `getFD().sync()`, sehingga penanda pencegah unzip-ulang zip rusak bisa hilang saat mati listrik (bertahan hanya di cache OS) dan percobaan berikutnya meng-unzip ulang zip 35 MB yang sama sampai gagal lagi. Sidiknya juga lemah: `length + ':' + lastModified` bisa cocok untuk zip berbeda yang panjang dan mtime-nya sama.
 - `catatZipGagal` kini flush + fsync sebelum tutup. `Updater.sidikBerkas` kini SHA-256 heksadesimal atas isi (pola yang sama dengan `SettingsActivity.sidikBerkas`), gagal-baca menghasilkan sidik kosong yang aman (penanda tak cocok → ekstrak dicoba lagi, bukan dilewati). Uji diperluas: isi berbeda dengan panjang DAN mtime dipaksa sama kini terbukti tak cocok lagi.
