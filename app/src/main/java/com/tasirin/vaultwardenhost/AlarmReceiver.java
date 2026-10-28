@@ -19,8 +19,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     static final long THROTTLE_ALARM_MS = 60_000;
     private static volatile long terakhirAlarmElapsed = 0;
+    private static volatile long terakhirWaktuElapsed = 0;
 
     static final String KEY_THROTTLE_ALARM_ELAPSED = "alarm_throttle_elapsed";
+    static final String KEY_THROTTLE_WAKTU_ELAPSED = "alarm_throttle_waktu_elapsed";
 
     static boolean bolehAlarmJalan(long kini, long terakhir, long jeda) {
         return terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
@@ -37,6 +39,24 @@ public class AlarmReceiver extends BroadcastReceiver {
     static void simpanThrottle(Context context, long kini) {
         terakhirAlarmElapsed = kini;
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED, kini);
+    }
+
+    static long throttleWaktuTersimpan(Context context) {
+        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_WAKTU_ELAPSED);
+    }
+
+    static void simpanThrottleWaktu(Context context, long kini) {
+        terakhirWaktuElapsed = kini;
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_WAKTU_ELAPSED, kini);
+    }
+
+    @SuppressLint("ApplySharedPref")
+    static void tandaiBackupTertunda(Context context) {
+        try {
+            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
+        } catch (Exception ignored) {
+        }
     }
 
     @SuppressLint("ApplySharedPref")
@@ -166,7 +186,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 return;
             }
 
-            if (!lolosThrottleAlarm(context)) {
+            if (!lolosThrottleWaktu(context)) {
                 return;
             }
 
@@ -191,6 +211,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (!lolosThrottleAlarm(context)) {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
+                tandaiBackupTertunda(context);
+                ServerService.catatLog("[tg] Alarm harian tertelan throttle"
+                        + " - rantai dipasang ulang dan backup ditandai tertunda.");
             }
             return;
         }
@@ -201,7 +224,19 @@ public class AlarmReceiver extends BroadcastReceiver {
         long kiniElapsed = android.os.SystemClock.elapsedRealtime();
         long terakhir = throttleEfektif(terakhirAlarmElapsed, throttleTersimpan(context));
         boolean boleh = bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS);
-        simpanThrottle(context, kiniElapsed);
+        if (boleh) {
+            simpanThrottle(context, kiniElapsed);
+        }
+        return boleh;
+    }
+
+    private boolean lolosThrottleWaktu(Context context) {
+        long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+        long terakhir = throttleEfektif(terakhirWaktuElapsed, throttleWaktuTersimpan(context));
+        boolean boleh = bolehAlarmJalan(kiniElapsed, terakhir, THROTTLE_ALARM_MS);
+        if (boleh) {
+            simpanThrottleWaktu(context, kiniElapsed);
+        }
         return boleh;
     }
 
