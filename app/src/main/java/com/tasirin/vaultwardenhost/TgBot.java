@@ -1387,36 +1387,55 @@ public final class TgBot {
         if (chatId == 0 || messageId == 0) {
             return false;
         }
-        HttpURLConnection c = null;
-        try {
-            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                    Context.MODE_PRIVATE);
-            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
-            if (token.isEmpty()) {
-                return false;
-            }
-            byte[] body = ("chat_id=" + chatId + "&message_id=" + messageId)
-                    .getBytes(StandardCharsets.UTF_8);
-            c = TgBackup.bukaPostTelegram(ctx.getApplicationContext(),
-                    TG_API + token + "/deleteMessage", body,
-                    "application/x-www-form-urlencoded", 15000, 30000);
-            try (OutputStream os = c.getOutputStream()) {
-                os.write(body);
-            }
-            TgBackup.tolakRedirectTelegram(c);
-            int kode = c.getResponseCode();
-            if (kode != 200) {
-                return false;
-            }
-            try (InputStream in = c.getInputStream()) {
+        for (int coba = 1; ; coba++) {
+            boolean sesaat = false;
+            HttpURLConnection c = null;
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+                if (token.isEmpty()) {
+                    return false;
+                }
+                byte[] body = ("chat_id=" + chatId + "&message_id=" + messageId)
+                        .getBytes(StandardCharsets.UTF_8);
+                c = TgBackup.bukaPostTelegram(ctx.getApplicationContext(),
+                        TG_API + token + "/deleteMessage", body,
+                        "application/x-www-form-urlencoded", 15000, 30000);
+                try (OutputStream os = c.getOutputStream()) {
+                    os.write(body);
+                }
+                TgBackup.tolakRedirectTelegram(c);
+                int kode = c.getResponseCode();
+                if (kode != 200) {
+                    sesaat = kode == 429 || kode >= 500;
+                    if (!sesaat) {
+                        return false;
+                    }
+                } else {
+                    try (InputStream in = c.getInputStream()) {
 
-                return responsOk(TgBackup.bacaResponsBatas(in));
+                        if (responsOk(TgBackup.bacaResponsBatas(in))) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            } catch (Exception ignored) {
+                sesaat = true;
+            } finally {
+                if (c != null) {
+                    c.disconnect();
+                }
             }
-        } catch (Exception ignored) {
-            return false;
-        } finally {
-            if (c != null) {
-                c.disconnect();
+            if (!sesaat || coba >= 3) {
+                return false;
+            }
+            try {
+                Thread.sleep(coba * 1000L);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return false;
             }
         }
     }
@@ -1426,8 +1445,10 @@ public final class TgBot {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)) {
-                    sp.edit().putBoolean(KEY_TG_HAPUS_OK, true).apply();
+                if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)
+                        || TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+                    sp.edit().putBoolean(KEY_TG_HAPUS_OK, true)
+                            .remove(KEY_TG_HAPUS_WARN).apply();
                 }
             } catch (Exception ignored) {
             }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 483: hapus pesan ber-PIN kini dicoba ulang untuk galat sesaat, dan kunci peringatannya bisa pulih
+- `hapusPesanPerintah` menyerah pada percobaan pertama untuk semua jenis kegagalan: timeout/429/5xx sesaat — persis kondisi jaringan STB — meninggalkan pesan berisi PIN tetap di riwayat chat, pesan yang secara desain tidak boleh tertinggal. Selain itu kunci `KEY_TG_HAPUS_WARN` tak pernah direset walau kemampuan hapus berubah, sehingga peringatan hanya bisa tampil sekali seumur pemasangan.
+- Penghapusan kini dicoba sampai 3 kali dengan jeda 1–2 detik hanya untuk galat sesaat (eksepsi jaringan, 429, 5xx); galat permanen Telegram (4xx lain, respons ok=false) tetap langsung berhenti. Keberhasilan penghapusan kini juga menghapus `KEY_TG_HAPUS_WARN`, jadi kegagalan di masa depan sesudah bot kehilangan hak hapus bisa memperingatkan lagi.
+
 ## [Belum rilis] — Audit 482: zip backup plain yang tertinggal di cache kini ikut disapu basi
 - Pada backup terenkripsi, zip PLAIN (database + kunci privat TLS) dibuat di cache dan hanya dihapus di blok `finally` jalur normal; proses yang mati di antaranya meninggalkan salinan plaintext utuh permanen di `cacheDir` — pola sapuan berkas sementara yang ada tidak mengenal nama `backup-telegram-*` dan cleanup folder backups tidak menjangkau cache.
 - Penolong baru `TgBackup.sapuZipPlainCacheBasi` menyapu `backup-telegram-*.zip`/`.zip.tmp` basi dari cache di awal setiap backup (ambang umur + logika cap masa depan yang sama, diekstrak ke `layakSapuBasi` dan dipakai bersama `sapuTmpPlainBasi`). Metode ini sengaja hanya dipanggil untuk folder cache — pola nama yang sama di folder backups adalah backup sah yang tidak boleh disapu. Uji perilaku ditambahkan, termasuk bahwa berkas `.zip.enc` tidak disentuh.
