@@ -620,7 +620,8 @@ public final class TgBot {
                         }
                     }
                     if (updateRusak > 0) {
-                        String contoh = contohGalatUpdate == null ? "?" : contohGalatUpdate;
+                        String contoh = contohGalatUpdate == null ? "?"
+                                : TgBackup.redaksiDetailGalat(contohGalatUpdate);
                         if (contoh.length() > 120) {
                             contoh = contoh.substring(0, 120);
                         }

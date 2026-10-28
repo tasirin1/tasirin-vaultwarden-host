@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 508: contoh galat update Telegram di log kini diredaksi
+- Ringkasan "update dilewati" di `pollOnce` menulis contoh eksepsi mentah ke log; jalur galat lain (callback, status, unduh) sudah melewati `TgBackup.redaksiDetailGalat` yang menyamarkan token/URL/kredensial. Log bisa dibagikan lewat fitur ekspor, jadi pengecualian yang membawa URL bertoken pada jalur ini bisa ikut tersebar.
+- Contoh galat kini diredaksi dengan helper yang sama sebelum dipotong 120 karakter dan ditulis ke log.
+
 ## [Belum rilis] — Audit 507: verifikasi PIN ASCII tidak lagi membayar PBKDF2 kedua yang identik
 - Setiap verifikasi PIN yang gagal selalu menjalankan dua derivasi PBKDF2 penuh (primer + cadangan kompatibilitas). Cadangan itu hanya bisa berbeda untuk masukan non-ASCII (perbedaan konversi char→byte antar-provider); untuk masukan ASCII murni — selalu begitu pada format bungkus `PBKDF2W$` yang masukannya hex SHA-256 — hasil cadangan identik secara konstruksi, jadi derivasi kedua adalah biaya murni yang terasa di STB lambat setiap pengguna salah ketik PIN.
 - Jalur cadangan kini dilewati bila masukan terbukti seluruhnya ASCII (helper murni `semuaAscii` + uji); PIN non-ASCII pada format `PBKDF2$` tetap mendapat cadangan kompatibilitas seperti sebelumnya.
