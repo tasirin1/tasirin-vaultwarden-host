@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 496: pemulihan sertifikat TlsCert tidak lagi asimetris terhadap .baru
+- `pulihkanTukarTersisa` memulihkan kunci yang hilang dari `.baru` bila terbukti cocok, tetapi sertifikat yang hilang hanya boleh dipulihkan dari `.cad`: keadaan "pasangan .baru utuh dan saling cocok, resmi hilang, .cad tidak ada" dibuang seluruhnya dan CA/leaf dibuat ulang dari nol — lambat di STB dan memaksa semua klien memasang CA baru, padahal pasangan sah tersedia.
+- Sertifikat kini juga dipulihkan dari `.baru` dengan syarat bukti yang sama persis: berpasangan dengan kunci resmi yang ada, atau kedua resmi hilang dan pasangan `.baru` terbukti cocok satu sama lain lebih dulu.
+
 ## [Belum rilis] — Audit 495: writeVersionTag binary kini atomik lewat .baru + fsync
 - Penanda `bin/version.txt` ditulis langsung ke nama final tanpa fsync; crash/mati listrik di tengah tulis meninggalkan penanda korup/kosong sehingga binary yang sebenarnya cocok dianggap beda versi dan diunduh ulang sia-sia.
 - Penulisan kini mengikuti pola `TlsCert.writeVersion`: tulis ke `version.txt.baru`, flush + `getFD().sync()`, lalu rename ke nama final (dengan jalur cadang hapus-lalu-rename), dan `.baru` dibersihkan bila gagal.

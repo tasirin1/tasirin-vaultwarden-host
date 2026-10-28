@@ -332,8 +332,19 @@ public final class TlsCert {
         File certBaru = new File(dir, namaCert + ".baru");
         File keyBaru = new File(dir, namaKey + ".baru");
         try {
+            if (!certFile.exists() && !keyFile.exists()
+                    && certBaru.exists() && keyBaru.exists()
+                    && pasanganCertKeyCocok(certBaru, keyBaru)) {
+                if (certBaru.renameTo(certFile)) {
+                    keyBaru.renameTo(keyFile);
+                }
+            }
             if (!certFile.exists() && certCad.exists()) {
                 certCad.renameTo(certFile);
+            }
+            if (!certFile.exists() && certBaru.exists() && keyFile.exists()
+                    && pasanganCertKeyCocok(certBaru, keyFile)) {
+                certBaru.renameTo(certFile);
             }
             if (!keyFile.exists()) {
                 if (keyBaru.exists() && certFile.exists()
