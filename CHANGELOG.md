@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 534: Gitleaks kini ikut berjalan untuk perubahan dokumen dan shim
+- `paths-ignore` di `gitleaks.yml` memuat `'*.md'` dan `'shim/**'` (warisan penyaring dokumen Audit 517 yang tepat untuk build/CodeQL, tetapi salah untuk pemindai rahasia): push yang hanya mengubah README/CHANGELOG/AGENTS.md tidak memicu pemindaian rahasia sama sekali, dan perubahan shim hanya diperiksa pola rahasia sempit cek-cepat, bukan kamus Gitleaks. Token yang ter-tempel ke dokumentasi (template issue repo sendiri meminta lampiran log) bisa masuk main tanpa satu pun pemindai berjalan.
+- Kedua entri itu dihapus dari `paths-ignore` push dan pull_request di `gitleaks.yml` (tersisa `.gitignore` dan workflow binary berat); workflow build dan CodeQL tidak diubah — penyaring dokumennya tetap hemat seperti keputusan Audit 517. Berkas lolos parse YAML dan daftar trigger terverifikasi dari hasil parse.
+
 ## [Belum rilis] — Audit 533: cek-cepat kini gagal tertutup bila git tak bisa dipakai
 - Seluruh cek berbasis git di `cek-cepat.sh` (daftar berkas terlarang, sapuan biner, `git grep` pola rahasia) menelan kegagalan git dengan `|| true`/daftar kosong, sehingga di ekspor sumber tanpa `.git` (atau repo rusak/safe.directory) skrip keluar 0 walau tak satu pun cek itu berjalan — dibuktikan sesi audit: ekspor + token `ghp_` + biner ELF tetap "LOLOS".
 - Skrip kini memeriksa kesehatan git di awal (`git rev-parse --is-inside-work-tree` + `git ls-files`); bila gagal, ia mencatat GAGAL eksplisit bahwa hasil tak bisa dipercaya dan keluar 1, sementara cek non-git tetap berjalan seperti biasa. Terbukti fixture dua arah: ekspor `git archive` tanpa `.git` berisi token + biner → exit 1 dengan pesan itu; pohon normal → tetap LOLOS.
