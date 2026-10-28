@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 521: throttle boot memakai nomor boot sistem dan stempel tak lagi bergeser saat ditahan
+- Sisa #228: dua boot berbeda yang berdekatan (restart manual cepat sesudah boot) masih bisa tertelan throttle 60 detik karena heuristik elapsed/wall tak bisa membedakannya dari broadcast duplikat pada boot yang sama — auto-start server beserta penjadwalan backup dan bot untuk boot itu hilang. Selain itu stempel throttle ditimpa tanpa syarat walau broadcast ditahan, sehingga jendelanya bergeser terus (pola yang di jalur alarm sudah diperbaiki Audit 475).
+- `BootReceiver` kini membaca nomor boot sistem (`Settings.Global.BOOT_COUNT`, API 24+; di bawah itu 0 dan heuristik lama tetap dipakai): nomor berbeda = boot berbeda dan tak pernah ditahan, nomor sama = throttle hanya berdasar selisih elapsed. Nomor boot disimpan bersama stempel lama (kunci prefs baru `boot_throttle_count`, masuk daftar tak-diekspor), dan stempel kini hanya ditulis bila broadcast diterima — broadcast yang ditahan tak lagi menggeser jendela. Uji baru membuktikan kasus issue persis (count berbeda dilepas walau wall dekat; count sama tetap ditahan) dengan nilai harapan yang diverifikasi porting Python 1:1.
+
 ## [Belum rilis] — Warning compileSdk dimatikan lewat daftar disable lint (GradleDependency)
 - Sesudah pembersihan warning sebelumnya, anotasi build tersisa 2 warning `GradleDependency` ("compileSdkVersion 34 tersedia 36", sekali per varian) + 1 notice "Gradle out of date" dari langkah pasca `setup-gradle` GitHub (bukan dari lint/kode repo).
 - `GradleDependency` ditambahkan ke daftar `disable` lint di `app/build.gradle.kts`: compileSdk 34 adalah pin yang disengaja (CI memasang platform 34, targetSdk 28 by design) dan kesegaran versi dependensi/wrapper sudah dipantau Dependabot, jadi pemberitahuan lint-nya hanya derau berulang. Mengikuti preseden daftar yang sama yang sudah mematikan `OldTargetApi`/`ExpiredTargetSdkVersion` untuk pin SDK yang sama.

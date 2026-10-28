@@ -1807,7 +1807,8 @@ public final class TgBackup {
                     AlarmReceiver.KEY_THROTTLE_ALARM_ELAPSED,
                     AlarmReceiver.KEY_THROTTLE_WAKTU_ELAPSED,
                     BootReceiver.KEY_THROTTLE_BOOT_ELAPSED,
-                    BootReceiver.KEY_THROTTLE_BOOT_WALL));
+                    BootReceiver.KEY_THROTTLE_BOOT_WALL,
+                    BootReceiver.KEY_THROTTLE_BOOT_COUNT));
 
     static boolean kunciDiekspor(String kunci) {
         return kunci != null

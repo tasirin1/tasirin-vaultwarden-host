@@ -33,6 +33,23 @@ public class BootReceiverTest {
     }
 
     @Test
+    public void throttleBootMenahan_bootBerbedaDariCountDilepasWalauWallDekat() {
+        assertFalse(BootReceiver.throttleBootMenahan(
+                50_000, 20_000, 1_055_000, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS, 6, 5));
+    }
+
+    @Test
+    public void throttleBootMenahan_bootSamaDariCountDitahanDanJedaLewatDilepas() {
+        assertTrue(BootReceiver.throttleBootMenahan(
+                50_000, 20_000, 1_055_000, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS, 5, 5));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                100_000, 20_000, 1_200_000, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS, 5, 5));
+    }
+
+    @Test
     public void throttleBootMenahan_kasusBatasLainDilepas() {
         assertFalse(BootReceiver.throttleBootMenahan(
                 70_000, 0, 1_025_000, 0, BootReceiver.THROTTLE_BOOT_MS));

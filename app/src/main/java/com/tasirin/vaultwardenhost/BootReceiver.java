@@ -14,9 +14,30 @@ public class BootReceiver extends BroadcastReceiver {
 
     static final String KEY_THROTTLE_BOOT_ELAPSED = "boot_throttle_elapsed";
     static final String KEY_THROTTLE_BOOT_WALL = "boot_throttle_wall";
+    static final String KEY_THROTTLE_BOOT_COUNT = "boot_throttle_count";
+    private static volatile long terakhirBootCount = 0;
 
     static boolean throttleBootMenahan(long kiniElapsed, long terakhirElapsed,
                                        long kiniWall, long terakhirWall, long jeda) {
+        return throttleBootMenahan(kiniElapsed, terakhirElapsed,
+                kiniWall, terakhirWall, jeda, 0, 0);
+    }
+
+    static boolean throttleBootMenahan(long kiniElapsed, long terakhirElapsed,
+                                       long kiniWall, long terakhirWall, long jeda,
+                                       long kiniCount, long terakhirCount) {
+        if (kiniCount > 0 && terakhirCount > 0) {
+            if (kiniCount != terakhirCount) {
+                return false;
+            }
+            if (terakhirElapsed <= 0) {
+                return false;
+            }
+            if (kiniElapsed < terakhirElapsed) {
+                return false;
+            }
+            return kiniElapsed - terakhirElapsed < jeda;
+        }
         if (terakhirElapsed <= 0) {
             return false;
         }
@@ -68,25 +89,32 @@ public class BootReceiver extends BroadcastReceiver {
                         long simpanElapsed = bacaThrottleBoot(ctx);
                         long pakaiElapsed;
                         long pakaiWall;
+                        long pakaiCount;
                         if (terakhirBootElapsed >= simpanElapsed) {
                             pakaiElapsed = terakhirBootElapsed;
                             pakaiWall = terakhirBootWall;
+                            pakaiCount = terakhirBootCount;
                         } else {
                             pakaiElapsed = simpanElapsed;
                             pakaiWall = bacaThrottleBootWall(ctx);
+                            pakaiCount = bacaThrottleBootCountTersimpan(ctx);
                         }
+                        long kiniCount = bacaBootCount(ctx);
                         boolean menahan = throttleBootMenahan(kiniElapsed, pakaiElapsed,
-                                kiniWall, pakaiWall, THROTTLE_BOOT_MS);
-                        terakhirBootElapsed = kiniElapsed;
-                        terakhirBootWall = kiniWall;
-                        simpanThrottleBoot(ctx, kiniElapsed);
-                        simpanThrottleBootWall(ctx, kiniWall);
+                                kiniWall, pakaiWall, THROTTLE_BOOT_MS,
+                                kiniCount, pakaiCount);
                         if (menahan) {
                             ServerService.catatLog("[app] Broadcast boot diabaikan"
                                     + " - masih dalam throttle 60 detik dari broadcast"
                                     + " boot sebelumnya pada boot yang sama.");
                             return;
                         }
+                        terakhirBootElapsed = kiniElapsed;
+                        terakhirBootWall = kiniWall;
+                        terakhirBootCount = kiniCount;
+                        simpanThrottleBoot(ctx, kiniElapsed);
+                        simpanThrottleBootWall(ctx, kiniWall);
+                        simpanThrottleBootCount(ctx, kiniCount);
                     }
                 }
                 SharedPreferences sp = ctx.getSharedPreferences(
@@ -154,6 +182,27 @@ public class BootReceiver extends BroadcastReceiver {
 
     static void simpanThrottleBoot(Context context, long kini) {
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED, kini);
+    }
+
+    static int bacaBootCount(Context context) {
+        if (android.os.Build.VERSION.SDK_INT < 24) {
+            return 0;
+        }
+        try {
+            return android.provider.Settings.Global.getInt(
+                    context.getContentResolver(),
+                    android.provider.Settings.Global.BOOT_COUNT, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    static long bacaThrottleBootCountTersimpan(Context context) {
+        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_COUNT);
+    }
+
+    static void simpanThrottleBootCount(Context context, long kini) {
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_COUNT, kini);
     }
 
     static long bacaThrottleBootWall(Context context) {
