@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 545: ekspor config tak lagi meloloskan nama backup terakhir dan penanda storage-rendah
+- Residual #265: daftar tak-diekspor menutup kunci dinamis satu per satu, tetapi dua kunci statis perangkat-spesifik tertinggal: `tg_last_name` (nama berkas backup terakhir perangkat ini — keadaan lokal yang salah bila diterapkan di perangkat lain dan membocorkan nama berkas lokal ke penerima ekspor) dan `tg_low_storage_notified` (penanda sudah-diperingatkan; ikut ter-restore membuat peringatan storage rendah tak pernah muncul di perangkat baru).
+- Keduanya kini masuk `TAK_DIEKSPOR_KEYS` lewat konstantanya (`KEY_TG_LAST_NAME`, `KEY_TG_LOW_STORAGE`), dan uji `secretTakIkutBackup` diperluas mengunci keduanya.
+
 ## [Belum rilis] — Audit 544: restore Settings tak lagi melapor gagal total bila hanya pemasangan TLS yang gagal
 - Residual #261 pada jalur kembarannya: di `SettingsActivity`, kegagalan `pasangTlsRestore` (sesudah DB baru SAH terpasang atomik) memunculkan toast "Restore failed" dan `return` — prefs dari backup tak pernah diterapkan, sinkronisasi TLS internal terlewat, dan pengguna menyangka seluruh restore gagal lalu berpotensi mengulang restore. Jalur Telegram untuk keadaan yang sama sudah memperlakukannya sebagai peringatan sejak Audit 506.
 - Kegagalan itu kini menjadi peringatan yang melanjutkan alur (semantik sama persis dengan jalur Telegram): TLS lama dikembalikan, prefs tetap diterapkan, dan toast penutup memakai string baru `restore_selesai_tls_gagal` (Inggris + Indonesia) yang menyatakan DB berhasil direstore tetapi sertifikat backup gagal dipasang — bukan lagi `restore_gagal`.

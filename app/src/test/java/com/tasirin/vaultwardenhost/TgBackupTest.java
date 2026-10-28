@@ -1085,6 +1085,8 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("wv_notified_1.2.3"));
         assertFalse(TgBackup.kunciDiekspor("tg_token"));
         assertFalse(TgBackup.kunciDiekspor("tg_last_file"));
+        assertFalse(TgBackup.kunciDiekspor("tg_last_name"));
+        assertFalse(TgBackup.kunciDiekspor("tg_low_storage_notified"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_id"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_user"));
         assertFalse(TgBackup.kunciDiekspor("tg_menu_hash"));
