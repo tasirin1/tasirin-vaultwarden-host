@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 640: label security dibuat di repo agar pengecualian stale-nya hidup
+- Daftar `exempt-issue-labels` di `stale.yml` memuat `security`, tetapi label itu tidak terdaftar di repo sehingga tidak bisa dipasang ke issue mana pun dan pengecualiannya mati diam-diam. Label `security` kini dibuat di pengaturan repo (perbaikan sisi repo, tanpa perubahan berkas) dan issue-nya ditutup dengan bukti daftar label.
+
 ## [Belum rilis] — Audit 639: major Gradle Wrapper kini diabaikan Dependabot sesuai keputusan repo
 - Keputusan tercatat (PR wrapper 9.8.2 ditutup karena Gradle 9 tak berpasangan dengan AGP 8.x) belum terkodifikasi, jadi Dependabot akan terus membuka PR major wrapper yang harus ditriage manual dan berisiko ter-merge tak sengaja. `dependabot.yml` kini mengabaikan update major `gradle-wrapper`, sejajar dengan perlakuan major AGP.
 
