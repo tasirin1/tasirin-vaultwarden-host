@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 634: probe versi kini memakai shimUtuh, konsisten dengan jalur start
+- Audit 629 menaikkan probe dari `exists()` ke `shimValid`, tetapi shim rusak-di-tengah (lolos header, gagal hash tercatat Audit 628) tetap di-`LD_PRELOAD` oleh kedua probe `--version`, menggagalkan probe dan bisa memicu unduh ulang binary yang tak perlu. Kedua probe kini membaca hash tercatat dan memakai `shimUtuh`, persis gerbang jalur start.
+
 ## [Belum rilis] — Audit 633: pin hash shim pertama diverifikasi ke hash rilis, bukan pin buta
 - Self-review menemukan sisa lubang Audit 628: pin-on-first-use menyimpan hash berkas SAAT INI, jadi shim yang sudah rusak sebelum pencatatan ada ikut diberkati dan verifikasi ulang selamanya "cocok". Kini pada pin pertama, `ensureShimFile` mengambil hash resmi shim dari rilis (mekanisme `shaDariRilis` yang sama dengan jalur unduh): berkas terpasang wajib cocok dengannya, tak cocok → unduh ulang terverifikasi. Bila hash rilis tak terjangkau (offline), perilaku lama berlaku (pin berkas saat ini) agar Start tidak terkunci jaringan — sisa risiko itu kini terdokumentasi, bukan diam-diam.
 

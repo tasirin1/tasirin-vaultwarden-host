@@ -2318,7 +2318,13 @@ public final class Updater {
                     .redirectErrorStream(true);
             if (ctx != null && KernelCompat.legacyPerangkat()) {
                 File shim = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-                if (shimValid(shim)) {
+                String shaShim = "";
+                try {
+                    shaShim = ctx.getSharedPreferences(ServerService.PREFS,
+                            Context.MODE_PRIVATE).getString(KEY_SHIM_SHA, "");
+                } catch (Exception ignored) {
+                }
+                if (shimUtuh(shim, shaShim)) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 }
             }

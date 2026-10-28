@@ -3497,7 +3497,13 @@ public class ServerService extends Service {
                     .redirectErrorStream(true);
             if (KernelCompat.legacyPerangkat()) {
                 File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-                if (Updater.shimValid(shim)) {
+                String shaShim = "";
+                try {
+                    shaShim = getSharedPreferences(PREFS, MODE_PRIVATE)
+                            .getString(Updater.KEY_SHIM_SHA, "");
+                } catch (Exception ignored) {
+                }
+                if (Updater.shimUtuh(shim, shaShim)) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 }
             }
