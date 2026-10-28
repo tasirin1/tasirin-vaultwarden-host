@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 501: kode mati overload privat isShareable(String) dihapus
+- `FileShareProvider.isShareable(String)` satu-argumen tidak pernah dipanggil satu pun call-site (semua memakai varian dua-argumen yang menerima akar bagi eksplisit). Overload mati dihapus; namanya sengaja TIDAK dicatat ke `tools/bekas-hapusan.txt` karena nama yang sama masih terdefinisi sah sebagai metode dua-argumen (sesuai peringatan di kepala berkas itu).
+
 ## [Belum rilis] — Audit 500: latestVersion kini single-flight dan stempel TTL-nya dicap sesudah fetch
 - `latestVersion` melepas kunci sebelum fetch jaringan: N thread bersamaan saat cache kedaluwarsa sama-sama menembak `api.github.com` (mengundang rate-limit 403 yang justru memperpanjang masa gagal), dan stempel cache/jeda-gagal dicap dengan waktu dari SEBELUM fetch sehingga TTL 15 menit dan jeda gagal 60 detik menyusut sebesar durasi fetch (timeout baca 10 detik ≈ 17% jeda).
 - Seluruh keputusan + fetch kini berjalan di dalam `KUNCI_VERSI` (fetch memang terbatas timeout 10 detik dan pemanggilnya latar), dan `sLatestAt`/`sLatestGagalAt` dicap dengan `elapsedRealtime` segar pada saat selesai.

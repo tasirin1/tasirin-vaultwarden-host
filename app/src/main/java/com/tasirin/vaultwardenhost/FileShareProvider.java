@@ -497,10 +497,6 @@ public class FileShareProvider extends ContentProvider {
         return data;
     }
 
-    private boolean isShareable(String canon) {
-        return isShareable(canon, akarBagi());
-    }
-
     private boolean isShareable(String canon, AkarBagi akar) {
         try {
             if (canon == null || akar == null) {
