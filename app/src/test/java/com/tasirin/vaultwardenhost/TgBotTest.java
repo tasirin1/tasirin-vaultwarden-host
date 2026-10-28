@@ -89,7 +89,7 @@ public class TgBotTest {
         TgBot.catatWall(maks);
         long mundur = maks - 3600_000L;
         assertTrue(TgBot.jamMundur(mundur));
-        TgBot.catatMundurDanBolehIngatkan(mundur);
+        assertTrue(TgBot.catatMundurDanBolehIngatkan(mundur));
 
         assertTrue(TgBot.jamMundur(mundur));
         assertFalse(TgBot.jamMundur(maks));

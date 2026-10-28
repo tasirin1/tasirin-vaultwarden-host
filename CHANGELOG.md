@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 574: uji jam-mundur TgBot kini menegaskan hasil catatMundurDanBolehIngatkan
+- Uji `mundurTakMenurunkanTandaAir` memanggil `catatMundurDanBolehIngatkan` tanpa menegaskan nilai kembali — cabang "boleh ingatkan saat jam mundur" (fungsi metode itu sendiri) bisa regresi diam-diam; yang terkunci hanya tanda air, yang sudah dicakup uji tetangga. Panggilan kini dibungkus `assertTrue`: pada jam mundur sesudah tanda air tinggi, peringatan memang harus boleh terbit (di uji JVM jalur ini lewat cabang fallback jam-elapsed yang juga mengembalikan true).
+
 ## [Belum rilis] — Audit 573: uji copyFile kini membandingkan isi byte, bukan hanya panjang
 - Uji `copyFile_menyalinUtuhDenganPanjangSama` hanya menegaskan panjang asal = panjang salinan, padahal namanya mengklaim keutuhan: regresi yang menulis byte korup/nol berpanjang sama akan tetap hijau. Kini isi salinan dibandingkan byte-per-byte (`assertArrayEquals`) terhadap isi asal 70.000 byte acak, selaras uji `salinTls` di berkas yang sama.
 
