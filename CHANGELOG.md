@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 567: kunci prefs hantu dan klaim mode sederhana dihapus dari AGENTS.md dan README
+- Daftar kunci SharedPreferences di AGENTS.md memuat dua kunci yang tidak ada di kode mana pun — `mode_sederhana` dan `advanced_open` (grep seluruh repo: 0 hasil) — sementara kunci keadaan seksi Settings yang nyata (`sec_buka_server/keamanan/rawat/telegram/log`) tak tercantum. Daftar itu rujukan pekerjaan ekspor/impor config dan daftar-tolak rahasia, jadi rujukannya kini diselaraskan: dua kunci hantu dihapus, keluarga `sec_buka_*` ditambahkan.
+- Kalimat "mode sederhana" di README (Inggris/Indonesia/Rusia) dihapus — fitur itu tidak pernah ada; wizard 3 langkah memang satu-satunya alur Settings.
+
 ## [Belum rilis] — Audit 566: checkout CodeQL kini persist-credentials: false, konsisten dengan workflow build
 - Semua checkout di `build-apk.yml`/`build-binary.yml` memakai `persist-credentials: false`, tetapi checkout CodeQL tidak — padahal job `analyze` memegang `security-events: write` dan Autobuild mengeksekusi build Gradle dari tree hasil checkout, termasuk untuk PR. Tanpa pengaturan itu token job tersimpan di `.git/config` lokal selama job dan dapat dibaca kode build di runner yang sama.
 - Checkout CodeQL kini memakai `persist-credentials: false` seperti pola repo. Analisis CodeQL memakai akses API-nya sendiri, bukan kredensial git lokal, jadi perilaku analisis tak berubah.

@@ -104,11 +104,13 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   AlarmReceiver + BootReceiver). Duplikat yang dihapus dicatat di
   `tools/bekas-hapusan.txt` (lihat aturan #15).
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
-  `mode_sederhana` (default aktif, UI lokal ikut diimpor), `wizard_selesai` (UI lokal, tak diimpor),
+  `wizard_selesai` (UI lokal, tak diimpor),
   `admin_token`, `auto_start`, `update_version`, `auto_update_binary`,
   `auto_update_webvault`, `auto_restart_update`, `tg_token`, `tg_chat`,
   `tg_auto` (jadwal + saat Start, selalu full), `tg_pass`, `pin_hash`, `pin_on`,
-  `wv_from_version`, `tg_notified_version`, `advanced_open`,
+  `wv_from_version`, `tg_notified_version`,
+  `sec_buka_server`/`sec_buka_keamanan`/`sec_buka_rawat`/`sec_buka_telegram`/`sec_buka_log`
+  (keadaan buka-tutup seksi Settings, UI lokal),
   `bin_patch_rev` (revisi patch binary; paksa unduh ulang bila CI perbaiki
   binary tanpa ganti versi Vaultwarden),
   `bin_pin_version`/`wv_pin_version` (kuncian versi binary/web-vault pilihan
