@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 540: pertukaran pasangan TLS dan version.txt kini men-fsync direktori sesudah rename
+- `tukarPasanganAtomik` dan `writeVersion` men-fsync isi berkas sebelum rename, tetapi tak pernah men-fsync direktori `tls/` sesudahnya. Di Android/data=ext4/f2fs, rename yang belum ter-fsync direktorinya bisa terbalik oleh mati listrik tepat sesudah pertukaran: pasangan cert/key campuran atau `version.txt` basi kembali, dan jalur pemulihan `.cad` sudah terlanjur dihapus pada keberhasilan semu itu.
+- Helper `TlsCert.fsyncDirektori` (pola `android.system.Os.open/fsync` yang sama dengan yang sudah dipakai pemulihan DB di ServerService, best-effort dalam try/catch) kini dipanggil di akhir keberhasilan `tukarPasanganAtomik` dan sesudah rename `writeVersion` (termasuk jalur fallback-nya).
+
 ## [Belum rilis] — Audit 539: penghitung start tertunda kini per-episode, bukan warisan antar-episode
 - `startTertundaData` statik hanya di-reset saat kunci data berhasil didapat atau batas 60 percobaan tercapai. Bila pengguna menekan Stop di tengah penundaan (restore/reset masih berjalan), hitungan berhenti di nilai tengah dan tak dibersihkan — episode tertunda berikutnya mewarisi sisa itu, sehingga jatah ±5 menitnya menyusut dan start bisa menyerah ("tekan Start lagi") jauh lebih awal pada restore panjang berikutnya.
 - Penghitung kini di-reset di ketiga titik batas episode: handler ACTION_START dan jalur sticky intent-null (episode baru dimulai → jatah penuh) serta handler ACTION_STOP (episode diakhiri paksa → sisa hitungan dibuang). Jalur kelanjutan episode yang sama (restartTunda dan start susulan) tidak menyentuhnya.

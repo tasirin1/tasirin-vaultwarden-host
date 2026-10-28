@@ -264,6 +264,26 @@ public final class TlsCert {
         }
     }
 
+    static void fsyncDirektori(File dir) {
+        if (dir == null) {
+            return;
+        }
+        try {
+            java.io.FileDescriptor fd = android.system.Os.open(
+                    dir.getAbsolutePath(),
+                    android.system.OsConstants.O_RDONLY, 0);
+            try {
+                android.system.Os.fsync(fd);
+            } finally {
+                try {
+                    android.system.Os.close(fd);
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     static boolean tukarPasanganAtomik(File dir, String namaCert, String namaKey,
             File certBaru, File keyBaru) {
         if (dir == null || namaCert == null || namaKey == null
@@ -318,6 +338,7 @@ public final class TlsCert {
             keyCad.delete();
         } catch (Exception ignored) {
         }
+        fsyncDirektori(dir);
         return true;
     }
 
@@ -949,6 +970,7 @@ public final class TlsCert {
                 throw new IOException("gagal menulis version.txt");
             }
         }
+        fsyncDirektori(dir);
     }
 
     private static void writePem(File f, String type, byte[] der) throws IOException {
