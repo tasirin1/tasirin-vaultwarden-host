@@ -821,6 +821,7 @@ public final class Updater {
         Exception gagal = null;
         int mismatchSha = 0;
         TMP_UNDUH_AKTIF.add(tmp.getAbsolutePath());
+        try {
         for (int coba = 1; coba <= MAX_COBA_UNDUH; coba++) {
             try {
                 if (dibatalkan(batal)) {
@@ -869,7 +870,13 @@ public final class Updater {
                 break;
             }
         }
-        TMP_UNDUH_AKTIF.remove(tmp.getAbsolutePath());
+        } finally {
+            // Error (mis. OutOfMemoryError) yang lolos dari lingkar coba
+            // tidak boleh meninggalkan entri aktif basi: sapuTmpUnduhBasi
+            // melewati path yang tercatat aktif, jadi kebocoran di sini
+            // membuat tmp yatim tak tersapu seumur proses (Audit 650).
+            TMP_UNDUH_AKTIF.remove(tmp.getAbsolutePath());
+        }
         if (gagal instanceof IOException) {
             throw (IOException) gagal;
         }

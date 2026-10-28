@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 650: entri TMP_UNDUH_AKTIF kini dilepas lewat finally
+- `unduhKeTmp` melepas penanda tmp-aktif hanya di jalur sukses dan penangkap `Exception`; sebuah `Error` (mis. `OutOfMemoryError`) yang lolos dari lingkar unduh meninggalkan entri basi, dan karena sapuan tmp selalu melewati path yang tercatat aktif, berkas yatim itu tak pernah tersapu selama sisa umur proses. Lingkar unduh kini dibungkus try-finally yang selalu melepas penandanya.
+
 ## [Belum rilis] — Audit 648: keputusan update tak lagi memakai versi proses yang sudah berhenti
 - `tryUpdateVersi` bisa menyimpulkan "sudah versi terbaru" dari `ServerService.binaryVersion` — nilai yang tidak dibersihkan saat server berhenti dan bertahan selama proses aplikasi hidup. Bila binary di disk diganti/diturunkan lewat restore sesudah Stop, Cek Update tetap menyatakan terbaru tanpa mem-probe berkas. Nilai proses kini hanya dipercaya selagi server benar-benar berjalan; sesudah Stop keputusan berdasar probe berkas di disk.
 
