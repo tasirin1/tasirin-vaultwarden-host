@@ -3337,7 +3337,7 @@ public class ServerService extends Service {
             }
         }
 
-        if (!butuhRefresh && isValidBinary(out) && verFile.exists()) {
+        if (!butuhRefresh && isValidBinary(out) && verFile.exists() && binUtuh) {
             try {
                 if (Updater.appVersionName(this).equals(readText(verFile))) {
                     if (detectBinaryVersion(out)) {
@@ -3366,7 +3366,7 @@ public class ServerService extends Service {
             long gagalAt = TgBackup.amanLong(sp, KEY_BIN_DL_GAGAL_AT, 0);
             if (!bolehCobaUnduhLagi(gagalAt, System.currentTimeMillis())) {
                 try {
-                    if (detectBinaryVersion(out)
+                    if (detectBinaryVersion(out) && binUtuh
                             && cacheSesuaiPin(pinBinaryTersimpan(sp), binaryVersion)) {
                         String realTunda = Updater.parseBinaryVersion(binaryVersion);
                         appendLog("[app] Pakai binary cache v"
@@ -3430,6 +3430,13 @@ public class ServerService extends Service {
                                     + " bukan versi pilihan - server TIDAK start.");
                             setStatus("Versi pilihan v" + pinDarurat
                                     + " gagal diunduh; cache beda versi ditolak.");
+                        } else if (!binUtuh) {
+                            appendLog("[app] Versi pilihan gagal diunduh ("
+                                    + e.getMessage() + ") dan SHA-256 binary cache"
+                                    + " tak cocok dengan pin tercatat"
+                                    + " - server TIDAK start.");
+                            setStatus("Unduh gagal dan binary cache gagal"
+                                    + " verifikasi SHA-256 - server tidak start.");
                         } else {
                             String realDarurat = Updater.parseBinaryVersion(binaryVersion);
                             appendLog("[app] Versi pilihan gagal diunduh ("

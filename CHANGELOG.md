@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 651: pin SHA-256 binary kini menggerbang semua cabang penerimaan cache
+- Self-review putaran-22 menemukan pin `bin_sha_pin` (Audit 647) hanya diperiksa di cabang cache update; cabang cache internal (`version.txt` cocok + uji `--version` + pin versi) mengembalikan binary yang sama tanpa cek SHA sama sekali, sehingga binary rusak yang lolos uji asap tetap dipakai dan unduh ulang tak pernah dicoba. Ketiga cabang penerimaan cache kini mensyaratkan `binaryUtuh` yang sama: cabang cache internal, cabang tunda-unduh saat jeda percobaan ulang, dan cabang darurat sesudah unduh gagal (cabang darurat kini juga mencatat dengan jujur bila cache ditolak karena SHA, bukan diam-diam memakainya). Pin kosong tetap berarti belum ada catatan (perilaku pin-on-first-use tak berubah).
+
 ## [Belum rilis] — Perbaikan build: uji pesanUjiAsapGagal diselaraskan ke tanda tangan berarsitektur
 - Run `70ff9f9` merah pada dua uji `pesanUjiAsapGagal`: sejak Audit 645, overload dua-argumen mendelegasikan dengan `os.arch` proses — di JVM CI nilainya `x86_64`, sehingga pesan yang keluar adalah diagnosis arsitektur (yang memang menyebut shim) dan asersi lama gugur; satu uji bahkan lulus semu karena kata "shim" ada di teks arsitektur. Uji kini memakai overload tiga-argumen dengan arsitektur eksplisit (`armv7l` untuk jalur kernel, `x86_64` untuk kasus diagnosis barunya). Perilaku produksi tidak berubah.
 
