@@ -3147,7 +3147,10 @@ public final class TgBackup {
                 pasangTlsRestore(dataFolder, tlsTerStaging);
             } catch (Exception eTls) {
                 kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
-                throw eTls;
+                peringatanTls = " Database SUDAH dipulihkan, tetapi sertifikat"
+                        + " dari backup gagal dipasang (" + eTls.getMessage()
+                        + ") - TLS perangkat ini dikembalikan seperti sebelum"
+                        + " restore.";
             }
         }
         sinkronTlsKeInternal(ctx, dataFolder);

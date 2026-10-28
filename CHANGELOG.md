@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 505: kegagalan pasang TLS saat restore tidak lagi dilaporkan sebagai gagal total
+- Pada `restoreFromZipIsi`, database ditukar lebih dulu secara atomik; bila pemasangan sertifikat backup sesudahnya gagal, kode melempar pengecualian sehingga seluruh restore dilaporkan "gagal" — padahal DB sudah terganti (hanya TLS yang dikembalikan). Pemilik bisa mengira DB lama masih utuh dan mengulang restore yang sama.
+- Kegagalan pasang TLS kini menjadi peringatan di pesan hasil: "Database SUDAH dipulihkan, tetapi sertifikat dari backup gagal dipasang (…) - TLS perangkat ini dikembalikan seperti sebelum restore." Rollback TLS-nya sendiri tidak berubah.
+
 ## [Belum rilis] — Audit 504: WakeLock poll Telegram dinaikkan dari 60 detik ke 10 menit
 - `TgBotReceiver` mengambil WakeLock hanya 60 detik, padahal satu `pollOnce` menjalankan banyak panggilan API berurutan yang masing-masing boleh membaca sampai 30 detik — di perangkat tidur (STB), CPU bisa tidur di tengah poll begitu 60 detik lewat dan sisa perintah tertunda sampai perangkat bangun sendiri.
 - Batas WakeLock kini 10 menit; lock tetap dilepas segera oleh `selesaikan` begitu poll selesai, jadi batas ini hanya plafon pengaman, bukan durasi tahan.
