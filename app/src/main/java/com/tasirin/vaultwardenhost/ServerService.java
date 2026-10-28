@@ -4115,6 +4115,18 @@ public class ServerService extends Service {
                         if (pid == myPid || pid == runningChildPid()) {
                             continue;
                         }
+                        // Identitas anak yang berjalan tak bisa dipastikan
+                        // (scan /proc tak menghasilkan tepat satu — lazim di
+                        // API 21-25 saat dua anak sempat hidup bersamaan)
+                        // dan kandidat ini berinduk ke aplikasi ini: jangan
+                        // dibunuh, bisa jadi ia yang sedang berjalan.
+                        // Yatim sejati berinduk lain dan tetap dibersihkan
+                        // (Audit 612).
+                        int ppid = ppidDariStat(bacaBarisProc(
+                                new File(new File("/proc/" + pid), "stat")));
+                        if (lewatiBunuhBasi(childPid, ppid, myPid)) {
+                            continue;
+                        }
                         if (!pidMilikiServer(pid)) {
                             continue;
                         }
@@ -4193,6 +4205,10 @@ public class ServerService extends Service {
 
     static boolean bolehBunuhBasi(String cmd) {
         return cmdlineServer(cmd);
+    }
+
+    static boolean lewatiBunuhBasi(int childPid, int ppid, int myPid) {
+        return childPid < 0 && ppid == myPid;
     }
 
     static boolean pidYatimServer(int pid, int myPid, int childPid, String cmd) {

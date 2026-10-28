@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 612: killStaleVaultwarden gagal-aman saat identitas anak tak bisa dipastikan
+- Di API 21–25 tak ada `Process.pid()`, jadi pengecualian proses berjalan bergantung pada scan /proc yang hanya berhasil bila ada tepat satu anak server. Bila dua anak sempat hidup bersamaan, scan gagal, `childPid` menjadi -1, dan anak yang sah bisa ikut dibunuh di tengah urutan start-nya sendiri (DUGAAN jendela sempit). Kini kandidat berinduk ke aplikasi ini (PPID = PID aplikasi) dilewati bila identitas anak yang berjalan tak teridentifikasi — yatim sejati berinduk lain tetap dibersihkan. Keputusan itu predikat murni `lewatiBunuhBasi` dan dikunci uji.
+
 ## [Belum rilis] — Audit 613: klasifikasi link-local IPv6 memakai isLinkLocalAddress
 - `collectIps` menyaring alamat link-local hanya dengan awalan literal `fe80:`/`FE80:`, padahal blok link-local adalah fe80::/10 (fe80:–febf:): alamat seperti `fe90::…` lolos sebagai alamat routable, masuk daftar SAN sertifikat TLS dan bisa dipilih `lanHost()` sebagai alamat yang ditampilkan. Kini memakai `InetAddress.isLinkLocalAddress()` yang memang menguji blok /10 itu.
 

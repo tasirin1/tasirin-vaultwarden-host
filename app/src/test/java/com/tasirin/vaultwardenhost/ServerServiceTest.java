@@ -658,6 +658,14 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void lewatiBunuhBasi_saatAnakTakTeridentifikasi() {
+        assertTrue(ServerService.lewatiBunuhBasi(-1, 4242, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(777, 4242, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(-1, 1, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(-1, -1, 4242));
+    }
+
+    @Test
     public void pidDariKecocokan_hanyaTunggalYangDiakui() {
         assertEquals(-1, ServerService.pidDariKecocokan(null));
         assertEquals(-1, ServerService.pidDariKecocokan(
