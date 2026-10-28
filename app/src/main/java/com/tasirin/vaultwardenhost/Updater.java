@@ -1830,12 +1830,11 @@ public final class Updater {
                 deleteRecursive(newDir);
                 throw e;
             }
-            File index = new File(newDir, "index.html");
-            if (!index.exists()) {
+            if (!wvPayloadAda(newDir)) {
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 throw new IOException("Web vault updated tapi index.html tidak ditemukan"
-                        + " - versi lama dipertahankan.");
+                        + " atau kosong - versi lama dipertahankan.");
             }
             tmpZip.delete();
 

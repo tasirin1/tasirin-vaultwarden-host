@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 479: validasi hasil ekstrak web-vault kini memakai syarat payload yang sama dengan cek kesiapan
+- Gerbang sesudah ekstrak zip web-vault hanya memeriksa `index.html` `.exists()`, sedangkan cek kesiapan `wvPayloadAda` (dipakai jalur lain) menuntut berkas sungguhan berukuran > 0. Zip yang lolos dengan `index.html` 0 byte akan terpasang sebagai vault rusak, dicap versi + penanda terpasang, dan tak pernah dicoba lagi.
+- Gerbang ekstrak kini memanggil `wvPayloadAda(newDir)` yang sama, sehingga definisi "payload sah" tunggal di semua jalur; pesan galatnya menyebut kemungkinan kosong. Predikatnya sendiri sudah terkunci uji (`wvPayloadAda_wajibIndexBerisi`).
+
 ## [Belum rilis] — Audit 478: jeda gagal unduh 6 jam kini memakai jam dinding agar bertahan lintas reboot
 - Stempel `bin_dl_gagal_at`/`wv_dl_gagal_at` menyimpan `elapsedRealtime` secara persisten — pola yang sama yang dulu diperbaiki untuk stempel PIN (Audit 79) tetapi terulang pada salinan #213. Sesudah reboot, stempel elapsed boot lama yang besar membuat `bolehCobaUnduhLagi` langsung mengizinkan unduh ulang: jeda 6 jam runtuh tepat pada skenario kegagalan unduh yang dibarengi boot-loop.
 - Keenam titik baca/tulis stempel (ServerService + AutoUpdate, binary + web-vault) kini memakai jam dinding `currentTimeMillis`; fungsi murni `bolehCobaUnduhLagi` tidak berubah semantik (ujinya tetap berlaku). Stempel elapsed warisan dari versi lama terbaca sebagai masa lampau jauh sehingga mengizinkan tepat satu percobaan lalu sembuh sendiri pada penulisan berikutnya. Komentar di definisi kunci menandai basis jamnya agar tidak terulang.
