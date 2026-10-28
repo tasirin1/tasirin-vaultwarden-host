@@ -1001,6 +1001,7 @@ public class MainActivity extends Activity {
                 return false;
             }
             @Override public void restartServer() {
+                ServerService.restart(MainActivity.this);
             }
         }, new AutoUpdate.AturPending() {
 

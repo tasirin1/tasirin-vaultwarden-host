@@ -171,11 +171,11 @@ public final class AutoUpdate {
                     }
                 }
 
-                if (adaTerpasang && ServerService.running
-                        && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
-                    aksi.catat("[app] Auto-restart setelah update...");
-                    aksi.restartServer();
-                }
+            }
+            if (adaTerpasang && ServerService.running
+                    && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
+                aksi.catat("[app] Auto-restart setelah update...");
+                aksi.restartServer();
             }
             TgBackup.notifyLowStorage(ctx);
             if (lengkap) {

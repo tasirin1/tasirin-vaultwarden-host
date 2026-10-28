@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 702: auto-restart sesudah update kini berlaku juga untuk instalasi dari layar utama
+- Instalasi binary otomatis berjalan di kedua mode cek, tetapi penilaian auto-restart-nya terkurung di mode lengkap (Settings) dan `restartServer()` MainActivity adalah no-op: instalasi yang kebetulan terpicu dari layar utama tidak pernah menindaklanjuti preferensi `auto_restart_update`, dan cek berikutnya tak menebusnya karena versi sudah tercatat sama. Blok restart kini dinilai di luar gerbang mode (sesudah blok web-vault yang memang khusus mode lengkap), dan aksi restart MainActivity benar-benar menjalankan `ServerService.restart` seperti Settings.
+
 ## [Belum rilis] — Audit 701: cek update tak lagi memercayai versi memori saat server berhenti
 - `ServerService.binaryVersion` tidak dibersihkan saat server berhenti (sudah didokumentasikan Audit 648 di jalur saudara), tetapi `AutoUpdate.cek` membacanya tanpa gerbang: bila binary di disk diganti selagi server berhenti (pasang versi pilihan/downgrade), cek menyimpulkan dari versi basi di memori — dan pada cabang "sudah sama" ia **menulis `KEY_UPDATE_VERSION = latest` yang salah secara persisten** dan membatalkan tawaran/notifikasi, sehingga tawaran sah tertelan sampai Start berikutnya. Versi berjalan kini hanya dipercaya saat server memang berjalan (pola yang sama dengan `Updater`); saat berhenti, cek bersandar pada versi tercatat/bawaan.
 
