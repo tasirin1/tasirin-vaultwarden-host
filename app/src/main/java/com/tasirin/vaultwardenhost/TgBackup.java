@@ -3045,7 +3045,8 @@ public final class TgBackup {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            if (checkpointWajib(dbFile) && !checkpointWal(dbFile)) {
+            boolean wajibCheckpoint = checkpointWajib(dbFile);
+            if (wajibCheckpoint && !checkpointWal(dbFile)) {
                 // Checkpoint gagal berarti transaksi ter-commit terbaru
                 // masih hanya ada di -wal; pre-backup berkas utama saja
                 // akan kehilangan transaksi itu, dan -wal live akan
@@ -3059,6 +3060,9 @@ public final class TgBackup {
             String ts = stempelUnik() + "-pre";
             preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
             copyFile(dbFile, preBackup);
+            if (!wajibCheckpoint) {
+                salinPendampingWal(dataFolder, backupDir, preBackup);
+            }
             cleanupOldBackups(backupDir);
             hapusWalShm(dataFolder);
         }
@@ -3865,6 +3869,18 @@ public final class TgBackup {
             ed.remove(ServerService.KEY_BIN_MANUAL_FP);
         }
         ed.apply();
+    }
+
+    static void salinPendampingWal(File dataFolder, File backupDir,
+                                   File preBackup) throws Exception {
+        File wal = new File(dataFolder, "db.sqlite3-wal");
+        if (wal.isFile()) {
+            copyFile(wal, new File(backupDir, preBackup.getName() + "-wal"));
+        }
+        File shm = new File(dataFolder, "db.sqlite3-shm");
+        if (shm.isFile()) {
+            copyFile(shm, new File(backupDir, preBackup.getName() + "-shm"));
+        }
     }
 
     static void hapusWalShm(File dataFolder) {

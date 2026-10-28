@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 662: WAL live DB pengecualian-checkpoint kini ikut diselamatkan ke pre-backup
+- Pre-backup restore hanya menyalin berkas utama DB. Untuk DB sehat itu cukup (checkpoint `TRUNCATE` mengosongkan WAL lebih dulu, dan kegagalan checkpoint membatalkan restore sejak Audit 579), tetapi DB yang dikecualikan dari kewajiban checkpoint (Audit 587 — justru DB rusak yang hendak dipulihkan) melewati blok itu tanpa checkpoint, lalu `-wal`/`-shm` live-nya dihapus sebelum ekstraksi: bila restore kemudian gagal, WAL asli hilang dan pre-backup tidak memuatnya, sehingga DB lama lebih sulit dipulihkan daripada sebelum percobaan. Kedua jalur restore (bot dan lokal) kini menyalin pendamping `-wal`/`-shm` di samping pre-backup khusus untuk kasus tanpa checkpoint itu, lewat helper bersama `salinPendampingWal`.
+
 ## [Belum rilis] — Audit 660: update_version diselaraskan ke binary yang benar-benar terpasang saat Start
 - `update_version` hasil restore tidak pernah dikoreksi: jalur cepat cache hanya memeriksa nilainya tidak kosong, sehingga klaim versi dari backup (bisa lebih baru dari binary fisik perangkat tujuan) dibaca cek update berkala sebagai versi berjalan dan dapat menekan tawaran unduhan yang sebenarnya dibutuhkan. Kini, sesudah uji `--version` di jalur cepat berhasil, versi terdeteksi dari binary dibandingkan dengan `update_version` tercatat dan ditulis balik bila berbeda — satu-satunya sumber kebenaran adalah binary yang benar-benar jalan.
 

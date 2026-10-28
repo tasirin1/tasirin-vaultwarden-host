@@ -1977,8 +1977,8 @@ public class SettingsActivity extends Activity {
                     backupDir.mkdirs();
                 }
 
-                if (TgBackup.checkpointWajib(dbFile)
-                        && !TgBackup.checkpointWal(dbFile)) {
+                boolean wajibCheckpoint = TgBackup.checkpointWajib(dbFile);
+                if (wajibCheckpoint && !TgBackup.checkpointWal(dbFile)) {
                     // Sama seperti jalur bot: checkpoint gagal berarti
                     // transaksi terbaru masih hanya di -wal; jangan lanjut
                     // ke pre-backup yang akan kehilangannya (Audit 579).
@@ -1995,6 +1995,10 @@ public class SettingsActivity extends Activity {
                 String ts = TgBackup.stempelUnik() + "-pre";
                 preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
                 TgBackup.copyFile(dbFile, preBackup);
+                if (!wajibCheckpoint) {
+                    TgBackup.salinPendampingWal(new File(dataDir), backupDir,
+                            preBackup);
+                }
                 TgBackup.cleanupOldBackups(backupDir);
 
                 TgBackup.hapusWalShm(new File(dataDir));
