@@ -1150,6 +1150,11 @@ public final class TgBackup {
 
     private static boolean ubahSinkron(Context app, long chatId, int messageId,
                                        String msg, String markup) {
+        return ubahSinkronDenganUlang(app, chatId, messageId, msg, markup, false);
+    }
+
+    private static boolean ubahSinkronDenganUlang(Context app, long chatId, int messageId,
+                                       String msg, String markup, boolean ulang429) {
         HttpURLConnection conn = null;
         try {
             SharedPreferences sp = app.getSharedPreferences(ServerService.PREFS,
@@ -1190,6 +1195,15 @@ public final class TgBackup {
             if (code == 400
                     && Util.mengandungAbaikanHuruf(balasan, "message is not modified")) {
                 return true;
+            }
+            if (code == 429 && !ulang429) {
+                try {
+                    Thread.sleep(jedaRetryAfterMs(balasan));
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+                return ubahSinkronDenganUlang(app, chatId, messageId, msg, markup, true);
             }
             logTgFailure("ubah pesan", code, balasan);
             return false;
@@ -2225,6 +2239,22 @@ public final class TgBackup {
                     "https://api.telegram.org/file/bot" + token + "/" + path,
                     20000, 120000);
             int code = conn.getResponseCode();
+            if (code == 429) {
+                StringBuilder sb429 = new StringBuilder();
+                InputStream mentah = conn.getErrorStream();
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        sb429.append(bacaResponsBatas(is));
+                    }
+                }
+                conn.disconnect();
+                conn = null;
+                Thread.sleep(jedaRetryAfterMs(sb429.toString()));
+                conn = bukaFileTelegram(ctx,
+                        "https://api.telegram.org/file/bot" + token + "/" + path,
+                        20000, 120000);
+                code = conn.getResponseCode();
+            }
             if (code != 200) {
                 throw new IOException("Unduh backup gagal (HTTP " + code + ")");
             }
@@ -2258,29 +2288,43 @@ public final class TgBackup {
     }
 
     private static String getFilePath(Context ctx, String token, String fileId) throws Exception {
-        HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
-        try {
+        for (int percobaan = 0; ; percobaan++) {
+            HttpURLConnection conn = null;
+            sb.setLength(0);
+            try {
 
-            byte[] body = ("file_id=" + URLEncoder.encode(fileId, "UTF-8"))
-                    .getBytes(StandardCharsets.UTF_8);
-            conn = bukaPostTelegram(ctx,
-                    "https://api.telegram.org/bot" + token + "/getFile", body,
-                    "application/x-www-form-urlencoded", 15000, 15000);
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body);
-            }
-            tolakRedirectTelegram(conn);
-            int code = conn.getResponseCode();
-            if (code != 200) {
-                throw new IOException("getFile gagal (HTTP " + code + ")");
-            }
-            try (InputStream is = conn.getInputStream()) {
-                sb.append(bacaResponsBatas(is));
-            }
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
+                byte[] body = ("file_id=" + URLEncoder.encode(fileId, "UTF-8"))
+                        .getBytes(StandardCharsets.UTF_8);
+                conn = bukaPostTelegram(ctx,
+                        "https://api.telegram.org/bot" + token + "/getFile", body,
+                        "application/x-www-form-urlencoded", 15000, 15000);
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body);
+                }
+                tolakRedirectTelegram(conn);
+                int code = conn.getResponseCode();
+                if (code == 429 && percobaan == 0) {
+                    InputStream mentah = conn.getErrorStream();
+                    if (mentah != null) {
+                        try (InputStream is = mentah) {
+                            sb.append(bacaResponsBatas(is));
+                        }
+                    }
+                    Thread.sleep(jedaRetryAfterMs(sb.toString()));
+                    continue;
+                }
+                if (code != 200) {
+                    throw new IOException("getFile gagal (HTTP " + code + ")");
+                }
+                try (InputStream is = conn.getInputStream()) {
+                    sb.append(bacaResponsBatas(is));
+                }
+                break;
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
         }
         String hasil = parseFilePathTelegram(sb.toString());

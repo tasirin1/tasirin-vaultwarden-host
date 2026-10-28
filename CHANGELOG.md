@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 503: retry 429 Telegram kini menjangkau jalur unduh dan edit pesan
+- Sikap tunggu-`retry_after` yang sudah ada di jalur kirim pesan dan unggah belum ada di tiga pemanggil API lain: `getFilePath` (429 = restore dari Telegram selalu gagal total), unduhan berkas backup di `downloadLastBackup` (429 di tengah jalan membuang seluruh unduhan), dan `ubahSinkron` (edit pesan status gagal seketika).
+- Ketiganya kini mencoba sekali lagi sesudah tidur selama `jedaRetryAfterMs` dari badan galat 429 — pola yang sama persis dengan dua jalur lama; pemotongan jeda maksimum 5 detik tidak diubah.
+
 ## [Belum rilis] — Audit 502: salinCaKeStorage kini menulis lewat berkas sementara + rename
 - Penyalinan cadangan CA menimpa langsung nama tujuan final: storage dicabut/penuh di tengah salinan menghancurkan cadangan lama bernama sama dan meninggalkan cadangan baru terpotong yang namanya tampak sah untuk dipasang/di-share.
 - Salinan kini ditulis ke `<nama>.tmp` di folder yang sama, di-flush + fsync, lalu di-rename ke nama final (cadangan lama hanya terganti oleh salinan yang utuh); kegagalan membersihkan `.tmp` dan melempar IOException tanpa menyentuh cadangan lama.
