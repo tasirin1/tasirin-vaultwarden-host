@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 533: cek-cepat kini gagal tertutup bila git tak bisa dipakai
+- Seluruh cek berbasis git di `cek-cepat.sh` (daftar berkas terlarang, sapuan biner, `git grep` pola rahasia) menelan kegagalan git dengan `|| true`/daftar kosong, sehingga di ekspor sumber tanpa `.git` (atau repo rusak/safe.directory) skrip keluar 0 walau tak satu pun cek itu berjalan — dibuktikan sesi audit: ekspor + token `ghp_` + biner ELF tetap "LOLOS".
+- Skrip kini memeriksa kesehatan git di awal (`git rev-parse --is-inside-work-tree` + `git ls-files`); bila gagal, ia mencatat GAGAL eksplisit bahwa hasil tak bisa dipercaya dan keluar 1, sementara cek non-git tetap berjalan seperti biasa. Terbukti fixture dua arah: ekspor `git archive` tanpa `.git` berisi token + biner → exit 1 dengan pesan itu; pohon normal → tetap LOLOS.
+
 ## [Belum rilis] — Audit 532: pengecualian format pasif gerbang kini terikat ekstensi dan bebas bungkus biner
 - Sisa #244: kedua gerbang mengecualikan berkas dari larangan biner hanya berdasar 12 byte header pertama (PNG/JPEG/GIF/WebP/PDF/ICO) tanpa mengikat ekstensi dan tanpa melihat isi — biner poliglot (header `%PDF-1.7` + ELF utuh) lolos sebagai "dokumen pasif" di `verifikasi-patch.py` maupun `cek-cepat.sh`, melemahkan pagar biner diam-diam (aturan repo melarang biner tak dikenal masuk repo).
 - `jenis_pasif` kini hanya mengakui format pasif bila ekstensi berkas cocok dengan formatnya (`.png`, `.jpg`/`.jpeg`, `.gif`, `.webp`, `.pdf`, `.ico`) DAN seluruh isi bebas tanda bungkus executable (ELF, ZIP/PK, DEX, Mach-O); `cek-cepat.sh` menerapkan ikatan yang sama (pemindaian hexdump untuk tanda yang sama). Terbukti fixture dua arah di salinan buang: poliglot `.bin` dan `.pdf` → kedua gerbang GAGAL; header acak → GAGAL; PNG sah bernama `.png` → kedua gerbang LOLOS (158 berkas).

@@ -6,6 +6,10 @@ gagal=0
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then ANO_ERR="::error::"; else ANO_ERR=""; fi
 gagal_msg() { echo "${ANO_ERR}GAGAL: $*"; gagal=1; }
 
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1 || ! git ls-files >/dev/null 2>&1; then
+  gagal_msg "git tak bisa dipakai di sini - cek berbasis git (biner terlarang, pola rahasia) tak berjalan, hasil tak bisa dipercaya; jalankan dari clone git yang sehat"
+fi
+
 if rg --version >/dev/null 2>&1; then ADA_RG=1; else ADA_RG=0; fi
 
 if [ "$ADA_RG" = 1 ] && rg --pcre2 -n '' app/src/main/res/drawable >/dev/null 2>&1; then
