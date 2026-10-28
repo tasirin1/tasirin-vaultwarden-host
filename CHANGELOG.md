@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 502: salinCaKeStorage kini menulis lewat berkas sementara + rename
+- Penyalinan cadangan CA menimpa langsung nama tujuan final: storage dicabut/penuh di tengah salinan menghancurkan cadangan lama bernama sama dan meninggalkan cadangan baru terpotong yang namanya tampak sah untuk dipasang/di-share.
+- Salinan kini ditulis ke `<nama>.tmp` di folder yang sama, di-flush + fsync, lalu di-rename ke nama final (cadangan lama hanya terganti oleh salinan yang utuh); kegagalan membersihkan `.tmp` dan melempar IOException tanpa menyentuh cadangan lama.
+
 ## [Belum rilis] — Audit 501: kode mati overload privat isShareable(String) dihapus
 - `FileShareProvider.isShareable(String)` satu-argumen tidak pernah dipanggil satu pun call-site (semua memakai varian dua-argumen yang menerima akar bagi eksplisit). Overload mati dihapus; namanya sengaja TIDAK dicatat ke `tools/bekas-hapusan.txt` karena nama yang sama masih terdefinisi sah sebagai metode dua-argumen (sesuai peringatan di kepala berkas itu).
 

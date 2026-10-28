@@ -1153,13 +1153,33 @@ public final class TlsCert {
             throw new IOException("Folder tujuan tak bisa dibuat: " + dirBackup.getAbsolutePath());
         }
         File tujuan = new File(dirBackup, namaBackupCa(timestamp));
-        try (FileInputStream in = new FileInputStream(caAktif);
-             FileOutputStream out = new FileOutputStream(tujuan)) {
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = in.read(buf)) != -1) {
-                out.write(buf, 0, n);
+        File sementara = new File(dirBackup, tujuan.getName() + ".tmp");
+        try {
+            try (FileInputStream in = new FileInputStream(caAktif);
+                 FileOutputStream out = new FileOutputStream(sementara)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) != -1) {
+                    out.write(buf, 0, n);
+                }
+                out.flush();
+                try {
+                    out.getFD().sync();
+                } catch (Exception ignored) {
+                }
             }
+            if (!sementara.renameTo(tujuan)) {
+                if (!tujuan.delete() || !sementara.renameTo(tujuan)) {
+                    throw new IOException("Gagal memasang salinan CA: "
+                            + tujuan.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            try {
+                sementara.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
         }
         return tujuan;
     }
