@@ -1444,9 +1444,36 @@ public final class Updater {
                 && f.length() >= KernelCompat.SHIM_MIN_BYTES && isElf(f);
     }
 
+    static final String KEY_SHIM_SHA = "shim_sha256";
+
+    static boolean shimUtuh(File f, String shaTersimpan) {
+        if (!shimValid(f)) {
+            return false;
+        }
+        if (shaTersimpan == null || shaTersimpan.isEmpty()) {
+            return true;
+        }
+        return expectedHexEquals(shaTersimpan, sha256Hex(f));
+    }
+
     public static File ensureShimFile(Context ctx) throws Exception {
         File out = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-        if (shimValid(out)) {
+        SharedPreferences sp = ctx.getSharedPreferences(
+                ServerService.PREFS, Context.MODE_PRIVATE);
+        String shaTersimpan = sp.getString(KEY_SHIM_SHA, "");
+        if (shimUtuh(out, shaTersimpan)) {
+            if (shaTersimpan == null || shaTersimpan.isEmpty()) {
+                // Pasangan lama sebelum pencatatan hash: pin hash berkas
+                // yang lolos validasi saat ini, agar kerusakan di tengah
+                // berkas sesudah ini terdeteksi dan dipulihkan unduh
+                // ulang — sebelumnya shim rusak-di-tengah lolos
+                // shimValid (hanya magic ELF + ukuran) selamanya dan
+                // start mati menuduh binary (Audit 628).
+                try {
+                    sp.edit().putString(KEY_SHIM_SHA, sha256Hex(out)).apply();
+                } catch (Exception ignored) {
+                }
+            }
             return out;
         }
         downloadShim(ctx, out);
@@ -1524,6 +1551,11 @@ public final class Updater {
         }
         out.setReadable(true, true);
         out.setExecutable(true, true);
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putString(KEY_SHIM_SHA, sha256Hex(out)).apply();
+        } catch (Exception ignored) {
+        }
         return "Shim getrandom terpasang.";
     }
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 628: integritas shim terpasang diverifikasi ulang lewat SHA-256 tercatat
+- `ensureShimFile` sebelumnya menerima shim terpasang hanya dari `shimValid` (ukuran + magic ELF + arsitektur): berkas yang rusak di TENGAH (header utuh) lolos selamanya, `LD_PRELOAD` gagal, start mati dengan pesan yang menuduh binary, dan saran "tekan Cek Update" mengembalikan berkas rusak yang sama — satu-satunya pemulihan adalah hapus data aplikasi. Kini hash SHA-256 shim dicatat ke prefs saat pemasangan (sesudah verifikasi unduhan yang sudah ada), dan `ensureShimFile` memeriksa ulang lewat predikat `shimUtuh`: hash tak cocok → unduh ulang. Pasangan lama tanpa catatan di-pin pada validasi pertama (percaya-sesudah-cek), jadi kerusakan berikutnya tetap tertangkap. Predikatnya dikunci uji termasuk kasus berkas pendek dan hash berkas lain.
+
 ## [Belum rilis] — Audit 624: auto-merge Dependabot kini menunggu hasil Build APK, bukan hanya gerbang patch
 - Langkah "Auto-merge setelah CI hijau" sebelumnya menipu namanya: `--auto` hanya menunggu check wajib branch, dan satu-satunya check wajib adalah `Cek patch yang berubah` (gerbang patch tanpa compile/lint/uji) — bump major grup GitHub Actions yang mematahkan build bisa ter-merge otomatis. Workflow auto-merge kini menunggu run Build APK untuk head SHA PR itu: bila ada, auto-merge hanya diaktifkan sesudah run itu `success` (gagal/batal/timeout menunggu = dibatalkan); bila tak ada run (PR tersaring path sehingga build memang tak berjalan), jalur lama berlaku. Batas waktu job dinaikkan 15 → 25 menit untuk memberi ruang tunggu itu.
 

@@ -573,6 +573,26 @@ public class UpdaterTest {
     }
 
     @Test
+    public void shimUtuh_hashTersimpanMenentukan() throws Exception {
+        java.io.File shim = berkasElf((byte) 40, (byte) 0, 2048);
+        java.io.File lain = berkasElf((byte) 40, (byte) 0, 4096);
+        java.io.File pendek = berkasElf((byte) 40, (byte) 0, 20);
+        try {
+            String sha = Updater.sha256Hex(shim);
+            assertTrue(Updater.shimUtuh(shim, sha));
+            assertTrue(Updater.shimUtuh(shim, ""));
+            assertTrue(Updater.shimUtuh(shim, null));
+            assertFalse(Updater.shimUtuh(shim, Updater.sha256Hex(lain)));
+            assertFalse(Updater.shimUtuh(pendek, Updater.sha256Hex(pendek)));
+            assertFalse(Updater.shimUtuh(null, sha));
+        } finally {
+            shim.delete();
+            lain.delete();
+            pendek.delete();
+        }
+    }
+
+    @Test
     public void isElf_hanyaArm32Bit() throws Exception {
         java.io.File arm = berkasElf((byte) 40, (byte) 0, 20);
         java.io.File x86 = berkasElf((byte) 62, (byte) 0, 20);
