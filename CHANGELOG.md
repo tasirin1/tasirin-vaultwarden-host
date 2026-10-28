@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 693: commit offset dini dipersempit ke callback yang benar-benar tak idempoten
+- Penimbangan ulang trade-off Audit 682 (self-review putaran-25): commit-sebelum-eksekusi untuk *semua* callback membuat setiap ketukan bersifat at-most-once — ketukan Stop/Backup/dll. bisa hilang diam-diam bila proses mati tepat sesudah commit. Padahal yang benar-benar rusak oleh eksekusi ganda hanyalah aksi yang memutar keadaan: `/careset` (CA baru membuat CA yang baru dipasang basi) dan `/restore` (menerapkan ulang backup). Commit dini kini hanya untuk dua perintah itu; callback lain (berhenti, mulai, restart, backup, update, navigasi, tampilan) kembali ke semantik at-least-once lewat penyimpanan offset akhir batch — pengiriman ulang untuk mereka berakhir pada keadaan yang sama atau tertahan pagar tugas berat yang sudah ada.
+
 ## [Belum rilis] — Audit 697: jaringan mati total tidak lagi dibaca sebagai perubahan IP
 - `lanHost()` mengembalikan `127.0.0.1` bila semua antarmuka turun, dan mekanisme perubahan IP tidak punya pengecualian untuk nilai itu: kepadaman jaringan yang cukup lama (router reboot) dibaca sebagai "IP berubah → 127.0.0.1", server di-restart ke mode loopback dengan pesan Telegram yang menyesatkan, lalu di-restart sekali lagi saat jaringan pulih walau IP-nya sama persis — dua restart dan satu jendela sertifikat tanpa SAN LAN untuk satu kepadaman. Keadaan loopback kini diperlakukan sebagai jaringan mati, bukan perubahan: kandidat perubahan dibersihkan, tidak ada restart dan tidak ada pengumuman "IP berubah", hanya satu catatan log jujur "jaringan tidak terdeteksi — menunggu pulih". Predikat murni `restartIpBolehDiminta` juga menolak loopback sebagai lapis kedua (terkunci uji).
 

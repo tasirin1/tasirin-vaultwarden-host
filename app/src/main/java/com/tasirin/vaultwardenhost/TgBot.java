@@ -480,9 +480,14 @@ public final class TgBot {
                         try {
                             JSONObject cb = upd.optJSONObject("callback_query");
                             if (cb != null) {
-                                try {
-                                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
-                                } catch (Exception ignored) {
+                                String dataCb = cb.optString("data", "");
+                                String cmdCb = namaPerintah(dataCb);
+                                if ("careset".equals(cmdCb)
+                                        || "restore".equals(cmdCb)) {
+                                    try {
+                                        sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
+                                    } catch (Exception ignored) {
+                                    }
                                 }
                                 tanganiCallback(ctx, cb, chatKonfig);
                                 continue;
