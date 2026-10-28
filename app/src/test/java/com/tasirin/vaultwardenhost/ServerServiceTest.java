@@ -659,10 +659,11 @@ public class ServerServiceTest {
 
     @Test
     public void lewatiBunuhBasi_saatAnakTakTeridentifikasi() {
-        assertTrue(ServerService.lewatiBunuhBasi(-1, 4242, 4242));
-        assertFalse(ServerService.lewatiBunuhBasi(777, 4242, 4242));
-        assertFalse(ServerService.lewatiBunuhBasi(-1, 1, 4242));
-        assertFalse(ServerService.lewatiBunuhBasi(-1, -1, 4242));
+        assertTrue(ServerService.lewatiBunuhBasi(true, 4242, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(false, 4242, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(true, 1, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(true, -1, 4242));
+        assertFalse(ServerService.lewatiBunuhBasi(false, 1, 4242));
     }
 
     @Test

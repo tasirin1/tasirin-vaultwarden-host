@@ -4104,6 +4104,7 @@ public class ServerService extends Service {
         try {
             int myPid = android.os.Process.myPid();
             int childPid = runningChildPid();
+            boolean anakHidupTakTeridentifikasi = isProcessAlive() && childPid < 0;
             for (int pid : kandidatPidSeUid()) {
                 try {
                     if (pid == myPid || pid == childPid) {
@@ -4115,16 +4116,18 @@ public class ServerService extends Service {
                         if (pid == myPid || pid == runningChildPid()) {
                             continue;
                         }
-                        // Identitas anak yang berjalan tak bisa dipastikan
-                        // (scan /proc tak menghasilkan tepat satu — lazim di
+                        // Anak yang BENAR-BENAR hidup tetapi PID-nya tak
+                        // teridentifikasi (scan /proc ambigu — lazim di
                         // API 21-25 saat dua anak sempat hidup bersamaan)
                         // dan kandidat ini berinduk ke aplikasi ini: jangan
                         // dibunuh, bisa jadi ia yang sedang berjalan.
-                        // Yatim sejati berinduk lain dan tetap dibersihkan
-                        // (Audit 612).
+                        // childPid -1 TANPA proses hidup bukan ambiguitas
+                        // (keadaan normal sesudah Stop): kandidat memang
+                        // basi dan wajib dibersihkan (Audit 612, dikoreksi
+                        // Audit 622). Yatim berinduk lain tetap dibersihkan.
                         int ppid = ppidDariStat(bacaBarisProc(
                                 new File(new File("/proc/" + pid), "stat")));
-                        if (lewatiBunuhBasi(childPid, ppid, myPid)) {
+                        if (lewatiBunuhBasi(anakHidupTakTeridentifikasi, ppid, myPid)) {
                             continue;
                         }
                         if (!pidMilikiServer(pid)) {
@@ -4207,8 +4210,9 @@ public class ServerService extends Service {
         return cmdlineServer(cmd);
     }
 
-    static boolean lewatiBunuhBasi(int childPid, int ppid, int myPid) {
-        return childPid < 0 && ppid == myPid;
+    static boolean lewatiBunuhBasi(boolean anakHidupTakTeridentifikasi,
+            int ppid, int myPid) {
+        return anakHidupTakTeridentifikasi && ppid == myPid;
     }
 
     static boolean pidYatimServer(int pid, int myPid, int childPid, String cmd) {
