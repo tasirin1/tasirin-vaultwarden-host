@@ -162,8 +162,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    `nextFocusUp/Down`, background `@drawable/item_focus_bg`).
 8. **UI 2 mode**: layar sentuh HP dan remote TV — ukuran tombol cukup besar,
    tidak memakai gesture yang butuh sentuhan presisi. Layar awal
-   (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log, simpan
-   .txt, titik tiga); kontrol baru selalu masuk `SettingsActivity`.
+   (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log realtime,
+   titik tiga); kontrol baru selalu masuk `SettingsActivity`.
 9. **Versi app jangan diubah manual** — `app/build.gradle.kts` memakai waktu
    build UTC (`versionName yyyy.MM.dd`, `versionCode` menit-epoch UTC);
    konsisten dengan CI. Menit-epoch monotonik dan unik per menit agar dua push
@@ -357,7 +357,7 @@ sengaja dibuat ulang, perbarui konstanta itu di commit yang sama.
   konstanta `KEY_*` di `ServerService.java`. Layar awal (`MainActivity.java` +
   `activity_main.xml`, satu layout untuk kedua orientasi) tetap ringkas:
   brand kecil, info versi, banner status full-width, Start full-width sticky,
-  log realtime, simpan .txt, titik tiga (tanpa tombol buka-log).
+  log realtime, titik tiga (tanpa tombol buka-log; simpan .txt ada di layar log penuh `LogActivity`).
 - **Percantik tampilan (tanpa logika)** → `colors.xml` (+ `values-night`,
   wajib sinkron) + `styles.xml` + `drawable/bg_*` + string baru di
   `strings.xml` (default Inggris; padanan Indonesia di `values-in/strings.xml`);

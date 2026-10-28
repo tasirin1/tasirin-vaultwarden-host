@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 618: AGENTS.md tak lagi menyebut simpan .txt di layar awal
+- Aturan 8 dan pemetaan fitur di AGENTS.md mencantumkan "simpan .txt" sebagai isi layar awal, padahal MainActivity tak punya penangan simpan log sama sekali (menu titik tiganya hanya Open Settings + About) — simpan .txt hidup di layar log penuh LogActivity. Deskripsi layar awal kini cocok dengan kode, dan pemetaan fitur menunjuk tempat simpan .txt yang sebenarnya agar pengelola tak mengira ada regresi atau menambahkannya kembali ke beranda yang sengaja ringkas.
+
 ## [Belum rilis] — Audit 617: nama panel menu /help di README EN/RU disamakan dengan tombol bot
 - README Inggris/Rusia menulis panel menu sebagai "(Status, Control, Backup, Update, Certificate, Info)", padahal tombol bot selalu berbahasa Indonesia: "Kontrol" dan "Sertifikat" yang tampil, "Control"/"Certificate" tidak pernah muncul. Kini ketiga README mengutip nama tombol yang sama persis.
 
