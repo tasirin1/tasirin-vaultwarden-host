@@ -350,9 +350,9 @@ sengaja dibuat ulang, perbarui konstanta itu di commit yang sama.
 ## Pemetaan fitur → file
 
 - **Pengaturan baru (checkbox/input)** → kartu esensial (Folder, Port, Admin Token, PIN, cadangan cepat)
-  ada di `main_card_server.xml` (selalu tampil, termasuk mode sederhana); sisanya di
-  `main_card_*.xml` yang sesuai dalam panel Lanjutan
-  (`activity_settings.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
+  ada di `main_card_server.xml` (selalu tampil); sisanya di
+  `main_card_*.xml` yang sesuai, di dalam seksi buka-tutup Settings
+  (`sec_buka_*`; `activity_settings.xml` hanya kerangka + hero; lengkapi `nextFocusUp/Down`) +
   `SettingsActivity.java` (field, `setChecked`, listener, simpan ke prefs) +
   konstanta `KEY_*` di `ServerService.java`. Layar awal (`MainActivity.java` +
   `activity_main.xml`, satu layout untuk kedua orientasi) tetap ringkas:

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 581: sisa frasa 'mode sederhana/panel Lanjutan' di Pemetaan fitur AGENTS.md dibersihkan
+- Melanjutkan Audit 567: pembersihan putaran-16 memburu nama kunci prefs, tetapi frasa prosa "termasuk mode sederhana" dan "dalam panel Lanjutan" di bagian Pemetaan fitur AGENTS.md lolos. Keduanya merujuk fitur yang tidak ada — Settings memakai seksi buka-tutup `sec_buka_*`. Uraian kini menyebut seksi buka-tutup itu secara akurat.
+
 ## [Belum rilis] — Audit 580: CustomX509TrustManager naik ke severity error lint
 - Melanjutkan Audit 563: cek itu sudah dihidupkan lagi dari daftar `disable`, tetapi severity bawaannya Warning sehingga `abortOnError` tak pernah menghentikan build karenanya — jaring pengaman TLS hanya berupa warning terkubur di laporan. Kini cek tersebut masuk daftar `error` lint di `app/build.gradle.kts`: implementasi TrustManager kustom apa pun yang muncul di masa depan menggagalkan `lintDebug`. Tak ada implementasi kustom saat ini, jadi tak ada temuan baru yang diharapkan.
 
