@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 656: antrean kunci pasang global kini memasang status tunggu
+- Self-review putaran-22 memastikan kunci global Audit 649 bebas deadlock (satu-satunya jalur bersarang berjalan di thread yang sama dan `synchronized` bersifat reentrant), tetapi Start yang membutuhkan unduhan bisa mengantre belasan menit di belakang unduhan kanal lain tanpa penjelasan apa pun. Kunci diganti `ReentrantLock` (tetap reentrant per thread, semantik serialisasi sama); pemanggil yang tidak langsung memperoleh kunci memasang status "Menunggu unduhan/pemasangan lain selesai..." yang terlihat di UI sampai gilirannya tiba dan status unduhannya sendiri mengambil alih.
+
 ## [Belum rilis] — Audit 655: probe --version menangkap bukti panic yang datang sesudah baris kedua
 - Probe versi berhenti membaca sesudah 2 baris non-derau, sehingga jejak panic getrandom yang tercetak sesudah dua baris banner normal tidak pernah masuk `lastVersionOutput` — bukti yang menjadi dasar rescue Audit 644/653 dan jalur panic bisa lolos palsu. Probe kini terus membaca baris yang **sudah tersedia** (`BufferedReader.ready()`, tanpa menunggu) sampai maks 40 baris: ledakan output panic tertangkap utuh, sedangkan proses sehat yang langsung keluar tidak ditahan lebih lama dari sebelumnya.
 

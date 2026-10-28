@@ -1263,7 +1263,15 @@ public final class Updater {
         return downloadBinaryVersi(ctx, out, versi, null);
     }
 
-    private static final Object KUNCI_PASANG_GLOBAL = new Object();
+    private static final java.util.concurrent.locks.ReentrantLock KUNCI_PASANG_GLOBAL =
+            new java.util.concurrent.locks.ReentrantLock();
+
+    private static void kunciPasangGlobal() {
+        if (!KUNCI_PASANG_GLOBAL.tryLock()) {
+            downloadStatus = "Menunggu unduhan/pemasangan lain selesai...";
+            KUNCI_PASANG_GLOBAL.lock();
+        }
+    }
 
     public static String downloadBinaryVersi(Context ctx, File out, String versi,
                                              CekBatal batal) throws Exception {
@@ -1274,13 +1282,17 @@ public final class Updater {
         // ditulis sesudahnya di luar kunci — hasil akhir ditentukan
         // thread yang selesai terakhir (Audit 649). Kunci yang sama
         // menutup celah sapuan tmp terhadap pemasangan yang tertunda.
-        synchronized (KUNCI_PASANG_GLOBAL) {
-            mulaiUnduhan();
-            try {
-                return downloadBinaryInner(ctx, out, versi, batal);
-            } finally {
-                selesaiUnduhan();
-            }
+        // ReentrantLock (bukan synchronized) agar penunggu bisa memasang
+        // status tunggu yang terlihat user (Audit 656); reentrant per
+        // thread sehingga jalur bersarang unduh-binary → unduh-shim
+        // pada thread yang sama tetap aman.
+        kunciPasangGlobal();
+        mulaiUnduhan();
+        try {
+            return downloadBinaryInner(ctx, out, versi, batal);
+        } finally {
+            selesaiUnduhan();
+            KUNCI_PASANG_GLOBAL.unlock();
         }
     }
 
@@ -1555,13 +1567,13 @@ public final class Updater {
     }
 
     public static String downloadShim(Context ctx, File out) throws Exception {
-        synchronized (KUNCI_PASANG_GLOBAL) {
-            mulaiUnduhan();
-            try {
-                return downloadShimInner(ctx, out);
-            } finally {
-                selesaiUnduhan();
-            }
+        kunciPasangGlobal();
+        mulaiUnduhan();
+        try {
+            return downloadShimInner(ctx, out);
+        } finally {
+            selesaiUnduhan();
+            KUNCI_PASANG_GLOBAL.unlock();
         }
     }
 
