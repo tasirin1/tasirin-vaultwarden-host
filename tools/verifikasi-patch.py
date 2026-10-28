@@ -90,6 +90,74 @@ def cek_workflow_yaml(gagal, peringatan):
             gagal.append("YAML workflow %s tanpa kunci on/jobs — workflow "
                          "tak akan jalan" % nama)
 
+EKOSISTEM_DEPENDABOT = {
+    "bundler", "cargo", "composer", "docker", "elm", "github-actions",
+    "gomod", "gradle", "maven", "mix", "npm", "nuget", "pip", "pnpm",
+    "pub", "swift", "terraform", "yarn",
+}
+
+def _muat_yaml_github(rel, gagal):
+    """Baca+parse satu berkas YAML .github; kembalikan datanya atau None."""
+    path = os.path.join(AKAR, rel)
+    if not os.path.isfile(path):
+        gagal.append("Berkas %s hilang — automasi yang mengandalkannya "
+                     "berhenti diam-diam" % rel)
+        return None
+    try:
+        import yaml
+    except Exception:
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+    except Exception as e:
+        gagal.append("YAML %s tak bisa di-parse: %s" % (rel, e))
+        return None
+    if not isinstance(data, dict):
+        gagal.append("YAML %s kosong/bukan peta di level atas" % rel)
+        return None
+    return data
+
+def cek_yaml_github_lain(gagal, peringatan):
+    # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
+    # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
+    # tanpa satu pun CI merah.
+    try:
+        import yaml  # noqa: F401
+    except Exception:
+        peringatan.append("PyYAML tak tersedia — validasi YAML .github "
+                          "dilewati di lingkungan ini")
+        return
+    data = _muat_yaml_github(os.path.join(".github", "dependabot.yml"),
+                             gagal)
+    if data is not None:
+        updates = data.get("updates")
+        if not isinstance(updates, list) or not updates:
+            gagal.append("dependabot.yml tanpa daftar updates — "
+                         "Dependabot tak akan jalan")
+        else:
+            for entri in updates:
+                if not isinstance(entri, dict):
+                    gagal.append("dependabot.yml: entri updates bukan peta")
+                    continue
+                eco = entri.get("package-ecosystem")
+                if eco not in EKOSISTEM_DEPENDABOT:
+                    gagal.append("dependabot.yml: package-ecosystem %r "
+                                 "tak dikenal — Dependabot berhenti untuk "
+                                 "entri itu" % (eco,))
+                if not isinstance(entri.get("directory"), str):
+                    gagal.append("dependabot.yml: entri %s tanpa directory"
+                                 % (eco,))
+    _muat_yaml_github(os.path.join(".github", "labeler.yml"), gagal)
+    folder_actions = os.path.join(AKAR, ".github", "actions")
+    if os.path.isdir(folder_actions):
+        for nama in sorted(os.listdir(folder_actions)):
+            rel = os.path.join(".github", "actions", nama, "action.yml")
+            data = _muat_yaml_github(rel, gagal)
+            if data is not None and "runs" not in data:
+                gagal.append("%s tanpa kunci runs — action tak bisa "
+                             "dipakai workflow" % rel)
+
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -1293,6 +1361,7 @@ def utama():
     cek_paritas_resource(gagal)
     cek_daftar_hapusan(gagal)
     cek_workflow_yaml(gagal, peringatan)
+    cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
     hapus = berkas_dihapus(rentang_cek, diff)

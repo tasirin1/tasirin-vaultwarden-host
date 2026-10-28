@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 584: gerbang kini memvalidasi YAML .github di luar workflows/ juga
+- `cek_workflow_yaml` hanya memindai `.github/workflows/`; `dependabot.yml`, `labeler.yml`, dan `actions/*/action.yml` tak pernah divalidasi — YAML rusak di dependabot menghentikan Dependabot total tanpa satu pun CI merah, dan salah ketik `package-ecosystem` pun lolos.
+- Cek baru `cek_yaml_github_lain`: ketiga berkas itu wajib ada, ter-parse sebagai peta YAML; entri dependabot wajib punya ekosistem yang dikenal dan `directory`; action wajib punya kunci `runs`. Terbukti fixture dua arah di salinan buang (bersih LOLOS; ekosistem "gradel" GAGAL dengan pesan tepat; YAML rusak GAGAL).
+
 ## [Belum rilis] — Audit 582: area gulir dialog Tentang kini bisa difokuskan remote TV
 - `about_scroll` adalah satu-satunya ScrollView di aplikasi tanpa `focusable` dan tanpa latar cincin fokus, padahal tingginya dibatasi 40% layar sehingga baris-baris Tentang bawah hanya bisa dibaca dengan menggulir — sesuatu yang mustahil bagi pengguna remote/STB karena isinya murni TextView tak-focusable. Kini mengikuti pola dua ScrollView lain (`focusable` + `focusableInTouchMode` + latar `item_focus_bg`), jadi D-pad bisa menggulirnya dan cincin fokus terlihat.
 
