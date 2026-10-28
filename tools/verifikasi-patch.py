@@ -100,12 +100,75 @@ def _kumpul_glob_labeler(node, kumpul):
         for nilai in node.values():
             _kumpul_glob_labeler(nilai, kumpul)
 
+_RENTANG_KURAWAL = None
+
+
+def _opsi_rentang(isi):
+    """Isi grup berupa rentang {x..y[..langkah]} -> daftar nilainya;
+    None bila bukan rentang. Selaras brace-expansion: ujung berupa
+    bilangan bulat atau satu huruf, langkah bilangan bulat tak nol.
+    Jumlah nilai dibatasi 64 agar pola liar tak meledak."""
+    global _RENTANG_KURAWAL
+    if _RENTANG_KURAWAL is None:
+        import re
+        _RENTANG_KURAWAL = re.compile(
+            r"^(-?\d+|.)\.\.(-?\d+|.)(?:\.\.(-?\d+))?$", re.DOTALL)
+    m = _RENTANG_KURAWAL.match(isi)
+    if not m:
+        return None
+    a, b, langkah = m.group(1), m.group(2), m.group(3)
+    if a.lstrip("-").isdigit() and b.lstrip("-").isdigit():
+        awal, akhir = int(a), int(b)
+        if langkah is None:
+            langkah = 1 if akhir >= awal else -1
+        else:
+            langkah = int(langkah)
+        if langkah == 0:
+            return None
+        lebar = 0
+        for ujung in (a, b):
+            t = ujung.lstrip("-")
+            if len(t) > 1 and t.startswith("0"):
+                lebar = max(lebar, len(t))
+        nilai = []
+        v = awal
+        while (v <= akhir) if langkah > 0 else (v >= akhir):
+            if lebar:
+                nilai.append(("-" if v < 0 else "")
+                             + str(abs(v)).rjust(lebar, "0"))
+            else:
+                nilai.append(str(v))
+            if len(nilai) > 64:
+                return None
+            v += langkah
+        return nilai
+    if len(a) == 1 and len(b) == 1:
+        awal, akhir = ord(a), ord(b)
+        if langkah is None:
+            step = 1 if akhir >= awal else -1
+        else:
+            step = int(langkah)
+        if step == 0:
+            return None
+        nilai = []
+        v = awal
+        while (v <= akhir) if step > 0 else (v >= akhir):
+            nilai.append(chr(v))
+            if len(nilai) > 64:
+                return None
+            v += step
+        return nilai
+    return None
+
+
 def _ekspansi_kurawal(pola):
-    """Ekspansi grup {a,b} ala minimatch (glob Python tak mendukungnya);
+    """Ekspansi grup kurawal ala minimatch (glob Python tak mendukungnya);
     rekursif untuk beberapa grup dan grup bersarang: tutup grup dicari
     dengan menghitung kedalaman, isi dipecah hanya pada koma terluar
-    (Audit 602; sarang ditambah Audit 605). Kurung tak ditutup
-    dikembalikan apa adanya (minimatch memperlakukannya literal)."""
+    (Audit 602; sarang ditambah Audit 605). Selaras brace-expansion,
+    grup hanya diekspansi bila berisi daftar koma atau rentang `..`:
+    grup unsur tunggal tanpa koma ({md}) diperlakukan LITERAL, dan
+    kurung tak ditutup dikembalikan apa adanya (Audit 623)."""
     i = pola.find("{")
     if i == -1:
         return [pola]
@@ -134,6 +197,13 @@ def _ekspansi_kurawal(pola):
             opsi.append(isi[potong:k])
             potong = k + 1
     opsi.append(isi[potong:])
+    if len(opsi) == 1:
+        opsi = _opsi_rentang(isi)
+        if opsi is None:
+            # Bukan grup yang sah untuk diekspansi: biarkan literal,
+            # lanjutkan ekspansi pada sisa pola sesudah grup ini.
+            return [pola[:j + 1] + sisa
+                    for sisa in _ekspansi_kurawal(pola[j + 1:])]
     hasil = []
     for alt in opsi:
         hasil.extend(_ekspansi_kurawal(pola[:i] + alt + pola[j + 1:]))

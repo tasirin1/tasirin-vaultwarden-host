@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 623: ekspansi kurawal gerbang disamakan dengan aturan brace-expansion
+- Self-review menemukan dua penyimpangan tersisa dari minimatch: grup unsur tunggal tanpa koma (`*.{md}`) diekspansi gerbang menjadi `*.md` sehingga pola mati LOLOS, dan rentang sah (`img{1..2}.png`) tidak diekspansi sehingga ditolak palsu. Kini grup hanya diekspansi bila berisi daftar koma (terluar) atau rentang `..` (bilangan/huruf, berarah, berlangkah, ber-padding nol, dibatasi 64 nilai); grup lain dibiarkan literal dan ekspansi berlanjut pada sisa pola. Dibuktikan 12 kasus satuan (termasuk sarang, literal campuran, kurung tak ditutup) dan fixture gerbang dua arah.
+
 ## [Belum rilis] — Audit 628: integritas shim terpasang diverifikasi ulang lewat SHA-256 tercatat
 - `ensureShimFile` sebelumnya menerima shim terpasang hanya dari `shimValid` (ukuran + magic ELF + arsitektur): berkas yang rusak di TENGAH (header utuh) lolos selamanya, `LD_PRELOAD` gagal, start mati dengan pesan yang menuduh binary, dan saran "tekan Cek Update" mengembalikan berkas rusak yang sama — satu-satunya pemulihan adalah hapus data aplikasi. Kini hash SHA-256 shim dicatat ke prefs saat pemasangan (sesudah verifikasi unduhan yang sudah ada), dan `ensureShimFile` memeriksa ulang lewat predikat `shimUtuh`: hash tak cocok → unduh ulang. Pasangan lama tanpa catatan di-pin pada validasi pertama (percaya-sesudah-cek), jadi kerusakan berikutnya tetap tertangkap. Predikatnya dikunci uji termasuk kasus berkas pendek dan hash berkas lain.
 
