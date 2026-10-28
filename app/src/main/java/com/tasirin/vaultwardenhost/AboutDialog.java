@@ -22,6 +22,18 @@ final class AboutDialog {
     private AboutDialog() {
     }
 
+    static String rangkaianVersi(String versiApp, String bin, String wv) {
+        String versi = versiApp == null || versiApp.isEmpty() ? "?" : versiApp;
+        StringBuilder infoVersi = new StringBuilder(versi);
+        if (bin != null) {
+            infoVersi.append(" \u00b7 binary v").append(bin);
+        }
+        if (wv != null) {
+            infoVersi.append(" \u00b7 vault v").append(wv);
+        }
+        return infoVersi.toString();
+    }
+
     @SuppressLint("InflateParams")
     static void tampil(Activity a) {
         if (a == null || a.isFinishing() || a.isDestroyed()) {
@@ -42,14 +54,8 @@ final class AboutDialog {
         } catch (Exception ignored) {
         }
         String versiApp = Updater.appVersionName(a);
-        String versi = versiApp == null || versiApp.isEmpty() ? "?" : versiApp;
-        StringBuilder infoVersi = new StringBuilder(versi);
-        if (bin != null) {
-            infoVersi.append(" \u00b7 binary v").append(bin);
-        }
-        if (wv != null) {
-            infoVersi.append(" \u00b7 vault v").append(wv);
-        }
+        StringBuilder infoVersi = new StringBuilder(
+                rangkaianVersi(versiApp, bin, wv));
         LayoutInflater pompa = LayoutInflater.from(a);
         View lihat = pompa.inflate(R.layout.dialog_about, null);
         TextView versiView = (TextView) lihat.findViewById(R.id.about_version);

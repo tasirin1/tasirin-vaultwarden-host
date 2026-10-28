@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 554: empat kelas utama terakhir kini punya uji JVM
+- `AboutDialog`, `DialogAman`, `LogExport`, dan `TgBotReceiver` adalah empat kelas utama tanpa satu pun uji (0 dari 23), sehingga regresi di pengelolaan dialog, ekspor log, dan receiver bot hanya tertangkap uji perangkat manual. Sebagian besar logikanya terikat Android, jadi yang diuji adalah jahitan murninya — dua di antaranya dibuka persis untuk itu tanpa mengubah perilaku:
+- `AboutDialog.rangkaianVersi` diekstrak kata-demi-kata dari `tampil` (komposisi baris versi: "?" bila kosong, sufiks binary/vault hanya bila ada) dan diuji 6 kombinasi. `LogExport.namaLog` dibuka paket dan diuji formatnya (awalan + stempel + 12 hex acak + .txt, dua panggilan berbeda). `TgBotReceiver.konfigBotSiap` diekstrak dari `adaKonfig` (token+chat wajib terisi sesudah trim) dan diuji 8 kombinasi termasuk null/spasi. `DialogAman` diuji keamanan-null jalur tampil/tutup. Jumlah kelas uji di AGENTS.md diperbarui 19 → 23.
+
 ## [Belum rilis] — Audit 553: YAML semua workflow kini divalidasi gerbang wajib di setiap PR
 - Workflow automasi (auto-merge/stale/labeler) berjalan lewat `pull_request_target`/jadwal, sehingga PR yang mengubah workflow itu sendiri tak pernah menjalankannya — dan tak ada validasi YAML workflow di gerbang mana pun: YAML rusak atau perubahan pemicu yang keliru baru ketahuan sesudah merge, dari automasi yang diam-diam mati. (Semantik `pull_request_target` memakai versi dasar memang disengaja demi keamanan dan tidak diubah.)
 - `verifikasi-patch.py` — konteks wajib proteksi branch yang berjalan di setiap PR — kini mem-parse YAML seluruh berkas `.github/workflows/*.yml|yaml` (`cek_workflow_yaml`): parse gagal = GAGAL dengan nama berkas dan pesan parsernya; PyYAML yang absen di suatu lingkungan hanya menurunkan cek ini jadi peringatan agar gerbang tak merah palsu. Terbukti fixture dua arah: `stale.yml` dirusak sintaksnya → GAGAL menyebut berkasnya; pohon asli → LOLOS.

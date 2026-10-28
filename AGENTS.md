@@ -59,11 +59,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── StoragePerm.java          # izin storage runtime (All files opsional, tak diminta)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
-├── app/src/test/                     # 19 kelas test JVM (junit4): Updater, ServerService,
+├── app/src/test/                     # 23 kelas test JVM (junit4): Updater, ServerService,
                                       # TgBot, TgBackup, PinCrypto, PinGate, KernelCompat, Util,
                                       # TlsCert, StoragePerm, LogActivity, FileShareProvider,
                                       # SettingsActivity, PinActivity, AlarmReceiver,
-                                      # BootReceiver, AutoUpdate, HttpsCompat, MainActivity
+                                      # BootReceiver, AutoUpdate, HttpsCompat, MainActivity,
+                                      # AboutDialog, DialogAman, LogExport, TgBotReceiver
                                       # — jalan di CI
 └── gradle wrapper                    # HANYA dipakai CI; AI dilarang menjalankannya (lihat Aturan No. 1)
 ```
@@ -330,10 +331,11 @@ sengaja dibuat ulang, perbarui konstanta itu di commit yang sama.
   keamanan, nama terlarang `bekas-hapusan.txt`) menempel di baris kode yang
   tepat. Log hanya ringkasan. Jalankan `python3 tools/verifikasi-patch.py`
   di lokal untuk reproduksi persis sebelum memperbaiki.
-- **Unit test**: 19 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
+- **Unit test**: 23 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
   `PinCrypto`, `PinGate`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`,
   `LogActivity`, `FileShareProvider`, `SettingsActivity`, `PinActivity`,
-  `AlarmReceiver`, `BootReceiver`, `AutoUpdate`, `HttpsCompat`, `MainActivity`)
+  `AlarmReceiver`, `BootReceiver`, `AutoUpdate`, `HttpsCompat`, `MainActivity`,
+  `AboutDialog`, `DialogAman`, `LogExport`, `TgBotReceiver`)
   menguji logika murni; tambahkan test untuk logika murni baru (versi, path,
   parse, crypto) — jangan test yang butuh Android runtime/network. Test hanya
   jalan di CI, bukan lokal.

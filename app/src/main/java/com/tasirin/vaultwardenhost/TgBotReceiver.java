@@ -71,13 +71,19 @@ public class TgBotReceiver extends BroadcastReceiver {
         }
     }
 
+    static boolean konfigBotSiap(String token, String chat) {
+        String t = Util.amanTrim(token);
+        String c = Util.amanTrim(chat);
+        return t != null && !t.isEmpty() && c != null && !c.isEmpty();
+    }
+
     private static boolean adaKonfig(Context context) {
         try {
             android.content.SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
-            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
-            return !token.isEmpty() && !chat.isEmpty();
+            String token = TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, "");
+            String chat = TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, "");
+            return konfigBotSiap(token, chat);
         } catch (Exception e) {
             return false;
         }

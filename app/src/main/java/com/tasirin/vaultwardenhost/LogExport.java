@@ -160,7 +160,7 @@ public final class LogExport {
         return ok ? name : null;
     }
 
-    private static String namaLog(String stamp, java.security.SecureRandom rnd) {
+    static String namaLog(String stamp, java.security.SecureRandom rnd) {
         long acak = rnd.nextLong() & 0xFFFFFFFFFFFFL;
         return "tasirin-vaultwarden-host-log-" + stamp + "-"
                 + Util.hex12(acak) + ".txt";
