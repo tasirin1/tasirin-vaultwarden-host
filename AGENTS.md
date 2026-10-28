@@ -28,6 +28,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 .
 ├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): verifikasi → resolve versi → build APK → upload APK
 ├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): verifikasi → resolve versi → build binary+shim+web-vault → rilis
+├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
+├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
@@ -42,7 +44,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
 │   ├── res/layout/ (+layout-land untuk activity_pin) # activity_main.xml (ringkas, satu layout portrait+landscape) + activity_settings.xml + main_card_*.xml
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
-│   ├── res/values/ (+night, sw600dp-land, sw480dp-land) # warna (sinkron terang/gelap), gaya, string, dimensi
+│   ├── res/values/ (+in, night, sw600dp, sw600dp-land, sw480dp-land) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
 │       ├── MainActivity.java         # layar awal ringkas: brand kecil, info versi, status, Start/Stop, log realtime, titik tiga
 │       ├── SettingsActivity.java     # semua pengaturan (folder, port, PIN, Telegram, pemeliharaan), dibuka via titik tiga
@@ -54,6 +56,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── PinCrypto.java / PinGate.java  # PIN PBKDF2+salt (format PBKDF2$...) + lockout brute-force
 │       ├── TlsCert.java / HttpsCompat.java                  # sertifikat self-signed + trust anchor Android 5/6
 │       ├── LogActivity.java / LogExport.java  # log realtime layar penuh (cari/simpan/bagikan)
+│       ├── AboutDialog.java / DialogAman.java  # dialog Tentang + register dialog aman-bocor
 │       ├── PinActivity.java          # layar kunci PIN (dibuka via PinGate)
 │       ├── Util.java                 # logika murni + helper satu pintu (handler, watchdog proses, tanggal, redirect)
 │       ├── StoragePerm.java          # izin storage runtime (All files opsional, tak diminta)

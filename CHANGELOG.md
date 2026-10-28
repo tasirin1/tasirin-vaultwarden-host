@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 570: pohon struktur AGENTS.md diselaraskan dengan isi repo nyata
+- Pohon "Struktur repository" di AGENTS.md tertinggal: hanya memuat 2 dari 8 workflow (codeql/gitleaks/labeler/label-audit/stale/auto-merge dan action komposit resolve-vw tak tercantum), pohon java memuat 21 dari 23 kelas (AboutDialog dan DialogAman hilang), dan daftar varian `res/values` menghilangkan `values-in` (folder terjemahan yang wajib sinkron) serta `values-sw600dp`.
+- Pohon kini menyebut seluruh workflow dan action komposit, kedua kelas yang hilang, dan varian values yang lengkap — peta pertama pengelola/agen kembali bisa dipercaya.
+
 ## [Belum rilis] — Audit 569: klaim assembleDebug di uraian build-apk AGENTS.md dikoreksi
 - AGENTS.md menyebut job build-apk menjalankan `assembleDebug`, padahal workflow hanya memanggil Gradle dua kali: `lintDebug + testDebugUnitTest` lalu `assembleRelease` — APK debug tidak pernah di-assemble di CI. Uraian dikoreksi agar diagnosis build tidak berangkat dari cakupan CI yang salah.
 
