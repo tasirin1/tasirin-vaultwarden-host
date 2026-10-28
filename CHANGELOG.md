@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 542: pemulihan pertukaran TLS memeriksa hasil rename dan menggulung balik pasangan setengah terpasang
+- `pulihkanTukarTersisa` mengabaikan hasil beberapa `renameTo`: pada cabang pemasangan pasangan `.baru`, cert bisa terpasang sementara rename key gagal dibiarkan — menyisakan keadaan setengah yang cabang berikutnya bisa lengkapi dengan key `.cad` lama (pasangan campuran), tanpa satu pun langkah menyadarinya.
+- Cabang itu kini menggulung balik cert ke nama `.baru` bila rename key gagal, sehingga keadaan kembali persis seperti sebelum pemulihan dan bisa dicoba lagi utuh. Cabang key juga hanya jatuh ke `.cad` bila rename `.baru` gagal DAN `.cad` terbukti cocok dengan cert yang terpasang. Direktori di-fsync di akhir pemulihan (pola Audit 540).
+
 ## [Belum rilis] — Audit 541: fallback salinCaKeStorage tak lagi menghapus tujuan sebelum pengganti terpasang
 - Residual #258: jalur utama `salinCaKeStorage` sudah atomik (tulis .tmp + fsync + rename), tetapi fallback-nya menghapus berkas tujuan dulu baru rename kedua — jendela crash di antaranya menghilangkan salinan CA yang sebelumnya baik. Nama berkas sementara juga tetap (`tujuan + ".tmp"`), jadi dua ekspor bersamaan bisa saling menulis berkas yang sama.
 - Nama sementara kini unik per panggilan (akhiran nanoTime heksadesimal). Fallback tak lagi delete-dulu: tujuan lama digeser ke nama `.lama-<unik>`, pengganti dipasang, dan hanya sesudah itu cadangan lama dihapus (kegagalan memasang memulihkan cadangan ke nama tujuan). Direktori tujuan di-fsync sesudah pemasangan, seperti pola Audit 540.

@@ -356,8 +356,9 @@ public final class TlsCert {
             if (!certFile.exists() && !keyFile.exists()
                     && certBaru.exists() && keyBaru.exists()
                     && pasanganCertKeyCocok(certBaru, keyBaru)) {
-                if (certBaru.renameTo(certFile)) {
-                    keyBaru.renameTo(keyFile);
+                if (certBaru.renameTo(certFile)
+                        && !keyBaru.renameTo(keyFile)) {
+                    certFile.renameTo(certBaru);
                 }
             }
             if (!certFile.exists() && certCad.exists()) {
@@ -370,7 +371,10 @@ public final class TlsCert {
             if (!keyFile.exists()) {
                 if (keyBaru.exists() && certFile.exists()
                         && pasanganCertKeyCocok(certFile, keyBaru)) {
-                    keyBaru.renameTo(keyFile);
+                    if (!keyBaru.renameTo(keyFile) && keyCad.exists()
+                            && pasanganCertKeyCocok(certFile, keyCad)) {
+                        keyCad.renameTo(keyFile);
+                    }
                 } else if (keyCad.exists()) {
                     keyCad.renameTo(keyFile);
                 }
@@ -412,6 +416,7 @@ public final class TlsCert {
                 certBaru.delete();
                 keyBaru.delete();
             }
+            fsyncDirektori(dir);
         } catch (Exception ignored) {
         }
     }
