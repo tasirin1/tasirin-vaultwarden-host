@@ -3075,6 +3075,7 @@ public final class TgBackup {
         String awalanAman = basePath + File.separator;
 
         boolean adaDb = false;
+        boolean adaWalZip = false;
         java.util.List<String> tlsTerStaging = new java.util.ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
@@ -3120,6 +3121,9 @@ public final class TgBackup {
                 }
                 if ("db.sqlite3".equals(nama)) {
                     adaDb = true;
+                }
+                if ("db.sqlite3-wal".equals(nama) || "db.sqlite3-shm".equals(nama)) {
+                    adaWalZip = true;
                 }
                 String stagingTls = namaStagingTls(nama);
                 String namaTulis = staging != null ? staging
@@ -3260,6 +3264,12 @@ public final class TgBackup {
                 + (preBackup != null
                         ? " DB lama disimpan sebagai " + preBackup.getName()
                                 + " di folder backups."
+                        : "")
+                + (adaWalZip
+                        ? " Peringatan: backup memuat entri -wal/-shm yang"
+                                + " diabaikan - transaksi yang belum sempat"
+                                + " ter-checkpoint ke berkas utama TIDAK ikut"
+                                + " dipulihkan."
                         : "")
                 + peringatanTls + peringatan;
     }

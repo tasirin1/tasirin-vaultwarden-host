@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 664: entri -wal/-shm di dalam zip backup kini diperingatkan, bukan dibuang diam-diam
+- Entri `db.sqlite3-wal`/`-shm` dari zip memang diterima ke staging, tetapi `pasangDbRestoreAtomik` hanya memasang berkas utama dan staging WAL/SHM dibuang tanpa catatan. Untuk backup buatan aplikasi sendiri itu aman (pembuatan backup me-checkpoint DB lebih dulu), tetapi zip dari sumber/versi lain bisa memuat transaksi ter-commit yang hanya ada di WAL — restore lama melapor sukses sementara transaksi itu hilang. Jalur restore bot kini mendeteksi entri tersebut dan menyebut terus terang di pesan hasil bahwa entri -wal/-shm diabaikan dan transaksi yang belum ter-checkpoint tidak ikut dipulihkan.
+
 ## [Belum rilis] — Audit 662: WAL live DB pengecualian-checkpoint kini ikut diselamatkan ke pre-backup
 - Pre-backup restore hanya menyalin berkas utama DB. Untuk DB sehat itu cukup (checkpoint `TRUNCATE` mengosongkan WAL lebih dulu, dan kegagalan checkpoint membatalkan restore sejak Audit 579), tetapi DB yang dikecualikan dari kewajiban checkpoint (Audit 587 — justru DB rusak yang hendak dipulihkan) melewati blok itu tanpa checkpoint, lalu `-wal`/`-shm` live-nya dihapus sebelum ekstraksi: bila restore kemudian gagal, WAL asli hilang dan pre-backup tidak memuatnya, sehingga DB lama lebih sulit dipulihkan daripada sebelum percobaan. Kedua jalur restore (bot dan lokal) kini menyalin pendamping `-wal`/`-shm` di samping pre-backup khusus untuk kasus tanpa checkpoint itu, lewat helper bersama `salinPendampingWal`.
 
