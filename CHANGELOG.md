@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 577: uji keunikan stempelUnik diperkuat ke perbandingan berpasangan
+- Asersi lama hanya gagal bila dua pasangan panggilan berurutan sama-sama identik, sehingga duplikat berpasangan sesekali — persis regresi yang membahayakan nama berkas backup — bisa lolos. Kini tiga stempel berurutan dibandingkan berpasangan (s1≠s2, s2≠s3, s1≠s3); sufiks acak 48-bit `SecureRandom` membuat ketiganya berbeda secara praktis selalu, jadi asersi ini stabil sekaligus jauh lebih kuat.
+
 ## [Belum rilis] — Audit 576: asersi ganda identik di KernelCompatTest dihapus
 - Uji `legacyMemoKonsistenDenganMurni` menulis `assertEquals` yang sama persis dua kali berurutan — salinan yang tak menambah cakupan dan memberi rasa cakupan semu. Satu baris dihapus; komentar menegaskan sifat uji ini memang konsistensi memo terhadap jalur murni, sementara nilai eksplisit fungsi murninya dikunci uji-uji bernilai tetap di berkas yang sama.
 

@@ -1060,8 +1060,12 @@ public class TgBackupTest {
     public void backupTimestamp_unikPerMilidetik() {
         assertTrue(TgBackup.backupTimestamp().matches("\\d{8}-\\d{6}-\\d{3}"));
         assertTrue(TgBackup.stempelUnik().matches("\\d{8}-\\d{6}-\\d{3}-[0-9a-f]{12}"));
-        assertFalse(TgBackup.stempelUnik().equals(TgBackup.stempelUnik())
-                && TgBackup.stempelUnik().equals(TgBackup.stempelUnik()));
+        String s1 = TgBackup.stempelUnik();
+        String s2 = TgBackup.stempelUnik();
+        String s3 = TgBackup.stempelUnik();
+        assertFalse(s1.equals(s2));
+        assertFalse(s2.equals(s3));
+        assertFalse(s1.equals(s3));
     }
 
     @Test
