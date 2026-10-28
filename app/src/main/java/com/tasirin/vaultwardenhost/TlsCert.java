@@ -563,7 +563,7 @@ public final class TlsCert {
             s = s.replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "");
             s = POLA_SPASI_APA.matcher(s).replaceAll("");
-            byte[] pkcs8 = android.util.Base64.decode(s, android.util.Base64.DEFAULT);
+            byte[] pkcs8 = base64Dekode(s);
             return KeyFactory.getInstance("RSA")
                     .generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
         } catch (Exception e) {
@@ -978,12 +978,28 @@ public final class TlsCert {
         fsyncDirektori(dir);
     }
 
+    private static String base64TanpaBaris(byte[] der) {
+        try {
+            return android.util.Base64.encodeToString(der, android.util.Base64.NO_WRAP);
+        } catch (Throwable t) {
+            return java.util.Base64.getEncoder().encodeToString(der);
+        }
+    }
+
+    private static byte[] base64Dekode(String s) {
+        try {
+            return android.util.Base64.decode(s, android.util.Base64.DEFAULT);
+        } catch (Throwable t) {
+            return java.util.Base64.getMimeDecoder().decode(s);
+        }
+    }
+
     private static void writePem(File f, String type, byte[] der) throws IOException {
         FileOutputStream fos = new FileOutputStream(f);
         try {
             OutputStreamWriter w = new OutputStreamWriter(fos, StandardCharsets.US_ASCII);
             w.write("-----BEGIN " + type + "-----\n");
-            String b64 = android.util.Base64.encodeToString(der, android.util.Base64.NO_WRAP);
+            String b64 = base64TanpaBaris(der);
             for (int i = 0; i < b64.length(); i += 64) {
                 w.write(b64, i, Math.min(64, b64.length() - i));
                 w.write('\n');

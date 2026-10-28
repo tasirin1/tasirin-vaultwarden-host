@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: Base64 TlsCert kini punya cadangan java.util agar teruji JVM
+- Tiga uji pasangan asli Audit 607 gagal di CI: `TlsCert.writePem` dan pembaca kunci privat memakai `android.util.Base64`, yang di uji JVM hanya stub pelempar pengecualian, sehingga `buatCa` selalu mengembalikan false di sana (di perangkat Android API 21+ panggilan itu normal). Kedua situs kini lewat helper `base64TanpaBaris`/`base64Dekode` yang mencoba `android.util.Base64` lebih dulu — perilaku di perangkat tidak berubah — dan jatuh ke `java.util.Base64` bila yang pertama melempar (lingkungan JVM). Perilaku produksi identik; jalur kriptografi TlsCert kini benar-benar terjangkau uji.
+
 ## [Belum rilis] — Audit 621: istilah wizard di README diluruskan ke tampilan sebenarnya
 - Ketiga README menyuruh user "mengikuti wizard 3 langkah", menyiratkan UI berpindah halaman per langkah — padahal yang ada satu layar Settings dengan isian berurutan (istilah "wizard" hanya hidup sebagai pref internal `wizard_selesai`). Kalimatnya kini menggambarkan kenyataannya: isi 3 hal berurutan (Folder → Port → Start), tanpa menjanjikan tampilan langkah-berlangkah.
 
