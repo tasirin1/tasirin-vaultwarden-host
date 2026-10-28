@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 672: mdSha256 kini mengembalikan digest baru — tak ada lagi keadaan bersama per thread
+- `mdSha256()` sebelumnya membagikan satu `MessageDigest` per thread lewat ThreadLocal dan me-*reset* pada setiap pengambilan. Itu rapuh terhadap pemakaian bersarang: kode yang sedang mengakumulasi hash streaming (unduhan, sidik berkas) akan kehilangan seluruh akumulasinya bila fungsi lain di thread yang sama mengambil digest di tengah — checksum akhir salah dan unduhan sah ditolak. Semua pemanggil saat ini terverifikasi tidak bersarang, tetapi invariant-nya dipegang disiplin pemanggil, bukan API-nya. Kini setiap pengambilan mengembalikan instance baru: keadaan bersama hilang, pemakaian bersarang aman menurut konstruksi, dan harga yang dibayar hanya pencarian provider per pengambilan (murah, dan pengambilan terjadi per berkas/unduhan — bukan per byte).
+
 ## [Belum rilis] — Audit 671: cocokAscii kini menjaga null seperti helper Util lainnya
 - `cocokAscii` publik memanggil `hay.length()` langsung — satu-satunya helper teks di `Util.java` yang melempar `NullPointerException` untuk masukan null, menyimpang dari pola berkasnya sendiri (`heks`, `rendahAscii`, `mengandungAbaikanHuruf`, dll. semuanya menjaga null). Pemanggil internal satu-satunya memang sudah menjaga lebih dulu sehingga belum ada jalur aktif, tetapi pemanggil baru yang memakainya langsung dengan teks yang bisa null (preferensi/intent) akan crash di helper yang dikira seaman tetangganya. Kini null di kedua argumen menghasilkan `false`, terkunci uji.
 

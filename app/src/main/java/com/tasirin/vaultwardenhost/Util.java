@@ -92,23 +92,8 @@ public final class Util {
         }
     }
 
-    private static final ThreadLocal<java.security.MessageDigest> MD_SHA256 =
-            new ThreadLocal<java.security.MessageDigest>() {
-            };
-
     public static java.security.MessageDigest mdSha256() throws Exception {
-        java.security.MessageDigest m = MD_SHA256.get();
-        if (m == null) {
-            m = java.security.MessageDigest.getInstance("SHA-256");
-            MD_SHA256.set(m);
-        } else {
-
-            try {
-                m.reset();
-            } catch (Exception ignored) {
-            }
-        }
-        return m;
+        return java.security.MessageDigest.getInstance("SHA-256");
     }
 
     static final char[] HEKS = "0123456789abcdef".toCharArray();
