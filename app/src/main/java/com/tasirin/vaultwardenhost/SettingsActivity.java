@@ -1899,7 +1899,19 @@ public class SettingsActivity extends Activity {
                     backupDir.mkdirs();
                 }
 
-                TgBackup.checkpointWal(dbFile);
+                if (!TgBackup.checkpointWal(dbFile)) {
+                    // Sama seperti jalur bot: checkpoint gagal berarti
+                    // transaksi terbaru masih hanya di -wal; jangan lanjut
+                    // ke pre-backup yang akan kehilangannya (Audit 579).
+                    // Return langsung (bukan throw) agar catch pemulih tak
+                    // berjalan — DB live belum disentuh sama sekali.
+                    toast(getString(R.string.restore_gagal,
+                            "checkpoint WAL gagal"));
+                    appendUiLog("[app] Restore dibatalkan: checkpoint WAL"
+                            + " gagal, transaksi terbaru bisa hilang bila"
+                            + " dilanjutkan.");
+                    return;
+                }
                 String ts = TgBackup.stempelUnik() + "-pre";
                 preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
                 TgBackup.copyFile(dbFile, preBackup);

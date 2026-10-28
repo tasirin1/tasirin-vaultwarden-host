@@ -3005,7 +3005,16 @@ public final class TgBackup {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            checkpointWal(dbFile);
+            if (!checkpointWal(dbFile)) {
+                // Checkpoint gagal berarti transaksi ter-commit terbaru
+                // masih hanya ada di -wal; pre-backup berkas utama saja
+                // akan kehilangan transaksi itu, dan -wal live akan
+                // dihapus di bawah. Batalkan sebelum apa pun disentuh
+                // (Audit 579).
+                throw new IOException("Checkpoint WAL gagal - restore"
+                        + " dibatalkan agar transaksi terbaru tidak hilang."
+                        + " Ulangi restore.");
+            }
             String ts = stempelUnik() + "-pre";
             preBackup = new File(backupDir, "db-backup-" + ts + ".sqlite3");
             copyFile(dbFile, preBackup);
