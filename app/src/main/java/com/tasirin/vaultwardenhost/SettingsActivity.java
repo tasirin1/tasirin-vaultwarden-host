@@ -2846,6 +2846,15 @@ public class SettingsActivity extends Activity {
                     }));
             dialogImporTampil = true;
             DialogAman.tampil(this, dialog);
+            if (!dialog.isShowing()) {
+                // DialogAman menelan kegagalan tampil (activity selesai / token
+                // jendela berubah) tanpa dismiss maupun pengecualian: tanpa cek
+                // ini penjaga macet true dan impor mati sampai Settings dibuka
+                // ulang (Audit 603). Gagal tampil diperlakukan sebagai batal
+                // tampil saja: penjaga dilepas, berkas + penanda tertunda
+                // DIBIARKAN agar onResume berikutnya menampilkan dialog lagi.
+                dialogImporTampil = false;
+            }
         } catch (Exception e) {
             dialogImporTampil = false;
             imporTertundaFile = null;

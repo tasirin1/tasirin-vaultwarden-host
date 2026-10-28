@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 603: penjaga dialog impor tak lagi macet bila dialog gagal tampil
+- Self-review menemukan celah penjaga Audit 597: `DialogAman.tampil` menelan kegagalan tampil (activity selesai atau `show()` melempar) tanpa dismiss maupun pengecualian, sehingga `dialogImporTampil` bisa macet `true` dan impor config terenkripsi mati total sampai Settings dibuka ulang. Kini sesudah `tampil(...)` hasilnya diperiksa: bila dialog ternyata tak tampil (`!isShowing()`), penjaga dilepas dan berkas + penanda tertunda dibiarkan agar `onResume` berikutnya menampilkan dialog lagi.
+
 ## [Belum rilis] — Audit 602: gerbang labeler memahami kurung kurawal minimatch
 - `cek_labeler_glob` memakai glob Python yang tak mendukung ekspansi kurung kurawal, sementara minimatch (actions/labeler) mendukungnya — pola sah seperti `*.{md,txt}` ditolak palsu sebagai "tak mencocokkan satu pun berkas" (terbukti fixture saat self-review). Kini tiap pola diekspansi grup `{a,b}`-nya lebih dulu (rekursif, tanpa sarang) dan cukup satu varian yang cocok agar pola lolos. Dibuktikan fixture: pohon bersih LOLOS, `*.{md,txt}` LOLOS, `*.{xyz,abc}` tetap GAGAL.
 
