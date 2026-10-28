@@ -3483,7 +3483,7 @@ public class ServerService extends Service {
                     .redirectErrorStream(true);
             if (KernelCompat.legacyPerangkat()) {
                 File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-                if (shim.exists()) {
+                if (Updater.shimValid(shim)) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 }
             }

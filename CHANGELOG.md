@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 629: probe versi hanya memasang LD_PRELOAD untuk shim yang valid
+- Dua jalur probe `--version` (`Updater.detectVersion`, `ServerService.detectBinaryVersion`) memasang `LD_PRELOAD` hanya berdasar `shim.exists()`: sisa shim tak valid (potongan unduhan lama di bawah ukuran minimum / bukan ELF ARM) ikut dimuat, linker menggagalkan probe, versi binary terbaca tak dikenal, dan jalur update bisa mengunduh ulang binary besar yang tak perlu. Keduanya kini memeriksa `shimValid` seperti jalur start utama.
+
 ## [Belum rilis] — Audit 627: template GitHub kini tercakup label ci
 - Pola labeler belum menjangkau `.github/ISSUE_TEMPLATE/**` dan `.github/PULL_REQUEST_TEMPLATE.md`, jadi PR yang hanya mengubah template tak mendapat label apa pun. Keduanya kini masuk label `ci`.
 

@@ -2280,7 +2280,7 @@ public final class Updater {
                     .redirectErrorStream(true);
             if (ctx != null && KernelCompat.legacyPerangkat()) {
                 File shim = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
-                if (shim.exists()) {
+                if (shimValid(shim)) {
                     pb.environment().put("LD_PRELOAD", shim.getAbsolutePath());
                 }
             }
