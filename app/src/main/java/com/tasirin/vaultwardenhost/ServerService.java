@@ -1877,7 +1877,7 @@ public class ServerService extends Service {
             File shimBukti = ensureShim();
             if (shimBukti != null) {
                 sesi.shim = shimBukti;
-                if (detectBinaryVersion(sesi.binary)) {
+                if (detectBinaryVersionMode(sesi.binary, PROBE_PAKSA_SHIM)) {
                     appendLog("[app] Shim getrandom dipasang berdasar bukti panic"
                             + " - start dengan LD_PRELOAD.");
                     return true;
@@ -3524,7 +3524,15 @@ public class ServerService extends Service {
         }
     }
 
+    private static final int PROBE_OTOMATIS = 0;
+    private static final int PROBE_PAKSA_SHIM = 1;
+    private static final int PROBE_TANPA_SHIM = 2;
+
     private boolean detectBinaryVersion(File binary) {
+        return detectBinaryVersionMode(binary, PROBE_OTOMATIS);
+    }
+
+    private boolean detectBinaryVersionMode(File binary, int modeProbe) {
         Process p = null;
         BufferedReader r = null;
 
@@ -3534,7 +3542,8 @@ public class ServerService extends Service {
         try {
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
-            if (KernelCompat.legacyPerangkat()) {
+            if (modeProbe == PROBE_PAKSA_SHIM
+                    || (modeProbe == PROBE_OTOMATIS && KernelCompat.legacyPerangkat())) {
                 File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
                 String shaShim = "";
                 try {

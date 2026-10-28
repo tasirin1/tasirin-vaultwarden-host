@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 653: probe rescue panic kini benar-benar memakai shim
+- Self-review putaran-22 membuktikan klaim Audit 644 tidak terbukti oleh kode: `detectBinaryVersion` hanya memasang `LD_PRELOAD` bila klasifikasi perangkat legacy, sedangkan cabang rescue bukti panic justru berjalan pada perangkat non-legacy — probe penyelamat mengulang persis probe yang menghasilkan bukti panic, tanpa shim. Probe kini punya mode eksplisit: otomatis (perilaku lama), paksa-shim, dan tanpa-shim. Cabang rescue memakai mode paksa-shim, sehingga "uji asap lolos bersamanya" kini benar-benar berarti binary diuji dengan shim yang akan dipakai start nyata.
+
 ## [Belum rilis] — Audit 652: pin binary dipelihara saat pasang manual dan restore
 - Dua jalur mengganti era binary tanpa menyentuh pin `bin_sha_pin`: pemasangan binary manual dari folder data menulis sidik manual dan versi tetapi membiarkan pin unduhan lama (Start berikutnya selalu gagal `binaryUtuh`, jalur cepat mati permanen, log menuduh kerusakan yang tidak ada), dan restore/impor menulis `bin_sha`/`update_version`/pin versi dari backup sambil membiarkan pin + sidik manual perangkat lama (keadaan campuran dua era). Kini jalur manual menulis pin dari SHA-256 berkas yang benar-benar terpasang, dan `applyPrefsFromJson` membersihkan `bin_sha_pin` + `bin_manual_fp` setiap kali kunci era binary ikut ditulis dari backup — pin dibangun ulang secara jujur lewat pin-on-first-use atau pemasangan manual berikutnya, bukan diwarisi dari era yang salah.
 
