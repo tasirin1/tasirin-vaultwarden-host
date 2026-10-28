@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 636: bendera gerbang killStale kini dinilai ulang per kandidat
+- Bendera `anakHidupTakTeridentifikasi` sebelumnya dihitung sekali sebelum putaran pemindaian: bila anak yang berjalan mati di tengah sapuan, sisa kandidat putaran itu tetap diperlakukan seolah anak masih hidup. Bendera kini dinilai ulang tepat di titik gerbang untuk tiap kandidat (pemeriksaannya murah — sekadar cek keadaan proses), menutup jendela potret-sesaat itu tanpa mengubah semantik predikatnya.
+
 ## [Belum rilis] — Audit 635: batas rentang kurawal gerbang dinaikkan 64 → 512
 - Batas anti-ledakan pada ekspansi rentang gerbang (64 nilai) menolak pola rentang sah yang besar seperti `img{1..100}.png` dengan pesan "tak mencocokkan berkas" yang menyesatkan. Batasnya dinaikkan ke 512 — jauh di atas rentang wajar mana pun untuk labeler, tetapi tetap membatasi biaya glob — dan dibuktikan dengan kasus satuan: rentang 100 nilai kini diekspansi, rentang 600 tetap literal.
 

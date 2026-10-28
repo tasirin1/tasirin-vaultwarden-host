@@ -4124,7 +4124,6 @@ public class ServerService extends Service {
         try {
             int myPid = android.os.Process.myPid();
             int childPid = runningChildPid();
-            boolean anakHidupTakTeridentifikasi = isProcessAlive() && childPid < 0;
             for (int pid : kandidatPidSeUid()) {
                 try {
                     if (pid == myPid || pid == childPid) {
@@ -4147,7 +4146,9 @@ public class ServerService extends Service {
                         // Audit 622). Yatim berinduk lain tetap dibersihkan.
                         int ppid = ppidDariStat(bacaBarisProc(
                                 new File(new File("/proc/" + pid), "stat")));
-                        if (lewatiBunuhBasi(anakHidupTakTeridentifikasi, ppid, myPid)) {
+                        if (lewatiBunuhBasi(
+                                isProcessAlive() && runningChildPid() < 0,
+                                ppid, myPid)) {
                             continue;
                         }
                         if (!pidMilikiServer(pid)) {
