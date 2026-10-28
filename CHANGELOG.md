@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 516: workflow automasi baru dipin ke SHA penuh seperti workflow build
+- `codeql.yml`, `gitleaks.yml`, `stale.yml`, dan `labeler.yml` (paket automasi sesi #105) memakai tag mengambang (`@v7`, `@v4`, `@v3`, `@v11`) sementara `build-apk.yml`/`build-binary.yml` memin semua action ke SHA commit berkomentar versi — tag mengambang bisa digeser pemilik repo action (atau akun yang dibajak) dan mengubah kode yang berjalan dengan token repo ini tanpa satu pun perubahan terlihat.
+- Sepuluh rujukan `uses:` kini dipin ke SHA commit persis dari tag resminya masing-masing (diresolusi lewat API GitHub, tag anotasi CodeQL didereferensikan ke commit-nya), dengan komentar versi mengikuti pola workflow lama; keempat berkas lolos parse YAML.
+
 ## [Belum rilis] — Audit 515: dialog Tentang membaca minSdk dinamis, bukan literal 21
 - Kaki dialog Tentang menulis minSdk sebagai literal `21` sementara targetSdk dan versi build di sebelahnya dibaca dinamis — bila `minSdk` di `app/build.gradle.kts` suatu hari berubah, teks Tentang tetap mengklaim 21 dan menyesatkan laporan bug/dukungan.
 - minSdk kini dibaca dari `ApplicationInfo.minSdkVersion` (bidang API 24+; di perangkat lebih lama dipakai nilai cadangan karena aplikasi yang terpasang di sana memang hanya bisa berarti minSdk ≤ API perangkat), dalam satu panggilan `getApplicationInfo` yang sama dengan targetSdk.
