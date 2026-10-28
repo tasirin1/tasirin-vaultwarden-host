@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 550: jalur delta LogActivity tak lagi menghitung highlight penuh untuk dibuang
+- Sisa #268: penyegar log menghitung `highlightLog` atas SELURUH teks tampil (sampai 100.000 karakter) tanpa syarat di setiap tick 1,5 detik, padahal pada kasus paling umum (log bertambah, tanpa pencarian) jalur delta hanya memakai sorotan delta — hasil highlight penuh itu dibuang. Setengah manfaat jalur delta hilang: CPU/baterai STB terpakai untuk Spannable yang tak pernah tampil.
+- Kelayakan delta kini ditentukan lebih dulu dan highlight penuh hanya dihitung bila delta tak bisa dipakai; jalur delta murni bekerja sebatas ukuran delta seperti maksud perbaikan asalnya.
+
 ## [Belum rilis] — Audit 549: fokus naik dari OK dialog About kembali ke Check update, bukan GitHub
 - Kedua tombol baris atas dialog About (GitHub dan Check update) sama-sama menunjuk turun ke tombol OK, tetapi OK menunjuk naik hanya ke GitHub: pengguna yang turun dari Check update lalu menekan Atas mendarat di GitHub — arah pulang tak konsisten.
 - `btn_about_ok` kini `nextFocusUp=@id/btn_about_update` (tombol aksi utama baris atas); GitHub tetap satu langkah Kiri dari Check update, jadi seluruh dialog terjelajahi dua arah tanpa lompatan mengejutkan.

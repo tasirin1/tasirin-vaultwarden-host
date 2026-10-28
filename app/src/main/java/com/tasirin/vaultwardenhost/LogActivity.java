@@ -219,14 +219,15 @@ public class LogActivity extends Activity {
 
                 int hitung = hitungBaris(tampil);
 
-                String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
-                final CharSequence sorot = highlightLog(tampilAman, cari);
                 final int baris = hitung;
                 final boolean bisaDelta = (cari == null || cari.isEmpty())
                         && teksTampilTerakhir != null
                         && teksTampilTerakhir.endsWith("\n")
                         && tampil.length() > teksTampilTerakhir.length()
                         && tampil.startsWith(teksTampilTerakhir);
+                String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
+                final CharSequence sorot = bisaDelta
+                        ? null : highlightLog(tampilAman, cari);
                 final String deltaMentah = bisaDelta
                         ? tampil.substring(teksTampilTerakhir.length()) : null;
                 final CharSequence sorotDelta = bisaDelta
