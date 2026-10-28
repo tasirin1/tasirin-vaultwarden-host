@@ -1263,13 +1263,24 @@ public final class Updater {
         return downloadBinaryVersi(ctx, out, versi, null);
     }
 
+    private static final Object KUNCI_PASANG_GLOBAL = new Object();
+
     public static String downloadBinaryVersi(Context ctx, File out, String versi,
                                              CekBatal batal) throws Exception {
-        mulaiUnduhan();
-        try {
-            return downloadBinaryInner(ctx, out, versi, batal);
-        } finally {
-            selesaiUnduhan();
+        // Unduh + pasang diserialkan global: dua pemicu update bersamaan
+        // (bot, Settings, AutoUpdate, Start) dengan target versi berbeda
+        // sebelumnya hanya diserialkan pada momen swap, sedangkan
+        // metadata (version.txt, KEY_UPDATE_VERSION, status fallback)
+        // ditulis sesudahnya di luar kunci — hasil akhir ditentukan
+        // thread yang selesai terakhir (Audit 649). Kunci yang sama
+        // menutup celah sapuan tmp terhadap pemasangan yang tertunda.
+        synchronized (KUNCI_PASANG_GLOBAL) {
+            mulaiUnduhan();
+            try {
+                return downloadBinaryInner(ctx, out, versi, batal);
+            } finally {
+                selesaiUnduhan();
+            }
         }
     }
 
@@ -1544,11 +1555,13 @@ public final class Updater {
     }
 
     public static String downloadShim(Context ctx, File out) throws Exception {
-        mulaiUnduhan();
-        try {
-            return downloadShimInner(ctx, out);
-        } finally {
-            selesaiUnduhan();
+        synchronized (KUNCI_PASANG_GLOBAL) {
+            mulaiUnduhan();
+            try {
+                return downloadShimInner(ctx, out);
+            } finally {
+                selesaiUnduhan();
+            }
         }
     }
 

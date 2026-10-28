@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 649: unduh dan pasang binary/shim kini diserialkan global
+- Dua pemicu update bersamaan dari kanal berbeda (bot, Settings, AutoUpdate, Start) dengan target versi berbeda sebelumnya hanya diserialkan pada momen swap berkas; penulisan metadata (version.txt, versi tercatat, status fallback, reset versi proses) terjadi sesudahnya di luar kunci, jadi hasil akhir ditentukan thread yang selesai terakhir — bukan target yang seharusnya menang. Seluruh operasi unduh+pasang pada pintu publik `downloadBinaryVersi` dan `downloadShim` kini berjalan di bawah satu kunci global Updater; kunci yang sama menutup celah sapuan tmp basi terhadap pemasangan yang masih tertunda.
+
 ## [Belum rilis] — Audit 650: entri TMP_UNDUH_AKTIF kini dilepas lewat finally
 - `unduhKeTmp` melepas penanda tmp-aktif hanya di jalur sukses dan penangkap `Exception`; sebuah `Error` (mis. `OutOfMemoryError`) yang lolos dari lingkar unduh meninggalkan entri basi, dan karena sapuan tmp selalu melewati path yang tercatat aktif, berkas yatim itu tak pernah tersapu selama sisa umur proses. Lingkar unduh kini dibungkus try-finally yang selalu melepas penandanya.
 
