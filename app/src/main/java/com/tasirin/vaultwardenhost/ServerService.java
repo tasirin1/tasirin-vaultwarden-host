@@ -1856,6 +1856,26 @@ public class ServerService extends Service {
             appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
         }
 
+        if (!legacy && isKernelRandomPanic(lastVersionOutput)) {
+            // Bukti panic getrandom dari probe mengalahkan klasifikasi:
+            // perangkat yang os.version-nya tak terparse dianggap modern
+            // sehingga shim tak pernah dipasang, dan saran lama (tekan
+            // Cek Update) juga tergerbang klasifikasi yang sama — lingkaran
+            // yang tak bisa sembuh (Audit 644). Di sini shim dicoba pasang
+            // apa pun klasifikasinya; bila uji asap lolos bersamanya,
+            // start lanjut dengan LD_PRELOAD.
+            File shimBukti = ensureShim();
+            if (shimBukti != null) {
+                sesi.shim = shimBukti;
+                if (detectBinaryVersion(sesi.binary)) {
+                    appendLog("[app] Shim getrandom dipasang berdasar bukti panic"
+                            + " - start dengan LD_PRELOAD.");
+                    return true;
+                }
+                sesi.shim = null;
+            }
+        }
+
         if (isKernelRandomPanic(lastVersionOutput)) {
             String kernel = KernelCompat.kernelSekarang();
             String saran = KernelCompat.saranShimGagal(kernel.isEmpty() ? "?" : kernel);

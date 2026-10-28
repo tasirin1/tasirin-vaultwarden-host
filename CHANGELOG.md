@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 644: bukti panic getrandom kini mengalahkan klasifikasi kernel
+- `os.version` yang tak terparse dianggap "modern" (keputusan disengaja, terkunci uji), sehingga pada perangkat berkernel lama berformat aneh shim tak pernah dipasang — dan pesan pemulihannya menyuruh menekan Cek Update yang tergerbang klasifikasi yang sama, membentuk lingkaran yang tak bisa sembuh. Kini bila probe `--version` menunjukkan panic getrandom (bukti nyata perangkat butuh shim), `siapkanShim` mencoba memasang shim apa pun klasifikasinya dan mengulang uji asap: lolos → Start lanjut dengan `LD_PRELOAD`; gagal → jalur saran lama seperti sebelumnya. Klasifikasi tak-dikenal=modern sendiri tidak diubah.
+
 ## [Belum rilis] — Audit 643: langkah APK bertanda tangan rilis kini digerbang ref main
 - Langkah build signed, verifikasi APK, cek ukuran, salinan bernama rilis, dan upload artifact di `build-apk.yml` sebelumnya hanya digerbang `event != pull_request`, jadi `workflow_dispatch` dari branch mana pun menghasilkan APK bertanda tangan keystore rilis asli sebagai artifact. Kelimanya kini juga mensyaratkan `github.ref == 'refs/heads/main'`, sejajar dengan langkah publish yang sudah lebih ketat.
 
