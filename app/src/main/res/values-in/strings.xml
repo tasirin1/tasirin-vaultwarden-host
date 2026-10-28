@@ -135,6 +135,7 @@
     <string name="admin_error">Token minimal 8 karakter bila diisi (boleh kosong).</string>
     <string name="token_error">Format token: angka:id — contoh 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.</string>
     <string name="chat_error">Chat ID harus angka (boleh minus, contoh -1001234567890).</string>
+    <string name="bin_sha_error">SHA-256 harus tepat 64 karakter heksadesimal (0-9, a-f) — periksa spasi atau tempelan yang terpotong.</string>
     <string name="chevron">\u25BE</string>
     <string name="status_admin">Admin Token: %1$s</string>
     <string name="status_bot">Bot: %1$s</string>

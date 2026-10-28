@@ -126,6 +126,19 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatBinShaHanyaHex64() {
+        assertNull(SettingsActivity.galatBinSha(null, "SALAH"));
+        assertNull(SettingsActivity.galatBinSha("", "SALAH"));
+        assertNull(SettingsActivity.galatBinSha(
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatBinSha("abc123", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatBinSha(
+                "0123456789abcdef 0123456789abcdef0123456789abcdef0123456789abcde", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatBinSha(
+                "0123456789abcdefg123456789abcdef0123456789abcdef0123456789abcdef", "SALAH"));
+    }
+
+    @Test
     public void galatTgTokenFormatBot() {
         assertNull(SettingsActivity.galatTgToken(null, "SALAH"));
         assertNull(SettingsActivity.galatTgToken("", "SALAH"));

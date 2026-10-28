@@ -149,6 +149,15 @@
                     android:hint="@string/bin_sha_hint"
                     android:inputType="text" />
 
+                <TextView
+                    android:id="@+id/binShaError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bin_sha_error"
+                    android:textColor="@color/status_off"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
                 <View style="@style/TasirinDivider" />
 
                 <TextView

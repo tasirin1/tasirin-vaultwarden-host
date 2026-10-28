@@ -256,6 +256,7 @@ public class SettingsActivity extends Activity {
     private TextView adminError;
     private TextView tokenError;
     private TextView chatError;
+    private TextView binShaError;
     private Button certInfoToggle;
     private TextView certHintView;
     private TextView httpsBadge;
@@ -325,6 +326,7 @@ public class SettingsActivity extends Activity {
     private String msgAdminSalah = "";
     private String msgTokenSalah = "";
     private String msgChatSalah = "";
+    private String msgBinShaSalah = "";
 
     private final java.util.Map<TextView, Boolean> labelKotorCache =
             new java.util.IdentityHashMap<>();
@@ -473,6 +475,7 @@ public class SettingsActivity extends Activity {
         msgAdminSalah = getString(R.string.admin_error);
         msgTokenSalah = getString(R.string.token_error);
         msgChatSalah = getString(R.string.chat_error);
+        msgBinShaSalah = getString(R.string.bin_sha_error);
         teksMulai = getString(R.string.start);
         teksStop = getString(R.string.stop);
         teksSibuk = getString(R.string.busy_work);
@@ -487,9 +490,11 @@ public class SettingsActivity extends Activity {
         adminError = findViewById(R.id.adminError);
         tokenError = findViewById(R.id.tokenError);
         chatError = findViewById(R.id.chatError);
+        binShaError = findViewById(R.id.binShaError);
         awaliGalat(adminError, R.string.admin_error);
         awaliGalat(tokenError, R.string.token_error);
         awaliGalat(chatError, R.string.chat_error);
+        awaliGalat(binShaError, R.string.bin_sha_error);
         certInfoToggle = findViewById(R.id.certInfoToggle);
         certHintView = findViewById(R.id.certHint);
     }
@@ -646,6 +651,7 @@ public class SettingsActivity extends Activity {
         tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
+        binShaInput.addTextChangedListener(onTextChanged(this::validasiInline));
         dataDirInput.addTextChangedListener(onTextChanged(this::validasiInline));
         portInput.addTextChangedListener(onTextChanged(this::validasiInline));
         adminTokenInput.addTextChangedListener(onTextChanged(this::validasiInline));
@@ -3430,6 +3436,9 @@ public class SettingsActivity extends Activity {
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
                 msgChatSalah) : null;
         samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
+        String gSha = binShaInput != null ? galatBinSha(binShaInput.getText().toString(),
+                msgBinShaSalah) : null;
+        samakanVisibilitas(binShaError, gSha == null ? View.GONE : View.VISIBLE);
         inputStartValid = gData == null && gPort == null && gAdmin == null;
         perbaruiEnabledStartStop();
         perbaruiStatusIsian();
@@ -3494,6 +3503,14 @@ public class SettingsActivity extends Activity {
             return null;
         }
         return isi.length() >= 8 ? null : msgSalah;
+    }
+
+    static String galatBinSha(String sha, String msgSalah) {
+        String isi = sha == null ? "" : sha.trim();
+        if (isi.isEmpty()) {
+            return null;
+        }
+        return TgBackup.shaHexValid(isi) ? null : msgSalah;
     }
 
     static String galatTgToken(String token, String msgSalah) {

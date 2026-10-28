@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 551: kolom SHA-256 binary kini punya validasi inline seperti kolom lain
+- Kolom `binSha` hanya punya penyimpan per-ketukan tanpa pemeriksaan dan tanpa baris galat pendamping — salah tempel (spasi di tengah, karakter non-hex, terpotong) tersimpan diam-diam dan baru terasa saat Start menolak binary manual dengan pesan umum "SHA-256 tidak cocok", menyalahkan berkasnya padahal kolomnya yang rusak. Jalur impor config sudah lama memvalidasi format ini (`TgBackup.shaHexValid`).
+- Kolom kini diperiksa `galatBinSha` (kosong sah; terisi wajib tepat 64 hex menurut `shaHexValid` yang sama) sebagai bagian `validasiInline`, dengan baris galat `binShaError` baru di kartu Telegram dan string `bin_sha_error` (Inggris + Indonesia). Mengikuti pola token/chat: galat ditampilkan tanpa memblokir tombol Start. Uji JVM baru mengunci keenam kasus (null/kosong/hex-64 sah/pendek/spasi-di-tengah/non-hex).
+
 ## [Belum rilis] — Audit 550: jalur delta LogActivity tak lagi menghitung highlight penuh untuk dibuang
 - Sisa #268: penyegar log menghitung `highlightLog` atas SELURUH teks tampil (sampai 100.000 karakter) tanpa syarat di setiap tick 1,5 detik, padahal pada kasus paling umum (log bertambah, tanpa pencarian) jalur delta hanya memakai sorotan delta — hasil highlight penuh itu dibuang. Setengah manfaat jalur delta hilang: CPU/baterai STB terpakai untuk Spannable yang tak pernah tampil.
 - Kelayakan delta kini ditentukan lebih dulu dan highlight penuh hanya dihitung bila delta tak bisa dipakai; jalur delta murni bekerja sebatas ukuran delta seperti maksud perbaikan asalnya.
