@@ -3140,8 +3140,8 @@ public final class TgBackup {
         if (!tlsTerStaging.isEmpty() && !tlsRestoreLengkap(tlsTerStaging)) {
             hapusStagingTls(dataFolder);
             peringatanTls = " Sertifikat dari backup tidak dipasang karena"
-                    + " kunci privatnya tidak ikut - TLS perangkat ini"
-                    + " dipertahankan.";
+                    + " pasangan sertifikat + kunci privatnya tidak lengkap"
+                    + " - TLS perangkat ini dipertahankan.";
         } else {
             try {
                 pasangTlsRestore(dataFolder, tlsTerStaging);
@@ -3200,8 +3200,15 @@ public final class TgBackup {
     }
 
     static boolean tlsRestoreLengkap(java.util.List<String> daftar) {
-        return daftar != null && daftar.contains("tls/ca-key.pem")
-                && daftar.contains("tls/key.pem");
+        if (daftar == null) {
+            return false;
+        }
+        for (String nama : ENTRI_TLS_RESTORE) {
+            if (!daftar.contains(nama)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static void pasangTlsRestore(File dataFolder, java.util.List<String> daftar)

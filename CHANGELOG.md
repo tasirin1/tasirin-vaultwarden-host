@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 506: tlsRestoreLengkap kini mensyaratkan dua pasangan lengkap dua arah
+- `tlsRestoreLengkap` hanya memeriksa dua kunci privat; backup berisi kunci tanpa sertifikat pasangannya dinyatakan "lengkap", lalu `pasangTlsRestore` menimpa berkas hidup satu-satu dan meninggalkan campuran baru/lama yang tidak serasi (server gagal start TLS atau menyajikan sertifikat yang tidak cocok dengan kuncinya).
+- Kelengkapan kini berarti keempat entri `ENTRI_TLS_RESTORE` ada (pasangan CA dan pasangan leaf, dua arah); pesan peringatan restore disesuaikan ("pasangan sertifikat + kunci privatnya tidak lengkap"), dan uji kelengkapan diperbarui namanya + ditambah kasus asimetris kunci-saja dan kurang-satu.
+
 ## [Belum rilis] — Audit 505: kegagalan pasang TLS saat restore tidak lagi dilaporkan sebagai gagal total
 - Pada `restoreFromZipIsi`, database ditukar lebih dulu secara atomik; bila pemasangan sertifikat backup sesudahnya gagal, kode melempar pengecualian sehingga seluruh restore dilaporkan "gagal" — padahal DB sudah terganti (hanya TLS yang dikembalikan). Pemilik bisa mengira DB lama masih utuh dan mengulang restore yang sama.
 - Kegagalan pasang TLS kini menjadi peringatan di pesan hasil: "Database SUDAH dipulihkan, tetapi sertifikat dari backup gagal dipasang (…) - TLS perangkat ini dikembalikan seperti sebelum restore." Rollback TLS-nya sendiri tidak berubah.

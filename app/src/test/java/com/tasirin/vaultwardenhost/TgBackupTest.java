@@ -1567,7 +1567,7 @@ public class TgBackupTest {
     }
 
     @Test
-    public void tlsRestoreLengkapHanyaBilaKeduaKunciIkut() {
+    public void tlsRestoreLengkapHanyaBilaDuaPasanganLengkap() {
         assertTrue(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
                 "tls/ca.pem", "tls/cert.pem", "tls/ca-key.pem", "tls/key.pem")));
         assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
@@ -1576,6 +1576,12 @@ public class TgBackupTest {
                 "tls/ca.pem", "tls/ca-key.pem")));
         assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
                 "tls/cert.pem", "tls/key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca-key.pem", "tls/key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca.pem", "tls/ca-key.pem", "tls/key.pem")));
+        assertFalse(TgBackup.tlsRestoreLengkap(java.util.Arrays.asList(
+                "tls/ca-key.pem", "tls/cert.pem", "tls/key.pem")));
         assertFalse(TgBackup.tlsRestoreLengkap(
                 java.util.Collections.<String>emptyList()));
         assertFalse(TgBackup.tlsRestoreLengkap(null));
