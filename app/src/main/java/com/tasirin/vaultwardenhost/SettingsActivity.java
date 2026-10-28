@@ -333,7 +333,10 @@ public class SettingsActivity extends Activity {
     private boolean refreshActive = true;
     private volatile boolean uiBusy = false;
 
-    private final AtomicBoolean tugasBerjalan = new AtomicBoolean(false);
+    // Statis (se-proses), bukan per-instance: rotasi menghancurkan
+    // activity tetapi thread tugasnya terus berjalan — instance baru
+    // harus melihat tugas itu masih berjalan (Audit 591).
+    private static final AtomicBoolean tugasBerjalan = new AtomicBoolean(false);
 
     private boolean pinCentangProgram = false;
     private long lastWvCheck = 0;
@@ -1139,6 +1142,15 @@ public class SettingsActivity extends Activity {
 
         if (isFinishing() || isDestroyed()) {
             return;
+        }
+
+        // Sinkronkan keadaan sibuk dari penanda statis (Audit 591):
+        // instance hasil rotasi lahir dengan uiBusy=false padahal tugas
+        // instance lama masih berjalan; sebaliknya penyelesaian tugas
+        // lama memanggil setBusy pada instance yang sudah mati.
+        boolean sibukStatis = tugasBerjalan.get();
+        if (sibukStatis != uiBusy) {
+            setBusy(sibukStatis);
         }
 
         if (pinMenahanKonten()) {

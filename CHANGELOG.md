@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 591: keadaan sibuk Settings bertahan lintas rotasi
+- `tugasBerjalan` dan `uiBusy` dulu per-instance activity. Rotasi menghancurkan activity tetapi thread tugasnya (pool bersama) terus berjalan memegang penanda instance lama: instance baru lahir "tidak sibuk" — tombol update/revert/backup/restore aktif lagi dan bilah progres unduhan tak ditampilkan, padahal tugas masih berjalan (operasi datanya sendiri tetap aman oleh kunci global, jadi yang hilang murni keadaan UI dan umpan balik penyelesaian dibuang penjaga isDestroyed).
+- Kini `tugasBerjalan` statis se-proses, dan `refreshFromService` menyinkronkan `uiBusy` dari penanda statis itu pada tiap siklus segar: instance baru langsung tampil sibuk, dan penyelesaian tugas lama tercermin tanpa bergantung pada setBusy instance yang sudah mati.
+
 ## [Belum rilis] — Audit 590: nextMidnight iterasi koreksi offset sampai stabil (DST tepat tengah malam)
 - `nextMidnight` hanya mengoreksi offset satu lintasan. Di zona yang transisi DST-nya tepat pukul 00:00 (America/Santiago, Asia/Beirut), pada hari spring-forward kandidat jatuh pukul 23:01 di hari lokal yang sama — backup harian jalan 1–2 jam lebih awal pada satu hari per tahun di zona itu (zona Indonesia tanpa DST tak terpengaruh).
 - Kini koreksi diiterasi sampai titik tetap (maks 4 lintasan). Nilai harapan dibuktikan sebelum patch dengan porting Python 1:1 atas 5.840 hari-zona (8 zona × 2025–2026): hanya 4 kasus anomali yang berubah — masing-masing menjadi 01:01 lokal sesudah tengah malam yang dilompati — seluruh kasus lain identik karakter, dan hasil tidak pernah waktu lampau.
