@@ -126,6 +126,9 @@ public class LogActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 logSearch = s == null ? "" : s.toString();
+                if (logSearch.length() > 64) {
+                    logSearch = logSearch.substring(0, 64);
+                }
                 ui.removeCallbacks(refreshCari);
                 ui.postDelayed(refreshCari, 300);
             }

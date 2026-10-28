@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 685: kueri pencarian log dibatasi 64 karakter
+- Kolom cari log tidak membatasi panjang kueri, sementara biaya penyorotan hasil sebanding teks-tampil (maks 100 ribu karakter) × panjang kueri per putaran: menempel kueri ribuan karakter membuat satu putaran sorot berjalan sangat lama dan, selama `redaksiJalan` terpasang, semua refresh log berikutnya tertahan — layar log membeku menampilkan data basi tanpa penjelasan. Kueri kini dibatasi 64 karakter di layout (`maxLength`, berlaku juga untuk tempelan) dan dijepit lagi di kode saat dibaca, sebagai lapis kedua.
+
 ## [Belum rilis] — Audit 684: satu baris log kini dibatasi 8192 karakter
 - Semua batas log yang ada menjaga *total* (buffer 300 ribu karakter, berkas 2 MB), bukan *satu baris*: satu baris raksasa dari stdout Vaultwarden (jejak panic membengkak atau muatan tak tepercaya yang tercatat utuh) teralokasi utuh berkali-kali dalam perjalanan readLine → buffer → berkas → ekor crash — lonjakan memori yang bisa meng-OOM-kan aplikasi host di STB justru saat server bermasalah. Kedua pintu masuk log (`appendLog` dan `catatLog`) kini memotong baris di 8192 karakter dengan penanda "…[baris dipotong]" lewat helper murni teruji `potongBarisLog`; kepala baris (konteks pesan) dipertahankan.
 

@@ -142,6 +142,7 @@
             android:layout_weight="1"
             android:hint="@string/search_hint"
             android:inputType="text"
+            android:maxLength="64"
             android:textSize="12sp" />
 
         <CheckBox
