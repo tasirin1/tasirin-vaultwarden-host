@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 684: satu baris log kini dibatasi 8192 karakter
+- Semua batas log yang ada menjaga *total* (buffer 300 ribu karakter, berkas 2 MB), bukan *satu baris*: satu baris raksasa dari stdout Vaultwarden (jejak panic membengkak atau muatan tak tepercaya yang tercatat utuh) teralokasi utuh berkali-kali dalam perjalanan readLine → buffer → berkas → ekor crash — lonjakan memori yang bisa meng-OOM-kan aplikasi host di STB justru saat server bermasalah. Kedua pintu masuk log (`appendLog` dan `catatLog`) kini memotong baris di 8192 karakter dengan penanda "…[baris dipotong]" lewat helper murni teruji `potongBarisLog`; kepala baris (konteks pesan) dipertahankan.
+
 ## [Belum rilis] — Audit 683: hapus pesan menghormati cap 60 detiknya di dalam percobaan; kesegaran dinilai per pesan
 - Dua tepi jalur poll: (1) `hapusPesanPerintah` memeriksa cap `BATAS_HAPUS_PESAN_MS` hanya *di antara* percobaan, sementara satu percobaan bisa membakar ±45 detik (sambung 15 + baca 30) — satu pesan bisa menyita ±90 detik thread poll tunggal dan batch berisi beberapa pesan ber-PIN berseri menjadi hitungan menit. Timeout tiap percobaan kini dijepit ke sisa anggaran (sambung maks setengah sisa, baca maks sisanya; sisa < 2 detik = berhenti), sehingga cap 60 detik berlaku di dalam percobaan juga. (2) Kesegaran pesan (`pesanSegar`) dinilai dari potret waktu awal batch, sehingga pesan di urutan akhir bisa lolos batas basi 5 menit karena item sebelumnya membakar waktu; penilaian kini memakai waktu saat pesan itu benar-benar diproses.
 

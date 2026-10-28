@@ -1109,4 +1109,18 @@ public class ServerServiceTest {
         assertFalse(ServerService.pingMilikEpisodeSama(null, null, 3, 3));
         assertFalse(ServerService.pingMilikEpisodeSama(a, a, -1, -1));
     }
+
+    @Test
+    public void potongBarisLog_hanyaMemotongYangMelebihiBatas() {
+        assertEquals("pendek", ServerService.potongBarisLog("pendek"));
+        assertEquals(null, ServerService.potongBarisLog(null));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < ServerService.BATAS_BARIS_LOG + 5000; i++) {
+            sb.append('x');
+        }
+        String hasil = ServerService.potongBarisLog(sb.toString());
+        assertTrue(hasil.length() < sb.length());
+        assertTrue(hasil.startsWith(sb.substring(0, 100)));
+        assertTrue(hasil.contains("dipotong"));
+    }
 }

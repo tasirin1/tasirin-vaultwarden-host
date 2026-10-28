@@ -2708,10 +2708,20 @@ public class ServerService extends Service {
         }
     }
 
+    static final int BATAS_BARIS_LOG = 8192;
+
+    static String potongBarisLog(String line) {
+        if (line == null || line.length() <= BATAS_BARIS_LOG) {
+            return line;
+        }
+        return line.substring(0, BATAS_BARIS_LOG) + " …[baris dipotong]";
+    }
+
     private void appendLog(String line) {
         if (line == null) {
             return;
         }
+        line = potongBarisLog(line);
         String stamp = tulisBarisLog(line);
         tulisKeBerkasLog(stamp, line);
     }
@@ -4485,6 +4495,7 @@ public class ServerService extends Service {
         if (line == null) {
             return;
         }
+        line = potongBarisLog(line);
         String stamp = tulisBarisLog(line);
         tulisKeBerkasLog(stamp, line);
         flushLogFile();
