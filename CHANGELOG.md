@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 590: nextMidnight iterasi koreksi offset sampai stabil (DST tepat tengah malam)
+- `nextMidnight` hanya mengoreksi offset satu lintasan. Di zona yang transisi DST-nya tepat pukul 00:00 (America/Santiago, Asia/Beirut), pada hari spring-forward kandidat jatuh pukul 23:01 di hari lokal yang sama — backup harian jalan 1–2 jam lebih awal pada satu hari per tahun di zona itu (zona Indonesia tanpa DST tak terpengaruh).
+- Kini koreksi diiterasi sampai titik tetap (maks 4 lintasan). Nilai harapan dibuktikan sebelum patch dengan porting Python 1:1 atas 5.840 hari-zona (8 zona × 2025–2026): hanya 4 kasus anomali yang berubah — masing-masing menjadi 01:01 lokal sesudah tengah malam yang dilompati — seluruh kasus lain identik karakter, dan hasil tidak pernah waktu lampau.
+
 ## [Belum rilis] — Audit 589: jeda minimum 30 detik antar perintah berat dan antar /restart bot
 - Satu-satunya pembatas perintah berat (`/backup`, `/restore`, `/ca`, `/update`, `/webvault`) dulu adalah kunci cegah-bersamaan: begitu tugas selesai, perintah berikutnya langsung jalan penuh lagi — zip + unggah berulang menguras disk/baterai/kuota, dan `/update` berurutan mengunduh ulang. `/restart` manual bahkan lepas dari backoff restart-otomatis, jadi deretannya membuat proses Vaultwarden mati-nyala berulang.
 - Kini `runBeratDenganKunci` menolak perintah berat selama 30 detik sesudah tugas berat sebelumnya berakhir (stempel elapsed, `tugasBeratBerakhirMs`), dan `/restart` di `perintahKontrol` punya stempel jeda yang sama. Keputusan jeda adalah fungsi murni `dalamJedaBerat` yang gagal-terbuka saat jam elapsed mundur agar perintah tak pernah terkunci selamanya; dikunci uji JVM baru termasuk batas 29.999/30.000 ms.

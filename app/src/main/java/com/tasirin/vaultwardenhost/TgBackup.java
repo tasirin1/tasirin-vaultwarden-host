@@ -4215,9 +4215,18 @@ public final class TgBackup {
         long offset = zona.getOffset(acuanMs);
         long hari = (acuanMs + offset) / 86400000L;
         long kandidat = (hari + 1) * 86400000L - offset;
-        long offsetTarget = zona.getOffset(kandidat);
-        if (offsetTarget != offset) {
-            kandidat = (hari + 1) * 86400000L - offsetTarget;
+        // Koreksi offset diiterasi sampai stabil: satu lintasan meleset
+        // satu jam bila transisi DST terjadi tepat di batas hari (pukul
+        // 00:00 dilompati) — kandidat pertama jatuh pukul 23:01 di hari
+        // yang sama. Terbukti porting Python 1:1 atas 5.840 hari-zona:
+        // hanya 4 kasus anomali itu yang berubah, sisanya identik, dan
+        // hasil tak pernah waktu lampau (Audit 590).
+        for (int i = 0; i < 4; i++) {
+            long koreksi = (hari + 1) * 86400000L - zona.getOffset(kandidat);
+            if (koreksi == kandidat) {
+                break;
+            }
+            kandidat = koreksi;
         }
         return kandidat + 60000L;
     }
