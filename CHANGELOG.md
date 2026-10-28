@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 595: sapuan cache tak lagi menghapus berkas impor yang dialognya tertunda
+- Perbaikan Audit 592 dikalahkan sapuan yang sudah ada: `sapuCacheLatar` memanggil `sapuSisaImpor` di onCreate/onResume instance baru, dan sapuan itu menghapus semua berkas `vwcfg-import*` tanpa syarat — berkas yang dipertahankan untuk dialog lintas rotasi pasti tersapu. Bila sapuan menang lebih dulu, dialog tak pernah kembali; bila menang sesudahnya, berkas hilang di bawah dialog yang terbuka dan password yang benar tercatat sebagai percobaan gagal, sampai berkas backup ditolak permanen pada hitungan ke-5.
+- Kini `sapuSisaImpor` mengecualikan berkas impor tertunda (penanda dibuat volatile karena dibaca thread sapuan latar), dan blok tampil-lagi di onResume sengaja tidak membersihkan penanda sebelum dialog memasang penandanya sendiri, menutup celah balapan di antaranya.
+
 ## [Belum rilis] — Audit 594: cek glob labeler kini mewajibkan pola sungguh mencocokkan berkas
 - `cek_labeler_glob` (Audit 585) hanya mengumpulkan pola yang mengandung wildcard dan hanya memeriksa keberadaan awalan statisnya. Dua kelas pola mati lolos tanpa sinyal (terbukti fixture saat self-review): pola literal tanpa wildcard yang menunjuk berkas tak ada, dan pola yang awalannya ada tetapi cocok ke 0 berkas (mis. `shim/*.py` padahal shim hanya berisi .c).
 - Kini pengumpul mengambil semua string pola dan tiap pola wajib mencocokkan minimal satu path lewat glob rekursif. Dibuktikan fixture dua arah di salinan buang: pohon bersih LOLOS; `BERKAS-HANTU.md`, `shim/*.py`, dan regresi lama `app/src/mian/**` sama-sama GAGAL menyebut polanya.

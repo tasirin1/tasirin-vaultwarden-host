@@ -111,8 +111,9 @@ public class SettingsActivity extends Activity {
 
     // Impor terenkripsi yang dialog passwordnya sedang tampil; disimpan
     // lintas rotasi agar rotasi tak membatalkan impor diam-diam
-    // (Audit 592).
-    private File imporTertundaFile = null;
+    // (Audit 592). Volatile: dibaca juga oleh sapuan cache di thread
+    // latar (Audit 595).
+    private volatile File imporTertundaFile = null;
     private String imporTertundaCap = null;
     private String imporTertundaSidik = null;
 
@@ -913,12 +914,17 @@ public class SettingsActivity extends Activity {
             File fImpor = imporTertundaFile;
             String capImpor = imporTertundaCap;
             String sidikImpor = imporTertundaSidik;
-            imporTertundaFile = null;
-            imporTertundaCap = null;
-            imporTertundaSidik = null;
             if (fImpor.isFile()) {
+                // Penanda SENGAJA tak dibersihkan di sini: sapuan cache
+                // harus terus mengecualikan berkas ini sampai dialog
+                // tampil lagi dan memasang penandanya sendiri
+                // (Audit 595).
                 tanyaPasswordImpor(fImpor, capImpor,
                         getString(R.string.config_terenkripsi_tanya), sidikImpor);
+            } else {
+                imporTertundaFile = null;
+                imporTertundaCap = null;
+                imporTertundaSidik = null;
             }
         }
     }
@@ -2842,11 +2848,23 @@ public class SettingsActivity extends Activity {
 
     private void sapuSisaImpor() {
         try {
+            File tertunda = imporTertundaFile;
+            String pathTertunda = tertunda == null ? null
+                    : tertunda.getAbsolutePath();
             File[] sisa = getCacheDir().listFiles();
             if (sisa != null) {
                 for (File f : sisa) {
                     String n = f.getName();
                     if (n.startsWith("vwcfg-import")) {
+                        // Berkas impor yang dialog passwordnya sedang
+                        // tampil/tertunda BUKAN sisa: menghapusnya
+                        // membatalkan impor dan membuat password yang
+                        // benar tercatat sebagai percobaan gagal
+                        // (Audit 595).
+                        if (pathTertunda != null
+                                && pathTertunda.equals(f.getAbsolutePath())) {
+                            continue;
+                        }
                         f.delete();
                     }
                 }
