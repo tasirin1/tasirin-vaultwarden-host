@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 562: POST_NOTIFICATIONS kini dideklarasikan — notifikasi update bisa tampil lagi di Android 13+
+- `AutoUpdate.tampilkanNotifikasi` memeriksa `POST_NOTIFICATIONS` pada SDK >= 33 dan membatalkan notifikasi bila tak granted, tetapi izin itu tidak pernah dideklarasikan di `AndroidManifest.xml` — izin tak terdeklarasi tak bisa pernah GRANTED, jadi notifikasi "update tersedia" dari cek berkala tak pernah tampil di Android 13+, diam-diam tanpa log.
+- Izin kini dideklarasikan di manifest. Untuk targetSdk 28, perangkat Android 13+ memberi izin notifikasi secara bawaan pada aplikasi legasi begitu izinnya terdeklarasi; perangkat lama mengabaikan deklarasi izin yang tak dikenal. Jalur notifikasi foreground ServerService tidak berubah.
+
 ## [Belum rilis] — Audit 561: dedupe penjaga jejak uji kini per (berkas, metode), bukan nama saja
 - #312 membuat pencocokan jejak uji sadar kelas, tetapi dedupe `sudah` di `cek_uji_baru` dan `cek_uji_ubah` masih berbasis nama global: metode kedua bernama sama di kelas lain dalam diff yang sama tak pernah diperiksa jejaknya — sisa fail-open sempit di cek yang baru diperkuat.
 - Kunci dedupe kini `(path, nama)` di kedua cek, selaras dengan kesadaran kelasnya. Terbukti fixture: metode baru `cocokChat` ditambahkan ke TgBot dan ServerService dalam satu diff → dua peringatan terbit (sebelumnya hanya satu).
