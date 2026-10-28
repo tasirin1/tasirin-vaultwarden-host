@@ -36,6 +36,9 @@ jobs:
           if echo "$FILES" | grep -qE '^(app/build\.gradle\.kts|build\.gradle\.kts|gradle/|gradle\.properties|settings\.gradle\.kts)'; then
             echo "GRADLE_DEPS=true" >> "$GITHUB_ENV"
           fi
+          if echo "$FILES" | grep -qE '^(\.github/workflows/build-binary\.yml|shim/)'; then
+            echo "BINARY_PR=true" >> "$GITHUB_ENV"
+          fi
 
       - name: Matikan auto-merge bila kini menyentuh dependensi Gradle
         if: env.GRADLE_DEPS == 'true'
@@ -51,8 +54,22 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} -R ${{ github.repository }} --body "PR ini mengubah dependensi Gradle. Sesuai aturan repo, perubahan dependensi ditangani manual: pastikan gerbang Verifikasi Patch dan build CI hijau dulu, lalu merge manual."
 
+      - name: Matikan auto-merge bila menyentuh workflow binary atau shim
+        if: env.BINARY_PR == 'true' && env.GRADLE_DEPS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge || echo "Auto-merge memang belum aktif di PR ini."
+
+      - name: Komentar panduan (PR workflow binary/shim)
+        if: env.BINARY_PR == 'true' && env.GRADLE_DEPS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} -R ${{ github.repository }} --body "PR ini menyentuh workflow Build Binary atau shim. Perubahan itu hanya teruji oleh workflow Build Binary (15-120 menit) yang tidak bisa ditunggu auto-merge, jadi PR ditangani manual: pastikan run Build Binary untuk head PR ini hijau dulu, lalu merge manual."
+
       - name: Pastikan cek wajib muncul di PR ini
-        if: env.GRADLE_DEPS != 'true'
+        if: env.GRADLE_DEPS != 'true' && env.BINARY_PR != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -68,7 +85,7 @@ jobs:
           exit 1
 
       - name: Tunggu hasil Build APK untuk head PR ini (bila ada)
-        if: env.GRADLE_DEPS != 'true'
+        if: env.GRADLE_DEPS != 'true' && env.BINARY_PR != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -104,7 +121,7 @@ jobs:
           exit 1
 
       - name: Auto-merge sesudah build dan cek wajib hijau (bukan dependensi Gradle)
-        if: env.GRADLE_DEPS != 'true'
+        if: env.GRADLE_DEPS != 'true' && env.BINARY_PR != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 637: PR yang menyentuh workflow binary/shim dikeluarkan dari auto-merge
+- Perbaikan Audit 624 membuat auto-merge menunggu Build APK, tetapi PR yang isinya hanya `build-binary.yml` (mis. bump `actions/cache` yang hanya dipakai workflow itu) tidak menghasilkan run Build APK sama sekali — check wajibnya justru datang dari job verifikasi workflow binary, jadi PR bisa ter-merge berbekal gerbang patch sementara build binary 15–120 menit yang mengujinya tak pernah ditunggu (dan memang tak bisa ditunggu dalam batas job). PR Dependabot yang menyentuh `.github/workflows/build-binary.yml` atau `shim/**` kini diperlakukan seperti PR dependensi Gradle: auto-merge dimatikan dan diberi komentar panduan merge manual sesudah run Build Binary hijau.
+
 ## [Belum rilis] — Audit 631: classifier kunci privat juga mengupas ekstensi luar .json/.pem/.crt/.cer/.der
 - `kunciPrivat` di FileShareProvider hanya mengupas daftar pembungkus tetap (.zip/.enc/dll.) sebelum menguji inti nama, jadi nama kunci berakhiran ganda di luar daftar itu — `ca-key.json`, `key.json`, `ca-key.crt`, `server.key.json` — lolos sebagai boleh-dibagikan (laten: belum ada penulis nama seperti itu). Lingkar kupas kini juga melepas ekstensi luar .json/.pem/.crt/.cer/.der berulang kali sebelum inti diuji; sertifikat murni (`ca.pem`, `cert.pem`, `cert.json`) terverifikasi tetap boleh dibagikan lewat uji yang diperluas di commit yang sama.
 
