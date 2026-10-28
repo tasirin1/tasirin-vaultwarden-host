@@ -44,10 +44,26 @@ public class LogActivity extends Activity {
             if (isDestroyed() || isFinishing()) {
                 return;
             }
+            if (!logMasihBolehTampil()) {
+                finish();
+                return;
+            }
             refreshLog();
             ui.postDelayed(this, 1500);
         }
     };
+
+    private boolean logMasihBolehTampil() {
+        try {
+            android.content.SharedPreferences sp =
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
+            return logBolehTampil(
+                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
+                    PinGate.dalamGraceBersama());
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     private final Runnable refreshCari = new Runnable() {
         @Override
@@ -142,16 +158,7 @@ public class LogActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        boolean bolehTampil = false;
-        try {
-            android.content.SharedPreferences sp =
-                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
-            bolehTampil = logBolehTampil(
-                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false),
-                    PinGate.dalamGraceBersama());
-        } catch (Exception ignored) {
-        }
-        if (!bolehTampil) {
+        if (!logMasihBolehTampil()) {
             finish();
             return;
         }

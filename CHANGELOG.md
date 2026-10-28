@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 688: LogActivity kini memeriksa ulang gerbang PIN di setiap tik
+- Gerbang LogActivity hanya diperiksa di `onResume`; tik refresh 1,5 detiknya mengalirkan log terbaru tanpa batas sesudah sekali buka — berbeda dari Main/Settings dan membuat satu grace sesaat membuka aliran log selamanya selama layar terbuka. Pemeriksaan gerbang kini diekstrak ke satu helper yang dipakai `onResume` dan setiap tik: begitu grace berakhir atau PIN diaktifkan, tik berikutnya menutup activity (gagal-tertutup, sama seperti jalur masuknya).
+
 ## [Belum rilis] — Audit 687: grace PIN kedaluwarsa di foreground kini benar-benar mengunci ulang
 - Sesudah dibuka, grace 30 detik berakhir walaupun activity masih di foreground — tetapi tidak ada yang menindaklanjutinya sampai `onResume` berikutnya: loop refresh berhenti total (status/log membeku seperti aplikasi macet) sementara tombol dan field tetap berfungsi penuh tanpa PIN. Itu kunci setengah-terapan: membeku di tampilan, terbuka di kontrol. Tik refresh di MainActivity dan SettingsActivity kini memanggil peluncur layar PIN yang sama dengan jalur `onResume` saat gerbang mulai menahan konten (peluncurnya berpagar `pinBukaJalan` sehingga tidak berulang): layar terkunci sungguhan, dan membatalkan di layar PIN menutup activity seperti jalur masuk yang sudah ada.
 
