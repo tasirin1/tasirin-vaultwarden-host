@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 681: unlock kunci pasang global kini tak bisa terlewati finally
+- Di kedua pintu kunci pasang global, `unlock()` berada sesudah `selesaiUnduhan()` dalam `finally` yang sama: bila `selesaiUnduhan()` suatu hari melempar (saat ini ia murni operasi atomik + volatile sehingga belum bisa — kerapuhan struktural temuan self-review), satu hold bocor dan semua pemasangan berikutnya mengantre selamanya. Urutannya kini finally bersarang sehingga `unlock()` adalah tindakan terakhir yang dijamin berjalan apa pun yang terjadi di pembukuan unduhan.
+
 ## [Belum rilis] — Audit 680: pagar cek port kini dilepas juga bila tugas latarnya melempar
 - Pagar `startTertundaPort` (Audit 666) hanya dilepas di penyelesaian `ui.post` dan di cabang penolakan antrean. Badan tugas latarnya (`bereskanServerYatim` + `isPortBusy` + `portButuhRoot`) tidak berpagar pengecualian: satu lemparan di sana membuat penyelesaian tak pernah berjalan, pagar terkunci permanen (di MainActivity `uiBusy` statis ikut terkunci), dan ketukan Start berikutnya mati diam-diam tanpa umpan balik sampai activity dibuat ulang. Kedua activity kini membungkus badan tugas itu dengan penangkap yang memasang penyelesaian pelepas-pagar + catatan log "cek port gagal, Start dibatalkan" — kegagalan diperlakukan sebagai batal yang jujur, bukan kunci yang tertinggal.
 

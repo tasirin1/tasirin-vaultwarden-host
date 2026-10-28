@@ -1291,8 +1291,11 @@ public final class Updater {
         try {
             return downloadBinaryInner(ctx, out, versi, batal);
         } finally {
-            selesaiUnduhan();
-            KUNCI_PASANG_GLOBAL.unlock();
+            try {
+                selesaiUnduhan();
+            } finally {
+                KUNCI_PASANG_GLOBAL.unlock();
+            }
         }
     }
 
@@ -1572,8 +1575,11 @@ public final class Updater {
         try {
             return downloadShimInner(ctx, out);
         } finally {
-            selesaiUnduhan();
-            KUNCI_PASANG_GLOBAL.unlock();
+            try {
+                selesaiUnduhan();
+            } finally {
+                KUNCI_PASANG_GLOBAL.unlock();
+            }
         }
     }
 
