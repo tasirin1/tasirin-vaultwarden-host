@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 573: uji copyFile kini membandingkan isi byte, bukan hanya panjang
+- Uji `copyFile_menyalinUtuhDenganPanjangSama` hanya menegaskan panjang asal = panjang salinan, padahal namanya mengklaim keutuhan: regresi yang menulis byte korup/nol berpanjang sama akan tetap hijau. Kini isi salinan dibandingkan byte-per-byte (`assertArrayEquals`) terhadap isi asal 70.000 byte acak, selaras uji `salinTls` di berkas yang sama.
+
 ## [Belum rilis] — Audit 572: dedupe folderBytesWalk kini memakai path canonical; uji tak lagi mengunci angka inflasi 3100
 - `TgBackup.folderBytesWalk` men-dedupe kunjungan folder memakai `getAbsolutePath()` (variabelnya bahkan bernama `kanon`), sehingga symlink melingkar menghasilkan path tekstual berbeda di tiap level dan tak terdeteksi — berkas yang sama dihitung ulang sampai cap kedalaman 32 (satu berkas 100 byte terhitung 3100), dan uji justru mengunci angka inflasi itu sebagai nilai harapan.
 - Dedupe kini memakai `getCanonicalPath()`: symlink loop terdeteksi sebagai folder yang sama dan dilewati. Uji diperbarui di commit yang sama menjadi 100 dengan komentar derivasi. Dampak praktis: taksiran ukuran folder (untuk pra-cek ruang backup/restore) tak lagi membengkak pada folder bersymlink-loop.

@@ -1330,6 +1330,8 @@ public class TgBackupTest {
         TgBackup.copyFile(asal, salin);
         assertEquals(asal.length(), salin.length());
         assertEquals(isi.length, (int) salin.length());
+        org.junit.Assert.assertArrayEquals(isi,
+                java.nio.file.Files.readAllBytes(salin.toPath()));
     }
 
     @Test
