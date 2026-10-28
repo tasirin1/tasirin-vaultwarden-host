@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 657: nama check ganda dari dua workflow diterima sebagai residu terdokumentasi (issue ditutup-alasan)
+- Sejak Audit 646, PR berkas kode menerima check "Cek patch yang berubah" dari dua workflow (`build-apk.yml` dan `cek-wajib.yml`) dan GitHub menilai run paling baru untuk nama yang sama. Jalur auto-merge tetap aman (ia juga menunggu kesimpulan run Build APK per head SHA secara terpisah), kedua job menjalankan langkah identik, dan pada merge manual kedua hasil terlihat berdampingan untuk dinilai owner. Mitigasi alternatif (cek-wajib menyimpulkan tanpa memverifikasi bila run lain ada) justru menciptakan green tanpa verifikasi. Residu ini diterima dan dicatat; issue #413 ditutup dengan alasan lengkap di GitHub.
+
 ## [Belum rilis] — Audit 656: antrean kunci pasang global kini memasang status tunggu
 - Self-review putaran-22 memastikan kunci global Audit 649 bebas deadlock (satu-satunya jalur bersarang berjalan di thread yang sama dan `synchronized` bersifat reentrant), tetapi Start yang membutuhkan unduhan bisa mengantre belasan menit di belakang unduhan kanal lain tanpa penjelasan apa pun. Kunci diganti `ReentrantLock` (tetap reentrant per thread, semantik serialisasi sama); pemanggil yang tidak langsung memperoleh kunci memasang status "Menunggu unduhan/pemasangan lain selesai..." yang terlihat di UI sampai gilirannya tiba dan status unduhannya sendiri mengambil alih.
 
