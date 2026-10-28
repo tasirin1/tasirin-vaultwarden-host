@@ -982,7 +982,14 @@ public final class TlsCert {
         try {
             return android.util.Base64.encodeToString(der, android.util.Base64.NO_WRAP);
         } catch (Throwable t) {
-            return java.util.Base64.getEncoder().encodeToString(der);
+            try {
+                Class<?> b64 = Class.forName("java.util.Base64");
+                Object enc = b64.getMethod("getEncoder").invoke(null);
+                return (String) enc.getClass()
+                        .getMethod("encodeToString", byte[].class).invoke(enc, der);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -990,7 +997,14 @@ public final class TlsCert {
         try {
             return android.util.Base64.decode(s, android.util.Base64.DEFAULT);
         } catch (Throwable t) {
-            return java.util.Base64.getMimeDecoder().decode(s);
+            try {
+                Class<?> b64 = Class.forName("java.util.Base64");
+                Object dec = b64.getMethod("getMimeDecoder").invoke(null);
+                return (byte[]) dec.getClass()
+                        .getMethod("decode", String.class).invoke(dec, s);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
