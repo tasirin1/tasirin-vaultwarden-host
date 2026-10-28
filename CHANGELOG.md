@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 690: Settings dan Log tak lagi meninggalkan thumbnail di Recents
+- MainActivity dan PinActivity sudah `excludeFromRecents`, tetapi SettingsActivity dan LogActivity belum: snapshot Recents LogActivity memuat isi log penuh keadaan terakhir — konten yang aplikasi sendiri perlakukan sensitif (ada penyamaran untuk log yang dibagikan) — dan bisa dibaca dari layar Recents tanpa melewati gerbang PIN, walau membuka activity-nya tergerbang. Kedua activity kini `excludeFromRecents="true"` seperti saudara-saudaranya. `FLAG_SECURE` sengaja tidak ditambahkan agar tangkapan layar yang disengaja pemilik tetap bisa.
+
 ## [Belum rilis] — Audit 688: LogActivity kini memeriksa ulang gerbang PIN di setiap tik
 - Gerbang LogActivity hanya diperiksa di `onResume`; tik refresh 1,5 detiknya mengalirkan log terbaru tanpa batas sesudah sekali buka — berbeda dari Main/Settings dan membuat satu grace sesaat membuka aliran log selamanya selama layar terbuka. Pemeriksaan gerbang kini diekstrak ke satu helper yang dipakai `onResume` dan setiap tik: begitu grace berakhir atau PIN diaktifkan, tik berikutnya menutup activity (gagal-tertutup, sama seperti jalur masuknya).
 
