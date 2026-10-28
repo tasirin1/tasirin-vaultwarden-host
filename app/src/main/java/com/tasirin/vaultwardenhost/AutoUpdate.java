@@ -104,10 +104,12 @@ public final class AutoUpdate {
                     aksi.kabariTersedia(latest);
 
                     if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
-                        tampilkanNotifikasi(ctx, latest);
+                        boolean tampil = tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
-                        sp.edit().putString("tg_notified_version", latest).apply();
+                        if (tampil) {
+                            sp.edit().putString("tg_notified_version", latest).apply();
+                        }
                     }
                 }
             }
@@ -217,7 +219,7 @@ public final class AutoUpdate {
 
     @SuppressLint("MissingPermission")
     @SuppressWarnings("deprecation")
-    public static void tampilkanNotifikasi(Context ctx, String version) {
+    public static boolean tampilkanNotifikasi(Context ctx, String version) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager nm = (NotificationManager)
                     ctx.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -248,22 +250,25 @@ public final class AutoUpdate {
 
         NotificationManager nm = (NotificationManager)
                 ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm != null) {
-            try {
+        if (nm == null) {
+            return false;
+        }
+        try {
 
-                if (android.os.Build.VERSION.SDK_INT >= 33) {
-                    try {
-                        if (ctx.checkSelfPermission("android.permission.POST_NOTIFICATIONS")
-                                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
-                    } catch (Exception ignoredPerm) {
-                        return;
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                try {
+                    if (ctx.checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        return false;
                     }
+                } catch (Exception ignoredPerm) {
+                    return false;
                 }
-                nm.notify(2, n);
-            } catch (SecurityException ignored) {
             }
+            nm.notify(2, n);
+            return true;
+        } catch (SecurityException ignored) {
+            return false;
         }
     }
 }

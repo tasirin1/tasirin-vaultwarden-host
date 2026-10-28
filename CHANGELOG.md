@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 494: versi update hanya ditandai "sudah diberitahu" bila notifikasi benar-benar tampil
+- `tampilkanNotifikasi` kembali diam-diam (izin POST_NOTIFICATIONS ditolak, pemeriksaan izin melempar, atau SecurityException) tanpa nilai balik, tetapi pemanggil tetap menulis `tg_notified_version` — untuk versi itu notifikasi sistem tidak pernah dicoba lagi walau izin kemudian diberikan.
+- `tampilkanNotifikasi` kini mengembalikan boolean (hanya true bila `nm.notify` benar-benar dijalankan) dan penanda hanya ditulis bila true; pesan Telegram tetap dikirim pada percobaan yang sama seperti sebelumnya.
+
 ## [Belum rilis] — Audit 493: shim getrandom kini menghormati flags, bukan membuangnya
 - Kedua pintu shim (`getrandom()` dan interposisi `syscall(SYS_getrandom)`) membuang argumen `flags` sepenuhnya: flags tak dikenal yang menurut kontrak Linux harus `EINVAL` diterima diam-diam, dan `GRND_RANDOM` dilayani dari `/dev/urandom` — dan uji host justru mengunci penyimpangan itu dengan menuntut sukses untuk flags `0xFFFF`.
 - Shim kini memvalidasi flags lewat `getrandom_bendera` (gabungan yang dikenal hanya NONBLOCK/RANDOM/INSECURE; sisanya -1/EINVAL), melayani `GRND_RANDOM` dari `/dev/random` lewat jalur baca yang sama (`isi_dari` berparameter sumber, fd terpisah), dan jalur syscall membaca argumen ketiga untuk meneruskannya. Uji host dibalik: `0xFFFF` wajib EINVAL di kedua pintu, `GRND_RANDOM` wajib terisi 32 byte, flags 0 tetap jalan. Pembungkus `isi_urandom` yang tak lagi terpakai dihapus dan dicatat di `tools/bekas-hapusan.txt`. Bukti lokal sebatas `gcc -fsyntax-only` bersih (aturan repo: tanpa build/test); uji interposisi penuh berjalan di CI build-binary.
