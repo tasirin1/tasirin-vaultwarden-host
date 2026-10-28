@@ -571,7 +571,8 @@ public final class TgBot {
 
                                 AksiPending pending = AksiPending.TIDAK_ADA;
                                 if (!text.isEmpty() && !text.startsWith("/")) {
-                                    pending = ambilPending(ctx, idRuang, kiniPoll);
+                                    pending = ambilPending(ctx, idRuang,
+                                            System.currentTimeMillis());
                                 }
                                 boolean pinPending = !pending.cmd.isEmpty();
 

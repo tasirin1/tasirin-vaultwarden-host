@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 695: kedaluwarsa sesi PIN tertunda kini juga dinilai dengan waktu hidup
+- Pasangan Audit 683 yang tertinggal (self-review putaran-25): kesegaran pesan sudah dinilai dengan waktu saat pesan diproses, tetapi kedaluwarsa sesi PIN tertunda (`ambilPending`) masih memakai potret waktu awal batch — balasan PIN bisa diterima melampaui batas 5 menit sejak pending dibuat sebesar durasi pemrosesan item-item sebelumnya dalam batch yang sama. Penilaian kini memakai waktu hidup yang sama, konsisten dengan `pesanSegar`.
+
 ## [Belum rilis] — Audit 694: tenggat hapus pesan kini total, bukan per-pembacaan
 - Sisa teoritis dari Audit 683 (self-review putaran-25): `setReadTimeout` membatasi jeda *antar* data, bukan total — respons yang menetes (drip-feed) memperbarui jendela baca pada tiap potongan, sehingga satu percobaan hapus secara teoretis bisa jauh melewati cap 60 detik. Badan respons `deleteMessage` kini dibaca pembaca khusus yang memeriksa tenggat total operasi di antara potongan dan melempar bila lewat (respons sah hanya `{"ok":true,...}` belasan byte; pembaca berhenti di 64 KB). Cap 60 detik sekarang tenggat total yang sebenarnya untuk jalur ini.
 
