@@ -84,13 +84,18 @@ final class AboutDialog {
             baris.addView(sel, lp);
         }
         int targetSdk = 28;
+        int minSdk = 21;
         try {
-            targetSdk = a.getPackageManager()
-                    .getApplicationInfo(a.getPackageName(), 0).targetSdkVersion;
+            android.content.pm.ApplicationInfo ai = a.getPackageManager()
+                    .getApplicationInfo(a.getPackageName(), 0);
+            targetSdk = ai.targetSdkVersion;
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
+                minSdk = ai.minSdkVersion;
+            }
         } catch (Exception ignored) {
         }
         TextView kaki = (TextView) lihat.findViewById(R.id.about_footer);
-        kaki.setText(a.getString(R.string.about_tech, 21, targetSdk, build));
+        kaki.setText(a.getString(R.string.about_tech, minSdk, targetSdk, build));
 
         ScrollView gulir = (ScrollView) lihat.findViewById(R.id.about_scroll);
         int lebarLayar = a.getResources().getDisplayMetrics().widthPixels;

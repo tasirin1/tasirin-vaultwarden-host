@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 515: dialog Tentang membaca minSdk dinamis, bukan literal 21
+- Kaki dialog Tentang menulis minSdk sebagai literal `21` sementara targetSdk dan versi build di sebelahnya dibaca dinamis — bila `minSdk` di `app/build.gradle.kts` suatu hari berubah, teks Tentang tetap mengklaim 21 dan menyesatkan laporan bug/dukungan.
+- minSdk kini dibaca dari `ApplicationInfo.minSdkVersion` (bidang API 24+; di perangkat lebih lama dipakai nilai cadangan karena aplikasi yang terpasang di sana memang hanya bisa berarti minSdk ≤ API perangkat), dalam satu panggilan `getApplicationInfo` yang sama dengan targetSdk.
+
 ## [Belum rilis] — Audit 514: entri DialogAman dilepas saat dialog tertutup, bukan menunggu dialog berikutnya
 - Daftar statis `DialogAman` menahan referensi kuat ke dialog (dan lewat dialog, konteks Activity-nya) sesudah dialog ditutup; entri baru dibersihkan hanya saat dialog lain tampil atau `tutup(activity)` dipanggil — sesi Settings panjang yang membuka banyak dialog menumpuk semuanya beserta konteksnya.
 - Sesudah `show()`, kini dipasang pendengar lepas-jendela pada decor view: saat jendela dialog terlepas (dismiss/cancel/aktivitas selesai), entrinya menghapus diri dari daftar. Slot `OnDismissListener` sengaja tidak dipakai karena dua dialog Settings memasang pendengarnya sendiri sebelum `tampil`.
