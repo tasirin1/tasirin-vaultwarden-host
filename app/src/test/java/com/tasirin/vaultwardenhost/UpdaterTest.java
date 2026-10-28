@@ -976,23 +976,31 @@ public class UpdaterTest {
 
     @Test
     public void pesanUjiAsapGagal_legacyTanpaShimSebutShim() {
-        String pesan = Updater.pesanUjiAsapGagal("3.14.29", false);
+        String pesan = Updater.pesanUjiAsapGagal("3.14.29", false, "armv7l");
         assertTrue(pesan.contains("gagal uji jalan"));
         assertTrue(pesan.contains("shim"));
     }
 
     @Test
     public void pesanUjiAsapGagal_legacyDenganShimSingkat() {
-        String pesan = Updater.pesanUjiAsapGagal("3.14.29", true);
+        String pesan = Updater.pesanUjiAsapGagal("3.14.29", true, "armv7l");
         assertTrue(pesan.contains("gagal uji jalan"));
         assertFalse(pesan.contains("shim"));
     }
 
     @Test
     public void pesanUjiAsapGagal_modernTakSebutShim() {
-        assertFalse(Updater.pesanUjiAsapGagal("4.4.126", false).contains("shim"));
-        assertFalse(Updater.pesanUjiAsapGagal(null, false).contains("shim"));
-        assertFalse(Updater.pesanUjiAsapGagal("", true).contains("shim"));
+        assertFalse(Updater.pesanUjiAsapGagal("4.4.126", false, "armv7l").contains("shim"));
+        assertFalse(Updater.pesanUjiAsapGagal(null, false, "armv7l").contains("shim"));
+        assertFalse(Updater.pesanUjiAsapGagal("", true, "armv7l").contains("shim"));
+    }
+
+    @Test
+    public void pesanUjiAsapGagal_nonArmDiagnosisArsitektur() {
+        String pesan = Updater.pesanUjiAsapGagal("3.14.29", false, "x86_64");
+        assertTrue(pesan.contains("gagal uji jalan"));
+        assertTrue(pesan.contains("x86_64"));
+        assertTrue(pesan.contains("armeabi-v7a"));
     }
 
     @Test

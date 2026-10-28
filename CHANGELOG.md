@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: uji pesanUjiAsapGagal diselaraskan ke tanda tangan berarsitektur
+- Run `70ff9f9` merah pada dua uji `pesanUjiAsapGagal`: sejak Audit 645, overload dua-argumen mendelegasikan dengan `os.arch` proses — di JVM CI nilainya `x86_64`, sehingga pesan yang keluar adalah diagnosis arsitektur (yang memang menyebut shim) dan asersi lama gugur; satu uji bahkan lulus semu karena kata "shim" ada di teks arsitektur. Uji kini memakai overload tiga-argumen dengan arsitektur eksplisit (`armv7l` untuk jalur kernel, `x86_64` untuk kasus diagnosis barunya). Perilaku produksi tidak berubah.
+
 ## [Belum rilis] — Audit 649: unduh dan pasang binary/shim kini diserialkan global
 - Dua pemicu update bersamaan dari kanal berbeda (bot, Settings, AutoUpdate, Start) dengan target versi berbeda sebelumnya hanya diserialkan pada momen swap berkas; penulisan metadata (version.txt, versi tercatat, status fallback, reset versi proses) terjadi sesudahnya di luar kunci, jadi hasil akhir ditentukan thread yang selesai terakhir — bukan target yang seharusnya menang. Seluruh operasi unduh+pasang pada pintu publik `downloadBinaryVersi` dan `downloadShim` kini berjalan di bawah satu kunci global Updater; kunci yang sama menutup celah sapuan tmp basi terhadap pemasangan yang masih tertunda.
 
