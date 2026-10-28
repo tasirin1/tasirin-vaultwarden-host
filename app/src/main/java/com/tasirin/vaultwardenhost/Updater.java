@@ -1926,9 +1926,9 @@ public final class Updater {
         }
 
         File newDir = stagingWebVault(dataFolder);
+        tandaiStagingAktif(newDir);
         deleteRecursive(newDir);
         newDir.mkdirs();
-        tandaiStagingAktif(newDir);
         String kanonBasis;
         try {
             kanonBasis = newDir.getCanonicalPath();

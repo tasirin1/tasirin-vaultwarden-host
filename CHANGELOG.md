@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 699: penanda staging web-vault kini didaftarkan sebelum foldernya dibuat
+- Urutan pembuatan staging adalah buat folder dulu, baru daftarkan penanda aktif — di celah satu pernyataan itu `cleanupTempFiles` (dipanggil dari jalur Start, di bawah kunci web-vault yang tidak dipegang ekstraksi) bisa membaca folder baru sebagai sisa staging mati dan menghapusnya, membuat ekstraksi menulis ke folder yang hilang dan update gagal. Penanda kini didaftarkan sebelum folder dibuat (nama staging memang sudah unik sejak dialokasikan), sehingga tidak ada celah di mana folder staging hidup tampak yatim bagi penyapu.
+
 ## [Belum rilis] — Audit 698: label URL pasif kini menandai keadaan loopback dan transisi IP
 - Tampilan URL di layar utama, Settings, dan status bot selalu memakai IP terbaru tanpa konteks: selama jendela stabilisasi perubahan IP, alamat yang ditampilkan belum dilayani sertifikat yang benar (DOMAIN masih IP lama), dan saat jaringan mati yang tampil adalah `127.0.0.1` kepada pengguna jarak jauh — kedua permukaan menyesatkan walau jalur *salin* URL sudah jujur. Ketiga permukaan pasif kini memakai `localUrlDenganCatatan`: helper murni teruji `catatanUrl` menambahkan "(loopback - IP LAN tidak terdeteksi)" atau "(IP baru - server masih memakai IP lama sampai restart)" sesuai keadaan, dan kosong bila keadaan normal.
 
