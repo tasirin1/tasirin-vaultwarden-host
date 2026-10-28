@@ -4504,6 +4504,11 @@ public class ServerService extends Service {
 
         notifForeground = false;
 
+        healthActive = false;
+        batalStart = true;
+        nomorStop.incrementAndGet();
+        mulaiSetelahProsesMati = false;
+        startSusulanDiminta = false;
         batalUtama(healthTick);
         batalUtama(restartTunda);
         flushLogFile();
