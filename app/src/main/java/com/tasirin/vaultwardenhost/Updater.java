@@ -1804,6 +1804,7 @@ public final class Updater {
                                             Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, n);
                                 }
+                                fos.getFD().sync();
                             }
                         }
                         zis.closeEntry();
@@ -1830,6 +1831,10 @@ public final class Updater {
                 deleteRecursive(newDir);
                 throw e;
             }
+            for (String d : dirSiap) {
+                syncDirAman(new File(d));
+            }
+            syncDirAman(newDir);
             if (!wvPayloadAda(newDir)) {
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
@@ -1860,6 +1865,7 @@ public final class Updater {
                 }
                 deleteRecursive(bakDir);
                 terpasang = true;
+                syncDirAman(dataFolder);
                 lepasStagingAktif(newDir);
             }
         } finally {
@@ -2578,6 +2584,26 @@ public final class Updater {
         } catch (Exception e) {
 
             return true;
+        }
+    }
+
+    static void syncDirAman(File dir) {
+        if (dir == null) {
+            return;
+        }
+        java.io.FileDescriptor fd = null;
+        try {
+            fd = android.system.Os.open(dir.getAbsolutePath(),
+                    android.system.OsConstants.O_RDONLY, 0);
+            android.system.Os.fsync(fd);
+        } catch (Exception ignored) {
+        } finally {
+            if (fd != null) {
+                try {
+                    android.system.Os.close(fd);
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 

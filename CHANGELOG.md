@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 480: ekstrak dan tukar web-vault kini difsync agar tahan mati listrik
+- Jalur ekstrak/swap web-vault adalah satu-satunya jalur berkas penting tanpa fsync sama sekali (bandingkan `TlsCert.writeVersion` dan pemasangan binary yang berlapis sync), padahal perangkat target rawan mati listrik: berkas hasil ekstrak dan kedua rename swap bisa hilang/terpotong sesudah update dilaporkan sukses dan versi dicap.
+- Tiap berkas hasil ekstrak kini di-`sync()` sebelum ditutup, direktori staging (termasuk subdirektori yang dibuat) disync sesudah ekstrak, dan folder data disync sesudah swap selesai — memakai penolong baru `Updater.syncDirAman` dengan pola `Os.open`+`fsync` yang sama seperti di ServerService, menelan galat agar fsync tak pernah menggagalkan update di filesystem yang tak mendukungnya.
+
 ## [Belum rilis] — Audit 479: validasi hasil ekstrak web-vault kini memakai syarat payload yang sama dengan cek kesiapan
 - Gerbang sesudah ekstrak zip web-vault hanya memeriksa `index.html` `.exists()`, sedangkan cek kesiapan `wvPayloadAda` (dipakai jalur lain) menuntut berkas sungguhan berukuran > 0. Zip yang lolos dengan `index.html` 0 byte akan terpasang sebagai vault rusak, dicap versi + penanda terpasang, dan tak pernah dicoba lagi.
 - Gerbang ekstrak kini memanggil `wvPayloadAda(newDir)` yang sama, sehingga definisi "payload sah" tunggal di semua jalur; pesan galatnya menyebut kemungkinan kosong. Predikatnya sendiri sudah terkunci uji (`wvPayloadAda_wajibIndexBerisi`).
