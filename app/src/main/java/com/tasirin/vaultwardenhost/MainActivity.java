@@ -516,6 +516,7 @@ public class MainActivity extends Activity {
             return;
         }
         if (pinMenahanKonten()) {
+            maybeShowPinLock();
             return;
         }
 

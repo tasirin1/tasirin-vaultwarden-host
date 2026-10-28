@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 687: grace PIN kedaluwarsa di foreground kini benar-benar mengunci ulang
+- Sesudah dibuka, grace 30 detik berakhir walaupun activity masih di foreground — tetapi tidak ada yang menindaklanjutinya sampai `onResume` berikutnya: loop refresh berhenti total (status/log membeku seperti aplikasi macet) sementara tombol dan field tetap berfungsi penuh tanpa PIN. Itu kunci setengah-terapan: membeku di tampilan, terbuka di kontrol. Tik refresh di MainActivity dan SettingsActivity kini memanggil peluncur layar PIN yang sama dengan jalur `onResume` saat gerbang mulai menahan konten (peluncurnya berpagar `pinBukaJalan` sehingga tidak berulang): layar terkunci sungguhan, dan membatalkan di layar PIN menutup activity seperti jalur masuk yang sudah ada.
+
 ## [Belum rilis] — Audit 686: tenggat pembersihan clipboard kini memakai jam dinding, bukan elapsedRealtime
 - Penanda kedaluwarsa clipboard disimpan persisten di preferensi tetapi nilainya berasal dari `elapsedRealtime`, yang ter-reset tiap boot: menyalin nilai sensitif saat uptime sudah berhari-hari lalu perangkat reboot membuat sisa tenggat dihitung berhari-hari, dan pembersihan "30 detik" tidak berlaku pada jalur lintas-reboot itu. Penanda kini memakai jam dinding (`currentTimeMillis`) saat ditulis dan dibaca, sehingga tenggat tetap benar sesudah reboot; risiko lompatan jam dinding sebatas membersihkan lebih awal/akhir sesaat, dan pembersih tetap memverifikasi hash isi sebelum menghapus sehingga tak menyentuh clipboard milik lain. Penanda lama berbasis uptime yang masih tersimpan akan terbaca sudah lewat tenggat (jam dinding jauh lebih besar) dan dibersihkan pada pemeriksaan pertama — arah yang aman.
 

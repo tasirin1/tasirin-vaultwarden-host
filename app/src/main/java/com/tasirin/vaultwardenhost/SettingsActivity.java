@@ -1213,6 +1213,7 @@ public class SettingsActivity extends Activity {
         }
 
         if (pinMenahanKonten()) {
+            maybeShowPinLock();
             return;
         }
 
