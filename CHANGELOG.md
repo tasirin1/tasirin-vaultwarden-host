@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 668: confirm() kini memverifikasi dialog benar-benar tampil
+- Pola pengerasan Audit 603 (cek `isShowing()` sesudah `DialogAman.tampil`) sudah diterapkan di dialog impor tetapi belum di `confirm()`: bila `show()` gagal dalam balapan sempit antara cek `isFinishing()` dan tampil, dialog tak pernah muncul, `OnDismissListener` tak pernah terpanggil, dan callback batal tak pernah jalan — ketukan user hilang senyap. `confirm()` kini memperlakukan gagal-tampil sebagai batal (callback batal dijalankan), sama seperti pola yang sudah terbukti di dialog impor. Seluruh pemanggil saat ini memakai bentuk tanpa callback batal dan jalur matikan PIN memang gagal-aman, jadi ini menutup celah bagi pemanggil sekarang dan yang akan datang.
+
 ## [Belum rilis] — Audit 667: pagar pemindaian info berat Settings kini statis lintas rotasi
 - `heavyRunning` adalah satu-satunya pagar tugas Settings yang masih per-instance, menyimpang dari pola `tugasBerjalan` yang sengaja statis (Audit 591: rotasi menghancurkan activity tetapi thread tugasnya terus berjalan). Rotasi di tengah pemindaian info berat (isi DB, storage, web-vault, sertifikat — I/O berkas + parse sertifikat) melahirkan instance baru berpagar kosong yang meluncurkan pemindaian kedua bersamaan di pool yang sama: kerja I/O ganda sesaat di STB lemah tiap rotasi. Pagarnya kini statis, sejalan dengan pola yang sudah terbukti.
 

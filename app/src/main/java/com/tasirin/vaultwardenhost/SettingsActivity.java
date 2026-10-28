@@ -3774,6 +3774,9 @@ public class SettingsActivity extends Activity {
             }
         });
         DialogAman.tampil(this, dialog);
+        if (!dialog.isShowing() && batal != null) {
+            batal.run();
+        }
     }
 
     private void pasangSeksi(int idHeader, final int idBadan, final int idChevron, final String kunci) {
