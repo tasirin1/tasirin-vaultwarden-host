@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 576: asersi ganda identik di KernelCompatTest dihapus
+- Uji `legacyMemoKonsistenDenganMurni` menulis `assertEquals` yang sama persis dua kali berurutan — salinan yang tak menambah cakupan dan memberi rasa cakupan semu. Satu baris dihapus; komentar menegaskan sifat uji ini memang konsistensi memo terhadap jalur murni, sementara nilai eksplisit fungsi murninya dikunci uji-uji bernilai tetap di berkas yang sama.
+
 ## [Belum rilis] — Audit 575: duplikasi asersi humanBytes antar-uji dihapus
 - Uji `satuDesimal_formatSamaSepertiDulu` mengulang persis tiga asersi `humanBytes` (1536, 2 MB, 1 GB) dari `humanBytes_skalaBenar` — perubahan perilaku yang sah harus disunting di dua tempat dan mudah basi sebelah. Tiga asersi duplikat itu dihapus; perilaku `humanBytes` tetap dikunci satu-satunya di uji namanya, dan uji `satuDesimal` mempertahankan asersi fungsi namanya sendiri. (Keluarga lain yang disebut audit — `normalisasiEntriZip` nama-telanjang vs berprefix folder, dan pengulangan tematik `namaBolehDibagikan`/`normVersion` — terverifikasi bukan duplikat nilai: masukan atau sudut regresinya berbeda, jadi dibiarkan.)
 

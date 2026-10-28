@@ -12,7 +12,8 @@ public class KernelCompatTest {
     public void legacyMemoKonsistenDenganMurni() {
         boolean harapan = KernelCompat.isLegacyKernel(
                 System.getProperty("os.version"));
-        assertEquals(harapan, KernelCompat.legacyPerangkat());
+        // Sifat yang diuji memang konsistensi memo vs jalur murni pada mesin
+        // ini; nilai eksplisit isLegacyKernel dikunci uji-uji di bawah.
         assertEquals(harapan, KernelCompat.legacyPerangkat());
     }
 
