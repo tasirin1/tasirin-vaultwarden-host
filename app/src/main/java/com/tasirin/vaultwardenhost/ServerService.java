@@ -106,6 +106,8 @@ public class ServerService extends Service {
 
     public static final String KEY_WV_PILIH = "wv_pin_version";
 
+    // Stempel dua kunci ini adalah jam dinding (currentTimeMillis), BUKAN
+    // elapsedRealtime: jeda 6 jam harus bertahan lintas reboot (Audit 478).
     public static final String KEY_BIN_DL_GAGAL_AT = "bin_dl_gagal_at";
     public static final String KEY_WV_DL_GAGAL_AT = "wv_dl_gagal_at";
 
@@ -3302,7 +3304,7 @@ public class ServerService extends Service {
         if (butuhRefresh && isValidBinary(out)) {
 
             long gagalAt = TgBackup.amanLong(sp, KEY_BIN_DL_GAGAL_AT, 0);
-            if (!bolehCobaUnduhLagi(gagalAt, SystemClock.elapsedRealtime())) {
+            if (!bolehCobaUnduhLagi(gagalAt, System.currentTimeMillis())) {
                 try {
                     if (detectBinaryVersion(out)
                             && cacheSesuaiPin(pinBinaryTersimpan(sp), binaryVersion)) {
@@ -3351,7 +3353,7 @@ public class ServerService extends Service {
             if (butuhRefresh) {
                 try {
                     sp.edit().putLong(KEY_BIN_DL_GAGAL_AT,
-                            SystemClock.elapsedRealtime()).apply();
+                            System.currentTimeMillis()).apply();
                 } catch (Exception ignored) {
                 }
             }

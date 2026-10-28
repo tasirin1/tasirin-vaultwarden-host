@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.SystemClock;
 
 public final class AutoUpdate {
 
@@ -74,7 +73,7 @@ public final class AutoUpdate {
                     java.io.File berkasBin = new java.io.File(ctx.getFilesDir(),
                             "bin/vaultwarden-" + ServerService.ABI);
                     boolean adaCache = berkasBin.isFile() && berkasBin.length() >= 1000000;
-                    if (bolehLewatiCobaLagi(adaCache, gagalAt, SystemClock.elapsedRealtime())) {
+                    if (bolehLewatiCobaLagi(adaCache, gagalAt, System.currentTimeMillis())) {
 
                         pending.atur(latest);
                     } else {
@@ -94,7 +93,7 @@ public final class AutoUpdate {
                             aksi.catat("[app] Auto-update gagal: " + e.getMessage());
                             try {
                                 sp.edit().putLong(ServerService.KEY_BIN_DL_GAGAL_AT,
-                                        SystemClock.elapsedRealtime()).apply();
+                                        System.currentTimeMillis()).apply();
                             } catch (Exception ignored) {
                             }
                             pending.atur(latest);
@@ -127,7 +126,7 @@ public final class AutoUpdate {
                                 long gagalWvAt = TgBackup.amanLong(sp,
                                         ServerService.KEY_WV_DL_GAGAL_AT, 0);
                                 if (ServerService.bolehCobaUnduhLagi(gagalWvAt,
-                                        SystemClock.elapsedRealtime())) {
+                                        System.currentTimeMillis())) {
                                     String msg = Updater.updateWebVault(ctx);
                                     if (TgBot.webVaultBerubah(msg)) {
                                         adaTerpasang = true;
@@ -144,7 +143,7 @@ public final class AutoUpdate {
                     } catch (Exception e) {
                         try {
                             sp.edit().putLong(ServerService.KEY_WV_DL_GAGAL_AT,
-                                    SystemClock.elapsedRealtime()).apply();
+                                    System.currentTimeMillis()).apply();
                         } catch (Exception ignored) {
                         }
                         aksi.catat("[app] Auto-update web-vault gagal: " + e.getMessage());

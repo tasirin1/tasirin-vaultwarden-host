@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 478: jeda gagal unduh 6 jam kini memakai jam dinding agar bertahan lintas reboot
+- Stempel `bin_dl_gagal_at`/`wv_dl_gagal_at` menyimpan `elapsedRealtime` secara persisten — pola yang sama yang dulu diperbaiki untuk stempel PIN (Audit 79) tetapi terulang pada salinan #213. Sesudah reboot, stempel elapsed boot lama yang besar membuat `bolehCobaUnduhLagi` langsung mengizinkan unduh ulang: jeda 6 jam runtuh tepat pada skenario kegagalan unduh yang dibarengi boot-loop.
+- Keenam titik baca/tulis stempel (ServerService + AutoUpdate, binary + web-vault) kini memakai jam dinding `currentTimeMillis`; fungsi murni `bolehCobaUnduhLagi` tidak berubah semantik (ujinya tetap berlaku). Stempel elapsed warisan dari versi lama terbaca sebagai masa lampau jauh sehingga mengizinkan tepat satu percobaan lalu sembuh sendiri pada penulisan berikutnya. Komentar di definisi kunci menandai basis jamnya agar tidak terulang.
+
 ## [Belum rilis] — Audit 477: onDestroy kini menunggu proses server benar-benar mati lewat jalur stopper yang sama
 - `onDestroy` hanya memanggil `p.destroy()` sekali lalu selesai, berbeda dengan `stopServer()` yang menunggu kematian proses di thread `vw-stop` (`matikanProsesTegas` + `lepasProses` + start tertunda). Service yang dimatikan lalu segera dibuat lagi bisa menabrak proses lama yang masih memegang port dan mengotori penilaian start berikutnya.
 - `onDestroy` kini meniru pola `stopServer()` persis: sesudah `destroy()`, thread daemon `vw-stop` menjalankan `matikanProsesTegas(p, 5000)` lalu pembersihan yang sama (`lepasProses` terjaga identitas proses sehingga aman dari balapan dengan `watchProcess`, `hapusTandaStop`, `jalankanStartTertundaStop`) — tanpa memblokir thread utama.
