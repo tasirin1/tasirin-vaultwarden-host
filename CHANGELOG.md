@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 500: latestVersion kini single-flight dan stempel TTL-nya dicap sesudah fetch
+- `latestVersion` melepas kunci sebelum fetch jaringan: N thread bersamaan saat cache kedaluwarsa sama-sama menembak `api.github.com` (mengundang rate-limit 403 yang justru memperpanjang masa gagal), dan stempel cache/jeda-gagal dicap dengan waktu dari SEBELUM fetch sehingga TTL 15 menit dan jeda gagal 60 detik menyusut sebesar durasi fetch (timeout baca 10 detik ≈ 17% jeda).
+- Seluruh keputusan + fetch kini berjalan di dalam `KUNCI_VERSI` (fetch memang terbatas timeout 10 detik dan pemanggilnya latar), dan `sLatestAt`/`sLatestGagalAt` dicap dengan `elapsedRealtime` segar pada saat selesai.
+
 ## [Belum rilis] — Audit 499: zip web-vault yang sudah terbukti gagal tidak lagi dibongkar ulang dari nol
 - Patch #213 membuat tmpZip bertahan sesudah validasi payload gagal agar unduh ulang murah, tetapi hasil validasinya tidak diingat: setiap percobaan manual/Telegram berikutnya membongkar seluruh zip (orde 100+ MB tulis staging di STB) lalu gagal di titik yang sama persis.
 - Kegagalan payload kini dicatat ke berkas penanda `<zip>.gagal` berisi sidik zip (panjang + mtime); percobaan berikutnya dengan zip yang sidiknya sama langsung gagal dengan pesan yang sama tanpa ekstrak, dan penanda dihapus bila zip berubah atau pemasangan berhasil. Uji sidik penanda ditambahkan.
