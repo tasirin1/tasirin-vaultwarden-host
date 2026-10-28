@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 477: onDestroy kini menunggu proses server benar-benar mati lewat jalur stopper yang sama
+- `onDestroy` hanya memanggil `p.destroy()` sekali lalu selesai, berbeda dengan `stopServer()` yang menunggu kematian proses di thread `vw-stop` (`matikanProsesTegas` + `lepasProses` + start tertunda). Service yang dimatikan lalu segera dibuat lagi bisa menabrak proses lama yang masih memegang port dan mengotori penilaian start berikutnya.
+- `onDestroy` kini meniru pola `stopServer()` persis: sesudah `destroy()`, thread daemon `vw-stop` menjalankan `matikanProsesTegas(p, 5000)` lalu pembersihan yang sama (`lepasProses` terjaga identitas proses sehingga aman dari balapan dengan `watchProcess`, `hapusTandaStop`, `jalankanStartTertundaStop`) — tanpa memblokir thread utama.
+
 ## [Belum rilis] — Audit 476: cache sidik token admin tidak lagi menyimpan token plaintext
 - Memo `sidikTokenAdmin` menyimpan token admin utuh di field statik `sidikTokenMasuk` seumur proses app dan tidak pernah dibersihkan (token kosong pun tidak membersihkannya; reset penanda jalan tidak menyentuhnya) — padahal fungsi itu ada justru untuk tidak memegang plaintext, dan aplikasi ini secara aktif meminimalkan jejak token (redaksi log, ekspor tanpa sandi).
 - Memo kini dikunci oleh sidik cepat FNV-1a 64-bit + panjang token (`sidikCepat`), bukan tokennya: tabrakan praktis mustahil dan dampak teoretisnya terbatas pada deteksi perubahan token di UI. Plaintext tidak lagi disimpan di mana pun di jalur ini, token kosong membersihkan memo, dan `resetPenandaJalan` kini ikut membersihkannya. Uji referensi FNV-1a ditambahkan (nilai dibuktikan dengan porting Python 1:1).

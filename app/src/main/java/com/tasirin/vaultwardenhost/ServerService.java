@@ -4499,6 +4499,20 @@ public class ServerService extends Service {
                 p.destroy();
             } catch (Exception ignored) {
             }
+            Thread stopper = new Thread(() -> {
+                try {
+                    matikanProsesTegas(p, 5000);
+                } catch (Exception ignored) {
+                }
+                try {
+                    lepasProses(p, this::efekProsesBerhenti);
+                } catch (Exception ignored) {
+                }
+                hapusTandaStop(p);
+                jalankanStartTertundaStop();
+            }, "vw-stop");
+            stopper.setDaemon(true);
+            stopper.start();
         }
 
         releaseWakeLock();
