@@ -3580,7 +3580,11 @@ public class ServerService extends Service {
                     semua.append('\n');
                 }
                 semua.append(baris);
-                if (++dibaca >= 2) {
+                ++dibaca;
+                if (dibaca >= 40) {
+                    break;
+                }
+                if (dibaca >= 2 && !r.ready()) {
                     break;
                 }
             }

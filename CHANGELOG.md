@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 655: probe --version menangkap bukti panic yang datang sesudah baris kedua
+- Probe versi berhenti membaca sesudah 2 baris non-derau, sehingga jejak panic getrandom yang tercetak sesudah dua baris banner normal tidak pernah masuk `lastVersionOutput` — bukti yang menjadi dasar rescue Audit 644/653 dan jalur panic bisa lolos palsu. Probe kini terus membaca baris yang **sudah tersedia** (`BufferedReader.ready()`, tanpa menunggu) sampai maks 40 baris: ledakan output panic tertangkap utuh, sedangkan proses sehat yang langsung keluar tidak ditahan lebih lama dari sebelumnya.
+
 ## [Belum rilis] — Audit 663: restore bot memvalidasi config; klaim "lengkap" kini hanya bila pengaturan benar-benar diterapkan
 - Jalur restore Telegram/bot menerapkan `app-config.json` tanpa memeriksa penanda aplikasi — tidak seperti jalur impor config di Settings yang menolak config asing. JSON dari aplikasi lain, JSON acak berkunci `prefs`, atau objek tanpa `prefs` sama sekali tetap membuat DB direstorasi sambil balasan bot mengklaim "lengkap, termasuk pengaturan", padahal `applyPrefsFromJson` kembali diam-diam untuk argumen null dan tidak ada pengaturan yang berpindah; config yang gagal diparse pun lenyap tanpa peringatan. Kini jalur bot memeriksa penanda `app` dan keberadaan objek `prefs` sebelum menerapkan, dan setiap kegagalan (penanda salah, prefs tidak ada, config tidak terbaca) disebut terus terang di pesan hasil; label "lengkap" hanya muncul bila pengaturan benar-benar diterapkan.
 
