@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 559: jalan() gerbang kini decode UTF-8 toleran, tak lagi GAGAL palsu pada berkas teks non-UTF-8
+- `jalan()` menjalankan git dengan `text=True` tanpa encoding/errors: byte tak valid UTF-8 di output `git diff` (berkas teks Latin-1 yang lolos klasifikasi teks git) atau locale non-UTF-8 (LC_ALL=C pada hook) melempar UnicodeDecodeError yang tertelan menjadi None — seluruh cek berbasis diff batal dan gerbang GAGAL dengan pesan yang menyebut penyebab yang salah (riwayat/safe.directory/timeout).
+- Decode kini eksplisit `encoding="utf-8", errors="replace"`: byte asing diganti karakter pengganti, cek diff tetap berjalan. Terbukti fixture dua arah: berkas teks Latin-1 yang diubah — sebelum perbaikan keluar GAGAL "git diff gagal…", sesudahnya pesan itu hilang dan cek diff berjalan normal (satu-satunya GAGAL tersisa adalah penolakan format biner tak dikenal yang memang benar untuk berkas itu).
+
 ## [Belum rilis] — Audit 558: semua job workflow kini punya timeout-minutes eksplisit
 - Hanya CodeQL yang membatasi job-nya (60 menit); job lain mewarisi batas default platform 360 menit. Build binary atau panggilan `gh` yang menggantung dapat membakar jam runner berjam-jam dan — karena grup concurrency repo memakai cancel-in-progress: false — menahan run berikutnya di belakang job yang sebenarnya sudah mati.
 - timeout-minutes kini terpasang di semua job: verifikasi/resolve 15/10, build-apk 90, build-binary 120, publish-binary 30, gitleaks/stale/auto-merge 15, labeler/label-audit 5 (CodeQL tetap 60). Seluruh YAML terverifikasi parse sesudah perubahan (dan kini juga dijaga gerbang Audit 553).

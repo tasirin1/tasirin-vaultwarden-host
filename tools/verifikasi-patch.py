@@ -119,7 +119,8 @@ OVERRIDE_AMAN = {
 def jalan(*args):
     try:
         hasil = subprocess.run(
-            list(args), cwd=AKAR, capture_output=True, text=True, timeout=60)
+            list(args), cwd=AKAR, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=60)
     except Exception:
         return None
     return hasil.stdout if hasil.returncode == 0 else None
