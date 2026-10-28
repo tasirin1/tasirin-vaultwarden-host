@@ -3038,6 +3038,7 @@ public final class TgBackup {
         }
 
         hapusStagingRestore(dataFolder);
+        hapusStagingTls(dataFolder);
 
         File preBackup = null;
         if (dbFile.exists()) {

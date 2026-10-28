@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 665: staging TLS sisa restore terbunuh kini disapu di awal restore berikutnya
+- Awal kedua jalur restore hanya menyapu staging DB; staging TLS (`tls/*.restore-tmp`) hanya dibersihkan di cabang gagal atau sesudah staging baru dibuat. Restore yang terbunuh di tengah penyaluran TLS (listrik padam) meninggalkan berkas-berkas itu di folder data selamanya — restore berikutnya yang backup-nya tanpa entri TLS tidak pernah membersihkannya. Kedua jalur kini juga memanggil `hapusStagingTls` di awal, sepasang dengan sapuan staging DB yang sudah ada.
+
 ## [Belum rilis] — Audit 664: entri -wal/-shm di dalam zip backup kini diperingatkan, bukan dibuang diam-diam
 - Entri `db.sqlite3-wal`/`-shm` dari zip memang diterima ke staging, tetapi `pasangDbRestoreAtomik` hanya memasang berkas utama dan staging WAL/SHM dibuang tanpa catatan. Untuk backup buatan aplikasi sendiri itu aman (pembuatan backup me-checkpoint DB lebih dulu), tetapi zip dari sumber/versi lain bisa memuat transaksi ter-commit yang hanya ada di WAL — restore lama melapor sukses sementara transaksi itu hilang. Jalur restore bot kini mendeteksi entri tersebut dan menyebut terus terang di pesan hasil bahwa entri -wal/-shm diabaikan dan transaksi yang belum ter-checkpoint tidak ikut dipulihkan.
 

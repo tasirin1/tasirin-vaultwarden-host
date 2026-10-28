@@ -1971,6 +1971,7 @@ public class SettingsActivity extends Activity {
             }
 
             TgBackup.hapusStagingRestore(new File(dataDir));
+            TgBackup.hapusStagingTls(new File(dataDir));
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
