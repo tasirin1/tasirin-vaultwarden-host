@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 594: cek glob labeler kini mewajibkan pola sungguh mencocokkan berkas
+- `cek_labeler_glob` (Audit 585) hanya mengumpulkan pola yang mengandung wildcard dan hanya memeriksa keberadaan awalan statisnya. Dua kelas pola mati lolos tanpa sinyal (terbukti fixture saat self-review): pola literal tanpa wildcard yang menunjuk berkas tak ada, dan pola yang awalannya ada tetapi cocok ke 0 berkas (mis. `shim/*.py` padahal shim hanya berisi .c).
+- Kini pengumpul mengambil semua string pola dan tiap pola wajib mencocokkan minimal satu path lewat glob rekursif. Dibuktikan fixture dua arah di salinan buang: pohon bersih LOLOS; `BERKAS-HANTU.md`, `shim/*.py`, dan regresi lama `app/src/mian/**` sama-sama GAGAL menyebut polanya.
+
 ## [Belum rilis] — Audit 593: tulis debounce field Telegram kini satu transaksi, bukan per-field
 - `SimpleTextWatcher` dulu menulis tiap field (token bot, chat ID, password backup, SHA) sebagai `apply()` terpisah per field dengan debounce 400 ms. Kematian proses mendadak tanpa lifecycle (force-stop, OOM, daya dicabut — lazim di STB) di antara dua apply meninggalkan prefs campuran lama/baru, mis. token baru berpasangan chat ID lama, dan bot berjalan dengan kredensial tak konsisten.
 - Kini semua watcher memasukkan nilai ke satu keranjang bersama dan satu siraman menulis seluruhnya dalam SATU `edit().apply()`: konfigurasi tak pernah campuran. Jendela kehilangan ≤400 ms sesudah ketikan terakhir tetap ada pada kematian mendadak, tetapi kini konsisten utuh — semua field mundur bersama ke keadaan siraman sebelumnya, bukan sebagian. Siraman di onPause/onDestroy tak berubah.

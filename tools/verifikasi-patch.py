@@ -92,8 +92,7 @@ def cek_workflow_yaml(gagal, peringatan):
 
 def _kumpul_glob_labeler(node, kumpul):
     if isinstance(node, str):
-        if "*" in node or "?" in node or "[" in node:
-            kumpul.append(node)
+        kumpul.append(node)
     elif isinstance(node, list):
         for item in node:
             _kumpul_glob_labeler(item, kumpul)
@@ -103,24 +102,20 @@ def _kumpul_glob_labeler(node, kumpul):
 
 def cek_labeler_glob(data_labeler, gagal):
     # Pola labeler yang salah ketik menunjuk path tak ada: label diam-diam
-    # berhenti menempel pada PR tanpa sinyal apa pun (Audit 585). Periksa
-    # awalan statis tiap pola (bagian sebelum wildcard pertama) — awalan
-    # itu wajib ada sebagai berkas/folder nyata.
+    # berhenti menempel pada PR tanpa sinyal apa pun (Audit 585). Dulu
+    # hanya pola ber-wildcard yang diperiksa dan hanya awalan statisnya;
+    # pola literal tanpa wildcard dan pola yang cocok ke 0 berkas (folder
+    # ada, ekstensinya tak pernah ada) lolos tanpa sinyal (Audit 594).
+    # Kini SEMUA pola wajib sungguh mencocokkan minimal satu path.
+    import glob as globmod
     kumpul = []
     _kumpul_glob_labeler(data_labeler, kumpul)
     for pola in kumpul:
-        potong = len(pola)
-        for tanda in "*?[":
-            i = pola.find(tanda)
-            if i != -1:
-                potong = min(potong, i)
-        awalan = pola[:potong].rstrip("/")
-        if not awalan:
-            continue
-        if not os.path.exists(os.path.join(AKAR, awalan)):
-            gagal.append("labeler.yml: pola %r menunjuk %r yang tak ada — "
-                         "label tak akan pernah menempel untuk pola itu"
-                         % (pola, awalan))
+        cocok = globmod.glob(pola, root_dir=AKAR, recursive=True)
+        if not cocok:
+            gagal.append("labeler.yml: pola %r tak mencocokkan satu pun "
+                         "berkas/folder — label tak akan pernah menempel "
+                         "untuk pola itu" % pola)
 
 EKOSISTEM_DEPENDABOT = {
     "bundler", "cargo", "composer", "docker", "elm", "github-actions",
