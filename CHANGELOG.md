@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 638: PR khusus dokumen kini tetap mendapat check wajib
+- Proteksi branch mewajibkan check "Cek patch yang berubah", tetapi `build-apk.yml` mengabaikan `*.md`/`.gitignore` pada pull_request, jadi PR yang hanya mengubah dokumen tak pernah menghasilkan check itu dan merge normalnya buntu selamanya. Workflow ringan baru `cek-wajib.yml` berjalan untuk semua PR tanpa saringan path dan melaporkan check bernama sama dengan langkah yang sama persis seperti job verifikasi build-apk (gerbang patch atas rentang PR + cek-cepat).
+
 ## [Belum rilis] — Audit 636: bendera gerbang killStale kini dinilai ulang per kandidat
 - Bendera `anakHidupTakTeridentifikasi` sebelumnya dihitung sekali sebelum putaran pemindaian: bila anak yang berjalan mati di tengah sapuan, sisa kandidat putaran itu tetap diperlakukan seolah anak masih hidup. Bendera kini dinilai ulang tepat di titik gerbang untuk tiap kandidat (pemeriksaannya murah — sekadar cek keadaan proses), menutup jendela potret-sesaat itu tanpa mengubah semantik predikatnya.
 

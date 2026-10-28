@@ -1,0 +1,32 @@
+name: Cek wajib PR
+
+# Proteksi branch main mewajibkan check "Cek patch yang berubah", tetapi
+# build-apk.yml mengabaikan path dokumen/.gitignore pada pull_request —
+# PR yang hanya menyentuh berkas itu tak pernah menghasilkan check wajib
+# dan merge normalnya buntu selamanya (Audit 638). Workflow ringan ini
+# berjalan untuk SEMUA PR tanpa saringan path dan melaporkan check
+# bernama sama persis dengan langkah yang sama seperti job verifikasi
+# build-apk, agar PR dokumen tetap bisa di-merge lewat jalur normal.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verifikasi:
+    name: Cek patch yang berubah
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verifikasi patch (tanpa SDK Android)
+        run: |
+          RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          python3 tools/verifikasi-patch.py --rentang "$RENTANG"
+      - name: Cek cepat (vektor 0.x, ID land, README, secret)
+        run: bash scripts/cek-cepat.sh
