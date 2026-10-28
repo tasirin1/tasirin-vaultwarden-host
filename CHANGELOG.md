@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 486: rantai fokus dinamis beranda tidak lagi memutus jalur D-pad ke log
+- Penyesuaian fokus saat tombol update muncul/sembunyi mengarahkan `netInfo.down` dan `startStop.up` langsung ke satu sama lain (atau ke tombol update), melewati `homeLogScroll` — membatalkan rantai statis Audit 463 pada pemakaian nyata pertama dan mengembalikan log beranda tak terjangkau D-pad persis seperti sebelum #463.
+- Penyisipan tombol update kini dilakukan pada mata rantai yang benar: `homeLogScroll.down` menjadi updateBtn/startStop dan `startStop.up` menjadi updateBtn/homeLogScroll; `netInfo.down` tidak disentuh lagi. Atribut statis `updateBtn.nextFocusUp` di XML juga diluruskan dari `netInfo` ke `homeLogScroll` agar konsisten sebelum kode dinamis berjalan.
+
 ## [Belum rilis] — Audit 485: tombol Show/Hide token kini bisa menyembunyikan lagi
 - `togglePassword` menebak keadaan dari uji bit `(inputType & TYPE_TEXT_VARIATION_PASSWORD) != 0`, tetapi `TYPE_TEXT_VARIATION_VISIBLE_PASSWORD` (0x90) ikut memuat bit 0x80 — sesudah sekali ditampilkan, keadaan selalu terbaca "tersembunyi", jadi token yang sudah dibuka di layar TV tidak bisa disembunyikan lagi dan label tombolnya pun berbohong.
 - Keadaan kini ditentukan dari perbandingan persis masker variasi lewat penolong murni `SettingsActivity.variasiSandiTersembunyi` (0x80 dan 0xE0 = tersembunyi, 0x90 = tampil). Uji nilai mentah inputType ditambahkan untuk ketiga variasi.

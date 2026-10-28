@@ -216,7 +216,7 @@
         <Button
             android:id="@+id/updateBtn"
             android:nextFocusDown="@id/startStop"
-            android:nextFocusUp="@id/netInfo"
+            android:nextFocusUp="@id/homeLogScroll"
             style="@style/TasirinBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

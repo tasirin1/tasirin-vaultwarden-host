@@ -643,8 +643,8 @@ public class MainActivity extends Activity {
 
         if (updAvail != lastUpdBtnVisible) {
             lastUpdBtnVisible = updAvail;
-            netInfoView.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
-            startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.netInfo);
+            homeLogScroll.setNextFocusDownId(updAvail ? R.id.updateBtn : R.id.startStop);
+            startStopBtn.setNextFocusUpId(updAvail ? R.id.updateBtn : R.id.homeLogScroll);
         }
 
         String net;
