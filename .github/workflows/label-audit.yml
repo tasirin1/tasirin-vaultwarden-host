@@ -1,0 +1,31 @@
+name: Label audit otomatis
+
+# Issue temuan audit membawa penanda "Ronde audit" di badannya (format baku
+# laporan audit). stale.yml mengecualikan label `audit`; workflow ini yang
+# memastikan label itu terpasang otomatis, bukan bergantung pada ingatan
+# pembuat issue (temuan Audit 557 / sisa kerapuhan #245).
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    name: Pasang label audit dari penanda badan issue
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Pasang label audit bila badan memuat penanda ronde audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BADAN: ${{ github.event.issue.body }}
+          NOMOR: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if printf '%s' "$BADAN" | grep -q "Ronde audit"; then
+            gh issue edit "$NOMOR" --repo "$REPO" --add-label audit
+          else
+            echo "Tak ada penanda ronde audit; label tak diubah."
+          fi

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 557: label audit untuk pengecualian stale kini terpasang otomatis
+- Pengecualian stale bagi antrean audit (#245) bekerja hanya karena label `audit` dipasang manual sekali itu; tak ada workflow/template yang memasangnya. Issue audit putaran berikutnya yang lupa dilabeli akan ditandai stale di hari ke-45 dan ditutup otomatis di hari ke-59 — antrean kerja hilang tanpa keputusan.
+- Workflow baru `label-audit.yml` berjalan pada issue dibuka/diedit: badan yang memuat penanda baku "Ronde audit" otomatis mendapat label `audit` (badan diteruskan lewat env, bukan interpolasi run, agar aman dari injeksi). Issue non-audit tak disentuh.
+
 ## [Belum rilis] — Audit 556: penjaga jejak uji kini sadar kelas, bukan sekadar nama metode
 - `disebut_di_uji` hanya mencocokkan nama metode + `(` di berkas uji mana pun: metode murni baru bernama umum yang kebetulan sama dengan panggilan milik kelas lain di uji (mis. `cocokChat(` di UtilTest) lolos tanpa peringatan sama sekali, padahal klaim AGENTS.md "uji logika murni baru" dijaga alat ini.
 - Untuk metode baru, jejak kini wajib berupa panggilan terkualifikasi `Kelas.metode(` di uji mana pun, atau penyebutan nama di berkas uji kelas itu sendiri (`<Kelas>Test.java`). Terbukti fixture: metode baru `TgBot.cocokChat` (nama bertabrakan dengan uji Util) kini memicu peringatan; metode #310 yang memang diuji terkualifikasi tetap bersih. Cek metode-yang-diubah tetap berbasis nama (header hunk tak membawa nama kelas).
