@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 598: jadwal bot menyiram tulis tertunda sebelum membaca prefs
+- Efek samping Audit 593: siraman debounce bersama digeser oleh ketikan di field mana pun, sementara jadwal bot berjalan tetap 1000 ms sesudah ketikan token/chat dan membaca kredensial dari prefs untuk memutuskan pasang/batal alarm. Bila user lanjut mengetik password backup/SHA dalam jendela itu, siraman terdorong melewati jadwal — `TgBot.schedule()` menilai prefs lama (kosong untuk kredensial pertama kali) dan membatalkan alarm; tak ada yang memasangnya lagi, bot berhenti polling diam-diam.
+- Kini runnable jadwal bot menyiram tulis tertunda lebih dulu sebelum memanggil `TgBot.schedule()`, jadi keputusan jadwal selalu membaca kredensial terbaru apa pun urutan ketikannya.
+
 ## [Belum rilis] — Audit 597: dialog password impor tak lagi tampil ganda pada jeda/resume biasa
 - Blok tampil-lagi di onResume (Audit 592) berjalan pada setiap resume selama penanda tertunda terpasang — termasuk jeda biasa tanpa rotasi (tombol Home, kembali dari layar PIN) saat dialog pertama masih terbuka. Hasilnya dua dialog tertumpuk atas berkas temp yang sama; dialog bawah yang kemudian diisi password benar gagal berkas-hilang dan menaikkan penghitung gagal impor.
 - Kini `tanyaPasswordImpor` menolak menampilkan dialog kedua selama satu dialog impor masih tampil (penjaga `dialogImporTampil`, dipasang tepat sebelum tampil dan dilepas pada dismiss); jalur gagal-bangun dialog juga membersihkan penanda tertunda agar tak ada tampil-lagi hantu.

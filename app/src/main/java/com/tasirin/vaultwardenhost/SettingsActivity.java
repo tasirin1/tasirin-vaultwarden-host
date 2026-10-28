@@ -4026,6 +4026,11 @@ public class SettingsActivity extends Activity {
 
     private final Runnable scheduleBotRunnable = () -> {
         jadwalBotTertunda = false;
+        // Siram tulis tertunda DULU: schedule() membaca token/chat dari
+        // prefs, dan siraman bersama bisa terdorong melewati jadwal ini
+        // oleh ketikan di field lain — prefs basi membuat alarm bot
+        // pertama kali batal diam-diam (Audit 598).
+        siramNilaiTunda();
         TgBot.schedule(SettingsActivity.this);
     };
 
