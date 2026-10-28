@@ -1051,6 +1051,14 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("tg_pending_aksi_-100123"));
         assertFalse(TgBackup.kunciDiekspor("wv_notified_1.2.3"));
         assertFalse(TgBackup.kunciDiekspor("tg_token"));
+        assertFalse(TgBackup.kunciDiekspor("tg_last_file"));
+        assertFalse(TgBackup.kunciDiekspor("tg_bot_id"));
+        assertFalse(TgBackup.kunciDiekspor("tg_bot_user"));
+        assertFalse(TgBackup.kunciDiekspor("tg_menu_hash"));
+        assertFalse(TgBackup.kunciDiekspor("alarm_throttle_elapsed"));
+        assertFalse(TgBackup.kunciDiekspor("alarm_throttle_waktu_elapsed"));
+        assertFalse(TgBackup.kunciDiekspor("boot_throttle_elapsed"));
+        assertFalse(TgBackup.kunciDiekspor("boot_throttle_wall"));
         assertFalse(TgBackup.kunciDiekspor(null));
         assertTrue(TgBackup.kunciDiekspor("auto_start"));
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains("admin_token"));

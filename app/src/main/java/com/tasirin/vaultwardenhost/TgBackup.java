@@ -1801,7 +1801,13 @@ public final class TgBackup {
                     ServerService.KEY_BIN_MANUAL_FP,
                     AutoUpdate.KEY_TAWARAN_UPDATE,
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,
-                    LogActivity.KEY_CLIP_KEDALUWARSA));
+                    LogActivity.KEY_CLIP_KEDALUWARSA,
+                    KEY_TG_LAST_FILE, TgBot.KEY_TG_BOT_ID, TgBot.KEY_TG_BOT_USER,
+                    TgBot.KEY_TG_MENU_HASH,
+                    AlarmReceiver.KEY_THROTTLE_ALARM_ELAPSED,
+                    AlarmReceiver.KEY_THROTTLE_WAKTU_ELAPSED,
+                    BootReceiver.KEY_THROTTLE_BOOT_ELAPSED,
+                    BootReceiver.KEY_THROTTLE_BOOT_WALL));
 
     static boolean kunciDiekspor(String kunci) {
         return kunci != null

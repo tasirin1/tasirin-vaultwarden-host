@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 509: kunci keadaan lokal Telegram/throttle tidak lagi ikut ekspor config
+- Ekspor config (`configJson`) masih meloloskan kunci keadaan khas-perangkat: `tg_last_file` (ID berkas backup terakhir — pola yang di LogActivity sendiri digolongkan rahasia), identitas bot ter-cache (`tg_bot_id`, `tg_bot_user`), hash menu (`tg_menu_hash`), dan stempel throttle (`alarm_throttle_elapsed`, `alarm_throttle_waktu_elapsed`, `boot_throttle_elapsed`, `boot_throttle_wall`). Terimpor ke perangkat lain, nilainya basi/asing dan bisa mengacaukan throttle serta penanda backup perangkat tujuan.
+- Kedelapan kunci masuk `TAK_DIEKSPOR_KEYS`; uji `secretTakIkutBackup` diperluas untuk semuanya.
+
 ## [Belum rilis] — Audit 508: contoh galat update Telegram di log kini diredaksi
 - Ringkasan "update dilewati" di `pollOnce` menulis contoh eksepsi mentah ke log; jalur galat lain (callback, status, unduh) sudah melewati `TgBackup.redaksiDetailGalat` yang menyamarkan token/URL/kredensial. Log bisa dibagikan lewat fitur ekspor, jadi pengecualian yang membawa URL bertoken pada jalur ini bisa ikut tersebar.
 - Contoh galat kini diredaksi dengan helper yang sama sebelum dipotong 120 karakter dan ditulis ke log.
