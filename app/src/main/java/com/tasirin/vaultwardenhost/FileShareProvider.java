@@ -106,6 +106,9 @@ public class FileShareProvider extends ContentProvider {
     private static final String[] EKSTENSI_BUNGKUS =
             {".zip", ".enc", ".gz", ".tgz", ".tar", ".bak", ".txt"};
 
+    private static final String[] EKSTENSI_LUAR_LAIN =
+            {".json", ".pem", ".crt", ".cer", ".der"};
+
     static boolean mulaiAbaikanHuruf(String s, String awal) {
         return s != null && awal != null && s.length() >= awal.length()
                 && s.regionMatches(true, 0, awal, 0, awal.length());
@@ -371,10 +374,15 @@ public class FileShareProvider extends ContentProvider {
         boolean kupas = true;
         while (kupas) {
             kupas = false;
-            for (String ext : EKSTENSI_BUNGKUS) {
-                if (berakhirAbaikanHuruf(inti, ext) && inti.length() > ext.length()) {
-                    inti = inti.substring(0, inti.length() - ext.length());
-                    kupas = true;
+            for (String[] daftar : new String[][]{EKSTENSI_BUNGKUS, EKSTENSI_LUAR_LAIN}) {
+                for (String ext : daftar) {
+                    if (berakhirAbaikanHuruf(inti, ext) && inti.length() > ext.length()) {
+                        inti = inti.substring(0, inti.length() - ext.length());
+                        kupas = true;
+                        break;
+                    }
+                }
+                if (kupas) {
                     break;
                 }
             }

@@ -69,8 +69,14 @@ public class FileShareProviderTest {
         assertFalse(FileShareProvider.namaBolehDibagikan("key.pem.zip"));
         assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.enc"));
         assertFalse(FileShareProvider.namaBolehDibagikan("server.key.zip"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.json"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("key.json"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.pem.json"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("ca-key.crt"));
+        assertFalse(FileShareProvider.namaBolehDibagikan("server.key.json"));
         assertTrue(FileShareProvider.namaBolehDibagikan("ca.pem"));
         assertTrue(FileShareProvider.namaBolehDibagikan("cert.pem"));
+        assertTrue(FileShareProvider.namaBolehDibagikan("cert.json"));
         assertTrue(FileShareProvider.namaBolehDibagikan("backup.zip"));
         assertTrue(FileShareProvider.namaBolehDibagikan("app-config.json"));
         assertTrue(FileShareProvider.namaBolehDibagikan("monkey.zip"));

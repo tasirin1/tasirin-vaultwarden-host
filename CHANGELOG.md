@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 631: classifier kunci privat juga mengupas ekstensi luar .json/.pem/.crt/.cer/.der
+- `kunciPrivat` di FileShareProvider hanya mengupas daftar pembungkus tetap (.zip/.enc/dll.) sebelum menguji inti nama, jadi nama kunci berakhiran ganda di luar daftar itu — `ca-key.json`, `key.json`, `ca-key.crt`, `server.key.json` — lolos sebagai boleh-dibagikan (laten: belum ada penulis nama seperti itu). Lingkar kupas kini juga melepas ekstensi luar .json/.pem/.crt/.cer/.der berulang kali sebelum inti diuji; sertifikat murni (`ca.pem`, `cert.pem`, `cert.json`) terverifikasi tetap boleh dibagikan lewat uji yang diperluas di commit yang sama.
+
 ## [Belum rilis] — Audit 630: mutex shim dipisah per sumber agar baca /dev/random tak mengunci urandom
 - `isi_dari` di shim getrandom memakai satu mutex yang sama untuk kedua sumber dan menahannya selama seluruh baca: satu panggilan `GRND_RANDOM` yang memblokir di `/dev/random` (STB miskin entropi) menahan semua panggilan urandom biasa (token sesi, kunci TLS) di belakangnya, padahal syscall asli membiarkan keduanya independen. Kini tiap sumber punya mutex sendiri (`kunci_urandom`/`kunci_random`) yang dipilih per panggilan; perilaku satu sumber tak berubah. Perubahan shim ini memicu workflow build-binary sesuai desain repo.
 
