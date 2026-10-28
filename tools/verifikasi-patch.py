@@ -44,6 +44,22 @@ def cek_daftar_hapusan(gagal):
                 gagal.append("Nama %s di tools/bekas-hapusan.txt masih "
                              "terdefinisi di pohon — keluarkan dari daftar "
                              "atau ganti nama metodenya" % nama)
+        isi_java = []
+        for akar, _dirs, berkas2 in os.walk(
+                os.path.join(AKAR, "app", "src")):
+            for b in berkas2:
+                if b.endswith(".java"):
+                    p = os.path.relpath(os.path.join(akar, b), AKAR)
+                    isi_java.append((p, kupas_java(baca(p))))
+        for nama in sorted(BEKAS_HAPUSAN):
+            pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
+                              % (re.escape(nama), re.escape(nama)))
+            for p, isi in isi_java:
+                if pola.search(isi):
+                    gagal.append("Pohon masih memanggil %s() yang sudah "
+                                 "dihapus (di %s) — regresi hapusan di luar "
+                                 "rentang diff" % (nama, p))
+                    break
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"

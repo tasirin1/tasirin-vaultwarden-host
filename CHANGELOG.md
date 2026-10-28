@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 552: penjaga bekas-hapusan kini memindai pemanggil di seluruh pohon, bukan hanya diff
+- `cek_panggil_bekas_hapusan` hanya memeriksa baris tambah pada rentang diff yang sedang diperiksa, padahal `tools/bekas-hapusan.txt` sendiri menjanjikan daftar itu "menjaga push-push berikut": pemanggil metode terhapus yang masuk lewat merge/cherry-pick, atau yang lolos di satu push tak terkait, tak akan pernah ditandai lagi dan baru ketahuan dari kompilasi CI merah (untuk kode uji: hanya jalur PR).
+- `cek_daftar_hapusan` — yang sudah memindai seluruh pohon untuk definisi — kini juga memindai pemanggil (`nama(` / `::nama`) di semua berkas Java pohon atas teks terkupas komentar/string-nya, dan menggagalkan gerbang dengan nama berkasnya. Terbukti fixture dua arah di salinan buang: pemanggil `batalTunda()` yang di-commit dua langkah sebelum pemeriksaan tetap tertangkap GAGAL walau diff terakhir tak terkait; pohon asli tetap LOLOS tanpa positif palsu.
+
 ## [Belum rilis] — Audit 551: kolom SHA-256 binary kini punya validasi inline seperti kolom lain
 - Kolom `binSha` hanya punya penyimpan per-ketukan tanpa pemeriksaan dan tanpa baris galat pendamping — salah tempel (spasi di tengah, karakter non-hex, terpotong) tersimpan diam-diam dan baru terasa saat Start menolak binary manual dengan pesan umum "SHA-256 tidak cocok", menyalahkan berkasnya padahal kolomnya yang rusak. Jalur impor config sudah lama memvalidasi format ini (`TgBackup.shaHexValid`).
 - Kolom kini diperiksa `galatBinSha` (kosong sah; terisi wajib tepat 64 hex menurut `shaHexValid` yang sama) sebagai bagian `validasiInline`, dengan baris galat `binShaError` baru di kartu Telegram dan string `bin_sha_error` (Inggris + Indonesia). Mengikuti pola token/chat: galat ditampilkan tanpa memblokir tombol Start. Uji JVM baru mengunci keenam kasus (null/kosong/hex-64 sah/pendek/spasi-di-tengah/non-hex).
