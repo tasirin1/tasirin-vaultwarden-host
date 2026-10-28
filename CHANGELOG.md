@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 511: kontras hint siang saat input fokus dinaikkan ke 4,56:1
+- `text_hint` siang `#68707C` tampil 4,41:1 (hitung WCAG) saat input berfokus karena latarnya berganti ke `info_bg` `#EDF1F5` lewat `bg_input_tv` — tepat pada momen pengguna membaca petunjuk isian di TV/HP terang.
+- Warna digelapkan sedikit ke `#646E7A` = 4,56:1 di atas latar fokus dan 5,18:1 di atas kartu putih (dari 5,0:1); konteks terang lain ikut membaik, mode malam memakai nilainya sendiri dan tidak berubah.
+
 ## [Belum rilis] — Audit 510: kontras teks galat log mode malam dinaikkan ke 4,77:1
 - `log_error` mode malam `#F0554D` di atas `info_bg` `#1E2A44` hanya 4,16:1 (hitung WCAG) untuk teks log 11sp — di bawah ambang 4,5:1 teks kecil, dan merah galat adalah teks paling penting dibaca sekilas di log malam.
 - Warna diterangkan sekeluarga ke `#F26A62` = 4,77:1 (terverifikasi hitung WCAG sebelum/sesudah). `status_off` yang berbagi nilai lama tidak diubah — konteks pakainya berbeda dan di luar temuan ini.
