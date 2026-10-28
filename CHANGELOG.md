@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 626: syarat pemicu auto-merge kini memeriksa penulis PR, bukan aktor event
+- Job auto-merge digerbang `github.actor == 'dependabot[bot]'`, padahal pada event `labeled`/`ready_for_review` aktornya adalah pihak yang memberi label/menandai siap — jadi label dari maintainer tak pernah menjalankan job dan jalur pemulihan berbasis label mati diam-diam. Syaratnya kini memeriksa penulis PR (`github.event.pull_request.user.login`), yang memang yang dimaksud untuk semua jenis event pemicu.
+
 ## [Belum rilis] — Audit 625: penanda label audit kini berjangkar format baku dan label bisa dicabut
 - `label-audit.yml` sebelumnya memasang label `audit` (yang kebal stale tanpa batas waktu) hanya dari substring bebas "Ronde audit" di mana pun di badan issue — satu kutipan kalimat bisa memberi kekebalan selamanya, dan label tak pernah dicabut. Kini penandanya berjangkar pada format baku laporan audit (baris diawali `**Ronde audit:** putaran-N`), dan pada suntingan yang menghilangkan penanda, label dicabut otomatis.
 
