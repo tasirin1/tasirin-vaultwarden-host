@@ -1097,6 +1097,9 @@ public class SettingsActivity extends Activity {
 
         final int portCekPort = portNum;
         final String dirCekPort = dataDirEfektif;
+        if (startTertundaPort) {
+            return;
+        }
         startTertundaPort = true;
         boolean masukCek = Util.jalankanBg(() -> {
             ServerService.bereskanServerYatim();

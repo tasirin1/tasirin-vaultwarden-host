@@ -402,6 +402,9 @@ public class MainActivity extends Activity {
 
         final int portFix = Integer.parseInt(ServerService.effectivePort(sp));
 
+        if (startTertundaPort) {
+            return;
+        }
         startTertundaPort = true;
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {

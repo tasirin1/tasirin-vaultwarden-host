@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 666: cek port saveAndStart kini berpagar masuk di kedua activity
+- `startTertundaPort` selama ini hanya *ditulis*, tidak pernah *dibaca* sebagai pagar: ketuk-ganda Start (remote D-pad Enter beruntun di STB) menjalankan dua tugas `bereskanServerYatim()` + `isPortBusy()` bersamaan, dan kedua penyelesaian bisa sama-sama memanggil `lanjutStart` — dialog bertumpuk dan `ServerService.start` terpanggil dua kali (di Settings tombol Start bahkan tidak ikut dinonaktifkan `setBusy`). Kini `saveAndStart` di MainActivity dan SettingsActivity menolak masuk bila cek port instance itu masih berjalan. Jalur rotasi tidak dirugikan: instance baru mewarisi keadaan tertunda lewat `startTertundaDariPutaran` (bukan flag-nya sendiri), dan penyelesaian instance lama tetap berhenti di cek `isDestroyed()` sebelum dialog/start apa pun.
+
 ## [Belum rilis] — Audit 665: staging TLS sisa restore terbunuh kini disapu di awal restore berikutnya
 - Awal kedua jalur restore hanya menyapu staging DB; staging TLS (`tls/*.restore-tmp`) hanya dibersihkan di cabang gagal atau sesudah staging baru dibuat. Restore yang terbunuh di tengah penyaluran TLS (listrik padam) meninggalkan berkas-berkas itu di folder data selamanya — restore berikutnya yang backup-nya tanpa entri TLS tidak pernah membersihkannya. Kedua jalur kini juga memanggil `hapusStagingTls` di awal, sepasang dengan sapuan staging DB yang sudah ada.
 
