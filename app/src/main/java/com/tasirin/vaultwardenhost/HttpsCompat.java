@@ -90,6 +90,22 @@ public final class HttpsCompat {
         return hasil.toArray(new String[0]);
     }
 
+    static String[] cipherCadangan(String[] dipilih, String[] didukung) {
+        if (dipilih == null || didukung == null) {
+            return new String[0];
+        }
+        java.util.List<String> hasil = new java.util.ArrayList<>();
+        for (String p : dipilih) {
+            for (String d : didukung) {
+                if (p.equals(d)) {
+                    hasil.add(p);
+                    break;
+                }
+            }
+        }
+        return hasil.toArray(new String[0]);
+    }
+
     static boolean cipherKuat(String c) {
         if (c == null) {
             return false;
@@ -328,17 +344,23 @@ public final class HttpsCompat {
                     }
                 }
 
+                String[] dukungCipher;
+                try {
+                    dukungCipher = ssl.getSupportedCipherSuites();
+                } catch (Exception ignored) {
+                    dukungCipher = null;
+                }
                 String[] kuat = cipherCache;
                 if (kuat == null) {
-                    String[] dukung;
-                    try {
-                        dukung = ssl.getSupportedCipherSuites();
-                    } catch (Exception ignored) {
-                        dukung = null;
-                    }
-                    kuat = saringCipher(dukung);
-                    if (dukung != null) {
+                    kuat = saringCipher(dukungCipher);
+                    if (dukungCipher != null) {
                         cipherCache = kuat;
+                    }
+                } else if (dukungCipher != null) {
+                    String[] irisan = cipherCadangan(kuat, dukungCipher);
+                    if (irisan.length < kuat.length) {
+                        kuat = irisan.length > 0
+                                ? irisan : saringCipher(dukungCipher);
                     }
                 }
                 try {
@@ -347,9 +369,21 @@ public final class HttpsCompat {
                     }
 
                 } catch (Exception e) {
-                    try {
-                        android.util.Log.w("HttpsCompat", "Gagal filter cipher: " + e);
-                    } catch (Exception ignored) {
+                    String[] cadangan = dukungCipher != null
+                            ? cipherCadangan(kuat, dukungCipher) : new String[0];
+                    boolean ok = false;
+                    if (cadangan.length > 0 && cadangan.length < kuat.length) {
+                        try {
+                            ssl.setEnabledCipherSuites(cadangan);
+                            ok = true;
+                        } catch (Exception ignored) {
+                        }
+                    }
+                    if (!ok) {
+                        try {
+                            android.util.Log.w("HttpsCompat", "Gagal filter cipher: " + e);
+                        } catch (Exception ignored) {
+                        }
                     }
 
                 }

@@ -52,6 +52,17 @@ public class HttpsCompatTest {
     }
 
     @Test
+    public void cipherCadangan_irisanMengikutiUrutanPilihan() {
+        assertArrayEquals(new String[]{"A", "C"},
+                HttpsCompat.cipherCadangan(new String[]{"A", "B", "C"},
+                        new String[]{"C", "A"}));
+        assertEquals(0, HttpsCompat.cipherCadangan(
+                new String[]{"A", "B"}, new String[]{"X", "Y"}).length);
+        assertEquals(0, HttpsCompat.cipherCadangan(null, new String[]{"A"}).length);
+        assertEquals(0, HttpsCompat.cipherCadangan(new String[]{"A"}, null).length);
+    }
+
+    @Test
     public void saringCipher_buangLemahPertahankanUrutan() {
         String[] masuk = {
                 "TLS_RSA_WITH_RC4_128_SHA",
