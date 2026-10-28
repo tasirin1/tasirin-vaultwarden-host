@@ -78,9 +78,17 @@ def cek_workflow_yaml(gagal, peringatan):
             continue
         try:
             with open(os.path.join(folder, nama), encoding="utf-8") as f:
-                yaml.safe_load(f)
+                data = yaml.safe_load(f)
         except Exception as e:
             gagal.append("YAML workflow %s tak bisa di-parse: %s" % (nama, e))
+            continue
+        if not isinstance(data, dict):
+            gagal.append("YAML workflow %s kosong/bukan peta di level atas "
+                         "— workflow tak akan jalan" % nama)
+            continue
+        if not (("on" in data) or (True in data)) or "jobs" not in data:
+            gagal.append("YAML workflow %s tanpa kunci on/jobs — workflow "
+                         "tak akan jalan" % nama)
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"

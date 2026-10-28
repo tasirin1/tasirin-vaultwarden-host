@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 560: validasi YAML workflow kini memeriksa struktur on/jobs, bukan hanya sintaks
+- `cek_workflow_yaml` (dari #309) hanya menangkap galat parse: berkas workflow yang terpotong kosong atau kehilangan kunci `on:`/`jobs:` tetap LOLOS, lalu GitHub menonaktifkannya diam-diam sesudah merge — automasi mati tanpa ada yang tahu, persis kelas kegagalan yang hendak dicegah #309.
+- Hasil parse kini wajib berupa peta level-atas yang memuat kunci `on` (atau kunci boolean True khas YAML 1.1 untuk `on:`) dan `jobs`; selain itu GAGAL dengan nama berkasnya. Terbukti fixture dua arah: `stale.yml` dikosongkan → GAGAL menyebut berkasnya; kedelapan workflow asli → LOLOS.
+
 ## [Belum rilis] — Audit 559: jalan() gerbang kini decode UTF-8 toleran, tak lagi GAGAL palsu pada berkas teks non-UTF-8
 - `jalan()` menjalankan git dengan `text=True` tanpa encoding/errors: byte tak valid UTF-8 di output `git diff` (berkas teks Latin-1 yang lolos klasifikasi teks git) atau locale non-UTF-8 (LC_ALL=C pada hook) melempar UnicodeDecodeError yang tertelan menjadi None — seluruh cek berbasis diff batal dan gerbang GAGAL dengan pesan yang menyebut penyebab yang salah (riwayat/safe.directory/timeout).
 - Decode kini eksplisit `encoding="utf-8", errors="replace"`: byte asing diganti karakter pengganti, cek diff tetap berjalan. Terbukti fixture dua arah: berkas teks Latin-1 yang diubah — sebelum perbaikan keluar GAGAL "git diff gagal…", sesudahnya pesan itu hilang dan cek diff berjalan normal (satu-satunya GAGAL tersisa adalah penolakan format biner tak dikenal yang memang benar untuk berkas itu).
