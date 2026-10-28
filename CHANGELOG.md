@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 639: major Gradle Wrapper kini diabaikan Dependabot sesuai keputusan repo
+- Keputusan tercatat (PR wrapper 9.8.2 ditutup karena Gradle 9 tak berpasangan dengan AGP 8.x) belum terkodifikasi, jadi Dependabot akan terus membuka PR major wrapper yang harus ditriage manual dan berisiko ter-merge tak sengaja. `dependabot.yml` kini mengabaikan update major `gradle-wrapper`, sejajar dengan perlakuan major AGP.
+
 ## [Belum rilis] — Audit 638: PR khusus dokumen kini tetap mendapat check wajib
 - Proteksi branch mewajibkan check "Cek patch yang berubah", tetapi `build-apk.yml` mengabaikan `*.md`/`.gitignore` pada pull_request, jadi PR yang hanya mengubah dokumen tak pernah menghasilkan check itu dan merge normalnya buntu selamanya. Workflow ringan baru `cek-wajib.yml` berjalan untuk semua PR tanpa saringan path dan melaporkan check bernama sama dengan langkah yang sama persis seperti job verifikasi build-apk (gerbang patch atas rentang PR + cek-cepat).
 
