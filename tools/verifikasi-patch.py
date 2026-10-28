@@ -61,6 +61,27 @@ def cek_daftar_hapusan(gagal):
                                  "rentang diff" % (nama, p))
                     break
 
+def cek_workflow_yaml(gagal, peringatan):
+    folder = os.path.join(AKAR, ".github", "workflows")
+    if not os.path.isdir(folder):
+        gagal.append("Folder .github/workflows hilang — automasi repo "
+                     "tak bisa dicek")
+        return
+    try:
+        import yaml
+    except Exception:
+        peringatan.append("PyYAML tak tersedia — validasi YAML workflow "
+                          "dilewati di lingkungan ini")
+        return
+    for nama in sorted(os.listdir(folder)):
+        if not nama.endswith((".yml", ".yaml")):
+            continue
+        try:
+            with open(os.path.join(folder, nama), encoding="utf-8") as f:
+                yaml.safe_load(f)
+        except Exception as e:
+            gagal.append("YAML workflow %s tak bisa di-parse: %s" % (nama, e))
+
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -1248,6 +1269,7 @@ def utama():
     cek_acuan_agents(gagal)
     cek_paritas_resource(gagal)
     cek_daftar_hapusan(gagal)
+    cek_workflow_yaml(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
     hapus = berkas_dihapus(rentang_cek, diff)

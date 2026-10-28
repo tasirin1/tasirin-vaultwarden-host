@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 553: YAML semua workflow kini divalidasi gerbang wajib di setiap PR
+- Workflow automasi (auto-merge/stale/labeler) berjalan lewat `pull_request_target`/jadwal, sehingga PR yang mengubah workflow itu sendiri tak pernah menjalankannya — dan tak ada validasi YAML workflow di gerbang mana pun: YAML rusak atau perubahan pemicu yang keliru baru ketahuan sesudah merge, dari automasi yang diam-diam mati. (Semantik `pull_request_target` memakai versi dasar memang disengaja demi keamanan dan tidak diubah.)
+- `verifikasi-patch.py` — konteks wajib proteksi branch yang berjalan di setiap PR — kini mem-parse YAML seluruh berkas `.github/workflows/*.yml|yaml` (`cek_workflow_yaml`): parse gagal = GAGAL dengan nama berkas dan pesan parsernya; PyYAML yang absen di suatu lingkungan hanya menurunkan cek ini jadi peringatan agar gerbang tak merah palsu. Terbukti fixture dua arah: `stale.yml` dirusak sintaksnya → GAGAL menyebut berkasnya; pohon asli → LOLOS.
+
 ## [Belum rilis] — Audit 552: penjaga bekas-hapusan kini memindai pemanggil di seluruh pohon, bukan hanya diff
 - `cek_panggil_bekas_hapusan` hanya memeriksa baris tambah pada rentang diff yang sedang diperiksa, padahal `tools/bekas-hapusan.txt` sendiri menjanjikan daftar itu "menjaga push-push berikut": pemanggil metode terhapus yang masuk lewat merge/cherry-pick, atau yang lolos di satu push tak terkait, tak akan pernah ditandai lagi dan baru ketahuan dari kompilasi CI merah (untuk kode uji: hanya jalur PR).
 - `cek_daftar_hapusan` — yang sudah memindai seluruh pohon untuk definisi — kini juga memindai pemanggil (`nama(` / `::nama`) di semua berkas Java pohon atas teks terkupas komentar/string-nya, dan menggagalkan gerbang dengan nama berkasnya. Terbukti fixture dua arah di salinan buang: pemanggil `batalTunda()` yang di-commit dua langkah sebelum pemeriksaan tetap tertangkap GAGAL walau diff terakhir tak terkait; pohon asli tetap LOLOS tanpa positif palsu.
