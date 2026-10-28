@@ -1102,6 +1102,7 @@ public class SettingsActivity extends Activity {
         }
         startTertundaPort = true;
         boolean masukCek = Util.jalankanBg(() -> {
+          try {
             ServerService.bereskanServerYatim();
             final boolean portSibuk =
                     portCekPort > 0 && ServerService.isPortBusy(portCekPort);
@@ -1166,6 +1167,15 @@ public class SettingsActivity extends Activity {
                     maybeAutoBackup();
                 }
             });
+          } catch (Exception eCek) {
+            ui.post(() -> {
+                startTertundaPort = false;
+                if (!isFinishing() && !isDestroyed()) {
+                    appendUiLog("[app] Cek port gagal: " + eCek
+                            + " - Start dibatalkan, coba lagi.");
+                }
+            });
+          }
         });
         if (!masukCek) {
             startTertundaPort = false;

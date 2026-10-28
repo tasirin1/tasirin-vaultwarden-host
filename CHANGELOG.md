@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 680: pagar cek port kini dilepas juga bila tugas latarnya melempar
+- Pagar `startTertundaPort` (Audit 666) hanya dilepas di penyelesaian `ui.post` dan di cabang penolakan antrean. Badan tugas latarnya (`bereskanServerYatim` + `isPortBusy` + `portButuhRoot`) tidak berpagar pengecualian: satu lemparan di sana membuat penyelesaian tak pernah berjalan, pagar terkunci permanen (di MainActivity `uiBusy` statis ikut terkunci), dan ketukan Start berikutnya mati diam-diam tanpa umpan balik sampai activity dibuat ulang. Kedua activity kini membungkus badan tugas itu dengan penangkap yang memasang penyelesaian pelepas-pagar + catatan log "cek port gagal, Start dibatalkan" — kegagalan diperlakukan sebagai batal yang jujur, bukan kunci yang tertinggal.
+
 ## [Belum rilis] — Audit 679: penanda restore dibersihkan pada jalur gagal-bersih
 - Penanda persisten Audit 661 hanya dibersihkan di baris sukses, sehingga kegagalan yang *bersih* — staging DB korup sehingga penukaran tidak pernah terjadi dan DB lama dipertahankan, atau rollback Settings yang berhasil mengembalikan DB lama — tetap meninggalkan penanda. Boot berikutnya lalu memunculkan peringatan "restore tidak selesai, database mungkin sudah baru, restore ulang" yang keliru untuk keadaan itu. Penanda kini dibersihkan tepat di cabang-cabang yang membuktikan keadaan lama utuh (`galatDb` di kedua jalur, dan sesudah `pulihkanDbLama` berhasil); jalur pengecualian di tengah penukaran — keadaan yang memang tidak pasti — tetap membiarkannya, sesuai maksud penanda itu.
 

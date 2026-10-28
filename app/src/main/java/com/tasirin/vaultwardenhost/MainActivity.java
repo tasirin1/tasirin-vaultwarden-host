@@ -408,6 +408,7 @@ public class MainActivity extends Activity {
         startTertundaPort = true;
         setBusy(true);
         boolean masuk = Util.jalankanBg(() -> {
+          try {
             ServerService.bereskanServerYatim();
             final boolean busy = ServerService.isPortBusy(portFix);
             final boolean butuhRoot = busy && ServerService.portButuhRoot(portFix);
@@ -435,6 +436,16 @@ public class MainActivity extends Activity {
                 }
                 lanjutStart(finalDataDir);
             });
+          } catch (Exception eCek) {
+            ui.post(() -> {
+                startTertundaPort = false;
+                setBusy(false);
+                if (!isFinishing() && !isDestroyed()) {
+                    appendUiLog("[app] Cek port gagal: " + eCek
+                            + " - Start dibatalkan, coba lagi.");
+                }
+            });
+          }
         });
         if (!masuk) {
 
