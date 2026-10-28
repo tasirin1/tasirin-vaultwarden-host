@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 489: Stale tidak lagi bisa menutup antrean issue audit
+- `stale.yml` menandai issue non-PR sesudah 45 hari dan menutupnya 14 hari kemudian, sedangkan model kerja repo ini memang menyimpan temuan audit sebagai issue terbuka yang menunggu giliran maraton — antrean putaran-12 akan mulai tertutup otomatis sekitar Desember 2026 dan pekerjaan yang belum dikerjakan hilang tanpa keputusan siapa pun. Label `bug` (label template laporan bug) pun tidak termasuk pengecualian.
+- `exempt-issue-labels` kini memuat `bug` dan label baru `audit`; label `audit` dibuat di repo dan dipasang ke seluruh issue antrean putaran-12 yang masih terbuka (32 issue) agar pengecualiannya nyata, dan menjadi penanda baku issue hasil audit berikutnya.
+
 ## [Belum rilis] — Audit 488: berkas biner format tak dikenal kini ditolak kedua gerbang pada ukuran berapa pun
 - Cek biner `verifikasi-patch.py` hanya menolak bila berkas >1 MB dan bukan teks (atau ber-header eksekutabel yang dikenal), dan `cek-cepat.sh` hanya memeriksa pola nama — biner ≤1 MB berformat tak dikenal (payload terkompresi/terenkripsi, dump, blob acak) lolos keduanya. Terbukti fixture audit: `blob.dat` dan `gambar.png` palsu masing-masing 200.008 byte lolos dua gerbang.
 - `verifikasi-patch.py` kini menolak setiap berkas bukan-teks yang headernya tak dikenal (penolong `jenis_pasif` mengenali PNG/JPEG/GIF/WebP/PDF/ICO sebagai format pasif yang sah, tetap dibatasi aturan >1 MB), dan `cek-cepat.sh` mendapat pindai padanannya (deteksi biner via `grep -I` + tanda tangan hex yang sama, wrapper jar tetap dikecualikan). Dibuktikan ulang di salinan buang: blob acak 5 KB dan 200 KB → GAGAL dua gerbang, PNG beneran → LOLOS, pohon bersih 157 berkas → LOLOS.
