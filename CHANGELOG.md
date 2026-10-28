@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 586: gerbang kini menjaga daftar izin wajib manifest dari penghapusan
+- Gerbang dulu asimetris: izin baru diperingatkan (`cek_izin_baru`), tetapi izin yang dihapus dari manifest tak terlihat cek mana pun — penghapusan tak sengaja (mis. konflik merge) bisa mematikan fitur diam-diam dengan CI hijau, termasuk regresi persis perbaikan Audit 562 (POST_NOTIFICATIONS) atau INTERNET.
+- Cek baru `cek_izin_wajib` dengan baseline `IZIN_WAJIB` (11 izin yang kini dideklarasikan): manifest yang kehilangan satu pun GAGAL dengan nama izinnya, dan pesannya menjelaskan jalur pengecualian yang disengaja (ubah baselinenya di commit yang sama). Terbukti fixture dua arah (bersih LOLOS; hapus POST_NOTIFICATIONS GAGAL; hapus INTERNET juga GAGAL menyebut keduanya).
+
 ## [Belum rilis] — Audit 585: gerbang kini memeriksa keberadaan path pola labeler
 - Pola glob di `labeler.yml` yang salah ketik (mis. `app/src/mian/**`) tetap YAML valid dan dulu lolos gerbang — label berhenti menempel pada PR tanpa sinyal apa pun (regresi sekelas yang baru diperbaiki Audit 564 bisa kambuh diam-diam).
 - `cek_labeler_glob` baru: awalan statis tiap pola (bagian sebelum wildcard pertama) wajib ada sebagai berkas/folder nyata, jika tidak gerbang GAGAL menyebut polanya. Terbukti fixture dua arah di salinan buang (bersih LOLOS; pola `mian` GAGAL dengan pesan tepat).

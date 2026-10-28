@@ -397,6 +397,42 @@ def namespace_aplikasi():
     cocok = re.search(r'namespace\s*=\s*"([^"]+)"', tetap)
     return cocok.group(1) if cocok else ""
 
+IZIN_WAJIB = {
+    "android.permission.INTERNET",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+    "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+    "android.permission.POST_NOTIFICATIONS",
+}
+
+def cek_izin_wajib(gagal):
+    # Gerbang dulu asimetris (Audit 586): izin BARU diperingatkan, izin
+    # yang DIHAPUS tak terlihat — penghapusan tak sengaja (mis. konflik
+    # merge) mematikan fitur diam-diam dengan CI tetap hijau.
+    try:
+        pohon = ET.parse(os.path.join(AKAR,
+                                      "app/src/main/AndroidManifest.xml"))
+    except (ET.ParseError, OSError):
+        return
+    atribut = "{http://schemas.android.com/apk/res/android}name"
+    ada = set()
+    for el in pohon.getroot().iter():
+        if el.tag == "uses-permission":
+            nama = el.get(atribut)
+            if nama:
+                ada.add(nama)
+    for nama in sorted(IZIN_WAJIB - ada):
+        gagal.append("Izin wajib %s hilang dari AndroidManifest.xml — "
+                     "fitur yang bergantung padanya mati diam-diam; "
+                     "kembalikan, atau hapus dari IZIN_WAJIB di "
+                     "verifikasi-patch.py bila memang disengaja" % nama)
+
 def cek_manifest(gagal):
     try:
         pohon = ET.parse(os.path.join(AKAR, "app/src/main/AndroidManifest.xml"))
@@ -1389,6 +1425,7 @@ def utama():
     cek_xml(gagal)
     cek_acuan_yatim(gagal)
     cek_manifest(gagal)
+    cek_izin_wajib(gagal)
     cek_duplikat_definisi(gagal)
     cek_sinkron_terjemah(gagal)
     cek_import_mati(gagal)
