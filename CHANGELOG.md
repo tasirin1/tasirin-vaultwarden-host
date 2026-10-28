@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 700: entri zip web-vault yang dilewati kini tercatat
+- Ekstraksi web-vault melewati entri yang ditolak filter nama/kanonis tanpa log dan tanpa hitungan, sementara kriteria "siap pasang" hanya memeriksa `index.html`: bila arsip resmi suatu versi memuat nama berkas yang ditolak filter, pemasangan dinyatakan sukses dan aset itu 404 di UI vault tanpa satu baris pun catatan untuk mendiagnosisnya. Entri yang terlewat kini dihitung dari ketiga cabang lewati dan, bila ada, dicatat satu baris log dengan jumlahnya sesudah ekstraksi. Filter dan kriteria pasangnya tidak berubah — yang ditambah hanya jejaknya.
+
 ## [Belum rilis] — Audit 699: penanda staging web-vault kini didaftarkan sebelum foldernya dibuat
 - Urutan pembuatan staging adalah buat folder dulu, baru daftarkan penanda aktif — di celah satu pernyataan itu `cleanupTempFiles` (dipanggil dari jalur Start, di bawah kunci web-vault yang tidak dipegang ekstraksi) bisa membaca folder baru sebagai sisa staging mati dan menghapusnya, membuat ekstraksi menulis ke folder yang hilang dan update gagal. Penanda kini didaftarkan sebelum folder dibuat (nama staging memang sudah unik sejak dialokasikan), sehingga tidak ada celah di mana folder staging hidup tampak yatim bagi penyapu.
 

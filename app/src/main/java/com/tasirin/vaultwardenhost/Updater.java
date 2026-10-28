@@ -1946,6 +1946,7 @@ public final class Updater {
         try {
             long totalUnzip = 0;
             int jumlahEntri = 0;
+            int entriTerlewat = 0;
             try {
                 try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
                     ZipEntry entry;
@@ -1957,6 +1958,7 @@ public final class Updater {
                                 jumlahEntri, Util.BATAS_JUMLAH_ENTRI);
 
                         if (!amanEntriZip(namaEntri)) {
+                            entriTerlewat++;
                             zis.closeEntry();
                             continue;
                         }
@@ -1965,10 +1967,12 @@ public final class Updater {
                         try {
                             String kanon = outFile.getCanonicalPath();
                             if (!kanon.equals(kanonBasis) && !kanon.startsWith(awalanAman)) {
+                                entriTerlewat++;
                                 zis.closeEntry();
                                 continue;
                             }
                         } catch (Exception e) {
+                            entriTerlewat++;
                             try {
                                 zis.closeEntry();
                             } catch (Exception ignored) {
@@ -2019,6 +2023,11 @@ public final class Updater {
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 throw e;
+            }
+            if (entriTerlewat > 0) {
+                ServerService.catatLog("[app] Web-vault: " + entriTerlewat
+                        + " entri zip dilewati filter nama/kanonis - aset"
+                        + " terkait bisa hilang dari tampilan vault.");
             }
             for (String d : dirSiap) {
                 syncDirAman(new File(d));
