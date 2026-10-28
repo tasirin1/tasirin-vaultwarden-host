@@ -227,9 +227,13 @@ coba ulang). Cache cargo dipakai ulang antar run binary.
 **Gerbang bersama: job `verifikasi` (~1 mnt, tanpa SDK)** — ada di dalam
 **kedua** workflow (bukan workflow terpisah) sebagai job pertama, sehingga
 build apa pun yang terpicu selalu melewatinya lebih dulu. Di `build-apk.yml`
-ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`) dan
-`workflow_dispatch`; di `build-binary.yml` untuk `push` yang menyentuh
-`build-binary.yml`/`shim/**`, jadwal bulanan, dan manual. Isinya:
+ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`), `pull_request`
+(saringan path yang sama), dan `workflow_dispatch`; di `build-binary.yml`
+untuk `push`/`pull_request` yang menyentuh `build-binary.yml`/`shim/**`,
+jadwal bulanan, dan manual. Pada `pull_request`, langkah signing/publish/
+upload artifact dilewati — yang berjalan gerbang + lint + unit test — dan
+proteksi branch `main` mewajibkan check `Cek patch yang berubah` hijau
+sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
 
 1. `python3 tools/verifikasi-patch.py --rentang "<before>...<sha>"`
    (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
@@ -266,7 +270,8 @@ dan `workflow_dispatch`:
    ganti versi upstream).
 
 **B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh kode
-app (kecuali dokumen, `shim/`, `build-binary.yml`) + `workflow_dispatch` manual.
+app (kecuali dokumen, `shim/`, `build-binary.yml`), `pull_request` dengan
+saringan yang sama (tanpa signing/publish), + `workflow_dispatch` manual.
 Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
 (APK hanya dibangun bila kodenya berubah, agar `versionCode` tak churn sia-sia):
 

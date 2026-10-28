@@ -9,13 +9,20 @@ on:
       - '.gitignore'
       - 'shim/**'
       - '.github/workflows/build-binary.yml'
+  pull_request:
+
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: vw-apk
+  group: vw-apk-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -31,7 +38,12 @@ jobs:
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
 
-          python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          else
+            RENTANG="${{ github.event.before }}...${{ github.sha }}"
+          fi
+          python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
 
@@ -99,6 +111,7 @@ jobs:
           done
 
       - name: Build signed release APK
+        if: github.event_name != 'pull_request'
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -118,6 +131,7 @@ jobs:
             -PstoreFile=keystore.jks
 
       - name: Verify APK contents
+        if: github.event_name != 'pull_request'
         env:
           SIDIK_SERT: c2785a618082683755eeae867e0a2e01f450b1fd448859d1ec21cf854c5713d1
         run: |
@@ -156,6 +170,7 @@ jobs:
           ls -lh "$APK"
 
       - name: Cek ukuran APK (jaga APK tetap kecil)
+        if: github.event_name != 'pull_request'
         run: |
 
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
@@ -169,6 +184,7 @@ jobs:
           fi
 
       - name: Siapkan salinan APK bernama rilis
+        if: github.event_name != 'pull_request'
         run: |
 
           APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
@@ -239,6 +255,7 @@ jobs:
           echo "Digest APK terverifikasi di $TAG: $LOKAL_DIGEST"
 
       - name: Upload APK artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: tasirin-vaultwarden-host-apk-armeabi-v7a

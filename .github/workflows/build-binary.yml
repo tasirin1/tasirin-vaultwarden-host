@@ -7,6 +7,11 @@ on:
     paths:
       - '.github/workflows/build-binary.yml'
       - 'shim/**'
+  pull_request:
+
+    paths:
+      - '.github/workflows/build-binary.yml'
+      - 'shim/**'
   workflow_dispatch:
 
   schedule:
@@ -16,7 +21,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: vw-binary
+  group: vw-binary-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -35,7 +40,12 @@ jobs:
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
 
-          python3 tools/verifikasi-patch.py --rentang "${{ github.event.before }}...${{ github.sha }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          else
+            RENTANG="${{ github.event.before }}...${{ github.sha }}"
+          fi
+          python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
 
