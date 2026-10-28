@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 575: duplikasi asersi humanBytes antar-uji dihapus
+- Uji `satuDesimal_formatSamaSepertiDulu` mengulang persis tiga asersi `humanBytes` (1536, 2 MB, 1 GB) dari `humanBytes_skalaBenar` — perubahan perilaku yang sah harus disunting di dua tempat dan mudah basi sebelah. Tiga asersi duplikat itu dihapus; perilaku `humanBytes` tetap dikunci satu-satunya di uji namanya, dan uji `satuDesimal` mempertahankan asersi fungsi namanya sendiri. (Keluarga lain yang disebut audit — `normalisasiEntriZip` nama-telanjang vs berprefix folder, dan pengulangan tematik `namaBolehDibagikan`/`normVersion` — terverifikasi bukan duplikat nilai: masukan atau sudut regresinya berbeda, jadi dibiarkan.)
+
 ## [Belum rilis] — Audit 574: uji jam-mundur TgBot kini menegaskan hasil catatMundurDanBolehIngatkan
 - Uji `mundurTakMenurunkanTandaAir` memanggil `catatMundurDanBolehIngatkan` tanpa menegaskan nilai kembali — cabang "boleh ingatkan saat jam mundur" (fungsi metode itu sendiri) bisa regresi diam-diam; yang terkunci hanya tanda air, yang sudah dicakup uji tetangga. Panggilan kini dibungkus `assertTrue`: pada jam mundur sesudah tanda air tinggi, peringatan memang harus boleh terbit (di uji JVM jalur ini lewat cabang fallback jam-elapsed yang juga mengembalikan true).
 

@@ -1205,9 +1205,9 @@ public class TgBackupTest {
         assertEquals("1.5 KB", TgBackup.satuDesimal(1536, 1024, "KB"));
         assertEquals("2.0 MB", TgBackup.satuDesimal(2 * 1048576, 1048576, "MB"));
         assertEquals("1.0 GB", TgBackup.satuDesimal(1073741824, 1073741824, "GB"));
-        assertEquals("1.5 KB", TgBackup.humanBytes(1536));
-        assertEquals("2.0 MB", TgBackup.humanBytes(2 * 1048576));
-        assertEquals("1.0 GB", TgBackup.humanBytes(1073741824L));
+        // Keluaran humanBytes untuk nilai yang sama dikunci satu-satunya di
+        // humanBytes_skalaBenar — jangan diduplikasi di sini agar perubahan
+        // perilaku cukup disunting di satu tempat.
     }
 
     @Test
