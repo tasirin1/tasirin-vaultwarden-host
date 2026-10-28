@@ -2969,6 +2969,8 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
 
+        capCaStat = Long.MIN_VALUE;
+        capCaNilai = 0L;
         capCaWaktu = kini2;
         return 0L;
         }

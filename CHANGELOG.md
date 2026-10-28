@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 492: cache cap CA kini dibersihkan saat berkas CA hilang, tak lagi bergantian 0/hash lama
+- Cabang "CA tidak ada" di `capCaAktif` memperbarui `capCaWaktu` tetapi membiarkan `capCaStat`/`capCaNilai` lama: panggilan pertama sesudah cache kedaluwarsa mengembalikan 0 (health-check gagal), panggilan berikutnya dalam 60 detik mengembalikan hash CA lama dari jalur cepat (health-check lolos) — kondisi berkas yang sama menghasilkan hasil bergantian dan bisa memicu hitungan gagal palsu atau menutupi CA yang hilang.
+- Cabang itu kini mengosongkan pasangan cache (`capCaStat = MIN_VALUE`, `capCaNilai = 0`) sebelum memperbarui waktu, sehingga "CA hilang" adalah satu-satunya hasil sampai CA benar-benar ada lagi.
+
 ## [Belum rilis] — Audit 491: hasil pencarian PID anak dari /proc kini disimpan per objek Process
 - Di API 21–25 (perangkat sasaran utama) `pidOf` selalu jatuh ke `pidAnakDariProc`, yang memindai ulang seluruh kandidat se-UID dan membaca cmdline+stat tiap kandidat pada SETIAP panggilan — cache 8 detik yang ada hanya meng-cache daftar PID, bukan hasil bacaannya. Pemanggilnya sering dan berulang (RSSI berkala, `bereskanServerYatim` per percobaan, dan satu panggilan per kandidat di lingkaran verifikasi terakhir).
 - PID sebuah objek `Process` tidak pernah berubah seumur objek itu, jadi hasil positif kini disimpan di `WeakHashMap` per objek dan pemindaian hanya terjadi sekali (cek `exitValue` yang murah tetap lebih dulu, sehingga proses mati tidak pernah dilayani dari cache). Panggilan `pidOf` di lingkaran verifikasi terakhir `bereskanServerYatim` juga diangkat keluar lingkaran.
