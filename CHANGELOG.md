@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Build merah (jalur PR): import StandardCharsets hilang di UpdaterTest
+- Jalur PR workflow build menjalankan kompilasi uji unit (`compileDebugUnitTestJavaWithJavac`), sedangkan jalur push tidak — jadi kesalahan ini bersembunyi selama hanya build push yang terlihat: dua uji zip di `UpdaterTest` memakai `StandardCharsets.UTF_8` tanpa `import java.nio.charset.StandardCharsets`, simbol tidak ditemukan dan kompilasi uji gagal. Terungkap oleh gerbang PR #225 sesudah perbaikan kompilasi `HttpsCompat`.
+- Import yang hilang ditambahkan; tidak ada perubahan perilaku uji.
+
 ## [Belum rilis] — Build merah: pernyataan tak terjangkau di socketFactory HttpsCompat
 - Build `main` gagal compile sejak bentuk throttle bangun trust masuk: di `HttpsCompat.socketFactory`, semua jalur di dalam blok `synchronized` berakhir `return`/`throw` (cek cache, lempar `JedaBangunTrust`, `return bangunFactory(ctx)`, atau rethrow dari catch), sehingga `return cached;` sesudah blok menjadi pernyataan tak terjangkau — kesalahan keras javac (`unreachable statement`) yang menggagalkan `compileDebugJavaWithJavac` di AGP lama maupun baru. Ditemukan saat mengerjakan PR Dependabot AGP #225 (gerbang PR menangkapnya; build push `main` pun sudah merah).
 - Baris mati itu dihapus; perilaku tidak berubah (kode tak terjangkau memang tidak pernah berjalan — `bangunFactory` sendiri yang mengisi `cached` dan mengembalikan hasilnya).
