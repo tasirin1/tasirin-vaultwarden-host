@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 617: nama panel menu /help di README EN/RU disamakan dengan tombol bot
+- README Inggris/Rusia menulis panel menu sebagai "(Status, Control, Backup, Update, Certificate, Info)", padahal tombol bot selalu berbahasa Indonesia: "Kontrol" dan "Sertifikat" yang tampil, "Control"/"Certificate" tidak pernah muncul. Kini ketiga README mengutip nama tombol yang sama persis.
+
 ## [Belum rilis] — Audit 616: README Inggris/Rusia kini mengutip label UI Inggris yang sebenarnya
 - README Inggris dan Rusia mengutip label tombol "Versi binary" / "Versi web vault" / "Terbaru (otomatis)" — label Bahasa Indonesia yang hanya tampil pada UI Indonesia. Pembaca keduanya kini diberi label yang benar-benar mereka lihat: "Binary version" / "Web vault version" / "Latest (automatic)". Kutipan kata kunci bot `/update terbaru` memang literal di kode dan tidak diubah.
 
