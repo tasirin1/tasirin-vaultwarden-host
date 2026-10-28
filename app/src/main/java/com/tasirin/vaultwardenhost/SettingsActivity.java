@@ -1664,8 +1664,7 @@ public class SettingsActivity extends Activity {
                     return;
                 }
 
-                sp.edit().putBoolean(key, true).apply();
-                DialogAman.tampil(this, new AlertDialog.Builder(this)
+                AlertDialog dlgWv = new AlertDialog.Builder(this)
                         .setTitle(R.string.wv_update_judul)
                         .setMessage(dikunciDlg
                                 ? getString(R.string.wv_update_pesan_kunci,
@@ -1676,7 +1675,11 @@ public class SettingsActivity extends Activity {
                         .setNeutralButton(R.string.wv_update_saja,
                                 (d, w) -> runWebVaultUpdate(false))
                         .setNegativeButton(R.string.nanti, null)
-                        .create());
+                        .create();
+                DialogAman.tampil(this, dlgWv);
+                if (dlgWv.isShowing()) {
+                    sp.edit().putBoolean(key, true).apply();
+                }
             });
         } catch (Exception ignored) {
         }

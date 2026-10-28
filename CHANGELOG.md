@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 703: penanda tawaran web-vault kini ditulis hanya bila dialog benar-benar tampil
+- Penanda `wv_notified_<versi>` ditulis *sebelum* `DialogAman.tampil`, dan `tampil` menelan kegagalan `show()` (activity bertransisi, BadToken) — dialog yang tidak pernah dilihat pengguna mengubur tawaran untuk versi server itu selamanya. Penanda kini ditulis sesudah pemanggilan, hanya bila dialog terbukti `isShowing()`; kegagalan tampil membiarkan tawaran dicoba lagi pada kesempatan berikutnya.
+
 ## [Belum rilis] — Audit 702: auto-restart sesudah update kini berlaku juga untuk instalasi dari layar utama
 - Instalasi binary otomatis berjalan di kedua mode cek, tetapi penilaian auto-restart-nya terkurung di mode lengkap (Settings) dan `restartServer()` MainActivity adalah no-op: instalasi yang kebetulan terpicu dari layar utama tidak pernah menindaklanjuti preferensi `auto_restart_update`, dan cek berikutnya tak menebusnya karena versi sudah tercatat sama. Blok restart kini dinilai di luar gerbang mode (sesudah blok web-vault yang memang khusus mode lengkap), dan aksi restart MainActivity benar-benar menjalankan `ServerService.restart` seperti Settings.
 
