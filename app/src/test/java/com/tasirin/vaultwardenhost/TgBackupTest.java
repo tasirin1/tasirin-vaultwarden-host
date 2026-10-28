@@ -816,6 +816,40 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sapuZipPlainCacheBasi_hapusZipPlainBasiSaja() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vwtg-zipcache-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        try {
+            java.io.File basi = new java.io.File(dir, "backup-telegram-20260101-000000.zip");
+            java.io.File basiTmp = new java.io.File(dir, "backup-telegram-20260101-000001.zip.tmp");
+            java.io.File segar = new java.io.File(dir, "backup-telegram-20260102-000000.zip");
+            java.io.File enc = new java.io.File(dir, "backup-telegram-20260101-000000.zip.enc");
+            assertTrue(basi.createNewFile());
+            assertTrue(basiTmp.createNewFile());
+            assertTrue(segar.createNewFile());
+            assertTrue(enc.createNewFile());
+            long basiMs = System.currentTimeMillis() - TgBackup.UMUR_DEC_TMP_MS - 60_000L;
+            assertTrue(basi.setLastModified(basiMs));
+            assertTrue(basiTmp.setLastModified(basiMs));
+            assertTrue(enc.setLastModified(basiMs));
+            TgBackup.sapuZipPlainCacheBasi(dir);
+            assertFalse(basi.exists());
+            assertFalse(basiTmp.exists());
+            assertTrue(segar.exists());
+            assertTrue(enc.exists());
+        } finally {
+            java.io.File[] sisa = dir.listFiles();
+            if (sisa != null) {
+                for (java.io.File f : sisa) {
+                    f.delete();
+                }
+            }
+            dir.delete();
+        }
+    }
+
+    @Test
     public void sapuTmpPlainBasi_hanyaBasiDanBukanAktif() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vwtg-dectest-" + System.nanoTime());

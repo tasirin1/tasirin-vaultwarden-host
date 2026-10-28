@@ -500,6 +500,7 @@ public final class TgBackup {
         try {
             File c = ctx.getCacheDir();
             cachePath = c == null ? "" : c.getAbsolutePath();
+            sapuZipPlainCacheBasi(c);
         } catch (Exception ignored) {
         }
 
@@ -2589,6 +2590,16 @@ public final class TgBackup {
         }
     }
 
+    static boolean layakSapuBasi(File f, long kini) {
+        long umur = kini - f.lastModified();
+        if (umur < 0) {
+            umur = 0;
+        }
+        boolean stempelDiMasaDepan = f.lastModified() - kini >= UMUR_DEC_TMP_MS;
+        return (umur >= UMUR_DEC_TMP_MS && f.isFile())
+                || (stempelDiMasaDepan && f.isFile() && capDepanStabil(f));
+    }
+
     static void sapuTmpPlainBasi(File dir, String... kecualikan) {
         if (dir == null) {
             return;
@@ -2614,14 +2625,40 @@ public final class TgBackup {
                 if (kecualikan != null && java.util.Arrays.asList(kecualikan).contains(n)) {
                     continue;
                 }
-                long umur = kini - f.lastModified();
-                if (umur < 0) {
-                    umur = 0;
-                }
-                boolean stempelDiMasaDepan = f.lastModified() - kini >= UMUR_DEC_TMP_MS;
-                if (umur >= UMUR_DEC_TMP_MS && f.isFile()) {
+                if (layakSapuBasi(f, kini)) {
                     f.delete();
-                } else if (stempelDiMasaDepan && f.isFile() && capDepanStabil(f)) {
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    static void sapuZipPlainCacheBasi(File dir, String... kecualikan) {
+        if (dir == null) {
+            return;
+        }
+        File[] isi;
+        try {
+            isi = dir.listFiles();
+        } catch (Exception ignored) {
+            return;
+        }
+        if (isi == null) {
+            return;
+        }
+        long kini = System.currentTimeMillis();
+        for (File f : isi) {
+            try {
+                String n = f.getName();
+                boolean calon = n.startsWith("backup-telegram-")
+                        && (n.endsWith(".zip") || n.endsWith(".zip.tmp"));
+                if (!calon) {
+                    continue;
+                }
+                if (kecualikan != null && java.util.Arrays.asList(kecualikan).contains(n)) {
+                    continue;
+                }
+                if (layakSapuBasi(f, kini)) {
                     f.delete();
                 }
             } catch (Exception ignored) {

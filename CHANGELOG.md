@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 482: zip backup plain yang tertinggal di cache kini ikut disapu basi
+- Pada backup terenkripsi, zip PLAIN (database + kunci privat TLS) dibuat di cache dan hanya dihapus di blok `finally` jalur normal; proses yang mati di antaranya meninggalkan salinan plaintext utuh permanen di `cacheDir` — pola sapuan berkas sementara yang ada tidak mengenal nama `backup-telegram-*` dan cleanup folder backups tidak menjangkau cache.
+- Penolong baru `TgBackup.sapuZipPlainCacheBasi` menyapu `backup-telegram-*.zip`/`.zip.tmp` basi dari cache di awal setiap backup (ambang umur + logika cap masa depan yang sama, diekstrak ke `layakSapuBasi` dan dipakai bersama `sapuTmpPlainBasi`). Metode ini sengaja hanya dipanggil untuk folder cache — pola nama yang sama di folder backups adalah backup sah yang tidak boleh disapu. Uji perilaku ditambahkan, termasuk bahwa berkas `.zip.enc` tidak disentuh.
+
 ## [Belum rilis] — Audit 481: rollback .cad di pulihkanTukarTersisa tidak lagi buta
 - Cabang pemulihan pasangan tak cocok menghapus pasangan resmi lalu mengganti namanya menjadi pasangan `.cad` tanpa memeriksa hasil `renameTo` dan tanpa membuktikan pasangan `.cad` itu sendiri cocok — `.cad` yang setengah tertulis bisa mengorbankan pasangan resmi dan meninggalkan direktori tanpa pasangan yang bisa dipakai (sisa patch Audit #211).
 - Pasangan `.cad` kini wajib lolos `pasanganCertKeyCocok` lebih dulu sebelum resmi disentuh; penukaran dilakukan lewat nama sampingan `.rusak` dengan setiap rename diperiksa, dan kegagalan di tengah mengembalikan pasangan resmi serta pasangan `.cad` ke tempat semula persis. Uji baru mengunci cabang negatifnya: `.cad` yang tak terbukti cocok tidak menimpa resmi dan tidak terbuang.
