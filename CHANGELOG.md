@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 677: bukti panic tidak lagi terhapus oleh probe rescue yang gagal
+- Regresi dari perbaikan Audit 653 (self-review putaran-24): probe paksa-shim menimpa `lastVersionOutput`, dan jalur gagalnya menyetelnya kosong — bila probe dengan-shim gagal tanpa teks panic, pemeriksaan panic terakhir di `siapkanShim` membaca output baru itu, tak menemukan panic, dan Start lanjut **tanpa shim dan tanpa blok panic yang jujur**, padahal cabang rescue dimasuki justru karena bukti panic tanpa-shim sudah ada. Bukti sebelum rescue kini disimpan dan dipulihkan sesudah probe gagal, sehingga penilaian terakhir kembali ke bukti yang benar: panic tanpa shim tetap menghentikan start secara jujur bila shim tak terbukti menolong.
+
 ## [Belum rilis] — Perbaikan build: deklarasi KEY_RESTORE_TANDA dipindah sebelum pemakainya
 - Run `3ba2190` merah di kompilasi: daftar `TAK_DIEKSPOR_KEYS` (Audit 659) merujuk konstanta `KEY_RESTORE_TANDA` yang deklarasinya berada jauh di bawah inisialisasi statis tersebut — Java menolaknya sebagai *illegal forward reference*. Deklarasi konstanta dipindah ke blok konstanta di kepala `TgBackup`, sebelum semua pemakainya; tidak ada perubahan perilaku.
 

@@ -1874,6 +1874,7 @@ public class ServerService extends Service {
             // yang tak bisa sembuh (Audit 644). Di sini shim dicoba pasang
             // apa pun klasifikasinya; bila uji asap lolos bersamanya,
             // start lanjut dengan LD_PRELOAD.
+            String buktiSebelum = lastVersionOutput;
             File shimBukti = ensureShim();
             if (shimBukti != null) {
                 sesi.shim = shimBukti;
@@ -1883,6 +1884,7 @@ public class ServerService extends Service {
                     return true;
                 }
                 sesi.shim = null;
+                lastVersionOutput = buktiSebelum;
             }
         }
 
