@@ -601,25 +601,45 @@ def jenis_biner(path):
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
 
+EKSTENSI_PASIF = {"PNG": {".png"}, "JPEG": {".jpg", ".jpeg"}, "GIF": {".gif"},
+                  "WebP": {".webp"}, "PDF": {".pdf"}, "ICO": {".ico"}}
+TANDA_BUNGKUS_BAHAYA = (b"\x7fELF", b"PK\x03\x04", b"dex\n",
+                        b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe",
+                        b"\xca\xfe\xba\xbe")
+
 def jenis_pasif(path):
     try:
         with open(os.path.join(AKAR, path), "rb") as f:
             kepala = f.read(12)
     except OSError:
         return None
+    jenis = None
     if kepala.startswith(b"\x89PNG"):
-        return "PNG"
-    if kepala[:3] == b"\xff\xd8\xff":
-        return "JPEG"
-    if kepala[:4] == b"GIF8":
-        return "GIF"
-    if kepala[:4] == b"RIFF" and kepala[8:12] == b"WEBP":
-        return "WebP"
-    if kepala[:4] == b"%PDF":
-        return "PDF"
-    if kepala[:4] == b"\x00\x00\x01\x00":
-        return "ICO"
-    return None
+        jenis = "PNG"
+    elif kepala[:3] == b"\xff\xd8\xff":
+        jenis = "JPEG"
+    elif kepala[:4] == b"GIF8":
+        jenis = "GIF"
+    elif kepala[:4] == b"RIFF" and kepala[8:12] == b"WEBP":
+        jenis = "WebP"
+    elif kepala[:4] == b"%PDF":
+        jenis = "PDF"
+    elif kepala[:4] == b"\x00\x00\x01\x00":
+        jenis = "ICO"
+    if jenis is None:
+        return None
+    ekst = os.path.splitext(path)[1].lower()
+    if ekst not in EKSTENSI_PASIF[jenis]:
+        return None
+    try:
+        with open(os.path.join(AKAR, path), "rb") as f:
+            isi = f.read()
+    except OSError:
+        return None
+    for tanda in TANDA_BUNGKUS_BAHAYA:
+        if tanda in isi:
+            return None
+    return jenis
 
 def nilai_target_sdk(tetap):
     tetap = kupas_java(tetap)

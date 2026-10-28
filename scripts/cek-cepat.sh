@@ -50,15 +50,30 @@ TERLARANG="$(
 if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -iE "$POLA_TERLARANG" || true)" ]; then
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
+biner_bungkus() {
+  od -An -tx1 -v "$1" 2>/dev/null | tr -d ' \n' | grep -qiE '7f454c46|504b0304|6465780a|cffaedfe|cefaedfe|cafebabe'
+}
 while IFS= read -r berkas_b; do
   [ -f "$berkas_b" ] || continue
   [ "$berkas_b" = "gradle/wrapper/gradle-wrapper.jar" ] && continue
   if [ -s "$berkas_b" ] && ! grep -qI . "$berkas_b" 2>/dev/null; then
     sig_b="$(head -c 12 "$berkas_b" | od -An -tx1 | tr -d ' \n')"
+    ext_b=".$(printf '%s' "${berkas_b##*.}" | tr 'A-Z' 'a-z')"
+    pasif_b=0
     case "$sig_b" in
-      89504e47*|ffd8ff*|47494638*|25504446*|00000100*|52494646????????57454250*) ;;
-      *) gagal_msg "berkas biner format tak dikenal: $berkas_b" ;;
+      89504e47*) [ "$ext_b" = ".png" ] && pasif_b=1 ;;
+      ffd8ff*) case "$ext_b" in .jpg|.jpeg) pasif_b=1 ;; esac ;;
+      47494638*) [ "$ext_b" = ".gif" ] && pasif_b=1 ;;
+      25504446*) [ "$ext_b" = ".pdf" ] && pasif_b=1 ;;
+      00000100*) [ "$ext_b" = ".ico" ] && pasif_b=1 ;;
+      52494646????????57454250*) [ "$ext_b" = ".webp" ] && pasif_b=1 ;;
     esac
+    if [ "$pasif_b" = "1" ] && biner_bungkus "$berkas_b"; then
+      pasif_b=0
+    fi
+    if [ "$pasif_b" != "1" ]; then
+      gagal_msg "berkas biner format tak dikenal: $berkas_b"
+    fi
   fi
 done <<EOF_B
 $(printf '%s\n' "$TERLARANG" | sort -u)
