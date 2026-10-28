@@ -120,6 +120,18 @@ jobs:
           echo "::error::Build APK belum selesai dalam batas tunggu - auto-merge dibatalkan."
           exit 1
 
+      - name: Pastikan head PR belum berganti sejak divalidasi
+        if: env.GRADLE_DEPS != 'true' && env.BINARY_PR != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HEAD_KINI=$(gh pr view ${{ github.event.pull_request.number }} -R ${{ github.repository }} --json headRefOid --jq '.headRefOid')
+          if [ "$HEAD_KINI" != "${{ github.event.pull_request.head.sha }}" ]; then
+            echo "::error::Head PR berganti ($HEAD_KINI) sejak Build APK divalidasi (${{ github.event.pull_request.head.sha }}) - auto-merge dibatalkan; run untuk head baru yang menilai ulang."
+            exit 1
+          fi
+          echo "Head PR tetap $HEAD_KINI."
+
       - name: Auto-merge sesudah build dan cek wajib hijau (bukan dependensi Gradle)
         if: env.GRADLE_DEPS != 'true' && env.BINARY_PR != 'true'
         env:

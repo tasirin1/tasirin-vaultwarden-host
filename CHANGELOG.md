@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 632: auto-merge memeriksa ulang head PR sesaat sebelum diaktifkan
+- Self-review menemukan celah pada gerbang Build APK Audit 624: validasi mengikat SHA saat event dibuat, tetapi `gh pr merge --auto` menggabungkan head TERKINI begitu check wajib hijau — commit B yang didorong di tengah masa tunggu bisa ter-merge hanya berbekal gerbang patch-nya. Kini ada langkah pemeriksa head tepat sebelum pengaktifan: head PR dibaca ulang dan dibandingkan dengan SHA yang Build APK-nya ditunggu; berbeda = auto-merge dibatalkan dan run untuk head baru yang menilai ulang.
+
 ## [Belum rilis] — Audit 647: binary terpasang kini diverifikasi ulang SHA-256 (pin seperti shim)
 - Cermin Audit 628 untuk berkas yang lebih besar: SHA-256 binary hanya diperiksa pada berkas sementara sebelum pasang; sesudah terpasang, pemeriksaan cache Start hanya ukuran + magic ELF 20 byte + uji `--version`, jadi kerusakan flash di tengah binary yang tak menyentuh jalur `--version` lolos selamanya dan update bisa dilewati karena versi dianggap benar. Kini hash binary dicatat ke prefs (`bin_sha_pin`) sesudah pemasangan terverifikasi, dan jalur cache Start memeriksa ulang lewat predikat `binaryUtuh`: tak cocok → log jelas dan binary diunduh ulang. Pasangan lama tanpa pin di-pin pada penerimaan cache pertama (pola yang sama dengan shim). Predikat dikunci uji.
 
