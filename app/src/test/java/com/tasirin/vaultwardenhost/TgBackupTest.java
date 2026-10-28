@@ -1747,6 +1747,26 @@ public class TgBackupTest {
     }
 
     @Test
+    public void checkpointWajibHanyaUntukDbSqlite() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwckpt").toFile();
+        // Audit 587: DB hilang/bukan SQLite tak boleh diblokir gerbang
+        // checkpoint; DB SQLite sungguhan wajib checkpoint.
+        assertFalse(TgBackup.checkpointWajib(null));
+        assertFalse(TgBackup.checkpointWajib(new File(dir, "tak-ada.sqlite3")));
+        File teks = new File(dir, "korup.sqlite3");
+        java.nio.file.Files.write(teks.toPath(),
+                "bukan sqlite sama sekali".getBytes(
+                        java.nio.charset.StandardCharsets.UTF_8));
+        assertFalse(TgBackup.checkpointWajib(teks));
+        File db = new File(dir, "db.sqlite3");
+        byte[] isi = new byte[1024];
+        byte[] magic = "SQLite format 3\0".getBytes("UTF-8");
+        System.arraycopy(magic, 0, isi, 0, magic.length);
+        java.nio.file.Files.write(db.toPath(), isi);
+        assertTrue(TgBackup.checkpointWajib(db));
+    }
+
+    @Test
     public void pasangDbDariSalinanTolakSalinanBukanSqlite() throws Exception {
         // Sejak Audit 578 salinan pengaman wajib lolos isSqliteFile +
         // cekIntegritasDb sebelum terpasang; jalur suksesnya memerlukan

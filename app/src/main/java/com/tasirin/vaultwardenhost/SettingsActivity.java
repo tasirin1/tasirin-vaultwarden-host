@@ -1899,12 +1899,14 @@ public class SettingsActivity extends Activity {
                     backupDir.mkdirs();
                 }
 
-                if (!TgBackup.checkpointWal(dbFile)) {
+                if (TgBackup.checkpointWajib(dbFile)
+                        && !TgBackup.checkpointWal(dbFile)) {
                     // Sama seperti jalur bot: checkpoint gagal berarti
                     // transaksi terbaru masih hanya di -wal; jangan lanjut
                     // ke pre-backup yang akan kehilangannya (Audit 579).
                     // Return langsung (bukan throw) agar catch pemulih tak
-                    // berjalan — DB live belum disentuh sama sekali.
+                    // berjalan — DB live belum disentuh sama sekali. DB
+                    // yang tak bisa dibuka dikecualikan (Audit 587).
                     toast(getString(R.string.restore_gagal,
                             "checkpoint WAL gagal"));
                     appendUiLog("[app] Restore dibatalkan: checkpoint WAL"

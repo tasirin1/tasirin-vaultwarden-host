@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 587: gerbang checkpoint tak lagi memblokir restore untuk DB yang tak bisa dibuka
+- Efek samping Audit 579: `checkpointWal` menjadi gerbang keras di kedua jalur restore, tetapi ia membuka DB dengan OPEN_READWRITE — DB live yang korup/rusak header membuatnya melempar pengecualian yang tertelan menjadi `false`, sehingga restore BATAL dengan pesan "checkpoint WAL gagal" justru untuk keadaan yang paling membutuhkan restore. Jalan keliling satu-satunya menghapus db.sqlite3 manual.
+- Kini kedua jalur memakai predikat murni baru `checkpointWajib(dbFile)` (= `isSqliteFile`): gerbang hanya berlaku bila DB live memang berkas SQLite yang bisa dibuka. DB hilang/bukan SQLite tak punya WAL yang dapat diselamatkan (pemulihan WAL membutuhkan berkas utama yang terbuka), jadi restore berjalan; pre-backup tetap menyalin byte apa adanya. Untuk DB sehat yang checkpoint-nya gagal, perlindungan Audit 579 utuh. Predikat dikunci uji JVM baru.
+
 ## [Belum rilis] — Perbaikan build: dua uji pasangDbDariSalinan/pulihkanDbLama diselaraskan dengan penjaga integritas Audit 578
 - Penjaga baru di `pasangDbDariSalinan` (Audit 578) mengubah kontrak yang dikunci dua uji JVM: fixture salinan teks polos "DB-LAMA" kini memang harus ditolak, tetapi uji lama mengharapkannya terpasang — `testDebugUnitTest` gagal di CI (run 40754364765) untuk `pasangDbDariSalinanGantiDbDanBuangWalShm` dan `pulihkanDbLamaPakaiSalinanAtauBuangDb`. Jalur sukses penjaga memerlukan SQLite Android asli sehingga tak bisa diuji di JVM — preseden yang sama seperti `pasangDbRestoreAtomik` yang juga hanya diuji jalur tolaknya.
 - Kedua uji ditulis ulang mengunci kontrak baru: salinan bukan SQLite ditolak (IOException) dan DB live terbukti tak tersentuh; cabang tanpa salinan tetap membuang DB. Perilaku produksi tidak berubah.

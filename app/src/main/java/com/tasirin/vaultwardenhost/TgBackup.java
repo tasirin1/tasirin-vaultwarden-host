@@ -1217,6 +1217,16 @@ public final class TgBackup {
         }
     }
 
+    /** Checkpoint hanya wajib bila DB live memang berkas SQLite yang
+     *  bisa dibuka. DB hilang atau korup sampai tak lolos isSqliteFile
+     *  tak punya WAL yang bisa diselamatkan (pemulihan WAL butuh berkas
+     *  utama yang terbuka), jadi gerbang checkpoint tak boleh memblokir
+     *  restore untuknya — restore justru alat pemulih DB korup
+     *  (Audit 587). */
+    static boolean checkpointWajib(File dbFile) {
+        return isSqliteFile(dbFile);
+    }
+
     static boolean checkpointWal(File dbFile) {
         SQLiteDatabase db = null;
         boolean selesai = false;
@@ -3005,12 +3015,13 @@ public final class TgBackup {
             if (!backupDir.exists()) {
                 backupDir.mkdirs();
             }
-            if (!checkpointWal(dbFile)) {
+            if (checkpointWajib(dbFile) && !checkpointWal(dbFile)) {
                 // Checkpoint gagal berarti transaksi ter-commit terbaru
                 // masih hanya ada di -wal; pre-backup berkas utama saja
                 // akan kehilangan transaksi itu, dan -wal live akan
                 // dihapus di bawah. Batalkan sebelum apa pun disentuh
-                // (Audit 579).
+                // (Audit 579). DB yang tak bisa dibuka dikecualikan oleh
+                // checkpointWajib (Audit 587).
                 throw new IOException("Checkpoint WAL gagal - restore"
                         + " dibatalkan agar transaksi terbaru tidak hilang."
                         + " Ulangi restore.");
