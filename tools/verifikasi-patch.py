@@ -970,12 +970,13 @@ def hunk_fungsi(diff):
 
 def cek_uji_ubah(peringatan, diff):
     sudah = set()
-    for _, nama in hunk_fungsi(diff):
-        if not nama or nama in sudah or nama in KATA_KUNCI_JAVA:
+    for path, nama in hunk_fungsi(diff):
+        kunci = (path, nama)
+        if not nama or kunci in sudah or nama in KATA_KUNCI_JAVA:
             continue
         if nama[:1].isupper():
             continue
-        sudah.add(nama)
+        sudah.add(kunci)
         if not disebut_di_uji(nama):
             peringatan.append(
                 "Metode %s() diubah tapi tanpa jejak di app/src/test — "
@@ -1157,8 +1158,9 @@ def cek_uji_baru(peringatan, diff):
             continue
         if cocok and cocok.group(1) not in KATA_KUNCI_JAVA:
             nama = cocok.group(1)
-            if nama not in sudah:
-                sudah.add(nama)
+            kunci = (path, nama)
+            if kunci not in sudah:
+                sudah.add(kunci)
                 if inti(baris) in lama:
                     sebelumnya[path] = baris
                     continue

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 561: dedupe penjaga jejak uji kini per (berkas, metode), bukan nama saja
+- #312 membuat pencocokan jejak uji sadar kelas, tetapi dedupe `sudah` di `cek_uji_baru` dan `cek_uji_ubah` masih berbasis nama global: metode kedua bernama sama di kelas lain dalam diff yang sama tak pernah diperiksa jejaknya — sisa fail-open sempit di cek yang baru diperkuat.
+- Kunci dedupe kini `(path, nama)` di kedua cek, selaras dengan kesadaran kelasnya. Terbukti fixture: metode baru `cocokChat` ditambahkan ke TgBot dan ServerService dalam satu diff → dua peringatan terbit (sebelumnya hanya satu).
+
 ## [Belum rilis] — Audit 560: validasi YAML workflow kini memeriksa struktur on/jobs, bukan hanya sintaks
 - `cek_workflow_yaml` (dari #309) hanya menangkap galat parse: berkas workflow yang terpotong kosong atau kehilangan kunci `on:`/`jobs:` tetap LOLOS, lalu GitHub menonaktifkannya diam-diam sesudah merge — automasi mati tanpa ada yang tahu, persis kelas kegagalan yang hendak dicegah #309.
 - Hasil parse kini wajib berupa peta level-atas yang memuat kunci `on` (atau kunci boolean True khas YAML 1.1 untuk `on:`) dan `jobs`; selain itu GAGAL dengan nama berkasnya. Terbukti fixture dua arah: `stale.yml` dikosongkan → GAGAL menyebut berkasnya; kedelapan workflow asli → LOLOS.
