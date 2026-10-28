@@ -13,6 +13,7 @@ ci:
   - changed-files:
       - any-glob-to-any-file:
           - .github/workflows/**
+          - .github/actions/**
           - .github/dependabot.yml
           - .github/labeler.yml
           - .github/CODEOWNERS

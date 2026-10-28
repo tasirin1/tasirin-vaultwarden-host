@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 564: labeler kini melabeli .github/actions/** sebagai ci
+- Action komposit `.github/actions/resolve-vw` dipakai kedua workflow build sebagai penentu versi, tetapi pola label `ci` di `.github/labeler.yml` tak menjangkaunya (juga bukan `app`/`docs`) — PR yang hanya mengubah action kritis itu tak menerima label apa pun dan tak terlihat saat PR disaring per label.
+- Pola `.github/actions/**` ditambahkan ke label `ci`.
+
 ## [Belum rilis] — Audit 563: lint CustomX509TrustManager dihidupkan lagi — jaring pengaman verifikasi TLS pulih
 - Cek lint `CustomX509TrustManager` tadinya dimatikan global di `app/build.gradle.kts`, padahal tak ada satu pun implementasi `X509TrustManager` kustom di kode — kedua situs TLS memakai `TrustManagerFactory` platform dengan KeyStore CA ter-pin. Yang hilang murni jaring pengamannya: TrustManager baru yang menerima semua sertifikat tak akan tertandai lint walau `abortOnError=true`.
 - Entri itu dihapus dari daftar `disable`; lint kini akan menandai implementasi TrustManager kustom apa pun yang muncul di masa depan. Karena tak ada implementasi kustom saat ini, tak ada temuan lint baru yang diharapkan.
