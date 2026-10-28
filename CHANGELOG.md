@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 635: batas rentang kurawal gerbang dinaikkan 64 → 512
+- Batas anti-ledakan pada ekspansi rentang gerbang (64 nilai) menolak pola rentang sah yang besar seperti `img{1..100}.png` dengan pesan "tak mencocokkan berkas" yang menyesatkan. Batasnya dinaikkan ke 512 — jauh di atas rentang wajar mana pun untuk labeler, tetapi tetap membatasi biaya glob — dan dibuktikan dengan kasus satuan: rentang 100 nilai kini diekspansi, rentang 600 tetap literal.
+
 ## [Belum rilis] — Audit 634: probe versi kini memakai shimUtuh, konsisten dengan jalur start
 - Audit 629 menaikkan probe dari `exists()` ke `shimValid`, tetapi shim rusak-di-tengah (lolos header, gagal hash tercatat Audit 628) tetap di-`LD_PRELOAD` oleh kedua probe `--version`, menggagalkan probe dan bisa memicu unduh ulang binary yang tak perlu. Kedua probe kini membaca hash tercatat dan memakai `shimUtuh`, persis gerbang jalur start.
 

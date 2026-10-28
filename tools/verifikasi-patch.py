@@ -107,7 +107,10 @@ def _opsi_rentang(isi):
     """Isi grup berupa rentang {x..y[..langkah]} -> daftar nilainya;
     None bila bukan rentang. Selaras brace-expansion: ujung berupa
     bilangan bulat atau satu huruf, langkah bilangan bulat tak nol.
-    Jumlah nilai dibatasi 64 agar pola liar tak meledak."""
+    Jumlah nilai dibatasi 512 agar pola liar tak meledak
+    (512 jauh di atas rentang wajar mana pun di labeler, tetapi tetap
+    membatasi biaya glob; batas 64 sebelumnya menolak rentang sah
+    seperti {1..100} — Audit 635)."""
     global _RENTANG_KURAWAL
     if _RENTANG_KURAWAL is None:
         import re
@@ -138,7 +141,7 @@ def _opsi_rentang(isi):
                              + str(abs(v)).rjust(lebar, "0"))
             else:
                 nilai.append(str(v))
-            if len(nilai) > 64:
+            if len(nilai) > 512:
                 return None
             v += langkah
         return nilai
@@ -154,7 +157,7 @@ def _opsi_rentang(isi):
         v = awal
         while (v <= akhir) if step > 0 else (v >= akhir):
             nilai.append(chr(v))
-            if len(nilai) > 64:
+            if len(nilai) > 512:
                 return None
             v += step
         return nilai
