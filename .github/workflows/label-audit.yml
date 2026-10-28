@@ -1,9 +1,13 @@
 name: Label audit otomatis
 
-# Issue temuan audit membawa penanda "Ronde audit" di badannya (format baku
-# laporan audit). stale.yml mengecualikan label `audit`; workflow ini yang
-# memastikan label itu terpasang otomatis, bukan bergantung pada ingatan
-# pembuat issue (temuan Audit 557 / sisa kerapuhan #245).
+# Issue temuan audit membawa penanda baku di badannya: baris yang diawali
+# "**Ronde audit:** putaran-N" (format laporan audit). stale.yml
+# mengecualikan label `audit`; workflow ini yang memastikan label itu
+# terpasang otomatis, bukan bergantung pada ingatan pembuat issue
+# (temuan Audit 557 / sisa kerapuhan #245). Penanda kini BERJANGKAR pada
+# format baku itu — frasa "Ronde audit" yang lepas di tengah kalimat
+# (kutipan/diskusi) tidak lagi memberi label, dan label DICABUT bila
+# penanda hilang dari badan sesudah suntingan (Audit 625).
 
 on:
   issues:
@@ -18,15 +22,19 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Pasang label audit bila badan memuat penanda ronde audit
+      - name: Samakan label audit dengan penanda baku di badan issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BADAN: ${{ github.event.issue.body }}
           NOMOR: ${{ github.event.issue.number }}
           REPO: ${{ github.repository }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
         run: |
-          if printf '%s' "$BADAN" | grep -q "Ronde audit"; then
+          if printf '%s' "$BADAN" | grep -qE '^\*\*Ronde audit:\*\* putaran-[0-9]+'; then
             gh issue edit "$NOMOR" --repo "$REPO" --add-label audit
+          elif printf ',%s,' "$LABELS" | grep -q ',audit,'; then
+            gh issue edit "$NOMOR" --repo "$REPO" --remove-label audit
+            echo "Penanda baku tak ada; label audit dicabut."
           else
             echo "Tak ada penanda ronde audit; label tak diubah."
           fi

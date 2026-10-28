@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 625: penanda label audit kini berjangkar format baku dan label bisa dicabut
+- `label-audit.yml` sebelumnya memasang label `audit` (yang kebal stale tanpa batas waktu) hanya dari substring bebas "Ronde audit" di mana pun di badan issue — satu kutipan kalimat bisa memberi kekebalan selamanya, dan label tak pernah dicabut. Kini penandanya berjangkar pada format baku laporan audit (baris diawali `**Ronde audit:** putaran-N`), dan pada suntingan yang menghilangkan penanda, label dicabut otomatis.
+
 ## [Belum rilis] — Audit 623: ekspansi kurawal gerbang disamakan dengan aturan brace-expansion
 - Self-review menemukan dua penyimpangan tersisa dari minimatch: grup unsur tunggal tanpa koma (`*.{md}`) diekspansi gerbang menjadi `*.md` sehingga pola mati LOLOS, dan rentang sah (`img{1..2}.png`) tidak diekspansi sehingga ditolak palsu. Kini grup hanya diekspansi bila berisi daftar koma (terluar) atau rentang `..` (bilangan/huruf, berarah, berlangkah, ber-padding nol, dibatasi 64 nilai); grup lain dibiarkan literal dan ekspansi berlanjut pada sisa pola. Dibuktikan 12 kasus satuan (termasuk sarang, literal campuran, kurung tak ditutup) dan fixture gerbang dua arah.
 
