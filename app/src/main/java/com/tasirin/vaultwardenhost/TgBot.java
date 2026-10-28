@@ -2270,9 +2270,7 @@ public final class TgBot {
                     return;
                 }
                 try {
-                    if (milik.isHeld()) {
-                        milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
-                    }
+                    milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
                 } catch (Exception ignored) {
                     return;
                 }

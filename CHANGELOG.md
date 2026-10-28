@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 546: penjaga WakeLock tugas berat kini memasang ulang lock yang sudah kedaluwarsa
+- Penjaga perpanjang WakeLock tugas berat (tik tiap 10 menit) hanya memperpanjang bila `isHeld()` masih true. Bila satu tik terlambat melewati momen kedaluwarsa lock 20 menit — persis saat perangkat mulai tidur — tik berikutnya melihat lock sudah lepas, tak mengambil ulang, tetapi tetap menjadwalkan diri sampai batas 6 jam: sisa tugas berat (unduh/restore/update di jaringan lambat) berjalan tanpa WakeLock dan bisa membeku oleh doze.
+- Tik penjaga kini memanggil `acquire(timeout)` tanpa syarat selama tugas belum selesai dan batas 6 jam belum lewat: pada lock yang masih terpegang itu memperbarui kedaluwarsanya, pada lock yang sudah lepas itu memasangnya kembali.
+
 ## [Belum rilis] — Audit 545: ekspor config tak lagi meloloskan nama backup terakhir dan penanda storage-rendah
 - Residual #265: daftar tak-diekspor menutup kunci dinamis satu per satu, tetapi dua kunci statis perangkat-spesifik tertinggal: `tg_last_name` (nama berkas backup terakhir perangkat ini — keadaan lokal yang salah bila diterapkan di perangkat lain dan membocorkan nama berkas lokal ke penerima ekspor) dan `tg_low_storage_notified` (penanda sudah-diperingatkan; ikut ter-restore membuat peringatan storage rendah tak pernah muncul di perangkat baru).
 - Keduanya kini masuk `TAK_DIEKSPOR_KEYS` lewat konstantanya (`KEY_TG_LAST_NAME`, `KEY_TG_LOW_STORAGE`), dan uji `secretTakIkutBackup` diperluas mengunci keduanya.
