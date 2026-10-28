@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 580: CustomX509TrustManager naik ke severity error lint
+- Melanjutkan Audit 563: cek itu sudah dihidupkan lagi dari daftar `disable`, tetapi severity bawaannya Warning sehingga `abortOnError` tak pernah menghentikan build karenanya — jaring pengaman TLS hanya berupa warning terkubur di laporan. Kini cek tersebut masuk daftar `error` lint di `app/build.gradle.kts`: implementasi TrustManager kustom apa pun yang muncul di masa depan menggagalkan `lintDebug`. Tak ada implementasi kustom saat ini, jadi tak ada temuan baru yang diharapkan.
+
 ## [Belum rilis] — Audit 579: checkpoint WAL gagal kini membatalkan restore, bukan diteruskan diam-diam
 - Kedua jalur restore (bot di `TgBackup`, zip di Settings) memanggil `checkpointWal(dbFile)` tanpa memeriksa hasil boolean-nya, lalu menyalin berkas utama saja sebagai pre-backup dan menghapus -wal/-shm live tanpa syarat. Bila checkpoint tak tuntas (busy, atau galat I/O yang ditelan), transaksi ter-commit terbaru masih hanya ada di -wal itu — pre-backup kehilangannya dan restore yang kemudian gagal mengembalikan DB tanpa transaksi terakhir, permanen.
 - Kini hasil checkpoint diperiksa: jalur bot melempar IOException pembatal sebelum apa pun disentuh; jalur Settings membatalkan dengan pesan + return langsung (bukan throw, agar catch pemulih tak berjalan atas DB yang belum disentuh). Sesudah checkpoint sukses (WAL sudah tertuang ke berkas utama), penghapusan -wal/-shm tetap aman seperti sebelumnya.

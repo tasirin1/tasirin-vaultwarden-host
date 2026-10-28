@@ -84,7 +84,8 @@ android {
             "HandlerLeak",
             "StaticFieldLeak",
             "Recycle",
-            "Wakelock"
+            "Wakelock",
+            "CustomX509TrustManager"
         )
         disable += setOf(
             "OldTargetApi",
