@@ -35,7 +35,7 @@
     <color name="accent_rawat">#7B1FA2</color>
     <color name="accent_telegram">#0288D1</color>
     <color name="accent_log">#546E7A</color>
-    <color name="log_error">#C62828</color>
+    <color name="log_error">#B71C1C</color>
     <color name="log_warn">#8A5A00</color>
 
     <color name="search_highlight">#FFE082</color>
