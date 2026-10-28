@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemerataan sistem pengelolaan repo dengan repo Tasirin lain
+- Repo ini sebelumnya hanya punya workflow build; kini ditambah paket automasi yang sama seperti tasirin-download-manager: Dependabot (gradle + github-actions, berkelompok, major AGP manual), CodeQL (analisis keamanan statis java-kotlin), Gitleaks (deteksi secret ter-commit), Stale (penanda + penutup issue/PR tak aktif), Labeler (label otomatis per path `app`/`ci`/`docs`, konfig `.github/labeler.yml`, label dibuat di repo), dan Auto-merge khusus PR Dependabot non-Gradle sesudah CI hijau (deteksi berkas gagal-tertutup; PR dependensi Gradle diarahkan ke merge manual).
+- Ditambah pula `.github/CODEOWNERS`, template PR dan issue (bug report + feature request), `SECURITY.md` (kebijakan pelaporan kerentanan privat), `CONTRIBUTING.md`, dan `.editorconfig`. Workflow `build-apk.yml` dan `build-binary.yml` tidak diubah sama sekali.
+
 ## [Belum rilis] — Audit 471: cabang batas peta 128 capDepanStabil kini teruji
 - Logika pembatas baru dari Audit 441 (#194) — saat peta penanda cap depan penuh (128), sapu entri yang berkasnya lenyap, dan `clear()` total bila tetap penuh — tidak pernah dijalankan uji mana pun; uji yang ada hanya membuktikan semantik dua-penampakan lama dengan satu entri. (Separuh temuan ini, pilihan TTL `collectIps` dari #192, sudah ditutup Audit 470 lewat `collectCacheSegar` + ujinya.)
 - `capDepanStabil` kini package-private agar bisa diuji langsung, dan dua uji baru mengunci kedua cabang pembatas persis pada perilakunya yang membedakan: entri berkas yang masih ada selamat dari sapuan selektif (penampakan kedua tetap "stabil"), sedangkan sesudah `clear()` total berkas lama dihitung sebagai penampakan pertama lagi. Perilaku produksi tidak berubah.

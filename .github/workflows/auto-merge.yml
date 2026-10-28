@@ -1,0 +1,48 @@
+name: Auto-merge dependabot
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, labeled, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto-merge PR Dependabot
+    runs-on: ubuntu-24.04
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Deteksi perubahan dependensi Gradle
+        id: files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! FILES=$(gh pr view ${{ github.event.pull_request.number }} -R ${{ github.repository }} --json files --jq '.files[].path'); then
+            echo "::error::Gagal membaca daftar file PR - auto-merge dibatalkan."
+            exit 1
+          fi
+          if [ -z "$FILES" ]; then
+            echo "::error::Daftar file PR kosong - auto-merge dibatalkan."
+            exit 1
+          fi
+          echo "File berubah di PR:"
+          echo "$FILES"
+          if echo "$FILES" | grep -qE '^(app/build\.gradle\.kts|build\.gradle\.kts|gradle/|gradle\.properties|settings\.gradle\.kts)'; then
+            echo "GRADLE_DEPS=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Komentar panduan (PR dependensi Gradle)
+        if: env.GRADLE_DEPS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} -R ${{ github.repository }} --body "PR ini mengubah dependensi Gradle. Sesuai aturan repo, perubahan dependensi ditangani manual: pastikan gerbang Verifikasi Patch dan build CI hijau dulu, lalu merge manual."
+
+      - name: Auto-merge setelah CI hijau (bukan dependensi Gradle)
+        if: env.GRADLE_DEPS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --merge --auto
