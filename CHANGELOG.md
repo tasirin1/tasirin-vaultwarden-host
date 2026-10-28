@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 491: hasil pencarian PID anak dari /proc kini disimpan per objek Process
+- Di API 21–25 (perangkat sasaran utama) `pidOf` selalu jatuh ke `pidAnakDariProc`, yang memindai ulang seluruh kandidat se-UID dan membaca cmdline+stat tiap kandidat pada SETIAP panggilan — cache 8 detik yang ada hanya meng-cache daftar PID, bukan hasil bacaannya. Pemanggilnya sering dan berulang (RSSI berkala, `bereskanServerYatim` per percobaan, dan satu panggilan per kandidat di lingkaran verifikasi terakhir).
+- PID sebuah objek `Process` tidak pernah berubah seumur objek itu, jadi hasil positif kini disimpan di `WeakHashMap` per objek dan pemindaian hanya terjadi sekali (cek `exitValue` yang murah tetap lebih dulu, sehingga proses mati tidak pernah dilayani dari cache). Panggilan `pidOf` di lingkaran verifikasi terakhir `bereskanServerYatim` juga diangkat keluar lingkaran.
+
 ## [Belum rilis] — Audit 490: auto-merge kini dimatikan ulang bila PR berubah menyentuh dependensi Gradle
 - Alur auto-merge hanya searah: PR yang dibuka sebagai non-Gradle mengaktifkan auto-merge, lalu push susulan (`synchronize`) yang menambahkan berkas Gradle hanya memicu komentar panduan — auto-merge yang sudah terlanjur aktif tidak pernah dimatikan dan tetap menggabungkan begitu check wajib hijau, melewati aturan merge manual dependensi Gradle.
 - Langkah baru mematikan auto-merge (`gh pr merge --disable-auto-merge`, menoleransi keadaan belum aktif) setiap kali deteksi ulang menemukan berkas Gradle, sebelum komentar panduan dipasang. Dengan check wajib dari Audit 474, penggabungan juga selalu dinilai pada head terbaru.

@@ -3852,6 +3852,9 @@ public class ServerService extends Service {
         }
     }
 
+    private static final java.util.Map<Process, Integer> CACHE_PID_PROSES =
+            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+
     private static int pidAnakDariProc(Process p) {
         try {
             p.exitValue();
@@ -3859,6 +3862,10 @@ public class ServerService extends Service {
         } catch (IllegalThreadStateException e) {
         } catch (Throwable t) {
             return -1;
+        }
+        Integer tersimpan = CACHE_PID_PROSES.get(p);
+        if (tersimpan != null) {
+            return tersimpan;
         }
         int myPid = android.os.Process.myPid();
         java.util.List<Integer> cocok = new java.util.ArrayList<>();
@@ -3874,7 +3881,11 @@ public class ServerService extends Service {
                 cocok.add(pid);
             }
         }
-        return pidDariKecocokan(cocok);
+        int hasil = pidDariKecocokan(cocok);
+        if (hasil > 0) {
+            CACHE_PID_PROSES.put(p, hasil);
+        }
+        return hasil;
     }
 
     static int pidDariKecocokan(java.util.List<Integer> cocok) {
@@ -4150,8 +4161,9 @@ public class ServerService extends Service {
             }
         }
         segarkanCachePid();
+        int childPidAkhir = pidOf(process);
         for (int pid : kandidatPidSeUid()) {
-            if (pid != myPid && pid != pidOf(process) && pidMilikiServer(pid)) {
+            if (pid != myPid && pid != childPidAkhir && pidMilikiServer(pid)) {
                 catatLog("[app] Proses vaultwarden yatim (pid " + pid
                         + ") masih hidup - restore dibatalkan.");
                 return false;
