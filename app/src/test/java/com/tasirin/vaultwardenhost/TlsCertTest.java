@@ -259,6 +259,31 @@ public class TlsCertTest {
     }
 
     @Test
+    public void salinCaKeStorage_tujuanDidudukiFolderPakaiJalurGeser() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsbak2");
+        File ca = new File(dir.toFile(), "ca.pem");
+        Files.write(ca.toPath(), "ISI-CA-BARU".getBytes(StandardCharsets.UTF_8));
+        File out = new File(dir.toFile(), "out");
+        File penghalang = new File(out, "ca-cadangan-20260929-120000.pem");
+        assertTrue(penghalang.mkdirs());
+        Files.write(new File(penghalang, "isi-lama.txt").toPath(),
+                "LAMA".getBytes(StandardCharsets.UTF_8));
+        File tujuan = TlsCert.salinCaKeStorage(ca, out, "20260929-120000");
+        assertTrue(tujuan.isFile());
+        assertEquals("ISI-CA-BARU", new String(Files.readAllBytes(tujuan.toPath()),
+                StandardCharsets.UTF_8));
+        boolean adaGeseran = false;
+        String[] isi = out.list();
+        assertTrue(isi != null);
+        for (String nama : isi) {
+            if (nama.startsWith("ca-cadangan-20260929-120000.pem.lama-")) {
+                adaGeseran = true;
+            }
+        }
+        assertTrue(adaGeseran);
+    }
+
+    @Test
     public void tukarPasanganAtomik_pasangBaruBersihCadangan() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlstukar");
         File d = dir.toFile();

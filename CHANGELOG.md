@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 608: cabang fallback salinCaKeStorage kini teruji
+- Satu-satunya uji lama menulis ke folder yang masih kosong sehingga `renameTo` langsung berhasil dan seluruh blok fallback Audit 541 (nama tmp unik, geser tujuan lama ke `.lama-`, pulih bila gagal, fsync direktori) tak pernah berjalan. Uji baru menduduki path tujuan dengan folder berisi berkas — rename berkas ke folder pasti gagal — dan membuktikan jalur geser memasang salinan baru sambil mempertahankan geseran `.lama-*`. Sub-cabang pulih-bila-gagal kedua tak dapat diinduksi di JVM (rename lanjutan ke path yang baru dikosongkan tak bisa gagal selektif), dicatat apa adanya.
+
 ## [Belum rilis] — Audit 607: jalur pemulihan pasangan asli pulihkanTukarTersisa kini teruji
 - Ketiga uji lama `pulihkanTukarTersisa` memakai berkas teks sehingga `pasanganCertKeyCocok` selalu false — seluruh jalur yang digerbang kecocokan kriptografis tak pernah berjalan. Ditambah tiga uji berpasangan asli (dibuat generator produksi `buatCa`, yang visibilitasnya dibuka setingkat ke paket mengikuti pola helper teruji lain): pasangan `.baru` terpasang, kunci `.baru` dipasang untuk sertifikat resmi, dan pasangan resmi tak cocok diperbaiki dari pasangan `.cad`. Dua sub-cabang gagal-rename di tengah (gulung-balik sertifikat dan fallback keyCad sesudah rename kunci gagal) tidak dapat diinduksi pada sistem berkas JVM — rename berkas ke path saudara yang belum ada dalam folder yang sama tak bisa gagal selektif — jadi keduanya tetap hanya dijaga kodenya, dicatat apa adanya.
 
