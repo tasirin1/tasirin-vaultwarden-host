@@ -602,6 +602,9 @@ public class SettingsActivity extends Activity {
         }
         bersihkanPin(pinInput);
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
+        dasarDataDir = dataDirInput.getText().toString();
+        dasarPort = portInput.getText().toString();
+        dasarAdmin = adminTokenInput.getText().toString();
         return sp;
     }
 
@@ -908,6 +911,17 @@ public class SettingsActivity extends Activity {
         ui.removeCallbacks(refreshLoop);
     }
 
+    // Nilai input sebagaimana dimuat terakhir (muatPreferensi) atau
+    // disimpan terakhir. simpanPengaturanValid hanya menulis field yang
+    // BENAR-BENAR diubah user sejak itu — field yang tak disentuh tak
+    // boleh menimpa perubahan eksternal (mis. prefs hasil restore bot)
+    // dengan nilai tampilan yang sudah basi (Audit 588).
+    private String dasarDataDir, dasarPort, dasarAdmin;
+
+    static boolean berubahDariDasar(String teks, String dasar) {
+        return dasar == null || !teks.equals(dasar);
+    }
+
     private void simpanPengaturanValid() {
         if (TgBackup.restoreJalan()) {
             return;
@@ -915,24 +929,30 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         SharedPreferences.Editor ed = null;
         String dataDir = dataDirInput.getText().toString();
-        if (galatFolder(dataDir, msgFolderSalah) == null) {
+        if (berubahDariDasar(dataDir, dasarDataDir)
+                && galatFolder(dataDir, msgFolderSalah) == null) {
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_DATA_DIR,
                     ServerService.amankanDataDir(dataDir));
         }
         String port = portInput.getText().toString();
-        if (galatPort(port, msgPortSalah) == null) {
+        if (berubahDariDasar(port, dasarPort)
+                && galatPort(port, msgPortSalah) == null) {
             String p = port.trim();
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_PORT,
                     p.isEmpty() ? DEFAULT_PORT : p);
         }
         String admin = adminTokenInput.getText().toString();
-        if (galatAdmin(admin, msgAdminSalah) == null) {
+        if (berubahDariDasar(admin, dasarAdmin)
+                && galatAdmin(admin, msgAdminSalah) == null) {
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_ADMIN_TOKEN, admin.trim());
         }
         if (ed != null) {
             ed.apply();
             paksaCacheUbah = true;
         }
+        dasarDataDir = dataDir;
+        dasarPort = port;
+        dasarAdmin = admin;
     }
 
     private SharedPreferences.Editor tulisBilaBeda(SharedPreferences.Editor ed,

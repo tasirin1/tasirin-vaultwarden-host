@@ -11,6 +11,17 @@ import org.junit.Test;
 public class SettingsActivityTest {
 
     @Test
+    public void berubahDariDasarHanyaBilaUserMengubah() {
+        // Audit 588: teks sama dengan dasar = user tak menyentuh field,
+        // jangan tulis (perubahan eksternal menang); dasar null = anggap
+        // berubah (perilaku lama) agar tak ada field yang terkunci.
+        assertFalse(SettingsActivity.berubahDariDasar("8088", "8088"));
+        assertFalse(SettingsActivity.berubahDariDasar("", ""));
+        assertTrue(SettingsActivity.berubahDariDasar("9999", "8088"));
+        assertTrue(SettingsActivity.berubahDariDasar("8088", null));
+    }
+
+    @Test
     public void variasiSandiTersembunyi_bedakanDariVisiblePassword() {
         // textPassword XML = CLASS_TEXT(0x1) | VARIATION_PASSWORD(0x80)
         assertTrue(SettingsActivity.variasiSandiTersembunyi(0x81));
