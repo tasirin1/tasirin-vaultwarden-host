@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 498: PabrikTls12 tidak lagi melempar RuntimeException dan cache protokolnya tidak lagi meracuni soket lain
+- Daftar protokol dicache global dari soket PERTAMA dan dipaksakan ke semua soket berikutnya (termasuk factory server), dan kegagalan `setEnabledProtocols` dibungkus `RuntimeException` yang menggagalkan pembuatan soket total — asimetris dengan kegagalan cipher di sebelahnya yang ditoleransi. Soket yang tidak mendukung protokol tercache (mis. hanya TLSv1.2 saat cache memuat TLSv1.3) mati total padahal protokol bawaannya akan berhasil.
+- `nyalakan` kini memvalidasi cache terhadap dukungan soket saat itu (penolong murni `semuaProtokolDidukung`/`protokolCadangan`): cache yang tak didukung dipersempit ke irisan yang didukung soket ini, dan kegagalan set protokol jatuh ke irisan cadangan lalu ke bawaan soket dengan log — tidak pernah melempar lagi. Uji irisan + dukungan ditambahkan.
+
 ## [Belum rilis] — Audit 497: cap gagal bangun trust HttpsCompat kini ditulis di dalam kunci
 - Cap `bangunGagalAt` untuk jeda 60 detik (Audit #212) ditulis pemanggil `apply` SESUDAH `socketFactory` keluar dari blok `synchronized`, jadi thread paralel yang sudah mengantre bisa masuk dan membangun ulang trust store mahal yang pasti gagal sebelum cap terlihat — jeda hanya efektif untuk panggilan sesudah cap tertulis.
 - Pembangunan factory diekstrak ke `bangunFactory` dan cap kini ditulis di blok `synchronized` yang sama pada catch di `socketFactory`, sebelum kunci dilepas; thread berikutnya langsung melihat jeda dan melempar `JedaBangunTrust` tanpa membangun apa pun.

@@ -55,6 +55,41 @@ public final class HttpsCompat {
         return keluar;
     }
 
+    static boolean semuaProtokolDidukung(String[] protokol, String[] didukung) {
+        if (protokol == null || didukung == null) {
+            return false;
+        }
+        for (String p : protokol) {
+            boolean ada = false;
+            for (String d : didukung) {
+                if (p.equals(d)) {
+                    ada = true;
+                    break;
+                }
+            }
+            if (!ada) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static String[] protokolCadangan(String[] dipilih, String[] didukung) {
+        if (dipilih == null || didukung == null) {
+            return new String[0];
+        }
+        java.util.List<String> hasil = new java.util.ArrayList<>();
+        for (String p : dipilih) {
+            for (String d : didukung) {
+                if (p.equals(d)) {
+                    hasil.add(p);
+                    break;
+                }
+            }
+        }
+        return hasil.toArray(new String[0]);
+    }
+
     static boolean cipherKuat(String c) {
         if (c == null) {
             return false;
@@ -248,18 +283,24 @@ public final class HttpsCompat {
             if (s instanceof SSLSocket) {
                 SSLSocket ssl = (SSLSocket) s;
 
+                String[] dukungIni;
+                try {
+                    dukungIni = ssl.getSupportedProtocols();
+                } catch (Exception ignored) {
+                    dukungIni = null;
+                }
                 String[] protokol = protokolCache;
                 if (protokol == null) {
-                    String[] dukung;
-                    try {
-                        dukung = ssl.getSupportedProtocols();
-                    } catch (Exception ignored) {
-                        dukung = null;
-                    }
-                    protokol = pilihProtokol(dukung);
+                    protokol = pilihProtokol(dukungIni);
 
-                    if (dukung != null) {
+                    if (dukungIni != null) {
                         protokolCache = protokol;
+                    }
+                } else if (dukungIni != null
+                        && !semuaProtokolDidukung(protokol, dukungIni)) {
+                    protokol = protokolCadangan(protokol, dukungIni);
+                    if (protokol.length == 0) {
+                        protokol = pilihProtokol(dukungIni);
                     }
                 }
 
@@ -268,11 +309,23 @@ public final class HttpsCompat {
                     try {
                         ssl.setEnabledProtocols(protokol);
                     } catch (Exception e) {
-                        try {
-                            android.util.Log.w("HttpsCompat", "Gagal set protokol TLS: " + e);
-                        } catch (Exception ignored2) {
+                        String[] cadangan = dukungIni != null
+                                ? protokolCadangan(protokol, dukungIni) : new String[0];
+                        boolean ok = false;
+                        if (cadangan.length > 0 && cadangan.length < protokol.length) {
+                            try {
+                                ssl.setEnabledProtocols(cadangan);
+                                ok = true;
+                            } catch (Exception ignored) {
+                            }
                         }
-                        throw new RuntimeException(e);
+                        if (!ok) {
+                            try {
+                                android.util.Log.w("HttpsCompat",
+                                        "Gagal set protokol TLS - memakai bawaan soket: " + e);
+                            } catch (Exception ignored2) {
+                            }
+                        }
                     }
                 }
 

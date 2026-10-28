@@ -22,6 +22,25 @@ public class HttpsCompatTest {
     }
 
     @Test
+    public void protokolCadangan_irisanMempertahankanUrutanPilihan() {
+        org.junit.Assert.assertArrayEquals(new String[]{"TLSv1.2"},
+                HttpsCompat.protokolCadangan(new String[]{"TLSv1.3", "TLSv1.2"},
+                        new String[]{"TLSv1.2", "TLSv1.1"}));
+        org.junit.Assert.assertArrayEquals(new String[]{"TLSv1.3", "TLSv1.2"},
+                HttpsCompat.protokolCadangan(new String[]{"TLSv1.3", "TLSv1.2"},
+                        new String[]{"TLSv1.2", "TLSv1.3"}));
+        assertEquals(0, HttpsCompat.protokolCadangan(new String[]{"TLSv1.3"},
+                new String[]{"TLSv1.2"}).length);
+        assertEquals(0, HttpsCompat.protokolCadangan(null, new String[]{"TLSv1.2"}).length);
+        assertTrue(HttpsCompat.semuaProtokolDidukung(new String[]{"TLSv1.2"},
+                new String[]{"TLSv1.3", "TLSv1.2"}));
+        org.junit.Assert.assertFalse(HttpsCompat.semuaProtokolDidukung(
+                new String[]{"TLSv1.3"}, new String[]{"TLSv1.2"}));
+        org.junit.Assert.assertFalse(HttpsCompat.semuaProtokolDidukung(
+                new String[]{"TLSv1.2"}, null));
+    }
+
+    @Test
     public void pilihProtokol_hanyaModernBerurutan() {
         assertArrayEquals(new String[]{"TLSv1.3", "TLSv1.2"},
                 HttpsCompat.pilihProtokol(new String[]{"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1"}));
