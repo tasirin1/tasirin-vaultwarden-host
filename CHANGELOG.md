@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 548: fokus turun dari Revert kini mampir ke Cert info sebelum Install cert
+- Rantai fokus kartu Rawat timpang satu arah: naik dari `installCert` mampir ke `certInfoToggle` dan `certInfoToggle` sendiri menunjuk turun ke `installCert`/naik ke `revert`, tetapi `revert` menunjuk `nextFocusDown` langsung ke `installCert` — pengguna D-pad yang menelusuri turun tak pernah mendarat di tombol info sertifikat yang secara visual berada di antara keduanya.
+- `revert` kini `nextFocusDown=@id/certInfoToggle`, menutup rantai dua arah yang konsisten (revert → certInfoToggle → installCert, dan sebaliknya).
+
 ## [Belum rilis] — Audit 547: teks galat di atas sorotan pencarian log kini terbaca di kedua mode
 - Karakter tersorot pada baris galat memadukan warna teks `log_error` dengan latar `search_highlight`: siang #C62828 di atas #FFE082 = 4,35:1 dan malam #F26A62 di atas #7A5A00 = 2,13:1 (hitung WCAG) — di bawah ambang 4,5:1, justru pada baris yang paling sering dicari pengguna. Pasangan normalnya sehat, jadi yang digeser hanya warna galatnya.
 - `log_error` siang dipergelap ke #B71C1C (di atas sorotan 5,08:1; di atas putih 6,57:1) dan malam diterangkan ke #FFD2C8 (di atas sorotan 4,65:1; di atas latar gelap aplikasi >12:1). Pemakai lain warna yang sama (galat PIN, pewarnaan log MainActivity) ikut membaik atau tetap jauh di atas ambang di kedua mode; tidak ada perubahan kode.

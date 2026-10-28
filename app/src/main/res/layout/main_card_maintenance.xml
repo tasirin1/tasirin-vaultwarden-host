@@ -150,7 +150,7 @@
                         android:id="@+id/revert"
                         android:drawableStart="@drawable/ic_history"
                         android:drawablePadding="8dp"
-                        android:nextFocusDown="@id/installCert"
+                        android:nextFocusDown="@id/certInfoToggle"
                         android:nextFocusLeft="@id/update"
                         android:nextFocusUp="@id/update"
                         style="@style/TasirinBtn"
