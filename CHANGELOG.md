@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 659: pin dan sidik perangkat tidak lagi ikut diekspor ke backup
+- `bin_sha_pin`, `shim_sha256`, dan `bin_patch_rev` selama ini ikut tertulis ke `app-config.json` di dalam backup tetapi dibuang diam-diam saat impor (tidak ada di daftar putih impor) — data mati yang memberi kesan keliru bahwa pin ikut berpindah perangkat. Ketiganya adalah keadaan perangkat lokal (sidik berkas yang terpasang di perangkat ini), sekelas `bin_manual_fp` yang memang sudah dikecualikan; kini ketiganya masuk `TAK_DIEKSPOR_KEYS`. Penanda restore persisten baru (Audit 661) ikut dikecualikan dengan alasan yang sama. Perilaku restore tidak berubah: pin memang tidak pernah diterapkan dari backup, dan sejak Audit 652 pin yang basi dibersihkan secara eksplisit saat era binary berganti.
+
 ## [Belum rilis] — Audit 658: aarch32 diakui sebagai arsitektur ARM yang didukung
 - Catatan self-review putaran-22: predikat `arsitekturTakDidukung` (Audit 645) hanya menerima awalan `arm`, `aarch64`, atau kandungan `arm64` — nilai `os.arch` "aarch32" (nama resmi ARM 32-bit di sebagian runtime) jatuh ke kelompok tak didukung, sehingga pesan uji asap menyalahkan arsitektur pada perangkat yang sebenarnya sah. `aarch32` kini diakui eksplisit dan terkunci uji.
 
