@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 643: langkah APK bertanda tangan rilis kini digerbang ref main
+- Langkah build signed, verifikasi APK, cek ukuran, salinan bernama rilis, dan upload artifact di `build-apk.yml` sebelumnya hanya digerbang `event != pull_request`, jadi `workflow_dispatch` dari branch mana pun menghasilkan APK bertanda tangan keystore rilis asli sebagai artifact. Kelimanya kini juga mensyaratkan `github.ref == 'refs/heads/main'`, sejajar dengan langkah publish yang sudah lebih ketat.
+
 ## [Belum rilis] — Audit 642: CodeQL kini juga menganalisis shim C (cpp, build-mode none)
 - Satu-satunya kode natif repo — shim getrandom yang di-`LD_PRELOAD` ke proses server dan mengintersep keacakan — sebelumnya tak dianalisis SAST mana pun. `codeql.yml` kini punya job `Analyze (cpp)` dengan ekstraksi tanpa build untuk `shim/getrandom_shim.c`, dan `shim/**` dicabut dari paths-ignore CodeQL agar perubahan shim benar-benar memicu analisis (jadwal mingguan tetap menjadi jaring pengaman).
 
