@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 704: cek update kini terserialkan antar-instance
+- MainActivity dan SettingsActivity sama-sama menjalankan `AutoUpdate.cek` dari `onCreate` di pool latar yang sama, dan penanda tawarannya berpola baca-periksa-tulis tanpa serialisasi: membuka Settings sekejap sesudah layar utama (saat cek pertama masih menunggu jaringan) membuat kedua cek mengumumkan versi yang sama dua kali — toast ganda, dan berpotensi notifikasi + pesan Telegram ganda. `cek` kini berpagar CAS statis: cek kedua yang datang saat satu cek berjalan dilewati dengan catatan log (cek yang berjalan mencakup tanah yang sama), dan pagar dilepas di `finally`.
+
 ## [Belum rilis] — Audit 703: penanda tawaran web-vault kini ditulis hanya bila dialog benar-benar tampil
 - Penanda `wv_notified_<versi>` ditulis *sebelum* `DialogAman.tampil`, dan `tampil` menelan kegagalan `show()` (activity bertransisi, BadToken) — dialog yang tidak pernah dilihat pengguna mengubur tawaran untuk versi server itu selamanya. Penanda kini ditulis sesudah pemanggilan, hanya bila dialog terbukti `isShowing()`; kegagalan tampil membiarkan tawaran dicoba lagi pada kesempatan berikutnya.
 

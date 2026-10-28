@@ -31,6 +31,9 @@ public final class AutoUpdate {
 
     static final String KEY_TAWARAN_UPDATE = "update_ditawarkan_untuk";
 
+    private static final java.util.concurrent.atomic.AtomicBoolean CEK_JALAN =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     static boolean tawarkanBaru(String sudah, String versi) {
         return !Updater.versiCocok(versi, sudah);
     }
@@ -45,6 +48,13 @@ public final class AutoUpdate {
     }
 
     public static void cek(Context ctx, Aksi aksi, AturPending pending, boolean lengkap) {
+        if (!CEK_JALAN.compareAndSet(false, true)) {
+            try {
+                aksi.catat("[app] Cek update dilewati: cek lain sedang berjalan.");
+            } catch (Exception ignored) {
+            }
+            return;
+        }
         try {
 
             String latest = Updater.versiTargetBinary(ctx);
@@ -189,6 +199,8 @@ public final class AutoUpdate {
                         + (m != null && !m.isEmpty() ? m : e.getClass().getSimpleName()));
             } catch (Exception ignored) {
             }
+        } finally {
+            CEK_JALAN.set(false);
         }
     }
 
