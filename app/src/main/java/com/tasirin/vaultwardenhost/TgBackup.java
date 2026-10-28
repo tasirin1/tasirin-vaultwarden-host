@@ -3222,14 +3222,26 @@ public final class TgBackup {
         boolean lengkap = false;
         String peringatan = "";
         if (cfg != null) {
-            try {
-                applyPrefsFromJson(ctx, cfg.optJSONObject("prefs"));
-                lengkap = true;
-            } catch (Exception eSet) {
+            JSONObject prefsCfg = cfg.optJSONObject("prefs");
+            if (!"tasirin-vaultwarden-host".equals(cfg.optString("app", ""))) {
+                peringatan = " Peringatan: app-config.json bukan dari aplikasi"
+                        + " ini - pengaturan TIDAK diterapkan.";
+            } else if (prefsCfg == null) {
+                peringatan = " Peringatan: app-config.json tidak memuat"
+                        + " pengaturan - pengaturan TIDAK diterapkan.";
+            } else {
+                try {
+                    applyPrefsFromJson(ctx, prefsCfg);
+                    lengkap = true;
+                } catch (Exception eSet) {
 
-                peringatan = " Peringatan: pengaturan dari backup gagal diterapkan ("
-                        + eSet.getMessage() + ").";
+                    peringatan = " Peringatan: pengaturan dari backup gagal diterapkan ("
+                            + eSet.getMessage() + ").";
+                }
             }
+        } else if (pindai.config != null) {
+            peringatan = " Peringatan: app-config.json tidak terbaca"
+                    + " - pengaturan TIDAK diterapkan.";
         }
         SharedPreferences fresh = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
