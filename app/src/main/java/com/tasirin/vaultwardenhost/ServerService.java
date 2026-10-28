@@ -3631,8 +3631,7 @@ public class ServerService extends Service {
                             int persen = mentah.indexOf('%');
                             String bersih = persen < 0 ? mentah : mentah.substring(0, persen);
                             if (!bersih.isEmpty() && !bersih.equalsIgnoreCase("::1")
-                                    && !bersih.startsWith("fe80:")
-                                    && !bersih.startsWith("FE80:")) {
+                                    && !addr.isLinkLocalAddress()) {
                                 ips.add(bersih);
                             }
                         }

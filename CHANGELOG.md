@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 613: klasifikasi link-local IPv6 memakai isLinkLocalAddress
+- `collectIps` menyaring alamat link-local hanya dengan awalan literal `fe80:`/`FE80:`, padahal blok link-local adalah fe80::/10 (fe80:–febf:): alamat seperti `fe90::…` lolos sebagai alamat routable, masuk daftar SAN sertifikat TLS dan bisa dipilih `lanHost()` sebagai alamat yang ditampilkan. Kini memakai `InetAddress.isLinkLocalAddress()` yang memang menguji blok /10 itu.
+
 ## [Belum rilis] — Audit 611: readProcCmdline membaca sampai habis, bukan sekali baca
 - `readProcCmdline` membaca cmdline proses dengan satu kali `read()` ke buffer 1024 byte: kontrak `InputStream` tak menjamin buffer terisi penuh, dan cmdline yang lebih panjang terpotong diam-diam — bagian yang hilang pertama justru pengecualian `--version` di `cmdlineServer` (letaknya paling akhir), sehingga proses smoke-test bisa lolos sebagai server sungguhan. Kini dibaca berulang sampai habis dengan plafon 8192 byte.
 
