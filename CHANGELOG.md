@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: dua uji pasangDbDariSalinan/pulihkanDbLama diselaraskan dengan penjaga integritas Audit 578
+- Penjaga baru di `pasangDbDariSalinan` (Audit 578) mengubah kontrak yang dikunci dua uji JVM: fixture salinan teks polos "DB-LAMA" kini memang harus ditolak, tetapi uji lama mengharapkannya terpasang — `testDebugUnitTest` gagal di CI (run 40754364765) untuk `pasangDbDariSalinanGantiDbDanBuangWalShm` dan `pulihkanDbLamaPakaiSalinanAtauBuangDb`. Jalur sukses penjaga memerlukan SQLite Android asli sehingga tak bisa diuji di JVM — preseden yang sama seperti `pasangDbRestoreAtomik` yang juga hanya diuji jalur tolaknya.
+- Kedua uji ditulis ulang mengunci kontrak baru: salinan bukan SQLite ditolak (IOException) dan DB live terbukti tak tersentuh; cabang tanpa salinan tetap membuang DB. Perilaku produksi tidak berubah.
+
 ## [Belum rilis] — Audit 586: gerbang kini menjaga daftar izin wajib manifest dari penghapusan
 - Gerbang dulu asimetris: izin baru diperingatkan (`cek_izin_baru`), tetapi izin yang dihapus dari manifest tak terlihat cek mana pun — penghapusan tak sengaja (mis. konflik merge) bisa mematikan fitur diam-diam dengan CI hijau, termasuk regresi persis perbaikan Audit 562 (POST_NOTIFICATIONS) atau INTERNET.
 - Cek baru `cek_izin_wajib` dengan baseline `IZIN_WAJIB` (11 izin yang kini dideklarasikan): manifest yang kehilangan satu pun GAGAL dengan nama izinnya, dan pesannya menjelaskan jalur pengecualian yang disengaja (ubah baselinenya di commit yang sama). Terbukti fixture dua arah (bersih LOLOS; hapus POST_NOTIFICATIONS GAGAL; hapus INTERNET juga GAGAL menyebut keduanya).

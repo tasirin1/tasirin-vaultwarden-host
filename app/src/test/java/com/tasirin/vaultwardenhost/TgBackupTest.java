@@ -1747,26 +1747,32 @@ public class TgBackupTest {
     }
 
     @Test
-    public void pasangDbDariSalinanGantiDbDanBuangWalShm() throws Exception {
+    public void pasangDbDariSalinanTolakSalinanBukanSqlite() throws Exception {
+        // Sejak Audit 578 salinan pengaman wajib lolos isSqliteFile +
+        // cekIntegritasDb sebelum terpasang; jalur suksesnya memerlukan
+        // SQLite Android asli (tak tersedia di uji JVM — sama seperti
+        // pasangDbRestoreAtomik yang juga hanya diuji jalur tolaknya).
+        // Yang dikunci di sini: salinan tak layak DITOLAK dan DB live
+        // tak tersentuh sama sekali.
         File dir = java.nio.file.Files.createTempDirectory("vwsalin").toFile();
         File db = new File(dir, "db.sqlite3");
         java.nio.file.Files.write(db.toPath(),
                 "DB-BARU".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        assertTrue(new File(dir, "db.sqlite3-wal").createNewFile());
-        assertTrue(new File(dir, "db.sqlite3-shm").createNewFile());
         File salinan = new File(dir, "db-backup-pre.sqlite3");
         java.nio.file.Files.write(salinan.toPath(),
                 "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        TgBackup.pasangDbDariSalinan(dir, salinan);
-        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+        try {
+            TgBackup.pasangDbDariSalinan(dir, salinan);
+            org.junit.Assert.fail("salinan bukan SQLite wajib ditolak");
+        } catch (java.io.IOException diharapkan) {
+        }
+        assertEquals("DB-BARU", new String(java.nio.file.Files.readAllBytes(db.toPath()),
                 java.nio.charset.StandardCharsets.UTF_8));
-        assertFalse(new File(dir, "db.sqlite3-wal").exists());
-        assertFalse(new File(dir, "db.sqlite3-shm").exists());
         assertFalse(new File(dir, TgBackup.namaStagingRestore("db.sqlite3")).exists());
     }
 
     @Test
-    public void pulihkanDbLamaPakaiSalinanAtauBuangDb() throws Exception {
+    public void pulihkanDbLamaTolakSalinanTakValidAtauBuangDb() throws Exception {
         File dir = java.nio.file.Files.createTempDirectory("vwpulih").toFile();
         File db = new File(dir, "db.sqlite3");
         File salinan = new File(dir, "db-backup-pre.sqlite3");
@@ -1774,8 +1780,13 @@ public class TgBackupTest {
                 "DB-BARU".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         java.nio.file.Files.write(salinan.toPath(),
                 "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        TgBackup.pulihkanDbLama(dir, db, salinan);
-        assertEquals("DB-LAMA", new String(java.nio.file.Files.readAllBytes(db.toPath()),
+        try {
+            TgBackup.pulihkanDbLama(dir, db, salinan);
+            org.junit.Assert.fail("salinan tak valid wajib ditolak");
+        } catch (java.io.IOException diharapkan) {
+        }
+        // DB live utuh: tak terpasang salinan, tak terhapus.
+        assertEquals("DB-BARU", new String(java.nio.file.Files.readAllBytes(db.toPath()),
                 java.nio.charset.StandardCharsets.UTF_8));
 
         TgBackup.pulihkanDbLama(dir, db, null);
