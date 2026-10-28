@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 556: penjaga jejak uji kini sadar kelas, bukan sekadar nama metode
+- `disebut_di_uji` hanya mencocokkan nama metode + `(` di berkas uji mana pun: metode murni baru bernama umum yang kebetulan sama dengan panggilan milik kelas lain di uji (mis. `cocokChat(` di UtilTest) lolos tanpa peringatan sama sekali, padahal klaim AGENTS.md "uji logika murni baru" dijaga alat ini.
+- Untuk metode baru, jejak kini wajib berupa panggilan terkualifikasi `Kelas.metode(` di uji mana pun, atau penyebutan nama di berkas uji kelas itu sendiri (`<Kelas>Test.java`). Terbukti fixture: metode baru `TgBot.cocokChat` (nama bertabrakan dengan uji Util) kini memicu peringatan; metode #310 yang memang diuji terkualifikasi tetap bersih. Cek metode-yang-diubah tetap berbasis nama (header hunk tak membawa nama kelas).
+
 ## [Belum rilis] — Audit 555: dua uji tanpa asersi terakhir kini memeriksa postcondition nyata
 - Sisa pola yang pernah diperbaiki di #174: `cleanupOldBackups_nolAman` dan `peringatkanHapusPinAbaikanContextNull` hanya membuktikan "tidak crash untuk null" tanpa satu pun asersi — regresi yang membuat cleanup menciptakan folder atau menghapus isi pada masukan nol akan tetap hijau.
 - Uji cleanup kini menegaskan folder tak-ada tetap tak ada sesudah panggilan dan folder kosong tetap ada serta tetap kosong. Uji peringatan menegaskan invarian fail-closed `sudahUjiHapus(null)` tetap true sebelum dan sesudah kedua cabang panggilan null — keadaan "sudah diuji" tak bisa tercipta dari konteks null.

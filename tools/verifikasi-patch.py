@@ -1106,10 +1106,20 @@ def cek_import_mati(gagal):
                     and nama not in acuan_javadoc):
                 gagal.append("Import mati di %s: %s" % (path, jalan_imp))
 
-def disebut_di_uji(nama):
+def disebut_di_uji(nama, kelas=None):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+    if not kelas:
+        for path in jalan_repo(os.path.join("app", "src", "test")):
+            if pola.search(baca(path)):
+                return True
+        return False
+    pola_lengkap = re.compile(r"\b%s\s*\.\s*%s\s*\("
+                              % (re.escape(kelas), re.escape(nama)))
     for path in jalan_repo(os.path.join("app", "src", "test")):
-        if pola.search(baca(path)):
+        isi = baca(path)
+        if pola_lengkap.search(isi):
+            return True
+        if os.path.basename(path) == kelas + "Test.java" and pola.search(isi):
             return True
     return False
 
@@ -1149,7 +1159,9 @@ def cek_uji_baru(peringatan, diff):
                 if inti(baris).endswith(";"):
                     sebelumnya[path] = baris
                     continue
-                if not disebut_di_uji(nama):
+                dasar = os.path.basename(path)
+                kelas_utama = dasar[:-5] if dasar.endswith(".java") else None
+                if not disebut_di_uji(nama, kelas_utama):
                     peringatan.append(
                         "Metode baru %s() tanpa jejak di app/src/test "
                         "(aturan: uji logika murni baru)" % nama)
