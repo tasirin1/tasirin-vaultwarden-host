@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 549: fokus naik dari OK dialog About kembali ke Check update, bukan GitHub
+- Kedua tombol baris atas dialog About (GitHub dan Check update) sama-sama menunjuk turun ke tombol OK, tetapi OK menunjuk naik hanya ke GitHub: pengguna yang turun dari Check update lalu menekan Atas mendarat di GitHub — arah pulang tak konsisten.
+- `btn_about_ok` kini `nextFocusUp=@id/btn_about_update` (tombol aksi utama baris atas); GitHub tetap satu langkah Kiri dari Check update, jadi seluruh dialog terjelajahi dua arah tanpa lompatan mengejutkan.
+
 ## [Belum rilis] — Audit 548: fokus turun dari Revert kini mampir ke Cert info sebelum Install cert
 - Rantai fokus kartu Rawat timpang satu arah: naik dari `installCert` mampir ke `certInfoToggle` dan `certInfoToggle` sendiri menunjuk turun ke `installCert`/naik ke `revert`, tetapi `revert` menunjuk `nextFocusDown` langsung ke `installCert` — pengguna D-pad yang menelusuri turun tak pernah mendarat di tombol info sertifikat yang secara visual berada di antara keduanya.
 - `revert` kini `nextFocusDown=@id/certInfoToggle`, menutup rantai dua arah yang konsisten (revert → certInfoToggle → installCert, dan sebaliknya).
