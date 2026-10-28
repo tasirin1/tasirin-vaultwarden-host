@@ -11,6 +11,21 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void galatHapusSesaat_hanyaGalatJaringanYangDicobaLagi() {
+        assertTrue(TgBot.galatHapusSesaat(new java.net.SocketTimeoutException("t")));
+        assertTrue(TgBot.galatHapusSesaat(new java.net.ConnectException("t")));
+        assertTrue(TgBot.galatHapusSesaat(new java.net.UnknownHostException("t")));
+        assertTrue(TgBot.galatHapusSesaat(new java.net.SocketException("reset")));
+        assertTrue(TgBot.galatHapusSesaat(new java.io.IOException("aliran putus")));
+        assertFalse(TgBot.galatHapusSesaat(
+                new javax.net.ssl.SSLHandshakeException("sertifikat")));
+        assertFalse(TgBot.galatHapusSesaat(new java.io.IOException(
+                "Redirect Telegram ditolak: https://contoh.invalid")));
+        assertFalse(TgBot.galatHapusSesaat(new IllegalStateException("bug")));
+        assertFalse(TgBot.galatHapusSesaat(null));
+    }
+
+    @Test
     public void peringatkanHapusPinAbaikanContextNull() {
 
         TgBot.peringatkanBilaTakBisaHapus(null, true, 123456789L);

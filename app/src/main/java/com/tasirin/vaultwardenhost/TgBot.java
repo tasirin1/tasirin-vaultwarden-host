@@ -1383,11 +1383,34 @@ public final class TgBot {
         }
     }
 
+    static final long BATAS_HAPUS_PESAN_MS = 60_000L;
+
+    static boolean galatHapusSesaat(Exception e) {
+        if (e == null) {
+            return false;
+        }
+        if (e instanceof javax.net.ssl.SSLException) {
+            return false;
+        }
+        if (e instanceof java.net.SocketTimeoutException
+                || e instanceof java.net.ConnectException
+                || e instanceof java.net.UnknownHostException
+                || e instanceof java.net.SocketException) {
+            return true;
+        }
+        String m = e.getMessage();
+        if (m != null && m.startsWith("Redirect Telegram ditolak")) {
+            return false;
+        }
+        return e instanceof java.io.IOException;
+    }
+
     static boolean hapusPesanPerintah(Context ctx, long chatId, int messageId) {
 
         if (chatId == 0 || messageId == 0) {
             return false;
         }
+        long mulaiMs = System.currentTimeMillis();
         for (int coba = 1; ; coba++) {
             boolean sesaat = false;
             HttpURLConnection c = null;
@@ -1422,14 +1445,15 @@ public final class TgBot {
                         return false;
                     }
                 }
-            } catch (Exception ignored) {
-                sesaat = true;
+            } catch (Exception e) {
+                sesaat = galatHapusSesaat(e);
             } finally {
                 if (c != null) {
                     c.disconnect();
                 }
             }
-            if (!sesaat || coba >= 3) {
+            if (!sesaat || coba >= 3
+                    || System.currentTimeMillis() - mulaiMs >= BATAS_HAPUS_PESAN_MS) {
                 return false;
             }
             try {
