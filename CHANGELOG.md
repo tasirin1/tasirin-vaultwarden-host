@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 641: jendela penemuan run auto-merge dibedakan dari PR tersaring path
+- Langkah tunggu Build APK sebelumnya mencampur dua keadaan: run yang memang tak ada (PR tersaring path) dan run yang belum terdaftar karena GitHub lambat — keduanya dibaca sebagai "tersaring" dan auto-merge lanjut berbekal gerbang patch. Kini deteksi berkas PR juga menghitung apakah PR itu SEHARUSNYA memicu Build APK (ada berkas di luar daftar paths-ignore build-apk): jendela penemuan diperpanjang jadi 3 menit, dan bila run tak muncul padahal seharusnya ada, auto-merge DIBATALKAN (bisa dipulihkan lewat label) alih-alih dilanjutkan buta.
+
 ## [Belum rilis] — Audit 640: label security dibuat di repo agar pengecualian stale-nya hidup
 - Daftar `exempt-issue-labels` di `stale.yml` memuat `security`, tetapi label itu tidak terdaftar di repo sehingga tidak bisa dipasang ke issue mana pun dan pengecualiannya mati diam-diam. Label `security` kini dibuat di pengaturan repo (perbaikan sisi repo, tanpa perubahan berkas) dan issue-nya ditutup dengan bukti daftar label.
 

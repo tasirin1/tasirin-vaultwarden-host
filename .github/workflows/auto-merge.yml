@@ -39,6 +39,9 @@ jobs:
           if echo "$FILES" | grep -qE '^(\.github/workflows/build-binary\.yml|shim/)'; then
             echo "BINARY_PR=true" >> "$GITHUB_ENV"
           fi
+          if echo "$FILES" | grep -qvE '^(\.github/workflows/build-binary\.yml|\.gitignore|shim/.*|.*\.md)$'; then
+            echo "HARUS_BUILD=true" >> "$GITHUB_ENV"
+          fi
 
       - name: Matikan auto-merge bila kini menyentuh dependensi Gradle
         if: env.GRADLE_DEPS == 'true'
@@ -91,7 +94,7 @@ jobs:
         run: |
           SHA="${{ github.event.pull_request.head.sha }}"
           RUN_ID=""
-          for i in 1 2 3 4 5 6 7 8; do
+          for i in $(seq 1 12); do
             RUN_ID=$(gh run list -R ${{ github.repository }} --workflow build-apk.yml --commit "$SHA" --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)
             if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
               break
@@ -99,6 +102,10 @@ jobs:
             sleep 15
           done
           if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            if [ "$HARUS_BUILD" = "true" ]; then
+              echo "::error::PR ini seharusnya memicu Build APK tetapi run-nya tak terdaftar sesudah 3 menit - auto-merge dibatalkan (bisa dipulihkan lewat label)."
+              exit 1
+            fi
             echo "Tak ada run Build APK untuk head ini (PR tersaring path) - lanjut hanya dengan cek wajib."
             exit 0
           fi
