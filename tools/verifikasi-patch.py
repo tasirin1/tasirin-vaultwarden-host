@@ -90,6 +90,38 @@ def cek_workflow_yaml(gagal, peringatan):
             gagal.append("YAML workflow %s tanpa kunci on/jobs — workflow "
                          "tak akan jalan" % nama)
 
+def _kumpul_glob_labeler(node, kumpul):
+    if isinstance(node, str):
+        if "*" in node or "?" in node or "[" in node:
+            kumpul.append(node)
+    elif isinstance(node, list):
+        for item in node:
+            _kumpul_glob_labeler(item, kumpul)
+    elif isinstance(node, dict):
+        for nilai in node.values():
+            _kumpul_glob_labeler(nilai, kumpul)
+
+def cek_labeler_glob(data_labeler, gagal):
+    # Pola labeler yang salah ketik menunjuk path tak ada: label diam-diam
+    # berhenti menempel pada PR tanpa sinyal apa pun (Audit 585). Periksa
+    # awalan statis tiap pola (bagian sebelum wildcard pertama) — awalan
+    # itu wajib ada sebagai berkas/folder nyata.
+    kumpul = []
+    _kumpul_glob_labeler(data_labeler, kumpul)
+    for pola in kumpul:
+        potong = len(pola)
+        for tanda in "*?[":
+            i = pola.find(tanda)
+            if i != -1:
+                potong = min(potong, i)
+        awalan = pola[:potong].rstrip("/")
+        if not awalan:
+            continue
+        if not os.path.exists(os.path.join(AKAR, awalan)):
+            gagal.append("labeler.yml: pola %r menunjuk %r yang tak ada — "
+                         "label tak akan pernah menempel untuk pola itu"
+                         % (pola, awalan))
+
 EKOSISTEM_DEPENDABOT = {
     "bundler", "cargo", "composer", "docker", "elm", "github-actions",
     "gomod", "gradle", "maven", "mix", "npm", "nuget", "pip", "pnpm",
@@ -148,7 +180,10 @@ def cek_yaml_github_lain(gagal, peringatan):
                 if not isinstance(entri.get("directory"), str):
                     gagal.append("dependabot.yml: entri %s tanpa directory"
                                  % (eco,))
-    _muat_yaml_github(os.path.join(".github", "labeler.yml"), gagal)
+    data_labeler = _muat_yaml_github(os.path.join(".github", "labeler.yml"),
+                                     gagal)
+    if data_labeler is not None:
+        cek_labeler_glob(data_labeler, gagal)
     folder_actions = os.path.join(AKAR, ".github", "actions")
     if os.path.isdir(folder_actions):
         for nama in sorted(os.listdir(folder_actions)):

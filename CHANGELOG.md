@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 585: gerbang kini memeriksa keberadaan path pola labeler
+- Pola glob di `labeler.yml` yang salah ketik (mis. `app/src/mian/**`) tetap YAML valid dan dulu lolos gerbang — label berhenti menempel pada PR tanpa sinyal apa pun (regresi sekelas yang baru diperbaiki Audit 564 bisa kambuh diam-diam).
+- `cek_labeler_glob` baru: awalan statis tiap pola (bagian sebelum wildcard pertama) wajib ada sebagai berkas/folder nyata, jika tidak gerbang GAGAL menyebut polanya. Terbukti fixture dua arah di salinan buang (bersih LOLOS; pola `mian` GAGAL dengan pesan tepat).
+
 ## [Belum rilis] — Audit 584: gerbang kini memvalidasi YAML .github di luar workflows/ juga
 - `cek_workflow_yaml` hanya memindai `.github/workflows/`; `dependabot.yml`, `labeler.yml`, dan `actions/*/action.yml` tak pernah divalidasi — YAML rusak di dependabot menghentikan Dependabot total tanpa satu pun CI merah, dan salah ketik `package-ecosystem` pun lolos.
 - Cek baru `cek_yaml_github_lain`: ketiga berkas itu wajib ada, ter-parse sebagai peta YAML; entri dependabot wajib punya ekosistem yang dikenal dan `directory`; action wajib punya kunci `runs`. Terbukti fixture dua arah di salinan buang (bersih LOLOS; ekosistem "gradel" GAGAL dengan pesan tepat; YAML rusak GAGAL).
