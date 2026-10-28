@@ -3240,6 +3240,16 @@ public class ServerService extends Service {
                                     + " - unduh ulang versi pilihan.");
                         } else {
                             appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                            String realTerpasang = Updater.parseBinaryVersion(binaryVersion);
+                            if (realTerpasang != null && !realTerpasang.equals(updated)) {
+                                try {
+                                    sp.edit().putString(KEY_UPDATE_VERSION,
+                                            realTerpasang).apply();
+                                } catch (Exception ignored) {
+                                }
+                                appendLog("[app] Versi tercatat diselaraskan ke"
+                                        + " binary terpasang v" + realTerpasang + ".");
+                            }
                             if (pinShaBin == null || pinShaBin.isEmpty()) {
                                 try {
                                     sp.edit().putString(Updater.KEY_BIN_SHA_PIN,

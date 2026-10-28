@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 660: update_version diselaraskan ke binary yang benar-benar terpasang saat Start
+- `update_version` hasil restore tidak pernah dikoreksi: jalur cepat cache hanya memeriksa nilainya tidak kosong, sehingga klaim versi dari backup (bisa lebih baru dari binary fisik perangkat tujuan) dibaca cek update berkala sebagai versi berjalan dan dapat menekan tawaran unduhan yang sebenarnya dibutuhkan. Kini, sesudah uji `--version` di jalur cepat berhasil, versi terdeteksi dari binary dibandingkan dengan `update_version` tercatat dan ditulis balik bila berbeda — satu-satunya sumber kebenaran adalah binary yang benar-benar jalan.
+
 ## [Belum rilis] — Audit 659: pin dan sidik perangkat tidak lagi ikut diekspor ke backup
 - `bin_sha_pin`, `shim_sha256`, dan `bin_patch_rev` selama ini ikut tertulis ke `app-config.json` di dalam backup tetapi dibuang diam-diam saat impor (tidak ada di daftar putih impor) — data mati yang memberi kesan keliru bahwa pin ikut berpindah perangkat. Ketiganya adalah keadaan perangkat lokal (sidik berkas yang terpasang di perangkat ini), sekelas `bin_manual_fp` yang memang sudah dikecualikan; kini ketiganya masuk `TAK_DIEKSPOR_KEYS`. Penanda restore persisten baru (Audit 661) ikut dikecualikan dengan alasan yang sama. Perilaku restore tidak berubah: pin memang tidak pernah diterapkan dari backup, dan sejak Audit 652 pin yang basi dibersihkan secara eksplisit saat era binary berganti.
 
