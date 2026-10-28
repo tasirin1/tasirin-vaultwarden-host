@@ -64,22 +64,17 @@ done <<EOF_B
 $(printf '%s\n' "$TERLARANG" | sort -u)
 EOF_B
 
-hitung_judul() {
-  local n
-  n="$(rg -c '^## ' "$1" 2>/dev/null || true)"
-  if [ -z "$n" ]; then
-    n="$(grep -c '^## ' "$1" 2>/dev/null || true)"
-  fi
-  echo "${n:-0}"
+struktur_judul() {
+  awk '/^#{1,6} / { n = 0; while (substr($0, n + 1, 1) == "#") n++; printf "%d,", n }' "$1" 2>/dev/null
 }
 for r in README.md README.id.md README.ru.md; do
   if [ ! -f "$r" ]; then gagal_msg "berkas wajib hilang: $r"; fi
 done
-a=$(hitung_judul README.md)
-b=$(hitung_judul README.id.md)
-c=$(hitung_judul README.ru.md)
-if [ "$a" != "$b" ]; then gagal_msg "jumlah ## README.md ($a) != README.id.md ($b)"; fi
-if [ "$a" != "$c" ]; then gagal_msg "jumlah ## README.md ($a) != README.ru.md ($c)"; fi
+a=$(struktur_judul README.md)
+b=$(struktur_judul README.id.md)
+c=$(struktur_judul README.ru.md)
+if [ "$a" != "$b" ]; then gagal_msg "struktur judul README.md ($a) != README.id.md ($b)"; fi
+if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.md ($c)"; fi
 
 POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|$POLA_TOKEN"

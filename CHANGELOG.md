@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 518: cek sinkron README membandingkan struktur judul, bukan hanya jumlah ##
+- Pemeriksaan sinkron tiga README di `scripts/cek-cepat.sh` hanya menghitung judul `^## ` — subjudul `###` yang ditambah/diubah di satu bahasa dan perubahan isi/tingkat judul lain lolos tanpa jejak, padahal AGENTS.md mewajibkan ketiga README sinkron.
+- Pemeriksaan kini membandingkan urutan tingkat seluruh judul (`#`–`######`) antar ketiga berkas (judul memang diterjemahkan, jadi yang dibandingkan strukturnya). Terbukti fixture dua arah di salinan terpisah: tambah `###` di satu README → GAGAL, tambah `##` → GAGAL, pohon bersih → LOLOS.
+
 ## [Belum rilis] — Audit 517: CodeQL & Gitleaks kini menyaring dokumen dan punya concurrency
 - `codeql.yml` (timeout 60 menit) dan `gitleaks.yml` berjalan pada SETIAP push/PR termasuk commit dokumen murni, dan tanpa `concurrency` — selama maraton berisi puluhan push beruntun, run analisis menumpuk dan membakar menit Actions untuk perubahan yang tidak menyentuh kode.
 - Keduanya kini memakai `paths-ignore` dokumen yang sama dengan `build-apk.yml` (`*.md`, `.gitignore`, `shim/**`, workflow binary) pada `push` dan `pull_request`, plus grup `concurrency` per-ref (`codeql-…`/`gitleaks-…`, `cancel-in-progress: false` mengikuti pola build). Jadwal mingguan CodeQL tidak disaring.
