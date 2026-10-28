@@ -106,12 +106,59 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
 #define GRND_DIKENAL_SHIM \
     (GRND_NONBLOCK_SHIM | GRND_RANDOM_SHIM | GRND_INSECURE_SHIM)
 
+static ssize_t isi_dari_nonblok(void *buf, size_t len, int pakai_random) {
+    if (len == 0) {
+        return 0;
+    }
+    if (buf == 0) {
+        errno = EINVAL;
+        return -1;
+    }
+    const char *sumber = pakai_random ? "/dev/random" : "/dev/urandom";
+    int fd = open(sumber, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+    if (fd < 0) {
+        return -1;
+    }
+    size_t sudah = 0;
+    while (sudah < len) {
+        ssize_t n = read(fd, (char *) buf + sudah, len - sudah);
+        if (n < 0) {
+            int e = errno;
+            if (e == EINTR) {
+                continue;
+            }
+            close(fd);
+            if (e == EAGAIN && sudah > 0) {
+                return (ssize_t) sudah;
+            }
+            errno = e;
+            return -1;
+        }
+        if (n == 0) {
+            close(fd);
+            if (sudah > 0) {
+                return (ssize_t) sudah;
+            }
+            errno = EIO;
+            return -1;
+        }
+        sudah += (size_t) n;
+    }
+    close(fd);
+    return (ssize_t) sudah;
+}
+
 static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
     if (flags & ~GRND_DIKENAL_SHIM) {
         errno = EINVAL;
         return -1;
     }
-    return isi_dari(buf, buflen, (flags & GRND_RANDOM_SHIM) != 0);
+    int pakai_random = (flags & GRND_RANDOM_SHIM) != 0
+            && (flags & GRND_INSECURE_SHIM) == 0;
+    if (flags & (GRND_NONBLOCK_SHIM | GRND_INSECURE_SHIM)) {
+        return isi_dari_nonblok(buf, buflen, pakai_random);
+    }
+    return isi_dari(buf, buflen, pakai_random);
 }
 
 ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {

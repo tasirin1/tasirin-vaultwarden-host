@@ -64,6 +64,24 @@ int main(void) {
         printf("GAGAL getrandom GRND_RANDOM n=%zd\n", nr);
         return 1;
     }
+    unsigned char nb[32];
+    ssize_t nnb = getrandom(nb, sizeof nb, 0x0001u);
+    if (nnb != 32) {
+        printf("GAGAL getrandom GRND_NONBLOCK n=%zd errno=%d\n", nnb, errno);
+        return 1;
+    }
+    errno = 0;
+    ssize_t nrn = getrandom(nb, sizeof nb, 0x0002u | 0x0001u);
+    if (nrn != 32 && !(nrn == -1 && errno == EAGAIN)) {
+        printf("GAGAL getrandom GRND_RANDOM|GRND_NONBLOCK n=%zd errno=%d\n",
+               nrn, errno);
+        return 1;
+    }
+    ssize_t nin = getrandom(nb, sizeof nb, 0x0004u);
+    if (nin != 32) {
+        printf("GAGAL getrandom GRND_INSECURE n=%zd errno=%d\n", nin, errno);
+        return 1;
+    }
     ssize_t n = getrandom(b, sizeof b, 0);
     if (n != 32) {
         printf("GAGAL getrandom n=%zd\n", n);
