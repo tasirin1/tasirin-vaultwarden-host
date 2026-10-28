@@ -320,7 +320,7 @@ public final class Util {
         Thread w = new Thread(new Runnable() {
             @Override public void run() {
                 try {
-                    Thread.sleep(timeoutMs);
+                    Thread.sleep(Math.max(0, timeoutMs));
                 } catch (InterruptedException e) {
                     return;
                 }

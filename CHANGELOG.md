@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 669: watchdog proses menjepit timeout negatif ke nol
+- Badan thread `pasangWatchdogProses` hanya menangkap `InterruptedException`, padahal `Thread.sleep` melempar `IllegalArgumentException` untuk timeout negatif — watchdog mati diam-diam tanpa pernah membunuh prosesnya. Kedua pemanggil saat ini memakai konstanta 10 detik sehingga celahnya laten, tetapi pemanggil yang menghitung timeout dinamis (sisa waktu = batas − berlalu) bisa menghasilkan nilai negatif tepat di jalur lambat. Timeout kini dijepit `Math.max(0, ...)` — semantik yang benar: tenggat yang sudah lewat berarti bunuh sekarang juga, bukan jangan pernah.
+
 ## [Belum rilis] — Audit 668: confirm() kini memverifikasi dialog benar-benar tampil
 - Pola pengerasan Audit 603 (cek `isShowing()` sesudah `DialogAman.tampil`) sudah diterapkan di dialog impor tetapi belum di `confirm()`: bila `show()` gagal dalam balapan sempit antara cek `isFinishing()` dan tampil, dialog tak pernah muncul, `OnDismissListener` tak pernah terpanggil, dan callback batal tak pernah jalan — ketukan user hilang senyap. `confirm()` kini memperlakukan gagal-tampil sebagai batal (callback batal dijalankan), sama seperti pola yang sudah terbukti di dialog impor. Seluruh pemanggil saat ini memakai bentuk tanpa callback batal dan jalur matikan PIN memang gagal-aman, jadi ini menutup celah bagi pemanggil sekarang dan yang akan datang.
 
