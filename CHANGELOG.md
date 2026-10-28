@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 606: uji nextMidnight kini mengunci zona DST transisi tengah malam
+- Uji DST yang ada (America/New_York, transisi 02:00) lolos identik di algoritma lama maupun baru, jadi iterasi titik-tetap Audit 590 sebenarnya tak terkunci: refactor yang mengembalikan koreksi satu lintasan akan menghijaukan seluruh suite. Ditambah uji `nextMidnight_dstTransisiTengahMalam` untuk Asia/Beirut dan America/Santiago — dua zona yang transisinya tepat tengah malam — dengan nilai epoch yang dibuktikan porting 1:1 (algoritma lama menghasilkan nilai berbeda pada kedua kasus).
+
 ## [Belum rilis] — Audit 605: gerbang labeler mendukung kurung kurawal bersarang
 - Lanjutan Audit 602: ekspansi kurawal gerbang mengambil grup sampai kurung tutup pertama, sehingga pola bersarang yang sah di minimatch seperti `*.{md,{txt,rst}}` ditolak palsu. Kini tutup grup dicari dengan menghitung kedalaman dan isi dipecah hanya pada koma terluar. Dibuktikan fixture: pola bersarang sah LOLOS, pola bersarang hantu tetap GAGAL, pohon bersih LOLOS.
 

@@ -1045,6 +1045,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void nextMidnight_dstTransisiTengahMalam() {
+        java.util.TimeZone asal = java.util.TimeZone.getDefault();
+        try {
+            java.util.TimeZone.setDefault(
+                    java.util.TimeZone.getTimeZone("Asia/Beirut"));
+            assertEquals(1743285660000L, TgBackup.nextMidnight(1743235200000L));
+            java.util.TimeZone.setDefault(
+                    java.util.TimeZone.getTimeZone("America/Santiago"));
+            assertEquals(1749355260000L, TgBackup.nextMidnight(1749298800000L));
+        } finally {
+            java.util.TimeZone.setDefault(asal);
+        }
+    }
+
+    @Test
     public void verifikasiZip_tolakDbBuntung() throws Exception {
         File zip = File.createTempFile("vwzip", ".zip");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
