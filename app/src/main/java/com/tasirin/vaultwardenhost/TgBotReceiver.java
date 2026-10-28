@@ -89,7 +89,7 @@ public class TgBotReceiver extends BroadcastReceiver {
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot");
 
-            wl.acquire(60_000);
+            wl.acquire(10L * 60L * 1000L);
             return wl;
         } catch (Exception e) {
             return null;

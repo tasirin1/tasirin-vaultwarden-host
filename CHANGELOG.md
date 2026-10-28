@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 504: WakeLock poll Telegram dinaikkan dari 60 detik ke 10 menit
+- `TgBotReceiver` mengambil WakeLock hanya 60 detik, padahal satu `pollOnce` menjalankan banyak panggilan API berurutan yang masing-masing boleh membaca sampai 30 detik — di perangkat tidur (STB), CPU bisa tidur di tengah poll begitu 60 detik lewat dan sisa perintah tertunda sampai perangkat bangun sendiri.
+- Batas WakeLock kini 10 menit; lock tetap dilepas segera oleh `selesaikan` begitu poll selesai, jadi batas ini hanya plafon pengaman, bukan durasi tahan.
+
 ## [Belum rilis] — Audit 503: retry 429 Telegram kini menjangkau jalur unduh dan edit pesan
 - Sikap tunggu-`retry_after` yang sudah ada di jalur kirim pesan dan unggah belum ada di tiga pemanggil API lain: `getFilePath` (429 = restore dari Telegram selalu gagal total), unduhan berkas backup di `downloadLastBackup` (429 di tengah jalan membuang seluruh unduhan), dan `ubahSinkron` (edit pesan status gagal seketika).
 - Ketiganya kini mencoba sekali lagi sesudah tidur selama `jedaRetryAfterMs` dari badan galat 429 — pola yang sama persis dengan dua jalur lama; pemotongan jeda maksimum 5 detik tidak diubah.
