@@ -43,6 +43,7 @@ Single vertical column layout (portrait and landscape share the same order): lin
 
 - **Port in use?** Change Port in Settings.
 - **`failed to generate random data` / HTTPS error?** Old STB kernel — press **Check Update**, Start again.
+- **Bitwarden app can't log in?** Read the realtime log lines tagged `[login]` (the URL must be `https://`, the CA must be installed on the phone, register the account in the web vault first).
 - **Web UI unreachable?** Same WiFi required, use the local IP.
 - **Download fails?** Check STB internet & clock, Start again (auto-resumes).
 - **Telegram backup fails with `Certificate not valid until`?** STB clock reset to 2015

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 620: bullet pemecahan masalah login kini ada di ketiga README
+- Petunjuk "**Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]`" hanya ada di README Indonesia; pembaca Inggris dan Rusia kehilangan petunjuk diagnostik yang sama (fiturnya nyata — baris `[login]` ditulis ServerService). Bullet padanannya kini ditambahkan ke README Inggris dan Rusia pada posisi yang sama di daftar pemecahan masalah, memulihkan paritas tiga bahasa.
+
 ## [Belum rilis] — Audit 619: angka ukuran APK disegarkan ke rilis terakhir
 - AGENTS.md masih menulis "rilis terakhir 247 KB" dan ketiga README "~0,25 MB", padahal rilis terakhir (v1.37.4, terverifikasi saat audit) berisi APK 284.936 byte (±285 KB / 0,28 MB) — angka presisi di dokumen sudah terlampaui ±15%. Kini AGENTS.md menulis 285 KB dan ketiga README ~0,28 MB sesuai aset rilis aktual.
 
