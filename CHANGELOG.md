@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 507: verifikasi PIN ASCII tidak lagi membayar PBKDF2 kedua yang identik
+- Setiap verifikasi PIN yang gagal selalu menjalankan dua derivasi PBKDF2 penuh (primer + cadangan kompatibilitas). Cadangan itu hanya bisa berbeda untuk masukan non-ASCII (perbedaan konversi char→byte antar-provider); untuk masukan ASCII murni — selalu begitu pada format bungkus `PBKDF2W$` yang masukannya hex SHA-256 — hasil cadangan identik secara konstruksi, jadi derivasi kedua adalah biaya murni yang terasa di STB lambat setiap pengguna salah ketik PIN.
+- Jalur cadangan kini dilewati bila masukan terbukti seluruhnya ASCII (helper murni `semuaAscii` + uji); PIN non-ASCII pada format `PBKDF2$` tetap mendapat cadangan kompatibilitas seperti sebelumnya.
+
 ## [Belum rilis] — Audit 506: tlsRestoreLengkap kini mensyaratkan dua pasangan lengkap dua arah
 - `tlsRestoreLengkap` hanya memeriksa dua kunci privat; backup berisi kunci tanpa sertifikat pasangannya dinyatakan "lengkap", lalu `pasangTlsRestore` menimpa berkas hidup satu-satu dan meninggalkan campuran baru/lama yang tidak serasi (server gagal start TLS atau menyajikan sertifikat yang tidak cocok dengan kuncinya).
 - Kelengkapan kini berarti keempat entri `ENTRI_TLS_RESTORE` ada (pasangan CA dan pasangan leaf, dua arah); pesan peringatan restore disesuaikan ("pasangan sertifikat + kunci privatnya tidak lengkap"), dan uji kelengkapan diperbarui namanya + ditambah kasus asimetris kunci-saja dan kurang-satu.

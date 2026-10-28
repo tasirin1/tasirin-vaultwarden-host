@@ -8,6 +8,16 @@ import org.junit.Test;
 public class PinCryptoTest {
 
     @Test
+    public void semuaAsciiKenaliBatas() {
+        assertTrue(PinCrypto.semuaAscii("123456"));
+        assertTrue(PinCrypto.semuaAscii("deadbeef0123"));
+        assertTrue(PinCrypto.semuaAscii(""));
+        assertTrue(PinCrypto.semuaAscii(null));
+        assertFalse(PinCrypto.semuaAscii("piné"));
+        assertFalse(PinCrypto.semuaAscii("１２３"));
+    }
+
+    @Test
     public void hashLaluVerifikasi() {
         String h = PinCrypto.hash("123456");
         assertTrue(PinCrypto.isNewFormat(h));

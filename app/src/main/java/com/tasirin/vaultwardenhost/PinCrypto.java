@@ -169,8 +169,23 @@ public final class PinCrypto {
         if (MessageDigest.isEqual(got, want)) {
             return true;
         }
+        if (semuaAscii(input)) {
+            return false;
+        }
         byte[] cadangan = deriveCadangan(input, salt, iter);
         return cadangan != null && MessageDigest.isEqual(cadangan, want);
+    }
+
+    static boolean semuaAscii(String s) {
+        if (s == null) {
+            return true;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) > 0x7F) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static long sisaKunciMs(int gagal, long terkunciSampai, long sekarang) {
