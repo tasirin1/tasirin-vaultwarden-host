@@ -104,12 +104,15 @@ public final class AutoUpdate {
                     aksi.kabariTersedia(latest);
 
                     if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
-                        boolean tampil = tampilkanNotifikasi(ctx, latest);
+                        tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
-                        if (tampil) {
-                            sp.edit().putString("tg_notified_version", latest).apply();
-                        }
+                        // Penanda dicatat sesudah pengumuman DICOBA di
+                        // kedua kanal, bukan digerbang keberhasilan
+                        // notifikasi sistem: izin notifikasi mati dulu
+                        // membuat pesan Telegram terkirim ulang pada
+                        // setiap pembukaan aplikasi (Audit 599).
+                        sp.edit().putString("tg_notified_version", latest).apply();
                     }
                 }
             }

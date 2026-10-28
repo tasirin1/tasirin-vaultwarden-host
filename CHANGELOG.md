@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 599: penanda pengumuman update dicatat sesudah dicoba, bukan digerbang notifikasi
+- Blok pengumuman versi baru di `AutoUpdate.cek` mengirim pesan Telegram tanpa syarat, tetapi penanda dedup `tg_notified_version` hanya ditulis bila notifikasi sistem berhasil tampil. Bila user mematikan notifikasi aplikasi, penanda tak pernah tercatat dan pesan Telegram yang sama terkirim ulang pada setiap pembukaan aplikasi/Settings sampai update dipasang. Kini penanda dicatat sesudah pengumuman dicoba di kedua kanal; kanal dalam-aplikasi (`kabariTersedia`) tetap punya dedupnya sendiri.
+
 ## [Belum rilis] — Audit 598: jadwal bot menyiram tulis tertunda sebelum membaca prefs
 - Efek samping Audit 593: siraman debounce bersama digeser oleh ketikan di field mana pun, sementara jadwal bot berjalan tetap 1000 ms sesudah ketikan token/chat dan membaca kredensial dari prefs untuk memutuskan pasang/batal alarm. Bila user lanjut mengetik password backup/SHA dalam jendela itu, siraman terdorong melewati jadwal — `TgBot.schedule()` menilai prefs lama (kosong untuk kredensial pertama kali) dan membatalkan alarm; tak ada yang memasangnya lagi, bot berhenti polling diam-diam.
 - Kini runnable jadwal bot menyiram tulis tertunda lebih dulu sebelum memanggil `TgBot.schedule()`, jadi keputusan jadwal selalu membaca kredensial terbaru apa pun urutan ketikannya.
