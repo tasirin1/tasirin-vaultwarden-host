@@ -1043,6 +1043,7 @@ public class MainActivity extends Activity {
             startActivityForResult(new Intent(this, PinActivity.class), REQ_PIN);
         } catch (Exception e) {
             pinBukaJalan = false;
+            finish();
         }
     }
 

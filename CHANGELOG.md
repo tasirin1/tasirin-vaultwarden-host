@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 692: gagal meluncurkan layar PIN kini gagal-tertutup
+- Bila `startActivityForResult(PinActivity)` melempar, kedua activity dulu hanya menyetel ulang penanda dan berjalan terus: refresh memang terhalang, tetapi kontrol dan menu tetap bisa dipakai tanpa gerbang pada sesi itu — arah gagal yang terbuka. Kini kegagalan peluncuran menutup activity (`finish()`): gerbang yang tidak bisa ditegakkan tidak digantikan dengan sesi tanpa gerbang. Pemicunya sangat langka (komponen internal nonaktif/keadaan sistem rusak); pengguna cukup membuka ulang aplikasi.
+
 ## [Belum rilis] — Audit 691: konten disegel sejak onCreate bila layar PIN diperlukan
 - UI dibangun penuh di `onCreate` sementara layar PIN baru diluncurkan dari `onResume`, sehingga pada cold start di perangkat lambat satu-dua frame konten (status/log) bisa tergambar sebelum layar kunci menutupinya. MainActivity dan SettingsActivity kini menyegel konten (`INVISIBLE` pada akar tampilan) sejak `onCreate` bila gerbang menyatakan layar PIN diperlukan, dan segel dibuka oleh tik refresh pertama yang lolos gerbang — kilasan tertutup secara struktural, bukan hanya dikurangi tema splash. Batal di layar PIN tetap menutup activity seperti sebelumnya, jadi segel tidak pernah meninggalkan layar kosong yang menggantung.
 
