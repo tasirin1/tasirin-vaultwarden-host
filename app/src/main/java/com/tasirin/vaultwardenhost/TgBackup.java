@@ -3721,6 +3721,7 @@ public final class TgBackup {
         }
 
         SharedPreferences.Editor ed = cur.edit();
+        boolean eraBinaryBerubah = false;
 
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
@@ -3748,8 +3749,13 @@ public final class TgBackup {
 
                         String normal = Updater.normVersion(teks);
                         ed.putString(k, normal == null ? "" : normal);
-                    } else if (ServerService.KEY_BIN_PILIH.equals(k)
-                            || ServerService.KEY_WV_PILIH.equals(k)) {
+                        eraBinaryBerubah = true;
+                    } else if (ServerService.KEY_BIN_PILIH.equals(k)) {
+
+                        String normal = Updater.normalisasiPinVersi(teks);
+                        ed.putString(k, normal == null ? "" : normal);
+                        eraBinaryBerubah = true;
+                    } else if (ServerService.KEY_WV_PILIH.equals(k)) {
 
                         String normal = Updater.normalisasiPinVersi(teks);
                         ed.putString(k, normal == null ? "" : normal);
@@ -3758,6 +3764,7 @@ public final class TgBackup {
                         if (shaHexValid(teks)) {
                             ed.putString(k, teks.trim().toLowerCase(
                                     java.util.Locale.US));
+                            eraBinaryBerubah = true;
                         }
                     } else {
                         ed.putString(k, teks);
@@ -3808,6 +3815,10 @@ public final class TgBackup {
             if (!prefs.has(e.getKey())) {
                 ed.putBoolean(e.getKey(), e.getValue());
             }
+        }
+        if (eraBinaryBerubah) {
+            ed.remove(Updater.KEY_BIN_SHA_PIN);
+            ed.remove(ServerService.KEY_BIN_MANUAL_FP);
         }
         ed.apply();
     }

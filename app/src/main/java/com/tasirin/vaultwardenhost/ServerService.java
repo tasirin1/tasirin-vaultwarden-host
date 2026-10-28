@@ -3311,6 +3311,8 @@ public class ServerService extends Service {
                                 sp.edit().putString(KEY_BIN_PATCH,
                                                 String.valueOf(BIN_PATCH_REV))
                                         .putString(KEY_BIN_MANUAL_FP, sidikAwal)
+                                        .putString(Updater.KEY_BIN_SHA_PIN,
+                                                Updater.sha256Hex(out))
                                         .apply();
 
                                 if (realManual != null && !realManual.isEmpty()) {

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 652: pin binary dipelihara saat pasang manual dan restore
+- Dua jalur mengganti era binary tanpa menyentuh pin `bin_sha_pin`: pemasangan binary manual dari folder data menulis sidik manual dan versi tetapi membiarkan pin unduhan lama (Start berikutnya selalu gagal `binaryUtuh`, jalur cepat mati permanen, log menuduh kerusakan yang tidak ada), dan restore/impor menulis `bin_sha`/`update_version`/pin versi dari backup sambil membiarkan pin + sidik manual perangkat lama (keadaan campuran dua era). Kini jalur manual menulis pin dari SHA-256 berkas yang benar-benar terpasang, dan `applyPrefsFromJson` membersihkan `bin_sha_pin` + `bin_manual_fp` setiap kali kunci era binary ikut ditulis dari backup — pin dibangun ulang secara jujur lewat pin-on-first-use atau pemasangan manual berikutnya, bukan diwarisi dari era yang salah.
+
 ## [Belum rilis] — Audit 651: pin SHA-256 binary kini menggerbang semua cabang penerimaan cache
 - Self-review putaran-22 menemukan pin `bin_sha_pin` (Audit 647) hanya diperiksa di cabang cache update; cabang cache internal (`version.txt` cocok + uji `--version` + pin versi) mengembalikan binary yang sama tanpa cek SHA sama sekali, sehingga binary rusak yang lolos uji asap tetap dipakai dan unduh ulang tak pernah dicoba. Ketiga cabang penerimaan cache kini mensyaratkan `binaryUtuh` yang sama: cabang cache internal, cabang tunda-unduh saat jeda percobaan ulang, dan cabang darurat sesudah unduh gagal (cabang darurat kini juga mencatat dengan jujur bila cache ditolak karena SHA, bukan diam-diam memakainya). Pin kosong tetap berarti belum ada catatan (perilaku pin-on-first-use tak berubah).
 
