@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 646: shim gagal terpasang tak lagi membatalkan Start bila binary terbukti jalan tanpanya
+- Klasifikasi legacy menggerbang Start secara keras: shim gagal terpasang (mis. pemasangan pertama offline) = Start batal, padahal sebagian kernel 3.x vendor membawa backport getrandom sehingga binary sebenarnya tidak butuh shim sama sekali — dan deteksi versi tak bisa melihat backport itu. Kini kegagalan pasang shim dibuktikan dulu lewat uji asap `--version` tanpa shim: lolos → Start lanjut tanpa `LD_PRELOAD` dengan catatan log; gagal → batal seperti semula. Perangkat legacy murni tanpa backport tidak berubah perilakunya (uji asapnya memang gagal tanpa shim).
+
 ## [Belum rilis] — Audit 645: kegagalan uji asap di perangkat non-ARM kini didiagnosis jujur
 - Perangkat di luar target (x86/x86_64 murni, arm64 tanpa compat 32-bit) sebelumnya gagal uji `--version` dengan pesan generik yang menyalahkan berkas dan mendorong Cek Update berulang, padahal binary ARM memang tidak bisa berjalan di sana. `KernelCompat` kini punya predikat murni `arsitekturTakDidukung` (terkunci uji), dan pesan uji asap gagal menyebut arsitekturnya secara eksplisit: bukan ARM, mengunduh ulang tidak akan membantu. Tidak ada ABI baru yang ditambah — ini murni diagnosis, sesuai aturan repo.
 

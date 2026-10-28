@@ -1845,15 +1845,25 @@ public class ServerService extends Service {
         if (legacy) {
             sesi.shim = ensureShim();
             if (sesi.shim == null) {
-                return false;
-            }
-            if (!detectBinaryVersion(sesi.binary)) {
+                // Shim tak terpasang (mis. pemasangan pertama offline).
+                // Sebagian kernel 3.x vendor membawa backport getrandom
+                // sehingga binary sebenarnya tak butuh shim (Audit 646):
+                // buktikan lewat uji asap tanpa shim — lolos berarti start
+                // aman tanpa LD_PRELOAD; gagal berarti batal seperti semula.
+                if (detectBinaryVersion(sesi.binary)) {
+                    appendLog("[app] Shim tak terpasang, tetapi binary lolos uji"
+                            + " --version tanpa shim - start tanpa LD_PRELOAD.");
+                } else {
+                    return false;
+                }
+            } else if (!detectBinaryVersion(sesi.binary)) {
                 appendLog("[app] FATAL: binary gagal --version walau shim terpasang"
                         + " - start dibatalkan.");
                 setStatus("Binary tidak jalan di perangkat ini - cek log.");
                 return false;
+            } else {
+                appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
             }
-            appendLog("[app] Shim getrandom siap - start dengan LD_PRELOAD.");
         }
 
         if (!legacy && isKernelRandomPanic(lastVersionOutput)) {
