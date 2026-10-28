@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 675: langkah boot kini terisolasi — satu gagal tidak membatalkan langkah lain
+- Seluruh pekerjaan BootReceiver berjalan dalam satu `try` besar ber-`catch` generik: satu langkah awal yang melempar (mis. migrasi preferensi pada bentuk data tak terduga) membatalkan auto-start server pada boot itu — padahal `auto_start` aktif dan tidak ada penanda tertunda untuk kasus ini — dan kegagalan jadwal backup membatalkan jadwal bot; satu-satunya jejak adalah satu baris log tanpa konteks langkah. Kini tiap kelompok langkah berpagar sendiri dengan log berkonteks: persiapan (cek penanda restore + heal/migrasi preferensi), jadwal backup, dan jadwal bot; auto-start sudah terisolasi sejak sebelumnya. Kegagalan satu langkah tidak lagi membatalkan langkah boot lainnya.
+
 ## [Belum rilis] — Audit 674: bolehHapusFile tidak lagi mengizinkan direktori akarnya sendiri
 - Penjaga "hanya boleh hapus di dalam cacheDir/filesDir" juga menyetujui target yang persis sama dengan direktori akar itu sendiri (cabang `equals`), sehingga pemanggil yang meneruskan jalur hasil gabungan bisa menghapus `cacheDir`/`filesDir` utuh dan tetap lolos pemeriksaan. Pemanggil satu-satunya saat ini meneruskan berkas zip tertentu sehingga belum ada jalur aktif; cabang `equals` kini dicabut — yang boleh dihapus hanya isi **di dalam** akar, bukan akarnya — dan terkunci uji. Perlindungan symlink-ke-luar (jalur kanonis) tidak berubah.
 
