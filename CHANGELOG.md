@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 615: nama seksi di README disamakan dengan judul kartu di UI
+- Ketiga README mengarahkan kunci versi dan backup lokal ke "Settings → Maintenance/Pemeliharaan", padahal judul kartu yang benar-benar tampil adalah "Updates & Certificate" (Inggris) / "Pembaruan & Sertifikat" (Indonesia). Arahannya benar tempat, salah nama — kini disamakan persis dengan string UI di ketiga bahasa (README Rusia memakai nama Inggris karena aplikasi tak punya sumber daya Rusia).
+
 ## [Belum rilis] — Audit 612: killStaleVaultwarden gagal-aman saat identitas anak tak bisa dipastikan
 - Di API 21–25 tak ada `Process.pid()`, jadi pengecualian proses berjalan bergantung pada scan /proc yang hanya berhasil bila ada tepat satu anak server. Bila dua anak sempat hidup bersamaan, scan gagal, `childPid` menjadi -1, dan anak yang sah bisa ikut dibunuh di tengah urutan start-nya sendiri (DUGAAN jendela sempit). Kini kandidat berinduk ke aplikasi ini (PPID = PID aplikasi) dilewati bila identitas anak yang berjalan tak teridentifikasi — yatim sejati berinduk lain tetap dibersihkan. Keputusan itu predikat murni `lewatiBunuhBasi` dan dikunci uji.
 
