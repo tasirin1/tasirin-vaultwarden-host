@@ -2619,6 +2619,12 @@ public final class TgBackup {
     private static final java.util.Map<String, Long> CAP_DEPAN_TERLIHAT =
             new java.util.HashMap<String, Long>();
 
+    static void resetCapDepanUntukUji() {
+        synchronized (CAP_DEPAN_TERLIHAT) {
+            CAP_DEPAN_TERLIHAT.clear();
+        }
+    }
+
     static boolean capDepanStabil(File f) {
         String kunci = f.getAbsolutePath();
         long cap = f.lastModified();

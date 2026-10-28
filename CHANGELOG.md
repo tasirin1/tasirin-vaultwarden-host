@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 520: uji capDepanStabil diisolasi dari peta statis bersama + membersihkan temp-nya
+- Dua uji `capDepanStabil` berbagi peta statis `CAP_DEPAN_TERLIHAT` (batas 128 entri) tanpa reset: hasil uji bergantung urutan jalan (JUnit tidak menjamin urutan), dan uji pertama bisa mengisi peta sehingga jalur sapu/clear uji kedua terpicu lebih awal dari yang dimaksudkan. Kedua uji juga meninggalkan direktori temp beserta berkasnya.
+- `TgBackup.resetCapDepanUntukUji()` ditambahkan dan dipanggil di awal kedua uji; keduanya kini menghapus berkas + direktori temp-nya di blok `finally`, mengikuti pola uji tetangga.
+
 ## [Belum rilis] — Audit 519: labeler kini mencakup berkas build akar dan proguard
 - Label `app`/`ci` di `.github/labeler.yml` tidak mencakup berkas build akar — PR yang hanya mengubah `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, atau `app/proguard-rules.pro` tidak mendapat label apa pun, padahal berkas-berkas itu mengubah build sekuat `app/build.gradle.kts` yang sudah terlabel.
 - Keempat pola ditambahkan ke label `app` (format v5 `changed-files` hasil Audit 487 dipertahankan; berkas lolos parse YAML dan keempat berkasnya terverifikasi ada di repo).
