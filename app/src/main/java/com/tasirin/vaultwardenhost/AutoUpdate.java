@@ -57,7 +57,9 @@ public final class AutoUpdate {
 
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
-            String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
+            String real = ServerService.running
+                    ? Updater.parseBinaryVersion(ServerService.binaryVersion)
+                    : null;
             String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
             String current = real != null ? real : Updater.normVersion(
                     updated != null && !updated.isEmpty()

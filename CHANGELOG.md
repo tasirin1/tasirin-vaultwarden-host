@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 701: cek update tak lagi memercayai versi memori saat server berhenti
+- `ServerService.binaryVersion` tidak dibersihkan saat server berhenti (sudah didokumentasikan Audit 648 di jalur saudara), tetapi `AutoUpdate.cek` membacanya tanpa gerbang: bila binary di disk diganti selagi server berhenti (pasang versi pilihan/downgrade), cek menyimpulkan dari versi basi di memori — dan pada cabang "sudah sama" ia **menulis `KEY_UPDATE_VERSION = latest` yang salah secara persisten** dan membatalkan tawaran/notifikasi, sehingga tawaran sah tertelan sampai Start berikutnya. Versi berjalan kini hanya dipercaya saat server memang berjalan (pola yang sama dengan `Updater`); saat berhenti, cek bersandar pada versi tercatat/bawaan.
+
 ## [Belum rilis] — Audit 700: entri zip web-vault yang dilewati kini tercatat
 - Ekstraksi web-vault melewati entri yang ditolak filter nama/kanonis tanpa log dan tanpa hitungan, sementara kriteria "siap pasang" hanya memeriksa `index.html`: bila arsip resmi suatu versi memuat nama berkas yang ditolak filter, pemasangan dinyatakan sukses dan aset itu 404 di UI vault tanpa satu baris pun catatan untuk mendiagnosisnya. Entri yang terlewat kini dihitung dari ketiga cabang lewati dan, bila ada, dicatat satu baris log dengan jumlahnya sesudah ekstraksi. Filter dan kriteria pasangnya tidak berubah — yang ditambah hanya jejaknya.
 
