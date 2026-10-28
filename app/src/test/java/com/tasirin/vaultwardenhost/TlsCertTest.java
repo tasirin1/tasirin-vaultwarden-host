@@ -291,6 +291,21 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pulihkanTukarTersisa_cadTakCocokTidakMenimpaResmi() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlspulih3");
+        File d = dir.toFile();
+        Files.write(new File(d, "cert.pem").toPath(), "RESMI-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "key.pem").toPath(), "RESMI-K".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "cert.pem.cad").toPath(), "CAD-C".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "key.pem.cad").toPath(), "CAD-K".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanTukarTersisa(d, "cert.pem", "key.pem");
+        assertEquals("RESMI-C", new String(Files.readAllBytes(new File(d, "cert.pem").toPath()), StandardCharsets.UTF_8));
+        assertEquals("RESMI-K", new String(Files.readAllBytes(new File(d, "key.pem").toPath()), StandardCharsets.UTF_8));
+        assertEquals("CAD-C", new String(Files.readAllBytes(new File(d, "cert.pem.cad").toPath()), StandardCharsets.UTF_8));
+        assertEquals("CAD-K", new String(Files.readAllBytes(new File(d, "key.pem.cad").toPath()), StandardCharsets.UTF_8));
+    }
+
+    @Test
     public void pulihkanTukarTersisa_kembalikanSertifikatSajaDanAmanNull() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlspulih2");
         File d = dir.toFile();

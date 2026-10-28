@@ -345,11 +345,33 @@ public final class TlsCert {
             }
             if (certFile.exists() && keyFile.exists()
                     && !pasanganCertKeyCocok(certFile, keyFile)
-                    && certCad.exists() && keyCad.exists()) {
-                certFile.delete();
-                keyFile.delete();
-                certCad.renameTo(certFile);
-                keyCad.renameTo(keyFile);
+                    && certCad.exists() && keyCad.exists()
+                    && pasanganCertKeyCocok(certCad, keyCad)) {
+                File certRusak = new File(dir, namaCert + ".rusak");
+                File keyRusak = new File(dir, namaKey + ".rusak");
+                certRusak.delete();
+                keyRusak.delete();
+                boolean pindah1 = certFile.renameTo(certRusak);
+                boolean pindah2 = keyFile.renameTo(keyRusak);
+                boolean pasang1 = pindah1 && pindah2 && certCad.renameTo(certFile);
+                boolean pasang2 = pasang1 && keyCad.renameTo(keyFile);
+                if (pasang2 && pasanganCertKeyCocok(certFile, keyFile)) {
+                    certRusak.delete();
+                    keyRusak.delete();
+                } else {
+                    if (pasang2) {
+                        keyFile.renameTo(keyCad);
+                        certFile.renameTo(certCad);
+                    } else if (pasang1) {
+                        certFile.renameTo(certCad);
+                    }
+                    if (pindah1) {
+                        certRusak.renameTo(certFile);
+                    }
+                    if (pindah2) {
+                        keyRusak.renameTo(keyFile);
+                    }
+                }
             }
             if (certFile.exists() && keyFile.exists()
                     && pasanganCertKeyCocok(certFile, keyFile)) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 481: rollback .cad di pulihkanTukarTersisa tidak lagi buta
+- Cabang pemulihan pasangan tak cocok menghapus pasangan resmi lalu mengganti namanya menjadi pasangan `.cad` tanpa memeriksa hasil `renameTo` dan tanpa membuktikan pasangan `.cad` itu sendiri cocok — `.cad` yang setengah tertulis bisa mengorbankan pasangan resmi dan meninggalkan direktori tanpa pasangan yang bisa dipakai (sisa patch Audit #211).
+- Pasangan `.cad` kini wajib lolos `pasanganCertKeyCocok` lebih dulu sebelum resmi disentuh; penukaran dilakukan lewat nama sampingan `.rusak` dengan setiap rename diperiksa, dan kegagalan di tengah mengembalikan pasangan resmi serta pasangan `.cad` ke tempat semula persis. Uji baru mengunci cabang negatifnya: `.cad` yang tak terbukti cocok tidak menimpa resmi dan tidak terbuang.
+
 ## [Belum rilis] — Audit 480: ekstrak dan tukar web-vault kini difsync agar tahan mati listrik
 - Jalur ekstrak/swap web-vault adalah satu-satunya jalur berkas penting tanpa fsync sama sekali (bandingkan `TlsCert.writeVersion` dan pemasangan binary yang berlapis sync), padahal perangkat target rawan mati listrik: berkas hasil ekstrak dan kedua rename swap bisa hilang/terpotong sesudah update dilaporkan sukses dan versi dicap.
 - Tiap berkas hasil ekstrak kini di-`sync()` sebelum ditutup, direktori staging (termasuk subdirektori yang dibuat) disync sesudah ekstrak, dan folder data disync sesudah swap selesai — memakai penolong baru `Updater.syncDirAman` dengan pola `Os.open`+`fsync` yang sama seperti di ServerService, menelan galat agar fsync tak pernah menggagalkan update di filesystem yang tak mendukungnya.
