@@ -6,13 +6,11 @@ on:
     paths-ignore:
       - '*.md'
       - '.gitignore'
-      - 'shim/**'
       - '.github/workflows/build-binary.yml'
   pull_request:
     paths-ignore:
       - '*.md'
       - '.gitignore'
-      - 'shim/**'
       - '.github/workflows/build-binary.yml'
   schedule:
     - cron: "0 5 * * 1"
@@ -65,3 +63,28 @@ jobs:
         uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
         with:
           category: "/language:java-kotlin"
+
+  analyze-cpp:
+    name: Analyze (cpp)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
+        with:
+          languages: cpp
+          build-mode: none
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
+        with:
+          category: "/language:cpp"

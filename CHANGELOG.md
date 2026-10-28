@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 642: CodeQL kini juga menganalisis shim C (cpp, build-mode none)
+- Satu-satunya kode natif repo — shim getrandom yang di-`LD_PRELOAD` ke proses server dan mengintersep keacakan — sebelumnya tak dianalisis SAST mana pun. `codeql.yml` kini punya job `Analyze (cpp)` dengan ekstraksi tanpa build untuk `shim/getrandom_shim.c`, dan `shim/**` dicabut dari paths-ignore CodeQL agar perubahan shim benar-benar memicu analisis (jadwal mingguan tetap menjadi jaring pengaman).
+
 ## [Belum rilis] — Audit 641: jendela penemuan run auto-merge dibedakan dari PR tersaring path
 - Langkah tunggu Build APK sebelumnya mencampur dua keadaan: run yang memang tak ada (PR tersaring path) dan run yang belum terdaftar karena GitHub lambat — keduanya dibaca sebagai "tersaring" dan auto-merge lanjut berbekal gerbang patch. Kini deteksi berkas PR juga menghitung apakah PR itu SEHARUSNYA memicu Build APK (ada berkas di luar daftar paths-ignore build-apk): jendela penemuan diperpanjang jadi 3 menit, dan bila run tak muncul padahal seharusnya ada, auto-merge DIBATALKAN (bisa dipulihkan lewat label) alih-alih dilanjutkan buta.
 
