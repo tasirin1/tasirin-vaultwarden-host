@@ -935,13 +935,13 @@ public final class Util {
             String kanon = target.getCanonicalPath();
             if (cacheDir != null) {
                 String c = cacheDir.getCanonicalPath();
-                if (kanon.equals(c) || kanon.startsWith(c + File.separator)) {
+                if (kanon.startsWith(c + File.separator)) {
                     return true;
                 }
             }
             if (filesDir != null) {
                 String f = filesDir.getCanonicalPath();
-                if (kanon.equals(f) || kanon.startsWith(f + File.separator)) {
+                if (kanon.startsWith(f + File.separator)) {
                     return true;
                 }
             }

@@ -386,6 +386,8 @@ public class UtilTest {
         File luar = new File(base, "luar.zip");
         luar.createNewFile();
         assertFalse(Util.bolehHapusFile(cache, files, luar));
+        assertFalse(Util.bolehHapusFile(cache, files, cache));
+        assertFalse(Util.bolehHapusFile(cache, files, files));
         dalam.delete();
         luar.delete();
         cache.delete();
