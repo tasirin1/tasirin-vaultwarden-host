@@ -35,6 +35,11 @@ public final class AutoUpdate {
         return !Updater.versiCocok(versi, sudah);
     }
 
+    static boolean catatPenandaPengumuman(String tercatat, String versi,
+            boolean pengumumanDicoba) {
+        return pengumumanDicoba && tawarkanBaru(tercatat, versi);
+    }
+
     static boolean bolehLewatiCobaLagi(boolean adaCache, long gagalAt, long sekarang) {
         return adaCache && !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
     }
@@ -106,7 +111,8 @@ public final class AutoUpdate {
                     pending.atur(latest);
                     aksi.kabariTersedia(latest);
 
-                    if (!Updater.versiCocok(latest, TgBackup.amanString(sp, "tg_notified_version", ""))) {
+                    String tercatat = TgBackup.amanString(sp, "tg_notified_version", "");
+                    if (tawarkanBaru(tercatat, latest)) {
                         tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
@@ -115,7 +121,12 @@ public final class AutoUpdate {
                         // notifikasi sistem: izin notifikasi mati dulu
                         // membuat pesan Telegram terkirim ulang pada
                         // setiap pembukaan aplikasi (Audit 599).
-                        sp.edit().putString("tg_notified_version", latest).apply();
+                        // Keputusan itu predikat murni catatPenandaPengumuman
+                        // — tanda tangannya sengaja tak menerima hasil
+                        // notifikasi sistem (Audit 609).
+                        if (catatPenandaPengumuman(tercatat, latest, true)) {
+                            sp.edit().putString("tg_notified_version", latest).apply();
+                        }
                     }
                 }
             }

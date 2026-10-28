@@ -36,6 +36,15 @@ public class AutoUpdateTest {
     }
 
     @Test
+    public void catatPenandaPengumumanSesudahDicobaTanpaGerbangNotifikasi() {
+        assertTrue(AutoUpdate.catatPenandaPengumuman("", "1.37.4", true));
+        assertTrue(AutoUpdate.catatPenandaPengumuman("1.37.3", "1.37.4", true));
+        assertFalse(AutoUpdate.catatPenandaPengumuman("1.37.4", "1.37.4", true));
+        assertFalse(AutoUpdate.catatPenandaPengumuman("v1.37.4", "1.37.4", true));
+        assertFalse(AutoUpdate.catatPenandaPengumuman("", "1.37.4", false));
+    }
+
+    @Test
     public void tetapCobaBilaBelumPernahGagal() {
         assertFalse(AutoUpdate.bolehLewatiCobaLagi(true, 0, 10_000_000L));
     }

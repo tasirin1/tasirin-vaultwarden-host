@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 609: keputusan penanda pengumuman update diekstrak dan dikunci uji
+- Aturan Audit 599 (penanda `tg_notified_version` dicatat sesudah pengumuman dicoba, tidak digerbang keberhasilan notifikasi sistem) sebelumnya hidup inline di `AutoUpdate.cek()` sehingga tak terjangkau uji — mengembalikan gerbang lama akan menghijaukan seluruh suite sambil menghidupkan lagi spam Telegram. Keputusan itu kini predikat murni `catatPenandaPengumuman(tercatat, versi, pengumumanDicoba)` yang tanda tangannya sengaja tidak menerima hasil notifikasi sistem, dikunci uji tabel keputusan (versi baru + sudah dicoba → catat; versi sama → tidak; belum dicoba → tidak).
+
 ## [Belum rilis] — Audit 608: cabang fallback salinCaKeStorage kini teruji
 - Satu-satunya uji lama menulis ke folder yang masih kosong sehingga `renameTo` langsung berhasil dan seluruh blok fallback Audit 541 (nama tmp unik, geser tujuan lama ke `.lama-`, pulih bila gagal, fsync direktori) tak pernah berjalan. Uji baru menduduki path tujuan dengan folder berisi berkas — rename berkas ke folder pasti gagal — dan membuktikan jalur geser memasang salinan baru sambil mempertahankan geseran `.lama-*`. Sub-cabang pulih-bila-gagal kedua tak dapat diinduksi di JVM (rename lanjutan ke path yang baru dikosongkan tak bisa gagal selektif), dicatat apa adanya.
 
