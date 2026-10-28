@@ -116,6 +116,9 @@ public class SettingsActivity extends Activity {
     private volatile File imporTertundaFile = null;
     private String imporTertundaCap = null;
     private String imporTertundaSidik = null;
+    // Penjaga dialog impor sedang tampil agar tampil-lagi di onResume
+    // tak menumpuk dialog kedua pada jeda/resume biasa (Audit 597).
+    private boolean dialogImporTampil = false;
 
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
 
@@ -2734,6 +2737,11 @@ public class SettingsActivity extends Activity {
                 tmpEnkrip.delete();
                 return;
             }
+            if (dialogImporTampil) {
+                // Dialog untuk impor ini (atau yang lain) masih terbuka;
+                // jangan tumpuk dialog kedua (Audit 597).
+                return;
+            }
             imporTertundaFile = tmpEnkrip;
             imporTertundaCap = capImpor;
             imporTertundaSidik = sidikImpor;
@@ -2759,6 +2767,7 @@ public class SettingsActivity extends Activity {
             dialog.setCanceledOnTouchOutside(false);
 
             dialog.setOnDismissListener(d -> {
+                dialogImporTampil = false;
                 // Dismiss karena rotasi/perubahan konfigurasi BUKAN
                 // pembatalan: berkas temp dipertahankan dan dialog
                 // ditampilkan lagi oleh instance baru (Audit 592).
@@ -2835,8 +2844,13 @@ public class SettingsActivity extends Activity {
                             appendUiLog("[app] Impor ditunda: antrean tugas penuh.");
                         }
                     }));
+            dialogImporTampil = true;
             DialogAman.tampil(this, dialog);
         } catch (Exception e) {
+            dialogImporTampil = false;
+            imporTertundaFile = null;
+            imporTertundaCap = null;
+            imporTertundaSidik = null;
             try {
                 tmpEnkrip.delete();
             } catch (Exception ignored) {

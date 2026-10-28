@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 597: dialog password impor tak lagi tampil ganda pada jeda/resume biasa
+- Blok tampil-lagi di onResume (Audit 592) berjalan pada setiap resume selama penanda tertunda terpasang — termasuk jeda biasa tanpa rotasi (tombol Home, kembali dari layar PIN) saat dialog pertama masih terbuka. Hasilnya dua dialog tertumpuk atas berkas temp yang sama; dialog bawah yang kemudian diisi password benar gagal berkas-hilang dan menaikkan penghitung gagal impor.
+- Kini `tanyaPasswordImpor` menolak menampilkan dialog kedua selama satu dialog impor masih tampil (penjaga `dialogImporTampil`, dipasang tepat sebelum tampil dan dilepas pada dismiss); jalur gagal-bangun dialog juga membersihkan penanda tertunda agar tak ada tampil-lagi hantu.
+
 ## [Belum rilis] — Audit 596: reloadSettingsFromPrefs menyegarkan dasar simpan
 - Jalur reload sesudah restore/impor lokal menulis ulang input folder/port/admin dari prefs, tetapi dasar simpan Audit 588 hanya ditangkap di `muatPreferensi`. Dasar yang basi membuat onPause berikutnya memperlakukan teks hasil reload sebagai suntingan user — kelas bug input basi #344 masuk lagi lewat reload: bila restore bot mendarat di antara reload dan onPause, nilai reload ditulis menang. Kini ketiga dasar disegarkan tepat sesudah input dimuat ulang, sama seperti di muatPreferensi.
 
