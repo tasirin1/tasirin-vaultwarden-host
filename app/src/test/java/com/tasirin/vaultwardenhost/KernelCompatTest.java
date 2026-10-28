@@ -79,6 +79,7 @@ public class KernelCompatTest {
         assertFalse(KernelCompat.arsitekturTakDidukung("armv7l"));
         assertFalse(KernelCompat.arsitekturTakDidukung("armv8l"));
         assertFalse(KernelCompat.arsitekturTakDidukung("aarch64"));
+        assertFalse(KernelCompat.arsitekturTakDidukung("aarch32"));
         assertFalse(KernelCompat.arsitekturTakDidukung(null));
         assertFalse(KernelCompat.arsitekturTakDidukung(""));
         assertTrue(KernelCompat.arsitekturTakDidukung("i686"));

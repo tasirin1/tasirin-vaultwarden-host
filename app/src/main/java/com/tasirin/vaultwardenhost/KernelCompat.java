@@ -58,7 +58,8 @@ public final class KernelCompat {
         if (a.isEmpty()) {
             return false;
         }
-        return !(a.startsWith("arm") || a.equals("aarch64") || a.contains("arm64"));
+        return !(a.startsWith("arm") || a.equals("aarch64") || a.equals("aarch32")
+                || a.contains("arm64"));
     }
 
     static String saranArsitektur(String arch) {

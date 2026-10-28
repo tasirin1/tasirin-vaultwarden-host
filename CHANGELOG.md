@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 658: aarch32 diakui sebagai arsitektur ARM yang didukung
+- Catatan self-review putaran-22: predikat `arsitekturTakDidukung` (Audit 645) hanya menerima awalan `arm`, `aarch64`, atau kandungan `arm64` — nilai `os.arch` "aarch32" (nama resmi ARM 32-bit di sebagian runtime) jatuh ke kelompok tak didukung, sehingga pesan uji asap menyalahkan arsitektur pada perangkat yang sebenarnya sah. `aarch32` kini diakui eksplisit dan terkunci uji.
+
 ## [Belum rilis] — Audit 657: nama check ganda dari dua workflow diterima sebagai residu terdokumentasi (issue ditutup-alasan)
 - Sejak Audit 646, PR berkas kode menerima check "Cek patch yang berubah" dari dua workflow (`build-apk.yml` dan `cek-wajib.yml`) dan GitHub menilai run paling baru untuk nama yang sama. Jalur auto-merge tetap aman (ia juga menunggu kesimpulan run Build APK per head SHA secara terpisah), kedua job menjalankan langkah identik, dan pada merge manual kedua hasil terlihat berdampingan untuk dinilai owner. Mitigasi alternatif (cek-wajib menyimpulkan tanpa memverifikasi bila run lain ada) justru menciptakan green tanpa verifikasi. Residu ini diterima dan dicatat; issue #413 ditutup dengan alasan lengkap di GitHub.
 
