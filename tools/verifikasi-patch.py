@@ -100,18 +100,37 @@ def _kumpul_glob_labeler(node, kumpul):
         for nilai in node.values():
             _kumpul_glob_labeler(nilai, kumpul)
 
+def _ekspansi_kurawal(pola):
+    """Ekspansi grup {a,b} ala minimatch (glob Python tak mendukungnya);
+    rekursif untuk beberapa grup, tanpa sarang (Audit 602)."""
+    i = pola.find("{")
+    if i == -1:
+        return [pola]
+    j = pola.find("}", i)
+    if j == -1:
+        return [pola]
+    hasil = []
+    for alt in pola[i + 1:j].split(","):
+        hasil.extend(_ekspansi_kurawal(pola[:i] + alt + pola[j + 1:]))
+    return hasil
+
 def cek_labeler_glob(data_labeler, gagal):
     # Pola labeler yang salah ketik menunjuk path tak ada: label diam-diam
     # berhenti menempel pada PR tanpa sinyal apa pun (Audit 585). Dulu
     # hanya pola ber-wildcard yang diperiksa dan hanya awalan statisnya;
     # pola literal tanpa wildcard dan pola yang cocok ke 0 berkas (folder
     # ada, ekstensinya tak pernah ada) lolos tanpa sinyal (Audit 594).
-    # Kini SEMUA pola wajib sungguh mencocokkan minimal satu path.
+    # Kini SEMUA pola wajib sungguh mencocokkan minimal satu path, dengan
+    # kurung kurawal minimatch diekspansi lebih dulu (Audit 602).
     import glob as globmod
     kumpul = []
     _kumpul_glob_labeler(data_labeler, kumpul)
     for pola in kumpul:
-        cocok = globmod.glob(pola, root_dir=AKAR, recursive=True)
+        cocok = []
+        for varian in _ekspansi_kurawal(pola):
+            cocok = globmod.glob(varian, root_dir=AKAR, recursive=True)
+            if cocok:
+                break
         if not cocok:
             gagal.append("labeler.yml: pola %r tak mencocokkan satu pun "
                          "berkas/folder — label tak akan pernah menempel "

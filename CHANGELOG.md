@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 602: gerbang labeler memahami kurung kurawal minimatch
+- `cek_labeler_glob` memakai glob Python yang tak mendukung ekspansi kurung kurawal, sementara minimatch (actions/labeler) mendukungnya — pola sah seperti `*.{md,txt}` ditolak palsu sebagai "tak mencocokkan satu pun berkas" (terbukti fixture saat self-review). Kini tiap pola diekspansi grup `{a,b}`-nya lebih dulu (rekursif, tanpa sarang) dan cukup satu varian yang cocok agar pola lolos. Dibuktikan fixture: pohon bersih LOLOS, `*.{md,txt}` LOLOS, `*.{xyz,abc}` tetap GAGAL.
+
 ## [Belum rilis] — Audit 601: path absolut disamarkan pada log yang keluar
 - Gerbang samaran log menutup token/IP/email/domain/perangkat, tetapi tidak path berkas: log yang dibagikan/disimpan/dikirim bot membocorkan lokasi folder data kustom user, nama berkas backup/ekspor beserta stempelnya, dan path cache internal ke penerima log — metadata tata-letak yang user kira sudah "disamarkan".
 - Kini `samarkanLog` mengganti path absolut berakar `/storage`, `/sdcard`, `/data`, dan `/mnt` dengan `[path]` (pola `POLA_PATH_ABSOLUT` dengan penjaga cepat `adaPathAbsolut`, mengikuti gaya pola yang ada). URL biasa tak tersentuh. Dikunci uji JVM baru.
