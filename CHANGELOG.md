@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 568: sumber "(d) bundled fallback" yang tak ada dihapus dari uraian ensureBinary di AGENTS.md
+- Uraian `ensureBinary()` di AGENTS.md menyebut empat sumber binary termasuk "(d) bundled fallback", padahal implementasinya hanya punya tiga (cache internal, binary user folder data, unduh dari release) dan tak ada jalur aset untuk binary — satu-satunya aset yang dibuka aplikasi adalah chain sertifikat GitHub dan `vw_version.txt`. Uraian kini sesuai kode dan menegaskan binary tak pernah dibundel di APK.
+
 ## [Belum rilis] — Audit 567: kunci prefs hantu dan klaim mode sederhana dihapus dari AGENTS.md dan README
 - Daftar kunci SharedPreferences di AGENTS.md memuat dua kunci yang tidak ada di kode mana pun — `mode_sederhana` dan `advanced_open` (grep seluruh repo: 0 hasil) — sementara kunci keadaan seksi Settings yang nyata (`sec_buka_server/keamanan/rawat/telegram/log`) tak tercantum. Daftar itu rujukan pekerjaan ekspor/impor config dan daftar-tolak rahasia, jadi rujukannya kini diselaraskan: dua kunci hantu dihapus, keluarga `sec_buka_*` ditambahkan.
 - Kalimat "mode sederhana" di README (Inggris/Indonesia/Rusia) dihapus — fitur itu tidak pernah ada; wizard 3 langkah memang satu-satunya alur Settings.

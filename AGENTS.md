@@ -81,7 +81,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 - **ServerService.startServer()** (di worker thread):
   1. `ensureBinary()`: pakai (a) binary update terbaru di
      cache internal (`KEY_UPDATE_VERSION`), (b) binary user di folder data
-     (disalin ke internal), (c) unduh dari release, (d) bundled fallback.
+     (disalin ke internal), (c) unduh dari release. Tak ada fallback aset:
+     binary tidak pernah dibundel di APK.
   2. `ProcessBuilder` dengan env `DATA_FOLDER`, `ROCKET_ADDRESS/PORT/WORKERS`,
      `ADMIN_TOKEN`, `WEB_VAULT_ENABLED/FOLDER`, `ROCKET_TLS`, `RUST_LOG`, `DOMAIN`.
   3. `healthTick` → `checkHealthOnce()` (GET `/alive`); restart backoff
