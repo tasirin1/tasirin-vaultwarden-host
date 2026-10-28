@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 485: tombol Show/Hide token kini bisa menyembunyikan lagi
+- `togglePassword` menebak keadaan dari uji bit `(inputType & TYPE_TEXT_VARIATION_PASSWORD) != 0`, tetapi `TYPE_TEXT_VARIATION_VISIBLE_PASSWORD` (0x90) ikut memuat bit 0x80 — sesudah sekali ditampilkan, keadaan selalu terbaca "tersembunyi", jadi token yang sudah dibuka di layar TV tidak bisa disembunyikan lagi dan label tombolnya pun berbohong.
+- Keadaan kini ditentukan dari perbandingan persis masker variasi lewat penolong murni `SettingsActivity.variasiSandiTersembunyi` (0x80 dan 0xE0 = tersembunyi, 0x90 = tampil). Uji nilai mentah inputType ditambahkan untuk ketiga variasi.
+
 ## [Belum rilis] — Audit 484: ekspor config tidak lagi meloloskan Chat ID lewat kunci dinamis pending-aksi
 - Daftar tolak ekspor (`SECRET_PREF_KEYS`/`TAK_DIEKSPOR_KEYS`) hanya memuat nama kunci statis, sedangkan kunci persetujuan aksi tertunda berbentuk dinamis `tg_pending_aksi_<chatId>` — isinya memuat Chat ID pemilik yang seharusnya rahasia (anggota `SECRET_PREF_KEYS` sebagai `tg_chat`) bersama stempel elapsed dan nama aksinya, dan semuanya lolos ke `app-config.json` di setiap backup, termasuk yang tanpa sandi.
 - Keputusan ekspor kini diekstrak ke predikat murni `TgBackup.kunciDiekspor` yang juga menolak semua kunci berawalan `TgBot.KEY_TG_PENDING_PREFIX` (konstantanya kini package-private), sejajar awalan `wv_notified_` yang sudah ditolak sebelumnya. Uji predikat ditambahkan untuk kunci dinamis positif/negatif.

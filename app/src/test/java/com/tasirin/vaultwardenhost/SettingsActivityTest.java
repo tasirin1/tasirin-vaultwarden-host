@@ -11,6 +11,18 @@ import org.junit.Test;
 public class SettingsActivityTest {
 
     @Test
+    public void variasiSandiTersembunyi_bedakanDariVisiblePassword() {
+        // textPassword XML = CLASS_TEXT(0x1) | VARIATION_PASSWORD(0x80)
+        assertTrue(SettingsActivity.variasiSandiTersembunyi(0x81));
+        // hasil toggle tampil = CLASS_TEXT | VARIATION_VISIBLE_PASSWORD(0x90):
+        // bit 0x80 ikut menyala di 0x90, jadi uji bit kasar akan salah di sini
+        assertFalse(SettingsActivity.variasiSandiTersembunyi(0x91));
+        // VARIATION_WEB_PASSWORD(0xe0) juga tersembunyi
+        assertTrue(SettingsActivity.variasiSandiTersembunyi(0xe1));
+        assertFalse(SettingsActivity.variasiSandiTersembunyi(0x01));
+    }
+
+    @Test
     public void galatPortTerimaKosongDanRentang() {
         assertNull(SettingsActivity.galatPort(null, "SALAH"));
         assertNull(SettingsActivity.galatPort("", "SALAH"));

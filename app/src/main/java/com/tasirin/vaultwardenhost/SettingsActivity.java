@@ -3289,8 +3289,14 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    static boolean variasiSandiTersembunyi(int inputType) {
+        int variasi = inputType & InputType.TYPE_MASK_VARIATION;
+        return variasi == InputType.TYPE_TEXT_VARIATION_PASSWORD
+                || variasi == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
+    }
+
     private void togglePassword(EditText et, Button btn) {
-        boolean hidden = (et.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0;
+        boolean hidden = variasiSandiTersembunyi(et.getInputType());
         et.setInputType(hidden
                 ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
