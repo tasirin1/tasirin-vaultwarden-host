@@ -1262,7 +1262,7 @@ public class ServerService extends Service {
                 : new Notification.Builder(this);
         boolean jalan = running || alive(process);
         return b.setContentTitle("Vaultwarden Host")
-                .setContentText(teksNotifikasi(jalan, currentPort(), statusLine))
+                .setContentText(teksNotifikasi(jalan, portTampil(), statusLine))
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setOngoing(true)
@@ -1532,6 +1532,13 @@ public class ServerService extends Service {
 
     private String currentPort() {
         return effectivePort(getSharedPreferences(PREFS, MODE_PRIVATE));
+    }
+
+    private String portTampil() {
+        if (!runningPort.isEmpty()) {
+            return runningPort;
+        }
+        return currentPort();
     }
 
     private void createChannel() {
@@ -3082,7 +3089,7 @@ public class ServerService extends Service {
 
     public static String localUrl(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        String port = effectivePort(sp);
+        String port = !runningPort.isEmpty() ? runningPort : effectivePort(sp);
 
         return "https://" + formatHostUntukUrl(localIp()) + ":" + port;
     }

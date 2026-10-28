@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 537: notifikasi dan localUrl menampilkan port yang benar-benar didengarkan server
+- Teks notifikasi (`bangunNotifikasi` lewat `currentPort()`) dan `localUrl()` membaca port dari prefs, berbeda dari `pingRinci`/`portLoopback` yang mendahulukan `runningPort`. Server yang sudah berjalan tetap di port lama sampai restart, tetapi notifikasi "Server aktif di port ..." dan URL bagikan langsung berubah mengikuti suntingan Settings — pengguna mengira server pindah port atau mati.
+- Jalur tampil kini mendahulukan `runningPort` bila server sudah terikat (helper `portTampil()` untuk notifikasi; `localUrl` meniru pilihan `pingRinci` persis), dan jatuh ke port prefs hanya bila belum ada port berjalan. `currentPort()` sendiri SENGAJA tidak diubah: ia juga mengisi `sesi.port` saat persiapan start, yang memang harus port target dari prefs.
+
 ## [Belum rilis] — Audit 536: onDestroy kini membatalkan episode start yang sedang disiapkan
 - `onDestroy` hanya membatalkan healthTick/restartTunda, membunuh proses yang sudah lahir, dan melepas wakelock — tidak menyentuh penanda episode start, padahal jalur ACTION_STOP lengkap (`batalStart`, `nomorStop`, penanda susulan). Pekerja `startServerAsync` berjalan di pool proses-aplikasi, bukan milik instance: service yang dihancurkan di tengah persiapan (unduh binary pertama bisa bermenit-menit) membiarkan pekerja itu tetap melahirkan proses vaultwarden sesudah service hancur — proses yatim tanpa foreground/health.
 - `onDestroy` kini memasang pembatalan yang sama seperti ACTION_STOP (`healthActive=false`, `batalStart=true`, `nomorStop` naik, penanda start susulan dibersihkan) sebelum membunuh proses. Niat jalan tersimpan SENGAJA tidak diubah — penghancuran oleh sistem bukan perintah berhenti dari pengguna, dan kedua jalur start berikutnya (ACTION_START maupun sticky intent-null) sudah mengatur ulang `batalStart=false` di awalnya.
