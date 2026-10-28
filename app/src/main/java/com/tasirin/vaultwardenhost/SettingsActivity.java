@@ -86,6 +86,9 @@ public class SettingsActivity extends Activity {
     private static final String STATE_START_TERTUNDA_PORT = "start_tertunda_port";
     private static final String STATE_EXPORT_PLAIN_PATH = "export_plain_path";
     private static final String STATE_EXPORT_PLAIN_PADA = "export_plain_pada";
+    private static final String STATE_IMPOR_PATH = "impor_path";
+    private static final String STATE_IMPOR_CAP = "impor_cap";
+    private static final String STATE_IMPOR_SIDIK = "impor_sidik";
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -105,6 +108,13 @@ public class SettingsActivity extends Activity {
     private Button importCfgBtn;
 
     private volatile File exportPlainTertunda = null;
+
+    // Impor terenkripsi yang dialog passwordnya sedang tampil; disimpan
+    // lintas rotasi agar rotasi tak membatalkan impor diam-diam
+    // (Audit 592).
+    private File imporTertundaFile = null;
+    private String imporTertundaCap = null;
+    private String imporTertundaSidik = null;
 
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
 
@@ -393,6 +403,12 @@ public class SettingsActivity extends Activity {
             if (pathExport != null) {
                 exportPlainTertunda = new File(pathExport);
                 exportPlainPada = savedInstanceState.getLong(STATE_EXPORT_PLAIN_PADA, 0);
+            }
+            String pathImpor = savedInstanceState.getString(STATE_IMPOR_PATH);
+            if (pathImpor != null) {
+                imporTertundaFile = new File(pathImpor);
+                imporTertundaCap = savedInstanceState.getString(STATE_IMPOR_CAP);
+                imporTertundaSidik = savedInstanceState.getString(STATE_IMPOR_SIDIK);
             }
         }
         TgBackup.healkanStringPrefs(this);
@@ -889,6 +905,22 @@ public class SettingsActivity extends Activity {
             startTertundaDariPutaran = false;
             saveAndStart();
         }
+
+        // Dialog password impor yang terputus rotasi ditampilkan lagi
+        // (Audit 592); berkas temp-nya sengaja tak dihapus saat dismiss
+        // karena perubahan konfigurasi.
+        if (imporTertundaFile != null) {
+            File fImpor = imporTertundaFile;
+            String capImpor = imporTertundaCap;
+            String sidikImpor = imporTertundaSidik;
+            imporTertundaFile = null;
+            imporTertundaCap = null;
+            imporTertundaSidik = null;
+            if (fImpor.isFile()) {
+                tanyaPasswordImpor(fImpor, capImpor,
+                        getString(R.string.config_terenkripsi_tanya), sidikImpor);
+            }
+        }
     }
 
     @Override
@@ -901,6 +933,11 @@ public class SettingsActivity extends Activity {
         if (pendingExport != null) {
             outState.putString(STATE_EXPORT_PLAIN_PATH, pendingExport.getAbsolutePath());
             outState.putLong(STATE_EXPORT_PLAIN_PADA, exportPlainPada);
+        }
+        if (imporTertundaFile != null) {
+            outState.putString(STATE_IMPOR_PATH, imporTertundaFile.getAbsolutePath());
+            outState.putString(STATE_IMPOR_CAP, imporTertundaCap);
+            outState.putString(STATE_IMPOR_SIDIK, imporTertundaSidik);
         }
     }
 
@@ -2691,6 +2728,9 @@ public class SettingsActivity extends Activity {
                 tmpEnkrip.delete();
                 return;
             }
+            imporTertundaFile = tmpEnkrip;
+            imporTertundaCap = capImpor;
+            imporTertundaSidik = sidikImpor;
             final EditText input = new EditText(this);
             input.setInputType(InputType.TYPE_CLASS_TEXT
                     | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -2701,6 +2741,9 @@ public class SettingsActivity extends Activity {
                     .setView(input)
                     .setPositiveButton(R.string.config_coba_impor, null)
                     .setNegativeButton(R.string.batal, (d, w) -> {
+                        imporTertundaFile = null;
+                        imporTertundaCap = null;
+                        imporTertundaSidik = null;
                         try {
                             tmpEnkrip.delete();
                         } catch (Exception ignored) {
@@ -2710,9 +2753,18 @@ public class SettingsActivity extends Activity {
             dialog.setCanceledOnTouchOutside(false);
 
             dialog.setOnDismissListener(d -> {
-                try {
-                    tmpEnkrip.delete();
-                } catch (Exception ignored) {
+                // Dismiss karena rotasi/perubahan konfigurasi BUKAN
+                // pembatalan: berkas temp dipertahankan dan dialog
+                // ditampilkan lagi oleh instance baru (Audit 592).
+                // Dismiss sungguhan membersihkan temp + penanda tertunda.
+                if (!isChangingConfigurations()) {
+                    imporTertundaFile = null;
+                    imporTertundaCap = null;
+                    imporTertundaSidik = null;
+                    try {
+                        tmpEnkrip.delete();
+                    } catch (Exception ignored) {
+                    }
                 }
             });
 

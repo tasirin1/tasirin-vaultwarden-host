@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 592: rotasi tak lagi membatalkan dialog password impor secara diam-diam
+- Dialog password impor ditutup saat onDestroy dan `OnDismissListener`-nya menghapus berkas enkrip temp sebagai perilaku anti-sisa — pada rotasi itu berarti dialog lenyap, temp terhapus, dan impor berakhir tanpa satu pun pesan; pengguna harus mengulang dari pemilih berkas.
+- Kini keadaan impor tertunda (path temp + cap + sidik berkas) disimpan lewat `onSaveInstanceState` mengikuti pola ekspor-tertunda yang sudah ada; listener dismiss membedakan dismiss karena perubahan konfigurasi (temp dipertahankan, penanda tetap) dari pembatalan sungguhan (temp dihapus, penanda dibersihkan); dan `onResume` instance baru menampilkan lagi dialognya bila berkas temp masih ada.
+
 ## [Belum rilis] — Audit 591: keadaan sibuk Settings bertahan lintas rotasi
 - `tugasBerjalan` dan `uiBusy` dulu per-instance activity. Rotasi menghancurkan activity tetapi thread tugasnya (pool bersama) terus berjalan memegang penanda instance lama: instance baru lahir "tidak sibuk" — tombol update/revert/backup/restore aktif lagi dan bilah progres unduhan tak ditampilkan, padahal tugas masih berjalan (operasi datanya sendiri tetap aman oleh kunci global, jadi yang hilang murni keadaan UI dan umpan balik penyelesaian dibuang penjaga isDestroyed).
 - Kini `tugasBerjalan` statis se-proses, dan `refreshFromService` menyinkronkan `uiBusy` dari penanda statis itu pada tiap siklus segar: instance baru langsung tampil sibuk, dan penyelesaian tugas lama tercermin tanpa bergantung pada setBusy instance yang sudah mati.
