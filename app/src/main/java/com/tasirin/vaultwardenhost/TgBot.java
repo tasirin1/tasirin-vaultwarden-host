@@ -51,6 +51,22 @@ public final class TgBot {
 
     private static final AtomicBoolean TUGAS_BERAT = new AtomicBoolean(false);
 
+    // Jeda minimum antar tugas berat dan antar /restart manual
+    // (Audit 589): kunci cegah-bersamaan saja tak menghentikan deretan
+    // perintah yang masing-masing jalan penuh begitu yang sebelumnya
+    // selesai (zip+unggah berulang, proses mati-nyala berulang).
+    static final long JEDA_BERAT_MS = 30_000L;
+    private static volatile long tugasBeratBerakhirMs = 0L;
+    private static volatile long restartManualTerakhirMs = 0L;
+
+    /** true bila kini masih di dalam jeda sesudah stempel berakhir.
+     *  Jam elapsed yang mundur berarti gagal-terbuka: jangan pernah
+     *  mengunci perintah selamanya. */
+    static boolean dalamJedaBerat(long berakhirMs, long kiniMs) {
+        return berakhirMs > 0 && kiniMs >= berakhirMs
+                && kiniMs - berakhirMs < JEDA_BERAT_MS;
+    }
+
     private static volatile long wallMaksTelegram = 0;
 
     private static volatile long wallMaksTersimpan = Long.MIN_VALUE;
@@ -1641,6 +1657,13 @@ public final class TgBot {
             balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
             return true;
         }
+        long kiniRestart = SystemClock.elapsedRealtime();
+        if (dalamJedaBerat(restartManualTerakhirMs, kiniRestart)) {
+            balas(ctx, idRuang, "Restart baru saja dilakukan. Tunggu sebentar"
+                    + " (±30 dtk) sebelum restart lagi.");
+            return true;
+        }
+        restartManualTerakhirMs = kiniRestart;
         try {
             if (ServerService.restart(ctx)) {
                 balas(ctx, idRuang, "Perintah diterima: server restart...");
@@ -2194,6 +2217,11 @@ public final class TgBot {
     }
 
     private static void runBeratDenganKunci(Context ctx, long idRuang, Runnable task) {
+        if (dalamJedaBerat(tugasBeratBerakhirMs, SystemClock.elapsedRealtime())) {
+            balas(ctx, idRuang, "Tugas berat baru saja selesai. Tunggu sebentar"
+                    + " (±30 dtk) sebelum perintah berat berikutnya.");
+            return;
+        }
         if (!TUGAS_BERAT.compareAndSet(false, true)) {
             balas(ctx, idRuang, "Tugas lain masih berjalan, coba lagi sebentar.");
             return;
@@ -2203,11 +2231,13 @@ public final class TgBot {
                 task.run();
             } finally {
                 TUGAS_BERAT.set(false);
+                tugasBeratBerakhirMs = SystemClock.elapsedRealtime();
             }
         });
         if (!masuk) {
 
             TUGAS_BERAT.set(false);
+            tugasBeratBerakhirMs = SystemClock.elapsedRealtime();
             balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
         }
     }

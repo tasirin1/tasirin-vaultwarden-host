@@ -11,6 +11,18 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void dalamJedaBerat_batasDanJamMundur() {
+        // Audit 589: jeda 30 dtk sesudah stempel berakhir; belum pernah
+        // ada tugas (0) dan jam mundur selalu gagal-terbuka.
+        assertFalse(TgBot.dalamJedaBerat(0, 100_000));
+        assertTrue(TgBot.dalamJedaBerat(100_000, 100_000));
+        assertTrue(TgBot.dalamJedaBerat(100_000, 129_999));
+        assertFalse(TgBot.dalamJedaBerat(100_000, 130_000));
+        assertFalse(TgBot.dalamJedaBerat(100_000, 200_000));
+        assertFalse(TgBot.dalamJedaBerat(100_000, 50_000));
+    }
+
+    @Test
     public void galatHapusSesaat_hanyaGalatJaringanYangDicobaLagi() {
         assertTrue(TgBot.galatHapusSesaat(new java.net.SocketTimeoutException("t")));
         assertTrue(TgBot.galatHapusSesaat(new java.net.ConnectException("t")));

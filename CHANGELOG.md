@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 589: jeda minimum 30 detik antar perintah berat dan antar /restart bot
+- Satu-satunya pembatas perintah berat (`/backup`, `/restore`, `/ca`, `/update`, `/webvault`) dulu adalah kunci cegah-bersamaan: begitu tugas selesai, perintah berikutnya langsung jalan penuh lagi — zip + unggah berulang menguras disk/baterai/kuota, dan `/update` berurutan mengunduh ulang. `/restart` manual bahkan lepas dari backoff restart-otomatis, jadi deretannya membuat proses Vaultwarden mati-nyala berulang.
+- Kini `runBeratDenganKunci` menolak perintah berat selama 30 detik sesudah tugas berat sebelumnya berakhir (stempel elapsed, `tugasBeratBerakhirMs`), dan `/restart` di `perintahKontrol` punya stempel jeda yang sama. Keputusan jeda adalah fungsi murni `dalamJedaBerat` yang gagal-terbuka saat jam elapsed mundur agar perintah tak pernah terkunci selamanya; dikunci uji JVM baru termasuk batas 29.999/30.000 ms.
+
 ## [Belum rilis] — Audit 588: simpan onPause tak lagi menimpa prefs eksternal dengan input basi
 - Input Settings (folder data, port, token admin) hanya dimuat di onCreate dan sesudah restore/impor lokal — tidak di onResume. Restore lewat bot mengubah prefs (port ternormalisasi) di belakang activity yang sedang terbuka; penjaga `restoreJalan()` hanya menahan penulisan selama restore berjalan, jadi onPause berikutnya menulis nilai tampilan lama sebagai pemenang lewat `tulisBilaBeda`. Port hasil restore hilang diam-diam dan server berikutnya start di port lama.
 - Kini `simpanPengaturanValid` hanya menulis field yang benar-benar diubah user sejak nilai itu dimuat/disimpan terakhir: dasar per-field ditangkap di akhir `muatPreferensi` dan diperbarui sesudah tiap penyimpanan, dengan predikat murni `berubahDariDasar` (dasar null = perilaku lama). Field tak tersentuh membiarkan perubahan eksternal menang; suntingan user yang disengaja tetap tersimpan seperti sebelumnya. Predikat dikunci uji JVM baru.
