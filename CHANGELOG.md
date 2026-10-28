@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 517: CodeQL & Gitleaks kini menyaring dokumen dan punya concurrency
+- `codeql.yml` (timeout 60 menit) dan `gitleaks.yml` berjalan pada SETIAP push/PR termasuk commit dokumen murni, dan tanpa `concurrency` — selama maraton berisi puluhan push beruntun, run analisis menumpuk dan membakar menit Actions untuk perubahan yang tidak menyentuh kode.
+- Keduanya kini memakai `paths-ignore` dokumen yang sama dengan `build-apk.yml` (`*.md`, `.gitignore`, `shim/**`, workflow binary) pada `push` dan `pull_request`, plus grup `concurrency` per-ref (`codeql-…`/`gitleaks-…`, `cancel-in-progress: false` mengikuti pola build). Jadwal mingguan CodeQL tidak disaring.
+
 ## [Belum rilis] — Audit 516: workflow automasi baru dipin ke SHA penuh seperti workflow build
 - `codeql.yml`, `gitleaks.yml`, `stale.yml`, dan `labeler.yml` (paket automasi sesi #105) memakai tag mengambang (`@v7`, `@v4`, `@v3`, `@v11`) sementara `build-apk.yml`/`build-binary.yml` memin semua action ke SHA commit berkomentar versi — tag mengambang bisa digeser pemilik repo action (atau akun yang dibajak) dan mengubah kode yang berjalan dengan token repo ini tanpa satu pun perubahan terlihat.
 - Sepuluh rujukan `uses:` kini dipin ke SHA commit persis dari tag resminya masing-masing (diresolusi lewat API GitHub, tag anotasi CodeQL didereferensikan ke commit-nya), dengan komentar versi mengikuti pola workflow lama; keempat berkas lolos parse YAML.

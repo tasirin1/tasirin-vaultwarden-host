@@ -3,13 +3,27 @@ name: CodeQL
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   schedule:
     - cron: "0 5 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   analyze:

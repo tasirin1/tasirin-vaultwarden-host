@@ -3,11 +3,25 @@ name: Gitleaks (deteksi secret)
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'shim/**'
+      - '.github/workflows/build-binary.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: gitleaks-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   scan:
