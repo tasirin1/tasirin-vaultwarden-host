@@ -204,7 +204,6 @@ public final class HttpsCompat {
                 throw e;
             }
         }
-        return cached;
     }
 
     private static SSLSocketFactory bangunFactory(Context ctx) throws Exception {

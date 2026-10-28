@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Build merah: pernyataan tak terjangkau di socketFactory HttpsCompat
+- Build `main` gagal compile sejak bentuk throttle bangun trust masuk: di `HttpsCompat.socketFactory`, semua jalur di dalam blok `synchronized` berakhir `return`/`throw` (cek cache, lempar `JedaBangunTrust`, `return bangunFactory(ctx)`, atau rethrow dari catch), sehingga `return cached;` sesudah blok menjadi pernyataan tak terjangkau — kesalahan keras javac (`unreachable statement`) yang menggagalkan `compileDebugJavaWithJavac` di AGP lama maupun baru. Ditemukan saat mengerjakan PR Dependabot AGP #225 (gerbang PR menangkapnya; build push `main` pun sudah merah).
+- Baris mati itu dihapus; perilaku tidak berubah (kode tak terjangkau memang tidak pernah berjalan — `bangunFactory` sendiri yang mengisi `cached` dan mengembalikan hasilnya).
+
 ## [Belum rilis] — Audit 520: uji capDepanStabil diisolasi dari peta statis bersama + membersihkan temp-nya
 - Dua uji `capDepanStabil` berbagi peta statis `CAP_DEPAN_TERLIHAT` (batas 128 entri) tanpa reset: hasil uji bergantung urutan jalan (JUnit tidak menjamin urutan), dan uji pertama bisa mengisi peta sehingga jalur sapu/clear uji kedua terpicu lebih awal dari yang dimaksudkan. Kedua uji juga meninggalkan direktori temp beserta berkasnya.
 - `TgBackup.resetCapDepanUntukUji()` ditambahkan dan dipanggil di awal kedua uji; keduanya kini menghapus berkas + direktori temp-nya di blok `finally`, mengikuti pola uji tetangga.
