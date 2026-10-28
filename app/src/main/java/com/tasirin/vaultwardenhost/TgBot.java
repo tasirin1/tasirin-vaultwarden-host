@@ -533,7 +533,8 @@ public final class TgBot {
                                 } else {
                                     catatWall(kiniPoll);
                                 }
-                                if (!Util.pesanSegar(dateMs, kiniPoll,
+                                if (!Util.pesanSegar(dateMs,
+                                        System.currentTimeMillis(),
                                         STALE_MSG_MS)) {
                                     String teksBasi = msg.optString("text", "")
                                             .trim();
@@ -1441,11 +1442,18 @@ public final class TgBot {
                 if (token.isEmpty()) {
                     return false;
                 }
+                long sisaMs = BATAS_HAPUS_PESAN_MS
+                        - (System.currentTimeMillis() - mulaiMs);
+                if (sisaMs < 2000) {
+                    return false;
+                }
+                int tSambung = (int) Math.min(15000, sisaMs / 2);
+                int tBaca = (int) Math.min(30000, sisaMs - tSambung);
                 byte[] body = ("chat_id=" + chatId + "&message_id=" + messageId)
                         .getBytes(StandardCharsets.UTF_8);
                 c = TgBackup.bukaPostTelegram(ctx.getApplicationContext(),
                         TG_API + token + "/deleteMessage", body,
-                        "application/x-www-form-urlencoded", 15000, 30000);
+                        "application/x-www-form-urlencoded", tSambung, tBaca);
                 try (OutputStream os = c.getOutputStream()) {
                     os.write(body);
                 }

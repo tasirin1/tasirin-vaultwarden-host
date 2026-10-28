@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 683: hapus pesan menghormati cap 60 detiknya di dalam percobaan; kesegaran dinilai per pesan
+- Dua tepi jalur poll: (1) `hapusPesanPerintah` memeriksa cap `BATAS_HAPUS_PESAN_MS` hanya *di antara* percobaan, sementara satu percobaan bisa membakar ±45 detik (sambung 15 + baca 30) — satu pesan bisa menyita ±90 detik thread poll tunggal dan batch berisi beberapa pesan ber-PIN berseri menjadi hitungan menit. Timeout tiap percobaan kini dijepit ke sisa anggaran (sambung maks setengah sisa, baca maks sisanya; sisa < 2 detik = berhenti), sehingga cap 60 detik berlaku di dalam percobaan juga. (2) Kesegaran pesan (`pesanSegar`) dinilai dari potret waktu awal batch, sehingga pesan di urutan akhir bisa lolos batas basi 5 menit karena item sebelumnya membakar waktu; penilaian kini memakai waktu saat pesan itu benar-benar diproses.
+
 ## [Belum rilis] — Audit 682: callback tombol kini commit offset sebelum eksekusi, seperti perintah teks ber-PIN
 - Perintah teks berbahaya sudah lama dilindungi anti-putar-ulang (offset di-commit *sebelum* eksekusi), tetapi callback tombol — jalur UI utama untuk aksi yang sama (`/careset`, `/backup`, `/update`, `/stop`, `/restart`) — offset-nya baru disimpan di akhir seluruh batch. Proses yang mati di tengah batch membuat Telegram mengirim ulang callback yang sama dan aksinya berjalan dua kali; pada `/careset` itu berarti CA hasil reset pertama langsung basi oleh reset kedua dan HTTPS rusak sampai CA ketiga dipasang. Offset kini di-commit sebelum `tanganiCallback` untuk semua callback: aksi berbahaya tak bisa diputar ulang oleh kematian proses, dan harga untuk callback navigasi biasa hanyalah satu ketukan yang mungkin perlu diulang bila proses mati tepat di antaranya.
 
