@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 563: lint CustomX509TrustManager dihidupkan lagi — jaring pengaman verifikasi TLS pulih
+- Cek lint `CustomX509TrustManager` tadinya dimatikan global di `app/build.gradle.kts`, padahal tak ada satu pun implementasi `X509TrustManager` kustom di kode — kedua situs TLS memakai `TrustManagerFactory` platform dengan KeyStore CA ter-pin. Yang hilang murni jaring pengamannya: TrustManager baru yang menerima semua sertifikat tak akan tertandai lint walau `abortOnError=true`.
+- Entri itu dihapus dari daftar `disable`; lint kini akan menandai implementasi TrustManager kustom apa pun yang muncul di masa depan. Karena tak ada implementasi kustom saat ini, tak ada temuan lint baru yang diharapkan.
+
 ## [Belum rilis] — Audit 562: POST_NOTIFICATIONS kini dideklarasikan — notifikasi update bisa tampil lagi di Android 13+
 - `AutoUpdate.tampilkanNotifikasi` memeriksa `POST_NOTIFICATIONS` pada SDK >= 33 dan membatalkan notifikasi bila tak granted, tetapi izin itu tidak pernah dideklarasikan di `AndroidManifest.xml` — izin tak terdeklarasi tak bisa pernah GRANTED, jadi notifikasi "update tersedia" dari cek berkala tak pernah tampil di Android 13+, diam-diam tanpa log.
 - Izin kini dideklarasikan di manifest. Untuk targetSdk 28, perangkat Android 13+ memberi izin notifikasi secara bawaan pada aplikasi legasi begitu izinnya terdeklarasi; perangkat lama mengabaikan deklarasi izin yang tak dikenal. Jalur notifikasi foreground ServerService tidak berubah.

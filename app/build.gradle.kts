@@ -95,7 +95,6 @@ android {
             "ScopedStorage",
             "BatteryLife",
             "UnusedAttribute",
-            "CustomX509TrustManager",
             "ButtonStyle",
             "Autofill"
         )
