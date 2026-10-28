@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 686: tenggat pembersihan clipboard kini memakai jam dinding, bukan elapsedRealtime
+- Penanda kedaluwarsa clipboard disimpan persisten di preferensi tetapi nilainya berasal dari `elapsedRealtime`, yang ter-reset tiap boot: menyalin nilai sensitif saat uptime sudah berhari-hari lalu perangkat reboot membuat sisa tenggat dihitung berhari-hari, dan pembersihan "30 detik" tidak berlaku pada jalur lintas-reboot itu. Penanda kini memakai jam dinding (`currentTimeMillis`) saat ditulis dan dibaca, sehingga tenggat tetap benar sesudah reboot; risiko lompatan jam dinding sebatas membersihkan lebih awal/akhir sesaat, dan pembersih tetap memverifikasi hash isi sebelum menghapus sehingga tak menyentuh clipboard milik lain. Penanda lama berbasis uptime yang masih tersimpan akan terbaca sudah lewat tenggat (jam dinding jauh lebih besar) dan dibersihkan pada pemeriksaan pertama — arah yang aman.
+
 ## [Belum rilis] — Audit 685: kueri pencarian log dibatasi 64 karakter
 - Kolom cari log tidak membatasi panjang kueri, sementara biaya penyorotan hasil sebanding teks-tampil (maks 100 ribu karakter) × panjang kueri per putaran: menempel kueri ribuan karakter membuat satu putaran sorot berjalan sangat lama dan, selama `redaksiJalan` terpasang, semua refresh log berikutnya tertahan — layar log membeku menampilkan data basi tanpa penjelasan. Kueri kini dibatasi 64 karakter di layout (`maxLength`, berlaku juga untuk tempelan) dan dijepit lagi di kode saat dibaca, sebagai lapis kedua.
 

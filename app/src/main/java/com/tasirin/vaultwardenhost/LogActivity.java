@@ -986,7 +986,7 @@ public class LogActivity extends Activity {
         final String sidik = sidikClip(isi);
         final long kedaluwarsa;
         try {
-            kedaluwarsa = android.os.SystemClock.elapsedRealtime() + CLIP_BERSIH_MS;
+            kedaluwarsa = System.currentTimeMillis() + CLIP_BERSIH_MS;
         } catch (Exception e) {
             return true;
         }
@@ -1103,17 +1103,17 @@ public class LogActivity extends Activity {
             return Math.max(0, kedaluwarsa - System.currentTimeMillis());
         }
         try {
-            return sisaClipMs(kedaluwarsa, android.os.SystemClock.elapsedRealtime());
+            return sisaClipMs(kedaluwarsa, System.currentTimeMillis());
         } catch (Exception e) {
             return 0;
         }
     }
 
-    static long sisaClipMs(long kedaluwarsa, long kiniElapsed) {
+    static long sisaClipMs(long kedaluwarsa, long kiniWall) {
         if (kedaluwarsa <= 0) {
             return 0;
         }
-        return Math.max(0, kedaluwarsa - kiniElapsed);
+        return Math.max(0, kedaluwarsa - kiniWall);
     }
 
     static String potongEkorBaris(String text, int maks) {
