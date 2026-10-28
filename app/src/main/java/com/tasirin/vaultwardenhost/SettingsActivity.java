@@ -2217,23 +2217,33 @@ public class SettingsActivity extends Activity {
             }
             TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
             if (zipCfg != null) {
-                paksaCacheUbah = true;
-                try {
-                    TgBackup.applyPrefsFromJson(SettingsActivity.this,
-                            zipCfg.optJSONObject("prefs"));
-                } catch (Exception eSet) {
-                    appendUiLog("[app] Peringatan: pengaturan dari backup gagal"
-                            + " diterapkan (" + eSet.getMessage() + ").");
-                }
-                sanitizePortPref();
+                JSONObject prefsZip = zipCfg.optJSONObject("prefs");
+                if (!"tasirin-vaultwarden-host".equals(
+                        zipCfg.optString("app", ""))) {
+                    appendUiLog("[app] Peringatan: app-config.json bukan dari"
+                            + " aplikasi ini - pengaturan TIDAK diterapkan.");
+                } else if (prefsZip == null) {
+                    appendUiLog("[app] Peringatan: app-config.json tidak"
+                            + " memuat pengaturan - pengaturan TIDAK diterapkan.");
+                } else {
+                    paksaCacheUbah = true;
+                    try {
+                        TgBackup.applyPrefsFromJson(SettingsActivity.this,
+                                prefsZip);
+                    } catch (Exception eSet) {
+                        appendUiLog("[app] Peringatan: pengaturan dari backup gagal"
+                                + " diterapkan (" + eSet.getMessage() + ").");
+                    }
+                    sanitizePortPref();
 
-                SharedPreferences sp2 = getSharedPreferences(
-                        ServerService.PREFS, MODE_PRIVATE);
-                TgBackup.schedule(SettingsActivity.this,
-                        TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
-                TgBot.schedule(SettingsActivity.this);
-                appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
-                uiPost(this::reloadSettingsFromPrefs);
+                    SharedPreferences sp2 = getSharedPreferences(
+                            ServerService.PREFS, MODE_PRIVATE);
+                    TgBackup.schedule(SettingsActivity.this,
+                            TgBackup.amanBoolean(sp2, TgBackup.KEY_TG_AUTO, false));
+                    TgBot.schedule(SettingsActivity.this);
+                    appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
+                    uiPost(this::reloadSettingsFromPrefs);
+                }
             }
             TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
             toast(getString(tlsGagalPasang

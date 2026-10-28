@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 678: restore lokal Settings kini memvalidasi config seperti jalur bot
+- Pasangan Audit 663 yang tertinggal (self-review putaran-24): perbaikan validasi config putaran lalu hanya menambal jalur restore bot. Jalur restore zip lokal di Settings tetap menerapkan `prefs` tanpa memeriksa penanda `app` dan tanpa memeriksa `prefs == null`, lalu mencatat "Pengaturan dari backup ikut diterapkan" apa pun yang terjadi — padahal `applyPrefsFromJson` kembali diam-diam untuk argumen null. Jalur lokal kini memeriksa penanda aplikasi dan keberadaan objek `prefs` dengan pesan peringatan yang sama terus terangnya; klaim diterapkan hanya muncul bila pengaturan benar-benar diterapkan, dan penjadwalan ulang backup/bot hanya berjalan pada jalur yang sah itu.
+
 ## [Belum rilis] — Audit 677: bukti panic tidak lagi terhapus oleh probe rescue yang gagal
 - Regresi dari perbaikan Audit 653 (self-review putaran-24): probe paksa-shim menimpa `lastVersionOutput`, dan jalur gagalnya menyetelnya kosong — bila probe dengan-shim gagal tanpa teks panic, pemeriksaan panic terakhir di `siapkanShim` membaca output baru itu, tak menemukan panic, dan Start lanjut **tanpa shim dan tanpa blok panic yang jujur**, padahal cabang rescue dimasuki justru karena bukti panic tanpa-shim sudah ada. Bukti sebelum rescue kini disimpan dan dipulihkan sesudah probe gagal, sehingga penilaian terakhir kembali ke bukti yang benar: panic tanpa shim tetap menghentikan start secara jujur bila shim tak terbukti menolong.
 
