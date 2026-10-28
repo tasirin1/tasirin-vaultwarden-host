@@ -102,15 +102,40 @@ def _kumpul_glob_labeler(node, kumpul):
 
 def _ekspansi_kurawal(pola):
     """Ekspansi grup {a,b} ala minimatch (glob Python tak mendukungnya);
-    rekursif untuk beberapa grup, tanpa sarang (Audit 602)."""
+    rekursif untuk beberapa grup dan grup bersarang: tutup grup dicari
+    dengan menghitung kedalaman, isi dipecah hanya pada koma terluar
+    (Audit 602; sarang ditambah Audit 605). Kurung tak ditutup
+    dikembalikan apa adanya (minimatch memperlakukannya literal)."""
     i = pola.find("{")
     if i == -1:
         return [pola]
-    j = pola.find("}", i)
+    dalam = 0
+    j = -1
+    for k in range(i, len(pola)):
+        if pola[k] == "{":
+            dalam += 1
+        elif pola[k] == "}":
+            dalam -= 1
+            if dalam == 0:
+                j = k
+                break
     if j == -1:
         return [pola]
+    isi = pola[i + 1:j]
+    opsi = []
+    dalam = 0
+    potong = 0
+    for k, c in enumerate(isi):
+        if c == "{":
+            dalam += 1
+        elif c == "}":
+            dalam -= 1
+        elif c == "," and dalam == 0:
+            opsi.append(isi[potong:k])
+            potong = k + 1
+    opsi.append(isi[potong:])
     hasil = []
-    for alt in pola[i + 1:j].split(","):
+    for alt in opsi:
         hasil.extend(_ekspansi_kurawal(pola[:i] + alt + pola[j + 1:]))
     return hasil
 
