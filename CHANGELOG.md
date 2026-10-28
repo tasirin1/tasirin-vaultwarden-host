@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 667: pagar pemindaian info berat Settings kini statis lintas rotasi
+- `heavyRunning` adalah satu-satunya pagar tugas Settings yang masih per-instance, menyimpang dari pola `tugasBerjalan` yang sengaja statis (Audit 591: rotasi menghancurkan activity tetapi thread tugasnya terus berjalan). Rotasi di tengah pemindaian info berat (isi DB, storage, web-vault, sertifikat — I/O berkas + parse sertifikat) melahirkan instance baru berpagar kosong yang meluncurkan pemindaian kedua bersamaan di pool yang sama: kerja I/O ganda sesaat di STB lemah tiap rotasi. Pagarnya kini statis, sejalan dengan pola yang sudah terbukti.
+
 ## [Belum rilis] — Audit 666: cek port saveAndStart kini berpagar masuk di kedua activity
 - `startTertundaPort` selama ini hanya *ditulis*, tidak pernah *dibaca* sebagai pagar: ketuk-ganda Start (remote D-pad Enter beruntun di STB) menjalankan dua tugas `bereskanServerYatim()` + `isPortBusy()` bersamaan, dan kedua penyelesaian bisa sama-sama memanggil `lanjutStart` — dialog bertumpuk dan `ServerService.start` terpanggil dua kali (di Settings tombol Start bahkan tidak ikut dinonaktifkan `setBusy`). Kini `saveAndStart` di MainActivity dan SettingsActivity menolak masuk bila cek port instance itu masih berjalan. Jalur rotasi tidak dirugikan: instance baru mewarisi keadaan tertunda lewat `startTertundaDariPutaran` (bukan flag-nya sendiri), dan penyelesaian instance lama tetap berhenti di cek `isDestroyed()` sebelum dialog/start apa pun.
 

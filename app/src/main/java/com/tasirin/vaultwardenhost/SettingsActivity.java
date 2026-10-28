@@ -370,7 +370,7 @@ public class SettingsActivity extends Activity {
     private static final long SYS_CHECK_MS = 5_000;
     private static final long CERT_CHECK_MS = 30_000;
 
-    private final AtomicBoolean heavyRunning = new AtomicBoolean(false);
+    private static final AtomicBoolean heavyRunning = new AtomicBoolean(false);
     private long lastSysCheck = 0;
     private String sysLine = "";
     private long lastCertCheck = 0;
