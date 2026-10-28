@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pembersihan warning lint build (ApplySharedPref + wrapper Gradle)
+- Build pasca-merge AGP 8.13.2 menyisakan 4 warning lint unik: 2× `ApplySharedPref` di `AlarmReceiver.onReceive` dan 2 pemberitahuan versi (Gradle 8.14.3 → 8.14.6 tersedia; compileSdk 34 → 36 tersedia).
+- Dua `commit()` di `onReceive` SENGAJA sinkron: keduanya menulis tanda `KEY_BACKUP_TERTUNDA` pada jalur gugur alarm/boot, di mana proses bisa mati sebelum tulis asinkron `apply()` sempat turun ke disk — menggantinya akan membuka peluang tanda backup tertunda hilang diam-diam. Metode diberi `@SuppressLint("ApplySharedPref")`, mengikuti pola dua metode lain di berkas yang sama yang sudah lebih dulu ditandai persis untuk alasan ini.
+- Wrapper Gradle dinaikkan 8.14.3 → 8.14.6 (patch terakhir seri 8.14; checksum SHA-256 resmi dari `services.gradle.org`) sehingga dua pemberitahuan versi Gradle hilang. Pemberitahuan compileSdk 34 → 36 DIBIARKAN: compileSdk 34 adalah pilihan repo saat ini (CI memasang platform 34; targetSdk tetap 28 by design) — menaikkannya keputusan SDK tersendiri, bukan pembersihan warning.
+
 ## [Belum rilis] — Build merah (jalur PR): import StandardCharsets hilang di UpdaterTest
 - Jalur PR workflow build menjalankan kompilasi uji unit (`compileDebugUnitTestJavaWithJavac`), sedangkan jalur push tidak — jadi kesalahan ini bersembunyi selama hanya build push yang terlihat: dua uji zip di `UpdaterTest` memakai `StandardCharsets.UTF_8` tanpa `import java.nio.charset.StandardCharsets`, simbol tidak ditemukan dan kompilasi uji gagal. Terungkap oleh gerbang PR #225 sesudah perbaikan kompilasi `HttpsCompat`.
 - Import yang hilang ditambahkan; tidak ada perubahan perilaku uji.

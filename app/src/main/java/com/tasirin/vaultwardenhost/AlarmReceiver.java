@@ -93,6 +93,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     @Override
+    @SuppressLint("ApplySharedPref")
     public void onReceive(Context context, Intent intent) {
         if (intent == null) {
             return;
