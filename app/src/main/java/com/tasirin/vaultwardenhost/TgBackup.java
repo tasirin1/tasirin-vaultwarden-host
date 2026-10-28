@@ -3312,6 +3312,18 @@ public final class TgBackup {
         hapusWalShm(dataFolder);
         copyFile(sumber, staging);
         sinkronBerkas(staging);
+        // Salinan pengaman wajib lolos penjaga yang sama seperti DB restore
+        // biasa: tanpa ini, salinan yang terpotong (kepala SQLite tetap
+        // terbaca) terpasang sebagai DB live (Audit 578).
+        if (!isSqliteFile(staging)) {
+            hapusStagingRestore(dataFolder);
+            throw new IOException("Salinan database pengaman bukan SQLite");
+        }
+        String rusak = cekIntegritasDb(staging);
+        if (rusak != null) {
+            hapusStagingRestore(dataFolder);
+            throw new IOException("Salinan database pengaman korup: " + rusak);
+        }
         if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
             throw new IOException("Gagal memasang database pengaman");
         }
@@ -3329,6 +3341,13 @@ public final class TgBackup {
         if (preBackup != null && preBackup.exists()) {
 
             pasangDbDariSalinan(dataFolder, preBackup);
+        } else if (preBackup != null) {
+            // Pre-backup sempat dicoba dibuat tetapi berkasnya tiada —
+            // salinannya gagal di tengah dan dibersihkan copyFile (Audit
+            // 578). Kegagalan terjadi sebelum DB live disentuh jalur
+            // restore, jadi biarkan DB live apa adanya; jangan jatuh ke
+            // cabang hapus di bawah.
+            hapusStagingRestore(dataFolder);
         } else {
             hapusStagingRestore(dataFolder);
             hapusWalShm(dataFolder);
@@ -3790,6 +3809,16 @@ public final class TgBackup {
                 fos.write(buf, 0, n);
             }
             fos.getFD().sync();
+        } catch (Exception e) {
+            // Gagal di tengah salin: tujuan sudah terpotong sejak aliran
+            // dibuka, jadi sisa parsialnya tak pernah layak dipakai —
+            // hapus agar tak ada pemanggil yang memasangnya sebagai berkas
+            // utuh (Audit 578).
+            try {
+                dst.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
         }
 
         if (src.length() != dst.length()) {

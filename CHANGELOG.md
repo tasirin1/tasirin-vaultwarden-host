@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 578: pre-backup separuh tak lagi bisa terpasang menggantikan DB live yang utuh
+- Lubang berantai di jalur pulih restore Settings: `copyFile` meninggalkan berkas tujuan parsial bila IOException meledak di tengah loop (cek panjang hanya berjalan sesudah loop selesai normal), dan `pasangDbDariSalinan` memasang salinan pengaman tanpa cek integritas apa pun — jadi restore yang gagal karena disk penuh justru memasang pre-backup terpotong sebagai `db.sqlite3`, merusak vault yang sebenarnya belum tersentuh.
+- Tiga lapis perbaikan: (1) `copyFile` kini menghapus tujuan dan melempar ulang bila penyalinan gagal di tengah — sisa parsial tak pernah tertinggal untuk pemanggil mana pun (tujuan memang sudah terpotong sejak aliran dibuka, jadi tak ada isi lama yang dikorbankan); (2) `pasangDbDariSalinan` mewajibkan salinan lolos `isSqliteFile` + `cekIntegritasDb` — penjaga yang sama seperti jalur pasang DB restore biasa — sebelum rename; (3) `pulihkanDbLama` tak lagi menghapus DB live bila pre-backup sempat dicoba dibuat tetapi berkasnya tiada (tanda kegagalan terjadi sebelum DB disentuh).
+
 ## [Belum rilis] — Audit 577: uji keunikan stempelUnik diperkuat ke perbandingan berpasangan
 - Asersi lama hanya gagal bila dua pasangan panggilan berurutan sama-sama identik, sehingga duplikat berpasangan sesekali — persis regresi yang membahayakan nama berkas backup — bisa lolos. Kini tiga stempel berurutan dibandingkan berpasangan (s1≠s2, s2≠s3, s1≠s3); sufiks acak 48-bit `SecureRandom` membuat ketiganya berbeda secara praktis selalu, jadi asersi ini stabil sekaligus jauh lebih kuat.
 
