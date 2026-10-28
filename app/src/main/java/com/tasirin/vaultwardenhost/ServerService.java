@@ -4221,12 +4221,23 @@ public class ServerService extends Service {
             return null;
         }
         try (FileInputStream in = new FileInputStream(f)) {
+            // Baca sampai habis (satu read() tak menjamin buffer penuh)
+            // dengan plafon 8192: cmdline yang terpotong dulu bisa
+            // memutus pengecualian "--version" di cmdlineServer yang
+            // letaknya paling akhir (Audit 611).
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
             byte[] buf = new byte[1024];
-            int n = in.read(buf);
-            if (n <= 0) {
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                out.write(buf, 0, n);
+                if (out.size() >= 8192) {
+                    break;
+                }
+            }
+            if (out.size() <= 0) {
                 return null;
             }
-            return new String(buf, 0, n, StandardCharsets.UTF_8)
+            return new String(out.toByteArray(), StandardCharsets.UTF_8)
                     .replace('\u0000', ' ').trim();
         } catch (Exception e) {
             return null;

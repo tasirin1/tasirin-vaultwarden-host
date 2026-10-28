@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 611: readProcCmdline membaca sampai habis, bukan sekali baca
+- `readProcCmdline` membaca cmdline proses dengan satu kali `read()` ke buffer 1024 byte: kontrak `InputStream` tak menjamin buffer terisi penuh, dan cmdline yang lebih panjang terpotong diam-diam — bagian yang hilang pertama justru pengecualian `--version` di `cmdlineServer` (letaknya paling akhir), sehingga proses smoke-test bisa lolos sebagai server sungguhan. Kini dibaca berulang sampai habis dengan plafon 8192 byte.
+
 ## [Belum rilis] — Audit 610: predikat pengecualian sapuan impor diekstrak dan dikunci uji
 - Pengecualian Audit 595 (berkas impor tertunda tak boleh disapu) sebelumnya inline di metode privat `sapuSisaImpor` sehingga tak terjangkau uji — refactor sapuan berikutnya bisa menghilangkannya lagi tanpa sinyal, persis pola yang melahirkan temuan Sedang itu. Logikanya kini predikat murni statis `berkasImporBolehDisapu(nama, path, pathTertunda)` yang dipakai pemanggil yang sama, dikunci uji: path tertunda persis → tahan; berkas impor lain → sapu; tanpa penanda → sapu; nama bukan impor/null → jangan sentuh.
 
