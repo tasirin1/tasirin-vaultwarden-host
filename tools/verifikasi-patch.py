@@ -888,12 +888,15 @@ def cek_locale_baru(gagal, diff):
                          "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
                          % kode.strip()[:80])
 
+def teks_xml_bersih(path):
+    return re.sub(r"<!--.*?-->", "", baca(path), flags=re.S)
+
 def nama_warna(path):
-    return set(re.findall(r'<color\b[^>]*?\bname="([^"]+)"', baca(path)))
+    return set(re.findall(r'<color\b[^>]*?\bname="([^"]+)"', teks_xml_bersih(path)))
 
 def quantities_plurals(path):
     hasil = {}
-    for m in re.finditer(r'<plurals\b[^>]*?\bname="([^"]+)"(.*?)</plurals>', baca(path), re.S):
+    for m in re.finditer(r'<plurals\b[^>]*?\bname="([^"]+)"(.*?)</plurals>', teks_xml_bersih(path), re.S):
         hasil[m.group(1)] = set(re.findall(r'quantity="([^"]+)"', m.group(2)))
     return hasil
 
@@ -941,9 +944,9 @@ def cek_paritas_resource(gagal):
                 if not os.path.isfile(darat):
                     continue
                 port = set(re.findall(r'@\+id/([A-Za-z0-9_]+)',
-                                      baca("app/src/main/res/layout/" + nama)))
+                                      teks_xml_bersih("app/src/main/res/layout/" + nama)))
                 land = set(re.findall(r'@\+id/([A-Za-z0-9_]+)',
-                                      baca("app/src/main/res/layout-land/" + nama)))
+                                      teks_xml_bersih("app/src/main/res/layout-land/" + nama)))
                 if port != land:
                     gagal.append("ID layout/%s != layout-land/%s (kurang: %s; lebih: %s)"
                                  % (nama, nama,

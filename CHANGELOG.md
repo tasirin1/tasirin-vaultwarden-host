@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 530: paritas resource di gerbang tak lagi kalah oleh komentar XML
+- `cek_paritas_resource` membaca nama warna, quantity plurals, dan ID layout dari teks mentah (`baca()`), sehingga definisi yang sudah dihapus tetapi disisakan sebagai komentar `<!-- ... -->` tetap terhitung ada: warna malam yang hilang nyata lolos paritas dan Android jatuh diam-diam ke warna siang di mode gelap.
+- Ekstraksi ketiganya kini lewat `teks_xml_bersih` (komentar XML dibuang lebih dulu). Terbukti fixture dua arah di salinan buang dengan mutasi ter-assert (parse XML membuktikan 0 definisi `primary` nyata): warna malam dikomentari → GAGAL "colors.xml siang berlebih vs night: primary"; pohon bersih → LOLOS 157 berkas.
+
 ## [Belum rilis] — Audit 529: isian latar fokus D-pad tak lagi menenggelamkan kontras teks di mode siang
 - `item_focus_bg` memberi isian oranye transparan pada keadaan fokus (`#66FF6F00`, alfa 0,40) dan tekan (`#33F57C00`, alfa 0,20). Di atas latar terang, campuran itu menjatuhkan kontras teks yang justru sedang dipilih: `netInfo` (text_secondary #666D7B, 11sp) di atas campuran fokus di info_bg hanya 3,11:1 dan saat tekan 3,84:1 (hitung WCAG) — di bawah ambang 4,5:1, padahal pasangan dasarnya sendiri lolos 4,58:1. Perhitungan campuran juga menunjukkan alfa oranye sekecil apa pun tetap di bawah ambang, karena pasangan dasar memang pas-pasan — jadi mengecilkan alfa bukan perbaikan.
 - Isian kedua keadaan kini transparan penuh; penanda fokus/tekan adalah garis tepi aksen 3dp yang sudah ada di selector yang sama (tetap jelas terlihat di TV). Kontras teks pada keadaan fokus/tekan kembali persis ke kontras pasangan dasar yang sudah lolos (netInfo 4,58:1; pemakai lain lebih tinggi), dan mode malam tidak berubah perilakunya selain isian yang hilang.
