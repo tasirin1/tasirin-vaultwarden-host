@@ -1,25 +1,28 @@
 app:
-  - any:
-      - app/src/main/**
-      - app/build.gradle.kts
-      - app/src/test/**
+  - changed-files:
+      - any-glob-to-any-file:
+          - app/src/main/**
+          - app/build.gradle.kts
+          - app/src/test/**
 
 ci:
-  - any:
-      - .github/workflows/**
-      - .github/dependabot.yml
-      - .github/labeler.yml
-      - .github/CODEOWNERS
-      - tools/**
-      - scripts/**
-      - shim/**
-      - gradle/**
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**
+          - .github/dependabot.yml
+          - .github/labeler.yml
+          - .github/CODEOWNERS
+          - tools/**
+          - scripts/**
+          - shim/**
+          - gradle/**
 
 docs:
-  - any:
-      - README.md
-      - README.id.md
-      - README.ru.md
-      - CHANGELOG.md
-      - AGENTS.md
-      - "*.md"
+  - changed-files:
+      - any-glob-to-any-file:
+          - README.md
+          - README.id.md
+          - README.ru.md
+          - CHANGELOG.md
+          - AGENTS.md
+          - "*.md"

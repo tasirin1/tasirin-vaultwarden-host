@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 487: konfigurasi Labeler ditulis ulang ke format actions/labeler v5+
+- `.github/labeler.yml` masih memakai format v4 (`- any: [...]`) sedangkan workflow memasang `actions/labeler@v7`; format config didesain ulang dan dinyatakan tidak kompatibel sejak v5.0.0, jadi tidak ada label yang pernah terpasang dan tidak ada galat yang terlihat — fitur mati total sejak dipasang pada paket pemerataan.
+- Ketiga label (`app`/`ci`/`docs`) ditulis ulang ke skema saat ini (`changed-files` + `any-glob-to-any-file`) dengan daftar pola yang persis sama, dan strukturnya divalidasi sebagai YAML berskema baru sebelum commit.
+
 ## [Belum rilis] — Audit 486: rantai fokus dinamis beranda tidak lagi memutus jalur D-pad ke log
 - Penyesuaian fokus saat tombol update muncul/sembunyi mengarahkan `netInfo.down` dan `startStop.up` langsung ke satu sama lain (atau ke tombol update), melewati `homeLogScroll` — membatalkan rantai statis Audit 463 pada pemakaian nyata pertama dan mengembalikan log beranda tak terjangkau D-pad persis seperti sebelum #463.
 - Penyisipan tombol update kini dilakukan pada mata rantai yang benar: `homeLogScroll.down` menjadi updateBtn/startStop dan `startStop.up` menjadi updateBtn/homeLogScroll; `netInfo.down` tidak disentuh lagi. Atribut statis `updateBtn.nextFocusUp` di XML juga diluruskan dari `netInfo` ke `homeLogScroll` agar konsisten sebelum kode dinamis berjalan.
