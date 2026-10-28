@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 519: labeler kini mencakup berkas build akar dan proguard
+- Label `app`/`ci` di `.github/labeler.yml` tidak mencakup berkas build akar — PR yang hanya mengubah `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, atau `app/proguard-rules.pro` tidak mendapat label apa pun, padahal berkas-berkas itu mengubah build sekuat `app/build.gradle.kts` yang sudah terlabel.
+- Keempat pola ditambahkan ke label `app` (format v5 `changed-files` hasil Audit 487 dipertahankan; berkas lolos parse YAML dan keempat berkasnya terverifikasi ada di repo).
+
 ## [Belum rilis] — Audit 518: cek sinkron README membandingkan struktur judul, bukan hanya jumlah ##
 - Pemeriksaan sinkron tiga README di `scripts/cek-cepat.sh` hanya menghitung judul `^## ` — subjudul `###` yang ditambah/diubah di satu bahasa dan perubahan isi/tingkat judul lain lolos tanpa jejak, padahal AGENTS.md mewajibkan ketiga README sinkron.
 - Pemeriksaan kini membandingkan urutan tingkat seluruh judul (`#`–`######`) antar ketiga berkas (judul memang diterjemahkan, jadi yang dibandingkan strukturnya). Terbukti fixture dua arah di salinan terpisah: tambah `###` di satu README → GAGAL, tambah `##` → GAGAL, pohon bersih → LOLOS.

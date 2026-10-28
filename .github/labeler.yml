@@ -3,7 +3,11 @@ app:
       - any-glob-to-any-file:
           - app/src/main/**
           - app/build.gradle.kts
+          - app/proguard-rules.pro
           - app/src/test/**
+          - build.gradle.kts
+          - settings.gradle.kts
+          - gradle.properties
 
 ci:
   - changed-files:
