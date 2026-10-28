@@ -1175,7 +1175,8 @@ public final class TlsCert {
             throw new IOException("Folder tujuan tak bisa dibuat: " + dirBackup.getAbsolutePath());
         }
         File tujuan = new File(dirBackup, namaBackupCa(timestamp));
-        File sementara = new File(dirBackup, tujuan.getName() + ".tmp");
+        File sementara = new File(dirBackup, tujuan.getName()
+                + "." + Long.toHexString(System.nanoTime()) + ".tmp");
         try {
             try (FileInputStream in = new FileInputStream(caAktif);
                  FileOutputStream out = new FileOutputStream(sementara)) {
@@ -1191,11 +1192,22 @@ public final class TlsCert {
                 }
             }
             if (!sementara.renameTo(tujuan)) {
-                if (!tujuan.delete() || !sementara.renameTo(tujuan)) {
+                File cadangan = new File(dirBackup, tujuan.getName()
+                        + ".lama-" + Long.toHexString(System.nanoTime()));
+                boolean digeser = !tujuan.exists() || tujuan.renameTo(cadangan);
+                if (!digeser || !sementara.renameTo(tujuan)) {
+                    if (digeser && cadangan.isFile() && !tujuan.exists()) {
+                        cadangan.renameTo(tujuan);
+                    }
                     throw new IOException("Gagal memasang salinan CA: "
                             + tujuan.getAbsolutePath());
                 }
+                try {
+                    cadangan.delete();
+                } catch (Exception ignored) {
+                }
             }
+            fsyncDirektori(dirBackup);
         } catch (IOException e) {
             try {
                 sementara.delete();

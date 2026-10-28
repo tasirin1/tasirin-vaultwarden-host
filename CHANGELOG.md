@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 541: fallback salinCaKeStorage tak lagi menghapus tujuan sebelum pengganti terpasang
+- Residual #258: jalur utama `salinCaKeStorage` sudah atomik (tulis .tmp + fsync + rename), tetapi fallback-nya menghapus berkas tujuan dulu baru rename kedua — jendela crash di antaranya menghilangkan salinan CA yang sebelumnya baik. Nama berkas sementara juga tetap (`tujuan + ".tmp"`), jadi dua ekspor bersamaan bisa saling menulis berkas yang sama.
+- Nama sementara kini unik per panggilan (akhiran nanoTime heksadesimal). Fallback tak lagi delete-dulu: tujuan lama digeser ke nama `.lama-<unik>`, pengganti dipasang, dan hanya sesudah itu cadangan lama dihapus (kegagalan memasang memulihkan cadangan ke nama tujuan). Direktori tujuan di-fsync sesudah pemasangan, seperti pola Audit 540.
+
 ## [Belum rilis] — Audit 540: pertukaran pasangan TLS dan version.txt kini men-fsync direktori sesudah rename
 - `tukarPasanganAtomik` dan `writeVersion` men-fsync isi berkas sebelum rename, tetapi tak pernah men-fsync direktori `tls/` sesudahnya. Di Android/data=ext4/f2fs, rename yang belum ter-fsync direktorinya bisa terbalik oleh mati listrik tepat sesudah pertukaran: pasangan cert/key campuran atau `version.txt` basi kembali, dan jalur pemulihan `.cad` sudah terlanjur dihapus pada keberhasilan semu itu.
 - Helper `TlsCert.fsyncDirektori` (pola `android.system.Os.open/fsync` yang sama dengan yang sudah dipakai pemulihan DB di ServerService, best-effort dalam try/catch) kini dipanggil di akhir keberhasilan `tukarPasanganAtomik` dan sesudah rename `writeVersion` (termasuk jalur fallback-nya).
