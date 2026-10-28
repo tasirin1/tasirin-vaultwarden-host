@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: deklarasi KEY_RESTORE_TANDA dipindah sebelum pemakainya
+- Run `3ba2190` merah di kompilasi: daftar `TAK_DIEKSPOR_KEYS` (Audit 659) merujuk konstanta `KEY_RESTORE_TANDA` yang deklarasinya berada jauh di bawah inisialisasi statis tersebut — Java menolaknya sebagai *illegal forward reference*. Deklarasi konstanta dipindah ke blok konstanta di kepala `TgBackup`, sebelum semua pemakainya; tidak ada perubahan perilaku.
+
 ## [Belum rilis] — Audit 676: kerja boot tak lagi jatuh sinkron ke thread broadcast saat antrean penuh
 - Jalur cadangan BootReceiver menjalankan seluruh kerja boot secara sinkron di thread penerima broadcast bila pool latar menolak tugas — mengonsumsi jendela broadcast (~10 detik, `goAsync()` tidak menolong bila kerja justru berjalan di `onReceive`) dan berisiko ANR/pemutusan proses di tengah kerja pada STB lambat. Cadangannya kini berupa thread khusus (pola yang sama dengan cadangan di TgBotReceiver): kerja tetap selesai di luar thread broadcast; hanya bila pembuatan thread pun gagal, penanganan boot dilewati dengan log terus terang dan `PendingResult` ditutup rapi — bukan dijalankan paksa di thread broadcast.
 

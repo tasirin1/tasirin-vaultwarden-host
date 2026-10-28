@@ -47,6 +47,7 @@ public final class TgBackup {
     public static final String KEY_TG_TOKEN = "tg_token";
     public static final String KEY_TG_CHAT = "tg_chat";
     public static final String KEY_TG_AUTO = "tg_auto";
+    static final String KEY_RESTORE_TANDA = "restore_tanda_ms";
     public static final String KEY_TG_LAST = "tg_last_backup";
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
@@ -2873,8 +2874,6 @@ public final class TgBackup {
     public static void lepasBackup() {
         TUGAS_DATA_JALAN.set(false);
     }
-
-    static final String KEY_RESTORE_TANDA = "restore_tanda_ms";
 
     static void tandaiRestoreMulai(Context ctx) {
         try {
