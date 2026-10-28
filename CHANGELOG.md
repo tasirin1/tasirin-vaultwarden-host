@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 514: entri DialogAman dilepas saat dialog tertutup, bukan menunggu dialog berikutnya
+- Daftar statis `DialogAman` menahan referensi kuat ke dialog (dan lewat dialog, konteks Activity-nya) sesudah dialog ditutup; entri baru dibersihkan hanya saat dialog lain tampil atau `tutup(activity)` dipanggil — sesi Settings panjang yang membuka banyak dialog menumpuk semuanya beserta konteksnya.
+- Sesudah `show()`, kini dipasang pendengar lepas-jendela pada decor view: saat jendela dialog terlepas (dismiss/cancel/aktivitas selesai), entrinya menghapus diri dari daftar. Slot `OnDismissListener` sengaja tidak dipakai karena dua dialog Settings memasang pendengarnya sendiri sebelum `tampil`.
+
 ## [Belum rilis] — Audit 513: potongEkorBaris tak lagi melanggar batasnya sendiri + hitungan baris jalur terpotong lurus
 - `potongEkorBaris` punya cabang khusus: bila newline PERTAMA seluruh teks jatuh di dalam jendela ekor, fungsi mengembalikan seluruh teks dari awal (terbukti dengan porting Python: teks 156 karakter lolos untuk batas 100) — batas `BATAS_TAMPIL_LOG` dilanggar persis pada log berbaris pertama raksasa. Cabang itu dihapus; ekor selalu dipotong pada batas baris pertama sesudah awal jendela atau potongan keras.
 - Hitungan baris hanya menghitung `\n`, sedangkan jalur terpotong membuang newline penutup — jumlah "baris" yang ditampilkan kurang 1 dari yang terlihat. `hitungBaris` (dipakai juga jalur delta Audit 512 dan menggantikan loop hitung inline) kini menghitung baris terakhir tanpa newline penutup sebagai satu baris. Satu ekspektasi uji lama yang mengunci pelanggaran batas (`"aa\nbb\n"` maks 4 → `"aa\nbb"`) diperbarui ke `"bb"` di commit yang sama, plus uji regresi baris-pertama-raksasa dan uji `hitungBaris`.

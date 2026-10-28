@@ -2,6 +2,7 @@ package com.tasirin.vaultwardenhost;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.view.View;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -45,8 +46,40 @@ final class DialogAman {
                     }
                 }
             }
+            return d;
         }
+        pasangPelepasOtomatis(d);
         return d;
+    }
+
+    private static void pasangPelepasOtomatis(final Dialog d) {
+        try {
+            if (d.getWindow() == null) {
+                return;
+            }
+            final View dekor = d.getWindow().getDecorView();
+            if (dekor == null) {
+                return;
+            }
+            dekor.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    v.removeOnAttachStateChangeListener(this);
+                    synchronized (DAFTAR) {
+                        for (int i = DAFTAR.size() - 1; i >= 0; i--) {
+                            if (DAFTAR.get(i).dialog == d) {
+                                DAFTAR.remove(i);
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 
     static void tutup(Activity a) {
