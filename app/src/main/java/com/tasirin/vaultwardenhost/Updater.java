@@ -1528,11 +1528,28 @@ public final class Updater {
     }
 
     private static void writeVersionTag(File binDir, String apkVersion) {
-        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                new FileOutputStream(new File(binDir, "version.txt"), false),
-                StandardCharsets.UTF_8)) {
-            w.write(apkVersion);
+        File tujuan = new File(binDir, "version.txt");
+        File baru = new File(binDir, "version.txt.baru");
+        try {
+            baru.delete();
+            try (FileOutputStream fos = new FileOutputStream(baru)) {
+                fos.write(apkVersion.getBytes(StandardCharsets.UTF_8));
+                fos.flush();
+                try {
+                    fos.getFD().sync();
+                } catch (Exception ignored) {
+                }
+            }
+            if (!baru.renameTo(tujuan)) {
+                if (!tujuan.delete() || !baru.renameTo(tujuan)) {
+                    baru.delete();
+                }
+            }
         } catch (Exception ignored) {
+            try {
+                baru.delete();
+            } catch (Exception ignored2) {
+            }
         }
     }
 

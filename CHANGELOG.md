@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 495: writeVersionTag binary kini atomik lewat .baru + fsync
+- Penanda `bin/version.txt` ditulis langsung ke nama final tanpa fsync; crash/mati listrik di tengah tulis meninggalkan penanda korup/kosong sehingga binary yang sebenarnya cocok dianggap beda versi dan diunduh ulang sia-sia.
+- Penulisan kini mengikuti pola `TlsCert.writeVersion`: tulis ke `version.txt.baru`, flush + `getFD().sync()`, lalu rename ke nama final (dengan jalur cadang hapus-lalu-rename), dan `.baru` dibersihkan bila gagal.
+
 ## [Belum rilis] — Audit 494: versi update hanya ditandai "sudah diberitahu" bila notifikasi benar-benar tampil
 - `tampilkanNotifikasi` kembali diam-diam (izin POST_NOTIFICATIONS ditolak, pemeriksaan izin melempar, atau SecurityException) tanpa nilai balik, tetapi pemanggil tetap menulis `tg_notified_version` — untuk versi itu notifikasi sistem tidak pernah dicoba lagi walau izin kemudian diberikan.
 - `tampilkanNotifikasi` kini mengembalikan boolean (hanya true bila `nm.notify` benar-benar dijalankan) dan penanda hanya ditulis bila true; pesan Telegram tetap dikirim pada percobaan yang sama seperti sebelumnya.
