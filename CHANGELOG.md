@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 484: ekspor config tidak lagi meloloskan Chat ID lewat kunci dinamis pending-aksi
+- Daftar tolak ekspor (`SECRET_PREF_KEYS`/`TAK_DIEKSPOR_KEYS`) hanya memuat nama kunci statis, sedangkan kunci persetujuan aksi tertunda berbentuk dinamis `tg_pending_aksi_<chatId>` — isinya memuat Chat ID pemilik yang seharusnya rahasia (anggota `SECRET_PREF_KEYS` sebagai `tg_chat`) bersama stempel elapsed dan nama aksinya, dan semuanya lolos ke `app-config.json` di setiap backup, termasuk yang tanpa sandi.
+- Keputusan ekspor kini diekstrak ke predikat murni `TgBackup.kunciDiekspor` yang juga menolak semua kunci berawalan `TgBot.KEY_TG_PENDING_PREFIX` (konstantanya kini package-private), sejajar awalan `wv_notified_` yang sudah ditolak sebelumnya. Uji predikat ditambahkan untuk kunci dinamis positif/negatif.
+
 ## [Belum rilis] — Audit 483: hapus pesan ber-PIN kini dicoba ulang untuk galat sesaat, dan kunci peringatannya bisa pulih
 - `hapusPesanPerintah` menyerah pada percobaan pertama untuk semua jenis kegagalan: timeout/429/5xx sesaat — persis kondisi jaringan STB — meninggalkan pesan berisi PIN tetap di riwayat chat, pesan yang secara desain tidak boleh tertinggal. Selain itu kunci `KEY_TG_HAPUS_WARN` tak pernah direset walau kemampuan hapus berubah, sehingga peringatan hanya bisa tampil sekali seumur pemasangan.
 - Penghapusan kini dicoba sampai 3 kali dengan jeda 1–2 detik hanya untuk galat sesaat (eksepsi jaringan, 429, 5xx); galat permanen Telegram (4xx lain, respons ok=false) tetap langsung berhenti. Keberhasilan penghapusan kini juga menghapus `KEY_TG_HAPUS_WARN`, jadi kegagalan di masa depan sesudah bot kehilangan hak hapus bisa memperingatkan lagi.

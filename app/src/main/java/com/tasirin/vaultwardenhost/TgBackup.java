@@ -1789,15 +1789,21 @@ public final class TgBackup {
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,
                     LogActivity.KEY_CLIP_KEDALUWARSA));
 
+    static boolean kunciDiekspor(String kunci) {
+        return kunci != null
+                && !SECRET_PREF_KEYS.contains(kunci)
+                && !TAK_DIEKSPOR_KEYS.contains(kunci)
+                && !kunci.startsWith("wv_notified_")
+                && !kunci.startsWith(TgBot.KEY_TG_PENDING_PREFIX);
+    }
+
     public static String configJson(SharedPreferences sp) throws Exception {
         JSONObject root = new JSONObject();
         root.put("app", "tasirin-vaultwarden-host");
         root.put("version", 1);
         JSONObject prefs = new JSONObject();
         for (Map.Entry<String, ?> e : sp.getAll().entrySet()) {
-            if (SECRET_PREF_KEYS.contains(e.getKey())
-                    || TAK_DIEKSPOR_KEYS.contains(e.getKey())
-                    || e.getKey().startsWith("wv_notified_")) {
+            if (!kunciDiekspor(e.getKey())) {
                 continue;
             }
             Object v = e.getValue();

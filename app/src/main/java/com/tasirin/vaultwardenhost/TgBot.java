@@ -32,7 +32,7 @@ public final class TgBot {
     static final String KEY_TG_MENU_FP = "tg_menu_fp";
     static final int MENU_REV = 5;
 
-    private static final String KEY_TG_PENDING_PREFIX = "tg_pending_aksi_";
+    static final String KEY_TG_PENDING_PREFIX = "tg_pending_aksi_";
 
     static final long PENDING_AKSI_MS = 5 * 60_000L;
 
