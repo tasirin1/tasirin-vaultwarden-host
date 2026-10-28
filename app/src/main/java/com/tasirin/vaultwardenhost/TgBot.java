@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1431,6 +1432,23 @@ public final class TgBot {
         return e instanceof java.io.IOException;
     }
 
+    private static String bacaResponsHapus(InputStream in, long mulaiMs)
+            throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            if (System.currentTimeMillis() - mulaiMs >= BATAS_HAPUS_PESAN_MS) {
+                throw new IOException("Lewat tenggat hapus pesan.");
+            }
+            bos.write(buf, 0, n);
+            if (bos.size() > 65536) {
+                break;
+            }
+        }
+        return bos.toString("UTF-8");
+    }
+
     static boolean hapusPesanPerintah(Context ctx, long chatId, int messageId) {
 
         if (chatId == 0 || messageId == 0) {
@@ -1472,7 +1490,7 @@ public final class TgBot {
                 } else {
                     try (InputStream in = c.getInputStream()) {
 
-                        if (responsOk(TgBackup.bacaResponsBatas(in))) {
+                        if (responsOk(bacaResponsHapus(in, mulaiMs))) {
                             return true;
                         }
                         return false;

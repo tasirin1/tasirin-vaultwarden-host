@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 694: tenggat hapus pesan kini total, bukan per-pembacaan
+- Sisa teoritis dari Audit 683 (self-review putaran-25): `setReadTimeout` membatasi jeda *antar* data, bukan total — respons yang menetes (drip-feed) memperbarui jendela baca pada tiap potongan, sehingga satu percobaan hapus secara teoretis bisa jauh melewati cap 60 detik. Badan respons `deleteMessage` kini dibaca pembaca khusus yang memeriksa tenggat total operasi di antara potongan dan melempar bila lewat (respons sah hanya `{"ok":true,...}` belasan byte; pembaca berhenti di 64 KB). Cap 60 detik sekarang tenggat total yang sebenarnya untuk jalur ini.
+
 ## [Belum rilis] — Audit 693: commit offset dini dipersempit ke callback yang benar-benar tak idempoten
 - Penimbangan ulang trade-off Audit 682 (self-review putaran-25): commit-sebelum-eksekusi untuk *semua* callback membuat setiap ketukan bersifat at-most-once — ketukan Stop/Backup/dll. bisa hilang diam-diam bila proses mati tepat sesudah commit. Padahal yang benar-benar rusak oleh eksekusi ganda hanyalah aksi yang memutar keadaan: `/careset` (CA baru membuat CA yang baru dipasang basi) dan `/restore` (menerapkan ulang backup). Commit dini kini hanya untuk dua perintah itu; callback lain (berhenti, mulai, restart, backup, update, navigasi, tampilan) kembali ke semantik at-least-once lewat penyimpanan offset akhir batch — pengiriman ulang untuk mereka berakhir pada keadaan yang sama atau tertahan pagar tugas berat yang sudah ada.
 
