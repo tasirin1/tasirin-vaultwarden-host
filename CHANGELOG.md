@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 473: penjaga targetSdk/minSdk gerbang tidak lagi kalah oleh komentar umpan
+- `nilai_target_sdk` dan `nilai_min_sdk` di `tools/verifikasi-patch.py` menjalankan regex di teks mentah `app/build.gradle.kts` dan mengambil kecocokan pertama, sehingga komentar `// minSdk = 21` / `// targetSdk = 28` di kepala berkas membayangi nilai asli di `defaultConfig` — patch Audit lama (#206/#207) hanya menutup kasus baris hilang. Terbukti fixture: komentar umpan + nilai asli 26/34 → LOLOS.
+- Kedua fungsi kini mengupas komentar lebih dulu memakai `kupas_java` yang sudah ada (sadar string, jadi `//` di dalam string tidak ikut terbuang) sebelum mencari penetapan. Dibuktikan ulang di salinan buang: umpan `//` + nilai asli 26/34 → GAGAL, berkas asli → LOLOS, umpan blok `/* */` → GAGAL.
+
 ## [Belum rilis] — Audit 472: throttle boot tidak lagi menelan broadcast boot berikutnya
 - Throttle boot membandingkan `elapsedRealtime` yang disimpan persisten lintas-boot lewat `bolehAlarmJalan`, yang hanya mengenali reboot bila elapsed mundur. Dua boot berbeda yang broadcast-nya sama-sama diterima pada fase elapsed mirip (puluhan detik sesudah boot) dengan selisih di bawah 60 detik dianggap duplikat dalam boot yang sama, dan penolakannya `return` tanpa log: auto-start server, jadwal backup, dan jadwal bot hilang diam-diam sampai app dibuka manual.
 - Stempel throttle kini disimpan berpasangan (elapsed + jam dinding `boot_throttle_wall`) dan keputusan dipindah ke penolong murni `BootReceiver.throttleBootMenahan`: duplikat boot yang sama tetap ditahan, tetapi boot lain dikenali dari jam dinding yang maju jauh melampaui elapsed (atau mundur), dan elapsed yang mundur tetap dilepas. Penolakan kini juga dicatat ke log. Uji batas penolong baru ditambahkan (nilai harapan dibuktikan dengan porting Python 1:1).

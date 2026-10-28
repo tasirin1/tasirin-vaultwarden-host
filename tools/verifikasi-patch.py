@@ -553,6 +553,7 @@ BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
 
 def nilai_target_sdk(tetap):
+    tetap = kupas_java(tetap)
     m = re.search(r"targetSdk\s*=\s*([^\n]+)", tetap)
     if not m:
         return None
@@ -597,6 +598,7 @@ def nilai_target_sdk(tetap):
 
 
 def nilai_min_sdk(tetap):
+    tetap = kupas_java(tetap)
     m = re.search(r"minSdk\s*=\s*([^\n]+)", tetap)
     if not m:
         return None
