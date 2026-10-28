@@ -34,6 +34,34 @@ public class UpdaterTest {
     }
 
     @Test
+    public void zipSudahGagal_hanyaUntukZipYangSama() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-zipgagal-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        try {
+            java.io.File zip = new java.io.File(dir, "web-vault.zip");
+            java.nio.file.Files.write(zip.toPath(), "isi-zip".getBytes(StandardCharsets.UTF_8));
+            java.io.File penanda = new java.io.File(dir, "web-vault.zip.gagal");
+            assertFalse(Updater.zipSudahGagal(penanda, zip));
+            Updater.catatZipGagal(penanda, zip);
+            assertTrue(Updater.zipSudahGagal(penanda, zip));
+            java.nio.file.Files.write(zip.toPath(),
+                    "isi-zip-berubah-lebih-panjang".getBytes(StandardCharsets.UTF_8));
+            assertFalse(Updater.zipSudahGagal(penanda, zip));
+            assertFalse(Updater.zipSudahGagal(null, zip));
+            assertFalse(Updater.zipSudahGagal(penanda, null));
+        } finally {
+            java.io.File[] sisa = dir.listFiles();
+            if (sisa != null) {
+                for (java.io.File f : sisa) {
+                    f.delete();
+                }
+            }
+            dir.delete();
+        }
+    }
+
+    @Test
     public void wvPayloadAda_wajibIndexBerisi() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),

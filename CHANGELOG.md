@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 499: zip web-vault yang sudah terbukti gagal tidak lagi dibongkar ulang dari nol
+- Patch #213 membuat tmpZip bertahan sesudah validasi payload gagal agar unduh ulang murah, tetapi hasil validasinya tidak diingat: setiap percobaan manual/Telegram berikutnya membongkar seluruh zip (orde 100+ MB tulis staging di STB) lalu gagal di titik yang sama persis.
+- Kegagalan payload kini dicatat ke berkas penanda `<zip>.gagal` berisi sidik zip (panjang + mtime); percobaan berikutnya dengan zip yang sidiknya sama langsung gagal dengan pesan yang sama tanpa ekstrak, dan penanda dihapus bila zip berubah atau pemasangan berhasil. Uji sidik penanda ditambahkan.
+
 ## [Belum rilis] — Audit 498: PabrikTls12 tidak lagi melempar RuntimeException dan cache protokolnya tidak lagi meracuni soket lain
 - Daftar protokol dicache global dari soket PERTAMA dan dipaksakan ke semua soket berikutnya (termasuk factory server), dan kegagalan `setEnabledProtocols` dibungkus `RuntimeException` yang menggagalkan pembuatan soket total — asimetris dengan kegagalan cipher di sebelahnya yang ditoleransi. Soket yang tidak mendukung protokol tercache (mis. hanya TLSv1.2 saat cache memuat TLSv1.3) mati total padahal protokol bawaannya akan berhasil.
 - `nyalakan` kini memvalidasi cache terhadap dukungan soket saat itu (penolong murni `semuaProtokolDidukung`/`protokolCadangan`): cache yang tak didukung dipersempit ke irisan yang didukung soket ini, dan kegagalan set protokol jatuh ke irisan cadangan lalu ke bawaan soket dengan log — tidak pernah melempar lagi. Uji irisan + dukungan ditambahkan.

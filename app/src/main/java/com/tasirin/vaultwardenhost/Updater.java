@@ -632,6 +632,37 @@ public final class Updater {
         return namaDasar + "." + (v == null || v.isEmpty() ? "terbaru" : v) + ".tmp";
     }
 
+    static String sidikBerkas(File f) {
+        if (f == null || !f.isFile()) {
+            return "";
+        }
+        return f.length() + ":" + f.lastModified();
+    }
+
+    static void catatZipGagal(File penanda, File zip) {
+        try (FileOutputStream fos = new FileOutputStream(penanda)) {
+            fos.write(sidikBerkas(zip).getBytes(StandardCharsets.UTF_8));
+        } catch (Exception ignored) {
+        }
+    }
+
+    static boolean zipSudahGagal(File penanda, File zip) {
+        if (penanda == null || !penanda.isFile() || zip == null || !zip.isFile()) {
+            return false;
+        }
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(penanda)) {
+            byte[] buf = new byte[64];
+            int n = fis.read(buf);
+            if (n <= 0) {
+                return false;
+            }
+            String isi = new String(buf, 0, n, StandardCharsets.UTF_8).trim();
+            return !isi.isEmpty() && isi.equals(sidikBerkas(zip));
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     private static void sapuTmpUnduhBasi(File dir, String namaDasar, File kecuali) {
         try {
             File[] isi = dir == null ? null : dir.listFiles();
@@ -1753,6 +1784,13 @@ public final class Updater {
 
         String expectedSha = shaDapat[0];
 
+        File penandaGagal = new File(dataFolder, tmpZip.getName() + ".gagal");
+        if (zipSudahGagal(penandaGagal, tmpZip)) {
+            throw new IOException("Web vault updated tapi index.html tidak ditemukan"
+                    + " atau kosong - versi lama dipertahankan."
+                    + " (zip yang sama sudah gagal pada percobaan sebelumnya)");
+        }
+
         File newDir = stagingWebVault(dataFolder);
         deleteRecursive(newDir);
         newDir.mkdirs();
@@ -1853,12 +1891,14 @@ public final class Updater {
             }
             syncDirAman(newDir);
             if (!wvPayloadAda(newDir)) {
+                catatZipGagal(penandaGagal, tmpZip);
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                         + " atau kosong - versi lama dipertahankan.");
             }
             tmpZip.delete();
+            penandaGagal.delete();
 
             synchronized (KUNCI_WEBVAULT) {
                 File bakDir = new File(dataFolder, "web-vault.bak");
