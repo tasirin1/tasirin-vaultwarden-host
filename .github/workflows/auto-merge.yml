@@ -33,6 +33,13 @@ jobs:
             echo "GRADLE_DEPS=true" >> "$GITHUB_ENV"
           fi
 
+      - name: Matikan auto-merge bila kini menyentuh dependensi Gradle
+        if: env.GRADLE_DEPS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge || echo "Auto-merge memang belum aktif di PR ini."
+
       - name: Komentar panduan (PR dependensi Gradle)
         if: env.GRADLE_DEPS == 'true'
         env:

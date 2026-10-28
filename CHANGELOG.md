@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 490: auto-merge kini dimatikan ulang bila PR berubah menyentuh dependensi Gradle
+- Alur auto-merge hanya searah: PR yang dibuka sebagai non-Gradle mengaktifkan auto-merge, lalu push susulan (`synchronize`) yang menambahkan berkas Gradle hanya memicu komentar panduan — auto-merge yang sudah terlanjur aktif tidak pernah dimatikan dan tetap menggabungkan begitu check wajib hijau, melewati aturan merge manual dependensi Gradle.
+- Langkah baru mematikan auto-merge (`gh pr merge --disable-auto-merge`, menoleransi keadaan belum aktif) setiap kali deteksi ulang menemukan berkas Gradle, sebelum komentar panduan dipasang. Dengan check wajib dari Audit 474, penggabungan juga selalu dinilai pada head terbaru.
+
 ## [Belum rilis] — Audit 489: Stale tidak lagi bisa menutup antrean issue audit
 - `stale.yml` menandai issue non-PR sesudah 45 hari dan menutupnya 14 hari kemudian, sedangkan model kerja repo ini memang menyimpan temuan audit sebagai issue terbuka yang menunggu giliran maraton — antrean putaran-12 akan mulai tertutup otomatis sekitar Desember 2026 dan pekerjaan yang belum dikerjakan hilang tanpa keputusan siapa pun. Label `bug` (label template laporan bug) pun tidak termasuk pengecualian.
 - `exempt-issue-labels` kini memuat `bug` dan label baru `audit`; label `audit` dibuat di repo dan dipasang ke seluruh issue antrean putaran-12 yang masih terbuka (32 issue) agar pengecualiannya nyata, dan menjadi penanda baku issue hasil audit berikutnya.
