@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 582: area gulir dialog Tentang kini bisa difokuskan remote TV
+- `about_scroll` adalah satu-satunya ScrollView di aplikasi tanpa `focusable` dan tanpa latar cincin fokus, padahal tingginya dibatasi 40% layar sehingga baris-baris Tentang bawah hanya bisa dibaca dengan menggulir — sesuatu yang mustahil bagi pengguna remote/STB karena isinya murni TextView tak-focusable. Kini mengikuti pola dua ScrollView lain (`focusable` + `focusableInTouchMode` + latar `item_focus_bg`), jadi D-pad bisa menggulirnya dan cincin fokus terlihat.
+
 ## [Belum rilis] — Audit 581: sisa frasa 'mode sederhana/panel Lanjutan' di Pemetaan fitur AGENTS.md dibersihkan
 - Melanjutkan Audit 567: pembersihan putaran-16 memburu nama kunci prefs, tetapi frasa prosa "termasuk mode sederhana" dan "dalam panel Lanjutan" di bagian Pemetaan fitur AGENTS.md lolos. Keduanya merujuk fitur yang tidak ada — Settings memakai seksi buka-tutup `sec_buka_*`. Uraian kini menyebut seksi buka-tutup itu secara akurat.
 
