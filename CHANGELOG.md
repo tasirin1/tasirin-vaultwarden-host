@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 670: kegagalan memulai thread watchdog kini tercatat
+- `pasangWatchdogProses` menelan kegagalan `Thread.start()` (kehabisan thread/memori di STB) dalam `catch (Exception ignored)` dan mengembalikan thread seolah sehat; kedua pemanggil probe versi tidak memeriksa `isAlive()`, sehingga proses `--version` yang menggantung tanpa output bisa menunggu tanpa batas tanpa ada yang tahu watchdog-nya tidak pernah ada. Kegagalan itu kini ditulis ke log (`Log.w`, pola yang sama dengan peringatan antrean penuh di berkas yang sama) — kegagalan langka ini tidak lagi lenyap tanpa jejak.
+
 ## [Belum rilis] — Audit 669: watchdog proses menjepit timeout negatif ke nol
 - Badan thread `pasangWatchdogProses` hanya menangkap `InterruptedException`, padahal `Thread.sleep` melempar `IllegalArgumentException` untuk timeout negatif — watchdog mati diam-diam tanpa pernah membunuh prosesnya. Kedua pemanggil saat ini memakai konstanta 10 detik sehingga celahnya laten, tetapi pemanggil yang menghitung timeout dinamis (sisa waktu = batas − berlalu) bisa menghasilkan nilai negatif tepat di jalur lambat. Timeout kini dijepit `Math.max(0, ...)` — semantik yang benar: tenggat yang sudah lewat berarti bunuh sekarang juga, bukan jangan pernah.
 

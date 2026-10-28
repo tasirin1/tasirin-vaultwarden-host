@@ -335,7 +335,8 @@ public final class Util {
         try {
             w.setDaemon(true);
             w.start();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            android.util.Log.w("Util", "Watchdog proses gagal dimulai: " + e);
         }
         return w;
     }
