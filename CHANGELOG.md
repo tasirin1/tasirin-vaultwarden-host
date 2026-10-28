@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 630: mutex shim dipisah per sumber agar baca /dev/random tak mengunci urandom
+- `isi_dari` di shim getrandom memakai satu mutex yang sama untuk kedua sumber dan menahannya selama seluruh baca: satu panggilan `GRND_RANDOM` yang memblokir di `/dev/random` (STB miskin entropi) menahan semua panggilan urandom biasa (token sesi, kunci TLS) di belakangnya, padahal syscall asli membiarkan keduanya independen. Kini tiap sumber punya mutex sendiri (`kunci_urandom`/`kunci_random`) yang dipilih per panggilan; perilaku satu sumber tak berubah. Perubahan shim ini memicu workflow build-binary sesuai desain repo.
+
 ## [Belum rilis] — Audit 629: probe versi hanya memasang LD_PRELOAD untuk shim yang valid
 - Dua jalur probe `--version` (`Updater.detectVersion`, `ServerService.detectBinaryVersion`) memasang `LD_PRELOAD` hanya berdasar `shim.exists()`: sisa shim tak valid (potongan unduhan lama di bawah ukuran minimum / bukan ELF ARM) ikut dimuat, linker menggagalkan probe, versi binary terbaca tak dikenal, dan jalur update bisa mengunduh ulang binary besar yang tak perlu. Keduanya kini memeriksa `shimValid` seperti jalur start utama.
 

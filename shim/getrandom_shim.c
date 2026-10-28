@@ -27,6 +27,7 @@
 static int fd_urandom = -1;
 static int fd_random = -1;
 static pthread_mutex_t kunci_urandom = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t kunci_random = PTHREAD_MUTEX_INITIALIZER;
 static pthread_once_t sekali_syscall = PTHREAD_ONCE_INIT;
 static long (*nyata_syscall)(long, long, long, long, long, long, long) = 0;
 
@@ -50,14 +51,15 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
     int coba_ebadf = 0;
     int *wadah_fd = pakai_random ? &fd_random : &fd_urandom;
     const char *sumber = pakai_random ? "/dev/random" : "/dev/urandom";
+    pthread_mutex_t *kunci = pakai_random ? &kunci_random : &kunci_urandom;
 
-    pthread_mutex_lock(&kunci_urandom);
+    pthread_mutex_lock(kunci);
     for (;;) {
         if (*wadah_fd < 0) {
             int fd = open(sumber, O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
                 int e = errno;
-                pthread_mutex_unlock(&kunci_urandom);
+                pthread_mutex_unlock(kunci);
                 errno = e;
                 return -1;
             }
@@ -73,7 +75,7 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
                 if (e == EBADF) {
 
                     if (++coba_ebadf > 3) {
-                        pthread_mutex_unlock(&kunci_urandom);
+                        pthread_mutex_unlock(kunci);
                         errno = EIO;
                         return -1;
                     }
@@ -81,12 +83,12 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
                     *wadah_fd = -1;
                     break;
                 }
-                pthread_mutex_unlock(&kunci_urandom);
+                pthread_mutex_unlock(kunci);
                 errno = e;
                 return -1;
             }
             if (n == 0) {
-                pthread_mutex_unlock(&kunci_urandom);
+                pthread_mutex_unlock(kunci);
                 errno = EIO;
                 return -1;
             }
@@ -96,7 +98,7 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
             break;
         }
     }
-    pthread_mutex_unlock(&kunci_urandom);
+    pthread_mutex_unlock(kunci);
     return (ssize_t) sudah;
 }
 
