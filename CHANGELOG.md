@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 512: LogActivity menempel delta log, bukan membangun ulang seluruh teks tiap baris baru
+- Setiap baris log baru memicu pembangunan ulang total di layar log penuh: substring ekor ±100 rb karakter + hitung baris + samarkan seluruh teks + sorot seluruh teks + `setText` penuh, tiap tick 1,5 detik selama log mengalir — pola yang di layar utama sudah lama diganti tempel delta (`MainActivity.refreshHomeLog`), tetapi di sini tertinggal.
+- Bila tidak ada kata pencarian dan teks tampil sebelumnya berakhir baris utuh serta teks baru adalah lanjutannya, kini hanya delta yang disamarkan, disorot, dan ditempel (`append`), dengan hitungan baris diakumulasi (helper murni `hitungBaris`). Keadaan lain (pencarian aktif, buffer menyusut/bergeser, baris terakhir belum utuh) tetap jalur bangun-ulang penuh seperti sebelumnya.
+
 ## [Belum rilis] — Audit 511: kontras hint siang saat input fokus dinaikkan ke 4,56:1
 - `text_hint` siang `#68707C` tampil 4,41:1 (hitung WCAG) saat input berfokus karena latarnya berganti ke `info_bg` `#EDF1F5` lewat `bg_input_tv` — tepat pada momen pengguna membaca petunjuk isian di TV/HP terang.
 - Warna digelapkan sedikit ke `#646E7A` = 4,56:1 di atas latar fokus dan 5,18:1 di atas kartu putih (dari 5,0:1); konteks terang lain ikut membaik, mode malam memakai nilainya sendiri dan tidak berubah.

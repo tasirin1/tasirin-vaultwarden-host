@@ -64,6 +64,8 @@ public class LogActivity extends Activity {
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private String lastLogKey = null;
     private int lastLogLen = 0;
+    private String teksTampilTerakhir = null;
+    private int barisTampilTerakhir = 0;
     private long lastLogVer = -1;
     private int lineCount = 0;
 
@@ -225,6 +227,19 @@ public class LogActivity extends Activity {
                 String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
                 final CharSequence sorot = highlightLog(tampilAman, cari);
                 final int baris = hitung;
+                final boolean bisaDelta = (cari == null || cari.isEmpty())
+                        && teksTampilTerakhir != null
+                        && teksTampilTerakhir.endsWith("\n")
+                        && tampil.length() > teksTampilTerakhir.length()
+                        && tampil.startsWith(teksTampilTerakhir);
+                final String deltaMentah = bisaDelta
+                        ? tampil.substring(teksTampilTerakhir.length()) : null;
+                final CharSequence sorotDelta = bisaDelta
+                        ? highlightLog(butuhSamaran(deltaMentah)
+                                ? samarkanLog(deltaMentah) : deltaMentah, cari)
+                        : null;
+                final int barisTotal = bisaDelta
+                        ? barisTampilTerakhir + hitungBaris(deltaMentah) : hitung;
                 ui.post(() -> {
                     try {
 
@@ -234,9 +249,15 @@ public class LogActivity extends Activity {
                         if (isDestroyed() || isFinishing()) {
                             return;
                         }
-                        lineCount = baris;
+                        lineCount = barisTotal;
                         logCount.setText(getString(R.string.log_lines, lineCount));
-                        logView.setText(sorot);
+                        if (bisaDelta) {
+                            logView.append(sorotDelta);
+                        } else {
+                            logView.setText(sorot);
+                        }
+                        teksTampilTerakhir = tampil;
+                        barisTampilTerakhir = barisTotal;
                         if (ikutBawah) {
                             logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
                         } else {
@@ -892,6 +913,19 @@ public class LogActivity extends Activity {
     static final long CLIP_BERSIH_MS = 30_000;
 
     static final int BATAS_TAMPIL_LOG = 100_000;
+
+    static int hitungBaris(CharSequence teks) {
+        if (teks == null) {
+            return 0;
+        }
+        int n = 0;
+        for (int i = 0; i < teks.length(); i++) {
+            if (teks.charAt(i) == '\n') {
+                n++;
+            }
+        }
+        return n;
+    }
 
     static String sidikClip(String s) {
         if (s == null) {
