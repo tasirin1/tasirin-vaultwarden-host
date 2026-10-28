@@ -1031,9 +1031,11 @@ public class ServerService extends Service {
                 appendLog("[app] Restart server diminta.");
 
                 if (restartDilewati(starting.get(), running, alive(process))) {
+                    ipRestartDiminta = "";
                     if (starting.get()) {
                         appendLog("[app] Restart dilewati: persiapan start"
-                                + " sedang berjalan.");
+                                + " sedang berjalan; penanda IP dibersihkan"
+                                + " agar pemantau kesehatan meminta lagi.");
                     } else {
                         appendLog("[app] Restart dilewati: server tidak berjalan.");
                         turunkanForegroundBilaTakDiminta(startId);
