@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 621: istilah wizard di README diluruskan ke tampilan sebenarnya
+- Ketiga README menyuruh user "mengikuti wizard 3 langkah", menyiratkan UI berpindah halaman per langkah — padahal yang ada satu layar Settings dengan isian berurutan (istilah "wizard" hanya hidup sebagai pref internal `wizard_selesai`). Kalimatnya kini menggambarkan kenyataannya: isi 3 hal berurutan (Folder → Port → Start), tanpa menjanjikan tampilan langkah-berlangkah.
+
 ## [Belum rilis] — Audit 620: bullet pemecahan masalah login kini ada di ketiga README
 - Petunjuk "**Aplikasi Bitwarden tak bisa login?** Baca log realtime baris `[login]`" hanya ada di README Indonesia; pembaca Inggris dan Rusia kehilangan petunjuk diagnostik yang sama (fiturnya nyata — baris `[login]` ditulis ServerService). Bullet padanannya kini ditambahkan ke README Inggris dan Rusia pada posisi yang sama di daftar pemecahan masalah, memulihkan paritas tiga bahasa.
 
