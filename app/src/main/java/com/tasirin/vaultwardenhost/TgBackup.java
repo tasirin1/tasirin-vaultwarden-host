@@ -3206,6 +3206,7 @@ public final class TgBackup {
             hapusStagingRestore(dataFolder);
             hapusStagingTls(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+            tandaiRestoreSelesai(ctx);
             throw new IOException("Backup rusak (" + galatDb + ")"
                     + " - database lama dipertahankan.");
         }

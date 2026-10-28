@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 679: penanda restore dibersihkan pada jalur gagal-bersih
+- Penanda persisten Audit 661 hanya dibersihkan di baris sukses, sehingga kegagalan yang *bersih* — staging DB korup sehingga penukaran tidak pernah terjadi dan DB lama dipertahankan, atau rollback Settings yang berhasil mengembalikan DB lama — tetap meninggalkan penanda. Boot berikutnya lalu memunculkan peringatan "restore tidak selesai, database mungkin sudah baru, restore ulang" yang keliru untuk keadaan itu. Penanda kini dibersihkan tepat di cabang-cabang yang membuktikan keadaan lama utuh (`galatDb` di kedua jalur, dan sesudah `pulihkanDbLama` berhasil); jalur pengecualian di tengah penukaran — keadaan yang memang tidak pasti — tetap membiarkannya, sesuai maksud penanda itu.
+
 ## [Belum rilis] — Audit 678: restore lokal Settings kini memvalidasi config seperti jalur bot
 - Pasangan Audit 663 yang tertinggal (self-review putaran-24): perbaikan validasi config putaran lalu hanya menambal jalur restore bot. Jalur restore zip lokal di Settings tetap menerapkan `prefs` tanpa memeriksa penanda `app` dan tanpa memeriksa `prefs == null`, lalu mencatat "Pengaturan dari backup ikut diterapkan" apa pun yang terjadi — padahal `applyPrefsFromJson` kembali diam-diam untuk argumen null. Jalur lokal kini memeriksa penanda aplikasi dan keberadaan objek `prefs` dengan pesan peringatan yang sama terus terangnya; klaim diterapkan hanya muncul bila pengaturan benar-benar diterapkan, dan penjadwalan ulang backup/bot hanya berjalan pada jalur yang sah itu.
 

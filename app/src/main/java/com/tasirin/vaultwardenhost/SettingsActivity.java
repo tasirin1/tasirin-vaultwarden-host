@@ -2194,6 +2194,7 @@ public class SettingsActivity extends Activity {
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast(getString(R.string.restore_backup_rusak, galatDb));
                 appendUiLog("[app] Restore gagal: " + galatDb + ", DB lama dipertahankan.");
+                TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
                 return;
             }
 
@@ -2256,6 +2257,7 @@ public class SettingsActivity extends Activity {
                 TgBackup.hapusStagingTls(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
+                TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
                 appendUiLog(preBackup != null && preBackup.exists()
                         ? "[app] Restore gagal: database lama dikembalikan."
                         : "[app] Restore gagal: file parsial dibuang.");
