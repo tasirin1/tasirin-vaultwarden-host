@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 696: catch pemulih Settings hanya membersihkan penanda restore milik percobaannya sendiri
+- Sisi lain Audit 679 (self-review putaran-25): catch pemulih di restore lokal membungkus seluruh metode, termasuk fase sebelum penanda percobaan ini dipasang — kegagalan fase ekstraksi pada percobaan baru bisa menghapus penanda lama milik restore terputus sebelumnya, sehingga peringatan boot tentang keadaan hibrida tak pernah tampil. Pembersihan penanda di catch kini digerbang penanda lokal `tandaRestoreSendiri` yang hanya menyala sesudah `tandaiRestoreMulai` percobaan ini sendiri berjalan; penanda warisan percobaan lain tidak disentuh jalur ini.
+
 ## [Belum rilis] — Audit 695: kedaluwarsa sesi PIN tertunda kini juga dinilai dengan waktu hidup
 - Pasangan Audit 683 yang tertinggal (self-review putaran-25): kesegaran pesan sudah dinilai dengan waktu saat pesan diproses, tetapi kedaluwarsa sesi PIN tertunda (`ambilPending`) masih memakai potret waktu awal batch — balasan PIN bisa diterima melampaui batas 5 menit sejak pending dibuat sebesar durasi pemrosesan item-item sebelumnya dalam batch yang sama. Penilaian kini memakai waktu hidup yang sama, konsisten dengan `pesanSegar`.
 

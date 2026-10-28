@@ -1975,6 +1975,7 @@ public class SettingsActivity extends Activity {
         }
         File dbFile = new File(dataDir, "db.sqlite3");
         File preBackup = null;
+        boolean tandaRestoreSendiri = false;
 
         java.util.Map<String, byte[]> tlsAsal = null;
         JSONObject zipCfg = null;
@@ -2212,6 +2213,7 @@ public class SettingsActivity extends Activity {
             }
 
             TgBackup.tandaiRestoreMulai(SettingsActivity.this);
+            tandaRestoreSendiri = true;
             String galatDb = TgBackup.pasangDbRestoreAtomik(new File(dataDir));
             if (galatDb != null) {
                 TgBackup.hapusStagingRestore(new File(dataDir));
@@ -2282,7 +2284,9 @@ public class SettingsActivity extends Activity {
                 TgBackup.hapusStagingTls(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
-                TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
+                if (tandaRestoreSendiri) {
+                    TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
+                }
                 appendUiLog(preBackup != null && preBackup.exists()
                         ? "[app] Restore gagal: database lama dikembalikan."
                         : "[app] Restore gagal: file parsial dibuang.");
