@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 654: bukti backport kini dari probe yang dijamin tanpa shim
+- Pasangan Audit 653 dari arah sebaliknya: kesimpulan jalur backport (Audit 646, "binary lolos tanpa shim sehingga kernel membawa backport getrandom") diambil dari probe otomatis yang memutuskan `LD_PRELOAD` berdasar berkas shim di disk — bukan berdasar `sesi.shim`. Bila pemasangan ulang shim gagal di tengah (jaringan putus, hash rilis tak cocok) sementara berkas shim lama masih utuh di disk, probe lama lolos **dengan** shim, log mengklaim sebaliknya, dan start nyata — yang hanya memakai `sesi.shim` (null) — berjalan tanpa shim lalu panic getrandom saat runtime. Cabang backport kini memakai mode probe tanpa-shim secara eksplisit, jadi kelolosannya benar-benar membuktikan binary aman tanpa `LD_PRELOAD`.
+
 ## [Belum rilis] — Audit 653: probe rescue panic kini benar-benar memakai shim
 - Self-review putaran-22 membuktikan klaim Audit 644 tidak terbukti oleh kode: `detectBinaryVersion` hanya memasang `LD_PRELOAD` bila klasifikasi perangkat legacy, sedangkan cabang rescue bukti panic justru berjalan pada perangkat non-legacy — probe penyelamat mengulang persis probe yang menghasilkan bukti panic, tanpa shim. Probe kini punya mode eksplisit: otomatis (perilaku lama), paksa-shim, dan tanpa-shim. Cabang rescue memakai mode paksa-shim, sehingga "uji asap lolos bersamanya" kini benar-benar berarti binary diuji dengan shim yang akan dipakai start nyata.
 

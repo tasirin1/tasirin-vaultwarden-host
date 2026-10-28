@@ -1850,7 +1850,7 @@ public class ServerService extends Service {
                 // sehingga binary sebenarnya tak butuh shim (Audit 646):
                 // buktikan lewat uji asap tanpa shim — lolos berarti start
                 // aman tanpa LD_PRELOAD; gagal berarti batal seperti semula.
-                if (detectBinaryVersion(sesi.binary)) {
+                if (detectBinaryVersionMode(sesi.binary, PROBE_TANPA_SHIM)) {
                     appendLog("[app] Shim tak terpasang, tetapi binary lolos uji"
                             + " --version tanpa shim - start tanpa LD_PRELOAD.");
                 } else {
