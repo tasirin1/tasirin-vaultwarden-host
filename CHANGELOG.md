@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 543: penanda zip gagal kini di-fsync dan bersidik SHA-256
+- Residual #255: `catatZipGagal` menutup FileOutputStream tanpa `getFD().sync()`, sehingga penanda pencegah unzip-ulang zip rusak bisa hilang saat mati listrik (bertahan hanya di cache OS) dan percobaan berikutnya meng-unzip ulang zip 35 MB yang sama sampai gagal lagi. Sidiknya juga lemah: `length + ':' + lastModified` bisa cocok untuk zip berbeda yang panjang dan mtime-nya sama.
+- `catatZipGagal` kini flush + fsync sebelum tutup. `Updater.sidikBerkas` kini SHA-256 heksadesimal atas isi (pola yang sama dengan `SettingsActivity.sidikBerkas`), gagal-baca menghasilkan sidik kosong yang aman (penanda tak cocok → ekstrak dicoba lagi, bukan dilewati). Uji diperluas: isi berbeda dengan panjang DAN mtime dipaksa sama kini terbukti tak cocok lagi.
+
 ## [Belum rilis] — Audit 542: pemulihan pertukaran TLS memeriksa hasil rename dan menggulung balik pasangan setengah terpasang
 - `pulihkanTukarTersisa` mengabaikan hasil beberapa `renameTo`: pada cabang pemasangan pasangan `.baru`, cert bisa terpasang sementara rename key gagal dibiarkan — menyisakan keadaan setengah yang cabang berikutnya bisa lengkapi dengan key `.cad` lama (pasangan campuran), tanpa satu pun langkah menyadarinya.
 - Cabang itu kini menggulung balik cert ke nama `.baru` bila rename key gagal, sehingga keadaan kembali persis seperti sebelum pemulihan dan bisa dicoba lagi utuh. Cabang key juga hanya jatuh ke `.cad` bila rename `.baru` gagal DAN `.cad` terbukti cocok dengan cert yang terpasang. Direktori di-fsync di akhir pemulihan (pola Audit 540).

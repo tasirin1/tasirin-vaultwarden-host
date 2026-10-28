@@ -50,6 +50,13 @@ public class UpdaterTest {
             java.nio.file.Files.write(zip.toPath(),
                     "isi-zip-berubah-lebih-panjang".getBytes(StandardCharsets.UTF_8));
             assertFalse(Updater.zipSudahGagal(penanda, zip));
+            long mtimeTetap = 1_700_000_000_000L;
+            java.nio.file.Files.write(zip.toPath(), "isi-zip".getBytes(StandardCharsets.UTF_8));
+            org.junit.Assert.assertTrue(zip.setLastModified(mtimeTetap));
+            Updater.catatZipGagal(penanda, zip);
+            java.nio.file.Files.write(zip.toPath(), "isi-abc".getBytes(StandardCharsets.UTF_8));
+            org.junit.Assert.assertTrue(zip.setLastModified(mtimeTetap));
+            assertFalse(Updater.zipSudahGagal(penanda, zip));
             assertFalse(Updater.zipSudahGagal(null, zip));
             assertFalse(Updater.zipSudahGagal(penanda, null));
         } finally {
