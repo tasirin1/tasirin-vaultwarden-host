@@ -2178,6 +2178,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
 
+            TgBackup.tandaiRestoreMulai(SettingsActivity.this);
             String galatDb = TgBackup.pasangDbRestoreAtomik(new File(dataDir));
             if (galatDb != null) {
                 TgBackup.hapusStagingRestore(new File(dataDir));
@@ -2226,6 +2227,7 @@ public class SettingsActivity extends Activity {
                 appendUiLog("[app] Pengaturan dari backup ikut diterapkan.");
                 uiPost(this::reloadSettingsFromPrefs);
             }
+            TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
             toast(getString(tlsGagalPasang
                     ? R.string.restore_selesai_tls_gagal
                     : R.string.restore_selesai_restart));

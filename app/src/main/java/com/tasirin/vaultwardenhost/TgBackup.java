@@ -2872,6 +2872,34 @@ public final class TgBackup {
         TUGAS_DATA_JALAN.set(false);
     }
 
+    static final String KEY_RESTORE_TANDA = "restore_tanda_ms";
+
+    static void tandaiRestoreMulai(Context ctx) {
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(KEY_RESTORE_TANDA,
+                            System.currentTimeMillis()).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
+    static void tandaiRestoreSelesai(Context ctx) {
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().remove(KEY_RESTORE_TANDA).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
+    static long tandaRestoreTersisa(Context ctx) {
+        try {
+            return amanLong(ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE), KEY_RESTORE_TANDA, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private static final java.util.concurrent.atomic.AtomicBoolean RESTORE_JALAN =
             new java.util.concurrent.atomic.AtomicBoolean(false);
 
@@ -3154,6 +3182,7 @@ public final class TgBackup {
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
 
+        tandaiRestoreMulai(ctx);
         String galatDb;
         try {
             galatDb = pasangDbRestoreAtomik(dataFolder);
@@ -3206,6 +3235,7 @@ public final class TgBackup {
                 Context.MODE_PRIVATE);
         TgBackup.schedule(ctx, amanBoolean(fresh, KEY_TG_AUTO, false));
         TgBot.schedule(ctx);
+        tandaiRestoreSelesai(ctx);
         return "Database dipulihkan"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
                 + ". Ukuran DB: " + dbFile.length() + " bytes."

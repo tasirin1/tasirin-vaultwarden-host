@@ -119,6 +119,18 @@ public class BootReceiver extends BroadcastReceiver {
                 }
                 SharedPreferences sp = ctx.getSharedPreferences(
                         ServerService.PREFS, Context.MODE_PRIVATE);
+                if (TgBackup.tandaRestoreTersisa(ctx) > 0) {
+                    ServerService.catatLog("[app] PERINGATAN: restore terakhir"
+                            + " tidak selesai (proses mati di tengah restore)"
+                            + " - database mungkin sudah baru tetapi"
+                            + " pengaturan masih lama. Periksa data, atau"
+                            + " restore ulang backup yang sama.");
+                    TgBackup.sendMessage(ctx, "Peringatan: restore terakhir"
+                            + " terputus di tengah (kemungkinan listrik padam)."
+                            + " Database dan pengaturan bisa tidak serasi"
+                            + " - periksa, atau restore ulang backup yang sama.");
+                    TgBackup.tandaiRestoreSelesai(ctx);
+                }
                 TgBackup.healkanStringPrefs(ctx);
                 TgBackup.migrateAutoPref(ctx);
                 if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {

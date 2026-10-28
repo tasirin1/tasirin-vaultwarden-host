@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 661: penanda persisten restore — mati listrik di tengah restore kini terdeteksi saat boot
+- Satu-satunya penanda restore sebelumnya adalah `AtomicBoolean` di memori; proses yang mati sesudah DB ditukar tetapi sebelum pengaturan diterapkan (listrik padam di STB tanpa UPS adalah skenario realistis) meninggalkan DB baru + TLS campuran + pengaturan lama berjalan bersama tanpa pesan apa pun, dan cadangan pra-restore tak pernah ditawarkan kembali. Kini kedua jalur restore (Telegram dan lokal) menulis penanda persisten `restore_tanda_ms` (commit sinkron) tepat sebelum penukaran DB dan membersihkannya sesudah ekor restore selesai; jalur gagal sengaja membiarkannya. BootReceiver memeriksa penanda itu paling awal: bila tersisa, log + pesan Telegram memperingatkan bahwa restore terakhir terputus dan database/pengaturan bisa tidak serasi, lalu penanda dibersihkan agar peringatan hanya muncul sekali.
+
 ## [Belum rilis] — Audit 654: bukti backport kini dari probe yang dijamin tanpa shim
 - Pasangan Audit 653 dari arah sebaliknya: kesimpulan jalur backport (Audit 646, "binary lolos tanpa shim sehingga kernel membawa backport getrandom") diambil dari probe otomatis yang memutuskan `LD_PRELOAD` berdasar berkas shim di disk — bukan berdasar `sesi.shim`. Bila pemasangan ulang shim gagal di tengah (jaringan putus, hash rilis tak cocok) sementara berkas shim lama masih utuh di disk, probe lama lolos **dengan** shim, log mengklaim sebaliknya, dan start nyata — yang hanya memakai `sesi.shim` (null) — berjalan tanpa shim lalu panic getrandom saat runtime. Cabang backport kini memakai mode probe tanpa-shim secara eksplisit, jadi kelolosannya benar-benar membuktikan binary aman tanpa `LD_PRELOAD`.
 
