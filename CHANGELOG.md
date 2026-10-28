@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Warning compileSdk dimatikan lewat daftar disable lint (GradleDependency)
+- Sesudah pembersihan warning sebelumnya, anotasi build tersisa 2 warning `GradleDependency` ("compileSdkVersion 34 tersedia 36", sekali per varian) + 1 notice "Gradle out of date" dari langkah pasca `setup-gradle` GitHub (bukan dari lint/kode repo).
+- `GradleDependency` ditambahkan ke daftar `disable` lint di `app/build.gradle.kts`: compileSdk 34 adalah pin yang disengaja (CI memasang platform 34, targetSdk 28 by design) dan kesegaran versi dependensi/wrapper sudah dipantau Dependabot, jadi pemberitahuan lint-nya hanya derau berulang. Mengikuti preseden daftar yang sama yang sudah mematikan `OldTargetApi`/`ExpiredTargetSdkVersion` untuk pin SDK yang sama.
+- Notice "Gradle out of date" TIDAK bisa dimatikan dari repo: ia diterbitkan action `gradle/actions/setup-gradle` sendiri sesudah build, membandingkan Gradle 8.14.6 dengan seri 9 — hilang hanya bila pindah ke Gradle 9 (tidak kompatibel AGP 8.x) atau membuang action itu (kehilangan caching-nya). Dibiarkan sebagai catatan informational.
+
 ## [Belum rilis] — Pembersihan warning lint build (ApplySharedPref + wrapper Gradle)
 - Build pasca-merge AGP 8.13.2 menyisakan 4 warning lint unik: 2× `ApplySharedPref` di `AlarmReceiver.onReceive` dan 2 pemberitahuan versi (Gradle 8.14.3 → 8.14.6 tersedia; compileSdk 34 → 36 tersedia).
 - Dua `commit()` di `onReceive` SENGAJA sinkron: keduanya menulis tanda `KEY_BACKUP_TERTUNDA` pada jalur gugur alarm/boot, di mana proses bisa mati sebelum tulis asinkron `apply()` sempat turun ke disk — menggantinya akan membuka peluang tanda backup tertunda hilang diam-diam. Metode diberi `@SuppressLint("ApplySharedPref")`, mengikuti pola dua metode lain di berkas yang sama yang sudah lebih dulu ditandai persis untuk alasan ini.

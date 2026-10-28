@@ -89,6 +89,7 @@ android {
         disable += setOf(
             "OldTargetApi",
             "ExpiredTargetSdkVersion",
+            "GradleDependency",
             "ChromeOsAbiSupport",
             "SdCardPath",
             "ScopedStorage",
