@@ -3189,7 +3189,14 @@ public class ServerService extends Service {
                 TgBackup.amanString(sp, KEY_BIN_SHA, ""),
                 TgBackup.amanString(sp, KEY_BIN_MANUAL_FP, ""), userBin);
 
-        if (!butuhRefresh && !manualBerubah && isValidBinary(out)) {
+        String pinShaBin = TgBackup.amanString(sp, Updater.KEY_BIN_SHA_PIN, "");
+        boolean binUtuh = Updater.binaryUtuh(out, pinShaBin);
+        if (!binUtuh) {
+            appendLog("[app] Binary update gagal verifikasi SHA-256 tercatat"
+                    + " - diunduh ulang.");
+        }
+
+        if (!butuhRefresh && !manualBerubah && isValidBinary(out) && binUtuh) {
             String updated = TgBackup.amanString(sp, KEY_UPDATE_VERSION, "");
             if (updated != null && !updated.isEmpty()) {
                 try {
@@ -3203,6 +3210,13 @@ public class ServerService extends Service {
                                     + " - unduh ulang versi pilihan.");
                         } else {
                             appendLog("[app] Binary update terbaru dipakai: " + out.getAbsolutePath());
+                            if (pinShaBin == null || pinShaBin.isEmpty()) {
+                                try {
+                                    sp.edit().putString(Updater.KEY_BIN_SHA_PIN,
+                                            Updater.sha256Hex(out)).apply();
+                                } catch (Exception ignored) {
+                                }
+                            }
 
                             if (isValidBinary(userBin)) {
                                 appendLog("[app] Binary manual di folder data dilewati:"

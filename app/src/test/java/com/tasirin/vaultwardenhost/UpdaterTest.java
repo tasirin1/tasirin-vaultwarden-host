@@ -573,6 +573,29 @@ public class UpdaterTest {
     }
 
     @Test
+    public void binaryUtuh_pinMenentukan() throws Exception {
+        java.io.File bin = java.io.File.createTempFile("binuji", ".bin");
+        java.io.File lain = java.io.File.createTempFile("binuji2", ".bin");
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(bin)) {
+            o.write("isi-binary-uji".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try (java.io.FileOutputStream o = new java.io.FileOutputStream(lain)) {
+            o.write("isi-lain-sama-sekali".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try {
+            assertTrue(Updater.binaryUtuh(bin, Updater.sha256Hex(bin)));
+            assertTrue(Updater.binaryUtuh(bin, ""));
+            assertTrue(Updater.binaryUtuh(bin, null));
+            assertFalse(Updater.binaryUtuh(bin, Updater.sha256Hex(lain)));
+            assertFalse(Updater.binaryUtuh(new java.io.File("/tidak/ada/bin"), ""));
+            assertFalse(Updater.binaryUtuh(null, ""));
+        } finally {
+            bin.delete();
+            lain.delete();
+        }
+    }
+
+    @Test
     public void shimUtuh_hashTersimpanMenentukan() throws Exception {
         java.io.File shim = berkasElf((byte) 40, (byte) 0, 2048);
         java.io.File lain = berkasElf((byte) 40, (byte) 0, 4096);

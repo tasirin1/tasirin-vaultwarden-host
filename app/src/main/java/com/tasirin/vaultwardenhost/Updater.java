@@ -1414,6 +1414,11 @@ public final class Updater {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(ServerService.KEY_UPDATE_VERSION, asap).apply();
         }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putString(KEY_BIN_SHA_PIN, sha256Hex(out)).apply();
+        } catch (Exception ignored) {
+        }
         ServerService.binaryVersion = "";
         return "Update v" + asap + " terpasang. " + BINARY_UPDATED_MARKER;
     }
@@ -1445,6 +1450,18 @@ public final class Updater {
     }
 
     static final String KEY_SHIM_SHA = "shim_sha256";
+
+    static final String KEY_BIN_SHA_PIN = "bin_sha_pin";
+
+    static boolean binaryUtuh(File f, String shaPin) {
+        if (f == null || !f.isFile()) {
+            return false;
+        }
+        if (shaPin == null || shaPin.isEmpty()) {
+            return true;
+        }
+        return expectedHexEquals(shaPin, sha256Hex(f));
+    }
 
     static boolean shimUtuh(File f, String shaTersimpan) {
         if (!shimValid(f)) {

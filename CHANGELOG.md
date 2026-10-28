@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 647: binary terpasang kini diverifikasi ulang SHA-256 (pin seperti shim)
+- Cermin Audit 628 untuk berkas yang lebih besar: SHA-256 binary hanya diperiksa pada berkas sementara sebelum pasang; sesudah terpasang, pemeriksaan cache Start hanya ukuran + magic ELF 20 byte + uji `--version`, jadi kerusakan flash di tengah binary yang tak menyentuh jalur `--version` lolos selamanya dan update bisa dilewati karena versi dianggap benar. Kini hash binary dicatat ke prefs (`bin_sha_pin`) sesudah pemasangan terverifikasi, dan jalur cache Start memeriksa ulang lewat predikat `binaryUtuh`: tak cocok → log jelas dan binary diunduh ulang. Pasangan lama tanpa pin di-pin pada penerimaan cache pertama (pola yang sama dengan shim). Predikat dikunci uji.
+
 ## [Belum rilis] — Audit 637: PR yang menyentuh workflow binary/shim dikeluarkan dari auto-merge
 - Perbaikan Audit 624 membuat auto-merge menunggu Build APK, tetapi PR yang isinya hanya `build-binary.yml` (mis. bump `actions/cache` yang hanya dipakai workflow itu) tidak menghasilkan run Build APK sama sekali — check wajibnya justru datang dari job verifikasi workflow binary, jadi PR bisa ter-merge berbekal gerbang patch sementara build binary 15–120 menit yang mengujinya tak pernah ditunggu (dan memang tak bisa ditunggu dalam batas job). PR Dependabot yang menyentuh `.github/workflows/build-binary.yml` atau `shim/**` kini diperlakukan seperti PR dependensi Gradle: auto-merge dimatikan dan diberi komentar panduan merge manual sesudah run Build Binary hijau.
 
