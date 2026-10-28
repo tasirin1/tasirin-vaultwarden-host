@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 593: tulis debounce field Telegram kini satu transaksi, bukan per-field
+- `SimpleTextWatcher` dulu menulis tiap field (token bot, chat ID, password backup, SHA) sebagai `apply()` terpisah per field dengan debounce 400 ms. Kematian proses mendadak tanpa lifecycle (force-stop, OOM, daya dicabut — lazim di STB) di antara dua apply meninggalkan prefs campuran lama/baru, mis. token baru berpasangan chat ID lama, dan bot berjalan dengan kredensial tak konsisten.
+- Kini semua watcher memasukkan nilai ke satu keranjang bersama dan satu siraman menulis seluruhnya dalam SATU `edit().apply()`: konfigurasi tak pernah campuran. Jendela kehilangan ≤400 ms sesudah ketikan terakhir tetap ada pada kematian mendadak, tetapi kini konsisten utuh — semua field mundur bersama ke keadaan siraman sebelumnya, bukan sebagian. Siraman di onPause/onDestroy tak berubah.
+
 ## [Belum rilis] — Audit 592: rotasi tak lagi membatalkan dialog password impor secara diam-diam
 - Dialog password impor ditutup saat onDestroy dan `OnDismissListener`-nya menghapus berkas enkrip temp sebagai perilaku anti-sisa — pada rotasi itu berarti dialog lenyap, temp terhapus, dan impor berakhir tanpa satu pun pesan; pengguna harus mengulang dari pemilih berkas.
 - Kini keadaan impor tertunda (path temp + cap + sidik berkas) disimpan lewat `onSaveInstanceState` mengikuti pola ekspor-tertunda yang sudah ada; listener dismiss membedakan dismiss karena perubahan konfigurasi (temp dipertahankan, penanda tetap) dari pembatalan sungguhan (temp dihapus, penanda dibersihkan); dan `onResume` instance baru menampilkan lagi dialognya bila berkas temp masih ada.

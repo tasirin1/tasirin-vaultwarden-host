@@ -4014,27 +4014,41 @@ public class SettingsActivity extends Activity {
         };
     }
 
-    private final java.util.List<Runnable> tulisTundaAktif = new java.util.ArrayList<>();
+    private final Object tulisTundaAktif = new Object();
 
-    private void siramTulisTertunda() {
-        java.util.List<Runnable> salin;
+    // Nilai tertunda SEMUA field watcher, ditulis dalam SATU apply()
+    // agar konfigurasi tak pernah campuran lama/baru di prefs
+    // (Audit 593).
+    private final java.util.Map<String, String> tulisTundaNilai =
+            new java.util.HashMap<>();
+    private final Runnable tugasSiramTunda = this::siramNilaiTunda;
+
+    private void siramNilaiTunda() {
+        java.util.Map<String, String> salin;
         synchronized (tulisTundaAktif) {
-            if (tulisTundaAktif.isEmpty() && !jadwalBotTertunda) {
+            if (tulisTundaNilai.isEmpty()) {
                 return;
             }
-            salin = new java.util.ArrayList<>(tulisTundaAktif);
-            tulisTundaAktif.clear();
+            salin = new java.util.HashMap<>(tulisTundaNilai);
+            tulisTundaNilai.clear();
         }
-        for (Runnable r : salin) {
-            try {
-                ui.removeCallbacks(r);
-            } catch (Exception ignored) {
+        try {
+            SharedPreferences.Editor ed = getSharedPreferences(
+                    ServerService.PREFS, MODE_PRIVATE).edit();
+            for (java.util.Map.Entry<String, String> e : salin.entrySet()) {
+                ed.putString(e.getKey(), e.getValue());
             }
-            try {
-                r.run();
-            } catch (Exception ignored) {
-            }
+            ed.apply();
+        } catch (Exception ignored) {
         }
+    }
+
+    private void siramTulisTertunda() {
+        try {
+            ui.removeCallbacks(tugasSiramTunda);
+        } catch (Exception ignored) {
+        }
+        siramNilaiTunda();
         if (jadwalBotTertunda) {
             jadwalBotTertunda = false;
             try {
@@ -4050,29 +4064,6 @@ public class SettingsActivity extends Activity {
 
     private class SimpleTextWatcher implements android.text.TextWatcher {
         private final String key;
-        private String nilaiTerbaru = "";
-        private int generasiTulis = 0;
-
-        private final Runnable tugasTunda = this::tulisNilaiTunda;
-
-        private void tulisNilaiTunda() {
-            String nilai;
-            int gen;
-            synchronized (tulisTundaAktif) {
-                nilai = nilaiTerbaru;
-                gen = generasiTulis;
-            }
-            try {
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(key, nilai).apply();
-            } catch (Exception ignored) {
-            }
-            synchronized (tulisTundaAktif) {
-                if (gen == generasiTulis) {
-                    tulisTundaAktif.remove(tugasTunda);
-                }
-            }
-        }
 
         SimpleTextWatcher(String key) {
             this.key = key;
@@ -4084,16 +4075,14 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void onTextChanged(CharSequence s, int a, int b, int c) {
-
+            // Masukkan ke keranjang bersama (bukan apply per-field) agar
+            // siraman menulis semua field dalam satu transaksi
+            // (Audit 593).
             synchronized (tulisTundaAktif) {
-                nilaiTerbaru = s == null ? "" : s.toString();
-                generasiTulis++;
-                if (!tulisTundaAktif.contains(tugasTunda)) {
-                    tulisTundaAktif.add(tugasTunda);
-                }
+                tulisTundaNilai.put(key, s == null ? "" : s.toString());
             }
-            ui.removeCallbacks(tugasTunda);
-            ui.postDelayed(tugasTunda, 400);
+            ui.removeCallbacks(tugasSiramTunda);
+            ui.postDelayed(tugasSiramTunda, 400);
         }
 
         @Override
