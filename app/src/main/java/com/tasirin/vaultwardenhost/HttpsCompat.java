@@ -162,6 +162,21 @@ public final class HttpsCompat {
                     android.os.SystemClock.elapsedRealtime())) {
                 throw new JedaBangunTrust();
             }
+            try {
+                return bangunFactory(ctx);
+            } catch (Exception e) {
+                bangunGagalAt = android.os.SystemClock.elapsedRealtime();
+                throw e;
+            }
+        }
+        return cached;
+    }
+
+    private static SSLSocketFactory bangunFactory(Context ctx) throws Exception {
+        synchronized (HttpsCompat.class) {
+            if (cached != null) {
+                return cached;
+            }
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
             try {

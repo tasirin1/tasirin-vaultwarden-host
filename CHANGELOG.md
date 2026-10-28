@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 497: cap gagal bangun trust HttpsCompat kini ditulis di dalam kunci
+- Cap `bangunGagalAt` untuk jeda 60 detik (Audit #212) ditulis pemanggil `apply` SESUDAH `socketFactory` keluar dari blok `synchronized`, jadi thread paralel yang sudah mengantre bisa masuk dan membangun ulang trust store mahal yang pasti gagal sebelum cap terlihat — jeda hanya efektif untuk panggilan sesudah cap tertulis.
+- Pembangunan factory diekstrak ke `bangunFactory` dan cap kini ditulis di blok `synchronized` yang sama pada catch di `socketFactory`, sebelum kunci dilepas; thread berikutnya langsung melihat jeda dan melempar `JedaBangunTrust` tanpa membangun apa pun.
+
 ## [Belum rilis] — Audit 496: pemulihan sertifikat TlsCert tidak lagi asimetris terhadap .baru
 - `pulihkanTukarTersisa` memulihkan kunci yang hilang dari `.baru` bila terbukti cocok, tetapi sertifikat yang hilang hanya boleh dipulihkan dari `.cad`: keadaan "pasangan .baru utuh dan saling cocok, resmi hilang, .cad tidak ada" dibuang seluruhnya dan CA/leaf dibuat ulang dari nol — lambat di STB dan memaksa semua klien memasang CA baru, padahal pasangan sah tersedia.
 - Sertifikat kini juga dipulihkan dari `.baru` dengan syarat bukti yang sama persis: berpasangan dengan kunci resmi yang ada, atau kedua resmi hilang dan pasangan `.baru` terbukti cocok satu sama lain lebih dulu.
