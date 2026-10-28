@@ -3150,10 +3150,11 @@ public final class TgBackup {
         }
 
         String peringatanTls = "";
-        if (!tlsTerStaging.isEmpty() && !tlsRestoreLengkap(tlsTerStaging)) {
+        if (!tlsTerStaging.isEmpty() && !tlsRestoreSiapPasang(dataFolder, tlsTerStaging)) {
             hapusStagingTls(dataFolder);
             peringatanTls = " Sertifikat dari backup tidak dipasang karena"
-                    + " pasangan sertifikat + kunci privatnya tidak lengkap"
+                    + " pasangan sertifikat + kunci privatnya tidak lengkap,"
+                    + " kosong, atau tidak cocok satu sama lain"
                     + " - TLS perangkat ini dipertahankan.";
         } else {
             try {
@@ -3222,6 +3223,26 @@ public final class TgBackup {
             }
         }
         return true;
+    }
+
+    static boolean tlsRestoreSiapPasang(File dataFolder,
+            java.util.List<String> daftar) {
+        if (dataFolder == null || !tlsRestoreLengkap(daftar)) {
+            return false;
+        }
+        for (String nama : ENTRI_TLS_RESTORE) {
+            File st = new File(dataFolder, namaStagingTls(nama));
+            if (!st.isFile() || st.length() <= 0) {
+                return false;
+            }
+        }
+        File ca = new File(dataFolder, namaStagingTls("tls/ca.pem"));
+        File caKey = new File(dataFolder, namaStagingTls("tls/ca-key.pem"));
+        File cert = new File(dataFolder, namaStagingTls("tls/cert.pem"));
+        File key = new File(dataFolder, namaStagingTls("tls/key.pem"));
+        return TlsCert.pasanganCertKeyCocok(ca, caKey)
+                && TlsCert.pasanganCertKeyCocok(cert, key)
+                && TlsCert.ditandatanganiCa(cert, ca);
     }
 
     static void pasangTlsRestore(File dataFolder, java.util.List<String> daftar)

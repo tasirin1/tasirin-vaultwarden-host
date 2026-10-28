@@ -1618,6 +1618,39 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tlsRestoreSiapPasangTolakIsiKosongSampahAtauHilang() throws Exception {
+        File dir = java.nio.file.Files.createTempDirectory("vwtlssiappasang").toFile();
+        java.util.List<String> lengkap = java.util.Arrays.asList(
+                "tls/ca.pem", "tls/ca-key.pem", "tls/cert.pem", "tls/key.pem");
+        try {
+            assertFalse(TgBackup.tlsRestoreSiapPasang(dir, lengkap));
+            assertFalse(TgBackup.tlsRestoreSiapPasang(null, lengkap));
+            assertFalse(TgBackup.tlsRestoreSiapPasang(dir,
+                    java.util.Arrays.asList("tls/ca.pem", "tls/ca-key.pem")));
+            File tlsDir = new File(dir, "tls");
+            org.junit.Assert.assertTrue(tlsDir.mkdirs());
+            for (String nama : lengkap) {
+                java.nio.file.Files.write(
+                        new File(dir, TgBackup.namaStagingTls(nama)).toPath(),
+                        new byte[0]);
+            }
+            assertFalse(TgBackup.tlsRestoreSiapPasang(dir, lengkap));
+            for (String nama : lengkap) {
+                java.nio.file.Files.write(
+                        new File(dir, TgBackup.namaStagingTls(nama)).toPath(),
+                        "bukan-pem".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            }
+            assertFalse(TgBackup.tlsRestoreSiapPasang(dir, lengkap));
+        } finally {
+            for (String nama : lengkap) {
+                new File(dir, TgBackup.namaStagingTls(nama)).delete();
+            }
+            new File(dir, "tls").delete();
+            dir.delete();
+        }
+    }
+
+    @Test
     public void hapusStagingTlsBersihkanSemuaSisa() throws Exception {
         File dir = java.nio.file.Files.createTempDirectory("vwtlsstage").toFile();
         assertTrue(new File(dir, "tls").mkdirs());

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 526: restore kini memvalidasi isi dan kecocokan pasangan TLS, bukan hanya nama entri
+- Residual #262: `tlsRestoreLengkap` hanya memeriksa keempat nama entri TLS ada di daftar zip. Entri bernama benar tetapi kosong (0 byte — berkas staging tetap tercipta saat ekstrak) atau cert/key dari pasangan berbeda tetap dinyatakan "lengkap" dan menimpa TLS hidup lewat `pasangTlsRestore`; restore dilaporkan berhasil sementara server gagal melayani TLS.
+- Validator baru `TgBackup.tlsRestoreSiapPasang` dipakai kedua jalur restore (Telegram dan Settings): selain kelengkapan nama, setiap berkas staging wajib ada dan berukuran > 0, pasangan CA (`ca.pem`/`ca-key.pem`) dan pasangan leaf (`cert.pem`/`key.pem`) wajib cocok menurut `TlsCert.pasanganCertKeyCocok`, dan leaf wajib ditandatangani CA dari backup yang sama (`TlsCert.ditandatanganiCa`). Gagal salah satu → TLS perangkat dipertahankan dan pengguna diperingatkan (teks peringatan kedua jalur diselaraskan), persis perilaku jalur tak-lengkap sebelumnya. Uji JVM baru mengunci penolakan untuk staging hilang/kosong/isi sampah/daftar tak lengkap.
+
 ## [Belum rilis] — Audit 525: gerbang kesehatan web-vault di ServerService memakai cek payload yang sama dengan Updater
 - Residu #235: perbaikan Audit 479 (`Updater.wvPayloadAda` — `index.html` wajib berkas dan berukuran > 0) hanya diterapkan di Updater. Tiga titik di ServerService masih memakai `exists()` polos: pengaktifan `WEB_VAULT_ENABLED` saat start, penilaian `aktifSehat` pada pemulihan `web-vault.bak`, dan `extractWebVault()`. `index.html` 0 byte (sisa ekstrak terpotong) dianggap sehat: server menyalakan web-vault kosong, dan cadangan `.bak` yang baik dibuang karena yang aktif dianggap sehat.
 - Ketiga titik kini memakai `Updater.wvPayloadAda(...)` yang sama — satu definisi "payload sehat" untuk seluruh app; jalur `.bak` akan memulihkan cadangan bila indeks aktif kosong, dan start tak lagi mengaktifkan web-vault tanpa isi.

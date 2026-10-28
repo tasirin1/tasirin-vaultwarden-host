@@ -2090,11 +2090,12 @@ public class SettingsActivity extends Activity {
                 return;
             }
 
-            if (!tlsTerStaging.isEmpty() && !TgBackup.tlsRestoreLengkap(tlsTerStaging)) {
+            if (!tlsTerStaging.isEmpty()
+                    && !TgBackup.tlsRestoreSiapPasang(new File(dataDir), tlsTerStaging)) {
                 TgBackup.hapusStagingTls(new File(dataDir));
                 appendUiLog("[app] Sertifikat dari backup tidak dipasang:"
-                        + " kunci privat tidak ikut - TLS perangkat ini"
-                        + " dipertahankan.");
+                        + " pasangan tidak lengkap, kosong, atau tidak cocok"
+                        + " - TLS perangkat ini dipertahankan.");
             } else {
                 try {
                     TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
