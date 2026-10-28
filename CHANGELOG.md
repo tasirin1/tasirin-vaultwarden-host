@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 488: berkas biner format tak dikenal kini ditolak kedua gerbang pada ukuran berapa pun
+- Cek biner `verifikasi-patch.py` hanya menolak bila berkas >1 MB dan bukan teks (atau ber-header eksekutabel yang dikenal), dan `cek-cepat.sh` hanya memeriksa pola nama — biner ≤1 MB berformat tak dikenal (payload terkompresi/terenkripsi, dump, blob acak) lolos keduanya. Terbukti fixture audit: `blob.dat` dan `gambar.png` palsu masing-masing 200.008 byte lolos dua gerbang.
+- `verifikasi-patch.py` kini menolak setiap berkas bukan-teks yang headernya tak dikenal (penolong `jenis_pasif` mengenali PNG/JPEG/GIF/WebP/PDF/ICO sebagai format pasif yang sah, tetap dibatasi aturan >1 MB), dan `cek-cepat.sh` mendapat pindai padanannya (deteksi biner via `grep -I` + tanda tangan hex yang sama, wrapper jar tetap dikecualikan). Dibuktikan ulang di salinan buang: blob acak 5 KB dan 200 KB → GAGAL dua gerbang, PNG beneran → LOLOS, pohon bersih 157 berkas → LOLOS.
+
 ## [Belum rilis] — Audit 487: konfigurasi Labeler ditulis ulang ke format actions/labeler v5+
 - `.github/labeler.yml` masih memakai format v4 (`- any: [...]`) sedangkan workflow memasang `actions/labeler@v7`; format config didesain ulang dan dinyatakan tidak kompatibel sejak v5.0.0, jadi tidak ada label yang pernah terpasang dan tidak ada galat yang terlihat — fitur mati total sejak dipasang pada paket pemerataan.
 - Ketiga label (`app`/`ci`/`docs`) ditulis ulang ke skema saat ini (`changed-files` + `any-glob-to-any-file`) dengan daftar pola yang persis sama, dan strukturnya divalidasi sebagai YAML berskema baru sebelum commit.

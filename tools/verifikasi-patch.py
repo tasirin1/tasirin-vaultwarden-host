@@ -552,6 +552,26 @@ def jenis_biner(path):
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
 
+def jenis_pasif(path):
+    try:
+        with open(os.path.join(AKAR, path), "rb") as f:
+            kepala = f.read(12)
+    except OSError:
+        return None
+    if kepala.startswith(b"\x89PNG"):
+        return "PNG"
+    if kepala[:3] == b"\xff\xd8\xff":
+        return "JPEG"
+    if kepala[:4] == b"GIF8":
+        return "GIF"
+    if kepala[:4] == b"RIFF" and kepala[8:12] == b"WEBP":
+        return "WebP"
+    if kepala[:4] == b"%PDF":
+        return "PDF"
+    if kepala[:4] == b"\x00\x00\x01\x00":
+        return "ICO"
+    return None
+
 def nilai_target_sdk(tetap):
     tetap = kupas_java(tetap)
     m = re.search(r"targetSdk\s*=\s*([^\n]+)", tetap)
@@ -687,6 +707,10 @@ def cek_aturan_repo(gagal, berubah):
         if ukuran > BATAS_UKURAN_BERKAS and not berkas_teks(path):
             gagal.append("Berkas >1 MB tak boleh masuk repo"
                          " (binary/web-vault diunduh CI): " + path)
+            continue
+        if ukuran > 0 and not berkas_teks(path) and not jenis_pasif(path):
+            gagal.append("Berkas biner format tak dikenal tak boleh masuk repo: "
+                         + path)
 
 def nama_metode_hilang(diff, lewati_berkas=()):
     hilang = []

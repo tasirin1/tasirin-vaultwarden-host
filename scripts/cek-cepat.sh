@@ -50,6 +50,19 @@ TERLARANG="$(
 if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -iE "$POLA_TERLARANG" || true)" ]; then
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
 fi
+while IFS= read -r berkas_b; do
+  [ -f "$berkas_b" ] || continue
+  [ "$berkas_b" = "gradle/wrapper/gradle-wrapper.jar" ] && continue
+  if [ -s "$berkas_b" ] && ! grep -qI . "$berkas_b" 2>/dev/null; then
+    sig_b="$(head -c 12 "$berkas_b" | od -An -tx1 | tr -d ' \n')"
+    case "$sig_b" in
+      89504e47*|ffd8ff*|47494638*|25504446*|00000100*|52494646????????57454250*) ;;
+      *) gagal_msg "berkas biner format tak dikenal: $berkas_b" ;;
+    esac
+  fi
+done <<EOF_B
+$(printf '%s\n' "$TERLARANG" | sort -u)
+EOF_B
 
 hitung_judul() {
   local n
