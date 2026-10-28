@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 565: pola grup dependabot gradle-tools kini cocok dengan nama AGP nyata
+- Grup `gradle-tools` memakai pola `com.android.tools*`, padahal tak ada dependensi bernama itu di repo; Dependabot menamai AGP `com.android.application` (terbukti dari entri `ignore` di berkas yang sama yang bekerja atas nama itu). Grup itu tak akan pernah mengelompokkan apa pun dan update AGP selalu datang tak tergrup — konfigurasi mati yang menyesatkan.
+- Pola grup diganti menjadi `com.android.application`, sesuai nama nyata plugin di `build.gradle.kts` akar. Entri `ignore` untuk major AGP tidak berubah.
+
 ## [Belum rilis] — Audit 564: labeler kini melabeli .github/actions/** sebagai ci
 - Action komposit `.github/actions/resolve-vw` dipakai kedua workflow build sebagai penentu versi, tetapi pola label `ci` di `.github/labeler.yml` tak menjangkaunya (juga bukan `app`/`docs`) — PR yang hanya mengubah action kritis itu tak menerima label apa pun dan tak terlihat saat PR disaring per label.
 - Pola `.github/actions/**` ditambahkan ke label `ci`.

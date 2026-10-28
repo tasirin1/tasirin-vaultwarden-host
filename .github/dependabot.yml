@@ -15,7 +15,7 @@ updates:
           - "androidx*"
       gradle-tools:
         patterns:
-          - "com.android.tools*"
+          - "com.android.application"
     ignore:
       - dependency-name: "com.android.application"
         update-types: ["version-update:semver-major"]
