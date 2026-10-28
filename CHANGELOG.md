@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 645: kegagalan uji asap di perangkat non-ARM kini didiagnosis jujur
+- Perangkat di luar target (x86/x86_64 murni, arm64 tanpa compat 32-bit) sebelumnya gagal uji `--version` dengan pesan generik yang menyalahkan berkas dan mendorong Cek Update berulang, padahal binary ARM memang tidak bisa berjalan di sana. `KernelCompat` kini punya predikat murni `arsitekturTakDidukung` (terkunci uji), dan pesan uji asap gagal menyebut arsitekturnya secara eksplisit: bukan ARM, mengunduh ulang tidak akan membantu. Tidak ada ABI baru yang ditambah — ini murni diagnosis, sesuai aturan repo.
+
 ## [Belum rilis] — Audit 644: bukti panic getrandom kini mengalahkan klasifikasi kernel
 - `os.version` yang tak terparse dianggap "modern" (keputusan disengaja, terkunci uji), sehingga pada perangkat berkernel lama berformat aneh shim tak pernah dipasang — dan pesan pemulihannya menyuruh menekan Cek Update yang tergerbang klasifikasi yang sama, membentuk lingkaran yang tak bisa sembuh. Kini bila probe `--version` menunjukkan panic getrandom (bukti nyata perangkat butuh shim), `siapkanShim` mencoba memasang shim apa pun klasifikasinya dan mengulang uji asap: lolos → Start lanjut dengan `LD_PRELOAD`; gagal → jalur saran lama seperti sebelumnya. Klasifikasi tak-dikenal=modern sendiri tidak diubah.
 

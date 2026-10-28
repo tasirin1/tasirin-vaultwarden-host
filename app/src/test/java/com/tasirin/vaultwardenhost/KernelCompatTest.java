@@ -75,6 +75,18 @@ public class KernelCompatTest {
     }
 
     @Test
+    public void arsitekturTakDidukungHanyaNonArm() {
+        assertFalse(KernelCompat.arsitekturTakDidukung("armv7l"));
+        assertFalse(KernelCompat.arsitekturTakDidukung("armv8l"));
+        assertFalse(KernelCompat.arsitekturTakDidukung("aarch64"));
+        assertFalse(KernelCompat.arsitekturTakDidukung(null));
+        assertFalse(KernelCompat.arsitekturTakDidukung(""));
+        assertTrue(KernelCompat.arsitekturTakDidukung("i686"));
+        assertTrue(KernelCompat.arsitekturTakDidukung("x86_64"));
+        assertTrue(KernelCompat.saranArsitektur("i686").contains("armeabi-v7a"));
+    }
+
+    @Test
     public void saranShimGagalMenyebutLangkahKonkret() {
         String saran = KernelCompat.saranShimGagal("3.14.29");
         assertTrue(saran.contains("Cek Update"));

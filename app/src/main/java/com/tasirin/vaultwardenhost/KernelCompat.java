@@ -50,6 +50,23 @@ public final class KernelCompat {
                 + " | channel " + channelName(isLegacyKernel(osVersion));
     }
 
+    static boolean arsitekturTakDidukung(String arch) {
+        if (arch == null) {
+            return false;
+        }
+        String a = arch.trim().toLowerCase(java.util.Locale.ROOT);
+        if (a.isEmpty()) {
+            return false;
+        }
+        return !(a.startsWith("arm") || a.equals("aarch64") || a.contains("arm64"));
+    }
+
+    static String saranArsitektur(String arch) {
+        return "Perangkat ini berarsitektur " + arch + ", bukan ARM: binary dan"
+                + " shim Vaultwarden (armeabi-v7a) tidak bisa berjalan di sini,"
+                + " dan mengunduh ulang tidak akan membantu.";
+    }
+
     public static String saranShimGagal(String osVersion) {
         return "Binary tetap crash di kernel STB lama (kernel " + osVersion
                 + ", getrandom/syscall errno=22) walau shim dipasang."

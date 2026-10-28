@@ -1436,6 +1436,14 @@ public final class Updater {
     }
 
     static String pesanUjiAsapGagal(String kernel, boolean shimAda) {
+        return pesanUjiAsapGagal(kernel, shimAda, System.getProperty("os.arch"));
+    }
+
+    static String pesanUjiAsapGagal(String kernel, boolean shimAda, String arch) {
+        if (KernelCompat.arsitekturTakDidukung(arch)) {
+            return "File update tidak valid (gagal uji jalan --version). "
+                    + KernelCompat.saranArsitektur(arch);
+        }
         if (KernelCompat.isLegacyKernel(kernel == null ? "" : kernel) && !shimAda) {
             return "File update tidak valid (gagal uji jalan --version;"
                     + " shim getrandom belum terpasang)."
