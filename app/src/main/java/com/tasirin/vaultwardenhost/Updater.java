@@ -1480,12 +1480,33 @@ public final class Updater {
         String shaTersimpan = sp.getString(KEY_SHIM_SHA, "");
         if (shimUtuh(out, shaTersimpan)) {
             if (shaTersimpan == null || shaTersimpan.isEmpty()) {
-                // Pasangan lama sebelum pencatatan hash: pin hash berkas
-                // yang lolos validasi saat ini, agar kerusakan di tengah
-                // berkas sesudah ini terdeteksi dan dipulihkan unduh
-                // ulang — sebelumnya shim rusak-di-tengah lolos
-                // shimValid (hanya magic ELF + ukuran) selamanya dan
-                // start mati menuduh binary (Audit 628).
+                // Pasangan lama sebelum pencatatan hash: pin pertama
+                // TIDAK boleh memberkati berkas yang ternyata sudah
+                // rusak dari era sebelum pencatatan (Audit 633). Bila
+                // hash rilis resmi bisa diambil, berkas wajib cocok
+                // dengannya; tak cocok -> unduh ulang terverifikasi.
+                // Bila hash rilis tak terjangkau (offline), pin berkas
+                // saat ini seperti semula agar Start tak terkunci.
+                String shaRilis = null;
+                try {
+                    String latest = latestVersion(ctx);
+                    if (latest != null && !latest.isEmpty()) {
+                        String[] wadah = {null};
+                        shaDariRilis(ctx, 8000, 8000,
+                                "Verifikasi SHA-256 tidak bisa diambil dari release",
+                                wadah).ambil(shimAssetUrl(latest));
+                        shaRilis = wadah[0];
+                    }
+                } catch (Exception ignored) {
+                }
+                if (shaRilis != null && !expectedHexEquals(shaRilis, sha256Hex(out))) {
+                    downloadShim(ctx, out);
+                    if (!shimValid(out)) {
+                        throw new IOException("File shim tidak valid (ukuran "
+                                + (out.exists() ? out.length() : 0) + " byte).");
+                    }
+                    return out;
+                }
                 try {
                     sp.edit().putString(KEY_SHIM_SHA, sha256Hex(out)).apply();
                 } catch (Exception ignored) {

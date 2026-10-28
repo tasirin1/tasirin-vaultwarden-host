@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 633: pin hash shim pertama diverifikasi ke hash rilis, bukan pin buta
+- Self-review menemukan sisa lubang Audit 628: pin-on-first-use menyimpan hash berkas SAAT INI, jadi shim yang sudah rusak sebelum pencatatan ada ikut diberkati dan verifikasi ulang selamanya "cocok". Kini pada pin pertama, `ensureShimFile` mengambil hash resmi shim dari rilis (mekanisme `shaDariRilis` yang sama dengan jalur unduh): berkas terpasang wajib cocok dengannya, tak cocok → unduh ulang terverifikasi. Bila hash rilis tak terjangkau (offline), perilaku lama berlaku (pin berkas saat ini) agar Start tidak terkunci jaringan — sisa risiko itu kini terdokumentasi, bukan diam-diam.
+
 ## [Belum rilis] — Audit 632: auto-merge memeriksa ulang head PR sesaat sebelum diaktifkan
 - Self-review menemukan celah pada gerbang Build APK Audit 624: validasi mengikat SHA saat event dibuat, tetapi `gh pr merge --auto` menggabungkan head TERKINI begitu check wajib hijau — commit B yang didorong di tengah masa tunggu bisa ter-merge hanya berbekal gerbang patch-nya. Kini ada langkah pemeriksa head tepat sebelum pengaktifan: head PR dibaca ulang dan dibandingkan dengan SHA yang Build APK-nya ditunggu; berbeda = auto-merge dibatalkan dan run untuk head baru yang menilai ulang.
 
