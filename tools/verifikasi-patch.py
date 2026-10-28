@@ -397,6 +397,55 @@ def kupas_java(isi):
             i += 1
     return "".join(keluar)
 
+def kupas_komentar_saja(isi):
+    petik_ganda = chr(34)
+    petik_satu = chr(39)
+    garis_miring_balik = chr(92)
+    kutip_tiga = petik_ganda * 3
+    keluar = []
+    i, n = 0, len(isi)
+    while i < n:
+        dua = isi[i:i + 2]
+        if dua == '//':
+            while i < n and isi[i] != chr(10):
+                i += 1
+        elif dua == '/*':
+            i += 2
+            while i < n and isi[i:i + 2] != '*/':
+                i += 1
+            i += 2
+        elif isi[i:i + 3] == kutip_tiga:
+            j = i + 3
+            while j < n:
+                if isi[j] == garis_miring_balik:
+                    j += 2
+                    continue
+                if isi[j:j + 3] == kutip_tiga:
+                    j += 3
+                    break
+                j += 1
+            keluar.append(isi[i:j])
+            i = j
+        elif isi[i] in (petik_ganda, petik_satu):
+            kutip = isi[i]
+            j = i + 1
+            while j < n:
+                if isi[j] == garis_miring_balik:
+                    j += 2
+                    continue
+                if isi[j] == kutip:
+                    j += 1
+                    break
+                if kutip == petik_ganda and isi[j] == chr(10):
+                    break
+                j += 1
+            keluar.append(isi[i:j])
+            i = j
+        else:
+            keluar.append(isi[i])
+            i += 1
+    return "".join(keluar)
+
 def cek_kurung_java(gagal, berubah):
     for path in berubah:
         if not path.endswith(".java"):
@@ -629,6 +678,7 @@ def nilai_min_sdk(tetap):
 
 
 def himpun_abi(tetap):
+    tetap = kupas_komentar_saja(tetap)
     abi = set()
     pengisi = {"listOf", "setOf", "arrayOf", "mutableListOf", "mutableSetOf",
                "arrayListOf", "hashSetOf", "linkedSetOf", "addAll", "add"}
@@ -679,7 +729,7 @@ def cek_aturan_repo(gagal, berubah):
     elif minimum != 21:
         gagal.append("minSdk %s != 21 memutus dukungan Android 5 (aturan repo)" % minimum)
     abi = himpun_abi(tetap)
-    if "abiFilters" not in tetap or not abi:
+    if "abiFilters" not in kupas_komentar_saja(tetap) or not abi:
         gagal.append("abiFilters tak ditemukan/tak terbaca di app/build.gradle.kts "
                      "(aturan repo: ABI wajib tertulis, armeabi-v7a saja)")
     asing = sorted(a for a in abi if a != "armeabi-v7a")

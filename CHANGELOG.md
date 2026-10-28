@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 531: penjaga ABI di gerbang tak lagi kalah oleh komentar umpan
+- Lubang sejenis #229 yang belum tertutup: `himpun_abi` mengurai teks mentah `app/build.gradle.kts`, sehingga baris `abiFilters` asli yang dinonaktifkan dengan `//` tetap terhitung terpasang — AGP tanpa `abiFilters` akan mengemas semua ABI, melanggar aturan armeabi-v7a saja tanpa gerbang bersuara. Pengupas komentar yang sudah ada (`kupas_java`) tak bisa dipakai di sini karena ia juga membuang isi string, padahal nama ABI justru hidup di dalam string.
+- Pengupas baru `kupas_komentar_saja` membuang komentar `//` dan `/* */` sambil menyalin literal string/char/raw-string apa adanya (sadar escape dan `//` di dalam URL string); `himpun_abi` dan cek keberadaan `abiFilters` kini bekerja di atas teks bersih itu. Terbukti unit langsung (bersih → {armeabi-v7a}; dikomentari/blok → kosong; string URL berisi `//` tetap aman) dan fixture dua arah di salinan buang: abiFilters dikomentari → GAGAL, pohon bersih → LOLOS.
+
 ## [Belum rilis] — Audit 530: paritas resource di gerbang tak lagi kalah oleh komentar XML
 - `cek_paritas_resource` membaca nama warna, quantity plurals, dan ID layout dari teks mentah (`baca()`), sehingga definisi yang sudah dihapus tetapi disisakan sebagai komentar `<!-- ... -->` tetap terhitung ada: warna malam yang hilang nyata lolos paritas dan Android jatuh diam-diam ke warna siang di mode gelap.
 - Ekstraksi ketiganya kini lewat `teks_xml_bersih` (komentar XML dibuang lebih dulu). Terbukti fixture dua arah di salinan buang dengan mutasi ter-assert (parse XML membuktikan 0 definisi `primary` nyata): warna malam dikomentari → GAGAL "colors.xml siang berlebih vs night: primary"; pohon bersih → LOLOS 157 berkas.
