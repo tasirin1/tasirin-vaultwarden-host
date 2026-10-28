@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 510: kontras teks galat log mode malam dinaikkan ke 4,77:1
+- `log_error` mode malam `#F0554D` di atas `info_bg` `#1E2A44` hanya 4,16:1 (hitung WCAG) untuk teks log 11sp — di bawah ambang 4,5:1 teks kecil, dan merah galat adalah teks paling penting dibaca sekilas di log malam.
+- Warna diterangkan sekeluarga ke `#F26A62` = 4,77:1 (terverifikasi hitung WCAG sebelum/sesudah). `status_off` yang berbagi nilai lama tidak diubah — konteks pakainya berbeda dan di luar temuan ini.
+
 ## [Belum rilis] — Audit 509: kunci keadaan lokal Telegram/throttle tidak lagi ikut ekspor config
 - Ekspor config (`configJson`) masih meloloskan kunci keadaan khas-perangkat: `tg_last_file` (ID berkas backup terakhir — pola yang di LogActivity sendiri digolongkan rahasia), identitas bot ter-cache (`tg_bot_id`, `tg_bot_user`), hash menu (`tg_menu_hash`), dan stempel throttle (`alarm_throttle_elapsed`, `alarm_throttle_waktu_elapsed`, `boot_throttle_elapsed`, `boot_throttle_wall`). Terimpor ke perangkat lain, nilainya basi/asing dan bisa mengacaukan throttle serta penanda backup perangkat tujuan.
 - Kedelapan kunci masuk `TAK_DIEKSPOR_KEYS`; uji `secretTakIkutBackup` diperluas untuk semuanya.
