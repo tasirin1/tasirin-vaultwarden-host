@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 671: cocokAscii kini menjaga null seperti helper Util lainnya
+- `cocokAscii` publik memanggil `hay.length()` langsung — satu-satunya helper teks di `Util.java` yang melempar `NullPointerException` untuk masukan null, menyimpang dari pola berkasnya sendiri (`heks`, `rendahAscii`, `mengandungAbaikanHuruf`, dll. semuanya menjaga null). Pemanggil internal satu-satunya memang sudah menjaga lebih dulu sehingga belum ada jalur aktif, tetapi pemanggil baru yang memakainya langsung dengan teks yang bisa null (preferensi/intent) akan crash di helper yang dikira seaman tetangganya. Kini null di kedua argumen menghasilkan `false`, terkunci uji.
+
 ## [Belum rilis] — Audit 670: kegagalan memulai thread watchdog kini tercatat
 - `pasangWatchdogProses` menelan kegagalan `Thread.start()` (kehabisan thread/memori di STB) dalam `catch (Exception ignored)` dan mengembalikan thread seolah sehat; kedua pemanggil probe versi tidak memeriksa `isAlive()`, sehingga proses `--version` yang menggantung tanpa output bisa menunggu tanpa batas tanpa ada yang tahu watchdog-nya tidak pernah ada. Kegagalan itu kini ditulis ke log (`Log.w`, pola yang sama dengan peringatan antrean penuh di berkas yang sama) — kegagalan langka ini tidak lagi lenyap tanpa jejak.
 

@@ -286,6 +286,9 @@ public class UtilTest {
         assertTrue(Util.cocokAscii("BOT123", "bot"));
         assertFalse(Util.cocokAscii("info biasa", "token"));
         assertFalse(Util.cocokAscii("pendek", "kalimat panjang sekali"));
+        assertFalse(Util.cocokAscii(null, "token"));
+        assertFalse(Util.cocokAscii("token", null));
+        assertFalse(Util.cocokAscii(null, null));
     }
 
     @Test

@@ -390,6 +390,9 @@ public final class Util {
     }
 
     public static boolean cocokAscii(String hay, String needle) {
+        if (hay == null || needle == null) {
+            return false;
+        }
         int n = hay.length() - needle.length();
         for (int i = 0; i <= n; i++) {
             int j = 0;
