@@ -3996,7 +3996,7 @@ public final class TgBackup {
         }
         if (file.isDirectory()) {
             try {
-                String kanon = file.getAbsolutePath();
+                String kanon = file.getCanonicalPath();
                 if (!kunjung.add(kanon)) {
                     return 0;
                 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 572: dedupe folderBytesWalk kini memakai path canonical; uji tak lagi mengunci angka inflasi 3100
+- `TgBackup.folderBytesWalk` men-dedupe kunjungan folder memakai `getAbsolutePath()` (variabelnya bahkan bernama `kanon`), sehingga symlink melingkar menghasilkan path tekstual berbeda di tiap level dan tak terdeteksi — berkas yang sama dihitung ulang sampai cap kedalaman 32 (satu berkas 100 byte terhitung 3100), dan uji justru mengunci angka inflasi itu sebagai nilai harapan.
+- Dedupe kini memakai `getCanonicalPath()`: symlink loop terdeteksi sebagai folder yang sama dan dilewati. Uji diperbarui di commit yang sama menjadi 100 dengan komentar derivasi. Dampak praktis: taksiran ukuran folder (untuk pra-cek ruang backup/restore) tak lagi membengkak pada folder bersymlink-loop.
+
 ## [Belum rilis] — Audit 571: asersi uji potongEkorBaris diketatkan ke nilai eksak
 - Uji `potongEkor_jumboMulaiBatasBaris` memakai disjungsi longgar (`startsWith("baru") || tak ada newline || contains("baru")`) yang juga lolos untuk keluaran salah seperti potongan tengah-baris — persis regresi yang dicegah metode itu. Nilai harapan eksaknya ("baru2" untuk masukan uji, dibuktikan porting Python 1:1 dari implementasi) kini dikunci dengan `assertEquals`, selaras uji-uji saudara di berkas yang sama.
 

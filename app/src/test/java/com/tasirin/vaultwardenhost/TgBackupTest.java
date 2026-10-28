@@ -673,7 +673,10 @@ public class TgBackupTest {
         org.junit.Assume.assumeTrue("symlink tak bisa dibuat di mesin ini", tautanDibuat);
         try {
             long total = TgBackup.folderBytesWalk(dasar.toFile());
-            assertEquals(3100L, total);
+            // Dedupe memakai path canonical: symlink loop menunjuk folder
+            // akar yang sama persis, jadi terdeteksi sudah dikunjungi dan
+            // berkas 100 byte hanya terhitung satu kali.
+            assertEquals(100L, total);
         } finally {
             try {
                 java.nio.file.Files.deleteIfExists(dasar.resolve("loop"));
