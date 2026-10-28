@@ -63,9 +63,11 @@ public final class AutoUpdate {
             if (bandingReal == 0) {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pending.atur(null);
+                batalkanNotifikasiUpdate(ctx);
             } else if (bandingReal > 0) {
 
                 pending.atur(null);
+                batalkanNotifikasiUpdate(ctx);
             } else if (Updater.bandingVersi(current, latest) < 0) {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
 
@@ -80,6 +82,7 @@ public final class AutoUpdate {
                         try {
                             String msg = Updater.tryUpdate(ctx);
                             pending.atur(null);
+                            batalkanNotifikasiUpdate(ctx);
                             if (Updater.binaryBerubah(msg)) {
                                 adaTerpasang = true;
                             }
@@ -222,6 +225,20 @@ public final class AutoUpdate {
 
     @SuppressLint("MissingPermission")
     @SuppressWarnings("deprecation")
+    /** Batalkan notifikasi "update tersedia" (ID 2): sesudah update
+     *  terpasang lewat jalur mana pun, notifikasi itu menyesatkan bila
+     *  tetap tergantung di laci (Audit 600). */
+    static void batalkanNotifikasiUpdate(Context ctx) {
+        try {
+            NotificationManager nm = (NotificationManager)
+                    ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) {
+                nm.cancel(2);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     public static boolean tampilkanNotifikasi(Context ctx, String version) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager nm = (NotificationManager)

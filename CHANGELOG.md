@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 600: notifikasi update dibatalkan saat tak ada lagi update tertunda
+- Notifikasi "update tersedia" (ID 2) hanya hilang bila diketuk (autoCancel); tidak ada satu pun `NotificationManager.cancel` di basis kode. Update yang terpasang lewat bot/Settings meninggalkan notifikasi "vX available" tergantung tanpa batas untuk versi yang sudah terpasang — menyesatkan dan bisa memicu unduh ulang.
+- Kini helper `batalkanNotifikasiUpdate` dipanggil di ketiga titik `cek()` yang mengosongkan keadaan tertunda (sudah versi terbaru, versi lebih baru dari rilis, dan sesudah auto-update terpasang), jadi pemeriksaan berkala berikutnya membersihkan laci begitu update tak lagi tertunda.
+
 ## [Belum rilis] — Audit 599: penanda pengumuman update dicatat sesudah dicoba, bukan digerbang notifikasi
 - Blok pengumuman versi baru di `AutoUpdate.cek` mengirim pesan Telegram tanpa syarat, tetapi penanda dedup `tg_notified_version` hanya ditulis bila notifikasi sistem berhasil tampil. Bila user mematikan notifikasi aplikasi, penanda tak pernah tercatat dan pesan Telegram yang sama terkirim ulang pada setiap pembukaan aplikasi/Settings sampai update dipasang. Kini penanda dicatat sesudah pengumuman dicoba di kedua kanal; kanal dalam-aplikasi (`kabariTersedia`) tetap punya dedupnya sendiri.
 
