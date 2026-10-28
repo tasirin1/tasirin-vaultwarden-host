@@ -383,6 +383,7 @@ public class SettingsActivity extends Activity {
     private Boolean lastBatteryTampil = null;
 
     private boolean pinBukaJalan = false;
+    private boolean kontenTersegel = false;
 
     static void catatPinDibuka() {
         if (!PinGate.dalamGraceBersama()) {
@@ -424,6 +425,14 @@ public class SettingsActivity extends Activity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_settings);
+        try {
+            if (PinGate.perlukanLayarPin(this)) {
+                kontenTersegel = true;
+                findViewById(android.R.id.content)
+                        .setVisibility(android.view.View.INVISIBLE);
+            }
+        } catch (Exception ignored) {
+        }
 
         muatTampilan();
         pasangAksi();
@@ -1215,6 +1224,11 @@ public class SettingsActivity extends Activity {
         if (pinMenahanKonten()) {
             maybeShowPinLock();
             return;
+        }
+        if (kontenTersegel) {
+            kontenTersegel = false;
+            findViewById(android.R.id.content)
+                    .setVisibility(android.view.View.VISIBLE);
         }
 
         if (tampilkanSibukUnduhan()) {

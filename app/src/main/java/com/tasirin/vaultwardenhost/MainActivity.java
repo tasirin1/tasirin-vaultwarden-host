@@ -102,6 +102,7 @@ public class MainActivity extends Activity {
     private static volatile long cacheWaktu = 0;
 
     private boolean pinBukaJalan = false;
+    private boolean kontenTersegel = false;
 
     static void catatPinDibuka() {
         if (!PinGate.dalamGraceBersama()) {
@@ -132,6 +133,14 @@ public class MainActivity extends Activity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
+        try {
+            if (PinGate.perlukanLayarPin(this)) {
+                kontenTersegel = true;
+                findViewById(android.R.id.content)
+                        .setVisibility(android.view.View.INVISIBLE);
+            }
+        } catch (Exception ignored) {
+        }
 
         statusView = findViewById(R.id.status);
         statusBanner = findViewById(R.id.statusBanner);
@@ -518,6 +527,11 @@ public class MainActivity extends Activity {
         if (pinMenahanKonten()) {
             maybeShowPinLock();
             return;
+        }
+        if (kontenTersegel) {
+            kontenTersegel = false;
+            findViewById(android.R.id.content)
+                    .setVisibility(android.view.View.VISIBLE);
         }
 
         ui.removeCallbacks(refreshLoop);

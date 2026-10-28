@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 691: konten disegel sejak onCreate bila layar PIN diperlukan
+- UI dibangun penuh di `onCreate` sementara layar PIN baru diluncurkan dari `onResume`, sehingga pada cold start di perangkat lambat satu-dua frame konten (status/log) bisa tergambar sebelum layar kunci menutupinya. MainActivity dan SettingsActivity kini menyegel konten (`INVISIBLE` pada akar tampilan) sejak `onCreate` bila gerbang menyatakan layar PIN diperlukan, dan segel dibuka oleh tik refresh pertama yang lolos gerbang — kilasan tertutup secara struktural, bukan hanya dikurangi tema splash. Batal di layar PIN tetap menutup activity seperti sebelumnya, jadi segel tidak pernah meninggalkan layar kosong yang menggantung.
+
 ## [Belum rilis] — Audit 690: Settings dan Log tak lagi meninggalkan thumbnail di Recents
 - MainActivity dan PinActivity sudah `excludeFromRecents`, tetapi SettingsActivity dan LogActivity belum: snapshot Recents LogActivity memuat isi log penuh keadaan terakhir — konten yang aplikasi sendiri perlakukan sensitif (ada penyamaran untuk log yang dibagikan) — dan bisa dibaca dari layar Recents tanpa melewati gerbang PIN, walau membuka activity-nya tergerbang. Kedua activity kini `excludeFromRecents="true"` seperti saudara-saudaranya. `FLAG_SECURE` sengaja tidak ditambahkan agar tangkapan layar yang disengaja pemilik tetap bisa.
 
