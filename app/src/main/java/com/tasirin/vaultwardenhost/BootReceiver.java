@@ -10,8 +10,33 @@ public class BootReceiver extends BroadcastReceiver {
 
     static final long THROTTLE_BOOT_MS = 60_000;
     private static volatile long terakhirBootElapsed = 0;
+    private static volatile long terakhirBootWall = 0;
 
     static final String KEY_THROTTLE_BOOT_ELAPSED = "boot_throttle_elapsed";
+    static final String KEY_THROTTLE_BOOT_WALL = "boot_throttle_wall";
+
+    static boolean throttleBootMenahan(long kiniElapsed, long terakhirElapsed,
+                                       long kiniWall, long terakhirWall, long jeda) {
+        if (terakhirElapsed <= 0) {
+            return false;
+        }
+        if (kiniElapsed < terakhirElapsed) {
+            return false;
+        }
+        if (kiniElapsed - terakhirElapsed >= jeda) {
+            return false;
+        }
+        if (terakhirWall > 0 && kiniWall > 0) {
+            long majuDinding = kiniWall - terakhirWall;
+            if (majuDinding < 0) {
+                return false;
+            }
+            if (majuDinding - (kiniElapsed - terakhirElapsed) > jeda) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private static final Object KUNCI_BOOT = new Object();
 
@@ -38,18 +63,30 @@ public class BootReceiver extends BroadcastReceiver {
             try {
                 if (perluThrottleBoot(action)) {
                     long kiniElapsed = android.os.SystemClock.elapsedRealtime();
+                    long kiniWall = System.currentTimeMillis();
                     synchronized (KUNCI_BOOT) {
-                        long terakhirBoot = Math.max(terakhirBootElapsed,
-                                bacaThrottleBoot(ctx));
-                        if (!AlarmReceiver.bolehAlarmJalan(kiniElapsed, terakhirBoot,
-                                THROTTLE_BOOT_MS)) {
-
-                            terakhirBootElapsed = kiniElapsed;
-                            simpanThrottleBoot(ctx, kiniElapsed);
+                        long simpanElapsed = bacaThrottleBoot(ctx);
+                        long pakaiElapsed;
+                        long pakaiWall;
+                        if (terakhirBootElapsed >= simpanElapsed) {
+                            pakaiElapsed = terakhirBootElapsed;
+                            pakaiWall = terakhirBootWall;
+                        } else {
+                            pakaiElapsed = simpanElapsed;
+                            pakaiWall = bacaThrottleBootWall(ctx);
+                        }
+                        boolean menahan = throttleBootMenahan(kiniElapsed, pakaiElapsed,
+                                kiniWall, pakaiWall, THROTTLE_BOOT_MS);
+                        terakhirBootElapsed = kiniElapsed;
+                        terakhirBootWall = kiniWall;
+                        simpanThrottleBoot(ctx, kiniElapsed);
+                        simpanThrottleBootWall(ctx, kiniWall);
+                        if (menahan) {
+                            ServerService.catatLog("[app] Broadcast boot diabaikan"
+                                    + " - masih dalam throttle 60 detik dari broadcast"
+                                    + " boot sebelumnya pada boot yang sama.");
                             return;
                         }
-                        terakhirBootElapsed = kiniElapsed;
-                        simpanThrottleBoot(ctx, kiniElapsed);
                     }
                 }
                 SharedPreferences sp = ctx.getSharedPreferences(
@@ -117,6 +154,14 @@ public class BootReceiver extends BroadcastReceiver {
 
     static void simpanThrottleBoot(Context context, long kini) {
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED, kini);
+    }
+
+    static long bacaThrottleBootWall(Context context) {
+        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_WALL);
+    }
+
+    static void simpanThrottleBootWall(Context context, long kini) {
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_WALL, kini);
     }
 
     @SuppressLint("ApplySharedPref")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Audit 472: throttle boot tidak lagi menelan broadcast boot berikutnya
+- Throttle boot membandingkan `elapsedRealtime` yang disimpan persisten lintas-boot lewat `bolehAlarmJalan`, yang hanya mengenali reboot bila elapsed mundur. Dua boot berbeda yang broadcast-nya sama-sama diterima pada fase elapsed mirip (puluhan detik sesudah boot) dengan selisih di bawah 60 detik dianggap duplikat dalam boot yang sama, dan penolakannya `return` tanpa log: auto-start server, jadwal backup, dan jadwal bot hilang diam-diam sampai app dibuka manual.
+- Stempel throttle kini disimpan berpasangan (elapsed + jam dinding `boot_throttle_wall`) dan keputusan dipindah ke penolong murni `BootReceiver.throttleBootMenahan`: duplikat boot yang sama tetap ditahan, tetapi boot lain dikenali dari jam dinding yang maju jauh melampaui elapsed (atau mundur), dan elapsed yang mundur tetap dilepas. Penolakan kini juga dicatat ke log. Uji batas penolong baru ditambahkan (nilai harapan dibuktikan dengan porting Python 1:1).
+
 ## [Belum rilis] — Pemerataan sistem pengelolaan repo dengan repo Tasirin lain
 - Repo ini sebelumnya hanya punya workflow build; kini ditambah paket automasi yang sama seperti tasirin-download-manager: Dependabot (gradle + github-actions, berkelompok, major AGP manual), CodeQL (analisis keamanan statis java-kotlin), Gitleaks (deteksi secret ter-commit), Stale (penanda + penutup issue/PR tak aktif), Labeler (label otomatis per path `app`/`ci`/`docs`, konfig `.github/labeler.yml`, label dibuat di repo), dan Auto-merge khusus PR Dependabot non-Gradle sesudah CI hijau (deteksi berkas gagal-tertutup; PR dependensi Gradle diarahkan ke merge manual).
 - Ditambah pula `.github/CODEOWNERS`, template PR dan issue (bug report + feature request), `SECURITY.md` (kebijakan pelaporan kerentanan privat), `CONTRIBUTING.md`, dan `.editorconfig`. Workflow `build-apk.yml` dan `build-binary.yml` tidak diubah sama sekali.

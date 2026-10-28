@@ -17,6 +17,34 @@ public class BootReceiverTest {
     }
 
     @Test
+    public void throttleBootMenahan_duplikatBootSamaDitahan() {
+        assertTrue(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+    }
+
+    @Test
+    public void throttleBootMenahan_bootBerbedaDilepasWalauElapsedDekat() {
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 1_000_000 + 259_200_000L, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 1_000_000 + 7_200_000L, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS));
+    }
+
+    @Test
+    public void throttleBootMenahan_kasusBatasLainDilepas() {
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 0, 1_025_000, 0, BootReceiver.THROTTLE_BOOT_MS));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                30_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                120_000, 45_000, 1_075_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 900_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+    }
+
+    @Test
     public void gantiPaket_tetapJalanWalauThrottleBootBaruSaja() {
 
         long terakhirBoot = 60_000;
