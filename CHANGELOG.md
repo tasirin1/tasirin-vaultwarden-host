@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 676: kerja boot tak lagi jatuh sinkron ke thread broadcast saat antrean penuh
+- Jalur cadangan BootReceiver menjalankan seluruh kerja boot secara sinkron di thread penerima broadcast bila pool latar menolak tugas — mengonsumsi jendela broadcast (~10 detik, `goAsync()` tidak menolong bila kerja justru berjalan di `onReceive`) dan berisiko ANR/pemutusan proses di tengah kerja pada STB lambat. Cadangannya kini berupa thread khusus (pola yang sama dengan cadangan di TgBotReceiver): kerja tetap selesai di luar thread broadcast; hanya bila pembuatan thread pun gagal, penanganan boot dilewati dengan log terus terang dan `PendingResult` ditutup rapi — bukan dijalankan paksa di thread broadcast.
+
 ## [Belum rilis] — Audit 675: langkah boot kini terisolasi — satu gagal tidak membatalkan langkah lain
 - Seluruh pekerjaan BootReceiver berjalan dalam satu `try` besar ber-`catch` generik: satu langkah awal yang melempar (mis. migrasi preferensi pada bentuk data tak terduga) membatalkan auto-start server pada boot itu — padahal `auto_start` aktif dan tidak ada penanda tertunda untuk kasus ini — dan kegagalan jadwal backup membatalkan jadwal bot; satu-satunya jejak adalah satu baris log tanpa konteks langkah. Kini tiap kelompok langkah berpagar sendiri dengan log berkonteks: persiapan (cek penanda restore + heal/migrasi preferensi), jadwal backup, dan jadwal bot; auto-start sudah terisolasi sejak sebelumnya. Kegagalan satu langkah tidak lagi membatalkan langkah boot lainnya.
 

@@ -199,8 +199,14 @@ public class BootReceiver extends BroadcastReceiver {
             }
         };
         if (!Util.jalankanBg(kerja)) {
-
-            kerja.run();
+            try {
+                new Thread(kerja, "vw-boot-cadangan").start();
+            } catch (Throwable t) {
+                ServerService.catatLog("[app] Penanganan boot dilewati:"
+                        + " antrean latar penuh dan thread cadangan gagal"
+                        + " dibuat.");
+                pending.finish();
+            }
         }
     }
 
