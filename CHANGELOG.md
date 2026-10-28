@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 616: README Inggris/Rusia kini mengutip label UI Inggris yang sebenarnya
+- README Inggris dan Rusia mengutip label tombol "Versi binary" / "Versi web vault" / "Terbaru (otomatis)" — label Bahasa Indonesia yang hanya tampil pada UI Indonesia. Pembaca keduanya kini diberi label yang benar-benar mereka lihat: "Binary version" / "Web vault version" / "Latest (automatic)". Kutipan kata kunci bot `/update terbaru` memang literal di kode dan tidak diubah.
+
 ## [Belum rilis] — Audit 615: nama seksi di README disamakan dengan judul kartu di UI
 - Ketiga README mengarahkan kunci versi dan backup lokal ke "Settings → Maintenance/Pemeliharaan", padahal judul kartu yang benar-benar tampil adalah "Updates & Certificate" (Inggris) / "Pembaruan & Sertifikat" (Indonesia). Arahannya benar tempat, salah nama — kini disamakan persis dengan string UI di ketiga bahasa (README Rusia memakai nama Inggris karena aplikasi tak punya sumber daya Rusia).
 
