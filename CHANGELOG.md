@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 619: angka ukuran APK disegarkan ke rilis terakhir
+- AGENTS.md masih menulis "rilis terakhir 247 KB" dan ketiga README "~0,25 MB", padahal rilis terakhir (v1.37.4, terverifikasi saat audit) berisi APK 284.936 byte (±285 KB / 0,28 MB) — angka presisi di dokumen sudah terlampaui ±15%. Kini AGENTS.md menulis 285 KB dan ketiga README ~0,28 MB sesuai aset rilis aktual.
+
 ## [Belum rilis] — Audit 618: AGENTS.md tak lagi menyebut simpan .txt di layar awal
 - Aturan 8 dan pemetaan fitur di AGENTS.md mencantumkan "simpan .txt" sebagai isi layar awal, padahal MainActivity tak punya penangan simpan log sama sekali (menu titik tiganya hanya Open Settings + About) — simpan .txt hidup di layar log penuh LogActivity. Deskripsi layar awal kini cocok dengan kode, dan pemetaan fitur menunjuk tempat simpan .txt yang sebenarnya agar pengelola tak mengira ada regresi atau menambahkannya kembali ke beranda yang sengaja ringkas.
 

@@ -6,7 +6,7 @@
 
 <p align="center"><b>&#127760; Language: <a href="README.md">English</a> &middot; <a href="README.id.md">Indonesia</a> &middot; <a href="README.ru.md">Русский</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
 
-Сервер **Vaultwarden** (совместимый с Bitwarden) на Android — для STB/TV-приставок и старых телефонов. **Android 5.0+**, 32-битный ARM (`armeabi-v7a`). APK ~0,25 МБ; бинарник и веб-волт скачиваются автоматически и проверяются по SHA-256.
+Сервер **Vaultwarden** (совместимый с Bitwarden) на Android — для STB/TV-приставок и старых телефонов. **Android 5.0+**, 32-битный ARM (`armeabi-v7a`). APK ~0,28 МБ; бинарник и веб-волт скачиваются автоматически и проверяются по SHA-256.
 
 ## Использование
 

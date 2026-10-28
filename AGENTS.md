@@ -153,8 +153,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    (STB 32-bit). Menambah arm64 membuat APK/binary membengkak dan menambah
    waktu build.
 6. **Jangan membundel binary/web-vault ke APK, dan jangan commit
-   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,25 MB,
-   rilis terakhir 247 KB);
+   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,28 MB,
+   rilis terakhir 285 KB);
    binary & web-vault diunduh dari release dan diverifikasi SHA-256.
 7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API ≥ 21 tanpa fallback,
    jangan `NetworkOnMainThreadException` (semua tugas jaringan di thread),
