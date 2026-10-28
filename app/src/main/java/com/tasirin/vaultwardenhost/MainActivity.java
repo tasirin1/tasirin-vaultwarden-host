@@ -681,7 +681,7 @@ public class MainActivity extends Activity {
         if (!cacheUrl.isEmpty() && now - cacheWaktu < 10000) {
             net = cacheUrl;
         } else {
-            net = ServerService.localUrl(this);
+            net = ServerService.localUrlDenganCatatan(this);
             cacheUrl = net;
             cacheWaktu = now;
         }

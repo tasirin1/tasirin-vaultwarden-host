@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 698: label URL pasif kini menandai keadaan loopback dan transisi IP
+- Tampilan URL di layar utama, Settings, dan status bot selalu memakai IP terbaru tanpa konteks: selama jendela stabilisasi perubahan IP, alamat yang ditampilkan belum dilayani sertifikat yang benar (DOMAIN masih IP lama), dan saat jaringan mati yang tampil adalah `127.0.0.1` kepada pengguna jarak jauh — kedua permukaan menyesatkan walau jalur *salin* URL sudah jujur. Ketiga permukaan pasif kini memakai `localUrlDenganCatatan`: helper murni teruji `catatanUrl` menambahkan "(loopback - IP LAN tidak terdeteksi)" atau "(IP baru - server masih memakai IP lama sampai restart)" sesuai keadaan, dan kosong bila keadaan normal.
+
 ## [Belum rilis] — Audit 696: catch pemulih Settings hanya membersihkan penanda restore milik percobaannya sendiri
 - Sisi lain Audit 679 (self-review putaran-25): catch pemulih di restore lokal membungkus seluruh metode, termasuk fase sebelum penanda percobaan ini dipasang — kegagalan fase ekstraksi pada percobaan baru bisa menghapus penanda lama milik restore terputus sebelumnya, sehingga peringatan boot tentang keadaan hibrida tak pernah tampil. Pembersihan penanda di catch kini digerbang penanda lokal `tandaRestoreSendiri` yang hanya menyala sesudah `tandaiRestoreMulai` percobaan ini sendiri berjalan; penanda warisan percobaan lain tidak disentuh jalur ini.
 

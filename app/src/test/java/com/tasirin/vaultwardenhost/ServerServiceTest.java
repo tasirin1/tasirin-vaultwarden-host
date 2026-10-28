@@ -1112,6 +1112,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void catatanUrl_menandaiLoopbackDanTransisiSaja() {
+        assertEquals("", ServerService.catatanUrl("192.168.1.5", "192.168.1.5", true));
+        assertEquals("", ServerService.catatanUrl("192.168.1.5", "", false));
+        assertEquals("", ServerService.catatanUrl("", "", false));
+        assertTrue(ServerService.catatanUrl("127.0.0.1", "192.168.1.5", true)
+                .contains("loopback"));
+        assertTrue(ServerService.catatanUrl("192.168.1.9", "192.168.1.5", true)
+                .contains("IP baru"));
+        assertEquals("", ServerService.catatanUrl("192.168.1.9", "192.168.1.5", false));
+    }
+
+    @Test
     public void potongBarisLog_hanyaMemotongYangMelebihiBatas() {
         assertEquals("pendek", ServerService.potongBarisLog("pendek"));
         assertEquals(null, ServerService.potongBarisLog(null));

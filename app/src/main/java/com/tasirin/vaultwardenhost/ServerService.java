@@ -3157,6 +3157,25 @@ public class ServerService extends Service {
         return "https://" + formatHostUntukUrl(localIp()) + ":" + port;
     }
 
+    static String catatanUrl(String host, String hostBerjalan, boolean berjalan) {
+        if (host == null || host.isEmpty()) {
+            return "";
+        }
+        if ("127.0.0.1".equals(host)) {
+            return " (loopback - IP LAN tidak terdeteksi)";
+        }
+        if (berjalan && hostBerjalan != null && !hostBerjalan.isEmpty()
+                && !host.equals(hostBerjalan)) {
+            return " (IP baru - server masih memakai IP lama sampai restart)";
+        }
+        return "";
+    }
+
+    public static String localUrlDenganCatatan(Context context) {
+        return localUrl(context)
+                + catatanUrl(localIp(), runningLanHost, running);
+    }
+
     private void setStatus(String text) {
         statusLine = text;
 

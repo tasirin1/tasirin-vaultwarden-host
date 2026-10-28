@@ -1492,7 +1492,7 @@ public class SettingsActivity extends Activity {
         if (!cacheUrlSet.isEmpty() && nowUrl - cacheWaktuSet < 10000) {
             net = cacheUrlSet;
         } else {
-            net = ServerService.localUrl(this);
+            net = ServerService.localUrlDenganCatatan(this);
             cacheUrlSet = net;
             cacheWaktuSet = nowUrl;
         }

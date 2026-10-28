@@ -2534,7 +2534,7 @@ public final class TgBot {
                 .append("RAM: ").append(ram).append("\n")
                 .append("Uptime: ").append(uptime).append("\n")
                 .append("Sisa: ").append(free < 0 ? "?" : TgBackup.humanBytes(free)).append("\n")
-                .append("URL: ").append(ServerService.localUrl(ctx));
+                .append("URL: ").append(ServerService.localUrlDenganCatatan(ctx));
         if (!restarts.isEmpty()) {
             sb.append("\n").append(restarts);
         }
