@@ -281,7 +281,8 @@ Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
 
 1. **resolve** — ambil `tag` release terbaru `dani-garcia/vaultwarden`.
 2. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
-   `assembleDebug` + `lintDebug` + `testDebugUnitTest` + `assembleRelease`
+   `lintDebug` + `testDebugUnitTest`, lalu `assembleRelease`
+   (APK debug tidak pernah di-assemble di CI)
    (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.
 
 Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed

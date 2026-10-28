@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 569: klaim assembleDebug di uraian build-apk AGENTS.md dikoreksi
+- AGENTS.md menyebut job build-apk menjalankan `assembleDebug`, padahal workflow hanya memanggil Gradle dua kali: `lintDebug + testDebugUnitTest` lalu `assembleRelease` — APK debug tidak pernah di-assemble di CI. Uraian dikoreksi agar diagnosis build tidak berangkat dari cakupan CI yang salah.
+
 ## [Belum rilis] — Audit 568: sumber "(d) bundled fallback" yang tak ada dihapus dari uraian ensureBinary di AGENTS.md
 - Uraian `ensureBinary()` di AGENTS.md menyebut empat sumber binary termasuk "(d) bundled fallback", padahal implementasinya hanya punya tiga (cache internal, binary user folder data, unduh dari release) dan tak ada jalur aset untuk binary — satu-satunya aset yang dibuka aplikasi adalah chain sertifikat GitHub dan `vw_version.txt`. Uraian kini sesuai kode dan menegaskan binary tak pernah dibundel di APK.
 
