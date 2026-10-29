@@ -3153,10 +3153,14 @@ public class ServerService extends Service {
     }
 
     public static String localUrl(Context context) {
+        return localUrlDariHost(context, localIp());
+    }
+
+    private static String localUrlDariHost(Context context, String host) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String port = !runningPort.isEmpty() ? runningPort : effectivePort(sp);
 
-        return "https://" + formatHostUntukUrl(localIp()) + ":" + port;
+        return "https://" + formatHostUntukUrl(host) + ":" + port;
     }
 
     static String catatanUrl(String host, String hostBerjalan, boolean berjalan) {
@@ -3174,8 +3178,9 @@ public class ServerService extends Service {
     }
 
     public static String localUrlDenganCatatan(Context context) {
-        return localUrl(context)
-                + catatanUrl(localIp(), runningLanHost, running);
+        String host = localIp();
+        return localUrlDariHost(context, host)
+                + catatanUrl(host, runningLanHost, running);
     }
 
     private void setStatus(String text) {

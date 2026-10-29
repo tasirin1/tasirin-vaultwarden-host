@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 708: URL dan catatannya kini dihitung dari satu bacaan IP yang sama
+- `localUrlDenganCatatan` (Audit 698) memanggil `localIp()` dua kali — sekali di dalam `localUrl`, sekali untuk catatan — dan `localIp()` berpola stale-while-revalidate: cache yang kedaluwarsa tepat di antara keduanya bisa membuat catatan transisi/loopback dihitung dari IP yang berbeda dari host yang tampil di URL selama satu siklus. Host kini dibaca sekali dan diteruskan ke pembangun URL maupun penilai catatan lewat helper bersama `localUrlDariHost`.
+
 ## [Belum rilis] — Audit 707: timeout baca badan hapus pesan dikencangkan ulang ke sisa tenggat sesudah header
 - Sisa batas Audit 694 (self-review putaran-26): tenggat total diperiksa di antara potongan, tetapi satu `read()` yang menggantung di fase badan masih bisa menambah sampai `tBaca` awal (≤30 dtk) melewati cap, karena timeout soket dihitung dari sisa anggaran di awal percobaan — sementara fase header (`getResponseCode`) juga mengonsumsi jendela yang sama. Sesudah kode respons diterima, timeout baca kini dikencangkan ulang ke sisa tenggat yang sebenarnya sebelum badan dibaca, sehingga satu pembacaan terakhir yang menggantung terpotong di tenggat total, bukan di jendela awal percobaan.
 
