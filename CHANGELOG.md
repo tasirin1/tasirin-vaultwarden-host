@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 730: penanda versi/pin sesudah swap kini ditulis sinkron (commit)
+- Penanda yang ditulis tepat sesudah pemasangan binary/web-vault — versi terpasang, pin SHA binary, dan cap web-vault (`KEY_WV_FROM`/`KEY_WV_SHA`/`KEY_WV_FALLBACK_FOR`) — sebelumnya memakai `apply()`, yang memperbarui memori seketika tetapi menulis disk secara asinkron: mati listrik di jendela sub-detik itu meninggalkan binary/WV BARU dengan penanda LAMA, yang terbaca sebagai "binary tidak utuh / WV basi" dan memicu unduh ulang penuh. Penanda-penanda itu kini memakai `commit()` (sinkron) — jendela campuran menyempit dari "sampai flush asinkron sempat jalan" menjadi hanya celah antar-operasi itu sendiri, dengan biaya satu tulis disk kecil sekali per update.
+
 ## [Belum rilis] — Audit 729: ekstrak web-vault tidak lagi fsync per berkas
 - Ekstraksi web-vault memanggil `getFD().sync()` untuk setiap entri berkas — zip berisi ratusan berkas kecil dan di eMMC STB murah satu fsync bisa 10–100 ms, jadi ekstrak membayar detik sampai puluhan detik hanya untuk sinkronisasi. Fsync itu tidak membeli deteksi apa pun: keutuhan muatan sudah dibuktikan SHA-256 zip sebelum ekstrak, pemasangan bersifat atomik lewat rename direktori, dan kriteria siap hanya memeriksa `index.html`. Sync per berkas dihapus; sinkronisasi direktori (`syncDirAman`) yang menjaga rename tetap ada.
 

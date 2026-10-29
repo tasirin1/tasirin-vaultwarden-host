@@ -1466,12 +1466,12 @@ public final class Updater {
 
         if (!asap.isEmpty()) {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(ServerService.KEY_UPDATE_VERSION, asap).apply();
+                    .edit().putString(ServerService.KEY_UPDATE_VERSION, asap).commit();
         }
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(KEY_BIN_SHA_PIN,
-                            shaTerpasang[0] != null ? shaTerpasang[0] : sha256Hex(out)).apply();
+                            shaTerpasang[0] != null ? shaTerpasang[0] : sha256Hex(out)).commit();
         } catch (Exception ignored) {
         }
         ServerService.binaryVersion = "";
@@ -2095,16 +2095,16 @@ public final class Updater {
         }
         String capWv = versiWvUntukCap(latest, wvFallback);
         if (capWv != null) {
-            sp.edit().putString(KEY_WV_FROM, capWv).apply();
+            sp.edit().putString(KEY_WV_FROM, capWv).commit();
         }
 
         if (expectedSha != null && !expectedSha.isEmpty()) {
-            sp.edit().putString(KEY_WV_SHA, expectedSha).apply();
+            sp.edit().putString(KEY_WV_SHA, expectedSha).commit();
         }
         if (latest != null && !wvFallback) {
-            sp.edit().remove(KEY_WV_FALLBACK_FOR).apply();
+            sp.edit().remove(KEY_WV_FALLBACK_FOR).commit();
         } else if (latest != null && wvFallback) {
-            sp.edit().putString(KEY_WV_FALLBACK_FOR, latest).apply();
+            sp.edit().putString(KEY_WV_FALLBACK_FOR, latest).commit();
         }
         return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER;
     }
