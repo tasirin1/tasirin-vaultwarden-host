@@ -840,16 +840,7 @@ public class MainActivity extends Activity {
     }
 
     private int hitungBaris(CharSequence teks) {
-        if (teks == null || teks.length() == 0) {
-            return 0;
-        }
-        int n = 0;
-        for (int i = 0; i < teks.length(); i++) {
-            if (teks.charAt(i) == '\n') {
-                n++;
-            }
-        }
-        return teks.charAt(teks.length() - 1) == '\n' ? n : n + 1;
+        return LogActivity.hitungBaris(teks);
     }
 
     private CharSequence buangBarisDepan(CharSequence teks, int buang) {
