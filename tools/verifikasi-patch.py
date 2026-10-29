@@ -608,8 +608,24 @@ def berkas_dihapus(rentang):
             return []
         return [x.split(None, 1)[1] for x in out.splitlines()
                 if x.startswith("D")]
-    out = jalan("git", "diff", "--name-status")
-    return [x.split(None, 1)[1] for x in (out or "").splitlines() if x.startswith("D")]
+    hapus = set()
+    for args in (("git", "diff", "--name-status"),
+                 ("git", "diff", "--name-status", "--cached")):
+        out = jalan(*args)
+        for x in (out or "").splitlines():
+            if x.startswith("D"):
+                hapus.add(x.split(None, 1)[1])
+    # Penghapusan yang sudah ter-commit lokal tetapi belum ter-push tak
+    # terlihat diff working-tree/staged (Audit 763): ikut sertakan rentang
+    # commit lokal terhadap upstream (atau origin/main sebagai cadangan).
+    for acuan in ("@{upstream}", "origin/main"):
+        out = jalan("git", "diff", "--name-status", acuan + "..HEAD")
+        if out is not None:
+            for x in out.splitlines():
+                if x.startswith("D"):
+                    hapus.add(x.split(None, 1)[1])
+            break
+    return sorted(hapus)
 
 def disebut_kata(nama, lewat=()):
     pola = re.compile(r"\b%s\b" % re.escape(nama))

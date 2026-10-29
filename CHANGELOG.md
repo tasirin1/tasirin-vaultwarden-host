@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mode lokal kini melihat penghapusan berkas yang sudah ter-commit (Audit 763)
+- `berkas_dihapus` tanpa rentang dulu hanya membaca diff working-tree, jadi berkas Java yang dihapus dalam commit lokal (belum push) tak terlihat oleh `cek_berkas_java_dihapus` di lokal — kelas yang masih menyebutnya lolos gerbang dan baru merah di CI. Kini sumbernya gabungan diff working-tree + staged + rentang commit lokal terhadap `@{upstream}` (cadangan `origin/main`). Terbukti dengan fixture: menghapus `DialogAman.java` dalam commit lokal kini menggagalkan gerbang lokal dengan pesan yang tepat; pohon bersih tetap LOLOS.
+
 ## [Belum rilis] — Build Binary: peringatan "strip tidak mengecilkan" yang selalu menyala dihapus (Audit 762)
 - Langkah cross-compile mengekspor `CARGO_PROFILE_RELEASE_STRIP=true`, jadi binary sudah ter-strip oleh Cargo sebelum `llvm-strip` manual berjalan — ukuran yang tidak mengecil sesudahnya adalah keadaan NORMAL, bukan kerusakan toolchain. Peringatan berbasis perbandingan ukuran dari Audit 752 karena itu menyala di setiap build sehat dan melatih semua orang mengabaikan anotasi workflow. Kegagalan strip sungguhan tetap terlihat dari peringatan cabangnya sendiri (`llvm-strip gagal … build tetap lanjut`), dan baris informasi ukuran sebelum/sesudah dipertahankan.
 
