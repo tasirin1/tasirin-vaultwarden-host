@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Lint: rentang heksadesimal pada pesan kesalahan SHA memakai en dash
+- Peringatan `TypographyDashes`: rentang `0-9` pada string `bin_sha_error` (kedua locale) adalah rentang nilai, jadi tanda pisahnya yang benar secara tipografi adalah en dash `0–9`. Teks tampil berubah sesempit itu saja.
+
 ## [Belum rilis] — Lint: 8 peringatan ApplySharedPref ditandai disengaja (commit penanda daya-tahan)
 - Lint menyarankan `apply()` untuk delapan `commit()` — semuanya penanda yang memang WAJIB tahan mati proses saat itu juga: penanda pasca-swap dan pin binary/web-vault (`Updater`, dari Audit 730) serta penanda restore-berjalan (`TgBackup`, sinyal keselamatan bila proses mati di tengah restore). Menggantinya ke `apply()` akan membatalkan maksud perbaikannya, jadi keempat metode penampungnya kini memakai `@SuppressLint("ApplySharedPref")` — pola yang sama yang sudah dipakai pembuatan rahasia alarm. Perilaku tidak berubah sama sekali; peringatan hilang karena keputusannya kini tercatat di kode.
 
