@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 727: blok kembar penghapusan pesan ber-PIN di pollOnce disatukan jadi satu helper
+- Jalur jam-mundur dan jalur pesan-basi di `pollOnce` menjalankan urutan yang sama persis (±25 baris, hanya beda nama variabel): ambil pending bersyarat, nilai `pinBasiPerluHapus`, hapus pesan perintah, peringatkan bila gagal. Ini logika keamanan (penghapusan pesan berisi PIN), sehingga duplikasinya berisiko: pengetatan kelak harus diterapkan dua kali dan satu jalur bisa tertinggal. Urutan itu kini hidup di satu helper `hapusBilaPinBasi`; kedua jalur tinggal memanggilnya dengan teks/id pesannya masing-masing. Perilaku per jalur tidak berubah.
+
 ## [Belum rilis] — Audit 726: tiga salinan blok "tandai backup tertunda" kini memakai helper yang sudah ada
 - `AlarmReceiver` menandai backup tertunda dengan blok try/commit yang ditulis ulang di tiga tempat, padahal helper `tandaiBackupTertunda` untuk persis itu sudah ada di berkas yang sama (dan dipakai jalur keempat). Ketiga salinan kini memanggil helper-nya — perilaku identik (commit sinkron, pengecualian ditelan), dan cara menandai kini hidup di satu tempat sehingga tak bisa menyimpang diam-diam di sebagian jalur.
 

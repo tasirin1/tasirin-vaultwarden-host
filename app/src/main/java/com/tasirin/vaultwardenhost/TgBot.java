@@ -515,26 +515,8 @@ public final class TgBot {
                                     String teksMundur = msg.optString("text", "")
                                             .trim();
                                     int idPesanMundur = msg.optInt("message_id", 0);
-                                    if (idPesanMundur != 0
-                                            && pinPerangkatAktif(ctx)) {
-                                        boolean adaPending = false;
-                                        boolean pendingBasi = false;
-                                        if (!teksMundur.isEmpty()
-                                                && !teksMundur.startsWith("/")) {
-                                            AksiPending pb = ambilPending(ctx,
-                                                    idRuang, kiniPoll);
-                                            adaPending = !pb.cmd.isEmpty();
-                                            pendingBasi = pb.kedaluwarsa;
-                                        }
-                                        if (pinBasiPerluHapus(teksMundur, adaPending,
-                                                pendingBasi)) {
-                                            boolean terhapus =
-                                                    hapusPesanPerintah(ctx,
-                                                            idRuang, idPesanMundur);
-                                            peringatkanBilaTakBisaHapus(ctx,
-                                                    terhapus, idRuang);
-                                        }
-                                    }
+                                    hapusBilaPinBasi(ctx, idRuang, teksMundur,
+                                            idPesanMundur, kiniPoll);
                                     continue;
                                 } else {
                                     catatWall(kiniPoll);
@@ -545,26 +527,8 @@ public final class TgBot {
                                     String teksBasi = msg.optString("text", "")
                                             .trim();
                                     int idPesanBasi = msg.optInt("message_id", 0);
-                                    if (idPesanBasi != 0
-                                            && pinPerangkatAktif(ctx)) {
-                                        boolean adaPending = false;
-                                        boolean pendingBasi = false;
-                                        if (!teksBasi.isEmpty()
-                                                && !teksBasi.startsWith("/")) {
-                                            AksiPending pb = ambilPending(ctx,
-                                                    idRuang, kiniPoll);
-                                            adaPending = !pb.cmd.isEmpty();
-                                            pendingBasi = pb.kedaluwarsa;
-                                        }
-                                        if (pinBasiPerluHapus(teksBasi, adaPending,
-                                                pendingBasi)) {
-                                            boolean terhapus =
-                                                    hapusPesanPerintah(ctx,
-                                                            idRuang, idPesanBasi);
-                                            peringatkanBilaTakBisaHapus(ctx,
-                                                    terhapus, idRuang);
-                                        }
-                                    }
+                                    hapusBilaPinBasi(ctx, idRuang, teksBasi,
+                                            idPesanBasi, kiniPoll);
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();
@@ -1384,6 +1348,24 @@ public final class TgBot {
             return null;
         }
         return pinTebakanArgumen(ambilArgumen(text));
+    }
+
+    private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
+            int idPesan, long kiniPoll) {
+        if (idPesan == 0 || !pinPerangkatAktif(ctx)) {
+            return;
+        }
+        boolean adaPending = false;
+        boolean pendingBasi = false;
+        if (!teks.isEmpty() && !teks.startsWith("/")) {
+            AksiPending pb = ambilPending(ctx, idRuang, kiniPoll);
+            adaPending = !pb.cmd.isEmpty();
+            pendingBasi = pb.kedaluwarsa;
+        }
+        if (pinBasiPerluHapus(teks, adaPending, pendingBasi)) {
+            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+        }
     }
 
     static boolean pinBasiPerluHapus(String teks, boolean adaPending,
