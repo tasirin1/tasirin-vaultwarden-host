@@ -652,8 +652,14 @@ public final class Updater {
     }
 
     static void catatZipGagal(File penanda, File zip) {
+        catatZipGagal(penanda, zip, null);
+    }
+
+    static void catatZipGagal(File penanda, File zip, String sidikDiketahui) {
+        String sidik = sidikDiketahui != null && !sidikDiketahui.isEmpty()
+                ? sidikDiketahui : sidikBerkas(zip);
         try (FileOutputStream fos = new FileOutputStream(penanda)) {
-            fos.write(sidikBerkas(zip).getBytes(StandardCharsets.UTF_8));
+            fos.write(sidik.getBytes(StandardCharsets.UTF_8));
             fos.flush();
             try {
                 fos.getFD().sync();
@@ -664,6 +670,10 @@ public final class Updater {
     }
 
     static boolean zipSudahGagal(File penanda, File zip) {
+        return zipSudahGagal(penanda, zip, null);
+    }
+
+    static boolean zipSudahGagal(File penanda, File zip, String sidikDiketahui) {
         if (penanda == null || !penanda.isFile() || zip == null || !zip.isFile()) {
             return false;
         }
@@ -674,7 +684,9 @@ public final class Updater {
                 return false;
             }
             String isi = new String(buf, 0, n, StandardCharsets.UTF_8).trim();
-            return !isi.isEmpty() && isi.equals(sidikBerkas(zip));
+            String sidik = sidikDiketahui != null && !sidikDiketahui.isEmpty()
+                    ? sidikDiketahui : sidikBerkas(zip);
+            return !isi.isEmpty() && isi.equals(sidik);
         } catch (Exception ignored) {
             return false;
         }
@@ -1926,7 +1938,7 @@ public final class Updater {
         String expectedSha = shaDapat[0];
 
         File penandaGagal = new File(dataFolder, tmpZip.getName() + ".gagal");
-        if (zipSudahGagal(penandaGagal, tmpZip)) {
+        if (zipSudahGagal(penandaGagal, tmpZip, expectedSha)) {
             throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                     + " atau kosong - versi lama dipertahankan."
                     + " (zip yang sama sudah gagal pada percobaan sebelumnya)");
@@ -2040,7 +2052,7 @@ public final class Updater {
             }
             syncDirAman(newDir);
             if (!wvPayloadAda(newDir)) {
-                catatZipGagal(penandaGagal, tmpZip);
+                catatZipGagal(penandaGagal, tmpZip, expectedSha);
                 lepasStagingAktif(newDir);
                 deleteRecursive(newDir);
                 throw new IOException("Web vault updated tapi index.html tidak ditemukan"

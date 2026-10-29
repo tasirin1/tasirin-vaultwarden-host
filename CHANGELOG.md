@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 732: penanda zip web-vault gagal tidak lagi meng-hash ulang seluruh zip
+- `zipSudahGagal` dan `catatZipGagal` sama-sama membaca + meng-hash seluruh zip web-vault (puluhan MB) untuk mendapatkan sidiknya, padahal pada alur pemasangan zip itu baru saja diunduh dan digest-nya sudah dibuktikan sama dengan `.sha256` rilis (`expectedSha`). Kedua fungsi kini menerima sidik yang sudah diketahui itu dan melewatkan pembacaan ulang; isi penanda tidak berubah (tetap hex SHA-256 zip yang sama, jadi penanda lama tetap terbaca). Varian tanpa sidik tetap ada untuk pemanggil yang tidak memegang digest.
+
 ## [Belum rilis] — Audit 731: dua overload mati di Updater dihapus
 - `downloadBinary(Context, File)` (tanpa pemanggil eksternal — produksi memakai varian `CekBatal`) dan `salinSambilHash` 5-arg (jalur produksi memakai varian 6-arg) dihapus. Keduanya murni permukaan mati yang menyesatkan pembaca jalur unduh. Nama metodenya tidak masuk `tools/bekas-hapusan.txt` karena nama yang sama masih terdefinisi oleh varian yang hidup (pengecualian aturan #15).
 
