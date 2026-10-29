@@ -1167,6 +1167,11 @@ def nama_terdeklarasi(path):
                 metode = nama_metode_dideklarasikan(gabungan)
                 if metode:
                     nama.add(metode)
+                if i + 2 < len(daftar):
+                    gabungan3 = gabungan + " " + daftar[i + 2].strip()
+                    metode = nama_metode_dideklarasikan(gabungan3)
+                    if metode:
+                        nama.add(metode)
         _CACHE_DEKLARASI[path] = nama
     return _CACHE_DEKLARASI[path]
 

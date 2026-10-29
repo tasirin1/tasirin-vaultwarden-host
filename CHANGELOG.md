@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 739: deteksi deklarasi gerbang kini juga membaca deklarasi yang dibungkus tiga baris
+- `nama_terdeklarasi` di `tools/verifikasi-patch.py` hanya mencoba baris tunggal dan gabungan dua baris berurutan, sehingga deklarasi metode yang dibungkus tiga baris (tanda tangan panjang) tidak terdeteksi sebagai terdefinisi — `masih_didefinisikan` bisa false-negatif dan gerbang daftar-hapusan/acuan berpotensi menolak push yang sah begitu ada deklarasi seperti itu. Gabungan tiga baris kini dicoba juga. Belum pernah terjadi di HEAD (gaya repo ≤2 baris); ini menutup kerapuhan laten sebelum ada yang menabraknya.
+
 ## [Belum rilis] — Audit 738: gerbang verifikasi kini meng-cache hasil kupas_java (lari penuh ±27% lebih cepat)
 - `tools/verifikasi-patch.py` mengupas korpus yang sama berulang kali tanpa cache: fungsi murni `kupas_java` terpanggil ±35 ribu kali per lari penuh (terukur cProfile), sebagian besar atas baris-baris pendek yang sama persis (`}`, baris kosong, pola deklarasi) dan atas isi berkas utuh yang sama dari beberapa pemeriksaan berbeda. Hasil kupas kini di-memo per isi masukan dalam satu proses (dibersihkan berkala agar memori terbatas) — keluaran setiap pemeriksaan identik, hanya tidak dihitung ulang. Terukur lokal: lari `--semua` turun dari ±6,7 detik menjadi ±4,9 detik, hasil tetap LOLOS atas 164 berkas.
 
