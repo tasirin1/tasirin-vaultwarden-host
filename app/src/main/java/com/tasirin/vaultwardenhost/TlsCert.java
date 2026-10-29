@@ -1266,7 +1266,9 @@ public final class TlsCert {
                     CA_CERT_FILE + ".baru", CA_KEY_FILE + ".baru",
                     LEAF_CERT_FILE + ".baru", LEAF_KEY_FILE + ".baru",
                     CA_CERT_FILE + ".cad", CA_KEY_FILE + ".cad",
-                    LEAF_CERT_FILE + ".cad", LEAF_KEY_FILE + ".cad"}) {
+                    LEAF_CERT_FILE + ".cad", LEAF_KEY_FILE + ".cad",
+                    CA_CERT_FILE + ".rusak", CA_KEY_FILE + ".rusak",
+                    LEAF_CERT_FILE + ".rusak", LEAF_KEY_FILE + ".rusak"}) {
                 try {
                     File f = new File(tlsDir, nama);
                     if (f.isFile() && f.delete()) {

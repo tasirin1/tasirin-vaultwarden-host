@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — TlsCert: resetTls kini ikut menghapus varian .rusak (Audit 760)
+- `pulihkanTukarTersisa` menyisihkan pasangan tak-cocok sebagai `<nama>.rusak` (termasuk kunci privat CA `ca-key.pem.rusak`); jalur normal dan rollback memang mengonsumsinya kembali, tetapi proses yang mati di tengah pemulihan meninggalkannya permanen — dan daftar hapus `resetTls` hanya memuat varian `.baru`/`.cad`, jadi kunci privat sisa itu selamat dari reset TLS eksplisit yang user kira tuntas. Daftar kini memuat keempat varian `.rusak` (CA + leaf), dikunci uji `resetTls_hapusVarianRusak`.
+
 ## [Belum rilis] — ServerService: restartTunda digabung ke startTunda (Audit 759)
 - Sejak perbaikan #501 kedua Runnable itu berbadan identik kata per kata dan selalu dibatalkan berpasangan di semua situs — satu perilaku yang menyamar sebagai dua, berisiko divergensi diam-diam bila suatu hari hanya satu badan yang diedit. Kini tinggal satu Runnable `startTunda` untuk tunda-start kunci-data maupun backoff crash; `scheduleRestartTerkunci` mempostingnya dengan jeda backoff seperti sebelumnya, dan nama `restartTunda` dicatat di `tools/bekas-hapusan.txt`. Semantik tidak berubah: tiap posting tetap didahului pembatalan yang sama.
 

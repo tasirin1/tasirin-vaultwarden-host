@@ -403,6 +403,18 @@ public class TlsCertTest {
     }
 
     @Test
+    public void resetTls_hapusVarianRusak() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsresetrusak");
+        for (String n : new String[]{"ca.pem.rusak", "ca-key.pem.rusak",
+                "cert.pem.rusak", "key.pem.rusak"}) {
+            Files.write(new File(dir.toFile(), n).toPath(),
+                    "x".getBytes(StandardCharsets.UTF_8));
+        }
+        assertEquals(4, TlsCert.resetTls(dir.toFile()));
+        assertEquals(0, TlsCert.resetTls(dir.toFile()));
+    }
+
+    @Test
     public void resetTls_hapusSisaVersionBaru() throws Exception {
 
         File dir = Files.createTempDirectory("tlsresetbaru").toFile();
