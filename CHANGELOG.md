@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 716: cek update kini berjalan di pool khususnya sendiri, bukan pool latar bersama
+- Sisa Audit 704/706 yang terverifikasi: cek kedua menunggu `KUNCI_CEK` tanpa batas *di dalam* pool `BG_LAMA` yang hanya berisi 2 thread dan dipakai bersama ServerService/TgBackup — saat cek pertama mengunduh binary/web-vault di koneksi menetes (belasan menit), satu thread menunggu dan sisa kolam tinggal satu; antrean penuh mulai menolak tugas latar lain. Cek update kini diserahkan ke pool khusus satu thread (`Util.jalankanCek`, antrean kecil): cek kedua mengantre di kolamnya sendiri dan tetap berjalan sesudah cek pertama dengan penanda segar (semantik Audit 706 utuh), sementara `BG_LAMA` tidak pernah lagi tertahan oleh penantian cek.
+
 ## [Belum rilis] — Audit 715: pengambilan versi terbaru tidak lagi memegang kunci selama fetch HTTP
 - `latestVersion()` menjalankan seluruh fetch (sambung + baca badan, timeout 10+10 detik) di dalam `synchronized (KUNCI_VERSI)`, dan pembaca versi bawaan dari thread UI (`onCreate` kedua activity) masuk monitor yang sama — membuka aplikasi tepat saat cek latar mengambil versi bisa membekukan UI selama sisa fetch. Fetch kini berjalan di luar kunci: kunci hanya menjaga baca/tulis cache dan stempel gagal, dengan semantik yang sama (cache segar dan jeda-gagal diperiksa sebelum fetch, hasil dan stempel disimpan sesudahnya). Dua fetch yang kebetulan berbarengan sama-sama mengambil JSON kecil yang sama dan penulis terakhir menang — tidak ada keadaan yang bisa rusak.
 

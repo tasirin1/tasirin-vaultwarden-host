@@ -209,7 +209,7 @@ public class MainActivity extends Activity {
 
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
 
-        Util.jalankanLama(this::autoUpdateCheck);
+        Util.jalankanCek(this::autoUpdateCheck);
 
         final android.content.Context appPin = getApplicationContext();
         Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));

@@ -900,7 +900,7 @@ public class SettingsActivity extends Activity {
         }
         ui.post(refreshLoop);
 
-        Util.jalankanLama(this::autoUpdateCheck);
+        Util.jalankanCek(this::autoUpdateCheck);
 
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
 
