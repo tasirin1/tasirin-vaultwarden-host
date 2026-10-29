@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 754: uji catatLog kini benar-benar membuktikan jalur null adalah no-op
+- Asertsi kedua `catatLogNaikkanVersi` membandingkan ke baseline *sebelum* panggilan pertama, jadi ia lulus murni berkat panggilan pertama dan tidak membuktikan apa pun tentang `catatLog(null)` — perilaku produksi yang sebenarnya (null kembali dini tanpa menaikkan versi) tak terkunci, dan regresinya tak akan tertangkap. Uji kini menangkap versi di antara dua panggilan dan mengasertikan null tidak mengubahnya.
+
 ## [Belum rilis] — Audit 752: kegagalan strip binary kini terlihat sebagai peringatan berukuran
 - Kedua `llvm-strip ... || true` di `build-binary.yml` menelan kegagalan tanpa jejak: binary/shim tanpa strip bisa terbit diam-diam beberapa kali lebih besar (tak ada cek ukuran maksimum untuk binary, berbeda dengan web-vault dan APK). Strip kini mencatat ukuran sebelum/sesudah dan memunculkan `::warning::` bila strip gagal atau tidak mengecilkan berkas — build tetap tidak digugurkan oleh strip (keputusan lamanya dipertahankan), tetapi kegagalannya tak lagi tak terlihat.
 

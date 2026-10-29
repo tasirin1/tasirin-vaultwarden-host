@@ -189,9 +189,10 @@ public class ServerServiceTest {
     public void catatLogNaikkanVersi() {
         long sebelum = ServerService.logVersion();
         ServerService.catatLog("uji baris");
-        assertTrue(ServerService.logVersion() > sebelum);
+        long sesudahTulis = ServerService.logVersion();
+        assertTrue(sesudahTulis > sebelum);
         ServerService.catatLog(null);
-        assertTrue(ServerService.logVersion() > sebelum);
+        assertEquals(sesudahTulis, ServerService.logVersion());
     }
 
     @Test
