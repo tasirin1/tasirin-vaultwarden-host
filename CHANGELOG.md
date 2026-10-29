@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 742: Util.batalkanTunda kini lewat pintu handlerUtama() seperti postTunda/postUtama
+- `batalkanTunda` sebelumnya membaca field `HANDLER_UTAMA` mentah, satu-satunya dari tiga operasi handler yang tidak lewat pintu `handlerUtama()` (lazy-init + cek looper). Aman hari ini, tetapi rapuh: bila suatu hari handler dibuat ulang lewat pintu itu, pembatalan bisa diam-diam membidik handler yang salah dan tugas tertunda tetap menembak. Kini ketiganya konsisten lewat pintu yang sama; perilaku tanpa looper tidak berubah (tetap mengembalikan false dengan aman, sesuai uji yang menguncinya).
+
 ## [Belum rilis] — Audit 741: overload 6-arg throttleBootMenahan yang hanya dipakai uji dihapus
 - Varian 6-arg `throttleBootMenahan` hanya mendelegasikan ke varian 7-arg dengan hitungan boot 0,0 dan hanya dipanggil oleh uji — produksi selalu memakai varian 7-arg. Overload dihapus; tujuh panggilan uji dialihkan ke varian 7-arg dengan hitungan 0,0 (semantik identik: cabang hitungan hanya berjalan bila kedua hitungan > 0). Nama metode tidak masuk daftar hapusan karena nama yang sama masih terdefinisi oleh varian yang hidup.
 

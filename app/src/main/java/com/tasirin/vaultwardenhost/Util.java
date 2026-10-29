@@ -303,7 +303,7 @@ public final class Util {
         }
         try {
 
-            android.os.Handler h = HANDLER_UTAMA;
+            android.os.Handler h = handlerUtama();
             if (h == null) {
                 return false;
             }
