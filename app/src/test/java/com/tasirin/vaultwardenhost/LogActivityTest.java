@@ -57,6 +57,18 @@ public class LogActivityTest {
     }
 
     @Test
+    public void butuhSamaran_pathAbsolutSajaMembukaGerbang() {
+        // Audit 769: samarkanLog meredaksi path tanpa syarat, jadi gerbangnya
+        // wajib mengenal path juga — potongan log berisi path saja (baris
+        // sertifikat/binary saat start) tak boleh lolos mentah.
+        assertTrue(LogActivity.butuhSamaran(
+                "[app] TLS cert: /data/user/0/com.tasirin.vaultwardenhost/files/tls/cert.pem"));
+        assertTrue(LogActivity.butuhSamaran("unduh ke /storage/emulated/0/Download/x"));
+        assertTrue(LogActivity.butuhSamaran("di /mnt/sdcard/cadangan"));
+        assertFalse(LogActivity.butuhSamaran("path relatif files/tls/cert.pem biasa"));
+    }
+
+    @Test
     public void gerbangSamaranSekaliJalan() {
         assertTrue(LogActivity.butuhSamaran("gagal kirim TOKEN=abc"));
         assertTrue(LogActivity.butuhSamaran("api.telegram.org/bot123:ABC lanjut"));

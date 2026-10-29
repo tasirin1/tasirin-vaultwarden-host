@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang redaksi log kini mengenal path absolut (Audit 769)
+- `samarkanLog` selalu menyamarkan path absolut menjadi `[path]` (maksud Audit 601), tetapi gerbang `butuhSamaran` yang memutuskan apakah redaksi perlu jalan sama sekali tidak mengenal path — potongan log yang isinya hanya baris ber-path (mis. baris `TLS cert: /data/…` saat server start) tampil mentah di log beranda dan ikut mentah saat dibagikan/disalin/dikirim bot. Gerbang kini ikut membuka bila ada path absolut, dan uji baru mengunci kasus path-saja.
+
 ## [Belum rilis] — resetTls kini fsync direktori sesudah penghapusan (Audit 768)
 - `TlsCert.resetTls` adalah satu-satunya pengubah folder tls yang tidak menutup dengan fsync direktori (jalur lain — `writeVersion`, tukar pasangan, pemulihan tukar — semuanya fsync). Bila STB mati listrik segera sesudah bot melaporkan reset berhasil, penghapusan sampai 20 berkas itu bisa batal diam-diam: CA lama bangkit lagi dan tetap berlaku pada Start berikutnya, tanpa penanda. Kini sesudah ada berkas yang terhapus, `resetTls` memanggil `fsyncDirektori` seperti mutator lainnya.
 
