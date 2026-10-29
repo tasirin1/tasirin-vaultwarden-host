@@ -3438,9 +3438,9 @@ public class SettingsActivity extends Activity {
         perbaruiStatusIsian();
         final String target = (versi == null || versi.isEmpty()) ? null : versi;
         final String pinLamaFinal = pinLama == null ? "" : pinLama;
-        if (untukBinary) {
-            runBusy(() -> {
-                try {
+        runBusy(() -> {
+            try {
+                if (untukBinary) {
                     appendUiLog("[app] Memasang binary v"
                             + (target == null ? "terbaru" : target) + "...");
                     if (KernelCompat.legacyPerangkat()) {
@@ -3458,44 +3458,36 @@ public class SettingsActivity extends Activity {
                     appendUiLog("[app] " + msg);
                     toast(Updater.binaryBerubah(msg)
                             ? msg + " Press Start to use it." : msg);
-                } catch (Exception e) {
-                    if (target != null) {
-                        if (untukBinary) {
-                            Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
-                        } else {
-                            Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
-                        }
-                        segarkanLabelVersi();
-                        perbaruiStatusIsian();
-                    }
-                    toast(getString(R.string.biner_pasang_gagal, String.valueOf(e.getMessage())));
-                    appendUiLog("[app] Failed to install binary: " + e);
-                }
-            });
-        } else {
-            runBusy(() -> {
-                try {
+                } else {
                     appendUiLog("[app] Mengunduh web-vault v"
                             + (target == null ? "terbaru" : target) + "...");
                     String msg = Updater.updateWebVaultVersi(this, target);
                     toast(msg);
                     appendUiLog("[app] " + msg);
                     lastWvCheck = 0;
-                } catch (Exception e) {
-                    if (target != null) {
-                        if (untukBinary) {
-                            Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
-                        } else {
-                            Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
-                        }
-                        segarkanLabelVersi();
-                        perbaruiStatusIsian();
-                    }
-                    toast(getString(R.string.wv_update_gagal, String.valueOf(e.getMessage())));
-                    appendUiLog("[app] Web-vault update failed: " + e);
                 }
-            });
-        }
+            } catch (Exception e) {
+                if (target != null) {
+                    // Audit 798: rollback pin ditulis SATU kali di sini —
+                    // sebelumnya terduplikasi verbatim di dua catch, dan
+                    // salinan cabang web-vault memuat lengan untukBinary
+                    // yang tak pernah bisa hidup.
+                    if (untukBinary) {
+                        Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
+                    } else {
+                        Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
+                    }
+                    segarkanLabelVersi();
+                    perbaruiStatusIsian();
+                }
+                toast(getString(untukBinary
+                        ? R.string.biner_pasang_gagal : R.string.wv_update_gagal,
+                        String.valueOf(e.getMessage())));
+                appendUiLog(untukBinary
+                        ? "[app] Failed to install binary: " + e
+                        : "[app] Web-vault update failed: " + e);
+            }
+        });
     }
 
     private void revertToBundled() {

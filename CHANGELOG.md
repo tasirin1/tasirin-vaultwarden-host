@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Blok rollback pasang versi disatukan (Audit 798)
+- `pasangVersiDipilih` sebelumnya menjalankan dua blok sibuk yang hampir sama dengan blok rollback pin terduplikasi verbatim di kedua catch-nya — dan salinan cabang web-vault memuat lengan kondisi yang tak pernah bisa hidup. Kini satu blok sibuk bersama dengan rollback yang ditulis satu kali; perilaku sukses dan gagal kedua jalur tidak berubah.
+
 ## [Belum rilis] — Label pin Settings disegarkan setiap kali halaman dibuka kembali (Audit 797)
 - Pin versi yang diganti atau dilepas dari bot Telegram selagi Settings berada di latar sebelumnya tampil basi pada tombol versi sampai activity dibuat ulang. `onResume` kini menyegarkan label pin, jadi yang tampil selalu pin yang benar-benar aktif.
 
