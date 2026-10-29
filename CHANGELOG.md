@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan kirim backup by-id kini tercatat di log (Audit 795)
+- Bila pengiriman ulang backup lewat `file_id` gagal dan jalur jatuh kembali ke unggahan penuh, kegagalannya kini ditulis ke log aplikasi beserta tujuannya — sebelumnya catch-nya menelan galat tanpa jejak, sehingga kemunduran jalur cepat (mis. `file_id` mulai ditolak) tak akan pernah terlihat penyebabnya.
+
 ## [Belum rilis] — Keputusan pin prerelease tak lagi menilai beta sama dengan stabil (Audit 794)
 - Perbandingan versi umum memang sengaja buta sufiks, tetapi situs keputusan pin memakainya untuk menyimpulkan "sudah versi pilihan/terpasang": pin `1.37.3-beta` dinyatakan terpenuhi oleh binary `1.37.3` stabil dan bahkan dicatat sebagai versi terpasang, sementara jalur start menilai pin yang sama secara ketat dan menolaknya. Klaim kesetaraan di situs-situs keputusan itu (lewati unduh, update web-vault terkunci, penanda fallback, pencatatan AutoUpdate) kini memakai kesetaraan ketat sufiks `versiSamaPersis` — pin prerelease mengalir ke percobaan unduh dan gagal secara jujur dengan petunjuk versi stabil, sama seperti penilaian jalur start.
 

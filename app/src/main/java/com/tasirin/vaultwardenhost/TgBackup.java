@@ -657,6 +657,12 @@ public final class TgBackup {
                         resp = kirimDokumenById(ctx, token, tujuan.get(ci),
                                 fileIdDikenal);
                     } catch (Exception eById) {
+                        // Audit 795: kegagalan jalur cepat jangan ditelan
+                        // diam-diam — catat agar penyebabnya terlihat di log
+                        // (hasil akhir tetap unggahan penuh di bawah).
+                        ServerService.catatLog("[tg] Kirim by-id gagal ke "
+                                + tujuan.get(ci) + " (" + eById.getMessage()
+                                + ") - coba unggah penuh.");
                         resp = null;
                     }
                 }
