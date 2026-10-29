@@ -913,6 +913,9 @@ public class SettingsActivity extends Activity {
         sapuCacheLatar();
         refreshActive = true;
         paksaCacheUbah = true;
+        // Audit 797: pin bisa diganti/dilepas dari bot selagi Settings di
+        // latar — segarkan label tombol versi agar tak tampil basi.
+        segarkanLabelVersi();
         maybeShowPinLock();
         ui.removeCallbacks(refreshLoop);
         ui.post(refreshLoop);

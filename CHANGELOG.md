@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Label pin Settings disegarkan setiap kali halaman dibuka kembali (Audit 797)
+- Pin versi yang diganti atau dilepas dari bot Telegram selagi Settings berada di latar sebelumnya tampil basi pada tombol versi sampai activity dibuat ulang. `onResume` kini menyegarkan label pin, jadi yang tampil selalu pin yang benar-benar aktif.
+
 ## [Belum rilis] — Kegagalan memuat daftar versi kini terlihat oleh pemilik (Audit 796)
 - `daftarVersiTersedia` sebelumnya menelan semua kegagalan dan mengembalikan daftar kosong, sehingga dialog pemilih versi saat offline tampil seolah repo hanya punya versi terbaru — toast peringatan yang memang disiapkan untuk keadaan itu tak pernah terpicu. Fungsi itu kini mengembalikan null bila muatan gagal (non-200, galat jaringan, atau badan tak terbaca), dan dialog menampilkan peringatan itu sambil tetap membuka pilihan Terbaru, pin aktif, dan isi manual.
 
