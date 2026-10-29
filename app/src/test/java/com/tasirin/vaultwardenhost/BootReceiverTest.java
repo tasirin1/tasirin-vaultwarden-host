@@ -19,17 +19,17 @@ public class BootReceiverTest {
     @Test
     public void throttleBootMenahan_duplikatBootSamaDitahan() {
         assertTrue(BootReceiver.throttleBootMenahan(
-                70_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+                70_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS, 0, 0));
     }
 
     @Test
     public void throttleBootMenahan_bootBerbedaDilepasWalauElapsedDekat() {
         assertFalse(BootReceiver.throttleBootMenahan(
                 70_000, 45_000, 1_000_000 + 259_200_000L, 1_000_000,
-                BootReceiver.THROTTLE_BOOT_MS));
+                BootReceiver.THROTTLE_BOOT_MS, 0, 0));
         assertFalse(BootReceiver.throttleBootMenahan(
                 70_000, 45_000, 1_000_000 + 7_200_000L, 1_000_000,
-                BootReceiver.THROTTLE_BOOT_MS));
+                BootReceiver.THROTTLE_BOOT_MS, 0, 0));
     }
 
     @Test
@@ -52,13 +52,13 @@ public class BootReceiverTest {
     @Test
     public void throttleBootMenahan_kasusBatasLainDilepas() {
         assertFalse(BootReceiver.throttleBootMenahan(
-                70_000, 0, 1_025_000, 0, BootReceiver.THROTTLE_BOOT_MS));
+                70_000, 0, 1_025_000, 0, BootReceiver.THROTTLE_BOOT_MS, 0, 0));
         assertFalse(BootReceiver.throttleBootMenahan(
-                30_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+                30_000, 45_000, 1_025_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS, 0, 0));
         assertFalse(BootReceiver.throttleBootMenahan(
-                120_000, 45_000, 1_075_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+                120_000, 45_000, 1_075_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS, 0, 0));
         assertFalse(BootReceiver.throttleBootMenahan(
-                70_000, 45_000, 900_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS));
+                70_000, 45_000, 900_000, 1_000_000, BootReceiver.THROTTLE_BOOT_MS, 0, 0));
     }
 
     @Test

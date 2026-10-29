@@ -18,12 +18,6 @@ public class BootReceiver extends BroadcastReceiver {
     private static volatile long terakhirBootCount = 0;
 
     static boolean throttleBootMenahan(long kiniElapsed, long terakhirElapsed,
-                                       long kiniWall, long terakhirWall, long jeda) {
-        return throttleBootMenahan(kiniElapsed, terakhirElapsed,
-                kiniWall, terakhirWall, jeda, 0, 0);
-    }
-
-    static boolean throttleBootMenahan(long kiniElapsed, long terakhirElapsed,
                                        long kiniWall, long terakhirWall, long jeda,
                                        long kiniCount, long terakhirCount) {
         if (kiniCount > 0 && terakhirCount > 0) {

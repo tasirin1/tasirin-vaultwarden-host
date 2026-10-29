@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 741: overload 6-arg throttleBootMenahan yang hanya dipakai uji dihapus
+- Varian 6-arg `throttleBootMenahan` hanya mendelegasikan ke varian 7-arg dengan hitungan boot 0,0 dan hanya dipanggil oleh uji — produksi selalu memakai varian 7-arg. Overload dihapus; tujuh panggilan uji dialihkan ke varian 7-arg dengan hitungan 0,0 (semantik identik: cabang hitungan hanya berjalan bila kedua hitungan > 0). Nama metode tidak masuk daftar hapusan karena nama yang sama masih terdefinisi oleh varian yang hidup.
+
 ## [Belum rilis] — Audit 740: parameter mati diff_biasa di gerbang verifikasi dihapus
 - `berkas_dihapus(rentang, diff_biasa)` di `tools/verifikasi-patch.py` menerima parameter kedua yang tidak pernah dipakai di badan fungsi (sisa refactor). Parameter dan argumen di satu-satunya pemanggil dihapus — perilaku gerbang tidak berubah.
 
