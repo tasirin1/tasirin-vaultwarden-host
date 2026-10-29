@@ -163,7 +163,7 @@ public final class TlsCert {
 
     private static final Object KUNCI_ENSURE = new Object();
 
-    public static File ensure(File dir, List<String> ips,
+    public static File ensure(File dir, List<String> ips, List<String> dns,
             boolean paksaLeaf) {
 
         if (diUiThread()) {
@@ -245,7 +245,7 @@ public final class TlsCert {
             File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
             certBaru.delete();
             keyBaru.delete();
-            if (!buatLeaf(caKey, certBaru, keyBaru, ips)) {
+            if (!buatLeaf(caKey, certBaru, keyBaru, ips, dns)) {
                 certBaru.delete();
                 keyBaru.delete();
                 return null;
@@ -501,7 +501,7 @@ public final class TlsCert {
 
 
     private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
-            List<String> ips) {
+            List<String> ips, List<String> dns) {
         try {
             PrivateKey caPriv = bacaPrivateKey(caKeyFile);
             if (caPriv == null) {
@@ -509,7 +509,7 @@ public final class TlsCert {
             }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips), 397);
+                    extensionsBlock(ips, dns), 397);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
@@ -700,7 +700,8 @@ public final class TlsCert {
         return der(b -> b.raw(extensions), 0xA3);
     }
 
-    private static byte[] extensionsBlock(List<String> ips) throws Exception {
+    private static byte[] extensionsBlock(List<String> ips, List<String> dns)
+            throws Exception {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -710,6 +711,18 @@ public final class TlsCert {
                 if (octets != null) {
                     b.raw(new byte[]{(byte) 0x87, (byte) octets.length});
                     b.raw(octets);
+                }
+            }
+            if (dns != null) {
+                for (String nama : dns) {
+                    byte[] nb = nama.getBytes(StandardCharsets.US_ASCII);
+                    b.raw(new byte[]{(byte) 0x82});
+                    if (nb.length < 128) {
+                        b.raw(new byte[]{(byte) nb.length});
+                    } else {
+                        b.raw(new byte[]{(byte) 0x81, (byte) nb.length});
+                    }
+                    b.raw(nb);
                 }
             }
             b.raw(new byte[]{(byte) 0x82, 9});
