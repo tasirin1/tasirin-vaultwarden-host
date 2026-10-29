@@ -332,6 +332,7 @@ public class ServerService extends Service {
         runningWvFrom = "";
         runningLanHost = "";
         ipBerubahDiperingatkan = "";
+        ipMatiDiperingatkan = false;
         ipBaruKandidat = "";
         ipBaruHitung = 0;
         ipRestartDiminta = "";
@@ -2033,6 +2034,7 @@ public class ServerService extends Service {
         runningWvFrom = wvFrom == null ? "" : wvFrom;
         runningLanHost = sesi.hostSegar;
         ipBerubahDiperingatkan = "";
+        ipMatiDiperingatkan = false;
         ipBaruKandidat = "";
         ipBaruHitung = 0;
         ipRestartDiminta = "";

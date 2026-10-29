@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 705: penanda jaringan-mati kini ikut direset bersama penanda IP lain
+- Penanda `ipMatiDiperingatkan` (Audit 697) tertinggal dari kedua titik reset sesi yang mereset kelima penanda IP lainnya: satu-satunya resetnya hanya terjangkau lewat IP non-loopback yang berbeda, sehingga sesudah pulih dengan IP yang sama, episode jaringan mati berikutnya dalam proses yang sama tidak lagi dicatat — mengaburkan diagnosis. Penanda kini direset di `resetPenandaJalan` dan di penyiapan sesi `jalankanProses`, sejajar dengan saudara-saudaranya; catatan satu-kali-per-episode kembali berlaku per sesi server.
+
 ## [Belum rilis] — Audit 704: cek update kini terserialkan antar-instance
 - MainActivity dan SettingsActivity sama-sama menjalankan `AutoUpdate.cek` dari `onCreate` di pool latar yang sama, dan penanda tawarannya berpola baca-periksa-tulis tanpa serialisasi: membuka Settings sekejap sesudah layar utama (saat cek pertama masih menunggu jaringan) membuat kedua cek mengumumkan versi yang sama dua kali — toast ganda, dan berpotensi notifikasi + pesan Telegram ganda. `cek` kini berpagar CAS statis: cek kedua yang datang saat satu cek berjalan dilewati dengan catatan log (cek yang berjalan mencakup tanah yang sama), dan pagar dilepas di `finally`.
 
