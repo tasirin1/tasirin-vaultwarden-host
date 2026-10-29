@@ -31,6 +31,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), cek-wajib.yml (gerbang untuk semua PR), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
+├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
 ├── scripts/cek-cepat.sh                 # Cek cepat pra-push (vektor 0.x, ID land, README, secret)
@@ -248,6 +249,10 @@ sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
    (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
    resource, locale tanpa Locale, cakupan uji, acuan metode di `AGENTS.md`).
 2. `bash scripts/cek-cepat.sh` (vektor `0.x`, ID land, README, pola rahasia).
+3. `python3 tools/uji-verifikasi.py` (uji-diri gerbang pada salinan buang:
+   fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan
+   `--semua <jalur>`, kedua `strings.xml` kosong — hanya di `cek-wajib.yml`
+   dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`).
 
 Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
 dengan file+baris) sehingga bug/kode sampah/celah keamanan terlihat di tab
