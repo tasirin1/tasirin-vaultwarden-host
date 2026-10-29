@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 750: checkout gitleaks kini tanpa kredensial tersimpan
+- `gitleaks.yml` adalah satu-satunya checkout di repo yang belum memakai `persist-credentials: false` — token workflow tertinggal di `.git/config` lokal selama job yang menjalankan action pihak ketiga. Kini diselaraskan dengan semua checkout lain (pola yang sama pernah diterapkan untuk CodeQL); `fetch-depth: 0` yang dibutuhkan pemindaian riwayat penuh tetap dipertahankan.
+
 ## [Belum rilis] — Audit 749: penolakan tugas bangun log kini ikut me-reset stempel throttle pencarian
 - Sisa Audit 718: stempel throttle bangun-ulang pencarian dicatat saat tugas dikirim, tetapi bila pool latar menolak tugas itu, hanya kunci konten dan gerbang single-flight yang direset — stempelnya tertinggal, sehingga bangun-ulang kueri yang sama tertahan sampai sisa jendela 4,5 detik habis. Blok penolakan kini me-reset kedua stempel juga, jadi tik berikutnya (±1,5 detik) langsung membangun tampilan cari yang benar.
 
