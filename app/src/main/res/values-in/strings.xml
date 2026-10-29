@@ -37,6 +37,10 @@
     <string name="default_data_dir">/sdcard/vaultwarden</string>
     <string name="port">Port</string>
     <string name="default_port">8088</string>
+    <string name="domain_kustom">Domain kustom (opsional)</string>
+    <string name="domain_kustom_hint">mis. vault.contoh.com</string>
+    <string name="domain_kustom_info">Nama tetap untuk server ini, agar perangkat tidak perlu login ulang saat router memberi IP baru ke box. Nama ini harus bisa diterjemahkan ke box ini di jaringanmu (entri DNS router, berkas hosts, atau A record DNS yang menunjuk IP LAN). Kosongkan untuk memakai alamat IP.</string>
+    <string name="domain_error">Nama domain tidak valid. Hanya huruf, angka, titik, dan tanda hubung — bukan alamat IP.</string>
     <string name="settings_changed_hint">⚠ Setting diubah — restart server agar berlaku</string>
     <string name="update_available_hint">⚠ Update tersedia — tekan Cek Update</string>
     <string name="update_available">⚠ Update v%1$s tersedia — tekan Cek Update</string>

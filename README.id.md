@@ -15,6 +15,8 @@ Server **Vaultwarden** (kompatibel Bitwarden) di Android — buat STB/TV box dan
 3. Tekan **Start** (unduhan pertama otomatis, ada progress).
 4. Buka `https://<IP-HP>:<port>` di browser / app Bitwarden (Server URL).
 
+**IP box berubah tiap router reset?** Isi **Settings → Domain kustom** dengan nama tetap (mis. `vault.contoh.com`) yang bisa diterjemahkan ke box ini di jaringanmu (entri DNS router, berkas hosts, atau A record DNS ke IP LAN), lalu pakai `https://<nama>:<port>` sebagai Server URL — alamatnya tidak berubah walau IP berganti, jadi perangkat tidak perlu login ulang.
+
 Semua pengaturan ada di **Settings**; layar utama cuma status, Start/Stop, dan log.
 
 ## Tanpa internet

@@ -118,7 +118,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   `bin_patch_rev` (revisi patch binary; paksa unduh ulang bila CI perbaiki
   binary tanpa ganti versi Vaultwarden),
   `bin_pin_version`/`wv_pin_version` (kuncian versi binary/web-vault pilihan
-  user; kosong = ikuti terbaru; ikut export/import config).
+  user; kosong = ikuti terbaru; ikut export/import config),
+  `custom_domain` (domain kustom alamat server; kosong = ikuti IP LAN;
+  menjadi `DOMAIN` + DNS SAN sertifikat bila diisi; ikut export/import config).
 
 ## Aturan pengembangan
 

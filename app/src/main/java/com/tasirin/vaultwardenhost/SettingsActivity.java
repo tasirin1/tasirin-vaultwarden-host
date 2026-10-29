@@ -54,6 +54,7 @@ public class SettingsActivity extends Activity {
 
     private EditText dataDirInput;
     private EditText portInput;
+    private EditText domainInput;
     private EditText adminTokenInput;
     private CheckBox autoStartCheck;
     private CheckBox tgAutoCheck;
@@ -276,8 +277,10 @@ public class SettingsActivity extends Activity {
     private TextView httpsBadge;
     private TextView dataDirError;
     private TextView portError;
+    private TextView domainError;
     private TextView labelDataDir;
     private TextView labelPort;
+    private TextView labelDomain;
     private TextView labelAdmin;
     private ProgressBar unduhBar;
     private android.content.res.ColorStateList warnaLabelBawaan;
@@ -337,6 +340,7 @@ public class SettingsActivity extends Activity {
 
     private String msgFolderSalah = "";
     private String msgPortSalah = "";
+    private String msgDomainSalah = "";
     private String msgAdminSalah = "";
     private String msgTokenSalah = "";
     private String msgChatSalah = "";
@@ -446,6 +450,7 @@ public class SettingsActivity extends Activity {
     private void muatTampilan() {
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
+        domainInput = findViewById(R.id.domainKustom);
         adminTokenInput = findViewById(R.id.adminToken);
         autoStartCheck = findViewById(R.id.autoStart);
         tgTokenInput = findViewById(R.id.tgToken);
@@ -495,8 +500,10 @@ public class SettingsActivity extends Activity {
         httpsBadge = findViewById(R.id.httpsBadge);
         dataDirError = findViewById(R.id.dataDirError);
         portError = findViewById(R.id.portError);
+        domainError = findViewById(R.id.domainError);
         labelDataDir = findViewById(R.id.labelDataDir);
         labelPort = findViewById(R.id.labelPort);
+        labelDomain = findViewById(R.id.labelDomain);
         labelAdmin = findViewById(R.id.labelAdmin);
         unduhBar = findViewById(R.id.unduhBar);
         warnaLabelBawaan = labelDataDir.getTextColors();
@@ -504,6 +511,7 @@ public class SettingsActivity extends Activity {
         teksBerhenti = getString(R.string.stopped);
         msgFolderSalah = getString(R.string.folder_error);
         msgPortSalah = getString(R.string.port_error);
+        msgDomainSalah = getString(R.string.domain_error);
         msgAdminSalah = getString(R.string.admin_error);
         msgTokenSalah = getString(R.string.token_error);
         msgChatSalah = getString(R.string.chat_error);
@@ -615,6 +623,7 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
+        domainInput.setText(TgBackup.amanString(sp, ServerService.KEY_CUSTOM_DOMAIN, ""));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
@@ -636,6 +645,7 @@ public class SettingsActivity extends Activity {
         pinEnabledCheck.setChecked(TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
         dasarDataDir = dataDirInput.getText().toString();
         dasarPort = portInput.getText().toString();
+        dasarDomain = domainInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
         return sp;
     }
@@ -977,7 +987,7 @@ public class SettingsActivity extends Activity {
     // BENAR-BENAR diubah user sejak itu — field yang tak disentuh tak
     // boleh menimpa perubahan eksternal (mis. prefs hasil restore bot)
     // dengan nilai tampilan yang sudah basi (Audit 588).
-    private String dasarDataDir, dasarPort, dasarAdmin;
+    private String dasarDataDir, dasarPort, dasarDomain, dasarAdmin;
 
     static boolean berubahDariDasar(String teks, String dasar) {
         return dasar == null || !teks.equals(dasar);
@@ -1002,6 +1012,13 @@ public class SettingsActivity extends Activity {
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_PORT,
                     p.isEmpty() ? DEFAULT_PORT : p);
         }
+        String domain = domainInput.getText().toString();
+        if (berubahDariDasar(domain, dasarDomain)) {
+            String dn = ServerService.normalisasiDomainKustom(domain);
+            if (dn != null) {
+                ed = tulisBilaBeda(ed, sp, ServerService.KEY_CUSTOM_DOMAIN, dn);
+            }
+        }
         String admin = adminTokenInput.getText().toString();
         if (berubahDariDasar(admin, dasarAdmin)
                 && galatAdmin(admin, msgAdminSalah) == null) {
@@ -1013,6 +1030,7 @@ public class SettingsActivity extends Activity {
         }
         dasarDataDir = dataDir;
         dasarPort = port;
+        dasarDomain = domain;
         dasarAdmin = admin;
     }
 
@@ -2962,12 +2980,14 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
+        domainInput.setText(TgBackup.amanString(sp, ServerService.KEY_CUSTOM_DOMAIN, ""));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
         // Nilai hasil reload adalah keadaan prefs, bukan suntingan user:
         // segarkan dasar simpan agar onPause tak menulisnya menang atas
         // perubahan eksternal berikutnya (Audit 596).
         dasarDataDir = dataDirInput.getText().toString();
         dasarPort = portInput.getText().toString();
+        dasarDomain = domainInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
@@ -3637,6 +3657,9 @@ public class SettingsActivity extends Activity {
         setTeksGalat(dataDirError, gData);
         String gPort = galatPort(portInput.getText().toString(), msgPortSalah);
         setTeksGalat(portError, gPort);
+        String gDomain = domainInput != null
+                ? galatDomain(domainInput.getText().toString(), msgDomainSalah) : null;
+        setTeksGalat(domainError, gDomain);
         String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
                 msgAdminSalah) : null;
         samakanVisibilitas(adminError, gAdmin == null ? View.GONE : View.VISIBLE);
@@ -3678,6 +3701,10 @@ public class SettingsActivity extends Activity {
             label.setText(getString(stringId));
             label.setTextColor(warnaLabelBawaan);
         }
+    }
+
+    static String galatDomain(String domain, String msgSalah) {
+        return ServerService.normalisasiDomainKustom(domain) == null ? msgSalah : null;
     }
 
     static String galatPort(String port, String msgSalah) {
@@ -3849,7 +3876,7 @@ public class SettingsActivity extends Activity {
         aturFokusBawah(R.id.headerRawat, R.id.bodyRawat, R.id.autoStart, R.id.headerTelegram);
         aturFokusBawah(R.id.headerTelegram, R.id.bodyTelegram, R.id.tgToken, R.id.headerLog);
         aturFokusBawah(R.id.headerLog, R.id.bodyLog, R.id.logOpen, R.id.aboutBtn);
-        aturFokusBatas(R.id.port, R.id.bodyServer, R.id.headerServer,
+        aturFokusBatas(R.id.domainKustom, R.id.bodyServer, R.id.headerServer,
                 R.id.adminToken, R.id.bodyKeamanan, R.id.headerKeamanan);
         aturFokusBatas(R.id.pinEnabled, R.id.bodyKeamanan, R.id.headerKeamanan,
                 R.id.autoStart, R.id.bodyRawat, R.id.headerRawat);

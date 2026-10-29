@@ -27,7 +27,7 @@
                 <EditText
                     android:id="@+id/adminToken"
                     android:nextFocusDown="@id/showAdmin"
-                    android:nextFocusUp="@id/port"
+                    android:nextFocusUp="@id/domainKustom"
                     style="@style/TasirinInput"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

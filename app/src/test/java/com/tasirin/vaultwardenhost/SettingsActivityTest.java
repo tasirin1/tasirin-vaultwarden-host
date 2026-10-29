@@ -34,6 +34,16 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatDomainTerimaKosongDanNamaSah() {
+        assertNull(SettingsActivity.galatDomain(null, "SALAH"));
+        assertNull(SettingsActivity.galatDomain("", "SALAH"));
+        assertNull(SettingsActivity.galatDomain("vault.contoh.id", "SALAH"));
+        assertNull(SettingsActivity.galatDomain("https://vault.contoh.id:8443/", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatDomain("192.168.1.10", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatDomain("nama domain", "SALAH"));
+    }
+
+    @Test
     public void galatPortTerimaKosongDanRentang() {
         assertNull(SettingsActivity.galatPort(null, "SALAH"));
         assertNull(SettingsActivity.galatPort("", "SALAH"));
