@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 746: single-flight pengambilan versi dipulihkan tanpa mengembalikan fetch ke dalam kunci
+- Efek samping Audit 715 yang ditangkap self-review putaran-28: mengeluarkan fetch dari `KUNCI_VERSI` sekaligus menghilangkan single-flight — dua pemanggil bersamaan saat cache basi (cek AutoUpdate + perintah bot) sama-sama menembak API versi yang sama. Kini ada gerbang pengambil tunggal di luar kunci data: pemanggil kedua menunggu (maks 25 detik, sesuai anggaran timeout fetch 10+10 detik) lalu membaca hasil yang disimpan pengambil pertama, berhasil maupun gagal. Fetch tetap di luar `KUNCI_VERSI`, jadi jalur UI tetap tidak pernah menunggu jaringan — yang menunggu hanyalah sesama pemanggil latar.
+
 ## [Belum rilis] — Audit 745: penjadwalan restart-crash kini ikut membatalkan coba-lagi start
 - Sisa pemisahan Audit 722: `startTunda` (coba-lagi start tertunda kunci data, siklus 5 detik) tidak dibatalkan saat `scheduleRestartTerkunci` menjadwalkan restart-crash ber-backoff, sehingga server bisa menyala mendahului backoff bila kunci data lepas lebih dulu. Penjadwalan restart kini membatalkan keduanya — coba-lagi start kehilangan maknanya begitu restart-crash mengambil alih. Dampaknya memang hanya ketepatan waktu (penjaga run + CAS starting menahan start liar), tetapi urutan yang dimaksud kini yang benar-benar terjadi.
 

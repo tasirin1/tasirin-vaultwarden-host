@@ -1104,6 +1104,9 @@ public final class Updater {
     static final long VERSION_GAGAL_TTL_MS = 60_000;
     private static volatile long sLatestGagalAt = 0;
 
+    private static final Object KUNCI_AMBIL_VERSI = new Object();
+    private static boolean sLatestMengambil = false;
+
     static boolean gagalBaruSaja(long kiniElapsed, long gagalAt, long jedaMs) {
         if (gagalAt == 0 || kiniElapsed < gagalAt) {
             return false;
@@ -1113,46 +1116,74 @@ public final class Updater {
 
     public static String latestVersion(Context ctx) {
         String cached;
-        synchronized (KUNCI_VERSI) {
+        synchronized (KUNCI_AMBIL_VERSI) {
             long now = SystemClock.elapsedRealtime();
-            cached = sLatestVersion;
-            if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
-                return cached;
-            }
-
-            if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
-                return cached;
-            }
-        }
-        HttpURLConnection conn = null;
-        try {
-            conn = open(ctx, OFFICIAL_API, 10000, 10000);
-            int code = conn.getResponseCode();
-            if (code == 200) {
-                String v;
-                try (java.io.InputStream is = conn.getInputStream()) {
-                    v = normVersion(extractTag(
-                            TgBackup.bacaResponsBatas(is)));
+            synchronized (KUNCI_VERSI) {
+                cached = sLatestVersion;
+                if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
+                    return cached;
                 }
-                if (v != null && !v.isEmpty()) {
-                    synchronized (KUNCI_VERSI) {
-                        sLatestVersion = v;
-                        sLatestAt = SystemClock.elapsedRealtime();
+
+                if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
+                    return cached;
+                }
+            }
+            if (sLatestMengambil) {
+                long batas = now + 25_000;
+                while (sLatestMengambil) {
+                    long sisa = batas - SystemClock.elapsedRealtime();
+                    if (sisa <= 0) {
+                        break;
                     }
-                    return v;
+                    try {
+                        KUNCI_AMBIL_VERSI.wait(sisa);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+                synchronized (KUNCI_VERSI) {
+                    return sLatestVersion;
                 }
             }
+            sLatestMengambil = true;
+        }
+        try {
+            HttpURLConnection conn = null;
+            try {
+                conn = open(ctx, OFFICIAL_API, 10000, 10000);
+                int code = conn.getResponseCode();
+                if (code == 200) {
+                    String v;
+                    try (java.io.InputStream is = conn.getInputStream()) {
+                        v = normVersion(extractTag(
+                                TgBackup.bacaResponsBatas(is)));
+                    }
+                    if (v != null && !v.isEmpty()) {
+                        synchronized (KUNCI_VERSI) {
+                            sLatestVersion = v;
+                            sLatestAt = SystemClock.elapsedRealtime();
+                        }
+                        return v;
+                    }
+                }
 
-        } catch (Exception ignored) {
+            } catch (Exception ignored) {
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+            synchronized (KUNCI_VERSI) {
+                sLatestGagalAt = SystemClock.elapsedRealtime();
+            }
+            return cached;
         } finally {
-            if (conn != null) {
-                conn.disconnect();
+            synchronized (KUNCI_AMBIL_VERSI) {
+                sLatestMengambil = false;
+                KUNCI_AMBIL_VERSI.notifyAll();
             }
         }
-        synchronized (KUNCI_VERSI) {
-            sLatestGagalAt = SystemClock.elapsedRealtime();
-        }
-        return cached;
     }
 
     public static String tryUpdate(Context ctx) throws Exception {
