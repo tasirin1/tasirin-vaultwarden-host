@@ -1024,11 +1024,6 @@ public final class Updater {
     }
 
     static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
-                                  long lanjutDari, String label) throws IOException {
-        return salinSambilHash(dl, tmp, kodeHttp, lanjutDari, label, null);
-    }
-
-    static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
                                   long lanjutDari, String label, CekBatal batal)
             throws IOException {
         long total = panjangKonten(dl);
@@ -1260,10 +1255,6 @@ public final class Updater {
         String acuan = (versiBerkas != null && !versiBerkas.isEmpty())
                 ? versiBerkas : versiJalan;
         return bandingVersi(acuan, target) >= 0;
-    }
-
-    public static String downloadBinary(Context ctx, File out) throws Exception {
-        return downloadBinary(ctx, out, null);
     }
 
     public static String downloadBinary(Context ctx, File out, CekBatal batal)

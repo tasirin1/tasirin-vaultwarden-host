@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 731: dua overload mati di Updater dihapus
+- `downloadBinary(Context, File)` (tanpa pemanggil eksternal — produksi memakai varian `CekBatal`) dan `salinSambilHash` 5-arg (jalur produksi memakai varian 6-arg) dihapus. Keduanya murni permukaan mati yang menyesatkan pembaca jalur unduh. Nama metodenya tidak masuk `tools/bekas-hapusan.txt` karena nama yang sama masih terdefinisi oleh varian yang hidup (pengecualian aturan #15).
+
 ## [Belum rilis] — Audit 730: penanda versi/pin sesudah swap kini ditulis sinkron (commit)
 - Penanda yang ditulis tepat sesudah pemasangan binary/web-vault — versi terpasang, pin SHA binary, dan cap web-vault (`KEY_WV_FROM`/`KEY_WV_SHA`/`KEY_WV_FALLBACK_FOR`) — sebelumnya memakai `apply()`, yang memperbarui memori seketika tetapi menulis disk secara asinkron: mati listrik di jendela sub-detik itu meninggalkan binary/WV BARU dengan penanda LAMA, yang terbaca sebagai "binary tidak utuh / WV basi" dan memicu unduh ulang penuh. Penanda-penanda itu kini memakai `commit()` (sinkron) — jendela campuran menyempit dari "sampai flush asinkron sempat jalan" menjadi hanya celah antar-operasi itu sendiri, dengan biaya satu tulis disk kecil sekali per update.
 
