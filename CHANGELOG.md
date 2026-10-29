@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 713: alarm tunda-boot yatim kini dibatalkan saat auto-backup dimatikan, dan cabangnya memeriksa flag fitur
+- One-shot tunda-boot tidak pernah dibatalkan di mana pun: mematikan auto-backup hanya membatalkan rantai harian, sehingga alarm tunda yang terpasang saat boot tetap menembak — dan cabang TUNDA di receiver tidak memeriksa `KEY_TG_AUTO`, sehingga peringatan Telegram "jam STB salah, backup manual" terkirim untuk fitur yang baru saja dimatikan. Jalur nonaktif `schedule` kini membatalkan PendingIntent tunda-boot juga, dan cabang TUNDA pulang diam-diam bila fitur mati, sejajar dengan semua jalur saudaranya.
+
 ## [Belum rilis] — Audit 712: kegagalan auto-start boot karena izin dicabut kini diperingatkan lewat Telegram
 - Auto-start boot memanggil service tanpa gerbang izin: bila izin penyimpanan dicabut atau di-reset sistem sesudah sebelumnya diberikan, start gugur di cek tulis service dan satu-satunya jejaknya adalah log di dalam aplikasi — pemilik STB headless baru sadar saat vault tak bisa dibuka. Jalur boot kini memeriksa dulu: folder data butuh izin eksternal tetapi akses tidak ada → catatan log eksplisit + peringatan Telegram (pola pesan boot yang sama dengan peringatan restore terputus), sementara start tetap dicoba seperti biasa agar penilaian service menjadi kata akhir.
 

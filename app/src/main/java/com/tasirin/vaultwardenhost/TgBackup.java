@@ -4364,6 +4364,15 @@ public final class TgBackup {
                 am.cancel(piLawas);
             } catch (Exception ignored) {
             }
+
+            try {
+                Intent tunda = new Intent(ctx, AlarmReceiver.class)
+                        .setAction(AlarmReceiver.ACTION_TUNDA);
+                PendingIntent piTunda = PendingIntent.getBroadcast(
+                        ctx, REQ_TUNDA_BOOT, tunda, flags);
+                am.cancel(piTunda);
+            } catch (Exception ignored) {
+            }
         }
     }
 }

@@ -155,6 +155,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             SharedPreferences sp = context.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
+            if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
+                return;
+            }
             long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
             long kini = System.currentTimeMillis();
             if (TgBackup.bolehBackupSusulanBoot(last, kini)) {
