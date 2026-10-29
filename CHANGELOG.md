@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: offset getUpdates kini direset saat token berganti ke bot lain (Audit 779)
+- `update_id` Telegram adalah urutan per-bot, tetapi offset tersimpan tidak pernah direset: mengganti token ke bot BARU (bukan token baru bot yang sama) membuat polling memakai offset warisan bot lama, sehingga `getUpdates` mengembalikan hasil kosong selamanya — semua perintah bot diabaikan diam-diam (poll tetap 200, tanpa galat) sementara backup keluar tetap terkirim, dan tak ada jalan pulih di UI. Kini identitas pemilik offset dicatat di pref perangkat-lokal `tg_bot_offset_id` (tidak diekspor, dilestarikan saat restore config bersama offsetnya); saat polling melihat identitas token berbeda terbukti dari catatan, offset direset ke 0 dengan `commit()`. Token baru untuk bot yang sama mempertahankan offset seperti seharusnya. Keputusan resetnya fungsi murni `offsetPerluReset` dan teruji matriks.
+
 ## [Belum rilis] — Gerbang: cakupan penghapusan ter-staged dipulihkan untuk kombinasi --semua + jalur (Audit 775)
 - Melepas tambahan staged ganda pada Audit 771 menyisakan satu lubang sempit: pada pemanggilan `--semua <jalur>` dengan diff jalur kosong, `rentang_cek` terisi rentang cadangan `HEAD~1...HEAD` sehingga `berkas_dihapus` bercabang rentang dan penghapusan ter-staged tak terlihat. Daftar hapus kini dibangun sebagai union ter-dedup (set) antara sumber rentang dan sumber lokal bila `--rentang` tidak diberikan eksplisit — mode lokal tetap tepat satu laporan (771 utuh), kombinasi `--semua`+jalur kembali menangkap (terbukti fixture tiga mode), dan mode CI `--rentang` tetap murni rentang.
 

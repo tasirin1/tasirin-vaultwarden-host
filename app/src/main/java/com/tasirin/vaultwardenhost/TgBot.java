@@ -28,6 +28,7 @@ public final class TgBot {
 
     public static final String ACTION_POLL = "com.tasirin.vaultwardenhost.TG_POLL";
     static final String KEY_TG_OFFSET = "tg_bot_offset";
+    static final String KEY_TG_OFFSET_BOT_ID = "tg_bot_offset_id";
     static final String KEY_TG_MENU_HASH = "tg_menu_hash";
 
     static final String KEY_TG_MENU_FP = "tg_menu_fp";
@@ -422,6 +423,17 @@ public final class TgBot {
             String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
+            }
+            // Offset getUpdates adalah urutan per-bot (Audit 779): ganti ke
+            // bot LAIN dengan offset warisan membuat semua perintah diabaikan
+            // diam-diam selamanya. Selaraskan identitas pemilik offset dulu.
+            String idKini = idBotDariToken(token);
+            String idOffset = TgBackup.amanString(sp, KEY_TG_OFFSET_BOT_ID, "");
+            if (offsetPerluReset(idOffset, idKini)) {
+                sp.edit().putLong(KEY_TG_OFFSET, 0)
+                        .putString(KEY_TG_OFFSET_BOT_ID, idKini).commit();
+            } else if (!idKini.isEmpty() && !idKini.equals(idOffset)) {
+                sp.edit().putString(KEY_TG_OFFSET_BOT_ID, idKini).apply();
             }
             long offset = TgBackup.amanLong(sp, KEY_TG_OFFSET, 0);
 
@@ -850,6 +862,17 @@ public final class TgBot {
     static final String KEY_TG_BOT_USER = "tg_bot_user";
 
     static final String KEY_TG_BOT_ID = "tg_bot_id";
+
+    // Keputusan murni reset offset (Audit 779): reset HANYA pada perubahan
+    // identitas bot yang terbukti (kedua id terisi dan berbeda). Token baru
+    // untuk bot yang sama mempertahankan offset karena antrean update
+    // per-bot memang berlanjut; id kosong (token liar / catatan pertama)
+    // tidak pernah memicu reset.
+    static boolean offsetPerluReset(String idTersimpan, String idKini) {
+        return idTersimpan != null && !idTersimpan.isEmpty()
+                && idKini != null && !idKini.isEmpty()
+                && !idTersimpan.equals(idKini);
+    }
 
     static String idBotDariToken(String token) {
         if (token == null) {

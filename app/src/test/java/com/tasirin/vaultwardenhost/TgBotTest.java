@@ -717,4 +717,18 @@ public class TgBotTest {
         assertTrue(TgBot.kunciMasihDijaga(1_000L, lewat - 1L, false));
         org.junit.Assert.assertEquals(6L * 3600L * 1000L, TgBot.BATAS_JAGA_KUNCI_MS);
     }
+
+    @Test
+    public void offsetPerluReset_hanyaSaatIdentitasBotTerbuktiBerubah() {
+        // Audit 779: bot berganti → offset warisan wajib dibuang.
+        assertTrue(TgBot.offsetPerluReset("111", "222"));
+        // Bot sama (termasuk token baru bot yang sama) → offset dipertahankan.
+        assertFalse(TgBot.offsetPerluReset("111", "111"));
+        // Catatan pertama / token liar: tak pernah memicu reset.
+        assertFalse(TgBot.offsetPerluReset("", "222"));
+        assertFalse(TgBot.offsetPerluReset("111", ""));
+        assertFalse(TgBot.offsetPerluReset("", ""));
+        assertFalse(TgBot.offsetPerluReset(null, "222"));
+        assertFalse(TgBot.offsetPerluReset("111", null));
+    }
 }

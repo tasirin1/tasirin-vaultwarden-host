@@ -1814,7 +1814,8 @@ public final class TgBackup {
 
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
-                    TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_WALL_MAKS,
+                    TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_OFFSET_BOT_ID,
+                    TgBot.KEY_TG_WALL_MAKS,
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
@@ -3786,6 +3787,7 @@ public final class TgBackup {
         int keepGagal = amanInt(cur, PinGate.KEY_GAGAL, 0);
         long keepKunci = amanLong(cur, PinGate.KEY_KUNCI_SAMPAI, 0);
         long keepOffset = amanLong(cur, TgBot.KEY_TG_OFFSET, 0);
+        String keepOffsetBotId = amanString(cur, TgBot.KEY_TG_OFFSET_BOT_ID, "");
         String keepNotified = amanString(cur, "tg_notified_version", "");
         String keepWvFrom = amanString(cur, "wv_from_version", "");
         java.util.Map<String, Boolean> keepWv = new java.util.HashMap<>();
@@ -3881,6 +3883,7 @@ public final class TgBackup {
                 pinOnHasilRestore(amanBoolean(cur, PinGate.KEY_PIN_ON, false), keepPinHash));
 
         ed.putLong(TgBot.KEY_TG_OFFSET, keepOffset);
+        ed.putString(TgBot.KEY_TG_OFFSET_BOT_ID, keepOffsetBotId);
         if (!prefs.has("tg_notified_version") && !keepNotified.isEmpty()) {
             ed.putString("tg_notified_version", keepNotified);
         }
