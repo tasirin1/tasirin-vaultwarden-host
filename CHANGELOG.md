@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Uji: penjaga surrogate potongBarisLog kini dikunci uji khusus (Audit 780)
+- Perilaku Audit 778 benar tetapi tak teruji: satu-satunya uji `potongBarisLog` hanya memakai huruf 'x', jadi cabang `isHighSurrogate`-nya tak pernah dieksekusi dan penghapusannya akan tetap hijau di CI. Uji baru `potongBarisLog_takBelahSurrogate` mencerminkan pola uji kembarannya (`potongPesanGalat_takBelahSurrogate`): pasangan surrogate yang mengangkangi batas 8192 dibuang utuh (inti 8191 char, tak berakhir surrogate), dan pasangan yang utuh di dalam batas dipertahankan (inti 8192 char berakhir low surrogate).
+
 ## [Belum rilis] — Gerbang: sumber penghapusan lokal tak lagi dihitung dua kali (Audit 777)
 - Bentuk union Audit 775 memanggil `berkas_dihapus("")` dua kali persis pada mode yang paling sering dipakai (lokal murni dan jalur posisional, termasuk hook pre-push): 6 panggilan `git diff --name-status` untuk 3 sumber yang sama. Kini bila `rentang_cek` kosong, sumber lokal dipanggil sekali saja; cabang union hanya berjalan bila benar-benar ada rentang cadangan. Terbukti dengan shim git pencatat panggilan: hitungan `name-status` turun 6 → 3 dan laporan penghapusan tetap tepat satu kali.
 

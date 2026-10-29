@@ -1139,6 +1139,34 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void potongBarisLog_takBelahSurrogate() {
+        // Audit 780: kunci cabang penjaga Audit 778 — pasangan surrogate yang
+        // mengangkangi batas 8192 harus dibuang utuh (hasil 8191 char +
+        // penanda), bukan ditinggal sebagai surrogate tak berpasangan.
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < ServerService.BATAS_BARIS_LOG - 1; i++) {
+            sb.append('x');
+        }
+        sb.append(Character.toChars(0x1F600)).append("ekor");
+        String hasil = ServerService.potongBarisLog(sb.toString());
+        assertTrue(hasil.contains("dipotong"));
+        String inti = hasil.substring(0, hasil.indexOf(" …[baris dipotong]"));
+        assertEquals(ServerService.BATAS_BARIS_LOG - 1, inti.length());
+        assertFalse(Character.isHighSurrogate(inti.charAt(inti.length() - 1)));
+        assertFalse(Character.isLowSurrogate(inti.charAt(inti.length() - 1)));
+        // Pasangan yang utuh di dalam batas dipertahankan apa adanya.
+        StringBuilder sb2 = new StringBuilder();
+        for (int i = 0; i < ServerService.BATAS_BARIS_LOG - 2; i++) {
+            sb2.append('x');
+        }
+        sb2.append(Character.toChars(0x1F600)).append("ekor");
+        String hasil2 = ServerService.potongBarisLog(sb2.toString());
+        String inti2 = hasil2.substring(0, hasil2.indexOf(" …[baris dipotong]"));
+        assertEquals(ServerService.BATAS_BARIS_LOG, inti2.length());
+        assertTrue(Character.isLowSurrogate(inti2.charAt(inti2.length() - 1)));
+    }
+
+    @Test
     public void putusanStartTunda_matriksKeputusan() {
         // Health mati atau autoRestart mati: berhenti diam apa pun sisanya.
         assertEquals(0, ServerService.putusanStartTunda(false, true, false, false));
