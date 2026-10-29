@@ -2748,7 +2748,13 @@ public class ServerService extends Service {
         if (line == null || line.length() <= BATAS_BARIS_LOG) {
             return line;
         }
-        return line.substring(0, BATAS_BARIS_LOG) + " …[baris dipotong]";
+        String potong = line.substring(0, BATAS_BARIS_LOG);
+        // Jangan belah pasangan surrogate di batas potong (Audit 778),
+        // mengikuti pola potongPesanGalat.
+        if (Character.isHighSurrogate(potong.charAt(potong.length() - 1))) {
+            potong = potong.substring(0, potong.length() - 1);
+        }
+        return potong + " …[baris dipotong]";
     }
 
     private void appendLog(String line) {

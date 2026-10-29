@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Pemotongan baris log tak lagi membelah pasangan surrogate (Audit 778)
+- `potongBarisLog` memotong baris >8192 karakter di indeks tetap tanpa penjaga: karakter non-BMP yang pasangan surrogate-nya tepat mengangkangi batas menghasilkan surrogate tak berpasangan (glyph rusak) di ujung baris. Kini mengikuti pola `potongPesanGalat` di berkas yang sama: bila char terakhir hasil potongan adalah high surrogate, ia ikut dibuang sebelum penanda `[baris dipotong]` ditambahkan.
+
 ## [Belum rilis] — Bot Telegram: offset getUpdates kini direset saat token berganti ke bot lain (Audit 779)
 - `update_id` Telegram adalah urutan per-bot, tetapi offset tersimpan tidak pernah direset: mengganti token ke bot BARU (bukan token baru bot yang sama) membuat polling memakai offset warisan bot lama, sehingga `getUpdates` mengembalikan hasil kosong selamanya — semua perintah bot diabaikan diam-diam (poll tetap 200, tanpa galat) sementara backup keluar tetap terkirim, dan tak ada jalan pulih di UI. Kini identitas pemilik offset dicatat di pref perangkat-lokal `tg_bot_offset_id` (tidak diekspor, dilestarikan saat restore config bersama offsetnya); saat polling melihat identitas token berbeda terbukti dari catatan, offset direset ke 0 dengan `commit()`. Token baru untuk bot yang sama mempertahankan offset seperti seharusnya. Keputusan resetnya fungsi murni `offsetPerluReset` dan teruji matriks.
 
