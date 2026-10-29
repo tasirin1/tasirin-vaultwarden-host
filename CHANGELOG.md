@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan memuat daftar versi kini terlihat oleh pemilik (Audit 796)
+- `daftarVersiTersedia` sebelumnya menelan semua kegagalan dan mengembalikan daftar kosong, sehingga dialog pemilih versi saat offline tampil seolah repo hanya punya versi terbaru — toast peringatan yang memang disiapkan untuk keadaan itu tak pernah terpicu. Fungsi itu kini mengembalikan null bila muatan gagal (non-200, galat jaringan, atau badan tak terbaca), dan dialog menampilkan peringatan itu sambil tetap membuka pilihan Terbaru, pin aktif, dan isi manual.
+
 ## [Belum rilis] — Kegagalan kirim backup by-id kini tercatat di log (Audit 795)
 - Bila pengiriman ulang backup lewat `file_id` gagal dan jalur jatuh kembali ke unggahan penuh, kegagalannya kini ditulis ke log aplikasi beserta tujuannya — sebelumnya catch-nya menelan galat tanpa jejak, sehingga kemunduran jalur cepat (mis. `file_id` mulai ditolak) tak akan pernah terlihat penyebabnya.
 

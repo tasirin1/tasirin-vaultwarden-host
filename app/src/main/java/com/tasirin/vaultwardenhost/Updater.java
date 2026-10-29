@@ -248,6 +248,9 @@ public final class Updater {
         return keluar;
     }
 
+    // Audit 796: null berarti GAGAL DIMUAT (jaringan/non-200/badan tak
+    // terbaca) — pemanggil wajib bisa membedakannya dari daftar yang sah,
+    // agar kegagalan tidak tampil sebagai "hanya ada versi terbaru".
     public static java.util.List<String> daftarVersiTersedia(Context ctx, int maks) {
         java.util.List<String> keluar = new java.util.ArrayList<>();
         if (maks <= 0) {
@@ -257,7 +260,7 @@ public final class Updater {
         try {
             c = open(ctx, RELEASE_LIST_API, 10000, 15000);
             if (c.getResponseCode() != 200) {
-                return keluar;
+                return null;
             }
             String body;
             try (InputStream is = c.getInputStream()) {
@@ -273,12 +276,13 @@ public final class Updater {
                 }
             }
         } catch (Exception ignored) {
+            return null;
         } finally {
             if (c != null) {
                 c.disconnect();
             }
         }
-        return keluar;
+        return keluar.isEmpty() ? null : keluar;
     }
 
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;

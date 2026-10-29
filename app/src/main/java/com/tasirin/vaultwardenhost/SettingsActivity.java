@@ -3332,10 +3332,19 @@ public class SettingsActivity extends Activity {
             try {
                 appendUiLog("[app] Memuat daftar versi...");
                 java.util.List<String> versi = new java.util.ArrayList<>();
-                for (String v : Updater.daftarVersiTersedia(this, 30)) {
-                    String normal = Updater.normalisasiPinVersi(v);
-                    if (normal != null && !versi.contains(normal)) {
-                        versi.add(normal);
+                java.util.List<String> muatan = Updater.daftarVersiTersedia(this, 30);
+                if (muatan == null) {
+                    // Audit 796: daftar gagal dimuat — beri tahu pemilik;
+                    // dialog tetap dibuka (Terbaru + pin + isi manual).
+                    toast(getString(R.string.daftar_versi_gagal));
+                    appendUiLog("[app] Gagal memuat daftar versi"
+                            + " (offline/rate-limit) - dialog dibuka tanpa daftar.");
+                } else {
+                    for (String v : muatan) {
+                        String normal = Updater.normalisasiPinVersi(v);
+                        if (normal != null && !versi.contains(normal)) {
+                            versi.add(normal);
+                        }
                     }
                 }
 
