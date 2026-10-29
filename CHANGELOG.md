@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 755: varian 3-arg zipSudahGagal/catatZipGagal (jalur produksi Audit 732) kini teruji
+- Sejak Audit 732 jalur produksi web-vault memanggil varian 3-arg dengan digest rilis siap-pakai, tetapi uji hanya menyentuh varian 2-arg yang selalu jatuh ke hash berkas — regresi khusus jalur 3-arg (penanda ditulis dari satu sumber, dibandingkan dari sumber lain) tak akan tertangkap. Uji baru mengunci varian 3-arg: digest cocok, digest beda, huruf besar (mengunci pula predikat tak peka huruf Audit 748), dan digest kosong/null yang jatuh kembali ke sidik berkas.
+
 ## [Belum rilis] — Audit 754: uji catatLog kini benar-benar membuktikan jalur null adalah no-op
 - Asertsi kedua `catatLogNaikkanVersi` membandingkan ke baseline *sebelum* panggilan pertama, jadi ia lulus murni berkat panggilan pertama dan tidak membuktikan apa pun tentang `catatLog(null)` — perilaku produksi yang sebenarnya (null kembali dini tanpa menaikkan versi) tak terkunci, dan regresinya tak akan tertangkap. Uji kini menangkap versi di antara dua panggilan dan mengasertikan null tidak mengubahnya.
 

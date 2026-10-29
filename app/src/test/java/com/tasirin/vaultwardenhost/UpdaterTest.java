@@ -71,6 +71,34 @@ public class UpdaterTest {
     }
 
     @Test
+    public void zipSudahGagal_denganSidikDiberikan() throws Exception {
+        java.io.File dir = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-zipgagal3-" + System.nanoTime());
+        assertTrue(dir.mkdirs());
+        try {
+            java.io.File zip = new java.io.File(dir, "web-vault.zip");
+            java.nio.file.Files.write(zip.toPath(), "isi-zip".getBytes(StandardCharsets.UTF_8));
+            java.io.File penanda = new java.io.File(dir, "web-vault.zip.gagal");
+            String sidik = "abcdef0123456789";
+            assertFalse(Updater.zipSudahGagal(penanda, zip, sidik));
+            Updater.catatZipGagal(penanda, zip, sidik);
+            assertTrue(Updater.zipSudahGagal(penanda, zip, sidik));
+            assertFalse(Updater.zipSudahGagal(penanda, zip, "0000ffff"));
+            assertTrue(Updater.zipSudahGagal(penanda, zip, "ABCDEF0123456789"));
+            assertFalse(Updater.zipSudahGagal(penanda, zip, ""));
+            assertFalse(Updater.zipSudahGagal(penanda, zip, null));
+        } finally {
+            java.io.File[] sisa = dir.listFiles();
+            if (sisa != null) {
+                for (java.io.File f : sisa) {
+                    f.delete();
+                }
+            }
+            dir.delete();
+        }
+    }
+
+    @Test
     public void wvPayloadAda_wajibIndexBerisi() throws Exception {
         java.io.File dir = new java.io.File(
                 System.getProperty("java.io.tmpdir"),
