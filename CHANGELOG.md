@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — resetTls kini fsync direktori sesudah penghapusan (Audit 768)
+- `TlsCert.resetTls` adalah satu-satunya pengubah folder tls yang tidak menutup dengan fsync direktori (jalur lain — `writeVersion`, tukar pasangan, pemulihan tukar — semuanya fsync). Bila STB mati listrik segera sesudah bot melaporkan reset berhasil, penghapusan sampai 20 berkas itu bisa batal diam-diam: CA lama bangkit lagi dan tetap berlaku pada Start berikutnya, tanpa penanda. Kini sesudah ada berkas yang terhapus, `resetTls` memanggil `fsyncDirektori` seperti mutator lainnya.
+
 ## [Belum rilis] — Perbaikan Audit 759 diluruskan: identitas restartTunda dipisah lagi dari startTunda (Audit 767)
 - Audit putaran-30 menemukan premis penggabungan Audit 759 keliru di satu situs: situs penundaan kunci-data memang selalu membatalkan `startTunda` SAJA, dan karena `batalkanTunda` menghapus semua posting Runnable yang sama, Runnable gabungan membuat pembatalan itu ikut membunuh posting backoff-crash yang sedang menunggu (redaman crash-loop melemah; start otomatis bisa gugur). Kini kedua Runnable kembali beridentitas Handler terpisah persis seperti pra-penggabungan (semua situs batal/posting cocok dengan keadaan sebelum Audit 759), tetapi badannya tetap SATU — `jalankanStartTunda(Runnable diri)` — jadi duplikasi logika tidak kembali. Nama `restartTunda` dikeluarkan lagi dari `tools/bekas-hapusan.txt`. Keputusan badannya sendiri diesktrak menjadi fungsi murni `putusanStartTunda` (0 diam / 1 posting ulang / 2 mulai) dan dikunci uji matriks di `ServerServiceTest`.
 

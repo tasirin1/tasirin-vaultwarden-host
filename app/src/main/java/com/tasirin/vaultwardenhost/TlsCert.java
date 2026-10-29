@@ -1277,6 +1277,12 @@ public final class TlsCert {
                 } catch (Exception ignored) {
                 }
             }
+            if (hapus > 0) {
+                // Samakan dengan mutator folder tls lain (Audit 768): tanpa
+                // fsync direktori, mati listrik bisa membatalkan penghapusan
+                // diam-diam dan CA lama yang sudah direset bangkit lagi.
+                fsyncDirektori(tlsDir);
+            }
         }
         return hapus;
     }
