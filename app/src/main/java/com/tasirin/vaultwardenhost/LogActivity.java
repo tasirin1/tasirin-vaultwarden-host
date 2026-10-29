@@ -37,6 +37,8 @@ public class LogActivity extends Activity {
     private TextView logCount;
     private String logSearch = "";
     private boolean logAutoScroll = false;
+    private long cariDibangunTerakhirMs = 0;
+    private String cariTerakhirDibangun = null;
 
     private final Runnable logTick = new Runnable() {
         @Override
@@ -202,6 +204,15 @@ public class LogActivity extends Activity {
             return;
         }
 
+        boolean cariAktif = logSearch != null && !logSearch.isEmpty();
+        if (!cariAktif) {
+            cariTerakhirDibangun = null;
+        } else if (logSearch.equals(cariTerakhirDibangun)
+                && android.os.SystemClock.elapsedRealtime() - cariDibangunTerakhirMs
+                        < 4500) {
+            return;
+        }
+
         if (!redaksiJalan.compareAndSet(false, true)) {
             lastLogKey = null;
             return;
@@ -209,6 +220,10 @@ public class LogActivity extends Activity {
         lastLogKey = key;
         lastLogVer = ver;
         lastLogLen = len;
+        if (cariAktif) {
+            cariTerakhirDibangun = logSearch;
+            cariDibangunTerakhirMs = android.os.SystemClock.elapsedRealtime();
+        }
         final String kunci = key;
         final String cari = logSearch;
         final boolean ikutBawah = logAutoScroll;

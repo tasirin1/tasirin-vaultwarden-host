@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 718: pembangunan ulang tampilan log saat mencari kini dibatasi lajunya
+- Begitu kolom cari terisi, jalur delta murah LogActivity mati (delta menuntut kueri kosong), sehingga setiap perubahan log memicu pembangunan ulang penuh: salin ekor 100 KB, pindai redaksi, spannable sorotan 100 KB, dan layout ulang seluruh TextView di thread UI — berulang tiap tik 1,5 detik selama log mengalir. Pembangunan ulang untuk kueri yang sama kini dibatasi maksimal sekali per ±4,5 detik (kunci konten tidak dikonsumsi saat ditunda, jadi tik berikutnya menilai lagi); mengetik kueri baru tetap membangun seketika, dan jalur tanpa pencarian tidak berubah sama sekali.
+
 ## [Belum rilis] — Audit 717: digest unduhan kini dipakai ulang — binary tidak lagi di-hash tiga kali per pemasangan
 - `unduhKeTmp` sudah menghitung digest SHA-256 streaming atas seluruh berkas dan mencocokkannya ke `.sha256` rilis di dalam loop unduh, tetapi nilai kembaliannya dibuang oleh semua pemanggil: `pasangHasilUnduh` membaca ulang seluruh tmp untuk hash yang sama, dan penulisan pin sesudah pasang membaca ulang seluruh berkas hasil sekali lagi. Untuk binary puluhan MB di STB lambat itu dua lintasan baca+hash penuh yang murni pengulangan, berjalan sambil memegang kunci pasang. Digest unduhan kini ditangkap dan diteruskan ke varian `pasangHasilUnduh` ber-digest (varian lama tetap ada untuk pemanggil tanpa digest, termasuk uji), dan pin ditulis dari `expectedSha` yang baru saja dibuktikan cocok oleh pemasangan itu sendiri. Verifikasi pin pada setiap start server (`binaryUtuh`) sengaja TIDAK diubah — itu pemeriksaan integritas anti-utak-atik antar-start, bukan pengulangan.
 
