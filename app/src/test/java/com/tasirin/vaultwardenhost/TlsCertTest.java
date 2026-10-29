@@ -415,6 +415,22 @@ public class TlsCertTest {
     }
 
     @Test
+    public void resetTls_hapusVarianBaruDanCad() throws Exception {
+        // Audit 781: kunci 8 nama sisa yang belum terfixture — varian .baru
+        // dan .cad dari keempat berkas kunci/sertifikat (.cad memuat cadangan
+        // kunci privat, jadi kelengkapannya sama penting dengan .rusak).
+        java.nio.file.Path dir = Files.createTempDirectory("tlsresetbarucad");
+        for (String n : new String[]{"ca.pem.baru", "ca-key.pem.baru",
+                "cert.pem.baru", "key.pem.baru", "ca.pem.cad", "ca-key.pem.cad",
+                "cert.pem.cad", "key.pem.cad"}) {
+            Files.write(new File(dir.toFile(), n).toPath(),
+                    "x".getBytes(StandardCharsets.UTF_8));
+        }
+        assertEquals(8, TlsCert.resetTls(dir.toFile()));
+        assertEquals(0, TlsCert.resetTls(dir.toFile()));
+    }
+
+    @Test
     public void resetTls_hapusSisaVersionBaru() throws Exception {
 
         File dir = Files.createTempDirectory("tlsresetbaru").toFile();

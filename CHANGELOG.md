@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Uji: daftar hapus resetTls kini terkunci penuh 19 nama (Audit 781)
+- Fixture uji `resetTls` sebelumnya hanya menciptakan 11 dari 19 nama berkas yang dihapus fungsi itu; 8 sisanya — varian `.baru` dan `.cad` dari keempat berkas kunci/sertifikat — tidak teruji, jadi membuangnya dari daftar akan tetap hijau di CI padahal sisa `.cad` memuat cadangan kunci privat. Uji baru `resetTls_hapusVarianBaruDanCad` menciptakan kedelapan nama itu dan menegaskan hitungan hapus 8 lalu 0.
+
 ## [Belum rilis] — Uji: penjaga surrogate potongBarisLog kini dikunci uji khusus (Audit 780)
 - Perilaku Audit 778 benar tetapi tak teruji: satu-satunya uji `potongBarisLog` hanya memakai huruf 'x', jadi cabang `isHighSurrogate`-nya tak pernah dieksekusi dan penghapusannya akan tetap hijau di CI. Uji baru `potongBarisLog_takBelahSurrogate` mencerminkan pola uji kembarannya (`potongPesanGalat_takBelahSurrogate`): pasangan surrogate yang mengangkangi batas 8192 dibuang utuh (inti 8191 char, tak berakhir surrogate), dan pasangan yang utuh di dalam batas dipertahankan (inti 8192 char berakhir low surrogate).
 
