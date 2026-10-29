@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Backup ke banyak chat kini dikirim ulang lewat file_id (Audit 793)
+- Sesudah unggahan penuh pertama berhasil, chat tujuan berikutnya menerima berkas yang sama lewat `file_id` Telegram — tidak lagi mengunggah ulang byte-per-byte hingga 48 MB per chat. Bila kirim by-id gagal untuk satu chat, chat itu jatuh kembali ke unggahan penuh seperti sebelumnya; pencatatan file_id untuk restore tidak berubah.
+
 ## [Belum rilis] — Jatah percobaan PIN kini atomik lintas jalur bot dan UI (Audit 791)
 - Pola lama di kedua pintu PIN adalah periksa sisa kunci, verifikasi, lalu catat sebagai tiga langkah terpisah: saat penghitung tepat di bawah ambang, satu percobaan bot dan satu percobaan UI bisa sama-sama lolos pemeriksaan dan sama-sama memverifikasi sebelum satu pun mencatat, memberi sekitar satu tebakan ekstra per jendela kunci. Verifikasi dan pencatatan kini berjalan di dalam kunci bersama `PinGate.KUNCI_PERCOBAAN` dengan pemeriksaan ulang otoritatif di dalamnya — jalur yang kalah balapan dibatalkan tanpa verifikasi dan menerima pesan terkunci, di bot maupun di layar kunci.
 

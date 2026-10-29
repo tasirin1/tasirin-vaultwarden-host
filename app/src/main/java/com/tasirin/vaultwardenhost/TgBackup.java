@@ -644,10 +644,27 @@ public final class TgBackup {
         java.util.List<String> tujuan = daftarChatTujuan(chat);
 
         String respTerakhir = null;
+        String fileIdDikenal = null;
         java.util.List<String> gagalChat = new java.util.ArrayList<>();
         for (int ci = 0; ci < tujuan.size(); ci++) {
             try {
-                respTerakhir = uploadTelegram(ctx, token, tujuan.get(ci), upload);
+                String resp = null;
+                if (fileIdDikenal != null) {
+                    // Audit 793: chat lanjutan cukup dikirim by file_id —
+                    // berkas yang sama tak perlu diunggah ulang byte-per-byte.
+                    // Gagal by-id jatuh kembali ke unggahan penuh di bawah.
+                    try {
+                        resp = kirimDokumenById(ctx, token, tujuan.get(ci),
+                                fileIdDikenal);
+                    } catch (Exception eById) {
+                        resp = null;
+                    }
+                }
+                if (resp == null) {
+                    resp = uploadTelegram(ctx, token, tujuan.get(ci), upload);
+                    fileIdDikenal = fileIdBerikutnya(fileIdDikenal, resp);
+                }
+                respTerakhir = resp;
             } catch (Exception e) {
                 String pesan = e.getMessage();
                 gagalChat.add(tujuan.get(ci) + ": "
@@ -2226,6 +2243,68 @@ public final class TgBackup {
             }
         }
         throw new IOException("Telegram tetap membatasi unggahan.");
+    }
+
+    // Audit 793: file_id yang dipakai untuk chat berikutnya — hasil ekstrak
+    // respons unggahan barusan bila sah, selain itu yang sudah dikenal.
+    static String fileIdBerikutnya(String dikenal, String respons) {
+        String fid = extractFileId(respons);
+        if (fid != null && !fid.isEmpty()) {
+            return fid;
+        }
+        return dikenal;
+    }
+
+    private static String kirimDokumenById(Context ctx, String token,
+                                           String chatId, String fileId)
+            throws Exception {
+        if (!chatIdAman(chatId)) {
+            throw new java.io.IOException("Chat ID Telegram tidak valid"
+                    + " - periksa pengaturan bot.");
+        }
+        if (fileId == null || fileId.isEmpty()) {
+            throw new java.io.IOException("file_id backup kosong.");
+        }
+        String param = "chat_id=" + URLEncoder.encode(chatId, "UTF-8")
+                + "&document=" + URLEncoder.encode(fileId, "UTF-8");
+        byte[] body = param.getBytes(StandardCharsets.UTF_8);
+        for (int percobaan = 0; percobaan < 2; percobaan++) {
+            HttpURLConnection conn = null;
+            try {
+                conn = bukaPostTelegram(ctx, TG_API + token + "/sendDocument",
+                        body, "application/x-www-form-urlencoded", 20000, 60000);
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body);
+                }
+                tolakRedirectTelegram(conn);
+                int code = conn.getResponseCode();
+                InputStream mentah = (code >= 200 && code < 300)
+                        ? conn.getInputStream() : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (mentah != null) {
+                    try (InputStream is = mentah) {
+                        sb.append(bacaResponsBatas(is));
+                    }
+                }
+                if (code == 429 && percobaan == 0) {
+                    long jeda = jedaRetryAfterMs(sb.toString());
+                    ServerService.catatLog("[tg] Kirim by-id kena limit Telegram"
+                            + " - tunggu " + (jeda / 1000) + " dtk lalu coba lagi.");
+                    Thread.sleep(jeda);
+                    continue;
+                }
+                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+                    throw new IOException("Telegram "
+                            + TgBot.ringkasGalatTelegram(sb.toString(), code));
+                }
+                return sb.toString();
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+        throw new IOException("Telegram tetap membatasi pengiriman.");
     }
 
     static String extractFileId(String body) {

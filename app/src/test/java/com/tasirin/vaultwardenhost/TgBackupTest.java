@@ -1207,6 +1207,22 @@ public class TgBackupTest {
     }
 
     @Test
+    public void fileIdBerikutnya_ekstrakBaruAtauPertahankan() {
+        String json = "{\"ok\":true,\"result\":{\"document\":{"
+                + "\"file_id\":\"BARU1\",\"file_name\":\"b.zip\"}}}";
+        // Respons berisi file_id sah → dipakai untuk chat berikutnya.
+        assertEquals("BARU1", TgBackup.fileIdBerikutnya(null, json));
+        assertEquals("BARU1", TgBackup.fileIdBerikutnya("LAMA9", json));
+        // Respons tanpa file_id → yang dikenal dipertahankan.
+        assertEquals("LAMA9", TgBackup.fileIdBerikutnya("LAMA9", "{\"ok\":false}"));
+        assertEquals("LAMA9", TgBackup.fileIdBerikutnya("LAMA9", null));
+        assertEquals("LAMA9", TgBackup.fileIdBerikutnya("LAMA9", "bukan json"));
+        // Belum ada yang dikenal dan respons kosong → tetap null (unggah penuh).
+        assertNull(TgBackup.fileIdBerikutnya(null, "{\"ok\":false}"));
+        assertNull(TgBackup.fileIdBerikutnya(null, null));
+    }
+
+    @Test
     public void bacaTerbatas_tolakMelebihiBatas() throws Exception {
         byte[] kecil = new byte[100];
         assertEquals(100, TgBackup.bacaTerbatas(
