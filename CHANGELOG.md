@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 743: gerbang izin ekspor log jalur API lama tidak lagi fail-open saat pemeriksa melempar
+- Cabang API <29 di `LogExport` membungkus pemeriksaan izin dalam try/catch yang menelan pengecualian lalu *melanjutkan menulis* — secara struktur fail-open, berlawanan arah dengan cabang `false`-nya, walau dampak praktisnya mendekati nol (pemeriksa menelan pengecualian internalnya sendiri dan tulisan tanpa izin tetap gagal di stream). Pengecualian kini diperlakukan sama dengan tidak-berizin: ekspor dibatalkan. Bentuk penanganannya yang dibuat benar, bukan perilaku yang berubah.
+
 ## [Belum rilis] — Audit 742: Util.batalkanTunda kini lewat pintu handlerUtama() seperti postTunda/postUtama
 - `batalkanTunda` sebelumnya membaca field `HANDLER_UTAMA` mentah, satu-satunya dari tiga operasi handler yang tidak lewat pintu `handlerUtama()` (lazy-init + cek looper). Aman hari ini, tetapi rapuh: bila suatu hari handler dibuat ulang lewat pintu itu, pembatalan bisa diam-diam membidik handler yang salah dan tugas tertunda tetap menembak. Kini ketiganya konsisten lewat pintu yang sama; perilaku tanpa looper tidak berubah (tetap mengembalikan false dengan aman, sesuai uji yang menguncinya).
 

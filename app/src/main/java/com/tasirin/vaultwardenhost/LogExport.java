@@ -101,11 +101,14 @@ public final class LogExport {
             }
         } else {
 
+            boolean punyaAkses;
             try {
-                if (!StoragePerm.sudahPunyaAkses(act)) {
-                    return null;
-                }
-            } catch (Exception ignored) {
+                punyaAkses = StoragePerm.sudahPunyaAkses(act);
+            } catch (Exception e) {
+                punyaAkses = false;
+            }
+            if (!punyaAkses) {
+                return null;
             }
             File tujuan = null;
             try {
