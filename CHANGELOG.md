@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Build Binary: peringatan "strip tidak mengecilkan" yang selalu menyala dihapus (Audit 762)
+- Langkah cross-compile mengekspor `CARGO_PROFILE_RELEASE_STRIP=true`, jadi binary sudah ter-strip oleh Cargo sebelum `llvm-strip` manual berjalan — ukuran yang tidak mengecil sesudahnya adalah keadaan NORMAL, bukan kerusakan toolchain. Peringatan berbasis perbandingan ukuran dari Audit 752 karena itu menyala di setiap build sehat dan melatih semua orang mengabaikan anotasi workflow. Kegagalan strip sungguhan tetap terlihat dari peringatan cabangnya sendiri (`llvm-strip gagal … build tetap lanjut`), dan baris informasi ukuran sebelum/sesudah dipertahankan.
+
 ## [Belum rilis] — TgBackup: pola redaksi galat dikompilasi sekali, bukan per panggilan (Audit 761)
 - `redaksiDetailGalat` memakai tiga `String.replaceAll` sehingga setiap pencatatan kegagalan Telegram mengompilasi 3 pola regex baru dan memindai badan respons (bisa sampai 1 MB) tiga kali — berulang terus selama gangguan jaringan/bot. Ketiga pola kini `static final Pattern` (`POLA_TOKEN_GALAT`/`POLA_URL_GALAT`/`POLA_SPASI_GALAT`, meniru pola `POLA_*` di TgBot), perilaku redaksinya identik dan tetap dikunci uji `redaksiDetailGalatBuangTokenDanRapikanBaris`.
 

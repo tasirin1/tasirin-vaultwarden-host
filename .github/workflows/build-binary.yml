@@ -296,9 +296,6 @@ jobs:
           "$TOOLCHAIN/llvm-strip" -s "$BIN" || echo "::warning::llvm-strip gagal untuk binary vaultwarden; build tetap lanjut tanpa strip"
           UKURAN_SESUDAH=$(stat -c%s "$BIN")
           echo "Ukuran binary: $UKURAN_SEBELUM -> $UKURAN_SESUDAH byte (sesudah strip)"
-          if [ "$UKURAN_SESUDAH" -ge "$UKURAN_SEBELUM" ]; then
-            echo "::warning::strip tidak mengecilkan binary ($UKURAN_SEBELUM -> $UKURAN_SESUDAH byte) - periksa toolchain strip"
-          fi
           mkdir -p ../app/src/main/assets/bin/armeabi-v7a
           cp "$BIN" ../app/src/main/assets/bin/armeabi-v7a/vaultwarden
 
