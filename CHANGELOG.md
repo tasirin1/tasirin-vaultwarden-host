@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 726: tiga salinan blok "tandai backup tertunda" kini memakai helper yang sudah ada
+- `AlarmReceiver` menandai backup tertunda dengan blok try/commit yang ditulis ulang di tiga tempat, padahal helper `tandaiBackupTertunda` untuk persis itu sudah ada di berkas yang sama (dan dipakai jalur keempat). Ketiga salinan kini memanggil helper-nya — perilaku identik (commit sinkron, pengecualian ditelan), dan cara menandai kini hidup di satu tempat sehingga tak bisa menyimpang diam-diam di sebagian jalur.
+
 ## [Belum rilis] — Audit 724: poll bot tidak lagi menelurkan tugas executor hanya untuk menemukan nama bot sudah tersimpan
 - `pollOnce` (tiap 20 detik, selamanya) memanggil `isiNamaBotBilaKosong`, yang tanpa syarat menyerahkan satu tugas ke pool latar; pemeriksaan "nama bot sudah tersimpan?" dan "token ini baru saja dicoba?" baru dilakukan di dalam tugas itu — ±130 ribu tugas sia-sia per bulan pada keadaan stabil. Kedua pemeriksaan murah itu (baca prefs dalam memori + stempel percobaan volatile) kini dilakukan lebih dulu di thread poll; tugas latar hanya diserahkan bila getMe benar-benar perlu dicoba. Pemeriksaan yang sama tetap ada di dalam tugas sebagai pengaman balapan.
 

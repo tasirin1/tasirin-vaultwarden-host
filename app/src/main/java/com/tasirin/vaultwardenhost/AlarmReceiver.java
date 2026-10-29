@@ -83,12 +83,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         } catch (Exception ignored) {
         }
         if (!terkirim) {
-
-            try {
-                context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                        .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
-            } catch (Exception ignored2) {
-            }
+            tandaiBackupTertunda(context);
         }
     }
 
@@ -113,11 +108,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
             } else if (ACTION_TUNDA.equals(action)) {
-                try {
-                    context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                            .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
-                } catch (Exception ignored) {
-                }
+                tandaiBackupTertunda(context);
                 ServerService.catatLog("[tg] Alarm tunda boot gugur: rahasia alarm"
                         + " tak cocok - backup ditandai tertunda.");
             }
@@ -139,11 +130,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             if (!terjadwal) {
                 jadwalUlangBilaOtomatis(context);
-                try {
-                    context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                            .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
-                } catch (Exception ignored) {
-                }
+                tandaiBackupTertunda(context);
                 ServerService.catatLog("[tg] Alarm jatuh pada masa tunggu boot dan"
                         + " penjadwalan tunda gagal - rantai harian dipasang ulang"
                         + " dan backup ditandai tertunda.");
