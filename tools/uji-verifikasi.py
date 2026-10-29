@@ -56,6 +56,11 @@ def klon(tmp, nama):
     git(tujuan, "config", "user.name", "Uji Gerbang")
     git(tujuan, "add", "-A")
     git(tujuan, "commit", "-q", "-m", "snapshot uji")
+    # Commit kosong kedua: gerbang pada mode tanpa --rentang memakai diff
+    # cadangan HEAD~1...HEAD bila upstream tak ada; repo berkomit tunggal
+    # membuat diff itu gagal dan gerbang GAGAL keras (bukan LOLOS) — dua
+    # commit adalah riwayat minimum agar kontrol bersih bisa lulus.
+    git(tujuan, "commit", "-q", "--allow-empty", "-m", "riwayat cadangan")
     return tujuan
 
 
