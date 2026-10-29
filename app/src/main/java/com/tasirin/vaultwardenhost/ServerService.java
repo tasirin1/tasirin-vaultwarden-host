@@ -975,6 +975,7 @@ public class ServerService extends Service {
             healthActive = false;
             simpanNiatJalan(false);
             batalUtama(healthTick);
+            batalUtama(restartTunda);
             batalUtama(startTunda);
             batalStart = true;
             startTertundaData.set(0);
@@ -1653,6 +1654,7 @@ public class ServerService extends Service {
         resetPenandaJalan();
         releaseWakeLock();
         batalUtama(healthTick);
+        batalUtama(restartTunda);
         batalUtama(startTunda);
 
         simpanNiatJalan(false);
@@ -2277,18 +2279,34 @@ public class ServerService extends Service {
     private final Runnable startTunda = new Runnable() {
         @Override
         public void run() {
-            if (!healthActive || !autoRestart) {
-                return;
-            }
-            if (starting.get()) {
-                posUtama(startTunda, 2000);
-                return;
-            }
-            if (process == null || !alive(process)) {
-                startServerAsync();
-            }
+            jalankanStartTunda(startTunda);
         }
     };
+
+    // Identitas Handler restartTunda WAJIB terpisah dari startTunda (Audit 767):
+    // situs penundaan kunci-data membatalkan startTunda saja, dan batalkanTunda
+    // menghapus semua posting Runnable yang sama — satu Runnable gabungan
+    // membuat pembatalan itu ikut membunuh posting backoff-crash. Badan tetap
+    // satu (jalankanStartTunda) agar tak ada duplikasi logika.
+    private final Runnable restartTunda = new Runnable() {
+        @Override
+        public void run() {
+            jalankanStartTunda(restartTunda);
+        }
+    };
+
+    private void jalankanStartTunda(Runnable diri) {
+        if (!healthActive || !autoRestart) {
+            return;
+        }
+        if (starting.get()) {
+            posUtama(diri, 2000);
+            return;
+        }
+        if (process == null || !alive(process)) {
+            startServerAsync();
+        }
+    }
 
     private static void lupakanRiwayatRestart() {
         synchronized (RESTART_TIMES) {
@@ -2330,8 +2348,9 @@ public class ServerService extends Service {
         long delay = RESTART_DELAYS[coba];
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + (coba + 1) + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
+        batalUtama(restartTunda);
         batalUtama(startTunda);
-        posUtama(startTunda, delay);
+        posUtama(restartTunda, delay);
         return false;
     }
 
@@ -4712,6 +4731,7 @@ public class ServerService extends Service {
         mulaiSetelahProsesMati = false;
         startSusulanDiminta = false;
         batalUtama(healthTick);
+        batalUtama(restartTunda);
         batalUtama(startTunda);
         flushLogFile();
 

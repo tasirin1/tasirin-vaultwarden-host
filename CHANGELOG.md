@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan Audit 759 diluruskan: identitas restartTunda dipisah lagi dari startTunda (Audit 767)
+- Audit putaran-30 menemukan premis penggabungan Audit 759 keliru di satu situs: situs penundaan kunci-data memang selalu membatalkan `startTunda` SAJA, dan karena `batalkanTunda` menghapus semua posting Runnable yang sama, Runnable gabungan membuat pembatalan itu ikut membunuh posting backoff-crash yang sedang menunggu (redaman crash-loop melemah; start otomatis bisa gugur). Kini kedua Runnable kembali beridentitas Handler terpisah persis seperti pra-penggabungan (semua situs batal/posting cocok dengan keadaan sebelum Audit 759), tetapi badannya tetap SATU — `jalankanStartTunda(Runnable diri)` — jadi duplikasi logika tidak kembali. Nama `restartTunda` dikeluarkan lagi dari `tools/bekas-hapusan.txt`.
+
 ## [Belum rilis] — Build APK: langkah salin APK bernama rilis yang ganda dihapus (Audit 766)
 - Langkah "Siapkan salinan APK bernama rilis" melakukan `find` + `cp` yang identik dengan awal langkah "Publish APK ke rilis" tepat sesudahnya; salinannya tertimpa sebelum `upload-artifact` membacanya, jadi langkah itu tak punya konsumen sendiri pada run main. Pemeriksaan "APK release tidak ada" tidak hilang — langkah publish memuat uji yang sama persis sebagai baris pertamanya. Satu-satunya penyalinan kini di langkah publish.
 

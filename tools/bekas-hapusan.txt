@@ -109,5 +109,3 @@ domainKustomAktif
 galatDomain
 galatDomainTerimaKosongDanNamaSah
 ensure_leafMemuatSanDnsDanIp
-# Audit 759: restartTunda digabung ke startTunda (dua Runnable berbadan identik).
-restartTunda
