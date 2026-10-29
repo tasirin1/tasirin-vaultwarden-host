@@ -24,6 +24,7 @@
 
                     <EditText
                         android:id="@+id/tgToken"
+                        android:maxLength="128"
                         android:nextFocusDown="@id/showTg"
                         android:nextFocusUp="@id/restoreDb"
                         style="@style/TasirinInput"
@@ -76,6 +77,7 @@
 
                 <EditText
                     android:id="@+id/tgChat"
+                    android:maxLength="512"
                     android:nextFocusDown="@id/backupPass"
                     android:nextFocusUp="@id/copyTg"
                     style="@style/TasirinInput"
@@ -112,6 +114,7 @@
 
                     <EditText
                         android:id="@+id/backupPass"
+                        android:maxLength="256"
                         android:nextFocusDown="@id/showPass"
                         android:nextFocusUp="@id/tgChat"
                         style="@style/TasirinInput"
@@ -141,6 +144,7 @@
 
                 <EditText
                     android:id="@+id/binSha"
+                    android:maxLength="128"
                     android:nextFocusDown="@id/tgAuto"
                     android:nextFocusUp="@id/showPass"
                     style="@style/TasirinInput"

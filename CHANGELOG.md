@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 714: empat kolom tersimpan-otomatis kini dibatasi panjangnya
+- Kolom token bot, chat id, sandi backup, dan SHA binary tidak punya batas panjang di layout maupun jalur simpan: tempelan keliru berukuran ratusan KB (isi berkas/log di UI remote TV) tersimpan apa adanya ke SharedPreferences — yang dimuat utuh ke memori dan ditulis ulang pada tiap `apply()` di semua layar — dan token raksasa itu ikut disematkan ke URL API Telegram sampai bot mati tanpa penjelasan. Keempat kolom kini ber-`maxLength` lapang di atas kebutuhan sahnya (token 128, daftar chat 512, sandi 256, SHA 128; pola Audit 685), sehingga tempelan patologis terpotong di pintu masuk.
+
 ## [Belum rilis] — Audit 713: alarm tunda-boot yatim kini dibatalkan saat auto-backup dimatikan, dan cabangnya memeriksa flag fitur
 - One-shot tunda-boot tidak pernah dibatalkan di mana pun: mematikan auto-backup hanya membatalkan rantai harian, sehingga alarm tunda yang terpasang saat boot tetap menembak — dan cabang TUNDA di receiver tidak memeriksa `KEY_TG_AUTO`, sehingga peringatan Telegram "jam STB salah, backup manual" terkirim untuk fitur yang baru saja dimatikan. Jalur nonaktif `schedule` kini membatalkan PendingIntent tunda-boot juga, dan cabang TUNDA pulang diam-diam bila fitur mati, sejajar dengan semua jalur saudaranya.
 
