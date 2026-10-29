@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 706: serialisasi cek update kini mengantre, bukan melewatkan
+- Sisi lain Audit 704 (self-review putaran-26): pagar CAS membuat cek yang datang kedua *dilewati seluruhnya* — termasuk, untuk cek lengkap Settings, blok web-vault dan satu-satunya pemicu dialog tawarannya pada kunjungan itu. Pagar kini berupa kunci yang mengantre (kedua cek berjalan di pool latar, bukan thread UI): cek kedua menunggu cek pertama selesai lalu berjalan dengan penanda yang sudah diperbarui, sehingga pengumuman tetap tidak ganda (penanda versi dibaca sesudah cek pertama menulisnya) dan tidak ada pemicu yang tertelan. Harga yang dibayar hanya pengulangan pemeriksaan versi yang murah karena cache 15 menitnya.
+
 ## [Belum rilis] — Audit 705: penanda jaringan-mati kini ikut direset bersama penanda IP lain
 - Penanda `ipMatiDiperingatkan` (Audit 697) tertinggal dari kedua titik reset sesi yang mereset kelima penanda IP lainnya: satu-satunya resetnya hanya terjangkau lewat IP non-loopback yang berbeda, sehingga sesudah pulih dengan IP yang sama, episode jaringan mati berikutnya dalam proses yang sama tidak lagi dicatat — mengaburkan diagnosis. Penanda kini direset di `resetPenandaJalan` dan di penyiapan sesi `jalankanProses`, sejajar dengan saudara-saudaranya; catatan satu-kali-per-episode kembali berlaku per sesi server.
 
