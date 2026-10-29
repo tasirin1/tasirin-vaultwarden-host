@@ -594,7 +594,7 @@ def cek_duplikat_definisi(gagal):
         if ganda:
             gagal.append("Definisi ganda di folder %s: %s" % (folder, ", ".join(ganda[:5])))
 
-def berkas_dihapus(rentang, diff_biasa):
+def berkas_dihapus(rentang):
     r = rentang_normal(rentang)
     if r is not None:
         out = jalan("git", "diff", "--name-status", r[0] + r[1] + r[2])
@@ -1568,7 +1568,7 @@ def utama():
     cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
-    hapus = berkas_dihapus(rentang_cek, diff)
+    hapus = berkas_dihapus(rentang_cek)
     if not args.rentang:
         keluar = jalan("git", "diff", "--cached", "--name-status") or ""
         hapus += [x.split(None, 1)[1] for x in keluar.splitlines() if x.startswith("D")]

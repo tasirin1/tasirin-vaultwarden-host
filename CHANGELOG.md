@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 740: parameter mati diff_biasa di gerbang verifikasi dihapus
+- `berkas_dihapus(rentang, diff_biasa)` di `tools/verifikasi-patch.py` menerima parameter kedua yang tidak pernah dipakai di badan fungsi (sisa refactor). Parameter dan argumen di satu-satunya pemanggil dihapus — perilaku gerbang tidak berubah.
+
 ## [Belum rilis] — Audit 739: deteksi deklarasi gerbang kini juga membaca deklarasi yang dibungkus tiga baris
 - `nama_terdeklarasi` di `tools/verifikasi-patch.py` hanya mencoba baris tunggal dan gabungan dua baris berurutan, sehingga deklarasi metode yang dibungkus tiga baris (tanda tangan panjang) tidak terdeteksi sebagai terdefinisi — `masih_didefinisikan` bisa false-negatif dan gerbang daftar-hapusan/acuan berpotensi menolak push yang sah begitu ada deklarasi seperti itu. Gabungan tiga baris kini dicoba juga. Belum pernah terjadi di HEAD (gaya repo ≤2 baris); ini menutup kerapuhan laten sebelum ada yang menabraknya.
 
