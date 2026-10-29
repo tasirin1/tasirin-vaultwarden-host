@@ -1300,6 +1300,25 @@ public final class Updater {
         return bandingVersi(acuan, target) >= 0;
     }
 
+    static boolean webVaultOtomatisPerluUpdate(String terpasang, String target,
+            boolean terkunci) {
+        // Audit 788: jalur otomatis web-vault hanya maju — penanda yang
+        // sama atau LEBIH BARU dari target (tag latest upstream mundur)
+        // tidak memicu unduh, meniru penjaga anti-mundur jalur binary.
+        // Bila user mengunci versi (pin), target adalah pilihan eksplisit:
+        // selisih apa pun ke arah pin tetap dikejar seperti perilaku lama.
+        if (target == null) {
+            return false;
+        }
+        if (terpasang == null || terpasang.isEmpty()) {
+            return true;
+        }
+        if (terkunci) {
+            return !versiCocok(terpasang, target);
+        }
+        return bandingVersi(terpasang, target) < 0;
+    }
+
     public static String downloadBinary(Context ctx, File out, CekBatal batal)
             throws Exception {
         return downloadBinaryVersi(ctx, out, versiTargetBinary(ctx), batal);

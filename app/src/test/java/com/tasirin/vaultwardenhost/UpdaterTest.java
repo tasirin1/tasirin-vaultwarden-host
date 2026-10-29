@@ -1310,6 +1310,24 @@ public class UpdaterTest {
     }
 
     @Test
+    public void webVaultOtomatis_hanyaMajuKecualiTerkunci() {
+        // Audit 788: tanpa pin, jalur otomatis tak pernah mundur — penanda
+        // lebih baru dari target (latest upstream mundur) tidak memicu unduh.
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("1.34.0", "1.35.0", false));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.35.0", false));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("v1.35.0", "1.35.0", false));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.34.0", false));
+        assertTrue(Updater.webVaultOtomatisPerluUpdate(null, "1.35.0", false));
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("", "1.35.0", false));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.34.0", null, false));
+        // Terkunci (pin): selisih apa pun ke arah pin dikejar, termasuk turun.
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.34.0", true));
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("1.34.0", "1.35.0", true));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.35.0", true));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", null, true));
+    }
+
+    @Test
     public void unduhJalanBilaBerkasTertinggal() {
         assertFalse(Updater.unduhBolehDilewati(false, false, "1.36.0", "1.36.0", "1.37.3"));
         assertFalse(Updater.unduhBolehDilewati(false, false, null, null, "1.37.3"));

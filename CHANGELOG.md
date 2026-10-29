@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Update web-vault otomatis tak lagi bisa mundur versi (Audit 788)
+- Gerbang pemicu update web-vault otomatis sebelumnya hanya menguji kesetaraan versi: bila tag rilis terbaru upstream mundur (rilis dicabut/diganti), bundel web akan diunduh ulang dari rilis yang lebih lama dan tertukar masuk diam-diam, sementara binary menolak bergerak berkat penjaga perbandingan versinya. Keputusan pemicu kini murni dan teruji (`webVaultOtomatisPerluUpdate`): tanpa kuncian versi, otomatis hanya maju — penanda yang sama atau lebih baru dari target tidak memicu unduh. Bila user mengunci versi web-vault (pin), target adalah pilihan eksplisit dan selisih apa pun ke arah pin tetap dikejar seperti sebelumnya; jalur manual tidak berubah.
+
 ## [Belum rilis] — Uji: kunci pemilik offset bot kini diasersikan tidak ikut dieksport (Audit 786)
 - Kunci `tg_bot_offset_id` dari Audit 779 memang terdaftar di `TAK_DIEKSPOR_KEYS`, tetapi uji keanggotaan satu-per-satu di `TgBackupTest` belum memuatnya — menghapus pendaftarannya tidak akan membuat uji mana pun merah. Asersi untuk kunci itu kini berdampingan dengan kunci saudaranya (`KEY_TG_MENU_FP`).
 
