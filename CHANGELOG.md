@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Cap waktu baris log kini diformat di dalam kunci buffer (Audit 776)
+- `tulisBarisLog` dulu memformat cap waktu sebelum masuk `synchronized (logBuffer)`, jadi dua thread yang menulis bersamaan bisa tercatat di buffer dengan urutan cap terbalik (baris ber-cap lebih baru muncul lebih dulu) — membingungkan saat membaca urutan kejadian start/crash yang berselisih milidetik. Cap kini diformat di dalam kunci yang sama dengan penambahan barisnya, sehingga urutan buffer selalu searah dengan cap-nya. (Urutan penulisan berkas log adalah langkah terpisah dan tidak diubah.)
+
 ## [Belum rilis] — Pemotongan baris log tak lagi membelah pasangan surrogate (Audit 778)
 - `potongBarisLog` memotong baris >8192 karakter di indeks tetap tanpa penjaga: karakter non-BMP yang pasangan surrogate-nya tepat mengangkangi batas menghasilkan surrogate tak berpasangan (glyph rusak) di ujung baris. Kini mengikuti pola `potongPesanGalat` di berkas yang sama: bila char terakhir hasil potongan adalah high surrogate, ia ikut dibuang sebelum penanda `[baris dipotong]` ditambahkan.
 

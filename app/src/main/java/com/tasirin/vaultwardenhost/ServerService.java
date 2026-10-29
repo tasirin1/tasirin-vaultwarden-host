@@ -2718,10 +2718,12 @@ public class ServerService extends Service {
     private static String tulisBarisLog(String line) {
 
         String stamp;
-        java.util.Date tgl = LOG_TGL.get();
-        tgl.setTime(System.currentTimeMillis());
-        stamp = LOG_TS.get().format(tgl);
         synchronized (logBuffer) {
+            // Cap diformat DI DALAM kunci (Audit 776): di luar kunci, dua
+            // thread bisa masuk buffer dengan urutan cap terbalik.
+            java.util.Date tgl = LOG_TGL.get();
+            tgl.setTime(System.currentTimeMillis());
+            stamp = LOG_TS.get().format(tgl);
 
             logBuffer.append(stamp).append(' ').append(line).append('\n');
             pangkasBufferTerkunci();
