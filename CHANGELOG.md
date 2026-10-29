@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: guard kedua-kosong diluruskan, plurals yang sah kosong tak lagi digagalkan (Audit 772)
+- Guard Audit 765 menyamaratakan string dan plurals, padahal keduanya berbeda: string kedua-kosong pasti berarti berkas hilang/rusak, tetapi plurals kedua-kosong bisa jadi keadaan sah (aplikasi tanpa `<plurals>` sama sekali tersinkron sempurna) — guard itu akan menggagalkan gerbang secara permanen dengan pesan menyesatkan bila plurals terakhir suatu hari dihapus dari kedua locale. Cabang plurals kini kembali ke perbandingan bersyarat; berkas hilang tetap tertangkap cabang string karena berkas yang sama memuat string (terbukti fixture: kedua `strings.xml` dipindahkan → GAGAL dari cabang string, tepat sekali).
+
 ## [Belum rilis] — Gerbang: penghapusan ter-staged tak lagi dilaporkan dua kali (Audit 771)
 - Sejak Audit 763, `berkas_dihapus` mode lokal sudah mengunion diff staged ke dalam daftarnya, tetapi `utama()` masih menambahkan penghapusan staged sekali lagi secara terpisah — warisan dari sebelum 763 — sehingga satu berkas ter-staged yang dihapus menghasilkan dua baris GAGAL yang sama. Tambahan ganda itu kini dilepas; terbukti dengan fixture `git rm` berkas yang masih dirujuk: GAGAL tetap muncul, tepat satu kali.
 

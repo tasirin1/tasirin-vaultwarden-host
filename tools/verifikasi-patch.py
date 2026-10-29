@@ -888,10 +888,11 @@ def cek_sinkron_terjemah(gagal):
 
     pl_inggris = himpun("values", pola_plurals)
     pl_indonesia = himpun("values-in", pola_plurals)
-    if not pl_inggris and not pl_indonesia:
-        gagal.append("Kedua plurals (values + values-in) kosong/hilang "
-                     "— cek sinkron terjemahan tak bisa berjalan (Audit 765)")
-    else:
+    # Plurals TIDAK ikut aturan kedua-kosong Audit 765 (diluruskan Audit 772):
+    # tak punya plurals sama sekali adalah keadaan sah yang tersinkron,
+    # sedangkan berkas hilang sudah tertangkap cabang string di atas karena
+    # berkas yang sama memuat string.
+    if pl_inggris or pl_indonesia:
         kurang = sorted(pl_inggris - pl_indonesia)
         lebih = sorted(pl_indonesia - pl_inggris)
         if kurang:
