@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — CodeQL kini ikut memindai Python (tools/) (Audit 789)
+- Workflow CodeQL sebelumnya hanya menganalisis `java-kotlin` dan `cpp`, sehingga dua berkas Python yang menjadi gerbang verifikasi repo sendiri (`tools/verifikasi-patch.py`, `tools/uji-verifikasi.py`) buta total dari analisis keamanan. Job baru `analyze-python` (build-mode none, pola yang sama dengan job cpp) menutup celah itu.
+
 ## [Belum rilis] — Update web-vault otomatis tak lagi bisa mundur versi (Audit 788)
 - Gerbang pemicu update web-vault otomatis sebelumnya hanya menguji kesetaraan versi: bila tag rilis terbaru upstream mundur (rilis dicabut/diganti), bundel web akan diunduh ulang dari rilis yang lebih lama dan tertukar masuk diam-diam, sementara binary menolak bergerak berkat penjaga perbandingan versinya. Keputusan pemicu kini murni dan teruji (`webVaultOtomatisPerluUpdate`): tanpa kuncian versi, otomatis hanya maju — penanda yang sama atau lebih baru dari target tidak memicu unduh. Bila user mengunci versi web-vault (pin), target adalah pilihan eksplisit dan selisih apa pun ke arah pin tetap dikejar seperti sebelumnya; jalur manual tidak berubah.
 
