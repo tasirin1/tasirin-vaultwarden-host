@@ -301,6 +301,8 @@ public class LogActivity extends Activity {
 
             redaksiJalan.set(false);
             lastLogKey = null;
+            cariTerakhirDibangun = null;
+            cariDibangunTerakhirMs = 0;
         }
     }
 

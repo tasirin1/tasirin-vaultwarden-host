@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 749: penolakan tugas bangun log kini ikut me-reset stempel throttle pencarian
+- Sisa Audit 718: stempel throttle bangun-ulang pencarian dicatat saat tugas dikirim, tetapi bila pool latar menolak tugas itu, hanya kunci konten dan gerbang single-flight yang direset — stempelnya tertinggal, sehingga bangun-ulang kueri yang sama tertahan sampai sisa jendela 4,5 detik habis. Blok penolakan kini me-reset kedua stempel juga, jadi tik berikutnya (±1,5 detik) langsung membangun tampilan cari yang benar.
+
 ## [Belum rilis] — Audit 748: perbandingan penanda zip gagal memakai predikat digest tak peka huruf
 - Penanda zip gagal dibandingkan dengan `String.equals` yang peka huruf besar/kecil, sedangkan seluruh verifikasi digest lain di berkas ini memakai `expectedHexEquals` yang tak peka huruf — penanda dari sumber berhuruf berbeda (mis. `.sha256` rilis berhuruf besar melawan sidik berkas heks kecil) tidak akan dikenali sebagai zip yang sama. Perbandingan penanda kini memakai predikat yang sama; dampak praktisnya kecil (`.sha256` GitHub selalu huruf kecil dan penanda sembuh sendiri), ini pemadanan konsistensi.
 
