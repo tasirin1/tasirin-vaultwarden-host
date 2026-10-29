@@ -2296,16 +2296,27 @@ public class ServerService extends Service {
     };
 
     private void jalankanStartTunda(Runnable diri) {
-        if (!healthActive || !autoRestart) {
-            return;
-        }
-        if (starting.get()) {
+        int putusan = putusanStartTunda(healthActive, autoRestart, starting.get(),
+                process != null && alive(process));
+        if (putusan == 1) {
             posUtama(diri, 2000);
-            return;
-        }
-        if (process == null || !alive(process)) {
+        } else if (putusan == 2) {
             startServerAsync();
         }
+    }
+
+    // Keputusan murni badan penundaan start (Audit 767): 0 = berhenti diam,
+    // 1 = posting ulang 2 detik (start masih berjalan), 2 = mulai server
+    // (proses mati). Dipisah dari Android agar teruji JVM.
+    static int putusanStartTunda(boolean aktif, boolean mulaiLagi,
+                                 boolean sedangMulai, boolean prosesHidup) {
+        if (!aktif || !mulaiLagi) {
+            return 0;
+        }
+        if (sedangMulai) {
+            return 1;
+        }
+        return prosesHidup ? 0 : 2;
     }
 
     private static void lupakanRiwayatRestart() {

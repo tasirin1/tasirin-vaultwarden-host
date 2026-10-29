@@ -1137,4 +1137,19 @@ public class ServerServiceTest {
         assertTrue(hasil.startsWith(sb.substring(0, 100)));
         assertTrue(hasil.contains("dipotong"));
     }
+
+    @Test
+    public void putusanStartTunda_matriksKeputusan() {
+        // Health mati atau autoRestart mati: berhenti diam apa pun sisanya.
+        assertEquals(0, ServerService.putusanStartTunda(false, true, false, false));
+        assertEquals(0, ServerService.putusanStartTunda(true, false, false, false));
+        assertEquals(0, ServerService.putusanStartTunda(false, false, true, true));
+        // Start masih berjalan: posting ulang, menang atas keadaan proses.
+        assertEquals(1, ServerService.putusanStartTunda(true, true, true, false));
+        assertEquals(1, ServerService.putusanStartTunda(true, true, true, true));
+        // Proses masih hidup: tidak ada yang dikerjakan.
+        assertEquals(0, ServerService.putusanStartTunda(true, true, false, true));
+        // Proses mati dan tidak sedang start: mulai server.
+        assertEquals(2, ServerService.putusanStartTunda(true, true, false, false));
+    }
 }
