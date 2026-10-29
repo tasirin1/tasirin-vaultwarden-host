@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 717: digest unduhan kini dipakai ulang — binary tidak lagi di-hash tiga kali per pemasangan
+- `unduhKeTmp` sudah menghitung digest SHA-256 streaming atas seluruh berkas dan mencocokkannya ke `.sha256` rilis di dalam loop unduh, tetapi nilai kembaliannya dibuang oleh semua pemanggil: `pasangHasilUnduh` membaca ulang seluruh tmp untuk hash yang sama, dan penulisan pin sesudah pasang membaca ulang seluruh berkas hasil sekali lagi. Untuk binary puluhan MB di STB lambat itu dua lintasan baca+hash penuh yang murni pengulangan, berjalan sambil memegang kunci pasang. Digest unduhan kini ditangkap dan diteruskan ke varian `pasangHasilUnduh` ber-digest (varian lama tetap ada untuk pemanggil tanpa digest, termasuk uji), dan pin ditulis dari `expectedSha` yang baru saja dibuktikan cocok oleh pemasangan itu sendiri. Verifikasi pin pada setiap start server (`binaryUtuh`) sengaja TIDAK diubah — itu pemeriksaan integritas anti-utak-atik antar-start, bukan pengulangan.
+
 ## [Belum rilis] — Audit 716: cek update kini berjalan di pool khususnya sendiri, bukan pool latar bersama
 - Sisa Audit 704/706 yang terverifikasi: cek kedua menunggu `KUNCI_CEK` tanpa batas *di dalam* pool `BG_LAMA` yang hanya berisi 2 thread dan dipakai bersama ServerService/TgBackup — saat cek pertama mengunduh binary/web-vault di koneksi menetes (belasan menit), satu thread menunggu dan sisa kolam tinggal satu; antrean penuh mulai menolak tugas latar lain. Cek update kini diserahkan ke pool khusus satu thread (`Util.jalankanCek`, antrean kecil): cek kedua mengantre di kolamnya sendiri dan tetap berjalan sesudah cek pertama dengan penanda segar (semantik Audit 706 utuh), sementara `BG_LAMA` tidak pernah lagi tertahan oleh penantian cek.
 

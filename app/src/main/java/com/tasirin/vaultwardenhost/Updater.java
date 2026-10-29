@@ -754,6 +754,11 @@ public final class Updater {
 
     static void pasangHasilUnduh(File tmp, File out, String expectedSha)
             throws IOException {
+        pasangHasilUnduh(tmp, out, expectedSha, null);
+    }
+
+    static void pasangHasilUnduh(File tmp, File out, String expectedSha,
+            String hexTmpDiketahui) throws IOException {
         Object kunciOut = kunciUnduh(out);
         Object kunciTmp = kunciUnduh(tmp);
         try {
@@ -767,7 +772,9 @@ public final class Updater {
                         throw new IOException("Berkas unduhan sementara hilang;"
                                 + " ulangi unduhan.");
                     }
-                    if (!expectedHexEquals(expectedSha, sha256Hex(tmp))) {
+                    String hexTmp = hexTmpDiketahui != null
+                            ? hexTmpDiketahui : sha256Hex(tmp);
+                    if (!expectedHexEquals(expectedSha, hexTmp)) {
                         tmp.delete();
                         throw new IOException("Checksum SHA-256 tidak cocok; update dibatalkan.");
                     }
@@ -1361,6 +1368,8 @@ public final class Updater {
         final boolean[] pakaiTerbaru = {fallbackTercatat};
         final String[] urlAkhir = {urlAwalUnduhBinary(fallbackTercatat, assetUrl)};
         final String[] shaDapat = {null};
+        final String[] hexUnduh = {null};
+        final String[] shaTerpasang = {null};
         boolean fallback;
         String asap;
         Object kunciTmpBin = kunciUnduh(tmp);
@@ -1368,7 +1377,7 @@ public final class Updater {
             try {
                 try {
 
-                    unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
+                    hexUnduh[0] = unduhKeTmp(ctx, urlAkhir[0], tmp, "binary", 20000, 60000,
                             new UrlCadangan() {
                                 @Override
                                 public String ganti(String url, int kode) throws IOException {
@@ -1402,6 +1411,7 @@ public final class Updater {
                 fallback = pakaiTerbaru[0];
 
                 String expectedSha = shaDapat[0];
+                shaTerpasang[0] = expectedSha;
                 if (tmp.length() < 1_000_000 || !isElf(tmp)) {
                     tmp.delete();
                     throw new IOException("File update tidak valid.");
@@ -1426,7 +1436,7 @@ public final class Updater {
                             KernelCompat.kernelSekarang(), shimAda));
                 }
                 try {
-                    pasangHasilUnduh(tmp, out, expectedSha);
+                    pasangHasilUnduh(tmp, out, expectedSha, hexUnduh[0]);
                 } catch (IOException e) {
                     try {
                         tmp.delete();
@@ -1460,7 +1470,8 @@ public final class Updater {
         }
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(KEY_BIN_SHA_PIN, sha256Hex(out)).apply();
+                    .edit().putString(KEY_BIN_SHA_PIN,
+                            shaTerpasang[0] != null ? shaTerpasang[0] : sha256Hex(out)).apply();
         } catch (Exception ignored) {
         }
         ServerService.binaryVersion = "";
