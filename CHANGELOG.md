@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 744: asersi waktu uji waitForOrKill diperketat dari 10 detik ke 3 detik
+- Uji timeout 300 ms untuk proses macet hanya mengasertikan selesai di bawah 10 detik (kelonggaran 33×), sehingga regresi kelambatan sampai ±9 detik akan tetap hijau. Batas diperketat menjadi 3 detik — tetap 10× anggaran nominal, cukup longgar untuk CI yang sibuk, tetapi sekarang benar-benar menangkap regresi orde detik.
+
 ## [Belum rilis] — Audit 743: gerbang izin ekspor log jalur API lama tidak lagi fail-open saat pemeriksa melempar
 - Cabang API <29 di `LogExport` membungkus pemeriksaan izin dalam try/catch yang menelan pengecualian lalu *melanjutkan menulis* — secara struktur fail-open, berlawanan arah dengan cabang `false`-nya, walau dampak praktisnya mendekati nol (pemeriksa menelan pengecualian internalnya sendiri dan tulisan tanpa izin tetap gagal di stream). Pengecualian kini diperlakukan sama dengan tidak-berizin: ekspor dibatalkan. Bentuk penanganannya yang dibuat benar, bukan perilaku yang berubah.
 

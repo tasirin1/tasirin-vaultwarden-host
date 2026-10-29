@@ -958,7 +958,7 @@ public class ServerServiceTest {
         long mulai = System.nanoTime();
         assertFalse(ServerService.waitForOrKill(macet, 300));
 
-        assertTrue(System.nanoTime() - mulai < 10_000_000_000L);
+        assertTrue(System.nanoTime() - mulai < 3_000_000_000L);
     }
 
     private static int hitungThreadTunggu() {
