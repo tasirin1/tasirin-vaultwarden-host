@@ -2,7 +2,7 @@
 
 [![Build APK](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-apk.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
 [![Build Binary](https://github.com/tasirin1/tasirin-vaultwarden-host/actions/workflows/build-binary.yml/badge.svg)](https://github.com/tasirin1/tasirin-vaultwarden-host/actions)
-[![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host/releases)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
+[![Release](https://img.shields.io/github/v/release/tasirin1/tasirin-vaultwarden-host)](https://github.com/tasirin1/tasirin-vaultwarden-host/releases)
 
 <p align="center"><b>&#127760; Language: <a href="README.md">English</a> &middot; <a href="README.id.md">Indonesia</a> &middot; <a href="README.ru.md">Русский</a> &middot; <a href="CHANGELOG.md">Changelog</a></b></p>
 
