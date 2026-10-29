@@ -298,6 +298,8 @@ public final class AutoUpdate {
                 try {
                     if (ctx.checkSelfPermission("android.permission.POST_NOTIFICATIONS")
                             != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        ServerService.catatLog("[app] Notifikasi update tertahan:"
+                                + " izin notifikasi (POST_NOTIFICATIONS) belum diberikan.");
                         return false;
                     }
                 } catch (Exception ignoredPerm) {

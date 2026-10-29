@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 711: notifikasi update yang tertahan izin notifikasi kini dicatat, tidak lagi senyap
+- Di Android 13+, `tampilkanNotifikasi` memeriksa `POST_NOTIFICATIONS` lalu pulang `false` tanpa catatan apa pun — dan izin itu tidak pernah diminta di mana pun di aplikasi — sehingga pada perangkat/OEM yang memperlakukan aplikasi target lama sebagai belum berizin, notifikasi "update tersedia" mati diam-diam tanpa jejak untuk diagnosis. Penahanan kini menulis satu baris log yang menyebut izinnya. (Permintaan izin runtime-nya sendiri adalah keputusan UX terpisah: konteks pemeriksanya adalah cek latar tanpa activity.)
+
 ## [Belum rilis] — Audit 710: penolakan izin permanen kini dibedakan dan dinyatakan terus terang
 - Seluruh repo tak pernah memeriksa `shouldShowRequestPermissionRationale`: penolakan permanen ("jangan tanya lagi") menerima toast yang sama dengan penolakan biasa, padahal dialog sistem tak akan pernah muncul lagi dan siklus Start berulang terlihat seperti tombol rusak. `tanganiPenolakan` kini menilai kepermanenan lewat predikat murni teruji `penolakanPermanen` (rationale mati + izin belum diberikan, di konteks sesudah penolakan nyata) dan memakai pesan khusus yang menyatakan dialog tidak akan muncul lagi serta satu-satunya jalan lewat Pengaturan, dengan catatan log yang sejalan.
 
