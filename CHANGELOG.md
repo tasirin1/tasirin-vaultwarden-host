@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 724: poll bot tidak lagi menelurkan tugas executor hanya untuk menemukan nama bot sudah tersimpan
+- `pollOnce` (tiap 20 detik, selamanya) memanggil `isiNamaBotBilaKosong`, yang tanpa syarat menyerahkan satu tugas ke pool latar; pemeriksaan "nama bot sudah tersimpan?" dan "token ini baru saja dicoba?" baru dilakukan di dalam tugas itu — ±130 ribu tugas sia-sia per bulan pada keadaan stabil. Kedua pemeriksaan murah itu (baca prefs dalam memori + stempel percobaan volatile) kini dilakukan lebih dulu di thread poll; tugas latar hanya diserahkan bila getMe benar-benar perlu dicoba. Pemeriksaan yang sama tetap ada di dalam tugas sebagai pengaman balapan.
+
 ## [Belum rilis] — Audit 723: penyegaran IP latar kini berpagar satu-sedang-berjalan
 - `jadwalSegarkanIp` memasang satu tugas latar baru pada setiap panggilan `localIp()` selama cache basi — pemanggilnya termasuk tik UI 1 detik di kedua activity — tanpa pagar bahwa penyegaran sebelumnya masih berjalan. Tugas-tugas ekstra memang keluar murah di cek kesegaran, tetapi antreannya sia-sia. Kini ada pagar CAS: hanya satu penyegaran berjalan pada satu waktu, panggilan berikutnya selama penyegaran berjalan tidak memasang apa pun, dan pagar dilepas saat tugas selesai atau gagal masuk antrean.
 

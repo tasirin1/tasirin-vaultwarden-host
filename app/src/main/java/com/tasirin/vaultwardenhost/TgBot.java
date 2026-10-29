@@ -968,6 +968,17 @@ public final class TgBot {
         if (ctx == null || token == null || token.trim().isEmpty()) {
             return;
         }
+        try {
+            if (!namaBotTersimpan(ctx).isEmpty()) {
+                return;
+            }
+        } catch (Exception ignored) {
+            return;
+        }
+        if (!bolehCobaGetMe(token.trim(), getMeCobaToken, getMeCobaAt,
+                SystemClock.elapsedRealtime())) {
+            return;
+        }
         final Context appCtx = ctx.getApplicationContext();
         final String tokenBg = token;
         Util.jalankanBg(() -> isiNamaBotSekarang(appCtx, tokenBg));
