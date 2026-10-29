@@ -69,9 +69,13 @@ def _impor_yaml(gagal):
         import yaml
         return yaml
     except Exception:
-        gagal.append("PyYAML tak tersedia — validasi YAML tak bisa berjalan; "
-                     "pasang dulu (pip install pyyaml) agar gerbang tak "
-                     "lolos buta")
+        pesan = ("PyYAML tak tersedia — validasi YAML tak bisa berjalan; "
+                 "pasang dulu (pip install pyyaml) agar gerbang tak "
+                 "lolos buta")
+        # Pintu ini dipanggil beberapa fungsi cek untuk akar yang sama:
+        # laporkan sekali saja (Audit 770).
+        if pesan not in gagal:
+            gagal.append(pesan)
         return None
 
 

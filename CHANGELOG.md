@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pesan PyYAML absen kini dilaporkan sekali, bukan dua kali (Audit 770)
+- Pintu impor `_impor_yaml` dari Audit 758 dipanggil beberapa fungsi cek untuk akar yang sama, jadi lingkungan tanpa PyYAML menghasilkan dua baris GAGAL identik ("GAGAL (2)" untuk satu penyebab) yang mengaburkan laporan. Kini pesan itu ditambahkan hanya bila belum ada di daftar gagal — satu akar, satu laporan. Vonis fail-kerasnya tidak berubah.
+
 ## [Belum rilis] — Gerbang redaksi log kini mengenal path absolut (Audit 769)
 - `samarkanLog` selalu menyamarkan path absolut menjadi `[path]` (maksud Audit 601), tetapi gerbang `butuhSamaran` yang memutuskan apakah redaksi perlu jalan sama sekali tidak mengenal path — potongan log yang isinya hanya baris ber-path (mis. baris `TLS cert: /data/…` saat server start) tampil mentah di log beranda dan ikut mentah saat dibagikan/disalin/dikirim bot. Gerbang kini ikut membuka bila ada path absolut, dan uji baru mengunci kasus path-saja.
 
