@@ -398,6 +398,12 @@ public class UpdaterTest {
         assertNull(Updater.parseBinaryVersion("?"));
         assertNull(Updater.parseBinaryVersion(""));
         assertNull(Updater.parseBinaryVersion(null));
+        // Audit 801: sufiks prerelease SENGAJA dibuang parser ini — sisi
+        // terpasang/berjalan di situs keputusan Audit 794 tidak pernah
+        // membawa sufiks; keketatan sufiks sisi itu ditanggung
+        // cacheSesuaiPin dari string mentah saat Start.
+        assertEquals("1.37.3", Updater.parseBinaryVersion("vaultwarden 1.37.3-beta"));
+        assertEquals("1.37.3", Updater.parseBinaryVersion("1.37.3-rc.1 (abc123)"));
     }
 
     @Test
