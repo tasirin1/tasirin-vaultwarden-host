@@ -1442,14 +1442,21 @@ public final class TgBackup {
         return hasil;
     }
 
+    private static final java.util.regex.Pattern POLA_TOKEN_GALAT =
+            java.util.regex.Pattern.compile("[0-9]{5,}:[A-Za-z0-9_-]{10,}");
+    private static final java.util.regex.Pattern POLA_URL_GALAT =
+            java.util.regex.Pattern.compile("https?://\\S+");
+    private static final java.util.regex.Pattern POLA_SPASI_GALAT =
+            java.util.regex.Pattern.compile("\\s+");
+
     static String redaksiDetailGalat(String detail) {
         if (detail == null) {
             return "";
         }
-        String d = detail.replaceAll("[0-9]{5,}:[A-Za-z0-9_-]{10,}", "<token>");
+        String d = POLA_TOKEN_GALAT.matcher(detail).replaceAll("<token>");
 
-        d = d.replaceAll("https?://\\S+", "<url>");
-        d = d.replaceAll("\\s+", " ").trim();
+        d = POLA_URL_GALAT.matcher(d).replaceAll("<url>");
+        d = POLA_SPASI_GALAT.matcher(d).replaceAll(" ").trim();
         return d.length() > 200 ? d.substring(0, 200) + "..." : d;
     }
 

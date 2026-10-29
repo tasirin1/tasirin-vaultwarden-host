@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — TgBackup: pola redaksi galat dikompilasi sekali, bukan per panggilan (Audit 761)
+- `redaksiDetailGalat` memakai tiga `String.replaceAll` sehingga setiap pencatatan kegagalan Telegram mengompilasi 3 pola regex baru dan memindai badan respons (bisa sampai 1 MB) tiga kali — berulang terus selama gangguan jaringan/bot. Ketiga pola kini `static final Pattern` (`POLA_TOKEN_GALAT`/`POLA_URL_GALAT`/`POLA_SPASI_GALAT`, meniru pola `POLA_*` di TgBot), perilaku redaksinya identik dan tetap dikunci uji `redaksiDetailGalatBuangTokenDanRapikanBaris`.
+
 ## [Belum rilis] — TlsCert: resetTls kini ikut menghapus varian .rusak (Audit 760)
 - `pulihkanTukarTersisa` menyisihkan pasangan tak-cocok sebagai `<nama>.rusak` (termasuk kunci privat CA `ca-key.pem.rusak`); jalur normal dan rollback memang mengonsumsinya kembali, tetapi proses yang mati di tengah pemulihan meninggalkannya permanen — dan daftar hapus `resetTls` hanya memuat varian `.baru`/`.cad`, jadi kunci privat sisa itu selamat dari reset TLS eksplisit yang user kira tuntas. Daftar kini memuat keempat varian `.rusak` (CA + leaf), dikunci uji `resetTls_hapusVarianRusak`.
 
