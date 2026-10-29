@@ -2883,6 +2883,7 @@ public final class TgBackup {
         TUGAS_DATA_JALAN.set(false);
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
     static void tandaiRestoreMulai(Context ctx) {
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
@@ -2892,6 +2893,7 @@ public final class TgBackup {
         }
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
     static void tandaiRestoreSelesai(Context ctx) {
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Lint: 8 peringatan ApplySharedPref ditandai disengaja (commit penanda daya-tahan)
+- Lint menyarankan `apply()` untuk delapan `commit()` — semuanya penanda yang memang WAJIB tahan mati proses saat itu juga: penanda pasca-swap dan pin binary/web-vault (`Updater`, dari Audit 730) serta penanda restore-berjalan (`TgBackup`, sinyal keselamatan bila proses mati di tengah restore). Menggantinya ke `apply()` akan membatalkan maksud perbaikannya, jadi keempat metode penampungnya kini memakai `@SuppressLint("ApplySharedPref")` — pola yang sama yang sudah dipakai pembuatan rahasia alarm. Perilaku tidak berubah sama sekali; peringatan hilang karena keputusannya kini tercatat di kode.
+
 ## [Belum rilis] — Gerbang: metode di berkas uji tak lagi memicu peringatan "metode baru tanpa uji"
 - Pemeriksaan `cek_uji_baru` di `tools/verifikasi-patch.py` memindai semua berkas Java yang berubah termasuk berkas uji, lalu mencari nama metodenya sebagai acuan `Kelas.nama()` atau di berkas `<Kelas>Test.java` — untuk metode yang dideklarasikan di dalam berkas uji sendiri (kelasnya `UtilTest`, berkas pasangannya "UtilTestTest.java" yang tak pernah ada) pencarian itu mustahil berhasil, jadi setiap penambahan metode uji memicu peringatan palsu (terakhir: uji `jalankanCek` dari Audit 757). Pemeriksaan kini melewati berkas di `src/test/` — aturan itu menjaga logika produksi, dan berkas uji adalah ujinya sendiri. Terverifikasi di salinan buang: metode uji baru kini senyap, metode produksi baru tanpa uji tetap diperingatkan.
 

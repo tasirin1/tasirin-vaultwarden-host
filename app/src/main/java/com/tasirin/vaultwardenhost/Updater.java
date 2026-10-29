@@ -1345,6 +1345,7 @@ public final class Updater {
         }
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
     private static String downloadBinaryInner(Context ctx, File out, String diminta,
                                               CekBatal batal) throws Exception {
         String latest = diminta;
@@ -1833,6 +1834,7 @@ public final class Updater {
         return (latest != null && !fallback) ? latest : null;
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
