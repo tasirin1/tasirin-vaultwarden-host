@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 728: pembuatan rahasia alarm pertama kini diserialkan dengan kunci
+- `rahasiaAlarm` melakukan baca-prefs → buat acak → commit tanpa sinkronisasi, padahal pemanggilnya datang dari banyak thread. Pada proses pertama sekali (rahasia belum tersimpan), dua pemanggil berbarengan bisa membuat dua rahasia berbeda dan keduanya commit — PendingIntent yang keburu dibangun dapat membawa rahasia yang kalah, sehingga satu alarm pertama ditolak "rahasia tak cocok". Seluruh urutan baca-buat-simpan kini berjalan di dalam satu kunci statis; jalur yang sudah punya rahasia hanya membayar satu monitor singkat.
+
 ## [Belum rilis] — Audit 727: blok kembar penghapusan pesan ber-PIN di pollOnce disatukan jadi satu helper
 - Jalur jam-mundur dan jalur pesan-basi di `pollOnce` menjalankan urutan yang sama persis (±25 baris, hanya beda nama variabel): ambil pending bersyarat, nilai `pinBasiPerluHapus`, hapus pesan perintah, peringatkan bila gagal. Ini logika keamanan (penghapusan pesan berisi PIN), sehingga duplikasinya berisiko: pengetatan kelak harus diterapkan dua kali dan satu jalur bisa tertinggal. Urutan itu kini hidup di satu helper `hapusBilaPinBasi`; kedua jalur tinggal memanggilnya dengan teks/id pesannya masing-masing. Perilaku per jalur tidak berubah.
 

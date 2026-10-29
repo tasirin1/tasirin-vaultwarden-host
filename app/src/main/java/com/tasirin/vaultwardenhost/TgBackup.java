@@ -210,8 +210,16 @@ public final class TgBackup {
 
     private static volatile String rahasiaAlarmSesi = null;
 
-    @android.annotation.SuppressLint("ApplySharedPref")
+    private static final Object KUNCI_RAHASIA_ALARM = new Object();
+
     static String rahasiaAlarm(android.content.Context ctx) {
+        synchronized (KUNCI_RAHASIA_ALARM) {
+            return rahasiaAlarmTerkunci(ctx);
+        }
+    }
+
+    @android.annotation.SuppressLint("ApplySharedPref")
+    private static String rahasiaAlarmTerkunci(android.content.Context ctx) {
         try {
             android.content.SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, android.content.Context.MODE_PRIVATE);
