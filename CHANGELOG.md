@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 745: penjadwalan restart-crash kini ikut membatalkan coba-lagi start
+- Sisa pemisahan Audit 722: `startTunda` (coba-lagi start tertunda kunci data, siklus 5 detik) tidak dibatalkan saat `scheduleRestartTerkunci` menjadwalkan restart-crash ber-backoff, sehingga server bisa menyala mendahului backoff bila kunci data lepas lebih dulu. Penjadwalan restart kini membatalkan keduanya — coba-lagi start kehilangan maknanya begitu restart-crash mengambil alih. Dampaknya memang hanya ketepatan waktu (penjaga run + CAS starting menahan start liar), tetapi urutan yang dimaksud kini yang benar-benar terjadi.
+
 ## [Belum rilis] — Audit 719 (koreksi): jam throttle flush log diganti ke System.currentTimeMillis
 - Koreksi atas entri Audit 719 di bawah: throttle flush memakai `SystemClock.elapsedRealtime()` di dalam `catatLog` — di lingkungan uji JVM, `SystemClock` adalah stub Android yang melempar RuntimeException, sehingga `catatLog` (yang sebelumnya murni Java/berkas dan aman dipanggil uji) mulai melempar dan tiga uji CI gagal (`catatLogNaikkanVersi` + dua uji `tundaBilaBootBaru` yang jalurnya mencatat log). Jam throttle kini memakai `System.currentTimeMillis()` (murni Java): lonjakan jam dinding hanya bisa membuat flush sedikit lebih sering atau lebih jarang sesaat — tak berpengaruh pada keamanan throttle. Perilaku produksi tidak berubah.
 

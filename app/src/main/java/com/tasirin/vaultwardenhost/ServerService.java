@@ -2350,6 +2350,7 @@ public class ServerService extends Service {
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + (coba + 1) + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
         batalUtama(restartTunda);
+        batalUtama(startTunda);
         posUtama(restartTunda, delay);
         return false;
     }
