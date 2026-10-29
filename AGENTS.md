@@ -28,7 +28,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 .
 ├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): verifikasi → resolve versi → build APK → upload APK
 ├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): verifikasi → resolve versi → build binary+shim+web-vault → rilis
-├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
+├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), cek-wajib.yml (gerbang untuk semua PR), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
@@ -232,8 +232,10 @@ Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
 coba ulang). Cache cargo dipakai ulang antar run binary.
 
 **Gerbang bersama: job `verifikasi` (~1 mnt, tanpa SDK)** — ada di dalam
-**kedua** workflow (bukan workflow terpisah) sebagai job pertama, sehingga
-build apa pun yang terpicu selalu melewatinya lebih dulu. Di `build-apk.yml`
+**kedua** workflow build sebagai job pertama, sehingga build apa pun yang
+terpicu selalu melewatinya lebih dulu; selain itu workflow terpisah
+`cek-wajib.yml` menjalankan job bernama sama untuk **semua** `pull_request`
+tanpa saringan path (termasuk PR dokumen). Di `build-apk.yml`
 ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`), `pull_request`
 (saringan path yang sama), dan `workflow_dispatch`; di `build-binary.yml`
 untuk `push`/`pull_request` yang menyentuh `build-binary.yml`/`shim/**`,
