@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 715: pengambilan versi terbaru tidak lagi memegang kunci selama fetch HTTP
+- `latestVersion()` menjalankan seluruh fetch (sambung + baca badan, timeout 10+10 detik) di dalam `synchronized (KUNCI_VERSI)`, dan pembaca versi bawaan dari thread UI (`onCreate` kedua activity) masuk monitor yang sama — membuka aplikasi tepat saat cek latar mengambil versi bisa membekukan UI selama sisa fetch. Fetch kini berjalan di luar kunci: kunci hanya menjaga baca/tulis cache dan stempel gagal, dengan semantik yang sama (cache segar dan jeda-gagal diperiksa sebelum fetch, hasil dan stempel disimpan sesudahnya). Dua fetch yang kebetulan berbarengan sama-sama mengambil JSON kecil yang sama dan penulis terakhir menang — tidak ada keadaan yang bisa rusak.
+
 ## [Belum rilis] — Audit 583: aplikasi kini muncul di layar utama Android TV murni (keputusan owner 2026-10-29)
 - Aplikasi tidak mempunyai kategori `LEANBACK_LAUNCHER` sama sekali, sehingga di perangkat Android TV murni (launcher Leanback/Google TV, mis. Mi TV Stick) aplikasi tidak muncul di layar utama — hanya bisa dibuka lewat Pengaturan → Aplikasi. Kini `MainActivity` mendaftarkan kategori Leanback di samping `LAUNCHER` biasa, `application` membawa `android:banner` (banner TV baru `tv_banner`, 640×360, gradasi dan perisai mengikuti ikon), dan `uses-feature android.software.leanback` dinyatakan `required="false"` — perangkat non-TV dan STB AOSP tidak terpengaruh sama sekali (fitur dinyatakan tidak wajib, kategori tambahan diabaikan launcher biasa, dan syarat layar sentuh memang sudah `required="false"`).
 

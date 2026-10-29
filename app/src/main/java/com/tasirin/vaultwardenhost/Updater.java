@@ -1098,9 +1098,10 @@ public final class Updater {
     }
 
     public static String latestVersion(Context ctx) {
+        String cached;
         synchronized (KUNCI_VERSI) {
             long now = SystemClock.elapsedRealtime();
-            String cached = sLatestVersion;
+            cached = sLatestVersion;
             if (cached != null && now - sLatestAt < VERSION_TTL_MS) {
                 return cached;
             }
@@ -1108,32 +1109,36 @@ public final class Updater {
             if (gagalBaruSaja(now, sLatestGagalAt, VERSION_GAGAL_TTL_MS)) {
                 return cached;
             }
-            HttpURLConnection conn = null;
-            try {
-                conn = open(ctx, OFFICIAL_API, 10000, 10000);
-                int code = conn.getResponseCode();
-                if (code == 200) {
-                    String v;
-                    try (java.io.InputStream is = conn.getInputStream()) {
-                        v = normVersion(extractTag(
-                                TgBackup.bacaResponsBatas(is)));
-                    }
-                    if (v != null && !v.isEmpty()) {
+        }
+        HttpURLConnection conn = null;
+        try {
+            conn = open(ctx, OFFICIAL_API, 10000, 10000);
+            int code = conn.getResponseCode();
+            if (code == 200) {
+                String v;
+                try (java.io.InputStream is = conn.getInputStream()) {
+                    v = normVersion(extractTag(
+                            TgBackup.bacaResponsBatas(is)));
+                }
+                if (v != null && !v.isEmpty()) {
+                    synchronized (KUNCI_VERSI) {
                         sLatestVersion = v;
                         sLatestAt = SystemClock.elapsedRealtime();
-                        return v;
                     }
-                }
-
-            } catch (Exception ignored) {
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
+                    return v;
                 }
             }
-            sLatestGagalAt = SystemClock.elapsedRealtime();
-            return cached;
+
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
+        synchronized (KUNCI_VERSI) {
+            sLatestGagalAt = SystemClock.elapsedRealtime();
+        }
+        return cached;
     }
 
     public static String tryUpdate(Context ctx) throws Exception {
