@@ -296,7 +296,7 @@ public final class Updater {
     static final long WV_FALLBACK_TUNDA_MS = 6L * 3600 * 1000;
 
     static boolean fallbackTercatatUntuk(String latest, String untuk) {
-        return latest != null && !latest.isEmpty() && versiCocok(latest, untuk);
+        return latest != null && !latest.isEmpty() && versiSamaPersis(latest, untuk);
     }
 
     static boolean fallbackBinaryBerlaku(String latest, String untuk, long at,
@@ -304,7 +304,7 @@ public final class Updater {
         if (latest == null || latest.isEmpty()) {
             return false;
         }
-        if (!versiCocok(latest, untuk)) {
+        if (!versiSamaPersis(latest, untuk)) {
             return false;
         }
         if (at <= 0 || kiniWall < at) {
@@ -1213,7 +1213,7 @@ public final class Updater {
         String realJalan = ServerService.running
                 ? parseBinaryVersion(ServerService.binaryVersion) : null;
 
-        if (!paksa && !butuhRefresh && bandingVersi(realJalan, latest) >= 0) {
+        if (!paksa && !butuhRefresh && versiMelebihiAtauPersis(realJalan, latest)) {
 
             sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
             return sebutan + latest;
@@ -1258,7 +1258,7 @@ public final class Updater {
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
         String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()
                 ? updated : readBundledVersionRaw(ctx));
-        if (!paksa && !butuhRefresh && bandingVersi(current, latest) >= 0) {
+        if (!paksa && !butuhRefresh && versiMelebihiAtauPersis(current, latest)) {
             return sebutan + latest;
         }
 
@@ -1293,11 +1293,11 @@ public final class Updater {
         }
         if (paksa) {
             return versiBerkas != null && !versiBerkas.isEmpty()
-                    && versiCocok(versiBerkas, target);
+                    && versiSamaPersis(versiBerkas, target);
         }
         String acuan = (versiBerkas != null && !versiBerkas.isEmpty())
                 ? versiBerkas : versiJalan;
-        return bandingVersi(acuan, target) >= 0;
+        return versiMelebihiAtauPersis(acuan, target);
     }
 
     static boolean webVaultOtomatisPerluUpdate(String terpasang, String target,
@@ -1314,7 +1314,7 @@ public final class Updater {
             return true;
         }
         if (terkunci) {
-            return !versiCocok(terpasang, target);
+            return !versiSamaPersis(terpasang, target);
         }
         return bandingVersi(terpasang, target) < 0;
     }
@@ -1887,7 +1887,7 @@ public final class Updater {
         String installed = TgBackup.amanString(sp, KEY_WV_FROM, "");
 
         if (wvExists && latest != null && !installed.isEmpty()
-                && versiCocok(installed, latest)) {
+                && versiSamaPersis(installed, latest)) {
             return "Web vault sudah versi terbaru: v" + latest;
         }
         if (wvExists && latest == null && !installed.isEmpty()) {
@@ -2302,6 +2302,26 @@ public final class Updater {
             return false;
         }
         return bandingVersi(ra, rb) == 0;
+    }
+
+    // Audit 794: kesetaraan KETAT untuk keputusan pin/target — bandingVersi
+    // buta sufiks prerelease (1.37.3-beta dinilai sama dengan 1.37.3),
+    // padahal jalur start (ServerService.cacheSesuaiPin) ketat sufiks dan
+    // repo ini tak pernah menerbitkan build prerelease. Klaim "sudah versi
+    // pilihan/terpasang" hanya sah bila sufiksnya pun sama persis.
+    static boolean versiSamaPersis(String a, String b) {
+        String ra = normVersion(a);
+        String rb = normVersion(b);
+        if (ra == null || ra.isEmpty() || rb == null || rb.isEmpty()) {
+            return false;
+        }
+        return bandingVersi(ra, rb) == 0
+                && ServerService.sufiksPrerelease(ra)
+                        .equalsIgnoreCase(ServerService.sufiksPrerelease(rb));
+    }
+
+    static boolean versiMelebihiAtauPersis(String a, String b) {
+        return bandingVersi(a, b) > 0 || versiSamaPersis(a, b);
     }
 
     static int bandingVersi(String a, String b) {

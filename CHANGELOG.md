@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Keputusan pin prerelease tak lagi menilai beta sama dengan stabil (Audit 794)
+- Perbandingan versi umum memang sengaja buta sufiks, tetapi situs keputusan pin memakainya untuk menyimpulkan "sudah versi pilihan/terpasang": pin `1.37.3-beta` dinyatakan terpenuhi oleh binary `1.37.3` stabil dan bahkan dicatat sebagai versi terpasang, sementara jalur start menilai pin yang sama secara ketat dan menolaknya. Klaim kesetaraan di situs-situs keputusan itu (lewati unduh, update web-vault terkunci, penanda fallback, pencatatan AutoUpdate) kini memakai kesetaraan ketat sufiks `versiSamaPersis` — pin prerelease mengalir ke percobaan unduh dan gagal secara jujur dengan petunjuk versi stabil, sama seperti penilaian jalur start.
+
 ## [Belum rilis] — Backup ke banyak chat kini dikirim ulang lewat file_id (Audit 793)
 - Sesudah unggahan penuh pertama berhasil, chat tujuan berikutnya menerima berkas yang sama lewat `file_id` Telegram — tidak lagi mengunggah ulang byte-per-byte hingga 48 MB per chat. Bila kirim by-id gagal untuk satu chat, chat itu jatuh kembali ke unggahan penuh seperti sebelumnya; pencatatan file_id untuk restore tidak berubah. Keputusan file_id berikutnya dan enkode parameter kirim by-id dikunci uji JVM.
 

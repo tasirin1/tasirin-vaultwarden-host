@@ -948,6 +948,35 @@ public class UpdaterTest {
     }
 
     @Test
+    public void versiSamaPersis_ketatSufiks() {
+        // Audit 794: keputusan pin memakai kesetaraan ketat — prerelease
+        // TIDAK sama dengan stabilnya, dua arah.
+        assertTrue(Updater.versiSamaPersis("1.37.3", "1.37.3"));
+        assertTrue(Updater.versiSamaPersis("v1.37.3", "1.37.3"));
+        assertTrue(Updater.versiSamaPersis("1.37.3-beta", "1.37.3-beta"));
+        assertTrue(Updater.versiSamaPersis("1.37.3-beta", "1.37.3-BETA"));
+        assertFalse(Updater.versiSamaPersis("1.37.3-beta", "1.37.3"));
+        assertFalse(Updater.versiSamaPersis("1.37.3", "1.37.3-beta"));
+        assertFalse(Updater.versiSamaPersis("1.37.3-rc", "1.37.3-beta"));
+        assertFalse(Updater.versiSamaPersis("1.37.4", "1.37.3"));
+        assertFalse(Updater.versiSamaPersis(null, "1.37.3"));
+        assertFalse(Updater.versiSamaPersis("1.37.3", null));
+        assertFalse(Updater.versiSamaPersis("", "1.37.3"));
+    }
+
+    @Test
+    public void versiMelebihiAtauPersis_ambangSamaKiniKetat() {
+        assertTrue(Updater.versiMelebihiAtauPersis("1.37.4", "1.37.3"));
+        assertTrue(Updater.versiMelebihiAtauPersis("1.37.4", "1.37.3-beta"));
+        assertTrue(Updater.versiMelebihiAtauPersis("1.37.3", "1.37.3"));
+        // Sama angka tetapi beda sufiks TIDAK lagi dianggap memenuhi.
+        assertFalse(Updater.versiMelebihiAtauPersis("1.37.3", "1.37.3-beta"));
+        assertFalse(Updater.versiMelebihiAtauPersis("1.37.3-beta", "1.37.3"));
+        assertFalse(Updater.versiMelebihiAtauPersis("1.37.2", "1.37.3"));
+        assertFalse(Updater.versiMelebihiAtauPersis(null, "1.37.3"));
+    }
+
+    @Test
     public void bandingVersi_titikEkorDanTengah() {
 
         assertTrue(Updater.bandingVersi("1.37.", "1.37") == 0);

@@ -71,7 +71,7 @@ public final class AutoUpdate {
             boolean adaTerpasang = false;
 
             int bandingReal = Updater.bandingVersi(real, latest);
-            if (bandingReal == 0) {
+            if (Updater.versiSamaPersis(real, latest)) {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pending.atur(null);
                 batalkanNotifikasiUpdate(ctx);
