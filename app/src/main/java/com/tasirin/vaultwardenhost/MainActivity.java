@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
     private String lastVersiBundled = "\0";
     private long lastUpDetik = -1;
     private int lastLogLen = 0;
+    private int barisLogBeranda = 0;
 
     private int tickCachePrefs = 0;
     private boolean paksaCachePrefs = true;
@@ -750,6 +751,7 @@ public class MainActivity extends Activity {
                 lastLogLen = awalBarisSetelah(ServerService.logBuffer,
                         Math.max(0, n - BATAS_DELTA_TICK), n);
                 homeLogView.setText("");
+                barisLogBeranda = 0;
                 hintShown = false;
             } else if (lastLogLen > 0 && lastLogLen <= n
                     && ServerService.logBuffer.charAt(lastLogLen - 1) != '\n') {
@@ -786,6 +788,7 @@ public class MainActivity extends Activity {
         }
 
         tempelLogBerwarna(delta);
+        barisLogBeranda += hitungBaris(delta);
 
         if (homeLogView.length() > 40000) {
             CharSequence penuh = homeLogView.getText();
@@ -804,14 +807,15 @@ public class MainActivity extends Activity {
                     && Character.isHighSurrogate(penuh.charAt(awalTampil - 1))) {
                 awalTampil++;
             }
-            homeLogView.setText(penuh.subSequence(awalTampil, penuh.length()));
+            CharSequence sisa = penuh.subSequence(awalTampil, penuh.length());
+            homeLogView.setText(sisa);
+            barisLogBeranda = hitungBaris(sisa);
         }
 
-        if (homeLogView.length() > 25000) {
-            int total = hitungBaris(homeLogView.getText());
-            if (total > MAKS_BARIS_LOG) {
-                homeLogView.setText(buangBarisDepan(homeLogView.getText(), total - MAKS_BARIS_LOG));
-            }
+        if (homeLogView.length() > 25000 && barisLogBeranda > MAKS_BARIS_LOG) {
+            homeLogView.setText(buangBarisDepan(homeLogView.getText(),
+                    barisLogBeranda - MAKS_BARIS_LOG));
+            barisLogBeranda = MAKS_BARIS_LOG;
         }
 
         if (ikutiLog) {

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 734: jumlah baris log beranda kini dihitung inkremental, bukan dipindai penuh tiap detik
+- `refreshHomeLog` memindai SELURUH teks tampilan (25–40 ribu karakter, karakter demi karakter) pada setiap tik 1 detik hanya untuk menghitung baris, begitu tampilan melewati 25 ribu karakter — di bawah banjir log itu terjadi hampir setiap tik di thread UI. Jumlah baris kini dipelihara sebagai penghitung: bertambah dari delta yang ditempel, dihitung ulang hanya atas teks sisa pada tik yang memang memangkas karakter (jauh lebih jarang), dan diturunkan persis sejumlah baris yang dibuang pada pangkas baris. Batas 40 ribu karakter / 150 baris dan hasil tampilannya tidak berubah.
+
 ## [Belum rilis] — Audit 732: penanda zip web-vault gagal tidak lagi meng-hash ulang seluruh zip
 - `zipSudahGagal` dan `catatZipGagal` sama-sama membaca + meng-hash seluruh zip web-vault (puluhan MB) untuk mendapatkan sidiknya, padahal pada alur pemasangan zip itu baru saja diunduh dan digest-nya sudah dibuktikan sama dengan `.sha256` rilis (`expectedSha`). Kedua fungsi kini menerima sidik yang sudah diketahui itu dan melewatkan pembacaan ulang; isi penanda tidak berubah (tetap hex SHA-256 zip yang sama, jadi penanda lama tetap terbaca). Varian tanpa sidik tetap ada untuk pemanggil yang tidak memegang digest.
 
