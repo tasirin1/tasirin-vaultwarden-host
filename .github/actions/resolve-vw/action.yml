@@ -4,8 +4,11 @@ description: Ambil tag rilis Vaultwarden terbaru dari dani-garcia/vaultwarden da
 
 outputs:
   tag:
-    description: Tag rilis Vaultwarden terbaru yang valid
+    description: Versi Vaultwarden terbaru ternormalisasi (satu awalan v/V dibuang)
     value: ${{ steps.vw.outputs.tag }}
+  tag_mentah:
+    description: Tag rilis persis seperti diterbitkan upstream (untuk clone dan URL mentah)
+    value: ${{ steps.vw.outputs.tag_mentah }}
 
 runs:
   using: composite
@@ -21,8 +24,10 @@ runs:
           || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
         case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
 
-        if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
+        NORM="${TAG#[vV]}"
+        if ! printf '%s' "$NORM" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$'; then
           echo "::error::Tag Vaultwarden tidak valid: $TAG"; exit 1
         fi
-        echo "Latest Vaultwarden: $TAG"
-        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        echo "Latest Vaultwarden: $NORM (tag upstream: $TAG)"
+        echo "tag=$NORM" >> "$GITHUB_OUTPUT"
+        echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"

@@ -56,6 +56,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       vw: ${{ steps.ambil.outputs.tag }}
+      vw_mentah: ${{ steps.ambil.outputs.tag_mentah }}
       skip: ${{ steps.cek.outputs.skip }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -116,6 +117,7 @@ jobs:
     timeout-minutes: 120
     env:
       VW: ${{ needs.resolve.outputs.vw }}
+      VW_MENTAH: ${{ needs.resolve.outputs.vw_mentah }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -139,9 +141,9 @@ jobs:
         with:
           packages: 'platform-tools ndk;${{ env.NDK_VERSION }}'
 
-      - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw }})
+      - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw_mentah }})
         run: |
-          git clone --depth 1 --branch "$VW" \
+          git clone --depth 1 --branch "$VW_MENTAH" \
             https://github.com/dani-garcia/vaultwarden.git
 
       - name: Unduh bundel CA Mozilla (verifier TLS Android)
@@ -349,6 +351,7 @@ jobs:
       contents: write
     env:
       VW: ${{ needs.resolve.outputs.vw }}
+      VW_MENTAH: ${{ needs.resolve.outputs.vw_mentah }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -380,7 +383,7 @@ jobs:
           cp /tmp/baru-bin/vaultwarden vaultwarden-armeabi-v7a
           cp /tmp/baru-shim/libgetrandom-shim-armeabi-v7a.so libgetrandom-shim-armeabi-v7a.so
 
-          DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW/docker/DockerSettings.yaml" \
+          DIGEST=$(curl -fsSL --retry 3 --retry-delay 5 "https://raw.githubusercontent.com/dani-garcia/vaultwarden/$VW_MENTAH/docker/DockerSettings.yaml" \
             | grep 'vault_image_digest' \
             | sed -nE '1{s/.*"(sha256:[a-f0-9]+)".*/\1/;p;}')
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Rantai rilis kini toleran tag upstream berawalan v (Audit 803)
+- `resolve-vw` sebelumnya menolak tag yang tidak persis berbentuk `x.y.z`, padahal seluruh sisi aplikasi menormalkan satu awalan `v`/`V`: bila upstream `dani-garcia/vaultwarden` suatu hari beralih ke tag bergaya `v1.33.0`, kedua workflow akan berhenti keras di langkah resolve dan tidak ada rilis baru sama sekali. Action itu kini menormalkan tag (satu awalan `v`/`V` dibuang sebelum validasi, meniru `normalisasiPinVersi` di aplikasi) dan mengeluarkan bentuk ternormalisasi untuk penamaan rilis dan `vw_version.txt`, plus keluaran `tag_mentah` berisi tag persis upstream untuk dua pemakai yang memang butuh ref asli (clone sumber dan URL mentah DockerSettings di `build-binary.yml`). Untuk tag polos hari ini tidak ada perubahan perilaku.
+
 ## [Belum rilis] — Penanda versi dan daftar IP kini ditulis atomik (Audit 802)
 - `writeText` sebelumnya menulis `bin/version.txt` dan `tls/ips.txt` langsung di tempat (truncate) — satu-satunya penulis penanda yang tidak memakai pola atomik repo. Kini penulisannya lewat berkas staging di folder yang sama, fsync, lalu ditukar masuk dengan rename (meniru `TlsCert.writeVersion` dan `Updater.writeVersionTag`): mati listrik di tengah penulisan tak lagi meninggalkan berkas robek yang memicu refresh binary atau regenerasi sertifikat daun ekstra pada start berikutnya.
 
