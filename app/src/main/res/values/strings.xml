@@ -49,6 +49,7 @@
     <string name="battery_not_allowed">Full access not allowed yet</string>
     <string name="izin_storage_belum">Storage permission not granted yet — Start cancelled.</string>
     <string name="izin_storage_ditolak">Storage permission denied — /sdcard/vaultwarden cannot be written. Allow it in Phone Settings → Apps → Permissions.</string>
+    <string name="izin_storage_ditolak_permanen">Storage permission is permanently denied — the system dialog will not appear again. Enable Storage in Phone Settings → Apps → Permissions, then press Start.</string>
     <string name="izin_simpan_belum">Storage permission needed to save the log — allow it in Phone Settings → Apps → Permissions.</string>
     <string name="auto_update_binary">Auto-update binary when a new version exists (home network)</string>
     <string name="auto_update_webvault">Auto-update web vault following the binary (home network)</string>

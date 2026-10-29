@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 710: penolakan izin permanen kini dibedakan dan dinyatakan terus terang
+- Seluruh repo tak pernah memeriksa `shouldShowRequestPermissionRationale`: penolakan permanen ("jangan tanya lagi") menerima toast yang sama dengan penolakan biasa, padahal dialog sistem tak akan pernah muncul lagi dan siklus Start berulang terlihat seperti tombol rusak. `tanganiPenolakan` kini menilai kepermanenan lewat predikat murni teruji `penolakanPermanen` (rationale mati + izin belum diberikan, di konteks sesudah penolakan nyata) dan memakai pesan khusus yang menyatakan dialog tidak akan muncul lagi serta satu-satunya jalan lewat Pengaturan, dengan catatan log yang sejalan.
+
 ## [Belum rilis] — Audit 709: prompt izin penyimpanan di awal kini hanya bila folder data memang eksternal
 - Kedua activity meminta izin penyimpanan tanpa syarat di `onCreate` — dialog muncul pada setiap cold start selama izin belum diberikan, termasuk bagi pengguna ber-folder internal yang tidak butuh izin sama sekali, mengajari penolakan refleks dan menembakkan permintaan senyap selamanya sesudah "jangan tanya lagi". `mintaIzinBilaPerlu` kini punya varian ber-folder yang pulang tanpa meminta bila `butuhIzinEksternal` false, dan kedua situs awal memakainya dengan folder data tersimpan; gerbang Start (`siapStart`) tetap menjadi penegak utama saat izin benar-benar dibutuhkan.
 

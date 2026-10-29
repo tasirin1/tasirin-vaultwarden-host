@@ -77,6 +77,14 @@ public class StoragePermTest {
     }
 
     @Test
+    public void penolakanPermanenHanyaBilaRationaleMatiDanBelumDiizinkan() {
+        assertTrue(StoragePerm.penolakanPermanen(false, false));
+        assertFalse(StoragePerm.penolakanPermanen(true, false));
+        assertFalse(StoragePerm.penolakanPermanen(false, true));
+        assertFalse(StoragePerm.penolakanPermanen(true, true));
+    }
+
+    @Test
     public void folderInternalTakButuhIzin() {
         assertFalse(StoragePerm.butuhIzinEksternal("/data/data/com.tasirin.vaultwardenhost/files"));
         assertFalse(StoragePerm.butuhIzinEksternal("/data/user/0/com.tasirin.vaultwardenhost/files"));

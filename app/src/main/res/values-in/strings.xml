@@ -49,6 +49,7 @@
     <string name="battery_not_allowed">Akses penuh belum diizinkan</string>
     <string name="izin_storage_belum">Izin penyimpanan belum diberikan — Start dibatalkan.</string>
     <string name="izin_storage_ditolak">Izin penyimpanan ditolak — folder /sdcard/vaultwarden tidak bisa ditulis. Izinkan di Pengaturan HP → Aplikasi → Izin.</string>
+    <string name="izin_storage_ditolak_permanen">Izin penyimpanan ditolak permanen — dialog sistem tidak akan muncul lagi. Aktifkan Penyimpanan di Pengaturan HP → Aplikasi → Izin, lalu tekan Start.</string>
     <string name="izin_simpan_belum">Izin penyimpanan dibutuhkan untuk menyimpan log — izinkan di Pengaturan HP → Aplikasi → Izin.</string>
     <string name="auto_update_binary">Auto-update binary saat ada versi baru (jaringan rumah)</string>
     <string name="auto_update_webvault">Auto-update web vault mengikuti binary (jaringan rumah)</string>

@@ -125,9 +125,29 @@ public final class StoragePerm {
         return false;
     }
 
+    static boolean penolakanPermanen(boolean rationaleTampil, boolean sudahDiizinkan) {
+        return !rationaleTampil && !sudahDiizinkan;
+    }
+
     public static void tanganiPenolakan(Activity act) {
-        Toast.makeText(act, act.getString(R.string.izin_storage_ditolak),
+        boolean permanen = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                permanen = penolakanPermanen(
+                        act.shouldShowRequestPermissionRationale(
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        act.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                == PackageManager.PERMISSION_GRANTED);
+            } catch (Exception ignored) {
+            }
+        }
+        Toast.makeText(act, act.getString(permanen
+                        ? R.string.izin_storage_ditolak_permanen
+                        : R.string.izin_storage_ditolak),
                 Toast.LENGTH_LONG).show();
-        ServerService.catatLog("[app] Izin penyimpanan ditolak user.");
+        ServerService.catatLog(permanen
+                ? "[app] Izin penyimpanan ditolak PERMANEN (dialog tidak akan muncul lagi);"
+                        + " satu-satunya jalan lewat Pengaturan HP."
+                : "[app] Izin penyimpanan ditolak user.");
     }
 }
