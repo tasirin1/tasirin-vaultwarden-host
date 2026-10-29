@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: PyYAML absen kini menggagalkan verifikasi, bukan dilewati diam-diam (Audit 758)
+- `cek_workflow_yaml`, `cek_yaml_github_lain`, dan pembaca `_muat_yaml_github` dulu menangkap kegagalan `import yaml` lalu hanya memberi peringatan (atau diam) dan `return` — seluruh validasi YAML workflow/dependabot/labeler bisa mati tanpa suara sementara gerbang tetap LOLOS, dan tak ada workflow pemanggil yang memasang pustaka itu. Kini ketiganya memakai satu pintu `_impor_yaml` yang **gagal keras** dengan pesan berisi jalan keluarnya (`pip install pyyaml`): gerbang yang tidak bisa memeriksa harus mengaku, bukan lolos buta. Terbukti dua arah dengan fixture modul `yaml` yang sengaja diblokir (GAGAL) vs normal (LOLOS).
+
 ## [Belum rilis] — Lint: banner TV pindah ke drawable-nodpi
 - Peringatan `IconLocation`: `tv_banner.png` adalah karya seni bebas-kepadatan (banner TV 640×360 yang dirujuk manifest), jadi rumahnya yang benar adalah `drawable-nodpi`, bukan folder `drawable` tanpa kualifikasi kepadatan. Nama resource tidak berubah, jadi acuan manifest tetap sama dan tampilannya identik.
 

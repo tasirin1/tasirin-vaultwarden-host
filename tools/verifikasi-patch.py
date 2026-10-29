@@ -61,17 +61,28 @@ def cek_daftar_hapusan(gagal):
                                  "rentang diff" % (nama, p))
                     break
 
+def _impor_yaml(gagal):
+    """PyYAML wajib ada: tanpa itu validasi YAML mati diam-diam sementara
+    gerbang tetap LOLOS (Audit 758) — gagal keras adalah satu-satunya sikap
+    yang jujur untuk sebuah gerbang verifikasi."""
+    try:
+        import yaml
+        return yaml
+    except Exception:
+        gagal.append("PyYAML tak tersedia — validasi YAML tak bisa berjalan; "
+                     "pasang dulu (pip install pyyaml) agar gerbang tak "
+                     "lolos buta")
+        return None
+
+
 def cek_workflow_yaml(gagal, peringatan):
     folder = os.path.join(AKAR, ".github", "workflows")
     if not os.path.isdir(folder):
         gagal.append("Folder .github/workflows hilang — automasi repo "
                      "tak bisa dicek")
         return
-    try:
-        import yaml
-    except Exception:
-        peringatan.append("PyYAML tak tersedia — validasi YAML workflow "
-                          "dilewati di lingkungan ini")
+    yaml = _impor_yaml(gagal)
+    if yaml is None:
         return
     for nama in sorted(os.listdir(folder)):
         if not nama.endswith((".yml", ".yaml")):
@@ -247,9 +258,8 @@ def _muat_yaml_github(rel, gagal):
         gagal.append("Berkas %s hilang — automasi yang mengandalkannya "
                      "berhenti diam-diam" % rel)
         return None
-    try:
-        import yaml
-    except Exception:
+    yaml = _impor_yaml(gagal)
+    if yaml is None:
         return None
     try:
         with open(path, encoding="utf-8") as f:
@@ -266,11 +276,7 @@ def cek_yaml_github_lain(gagal, peringatan):
     # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
     # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
     # tanpa satu pun CI merah.
-    try:
-        import yaml  # noqa: F401
-    except Exception:
-        peringatan.append("PyYAML tak tersedia — validasi YAML .github "
-                          "dilewati di lingkungan ini")
+    if _impor_yaml(gagal) is None:
         return
     data = _muat_yaml_github(os.path.join(".github", "dependabot.yml"),
                              gagal)
