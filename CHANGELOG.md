@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 735: dua penjaga saveAndStart Settings kini juga berlaku di MainActivity
+- Blok `saveAndStart` disalin di kedua activity dan sudah menyimpang: versi Settings menolak Start saat tugas backup/restore berjalan dan menormalkan port privileged sebelum cek port, versi MainActivity tidak punya keduanya — menekan Start dari beranda di tengah restore bisa menghidupkan server di atas data yang sedang ditulis ulang, dan port tersimpan di bawah 1024 (mis. diatur lewat bot) langsung masuk jalur sibuk/root alih-alih dinormalkan. Kedua penjaga kini diterapkan juga di MainActivity (memakai helper bersama yang sama). Penyatuan penuh kedua salinan sengaja tidak dilakukan — sisanya adalah perbedaan sah antar-layar (input pengguna vs prefs tersimpan); yang disamakan adalah penjaga keamanannya.
+
 ## [Belum rilis] — Audit 734: jumlah baris log beranda kini dihitung inkremental, bukan dipindai penuh tiap detik
 - `refreshHomeLog` memindai SELURUH teks tampilan (25–40 ribu karakter, karakter demi karakter) pada setiap tik 1 detik hanya untuk menghitung baris, begitu tampilan melewati 25 ribu karakter — di bawah banjir log itu terjadi hampir setiap tik di thread UI. Jumlah baris kini dipelihara sebagai penghitung: bertambah dari delta yang ditempel, dihitung ulang hanya atas teks sisa pada tik yang memang memangkas karakter (jauh lebih jarang), dan diturunkan persis sejumlah baris yang dibuang pada pangkas baris. Batas 40 ribu karakter / 150 baris dan hasil tampilannya tidak berubah.
 

@@ -389,6 +389,12 @@ public class MainActivity extends Activity {
 
     private void saveAndStart() {
         mulaiUlangSetelahIzin = false;
+        if (SettingsActivity.startDitahanSaatTugasData(false,
+                TgBackup.tugasDataJalan())) {
+            toast(getString(R.string.masih_bekerja));
+            appendUiLog("[app] Start dibatalkan: tugas backup/restore masih berjalan.");
+            return;
+        }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
         if (TextUtils.isEmpty(dataDir)) {
@@ -414,7 +420,8 @@ public class MainActivity extends Activity {
         }
         final String finalDataDir = dataDir;
 
-        final int portFix = Integer.parseInt(ServerService.effectivePort(sp));
+        final int portFix = Integer.parseInt(
+                ServerService.normalisasiPort(ServerService.effectivePort(sp)));
 
         if (startTertundaPort) {
             return;
