@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Uji: kunci pemilik offset bot kini diasersikan tidak ikut dieksport (Audit 786)
+- Kunci `tg_bot_offset_id` dari Audit 779 memang terdaftar di `TAK_DIEKSPOR_KEYS`, tetapi uji keanggotaan satu-per-satu di `TgBackupTest` belum memuatnya — menghapus pendaftarannya tidak akan membuat uji mana pun merah. Asersi untuk kunci itu kini berdampingan dengan kunci saudaranya (`KEY_TG_MENU_FP`).
+
 ## [Belum rilis] — Uji: akar path /mnt dan /sdcard kini terisolasi pada uji gerbang dan peredaksi log (Audit 785)
 - Uji path absolut sebelumnya hanya mengisolasi `/storage` dan `/data` di sisi peredaksi, dan memakai sampel gabungan `/mnt/sdcard/cadangan` di sisi gerbang — kedua akar itu saling menutupi, jadi menghapus salah satunya dari detektor atau pola peredaksi tidak akan membuat uji mana pun merah. Sampel terisolasi untuk `/mnt` dan `/sdcard` kini diasersikan di kedua sisi (gerbang `butuhSamaran` dan keluaran `samarkanLog`).
 
