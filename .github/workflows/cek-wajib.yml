@@ -30,3 +30,5 @@ jobs:
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, ID land, README, secret)
         run: bash scripts/cek-cepat.sh
+      - name: Uji-diri gerbang (cabang langka verifikasi-patch)
+        run: python3 tools/uji-verifikasi.py
