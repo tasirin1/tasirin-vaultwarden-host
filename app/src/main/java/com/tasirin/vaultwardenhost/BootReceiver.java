@@ -141,6 +141,24 @@ public class BootReceiver extends BroadcastReceiver {
                 }
                 if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
 
+                    try {
+                        String dataDirBoot = TgBackup.amanString(sp,
+                                ServerService.KEY_DATA_DIR,
+                                ServerService.dataDirBawaanSegar());
+                        if (StoragePerm.butuhIzinEksternal(dataDirBoot)
+                                && !StoragePerm.sudahPunyaAkses(ctx)) {
+                            ServerService.catatLog("[app] Auto-start boot: izin"
+                                    + " penyimpanan tidak ada untuk " + dataDirBoot
+                                    + " - server tidak akan bisa menulis folder data.");
+                            TgBackup.sendMessage(ctx, "Peringatan: sesudah reboot,"
+                                    + " server Vaultwarden tidak bisa jalan karena"
+                                    + " izin penyimpanan untuk folder data tidak ada"
+                                    + " (dicabut/di-reset sistem?). Beri izin Storage"
+                                    + " di Pengaturan HP, lalu Start dari aplikasi.");
+                        }
+                    } catch (Exception ignoredIzin) {
+                    }
+
                     boolean jalan = false;
                     try {
                         jalan = ServerService.start(ctx);

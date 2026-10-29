@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 712: kegagalan auto-start boot karena izin dicabut kini diperingatkan lewat Telegram
+- Auto-start boot memanggil service tanpa gerbang izin: bila izin penyimpanan dicabut atau di-reset sistem sesudah sebelumnya diberikan, start gugur di cek tulis service dan satu-satunya jejaknya adalah log di dalam aplikasi — pemilik STB headless baru sadar saat vault tak bisa dibuka. Jalur boot kini memeriksa dulu: folder data butuh izin eksternal tetapi akses tidak ada → catatan log eksplisit + peringatan Telegram (pola pesan boot yang sama dengan peringatan restore terputus), sementara start tetap dicoba seperti biasa agar penilaian service menjadi kata akhir.
+
 ## [Belum rilis] — Audit 711: notifikasi update yang tertahan izin notifikasi kini dicatat, tidak lagi senyap
 - Di Android 13+, `tampilkanNotifikasi` memeriksa `POST_NOTIFICATIONS` lalu pulang `false` tanpa catatan apa pun — dan izin itu tidak pernah diminta di mana pun di aplikasi — sehingga pada perangkat/OEM yang memperlakukan aplikasi target lama sebagai belum berizin, notifikasi "update tersedia" mati diam-diam tanpa jejak untuk diagnosis. Penahanan kini menulis satu baris log yang menyebut izinnya. (Permintaan izin runtime-nya sendiri adalah keputusan UX terpisah: konteks pemeriksanya adalah cek latar tanpa activity.)
 
