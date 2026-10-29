@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: metode di berkas uji tak lagi memicu peringatan "metode baru tanpa uji"
+- Pemeriksaan `cek_uji_baru` di `tools/verifikasi-patch.py` memindai semua berkas Java yang berubah termasuk berkas uji, lalu mencari nama metodenya sebagai acuan `Kelas.nama()` atau di berkas `<Kelas>Test.java` — untuk metode yang dideklarasikan di dalam berkas uji sendiri (kelasnya `UtilTest`, berkas pasangannya "UtilTestTest.java" yang tak pernah ada) pencarian itu mustahil berhasil, jadi setiap penambahan metode uji memicu peringatan palsu (terakhir: uji `jalankanCek` dari Audit 757). Pemeriksaan kini melewati berkas di `src/test/` — aturan itu menjaga logika produksi, dan berkas uji adalah ujinya sendiri. Terverifikasi di salinan buang: metode uji baru kini senyap, metode produksi baru tanpa uji tetap diperingatkan.
+
 ## [Belum rilis] — Audit 757: Util.jalankanCek kini teruji seperti pembungkus pool lainnya
 - `jalankanCek` (pool khusus `BG_CEK` dari Audit 716, satu-satunya jalur penyerahan cek update kedua activity) adalah satu-satunya pembungkus pool tanpa satu pun acuan uji, sementara ketiga saudaranya teruji termasuk penolakan saat antrean penuh. Uji baru mengunci kontrak yang sama untuknya: null ditolak, tugas diterima dan berjalan, dan penyerahan ditolak sesudah thread tunggalnya tertahan dan antrean 4 terisi.
 

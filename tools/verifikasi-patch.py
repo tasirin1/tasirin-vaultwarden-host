@@ -1418,6 +1418,9 @@ def cek_uji_baru(peringatan, diff):
     kelas = {}
     pola_kelas = re.compile(r"\b(?:class|interface|enum)\s+(\w+)")
     for path, baris in tambah_java(diff):
+        if "/src/test/" in "/" + path.replace("\\", "/"):
+            sebelumnya[path] = baris
+            continue
         if path not in kelas:
             dasar = os.path.basename(path)
             kelas[path] = {dasar[:-5]} if dasar.endswith(".java") else set()
