@@ -1362,6 +1362,13 @@ def cek_paritas_resource(gagal):
                                  % (nama, nama,
                                     ", ".join(sorted(port - land)[:5]) or "-",
                                     ", ".join(sorted(land - port)[:5]) or "-"))
+            for nama in sorted(os.listdir(darat_dir)):
+                if not nama.endswith(".xml"):
+                    continue
+                if not os.path.isfile(os.path.join(tata, nama)):
+                    gagal.append("Berkas layout-land/%s tanpa pasangan di "
+                                 "layout/ — varian yatim tak pernah terbandingkan "
+                                 "ID-nya (Audit 764)" % nama)
 
         pl_in = quantities_plurals("app/src/main/res/values-in/strings.xml")
         for nama in sorted(pl_in):

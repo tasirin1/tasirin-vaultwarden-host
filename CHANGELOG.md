@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: paritas layout kini dua arah, berkas layout-land yatim menggagalkan (Audit 764)
+- Lingkar paritas di `verifikasi-patch.py` dan `scripts/cek-cepat.sh` dulu hanya mengiterasi isi `layout/`; berkas yang hanya ada di `layout-land/` (varian tertinggal sesudah layout-nya dihapus, atau berkas land baru tanpa pasangan) tak pernah dibandingkan dan lolos kedua gerbang. Kini arah sebaliknya diperiksa juga: berkas land tanpa pasangan portrait = GAGAL di kedua gerbang. Terbukti dengan fixture berkas `yatim.xml` (kedua gerbang GAGAL) vs pohon bersih (LOLOS).
+
 ## [Belum rilis] — Gerbang: mode lokal kini melihat penghapusan berkas yang sudah ter-commit (Audit 763)
 - `berkas_dihapus` tanpa rentang dulu hanya membaca diff working-tree, jadi berkas Java yang dihapus dalam commit lokal (belum push) tak terlihat oleh `cek_berkas_java_dihapus` di lokal — kelas yang masih menyebutnya lolos gerbang dan baru merah di CI. Kini sumbernya gabungan diff working-tree + staged + rentang commit lokal terhadap `@{upstream}` (cadangan `origin/main`). Terbukti dengan fixture: menghapus `DialogAman.java` dalam commit lokal kini menggagalkan gerbang lokal dengan pesan yang tepat; pohon bersih tetap LOLOS.
 

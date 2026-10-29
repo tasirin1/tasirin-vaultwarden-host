@@ -40,6 +40,11 @@ for f in app/src/main/res/layout/*.xml; do
     if ! cmp -s <(ekstrak_id "$f") <(ekstrak_id "$land"); then gagal_msg "ID $f != $land"; fi
   fi
 done
+for f in app/src/main/res/layout-land/*.xml; do
+  [ -f "$f" ] || continue
+  potret="app/src/main/res/layout/$(basename "$f")"
+  if [ ! -f "$potret" ]; then gagal_msg "layout-land yatim tanpa pasangan: $f"; fi
+done
 for wajib in activity_pin.xml; do
   if [ ! -f "app/src/main/res/layout/$wajib" ]; then gagal_msg "layout wajib hilang: $wajib"; fi
   if [ ! -f "app/src/main/res/layout-land/$wajib" ]; then gagal_msg "layout-land wajib hilang: $wajib (varian landscape berkas ini wajib ada)"; fi
