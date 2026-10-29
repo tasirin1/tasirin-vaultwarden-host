@@ -1836,7 +1836,7 @@ public final class TgBackup {
                     PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET, LogActivity.KEY_CLIP_HASH));
 
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
-            java.util.Arrays.asList(ServerService.KEY_DATA_DIR, KEY_TG_LAST,
+            java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_TLS_DIR, KEY_TG_LAST,
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_OFFSET_BOT_ID,
                     TgBot.KEY_TG_WALL_MAKS,
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
@@ -2013,6 +2013,13 @@ public final class TgBackup {
         return lama;
     }
 
+    static File pilihCaKirim(File tercatat, File internal, File lama) {
+        if (tercatat != null && tercatat.isFile()) {
+            return tercatat;
+        }
+        return caAktif(internal, lama);
+    }
+
     public static String kirimCa(Context ctx) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
@@ -2026,7 +2033,10 @@ public final class TgBackup {
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
+        String dirTls = amanString(sp, ServerService.KEY_TLS_DIR, "");
+        File tercatat = (dirTls == null || dirTls.trim().isEmpty())
+                ? null : new File(dirTls, "ca.pem");
+        File ca = pilihCaKirim(tercatat, new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
         if (ca == null || !ca.isFile()) {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
@@ -2076,7 +2086,10 @@ public final class TgBackup {
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        File ca = caAktif(new File(ctx.getFilesDir(), "tls/ca.pem"),
+        String dirTls = amanString(sp, ServerService.KEY_TLS_DIR, "");
+        File tercatat = (dirTls == null || dirTls.trim().isEmpty())
+                ? null : new File(dirTls, "ca.pem");
+        File ca = pilihCaKirim(tercatat, new File(ctx.getFilesDir(), "tls/ca.pem"),
                 new File(dataDir, "tls/ca.pem"));
         if (ca == null || !ca.isFile()) {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");

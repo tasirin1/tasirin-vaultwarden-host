@@ -82,6 +82,7 @@ public class ServerService extends Service {
 
     public static final String ABI = "armeabi-v7a";
     public static final String KEY_DATA_DIR = "data_dir";
+    public static final String KEY_TLS_DIR = "tls_dir";
     public static final String KEY_PORT = "port";
     public static final String KEY_AUTO_START = "auto_start";
 
@@ -1939,6 +1940,7 @@ public class ServerService extends Service {
                     + "Cek sisa storage & tanggal/jam STB lalu coba lagi.");
             return false;
         }
+        sp.edit().putString(KEY_TLS_DIR, sesi.tlsDir.getAbsolutePath()).apply();
         long certDays = TlsCert.daysLeft(new File(sesi.tlsDir, "cert.pem"));
         if (TlsCert.daysLeft(new File(sesi.tlsDir, "ca.pem")) == -2) {
 

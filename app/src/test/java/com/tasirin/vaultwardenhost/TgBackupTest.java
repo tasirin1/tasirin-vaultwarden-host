@@ -552,6 +552,24 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pilihCaKirim_utamakanTercatat() throws Exception {
+        File tercatat = File.createTempFile("ca-tercatat", ".pem");
+        File internal = File.createTempFile("ca-internal", ".pem");
+        File lama = File.createTempFile("ca-lama", ".pem");
+        assertEquals(tercatat, TgBackup.pilihCaKirim(tercatat, internal, lama));
+        assertEquals(internal, TgBackup.pilihCaKirim(null, internal, lama));
+        assertEquals(internal, TgBackup.pilihCaKirim(
+                new File("/tidak/ada/ca.pem"), internal, lama));
+        assertEquals(lama, TgBackup.pilihCaKirim(
+                null, new File("/tidak/ada/ca.pem"), lama));
+        assertEquals(lama, TgBackup.pilihCaKirim(new File("/tidak/ada/ca.pem"),
+                new File("/tidak/ada/juga.pem"), lama));
+        tercatat.delete();
+        internal.delete();
+        lama.delete();
+    }
+
+    @Test
     public void tlsAktifUntukBackup_utamakanInternal() throws Exception {
         java.io.File internal = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vw-tls-int-" + System.nanoTime());
@@ -1139,6 +1157,7 @@ public class TgBackupTest {
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(ServerService.KEY_WV_DL_GAGAL_AT));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_MENU_FP));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_OFFSET_BOT_ID));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(ServerService.KEY_TLS_DIR));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(SettingsActivity.KEY_GAGAL_IMPOR_PETA));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(Updater.KEY_BIN_FALLBACK_FOR));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(Updater.KEY_BIN_FALLBACK_AT));

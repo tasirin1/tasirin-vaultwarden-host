@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Kirim dan backup CA kini mengikuti folder TLS yang benar-benar aktif (Audit 804)
+- Perintah /ca dan backup CA ke storage sebelumnya memilih berkas CA murni berdasar keberadaan: berkas internal selalu menang bila ada. Pada sesi darurat yang langka — penyimpanan internal gagal total saat Start sehingga server berjalan memakai TLS lama di folder data apa adanya — pilihan itu bisa mengirim atau membackup CA yang sedang tidak dipakai server, dan HP lain yang memasangnya akan gagal memercayai server. Folder TLS yang benar-benar dipakai kini dicatat saat Start (`tls_dir`, perangkat-lokal dan tidak ikut diekspor dalam config), dan kedua jalur memilih CA lewat keputusan murni baru `pilihCaKirim`: catatan sesi didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; keputusan itu dikunci uji JVM.
+
 ## [Belum rilis] — Rantai rilis kini toleran tag upstream berawalan v (Audit 803)
 - `resolve-vw` sebelumnya menolak tag yang tidak persis berbentuk `x.y.z`, padahal seluruh sisi aplikasi menormalkan satu awalan `v`/`V`: bila upstream `dani-garcia/vaultwarden` suatu hari beralih ke tag bergaya `v1.33.0`, kedua workflow akan berhenti keras di langkah resolve dan tidak ada rilis baru sama sekali. Action itu kini menormalkan tag (satu awalan `v`/`V` dibuang sebelum validasi, meniru `normalisasiPinVersi` di aplikasi) dan mengeluarkan bentuk ternormalisasi untuk penamaan rilis dan `vw_version.txt`, plus keluaran `tag_mentah` berisi tag persis upstream untuk dua pemakai yang memang butuh ref asli (clone sumber dan URL mentah DockerSettings di `build-binary.yml`). Untuk tag polos hari ini tidak ada perubahan perilaku.
 
