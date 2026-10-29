@@ -101,3 +101,11 @@ namaDnsValid
 namaDnsTolakIpv6
 namaDnsValidTerimaLokalTolakIpDanRusak
 isi_urandom
+# Fitur domain kustom alamat server (dibangun lalu dihapus atas keputusan owner, 2026-10-29 — belum sempat rilis; kebutuhan terpenuhi IP statis di STB).
+normalisasiDomainKustom
+domainKustomValid
+domainKustomDari
+domainKustomAktif
+galatDomain
+galatDomainTerimaKosongDanNamaSah
+ensure_leafMemuatSanDnsDanIp
