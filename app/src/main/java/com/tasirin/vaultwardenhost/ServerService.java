@@ -83,7 +83,6 @@ public class ServerService extends Service {
     public static final String ABI = "armeabi-v7a";
     public static final String KEY_DATA_DIR = "data_dir";
     public static final String KEY_PORT = "port";
-    public static final String KEY_CUSTOM_DOMAIN = "custom_domain";
     public static final String KEY_AUTO_START = "auto_start";
 
     static final String KEY_SERVER_DIMINTA = "server_diminta";
@@ -300,8 +299,6 @@ public class ServerService extends Service {
 
     public static volatile String runningLanHost = "";
 
-    public static volatile String runningDomainKustom = "";
-
     private static volatile String ipBerubahDiperingatkan = "";
     private static volatile boolean ipMatiDiperingatkan = false;
 
@@ -334,7 +331,6 @@ public class ServerService extends Service {
         runningAdminToken = "";
         runningWvFrom = "";
         runningLanHost = "";
-        runningDomainKustom = "";
         ipBerubahDiperingatkan = "";
         ipMatiDiperingatkan = false;
         ipBaruKandidat = "";
@@ -1771,7 +1767,6 @@ public class ServerService extends Service {
         File tlsDir;
         String hostSegar;
         String domain;
-        String domainKustom;
         String adminToken;
     }
 
@@ -2028,11 +2023,7 @@ public class ServerService extends Service {
         }
 
         sesi.hostSegar = lanHost();
-        sesi.domainKustom = domainKustomDari(sp);
-        sesi.domain = "https://"
-                + (sesi.domainKustom.isEmpty()
-                        ? formatHostUntukUrl(sesi.hostSegar) : sesi.domainKustom)
-                + ":" + sesi.port;
+        sesi.domain = "https://" + formatHostUntukUrl(sesi.hostSegar) + ":" + sesi.port;
         pb.environment().put("DOMAIN", sesi.domain);
         pb.redirectErrorStream(true);
         return pb;
@@ -2046,7 +2037,6 @@ public class ServerService extends Service {
         String wvFrom = Updater.webVaultFromVersion(this);
         runningWvFrom = wvFrom == null ? "" : wvFrom;
         runningLanHost = sesi.hostSegar;
-        runningDomainKustom = sesi.domainKustom == null ? "" : sesi.domainKustom;
         ipBerubahDiperingatkan = "";
         ipMatiDiperingatkan = false;
         ipBaruKandidat = "";
@@ -2880,19 +2870,6 @@ public class ServerService extends Service {
                 return;
             }
             ipMatiDiperingatkan = false;
-            if (!runningDomainKustom.isEmpty()) {
-                if (!kini.equals(ipBerubahDiperingatkan)) {
-                    ipBerubahDiperingatkan = kini;
-                    appendLog("[app] IP LAN berubah (" + runningLanHost + " -> " + kini + "):"
-                            + " domain kustom " + runningDomainKustom + " tetap dipakai,"
-                            + " server TIDAK di-restart.");
-                }
-                ipBaruKandidat = "";
-                ipBaruHitung = 0;
-                ipBaruSejak = 0;
-                ipRestartDiminta = "";
-                return;
-            }
             if (kini.equals(ipBaruKandidat)) {
                 ipBaruHitung++;
             } else {
@@ -3210,12 +3187,6 @@ public class ServerService extends Service {
     }
 
     public static String localUrl(Context context) {
-        String dk = domainKustomAktif(context);
-        if (!dk.isEmpty()) {
-            SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            String port = !runningPort.isEmpty() ? runningPort : effectivePort(sp);
-            return "https://" + dk + ":" + port;
-        }
         return localUrlDariHost(context, localIp());
     }
 
@@ -3770,93 +3741,6 @@ public class ServerService extends Service {
         return ips.get(0);
     }
 
-    static String normalisasiDomainKustom(String mentah) {
-        if (mentah == null) {
-            return "";
-        }
-        String d = mentah.trim().toLowerCase(java.util.Locale.ROOT);
-        if (d.startsWith("https://")) {
-            d = d.substring("https://".length());
-        } else if (d.startsWith("http://")) {
-            d = d.substring("http://".length());
-        }
-        int potong = d.length();
-        int garis = d.indexOf('/');
-        if (garis >= 0) {
-            potong = Math.min(potong, garis);
-        }
-        int titikDua = d.indexOf(':');
-        if (titikDua >= 0) {
-            potong = Math.min(potong, titikDua);
-        }
-        d = d.substring(0, potong);
-        if (d.endsWith(".")) {
-            d = d.substring(0, d.length() - 1);
-        }
-        if (d.isEmpty()) {
-            return "";
-        }
-        return domainKustomValid(d) ? d : null;
-    }
-
-    static boolean domainKustomValid(String d) {
-        if (d == null || d.isEmpty() || d.length() > 253 || d.indexOf(':') >= 0) {
-            return false;
-        }
-        int label = 1;
-        int panjangLabel = 0;
-        boolean semuaAngka = true;
-        char sebelumnya = '.';
-        for (int i = 0; i < d.length(); i++) {
-            char c = d.charAt(i);
-            if (c == '.') {
-                if (panjangLabel == 0 || sebelumnya == '-') {
-                    return false;
-                }
-                label++;
-                panjangLabel = 0;
-            } else {
-                if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '-')) {
-                    return false;
-                }
-                if (c < '0' || c > '9') {
-                    semuaAngka = false;
-                }
-                if (panjangLabel == 0 && c == '-') {
-                    return false;
-                }
-                panjangLabel++;
-                if (panjangLabel > 63) {
-                    return false;
-                }
-            }
-            sebelumnya = c;
-        }
-        if (panjangLabel == 0 || sebelumnya == '-') {
-            return false;
-        }
-        return !(label == 4 && semuaAngka);
-    }
-
-    static String domainKustomDari(SharedPreferences sp) {
-        if (sp == null) {
-            return "";
-        }
-        String d = normalisasiDomainKustom(TgBackup.amanString(sp, KEY_CUSTOM_DOMAIN, ""));
-        return d == null ? "" : d;
-    }
-
-    public static String domainKustomAktif(Context ctx) {
-        if (ctx == null) {
-            return "";
-        }
-        try {
-            return domainKustomDari(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE));
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     static String formatHostUntukUrl(String host) {
         if (host == null || host.isEmpty()) {
             return "127.0.0.1";
@@ -3959,17 +3843,13 @@ public class ServerService extends Service {
             ips.add(0, "127.0.0.1");
             ips.add("::1");
 
-            String domainTls = domainKustomAktif(this);
-            List<String> dnsTls = domainTls.isEmpty()
-                    ? java.util.Collections.emptyList()
-                    : java.util.Collections.singletonList(domainTls);
-            String cur = joinIps(ips) + "\n" + domainTls;
+            String cur = joinIps(ips);
 
             File internal = new File(getFilesDir(), "tls");
             File tlsLama = new File(dataFolder, "tls");
             migrasiTlsKeInternal(tlsLama, internal);
             File ipFile = new File(internal, "ips.txt");
-            File dir = ensureCertWithIps(internal, ipFile, ips, dnsTls, cur);
+            File dir = ensureCertWithIps(internal, ipFile, ips, cur);
             if (dir == null) {
 
                 File lama = new File(dataFolder, "tls");
@@ -3982,7 +3862,7 @@ public class ServerService extends Service {
                         dir = lama;
                     } else {
                         dir = ensureCertWithIps(lama, new File(lama, "ips.txt"),
-                                ips, dnsTls, cur);
+                                ips, cur);
                     }
                 } else {
                     appendLog("[app] Gagal siapkan TLS di internal; kunci privat TIDAK"
@@ -4069,14 +3949,14 @@ public class ServerService extends Service {
     }
 
     private File ensureCertWithIps(File tlsDir, File ipFile, List<String> ips,
-            List<String> dns, String cur) throws Exception {
+            String cur) throws Exception {
         String saved = readText(ipFile);
 
         boolean ipBerubah = saved == null || !saved.equals(cur);
         if (ipBerubah) {
-            appendLog("[app] Alamat server berubah - regenerasi sertifikat server (CA tetap).");
+            appendLog("[app] IP berubah - regenerasi sertifikat server (CA tetap).");
         }
-        File dir = TlsCert.ensure(tlsDir, ips, dns, ipBerubah);
+        File dir = TlsCert.ensure(tlsDir, ips, ipBerubah);
         if (dir != null) {
             writeText(ipFile, cur);
 

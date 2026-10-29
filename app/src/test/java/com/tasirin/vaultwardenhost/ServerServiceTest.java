@@ -186,28 +186,6 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void normalisasiDomainKustom() {
-        assertEquals("", ServerService.normalisasiDomainKustom(null));
-        assertEquals("", ServerService.normalisasiDomainKustom("  "));
-        assertEquals("vault.contoh.id",
-                ServerService.normalisasiDomainKustom("vault.contoh.id"));
-        assertEquals("vault.contoh.id",
-                ServerService.normalisasiDomainKustom("  Vault.Contoh.ID  "));
-        assertEquals("vault.contoh.id",
-                ServerService.normalisasiDomainKustom("https://vault.contoh.id:8443/"));
-        assertEquals("vault.contoh.id",
-                ServerService.normalisasiDomainKustom("vault.contoh.id."));
-        assertEquals("vault.local",
-                ServerService.normalisasiDomainKustom("vault.local"));
-        assertEquals("vault", ServerService.normalisasiDomainKustom("vault"));
-        assertNull(ServerService.normalisasiDomainKustom("192.168.1.10"));
-        assertNull(ServerService.normalisasiDomainKustom("bukan domain.id"));
-        assertNull(ServerService.normalisasiDomainKustom("-vault.id"));
-        assertNull(ServerService.normalisasiDomainKustom("vault..id"));
-        assertNull(ServerService.normalisasiDomainKustom("vault_id.id"));
-    }
-
-    @Test
     public void catatLogNaikkanVersi() {
         long sebelum = ServerService.logVersion();
         ServerService.catatLog("uji baris");

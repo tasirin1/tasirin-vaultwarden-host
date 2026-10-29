@@ -1,8 +1,5 @@
 # Changelog
 
-## [Belum rilis] — Fitur (inti): domain kustom untuk alamat server
-- Alamat server (`DOMAIN`) selama ini selalu diturunkan dari IP LAN yang sedang aktif, jadi tiap router reset mengganti IP, alamat berubah dan semua perangkat harus login ulang. Inti domain kustom kini tersedia: preferensi `custom_domain` yang ternormalisasi dan tervalidasi (skema/port/ekor URL yang tertempel ikut dibersihkan; IP literal ditolak — itu bukan nama), dipakai sebagai alamat resmi server dan sebagai URL tampil, masuk sertifikat sebagai **DNS SAN** (SAN IP dipertahankan untuk akses darurat via IP), dan deteksi ganti-IP tidak lagi me-restart server bila domain kustom aktif karena alamatnya memang tidak berubah. Sidik sertifikat kini memuat domain, jadi mengubah domain meregenerasi leaf sekali (CA tetap). Kolom pengisiannya di Settings menyusul pada commit berikutnya.
-
 ## [Belum rilis] — Lint: banner TV pindah ke drawable-nodpi
 - Peringatan `IconLocation`: `tv_banner.png` adalah karya seni bebas-kepadatan (banner TV 640×360 yang dirujuk manifest), jadi rumahnya yang benar adalah `drawable-nodpi`, bukan folder `drawable` tanpa kualifikasi kepadatan. Nama resource tidak berubah, jadi acuan manifest tetap sama dan tampilannya identik.
 

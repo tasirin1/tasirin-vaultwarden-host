@@ -23,29 +23,6 @@ public class TlsCertTest {
     }
 
     @Test
-    public void ensure_leafMemuatSanDnsDanIp() throws Exception {
-        java.nio.file.Path dir = Files.createTempDirectory("tlsdns");
-        File d = dir.toFile();
-        File hasil = TlsCert.ensure(d,
-                java.util.Arrays.asList("127.0.0.1", "192.168.1.10"),
-                java.util.Collections.singletonList("vault.contoh.id"), true);
-        assertEquals(d, hasil);
-        java.security.cert.X509Certificate cert;
-        try (java.io.InputStream in = new java.io.FileInputStream(
-                new File(d, TlsCert.LEAF_CERT_FILE))) {
-            cert = (java.security.cert.X509Certificate) java.security.cert.CertificateFactory
-                    .getInstance("X.509").generateCertificate(in);
-        }
-        java.util.Set<String> sans = new java.util.HashSet<>();
-        for (java.util.List<?> san : cert.getSubjectAlternativeNames()) {
-            sans.add(san.get(0) + ":" + san.get(1));
-        }
-        assertTrue(sans.contains("7:192.168.1.10"));
-        assertTrue(sans.contains("2:vault.contoh.id"));
-        assertTrue(sans.contains("2:localhost"));
-    }
-
-    @Test
     public void panjangDerBesarPakaiAwalanBenar() throws Exception {
         java.lang.reflect.Method m = TlsCert.class.getDeclaredMethod(
                 "len", int.class, java.io.OutputStream.class);
