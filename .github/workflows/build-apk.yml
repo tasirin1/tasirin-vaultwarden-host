@@ -186,15 +186,6 @@ jobs:
             exit 1
           fi
 
-      - name: Siapkan salinan APK bernama rilis
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        run: |
-
-          APK=$(find app/build/outputs/apk -name '*release*.apk' -print -quit)
-          test -n "$APK" || { echo "::error::APK release tidak ada (signing gagal/dilewati?)"; exit 1; }
-          cp "$APK" tasirin-vaultwarden-host-armeabi-v7a.apk
-          ls -lh tasirin-*.apk
-
       - name: Publish APK ke rilis
 
         if: github.ref == 'refs/heads/main'

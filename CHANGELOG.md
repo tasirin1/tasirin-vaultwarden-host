@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Build APK: langkah salin APK bernama rilis yang ganda dihapus (Audit 766)
+- Langkah "Siapkan salinan APK bernama rilis" melakukan `find` + `cp` yang identik dengan awal langkah "Publish APK ke rilis" tepat sesudahnya; salinannya tertimpa sebelum `upload-artifact` membacanya, jadi langkah itu tak punya konsumen sendiri pada run main. Pemeriksaan "APK release tidak ada" tidak hilang — langkah publish memuat uji yang sama persis sebagai baris pertamanya. Satu-satunya penyalinan kini di langkah publish.
+
 ## [Belum rilis] — Gerbang: cek terjemahan kini gagal bila kedua himpunan string kosong (Audit 765)
 - `cek_sinkron_terjemah` dulu membungkus perbandingannya dengan `if inggris or indonesia:` — pola "dua himpunan kosong dianggap cocok" yang sudah berulang kali terbukti fail-open di repo ini: bila kedua `strings.xml` hilang/berpindah bersamaan, cek tak membandingkan apa pun dan gerbang tetap LOLOS. Kini keadaan kedua-kosong (string maupun plurals) adalah GAGAL eksplisit yang menyatakan ceknya tak bisa berjalan. Terbukti dengan fixture kedua strings dipindahkan (GAGAL dengan pesan itu) vs pohon utuh (LOLOS).
 
