@@ -27,6 +27,13 @@ public class LogActivityTest {
         assertFalse(r.contains("DocsKu"));
         assertFalse(r.contains("/data/data"));
         assertTrue(r.contains("[path]"));
+        // Audit 785: akar /mnt dan /sdcard terisolasi di sisi peredaksi juga.
+        String mnt = LogActivity.samarkanLog("cadangan ke /mnt/cadangan/db.zip selesai");
+        assertFalse(mnt.contains("/mnt/cadangan"));
+        assertTrue(mnt.contains("[path]"));
+        String sd = LogActivity.samarkanLog("cadangan ke /sdcard/Download/db.zip selesai");
+        assertFalse(sd.contains("/sdcard/Download"));
+        assertTrue(sd.contains("[path]"));
         String url = LogActivity.samarkanLog("cek https://github.com/tasirin1/rilis");
         assertTrue(url.contains("https://github.com/tasirin1/rilis"));
     }
@@ -75,6 +82,10 @@ public class LogActivityTest {
                 "[app] TLS cert: /data/user/0/com.tasirin.vaultwardenhost/files/tls/cert.pem"));
         assertTrue(LogActivity.butuhSamaran("unduh ke /storage/emulated/0/Download/x"));
         assertTrue(LogActivity.butuhSamaran("di /mnt/sdcard/cadangan"));
+        // Audit 785: tiap akar terisolasi — sampel gabungan di atas memuat
+        // dua akar sekaligus sehingga satu akar yang hilang tak tertangkap.
+        assertTrue(LogActivity.butuhSamaran("di /mnt/cadangan saja"));
+        assertTrue(LogActivity.butuhSamaran("di /sdcard/cadangan saja"));
         assertFalse(LogActivity.butuhSamaran("path relatif files/tls/cert.pem biasa"));
     }
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Uji: akar path /mnt dan /sdcard kini terisolasi pada uji gerbang dan peredaksi log (Audit 785)
+- Uji path absolut sebelumnya hanya mengisolasi `/storage` dan `/data` di sisi peredaksi, dan memakai sampel gabungan `/mnt/sdcard/cadangan` di sisi gerbang — kedua akar itu saling menutupi, jadi menghapus salah satunya dari detektor atau pola peredaksi tidak akan membuat uji mana pun merah. Sampel terisolasi untuk `/mnt` dan `/sdcard` kini diasersikan di kedua sisi (gerbang `butuhSamaran` dan keluaran `samarkanLog`).
+
 ## [Belum rilis] — Gerbang: perilaku cabang langka kini terkunci uji-diri permanen (Audit 782)
 - Perilaku gerbang dari putaran-putaran sebelumnya — fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan mode `--semua <jalur>`, serta cabang kedua `strings.xml` kosong = gagal — hanya pernah terbukti oleh fixture audit sesaat; CI selalu memakai `--rentang` dengan PyYAML terpasang, jadi regresinya tidak akan membuat lari mana pun merah. Skrip baru `tools/uji-verifikasi.py` menjalankan kelima skenario itu pada salinan buang pohon kerja (kontrol bersih, PyYAML diblokir, hapusan staged pada dua mode, kedua strings dikosongkan) dan kini menjadi langkah tetap job verifikasi di `cek-wajib.yml` dan `build-apk.yml`. Kontrol negatif terverifikasi: mengembalikan fail-open PyYAML membuat skrip ini gagal tepat pada skenario itu.
 
