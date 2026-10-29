@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 751: label audit otomatis hanya untuk issue berpenulis pihak repo
+- `label-audit.yml` memasang label `audit` pada issue mana pun yang badannya memuat penanda ronde audit, dan label itu membuat issue kebal dari penutupan `stale` — pembuka issue eksternal cukup menyalin satu baris penanda untuk mendapat kekebalan itu. Label kini hanya dipasang bila asosiasi penulisnya OWNER/MEMBER/COLLABORATOR; jalur pencabutan label tak berubah. Dampaknya memang hanya kebersihan antrean, tetapi celah efek-samping dua workflow ini kini tertutup.
+
 ## [Belum rilis] — Audit 750: checkout gitleaks kini tanpa kredensial tersimpan
 - `gitleaks.yml` adalah satu-satunya checkout di repo yang belum memakai `persist-credentials: false` — token workflow tertinggal di `.git/config` lokal selama job yang menjalankan action pihak ketiga. Kini diselaraskan dengan semua checkout lain (pola yang sama pernah diterapkan untuk CodeQL); `fetch-depth: 0` yang dibutuhkan pemindaian riwayat penuh tetap dipertahankan.
 
