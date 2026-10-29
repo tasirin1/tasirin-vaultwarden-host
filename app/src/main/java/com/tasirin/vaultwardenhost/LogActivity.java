@@ -250,7 +250,10 @@ public class LogActivity extends Activity {
                         && teksTampilTerakhir.endsWith("\n")
                         && tampil.length() > teksTampilTerakhir.length()
                         && tampil.startsWith(teksTampilTerakhir);
-                String tampilAman = butuhSamaran(tampil) ? samarkanLog(tampil) : tampil;
+                // Redaksi teks-penuh hanya dihitung bila benar-benar dipakai
+                // (mode non-delta); pada mode delta hasilnya dibuang (Audit 773).
+                String tampilAman = bisaDelta ? null
+                        : (butuhSamaran(tampil) ? samarkanLog(tampil) : tampil);
                 final CharSequence sorot = bisaDelta
                         ? null : highlightLog(tampilAman, cari);
                 final String deltaMentah = bisaDelta

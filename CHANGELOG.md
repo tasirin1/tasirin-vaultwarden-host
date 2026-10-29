@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Layar Log: redaksi teks-penuh tak lagi dihitung pada mode delta (Audit 773)
+- Refresh layar Log dulu selalu menjalankan `samarkanLog` atas seluruh teks tampil (sampai 100 ribu karakter, beberapa lintasan) walau pada mode delta — kasus normal saat layar terbuka — hasilnya dibuang dan yang dipakai hanya redaksi deltan-ya; sesudah Audit 769 gerbangnya nyaris selalu terbuka karena jendela tampil hampir selalu memuat baris ber-path, jadi pemborosan itu terjadi pada setiap tick berkonten baru di STB kelas rendah. Kini redaksi teks-penuh hanya dihitung pada mode non-delta, persis seperti jalur log beranda.
+
 ## [Belum rilis] — Gerbang: guard kedua-kosong diluruskan, plurals yang sah kosong tak lagi digagalkan (Audit 772)
 - Guard Audit 765 menyamaratakan string dan plurals, padahal keduanya berbeda: string kedua-kosong pasti berarti berkas hilang/rusak, tetapi plurals kedua-kosong bisa jadi keadaan sah (aplikasi tanpa `<plurals>` sama sekali tersinkron sempurna) — guard itu akan menggagalkan gerbang secara permanen dengan pesan menyesatkan bila plurals terakhir suatu hari dihapus dari kedua locale. Cabang plurals kini kembali ke perbandingan bersyarat; berkas hilang tetap tertangkap cabang string karena berkas yang sama memuat string (terbukti fixture: kedua `strings.xml` dipindahkan → GAGAL dari cabang string, tepat sekali).
 
