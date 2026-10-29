@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cakupan penghapusan ter-staged dipulihkan untuk kombinasi --semua + jalur (Audit 775)
+- Melepas tambahan staged ganda pada Audit 771 menyisakan satu lubang sempit: pada pemanggilan `--semua <jalur>` dengan diff jalur kosong, `rentang_cek` terisi rentang cadangan `HEAD~1...HEAD` sehingga `berkas_dihapus` bercabang rentang dan penghapusan ter-staged tak terlihat. Daftar hapus kini dibangun sebagai union ter-dedup (set) antara sumber rentang dan sumber lokal bila `--rentang` tidak diberikan eksplisit — mode lokal tetap tepat satu laporan (771 utuh), kombinasi `--semua`+jalur kembali menangkap (terbukti fixture tiga mode), dan mode CI `--rentang` tetap murni rentang.
+
 ## [Belum rilis] — Gerbang redaksi log kini juga mengenal bentuk token bot mentah (Audit 774)
 - Kelas cacat yang sama dengan Audit 769, satu cabang di sebelahnya: `samarkanLog` menyamarkan bentuk token bot mentah (`123456:AA…`) tanpa syarat, tetapi gerbang `butuhSamaran` tidak memanggil detektornya — potongan log yang isinya hanya token polos tanpa kata konteks/IP/email/path akan lolos mentah ke tampilan, bagikan, dan ekor log bot. Gerbang kini memanggil `adaBentukTokenMentah`, menutup cabang terakhir yang tak tercermin menurut perbandingan menyeluruh gerbang↔peredaksi; uji gerbang memakai contoh tanpa-konteks yang sama dengan uji peredaksinya.
 

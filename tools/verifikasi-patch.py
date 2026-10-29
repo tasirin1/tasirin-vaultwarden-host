@@ -1611,10 +1611,18 @@ def utama():
     cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
-    # Mode lokal: berkas_dihapus sendiri sudah mengunion diff working-tree,
-    # staged, dan commit lokal (Audit 763) — tambahan staged terpisah di sini
-    # dulu membuat penghapusan ter-staged dilaporkan dua kali (Audit 771).
-    hapus = berkas_dihapus(rentang_cek)
+    # Daftar hapus = union sumber rentang dan sumber lokal, ter-dedup lewat
+    # set: mode lokal murni rentang_cek kosong (sumber lokal Audit 763 sudah
+    # lengkap); mode --semua dengan rentang cadangan HEAD~1...HEAD dulu
+    # kehilangan penghapusan ter-staged karena berkas_dihapus bercabang
+    # rentang (Audit 775); tambahan staged mentah seperti dulu menggandakan
+    # laporan (Audit 771) — union set menutup keduanya. Mode --rentang
+    # eksplisit (CI) tetap murni rentang.
+    if args.rentang:
+        hapus = berkas_dihapus(rentang_cek)
+    else:
+        hapus = sorted(set(berkas_dihapus(rentang_cek))
+                       | set(berkas_dihapus("")))
     cek_berkas_java_dihapus(gagal, hapus)
     if not args.semua:
         cek_pengingat_changelog(peringatan, berubah)
