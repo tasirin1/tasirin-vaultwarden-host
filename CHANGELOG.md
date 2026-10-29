@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 722: jadwal restart-crash dan coba-lagi start kini memakai Runnable terpisah
+- Satu `Runnable restartTunda` sebelumnya dipakai dua tujuan: jadwal restart sesudah crash (backoff) dan coba-lagi start yang tertunda kunci data (tiap 5 detik). Karena keduanya membatalkan + memasang Runnable yang sama, jadwal yang datang belakangan menimpa tujuan yang lain — restart bisa menembak lebih awal dari backoff-nya atau coba-lagi start bergeser mengikuti tunda crash. Coba-lagi start kini memakai `startTunda` sendiri dengan badan dan gerbang yang sama persis, dan ketiga jalur berhenti kini membatalkan keduanya. Perilaku tiap jalur tidak berubah; keduanya tidak bisa lagi saling membatalkan.
+
 ## [Belum rilis] — Audit 721: folder data kanonis hanya ditulis ke prefs bila benar-benar berubah
 - `siapkanFolderData` menulis ulang `KEY_DATA_DIR` pada setiap start server walau nilai kanonisnya identik dengan yang tersimpan — setiap `apply()` menjadwalkan penulisan ulang seluruh berkas XML preferensi, termasuk pada tiap siklus mulai-ulang otomatis. Penulisan kini hanya terjadi bila nilai kanonis berbeda dari yang tersimpan (pola tulis-bila-beda yang sudah dipakai di tempat lain); validasi keamanan foldernya tidak berubah.
 

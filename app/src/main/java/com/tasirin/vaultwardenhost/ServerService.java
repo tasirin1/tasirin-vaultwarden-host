@@ -976,6 +976,7 @@ public class ServerService extends Service {
             simpanNiatJalan(false);
             batalUtama(healthTick);
             batalUtama(restartTunda);
+            batalUtama(startTunda);
             batalStart = true;
             startTertundaData.set(0);
 
@@ -1583,8 +1584,8 @@ public class ServerService extends Service {
                     }
                     if (n < BATAS_START_TERTUNDA_DATA) {
                         tunda = true;
-                        batalUtama(restartTunda);
-                        posUtama(restartTunda, 5000);
+                        batalUtama(startTunda);
+                        posUtama(startTunda, 5000);
                     } else {
                         startTertundaData.set(0);
                         setStatus("Restore/reset masih berjalan - tekan Start setelah selesai.");
@@ -1654,6 +1655,7 @@ public class ServerService extends Service {
         releaseWakeLock();
         batalUtama(healthTick);
         batalUtama(restartTunda);
+        batalUtama(startTunda);
 
         simpanNiatJalan(false);
         SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
@@ -2283,6 +2285,22 @@ public class ServerService extends Service {
             if (starting.get()) {
 
                 posUtama(restartTunda, 2000);
+                return;
+            }
+            if (process == null || !alive(process)) {
+                startServerAsync();
+            }
+        }
+    };
+
+    private final Runnable startTunda = new Runnable() {
+        @Override
+        public void run() {
+            if (!healthActive || !autoRestart) {
+                return;
+            }
+            if (starting.get()) {
+                posUtama(startTunda, 2000);
                 return;
             }
             if (process == null || !alive(process)) {
@@ -4701,6 +4719,7 @@ public class ServerService extends Service {
         startSusulanDiminta = false;
         batalUtama(healthTick);
         batalUtama(restartTunda);
+        batalUtama(startTunda);
         flushLogFile();
 
         Process p = process;
