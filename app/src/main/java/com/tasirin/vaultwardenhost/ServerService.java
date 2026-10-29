@@ -1804,7 +1804,9 @@ public class ServerService extends Service {
             }
             sesi.dataDir = kanonAwal;
             sesi.dataFolder = new File(kanonAwal);
-            sp.edit().putString(KEY_DATA_DIR, sesi.dataDir).apply();
+            if (!kanonAwal.equals(sp.getString(KEY_DATA_DIR, null))) {
+                sp.edit().putString(KEY_DATA_DIR, sesi.dataDir).apply();
+            }
         } catch (IOException e) {
             setStatus("Folder data tidak valid - server TIDAK start.");
             appendLog("[app] FATAL: folder data berubah/tak valid sesudah dibuat;"

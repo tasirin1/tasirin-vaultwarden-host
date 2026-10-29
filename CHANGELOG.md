@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 721: folder data kanonis hanya ditulis ke prefs bila benar-benar berubah
+- `siapkanFolderData` menulis ulang `KEY_DATA_DIR` pada setiap start server walau nilai kanonisnya identik dengan yang tersimpan — setiap `apply()` menjadwalkan penulisan ulang seluruh berkas XML preferensi, termasuk pada tiap siklus mulai-ulang otomatis. Penulisan kini hanya terjadi bila nilai kanonis berbeda dari yang tersimpan (pola tulis-bila-beda yang sudah dipakai di tempat lain); validasi keamanan foldernya tidak berubah.
+
 ## [Belum rilis] — Audit 719: flush berkas log dari catatLog kini dibatasi sekali per detik
 - `catatLog` (log konteks statis, ±45 situs panggil) memaksa flush disk pada SETIAP baris — buka stream append + tulis + tutup + stat panjang — menggugurkan penampungan 16 KB yang dipakai jalur log proses server. Saat semburan log (boot/restore/backup) itu I/O sinkron per baris di thread pemanggil, termasuk thread utama receiver. Flush paksa kini dibatasi maksimal sekali per 1000 ms; baris di antaranya tetap masuk penampungan dan ter-flush oleh ambang 16 KB atau flush berikutnya. Jendela kehilangan bila proses mati mendadak menyempit ke paling buruk ±1 detik baris konteks statis — jalur log server sendiri tidak berubah.
 
