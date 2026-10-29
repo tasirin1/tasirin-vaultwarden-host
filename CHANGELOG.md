@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 583: aplikasi kini muncul di layar utama Android TV murni (keputusan owner 2026-10-29)
+- Aplikasi tidak mempunyai kategori `LEANBACK_LAUNCHER` sama sekali, sehingga di perangkat Android TV murni (launcher Leanback/Google TV, mis. Mi TV Stick) aplikasi tidak muncul di layar utama — hanya bisa dibuka lewat Pengaturan → Aplikasi. Kini `MainActivity` mendaftarkan kategori Leanback di samping `LAUNCHER` biasa, `application` membawa `android:banner` (banner TV baru `tv_banner`, 640×360, gradasi dan perisai mengikuti ikon), dan `uses-feature android.software.leanback` dinyatakan `required="false"` — perangkat non-TV dan STB AOSP tidak terpengaruh sama sekali (fitur dinyatakan tidak wajib, kategori tambahan diabaikan launcher biasa, dan syarat layar sentuh memang sudah `required="false"`).
+
 ## [Belum rilis] — Audit 714: empat kolom tersimpan-otomatis kini dibatasi panjangnya
 - Kolom token bot, chat id, sandi backup, dan SHA binary tidak punya batas panjang di layout maupun jalur simpan: tempelan keliru berukuran ratusan KB (isi berkas/log di UI remote TV) tersimpan apa adanya ke SharedPreferences — yang dimuat utuh ke memori dan ditulis ulang pada tiap `apply()` di semua layar — dan token raksasa itu ikut disematkan ke URL API Telegram sampai bot mati tanpa penjelasan. Keempat kolom kini ber-`maxLength` lapang di atas kebutuhan sahnya (token 128, daftar chat 512, sandi 256, SHA 128; pola Audit 685), sehingga tempelan patologis terpotong di pintu masuk.
 
