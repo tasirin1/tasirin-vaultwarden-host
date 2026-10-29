@@ -648,7 +648,22 @@ def hapus_java(diff):
             if path.endswith(".java"):
                 yield path, baris[1:]
 
+_KUPAS_CACHE = {}
+
+
 def kupas_java(isi):
+    try:
+        return _KUPAS_CACHE[isi]
+    except KeyError:
+        pass
+    hasil = _kupas_java_mentah(isi)
+    if len(_KUPAS_CACHE) > 100000:
+        _KUPAS_CACHE.clear()
+    _KUPAS_CACHE[isi] = hasil
+    return hasil
+
+
+def _kupas_java_mentah(isi):
     petik_ganda = chr(34)
     petik_satu = chr(39)
     garis_miring_balik = chr(92)

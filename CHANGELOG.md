@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 738: gerbang verifikasi kini meng-cache hasil kupas_java (lari penuh ±27% lebih cepat)
+- `tools/verifikasi-patch.py` mengupas korpus yang sama berulang kali tanpa cache: fungsi murni `kupas_java` terpanggil ±35 ribu kali per lari penuh (terukur cProfile), sebagian besar atas baris-baris pendek yang sama persis (`}`, baris kosong, pola deklarasi) dan atas isi berkas utuh yang sama dari beberapa pemeriksaan berbeda. Hasil kupas kini di-memo per isi masukan dalam satu proses (dibersihkan berkala agar memori terbatas) — keluaran setiap pemeriksaan identik, hanya tidak dihitung ulang. Terukur lokal: lari `--semua` turun dari ±6,7 detik menjadi ±4,9 detik, hasil tetap LOLOS atas 164 berkas.
+
 ## [Belum rilis] — Audit 736: ganti PIN yang terlewat karena aktivasi berjalan kini memberi tahu pengguna
 - Bila pengguna menyetujui dialog ganti PIN tepat saat tugas aktivasi PIN masih berjalan, penulisan hash baru memang harus dilewati (aktivasi akan menimpanya dengan hash PIN lama) — tetapi sebelumnya dilewati *diam-diam*: dialog tertutup seolah berhasil dan PIN tersimpan tetap yang lama, baru ketahuan saat PIN "baru" ditolak di layar kunci. Jalur konfirmasi pengguna kini menampilkan toast bahwa PIN tidak berubah karena aktivasi masih diproses dan meminta mencoba lagi sebentar. Urutan pengamanannya tidak berubah; yang berubah hanya kegagalan senyapnya.
 
