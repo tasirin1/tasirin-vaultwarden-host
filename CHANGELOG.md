@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 707: timeout baca badan hapus pesan dikencangkan ulang ke sisa tenggat sesudah header
+- Sisa batas Audit 694 (self-review putaran-26): tenggat total diperiksa di antara potongan, tetapi satu `read()` yang menggantung di fase badan masih bisa menambah sampai `tBaca` awal (≤30 dtk) melewati cap, karena timeout soket dihitung dari sisa anggaran di awal percobaan — sementara fase header (`getResponseCode`) juga mengonsumsi jendela yang sama. Sesudah kode respons diterima, timeout baca kini dikencangkan ulang ke sisa tenggat yang sebenarnya sebelum badan dibaca, sehingga satu pembacaan terakhir yang menggantung terpotong di tenggat total, bukan di jendela awal percobaan.
+
 ## [Belum rilis] — Audit 706: serialisasi cek update kini mengantre, bukan melewatkan
 - Sisi lain Audit 704 (self-review putaran-26): pagar CAS membuat cek yang datang kedua *dilewati seluruhnya* — termasuk, untuk cek lengkap Settings, blok web-vault dan satu-satunya pemicu dialog tawarannya pada kunjungan itu. Pagar kini berupa kunci yang mengantre (kedua cek berjalan di pool latar, bukan thread UI): cek kedua menunggu cek pertama selesai lalu berjalan dengan penanda yang sudah diperbarui, sehingga pengumuman tetap tidak ganda (penanda versi dibaca sesudah cek pertama menulisnya) dan tidak ada pemicu yang tertelan. Harga yang dibayar hanya pengulangan pemeriksaan versi yang murah karena cache 15 menitnya.
 

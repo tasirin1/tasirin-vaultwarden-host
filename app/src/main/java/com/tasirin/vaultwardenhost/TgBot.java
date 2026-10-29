@@ -1483,6 +1483,12 @@ public final class TgBot {
                 }
                 TgBackup.tolakRedirectTelegram(c);
                 int kode = c.getResponseCode();
+                try {
+                    long sisaBadan = BATAS_HAPUS_PESAN_MS
+                            - (System.currentTimeMillis() - mulaiMs);
+                    c.setReadTimeout((int) Math.max(1000, sisaBadan));
+                } catch (Exception ignored) {
+                }
                 if (kode != 200) {
                     sesaat = kode == 429 || kode >= 500;
                     if (!sesaat) {
