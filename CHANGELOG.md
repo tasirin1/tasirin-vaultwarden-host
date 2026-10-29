@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 748: perbandingan penanda zip gagal memakai predikat digest tak peka huruf
+- Penanda zip gagal dibandingkan dengan `String.equals` yang peka huruf besar/kecil, sedangkan seluruh verifikasi digest lain di berkas ini memakai `expectedHexEquals` yang tak peka huruf — penanda dari sumber berhuruf berbeda (mis. `.sha256` rilis berhuruf besar melawan sidik berkas heks kecil) tidak akan dikenali sebagai zip yang sama. Perbandingan penanda kini memakai predikat yang sama; dampak praktisnya kecil (`.sha256` GitHub selalu huruf kecil dan penanda sembuh sendiri), ini pemadanan konsistensi.
+
 ## [Belum rilis] — Audit 747: stempel percobaan getMe ditulis saat penyerahan tugas, bukan di dalam tugas
 - Sisa perlombaan yang ditangkap self-review putaran-28 atas Audit 724: stempel percobaan `getMe` baru ditulis sesudah tugas latar benar-benar berjalan, jadi selama tugas pertama masih antre di pool, poll berikutnya tetap lolos cek depan dan menyerahkan tugas kedua yang bisa menembak `getMe` lagi. Stempel kini ditulis di cek depan tepat sebelum penyerahan — poll berikutnya selama jendela percobaan langsung tertahan, dan pemeriksaan di dalam tugas tetap berperan sebagai pagar kedua. Dampaknya memang hanya satu-dua panggilan baca-saja duplikat, tetapi gerbangnya kini benar-benar tertutup untuk pemanggil berurutan.
 

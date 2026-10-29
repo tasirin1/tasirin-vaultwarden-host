@@ -686,7 +686,7 @@ public final class Updater {
             String isi = new String(buf, 0, n, StandardCharsets.UTF_8).trim();
             String sidik = sidikDiketahui != null && !sidikDiketahui.isEmpty()
                     ? sidikDiketahui : sidikBerkas(zip);
-            return !isi.isEmpty() && isi.equals(sidik);
+            return !isi.isEmpty() && expectedHexEquals(isi, sidik);
         } catch (Exception ignored) {
             return false;
         }
