@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Lint: banner TV pindah ke drawable-nodpi
+- Peringatan `IconLocation`: `tv_banner.png` adalah karya seni bebas-kepadatan (banner TV 640×360 yang dirujuk manifest), jadi rumahnya yang benar adalah `drawable-nodpi`, bukan folder `drawable` tanpa kualifikasi kepadatan. Nama resource tidak berubah, jadi acuan manifest tetap sama dan tampilannya identik.
+
 ## [Belum rilis] — Lint: rentang heksadesimal pada pesan kesalahan SHA memakai en dash
 - Peringatan `TypographyDashes`: rentang `0-9` pada string `bin_sha_error` (kedua locale) adalah rentang nilai, jadi tanda pisahnya yang benar secara tipografi adalah en dash `0–9`. Teks tampil berubah sesempit itu saja.
 
