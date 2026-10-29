@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 719 (koreksi): jam throttle flush log diganti ke System.currentTimeMillis
+- Koreksi atas entri Audit 719 di bawah: throttle flush memakai `SystemClock.elapsedRealtime()` di dalam `catatLog` — di lingkungan uji JVM, `SystemClock` adalah stub Android yang melempar RuntimeException, sehingga `catatLog` (yang sebelumnya murni Java/berkas dan aman dipanggil uji) mulai melempar dan tiga uji CI gagal (`catatLogNaikkanVersi` + dua uji `tundaBilaBootBaru` yang jalurnya mencatat log). Jam throttle kini memakai `System.currentTimeMillis()` (murni Java): lonjakan jam dinding hanya bisa membuat flush sedikit lebih sering atau lebih jarang sesaat — tak berpengaruh pada keamanan throttle. Perilaku produksi tidak berubah.
+
 ## [Belum rilis] — Audit 744: asersi waktu uji waitForOrKill diperketat dari 10 detik ke 3 detik
 - Uji timeout 300 ms untuk proses macet hanya mengasertikan selesai di bawah 10 detik (kelonggaran 33×), sehingga regresi kelambatan sampai ±9 detik akan tetap hijau. Batas diperketat menjadi 3 detik — tetap 10× anggaran nominal, cukup longgar untuk CI yang sibuk, tetapi sekarang benar-benar menangkap regresi orde detik.
 

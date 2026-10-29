@@ -4574,7 +4574,7 @@ public class ServerService extends Service {
         line = potongBarisLog(line);
         String stamp = tulisBarisLog(line);
         tulisKeBerkasLog(stamp, line);
-        long kini = SystemClock.elapsedRealtime();
+        long kini = System.currentTimeMillis();
         if (kini - flushCatatTerakhirMs >= 1000) {
             flushCatatTerakhirMs = kini;
             flushLogFile();
