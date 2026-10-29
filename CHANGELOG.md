@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 752: kegagalan strip binary kini terlihat sebagai peringatan berukuran
+- Kedua `llvm-strip ... || true` di `build-binary.yml` menelan kegagalan tanpa jejak: binary/shim tanpa strip bisa terbit diam-diam beberapa kali lebih besar (tak ada cek ukuran maksimum untuk binary, berbeda dengan web-vault dan APK). Strip kini mencatat ukuran sebelum/sesudah dan memunculkan `::warning::` bila strip gagal atau tidak mengecilkan berkas — build tetap tidak digugurkan oleh strip (keputusan lamanya dipertahankan), tetapi kegagalannya tak lagi tak terlihat.
+
 ## [Belum rilis] — Audit 751: label audit otomatis hanya untuk issue berpenulis pihak repo
 - `label-audit.yml` memasang label `audit` pada issue mana pun yang badannya memuat penanda ronde audit, dan label itu membuat issue kebal dari penutupan `stale` — pembuka issue eksternal cukup menyalin satu baris penanda untuk mendapat kekebalan itu. Label kini hanya dipasang bila asosiasi penulisnya OWNER/MEMBER/COLLABORATOR; jalur pencabutan label tak berubah. Dampaknya memang hanya kebersihan antrean, tetapi celah efek-samping dua workflow ini kini tertutup.
 
