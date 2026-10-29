@@ -2101,16 +2101,33 @@ public final class TgBot {
                     + " PIN huruf wajib bentuk PIN:ab12).");
             return null;
         }
-        boolean cocok = PinCrypto.verify(hash, pin);
-        if (cocok) {
-
-            String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-            if (segar != null && !segar.isEmpty() && !segar.equals(hash)) {
-                hash = segar;
+        boolean cocok = false;
+        long sisaKalah = 0;
+        synchronized (PinGate.KUNCI_PERCOBAAN) {
+            // Audit 791: cek ulang otoritatif di dalam kunci bersama —
+            // tanpa ini percobaan bot dan UI bisa sama-sama lolos cek awal
+            // dan sama-sama memverifikasi sebelum satu pun mencatat.
+            long sisa2 = PinGate.sisaKunciMs(ctx, System.currentTimeMillis());
+            if (sisa2 > 0) {
+                sisaKalah = sisa2;
+            } else {
                 cocok = PinCrypto.verify(hash, pin);
+                if (cocok) {
+
+                    String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                    if (segar != null && !segar.isEmpty() && !segar.equals(hash)) {
+                        hash = segar;
+                        cocok = PinCrypto.verify(hash, pin);
+                    }
+                }
+                PinGate.catatHasil(ctx, cocok, sekarang);
             }
         }
-        PinGate.catatHasil(ctx, cocok, sekarang);
+        if (sisaKalah > 0) {
+            balasPenting(ctx, idRuang, "PIN terkunci sementara (kebanyakan gagal)."
+                    + " Coba lagi " + ((sisaKalah + 59000) / 60000) + " menit.");
+            return null;
+        }
         if (cocok) {
             if (PinCrypto.perluUpgradeHash(hash)) {
                 try {

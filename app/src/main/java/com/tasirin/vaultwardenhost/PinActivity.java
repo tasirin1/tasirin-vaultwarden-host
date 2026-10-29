@@ -157,11 +157,26 @@ public class PinActivity extends Activity {
             SharedPreferences sp = appCtx.getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE);
             boolean cocok = false;
+            boolean terkunci = false;
+            long sisaKalah = 0;
             try {
                 String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                cocok = !segar.isEmpty()
-                        && PinCrypto.verify(segar, entered);
-                PinGate.catatHasil(appCtx, cocok, System.currentTimeMillis());
+                synchronized (PinGate.KUNCI_PERCOBAAN) {
+                    // Audit 791: cek ulang otoritatif di dalam kunci bersama
+                    // dengan jalur bot — kunci yang terpasang jalur lain
+                    // sejak cek awal membatalkan percobaan tanpa verifikasi.
+                    long sisa2 = PinGate.sisaKunciMs(appCtx,
+                            System.currentTimeMillis());
+                    if (sisa2 > 0) {
+                        terkunci = true;
+                        sisaKalah = sisa2;
+                    } else {
+                        cocok = !segar.isEmpty()
+                                && PinCrypto.verify(segar, entered);
+                        PinGate.catatHasil(appCtx, cocok,
+                                System.currentTimeMillis());
+                    }
+                }
                 if (cocok) {
                     PinGate.bukaKunciBersama();
                 }
@@ -177,6 +192,8 @@ public class PinActivity extends Activity {
                 }
             } finally {
                 final boolean hasil = cocok;
+                final boolean kalah = terkunci;
+                final long sisaFinal = sisaKalah;
                 ui.post(() -> {
                     sedangPeriksa = false;
 
@@ -188,6 +205,8 @@ public class PinActivity extends Activity {
                     if (hasil) {
                         setResult(RESULT_OK);
                         finish();
+                    } else if (kalah) {
+                        tampilGalat(teksSisaKunci(this, sisaFinal));
                     } else {
                         tampilGalat(getString(R.string.pin_salah));
                     }

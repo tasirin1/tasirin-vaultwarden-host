@@ -24,6 +24,8 @@ public final class PinGate {
 
     private static final Object KUNCI_BERSAMA = new Object();
 
+    public static final Object KUNCI_PERCOBAAN = new Object();
+
     private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
             Util.penanganAntreanPenuh("PinGate");
     private static final java.util.concurrent.ExecutorService CATAT_EXEC =
