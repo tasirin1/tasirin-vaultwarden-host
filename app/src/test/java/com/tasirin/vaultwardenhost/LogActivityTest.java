@@ -57,6 +57,16 @@ public class LogActivityTest {
     }
 
     @Test
+    public void butuhSamaran_tokenMentahTanpaKonteksMembukaGerbang() {
+        // Audit 774: samarkanLog menyamarkan bentuk token tanpa syarat, jadi
+        // gerbangnya wajib mengenalnya juga — contoh tanpa konteks yang sama
+        // dengan teksMiripTokenTanpaKonteksTetapDisamarkan.
+        assertTrue(LogActivity.butuhSamaran(
+                "proses 123456:AAEcDeFgHiJkLmNoPqRsTuVwXyZ0123456789 selesai"));
+        assertFalse(LogActivity.butuhSamaran("proses 123:abc singkat saja"));
+    }
+
+    @Test
     public void butuhSamaran_pathAbsolutSajaMembukaGerbang() {
         // Audit 769: samarkanLog meredaksi path tanpa syarat, jadi gerbangnya
         // wajib mengenal path juga — potongan log berisi path saja (baris

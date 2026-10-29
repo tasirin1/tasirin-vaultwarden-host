@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang redaksi log kini juga mengenal bentuk token bot mentah (Audit 774)
+- Kelas cacat yang sama dengan Audit 769, satu cabang di sebelahnya: `samarkanLog` menyamarkan bentuk token bot mentah (`123456:AA…`) tanpa syarat, tetapi gerbang `butuhSamaran` tidak memanggil detektornya — potongan log yang isinya hanya token polos tanpa kata konteks/IP/email/path akan lolos mentah ke tampilan, bagikan, dan ekor log bot. Gerbang kini memanggil `adaBentukTokenMentah`, menutup cabang terakhir yang tak tercermin menurut perbandingan menyeluruh gerbang↔peredaksi; uji gerbang memakai contoh tanpa-konteks yang sama dengan uji peredaksinya.
+
 ## [Belum rilis] — Layar Log: redaksi teks-penuh tak lagi dihitung pada mode delta (Audit 773)
 - Refresh layar Log dulu selalu menjalankan `samarkanLog` atas seluruh teks tampil (sampai 100 ribu karakter, beberapa lintasan) walau pada mode delta — kasus normal saat layar terbuka — hasilnya dibuang dan yang dipakai hanya redaksi deltan-ya; sesudah Audit 769 gerbangnya nyaris selalu terbuka karena jendela tampil hampir selalu memuat baris ber-path, jadi pemborosan itu terjadi pada setiap tick berkonten baru di STB kelas rendah. Kini redaksi teks-penuh hanya dihitung pada mode non-delta, persis seperti jalur log beranda.
 

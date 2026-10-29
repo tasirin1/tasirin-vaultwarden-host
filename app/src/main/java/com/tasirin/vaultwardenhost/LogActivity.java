@@ -609,7 +609,8 @@ public class LogActivity extends Activity {
         }
         return t.contains("192.168.") || t.contains("10.")
                 || t.contains("172.") || t.contains("127.0.0.1:")
-                || adaEmail(t) || adaIpPublik(t) || adaPathAbsolut(t);
+                || adaEmail(t) || adaIpPublik(t) || adaPathAbsolut(t)
+                || adaBentukTokenMentah(t);
     }
 
     static boolean pindaiKunciRahasia(String t) {
