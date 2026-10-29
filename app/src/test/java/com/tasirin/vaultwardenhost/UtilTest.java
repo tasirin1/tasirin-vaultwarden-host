@@ -457,6 +457,35 @@ public class UtilTest {
     }
 
     @Test
+    public void jalankanCekLaporPenolakanDanMenerimaTugas() throws Exception {
+        assertFalse(Util.jalankanCek(null));
+        final java.util.concurrent.CountDownLatch jalan =
+                new java.util.concurrent.CountDownLatch(1);
+        assertTrue(Util.jalankanCek(jalan::countDown));
+        assertTrue(jalan.await(5, java.util.concurrent.TimeUnit.SECONDS));
+        final java.util.concurrent.CountDownLatch tahan =
+                new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch mulai =
+                new java.util.concurrent.CountDownLatch(1);
+        assertTrue(Util.jalankanCek(() -> {
+            mulai.countDown();
+            try {
+                tahan.await(5, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }));
+        assertTrue(mulai.await(5, java.util.concurrent.TimeUnit.SECONDS));
+        for (int i = 0; i < 4; i++) {
+            assertTrue(Util.jalankanCek(() -> {
+            }));
+        }
+        assertFalse(Util.jalankanCek(() -> {
+        }));
+        tahan.countDown();
+    }
+
+    @Test
     public void batalkanTundaAmanTanpaLooper() {
 
         assertFalse(Util.batalkanTunda(null));

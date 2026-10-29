@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 757: Util.jalankanCek kini teruji seperti pembungkus pool lainnya
+- `jalankanCek` (pool khusus `BG_CEK` dari Audit 716, satu-satunya jalur penyerahan cek update kedua activity) adalah satu-satunya pembungkus pool tanpa satu pun acuan uji, sementara ketiga saudaranya teruji termasuk penolakan saat antrean penuh. Uji baru mengunci kontrak yang sama untuknya: null ditolak, tugas diterima dan berjalan, dan penyerahan ditolak sesudah thread tunggalnya tertahan dan antrean 4 terisi.
+
 ## [Belum rilis] — Audit 756: hitungBaris disatukan ke salinan LogActivity yang teruji
 - Logika hitung baris hidup sebagai dua implementasi identik di dua activity; salinan `LogActivity` terkunci uji, sedangkan salinan `MainActivity` bersifat private dan tak teruji — padahal penghitung baris beranda inkremental Audit 734 bertumpu padanya. Badan salinan MainActivity kini mendelegasikan ke salinan bersama `LogActivity`, jadi satu implementasi yang teruji melayani kedua layar dan penyimpangan antar-salinan tak lagi mungkin.
 
