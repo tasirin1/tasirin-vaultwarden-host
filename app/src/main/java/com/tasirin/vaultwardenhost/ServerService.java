@@ -4009,10 +4009,30 @@ public class ServerService extends Service {
     }
 
     private static void writeText(File f, String text) throws Exception {
-        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
-                new FileOutputStream(f, false), StandardCharsets.UTF_8)) {
-            w.write(text);
+        File induk = f.getAbsoluteFile().getParentFile();
+        File baru = new File(induk, f.getName() + ".baru");
+        try {
+            baru.delete();
+        } catch (Exception ignored) {
         }
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(baru)) {
+            fos.write(text.getBytes(StandardCharsets.UTF_8));
+            fos.flush();
+            try {
+                fos.getFD().sync();
+            } catch (Exception ignored) {
+            }
+        }
+        if (!baru.renameTo(f)) {
+            if (!f.delete() || !baru.renameTo(f)) {
+                try {
+                    baru.delete();
+                } catch (Exception ignored) {
+                }
+                throw new java.io.IOException("gagal menulis " + f.getName());
+            }
+        }
+        TlsCert.fsyncDirektori(induk);
     }
 
     private String getPid(Process p) {

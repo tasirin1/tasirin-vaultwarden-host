@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Penanda versi dan daftar IP kini ditulis atomik (Audit 802)
+- `writeText` sebelumnya menulis `bin/version.txt` dan `tls/ips.txt` langsung di tempat (truncate) — satu-satunya penulis penanda yang tidak memakai pola atomik repo. Kini penulisannya lewat berkas staging di folder yang sama, fsync, lalu ditukar masuk dengan rename (meniru `TlsCert.writeVersion` dan `Updater.writeVersionTag`): mati listrik di tengah penulisan tak lagi meninggalkan berkas robek yang memicu refresh binary atau regenerasi sertifikat daun ekstra pada start berikutnya.
+
 ## [Belum rilis] — Blok rollback pasang versi disatukan (Audit 798)
 - `pasangVersiDipilih` sebelumnya menjalankan dua blok sibuk yang hampir sama dengan blok rollback pin terduplikasi verbatim di kedua catch-nya — dan salinan cabang web-vault memuat lengan kondisi yang tak pernah bisa hidup. Kini satu blok sibuk bersama dengan rollback yang ditulis satu kali; perilaku sukses dan gagal kedua jalur tidak berubah.
 
