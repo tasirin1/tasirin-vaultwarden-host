@@ -1223,6 +1223,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void kirimDokumenById_paramTerenkodeBenar() throws Exception {
+        assertEquals("chat_id=-100123&document=ABC123",
+                TgBackup.paramDokumenById("-100123", "ABC123"));
+        // Karakter khas file_id dan spasi terenkode sebagai form-urlencoded.
+        assertEquals("chat_id=42&document=A%2BB%2FC%3D",
+                TgBackup.paramDokumenById("42", "A+B/C="));
+    }
+
+    @Test
     public void bacaTerbatas_tolakMelebihiBatas() throws Exception {
         byte[] kecil = new byte[100];
         assertEquals(100, TgBackup.bacaTerbatas(

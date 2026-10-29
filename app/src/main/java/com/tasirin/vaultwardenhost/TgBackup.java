@@ -2255,6 +2255,12 @@ public final class TgBackup {
         return dikenal;
     }
 
+    static String paramDokumenById(String chatId, String fileId)
+            throws Exception {
+        return "chat_id=" + URLEncoder.encode(chatId, "UTF-8")
+                + "&document=" + URLEncoder.encode(fileId, "UTF-8");
+    }
+
     private static String kirimDokumenById(Context ctx, String token,
                                            String chatId, String fileId)
             throws Exception {
@@ -2265,9 +2271,8 @@ public final class TgBackup {
         if (fileId == null || fileId.isEmpty()) {
             throw new java.io.IOException("file_id backup kosong.");
         }
-        String param = "chat_id=" + URLEncoder.encode(chatId, "UTF-8")
-                + "&document=" + URLEncoder.encode(fileId, "UTF-8");
-        byte[] body = param.getBytes(StandardCharsets.UTF_8);
+        byte[] body = paramDokumenById(chatId, fileId)
+                .getBytes(StandardCharsets.UTF_8);
         for (int percobaan = 0; percobaan < 2; percobaan++) {
             HttpURLConnection conn = null;
             try {
