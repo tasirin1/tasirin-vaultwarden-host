@@ -1620,9 +1620,13 @@ def utama():
     # eksplisit (CI) tetap murni rentang.
     if args.rentang:
         hapus = berkas_dihapus(rentang_cek)
-    else:
+    elif rentang_cek:
         hapus = sorted(set(berkas_dihapus(rentang_cek))
                        | set(berkas_dihapus("")))
+    else:
+        # rentang_cek kosong = sumber lokal itu sendiri; memanggilnya dua
+        # kali (bentuk union lama) membuang separuh panggilan git (Audit 777).
+        hapus = berkas_dihapus("")
     cek_berkas_java_dihapus(gagal, hapus)
     if not args.semua:
         cek_pengingat_changelog(peringatan, berubah)

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sumber penghapusan lokal tak lagi dihitung dua kali (Audit 777)
+- Bentuk union Audit 775 memanggil `berkas_dihapus("")` dua kali persis pada mode yang paling sering dipakai (lokal murni dan jalur posisional, termasuk hook pre-push): 6 panggilan `git diff --name-status` untuk 3 sumber yang sama. Kini bila `rentang_cek` kosong, sumber lokal dipanggil sekali saja; cabang union hanya berjalan bila benar-benar ada rentang cadangan. Terbukti dengan shim git pencatat panggilan: hitungan `name-status` turun 6 → 3 dan laporan penghapusan tetap tepat satu kali.
+
 ## [Belum rilis] — Cap waktu baris log kini diformat di dalam kunci buffer (Audit 776)
 - `tulisBarisLog` dulu memformat cap waktu sebelum masuk `synchronized (logBuffer)`, jadi dua thread yang menulis bersamaan bisa tercatat di buffer dengan urutan cap terbalik (baris ber-cap lebih baru muncul lebih dulu) — membingungkan saat membaca urutan kejadian start/crash yang berselisih milidetik. Cap kini diformat di dalam kunci yang sama dengan penambahan barisnya, sehingga urutan buffer selalu searah dengan cap-nya. (Urutan penulisan berkas log adalah langkah terpisah dan tidak diubah.)
 
