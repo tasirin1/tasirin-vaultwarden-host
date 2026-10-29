@@ -23,6 +23,10 @@ ci:
           - scripts/**
           - shim/**
           - gradle/**
+          - gradlew
+          - gradlew.bat
+          - .editorconfig
+          - .gitignore
 
 docs:
   - changed-files:
@@ -33,3 +37,5 @@ docs:
           - CHANGELOG.md
           - AGENTS.md
           - "*.md"
+          - LICENSE
+          - LICENSE.vaultwarden
