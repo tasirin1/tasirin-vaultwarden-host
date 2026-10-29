@@ -1336,6 +1336,11 @@ public class UpdaterTest {
         assertTrue(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.36.0", "1.37.3"));
         assertTrue(Updater.unduhBolehDilewati(false, false, "1.38.0", "1.37.3", "1.37.3"));
         assertTrue(Updater.unduhBolehDilewati(false, false, null, "1.37.3", "1.37.3"));
+        // Audit 799 (lanjutan 794): target pin prerelease TIDAK dilewati
+        // oleh berkas stabil seangkanya — komposisi keputusannya terkunci.
+        assertFalse(Updater.unduhBolehDilewati(false, false, "1.37.3", "1.36.0", "1.37.3-beta"));
+        assertFalse(Updater.unduhBolehDilewati(false, false, null, "1.37.3", "1.37.3-beta"));
+        assertTrue(Updater.unduhBolehDilewati(false, false, "1.37.3-beta", null, "1.37.3-beta"));
     }
 
     @Test
@@ -1354,6 +1359,11 @@ public class UpdaterTest {
         assertTrue(Updater.webVaultOtomatisPerluUpdate("1.34.0", "1.35.0", true));
         assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.35.0", true));
         assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0", null, true));
+        // Audit 799 (lanjutan 794): selisih sufiks pun selisih — pin beta
+        // dikejar dari terpasang stabil seangkanya, dan sebaliknya.
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("1.35.0", "1.35.0-beta", true));
+        assertTrue(Updater.webVaultOtomatisPerluUpdate("1.35.0-beta", "1.35.0", true));
+        assertFalse(Updater.webVaultOtomatisPerluUpdate("1.35.0-beta", "1.35.0-beta", true));
     }
 
     @Test
@@ -1376,6 +1386,9 @@ public class UpdaterTest {
         assertTrue(Updater.unduhBolehDilewati(true, false, "v1.32.0", null, "1.32.0"));
         assertFalse(Updater.unduhBolehDilewati(true, false, "1.37.3", "1.37.3", "1.32.0"));
         assertFalse(Updater.unduhBolehDilewati(true, false, null, "1.32.0", "1.32.0"));
+        // Audit 799 (lanjutan 794): cabang paksa pun ketat sufiks.
+        assertFalse(Updater.unduhBolehDilewati(true, false, "1.32.0", null, "1.32.0-beta"));
+        assertTrue(Updater.unduhBolehDilewati(true, false, "1.32.0-beta", null, "1.32.0-beta"));
     }
 
     @Test
