@@ -4532,6 +4532,8 @@ public class ServerService extends Service {
         return logVer;
     }
 
+    private static volatile long flushCatatTerakhirMs = 0;
+
     public static void catatLog(String line) {
         if (line == null) {
             return;
@@ -4539,7 +4541,11 @@ public class ServerService extends Service {
         line = potongBarisLog(line);
         String stamp = tulisBarisLog(line);
         tulisKeBerkasLog(stamp, line);
-        flushLogFile();
+        long kini = SystemClock.elapsedRealtime();
+        if (kini - flushCatatTerakhirMs >= 1000) {
+            flushCatatTerakhirMs = kini;
+            flushLogFile();
+        }
     }
 
     private static void pangkasBufferTerkunci() {

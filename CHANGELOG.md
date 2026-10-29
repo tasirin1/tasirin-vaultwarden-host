@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 719: flush berkas log dari catatLog kini dibatasi sekali per detik
+- `catatLog` (log konteks statis, ±45 situs panggil) memaksa flush disk pada SETIAP baris — buka stream append + tulis + tutup + stat panjang — menggugurkan penampungan 16 KB yang dipakai jalur log proses server. Saat semburan log (boot/restore/backup) itu I/O sinkron per baris di thread pemanggil, termasuk thread utama receiver. Flush paksa kini dibatasi maksimal sekali per 1000 ms; baris di antaranya tetap masuk penampungan dan ter-flush oleh ambang 16 KB atau flush berikutnya. Jendela kehilangan bila proses mati mendadak menyempit ke paling buruk ±1 detik baris konteks statis — jalur log server sendiri tidak berubah.
+
 ## [Belum rilis] — Audit 718: pembangunan ulang tampilan log saat mencari kini dibatasi lajunya
 - Begitu kolom cari terisi, jalur delta murah LogActivity mati (delta menuntut kueri kosong), sehingga setiap perubahan log memicu pembangunan ulang penuh: salin ekor 100 KB, pindai redaksi, spannable sorotan 100 KB, dan layout ulang seluruh TextView di thread UI — berulang tiap tik 1,5 detik selama log mengalir. Pembangunan ulang untuk kueri yang sama kini dibatasi maksimal sekali per ±4,5 detik (kunci konten tidak dikonsumsi saat ditunda, jadi tik berikutnya menilai lagi); mengetik kueri baru tetap membangun seketika, dan jalur tanpa pencarian tidak berubah sama sekali.
 
