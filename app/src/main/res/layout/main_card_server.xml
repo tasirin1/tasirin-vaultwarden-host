@@ -156,7 +156,7 @@
 
             <EditText
                 android:id="@+id/port"
-                android:nextFocusDown="@id/domainKustom"
+                android:nextFocusDown="@id/adminToken"
                 android:nextFocusUp="@id/dataDir"
                 style="@style/TasirinInput"
                 android:layout_width="match_parent"
@@ -171,35 +171,4 @@
                 android:textColor="@color/status_off"
                 android:textSize="11sp"
                 android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/labelDomain"
-                style="@style/TasirinLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/domain_kustom" />
-
-            <EditText
-                android:id="@+id/domainKustom"
-                android:nextFocusDown="@id/adminToken"
-                android:nextFocusUp="@id/port"
-                style="@style/TasirinInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/domain_kustom_hint"
-                android:inputType="textUri" />
-
-            <TextView
-                android:id="@+id/domainError"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_off"
-                android:textSize="11sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/domain_kustom_info"
-                android:textSize="11sp" />
         </LinearLayout>

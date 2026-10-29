@@ -3454,7 +3454,6 @@ public final class TgBackup {
 
     static final java.util.Set<String> KUNCI_STRING = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
-                    ServerService.KEY_CUSTOM_DOMAIN,
                     ServerService.KEY_UPDATE_VERSION, ServerService.KEY_ADMIN_TOKEN,
                     ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
                     ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
@@ -3467,7 +3466,6 @@ public final class TgBackup {
 
     static final java.util.Set<String> BOLEH_IMPOR = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_PORT,
-                    ServerService.KEY_CUSTOM_DOMAIN,
                     ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
                     ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
                     ServerService.KEY_AUTO_UPDATE_WV,
@@ -3816,10 +3814,6 @@ public final class TgBackup {
                     if (ServerService.KEY_PORT.equals(k)) {
 
                         ed.putString(k, ServerService.normalisasiPort(teks));
-                    } else if (ServerService.KEY_CUSTOM_DOMAIN.equals(k)) {
-
-                        String normal = ServerService.normalisasiDomainKustom(teks);
-                        ed.putString(k, normal == null ? "" : normal);
                     } else if (ServerService.KEY_UPDATE_VERSION.equals(k)) {
 
                         String normal = Updater.normVersion(teks);

@@ -37,10 +37,6 @@
     <string name="default_data_dir">/sdcard/vaultwarden</string>
     <string name="port">Port</string>
     <string name="default_port">8088</string>
-    <string name="domain_kustom">Custom domain (optional)</string>
-    <string name="domain_kustom_hint">e.g. vault.example.com</string>
-    <string name="domain_kustom_info">A fixed name for this server, so devices stay signed in when the router gives the box a new IP address. The name must resolve to this box on your network (router DNS entry, hosts file, or a DNS A record pointing to the LAN IP). Leave empty to use the IP address.</string>
-    <string name="domain_error">Not a valid domain name. Use letters, digits, dots and hyphens only — not an IP address.</string>
     <string name="settings_changed_hint">⚠ Settings changed — restart the server to apply</string>
     <string name="update_available_hint">⚠ Update available — press Check Update</string>
     <string name="update_available">⚠ Update v%1$s available — press Check Update</string>

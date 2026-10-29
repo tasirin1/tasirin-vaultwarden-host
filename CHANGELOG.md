@@ -1,8 +1,5 @@
 # Changelog
 
-## [Belum rilis] — Fitur (UI): kolom Domain kustom di Settings
-- Kartu Server di Settings kini punya kolom **Domain kustom (opsional)** tepat sesudah Port, lengkap dengan teks penjelasan, pesan galat inline, rantai fokus D-pad yang disambung ulang (Port → Domain → Token Admin), dan disiplin simpan field-berubah-saja yang sama dengan kolom lain (nilai tidak valid tidak pernah ditulis; yang tersimpan selalu hasil normalisasi). Domain ikut export/import config (daftar impor mengizinkannya dan menormalisasikannya seperti Port) dan reload pasca-impor memuatnya juga. README ketiga bahasa dan daftar kunci di `AGENTS.md` disinkronkan.
-
 ## [Belum rilis] — Fitur (inti): domain kustom untuk alamat server
 - Alamat server (`DOMAIN`) selama ini selalu diturunkan dari IP LAN yang sedang aktif, jadi tiap router reset mengganti IP, alamat berubah dan semua perangkat harus login ulang. Inti domain kustom kini tersedia: preferensi `custom_domain` yang ternormalisasi dan tervalidasi (skema/port/ekor URL yang tertempel ikut dibersihkan; IP literal ditolak — itu bukan nama), dipakai sebagai alamat resmi server dan sebagai URL tampil, masuk sertifikat sebagai **DNS SAN** (SAN IP dipertahankan untuk akses darurat via IP), dan deteksi ganti-IP tidak lagi me-restart server bila domain kustom aktif karena alamatnya memang tidak berubah. Sidik sertifikat kini memuat domain, jadi mengubah domain meregenerasi leaf sekali (CA tetap). Kolom pengisiannya di Settings menyusul pada commit berikutnya.
 
