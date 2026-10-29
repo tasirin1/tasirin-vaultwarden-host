@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 723: penyegaran IP latar kini berpagar satu-sedang-berjalan
+- `jadwalSegarkanIp` memasang satu tugas latar baru pada setiap panggilan `localIp()` selama cache basi — pemanggilnya termasuk tik UI 1 detik di kedua activity — tanpa pagar bahwa penyegaran sebelumnya masih berjalan. Tugas-tugas ekstra memang keluar murah di cek kesegaran, tetapi antreannya sia-sia. Kini ada pagar CAS: hanya satu penyegaran berjalan pada satu waktu, panggilan berikutnya selama penyegaran berjalan tidak memasang apa pun, dan pagar dilepas saat tugas selesai atau gagal masuk antrean.
+
 ## [Belum rilis] — Audit 722: jadwal restart-crash dan coba-lagi start kini memakai Runnable terpisah
 - Satu `Runnable restartTunda` sebelumnya dipakai dua tujuan: jadwal restart sesudah crash (backoff) dan coba-lagi start yang tertunda kunci data (tiap 5 detik). Karena keduanya membatalkan + memasang Runnable yang sama, jadwal yang datang belakangan menimpa tujuan yang lain — restart bisa menembak lebih awal dari backoff-nya atau coba-lagi start bergeser mengikuti tunda crash. Coba-lagi start kini memakai `startTunda` sendiri dengan badan dan gerbang yang sama persis, dan ketiga jalur berhenti kini membatalkan keduanya. Perilaku tiap jalur tidak berubah; keduanya tidak bisa lagi saling membatalkan.
 

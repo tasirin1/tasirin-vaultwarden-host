@@ -3156,20 +3156,33 @@ public class ServerService extends Service {
         return segar;
     }
 
+    private static final java.util.concurrent.atomic.AtomicBoolean segarkanIpJalan =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     private static void jadwalSegarkanIp() {
-        Util.jalankanBg(() -> {
-            long kini = SystemClock.elapsedRealtime();
-            synchronized (IP_LOCK) {
-                if (ipCacheSegar(kini, ipCacheTime, ipCache)) {
-                    return;
+        if (!segarkanIpJalan.compareAndSet(false, true)) {
+            return;
+        }
+        boolean masuk = Util.jalankanBg(() -> {
+            try {
+                long kini = SystemClock.elapsedRealtime();
+                synchronized (IP_LOCK) {
+                    if (ipCacheSegar(kini, ipCacheTime, ipCache)) {
+                        return;
+                    }
                 }
-            }
-            String segar = lanHost();
-            synchronized (IP_LOCK) {
-                ipCache = segar;
-                ipCacheTime = kini;
+                String segar = lanHost();
+                synchronized (IP_LOCK) {
+                    ipCache = segar;
+                    ipCacheTime = kini;
+                }
+            } finally {
+                segarkanIpJalan.set(false);
             }
         });
+        if (!masuk) {
+            segarkanIpJalan.set(false);
+        }
     }
 
     public static String localUrl(Context context) {
