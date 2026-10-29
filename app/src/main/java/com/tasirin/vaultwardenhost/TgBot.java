@@ -943,6 +943,8 @@ public final class TgBot {
                 SystemClock.elapsedRealtime())) {
             return;
         }
+        getMeCobaToken = token.trim();
+        getMeCobaAt = SystemClock.elapsedRealtime();
         final Context appCtx = ctx.getApplicationContext();
         final String tokenBg = token;
         Util.jalankanBg(() -> isiNamaBotSekarang(appCtx, tokenBg));

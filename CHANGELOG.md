@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 747: stempel percobaan getMe ditulis saat penyerahan tugas, bukan di dalam tugas
+- Sisa perlombaan yang ditangkap self-review putaran-28 atas Audit 724: stempel percobaan `getMe` baru ditulis sesudah tugas latar benar-benar berjalan, jadi selama tugas pertama masih antre di pool, poll berikutnya tetap lolos cek depan dan menyerahkan tugas kedua yang bisa menembak `getMe` lagi. Stempel kini ditulis di cek depan tepat sebelum penyerahan — poll berikutnya selama jendela percobaan langsung tertahan, dan pemeriksaan di dalam tugas tetap berperan sebagai pagar kedua. Dampaknya memang hanya satu-dua panggilan baca-saja duplikat, tetapi gerbangnya kini benar-benar tertutup untuk pemanggil berurutan.
+
 ## [Belum rilis] — Audit 746: single-flight pengambilan versi dipulihkan tanpa mengembalikan fetch ke dalam kunci
 - Efek samping Audit 715 yang ditangkap self-review putaran-28: mengeluarkan fetch dari `KUNCI_VERSI` sekaligus menghilangkan single-flight — dua pemanggil bersamaan saat cache basi (cek AutoUpdate + perintah bot) sama-sama menembak API versi yang sama. Kini ada gerbang pengambil tunggal di luar kunci data: pemanggil kedua menunggu (maks 25 detik, sesuai anggaran timeout fetch 10+10 detik) lalu membaca hasil yang disimpan pengambil pertama, berhasil maupun gagal. Fetch tetap di luar `KUNCI_VERSI`, jadi jalur UI tetap tidak pernah menunggu jaringan — yang menunggu hanyalah sesama pemanggil latar.
 
