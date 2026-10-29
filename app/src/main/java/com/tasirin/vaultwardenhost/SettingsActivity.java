@@ -4066,6 +4066,13 @@ public class SettingsActivity extends Activity {
                 if (beriKabar) {
                     toast(getString(R.string.pin_diperbarui));
                 }
+            } else if (pinAktifJalan && pinAktif && beriKabar) {
+                ui.post(() -> {
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+                    toast(getString(R.string.pin_ganti_terlewat));
+                });
             }
         });
     }

@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 736: ganti PIN yang terlewat karena aktivasi berjalan kini memberi tahu pengguna
+- Bila pengguna menyetujui dialog ganti PIN tepat saat tugas aktivasi PIN masih berjalan, penulisan hash baru memang harus dilewati (aktivasi akan menimpanya dengan hash PIN lama) — tetapi sebelumnya dilewati *diam-diam*: dialog tertutup seolah berhasil dan PIN tersimpan tetap yang lama, baru ketahuan saat PIN "baru" ditolak di layar kunci. Jalur konfirmasi pengguna kini menampilkan toast bahwa PIN tidak berubah karena aktivasi masih diproses dan meminta mencoba lagi sebentar. Urutan pengamanannya tidak berubah; yang berubah hanya kegagalan senyapnya.
+
 ## [Belum rilis] — Audit 735: dua penjaga saveAndStart Settings kini juga berlaku di MainActivity
 - Blok `saveAndStart` disalin di kedua activity dan sudah menyimpang: versi Settings menolak Start saat tugas backup/restore berjalan dan menormalkan port privileged sebelum cek port, versi MainActivity tidak punya keduanya — menekan Start dari beranda di tengah restore bisa menghidupkan server di atas data yang sedang ditulis ulang, dan port tersimpan di bawah 1024 (mis. diatur lewat bot) langsung masuk jalur sibuk/root alih-alih dinormalkan. Kedua penjaga kini diterapkan juga di MainActivity (memakai helper bersama yang sama). Penyatuan penuh kedua salinan sengaja tidak dilakukan — sisanya adalah perbedaan sah antar-layar (input pengguna vs prefs tersimpan); yang disamakan adalah penjaga keamanannya.
 

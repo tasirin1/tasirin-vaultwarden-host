@@ -126,6 +126,7 @@
     <string name="pin_ganti_judul">Change PIN?</string>
     <string name="pin_ganti_pesan">The new PIN replaces the active one. If you mistype it, the app can no longer be unlocked. Continue?</string>
     <string name="pin_diperbarui">PIN updated.</string>
+    <string name="pin_ganti_terlewat">PIN activation is still processing - PIN not changed, please try again in a moment.</string>
     <string name="card_title_security">Security</string>
     <string name="disalin">copied</string>
     <string name="terisi">saved ✓</string>
