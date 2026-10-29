@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 729: ekstrak web-vault tidak lagi fsync per berkas
+- Ekstraksi web-vault memanggil `getFD().sync()` untuk setiap entri berkas — zip berisi ratusan berkas kecil dan di eMMC STB murah satu fsync bisa 10–100 ms, jadi ekstrak membayar detik sampai puluhan detik hanya untuk sinkronisasi. Fsync itu tidak membeli deteksi apa pun: keutuhan muatan sudah dibuktikan SHA-256 zip sebelum ekstrak, pemasangan bersifat atomik lewat rename direktori, dan kriteria siap hanya memeriksa `index.html`. Sync per berkas dihapus; sinkronisasi direktori (`syncDirAman`) yang menjaga rename tetap ada.
+
 ## [Belum rilis] — Audit 728: pembuatan rahasia alarm pertama kini diserialkan dengan kunci
 - `rahasiaAlarm` melakukan baca-prefs → buat acak → commit tanpa sinkronisasi, padahal pemanggilnya datang dari banyak thread. Pada proses pertama sekali (rahasia belum tersimpan), dua pemanggil berbarengan bisa membuat dua rahasia berbeda dan keduanya commit — PendingIntent yang keburu dibangun dapat membawa rahasia yang kalah, sehingga satu alarm pertama ditolak "rahasia tak cocok". Seluruh urutan baca-buat-simpan kini berjalan di dalam satu kunci statis; jalur yang sudah punya rahasia hanya membayar satu monitor singkat.
 
