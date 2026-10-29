@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — ServerService: restartTunda digabung ke startTunda (Audit 759)
+- Sejak perbaikan #501 kedua Runnable itu berbadan identik kata per kata dan selalu dibatalkan berpasangan di semua situs — satu perilaku yang menyamar sebagai dua, berisiko divergensi diam-diam bila suatu hari hanya satu badan yang diedit. Kini tinggal satu Runnable `startTunda` untuk tunda-start kunci-data maupun backoff crash; `scheduleRestartTerkunci` mempostingnya dengan jeda backoff seperti sebelumnya, dan nama `restartTunda` dicatat di `tools/bekas-hapusan.txt`. Semantik tidak berubah: tiap posting tetap didahului pembatalan yang sama.
+
 ## [Belum rilis] — Gerbang: PyYAML absen kini menggagalkan verifikasi, bukan dilewati diam-diam (Audit 758)
 - `cek_workflow_yaml`, `cek_yaml_github_lain`, dan pembaca `_muat_yaml_github` dulu menangkap kegagalan `import yaml` lalu hanya memberi peringatan (atau diam) dan `return` — seluruh validasi YAML workflow/dependabot/labeler bisa mati tanpa suara sementara gerbang tetap LOLOS, dan tak ada workflow pemanggil yang memasang pustaka itu. Kini ketiganya memakai satu pintu `_impor_yaml` yang **gagal keras** dengan pesan berisi jalan keluarnya (`pip install pyyaml`): gerbang yang tidak bisa memeriksa harus mengaku, bukan lolos buta. Terbukti dua arah dengan fixture modul `yaml` yang sengaja diblokir (GAGAL) vs normal (LOLOS).
 

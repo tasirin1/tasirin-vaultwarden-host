@@ -975,7 +975,6 @@ public class ServerService extends Service {
             healthActive = false;
             simpanNiatJalan(false);
             batalUtama(healthTick);
-            batalUtama(restartTunda);
             batalUtama(startTunda);
             batalStart = true;
             startTertundaData.set(0);
@@ -1654,7 +1653,6 @@ public class ServerService extends Service {
         resetPenandaJalan();
         releaseWakeLock();
         batalUtama(healthTick);
-        batalUtama(restartTunda);
         batalUtama(startTunda);
 
         simpanNiatJalan(false);
@@ -2276,23 +2274,6 @@ public class ServerService extends Service {
         }
     }
 
-    private final Runnable restartTunda = new Runnable() {
-        @Override
-        public void run() {
-            if (!healthActive || !autoRestart) {
-                return;
-            }
-            if (starting.get()) {
-
-                posUtama(restartTunda, 2000);
-                return;
-            }
-            if (process == null || !alive(process)) {
-                startServerAsync();
-            }
-        }
-    };
-
     private final Runnable startTunda = new Runnable() {
         @Override
         public void run() {
@@ -2349,9 +2330,8 @@ public class ServerService extends Service {
         long delay = RESTART_DELAYS[coba];
         setStatus("Server crash - restart dalam " + (delay / 1000) + " dtk (coba " + (coba + 1) + ")");
         appendLog("[app] Crash terdeteksi, restart dalam " + delay + " ms");
-        batalUtama(restartTunda);
         batalUtama(startTunda);
-        posUtama(restartTunda, delay);
+        posUtama(startTunda, delay);
         return false;
     }
 
@@ -4732,7 +4712,6 @@ public class ServerService extends Service {
         mulaiSetelahProsesMati = false;
         startSusulanDiminta = false;
         batalUtama(healthTick);
-        batalUtama(restartTunda);
         batalUtama(startTunda);
         flushLogFile();
 
