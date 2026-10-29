@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: penghapusan ter-staged tak lagi dilaporkan dua kali (Audit 771)
+- Sejak Audit 763, `berkas_dihapus` mode lokal sudah mengunion diff staged ke dalam daftarnya, tetapi `utama()` masih menambahkan penghapusan staged sekali lagi secara terpisah — warisan dari sebelum 763 — sehingga satu berkas ter-staged yang dihapus menghasilkan dua baris GAGAL yang sama. Tambahan ganda itu kini dilepas; terbukti dengan fixture `git rm` berkas yang masih dirujuk: GAGAL tetap muncul, tepat satu kali.
+
 ## [Belum rilis] — Gerbang: pesan PyYAML absen kini dilaporkan sekali, bukan dua kali (Audit 770)
 - Pintu impor `_impor_yaml` dari Audit 758 dipanggil beberapa fungsi cek untuk akar yang sama, jadi lingkungan tanpa PyYAML menghasilkan dua baris GAGAL identik ("GAGAL (2)" untuk satu penyebab) yang mengaburkan laporan. Kini pesan itu ditambahkan hanya bila belum ada di daftar gagal — satu akar, satu laporan. Vonis fail-kerasnya tidak berubah.
 

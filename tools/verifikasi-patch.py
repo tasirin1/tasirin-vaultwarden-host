@@ -1610,10 +1610,10 @@ def utama():
     cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
+    # Mode lokal: berkas_dihapus sendiri sudah mengunion diff working-tree,
+    # staged, dan commit lokal (Audit 763) — tambahan staged terpisah di sini
+    # dulu membuat penghapusan ter-staged dilaporkan dua kali (Audit 771).
     hapus = berkas_dihapus(rentang_cek)
-    if not args.rentang:
-        keluar = jalan("git", "diff", "--cached", "--name-status") or ""
-        hapus += [x.split(None, 1)[1] for x in keluar.splitlines() if x.startswith("D")]
     cek_berkas_java_dihapus(gagal, hapus)
     if not args.semua:
         cek_pengingat_changelog(peringatan, berubah)
