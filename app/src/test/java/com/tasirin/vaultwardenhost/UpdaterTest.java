@@ -962,6 +962,11 @@ public class UpdaterTest {
         assertFalse(Updater.versiSamaPersis(null, "1.37.3"));
         assertFalse(Updater.versiSamaPersis("1.37.3", null));
         assertFalse(Updater.versiSamaPersis("", "1.37.3"));
+        // Audit 800: metadata build diabaikan semver — bukan pembeda.
+        assertTrue(Updater.versiSamaPersis("1.37.3+build5", "1.37.3"));
+        assertTrue(Updater.versiSamaPersis("1.37.3", "1.37.3+build5"));
+        assertTrue(Updater.versiSamaPersis("1.37.3-beta+build5", "1.37.3-beta"));
+        assertFalse(Updater.versiSamaPersis("1.37.3-beta", "1.37.3+build5"));
     }
 
     @Test
@@ -974,6 +979,9 @@ public class UpdaterTest {
         assertFalse(Updater.versiMelebihiAtauPersis("1.37.3-beta", "1.37.3"));
         assertFalse(Updater.versiMelebihiAtauPersis("1.37.2", "1.37.3"));
         assertFalse(Updater.versiMelebihiAtauPersis(null, "1.37.3"));
+        // Audit 800: metadata build tidak mengubah penilaian ambang.
+        assertTrue(Updater.versiMelebihiAtauPersis("1.37.3", "1.37.3+build5"));
+        assertTrue(Updater.versiMelebihiAtauPersis("1.37.3+build5", "1.37.3"));
     }
 
     @Test
