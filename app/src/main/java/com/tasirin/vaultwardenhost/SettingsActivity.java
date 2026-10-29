@@ -886,7 +886,10 @@ public class SettingsActivity extends Activity {
     }
 
     private void mulaiRefresh(SharedPreferences sp) {
-        StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
+        StoragePerm.mintaIzinBilaPerlu(this,
+                TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
+                        ServerService.dataDirBawaanSegar()),
+                REQ_WRITE);
 
         bundledVersion = Updater.readBundledVersionLabel(this);
         bundledRaw = Updater.readBundledVersionRaw(this);

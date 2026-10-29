@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Audit 709: prompt izin penyimpanan di awal kini hanya bila folder data memang eksternal
+- Kedua activity meminta izin penyimpanan tanpa syarat di `onCreate` — dialog muncul pada setiap cold start selama izin belum diberikan, termasuk bagi pengguna ber-folder internal yang tidak butuh izin sama sekali, mengajari penolakan refleks dan menembakkan permintaan senyap selamanya sesudah "jangan tanya lagi". `mintaIzinBilaPerlu` kini punya varian ber-folder yang pulang tanpa meminta bila `butuhIzinEksternal` false, dan kedua situs awal memakainya dengan folder data tersimpan; gerbang Start (`siapStart`) tetap menjadi penegak utama saat izin benar-benar dibutuhkan.
+
 ## [Belum rilis] — Audit 708: URL dan catatannya kini dihitung dari satu bacaan IP yang sama
 - `localUrlDenganCatatan` (Audit 698) memanggil `localIp()` dua kali — sekali di dalam `localUrl`, sekali untuk catatan — dan `localIp()` berpola stale-while-revalidate: cache yang kedaluwarsa tepat di antara keduanya bisa membuat catatan transisi/loopback dihitung dari IP yang berbeda dari host yang tampil di URL selama satu siklus. Host kini dibaca sekali dan diteruskan ke pembangun URL maupun penilai catatan lewat helper bersama `localUrlDariHost`.
 

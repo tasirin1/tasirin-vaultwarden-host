@@ -85,6 +85,14 @@ public final class StoragePerm {
         return false;
     }
 
+    public static boolean mintaIzinBilaPerlu(Activity act, String dataDir,
+            int reqTulis) {
+        if (!butuhIzinEksternal(dataDir)) {
+            return false;
+        }
+        return mintaIzinBilaPerlu(act, reqTulis);
+    }
+
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {

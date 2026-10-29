@@ -175,7 +175,11 @@ public class MainActivity extends Activity {
             }
         });
 
-        StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE);
+        StoragePerm.mintaIzinBilaPerlu(this,
+                TgBackup.amanString(getSharedPreferences(ServerService.PREFS,
+                        MODE_PRIVATE), ServerService.KEY_DATA_DIR,
+                        ServerService.dataDirBawaanSegar()),
+                REQ_WRITE);
 
         try {
             android.content.pm.PackageInfo infoBar = getPackageManager()
