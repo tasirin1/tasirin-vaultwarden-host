@@ -871,7 +871,10 @@ def cek_sinkron_terjemah(gagal):
 
     inggris = himpun("values", pola_string)
     indonesia = himpun("values-in", pola_string)
-    if inggris or indonesia:
+    if not inggris and not indonesia:
+        gagal.append("Kedua strings.xml (values + values-in) kosong/hilang "
+                     "— cek sinkron terjemahan tak bisa berjalan (Audit 765)")
+    else:
         kurang = sorted(inggris - indonesia)
         lebih = sorted(indonesia - inggris)
         if kurang:
@@ -881,7 +884,10 @@ def cek_sinkron_terjemah(gagal):
 
     pl_inggris = himpun("values", pola_plurals)
     pl_indonesia = himpun("values-in", pola_plurals)
-    if pl_inggris or pl_indonesia:
+    if not pl_inggris and not pl_indonesia:
+        gagal.append("Kedua plurals (values + values-in) kosong/hilang "
+                     "— cek sinkron terjemahan tak bisa berjalan (Audit 765)")
+    else:
         kurang = sorted(pl_inggris - pl_indonesia)
         lebih = sorted(pl_indonesia - pl_inggris)
         if kurang:

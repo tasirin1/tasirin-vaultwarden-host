@@ -1,5 +1,8 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cek terjemahan kini gagal bila kedua himpunan string kosong (Audit 765)
+- `cek_sinkron_terjemah` dulu membungkus perbandingannya dengan `if inggris or indonesia:` — pola "dua himpunan kosong dianggap cocok" yang sudah berulang kali terbukti fail-open di repo ini: bila kedua `strings.xml` hilang/berpindah bersamaan, cek tak membandingkan apa pun dan gerbang tetap LOLOS. Kini keadaan kedua-kosong (string maupun plurals) adalah GAGAL eksplisit yang menyatakan ceknya tak bisa berjalan. Terbukti dengan fixture kedua strings dipindahkan (GAGAL dengan pesan itu) vs pohon utuh (LOLOS).
+
 ## [Belum rilis] — Gerbang: paritas layout kini dua arah, berkas layout-land yatim menggagalkan (Audit 764)
 - Lingkar paritas di `verifikasi-patch.py` dan `scripts/cek-cepat.sh` dulu hanya mengiterasi isi `layout/`; berkas yang hanya ada di `layout-land/` (varian tertinggal sesudah layout-nya dihapus, atau berkas land baru tanpa pasangan) tak pernah dibandingkan dan lolos kedua gerbang. Kini arah sebaliknya diperiksa juga: berkas land tanpa pasangan portrait = GAGAL di kedua gerbang. Terbukti dengan fixture berkas `yatim.xml` (kedua gerbang GAGAL) vs pohon bersih (LOLOS).
 
