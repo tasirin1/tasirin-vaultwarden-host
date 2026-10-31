@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai redirect gerbang mengakui redirect > tunggal sebagai penulisan (Audit 889)
+- Sisa Audit 885 arah fail-closed: aturan "redirect terakhir yang berlaku" hanya diterapkan di antara sesama `>>`, padahal redirect penutup `>` tunggal (truncate) juga penulisan sungguhan — berkas sehat yang menulisnya digagalkan palsu. Penilai kini mengenal `>` sebagai operator redirect dengan target yang sama persis (duplikasi fd `>&` dan perbandingan `>=` tetap bukan redirect). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemecah segmen gerbang memecah juga pada operator || (Audit 888)
 - Arah fail-closed keluarga Audit 875/886: pemecah segmen hanya memecah pada `;` dan `&&`, sehingga baris tulis kondisional yang lazim (`cek || echo "nama=…" >> "$GITHUB_OUTPUT"`) dinilai sebagai satu segmen berkepala perintah pertama dan echo produsennya tak pernah terjangkar — berkas sehat dilaporkan tak menulis keluaran. `||` di luar kutip kini juga pemisah segmen. Skenario uji-diri baru menguncinya.
 

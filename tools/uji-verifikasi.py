@@ -388,6 +388,24 @@ def main():
                 rc == 0)
         shutil.rmtree(rantaiatau, ignore_errors=True)
 
+        potongakhir = klon(tmp, "potongakhir")
+        berkas_aksi16 = os.path.join(
+            potongakhir, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi16, encoding="utf-8") as f:
+            isi_aksi16 = f.read()
+        baris_tulis16 = [b for b in isi_aksi16.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi16, "w", encoding="utf-8") as f:
+            f.write(isi_aksi16.replace(
+                baris_tulis16,
+                baris_tulis16.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '>> "$GITHUB_OUTPUT.bak" > "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(potongakhir, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect terakhir > tunggal ke keluaran: gerbang lolos (Audit 889)",
+                rc == 0)
+        shutil.rmtree(potongakhir, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

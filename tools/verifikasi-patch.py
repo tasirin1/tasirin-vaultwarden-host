@@ -406,11 +406,18 @@ def segmen_redirect_output(segmen):
             kutip = c
             i += 1
             continue
-        if c == ">" and i + 1 < n and segmen[i + 1] == ">":
+        if c == ">" and not (i + 1 < n and segmen[i + 1] == "&"):
+            # `>&` adalah duplikasi fd, bukan redirect berkas.
+            # Redirect `>` tunggal (truncate) juga penulisan
+            # (Audit 889); `>=` bukan operator redirect.
+            op = 2 if (i + 1 < n and segmen[i + 1] == ">") else 1
+            if op == 1 and i + 1 < n and segmen[i + 1] == "=":
+                i += 1
+                continue
             # Komentar akhir baris (`# ...` mengawali kata) sesudah
             # target juga sah (Audit 878); `#` yang menempel pada
             # kata BUKAN komentar bagi shell (Audit 882).
-            sisa = (_potong_komentar_sisa(segmen[i + 2:])
+            sisa = (_potong_komentar_sisa(segmen[i + op:])
                     .split("||")[0].strip())
             # Penutup pembungkus subshell/grup yang menempel sesudah
             # target (Audit 887) bukan bagian nama berkas.
@@ -421,7 +428,7 @@ def segmen_redirect_output(segmen):
             # lalu lanjutkan memindai redirect berikutnya.
             hasil = sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                              '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
-            i += 2
+            i += op
             continue
         i += 1
     return hasil
