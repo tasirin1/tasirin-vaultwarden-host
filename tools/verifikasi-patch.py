@@ -396,22 +396,28 @@ def cek_yaml_github_lain(gagal, peringatan):
                             gagal.append("%s merujuk outputs.%s yang tak "
                                          "dideklarasikan %s"
                                          % (rel_wf, rujukan, rel_action))
-                id_terdefinisi = set()
+                # Rujukan steps.* hanya sah di dalam JOB yang sama
+                # (Audit 856): id dikumpulkan per-job, bukan se-berkas.
                 if isinstance(jobs, dict):
-                    for job in jobs.values():
+                    for nama_job, job in jobs.items():
                         if not isinstance(job, dict):
                             continue
+                        id_job = set()
                         for langkah in job.get("steps") or []:
                             if isinstance(langkah, dict) and langkah.get("id"):
-                                id_terdefinisi.add(str(langkah["id"]))
-                for id_rujuk in sorted(set(re.findall(
-                        r"steps\.([A-Za-z0-9_-]+)\.outputs\.", mentah))):
-                    if id_rujuk not in id_terdefinisi:
-                        gagal.append("%s merujuk steps.%s.outputs.* tetapi "
-                                     "tak ada langkah ber-id %s di berkas "
-                                     "itu — id langkah diganti tanpa "
-                                     "menyelaraskan rujukan (Audit 836)"
-                                     % (rel_wf, id_rujuk, id_rujuk))
+                                id_job.add(str(langkah["id"]))
+                        teks_job = str(job)
+                        for id_rujuk in sorted(set(re.findall(
+                                r"steps\.([A-Za-z0-9_-]+)\.outputs\.",
+                                teks_job))):
+                            if id_rujuk not in id_job:
+                                gagal.append("%s job %s merujuk "
+                                             "steps.%s.outputs.* tetapi tak "
+                                             "ada langkah ber-id %s di job "
+                                             "itu — konteks steps hanya "
+                                             "berlaku se-job (Audit 836/856)"
+                                             % (rel_wf, nama_job, id_rujuk,
+                                                id_rujuk))
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"

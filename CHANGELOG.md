@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kontrak gerbang memeriksa rujukan steps per-job, bukan se-berkas (Audit 856)
+- Sisa Audit 836: id langkah yang dianggap "terdefinisi" oleh gerbang adalah gabungan semua job di berkas workflow, padahal konteks `steps.*` di GitHub Actions hanya berlaku di dalam job yang sama — rujukan lintas job (menghasilkan string kosong di runtime) lolos. Pemeriksaan kini per-job: id dikumpulkan dari langkah job itu sendiri dan rujukan dicari hanya di dalam job yang sama. Skenario uji-diri baru (job tambahan merujuk `steps.ambil` milik job resolve) menguncinya.
+
+
 ## [Belum rilis] — Gerbang memvalidasi nama keluaran yang ditulis produsen resolve-vw (Audit 855)
 - Sisa Audit 840: kontrak resolve-vw hanya memeriksa sisi rujukan (ekspresi `value:` di `outputs` action dan rujukan workflow), sedangkan baris tulis produsen di skrip action (`echo "tag_mentah=…" >> $GITHUB_OUTPUT`) tak pernah dibaca — salah ketik nama di sana membuat keluaran kosong di runtime dengan gerbang hijau. Kini gerbang mengumpulkan semua nama yang ditulis ke `$GITHUB_OUTPUT` di action.yml dan menggagalkan setiap nama yang dirujuk `outputs` tetapi tak pernah ditulis. Skenario uji-diri baru menguncinya.
 

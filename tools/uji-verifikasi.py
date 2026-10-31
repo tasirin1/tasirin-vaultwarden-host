@@ -178,6 +178,19 @@ def main():
                 rc != 0 and "vw" in out)
         shutil.rmtree(idact, ignore_errors=True)
 
+        lintas = klon(tmp, "lintas")
+        berkas_bin = os.path.join(lintas, ".github", "workflows",
+                                  "build-binary.yml")
+        with open(berkas_bin, encoding="utf-8") as f:
+            isi_bin = f.read()
+        with open(berkas_bin, "a", encoding="utf-8") as f:
+            f.write("\n  jobuji:\n    runs-on: ubuntu-latest\n"
+                    "    steps:\n      - run: echo \"${{ steps.ambil.outputs.tag }}\"\n")
+        rc, out = jalan(lintas, [sys.executable, GERBANG, "--semua"])
+        periksa("rujukan steps lintas job: gerbang gagal (Audit 856)",
+                rc != 0 and "ambil" in out)
+        shutil.rmtree(lintas, ignore_errors=True)
+
         idl = klon(tmp, "idl")
         berkas_wf = os.path.join(idl, ".github", "workflows", "build-apk.yml")
         with open(berkas_wf, encoding="utf-8") as f:
