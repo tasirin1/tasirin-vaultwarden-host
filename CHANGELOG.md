@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemecah segmen sadar substitusi (Audit 906)
+- Arah fail-closed: `pecah_segmen_shell` hanya melacak kutip, sehingga pemisah `;`/`&&`/`||` di dalam substitusi perintah atau backtick pada argumen memecah segmen penulisan di tengah dan ekor pembawa redirect kehilangan awalan echo-nya. Pemecah kini melacak kedalaman substitusi dan keadaan backtick; pemisah hanya berlaku di tingkat luar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Grup satu baris tanpa titik-koma bukan produsen bagi gerbang (Audit 905)
 - Arah fail-open terbatas: segmen yang sendiri membuka grup `{` dan berakhir kata `}` tanpa titik-koma — sintaks tak sah di shell, `}` di sana argumen biasa — tak lagi diberi kredit produsen oleh pemindaian keluaran. Grup sah ber-titik-koma dan grup multi-baris tak berubah. Skenario uji-diri baru menguncinya (indentasi baris dipertahankan agar YAML tetap sah).
 

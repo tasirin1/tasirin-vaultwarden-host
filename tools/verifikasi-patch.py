@@ -332,6 +332,8 @@ def pecah_segmen_shell(baris):
     i = 0
     n = len(baris)
     kutip = ""
+    dalam = 0
+    tikus = False
     while i < n:
         c = baris[i]
         if kutip:
@@ -349,17 +351,48 @@ def pecah_segmen_shell(baris):
             kini.append(c)
             i += 1
             continue
-        if c == ";":
+        if c == "`":
+            # Substitusi gaya lama: pemisah di dalamnya bukan pemisah
+            # perintah luar (Audit 906).
+            tikus = not tikus
+            kini.append(c)
+            i += 1
+            continue
+        if c == "$" and i + 1 < n and baris[i + 1] == "(":
+            dalam += 1
+            kini.append(c)
+            kini.append(baris[i + 1])
+            i += 2
+            continue
+        if c in "><" and i + 1 < n and baris[i + 1] == "(":
+            dalam += 1
+            kini.append(c)
+            kini.append(baris[i + 1])
+            i += 2
+            continue
+        if c == "(" and dalam > 0:
+            dalam += 1
+            kini.append(c)
+            i += 1
+            continue
+        if c == ")" and dalam > 0:
+            dalam -= 1
+            kini.append(c)
+            i += 1
+            continue
+        if c == ";" and dalam == 0 and not tikus:
             segmen.append("".join(kini))
             kini = []
             i += 1
             continue
-        if c == "&" and i + 1 < n and baris[i + 1] == "&":
+        if (c == "&" and dalam == 0 and not tikus
+                and i + 1 < n and baris[i + 1] == "&"):
             segmen.append("".join(kini))
             kini = []
             i += 2
             continue
-        if c == "|" and i + 1 < n and baris[i + 1] == "|":
+        if (c == "|" and dalam == 0 and not tikus
+                and i + 1 < n and baris[i + 1] == "|"):
             # `||` juga pemisah perintah (Audit 888): perintah
             # sesudahnya adalah perintah sungguhan, bukan sufiks.
             segmen.append("".join(kini))
