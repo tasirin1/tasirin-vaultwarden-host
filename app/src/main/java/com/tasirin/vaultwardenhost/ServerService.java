@@ -4688,7 +4688,21 @@ public class ServerService extends Service {
             }
         }
         penunggu.thread.join(timeoutMillis);
-        return penunggu.mati.get();
+        boolean mati = penunggu.mati.get();
+        if (mati) {
+            synchronized (PENUNGGU_PROSES) {
+                if (PENUNGGU_PROSES.get(p) == penunggu) {
+                    PENUNGGU_PROSES.remove(p);
+                }
+            }
+        }
+        return mati;
+    }
+
+    static int jumlahPenungguProses() {
+        synchronized (PENUNGGU_PROSES) {
+            return PENUNGGU_PROSES.size();
+        }
     }
 
     static void matikanProsesTegas(Process p, long tungguMs) {

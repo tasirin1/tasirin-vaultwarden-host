@@ -947,6 +947,13 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void tungguProses_entriPenungguDibuangSesudahProsesMati() throws Exception {
+        int awal = ServerService.jumlahPenungguProses();
+        assertTrue(ServerService.waitForOrKill(new ProsesMati(), 2000));
+        assertEquals(awal, ServerService.jumlahPenungguProses());
+    }
+
+    @Test
     public void tungguProsesMacetTimeout() throws Exception {
         Process macet = new ProsesMati() {
             @Override public int waitFor() {

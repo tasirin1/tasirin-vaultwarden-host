@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Entri penunggu proses kini dibuang sesudah proses mati (Audit 818)
+- Pada jalur pra-API 26, `waitForOrKill` mendaftarkan tiap `Process` ke `WeakHashMap` `PENUNGGU_PROSES`, tetapi nilainya memegang thread penunggu yang menangkap proses itu sendiri — rantai map → nilai → thread → kunci membuat entri tak pernah ter-expunge, jadi peta (dan objek Thread mati) tumbuh monoton seumur proses aplikasi di STB lama yang jarang reboot. Entri kini dibuang segera sesudah proses terkonfirmasi mati (dengan pemeriksaan identitas di dalam kunci agar entri pengganti tak ikut terhapus); proses yang masih hidup tetap berbagi satu penunggu seperti sebelumnya. Dikunci uji JVM: jumlah penunggu kembali ke awal sesudah proses mati.
+
+
 ## [Belum rilis] — Pemicu build-apk kini daftar-putih: perubahan tooling murni tak lagi membangun + menerbitkan ulang APK (Audit 817)
 - `build-apk.yml` sebelumnya memakai daftar-hitam `paths-ignore` (hanya `*.md`, `.gitignore`, `shim/**`, `build-binary.yml`), sehingga workflow jalan bila ada satu saja berkas lain yang berubah — termasuk perubahan yang sama sekali tidak menyentuh APK: `9591007` (hanya `.github/labeler.yml`), `e7a7f1b` (hanya `codeql.yml` + changelog), dan `95e8182` (action `resolve-vw` + `build-binary.yml`) semuanya membayar build penuh ±4 menit, penandatanganan, dan penggantian aset APK di rilis yang sama — membantah alasan anti-churn `versionCode` yang ditulis AGENTS.md sendiri. Pemicu kini daftar-putih `paths:` (meniru `build-binary.yml`): `app/**`, berkas Gradle akar + wrapper, ketiga berkas gerbang yang dipakai job verifikasi workflow ini, workflow ini sendiri, dan `resolve-vw` (keluarannya memang masuk APK sebagai `vw_version.txt`). PR di luar daftar tetap aman: check wajib "Cek patch yang berubah" dilaporkan `cek-wajib.yml` yang berjalan untuk semua PR (Audit 638). Deskripsi di AGENTS.md diselaraskan.
 
