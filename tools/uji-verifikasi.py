@@ -654,6 +654,22 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(purba, ignore_errors=True)
 
+        purbaekor = klon(tmp, "purbaekor")
+        berkas_aksi31 = os.path.join(
+            purbaekor, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi31, encoding="utf-8") as f:
+            isi_aksi31 = f.read()
+        baris_tulis31 = [b for b in isi_aksi31.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi31, "w", encoding="utf-8") as f:
+            f.write(isi_aksi31.replace(
+                baris_tulis31,
+                baris_tulis31 + " `true > /dev/null`", 1))
+        rc, out = jalan(purbaekor, [sys.executable, GERBANG, "--semua"])
+        periksa("backtick ekor tak menimpa: gerbang lolos (Audit 904)",
+                rc == 0)
+        shutil.rmtree(purbaekor, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

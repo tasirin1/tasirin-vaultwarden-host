@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Skenario backtick ekor mengunci arah fail-closed Audit 904
+- Arah fail-closed dari akar yang sama dengan Audit 903: redirect di dalam backtick ekor menimpa vonis penulisan yang sah — mekanismenya sudah ditutup perbaikan Audit 903 (keadaan backtick pada penilai); entri ini menambahkan skenario uji-diri yang mengunci arah ini agar tak regresi.
+
+
 ## [Belum rilis] — Keadaan substitusi backtick pada penilai gerbang (Audit 903)
 - Arah fail-open: backtick substitusi gaya lama tak dimodelkan sama sekali, sehingga redirect di dalamnya dihitung sebagai penulisan perintah luar. Penilai kini menandai keadaan di antara dua backtick dan mengabaikan operator di dalamnya, seperti substitusi perintah. Skenario uji-diri baru menguncinya; arah sebaliknya (Audit 904) dikunci skenario pada commit berikutnya.
 
