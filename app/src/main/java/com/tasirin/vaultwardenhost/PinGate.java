@@ -166,7 +166,7 @@ public final class PinGate {
                 return;
             }
 
-            synchronized (PinGate.class) {
+            synchronized (KUNCI_PERCOBAAN) {
                 String kini = TgBackup.amanString(sp, KEY_PIN_HASH, "");
                 if (!simpan.equals(kini)) {
                     return;

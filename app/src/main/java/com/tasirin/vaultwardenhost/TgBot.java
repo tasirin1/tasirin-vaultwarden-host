@@ -2131,10 +2131,12 @@ public final class TgBot {
         if (cocok) {
             if (PinCrypto.perluUpgradeHash(hash)) {
                 try {
-
-                    String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                    if (hash.equals(kini)) {
-                        sp.edit().putString(PinGate.KEY_PIN_HASH, PinCrypto.hash(pin)).apply();
+                    String hashBaru = PinCrypto.hash(pin);
+                    synchronized (PinGate.KUNCI_PERCOBAAN) {
+                        String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                        if (hash.equals(kini)) {
+                            sp.edit().putString(PinGate.KEY_PIN_HASH, hashBaru).apply();
+                        }
                     }
                 } catch (Exception ignored) {
                 }

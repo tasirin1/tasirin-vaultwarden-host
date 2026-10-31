@@ -181,13 +181,15 @@ public class PinActivity extends Activity {
                     PinGate.bukaKunciBersama();
                 }
                 if (cocok && PinCrypto.perluUpgradeHash(segar)) {
-                    String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-                    if (segar.equals(kini)) {
-                        try {
-                            sp.edit().putString(PinGate.KEY_PIN_HASH,
-                                    PinCrypto.hash(entered)).apply();
-                        } catch (Exception ignored) {
+                    try {
+                        String hashBaru = PinCrypto.hash(entered);
+                        synchronized (PinGate.KUNCI_PERCOBAAN) {
+                            String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                            if (segar.equals(kini)) {
+                                sp.edit().putString(PinGate.KEY_PIN_HASH, hashBaru).apply();
+                            }
                         }
+                    } catch (Exception ignored) {
                     }
                 }
             } finally {

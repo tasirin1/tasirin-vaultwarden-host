@@ -855,9 +855,11 @@ public class SettingsActivity extends Activity {
                 synchronized (kunciAktifPin) {
                     diterapkan = aktivasiPinMasihBerlaku(epAktif, epAktifPin);
                     if (diterapkan) {
-                        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                .edit().putString(PinGate.KEY_PIN_HASH, hasil)
-                                .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                        synchronized (PinGate.KUNCI_PERCOBAAN) {
+                            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                                    .edit().putString(PinGate.KEY_PIN_HASH, hasil)
+                                    .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                        }
                     }
                 }
                 pinAktifJalan = false;
@@ -4109,8 +4111,10 @@ public class SettingsActivity extends Activity {
             }
 
             if (!pinAktifJalan && pinAktif) {
-                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                        .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                synchronized (PinGate.KUNCI_PERCOBAAN) {
+                    getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                            .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                }
                 if (beriKabar) {
                     toast(getString(R.string.pin_diperbarui));
                 }

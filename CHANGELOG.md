@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Tulis-balik upgrade hash PIN kini berkunci bersama dengan ganti PIN (Audit 809)
+- Tulis-balik hash sesudah verifikasi PIN berhasil (jalur bot di `TgBot` dan layar kunci di `PinActivity`) sebelumnya berpola cek-lalu-tulis tanpa kunci: nilai dibaca, hash baru dihitung (PBKDF2 30.000 iterasi), lalu ditulis — sementara penulisan ganti/aktivasi PIN di Settings memakai kunci lokalnya sendiri atau tanpa kunci, dan migrasi dini `PinGate.kuatkanHashDini` memakai kunci ketiga (`PinGate.class`). Bila ganti PIN selesai di celah itu, hash PIN lama hasil upgrade menimpa hash PIN baru: pengguna mengira PIN sudah berganti padahal PIN lama yang tetap berlaku. Kini semua penulisan hash PIN dari jalur-jalur itu memegang kunci bersama `PinGate.KUNCI_PERCOBAAN` (urutan kunci Settings tetap lokal → bersama, tak ada urutan terbalik di mana pun), hash baru dihitung di luar kunci agar kunci tak tertahan lama, dan nilai tersimpan diperiksa ulang di dalam kunci sebelum ditulis. Penulisan dari restore konfigurasi tidak berubah (operasi eksklusif berpenanda restore).
+
+
 ## [Belum rilis] — Rotasi tak lagi membatalkan konfirmasi restore Telegram (Audit 808)
 - `confirm()` di Settings menjalankan callback batal untuk semua dismiss yang bukan pilihan tombol, termasuk dismiss karena rotasi/perubahan konfigurasi (dialog ditutup `DialogAman` dari `onDestroy`). Untuk restore dari Telegram, callback batal itu menghapus berkas backup yang sudah selesai diunduh: operasi hilang tanpa jejak dan pengguna harus mengunduh ulang. Dua perbaikan: listener dismiss kini mengabaikan dismiss saat `isChangingConfigurations()` — meniru pola dialog kata sandi impor (Audit 592) — dan konfirmasi restore Telegram kini dicatat sebagai tertunda (`restore_tg_path`/`restore_tg_nama` di `savedInstanceState`) lalu ditampilkan lagi oleh instance baru, juga meniru jalur impor. Pembatalan sungguhan tetap menghapus berkas temp seperti sebelumnya.
 
