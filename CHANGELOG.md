@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Strip penutup gerbang berhenti pada sisa yang sudah persis target sah (Audit 891)
+- Sisa Audit 887 arah fail-closed: pembuangan penutup pembungkus di ekor sisa ikut menelan kurung tutup bentuk target polos `${GITHUB_OUTPUT}`, sehingga satu dari empat ejaan target sah gerbang sendiri selalu ditolak. Loop strip kini berhenti begitu sisa sudah persis salah satu ejaan target sah. Skenario uji-diri ejaan polos tanpa kutip ditambahkan.
+
+
 ## [Belum rilis] — Redirect fd selain stdout tak lagi dihitung gerbang sebagai produsen (Audit 890)
 - Arah fail-open: pencocokan redirect tidak memeriksa digit fd, sehingga penulisan stderr (`2>> "$GITHUB_OUTPUT"`) — yang membuat berkas keluaran kosong di runtime — terpenuhi semu sebagai produsen dan CI hijau atas kontrak yang sebenarnya kosong. Redirect ber-fd selain stdout kini dilewati tanpa dinilai (digit fd hanya berarti bila berdiri sebagai kata sendiri); `1>>` dan tanpa fd tetap stdout yang sah. Skenario uji-diri penulisan `2>>` harus gagal kini menguncinya.
 

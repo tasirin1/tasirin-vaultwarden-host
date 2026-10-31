@@ -431,8 +431,14 @@ def segmen_redirect_output(segmen):
             sisa = (_potong_komentar_sisa(segmen[i + op:])
                     .split("||")[0].strip())
             # Penutup pembungkus subshell/grup yang menempel sesudah
-            # target (Audit 887) bukan bagian nama berkas.
-            while sisa and sisa[-1] in ")}":
+            # target (Audit 887) bukan bagian nama berkas — tetapi
+            # sisa yang SUDAH persis target sah tak boleh dikupas:
+            # kurung tutup bentuk polos `${GITHUB_OUTPUT}` adalah
+            # bagian targetnya (Audit 891).
+            while (sisa and sisa[-1] in ")}"
+                   and sisa not in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
+                                    '"${GITHUB_OUTPUT}"',
+                                    "${GITHUB_OUTPUT}")):
                 sisa = sisa[:-1].rstrip()
             # Redirect TERAKHIR yang berlaku bagi shell (Audit 885):
             # jangan kembali pada `>>` pertama — catat nilai yang ini
