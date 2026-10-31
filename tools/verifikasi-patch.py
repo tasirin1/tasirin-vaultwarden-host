@@ -79,12 +79,27 @@ def _impor_yaml(gagal):
         return None
 
 
+WORKFLOW_WAJIB = ("auto-merge.yml", "build-apk.yml", "build-binary.yml",
+                  "cek-wajib.yml", "codeql.yml", "gitleaks.yml",
+                  "label-audit.yml", "labeler.yml", "stale.yml")
+
+BERKAS_CI_WAJIB = (".github/actions/resolve-vw/action.yml",)
+
+
 def cek_workflow_yaml(gagal, peringatan):
     folder = os.path.join(AKAR, ".github", "workflows")
     if not os.path.isdir(folder):
         gagal.append("Folder .github/workflows hilang — automasi repo "
                      "tak bisa dicek")
         return
+    for nama in WORKFLOW_WAJIB:
+        if not os.path.isfile(os.path.join(folder, nama)):
+            gagal.append("Workflow wajib hilang: .github/workflows/%s "
+                         "(menghapus workflow wajib harus mengubah daftar "
+                         "WORKFLOW_WAJIB di gerbang ini secara sadar)" % nama)
+    for rel in BERKAS_CI_WAJIB:
+        if not os.path.isfile(os.path.join(AKAR, rel)):
+            gagal.append("Berkas CI wajib hilang: %s" % rel)
     yaml = _impor_yaml(gagal)
     if yaml is None:
         return

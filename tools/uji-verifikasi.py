@@ -119,6 +119,13 @@ def main():
                                    "--rentang", "HEAD~1..HEAD"])
         periksa("berkas terlarang bernama non-ASCII tertangkap (Audit 812)",
                 rc != 0 and "data-\u00fc.zip" in out)
+        shutil.rmtree(nonascii, ignore_errors=True)
+
+        hilang = klon(tmp, "hilang")
+        os.remove(os.path.join(hilang, ".github", "workflows", "gitleaks.yml"))
+        rc, out = jalan(hilang, [sys.executable, GERBANG, "--semua"])
+        periksa("workflow wajib hilang: gerbang gagal (Audit 813)",
+                rc != 0 and "gitleaks.yml" in out)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

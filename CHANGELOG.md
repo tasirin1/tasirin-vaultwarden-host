@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Keberadaan workflow & berkas CI wajib kini dijaga satu per satu oleh gerbang (Audit 813)
+- `cek_workflow_yaml` sebelumnya hanya memvalidasi berkas yang masih ada di `.github/workflows/`; menghapus satu workflow (mis. `gitleaks.yml` atau `cek-wajib.yml` karena konflik merge) membuat seluruh automasi itu mati tanpa satu pun sinyal — terbukti pada salinan buang, penghapusan `gitleaks.yml` tetap `LOLOS (164 berkas)`. Folder `.github/actions/` pun hanya tertangkap tak langsung lewat efek samping pola glob labeler. Gerbang kini memuat daftar `WORKFLOW_WAJIB` (9 workflow) dan `BERKAS_CI_WAJIB` (`resolve-vw/action.yml`) yang keberadaannya diperiksa satu per satu dengan pesan yang menyebut konsekuensinya; menghapus workflow secara sadar kini harus mengubah daftar itu di commit yang sama. Dikunci sebagai skenario baru di `tools/uji-verifikasi.py`.
+
+
 ## [Belum rilis] — Nama berkas non-ASCII tak lagi lolos kedua gerbang (Audit 812)
 - `git diff --name-only`/`ls-files` secara bawaan mengutip nama berkas non-ASCII menjadi bentuk oktal bertanda kutip (`"data-\303\274.zip"`), sehingga path itu tidak ada di disk dan dilewati diam-diam oleh cek ekstensi terlarang, magic biner, dan ukuran di `verifikasi-patch.py`, dan pola akhiran di `cek-cepat.sh` tidak cocok karena baris berakhiran `.zip"`. Satu berkas `.zip`/biner bernama non-ASCII dengan isi terlarang bisa lolos kedua gerbang CI (mode `--rentang`). Kini semua panggilan git di gerbang berjalan dengan `core.quotepath=false` (disisipkan terpusat di penolong `jalan()`), dan panggilan git pencatat nama di `cek-cepat.sh` memakai bendera yang sama. Terbukti dua arah pada salinan buang (zip ASCII dan non-ASCII sama-sama tertangkap) dan dikunci permanen sebagai skenario baru di `tools/uji-verifikasi.py`.
 
