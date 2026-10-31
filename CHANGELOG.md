@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Field Chat ID Telegram kini saveEnabled=false seperti field kredensial lain (Audit 825)
+- Semua field rahasia di kartu Telegram/Keamanan sebelumnya dilindungi `android:saveEnabled="false"` (token bot, kata sandi backup, token admin, PIN) kecuali field Chat ID (`@+id/tgChat`) — padahal chat ID diperlakukan sebagai kredensial di tempat lain (penyamaran log punya pola khusus untuknya). Isi field itu kini tidak lagi ikut tersimpan ke Bundle hierarki view saat activity disimpan sistem, menyamakan hardening-nya dengan field tetangganya.
+
+
 ## [Belum rilis] — Teks log layar-penuh kini memakai dimen adaptif TV (Audit 824)
 - `activity_log.xml` sebelumnya meng-hardcode `textSize="11sp"` untuk teks log, mengabaikan dimen `log_text_size` yang memang dibuat berjenjang untuk layar besar (11sp bawaan, 13sp di sw600dp, 14sp di sw480dp-land, 15sp di sw600dp-land) dan sudah dipakai benar oleh log di layar utama. Layar log layar-penuh — layar yang paling untuk dibaca dari jauh di TV/STB — kini memakai `@dimen/log_text_size` yang sama, jadi di perangkat lebar teksnya ikut membesar seperti di beranda.
 
