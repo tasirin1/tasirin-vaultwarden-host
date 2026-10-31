@@ -365,6 +365,22 @@ def cek_yaml_github_lain(gagal, peringatan):
                             gagal.append("%s merujuk outputs.%s yang tak "
                                          "dideklarasikan %s"
                                          % (rel_wf, rujukan, rel_action))
+                id_terdefinisi = set()
+                if isinstance(jobs, dict):
+                    for job in jobs.values():
+                        if not isinstance(job, dict):
+                            continue
+                        for langkah in job.get("steps") or []:
+                            if isinstance(langkah, dict) and langkah.get("id"):
+                                id_terdefinisi.add(str(langkah["id"]))
+                for id_rujuk in sorted(set(re.findall(
+                        r"steps\.([A-Za-z0-9_-]+)\.outputs\.", mentah))):
+                    if id_rujuk not in id_terdefinisi:
+                        gagal.append("%s merujuk steps.%s.outputs.* tetapi "
+                                     "tak ada langkah ber-id %s di berkas "
+                                     "itu — id langkah diganti tanpa "
+                                     "menyelaraskan rujukan (Audit 836)"
+                                     % (rel_wf, id_rujuk, id_rujuk))
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"

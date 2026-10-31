@@ -153,6 +153,17 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        idl = klon(tmp, "idl")
+        berkas_wf = os.path.join(idl, ".github", "workflows", "build-apk.yml")
+        with open(berkas_wf, encoding="utf-8") as f:
+            isi_wf = f.read()
+        with open(berkas_wf, "w", encoding="utf-8") as f:
+            f.write(isi_wf.replace("- id: ambil", "- id: ambil2"))
+        rc, out = jalan(idl, [sys.executable, GERBANG, "--semua"])
+        periksa("id langkah resolve-vw diganti: gerbang gagal (Audit 836)",
+                rc != 0 and "ambil" in out)
+        shutil.rmtree(idl, ignore_errors=True)
+
         agp = klon(tmp, "agp")
         berkas_akar = os.path.join(agp, "build.gradle.kts")
         with open(berkas_akar, encoding="utf-8") as f:

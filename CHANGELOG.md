@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang menangkap id langkah workflow yang diganti tanpa menyelaraskan rujukan (Audit 836)
+- Sisa Audit 814: mengganti `id:` langkah pemakai resolve-vw di workflow (rujukannya tetap) lolos gerbang karena kontrak hanya memvalidasi rujukan untuk id yang masih cocok. Kini gerbang juga mengumpulkan semua id langkah yang terdefinisi di tiap workflow pemakai dan menggagalkan setiap rujukan `steps.<id>.outputs.*` yang id-nya tak terdefinisi di berkas itu. Skenario uji-diri baru (id `ambil` diganti) menguncinya.
+
+
 ## [Belum rilis] — Gerbang memaku versi AGP persis & menolak repositori asing (Audit 835)
 - Sisa Audit 815: regex gerbang menerima versi AGP terpaku apa pun dan keberadaan repositori asing di settings lolos. Kini `tools/verifikasi-patch.py` memaku versi persis lewat konstanta `VERSI_AGP_TERPAKU` (mengganti versi AGP wajib menyelaraskan konstanta itu pada commit yang sama) dan memvalidasi isi setiap blok `repositories` di `settings.gradle.kts` terhadap daftar izin `google()`/`mavenCentral()`/`gradlePluginPortal()`. Dua skenario uji-diri baru menguncinya.
 
