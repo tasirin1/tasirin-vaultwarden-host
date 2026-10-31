@@ -32,3 +32,5 @@ jobs:
         run: bash scripts/cek-cepat.sh
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
         run: python3 tools/uji-verifikasi.py
+      - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
+        run: python3 tools/uji-cek-cepat.py

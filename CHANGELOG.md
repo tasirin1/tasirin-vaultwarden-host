@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat kini punya uji-diri untuk cabang deteksinya (Audit 830)
+- `scripts/cek-cepat.sh` sebelumnya tanpa uji-diri sama sekali: di CI ia hanya pernah berjalan pada pohon bersih, jadi cabang deteksinya (berkas terlarang, biner menyamar, layout-land yatim, pola rahasia, vektor tanpa nol depan) tidak pernah terpicu dan regresi pola/regex bisa mengubahnya menjadi cap lolos exit-0 secara diam-diam. Skrip baru `tools/uji-cek-cepat.py` menanam pelanggaran pada salinan buang dan mengasersi kelima cabang itu tertangkap (plus kontrol pohon bersih), dan dijalankan sebagai langkah CI di `cek-wajib.yml` dan job verifikasi `build-apk.yml` — berkasnya juga masuk daftar-putih pemicu workflow itu.
+
+
 ## [Belum rilis] — Jalur eksplisit yang tak ada kini menggagalkan gerbang, bukan dibuang diam-diam (Audit 829)
 - Mode jalur eksplisit `verifikasi-patch.py` sebelumnya menyaring argumen dengan `os.path.exists` tanpa sisa: satu nama berkas yang salah ketik atau sudah dihapus menghasilkan `Hasil: LOLOS (0 berkas diperiksa)` dengan kode keluar 0 — kepastian palsu bagi maintainer yang justru ingin memeriksa berkas yang baru dihapus/di-rename. Kini setiap jalur yang diminta tetapi tak ada dilaporkan sebagai kegagalan yang menyebut jalurnya (cek penghapusan tetap berjalan lewat mode diff/rentang seperti sebelumnya). Dikunci sebagai skenario baru di `tools/uji-verifikasi.py`.
 
