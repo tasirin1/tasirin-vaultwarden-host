@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — syncDirAman di Updater disatukan ke TlsCert.fsyncDirektori (Audit 827)
+- `Updater.syncDirAman` adalah salinan kedua persis dari `TlsCert.fsyncDirektori` (buka direktori + `Os.fsync` + tutup, semua galat ditelan) — melanggar prinsip satu pintu repo, dan pola pintunya sudah dipakai lintas kelas (`ServerService.writeText` memanggil `TlsCert.fsyncDirektori` langsung). Tiga situs panggil di Updater kini memakai pintu yang sama dan salinannya dihapus (namanya dicatat di `tools/bekas-hapusan.txt` agar tak dipakai ulang). Perilaku tidak berubah.
+
+
 ## [Belum rilis] — sidikBerkas di Updater kini menumpang sha256Hex (Audit 826)
 - `Updater` sebelumnya memuat dua implementasi hash berkas yang sama: `sidikBerkas` (buffer 8 KB, galat menjadi `""`) dan `sha256Hex` (buffer 64 KB, galat menjadi `null`) — perbaikan pada satu salinan mudah tidak menjalar ke salinan lain, dan perbedaan sentinelnya mengundang salah pakai. `sidikBerkas` kini delegasi tipis ke `sha256Hex` dengan sentinel `""`-nya dipertahankan persis untuk pemanggil penanda zip, jadi perilakunya tidak berubah; satu-satunya implementasi hash berkas di Updater tinggal `sha256Hex`. (`SettingsActivity.sidikBerkas` sengaja tidak disentuh: semantik cadangannya berbeda — sidik banding impor dengan penanda `baca-gagal-…`.) Dikunci uji JVM baru.
 

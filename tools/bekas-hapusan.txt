@@ -109,3 +109,5 @@ domainKustomAktif
 galatDomain
 galatDomainTerimaKosongDanNamaSah
 ensure_leafMemuatSanDnsDanIp
+# Duplikat fsyncDirektori (TlsCert) yang disatukan (Audit 827).
+syncDirAman

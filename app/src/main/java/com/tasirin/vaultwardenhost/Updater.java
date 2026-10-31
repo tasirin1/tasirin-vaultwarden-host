@@ -2090,9 +2090,9 @@ public final class Updater {
                         + " terkait bisa hilang dari tampilan vault.");
             }
             for (String d : dirSiap) {
-                syncDirAman(new File(d));
+                TlsCert.fsyncDirektori(new File(d));
             }
-            syncDirAman(newDir);
+            TlsCert.fsyncDirektori(newDir);
             if (!wvPayloadAda(newDir)) {
                 catatZipGagal(penandaGagal, tmpZip, expectedSha);
                 lepasStagingAktif(newDir);
@@ -2125,7 +2125,7 @@ public final class Updater {
                 }
                 deleteRecursive(bakDir);
                 terpasang = true;
-                syncDirAman(dataFolder);
+                TlsCert.fsyncDirektori(dataFolder);
                 lepasStagingAktif(newDir);
             }
         } finally {
@@ -2873,25 +2873,6 @@ public final class Updater {
         }
     }
 
-    static void syncDirAman(File dir) {
-        if (dir == null) {
-            return;
-        }
-        java.io.FileDescriptor fd = null;
-        try {
-            fd = android.system.Os.open(dir.getAbsolutePath(),
-                    android.system.OsConstants.O_RDONLY, 0);
-            android.system.Os.fsync(fd);
-        } catch (Exception ignored) {
-        } finally {
-            if (fd != null) {
-                try {
-                    android.system.Os.close(fd);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-    }
 
     static void deleteRecursive(File file) {
         if (file == null || !file.exists()) {
