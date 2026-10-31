@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemecah segmen gerbang memecah juga pada operator || (Audit 888)
+- Arah fail-closed keluarga Audit 875/886: pemecah segmen hanya memecah pada `;` dan `&&`, sehingga baris tulis kondisional yang lazim (`cek || echo "nama=…" >> "$GITHUB_OUTPUT"`) dinilai sebagai satu segmen berkepala perintah pertama dan echo produsennya tak pernah terjangkar — berkas sehat dilaporkan tak menulis keluaran. `||` di luar kutip kini juga pemisah segmen. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penilai redirect gerbang membuang penutup pembungkus sesudah target (Audit 887)
 - Sisa Audit 886 arah fail-closed: bentuk grup lolos karena titik-koma memisahkan kurung penutupnya ke segmen lain, tetapi bentuk subshell tidak — kurung tutup menempel sesudah target sehingga sisa terbaca bukan target persis dan produsen tak dihitung. Penutup pembungkus (`)`/`}`) yang menempel sesudah target kini dibuang sebelum sisa dibandingkan. Skenario uji-diri bentuk subshell ditambahkan (regresi Audit 886 sebelumnya hanya menguji bentuk grup).
 

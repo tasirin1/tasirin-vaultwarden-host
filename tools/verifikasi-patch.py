@@ -322,10 +322,11 @@ def _potong_komentar_shell(baris):
 
 
 def pecah_segmen_shell(baris):
-    """Pecah satu baris shell menjadi segmen perintah pada `;` dan
-    `&&` yang berada DI LUAR kutip (Audit 874): pemisah di dalam teks
-    berkutip adalah data, bukan pemisah perintah — memecah buta di
-    sana mengarang segmen semu dari isi string."""
+    """Pecah satu baris shell menjadi segmen perintah pada `;`,
+    `&&`, dan `||` yang berada DI LUAR kutip (Audit 874, 888):
+    pemisah di dalam teks berkutip adalah data, bukan pemisah
+    perintah — memecah buta di sana mengarang segmen semu dari isi
+    string."""
     segmen = []
     kini = []
     i = 0
@@ -354,6 +355,13 @@ def pecah_segmen_shell(baris):
             i += 1
             continue
         if c == "&" and i + 1 < n and baris[i + 1] == "&":
+            segmen.append("".join(kini))
+            kini = []
+            i += 2
+            continue
+        if c == "|" and i + 1 < n and baris[i + 1] == "|":
+            # `||` juga pemisah perintah (Audit 888): perintah
+            # sesudahnya adalah perintah sungguhan, bukan sufiks.
             segmen.append("".join(kini))
             kini = []
             i += 2

@@ -369,6 +369,25 @@ def main():
                 rc == 0)
         shutil.rmtree(subkulit, ignore_errors=True)
 
+        rantaiatau = klon(tmp, "rantaiatau")
+        berkas_aksi15 = os.path.join(
+            rantaiatau, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi15, encoding="utf-8") as f:
+            isi_aksi15 = f.read()
+        baris_tulis15 = [b for b in isi_aksi15.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indent15 = baris_tulis15[:len(baris_tulis15)
+                                  - len(baris_tulis15.lstrip())]
+        with open(berkas_aksi15, "w", encoding="utf-8") as f:
+            f.write(isi_aksi15.replace(
+                baris_tulis15,
+                indent15 + 'test -n "$TAG" || '
+                + baris_tulis15.strip(), 1))
+        rc, out = jalan(rantaiatau, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen sesudah operator ||: gerbang lolos (Audit 888)",
+                rc == 0)
+        shutil.rmtree(rantaiatau, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
