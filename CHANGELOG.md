@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Operator redirect ganda tak lagi diberi kredit produsen gerbang (Audit 895)
+- Arah fail-open terbatas: operator kedua yang langsung mengikuti operator pertama (`>> > target`) adalah sintaks tak sah di shell sehingga barisnya tak akan pernah berjalan, tetapi penilai menilai operator kedua sebagai redirect sah dan menghitung produsen. Penilai kini melacak keadaan "baru sesudah operator": operator lain yang muncul sebelum ada kata di antaranya membuat segmen ditolak sebagai produsen. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect <> stdin tak lagi dihitung gerbang sebagai produsen (Audit 894)
 - Arah fail-open: `>` pada operator `<>` (buka baca-tulis di stdin) dinilai sebagai redirect stdout, sehingga baris tulis berbentuk `<>` yang membuat berkas keluaran kosong terpenuhi semu sebagai produsen. Karakter `>` yang langsung mengikuti `<` kini dilewati tanpa dinilai. Skenario uji-diri baru menguncinya.
 

@@ -389,11 +389,17 @@ def segmen_redirect_output(segmen):
     Sufiks `|| ...` sesudah target tetap sah (Audit 875): penulisan
     sudah terjadi sebelum rantai ATAU dievaluasi shell."""
     hasil = False
+    sesudah_op = False
     i = 0
     n = len(segmen)
     kutip = ""
     while i < n:
         c = segmen[i]
+        if c not in " \t>":
+            # Kata/isi apa pun di antara dua operator membersihkan
+            # keadaan; operator yang langsung mengikuti operator
+            # adalah sintaks tak sah (Audit 895).
+            sesudah_op = False
         if kutip:
             if c == "\\" and kutip == '"':
                 i += 2
@@ -409,8 +415,11 @@ def segmen_redirect_output(segmen):
         if (c == ">" and i > 0 and segmen[i - 1] == "<"):
             # `>` pada operator `<>` adalah redirect baca-tulis di
             # stdin, bukan penulisan stdout (Audit 894).
+            sesudah_op = True
             i += 1
             continue
+        if (c == ">" and sesudah_op):
+            return False
         if (c == ">" and not (i + 2 < n and segmen[i + 1] == "&"
                               and (segmen[i + 2].isdigit()
                                    or segmen[i + 2] == "-"))):
@@ -435,6 +444,7 @@ def segmen_redirect_output(segmen):
                 j -= 1
             if (j < i - 1 and segmen[j + 1:i] != "1"
                     and (j < 0 or segmen[j] in " \t;&|()")):
+                sesudah_op = True
                 i += op
                 continue
             # Komentar akhir baris (`# ...` mengawali kata) sesudah
@@ -457,6 +467,7 @@ def segmen_redirect_output(segmen):
             # lalu lanjutkan memindai redirect berikutnya.
             hasil = sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                              '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
+            sesudah_op = True
             i += op
             continue
         i += 1
