@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Sinkron TLS sesudah restore kini hanya berjalan bila TLS backup benar-benar terpasang (Audit 807)
+- `sinkronTlsKeInternal` sebelumnya dipanggil tanpa syarat di akhir kedua jalur restore (bot dan lokal). Padahal folder `tls` di folder data secara desain masih menyimpan sisa publik `ca.pem`/`cert.pem` setelah migrasi ke internal, jadi bila TLS dari backup ditolak, tidak ada, atau gagal dipasang, sinkron itu tetap menimpa set internal yang aktif dengan set folder data yang basi — sementara kunci internal tetap baru. Pada Start berikutnya pasangan yang campur itu terdeteksi tidak cocok dan CA dibuat ulang: semua HP klien harus memasang ulang CA, padahal pesan restore menyatakan TLS perangkat dipertahankan. Sinkron kini digerbang keputusan murni baru `perluSinkronTlsSesudahRestore` (ada staging + siap pasang + pasang berhasil) di kedua jalur; keputusan itu dikunci uji JVM.
+
+
 ## [Belum rilis] — Backup kini mengemas set TLS dari folder yang benar-benar aktif (Audit 806)
 - `createBackupZip` sebelumnya mengambil `ca.pem`/`cert.pem` (dan kunci bila terenkripsi) dari folder yang dipilih `tlsAktifUntukBackup` berdasar keberadaan — internal selalu menang bila `ca.pem`-nya ada — sisa lubang Audit 804 di jalur backup. Pada sesi darurat yang sama (server berjalan memakai TLS folder data), backup justru mengemas set internal yang tidak aktif; karena set itu konsisten dengan dirinya sendiri, pemeriksaan pasangan saat restore lolos dan CA yang salah terpasang diam-diam. Pemilihan folder kini memakai keputusan murni baru `tlsAktifUntukBackup(tercatat, internal, data)`: folder TLS aktif sesi yang tercatat (`tls_dir`) didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; keputusan itu dikunci uji JVM.
 

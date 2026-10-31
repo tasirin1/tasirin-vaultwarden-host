@@ -1723,6 +1723,11 @@ public final class TgBackup {
         }
     }
 
+    static boolean perluSinkronTlsSesudahRestore(boolean adaStaging,
+            boolean siapPasang, boolean pasangBerhasil) {
+        return adaStaging && siapPasang && pasangBerhasil;
+    }
+
     static void sinkronTlsKeInternal(Context ctx, File dataFolder) {
         try {
             File asal = new File(dataFolder, "tls");
@@ -3346,7 +3351,10 @@ public final class TgBackup {
         }
 
         String peringatanTls = "";
-        if (!tlsTerStaging.isEmpty() && !tlsRestoreSiapPasang(dataFolder, tlsTerStaging)) {
+        boolean tlsSiap = tlsTerStaging.isEmpty()
+                || tlsRestoreSiapPasang(dataFolder, tlsTerStaging);
+        boolean tlsPasangOk = false;
+        if (!tlsSiap) {
             hapusStagingTls(dataFolder);
             peringatanTls = " Sertifikat dari backup tidak dipasang karena"
                     + " pasangan sertifikat + kunci privatnya tidak lengkap,"
@@ -3355,6 +3363,7 @@ public final class TgBackup {
         } else {
             try {
                 pasangTlsRestore(dataFolder, tlsTerStaging);
+                tlsPasangOk = true;
             } catch (Exception eTls) {
                 kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
                 peringatanTls = " Database SUDAH dipulihkan, tetapi sertifikat"
@@ -3363,7 +3372,10 @@ public final class TgBackup {
                         + " restore.";
             }
         }
-        sinkronTlsKeInternal(ctx, dataFolder);
+        if (perluSinkronTlsSesudahRestore(!tlsTerStaging.isEmpty(), tlsSiap,
+                tlsPasangOk)) {
+            sinkronTlsKeInternal(ctx, dataFolder);
+        }
         boolean lengkap = false;
         String peringatan = "";
         if (cfg != null) {

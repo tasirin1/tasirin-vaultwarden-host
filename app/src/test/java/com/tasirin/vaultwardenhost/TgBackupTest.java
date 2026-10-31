@@ -631,6 +631,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void perluSinkronTlsSesudahRestore_hanyaBilaTlsBackupBenarTerpasang() {
+        assertTrue(TgBackup.perluSinkronTlsSesudahRestore(true, true, true));
+        assertFalse(TgBackup.perluSinkronTlsSesudahRestore(false, true, true));
+        assertFalse(TgBackup.perluSinkronTlsSesudahRestore(true, false, false));
+        assertFalse(TgBackup.perluSinkronTlsSesudahRestore(true, true, false));
+        assertFalse(TgBackup.perluSinkronTlsSesudahRestore(false, false, false));
+    }
+
+    @Test
     public void salinTls_menyalinEnamBerkas() throws Exception {
         java.io.File asal = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vw-tls-asal-" + System.nanoTime());

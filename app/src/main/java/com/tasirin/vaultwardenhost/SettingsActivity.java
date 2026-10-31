@@ -2235,8 +2235,10 @@ public class SettingsActivity extends Activity {
             }
 
             boolean tlsGagalPasang = false;
-            if (!tlsTerStaging.isEmpty()
-                    && !TgBackup.tlsRestoreSiapPasang(new File(dataDir), tlsTerStaging)) {
+            boolean tlsSiap = tlsTerStaging.isEmpty()
+                    || TgBackup.tlsRestoreSiapPasang(new File(dataDir), tlsTerStaging);
+            boolean tlsPasangOk = false;
+            if (!tlsSiap) {
                 TgBackup.hapusStagingTls(new File(dataDir));
                 appendUiLog("[app] Sertifikat dari backup tidak dipasang:"
                         + " pasangan tidak lengkap, kosong, atau tidak cocok"
@@ -2244,6 +2246,7 @@ public class SettingsActivity extends Activity {
             } else {
                 try {
                     TgBackup.pasangTlsRestore(new File(dataDir), tlsTerStaging);
+                    tlsPasangOk = true;
                 } catch (Exception eTls) {
                     TgBackup.hapusStagingTls(new File(dataDir));
                     TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
@@ -2252,7 +2255,10 @@ public class SettingsActivity extends Activity {
                             + " - database baru dipertahankan, TLS lama dikembalikan.");
                 }
             }
-            TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
+            if (TgBackup.perluSinkronTlsSesudahRestore(!tlsTerStaging.isEmpty(),
+                    tlsSiap, tlsPasangOk)) {
+                TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
+            }
             if (zipCfg != null) {
                 JSONObject prefsZip = zipCfg.optJSONObject("prefs");
                 if (!"tasirin-vaultwarden-host".equals(
