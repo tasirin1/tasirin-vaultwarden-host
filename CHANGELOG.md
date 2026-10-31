@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Hasil baca sertifikat yang gagal tidak lagi dimemoisasi (Audit 838)
+- `TlsCert.sisaMsSekali` menyimpan hasil `bacaMasa` ke memo 60 detik tanpa membedakan sukses/gagal, sehingga satu kegagalan baca sesaat (I/O tersendat, berkas sedang ditukar) membuat sertifikat sehat dinilai "tak terbaca" selama semenit — retry 100 ms pun membaca memo yang sama — dan Start dalam jendela itu bisa mengganti CA yang sehat. Kini hanya bacaan sukses yang dimemoisasi; kegagalan selalu dibaca ulang dari berkas. Uji JVM baru menguncinya dengan berkas berstat identik (panjang + mtime sama) yang isinya berubah dari sampah menjadi sertifikat sah.
+
+
 ## [Belum rilis] — Fsync isi web-vault menjadi best-effort seperti situs sync lain (Audit 837)
 - Fsync per berkas saat ekstrak web-vault (Audit 828) adalah satu-satunya `getFD().sync()` isi yang tidak dibungkus penelan galat: `SyncFailedException` dari filesystem tujuan (mis. folder data di SD/FUSE) merambat ke cabang umum, staging dibuang, dan seluruh update web-vault gagal padahal isi sudah tertulis utuh — dan selalu gagal lagi di titik yang sama. Kini fsync itu best-effort (`catch (Exception ignored)`) seperti semua situs sync isi lain di repo ini; kegagalan tulis yang sebenarnya tetap tertangkap pemeriksaan ukuran/batas unzip sesudahnya.
 

@@ -108,9 +108,13 @@ public final class TlsCert {
             }
         }
         long[] masa = bacaMasa(certFile);
-        if (kunci != null) {
+        if (kunci != null && masa[0] != Long.MIN_VALUE) {
             long catat = elapsedAman();
             synchronized (MEMO_MASA) {
+                // Hanya bacaan SUKSES yang dimemoisasi: hasil gagal
+                // (sentinel MIN_VALUE) tak boleh menempel 60 detik —
+                // satu kegagalan baca sesaat akan membuat sertifikat
+                // sehat dinilai tak terbaca dan CA diganti (Audit 838).
                 MEMO_MASA.put(kunci, new long[]{masa[0], masa[1], catat});
             }
         }

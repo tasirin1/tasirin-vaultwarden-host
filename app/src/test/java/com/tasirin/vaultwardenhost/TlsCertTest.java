@@ -14,6 +14,30 @@ import java.nio.file.Files;
 
 public class TlsCertTest {
 
+    // Sertifikat uji self-signed (DER, CN=uji, berlaku 2026-2036) untuk
+    // kunci regresi Audit 838.
+    private static final String SERT_UJI_B64 =
+            "MIIC/TCCAeWgAwIBAgIUFT/L68G7ZZPBwLPmq1jCZMfPVQUwDQYJKoZIhvcNAQELBQAwDjEMMAoGA1UEAwwDdWppMB4XDTI2MTAzMTEzMjkxNVoXDTM2MTAyODEzMjkxNVowDjEMMAoGA1UEAwwDdWppMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs+Vm3KAlX91Y692SKlxRgr9+/uVIaWk3wbazBb+l2hDblbyZ4aDPfy+iJwkddzFHpLtwlcrMW3Do8o+lWldPnXnlDhW0neqUar2KIVFuqC+8AIxgKlNFOv7o30qSOb6OYvWTRbtMr3ekfhOtPDlCwOBtqPFGBQfVMR1nEF8w1seldo+H1+6livyIVI/p8X3C6GBliQSe0A26K9fBLv2MeuCwnbHO4ms59YYdsgtm5MEgL/GWTMfbjF9plEgu7BwP6pBnAkhh9S7qLbTchloPqZQ4C7To9FT0LqufTRtl5BSM5nq6gaw2EKCcdTzdKPsiGfzelpiHnM/Eu/zMAzr1ZQIDAQABo1MwUTAdBgNVHQ4EFgQU2wmajjTIsDLARNlU0bmJu+kWln0wHwYDVR0jBBgwFoAU2wmajjTIsDLARNlU0bmJu+kWln0wDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAVArKzzjRj5mNmJiTYnAp4UADI9kiyKToB3lYnydlDWkxs/Sv12BB6HLxmEH1cWD4rUjsN1s+5xTDMxMmu9bOaZlI85Gy8v2BeatAATJb3kvnigOE31WxonHpgUONnnzdg0d1Yi/B1YCyFTvEMGw0qKXifShPwWm0IR/+bLKcdftCfL1YadhX1ByeAm/zzv/sSghIh9+1WGpeMTo7goP+kZNSZjzaCYVcBqLvY+L1XuGCzgWGWi8i6o/wbv/OMdTmO9nTbtjDrahJb17772wK5+n3jj52LGtYm9K4ISwdsD/dtSSRlMyc7maIlrOlII6cIiHlpjeYGcqZiCn5vJBeEA==";
+
+    @Test
+    public void bacaanSertifikatGagalTidakDimemoisasi() throws Exception {
+        byte[] der = java.util.Base64.getDecoder().decode(SERT_UJI_B64);
+        File dir = Files.createTempDirectory("tls838").toFile();
+        File f = new File(dir, "cert.pem");
+        long mtime = 1_700_000_000_000L;
+        byte[] sampah = new byte[der.length];
+        Files.write(f.toPath(), sampah);
+        assertTrue(f.setLastModified(mtime));
+        assertEquals(-1, TlsCert.sisaMs(f));
+        Files.write(f.toPath(), der);
+        assertTrue(f.setLastModified(mtime));
+        assertEquals(f.length(), der.length);
+        // Stat berkas identik dengan bacaan gagal: tanpa perbaikan, memo
+        // gagal membuat sisa tetap -1; sesudah perbaikan berkas dibaca
+        // ulang dan sisa positif.
+        assertTrue(TlsCert.sisaMs(f) > 0);
+    }
+
     @Test
     public void namaFileCaDanLeafSesuaiSkema() {
         assertEquals("ca.pem", TlsCert.CA_CERT_FILE);
