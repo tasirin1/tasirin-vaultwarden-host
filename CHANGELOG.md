@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nama produsen gerbang wajib redirect persis ke $GITHUB_OUTPUT (Audit 870)
+- Sisa Audit 867: baris penulisan produsen resolve-vw dihitung bila mengandung `>>` dan substring `GITHUB_OUTPUT` di mana pun, sehingga umpan `echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT.bak"` ikut memenuhi kontrak sementara baris tulis sungguhan salah nama. Redirect kini wajib menunjuk persis berkas keluaran di akhir baris (pola `>> "$GITHUB_OUTPUT"`). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Cek Gradle gerbang tak lagi membaca isi string sebagai kode (Audit 869)
 - Sisa Audit 854/866: `kupas_komentar_kotlin` menyalin isi string apa adanya dan tidak mengenal raw string `"""..."""`, sehingga teks paku (mode `FAIL_ON_PROJECT_REPOS`, baris versi AGP terpaku) yang hanya berada di dalam string literal ikut memenuhi cek Gradle. Raw string kini selalu dikosongkan seperti komentar, dan cek atas `settings.gradle.kts` berjalan dalam mode `kosongkan_string` (isi string biasa pun dibuang — cek substring membaca kode saja); cek versi AGP tetap membaca string biasa karena polanya terstruktur penuh (`id("...") version "..." apply false` tak bisa muncul dari string biasa tanpa escape yang mengubah teksnya). Tiga skenario uji-diri baru menguncinya.
 

@@ -168,6 +168,21 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpan, ignore_errors=True)
 
+        umpanbak = klon(tmp, "umpanbak")
+        berkas_ub = os.path.join(umpanbak, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_ub, encoding="utf-8") as f:
+            isi_ub = f.read()
+        with open(berkas_ub, "w", encoding="utf-8") as f:
+            f.write(isi_ub.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+                '        echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT.bak"'))
+        rc, out = jalan(umpanbak, [sys.executable, GERBANG, "--semua"])
+        periksa("umpan redirect .bak nama produsen: gerbang gagal (Audit 870)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpanbak, ignore_errors=True)
+
         prod = klon(tmp, "prod")
         berkas_prod = os.path.join(prod, ".github", "actions",
                                    "resolve-vw", "action.yml")

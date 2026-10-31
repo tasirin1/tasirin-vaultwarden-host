@@ -348,10 +348,14 @@ def cek_yaml_github_lain(gagal, peringatan):
             mentah_action = baca(rel_action)
             # Hanya echo yang benar-benar mengarah ke $GITHUB_OUTPUT
             # yang dihitung (Audit 867): echo log polos bernama sama tak
-            # boleh memenuhi kontrak.
+            # boleh memenuhi kontrak. Redirect wajib menunjuk PERSIS
+            # berkas keluaran di akhir baris (Audit 870): substring
+            # GITHUB_OUTPUT di mana pun membuat umpan seperti
+            # "$GITHUB_OUTPUT.bak" ikut dihitung.
             nama_ditulis = set()
             for baris_act in mentah_action.splitlines():
-                if ">>" in baris_act and "GITHUB_OUTPUT" in baris_act:
+                if re.search(r">>\s*\"?\$\{?GITHUB_OUTPUT\}?\"?\s*$",
+                             baris_act):
                     nama_ditulis.update(re.findall(
                         r"echo\s+\"?([A-Za-z0-9_-]+)=", baris_act))
             for nama_out, isi_out in keluaran.items():
