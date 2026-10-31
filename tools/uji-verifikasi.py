@@ -865,6 +865,27 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(grupsendiri, ignore_errors=True)
 
+        kulitredir = klon(tmp, "kulitredir")
+        berkas_aksi42 = os.path.join(
+            kulitredir, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi42, encoding="utf-8") as f:
+            isi_aksi42 = f.read()
+        baris_tulis42 = [b for b in isi_aksi42.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indentasi42 = baris_tulis42[:len(baris_tulis42)
+                                    - len(baris_tulis42.lstrip())]
+        inti42 = baris_tulis42.strip().replace(
+            ' >> "$GITHUB_OUTPUT"', "")
+        with open(berkas_aksi42, "w", encoding="utf-8") as f:
+            f.write(isi_aksi42.replace(
+                baris_tulis42,
+                indentasi42 + "( " + inti42
+                + "; ) >> \"$GITHUB_OUTPUT\"", 1))
+        rc, out = jalan(kulitredir, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect tingkat subshell produsen: gerbang lolos "
+                "(Audit 915)", rc == 0)
+        shutil.rmtree(kulitredir, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

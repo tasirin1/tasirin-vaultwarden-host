@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect tingkat subshell dihitung gerbang (Audit 915)
+- Arah fail-closed, kelas yang sama dengan Audit 912 untuk subshell: penulisan lewat redirect subshell yang memuat titik-koma tak pernah dihitung karena segmen terpecah dan pemindaian tak punya keadaan subshell. Pemindaian kini melacak kandidat subshell dan mengesahkannya di penutup kurung ber-redirect, dengan syarat kandidat yang sama seperti grup (tanpa redirect sendiri, Audit 914). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Kandidat grup wajib tanpa redirect sendiri (Audit 914)
 - Arah fail-open sisa Audit 912: semua echo bervonis redirect False di dalam grup dicatat sebagai kandidat, termasuk yang redirect-nya sendiri tegas ke berkas lain — padahal redirect perintah mengalahkan redirect tingkat grup. Kandidat kini hanya dicatat bila segmennya tak memuat operator redirect keluaran di tingkat luar (penolong sadar kutip/substitusi baru). Skenario uji-diri baru menguncinya.
 

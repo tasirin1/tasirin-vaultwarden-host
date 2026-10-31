@@ -746,6 +746,8 @@ def cek_yaml_github_lain(gagal, peringatan):
             nama_ditulis = set()
             grup_nama = set()
             grup_buka = False
+            kulit_nama = set()
+            kulit_buka = False
             for baris_act in mentah_action.splitlines():
                 if baris_act.lstrip().startswith("#"):
                     continue
@@ -783,15 +785,30 @@ def cek_yaml_github_lain(gagal, peringatan):
                         grup_buka = False
                         grup_nama = set()
                         continue
+                    if kulit_buka and segmen_r.startswith(")"):
+                        # Redirect tingkat subshell (Audit 915):
+                        # padanan penutup grup untuk kurung biasa.
+                        sisa_kulit = segmen_r[1:].strip()
+                        if (sisa_kulit and segmen_redirect_output(
+                                "echo z=1 " + sisa_kulit)):
+                            nama_ditulis |= kulit_nama
+                        kulit_buka = False
+                        kulit_nama = set()
+                        continue
                     if segmen.lstrip().startswith("{"):
                         grup_buka = True
+                    if segmen.lstrip().startswith("("):
+                        kulit_buka = True
                     m_nama = re.match(
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
                     if m_nama and segmen_redirect_output(segmen_cek):
                         nama_ditulis.add(m_nama.group(1))
-                    elif (m_nama and grup_buka
+                    elif (m_nama and (grup_buka or kulit_buka)
                           and not _punya_redirect_luar(segmen_cek)):
-                        grup_nama.add(m_nama.group(1))
+                        if grup_buka:
+                            grup_nama.add(m_nama.group(1))
+                        if kulit_buka:
+                            kulit_nama.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):
