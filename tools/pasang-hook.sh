@@ -14,15 +14,17 @@ cat > "$sementara" <<'HOOK'
 if [ "$1" = "--self-test" ]; then
     exit 0
 fi
-rentang=""
+rentang_semua=""
 while read -r ref_lokal sha_lokal ref_remote sha_remote; do
     case "$sha_remote" in
         ""|0000000000000000000000000000000000000000) ;;
-        *) if [ -z "$rentang" ]; then rentang="$sha_remote..HEAD"; fi ;;
+        *) rentang_semua="$rentang_semua $sha_remote..$sha_lokal" ;;
     esac
 done
-if [ -n "$rentang" ]; then
-    if ! python3 tools/verifikasi-patch.py --rentang "$rentang"; then exit 1; fi
+if [ -n "$rentang_semua" ]; then
+    for rentang in $rentang_semua; do
+        if ! python3 tools/verifikasi-patch.py --rentang "$rentang"; then exit 1; fi
+    done
 else
     if ! python3 tools/verifikasi-patch.py; then exit 1; fi
 fi

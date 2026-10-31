@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Hook pre-push memeriksa rentang per-ref sampai sha lokalnya (Audit 843)
+- Sisa Audit 816: template hook di `tools/pasang-hook.sh` hanya memakai ref pertama dan membentuk rentang `sha-remote..HEAD`, sehingga push multi-ref tak memeriksa ref lain dan push yang tip-nya bukan HEAD memeriksa isi yang salah. Kini hook mengumpulkan rentang `sha-remote..sha-lokal` untuk SETIAP baris stdin pre-push dan menjalankan gerbang untuk masing-masing; baris ber-sha-remote nol (branch baru) tetap jatuh ke mode lokal seperti sebelumnya. Terbukti di workspace buang: rentang bersih lolos, rentang dua commit yang memuat zip terlarang gagal dan menyebut berkasnya.
+
+
 ## [Belum rilis] — Dokumentasi gerbang diluruskan sesudah Audit 830/831 (Audit 842)
 - `AGENTS.md` dan nama langkah di tiga workflow masih menyebut cek-cepat memeriksa "ID land" — cek layout/ID sudah pindah satu pintu ke verifikasi-patch (Audit 831) — dan tak mencantumkan `tools/uji-cek-cepat.py` sama sekali. Keterangan cek-cepat kini sesuai isinya (vektor 0.x, README, pola rahasia), uji-cek-cepat tercantum di struktur repo dan daftar gerbang CI, dan nama langkah workflow diselaraskan.
 
