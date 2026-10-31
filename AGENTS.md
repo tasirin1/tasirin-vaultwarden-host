@@ -32,9 +32,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
+├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (langkah tetap CI)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
-├── scripts/cek-cepat.sh                 # Cek cepat pra-push (vektor 0.x, ID land, README, secret)
+├── scripts/cek-cepat.sh                 # Cek cepat pra-push (vektor 0.x, README, pola rahasia)
 ├── AGENTS.md                         # Panduan pengelolaan ini
 ├── CHANGELOG.md                      # Riwayat perubahan per rilis (update manual)
 ├── shim/getrandom_shim.c             # shim getrandom LD_PRELOAD untuk STB kernel lama
@@ -249,11 +250,12 @@ sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
 1. `python3 tools/verifikasi-patch.py --rentang "<before>...<sha>"`
    (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
    resource, locale tanpa Locale, cakupan uji, acuan metode di `AGENTS.md`).
-2. `bash scripts/cek-cepat.sh` (vektor `0.x`, ID land, README, pola rahasia).
+2. `bash scripts/cek-cepat.sh` (vektor `0.x`, README, pola rahasia — cek layout/ID kini milik verifikasi-patch, Audit 831).
 3. `python3 tools/uji-verifikasi.py` (uji-diri gerbang pada salinan buang:
    fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan
    `--semua <jalur>`, kedua `strings.xml` kosong — hanya di `cek-wajib.yml`
    dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`).
+   `python3 tools/uji-cek-cepat.py` berjalan di tempat yang sama.
 
 Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
 dengan file+baris) sehingga bug/kode sampah/celah keamanan terlihat di tab
