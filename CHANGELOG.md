@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Segmen perintah aritmetika dilewati pemindai produsen (Audit 930)
+- Arah fail-open: sesudah kurung ganda dilewati sebagai aritmetika (Audit 926), sisa segmen perintah aritmetika masih dicocokkan sebagai echo biasa sehingga teks mirip echo di dalam ekspresi terkredit sebagai penulisan. Segmen yang diawali kurung ganda kini dilewati utuh. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Syarat skip grup tak sah menilai keberadaan kurung argumen (Audit 929)
 - Arah fail-open: syarat posisi penjaga grup tak sah (akhiran, sebelum redirect) selalu bisa digeser — pipa, kata menempel, dan nomor fd lolos. Syarat kini menilai keberadaan kurung tutup argumen apa pun di tingkat luar pada segmen pembuka itu sendiri, sadar konteks dan sadar ekspansi parameter. Skenario uji-diri baru menguncinya.
 

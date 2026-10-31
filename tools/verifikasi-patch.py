@@ -953,6 +953,12 @@ def cek_yaml_github_lain(gagal, peringatan):
                     continue
                 for segmen in pecah_segmen_shell(
                         _potong_komentar_shell(baris_act)):
+                    if segmen.lstrip().startswith("(("):
+                        # Segmen perintah aritmetika: isinya ekspresi,
+                        # bukan perintah — teks mirip echo di dalamnya
+                        # tak boleh dicocokkan sebagai penulisan
+                        # (Audit 930).
+                        continue
                     # Pembungkus grup `{ ...; }` / subshell `( ... )`
                     # dibuka lebih dulu (Audit 886): penulisan di
                     # dalamnya tetap penulisan sungguhan bagi shell.

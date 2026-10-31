@@ -1144,6 +1144,24 @@ def main():
                 "gagal (Audit 929)", rc != 0)
         shutil.rmtree(grupgeser2, ignore_errors=True)
 
+        hitung = klon(tmp, "hitung")
+        berkas_aksi57 = os.path.join(
+            hitung, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi57, encoding="utf-8") as f:
+            isi_aksi57 = f.read()
+        baris_tulis57 = [b for b in isi_aksi57.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi57, "w", encoding="utf-8") as f:
+            f.write(isi_aksi57.replace(
+                baris_tulis57,
+                baris_tulis57.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '(( echo "tag_mentah=$TAG"))'), 1))
+        rc, out = jalan(hitung, [sys.executable, GERBANG, "--semua"])
+        periksa("teks mirip echo di dalam aritmetika tak terkredit: "
+                "gerbang gagal (Audit 930)", rc != 0)
+        shutil.rmtree(hitung, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
