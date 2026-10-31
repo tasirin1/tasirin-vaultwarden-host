@@ -450,6 +450,12 @@ def segmen_redirect_output(segmen):
                 kutip = ""
             i += 1
             continue
+        if c == "\\" and i + 1 < n:
+            # Karakter ter-escape di luar kutip adalah literal —
+            # bukan operator, pembuka kutip, atau awal substitusi
+            # (Audit 908/909).
+            i += 2
+            continue
         if c in ("'", '"'):
             kutip = c
             i += 1

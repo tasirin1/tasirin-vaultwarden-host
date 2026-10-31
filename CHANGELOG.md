@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Karakter ter-escape literal bagi penilai gerbang (Audit 908)
+- Arah fail-closed: penilai tak memodelkan escape di luar kutip, sehingga backtick literal ter-escape membuka keadaan substitusi dan mematikan penilaian redirect sesudahnya. Penilai kini melompati pasangan backslash+karakter sebagai literal sebelum cabang lain menilai. Skenario uji-diri baru menguncinya; arah sebaliknya (Audit 909) dikunci skenario pada commit berikutnya.
+
+
 ## [Belum rilis] — Pemotong komentar sadar backtick (Audit 907)
 - Arah fail-closed: `_potong_komentar_shell` memotong baris di `#` yang berada di dalam substitusi backtick, membuang redirect sungguhan sesudahnya — padahal komentar di dalam substitusi berhenti di backtick penutup. Pemotong kini melacak keadaan backtick dan hanya memotong di luar substitusi. Skenario uji-diri baru menguncinya.
 
