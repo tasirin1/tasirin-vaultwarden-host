@@ -2556,6 +2556,33 @@ public final class Updater {
         return kode == 403 || kode == 408 || kode == 429 || kode >= 500;
     }
 
+    // Murni (Audit 932): pecah badan checksum menjadi maksimal 200 baris,
+    // tiap baris maksimal 4096 karakter, CR di ujung baris dibuang.
+    static java.util.List<String> pecahBarisChecksum(String badan) {
+        java.util.List<String> baris = new java.util.ArrayList<>();
+        if (badan == null) {
+            return baris;
+        }
+        int awal = 0;
+        while (baris.size() < 200) {
+            int nl = badan.indexOf('\n', awal);
+            String b = nl < 0 ? badan.substring(awal)
+                    : badan.substring(awal, nl);
+            if (b.endsWith("\r")) {
+                b = b.substring(0, b.length() - 1);
+            }
+            if (b.length() > 4096) {
+                b = b.substring(0, 4096);
+            }
+            baris.add(b);
+            if (nl < 0) {
+                break;
+            }
+            awal = nl + 1;
+        }
+        return baris;
+    }
+
     private static HasilChecksum fetchChecksumRinci(Context ctx, String url,
                                                     int connectMs, int readMs) {
 
@@ -2574,21 +2601,12 @@ public final class Updater {
                     }
                     return HasilChecksum.BELUM_TERBIT;
                 }
-                java.util.List<String> baris = new java.util.ArrayList<>();
-                try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                        c.getInputStream(), StandardCharsets.UTF_8))) {
-
-                    for (int i = 0; i < 200; i++) {
-                        String b = r.readLine();
-                        if (b == null) {
-                            break;
-                        }
-                        if (b.length() > 4096) {
-                            b = b.substring(0, 4096);
-                        }
-                        baris.add(b);
-                    }
-                }
+                // Audit 932: badan dibaca dengan batas byte streaming lebih
+                // dulu; readLine lama mengalokasikan satu baris utuh sebelum
+                // batas 4096 sempat bekerja (OOM lolos dari catch Exception).
+                String badan = new String(TgBackup.bacaTerbatas(
+                        c.getInputStream(), 1024 * 1024), StandardCharsets.UTF_8);
+                java.util.List<String> baris = pecahBarisChecksum(badan);
                 if (baris.isEmpty()) {
                     return HasilChecksum.BELUM_TERBIT;
                 }

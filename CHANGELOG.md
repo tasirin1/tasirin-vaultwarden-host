@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Probe checksum membaca badan dengan batas byte streaming (Audit 932)
+- Perbaikan: `fetchChecksumRinci` tak lagi memakai `readLine`, yang mengalokasikan satu baris utuh sebelum batas 4096 karakter diterapkan (satu baris raksasa bisa memicu OutOfMemoryError yang lolos dari penangkap Exception). Badan kini dibaca lewat pembaca terbatas 1 MB lebih dulu, lalu dipecah oleh penolong murni baru `pecahBarisChecksum` (maksimal 200 baris, 4096 karakter per baris, CR dibuang) yang terkunci uji JVM.
+
+
 ## [Belum rilis] — Rekursi substitusi proses menilai konsumsi stdin berurutan (Audit 931)
 - Deviasi dua arah: rekursi Audit 911 menilai isi substitusi multi-perintah dengan aturan redirect-terakhir satu perintah, melintasi batas antar-perintah. Isi kini dipecah per perintah: penulis yang muncul sebelum pembaca stdin mana pun yang berlaku, sesudah pembaca stdin sudah terkuras; perintah yang tak membaca stdin tak menguras apa pun. Skenario uji-diri baru mengunci kedua arah.
 

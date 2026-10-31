@@ -1533,4 +1533,32 @@ public class UpdaterTest {
         Updater.selesaiUnduhan();
         assertEquals("", Updater.downloadStatus);
     }
+
+    @Test
+    public void pecahBarisChecksumBatasDanCr() {
+        java.util.List<String> crlf = Updater.pecahBarisChecksum("abc\r\ndef\r\n");
+        assertEquals(3, crlf.size());
+        assertEquals("abc", crlf.get(0));
+        assertEquals("def", crlf.get(1));
+        assertEquals("", crlf.get(2));
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 250; i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append('x');
+        }
+        assertEquals(200, Updater.pecahBarisChecksum(sb.toString()).size());
+
+        StringBuilder panjang = new StringBuilder();
+        for (int i = 0; i < 5000; i++) {
+            panjang.append('y');
+        }
+        assertEquals(4096,
+                Updater.pecahBarisChecksum(panjang.toString()).get(0).length());
+
+        assertEquals(1, Updater.pecahBarisChecksum("").size());
+        assertTrue(Updater.pecahBarisChecksum(null).isEmpty());
+    }
 }
