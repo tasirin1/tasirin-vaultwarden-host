@@ -625,6 +625,59 @@ def segmen_redirect_output(segmen):
     return hasil
 
 
+def _punya_redirect_luar(segmen):
+    """True bila segmen memuat operator redirect keluaran di tingkat
+    luar (di luar kutip, substitusi, dan kurung). Echo seperti itu
+    diatur redirect-nya sendiri — redirect pembungkus (grup atau
+    subshell) tak berlaku baginya (Audit 914)."""
+    kutip = ""
+    dalam = 0
+    tikus = False
+    i = 0
+    n = len(segmen)
+    while i < n:
+        c = segmen[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "`":
+            tikus = not tikus
+            i += 1
+            continue
+        if c == "$" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c in "><" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c == "(" and dalam > 0:
+            dalam += 1
+            i += 1
+            continue
+        if c == ")" and dalam > 0:
+            dalam -= 1
+            i += 1
+            continue
+        if c == ">" and dalam == 0 and not tikus:
+            return True
+        i += 1
+    return False
+
+
 def cek_yaml_github_lain(gagal, peringatan):
     # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
     # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
@@ -736,7 +789,8 @@ def cek_yaml_github_lain(gagal, peringatan):
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
                     if m_nama and segmen_redirect_output(segmen_cek):
                         nama_ditulis.add(m_nama.group(1))
-                    elif m_nama and grup_buka:
+                    elif (m_nama and grup_buka
+                          and not _punya_redirect_luar(segmen_cek)):
                         grup_nama.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""

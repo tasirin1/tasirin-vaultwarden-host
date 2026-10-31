@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kandidat grup wajib tanpa redirect sendiri (Audit 914)
+- Arah fail-open sisa Audit 912: semua echo bervonis redirect False di dalam grup dicatat sebagai kandidat, termasuk yang redirect-nya sendiri tegas ke berkas lain — padahal redirect perintah mengalahkan redirect tingkat grup. Kandidat kini hanya dicatat bila segmennya tak memuat operator redirect keluaran di tingkat luar (penolong sadar kutip/substitusi baru). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pembuka grup wajib batas kata bagi gerbang (Audit 913)
 - Arah fail-open terbatas: loop buka-pembungkus mengupas `{` awal tanpa batas kata, sehingga `{echo ...` — satu kata perintah tak dikenal di shell — terkuak menjadi echo dan diberi kredit produsen. `{` kini hanya dikupas bila berdiri sebagai kata tersendiri (diikuti spasi/tab atau akhir segmen); `(` tetap metakarakter. Skenario uji-diri baru menguncinya.
 

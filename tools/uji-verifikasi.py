@@ -842,6 +842,29 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(kurungtempel, ignore_errors=True)
 
+        grupsendiri = klon(tmp, "grupsendiri")
+        berkas_aksi41 = os.path.join(
+            grupsendiri, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi41, encoding="utf-8") as f:
+            isi_aksi41 = f.read()
+        baris_tulis41 = [b for b in isi_aksi41.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indentasi41 = baris_tulis41[:len(baris_tulis41)
+                                    - len(baris_tulis41.lstrip())]
+        inti41 = baris_tulis41.strip().replace(
+            '>> "$GITHUB_OUTPUT"', '> /dev/null')
+        with open(berkas_aksi41, "w", encoding="utf-8") as f:
+            f.write(isi_aksi41.replace(
+                baris_tulis41,
+                indentasi41 + "{ " + inti41
+                + "; } >> \"$GITHUB_OUTPUT\"", 1))
+        rc, out = jalan(grupsendiri, [sys.executable, GERBANG, "--semua"])
+        periksa("echo grup ber-redirect sendiri bukan kandidat: gerbang "
+                "gagal (Audit 914)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(grupsendiri, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
