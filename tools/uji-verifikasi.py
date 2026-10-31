@@ -241,6 +241,21 @@ def main():
                 rc == 0)
         shutil.rmtree(prodkutip1, ignore_errors=True)
 
+        prodkom = klon(tmp, "prodkom")
+        berkas_aksi8 = os.path.join(
+            prodkom, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi8, encoding="utf-8") as f:
+            isi_aksi8 = f.read()
+        baris_tulis8 = [b for b in isi_aksi8.splitlines()
+                        if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi8, "w", encoding="utf-8") as f:
+            f.write(isi_aksi8.replace(
+                baris_tulis8, baris_tulis8 + " # tulis keluaran", 1))
+        rc, out = jalan(prodkom, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen ber-komentar akhir baris: gerbang lolos (Audit 878)",
+                rc == 0)
+        shutil.rmtree(prodkom, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

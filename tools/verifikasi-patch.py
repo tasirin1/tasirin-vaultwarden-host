@@ -358,7 +358,10 @@ def segmen_redirect_output(segmen):
             i += 1
             continue
         if c == ">" and i + 1 < n and segmen[i + 1] == ">":
-            sisa = segmen[i + 2:].strip().split("||")[0].strip()
+            # Komentar akhir baris (`# ...`) sesudah target juga sah
+            # (Audit 878): shell membuangnya, keluaran tetap tertulis.
+            sisa = (segmen[i + 2:].split("#")[0].split("||")[0]
+                    .strip())
             return sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                             '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
         i += 1

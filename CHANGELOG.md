@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Produsen gerbang: komentar akhir baris tulis diakui (Audit 878)
+- Sisa Audit 874/875 arah fail-closed: baris tulis sah yang diakhiri komentar shell (`>> "$GITHUB_OUTPUT" # tulis keluaran`) tak dihitung sebagai produsen karena sisa segmen sesudah target hanya boleh kosong atau sufiks `|| …` — CI memerahkan berkas action yang sehat. Komentar akhir baris kini dibuang lebih dulu sebelum sisa segmen dinilai. Skenario uji-diri baru menguncinya. (Catatan proses: draf patch pertama sempat salah indentasi dan digagalkan suite uji-diri itu sendiri sebelum commit — gerbang bekerja sebagaimana mestinya.)
+
+
 ## [Belum rilis] — Pengupas komentar gerbang sadar template string Kotlin (Audit 877)
 - Sisa Audit 873: pemindai string biasa berhenti di petik pertama tanpa memahami template `${...}`, sehingga char petik di dalam template (`"${'"'}"`) menutup string lebih awal dan petik penutup template membuka string baru yang menelan hampir seluruh berkas — settings sehat digagalkan palsu. Pemindaian string kini memakai penolong sadar template: `${` dilompati utuh dengan hitungan kurung, dan string/char bersarang di dalam template dilompati sebagai satu satuan. Dua skenario uji-diri baru menguncinya dari kedua arah.
 
