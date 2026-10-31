@@ -429,6 +429,15 @@ def main():
                 rc != 0 and "useAndroidX" in out)
         shutil.rmtree(titikdua, ignore_errors=True)
 
+        sambung = klon(tmp, "sambung")
+        berkas_prop3 = os.path.join(sambung, "gradle.properties")
+        with open(berkas_prop3, "a", encoding="utf-8") as f:
+            f.write("android.useAndroidX\\\n=true\n")
+        rc, out = jalan(sambung, [sys.executable, GERBANG, "--semua"])
+        periksa("useAndroidX sambung-baris belah kunci: gerbang gagal (Audit 876)",
+                rc != 0 and "useAndroidX" in out)
+        shutil.rmtree(sambung, ignore_errors=True)
+
         agp = klon(tmp, "agp")
         berkas_akar = os.path.join(agp, "build.gradle.kts")
         with open(berkas_akar, encoding="utf-8") as f:

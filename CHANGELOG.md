@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai gradle.properties gerbang menggabung baris logis (Audit 876)
+- Sisa Audit 871/854: penilaian `android.useAndroidX` membaca baris fisik satu per satu, padahal format Java properties menyambung baris berakhiran backslash ganjil dengan baris berikutnya — kunci yang terbelah sebelum pemisahnya (`android.useAndroidX\` + `=true`) tak terbaca dan nilai efektif `true` lolos. Baris logis kini digabung lebih dulu (backslash penutup ganjil, lanjutan direnggut spasi depannya), baru nilai last-wins dinilai. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Produsen sah gerbang: sufiks || dan echo kutip tunggal diakui (Audit 875)
 - Sisa Audit 872 arah sebaliknya (fail-closed): baris tulis sah `>> "$GITHUB_OUTPUT" || true` tak dihitung karena segmen tak berakhir di redirect, dan echo kutip tunggal tak dihitung karena pola nama hanya mengakui kutip ganda — CI bisa memerahkan berkas action yang sehat. Sufiks `|| ...` sesudah target kini sah dan pola nama mengakui kutip tunggal. Dua skenario uji-diri arah-lolos baru menguncinya.
 

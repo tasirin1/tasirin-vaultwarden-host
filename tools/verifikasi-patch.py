@@ -1526,6 +1526,12 @@ def blok_repositories(isi):
     return hasil
 
 
+def _sambung_properties(baris):
+    """True bila baris properties berakhir dengan backslash GANJIL
+    (sambung-baris format Java properties)."""
+    return (len(baris) - len(baris.rstrip("\\"))) % 2 == 1
+
+
 def cek_gradle_akar(gagal):
     isi = kupas_komentar_kotlin(baca("build.gradle.kts"))
     if not os.path.isfile(os.path.join(AKAR, "build.gradle.kts")):
@@ -1572,8 +1578,19 @@ def cek_gradle_akar(gagal):
         # seluas format Java properties (Audit 871): `=`, `:`, atau
         # spasi — baris gaya `kunci:nilai` sah bagi Gradle dan ikut
         # menentukan nilai efektif.
+        # Gabung baris logis lebih dulu (Audit 876): baris berakhiran
+        # backslash ganjil disambung format properties dengan baris
+        # berikutnya SEBELUM parsing — menilai baris fisik membuat
+        # kunci yang terbelah sebelum pemisahnya tak terbaca.
+        baris_logis = []
+        for b_fisik in isi.splitlines():
+            if baris_logis and _sambung_properties(baris_logis[-1]):
+                baris_logis[-1] = (baris_logis[-1][:-1]
+                                   + b_fisik.lstrip())
+            else:
+                baris_logis.append(b_fisik)
         nilai_ax = None
-        for baris in isi.splitlines():
+        for baris in baris_logis:
             b = baris.strip()
             if not b or b.startswith("#") or b.startswith("!"):
                 continue
