@@ -275,6 +275,32 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(sarang, ignore_errors=True)
 
+        charagp = klon(tmp, "charagp")
+        berkas_agp2 = os.path.join(charagp, "build.gradle.kts")
+        with open(berkas_agp2, encoding="utf-8") as f:
+            isi_agp2 = f.read()
+        with open(berkas_agp2, "w", encoding="utf-8") as f:
+            f.write('val penanda = \'"\'\n'
+                    '/* id("com.android.application") version'
+                    ' "8.13.2" apply false */\n'
+                    + isi_agp2.replace('version "8.13.2"',
+                                       'version "9.9.9"'))
+        rc, out = jalan(charagp, [sys.executable, GERBANG, "--semua"])
+        periksa("char literal petik + AGP di komentar: gerbang gagal (Audit 873)",
+                rc != 0 and "8.13.2" in out)
+        shutil.rmtree(charagp, ignore_errors=True)
+
+        charset = klon(tmp, "charset")
+        berkas_set8 = os.path.join(charset, "settings.gradle.kts")
+        with open(berkas_set8, encoding="utf-8") as f:
+            isi_set8 = f.read()
+        with open(berkas_set8, "w", encoding="utf-8") as f:
+            f.write('val penanda = \'"\'\n' + isi_set8)
+        rc, out = jalan(charset, [sys.executable, GERBANG, "--semua"])
+        periksa("char literal petik di settings sehat: gerbang lolos (Audit 873)",
+                rc == 0)
+        shutil.rmtree(charset, ignore_errors=True)
+
         strmode = klon(tmp, "strmode")
         berkas_set6 = os.path.join(strmode, "settings.gradle.kts")
         with open(berkas_set6, encoding="utf-8") as f:

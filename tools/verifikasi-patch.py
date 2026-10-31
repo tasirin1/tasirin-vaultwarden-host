@@ -1364,7 +1364,9 @@ def kupas_komentar_kotlin(isi, kosongkan_string=False):
     kurung. String "..." (termasuk URL di dalamnya) dipertahankan,
     kecuali mode kosongkan_string (Audit 869): isi string adalah data,
     bukan kode, jadi dikosongkan agar cek substring membaca kode saja.
-    Raw string triple-quote selalu dikosongkan (Audit 869)."""
+    Raw string triple-quote selalu dikosongkan (Audit 869). Char
+    literal dikenali sebagai satu token (Audit 873) agar petik di
+    dalamnya tidak dibaca sebagai awal string."""
     hasil = []
     i = 0
     n = len(isi)
@@ -1376,6 +1378,18 @@ def kupas_komentar_kotlin(isi, kosongkan_string=False):
             hasil.append('""')
             hasil.append("\n" * isi[i:j].count("\n"))
             i = j
+        elif c == "'":
+            j = i + 1
+            if j < n and isi[j] == "\\":
+                j += 6 if isi[j + 1:j + 2] == "u" else 2
+            else:
+                j += 1
+            if j < n and isi[j] == "'" and "\n" not in isi[i:j]:
+                hasil.append("''" if kosongkan_string else isi[i:j + 1])
+                i = j + 1
+            else:
+                hasil.append(c)
+                i += 1
         elif c == '"':
             j = i + 1
             while j < n:
