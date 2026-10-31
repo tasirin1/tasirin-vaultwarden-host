@@ -2134,8 +2134,13 @@ public final class TgBackup {
             if (dataDir == null || dataDir.trim().isEmpty()) {
                 dataDir = ServerService.dataDirBawaanSegar();
             }
+            String dirTls = amanString(sp, ServerService.KEY_TLS_DIR, "");
             int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
                     + TlsCert.resetTls(new File(dataDir, "tls"));
+            if (dirTls != null && !dirTls.trim().isEmpty()) {
+                hapus += TlsCert.resetTls(new File(dirTls));
+            }
+            sp.edit().remove(ServerService.KEY_TLS_DIR).apply();
             if (hapus == 0) {
                 throw new IOException("Sertifikat belum ada, tak ada yang di-reset.");
             }
