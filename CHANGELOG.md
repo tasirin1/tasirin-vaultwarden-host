@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pintasan sidik CA health-check dibatasi umurnya (Audit 844)
+- Sisa Audit 805: `capCaAktif` memercayai sidik cache selamanya bila `mtime+panjang` berkas CA sama, dan tiap pemeriksaan menyegarkan cap waktunya — dua CA berbeda yang kebetulan sama panjang dan sama mtime terbaca (resolusi kasar, mis. FAT) membuat health-check mem-pin CA lama selamanya. Kini pintasan stat hanya dipercaya sampai `CAP_CA_BACA_ISI_MAKS_MS` (10 menit) sejak isi benar-benar dibaca; sesudah itu isi berkas dibaca dan di-hash ulang walau stat sama. Keputusan itu fungsi murni `perluBacaIsiCa` dengan uji JVM.
+
+
 ## [Belum rilis] — Hook pre-push memeriksa rentang per-ref sampai sha lokalnya (Audit 843)
 - Sisa Audit 816: template hook di `tools/pasang-hook.sh` hanya memakai ref pertama dan membentuk rentang `sha-remote..HEAD`, sehingga push multi-ref tak memeriksa ref lain dan push yang tip-nya bukan HEAD memeriksa isi yang salah. Kini hook mengumpulkan rentang `sha-remote..sha-lokal` untuk SETIAP baris stdin pre-push dan menjalankan gerbang untuk masing-masing; baris ber-sha-remote nol (branch baru) tetap jatuh ke mode lokal seperti sebelumnya. Terbukti di workspace buang: rentang bersih lolos, rentang dua commit yang memuat zip terlarang gagal dan menyebut berkasnya.
 

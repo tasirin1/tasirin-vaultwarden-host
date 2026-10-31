@@ -11,6 +11,16 @@ import org.junit.Test;
 public class ServerServiceTest {
 
     @Test
+    public void perluBacaIsiCa_statSamaHanyaSebentarDipercaya() {
+        assertFalse(ServerService.perluBacaIsiCa(true, 0));
+        assertFalse(ServerService.perluBacaIsiCa(true,
+                ServerService.CAP_CA_BACA_ISI_MAKS_MS - 1));
+        assertTrue(ServerService.perluBacaIsiCa(true,
+                ServerService.CAP_CA_BACA_ISI_MAKS_MS));
+        assertTrue(ServerService.perluBacaIsiCa(false, 0));
+    }
+
+    @Test
     public void caUntukHealthCheck_konteksNullMengembalikanNull() {
         assertNull(ServerService.caUntukHealthCheck(null));
     }

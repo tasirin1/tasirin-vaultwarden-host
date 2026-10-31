@@ -3027,6 +3027,19 @@ public class ServerService extends Service {
 
     private static volatile long capCaWaktu = 0;
 
+    private static volatile long capCaBacaIsiWaktu = 0;
+
+    static final long CAP_CA_BACA_ISI_MAKS_MS = 600_000;
+
+    // Pintasan sidik berdasar stat (mtime+panjang) hanya boleh dipercaya
+    // sebentar: dua CA berbeda bisa berbagi panjang & mtime terbaca yang
+    // sama (resolusi mtime kasar), dan sidik lama akan menempel selamanya
+    // karena tiap cek menyegarkan cap waktunya (Audit 844). Sesudah
+    // CAP_CA_BACA_ISI_MAKS_MS isi berkas dibaca ulang walau stat sama.
+    static boolean perluBacaIsiCa(boolean statSama, long umurBacaIsiMs) {
+        return !statSama || umurBacaIsiMs >= CAP_CA_BACA_ISI_MAKS_MS;
+    }
+
     static java.io.File caUntukHealthCheck(Context ctx) {
         try {
             if (ctx == null) return null;
@@ -3063,7 +3076,8 @@ public class ServerService extends Service {
             java.io.File ca = caUntukHealthCheck(ctx);
             if (ca != null && ca.isFile()) {
                 long stat = ca.lastModified() * 31 + ca.length();
-                if (stat == capCaStat) {
+                if (!perluBacaIsiCa(stat == capCaStat,
+                        kini2 - capCaBacaIsiWaktu)) {
 
                     capCaWaktu = kini2;
                     return capCaNilai;
@@ -3083,6 +3097,7 @@ public class ServerService extends Service {
                 capCaStat = stat;
                 capCaNilai = h;
                 capCaWaktu = kini2;
+                capCaBacaIsiWaktu = kini2;
                 return h;
             }
         } catch (Exception ignored) {
