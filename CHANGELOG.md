@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Enumerasi CA sistem yang terpotong tak lagi tercache permanen (Audit 839)
+- Sisa Audit 811: ambang `HttpsCompat.trustSistemCukup` hanya `> 0`, sehingga enumerasi `AndroidCAStore` yang terpotong di tengah (1–2 CA berhasil, sisanya gagal senyap) tetap dianggap berhasil dan factory miskin-CA itu tercache seumur proses — unduhan GitHub jalan tetapi host lain (Telegram) gagal TLS terus. Ambang kini berupa lantai `LANTAI_CA_SISTEM` = 50 (store Android utuh berisi jauh di atas 100 CA); di bawah lantai pembangunan melempar dan diproses mekanisme jeda-bangun-ulang/fallback bawaan seperti enumerasi nol. Uji JVM diperbarui ke batas baru.
+
+
 ## [Belum rilis] — Hasil baca sertifikat yang gagal tidak lagi dimemoisasi (Audit 838)
 - `TlsCert.sisaMsSekali` menyimpan hasil `bacaMasa` ke memo 60 detik tanpa membedakan sukses/gagal, sehingga satu kegagalan baca sesaat (I/O tersendat, berkas sedang ditukar) membuat sertifikat sehat dinilai "tak terbaca" selama semenit — retry 100 ms pun membaca memo yang sama — dan Start dalam jendela itu bisa mengganti CA yang sehat. Kini hanya bacaan sukses yang dimemoisasi; kegagalan selalu dibaca ulang dari berkas. Uji JVM baru menguncinya dengan berkas berstat identik (panjang + mtime sama) yang isinya berubah dari sampah menjadi sertifikat sah.
 

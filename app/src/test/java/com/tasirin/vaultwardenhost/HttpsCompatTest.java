@@ -16,7 +16,10 @@ public class HttpsCompatTest {
     public void trustSistemCukup_hanyaBilaAdaCaSistem() {
         assertFalse(HttpsCompat.trustSistemCukup(0));
         assertFalse(HttpsCompat.trustSistemCukup(-1));
-        assertTrue(HttpsCompat.trustSistemCukup(1));
+        // Enumerasi terpotong (segelintir CA) juga tak cukup (Audit 839).
+        assertFalse(HttpsCompat.trustSistemCukup(1));
+        assertFalse(HttpsCompat.trustSistemCukup(49));
+        assertTrue(HttpsCompat.trustSistemCukup(50));
         assertTrue(HttpsCompat.trustSistemCukup(140));
     }
 

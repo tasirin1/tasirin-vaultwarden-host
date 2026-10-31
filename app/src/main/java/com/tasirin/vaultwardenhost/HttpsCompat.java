@@ -222,8 +222,16 @@ public final class HttpsCompat {
         }
     }
 
+    // Lantai CA sistem yang dianggap enumerasi UTUH. Store Android utuh
+    // berisi jauh di atas 100 CA; enumerasi yang terpotong di tengah
+    // (sebagian alias gagal dibaca, galatnya ditelan) bisa menyisakan
+    // segelintir CA — factory sekurus itu tak boleh tercache permanen
+    // (Audit 839, lanjutan Audit 811). Gagal mencapai lantai = lempar,
+    // diproses mekanisme jeda-bangun-ulang seperti enumerasi nol.
+    static final int LANTAI_CA_SISTEM = 50;
+
     static boolean trustSistemCukup(int jumlahCaSistem) {
-        return jumlahCaSistem > 0;
+        return jumlahCaSistem >= LANTAI_CA_SISTEM;
     }
 
     private static SSLSocketFactory bangunFactory(Context ctx) throws Exception {
