@@ -637,22 +637,8 @@ public final class Updater {
     }
 
     static String sidikBerkas(File f) {
-        if (f == null || !f.isFile()) {
-            return "";
-        }
-        try {
-            java.security.MessageDigest md = Util.mdSha256();
-            try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = fis.read(buf)) != -1) {
-                    md.update(buf, 0, n);
-                }
-            }
-            return Util.heks(md.digest());
-        } catch (Exception e) {
-            return "";
-        }
+        String h = sha256Hex(f);
+        return h == null ? "" : h;
     }
 
     static void catatZipGagal(File penanda, File zip) {

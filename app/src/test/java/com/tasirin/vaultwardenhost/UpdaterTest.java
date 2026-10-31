@@ -150,6 +150,22 @@ public class UpdaterTest {
     }
 
     @Test
+    public void sidikBerkas_samaDenganSha256Hex_danKosongSaatGagal() throws Exception {
+        java.io.File f = java.io.File.createTempFile("vw-sidik-", ".bin");
+        try {
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(f)) {
+                o.write("isi uji sidik".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            org.junit.Assert.assertEquals(Updater.sha256Hex(f), Updater.sidikBerkas(f));
+            org.junit.Assert.assertEquals("", Updater.sidikBerkas(
+                    new java.io.File("/jalan/tak/ada/sidik.bin")));
+            org.junit.Assert.assertEquals("", Updater.sidikBerkas(null));
+        } finally {
+            f.delete();
+        }
+    }
+
+    @Test
     public void sha256Hex_cocokVektorEmasIndependen() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwsha").toFile();
 

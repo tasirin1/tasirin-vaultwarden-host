@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — sidikBerkas di Updater kini menumpang sha256Hex (Audit 826)
+- `Updater` sebelumnya memuat dua implementasi hash berkas yang sama: `sidikBerkas` (buffer 8 KB, galat menjadi `""`) dan `sha256Hex` (buffer 64 KB, galat menjadi `null`) — perbaikan pada satu salinan mudah tidak menjalar ke salinan lain, dan perbedaan sentinelnya mengundang salah pakai. `sidikBerkas` kini delegasi tipis ke `sha256Hex` dengan sentinel `""`-nya dipertahankan persis untuk pemanggil penanda zip, jadi perilakunya tidak berubah; satu-satunya implementasi hash berkas di Updater tinggal `sha256Hex`. (`SettingsActivity.sidikBerkas` sengaja tidak disentuh: semantik cadangannya berbeda — sidik banding impor dengan penanda `baca-gagal-…`.) Dikunci uji JVM baru.
+
+
 ## [Belum rilis] — Field Chat ID Telegram kini saveEnabled=false seperti field kredensial lain (Audit 825)
 - Semua field rahasia di kartu Telegram/Keamanan sebelumnya dilindungi `android:saveEnabled="false"` (token bot, kata sandi backup, token admin, PIN) kecuali field Chat ID (`@+id/tgChat`) — padahal chat ID diperlakukan sebagai kredensial di tempat lain (penyamaran log punya pola khusus untuknya). Isi field itu kini tidak lagi ikut tersimpan ke Bundle hierarki view saat activity disimpan sistem, menyamakan hardening-nya dengan field tetangganya.
 
