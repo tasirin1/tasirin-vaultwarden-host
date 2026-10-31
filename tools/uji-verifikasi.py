@@ -126,6 +126,19 @@ def main():
         rc, out = jalan(hilang, [sys.executable, GERBANG, "--semua"])
         periksa("workflow wajib hilang: gerbang gagal (Audit 813)",
                 rc != 0 and "gitleaks.yml" in out)
+        shutil.rmtree(hilang, ignore_errors=True)
+
+        kontrak = klon(tmp, "kontrak")
+        berkas_action = os.path.join(kontrak, ".github", "actions",
+                                     "resolve-vw", "action.yml")
+        with open(berkas_action, encoding="utf-8") as f:
+            isi_action = f.read()
+        with open(berkas_action, "w", encoding="utf-8") as f:
+            f.write(isi_action.replace("\n  tag_mentah:\n",
+                                       "\n  tagmentah:\n"))
+        rc, out = jalan(kontrak, [sys.executable, GERBANG, "--semua"])
+        periksa("keluaran resolve-vw diganti nama: gerbang gagal (Audit 814)",
+                rc != 0 and "tag_mentah" in out)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

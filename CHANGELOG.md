@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kontrak keluaran resolve-vw kini divalidasi gerbang (Audit 814)
+- Nama keluaran action komposit `resolve-vw` (`tag`, `tag_mentah`) sebelumnya tidak diperiksa silang dengan rujukan `steps.ambil.outputs.*` di kedua workflow: mengganti nama satu keluaran di `action.yml` saja membuat gerbang tetap LOLOS (terbukti pada salinan buang), dan kegagalannya baru muncul jauh di hilir — `build-binary` gagal di langkah ambil sumber sesudah memasang rustup + NDK, atau `build-apk` menulis `vw_version.txt` kosong. Gerbang kini mem-parse keluaran yang dideklarasikan action dan semua rujukan `steps.<id>.outputs.<nama>` dari langkah pemakai action di `build-apk.yml`/`build-binary.yml`, dan gagal bila ada rujukan tanpa deklarasi. Dikunci sebagai skenario baru di `tools/uji-verifikasi.py` (rename `tag_mentah` harus membuat gerbang gagal).
+
+
 ## [Belum rilis] — Keberadaan workflow & berkas CI wajib kini dijaga satu per satu oleh gerbang (Audit 813)
 - `cek_workflow_yaml` sebelumnya hanya memvalidasi berkas yang masih ada di `.github/workflows/`; menghapus satu workflow (mis. `gitleaks.yml` atau `cek-wajib.yml` karena konflik merge) membuat seluruh automasi itu mati tanpa satu pun sinyal — terbukti pada salinan buang, penghapusan `gitleaks.yml` tetap `LOLOS (164 berkas)`. Folder `.github/actions/` pun hanya tertangkap tak langsung lewat efek samping pola glob labeler. Gerbang kini memuat daftar `WORKFLOW_WAJIB` (9 workflow) dan `BERKAS_CI_WAJIB` (`resolve-vw/action.yml`) yang keberadaannya diperiksa satu per satu dengan pesan yang menyebut konsekuensinya; menghapus workflow secara sadar kini harus mengubah daftar itu di commit yang sama. Dikunci sebagai skenario baru di `tools/uji-verifikasi.py`.
 

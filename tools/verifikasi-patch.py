@@ -329,6 +329,42 @@ def cek_yaml_github_lain(gagal, peringatan):
             if data is not None and "runs" not in data:
                 gagal.append("%s tanpa kunci runs — action tak bisa "
                              "dipakai workflow" % rel)
+    rel_action = os.path.join(".github", "actions", "resolve-vw",
+                              "action.yml")
+    data_action = _muat_yaml_github(rel_action, gagal)
+    if data_action is not None:
+        keluaran = data_action.get("outputs")
+        nama_keluaran = set(keluaran) if isinstance(keluaran, dict) else set()
+        if not nama_keluaran:
+            gagal.append("%s tanpa outputs — kontrak resolve-vw kosong"
+                         % rel_action)
+        else:
+            for wf in ("build-apk.yml", "build-binary.yml"):
+                rel_wf = os.path.join(".github", "workflows", wf)
+                data_wf = _muat_yaml_github(rel_wf, gagal)
+                if data_wf is None:
+                    continue
+                mentah = baca(rel_wf)
+                id_pakai = set()
+                jobs = data_wf.get("jobs")
+                if isinstance(jobs, dict):
+                    for job in jobs.values():
+                        if not isinstance(job, dict):
+                            continue
+                        for langkah in job.get("steps") or []:
+                            if isinstance(langkah, dict) and \
+                                    "actions/resolve-vw" in str(
+                                        langkah.get("uses", "")):
+                                if langkah.get("id"):
+                                    id_pakai.add(str(langkah["id"]))
+                for idl in id_pakai:
+                    for rujukan in re.findall(
+                            r"steps\." + re.escape(idl)
+                            + r"\.outputs\.([A-Za-z0-9_-]+)", mentah):
+                        if rujukan not in nama_keluaran:
+                            gagal.append("%s merujuk outputs.%s yang tak "
+                                         "dideklarasikan %s"
+                                         % (rel_wf, rujukan, rel_action))
 
 def di_github_actions():
     return os.environ.get("GITHUB_ACTIONS") == "true"
