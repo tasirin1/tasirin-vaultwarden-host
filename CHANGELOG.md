@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nama produsen resolve-vw hanya dihitung dari echo ber-redirect $GITHUB_OUTPUT (Audit 867)
+- Sisa Audit 855: gerbang mengumpulkan nama keluaran dari `echo` mana pun di action.yml, sehingga echo log polos bernama sama bisa memenuhi kontrak sementara baris tulis sungguhan salah nama. Nama kini hanya dihitung dari baris echo yang benar-benar mengarah `>> …$GITHUB_OUTPUT`. Skenario uji-diri baru (baris tulis salah nama + echo umpan) menguncinya.
+
+
 ## [Belum rilis] — Pengupas komentar gerbang menghitung komentar blok bersarang (Audit 866)
 - Sisa Audit 854: `kupas_komentar_kotlin` berhenti di `*/` pertama, padahal komentar blok Kotlin resmi bisa bersarang — baris mode yang terbungkus `/* luar /* dalam */ … */` terbaca gerbang sebagai kode aktif dan cek `FAIL_ON_PROJECT_REPOS` terpenuhi palsu. Pemindai kini menghitung kedalaman sarang dan hanya keluar pada penutup terluar. Skenario uji-diri baru menguncinya.
 

@@ -346,8 +346,14 @@ def cek_yaml_github_lain(gagal, peringatan):
                     if isinstance(langkah, dict) and langkah.get("id"):
                         id_internal.add(str(langkah["id"]))
             mentah_action = baca(rel_action)
-            nama_ditulis = set(re.findall(
-                r"echo\s+\"?([A-Za-z0-9_-]+)=", mentah_action))
+            # Hanya echo yang benar-benar mengarah ke $GITHUB_OUTPUT
+            # yang dihitung (Audit 867): echo log polos bernama sama tak
+            # boleh memenuhi kontrak.
+            nama_ditulis = set()
+            for baris_act in mentah_action.splitlines():
+                if ">>" in baris_act and "GITHUB_OUTPUT" in baris_act:
+                    nama_ditulis.update(re.findall(
+                        r"echo\s+\"?([A-Za-z0-9_-]+)=", baris_act))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):

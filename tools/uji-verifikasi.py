@@ -153,6 +153,21 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        umpan = klon(tmp, "umpan")
+        berkas_ump = os.path.join(umpan, ".github", "actions",
+                                  "resolve-vw", "action.yml")
+        with open(berkas_ump, encoding="utf-8") as f:
+            isi_ump = f.read()
+        with open(berkas_ump, "w", encoding="utf-8") as f:
+            f.write(isi_ump.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+                '        echo "tag_mentah=$TAG"'))
+        rc, out = jalan(umpan, [sys.executable, GERBANG, "--semua"])
+        periksa("echo log umpan nama produsen: gerbang gagal (Audit 867)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpan, ignore_errors=True)
+
         prod = klon(tmp, "prod")
         berkas_prod = os.path.join(prod, ".github", "actions",
                                    "resolve-vw", "action.yml")
