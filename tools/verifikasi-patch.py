@@ -291,6 +291,78 @@ def _muat_yaml_github(rel, gagal):
         return None
     return data
 
+def pecah_segmen_shell(baris):
+    """Pecah satu baris shell menjadi segmen perintah pada `;` dan
+    `&&` yang berada DI LUAR kutip (Audit 874): pemisah di dalam teks
+    berkutip adalah data, bukan pemisah perintah — memecah buta di
+    sana mengarang segmen semu dari isi string."""
+    segmen = []
+    kini = []
+    i = 0
+    n = len(baris)
+    kutip = ""
+    while i < n:
+        c = baris[i]
+        if kutip:
+            kini.append(c)
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                kini.append(baris[i + 1])
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            kini.append(c)
+            i += 1
+            continue
+        if c == ";":
+            segmen.append("".join(kini))
+            kini = []
+            i += 1
+            continue
+        if c == "&" and i + 1 < n and baris[i + 1] == "&":
+            segmen.append("".join(kini))
+            kini = []
+            i += 2
+            continue
+        kini.append(c)
+        i += 1
+    segmen.append("".join(kini))
+    return segmen
+
+
+def segmen_redirect_output(segmen):
+    """True bila segmen memuat redirect `>>` ke PERSIS $GITHUB_OUTPUT
+    yang berada DI LUAR kutip dan menjadi penutup segmen (Audit 874):
+    redirect di dalam teks berkutip adalah data, bukan penulisan."""
+    i = 0
+    n = len(segmen)
+    kutip = ""
+    while i < n:
+        c = segmen[i]
+        if kutip:
+            if c == "\\" and kutip == '"':
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == ">" and i + 1 < n and segmen[i + 1] == ">":
+            sisa = segmen[i + 2:].strip()
+            return sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
+                            '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
+        i += 1
+    return False
+
+
 def cek_yaml_github_lain(gagal, peringatan):
     # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
     # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
@@ -355,15 +427,16 @@ def cek_yaml_github_lain(gagal, peringatan):
             # perintah (Audit 872): baris komentar shell dilewati, dan
             # nama hanya diambil dari segmen echo yang redirect-nya
             # persis — echo umpan pada baris majemuk yang sama tak ikut.
+            # Pemecahan segmen sadar kutip (Audit 874).
             nama_ditulis = set()
             for baris_act in mentah_action.splitlines():
                 if baris_act.lstrip().startswith("#"):
                     continue
-                for segmen in re.split(r";|&&", baris_act):
-                    if re.search(r">>\s*\"?\$\{?GITHUB_OUTPUT\}?\"?\s*$",
-                                 segmen):
-                        nama_ditulis.update(re.findall(
-                            r"echo\s+\"?([A-Za-z0-9_-]+)=", segmen))
+                for segmen in pecah_segmen_shell(baris_act):
+                    m_nama = re.match(
+                        r"\s*echo\s+\"?([A-Za-z0-9_-]+)=", segmen)
+                    if m_nama and segmen_redirect_output(segmen):
+                        nama_ditulis.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):

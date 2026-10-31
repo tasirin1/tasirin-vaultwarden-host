@@ -198,6 +198,21 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpanmajemuk, ignore_errors=True)
 
+        umpankutip = klon(tmp, "umpankutip")
+        berkas_uq = os.path.join(umpankutip, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_uq, encoding="utf-8") as f:
+            isi_uq = f.read()
+        with open(berkas_uq, "w", encoding="utf-8") as f:
+            f.write(isi_uq.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+                '        echo "catatan; echo tag_mentah=x >> $GITHUB_OUTPUT"'))
+        rc, out = jalan(umpankutip, [sys.executable, GERBANG, "--semua"])
+        periksa("titik koma dalam kutip nama produsen: gerbang gagal (Audit 874)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpankutip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pencocokan produsen gerbang sadar kutip penuh (Audit 874)
+- Sisa Audit 872: baris action dipecah pada `;`/`&&` tanpa sadar kutip dan nama/redirect dicocokkan dari seluruh segmen, sehingga teks di dalam kutip — `echo "catatan; echo tag_mentah=x >> $GITHUB_OUTPUT"` — mengarang penulisan semu yang memenuhi kontrak sementara baris tulis sungguhan salah nama. Pemecahan segmen kini sadar kutip, nama wajib menjadi argumen pertama echo di kepala segmen, dan redirect wajib berada di luar kutip serta menunjuk persis berkas keluaran sebagai penutup segmen. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pengupas komentar gerbang mengenali char literal Kotlin (Audit 873)
 - Sisa Audit 854/866/869: `kupas_komentar_kotlin` tidak mengenal char literal, sehingga petik di dalam char seperti `'"'` dibaca sebagai awal string dan pemindai desinkron dua arah — komentar berisi teks paku AGP terbaca sebagai kode (fail-open) dan kode sehat di settings tertelan sebagai isi string (gagal palsu). Char literal (termasuk escape dan `\uXXXX`) kini dikenali sebagai satu token. Dua skenario uji-diri baru menguncinya dari kedua arah.
 
