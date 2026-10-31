@@ -1288,16 +1288,40 @@ def pemanggil(nama):
                     return temu
     return temu
 
+VERSI_AGP_TERPAKU = "8.13.2"
+REPO_SETTINGS_BOLEH = ("google()", "mavenCentral()", "gradlePluginPortal()")
+
+
+def blok_repositories(isi):
+    """Semua isi blok `repositories { ... }` (kurung dihitung)."""
+    hasil = []
+    for m in re.finditer(r"repositories\s*\{", isi):
+        i = m.end()
+        dalam = 1
+        j = i
+        while j < len(isi) and dalam:
+            if isi[j] == "{":
+                dalam += 1
+            elif isi[j] == "}":
+                dalam -= 1
+            j += 1
+        hasil.append(isi[i:j - 1])
+    return hasil
+
+
 def cek_gradle_akar(gagal):
     isi = baca("build.gradle.kts")
     if not os.path.isfile(os.path.join(AKAR, "build.gradle.kts")):
         gagal.append("build.gradle.kts (akar) hilang — versi plugin AGP "
                      "tak terpaku")
     elif not re.search(r'id\("com\.android\.application"\)\s+version\s+"'
-                       r'[0-9][0-9A-Za-z.\-]*"\s+apply\s+false', isi):
-        gagal.append("build.gradle.kts (akar): plugin com.android.application "
-                     "tanpa versi terpaku + apply false — app/build.gradle.kts "
-                     "menerapkannya tanpa versi")
+                       + re.escape(VERSI_AGP_TERPAKU)
+                       + r'"\s+apply\s+false', isi):
+        gagal.append("build.gradle.kts (akar): versi plugin "
+                     "com.android.application bukan versi terpaku "
+                     + VERSI_AGP_TERPAKU + " + apply false — mengganti versi "
+                     "AGP wajib menyelaraskan VERSI_AGP_TERPAKU di "
+                     "verifikasi-patch pada commit yang sama (Audit 835)")
     isi = baca("settings.gradle.kts")
     if not os.path.isfile(os.path.join(AKAR, "settings.gradle.kts")):
         gagal.append("settings.gradle.kts hilang — mode repositori tak "
@@ -1311,6 +1335,15 @@ def cek_gradle_akar(gagal):
             if repo not in isi:
                 gagal.append("settings.gradle.kts: repositori %s hilang dari "
                              "daftar yang dipaku" % repo)
+        for blok in blok_repositories(isi):
+            for entri in re.findall(r"[A-Za-z_][A-Za-z0-9_.]*\s*\([^)]*\)"
+                                    r"(?:\s*\{[^}]*\})?", blok):
+                entri = entri.strip()
+                if entri not in REPO_SETTINGS_BOLEH:
+                    gagal.append("settings.gradle.kts: repositori tak "
+                                 "diizinkan di blok repositories: %s — hanya "
+                                 "google()/mavenCentral()/gradlePluginPortal() "
+                                 "yang terpaku (Audit 835)" % entri)
     isi = baca("gradle.properties")
     if not os.path.isfile(os.path.join(AKAR, "gradle.properties")):
         gagal.append("gradle.properties hilang")

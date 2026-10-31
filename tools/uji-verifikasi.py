@@ -153,6 +153,32 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        agp = klon(tmp, "agp")
+        berkas_akar = os.path.join(agp, "build.gradle.kts")
+        with open(berkas_akar, encoding="utf-8") as f:
+            isi_akar = f.read()
+        with open(berkas_akar, "w", encoding="utf-8") as f:
+            f.write(isi_akar.replace('version "8.13.2"', 'version "9.9.9"'))
+        rc, out = jalan(agp, [sys.executable, GERBANG, "--semua"])
+        periksa("versi AGP diganti dari terpaku: gerbang gagal (Audit 835)",
+                rc != 0 and "8.13.2" in out)
+        shutil.rmtree(agp, ignore_errors=True)
+
+        asing = klon(tmp, "asing")
+        berkas_set2 = os.path.join(asing, "settings.gradle.kts")
+        with open(berkas_set2, encoding="utf-8") as f:
+            isi_set2 = f.read()
+        with open(berkas_set2, "w", encoding="utf-8") as f:
+            f.write(isi_set2.replace(
+                "        google()\n        mavenCentral()\n    }\n}\nrootProject",
+                "        google()\n        mavenCentral()\n"
+                "        maven { url = uri(\"https://repo-asing.example.com/\") }\n"
+                "    }\n}\nrootProject"))
+        rc, out = jalan(asing, [sys.executable, GERBANG, "--semua"])
+        periksa("repositori asing di settings: gerbang gagal (Audit 835)",
+                rc != 0 and "maven" in out)
+        shutil.rmtree(asing, ignore_errors=True)
+
         yatim = klon(tmp, "yatim")
         berkas_yatim = os.path.join(yatim, "app", "src", "main", "res",
                                     "layout-land", "yatimuji.xml")

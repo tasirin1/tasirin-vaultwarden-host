@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memaku versi AGP persis & menolak repositori asing (Audit 835)
+- Sisa Audit 815: regex gerbang menerima versi AGP terpaku apa pun dan keberadaan repositori asing di settings lolos. Kini `tools/verifikasi-patch.py` memaku versi persis lewat konstanta `VERSI_AGP_TERPAKU` (mengganti versi AGP wajib menyelaraskan konstanta itu pada commit yang sama) dan memvalidasi isi setiap blok `repositories` di `settings.gradle.kts` terhadap daftar izin `google()`/`mavenCentral()`/`gradlePluginPortal()`. Dua skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Baris CODEOWNERS yang tak terjangkau dihapus (Audit 834)
 - Baris pertama `.github/CODEOWNERS` (`* @tasirin1`) sudah mencakup semua berkas, sehingga baris `.github/ @tasirin1` tidak pernah menjadi penentu kepemilikan (pemiliknya pun sama). Baris mati itu dihapus agar cakupan kepemilikan tidak membingungkan pembaca; perilaku peninjauan tidak berubah.
 
