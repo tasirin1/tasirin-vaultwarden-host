@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Loop kupas melewati operator aritmetika (Audit 926)
+- Regresi Audit 920, arah fail-closed: loop kupas pembungkus mencatat kurung ganda di posisi perintah sebagai dua subshell bertumpuk, sehingga tumpukan berisi entri gadungan dan penutup grup sesudahnya diabaikan. Kurung ganda kini dilewati sebagai operator aritmetika tanpa mencatat pembungkus. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pelacakan ekspansi parameter hanya di tingkat luar (Audit 925)
 - Arah fail-closed: penurunan counter ekspansi pada penolong Audit 919 tak dijaga kedalaman substitusi, sehingga kurung tutup literal di dalam perintah-dalam menutup ekspansi secara keliru dan panah data sesudahnya terbaca sebagai redirect sendiri. Kenaikan dan penurunan counter kini sama-sama hanya berlaku di tingkat luar. Skenario uji-diri baru menguncinya.
 

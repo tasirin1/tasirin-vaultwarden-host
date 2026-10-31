@@ -1071,6 +1071,24 @@ def main():
                 "lolos (Audit 925)", rc == 0)
         shutil.rmtree(paramsub, ignore_errors=True)
 
+        aritmetika = klon(tmp, "aritmetika")
+        berkas_aksi53 = os.path.join(
+            aritmetika, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi53, encoding="utf-8") as f:
+            isi_aksi53 = f.read()
+        baris_tulis53 = [b for b in isi_aksi53.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi53, "w", encoding="utf-8") as f:
+            f.write(isi_aksi53.replace(
+                baris_tulis53,
+                baris_tulis53.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ (( 1 > 0 )); echo "tag_mentah=$TAG"; }'), 1))
+        rc, out = jalan(aritmetika, [sys.executable, GERBANG, "--semua"])
+        periksa("operator aritmetika bukan subshell gadungan: gerbang "
+                "lolos (Audit 926)", rc == 0)
+        shutil.rmtree(aritmetika, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

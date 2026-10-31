@@ -823,10 +823,19 @@ def cek_yaml_github_lain(gagal, peringatan):
                     # dalamnya tetap penulisan sungguhan bagi shell.
                     segmen_cek = segmen.lstrip()
                     bukaan = []
-                    while (segmen_cek[:1] == "("
-                           or (segmen_cek[:1] == "{"
-                               and (len(segmen_cek) == 1
-                                    or segmen_cek[1] in " \t"))):
+                    while True:
+                        if segmen_cek.startswith("(("):
+                            # `((` di posisi perintah adalah operator
+                            # aritmetika, bukan dua subshell bertumpuk
+                            # (Audit 926): lewati tanpa mencatat
+                            # pembungkus.
+                            segmen_cek = segmen_cek[2:].lstrip()
+                            continue
+                        if not (segmen_cek[:1] == "("
+                                or (segmen_cek[:1] == "{"
+                                    and (len(segmen_cek) == 1
+                                         or segmen_cek[1] in " \t"))):
+                            break
                         # `{` hanya pembuka grup bila berdiri sebagai
                         # kata tersendiri — `{echo` adalah satu kata
                         # perintah, bukan grup (Audit 913); `(` memang
