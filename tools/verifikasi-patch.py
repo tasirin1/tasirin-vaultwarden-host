@@ -618,6 +618,12 @@ def cek_yaml_github_lain(gagal, peringatan):
                     segmen_cek = segmen.lstrip()
                     while segmen_cek[:1] in ("{", "("):
                         segmen_cek = segmen_cek[1:].lstrip()
+                    if (segmen.lstrip().startswith("{")
+                            and segmen_cek.rstrip().endswith(" }")):
+                        # Grup satu baris tanpa `;` sebelum `}` penutup
+                        # adalah sintaks tak sah — `}` di sana argumen
+                        # biasa, bukan penutup grup (Audit 905).
+                        continue
                     m_nama = re.match(
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
                     if m_nama and segmen_redirect_output(segmen_cek):

@@ -670,6 +670,26 @@ def main():
                 rc == 0)
         shutil.rmtree(purbaekor, ignore_errors=True)
 
+        grupcacat = klon(tmp, "grupcacat")
+        berkas_aksi32 = os.path.join(
+            grupcacat, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi32, encoding="utf-8") as f:
+            isi_aksi32 = f.read()
+        baris_tulis32 = [b for b in isi_aksi32.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indentasi32 = baris_tulis32[:len(baris_tulis32)
+                                     - len(baris_tulis32.lstrip())]
+        with open(berkas_aksi32, "w", encoding="utf-8") as f:
+            f.write(isi_aksi32.replace(
+                baris_tulis32,
+                indentasi32 + "{ " + baris_tulis32.strip() + " }", 1))
+        rc, out = jalan(grupcacat, [sys.executable, GERBANG, "--semua"])
+        periksa("grup tanpa titik-koma bukan produsen: gerbang gagal "
+                "(Audit 905)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(grupcacat, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
