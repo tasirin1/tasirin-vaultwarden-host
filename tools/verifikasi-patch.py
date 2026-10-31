@@ -413,6 +413,13 @@ def segmen_redirect_output(segmen):
             kutip = c
             i += 1
             continue
+        if c in "><" and i + 1 < n and segmen[i + 1] == "(":
+            # Substitusi proses `>(...)`/`<...)`: kurungnya membuka
+            # kedalaman seperti substitusi perintah — isinya milik
+            # perintah lain, bukan perintah ini (Audit 901/902).
+            dalam += 1
+            i += 2
+            continue
         if c == "$" and i + 1 < n and segmen[i + 1] == "(":
             # Masuk substitusi perintah: redirect di dalamnya milik
             # perintah-dalam, bukan perintah ini (Audit 899/900).

@@ -600,6 +600,25 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(subarg, ignore_errors=True)
 
+        proses = klon(tmp, "proses")
+        berkas_aksi28 = os.path.join(
+            proses, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi28, encoding="utf-8") as f:
+            isi_aksi28 = f.read()
+        baris_tulis28 = [b for b in isi_aksi28.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi28, "w", encoding="utf-8") as f:
+            f.write(isi_aksi28.replace(
+                baris_tulis28,
+                baris_tulis28.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '>(cat >> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(proses, [sys.executable, GERBANG, "--semua"])
+        periksa("substitusi proses bukan produsen: gerbang gagal (Audit 901)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(proses, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Substitusi proses membuka kedalaman pada penilai gerbang (Audit 901)
+- Arah fail-open: pelacak kedalaman hanya mengenal substitusi perintah `$(`, sehingga redirect di dalam substitusi proses `>(...)`/`<...)` — yang hanyalah argumen jalur fd dan tak menuliskan apa pun dari perintah luar — dinilai sebagai penulisan perintah itu sendiri. Kurung substitusi proses kini membuka kedalaman yang sama. Skenario uji-diri baru menguncinya; arah sebaliknya (Audit 902) dikunci skenario pada commit berikutnya.
+
+
 ## [Belum rilis] — Skenario substitusi argumen mengunci arah fail-open Audit 900
 - Arah fail-open dari akar yang sama dengan Audit 899: redirect di dalam substitusi perintah argumen (`$(true >> "$GITHUB_OUTPUT")`) adalah penulisan perintah-dalam tanpa keluaran, bukan penulisan echo luar — mekanismenya sudah ditutup perbaikan Audit 899 (kedalaman substitusi + target satu kata); entri ini menambahkan skenario uji-diri yang mengunci arah ini agar tak regresi.
 
