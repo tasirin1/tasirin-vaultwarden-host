@@ -256,6 +256,27 @@ def main():
                 rc == 0)
         shutil.rmtree(prodkom, ignore_errors=True)
 
+        umpankomen = klon(tmp, "umpankomen")
+        berkas_aksi9 = os.path.join(
+            umpankomen, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi9, encoding="utf-8") as f:
+            isi_aksi9 = f.read()
+        baris_tulis9 = [b for b in isi_aksi9.splitlines()
+                        if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_aksi9 = isi_aksi9.replace(
+            'echo "tag_mentah=', 'echo "salah_nama=', 1)
+        isi_aksi9 = isi_aksi9.replace(
+            baris_tulis9.replace("tag_mentah", "salah_nama"),
+            baris_tulis9.replace("tag_mentah", "salah_nama")
+            + '\n          echo "catatan" # komentar && echo'
+            ' "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"', 1)
+        with open(berkas_aksi9, "w", encoding="utf-8") as f:
+            f.write(isi_aksi9)
+        rc, out = jalan(umpankomen, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen semu di komentar tengah baris: gerbang gagal (Audit 881)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpankomen, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -291,6 +291,34 @@ def _muat_yaml_github(rel, gagal):
         return None
     return data
 
+def _potong_komentar_shell(baris):
+    """Buang komentar shell dari satu baris: `#` di luar kutip yang
+    mengawali kata (sesudah awal baris/spasi/`;`/`&`/`|`) membuka
+    komentar — teks sesudahnya tak dieksekusi shell dan tak boleh
+    dihitung sebagai perintah (Audit 881)."""
+    kutip = None
+    i = 0
+    n = len(baris)
+    while i < n:
+        c = baris[i]
+        if kutip:
+            if c == "\\" and kutip == '"':
+                i += 2
+                continue
+            if c == kutip:
+                kutip = None
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "#" and (i == 0 or baris[i - 1] in " \t;&|"):
+            return baris[:i]
+        i += 1
+    return baris
+
+
 def pecah_segmen_shell(baris):
     """Pecah satu baris shell menjadi segmen perintah pada `;` dan
     `&&` yang berada DI LUAR kutip (Audit 874): pemisah di dalam teks
@@ -437,7 +465,8 @@ def cek_yaml_github_lain(gagal, peringatan):
             for baris_act in mentah_action.splitlines():
                 if baris_act.lstrip().startswith("#"):
                     continue
-                for segmen in pecah_segmen_shell(baris_act):
+                for segmen in pecah_segmen_shell(
+                        _potong_komentar_shell(baris_act)):
                     m_nama = re.match(
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen)
                     if m_nama and segmen_redirect_output(segmen):

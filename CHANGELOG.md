@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemindaian produsen gerbang membuang komentar shell tengah baris (Audit 881)
+- Sisa keluarga Audit 872/874 arah fail-open: teks sesudah `#` di tengah baris adalah komentar bagi shell (tak dieksekusi), tetapi pemecah segmen tetap mengolahnya — contoh perintah di komentar baris majemuk dan redirect yang tertulis di dalam komentar sama-sama dihitung sebagai produsen, sehingga kontrak keluaran bisa terpenuhi semu sementara keluaran sungguhan kosong di runtime. Baris kini dipotong pada awal komentar shell (di luar kutip, `#` yang mengawali kata) sebelum dipecah per segmen. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pengupas gerbang melewati komentar di dalam template string (Audit 880)
 - Sisa Audit 877 arah fail-closed: penolong template menghitung kurung dan melompati string/char, tetapi tidak melewati komentar — petik di dalam komentar blok di dalam `${...}` (bentuk Kotlin sah) dibaca sebagai awal string bersarang dan menelan hampir seluruh berkas, sehingga berkas Gradle sehat digagalkan palsu. Komentar baris dan komentar blok (termasuk bersarang) di dalam template kini dilewati utuh. Skenario uji-diri baru menguncinya.
 
