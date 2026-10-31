@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga dialog-sedang-tampil untuk konfirmasi restore Telegram (Audit 853)
+- Konfirmasi restore Telegram tak punya penjaga tampil seperti dialog impor (Audit 597): siklus pause→resume saat dialog masih terbuka (layar PIN, dialog izin, pindah aplikasi lalu kembali) membuat `onResume` menampilkan dialog kedua yang menumpuk dan berbagi berkas serta field tertunda yang sama — menekan "Tidak" di satu dialog bisa menghapus berkas yang sedang dibaca restore dari dialog lain. Kini `tanyaRestoreTelegram` menolak tampil ganda lewat penanda `dialogRestoreTgTampil` yang dibersihkan di kedua tombol.
+
+
 ## [Belum rilis] — Berkas restore Telegram tertunda dikecualikan dari sapuan TTL cache (Audit 852)
 - Sapuan cache `bersihkanExportPlainCache` menghapus semua `vwtg-restore-*.zip` yang berumur lebih dari 1 jam tanpa kecuali — termasuk berkas yang konfirmasi restore-nya masih tertunda, padahal sesudah Audit 808 keadaan tertunda itu disimpan di Bundle dan sah hidup melewati 1 jam. Pengguna yang kembali sesudahnya mendapati tertundanya dibersihkan diam-diam atau restore gagal "berkas hilang". Berkas tertunda kini dikecualikan dari sapuan, sejalan dengan pengecualian berkas impor tertunda yang sudah ada.
 

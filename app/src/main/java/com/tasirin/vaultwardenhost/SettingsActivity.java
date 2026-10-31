@@ -124,6 +124,8 @@ public class SettingsActivity extends Activity {
     // tak menumpuk dialog kedua pada jeda/resume biasa (Audit 597).
     private boolean dialogImporTampil = false;
 
+    private boolean dialogRestoreTgTampil = false;
+
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
 
     static final long RESTORE_TG_TTL_MS = 60L * 60 * 1000;
@@ -2346,14 +2348,24 @@ public class SettingsActivity extends Activity {
     private void tanyaRestoreTelegram(final File tmp, final String fname) {
         restoreTgTertundaFile = tmp;
         restoreTgTertundaNama = fname;
+        // Penjaga dialog-tampil seperti jalur impor (Audit 853): tanpa
+        // ini, onResume yang berputar saat dialog masih terbuka (layar
+        // PIN, dialog izin, pindah aplikasi) menumpuk dialog kedua yang
+        // berbagi berkas & field tertunda yang sama.
+        if (dialogRestoreTgTampil) {
+            return;
+        }
+        dialogRestoreTgTampil = true;
         confirm(getString(R.string.restore_tg_judul),
                 getString(R.string.restore_tg_pesan, fname),
                 () -> {
+                    dialogRestoreTgTampil = false;
                     restoreTgTertundaFile = null;
                     restoreTgTertundaNama = null;
                     runBusy(() -> restoreTelegramTerkonfirmasi(tmp));
                 },
                 () -> {
+                    dialogRestoreTgTampil = false;
                     restoreTgTertundaFile = null;
                     restoreTgTertundaNama = null;
                     try {
