@@ -350,9 +350,12 @@ OVERRIDE_AMAN = {
 }
 
 def jalan(*args):
+    args = list(args)
+    if args and args[0] == "git":
+        args = ["git", "-c", "core.quotepath=false"] + args[1:]
     try:
         hasil = subprocess.run(
-            list(args), cwd=AKAR, capture_output=True, text=True,
+            args, cwd=AKAR, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=60)
     except Exception:
         return None

@@ -108,6 +108,17 @@ def main():
         rc, out = jalan(kosong, [sys.executable, GERBANG, "--semua"])
         periksa("kedua strings.xml kosong: gerbang gagal (Audit 765)",
                 rc != 0 and "Kedua strings.xml" in out)
+        shutil.rmtree(kosong, ignore_errors=True)
+
+        nonascii = klon(tmp, "nonascii")
+        with open(os.path.join(nonascii, "data-\u00fc.zip"), "wb") as f:
+            f.write(b"PK\x03\x04")
+        git(nonascii, "add", "-A")
+        git(nonascii, "commit", "-q", "-m", "uji non-ascii")
+        rc, out = jalan(nonascii, [sys.executable, GERBANG,
+                                   "--rentang", "HEAD~1..HEAD"])
+        periksa("berkas terlarang bernama non-ASCII tertangkap (Audit 812)",
+                rc != 0 and "data-\u00fc.zip" in out)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

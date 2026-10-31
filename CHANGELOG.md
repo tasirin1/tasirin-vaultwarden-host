@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nama berkas non-ASCII tak lagi lolos kedua gerbang (Audit 812)
+- `git diff --name-only`/`ls-files` secara bawaan mengutip nama berkas non-ASCII menjadi bentuk oktal bertanda kutip (`"data-\303\274.zip"`), sehingga path itu tidak ada di disk dan dilewati diam-diam oleh cek ekstensi terlarang, magic biner, dan ukuran di `verifikasi-patch.py`, dan pola akhiran di `cek-cepat.sh` tidak cocok karena baris berakhiran `.zip"`. Satu berkas `.zip`/biner bernama non-ASCII dengan isi terlarang bisa lolos kedua gerbang CI (mode `--rentang`). Kini semua panggilan git di gerbang berjalan dengan `core.quotepath=false` (disisipkan terpusat di penolong `jalan()`), dan panggilan git pencatat nama di `cek-cepat.sh` memakai bendera yang sama. Terbukti dua arah pada salinan buang (zip ASCII dan non-ASCII sama-sama tertangkap) dan dikunci permanen sebagai skenario baru di `tools/uji-verifikasi.py`.
+
+
 ## [Belum rilis] — Trust store terdegradasi tak lagi disimpan permanen oleh HttpsCompat (Audit 811)
 - `bangunFactory` sebelumnya menelan semua kegagalan pemuatan `AndroidCAStore` dan tetap menyimpan factory hasilnya ke cache permanen, tanpa memeriksa berapa sertifikat sistem yang benar-benar masuk. Bila enumerasi CA sistem diam-diam menghasilkan nol sertifikat pada perangkat lama, factory yang dipercaya semua unduhan dan jalur Telegram hanya berisi rantai GitHub seumur proses: koneksi ke host lain (mis. api.telegram.org) gagal TLS terus sampai aplikasi mati, tanpa pernah dicoba bangun ulang. Kini jumlah CA sistem yang terpasang dihitung; bila nol, pembangunan dinyatakan gagal (keputusan murni `trustSistemCukup`, dikunci uji JVM) sehingga mekanisme jeda-dan-coba-lagi yang sudah ada yang berlaku, bukan cache permanen yang rusak.
 

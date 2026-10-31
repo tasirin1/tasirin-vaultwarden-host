@@ -52,9 +52,9 @@ done
 
 POLA_TERLARANG='\.(apk|aab|zip|jks|keystore|p12|pfx|so|a|dex)$|/vaultwarden-armeabi|/libgetrandom-shim-|(^|/)keystore|(^|/)\.env(\.|$)|app/src/main/assets/bin/|(^|/)vw_version\.txt$'
 TERLARANG="$(
-  git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
-  git ls-files 2>/dev/null || true
-  git ls-files --others --exclude-standard 2>/dev/null || true
+  git -c core.quotepath=false diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
+  git -c core.quotepath=false ls-files 2>/dev/null || true
+  git -c core.quotepath=false ls-files --others --exclude-standard 2>/dev/null || true
 )"
 if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -iE "$POLA_TERLARANG" || true)" ]; then
   gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
@@ -102,14 +102,14 @@ if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.
 
 POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|$POLA_TOKEN"
-RAHASIA="$( { git grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
-BUNGKUS="$({ git ls-files; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r f; do
+RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
+BUNGKUS="$({ git -c core.quotepath=false ls-files; git -c core.quotepath=false ls-files --others --exclude-standard; } | sort -u | while IFS= read -r f; do
   if [ -f "$f" ] && tr -d '\n\r' < "$f" 2>/dev/null | grep -q -E -- "$POLA_TOKEN"; then
     printf '%s\n' "$f"
   fi
 done || true)"
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
-BARU_RAHASIA="$(git ls-files --others --exclude-standard | while IFS= read -r f; do
+BARU_RAHASIA="$(git -c core.quotepath=false ls-files --others --exclude-standard | while IFS= read -r f; do
   if [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
     printf '%s\n' "$f"
   fi
