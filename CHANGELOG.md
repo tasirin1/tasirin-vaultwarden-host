@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Isi berkas web-vault kini ikut di-fsync sebelum swap (Audit 828)
+- Pemasangan web-vault sebelumnya hanya mem-fsync direktori staging (dan data folder) sebelum direktori ditukar masuk, tetapi isi tiap berkas hasil unzip tidak pernah di-fsync — menyimpang dari jalur binary/penanda versi di repo ini yang selalu mem-fsync isi sebelum rename. Mati listrik tepat sesudah swap bisa menyisakan entri direktori yang awet dengan isi berkas kosong/robek, dan pemeriksaan runtime hanya memastikan `index.html` ada dan tak kosong. Kini setiap berkas hasil unzip di-`getFD().sync()` sebelum ditutup.
+
+
 ## [Belum rilis] — syncDirAman di Updater disatukan ke TlsCert.fsyncDirektori (Audit 827)
 - `Updater.syncDirAman` adalah salinan kedua persis dari `TlsCert.fsyncDirektori` (buka direktori + `Os.fsync` + tutup, semua galat ditelan) — melanggar prinsip satu pintu repo, dan pola pintunya sudah dipakai lintas kelas (`ServerService.writeText` memanggil `TlsCert.fsyncDirektori` langsung). Tiga situs panggil di Updater kini memakai pintu yang sama dan salinannya dihapus (namanya dicatat di `tools/bekas-hapusan.txt` agar tak dipakai ulang). Perilaku tidak berubah.
 

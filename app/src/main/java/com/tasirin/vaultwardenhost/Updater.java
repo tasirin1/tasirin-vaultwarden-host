@@ -2058,6 +2058,7 @@ public final class Updater {
                                             Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, n);
                                 }
+                                fos.getFD().sync();
                             }
                         }
                         zis.closeEntry();
