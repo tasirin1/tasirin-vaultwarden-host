@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kirim CA kini terisolasi per-chat dan memakai ulang file_id (Audit 820)
+- `kirimCa` sebelumnya mengunggah CA dengan satu loop tanpa isolasi: satu chat rusak (bot diblokir/chat berubah) menggagalkan seluruh perintah `/ca`, chat sesudahnya tak pernah dicoba, dan pengguna menerima "Kirim CA gagal" padahal chat sebelumnya sudah menerima CA — ditambah unggahan multipart penuh berulang ke tiap chat. Jalurnya kini meniru jalur backup (Audit 793/795): kegagalan diisolasi per-chat dan dilaporkan sebagai sukses sebagian di pesan hasil, kegagalan di semua chat barulah galat, dan chat lanjutan menerima CA yang sama lewat `file_id` hasil unggahan pertama (jatuh kembali ke unggahan penuh per-chat bila by-id gagal, dengan jejak di log).
+
+
 ## [Belum rilis] — Shim: fd nonblocking kini di-cache seperti jalur blocking (Audit 819)
 - `isi_dari_nonblok` sebelumnya membuka dan menutup `/dev/urandom`/`/dev/random` pada setiap panggilan `getrandom` berbendera `GRND_NONBLOCK`/`GRND_INSECURE` (jalur yang dipakai runtime Rust/TLS untuk handshake dan nonce), membayar `open`+`close` + lookup path per panggilan di kernel STB lama. Jalur nonblocking kini meng-cache fd per sumber dengan mutex per sumber — pola yang sama persis dengan jalur blocking — termasuk pemulihan EBADF terbatas (maks 3 kali per panggilan) yang kini diperlukan karena fd berumur panjang. Semantik hasil tidak berubah: EAGAIN sesudah terisi sebagian tetap mengembalikan jumlah yang terisi, dan galat lain diteruskan apa adanya.
 

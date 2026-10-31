@@ -2060,14 +2060,44 @@ public final class TgBackup {
             throw new IOException("CA belum ada. Tekan Start dulu agar CA dibuat.");
         }
         File tmp = siapkanFileKirimCa(ca, ctx.getCacheDir(), stempelUnik());
+        java.util.List<String> gagalCa = new java.util.ArrayList<>();
+        int terkirimCa = 0;
         try {
             if (!semuaChatAman(chat)) {
                 throw new IOException("Chat ID Telegram tidak valid"
                         + " - periksa pengaturan bot.");
             }
             java.util.List<String> tujuanCa = daftarChatTujuan(chat);
+            String fileIdCa = null;
             for (int ci = 0; ci < tujuanCa.size(); ci++) {
-                uploadTelegram(ctx, token, tujuanCa.get(ci), tmp);
+                try {
+                    String resp = null;
+                    if (fileIdCa != null) {
+                        try {
+                            resp = kirimDokumenById(ctx, token, tujuanCa.get(ci),
+                                    fileIdCa);
+                        } catch (Exception eById) {
+                            ServerService.catatLog("[tg] Kirim CA by-id gagal ke "
+                                    + tujuanCa.get(ci) + " (" + eById.getMessage()
+                                    + ") - coba unggah penuh.");
+                            resp = null;
+                        }
+                    }
+                    if (resp == null) {
+                        resp = uploadTelegram(ctx, token, tujuanCa.get(ci), tmp);
+                        fileIdCa = fileIdBerikutnya(fileIdCa, resp);
+                    }
+                    terkirimCa++;
+                } catch (Exception e) {
+                    String pesan = e.getMessage();
+                    gagalCa.add(tujuanCa.get(ci) + ": "
+                            + (pesan == null ? e.toString() : pesan));
+                }
+            }
+            if (terkirimCa == 0) {
+                throw new IOException("Kirim CA gagal ke semua chat ("
+                        + gagalCa.size() + "/" + tujuanCa.size() + "): "
+                        + gabungGagalChat(gagalCa));
             }
         } finally {
             try {
@@ -2075,9 +2105,12 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
         }
+        String peringatanCa = gagalCa.isEmpty() ? ""
+                : " (sebagian chat gagal: " + gabungGagalChat(gagalCa) + ")";
         return "CA terkirim (" + tmp.getName() + "). Di HP tujuan: pakai file"
                 + " TERBARU ini lalu install sebagai CA certificate (tanpa private key)."
-                + " File ca lama di riwayat chat tak berlaku lagi setelah reset.";
+                + " File ca lama di riwayat chat tak berlaku lagi setelah reset."
+                + peringatanCa;
     }
 
     static File siapkanFileKirimCa(File caAktif, File dirCache, String timestamp)
