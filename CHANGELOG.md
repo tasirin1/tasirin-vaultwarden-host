@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda restore dibersihkan juga pada jalur exception pemasangan DB (Audit 858)
+- Di `restoreFromZip` jalur bot, bila `pasangDbRestoreAtomik` melempar exception (bukan mengembalikan string galat), penanda `KEY_RESTORE_TANDA` tertinggal karena catch hanya membersihkan staging/TLS lalu melempar ulang. Pada boot berikutnya penanda itu terbaca sebagai bukti proses mati di tengah restore dan memicu peringatan palsu ke log + Telegram. Catch kini memanggil `tandaiRestoreSelesai` sebelum melempar ulang, sejalan jalur galatDb dan jalur Settings.
+
+
 ## [Belum rilis] — Field restore Telegram tertunda menjadi volatile (Audit 857)
 - Sisa Audit 852: pengecualian sapuan TTL membaca `restoreTgTertundaFile` dari thread latar, tetapi field itu tidak `volatile` — tidak seperti kedua field tertunda saudaranya yang dibaca sapuan yang sama (`exportPlainTertunda`, `imporTertundaFile`, keduanya volatile memang untuk jalur ini sejak Audit 595). Tanpa volatile, bacaan basi `null` di thread sapuan bisa menghapus berkas yang dialognya masih tertunda. Kedua field restore Telegram kini volatile. (Catatan verifikasi: `exportPlainPada` yang disebut sekalian ternyata sudah volatile, tak diubah.)
 

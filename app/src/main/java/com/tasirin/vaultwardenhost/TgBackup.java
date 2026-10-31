@@ -3411,6 +3411,11 @@ public final class TgBackup {
             hapusStagingRestore(dataFolder);
             hapusStagingTls(dataFolder);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
+            // Penanda restore wajib dibersihkan juga di jalur exception
+            // (Audit 858): tertinggal, ia terbaca BootReceiver sebagai
+            // "proses mati di tengah restore" dan memicu peringatan
+            // palsu di boot berikutnya.
+            tandaiRestoreSelesai(ctx);
             throw ePasang;
         }
         if (galatDb != null) {
