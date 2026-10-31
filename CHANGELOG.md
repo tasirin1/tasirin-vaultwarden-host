@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Offset semua callback tombol kini di-commit sebelum eksekusi (Audit 822)
+- Pra-`commit()` offset sebelum eksekusi sebelumnya hanya berlaku untuk callback `careset`/`restore` (dan alur PIN pada pesan teks). Callback berat lain — `backup`, `update`, `restart`, `stop` saat PIN mati — hanya tercakup `apply()` di akhir putaran poll: bila proses mati (listrik STB padam) sesudah aksi tereksekusi tetapi sebelum antrean tulis disk `apply()` ter-flush, Telegram mengirim update yang sama pada poll berikutnya dan aksi berat itu tereksekusi ulang (backup/unggah ganda, restart ganda). Kini offset setiap callback tombol di-`commit()` sebelum `tanganiCallback`, menyamakan semantik at-most-once yang sudah diterima untuk `careset`/`restore`; tombol baca-saja (status/log) ikut pola yang sama agar aturannya seragam — pengguna cukup menekan lagi bila proses mati di tengah.
+
+
 ## [Belum rilis] — Backup Telegram tak lagi membayar quick_check penuh di DB live (Audit 821)
 - Awal `createBackupZip` versi Telegram sebelumnya menjalankan `cekIntegritasDbUlang` atas database live: satu `quick_check` penuh ekstra per backup di STB kelas rendah, padahal salinan yang benar-benar dikirim sudah diperiksa tiga lapis sesudahnya — kestabilan + integritas snapshot di `snapshotDbKonsisten` (dengan coba-ulang sibuknya sendiri yang lebih sabar), verifikasi zip, dan verifikasi isi DB di dalam zip. Pemeriksaan live itu tidak menambah jaminan atas artefak terkirim (DB live bisa berubah sedetik sesudahnya) dan justru bisa menggagalkan backup lebih awal karena kesibukan sesaat. Bloknya dihapus dari jalur Telegram; `cekIntegritasDbUlang` tetap dipakai backup lokal di Settings yang memang menyalin DB live tanpa tahap snapshot.
 
