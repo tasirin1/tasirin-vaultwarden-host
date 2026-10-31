@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji pengawali kata pemotong komentar memakai keadaan efektif (Audit 923)
+- Arah fail-closed: `_potong_komentar_shell` menilai apakah `#` mengawali kata dari karakter mentah sebelumnya, sehingga sesudah spasi ter-escape (Audit 918) pagar tengah-kata terpotong sebagai komentar dan redirect sesudahnya hilang dari penilaian. Pemotong kini melacak keadaan di-dalam-kata yang efektif dari pemrosesan. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemindai keseimbangan kurung target sadar kutip (Audit 922)
 - Arah fail-closed: penghitung kurung pada cabang target substitusi proses dan target kurung polos menghitung kurung di dalam string sebagai kurung sungguhan, sehingga penjaga keseimbangan Audit 916 membatalkan vonis sah. Kedua pemindai kini melompati rentang berkutip utuh. Skenario uji-diri baru menguncinya.
 

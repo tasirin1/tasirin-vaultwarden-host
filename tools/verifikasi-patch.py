@@ -298,6 +298,10 @@ def _potong_komentar_shell(baris):
     dihitung sebagai perintah (Audit 881)."""
     kutip = None
     tikus = False
+    # Keadaan di-dalam-kata yang EFEKTIF (Audit 923): ditentukan dari
+    # pemrosesan, bukan karakter mentah sebelumnya — spasi ter-escape
+    # adalah bagian kata, bukan pemisah.
+    kata = False
     i = 0
     n = len(baris)
     while i < n:
@@ -312,23 +316,31 @@ def _potong_komentar_shell(baris):
             continue
         if c in ("'", '"'):
             kutip = c
+            kata = True
             i += 1
             continue
         if c == "\\" and i + 1 < n:
             # Karakter ter-escape adalah literal (Audit 918) —
             # selaras penilai yang sadar escape sejak Audit 908.
+            kata = True
             i += 2
             continue
         if c == "`":
             # Di dalam substitusi gaya lama, `#` bukan komentar baris
             # ini (Audit 907).
             tikus = not tikus
+            kata = True
             i += 1
             continue
-        if c == "#" and not tikus and (i == 0 or baris[i - 1] in " \t;&|)"):
-            # `)` termasuk: sesudah kurung tutup perintah/subshell,
-            # `#` juga mengawali kata baru bagi shell (Audit 884).
+        if c == "#" and not tikus and not kata:
             return baris[:i]
+        if c in " \t;&|()":
+            # Pemisah tak ter-escape mengakhiri kata; `(` juga: di
+            # belakang kurung buka perintah, `#` mengawali kata baru
+            # (padanan `)` pada Audit 884).
+            kata = False
+        else:
+            kata = True
         i += 1
     return baris
 

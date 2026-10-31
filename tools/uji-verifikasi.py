@@ -1017,6 +1017,24 @@ def main():
                 "vonis: gerbang lolos (Audit 922)", rc == 0)
         shutil.rmtree(kurungutip, ignore_errors=True)
 
+        pagarkata = klon(tmp, "pagarkata")
+        berkas_aksi50 = os.path.join(
+            pagarkata, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi50, encoding="utf-8") as f:
+            isi_aksi50 = f.read()
+        baris_tulis50 = [b for b in isi_aksi50.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi50, "w", encoding="utf-8") as f:
+            f.write(isi_aksi50.replace(
+                baris_tulis50,
+                baris_tulis50.replace(
+                    'echo "tag_mentah=$TAG"',
+                    'echo "tag_mentah=$TAG" x\\ #'), 1))
+        rc, out = jalan(pagarkata, [sys.executable, GERBANG, "--semua"])
+        periksa("pagar tengah kata sesudah spasi ter-escape bukan "
+                "komentar: gerbang lolos (Audit 923)", rc == 0)
+        shutil.rmtree(pagarkata, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
