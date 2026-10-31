@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dua teks UI hardcode dipindah ke resource (Audit 823)
+- Toast hasil pasang versi terpilih sebelumnya menempelkan literal Inggris `" Press Start to use it."`, padahal resource-nya sudah ada dan dipakai benar di jalur update lain pada berkas yang sama (`R.string.update_press_start`, terjemahan Indonesia "Tekan Start untuk memakainya."). Sebaliknya toast restore menyisipkan literal Indonesia `"checkpoint WAL gagal"` sebagai argumen string berformat yang sudah terlokalisasi, sehingga pengguna locale Inggris menerima pesan campur. Keduanya kini lewat resource: jalur pertama memakai `update_press_start` yang sudah ada, jalur kedua memakai string baru `restore_checkpoint_gagal` di `values` dan `values-in`.
+
+
 ## [Belum rilis] — Offset semua callback tombol kini di-commit sebelum eksekusi (Audit 822)
 - Pra-`commit()` offset sebelum eksekusi sebelumnya hanya berlaku untuk callback `careset`/`restore` (dan alur PIN pada pesan teks). Callback berat lain — `backup`, `update`, `restart`, `stop` saat PIN mati — hanya tercakup `apply()` di akhir putaran poll: bila proses mati (listrik STB padam) sesudah aksi tereksekusi tetapi sebelum antrean tulis disk `apply()` ter-flush, Telegram mengirim update yang sama pada poll berikutnya dan aksi berat itu tereksekusi ulang (backup/unggah ganda, restart ganda). Kini offset setiap callback tombol di-`commit()` sebelum `tanganiCallback`, menyamakan semantik at-most-once yang sudah diterima untuk `careset`/`restore`; tombol baca-saja (status/log) ikut pola yang sama agar aturannya seragam — pengguna cukup menekan lagi bila proses mati di tengah.
 

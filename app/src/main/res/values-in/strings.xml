@@ -234,6 +234,7 @@
     <string name="restore_selesai_restart">Database dipulihkan. Restart server untuk memakainya.</string>
     <string name="restore_selesai_tls_gagal">Database dipulihkan, tetapi sertifikat dari backup gagal dipasang — TLS perangkat ini dipertahankan. Restart server untuk memakainya.</string>
     <string name="restore_gagal">Restore gagal: %1$s</string>
+    <string name="restore_checkpoint_gagal">checkpoint WAL gagal</string>
     <string name="backup_ambil_gagal">Gagal mengambil backup: %1$s</string>
     <string name="backup_terenkripsi">Backup terenkripsi — isi sandi backup dulu.</string>
     <string name="restore_selesai_mulai">Restore selesai. Tekan Start untuk menjalankannya.</string>

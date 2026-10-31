@@ -2051,7 +2051,7 @@ public class SettingsActivity extends Activity {
                     // berjalan — DB live belum disentuh sama sekali. DB
                     // yang tak bisa dibuka dikecualikan (Audit 587).
                     toast(getString(R.string.restore_gagal,
-                            "checkpoint WAL gagal"));
+                            getString(R.string.restore_checkpoint_gagal)));
                     appendUiLog("[app] Restore dibatalkan: checkpoint WAL"
                             + " gagal, transaksi terbaru bisa hilang bila"
                             + " dilanjutkan.");
@@ -3500,7 +3500,7 @@ public class SettingsActivity extends Activity {
                     }
                     appendUiLog("[app] " + msg);
                     toast(Updater.binaryBerubah(msg)
-                            ? msg + " Press Start to use it." : msg);
+                            ? msg + " " + getString(R.string.update_press_start) : msg);
                 } else {
                     appendUiLog("[app] Mengunduh web-vault v"
                             + (target == null ? "terbaru" : target) + "...");
