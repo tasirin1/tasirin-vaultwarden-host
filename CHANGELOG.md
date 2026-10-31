@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemindai keseimbangan kurung target sadar escape (Audit 927)
+- Arah fail-closed: penghitung kurung pada cabang target substitusi proses dan target kurung polos sudah sadar kutip (Audit 922) tetapi menghitung kurung ter-escape sebagai kurung sungguhan, sehingga penjaga keseimbangan Audit 916 membatalkan vonis sah. Kedua pemindai kini melompati pasangan backslash sebagai literal. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Loop kupas melewati operator aritmetika (Audit 926)
 - Regresi Audit 920, arah fail-closed: loop kupas pembungkus mencatat kurung ganda di posisi perintah sebagai dua subshell bertumpuk, sehingga tumpukan berisi entri gadungan dan penutup grup sesudahnya diabaikan. Kurung ganda kini dilewati sebagai operator aritmetika tanpa mencatat pembungkus. Skenario uji-diri baru menguncinya.
 

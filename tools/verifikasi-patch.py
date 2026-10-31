@@ -600,6 +600,11 @@ def segmen_redirect_output(segmen):
                 kedalaman = 0
                 k = awal + 1
                 while k < n:
+                    if segmen[k] == "\\" and k + 1 < n:
+                        # Pasangan escape adalah literal (Audit 927):
+                        # kurung ter-escape bukan kurung sungguhan.
+                        k += 2
+                        continue
                     if segmen[k] in ("'", '"'):
                         # Kurung di dalam kutip bukan kurung sungguhan
                         # (Audit 922) — lewati rentang berkutip utuh.
@@ -637,6 +642,11 @@ def segmen_redirect_output(segmen):
                 kedalaman = 0
                 k = awal
                 while k < n:
+                    if segmen[k] == "\\" and k + 1 < n:
+                        # Pasangan escape adalah literal (Audit 927):
+                        # kurung ter-escape bukan kurung sungguhan.
+                        k += 2
+                        continue
                     if segmen[k] in ("'", '"'):
                         # Kurung di dalam kutip bukan kurung sungguhan
                         # (Audit 922) — lewati rentang berkutip utuh.
