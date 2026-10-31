@@ -1531,6 +1531,18 @@ def _lompat_string(isi, i):
     dilompati utuh — petik di dalamnya (mis. char '"' di dalam
     template) tidak menutup string luar."""
     n = len(isi)
+    if isi.startswith('"""', i):
+        # Raw string (Audit 883): tanpa escape; ditutup petik tiga
+        # berikutnya, dan template di dalamnya tetap berlaku.
+        j = i + 3
+        while j < n:
+            if isi.startswith('"""', j):
+                return j + 3
+            if isi[j] == "$" and j + 1 < n and isi[j + 1] == "{":
+                j = _lompat_template(isi, j + 1)
+                continue
+            j += 1
+        return n
     j = i + 1
     while j < n:
         c = isi[j]

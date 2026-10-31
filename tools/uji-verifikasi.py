@@ -434,6 +434,17 @@ def main():
                 rc == 0)
         shutil.rmtree(tplkomen, ignore_errors=True)
 
+        tplraw = klon(tmp, "tplraw")
+        berkas_set11 = os.path.join(tplraw, "settings.gradle.kts")
+        with open(berkas_set11, encoding="utf-8") as f:
+            isi_set11 = f.read()
+        with open(berkas_set11, "w", encoding="utf-8") as f:
+            f.write('val penanda = "${"""a"b"""}"\n' + isi_set11)
+        rc, out = jalan(tplraw, [sys.executable, GERBANG, "--semua"])
+        periksa("raw string berpetik di dalam template settings sehat: gerbang lolos (Audit 883)",
+                rc == 0)
+        shutil.rmtree(tplraw, ignore_errors=True)
+
         strmode = klon(tmp, "strmode")
         berkas_set6 = os.path.join(strmode, "settings.gradle.kts")
         with open(berkas_set6, encoding="utf-8") as f:

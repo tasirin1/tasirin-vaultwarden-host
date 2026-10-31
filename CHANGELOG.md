@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penolong string gerbang mengenal raw string di dalam template (Audit 883)
+- Sisa Audit 877 arah fail-closed: pengupas tingkat atas mengenal raw string, tetapi penolong string yang dipakai di dalam template tidak — raw string berisi petik di dalam `${...}` (bentuk Kotlin sah) menutup string semu lebih awal dan menelan isi berkas, sehingga berkas Gradle sehat digagalkan palsu. Penolong string kini menangani raw string (tanpa escape, template di dalamnya tetap dilompati utuh) sebelum mode string biasa. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemotongan komentar gerbang hanya pada # yang mengawali kata (Audit 882)
 - Sisa Audit 878 arah fail-open: sisa segmen dipotong pada `#` pertama tanpa syarat, padahal bagi shell `#` yang menempel pada kata adalah bagian kata itu — baris tulis berekor `"$GITHUB_OUTPUT"#semu` sesungguhnya menulis ke berkas lain, tetapi sisa yang terpotong terlihat persis target sehingga produsen dihitung. Pemotongan kini hanya pada `#` yang mengawali kata (awal sisa atau sesudah spasi/tab). Skenario uji-diri baru menguncinya (draf skenario pertama menyasar baris keluaran yang salah dan dikoreksi — gerbangnya sendiri sudah benar).
 
