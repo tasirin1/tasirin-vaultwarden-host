@@ -351,6 +351,24 @@ def main():
                 rc == 0)
         shutil.rmtree(bungkus, ignore_errors=True)
 
+        subkulit = klon(tmp, "subkulit")
+        berkas_aksi14 = os.path.join(
+            subkulit, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi14, encoding="utf-8") as f:
+            isi_aksi14 = f.read()
+        baris_tulis14 = [b for b in isi_aksi14.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indent14 = baris_tulis14[:len(baris_tulis14)
+                                  - len(baris_tulis14.lstrip())]
+        with open(berkas_aksi14, "w", encoding="utf-8") as f:
+            f.write(isi_aksi14.replace(
+                baris_tulis14,
+                indent14 + "(" + baris_tulis14.strip() + ")", 1))
+        rc, out = jalan(subkulit, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen dibungkus subshell: gerbang lolos (Audit 887)",
+                rc == 0)
+        shutil.rmtree(subkulit, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

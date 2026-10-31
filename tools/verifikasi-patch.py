@@ -404,6 +404,10 @@ def segmen_redirect_output(segmen):
             # kata BUKAN komentar bagi shell (Audit 882).
             sisa = (_potong_komentar_sisa(segmen[i + 2:])
                     .split("||")[0].strip())
+            # Penutup pembungkus subshell/grup yang menempel sesudah
+            # target (Audit 887) bukan bagian nama berkas.
+            while sisa and sisa[-1] in ")}":
+                sisa = sisa[:-1].rstrip()
             # Redirect TERAKHIR yang berlaku bagi shell (Audit 885):
             # jangan kembali pada `>>` pertama — catat nilai yang ini
             # lalu lanjutkan memindai redirect berikutnya.

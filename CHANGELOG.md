@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai redirect gerbang membuang penutup pembungkus sesudah target (Audit 887)
+- Sisa Audit 886 arah fail-closed: bentuk grup lolos karena titik-koma memisahkan kurung penutupnya ke segmen lain, tetapi bentuk subshell tidak — kurung tutup menempel sesudah target sehingga sisa terbaca bukan target persis dan produsen tak dihitung. Penutup pembungkus (`)`/`}`) yang menempel sesudah target kini dibuang sebelum sisa dibandingkan. Skenario uji-diri bentuk subshell ditambahkan (regresi Audit 886 sebelumnya hanya menguji bentuk grup).
+
+
 ## [Belum rilis] — Pemindaian produsen gerbang membuka pembungkus grup/subshell (Audit 886)
 - Sisa Audit 874 arah fail-closed: nama produsen dicocokkan terjangkar di kepala segmen, sehingga penulisan sah yang dibungkus grup `{ ...; }` atau subshell `( ... )` tak pernah dihitung dan berkas sehat dilaporkan tak menulis keluaran. Pembungkus di kepala segmen kini dibuka lebih dulu sebelum nama dan redirect dinilai. Skenario uji-diri baru menguncinya.
 
