@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek Gradle gerbang kini sadar komentar & nilai efektif (Audit 854)
+- Sisa Audit 815/835: `cek_gradle_akar` membaca teks mentah — baris `repositoriesMode` yang dikomentari memenuhi cek substring, komentar di antara `repositories` dan `{` menyembunyikan blok berisi repositori asing, dan baris `android.useAndroidX=true` duplikat (last-wins) lolos karena regex menemukan baris `false` di mana pun. Kini kedua berkas Gradle diperiksa sesudah komentar dikupas dengan pemindai sadar-string (`kupas_komentar_kotlin`), dan `useAndroidX` dinilai dari nilai efektif terakhir di `gradle.properties`. Tiga skenario uji-diri baru (mode dikomentari, repo asing terselip komentar, duplikat last-wins) menguncinya.
+
+
 ## [Belum rilis] — Penjaga dialog-sedang-tampil untuk konfirmasi restore Telegram (Audit 853)
 - Konfirmasi restore Telegram tak punya penjaga tampil seperti dialog impor (Audit 597): siklus pause→resume saat dialog masih terbuka (layar PIN, dialog izin, pindah aplikasi lalu kembali) membuat `onResume` menampilkan dialog kedua yang menumpuk dan berbagi berkas serta field tertunda yang sama — menekan "Tidak" di satu dialog bisa menghapus berkas yang sedang dibaca restore dari dialog lain. Kini `tanyaRestoreTelegram` menolak tampil ganda lewat penanda `dialogRestoreTgTampil` yang dibersihkan di kedua tombol.
 

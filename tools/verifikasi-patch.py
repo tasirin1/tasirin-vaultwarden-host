@@ -1322,6 +1322,45 @@ def pemanggil(nama):
                     return temu
     return temu
 
+def kupas_komentar_kotlin(isi):
+    """Buang komentar // dan /* */ dengan sadar string (Audit 854):
+    cek mentah atas teks Gradle bisa dipenuhi teks komentar (baris mode
+    yang dikomentari) atau dikelabui komentar di antara kata kunci dan
+    kurung. String "..." (termasuk URL di dalamnya) dipertahankan."""
+    hasil = []
+    i = 0
+    n = len(isi)
+    while i < n:
+        c = isi[i]
+        if c == '"':
+            j = i + 1
+            while j < n:
+                if isi[j] == "\\":
+                    j += 2
+                    continue
+                if isi[j] == '"':
+                    j += 1
+                    break
+                j += 1
+            hasil.append(isi[i:j])
+            i = j
+        elif c == "/" and i + 1 < n and isi[i + 1] == "/":
+            while i < n and isi[i] != "\n":
+                i += 1
+        elif c == "/" and i + 1 < n and isi[i + 1] == "*":
+            i += 2
+            while i + 1 < n and not (isi[i] == "*" and isi[i + 1] == "/"):
+                if isi[i] == "\n":
+                    hasil.append("\n")
+                i += 1
+            i += 2
+            hasil.append(" ")
+        else:
+            hasil.append(c)
+            i += 1
+    return "".join(hasil)
+
+
 VERSI_AGP_TERPAKU = "8.13.2"
 REPO_SETTINGS_BOLEH = ("google()", "mavenCentral()", "gradlePluginPortal()")
 
@@ -1344,7 +1383,7 @@ def blok_repositories(isi):
 
 
 def cek_gradle_akar(gagal):
-    isi = baca("build.gradle.kts")
+    isi = kupas_komentar_kotlin(baca("build.gradle.kts"))
     if not os.path.isfile(os.path.join(AKAR, "build.gradle.kts")):
         gagal.append("build.gradle.kts (akar) hilang — versi plugin AGP "
                      "tak terpaku")
@@ -1356,7 +1395,7 @@ def cek_gradle_akar(gagal):
                      + VERSI_AGP_TERPAKU + " + apply false — mengganti versi "
                      "AGP wajib menyelaraskan VERSI_AGP_TERPAKU di "
                      "verifikasi-patch pada commit yang sama (Audit 835)")
-    isi = baca("settings.gradle.kts")
+    isi = kupas_komentar_kotlin(baca("settings.gradle.kts"))
     if not os.path.isfile(os.path.join(AKAR, "settings.gradle.kts")):
         gagal.append("settings.gradle.kts hilang — mode repositori tak "
                      "terpaku")
@@ -1381,9 +1420,22 @@ def cek_gradle_akar(gagal):
     isi = baca("gradle.properties")
     if not os.path.isfile(os.path.join(AKAR, "gradle.properties")):
         gagal.append("gradle.properties hilang")
-    elif not re.search(r"(?m)^android\.useAndroidX=false\s*$", isi):
-        gagal.append("gradle.properties: android.useAndroidX bukan false — "
-                     "app ini Java murni tanpa AndroidX")
+    else:
+        # Nilai EFEKTIF last-wins (Audit 854): baris duplikat `=true`
+        # sesudah `=false` dulu lolos karena regex menemukan baris false
+        # di mana pun. Baris komentar (#/!) dilewati.
+        nilai_ax = None
+        for baris in isi.splitlines():
+            b = baris.strip()
+            if not b or b.startswith("#") or b.startswith("!"):
+                continue
+            m = re.match(r"android\.useAndroidX\s*=\s*(\S+)\s*$", b)
+            if m:
+                nilai_ax = m.group(1)
+        if nilai_ax != "false":
+            gagal.append("gradle.properties: nilai efektif "
+                         "android.useAndroidX bukan false (terbaca %r) — "
+                         "app ini Java murni tanpa AndroidX" % nilai_ax)
 
 
 def cek_metode_hilang(gagal, peringatan, diff, hapus=()):

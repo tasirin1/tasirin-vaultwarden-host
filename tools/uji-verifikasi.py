@@ -176,6 +176,41 @@ def main():
                 rc != 0 and "ambil" in out)
         shutil.rmtree(idl, ignore_errors=True)
 
+        komen = klon(tmp, "komen")
+        berkas_set3 = os.path.join(komen, "settings.gradle.kts")
+        with open(berkas_set3, encoding="utf-8") as f:
+            isi_set3 = f.read()
+        with open(berkas_set3, "w", encoding="utf-8") as f:
+            f.write(isi_set3.replace(
+                "repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)",
+                "// repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)"))
+        rc, out = jalan(komen, [sys.executable, GERBANG, "--semua"])
+        periksa("baris repositoriesMode dikomentari: gerbang gagal (Audit 854)",
+                rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
+        shutil.rmtree(komen, ignore_errors=True)
+
+        selip = klon(tmp, "selip")
+        berkas_set4 = os.path.join(selip, "settings.gradle.kts")
+        with open(berkas_set4, encoding="utf-8") as f:
+            isi_set4 = f.read()
+        with open(berkas_set4, "w", encoding="utf-8") as f:
+            f.write(isi_set4.replace(
+                "    repositories {\n        google()\n        mavenCentral()\n    }\n}\nrootProject",
+                "    repositories /* dicoba */ { maven { url = uri(\"https://repo-asing.example.com/\") } }\n}\nrootProject"))
+        rc, out = jalan(selip, [sys.executable, GERBANG, "--semua"])
+        periksa("repo asing terselip komentar blok: gerbang gagal (Audit 854)",
+                rc != 0 and "maven" in out)
+        shutil.rmtree(selip, ignore_errors=True)
+
+        ganda = klon(tmp, "ganda")
+        berkas_prop = os.path.join(ganda, "gradle.properties")
+        with open(berkas_prop, "a", encoding="utf-8") as f:
+            f.write("android.useAndroidX=true\n")
+        rc, out = jalan(ganda, [sys.executable, GERBANG, "--semua"])
+        periksa("useAndroidX duplikat last-wins true: gerbang gagal (Audit 854)",
+                rc != 0 and "useAndroidX" in out)
+        shutil.rmtree(ganda, ignore_errors=True)
+
         agp = klon(tmp, "agp")
         berkas_akar = os.path.join(agp, "build.gradle.kts")
         with open(berkas_akar, encoding="utf-8") as f:
