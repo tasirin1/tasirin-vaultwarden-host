@@ -108,6 +108,11 @@ static ssize_t isi_dari(void *buf, size_t len, int pakai_random) {
 #define GRND_DIKENAL_SHIM \
     (GRND_NONBLOCK_SHIM | GRND_RANDOM_SHIM | GRND_INSECURE_SHIM)
 
+static int fd_urandom_nb = -1;
+static int fd_random_nb = -1;
+static pthread_mutex_t kunci_urandom_nb = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t kunci_random_nb = PTHREAD_MUTEX_INITIALIZER;
+
 static ssize_t isi_dari_nonblok(void *buf, size_t len, int pakai_random) {
     if (len == 0) {
         return 0;
@@ -116,37 +121,65 @@ static ssize_t isi_dari_nonblok(void *buf, size_t len, int pakai_random) {
         errno = EINVAL;
         return -1;
     }
+    int *wadah_fd = pakai_random ? &fd_random_nb : &fd_urandom_nb;
     const char *sumber = pakai_random ? "/dev/random" : "/dev/urandom";
-    int fd = open(sumber, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
-    if (fd < 0) {
-        return -1;
-    }
+    pthread_mutex_t *kunci = pakai_random ? &kunci_random_nb : &kunci_urandom_nb;
     size_t sudah = 0;
-    while (sudah < len) {
-        ssize_t n = read(fd, (char *) buf + sudah, len - sudah);
-        if (n < 0) {
-            int e = errno;
-            if (e == EINTR) {
-                continue;
+    int coba_ebadf = 0;
+
+    pthread_mutex_lock(kunci);
+    for (;;) {
+        if (*wadah_fd < 0) {
+            int fd = open(sumber, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+            if (fd < 0) {
+                int e = errno;
+                pthread_mutex_unlock(kunci);
+                errno = e;
+                return -1;
             }
-            close(fd);
-            if (e == EAGAIN && sudah > 0) {
-                return (ssize_t) sudah;
-            }
-            errno = e;
-            return -1;
+            *wadah_fd = fd;
         }
-        if (n == 0) {
-            close(fd);
-            if (sudah > 0) {
-                return (ssize_t) sudah;
+        int pulih = 0;
+        while (sudah < len) {
+            ssize_t n = read(*wadah_fd, (char *) buf + sudah, len - sudah);
+            if (n < 0) {
+                int e = errno;
+                if (e == EINTR) {
+                    continue;
+                }
+                if (e == EBADF) {
+                    if (++coba_ebadf > 3) {
+                        pthread_mutex_unlock(kunci);
+                        errno = EIO;
+                        return -1;
+                    }
+                    close(*wadah_fd);
+                    *wadah_fd = -1;
+                    pulih = 1;
+                    break;
+                }
+                pthread_mutex_unlock(kunci);
+                if (e == EAGAIN && sudah > 0) {
+                    return (ssize_t) sudah;
+                }
+                errno = e;
+                return -1;
             }
-            errno = EIO;
-            return -1;
+            if (n == 0) {
+                pthread_mutex_unlock(kunci);
+                if (sudah > 0) {
+                    return (ssize_t) sudah;
+                }
+                errno = EIO;
+                return -1;
+            }
+            sudah += (size_t) n;
         }
-        sudah += (size_t) n;
+        if (!pulih) {
+            break;
+        }
     }
-    close(fd);
+    pthread_mutex_unlock(kunci);
     return (ssize_t) sudah;
 }
 

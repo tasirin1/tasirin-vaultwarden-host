@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim: fd nonblocking kini di-cache seperti jalur blocking (Audit 819)
+- `isi_dari_nonblok` sebelumnya membuka dan menutup `/dev/urandom`/`/dev/random` pada setiap panggilan `getrandom` berbendera `GRND_NONBLOCK`/`GRND_INSECURE` (jalur yang dipakai runtime Rust/TLS untuk handshake dan nonce), membayar `open`+`close` + lookup path per panggilan di kernel STB lama. Jalur nonblocking kini meng-cache fd per sumber dengan mutex per sumber — pola yang sama persis dengan jalur blocking — termasuk pemulihan EBADF terbatas (maks 3 kali per panggilan) yang kini diperlukan karena fd berumur panjang. Semantik hasil tidak berubah: EAGAIN sesudah terisi sebagian tetap mengembalikan jumlah yang terisi, dan galat lain diteruskan apa adanya.
+
+
 ## [Belum rilis] — Entri penunggu proses kini dibuang sesudah proses mati (Audit 818)
 - Pada jalur pra-API 26, `waitForOrKill` mendaftarkan tiap `Process` ke `WeakHashMap` `PENUNGGU_PROSES`, tetapi nilainya memegang thread penunggu yang menangkap proses itu sendiri — rantai map → nilai → thread → kunci membuat entri tak pernah ter-expunge, jadi peta (dan objek Thread mati) tumbuh monoton seumur proses aplikasi di STB lama yang jarang reboot. Entri kini dibuang segera sesudah proses terkonfirmasi mati (dengan pemeriksaan identitas di dalam kunci agar entri pengganti tak ikut terhapus); proses yang masih hidup tetap berbagi satu penunggu seperti sebelumnya. Dikunci uji JVM: jumlah penunggu kembali ke awal sesudah proses mati.
 
