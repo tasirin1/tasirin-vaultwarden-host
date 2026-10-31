@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemotong komentar sadar escape (Audit 918)
+- Arah fail-closed: `_potong_komentar_shell` tak memodelkan escape, sehingga backtick literal ter-escape membuka keadaan substitusi gadungan dan komentar asli sesudahnya tak terpotong — redirect di dalam komentar lalu membalik vonis penilai. Pemotong kini melompati pasangan backslash sebagai literal, selaras penilai sejak Audit 908. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Keadaan sesudah-operator mati sesudah target kurung (Audit 917)
 - Arah fail-closed sisa Audit 910/911: kedua cabang target kurung memasang keadaan sesudah-operator menyala lalu melompati target, sehingga tak ada karakter kata yang membersihkannya dan redirect sah berikutnya ditolak penjaga Audit 895. Target yang dikonsumsi lompatan kini mematikan keadaan itu. Skenario uji-diri baru menguncinya.
 

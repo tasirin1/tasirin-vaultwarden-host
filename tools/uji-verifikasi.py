@@ -924,6 +924,24 @@ def main():
                 "(Audit 917)", rc == 0)
         shutil.rmtree(prosisa, ignore_errors=True)
 
+        potongluput = klon(tmp, "potongluput")
+        berkas_aksi45 = os.path.join(
+            potongluput, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi45, encoding="utf-8") as f:
+            isi_aksi45 = f.read()
+        baris_tulis45 = [b for b in isi_aksi45.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi45, "w", encoding="utf-8") as f:
+            f.write(isi_aksi45.replace(
+                baris_tulis45,
+                baris_tulis45.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '\\` >> "$GITHUB_OUTPUT" # dulu > /tmp/lain'), 1))
+        rc, out = jalan(potongluput, [sys.executable, GERBANG, "--semua"])
+        periksa("komentar sesudah backtick literal terpotong: gerbang "
+                "lolos (Audit 918)", rc == 0)
+        shutil.rmtree(potongluput, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
