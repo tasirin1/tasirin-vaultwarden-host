@@ -575,6 +575,44 @@ def segmen_redirect_output(segmen):
                                     '"${GITHUB_OUTPUT}"',
                                     "${GITHUB_OUTPUT}")):
                 sisa = sisa[:-1].rstrip()
+            if mentah[:2] in (">(", "<("):
+                # Target substitusi proses (Audit 911): yang menulis
+                # adalah perintah-dalamnya — nilai isi kurungnya
+                # secara rekursif, lalu lewati seimbang.
+                awal = i + op + (len(segmen[i + op:]) - len(mentah))
+                kedalaman = 0
+                k = awal + 1
+                while k < n:
+                    if segmen[k] == "(":
+                        kedalaman += 1
+                    elif segmen[k] == ")":
+                        kedalaman -= 1
+                        if kedalaman == 0:
+                            break
+                    k += 1
+                hasil = segmen_redirect_output(segmen[awal + 2:k])
+                sesudah_op = True
+                i = k + 1 if k < n else n
+                continue
+            if mentah.startswith("("):
+                # Target tak boleh subshell (Audit 910): isi kurungnya
+                # bukan target berkas — lewati seimbang agar redirect
+                # di dalamnya tak bocor menjadi milik perintah ini.
+                awal = i + op + (len(segmen[i + op:]) - len(mentah))
+                kedalaman = 0
+                k = awal
+                while k < n:
+                    if segmen[k] == "(":
+                        kedalaman += 1
+                    elif segmen[k] == ")":
+                        kedalaman -= 1
+                        if kedalaman == 0:
+                            break
+                    k += 1
+                hasil = False
+                sesudah_op = True
+                i = k + 1 if k < n else n
+                continue
             # Redirect TERAKHIR yang berlaku bagi shell (Audit 885):
             # jangan kembali pada `>>` pertama — catat nilai yang ini
             # lalu lanjutkan memindai redirect berikutnya.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Target kurung dan substitusi proses pada penilai gerbang (Audit 910)
+- Arah fail-open: target redirect berupa kurung menempel (`>>(...)`) tak membuka kedalaman, sehingga redirect di dalam kurung bocor menjadi milik perintah luar — padahal bentuk itu syntax error di shell. Cabang operator kini melewati isi kurung target seimbang tanpa menilainya, dan target substitusi proses yang sah dinilai dari isi perintah-dalamnya secara rekursif (arah sahnya dikunci skenario Audit 911 pada commit berikutnya). Skenario uji-diri baru mengunci arah fail-open ini.
+
+
 ## [Belum rilis] — Skenario panah ter-escape mengunci arah fail-open Audit 909
 - Arah fail-open dari akar yang sama dengan Audit 908: panah ter-escape dihitung gerbang sebagai penulisan sungguhan — mekanismenya sudah ditutup perbaikan Audit 908 (pasangan backslash dilompati sebagai literal); entri ini menambahkan skenario uji-diri yang mengunci arah ini agar tak regresi.
 

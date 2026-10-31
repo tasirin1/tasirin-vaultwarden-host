@@ -764,6 +764,26 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(luputpanah, ignore_errors=True)
 
+        tempelpro = klon(tmp, "tempelpro")
+        berkas_aksi37 = os.path.join(
+            tempelpro, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi37, encoding="utf-8") as f:
+            isi_aksi37 = f.read()
+        baris_tulis37 = [b for b in isi_aksi37.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi37, "w", encoding="utf-8") as f:
+            f.write(isi_aksi37.replace(
+                baris_tulis37,
+                baris_tulis37.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '>>(cat >> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(tempelpro, [sys.executable, GERBANG, "--semua"])
+        periksa("target subshell menempel bukan produsen: gerbang gagal "
+                "(Audit 910)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(tempelpro, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
