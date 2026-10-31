@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — doRestore Telegram mengambil kunci tugas data sebelum mengunduh (Audit 850)
+- `TgBot.doRestore` dulu mengunduh dan mendekripsi backup dulu, baru mengambil `kunciRestore()` — bila tugas data lain sedang berjalan, kerja itu sia-sia lalu dibuang; dan penanda backup terakhir dibaca saat unduh dimulai, sehingga berkas yang dipulihkan bisa lebih baru daripada yang disebut di prompt konfirmasi. Kunci kini diambil paling awal (gagal cepat dengan pesan yang sama) dan unduh + dekripsi + restore berjalan seluruhnya di dalam kunci.
+
+
 ## [Belum rilis] — PinActivity membaca hash PIN di dalam kunci bersama (Audit 849)
 - Jalur UI membaca hash PIN tersimpan tepat *sebelum* masuk `PinGate.KUNCI_PERCOBAAN`, lalu memverifikasi terhadap bacaan itu di dalam kunci — bila PIN diganti jalur lain pada jeda sempit itu, PIN lama masih bisa diterima satu kali. Hash kini dibaca di dalam kunci, menyelaraskan jalur UI dengan jalur bot yang sudah lebih dulu kebal pola ini (Audit 809); nilai yang sama tetap dipakai cek tulis-balik upgrade sesudahnya.
 

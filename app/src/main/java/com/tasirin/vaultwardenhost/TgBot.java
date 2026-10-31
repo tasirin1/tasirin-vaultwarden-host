@@ -2002,6 +2002,18 @@ public final class TgBot {
         TgBackup.sapuTmpPlainBasi(ctx.getCacheDir(), plain.getName());
         boolean dikunci = false;
         try {
+            // Kunci tugas data diambil SEBELUM unduh + dekripsi (Audit
+            // 850): dulu keduanya terlanjur dikerjakan lalu hasilnya
+            // dibuang bila tugas lain sedang berjalan, dan berkas yang
+            // dipulihkan bisa lebih baru daripada yang dikonfirmasi
+            // pengguna karena penanda backup terakhir dibaca saat unduh
+            // dimulai — kini penanda dibaca di dalam kunci, sesudah
+            // prompt, tanpa tugas data lain berjalan.
+            if (!TgBackup.kunciRestore()) {
+                throw new IOException("Tugas backup/restore lain sedang berjalan,"
+                        + " coba lagi sebentar.");
+            }
+            dikunci = true;
             TgBackup.downloadLastBackup(ctx, tmp);
             File zip = tmp;
             if (TgBackup.isEncrypted(tmp)) {
@@ -2017,11 +2029,6 @@ public final class TgBot {
                 zip = plain;
             }
 
-            if (!TgBackup.kunciRestore()) {
-                throw new IOException("Tugas backup/restore lain sedang berjalan,"
-                        + " coba lagi sebentar.");
-            }
-            dikunci = true;
             return TgBackup.restoreFromZip(ctx, zip);
         } finally {
             if (dikunci) {
