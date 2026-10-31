@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Trust store terdegradasi tak lagi disimpan permanen oleh HttpsCompat (Audit 811)
+- `bangunFactory` sebelumnya menelan semua kegagalan pemuatan `AndroidCAStore` dan tetap menyimpan factory hasilnya ke cache permanen, tanpa memeriksa berapa sertifikat sistem yang benar-benar masuk. Bila enumerasi CA sistem diam-diam menghasilkan nol sertifikat pada perangkat lama, factory yang dipercaya semua unduhan dan jalur Telegram hanya berisi rantai GitHub seumur proses: koneksi ke host lain (mis. api.telegram.org) gagal TLS terus sampai aplikasi mati, tanpa pernah dicoba bangun ulang. Kini jumlah CA sistem yang terpasang dihitung; bila nol, pembangunan dinyatakan gagal (keputusan murni `trustSistemCukup`, dikunci uji JVM) sehingga mekanisme jeda-dan-coba-lagi yang sudah ada yang berlaku, bukan cache permanen yang rusak.
+
+
 ## [Belum rilis] — Reset Sertifikat kini ikut menghapus folder TLS tercatat dan kuncinya (Audit 810)
 - Penanda folder TLS aktif sesi (`tls_dir`) sebelumnya tidak pernah dibersihkan di mana pun, dan `resetSertifikat` hanya menghapus folder internal + folder data saat ini. Bila folder data pernah diganti sesudah Start, folder TLS sesi terakhir (mis. folder data lama dari sesi fallback) tak tersentuh reset dan penandanya tetap ada: `/ca` atau backup CA sebelum Start berikutnya lalu mengirim CA pra-reset yang konon sudah dibatalkan. Reset kini juga mereset folder yang tercatat pada penanda itu dan menghapus penandanya, sehingga sesudah reset jalur kirim kembali ke keadaan "CA belum ada" sampai Start membuat CA baru. Penanda sengaja TIDAK dihapus saat Stop atau saat folder data diganti — sampai Start berikutnya, folder tercatat memang masih folder CA yang benar-benar dipakai sesi terakhir.
 

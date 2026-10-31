@@ -222,6 +222,10 @@ public final class HttpsCompat {
         }
     }
 
+    static boolean trustSistemCukup(int jumlahCaSistem) {
+        return jumlahCaSistem > 0;
+    }
+
     private static SSLSocketFactory bangunFactory(Context ctx) throws Exception {
         synchronized (HttpsCompat.class) {
             if (cached != null) {
@@ -229,6 +233,7 @@ public final class HttpsCompat {
             }
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
+            int jumlahCaSistem = 0;
             try {
                 KeyStore sys = KeyStore.getInstance("AndroidCAStore");
                 sys.load(null, null);
@@ -250,10 +255,14 @@ public final class HttpsCompat {
                             continue;
                         }
                         ks.setCertificateEntry(a, c);
+                        jumlahCaSistem++;
                     } catch (Exception ignored) {
                     }
                 }
             } catch (Exception ignored) {
+            }
+            if (!trustSistemCukup(jumlahCaSistem)) {
+                throw new Exception("CA sistem kosong - trust tambahan tidak dipasang");
             }
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 

@@ -13,6 +13,14 @@ import org.junit.Test;
 public class HttpsCompatTest {
 
     @Test
+    public void trustSistemCukup_hanyaBilaAdaCaSistem() {
+        assertFalse(HttpsCompat.trustSistemCukup(0));
+        assertFalse(HttpsCompat.trustSistemCukup(-1));
+        assertTrue(HttpsCompat.trustSistemCukup(1));
+        assertTrue(HttpsCompat.trustSistemCukup(140));
+    }
+
+    @Test
     public void bolehBangunTrust_jedaSesudahGagal() {
         assertTrue(HttpsCompat.bolehBangunTrust(0, 5_000));
         assertTrue(HttpsCompat.bolehBangunTrust(10_000, 5_000));
