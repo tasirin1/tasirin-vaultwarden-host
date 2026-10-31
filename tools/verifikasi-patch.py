@@ -395,7 +395,7 @@ def segmen_redirect_output(segmen):
     kutip = ""
     while i < n:
         c = segmen[i]
-        if c not in " \t>":
+        if c not in " \t><":
             # Kata/isi apa pun di antara dua operator membersihkan
             # keadaan; operator yang langsung mengikuti operator
             # adalah sintaks tak sah (Audit 895).
@@ -410,6 +410,15 @@ def segmen_redirect_output(segmen):
             continue
         if c in ("'", '"'):
             kutip = c
+            i += 1
+            continue
+        if c == "<":
+            # `<` adalah operator redirect masukan: ia ikut
+            # memasang keadaan sesudah-operator (Audit 898), kecuali
+            # `<` kedua dari heredoc `<<` yang memang berurutan.
+            if sesudah_op and segmen[i - 1] != "<":
+                return False
+            sesudah_op = True
             i += 1
             continue
         if (c == ">" and i > 0 and segmen[i - 1] == "<"):

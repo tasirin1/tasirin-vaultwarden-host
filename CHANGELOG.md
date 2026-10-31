@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Operator < ikut memasang keadaan sesudah-operator gerbang (Audit 898)
+- Sisa Audit 894/895 arah fail-open: pelebaran `<>` hanya menutup bentuk menempel, sedangkan `<` sendiri tak memasang keadaan sesudah-operator sehingga `< > target` berjarak — sintaks tak sah di shell — dinilai sebagai penulisan biasa. `<` kini diperlakukan sebagai operator oleh pelacak (dengan pengecualian `<` kedua heredoc `<<`), dan pembersih keadaan tak lagi membersihkan pada `<`. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Strip penutup gerbang hanya membuang kurung subshell (Audit 897)
 - Sisa Audit 887 arah fail-open: strip ikut membuang `}` di ekor sisa, padahal `}` yang menempel pada kata adalah karakter nama berkas bagi shell — penulisan ke berkas bersufiks `}` terhitung menulis ke berkas keluaran. Penutup grup selalu kata tersendiri yang terpisah segmen oleh titik-koma, jadi hanya `)` (penutup subshell, memang metakarakter) yang kini dibuang. Skenario uji-diri target bersufiks `}` harus gagal kini menguncinya.
 
