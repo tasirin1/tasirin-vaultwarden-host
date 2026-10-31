@@ -230,6 +230,47 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(sarang, ignore_errors=True)
 
+        strmode = klon(tmp, "strmode")
+        berkas_set6 = os.path.join(strmode, "settings.gradle.kts")
+        with open(berkas_set6, encoding="utf-8") as f:
+            isi_set6 = f.read()
+        with open(berkas_set6, "w", encoding="utf-8") as f:
+            f.write(isi_set6.replace(
+                "    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)",
+                "    // repositoriesMode dimatikan\n"
+                '    val penanda = "RepositoriesMode.FAIL_ON_PROJECT_REPOS"'))
+        rc, out = jalan(strmode, [sys.executable, GERBANG, "--semua"])
+        periksa("mode hanya di dalam string biasa: gerbang gagal (Audit 869)",
+                rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
+        shutil.rmtree(strmode, ignore_errors=True)
+
+        rawmode = klon(tmp, "rawmode")
+        berkas_set7 = os.path.join(rawmode, "settings.gradle.kts")
+        with open(berkas_set7, encoding="utf-8") as f:
+            isi_set7 = f.read()
+        with open(berkas_set7, "w", encoding="utf-8") as f:
+            f.write(isi_set7.replace(
+                "    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)",
+                "    // repositoriesMode dimatikan\n"
+                '    val penanda = """RepositoriesMode.FAIL_ON_PROJECT_REPOS"""'))
+        rc, out = jalan(rawmode, [sys.executable, GERBANG, "--semua"])
+        periksa("mode hanya di dalam raw string: gerbang gagal (Audit 869)",
+                rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
+        shutil.rmtree(rawmode, ignore_errors=True)
+
+        rawagp = klon(tmp, "rawagp")
+        berkas_agp = os.path.join(rawagp, "build.gradle.kts")
+        with open(berkas_agp, encoding="utf-8") as f:
+            isi_agp = f.read()
+        with open(berkas_agp, "w", encoding="utf-8") as f:
+            f.write(isi_agp.replace('version "8.13.2"', 'version "9.9.9"')
+                    + '\nval penanda = """id("com.android.application")'
+                      ' version "8.13.2" apply false"""\n')
+        rc, out = jalan(rawagp, [sys.executable, GERBANG, "--semua"])
+        periksa("versi AGP terpaku hanya di raw string: gerbang gagal (Audit 869)",
+                rc != 0 and "8.13.2" in out)
+        shutil.rmtree(rawagp, ignore_errors=True)
+
         komen = klon(tmp, "komen")
         berkas_set3 = os.path.join(komen, "settings.gradle.kts")
         with open(berkas_set3, encoding="utf-8") as f:

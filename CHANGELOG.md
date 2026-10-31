@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek Gradle gerbang tak lagi membaca isi string sebagai kode (Audit 869)
+- Sisa Audit 854/866: `kupas_komentar_kotlin` menyalin isi string apa adanya dan tidak mengenal raw string `"""..."""`, sehingga teks paku (mode `FAIL_ON_PROJECT_REPOS`, baris versi AGP terpaku) yang hanya berada di dalam string literal ikut memenuhi cek Gradle. Raw string kini selalu dikosongkan seperti komentar, dan cek atas `settings.gradle.kts` berjalan dalam mode `kosongkan_string` (isi string biasa pun dibuang — cek substring membaca kode saja); cek versi AGP tetap membaca string biasa karena polanya terstruktur penuh (`id("...") version "..." apply false` tak bisa muncul dari string biasa tanpa escape yang mengubah teksnya). Tiga skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Uji cek-cepat kini mengunci cabang struktur README (Audit 868)
 - Cabang perbandingan struktur judul README 3 bahasa di `scripts/cek-cepat.sh` tak punya skenario di `tools/uji-cek-cepat.py`, jadi regresinya tak akan memerahkan CI mana pun (di CI cek-cepat hanya berjalan di pohon bersih). Skenario baru mengubah satu tingkat heading di `README.id.md` pada salinan buang dan mengasersi cek-cepat gagal dengan pesan struktur.
 

@@ -1347,17 +1347,26 @@ def pemanggil(nama):
                     return temu
     return temu
 
-def kupas_komentar_kotlin(isi):
+def kupas_komentar_kotlin(isi, kosongkan_string=False):
     """Buang komentar // dan /* */ dengan sadar string (Audit 854):
     cek mentah atas teks Gradle bisa dipenuhi teks komentar (baris mode
     yang dikomentari) atau dikelabui komentar di antara kata kunci dan
-    kurung. String "..." (termasuk URL di dalamnya) dipertahankan."""
+    kurung. String "..." (termasuk URL di dalamnya) dipertahankan,
+    kecuali mode kosongkan_string (Audit 869): isi string adalah data,
+    bukan kode, jadi dikosongkan agar cek substring membaca kode saja.
+    Raw string triple-quote selalu dikosongkan (Audit 869)."""
     hasil = []
     i = 0
     n = len(isi)
     while i < n:
         c = isi[i]
-        if c == '"':
+        if isi.startswith('"""', i):
+            j = isi.find('"""', i + 3)
+            j = n if j < 0 else j + 3
+            hasil.append('""')
+            hasil.append("\n" * isi[i:j].count("\n"))
+            i = j
+        elif c == '"':
             j = i + 1
             while j < n:
                 if isi[j] == "\\":
@@ -1367,7 +1376,7 @@ def kupas_komentar_kotlin(isi):
                     j += 1
                     break
                 j += 1
-            hasil.append(isi[i:j])
+            hasil.append('""' if kosongkan_string else isi[i:j])
             i = j
         elif c == "/" and i + 1 < n and isi[i + 1] == "/":
             while i < n and isi[i] != "\n":
@@ -1431,7 +1440,8 @@ def cek_gradle_akar(gagal):
                      + VERSI_AGP_TERPAKU + " + apply false — mengganti versi "
                      "AGP wajib menyelaraskan VERSI_AGP_TERPAKU di "
                      "verifikasi-patch pada commit yang sama (Audit 835)")
-    isi = kupas_komentar_kotlin(baca("settings.gradle.kts"))
+    isi = kupas_komentar_kotlin(baca("settings.gradle.kts"),
+                                kosongkan_string=True)
     if not os.path.isfile(os.path.join(AKAR, "settings.gradle.kts")):
         gagal.append("settings.gradle.kts hilang — mode repositori tak "
                      "terpaku")
