@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks log layar-penuh kini memakai dimen adaptif TV (Audit 824)
+- `activity_log.xml` sebelumnya meng-hardcode `textSize="11sp"` untuk teks log, mengabaikan dimen `log_text_size` yang memang dibuat berjenjang untuk layar besar (11sp bawaan, 13sp di sw600dp, 14sp di sw480dp-land, 15sp di sw600dp-land) dan sudah dipakai benar oleh log di layar utama. Layar log layar-penuh — layar yang paling untuk dibaca dari jauh di TV/STB — kini memakai `@dimen/log_text_size` yang sama, jadi di perangkat lebar teksnya ikut membesar seperti di beranda.
+
+
 ## [Belum rilis] — Dua teks UI hardcode dipindah ke resource (Audit 823)
 - Toast hasil pasang versi terpilih sebelumnya menempelkan literal Inggris `" Press Start to use it."`, padahal resource-nya sudah ada dan dipakai benar di jalur update lain pada berkas yang sama (`R.string.update_press_start`, terjemahan Indonesia "Tekan Start untuk memakainya."). Sebaliknya toast restore menyisipkan literal Indonesia `"checkpoint WAL gagal"` sebagai argumen string berformat yang sudah terlokalisasi, sehingga pengguna locale Inggris menerima pesan campur. Keduanya kini lewat resource: jalur pertama memakai `update_press_start` yang sudah ada, jalur kedua memakai string baru `restore_checkpoint_gagal` di `values` dan `values-in`.
 
