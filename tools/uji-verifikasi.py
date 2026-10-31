@@ -823,6 +823,25 @@ def main():
                 "(Audit 912)", rc == 0)
         shutil.rmtree(grupredir, ignore_errors=True)
 
+        kurungtempel = klon(tmp, "kurungtempel")
+        berkas_aksi40 = os.path.join(
+            kurungtempel, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi40, encoding="utf-8") as f:
+            isi_aksi40 = f.read()
+        baris_tulis40 = [b for b in isi_aksi40.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indentasi40 = baris_tulis40[:len(baris_tulis40)
+                                    - len(baris_tulis40.lstrip())]
+        with open(berkas_aksi40, "w", encoding="utf-8") as f:
+            f.write(isi_aksi40.replace(
+                baris_tulis40,
+                indentasi40 + "{" + baris_tulis40.strip() + "; }", 1))
+        rc, out = jalan(kurungtempel, [sys.executable, GERBANG, "--semua"])
+        periksa("kurung menempel bukan grup: gerbang gagal (Audit 913)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(kurungtempel, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

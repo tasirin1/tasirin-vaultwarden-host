@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pembuka grup wajib batas kata bagi gerbang (Audit 913)
+- Arah fail-open terbatas: loop buka-pembungkus mengupas `{` awal tanpa batas kata, sehingga `{echo ...` — satu kata perintah tak dikenal di shell — terkuak menjadi echo dan diberi kredit produsen. `{` kini hanya dikupas bila berdiri sebagai kata tersendiri (diikuti spasi/tab atau akhir segmen); `(` tetap metakarakter. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect tingkat grup dihitung gerbang (Audit 912)
 - Arah fail-closed: pemindaian produsen hanya menilai segmen berawalan echo, sehingga penulisan lewat redirect grup `{ ...; } >> keluaran` tak pernah dihitung — segmen echo di dalam grup tak membawa redirect-nya sendiri dan segmen penutup pembawa redirect tak dinilai. Pemindaian kini mengingat echo kandidat selama grup terbuka dan mengesahkannya bila penutup grup membawa redirect persis ke berkas keluaran. Skenario uji-diri baru menguncinya (terbukti diskriminatif: gagal di gerbang lama, lolos di gerbang baru).
 

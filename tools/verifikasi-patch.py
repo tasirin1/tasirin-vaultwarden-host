@@ -702,7 +702,14 @@ def cek_yaml_github_lain(gagal, peringatan):
                     # dibuka lebih dulu (Audit 886): penulisan di
                     # dalamnya tetap penulisan sungguhan bagi shell.
                     segmen_cek = segmen.lstrip()
-                    while segmen_cek[:1] in ("{", "("):
+                    while (segmen_cek[:1] == "("
+                           or (segmen_cek[:1] == "{"
+                               and (len(segmen_cek) == 1
+                                    or segmen_cek[1] in " \t"))):
+                        # `{` hanya pembuka grup bila berdiri sebagai
+                        # kata tersendiri — `{echo` adalah satu kata
+                        # perintah, bukan grup (Audit 913); `(` memang
+                        # metakarakter.
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
                             and segmen_cek.rstrip().endswith(" }")):
