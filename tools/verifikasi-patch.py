@@ -644,6 +644,7 @@ def _punya_redirect_luar(segmen):
     subshell) tak berlaku baginya (Audit 914)."""
     kutip = ""
     dalam = 0
+    param = 0
     tikus = False
     i = 0
     n = len(segmen)
@@ -672,6 +673,16 @@ def _punya_redirect_luar(segmen):
             dalam += 1
             i += 2
             continue
+        if c == "$" and i + 1 < n and segmen[i + 1] == "{":
+            # Ekspansi parameter juga sebuah kedalaman (Audit 919):
+            # `>` di dalam nilai bawaannya bukan operator redirect.
+            param += 1
+            i += 2
+            continue
+        if c == "}" and param > 0:
+            param -= 1
+            i += 1
+            continue
         if c in "><" and i + 1 < n and segmen[i + 1] == "(":
             dalam += 1
             i += 2
@@ -684,7 +695,7 @@ def _punya_redirect_luar(segmen):
             dalam -= 1
             i += 1
             continue
-        if c == ">" and dalam == 0 and not tikus:
+        if c == ">" and dalam == 0 and param == 0 and not tikus:
             return True
         i += 1
     return False

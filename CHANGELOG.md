@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penolong redirect luar melacak ekspansi parameter (Audit 919)
+- Arah fail-closed: `_punya_redirect_luar` tak melacak kedalaman ekspansi parameter, sehingga `>` di dalam nilai bawaan terbaca sebagai redirect tingkat luar dan menyaring kandidat grup/subshell yang sah. Ekspansi kini dilacak sebagai kedalaman tersendiri. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemotong komentar sadar escape (Audit 918)
 - Arah fail-closed: `_potong_komentar_shell` tak memodelkan escape, sehingga backtick literal ter-escape membuka keadaan substitusi gadungan dan komentar asli sesudahnya tak terpotong — redirect di dalam komentar lalu membalik vonis penilai. Pemotong kini melompati pasangan backslash sebagai literal, selaras penilai sejak Audit 908. Skenario uji-diri baru menguncinya.
 

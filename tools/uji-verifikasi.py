@@ -942,6 +942,24 @@ def main():
                 "lolos (Audit 918)", rc == 0)
         shutil.rmtree(potongluput, ignore_errors=True)
 
+        parameter = klon(tmp, "parameter")
+        berkas_aksi46 = os.path.join(
+            parameter, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi46, encoding="utf-8") as f:
+            isi_aksi46 = f.read()
+        baris_tulis46 = [b for b in isi_aksi46.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi46, "w", encoding="utf-8") as f:
+            f.write(isi_aksi46.replace(
+                baris_tulis46,
+                baris_tulis46.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" ${x:-a>b}; }'), 1))
+        rc, out = jalan(parameter, [sys.executable, GERBANG, "--semua"])
+        periksa("panah di nilai bawaan ekspansi tak menyaring kandidat: "
+                "gerbang lolos (Audit 919)", rc == 0)
+        shutil.rmtree(parameter, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
