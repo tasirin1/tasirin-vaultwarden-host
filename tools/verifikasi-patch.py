@@ -590,7 +590,10 @@ def segmen_redirect_output(segmen):
                         if kedalaman == 0:
                             break
                     k += 1
-                hasil = segmen_redirect_output(segmen[awal + 2:k])
+                # Kurung tak seimbang = sintaks tak sah (Audit 916):
+                # isi terpotong tak boleh dinilai sama sekali.
+                hasil = (segmen_redirect_output(segmen[awal + 2:k])
+                         if kedalaman == 0 else False)
                 sesudah_op = True
                 i = k + 1 if k < n else n
                 continue

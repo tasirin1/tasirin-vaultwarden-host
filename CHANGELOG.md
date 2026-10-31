@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Target substitusi proses tak seimbang tak dinilai gerbang (Audit 916)
+- Arah fail-open sisa Audit 911: bila kurung target substitusi proses tak tertutup (sintaks tak sah), pemindai berhenti di akhir segmen dan rekursi tetap menilai isi terpotong sehingga kredit produsen lolos. Rekursi kini hanya berjalan bila kurung terbukti seimbang; selain itu vonisnya bukan penulisan. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect tingkat subshell dihitung gerbang (Audit 915)
 - Arah fail-closed, kelas yang sama dengan Audit 912 untuk subshell: penulisan lewat redirect subshell yang memuat titik-koma tak pernah dihitung karena segmen terpecah dan pemindaian tak punya keadaan subshell. Pemindaian kini melacak kandidat subshell dan mengesahkannya di penutup kurung ber-redirect, dengan syarat kandidat yang sama seperti grup (tanpa redirect sendiri, Audit 914). Skenario uji-diri baru menguncinya.
 
