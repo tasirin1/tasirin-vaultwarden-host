@@ -393,3 +393,7 @@ vault** manual di perangkat: buka web vault → Vault → item ber-URL → cek l
 tidak ada panic (`android context was not initialized` /
   `Expect rustls-platform-verifier to be initialized`) / `500` pada
 `/icons/...`. Bila muncul, patch DNS di workflow perlu disesuaikan.
+
+## Aturan rilis maraton (owner 2026-10-31)
+
+Satu maraton = satu versi rilis: seluruh perbaikan dalam satu maraton dikumpulkan dan diterbitkan sebagai SATU versi di akhir maraton, bukan satu versi per perbaikan. Karena CI repo ini menerbitkan rilis dari push ke `main`, commit perbaikan maraton ditahan secara lokal selama maraton berjalan dan di-push sekali di akhir maraton. Versi kanonik aturan ini ada di `SOUL.md` repo memori (seksi aturan maraton, berlaku semua repo).
