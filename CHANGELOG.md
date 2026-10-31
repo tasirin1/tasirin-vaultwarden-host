@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemindaian produsen gerbang membuka pembungkus grup/subshell (Audit 886)
+- Sisa Audit 874 arah fail-closed: nama produsen dicocokkan terjangkar di kepala segmen, sehingga penulisan sah yang dibungkus grup `{ ...; }` atau subshell `( ... )` tak pernah dihitung dan berkas sehat dilaporkan tak menulis keluaran. Pembungkus di kepala segmen kini dibuka lebih dulu sebelum nama dan redirect dinilai. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penilai redirect gerbang memakai redirect terakhir yang berlaku (Audit 885)
 - Sisa Audit 874/870 arah fail-closed: penilai segmen kembali pada redirect `>>` pertama, padahal bagi shell redirect terakhir untuk fd yang sama yang berlaku — baris tulis sah dengan redirect pendahulu (mis. cadangan `.bak`) lalu target keluaran terakhir dilaporkan tak pernah menulis. Penilai kini mencatat tiap redirect di luar kutip dan memakai penilaian yang terakhir. Urutan terbalik (target dulu, `.bak` terakhir) tetap ditolak dengan benar. Skenario uji-diri baru menguncinya.
 

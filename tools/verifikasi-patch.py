@@ -486,9 +486,15 @@ def cek_yaml_github_lain(gagal, peringatan):
                     continue
                 for segmen in pecah_segmen_shell(
                         _potong_komentar_shell(baris_act)):
+                    # Pembungkus grup `{ ...; }` / subshell `( ... )`
+                    # dibuka lebih dulu (Audit 886): penulisan di
+                    # dalamnya tetap penulisan sungguhan bagi shell.
+                    segmen_cek = segmen.lstrip()
+                    while segmen_cek[:1] in ("{", "("):
+                        segmen_cek = segmen_cek[1:].lstrip()
                     m_nama = re.match(
-                        r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen)
-                    if m_nama and segmen_redirect_output(segmen):
+                        r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
+                    if m_nama and segmen_redirect_output(segmen_cek):
                         nama_ditulis.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
