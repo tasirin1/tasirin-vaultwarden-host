@@ -3027,6 +3027,25 @@ public class ServerService extends Service {
 
     private static volatile long capCaWaktu = 0;
 
+    static java.io.File caUntukHealthCheck(Context ctx) {
+        try {
+            if (ctx == null) return null;
+            android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            String dirTls = TgBackup.amanString(sp, KEY_TLS_DIR, "");
+            java.io.File tercatat = (dirTls == null || dirTls.trim().isEmpty())
+                    ? null : new java.io.File(dirTls, "ca.pem");
+            String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = dataDirBawaanSegar();
+            }
+            return TgBackup.pilihCaKirim(tercatat,
+                    new java.io.File(ctx.getFilesDir(), "tls/ca.pem"),
+                    new java.io.File(dataDir, "tls/ca.pem"));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private static long capCaAktif(Context ctx) {
 
         long kini = SystemClock.elapsedRealtime();
@@ -3041,22 +3060,7 @@ public class ServerService extends Service {
             return capCaNilai;
         }
         try {
-            java.io.File ca = null;
-            try {
-                ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
-            } catch (Exception ignored) {
-            }
-            if ((ca == null || !ca.isFile()) && ctx != null) {
-                try {
-                    android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                    String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
-                    if (dataDir == null || dataDir.trim().isEmpty()) {
-                        dataDir = dataDirBawaanSegar();
-                    }
-                    ca = new java.io.File(dataDir, "tls/ca.pem");
-                } catch (Exception ignored) {
-                }
-            }
+            java.io.File ca = caUntukHealthCheck(ctx);
             if (ca != null && ca.isFile()) {
                 long stat = ca.lastModified() * 31 + ca.length();
                 if (stat == capCaStat) {
@@ -3095,14 +3099,8 @@ public class ServerService extends Service {
         try {
             if (ctx == null) return null;
 
-            java.io.File ca = new java.io.File(ctx.getFilesDir(), "tls/ca.pem");
-            if (!ca.isFile()) {
-                android.content.SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                String dataDir = TgBackup.amanString(sp, KEY_DATA_DIR, dataDirBawaanSegar());
-                if (dataDir == null || dataDir.trim().isEmpty()) dataDir = dataDirBawaanSegar();
-                ca = new java.io.File(dataDir, "tls/ca.pem");
-            }
-            if (!ca.isFile()) return null;
+            java.io.File ca = caUntukHealthCheck(ctx);
+            if (ca == null || !ca.isFile()) return null;
             java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
             java.security.KeyStore ks = java.security.KeyStore.getInstance(
                     java.security.KeyStore.getDefaultType());

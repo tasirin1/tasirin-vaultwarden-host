@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Health check kini mem-pin CA dari folder TLS yang benar-benar aktif (Audit 805)
+- `capCaAktif` dan `cobaPinnedCa` di `ServerService` sebelumnya memilih CA berdasar keberadaan (internal selalu menang bila ada) — sisa lubang dari perbaikan Audit 804 yang hanya menjangkau jalur kirim/backup CA. Pada sesi darurat yang sama (internal gagal menyiapkan TLS sehingga server berjalan memakai TLS lama di folder data), health check bisa mem-pin CA internal yang basi: handshake `/alive` gagal terus, server yang sehat di-restart berulang sampai episodenya diakhiri. Kedua situs kini memilih CA lewat penolong baru `caUntukHealthCheck` yang memakai keputusan murni yang sama dengan jalur kirim (`TgBackup.pilihCaKirim`): catatan folder TLS aktif sesi (`tls_dir`) didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; penolong itu dikunci uji JVM untuk konteks null.
+
+
 ## [Belum rilis] — Kirim dan backup CA kini mengikuti folder TLS yang benar-benar aktif (Audit 804)
 - Perintah /ca dan backup CA ke storage sebelumnya memilih berkas CA murni berdasar keberadaan: berkas internal selalu menang bila ada. Pada sesi darurat yang langka — penyimpanan internal gagal total saat Start sehingga server berjalan memakai TLS lama di folder data apa adanya — pilihan itu bisa mengirim atau membackup CA yang sedang tidak dipakai server, dan HP lain yang memasangnya akan gagal memercayai server. Folder TLS yang benar-benar dipakai kini dicatat saat Start (`tls_dir`, perangkat-lokal dan tidak ikut diekspor dalam config), dan kedua jalur memilih CA lewat keputusan murni baru `pilihCaKirim`: catatan sesi didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; keputusan itu dikunci uji JVM.
 

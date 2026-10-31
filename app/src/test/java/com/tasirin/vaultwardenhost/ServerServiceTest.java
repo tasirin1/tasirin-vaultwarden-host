@@ -11,6 +11,11 @@ import org.junit.Test;
 public class ServerServiceTest {
 
     @Test
+    public void caUntukHealthCheck_konteksNullMengembalikanNull() {
+        assertNull(ServerService.caUntukHealthCheck(null));
+    }
+
+    @Test
     public void migrasiPort_toleranSpasi() {
         assertTrue(ServerService.perluMigrasiPort(" 8080 ", false));
         assertFalse(ServerService.perluMigrasiPort(" 8088 ", false));
