@@ -351,13 +351,19 @@ def cek_yaml_github_lain(gagal, peringatan):
             # boleh memenuhi kontrak. Redirect wajib menunjuk PERSIS
             # berkas keluaran di akhir baris (Audit 870): substring
             # GITHUB_OUTPUT di mana pun membuat umpan seperti
-            # "$GITHUB_OUTPUT.bak" ikut dihitung.
+            # "$GITHUB_OUTPUT.bak" ikut dihitung. Pencocokan per SEGMEN
+            # perintah (Audit 872): baris komentar shell dilewati, dan
+            # nama hanya diambil dari segmen echo yang redirect-nya
+            # persis — echo umpan pada baris majemuk yang sama tak ikut.
             nama_ditulis = set()
             for baris_act in mentah_action.splitlines():
-                if re.search(r">>\s*\"?\$\{?GITHUB_OUTPUT\}?\"?\s*$",
-                             baris_act):
-                    nama_ditulis.update(re.findall(
-                        r"echo\s+\"?([A-Za-z0-9_-]+)=", baris_act))
+                if baris_act.lstrip().startswith("#"):
+                    continue
+                for segmen in re.split(r";|&&", baris_act):
+                    if re.search(r">>\s*\"?\$\{?GITHUB_OUTPUT\}?\"?\s*$",
+                                 segmen):
+                        nama_ditulis.update(re.findall(
+                            r"echo\s+\"?([A-Za-z0-9_-]+)=", segmen))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):

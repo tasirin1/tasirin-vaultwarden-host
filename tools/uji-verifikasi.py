@@ -168,6 +168,36 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpan, ignore_errors=True)
 
+        umpankomen = klon(tmp, "umpankomen")
+        berkas_uk = os.path.join(umpankomen, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_uk, encoding="utf-8") as f:
+            isi_uk = f.read()
+        with open(berkas_uk, "w", encoding="utf-8") as f:
+            f.write(isi_uk.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+                '        # echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"'))
+        rc, out = jalan(umpankomen, [sys.executable, GERBANG, "--semua"])
+        periksa("baris komentar shell nama produsen: gerbang gagal (Audit 872)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpankomen, ignore_errors=True)
+
+        umpanmajemuk = klon(tmp, "umpanmajemuk")
+        berkas_um = os.path.join(umpanmajemuk, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_um, encoding="utf-8") as f:
+            isi_um = f.read()
+        with open(berkas_um, "w", encoding="utf-8") as f:
+            f.write(isi_um.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tag_mentah=umpan"; '
+                'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"'))
+        rc, out = jalan(umpanmajemuk, [sys.executable, GERBANG, "--semua"])
+        periksa("echo umpan baris majemuk nama produsen: gerbang gagal (Audit 872)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpanmajemuk, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

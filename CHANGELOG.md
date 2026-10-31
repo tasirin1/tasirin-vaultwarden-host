@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pencocokan produsen gerbang per segmen perintah (Audit 872)
+- Sisa Audit 870: nama produsen resolve-vw dikumpulkan dari seluruh baris yang berakhir dengan redirect persis, sehingga baris komentar shell dan echo umpan pada baris majemuk ikut memenuhi kontrak sementara baris tulis sungguhan salah nama. Baris komentar kini dilewati dan nama hanya diambil dari segmen perintah (terpisah `;`/`&&`) yang redirect-nya persis ke `$GITHUB_OUTPUT`. Dua skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penilai gradle.properties gerbang mengakui pemisah titik dua dan spasi (Audit 871)
 - Sisa Audit 854: regex nilai efektif `android.useAndroidX` hanya mengakui pemisah `=`, padahal format Java properties yang dipakai Gradle juga mengakui `:` dan spasi dengan semantik last-wins — baris `android.useAndroidX:true` sesudah baris sah `=false` terabaikan dan paku tanpa-AndroidX terbalik tanpa sinyal. Pemisah kini diakui seluas formatnya (`[\s=:]+`). Skenario uji-diri baru menguncinya.
 
