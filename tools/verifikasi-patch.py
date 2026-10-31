@@ -459,7 +459,12 @@ def segmen_redirect_output(segmen):
             # sisa yang SUDAH persis target sah tak boleh dikupas:
             # kurung tutup bentuk polos `${GITHUB_OUTPUT}` adalah
             # bagian targetnya (Audit 891).
-            while (sisa and sisa[-1] in ")}"
+            # Hanya `)` yang dibuang: kurung subshell memang
+            # metakarakter penutup, sedangkan `}` yang menempel
+            # pada kata adalah karakter nama berkas bagi shell
+            # (Audit 897) — penutup grup selalu kata tersendiri
+            # yang terpisah segmen oleh `;`.
+            while (sisa and sisa[-1] == ")"
                    and sisa not in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                                     '"${GITHUB_OUTPUT}"',
                                     "${GITHUB_OUTPUT}")):

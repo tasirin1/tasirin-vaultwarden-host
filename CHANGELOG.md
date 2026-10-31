@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Strip penutup gerbang hanya membuang kurung subshell (Audit 897)
+- Sisa Audit 887 arah fail-open: strip ikut membuang `}` di ekor sisa, padahal `}` yang menempel pada kata adalah karakter nama berkas bagi shell — penulisan ke berkas bersufiks `}` terhitung menulis ke berkas keluaran. Penutup grup selalu kata tersendiri yang terpisah segmen oleh titik-koma, jadi hanya `)` (penutup subshell, memang metakarakter) yang kini dibuang. Skenario uji-diri target bersufiks `}` harus gagal kini menguncinya.
+
+
 ## [Belum rilis] — Konsumsi clobber gerbang hanya untuk > tunggal (Audit 896)
 - Sisa Audit 892 arah fail-open: pipa clobber dikonsumsi untuk operator mana pun, sehingga `>>|` — yang bukan operator bash dan barisnya tak akan pernah berjalan — ikut diberi kredit produsen. Konsumsi pipa kini hanya berlaku bagi `>` tunggal (`>|` yang sah). Skenario uji-diri baru menguncinya.
 

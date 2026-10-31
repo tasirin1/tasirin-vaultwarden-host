@@ -529,6 +529,24 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(lampau, ignore_errors=True)
 
+        sufiks = klon(tmp, "sufiks")
+        berkas_aksi24 = os.path.join(
+            sufiks, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi24, encoding="utf-8") as f:
+            isi_aksi24 = f.read()
+        baris_tulis24 = [b for b in isi_aksi24.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi24, "w", encoding="utf-8") as f:
+            f.write(isi_aksi24.replace(
+                baris_tulis24,
+                baris_tulis24.replace('>> "$GITHUB_OUTPUT"',
+                                      '>> $GITHUB_OUTPUT}'), 1))
+        rc, out = jalan(sufiks, [sys.executable, GERBANG, "--semua"])
+        periksa("sufiks kurung nama berkas bukan produsen: gerbang gagal (Audit 897)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(sufiks, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
