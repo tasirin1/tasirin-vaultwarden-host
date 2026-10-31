@@ -4333,6 +4333,13 @@ public class ServerService extends Service {
         try {
             int myPid = android.os.Process.myPid();
             int childPid = runningChildPid();
+            // PID anak disegarkan PALING BANYAK sekali selama loop: dulu
+            // tiap kandidat memanggil runningChildPid() lagi (di pra-API
+            // 26 itu pemindaian /proc penuh) sehingga Start membayar
+            // pemindaian kuadratik (Audit 847). Nilai basi sesaat aman:
+            // arah kesalahannya selalu melewatkan bunuh, bukan membunuh
+            // anak yang hidup.
+            int childPidSegar = Integer.MIN_VALUE;
             for (int pid : kandidatPidSeUid()) {
                 try {
                     if (pid == myPid || pid == childPid) {
@@ -4341,7 +4348,10 @@ public class ServerService extends Service {
                     String cmd = readProcCmdline(new File("/proc/" + pid));
                     if (bolehBunuhBasi(cmd)) {
 
-                        if (pid == myPid || pid == runningChildPid()) {
+                        if (childPidSegar == Integer.MIN_VALUE) {
+                            childPidSegar = runningChildPid();
+                        }
+                        if (pid == myPid || pid == childPidSegar) {
                             continue;
                         }
                         // Anak yang BENAR-BENAR hidup tetapi PID-nya tak
@@ -4356,7 +4366,7 @@ public class ServerService extends Service {
                         int ppid = ppidDariStat(bacaBarisProc(
                                 new File(new File("/proc/" + pid), "stat")));
                         if (lewatiBunuhBasi(
-                                isProcessAlive() && runningChildPid() < 0,
+                                isProcessAlive() && childPidSegar < 0,
                                 ppid, myPid)) {
                             continue;
                         }

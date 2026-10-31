@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — killStaleVaultwarden berhenti memindai /proc berulang per kandidat (Audit 847)
+- Di dalam loop kandidat, PID anak dihitung ulang lewat `runningChildPid()` sampai dua kali per kandidat; di pra-API 26 (perangkat sasaran utama) itu adalah pemindaian seluruh `/proc`, jadi Start membayar biaya kuadratik terhadap jumlah proses satu-UID. Kini PID anak disegarkan paling banyak sekali selama loop dan dipakai ulang untuk kedua pemeriksaan; nilai sesaat yang basi selalu berarah aman (melewatkan bunuh, bukan membunuh anak yang hidup).
+
+
 ## [Belum rilis] — Klasifikasi crash menunggu pembaca output sampai 2 detik (Audit 846)
 - `watchProcess` menggolongkan crash (panic shim / port direbut / biasa) dari ekor log, tetapi `tungguPembacaOutput` hanya memberi thread pembaca 500 ms untuk mengejar — saat banjir log, baris fatal sering belum terpompa sehingga crash port-direbut/panic digolongkan biasa dan server di-restart sia-sia beberapa kali sebelum berhenti. Batas tunggu kini 2 detik; pembaca berhenti sendiri saat aliran proses tutup, jadi waktu ekstra hanya terbayar bila pembaca memang tertinggal.
 
