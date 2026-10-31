@@ -277,6 +277,23 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpankomen, ignore_errors=True)
 
+        tempel = klon(tmp, "tempel")
+        berkas_aksi10 = os.path.join(
+            tempel, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi10, encoding="utf-8") as f:
+            isi_aksi10 = f.read()
+        baris_tulis10 = [b for b in isi_aksi10.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi10, "w", encoding="utf-8") as f:
+            f.write(isi_aksi10.replace(
+                baris_tulis10,
+                baris_tulis10.replace('>> "$GITHUB_OUTPUT"',
+                                      '>> "$GITHUB_OUTPUT"#semu'), 1))
+        rc, out = jalan(tempel, [sys.executable, GERBANG, "--semua"])
+        periksa("target redirect berekor # menempel: gerbang gagal (Audit 882)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(tempel, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

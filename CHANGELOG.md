@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemotongan komentar gerbang hanya pada # yang mengawali kata (Audit 882)
+- Sisa Audit 878 arah fail-open: sisa segmen dipotong pada `#` pertama tanpa syarat, padahal bagi shell `#` yang menempel pada kata adalah bagian kata itu — baris tulis berekor `"$GITHUB_OUTPUT"#semu` sesungguhnya menulis ke berkas lain, tetapi sisa yang terpotong terlihat persis target sehingga produsen dihitung. Pemotongan kini hanya pada `#` yang mengawali kata (awal sisa atau sesudah spasi/tab). Skenario uji-diri baru menguncinya (draf skenario pertama menyasar baris keluaran yang salah dan dikoreksi — gerbangnya sendiri sudah benar).
+
+
 ## [Belum rilis] — Pemindaian produsen gerbang membuang komentar shell tengah baris (Audit 881)
 - Sisa keluarga Audit 872/874 arah fail-open: teks sesudah `#` di tengah baris adalah komentar bagi shell (tak dieksekusi), tetapi pemecah segmen tetap mengolahnya — contoh perintah di komentar baris majemuk dan redirect yang tertulis di dalam komentar sama-sama dihitung sebagai produsen, sehingga kontrak keluaran bisa terpenuhi semu sementara keluaran sungguhan kosong di runtime. Baris kini dipotong pada awal komentar shell (di luar kutip, `#` yang mengawali kata) sebelum dipecah per segmen. Skenario uji-diri baru menguncinya.
 

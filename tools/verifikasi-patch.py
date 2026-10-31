@@ -362,6 +362,16 @@ def pecah_segmen_shell(baris):
     return segmen
 
 
+def _potong_komentar_sisa(sisa):
+    """Potong sisa segmen pada `#` yang mengawali kata saja (posisi
+    awal atau sesudah spasi/tab) — `#` yang menempel pada kata
+    adalah bagian kata itu bagi shell (Audit 882)."""
+    for idx, ch in enumerate(sisa):
+        if ch == "#" and (idx == 0 or sisa[idx - 1] in " \t"):
+            return sisa[:idx]
+    return sisa
+
+
 def segmen_redirect_output(segmen):
     """True bila segmen memuat redirect `>>` ke PERSIS $GITHUB_OUTPUT
     yang berada DI LUAR kutip dan menjadi penutup segmen (Audit 874):
@@ -386,10 +396,11 @@ def segmen_redirect_output(segmen):
             i += 1
             continue
         if c == ">" and i + 1 < n and segmen[i + 1] == ">":
-            # Komentar akhir baris (`# ...`) sesudah target juga sah
-            # (Audit 878): shell membuangnya, keluaran tetap tertulis.
-            sisa = (segmen[i + 2:].split("#")[0].split("||")[0]
-                    .strip())
+            # Komentar akhir baris (`# ...` mengawali kata) sesudah
+            # target juga sah (Audit 878); `#` yang menempel pada
+            # kata BUKAN komentar bagi shell (Audit 882).
+            sisa = (_potong_komentar_sisa(segmen[i + 2:])
+                    .split("||")[0].strip())
             return sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                             '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
         i += 1
