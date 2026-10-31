@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai gradle.properties gerbang mengakui pemisah titik dua dan spasi (Audit 871)
+- Sisa Audit 854: regex nilai efektif `android.useAndroidX` hanya mengakui pemisah `=`, padahal format Java properties yang dipakai Gradle juga mengakui `:` dan spasi dengan semantik last-wins — baris `android.useAndroidX:true` sesudah baris sah `=false` terabaikan dan paku tanpa-AndroidX terbalik tanpa sinyal. Pemisah kini diakui seluas formatnya (`[\s=:]+`). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Nama produsen gerbang wajib redirect persis ke $GITHUB_OUTPUT (Audit 870)
 - Sisa Audit 867: baris penulisan produsen resolve-vw dihitung bila mengandung `>>` dan substring `GITHUB_OUTPUT` di mana pun, sehingga umpan `echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT.bak"` ikut memenuhi kontrak sementara baris tulis sungguhan salah nama. Redirect kini wajib menunjuk persis berkas keluaran di akhir baris (pola `>> "$GITHUB_OUTPUT"`). Skenario uji-diri baru menguncinya.
 

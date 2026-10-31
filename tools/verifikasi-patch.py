@@ -1473,13 +1473,16 @@ def cek_gradle_akar(gagal):
     else:
         # Nilai EFEKTIF last-wins (Audit 854): baris duplikat `=true`
         # sesudah `=false` dulu lolos karena regex menemukan baris false
-        # di mana pun. Baris komentar (#/!) dilewati.
+        # di mana pun. Baris komentar (#/!) dilewati. Pemisah diakui
+        # seluas format Java properties (Audit 871): `=`, `:`, atau
+        # spasi — baris gaya `kunci:nilai` sah bagi Gradle dan ikut
+        # menentukan nilai efektif.
         nilai_ax = None
         for baris in isi.splitlines():
             b = baris.strip()
             if not b or b.startswith("#") or b.startswith("!"):
                 continue
-            m = re.match(r"android\.useAndroidX\s*=\s*(\S+)\s*$", b)
+            m = re.match(r"android\.useAndroidX[\s=:]+(\S+)\s*$", b)
             if m:
                 nilai_ax = m.group(1)
         if nilai_ax != "false":
