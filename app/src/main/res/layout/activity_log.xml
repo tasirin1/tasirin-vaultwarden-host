@@ -189,6 +189,6 @@
             android:fontFamily="monospace"
             android:padding="8dp"
             android:textColor="@color/text_primary"
-            android:textSize="11sp" />
+            android:textSize="@dimen/log_text_size" />
     </ScrollView>
 </LinearLayout>
