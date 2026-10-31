@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Rotasi tak lagi membatalkan konfirmasi restore Telegram (Audit 808)
+- `confirm()` di Settings menjalankan callback batal untuk semua dismiss yang bukan pilihan tombol, termasuk dismiss karena rotasi/perubahan konfigurasi (dialog ditutup `DialogAman` dari `onDestroy`). Untuk restore dari Telegram, callback batal itu menghapus berkas backup yang sudah selesai diunduh: operasi hilang tanpa jejak dan pengguna harus mengunduh ulang. Dua perbaikan: listener dismiss kini mengabaikan dismiss saat `isChangingConfigurations()` — meniru pola dialog kata sandi impor (Audit 592) — dan konfirmasi restore Telegram kini dicatat sebagai tertunda (`restore_tg_path`/`restore_tg_nama` di `savedInstanceState`) lalu ditampilkan lagi oleh instance baru, juga meniru jalur impor. Pembatalan sungguhan tetap menghapus berkas temp seperti sebelumnya.
+
+
 ## [Belum rilis] — Sinkron TLS sesudah restore kini hanya berjalan bila TLS backup benar-benar terpasang (Audit 807)
 - `sinkronTlsKeInternal` sebelumnya dipanggil tanpa syarat di akhir kedua jalur restore (bot dan lokal). Padahal folder `tls` di folder data secara desain masih menyimpan sisa publik `ca.pem`/`cert.pem` setelah migrasi ke internal, jadi bila TLS dari backup ditolak, tidak ada, atau gagal dipasang, sinkron itu tetap menimpa set internal yang aktif dengan set folder data yang basi — sementara kunci internal tetap baru. Pada Start berikutnya pasangan yang campur itu terdeteksi tidak cocok dan CA dibuat ulang: semua HP klien harus memasang ulang CA, padahal pesan restore menyatakan TLS perangkat dipertahankan. Sinkron kini digerbang keputusan murni baru `perluSinkronTlsSesudahRestore` (ada staging + siap pasang + pasang berhasil) di kedua jalur; keputusan itu dikunci uji JVM.
 

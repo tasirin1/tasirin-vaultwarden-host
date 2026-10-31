@@ -89,6 +89,8 @@ public class SettingsActivity extends Activity {
     private static final String STATE_IMPOR_PATH = "impor_path";
     private static final String STATE_IMPOR_CAP = "impor_cap";
     private static final String STATE_IMPOR_SIDIK = "impor_sidik";
+    private static final String STATE_RESTORE_TG_PATH = "restore_tg_path";
+    private static final String STATE_RESTORE_TG_NAMA = "restore_tg_nama";
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -114,6 +116,8 @@ public class SettingsActivity extends Activity {
     // (Audit 592). Volatile: dibaca juga oleh sapuan cache di thread
     // latar (Audit 595).
     private volatile File imporTertundaFile = null;
+    private File restoreTgTertundaFile = null;
+    private String restoreTgTertundaNama = null;
     private String imporTertundaCap = null;
     private String imporTertundaSidik = null;
     // Penjaga dialog impor sedang tampil agar tampil-lagi di onResume
@@ -414,6 +418,11 @@ public class SettingsActivity extends Activity {
                 imporTertundaFile = new File(pathImpor);
                 imporTertundaCap = savedInstanceState.getString(STATE_IMPOR_CAP);
                 imporTertundaSidik = savedInstanceState.getString(STATE_IMPOR_SIDIK);
+            }
+            String pathRestoreTg = savedInstanceState.getString(STATE_RESTORE_TG_PATH);
+            if (pathRestoreTg != null) {
+                restoreTgTertundaFile = new File(pathRestoreTg);
+                restoreTgTertundaNama = savedInstanceState.getString(STATE_RESTORE_TG_NAMA);
             }
         }
         TgBackup.healkanStringPrefs(this);
@@ -945,6 +954,16 @@ public class SettingsActivity extends Activity {
                 imporTertundaSidik = null;
             }
         }
+        if (restoreTgTertundaFile != null) {
+            File fTg = restoreTgTertundaFile;
+            String namaTg = restoreTgTertundaNama;
+            if (fTg.isFile()) {
+                tanyaRestoreTelegram(fTg, namaTg);
+            } else {
+                restoreTgTertundaFile = null;
+                restoreTgTertundaNama = null;
+            }
+        }
     }
 
     @Override
@@ -962,6 +981,11 @@ public class SettingsActivity extends Activity {
             outState.putString(STATE_IMPOR_PATH, imporTertundaFile.getAbsolutePath());
             outState.putString(STATE_IMPOR_CAP, imporTertundaCap);
             outState.putString(STATE_IMPOR_SIDIK, imporTertundaSidik);
+        }
+        if (restoreTgTertundaFile != null) {
+            outState.putString(STATE_RESTORE_TG_PATH,
+                    restoreTgTertundaFile.getAbsolutePath());
+            outState.putString(STATE_RESTORE_TG_NAMA, restoreTgTertundaNama);
         }
     }
 
@@ -2312,6 +2336,26 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    private void tanyaRestoreTelegram(final File tmp, final String fname) {
+        restoreTgTertundaFile = tmp;
+        restoreTgTertundaNama = fname;
+        confirm(getString(R.string.restore_tg_judul),
+                getString(R.string.restore_tg_pesan, fname),
+                () -> {
+                    restoreTgTertundaFile = null;
+                    restoreTgTertundaNama = null;
+                    runBusy(() -> restoreTelegramTerkonfirmasi(tmp));
+                },
+                () -> {
+                    restoreTgTertundaFile = null;
+                    restoreTgTertundaNama = null;
+                    try {
+                        tmp.delete();
+                    } catch (Exception ignored) {
+                    }
+                });
+    }
+
     private void restoreFromTelegram() {
         String inputDir = dataDirInput.getText().toString().trim();
         if (!TextUtils.isEmpty(inputDir)) {
@@ -2342,16 +2386,7 @@ public class SettingsActivity extends Activity {
                         }
                         return;
                     }
-                    confirm(getString(R.string.restore_tg_judul),
-                            getString(R.string.restore_tg_pesan, fname),
-                            () -> runBusy(() -> restoreTelegramTerkonfirmasi(tmp)),
-
-                            () -> {
-                                try {
-                                    tmp.delete();
-                                } catch (Exception ignored) {
-                                }
-                            });
+                    tanyaRestoreTelegram(tmp, fname);
                 });
             } catch (Exception e) {
                 try {
@@ -3827,6 +3862,9 @@ public class SettingsActivity extends Activity {
                 })
                 .create();
         dialog.setOnDismissListener(d -> {
+            if (isChangingConfigurations()) {
+                return;
+            }
             if (!dipilih[0] && batal != null) {
                 batal.run();
             }
