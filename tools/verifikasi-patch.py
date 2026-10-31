@@ -1432,6 +1432,55 @@ def pemanggil(nama):
                     return temu
     return temu
 
+def _lompat_template(isi, i):
+    """i menunjuk `{` dari `${`; kembalikan indeks tepat sesudah `}`
+    pasangannya. String/char di dalam template dilompati sebagai satu
+    satuan agar petiknya tak mengganggu hitungan kurung."""
+    n = len(isi)
+    j = i + 1
+    dalam = 1
+    while j < n and dalam:
+        c = isi[j]
+        if c == '"':
+            j = _lompat_string(isi, j)
+            continue
+        if c == "'":
+            k = j + 1
+            if k < n and isi[k] == "\\":
+                k += 6 if isi[k + 1:k + 2] == "u" else 2
+            else:
+                k += 1
+            j = k + 1 if k < n and isi[k] == "'" else j + 1
+            continue
+        if c == "{":
+            dalam += 1
+        elif c == "}":
+            dalam -= 1
+        j += 1
+    return j
+
+
+def _lompat_string(isi, i):
+    """Indeks tepat sesudah string "..." yang petik pembukanya di i.
+    Sadar escape dan template (Audit 877): `${` membuka template yang
+    dilompati utuh — petik di dalamnya (mis. char '"' di dalam
+    template) tidak menutup string luar."""
+    n = len(isi)
+    j = i + 1
+    while j < n:
+        c = isi[j]
+        if c == "\\":
+            j += 2
+            continue
+        if c == '"':
+            return j + 1
+        if c == "$" and j + 1 < n and isi[j + 1] == "{":
+            j = _lompat_template(isi, j + 1)
+            continue
+        j += 1
+    return n
+
+
 def kupas_komentar_kotlin(isi, kosongkan_string=False):
     """Buang komentar // dan /* */ dengan sadar string (Audit 854):
     cek mentah atas teks Gradle bisa dipenuhi teks komentar (baris mode
@@ -1466,15 +1515,7 @@ def kupas_komentar_kotlin(isi, kosongkan_string=False):
                 hasil.append(c)
                 i += 1
         elif c == '"':
-            j = i + 1
-            while j < n:
-                if isi[j] == "\\":
-                    j += 2
-                    continue
-                if isi[j] == '"':
-                    j += 1
-                    break
-                j += 1
+            j = _lompat_string(isi, i)
             hasil.append('""' if kosongkan_string else isi[i:j])
             i = j
         elif c == "/" and i + 1 < n and isi[i + 1] == "/":

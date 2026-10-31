@@ -344,6 +344,32 @@ def main():
                 rc == 0)
         shutil.rmtree(charset, ignore_errors=True)
 
+        tplchar = klon(tmp, "tplchar")
+        berkas_set9 = os.path.join(tplchar, "settings.gradle.kts")
+        with open(berkas_set9, encoding="utf-8") as f:
+            isi_set9 = f.read()
+        with open(berkas_set9, "w", encoding="utf-8") as f:
+            f.write('val penanda = "${\'"\'}"\n' + isi_set9)
+        rc, out = jalan(tplchar, [sys.executable, GERBANG, "--semua"])
+        periksa("template berisi char petik di settings sehat: gerbang lolos (Audit 877)",
+                rc == 0)
+        shutil.rmtree(tplchar, ignore_errors=True)
+
+        tplagp = klon(tmp, "tplagp")
+        berkas_agp3 = os.path.join(tplagp, "build.gradle.kts")
+        with open(berkas_agp3, encoding="utf-8") as f:
+            isi_agp3 = f.read()
+        with open(berkas_agp3, "w", encoding="utf-8") as f:
+            f.write('val penanda = "${\'"\'}"\n'
+                    '/* id("com.android.application") version'
+                    ' "8.13.2" apply false */\n'
+                    + isi_agp3.replace('version "8.13.2"',
+                                       'version "9.9.9"'))
+        rc, out = jalan(tplagp, [sys.executable, GERBANG, "--semua"])
+        periksa("template char petik + AGP di komentar: gerbang gagal (Audit 877)",
+                rc != 0 and "8.13.2" in out)
+        shutil.rmtree(tplagp, ignore_errors=True)
+
         strmode = klon(tmp, "strmode")
         berkas_set6 = os.path.join(strmode, "settings.gradle.kts")
         with open(berkas_set6, encoding="utf-8") as f:

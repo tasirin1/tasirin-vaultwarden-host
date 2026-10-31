@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengupas komentar gerbang sadar template string Kotlin (Audit 877)
+- Sisa Audit 873: pemindai string biasa berhenti di petik pertama tanpa memahami template `${...}`, sehingga char petik di dalam template (`"${'"'}"`) menutup string lebih awal dan petik penutup template membuka string baru yang menelan hampir seluruh berkas — settings sehat digagalkan palsu. Pemindaian string kini memakai penolong sadar template: `${` dilompati utuh dengan hitungan kurung, dan string/char bersarang di dalam template dilompati sebagai satu satuan. Dua skenario uji-diri baru menguncinya dari kedua arah.
+
+
 ## [Belum rilis] — Penilai gradle.properties gerbang menggabung baris logis (Audit 876)
 - Sisa Audit 871/854: penilaian `android.useAndroidX` membaca baris fisik satu per satu, padahal format Java properties menyambung baris berakhiran backslash ganjil dengan baris berikutnya — kunci yang terbelah sebelum pemisahnya (`android.useAndroidX\` + `=true`) tak terbaca dan nilai efektif `true` lolos. Baris logis kini digabung lebih dulu (backslash penutup ganjil, lanjutan direnggut spasi depannya), baru nilai last-wins dinilai. Skenario uji-diri baru menguncinya.
 
