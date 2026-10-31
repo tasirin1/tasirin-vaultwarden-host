@@ -229,16 +229,17 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 Dua workflow terpisah agar perbaikan aplikasi tak membangun ulang binary
 (~15 menit) dan sebaliknya. Keduanya boleh jalan paralel (`vw-binary` vs
-`vw-apk`); unggahan ke rilis yang sama idempoten (hapus duplikat per ID +
-coba ulang). Cache cargo dipakai ulang antar run binary.
+`vw-apk`); unggahan ke rilis yang sama idempoten (aset lama ditimpa
+`--clobber`, coba ulang hanya untuk galat sementara). Cache cargo dipakai
+ulang antar run binary.
 
 **Gerbang bersama: job `verifikasi` (~1 mnt, tanpa SDK)** — ada di dalam
 **kedua** workflow build sebagai job pertama, sehingga build apa pun yang
 terpicu selalu melewatinya lebih dulu; selain itu workflow terpisah
 `cek-wajib.yml` menjalankan job bernama sama untuk **semua** `pull_request`
 tanpa saringan path (termasuk PR dokumen). Di `build-apk.yml`
-ia berjalan untuk `push` ke `main` (kecuali dokumen `*.md`), `pull_request`
-(saringan path yang sama), dan `workflow_dispatch`; di `build-binary.yml`
+ia berjalan untuk `push`/`pull_request` yang menyentuh daftar-putih path
+pembentuk APK (Audit 817) dan `workflow_dispatch`; di `build-binary.yml`
 untuk `push`/`pull_request` yang menyentuh `build-binary.yml`/`shim/**`,
 jadwal bulanan, dan manual. Pada `pull_request`, langkah signing/publish/
 upload artifact dilewati — yang berjalan gerbang + lint + unit test — dan
@@ -278,10 +279,11 @@ dan `workflow_dispatch`:
    Shim ini dipakai app (via `LD_PRELOAD`) agar binary terbaru tetap jalan
    di kernel STB lama (getrandom/EINVAL).
 3. **publish-binary** — terbitkan 6 asset non-APK (binary+shim+web-vault
-   beserta `.sha256`); web-vault diambil dari **Docker digest resmi**
-   (`vaultwarden/web-vault@sha256:...` dari `docker/DockerSettings.yaml`)
-   hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
-   ganti versi upstream).
+   beserta `.sha256`); web-vault selalu diunduh ulang dari **Docker digest
+   resmi** (`vaultwarden/web-vault@sha256:...` dari
+   `docker/DockerSettings.yaml`) dan diverifikasi — zip yang sudah ada di
+   rilis hanya dipakai kembali bila uji zip + digest tertanamnya cocok,
+   selain itu dibangun ulang dari Docker.
 
 **B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh
 daftar-putih path pembentuk APK (`app/**`, Gradle akar + wrapper, gerbang
@@ -298,7 +300,9 @@ Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
 2. **build-apk** — tulis `app/src/main/assets/vw_version.txt`,
    `lintDebug` + `testDebugUnitTest`, lalu `assembleRelease`
    (APK debug tidak pernah di-assemble di CI)
-   (signed bila secrets ada), cek ukuran APK, upload **hanya asset APK**.
+   (wajib signed: build gagal keras bila satu saja dari 4 secret signing
+   kosong — APK release tidak boleh terbit unsigned), cek ukuran APK,
+   upload **hanya asset APK**.
 
 Release GitHub bernama `v<versi-vaultwarden>` berisi 7 asset: APK signed
 (dari workflow APK), `vaultwarden-armeabi-v7a` + `.sha256`,

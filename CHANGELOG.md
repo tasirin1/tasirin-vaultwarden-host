@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Tiga keterangan basi AGENTS.md tentang workflow diluruskan (Audit 833)
+- AGENTS.md adalah hukum kerja repo ini, tetapi tiga keterangannya tak lagi cocok dengan workflow: (1) `assembleRelease` ditulis "(signed bila secrets ada)", padahal build gagal keras bila satu saja dari 4 secret signing kosong — tidak ada jalur APK unsigned di `main`; (2) web-vault ditulis "hanya bila belum ada di rilis", padahal selalu diunduh ulang dan diverifikasi digest-nya, dan baru dibangun ulang dari Docker bila zip rilis korup/beda digest; (3) idempotensi unggahan ditulis "(hapus duplikat per ID + coba ulang)", padahal mekanismenya `--clobber` dengan coba ulang tersaring galat sementara. Sekalian diluruskan: keterangan pemicu gerbang di `build-apk.yml` yang masih menyebut pengecualian dokumen, menyusul perubahan daftar-putih Audit 817.
+
+
 ## [Belum rilis] — Retry unggah APK kini menyaring galat permanen, sama seperti build-binary (Audit 832)
 - Langkah publish `build-apk.yml` sebelumnya mengulang semua kegagalan `gh release upload` sampai 6 kali dengan jeda 15 detik — termasuk galat permanen (401/403 otorisasi, validasi) yang pasti gagal lagi, membuang ±75 detik + waktu `gh` per kejadian. Logika unggahnya kini disamakan persis dengan fungsi `unggah_asset` di `build-binary.yml`: log galat ditangkap, hanya pola sementara (`already exists|validation failed|502|503|504|timeout|EOF|connection reset`) yang diulang, galat lain langsung gagal.
 
