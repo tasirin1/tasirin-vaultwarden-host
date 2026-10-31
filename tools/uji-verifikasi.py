@@ -744,6 +744,26 @@ def main():
                 rc == 0)
         shutil.rmtree(luput, ignore_errors=True)
 
+        luputpanah = klon(tmp, "luputpanah")
+        berkas_aksi36 = os.path.join(
+            luputpanah, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi36, encoding="utf-8") as f:
+            isi_aksi36 = f.read()
+        baris_tulis36 = [b for b in isi_aksi36.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi36, "w", encoding="utf-8") as f:
+            f.write(isi_aksi36.replace(
+                baris_tulis36,
+                baris_tulis36.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> /dev/null \\> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(luputpanah, [sys.executable, GERBANG, "--semua"])
+        periksa("panah ter-escape bukan penulisan: gerbang gagal "
+                "(Audit 909)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(luputpanah, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
