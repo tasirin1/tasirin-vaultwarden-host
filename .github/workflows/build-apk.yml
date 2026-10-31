@@ -4,18 +4,34 @@ on:
   push:
     branches: [ main ]
 
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
-      - 'shim/**'
-      - '.github/workflows/build-binary.yml'
+    paths:
+      - 'app/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'tools/verifikasi-patch.py'
+      - 'tools/uji-verifikasi.py'
+      - 'scripts/cek-cepat.sh'
+      - '.github/workflows/build-apk.yml'
+      - '.github/actions/resolve-vw/**'
   pull_request:
 
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
-      - 'shim/**'
-      - '.github/workflows/build-binary.yml'
+    paths:
+      - 'app/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'tools/verifikasi-patch.py'
+      - 'tools/uji-verifikasi.py'
+      - 'scripts/cek-cepat.sh'
+      - '.github/workflows/build-apk.yml'
+      - '.github/actions/resolve-vw/**'
   workflow_dispatch:
 
 permissions:

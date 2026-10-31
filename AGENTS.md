@@ -283,9 +283,14 @@ dan `workflow_dispatch`:
    hanya bila belum ada di rilis (hemat Docker saat workflow diubah tanpa
    ganti versi upstream).
 
-**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh kode
-app (kecuali dokumen, `shim/`, `build-binary.yml`), `pull_request` dengan
-saringan yang sama (tanpa signing/publish), + `workflow_dispatch` manual.
+**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh
+daftar-putih path pembentuk APK (`app/**`, Gradle akar + wrapper, gerbang
+`tools/verifikasi-patch.py` + `tools/uji-verifikasi.py` +
+`scripts/cek-cepat.sh`, workflow ini sendiri, dan action `resolve-vw`),
+`pull_request` dengan saringan yang sama (tanpa signing/publish), +
+`workflow_dispatch` manual. Perubahan di luar daftar itu (dokumen, `shim/`,
+workflow lain, labeler) tidak membangun APK; check wajib PR tetap
+dilaporkan `cek-wajib.yml` yang berjalan untuk semua PR.
 Sengaja tanpa `workflow_run`: rilis binary bulanan tak ikut membangun APK
 (APK hanya dibangun bila kodenya berubah, agar `versionCode` tak churn sia-sia):
 
