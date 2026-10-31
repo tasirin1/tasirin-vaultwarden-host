@@ -479,6 +479,24 @@ def main():
                 rc != 0 and "useAndroidX" in out)
         shutil.rmtree(sambung, ignore_errors=True)
 
+        esckunci = klon(tmp, "esckunci")
+        with open(os.path.join(esckunci, "gradle.properties"), "a",
+                  encoding="utf-8") as f:
+            f.write("android.useAndroid\\u0058=true\n")
+        rc, out = jalan(esckunci, [sys.executable, GERBANG, "--semua"])
+        periksa("useAndroidX escape unicode di kunci: gerbang gagal (Audit 879)",
+                rc != 0 and "useAndroidX" in out)
+        shutil.rmtree(esckunci, ignore_errors=True)
+
+        escpisah = klon(tmp, "escpisah")
+        with open(os.path.join(escpisah, "gradle.properties"), "a",
+                  encoding="utf-8") as f:
+            f.write("android.useAndroidX\\u003dtrue\n")
+        rc, out = jalan(escpisah, [sys.executable, GERBANG, "--semua"])
+        periksa("useAndroidX escape unicode di pemisah: gerbang gagal (Audit 879)",
+                rc != 0 and "useAndroidX" in out)
+        shutil.rmtree(escpisah, ignore_errors=True)
+
         agp = klon(tmp, "agp")
         berkas_akar = os.path.join(agp, "build.gradle.kts")
         with open(berkas_akar, encoding="utf-8") as f:

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai gradle.properties gerbang mendekode escape format properties (Audit 879)
+- Sisa Audit 871/876 arah fail-open: penilaian membaca teks mentah, padahal format Java properties mendekode escape sebelum parsing — kunci ter-escape (`android.useAndroid\u0058=true`) dan pemisah ter-escape (`\u003d`) bernilai efektif `true` bagi Gradle tetapi tak terbaca penilai. Baris logis kini didekode lebih dulu (escape unicode, kontrol, dan karakter) sebelum dinilai. Dua skenario uji-diri baru menguncinya. (Catatan proses: draf pertama memuat urutan escape mentah di docstring penolong baru sampai Python sendiri menolak berkasnya — ditangkap suite uji-diri sebelum commit, docstring ditulis ulang tanpa urutan escape mentah.)
+
+
 ## [Belum rilis] — Produsen gerbang: komentar akhir baris tulis diakui (Audit 878)
 - Sisa Audit 874/875 arah fail-closed: baris tulis sah yang diakhiri komentar shell (`>> "$GITHUB_OUTPUT" # tulis keluaran`) tak dihitung sebagai produsen karena sisa segmen sesudah target hanya boleh kosong atau sufiks `|| …` — CI memerahkan berkas action yang sehat. Komentar akhir baris kini dibuang lebih dulu sebelum sisa segmen dinilai. Skenario uji-diri baru menguncinya. (Catatan proses: draf patch pertama sempat salah indentasi dan digagalkan suite uji-diri itu sendiri sebelum commit — gerbang bekerja sebagaimana mestinya.)
 

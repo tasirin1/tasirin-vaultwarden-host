@@ -1570,6 +1570,43 @@ def blok_repositories(isi):
     return hasil
 
 
+def _dekode_escape_properties(baris):
+    """Dekode escape format Java properties pada satu baris logis:
+    escape unicode (huruf u boleh berulang, empat digit heksa),
+    escape kontrol tab/newline/CR/FF, dan escape karakter apa pun
+    (pemisah, titik dua, spasi, backslash). Format properties
+    mendekode ini SEBELUM parsing, jadi penilai harus menilai teks
+    yang sama (Audit 879)."""
+    hasil = []
+    i = 0
+    n = len(baris)
+    while i < n:
+        c = baris[i]
+        if c == "\\" and i + 1 < n:
+            d = baris[i + 1]
+            if d == "u":
+                j = i + 2
+                while j < n and baris[j] == "u":
+                    j += 1
+                heks = baris[j:j + 4]
+                if len(heks) == 4 and all(
+                        ch in "0123456789abcdefABCDEF"
+                        for ch in heks):
+                    hasil.append(chr(int(heks, 16)))
+                    i = j + 4
+                    continue
+                hasil.append("u")
+                i = j
+                continue
+            hasil.append({"t": "\t", "n": "\n", "r": "\r",
+                          "f": "\f"}.get(d, d))
+            i += 2
+            continue
+        hasil.append(c)
+        i += 1
+    return "".join(hasil)
+
+
 def _sambung_properties(baris):
     """True bila baris properties berakhir dengan backslash GANJIL
     (sambung-baris format Java properties)."""
@@ -1633,6 +1670,8 @@ def cek_gradle_akar(gagal):
                                    + b_fisik.lstrip())
             else:
                 baris_logis.append(b_fisik)
+        baris_logis = [_dekode_escape_properties(b)
+                       for b in baris_logis]
         nilai_ax = None
         for baris in baris_logis:
             b = baris.strip()
