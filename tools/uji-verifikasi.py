@@ -999,6 +999,24 @@ def main():
                 "lolos (Audit 921)", rc == 0)
         shutil.rmtree(sarangbalik, ignore_errors=True)
 
+        kurungutip = klon(tmp, "kurungutip")
+        berkas_aksi49 = os.path.join(
+            kurungutip, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi49, encoding="utf-8") as f:
+            isi_aksi49 = f.read()
+        baris_tulis49 = [b for b in isi_aksi49.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi49, "w", encoding="utf-8") as f:
+            f.write(isi_aksi49.replace(
+                baris_tulis49,
+                baris_tulis49.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(echo "("; cat >> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(kurungutip, [sys.executable, GERBANG, "--semua"])
+        periksa("kurung berkutip di target substitusi tak membatalkan "
+                "vonis: gerbang lolos (Audit 922)", rc == 0)
+        shutil.rmtree(kurungutip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -588,6 +588,17 @@ def segmen_redirect_output(segmen):
                 kedalaman = 0
                 k = awal + 1
                 while k < n:
+                    if segmen[k] in ("'", '"'):
+                        # Kurung di dalam kutip bukan kurung sungguhan
+                        # (Audit 922) — lewati rentang berkutip utuh.
+                        qk = segmen[k]
+                        k += 1
+                        while k < n and segmen[k] != qk:
+                            if qk == '"' and segmen[k] == "\\":
+                                k += 1
+                            k += 1
+                        k += 1
+                        continue
                     if segmen[k] == "(":
                         kedalaman += 1
                     elif segmen[k] == ")":
@@ -614,6 +625,17 @@ def segmen_redirect_output(segmen):
                 kedalaman = 0
                 k = awal
                 while k < n:
+                    if segmen[k] in ("'", '"'):
+                        # Kurung di dalam kutip bukan kurung sungguhan
+                        # (Audit 922) — lewati rentang berkutip utuh.
+                        qk = segmen[k]
+                        k += 1
+                        while k < n and segmen[k] != qk:
+                            if qk == '"' and segmen[k] == "\\":
+                                k += 1
+                            k += 1
+                        k += 1
+                        continue
                     if segmen[k] == "(":
                         kedalaman += 1
                     elif segmen[k] == ")":

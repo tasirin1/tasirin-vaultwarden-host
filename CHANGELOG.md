@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemindai keseimbangan kurung target sadar kutip (Audit 922)
+- Arah fail-closed: penghitung kurung pada cabang target substitusi proses dan target kurung polos menghitung kurung di dalam string sebagai kurung sungguhan, sehingga penjaga keseimbangan Audit 916 membatalkan vonis sah. Kedua pemindai kini melompati rentang berkutip utuh. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Keadaan pembungkus menjadi tumpukan bersarang (Audit 920)
 - Arah fail-open: keadaan grup/subshell hanya dinyalakan bila segmen diawali pembungkus terluar, sehingga pembungkus bersarang yang dibuka di tengah segmen tak terlacak dan kredit redirect pembungkus-luar jatuh ke echo yang diatur pembungkus-dalam. Keadaan kini berupa tumpukan: pembuka dicatat dari loop kupas, kandidat masuk ke pembungkus terdalam, dan penutup menilai entri teratas — sekaligus menutup arah sebaliknya (Audit 921). Skenario uji-diri baru mengunci kedua arah.
 
