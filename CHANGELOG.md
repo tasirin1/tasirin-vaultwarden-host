@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Entri penunggu proses dibuang juga pada jalur interupsi (Audit 845)
+- Sisa Audit 818: pembuangan entri `PENUNGGU_PROSES` di `waitForOrKill` hanya terjadi pada lanjutan normal sesudah `join`; pemanggil yang terinterupsi saat menunggu menyisakan entri sampai penghentian berikutnya untuk proses yang sama. Pembuangan kini di blok `finally` (hanya bila proses sudah terkonfirmasi mati, dengan cek identitas yang sama), sehingga jalur interupsi membersihkan juga tanpa mengubah perilaku tunggu.
+
+
 ## [Belum rilis] — Pintasan sidik CA health-check dibatasi umurnya (Audit 844)
 - Sisa Audit 805: `capCaAktif` memercayai sidik cache selamanya bila `mtime+panjang` berkas CA sama, dan tiap pemeriksaan menyegarkan cap waktunya — dua CA berbeda yang kebetulan sama panjang dan sama mtime terbaca (resolusi kasar, mis. FAT) membuat health-check mem-pin CA lama selamanya. Kini pintasan stat hanya dipercaya sampai `CAP_CA_BACA_ISI_MAKS_MS` (10 menit) sejak isi benar-benar dibaca; sesudah itu isi berkas dibaca dan di-hash ulang walau stat sama. Keputusan itu fungsi murni `perluBacaIsiCa` dengan uji JVM.
 

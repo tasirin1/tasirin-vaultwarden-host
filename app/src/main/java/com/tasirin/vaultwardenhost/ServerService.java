@@ -4702,16 +4702,21 @@ public class ServerService extends Service {
                 t.start();
             }
         }
-        penunggu.thread.join(timeoutMillis);
-        boolean mati = penunggu.mati.get();
-        if (mati) {
-            synchronized (PENUNGGU_PROSES) {
-                if (PENUNGGU_PROSES.get(p) == penunggu) {
-                    PENUNGGU_PROSES.remove(p);
+        try {
+            penunggu.thread.join(timeoutMillis);
+        } finally {
+            // Entri dibuang juga pada jalur interupsi: proses yang sudah
+            // terkonfirmasi mati tak boleh menyisakan entri hanya karena
+            // pemanggilnya terinterupsi saat join (Audit 845).
+            if (penunggu.mati.get()) {
+                synchronized (PENUNGGU_PROSES) {
+                    if (PENUNGGU_PROSES.get(p) == penunggu) {
+                        PENUNGGU_PROSES.remove(p);
+                    }
                 }
             }
         }
-        return mati;
+        return penunggu.mati.get();
     }
 
     static int jumlahPenungguProses() {
