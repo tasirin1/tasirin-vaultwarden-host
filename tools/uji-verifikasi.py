@@ -475,6 +475,24 @@ def main():
                 rc == 0)
         shutil.rmtree(keduafd, ignore_errors=True)
 
+        bacatulis = klon(tmp, "bacatulis")
+        berkas_aksi21 = os.path.join(
+            bacatulis, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi21, encoding="utf-8") as f:
+            isi_aksi21 = f.read()
+        baris_tulis21 = [b for b in isi_aksi21.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi21, "w", encoding="utf-8") as f:
+            f.write(isi_aksi21.replace(
+                baris_tulis21,
+                baris_tulis21.replace('>> "$GITHUB_OUTPUT"',
+                                      '<> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(bacatulis, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect <> stdin bukan produsen: gerbang gagal (Audit 894)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(bacatulis, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

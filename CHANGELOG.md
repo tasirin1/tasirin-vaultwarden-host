@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect <> stdin tak lagi dihitung gerbang sebagai produsen (Audit 894)
+- Arah fail-open: `>` pada operator `<>` (buka baca-tulis di stdin) dinilai sebagai redirect stdout, sehingga baris tulis berbentuk `<>` yang membuat berkas keluaran kosong terpenuhi semu sebagai produsen. Karakter `>` yang langsung mengikuti `<` kini dilewati tanpa dinilai. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect >& ke nama berkas diakui gerbang sebagai penulisan (Audit 893)
 - Sisa Audit 889 arah fail-closed, sekaligus meluruskan kalimat entri itu: `>&` bukan selalu duplikasi fd — diikuti angka/`-` memang duplikasi, tetapi diikuti nama berkas ia menulis kedua fd ke berkas (setara `&>`) dan terbukti mengisi berkas. Pengecualian menyeluruh dicabut; hanya bentuk duplikasi yang dilewati. Skenario uji-diri baru menguncinya.
 

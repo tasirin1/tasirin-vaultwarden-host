@@ -406,6 +406,11 @@ def segmen_redirect_output(segmen):
             kutip = c
             i += 1
             continue
+        if (c == ">" and i > 0 and segmen[i - 1] == "<"):
+            # `>` pada operator `<>` adalah redirect baca-tulis di
+            # stdin, bukan penulisan stdout (Audit 894).
+            i += 1
+            continue
         if (c == ">" and not (i + 2 < n and segmen[i + 1] == "&"
                               and (segmen[i + 2].isdigit()
                                    or segmen[i + 2] == "-"))):
