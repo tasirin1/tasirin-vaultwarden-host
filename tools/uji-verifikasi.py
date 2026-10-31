@@ -153,6 +153,18 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        idact = klon(tmp, "idact")
+        berkas_act = os.path.join(idact, ".github", "actions",
+                                  "resolve-vw", "action.yml")
+        with open(berkas_act, encoding="utf-8") as f:
+            isi_act = f.read()
+        with open(berkas_act, "w", encoding="utf-8") as f:
+            f.write(isi_act.replace("- id: vw", "- id: vwx"))
+        rc, out = jalan(idact, [sys.executable, GERBANG, "--semua"])
+        periksa("id langkah internal action diganti: gerbang gagal (Audit 840)",
+                rc != 0 and "vw" in out)
+        shutil.rmtree(idact, ignore_errors=True)
+
         idl = klon(tmp, "idl")
         berkas_wf = os.path.join(idl, ".github", "workflows", "build-apk.yml")
         with open(berkas_wf, encoding="utf-8") as f:

@@ -339,6 +339,24 @@ def cek_yaml_github_lain(gagal, peringatan):
             gagal.append("%s tanpa outputs — kontrak resolve-vw kosong"
                          % rel_action)
         else:
+            id_internal = set()
+            runs = data_action.get("runs")
+            if isinstance(runs, dict):
+                for langkah in runs.get("steps") or []:
+                    if isinstance(langkah, dict) and langkah.get("id"):
+                        id_internal.add(str(langkah["id"]))
+            for nama_out, isi_out in keluaran.items():
+                nilai = ""
+                if isinstance(isi_out, dict):
+                    nilai = str(isi_out.get("value", ""))
+                for id_ref in re.findall(
+                        r"steps\.([A-Za-z0-9_-]+)\.outputs\.", nilai):
+                    if id_ref not in id_internal:
+                        gagal.append("%s: outputs.%s merujuk steps.%s.* "
+                                     "tetapi tak ada langkah ber-id itu di "
+                                     "runs.steps action — keluaran akan "
+                                     "kosong di runtime (Audit 840)"
+                                     % (rel_action, nama_out, id_ref))
             for wf in ("build-apk.yml", "build-binary.yml"):
                 rel_wf = os.path.join(".github", "workflows", wf)
                 data_wf = _muat_yaml_github(rel_wf, gagal)

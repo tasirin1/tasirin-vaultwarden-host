@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memvalidasi id langkah internal action resolve-vw (Audit 840)
+- Sisa Audit 814: mengganti id langkah internal di `.github/actions/resolve-vw/action.yml` (`vw` → nama lain) lolos gerbang karena ekspresi `value:` pada `outputs` action tak pernah diperiksa — kedua keluaran action akan kosong di runtime. Kini gerbang mengumpulkan id langkah di `runs.steps` action dan menggagalkan setiap rujukan `steps.<id>.outputs.*` di nilai keluaran yang id-nya tak terdefinisi. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Enumerasi CA sistem yang terpotong tak lagi tercache permanen (Audit 839)
 - Sisa Audit 811: ambang `HttpsCompat.trustSistemCukup` hanya `> 0`, sehingga enumerasi `AndroidCAStore` yang terpotong di tengah (1–2 CA berhasil, sisanya gagal senyap) tetap dianggap berhasil dan factory miskin-CA itu tercache seumur proses — unduhan GitHub jalan tetapi host lain (Telegram) gagal TLS terus. Ambang kini berupa lantai `LANTAI_CA_SISTEM` = 50 (store Android utuh berisi jauh di atas 100 CA); di bawah lantai pembangunan melempar dan diproses mekanisme jeda-bangun-ulang/fallback bawaan seperti enumerasi nol. Uji JVM diperbarui ke batas baru.
 
