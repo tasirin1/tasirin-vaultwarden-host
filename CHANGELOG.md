@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemotong komentar sadar backtick (Audit 907)
+- Arah fail-closed: `_potong_komentar_shell` memotong baris di `#` yang berada di dalam substitusi backtick, membuang redirect sungguhan sesudahnya — padahal komentar di dalam substitusi berhenti di backtick penutup. Pemotong kini melacak keadaan backtick dan hanya memotong di luar substitusi. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemecah segmen sadar substitusi (Audit 906)
 - Arah fail-closed: `pecah_segmen_shell` hanya melacak kutip, sehingga pemisah `;`/`&&`/`||` di dalam substitusi perintah atau backtick pada argumen memecah segmen penulisan di tengah dan ekor pembawa redirect kehilangan awalan echo-nya. Pemecah kini melacak kedalaman substitusi dan keadaan backtick; pemisah hanya berlaku di tingkat luar. Skenario uji-diri baru menguncinya.
 

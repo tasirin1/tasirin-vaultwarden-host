@@ -708,6 +708,24 @@ def main():
                 "(Audit 906)", rc == 0)
         shutil.rmtree(pecahsub, ignore_errors=True)
 
+        pagartikus = klon(tmp, "pagartikus")
+        berkas_aksi34 = os.path.join(
+            pagartikus, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi34, encoding="utf-8") as f:
+            isi_aksi34 = f.read()
+        baris_tulis34 = [b for b in isi_aksi34.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi34, "w", encoding="utf-8") as f:
+            f.write(isi_aksi34.replace(
+                baris_tulis34,
+                baris_tulis34.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '`echo #` >> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(pagartikus, [sys.executable, GERBANG, "--semua"])
+        periksa("pagar dalam backtick bukan komentar: gerbang lolos "
+                "(Audit 907)", rc == 0)
+        shutil.rmtree(pagartikus, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

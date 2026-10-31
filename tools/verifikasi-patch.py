@@ -297,6 +297,7 @@ def _potong_komentar_shell(baris):
     komentar — teks sesudahnya tak dieksekusi shell dan tak boleh
     dihitung sebagai perintah (Audit 881)."""
     kutip = None
+    tikus = False
     i = 0
     n = len(baris)
     while i < n:
@@ -313,7 +314,13 @@ def _potong_komentar_shell(baris):
             kutip = c
             i += 1
             continue
-        if c == "#" and (i == 0 or baris[i - 1] in " \t;&|)"):
+        if c == "`":
+            # Di dalam substitusi gaya lama, `#` bukan komentar baris
+            # ini (Audit 907).
+            tikus = not tikus
+            i += 1
+            continue
+        if c == "#" and not tikus and (i == 0 or baris[i - 1] in " \t;&|)"):
             # `)` termasuk: sesudah kurung tutup perintah/subshell,
             # `#` juga mengawali kata baru bagi shell (Audit 884).
             return baris[:i]
