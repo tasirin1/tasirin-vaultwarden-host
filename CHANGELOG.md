@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Skenario substitusi proses ekor mengunci arah fail-closed Audit 902
+- Arah fail-closed dari akar yang sama dengan Audit 901: substitusi proses di ekor baris tulis menimpa vonis penulisan yang sah — mekanismenya sudah ditutup perbaikan Audit 901 (kurung substitusi proses membuka kedalaman); entri ini menambahkan skenario uji-diri yang mengunci arah ini agar tak regresi.
+
+
 ## [Belum rilis] — Substitusi proses membuka kedalaman pada penilai gerbang (Audit 901)
 - Arah fail-open: pelacak kedalaman hanya mengenal substitusi perintah `$(`, sehingga redirect di dalam substitusi proses `>(...)`/`<...)` — yang hanyalah argumen jalur fd dan tak menuliskan apa pun dari perintah luar — dinilai sebagai penulisan perintah itu sendiri. Kurung substitusi proses kini membuka kedalaman yang sama. Skenario uji-diri baru menguncinya; arah sebaliknya (Audit 902) dikunci skenario pada commit berikutnya.
 

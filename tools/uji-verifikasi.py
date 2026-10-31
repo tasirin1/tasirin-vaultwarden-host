@@ -619,6 +619,22 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(proses, ignore_errors=True)
 
+        proekor = klon(tmp, "proekor")
+        berkas_aksi29 = os.path.join(
+            proekor, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi29, encoding="utf-8") as f:
+            isi_aksi29 = f.read()
+        baris_tulis29 = [b for b in isi_aksi29.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi29, "w", encoding="utf-8") as f:
+            f.write(isi_aksi29.replace(
+                baris_tulis29,
+                baris_tulis29 + " >(cat > /dev/null)", 1))
+        rc, out = jalan(proekor, [sys.executable, GERBANG, "--semua"])
+        periksa("substitusi proses ekor tak menimpa: gerbang lolos (Audit 902)",
+                rc == 0)
+        shutil.rmtree(proekor, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
