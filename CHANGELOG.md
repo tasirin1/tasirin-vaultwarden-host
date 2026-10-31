@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — authDangerous bot memverifikasi ke hash PIN segar di dalam kunci (Audit 860)
+- Pasangan jalur UI yang ditutup Audit 849, tertinggal di jalur bot: `authDangerous` memverifikasi PIN terhadap hash yang dibaca *sebelum* masuk kunci bersama. Koreksi segar yang ada hanya satu arah (bila verifikasi basi berhasil, dibaca ulang) — PIN baru yang benar bisa ditolak dan tercatat sebagai kegagalan menuju lockout bila PIN diganti pada jeda sempit itu. Hash kini dibaca ulang segar di dalam kunci sebelum verifikasi pertama, sehingga kedua arah memakai hash terkini.
+
+
 ## [Belum rilis] — Sisa crash sinkron TLS internal dipulihkan, tak lagi yatim selamanya (Audit 859)
 - Sisa Audit 851: jendela crash antar-rename di `sinkronTlsKeInternal` bisa meninggalkan folder `tls-sinkron-bak`/`tls-sinkron-tmp` berisi salinan TLS lengkap (termasuk kunci privat CA) tanpa ada yang membersihkannya. Kini `TgBackup.pulihkanSisaSinkronTls` merekonsiliasi keduanya — staging selalu dihapus, cadangan tanpa folder tujuan dikembalikan menjadi folder TLS, cadangan bersama folder tujuan dihapus — dan ia dipanggil di awal sinkron berikutnya serta pada setiap Start server (`siapkanTls`).
 

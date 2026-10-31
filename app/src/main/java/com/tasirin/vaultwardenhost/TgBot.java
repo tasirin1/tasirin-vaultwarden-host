@@ -2106,6 +2106,15 @@ public final class TgBot {
         boolean cocok = false;
         long sisaKalah = 0;
         synchronized (PinGate.KUNCI_PERCOBAAN) {
+            // Audit 860: hash dibaca ulang SEGAR di dalam kunci sebelum
+            // verifikasi pertama. Bacaan luar bisa basi dua arah: PIN lama
+            // (sudah tertutup verifikasi ulang Audit 809) dan PIN BARU
+            // yang benar ditolak + tercatat gagal karena diverifikasi ke
+            // hash lama sesudah PIN diganti di bawah kunci yang sama.
+            String segarAwal = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+            if (segarAwal != null && !segarAwal.isEmpty()) {
+                hash = segarAwal;
+            }
             // Audit 791: cek ulang otoritatif di dalam kunci bersama —
             // tanpa ini percobaan bot dan UI bisa sama-sama lolos cek awal
             // dan sama-sama memverifikasi sebelum satu pun mencatat.
