@@ -139,6 +139,18 @@ def main():
         rc, out = jalan(kontrak, [sys.executable, GERBANG, "--semua"])
         periksa("keluaran resolve-vw diganti nama: gerbang gagal (Audit 814)",
                 rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(kontrak, ignore_errors=True)
+
+        gradle = klon(tmp, "gradle")
+        berkas_settings = os.path.join(gradle, "settings.gradle.kts")
+        with open(berkas_settings, encoding="utf-8") as f:
+            isi_settings = f.read()
+        with open(berkas_settings, "w", encoding="utf-8") as f:
+            f.write(isi_settings.replace("FAIL_ON_PROJECT_REPOS",
+                                         "PREFER_PROJECT"))
+        rc, out = jalan(gradle, [sys.executable, GERBANG, "--semua"])
+        periksa("repositoriesMode dilonggarkan: gerbang gagal (Audit 815)",
+                rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

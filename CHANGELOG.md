@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Isi berkas Gradle akar kini dijaga gerbang (Audit 815)
+- Satu-satunya berkas Gradle yang dibaca isinya oleh gerbang sebelumnya adalah `app/build.gradle.kts`. Tiga invariant akar bisa berubah tanpa sinyal apa pun (terbukti pada salinan buang, semuanya LOLOS): `settings.gradle.kts` dilonggarkan dari `FAIL_ON_PROJECT_REPOS` ke `PREFER_PROJECT` (proyek bisa menimpa repositori yang dipaku settings — pelemahan rantai pasok), `gradle.properties` diubah ke `android.useAndroidX=true`, dan versi plugin AGP di `build.gradle.kts` akar diganti sembarangan. Pemeriksaan baru `cek_gradle_akar` memaku ketiganya: plugin `com.android.application` wajib berversi terpaku + `apply false`, `repositoriesMode` wajib `FAIL_ON_PROJECT_REPOS` dengan `google()`+`mavenCentral()` tetap terdaftar, dan `android.useAndroidX` wajib `false`; berkas yang hilang dilaporkan dengan pesan sesuai fungsinya, bukan lagi efek samping glob labeler. Dikunci sebagai skenario baru di `tools/uji-verifikasi.py`.
+
+
 ## [Belum rilis] — Kontrak keluaran resolve-vw kini divalidasi gerbang (Audit 814)
 - Nama keluaran action komposit `resolve-vw` (`tag`, `tag_mentah`) sebelumnya tidak diperiksa silang dengan rujukan `steps.ambil.outputs.*` di kedua workflow: mengganti nama satu keluaran di `action.yml` saja membuat gerbang tetap LOLOS (terbukti pada salinan buang), dan kegagalannya baru muncul jauh di hilir — `build-binary` gagal di langkah ambil sumber sesudah memasang rustup + NDK, atau `build-apk` menulis `vw_version.txt` kosong. Gerbang kini mem-parse keluaran yang dideklarasikan action dan semua rujukan `steps.<id>.outputs.<nama>` dari langkah pemakai action di `build-apk.yml`/`build-binary.yml`, dan gagal bila ada rujukan tanpa deklarasi. Dikunci sebagai skenario baru di `tools/uji-verifikasi.py` (rename `tag_mentah` harus membuat gerbang gagal).
 

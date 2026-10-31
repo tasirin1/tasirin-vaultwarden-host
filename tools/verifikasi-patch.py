@@ -1280,6 +1280,37 @@ def pemanggil(nama):
                     return temu
     return temu
 
+def cek_gradle_akar(gagal):
+    isi = baca("build.gradle.kts")
+    if not os.path.isfile(os.path.join(AKAR, "build.gradle.kts")):
+        gagal.append("build.gradle.kts (akar) hilang — versi plugin AGP "
+                     "tak terpaku")
+    elif not re.search(r'id\("com\.android\.application"\)\s+version\s+"'
+                       r'[0-9][0-9A-Za-z.\-]*"\s+apply\s+false', isi):
+        gagal.append("build.gradle.kts (akar): plugin com.android.application "
+                     "tanpa versi terpaku + apply false — app/build.gradle.kts "
+                     "menerapkannya tanpa versi")
+    isi = baca("settings.gradle.kts")
+    if not os.path.isfile(os.path.join(AKAR, "settings.gradle.kts")):
+        gagal.append("settings.gradle.kts hilang — mode repositori tak "
+                     "terpaku")
+    else:
+        if "RepositoriesMode.FAIL_ON_PROJECT_REPOS" not in isi:
+            gagal.append("settings.gradle.kts: repositoriesMode bukan "
+                         "FAIL_ON_PROJECT_REPOS — proyek bisa menimpa "
+                         "repositori yang dipaku settings (rantai pasok)")
+        for repo in ("google()", "mavenCentral()"):
+            if repo not in isi:
+                gagal.append("settings.gradle.kts: repositori %s hilang dari "
+                             "daftar yang dipaku" % repo)
+    isi = baca("gradle.properties")
+    if not os.path.isfile(os.path.join(AKAR, "gradle.properties")):
+        gagal.append("gradle.properties hilang")
+    elif not re.search(r"(?m)^android\.useAndroidX=false\s*$", isi):
+        gagal.append("gradle.properties: android.useAndroidX bukan false — "
+                     "app ini Java murni tanpa AndroidX")
+
+
 def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
     lewati_berkas = set(hapus)
     for nama in sorted(nama_metode_hilang(diff, lewati_berkas)):
@@ -1662,6 +1693,7 @@ def utama():
     cek_paritas_resource(gagal)
     cek_daftar_hapusan(gagal)
     cek_workflow_yaml(gagal, peringatan)
+    cek_gradle_akar(gagal)
     cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)
     cek_kurung_java(gagal, berubah)
