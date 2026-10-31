@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai gerbang mengakui redirect clobber >| (Audit 892)
+- Sisa Audit 889 arah fail-closed: redirect paksa-clobber `>|` (idiom untuk melewati `set -C`/noclobber, terbukti menulis) menyisakan sisa berawalan pipa yang tak pernah cocok dengan target. Pipa yang langsung mengikuti operator kini dianggap bagian operator. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Strip penutup gerbang berhenti pada sisa yang sudah persis target sah (Audit 891)
 - Sisa Audit 887 arah fail-closed: pembuangan penutup pembungkus di ekor sisa ikut menelan kurung tutup bentuk target polos `${GITHUB_OUTPUT}`, sehingga satu dari empat ejaan target sah gerbang sendiri selalu ditolak. Loop strip kini berhenti begitu sisa sudah persis salah satu ejaan target sah. Skenario uji-diri ejaan polos tanpa kutip ditambahkan.
 

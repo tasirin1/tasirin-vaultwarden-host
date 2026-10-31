@@ -414,6 +414,10 @@ def segmen_redirect_output(segmen):
             if op == 1 and i + 1 < n and segmen[i + 1] == "=":
                 i += 1
                 continue
+            # Clobber `>|` adalah redirect truncate paksa (Audit 892):
+            # pipa di sini bagian operator, bukan pemisah perintah.
+            if i + op < n and segmen[i + op] == "|":
+                op += 1
             # Redirect fd selain stdout (`2>>` dsb.) tidak menulis
             # keluaran perintah (Audit 890): digit fd hanya dihitung
             # bila berdiri sebagai kata sendiri (didahului batas kata);

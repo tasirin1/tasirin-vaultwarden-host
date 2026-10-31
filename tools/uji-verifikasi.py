@@ -441,6 +441,23 @@ def main():
                 rc == 0)
         shutil.rmtree(targetpolos, ignore_errors=True)
 
+        paksa = klon(tmp, "paksa")
+        berkas_aksi19 = os.path.join(
+            paksa, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi19, encoding="utf-8") as f:
+            isi_aksi19 = f.read()
+        baris_tulis19 = [b for b in isi_aksi19.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi19, "w", encoding="utf-8") as f:
+            f.write(isi_aksi19.replace(
+                baris_tulis19,
+                baris_tulis19.replace('>> "$GITHUB_OUTPUT"',
+                                      '>| "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(paksa, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect clobber >|: gerbang lolos (Audit 892)",
+                rc == 0)
+        shutil.rmtree(paksa, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
