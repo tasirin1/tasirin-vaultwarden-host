@@ -458,6 +458,23 @@ def main():
                 rc == 0)
         shutil.rmtree(paksa, ignore_errors=True)
 
+        keduafd = klon(tmp, "keduafd")
+        berkas_aksi20 = os.path.join(
+            keduafd, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi20, encoding="utf-8") as f:
+            isi_aksi20 = f.read()
+        baris_tulis20 = [b for b in isi_aksi20.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi20, "w", encoding="utf-8") as f:
+            f.write(isi_aksi20.replace(
+                baris_tulis20,
+                baris_tulis20.replace('>> "$GITHUB_OUTPUT"',
+                                      '>& "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(keduafd, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect >& ke berkas: gerbang lolos (Audit 893)",
+                rc == 0)
+        shutil.rmtree(keduafd, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -406,11 +406,14 @@ def segmen_redirect_output(segmen):
             kutip = c
             i += 1
             continue
-        if c == ">" and not (i + 1 < n and segmen[i + 1] == "&"):
-            # `>&` adalah duplikasi fd, bukan redirect berkas.
+        if (c == ">" and not (i + 2 < n and segmen[i + 1] == "&"
+                              and (segmen[i + 2].isdigit()
+                                   or segmen[i + 2] == "-"))):
+            # `>&` hanya duplikasi fd bila diikuti angka/`-`; diikuti
+            # nama berkas ia penulisan kedua fd ke berkas (Audit 893).
             # Redirect `>` tunggal (truncate) juga penulisan
             # (Audit 889); `>=` bukan operator redirect.
-            op = 2 if (i + 1 < n and segmen[i + 1] == ">") else 1
+            op = 2 if (i + 1 < n and segmen[i + 1] in ">&") else 1
             if op == 1 and i + 1 < n and segmen[i + 1] == "=":
                 i += 1
                 continue

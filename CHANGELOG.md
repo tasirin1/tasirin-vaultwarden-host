@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect >& ke nama berkas diakui gerbang sebagai penulisan (Audit 893)
+- Sisa Audit 889 arah fail-closed, sekaligus meluruskan kalimat entri itu: `>&` bukan selalu duplikasi fd — diikuti angka/`-` memang duplikasi, tetapi diikuti nama berkas ia menulis kedua fd ke berkas (setara `&>`) dan terbukti mengisi berkas. Pengecualian menyeluruh dicabut; hanya bentuk duplikasi yang dilewati. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penilai gerbang mengakui redirect clobber >| (Audit 892)
 - Sisa Audit 889 arah fail-closed: redirect paksa-clobber `>|` (idiom untuk melewati `set -C`/noclobber, terbukti menulis) menyisakan sisa berawalan pipa yang tak pernah cocok dengan target. Pipa yang langsung mengikuti operator kini dianggap bagian operator. Skenario uji-diri baru menguncinya.
 
