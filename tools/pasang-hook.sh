@@ -14,7 +14,18 @@ cat > "$sementara" <<'HOOK'
 if [ "$1" = "--self-test" ]; then
     exit 0
 fi
-if ! python3 tools/verifikasi-patch.py; then exit 1; fi
+rentang=""
+while read -r ref_lokal sha_lokal ref_remote sha_remote; do
+    case "$sha_remote" in
+        ""|0000000000000000000000000000000000000000) ;;
+        *) if [ -z "$rentang" ]; then rentang="$sha_remote..HEAD"; fi ;;
+    esac
+done
+if [ -n "$rentang" ]; then
+    if ! python3 tools/verifikasi-patch.py --rentang "$rentang"; then exit 1; fi
+else
+    if ! python3 tools/verifikasi-patch.py; then exit 1; fi
+fi
 exec bash scripts/cek-cepat.sh
 HOOK
 if [ -f "$HOOK" ] && ! cmp -s "$sementara" "$HOOK"; then

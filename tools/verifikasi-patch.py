@@ -1646,10 +1646,13 @@ def utama():
                 diff_gagal = diff_gagal or not ok
     else:
         hulu = jalan("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
-        if hulu:
-            diff, ok = jalan_diff("git", "diff", hulu.strip() + "...HEAD")
+        acuan = hulu.strip() if hulu else ""
+        if not acuan and jalan("git", "rev-parse", "--verify", "origin/main") is not None:
+            acuan = "origin/main"
+        if acuan:
+            diff, ok = jalan_diff("git", "diff", acuan + "...HEAD")
             diff_gagal = diff_gagal or not ok
-            daftar = jalan("git", "diff", "--name-only", hulu.strip() + "...HEAD") or ""
+            daftar = jalan("git", "diff", "--name-only", acuan + "...HEAD") or ""
             berubah = daftar.splitlines()
         else:
             diff, ok = jalan_diff("git", "diff", "HEAD~1...HEAD")
