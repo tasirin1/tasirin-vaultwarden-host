@@ -1719,14 +1719,57 @@ public final class TgBackup {
         return adaStaging && siapPasang && pasangBerhasil;
     }
 
-    static void sinkronTlsKeInternal(Context ctx, File dataFolder) {
+    // Sinkron TLS hasil restore ke salinan internal, kini ATOMIK per
+    // folder + dilaporkan (Audit 851): dulu berkas disalin satu per satu
+    // langsung ke tujuan dan kegagalannya ditelan — folder internal bisa
+    // tertinggal campuran (ca.pem baru, cert.pem lama/hilang) tanpa
+    // catatan. Kini salinan dibangun di folder staging, ditukar dengan
+    // pola ganti-rename + cadangan, dan kegagalan dicatat + dikembalikan
+    // sebagai false agar pemanggil bisa memperingatkan pengguna.
+    static boolean sinkronTlsKeInternal(Context ctx, File dataFolder) {
+        File tujuan = new File(ctx.getFilesDir(), "tls");
+        File staging = new File(ctx.getFilesDir(), "tls-sinkron-tmp");
+        File cadangan = new File(ctx.getFilesDir(), "tls-sinkron-bak");
         try {
             File asal = new File(dataFolder, "tls");
             if (!new File(asal, "ca.pem").isFile()) {
-                return;
+                return true;
             }
-            salinTls(asal, new File(ctx.getFilesDir(), "tls"));
-        } catch (Exception ignored) {
+            hapusPohon(staging);
+            int n = salinTls(asal, staging);
+            if (n <= 0 || !new File(staging, "ca.pem").isFile()) {
+                hapusPohon(staging);
+                return true;
+            }
+            hapusPohon(cadangan);
+            boolean adaTujuan = tujuan.isDirectory();
+            if (adaTujuan && !tujuan.renameTo(cadangan)) {
+                hapusPohon(staging);
+                ServerService.catatLog("[tls] Sinkron TLS internal gagal:"
+                        + " folder lama tak bisa disisihkan.");
+                return false;
+            }
+            if (!staging.renameTo(tujuan)) {
+                if (adaTujuan) {
+                    cadangan.renameTo(tujuan);
+                }
+                hapusPohon(staging);
+                ServerService.catatLog("[tls] Sinkron TLS internal gagal:"
+                        + " folder baru tak bisa dipasang.");
+                return false;
+            }
+            hapusPohon(cadangan);
+            return true;
+        } catch (Exception e) {
+            try {
+                if (!tujuan.isDirectory() && cadangan.isDirectory()) {
+                    cadangan.renameTo(tujuan);
+                }
+                hapusPohon(staging);
+            } catch (Exception ignored) {
+            }
+            ServerService.catatLog("[tls] Sinkron TLS internal gagal: " + e);
+            return false;
         }
     }
 
@@ -3402,8 +3445,13 @@ public final class TgBackup {
             }
         }
         if (perluSinkronTlsSesudahRestore(!tlsTerStaging.isEmpty(), tlsSiap,
-                tlsPasangOk)) {
-            sinkronTlsKeInternal(ctx, dataFolder);
+                tlsPasangOk)
+                && !sinkronTlsKeInternal(ctx, dataFolder)
+                && peringatanTls.isEmpty()) {
+            peringatanTls = " Database SUDAH dipulihkan, tetapi sinkron"
+                    + " sertifikat ke salinan internal gagal - salinan"
+                    + " internal mungkin tertinggal; mulai ulang server"
+                    + " untuk menyelaraskannya.";
         }
         boolean lengkap = false;
         String peringatan = "";

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Sinkron TLS ke salinan internal menjadi atomik dan dilaporkan (Audit 851)
+- Sisa Audit 807: `sinkronTlsKeInternal` menyalin berkas TLS satu per satu langsung ke folder internal dan menelan semua kegagalan, sehingga folder internal bisa tertinggal campuran (CA baru, sertifikat lama/hilang) tanpa catatan sementara restore dilaporkan sukses penuh. Kini salinan dibangun di folder staging lalu ditukar dengan pola sisihkan-rename + cadangan (gagal tukar = folder lama kembali), fungsi mengembalikan keberhasilan, kegagalan dicatat ke log, dan kedua pemanggil (restore Telegram dan restore lokal Settings) menambahkan peringatan yang terlihat pengguna.
+
+
 ## [Belum rilis] — doRestore Telegram mengambil kunci tugas data sebelum mengunduh (Audit 850)
 - `TgBot.doRestore` dulu mengunduh dan mendekripsi backup dulu, baru mengambil `kunciRestore()` — bila tugas data lain sedang berjalan, kerja itu sia-sia lalu dibuang; dan penanda backup terakhir dibaca saat unduh dimulai, sehingga berkas yang dipulihkan bisa lebih baru daripada yang disebut di prompt konfirmasi. Kunci kini diambil paling awal (gagal cepat dengan pesan yang sama) dan unduh + dekripsi + restore berjalan seluruhnya di dalam kunci.
 

@@ -2282,8 +2282,13 @@ public class SettingsActivity extends Activity {
                 }
             }
             if (TgBackup.perluSinkronTlsSesudahRestore(!tlsTerStaging.isEmpty(),
-                    tlsSiap, tlsPasangOk)) {
-                TgBackup.sinkronTlsKeInternal(SettingsActivity.this, new File(dataDir));
+                    tlsSiap, tlsPasangOk)
+                    && !TgBackup.sinkronTlsKeInternal(SettingsActivity.this,
+                            new File(dataDir))) {
+                appendUiLog("[app] Peringatan: sinkron sertifikat ke salinan"
+                        + " internal gagal - salinan internal mungkin"
+                        + " tertinggal; mulai ulang server untuk"
+                        + " menyelaraskannya.");
             }
             if (zipCfg != null) {
                 JSONObject prefsZip = zipCfg.optJSONObject("prefs");
