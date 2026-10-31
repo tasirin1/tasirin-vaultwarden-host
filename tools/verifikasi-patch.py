@@ -390,6 +390,7 @@ def segmen_redirect_output(segmen):
     sudah terjadi sebelum rantai ATAU dievaluasi shell."""
     hasil = False
     sesudah_op = False
+    dalam = 0
     i = 0
     n = len(segmen)
     kutip = ""
@@ -412,7 +413,21 @@ def segmen_redirect_output(segmen):
             kutip = c
             i += 1
             continue
-        if c == "<":
+        if c == "$" and i + 1 < n and segmen[i + 1] == "(":
+            # Masuk substitusi perintah: redirect di dalamnya milik
+            # perintah-dalam, bukan perintah ini (Audit 899/900).
+            dalam += 1
+            i += 2
+            continue
+        if c == "(" and dalam > 0:
+            dalam += 1
+            i += 1
+            continue
+        if c == ")" and dalam > 0:
+            dalam -= 1
+            i += 1
+            continue
+        if c == "<" and dalam == 0:
             # `<` adalah operator redirect masukan: ia ikut
             # memasang keadaan sesudah-operator (Audit 898), kecuali
             # `<` kedua dari heredoc `<<` yang memang berurutan.
@@ -421,15 +436,17 @@ def segmen_redirect_output(segmen):
             sesudah_op = True
             i += 1
             continue
-        if (c == ">" and i > 0 and segmen[i - 1] == "<"):
+        if (c == ">" and dalam == 0 and i > 0
+                and segmen[i - 1] == "<"):
             # `>` pada operator `<>` adalah redirect baca-tulis di
             # stdin, bukan penulisan stdout (Audit 894).
             sesudah_op = True
             i += 1
             continue
-        if (c == ">" and sesudah_op):
+        if (c == ">" and dalam == 0 and sesudah_op):
             return False
-        if (c == ">" and not (i + 2 < n and segmen[i + 1] == "&"
+        if (c == ">" and dalam == 0
+                and not (i + 2 < n and segmen[i + 1] == "&"
                               and (segmen[i + 2].isdigit()
                                    or segmen[i + 2] == "-"))):
             # `>&` hanya duplikasi fd bila diikuti angka/`-`; diikuti
@@ -461,7 +478,26 @@ def segmen_redirect_output(segmen):
             # Komentar akhir baris (`# ...` mengawali kata) sesudah
             # target juga sah (Audit 878); `#` yang menempel pada
             # kata BUKAN komentar bagi shell (Audit 882).
-            sisa = (_potong_komentar_sisa(segmen[i + op:])
+            # Target redirect adalah SATU kata shell (Audit 899):
+            # ambil kata pertama sesudah operator, sadar kutip —
+            # argumen yang mengikutinya bukan bagian target.
+            mentah = segmen[i + op:].lstrip(" \t")
+            kata = []
+            kq = ""
+            for ch in mentah:
+                if kq:
+                    kata.append(ch)
+                    if ch == kq:
+                        kq = ""
+                    continue
+                if ch in ("'", '"'):
+                    kq = ch
+                    kata.append(ch)
+                    continue
+                if ch in " \t":
+                    break
+                kata.append(ch)
+            sisa = (_potong_komentar_sisa("".join(kata))
                     .split("||")[0].strip())
             # Penutup pembungkus subshell/grup yang menempel sesudah
             # target (Audit 887) bukan bagian nama berkas — tetapi

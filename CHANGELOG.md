@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai gerbang sadar kedalaman substitusi perintah dan target satu kata (Audit 899)
+- Arah fail-closed: pemindaian segmen datar memperlakukan redirect di dalam substitusi perintah `$(...)` sebagai milik perintah luar — redirect-dalam menimpa vonis dan sisa target dinilai dari seluruh ekor segmen. Penilai kini melacak kedalaman substitusi (operator di dalamnya tak dinilai) dan membaca target redirect sebagai satu kata shell yang sadar kutip, sehingga argumen yang mengikuti target tak lagi mengotori penilaian. Skenario uji-diri substitusi ekor ber-redirect ditambahkan; draf pertama perbaikan ini (kedalaman saja) ditangkap skenario barunya sendiri sebelum commit, lalu diperkuat dengan pembacaan satu kata.
+
+
 ## [Belum rilis] — Operator < ikut memasang keadaan sesudah-operator gerbang (Audit 898)
 - Sisa Audit 894/895 arah fail-open: pelebaran `<>` hanya menutup bentuk menempel, sedangkan `<` sendiri tak memasang keadaan sesudah-operator sehingga `< > target` berjarak — sintaks tak sah di shell — dinilai sebagai penulisan biasa. `<` kini diperlakukan sebagai operator oleh pelacak (dengan pengecualian `<` kedua heredoc `<<`), dan pembersih keadaan tak lagi membersihkan pada `<`. Skenario uji-diri baru menguncinya.
 

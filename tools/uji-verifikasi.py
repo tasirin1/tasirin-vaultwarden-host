@@ -565,6 +565,22 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(kurangspasi, ignore_errors=True)
 
+        subekor = klon(tmp, "subekor")
+        berkas_aksi26 = os.path.join(
+            subekor, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi26, encoding="utf-8") as f:
+            isi_aksi26 = f.read()
+        baris_tulis26 = [b for b in isi_aksi26.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi26, "w", encoding="utf-8") as f:
+            f.write(isi_aksi26.replace(
+                baris_tulis26,
+                baris_tulis26 + " $(true > /dev/null)", 1))
+        rc, out = jalan(subekor, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect dalam substitusi ekor tak menimpa: gerbang lolos (Audit 899)",
+                rc == 0)
+        shutil.rmtree(subekor, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
