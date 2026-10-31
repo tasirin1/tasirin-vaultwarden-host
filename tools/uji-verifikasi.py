@@ -406,6 +406,24 @@ def main():
                 rc == 0)
         shutil.rmtree(potongakhir, ignore_errors=True)
 
+        fddua = klon(tmp, "fddua")
+        berkas_aksi17 = os.path.join(
+            fddua, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi17, encoding="utf-8") as f:
+            isi_aksi17 = f.read()
+        baris_tulis17 = [b for b in isi_aksi17.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi17, "w", encoding="utf-8") as f:
+            f.write(isi_aksi17.replace(
+                baris_tulis17,
+                baris_tulis17.replace('>> "$GITHUB_OUTPUT"',
+                                      '2>> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(fddua, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect stderr 2>> bukan produsen: gerbang gagal (Audit 890)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(fddua, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

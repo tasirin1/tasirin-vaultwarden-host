@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect fd selain stdout tak lagi dihitung gerbang sebagai produsen (Audit 890)
+- Arah fail-open: pencocokan redirect tidak memeriksa digit fd, sehingga penulisan stderr (`2>> "$GITHUB_OUTPUT"`) — yang membuat berkas keluaran kosong di runtime — terpenuhi semu sebagai produsen dan CI hijau atas kontrak yang sebenarnya kosong. Redirect ber-fd selain stdout kini dilewati tanpa dinilai (digit fd hanya berarti bila berdiri sebagai kata sendiri); `1>>` dan tanpa fd tetap stdout yang sah. Skenario uji-diri penulisan `2>>` harus gagal kini menguncinya.
+
+
 ## [Belum rilis] — Penilai redirect gerbang mengakui redirect > tunggal sebagai penulisan (Audit 889)
 - Sisa Audit 885 arah fail-closed: aturan "redirect terakhir yang berlaku" hanya diterapkan di antara sesama `>>`, padahal redirect penutup `>` tunggal (truncate) juga penulisan sungguhan — berkas sehat yang menulisnya digagalkan palsu. Penilai kini mengenal `>` sebagai operator redirect dengan target yang sama persis (duplikasi fd `>&` dan perbandingan `>=` tetap bukan redirect). Skenario uji-diri baru menguncinya.
 

@@ -414,6 +414,17 @@ def segmen_redirect_output(segmen):
             if op == 1 and i + 1 < n and segmen[i + 1] == "=":
                 i += 1
                 continue
+            # Redirect fd selain stdout (`2>>` dsb.) tidak menulis
+            # keluaran perintah (Audit 890): digit fd hanya dihitung
+            # bila berdiri sebagai kata sendiri (didahului batas kata);
+            # `1>>` dan tanpa fd berarti stdout. Lewati tanpa menilai.
+            j = i - 1
+            while j >= 0 and segmen[j].isdigit():
+                j -= 1
+            if (j < i - 1 and segmen[j + 1:i] != "1"
+                    and (j < 0 or segmen[j] in " \t;&|()")):
+                i += op
+                continue
             # Komentar akhir baris (`# ...` mengawali kata) sesudah
             # target juga sah (Audit 878); `#` yang menempel pada
             # kata BUKAN komentar bagi shell (Audit 882).
