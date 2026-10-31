@@ -315,6 +315,24 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpankurung, ignore_errors=True)
 
+        dualredir = klon(tmp, "dualredir")
+        berkas_aksi12 = os.path.join(
+            dualredir, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi12, encoding="utf-8") as f:
+            isi_aksi12 = f.read()
+        baris_tulis12 = [b for b in isi_aksi12.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi12, "w", encoding="utf-8") as f:
+            f.write(isi_aksi12.replace(
+                baris_tulis12,
+                baris_tulis12.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '>> "$GITHUB_OUTPUT.bak" >> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(dualredir, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect ganda target terakhir keluaran: gerbang lolos (Audit 885)",
+                rc == 0)
+        shutil.rmtree(dualredir, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

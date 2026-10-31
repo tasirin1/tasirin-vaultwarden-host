@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilai redirect gerbang memakai redirect terakhir yang berlaku (Audit 885)
+- Sisa Audit 874/870 arah fail-closed: penilai segmen kembali pada redirect `>>` pertama, padahal bagi shell redirect terakhir untuk fd yang sama yang berlaku — baris tulis sah dengan redirect pendahulu (mis. cadangan `.bak`) lalu target keluaran terakhir dilaporkan tak pernah menulis. Penilai kini mencatat tiap redirect di luar kutip dan memakai penilaian yang terakhir. Urutan terbalik (target dulu, `.bak` terakhir) tetap ditolak dengan benar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemotongan komentar shell gerbang: sesudah kurung tutup juga komentar (Audit 884)
 - Sisa Audit 881 arah fail-open: bagi shell, `#` sesudah `)` penutup perintah/subshell juga mengawali kata baru, jadi sisa baris sesudahnya adalah komentar — tetapi himpunan karakter pengawali kata pada penolong pemotong komentar tak memuat `)`, sehingga contoh perintah di dalam komentar semacam itu tetap dihitung sebagai produsen. Karakter `)` kini termasuk dalam himpunan itu. Skenario uji-diri baru menguncinya.
 
