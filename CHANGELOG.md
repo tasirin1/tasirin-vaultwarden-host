@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Rekonsiliasi sisa sinkron TLS di Start pindah ke dalam kunci data (Audit 863)
+- Sisa Audit 859: panggilan `pulihkanSisaSinkronTls` di `siapkanTls` berada sebelum `tungguKunciDataStart()`, yaitu di jendela tanpa kunci data, sementara tukar-folder sinkron pada jalur restore memegang kunci itu — Start yang terjadi tepat pada detik tukar bisa menghapus staging yang sedang disalin atau mengembalikan cadangan di antara dua rename. Panggilan kini tepat sesudah kunci data berhasil diambil, sejajar pola rekonsiliasi folder data.
+
+
 ## [Belum rilis] — Mesin PIN bot kini menjangkau /uptime, /alive, /versi (Audit 862)
 - Sisa integrasi Audit 861: gerbang PIN dipasang untuk semua perintah info, tetapi daftar `perintahPerluPin` tidak diperbarui — akibatnya tombol Uptime/Alive/Versi buntu (tak ada sesi pending PIN dibuat, lalu gerbang menolak) dan pesan berisi PIN untuk ketiga perintah itu tidak dihapus dari riwayat. Ketiganya kini masuk `perintahPerluPin` dan `perintahInfo` mengembalikan `perluPin` untuk mereka seperti perintah info lain, sehingga sesi pending tombol dan penghapusan pesan PIN bekerja. Uji JVM yang mengunci perilaku lama diperbarui di commit yang sama.
 

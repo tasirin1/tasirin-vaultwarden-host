@@ -1926,10 +1926,13 @@ public class ServerService extends Service {
     }
 
     private boolean siapkanTls(SharedPreferences sp, SesiStart sesi) {
-        TgBackup.pulihkanSisaSinkronTls(getFilesDir());
         if (!tungguKunciDataStart()) {
             return false;
         }
+        // Rekonsiliasi sisa sinkron TLS berjalan DI DALAM kunci data
+        // (Audit 863): tukar-folder sinkron pada jalur restore memegang
+        // kunci yang sama, jadi keduanya tak bisa saling menginjak.
+        TgBackup.pulihkanSisaSinkronTls(getFilesDir());
 
         sp.edit().putBoolean(KEY_HTTPS, true).apply();
         sesi.tlsDir = prepareTls(sesi.dataFolder);
