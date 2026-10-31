@@ -116,8 +116,10 @@ public class SettingsActivity extends Activity {
     // (Audit 592). Volatile: dibaca juga oleh sapuan cache di thread
     // latar (Audit 595).
     private volatile File imporTertundaFile = null;
-    private File restoreTgTertundaFile = null;
-    private String restoreTgTertundaNama = null;
+    // Volatile: dibaca juga oleh sapuan cache di thread latar lewat
+    // pengecualian Audit 852 (Audit 857) — sama seperti imporTertundaFile.
+    private volatile File restoreTgTertundaFile = null;
+    private volatile String restoreTgTertundaNama = null;
     private String imporTertundaCap = null;
     private String imporTertundaSidik = null;
     // Penjaga dialog impor sedang tampil agar tampil-lagi di onResume

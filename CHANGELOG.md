@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Field restore Telegram tertunda menjadi volatile (Audit 857)
+- Sisa Audit 852: pengecualian sapuan TTL membaca `restoreTgTertundaFile` dari thread latar, tetapi field itu tidak `volatile` — tidak seperti kedua field tertunda saudaranya yang dibaca sapuan yang sama (`exportPlainTertunda`, `imporTertundaFile`, keduanya volatile memang untuk jalur ini sejak Audit 595). Tanpa volatile, bacaan basi `null` di thread sapuan bisa menghapus berkas yang dialognya masih tertunda. Kedua field restore Telegram kini volatile. (Catatan verifikasi: `exportPlainPada` yang disebut sekalian ternyata sudah volatile, tak diubah.)
+
+
 ## [Belum rilis] — Kontrak gerbang memeriksa rujukan steps per-job, bukan se-berkas (Audit 856)
 - Sisa Audit 836: id langkah yang dianggap "terdefinisi" oleh gerbang adalah gabungan semua job di berkas workflow, padahal konteks `steps.*` di GitHub Actions hanya berlaku di dalam job yang sama — rujukan lintas job (menghasilkan string kosong di runtime) lolos. Pemeriksaan kini per-job: id dikumpulkan dari langkah job itu sendiri dan rujukan dicari hanya di dalam job yang sama. Skenario uji-diri baru (job tambahan merujuk `steps.ambil` milik job resolve) menguncinya.
 
