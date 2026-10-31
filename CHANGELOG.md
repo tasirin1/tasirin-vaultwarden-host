@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memvalidasi nama keluaran yang ditulis produsen resolve-vw (Audit 855)
+- Sisa Audit 840: kontrak resolve-vw hanya memeriksa sisi rujukan (ekspresi `value:` di `outputs` action dan rujukan workflow), sedangkan baris tulis produsen di skrip action (`echo "tag_mentah=…" >> $GITHUB_OUTPUT`) tak pernah dibaca — salah ketik nama di sana membuat keluaran kosong di runtime dengan gerbang hijau. Kini gerbang mengumpulkan semua nama yang ditulis ke `$GITHUB_OUTPUT` di action.yml dan menggagalkan setiap nama yang dirujuk `outputs` tetapi tak pernah ditulis. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Cek Gradle gerbang kini sadar komentar & nilai efektif (Audit 854)
 - Sisa Audit 815/835: `cek_gradle_akar` membaca teks mentah — baris `repositoriesMode` yang dikomentari memenuhi cek substring, komentar di antara `repositories` dan `{` menyembunyikan blok berisi repositori asing, dan baris `android.useAndroidX=true` duplikat (last-wins) lolos karena regex menemukan baris `false` di mana pun. Kini kedua berkas Gradle diperiksa sesudah komentar dikupas dengan pemindai sadar-string (`kupas_komentar_kotlin`), dan `useAndroidX` dinilai dari nilai efektif terakhir di `gradle.properties`. Tiga skenario uji-diri baru (mode dikomentari, repo asing terselip komentar, duplikat last-wins) menguncinya.
 

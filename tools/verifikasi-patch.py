@@ -345,6 +345,9 @@ def cek_yaml_github_lain(gagal, peringatan):
                 for langkah in runs.get("steps") or []:
                     if isinstance(langkah, dict) and langkah.get("id"):
                         id_internal.add(str(langkah["id"]))
+            mentah_action = baca(rel_action)
+            nama_ditulis = set(re.findall(
+                r"echo\s+\"?([A-Za-z0-9_-]+)=", mentah_action))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):
@@ -357,6 +360,16 @@ def cek_yaml_github_lain(gagal, peringatan):
                                      "runs.steps action — keluaran akan "
                                      "kosong di runtime (Audit 840)"
                                      % (rel_action, nama_out, id_ref))
+                for nama_ref in re.findall(
+                        r"steps\.[A-Za-z0-9_-]+\.outputs\.([A-Za-z0-9_-]+)",
+                        nilai):
+                    if nama_ref not in nama_ditulis:
+                        gagal.append("%s: outputs.%s merujuk keluaran "
+                                     "langkah %s yang tak pernah ditulis "
+                                     "ke $GITHUB_OUTPUT di skrip action — "
+                                     "keluaran akan kosong di runtime "
+                                     "(Audit 855)"
+                                     % (rel_action, nama_out, nama_ref))
             for wf in ("build-apk.yml", "build-binary.yml"):
                 rel_wf = os.path.join(".github", "workflows", wf)
                 data_wf = _muat_yaml_github(rel_wf, gagal)

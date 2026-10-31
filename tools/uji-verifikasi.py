@@ -153,6 +153,19 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        prod = klon(tmp, "prod")
+        berkas_prod = os.path.join(prod, ".github", "actions",
+                                   "resolve-vw", "action.yml")
+        with open(berkas_prod, encoding="utf-8") as f:
+            isi_prod = f.read()
+        with open(berkas_prod, "w", encoding="utf-8") as f:
+            f.write(isi_prod.replace('echo "tag_mentah=$TAG"',
+                                     'echo "tagmentah=$TAG"'))
+        rc, out = jalan(prod, [sys.executable, GERBANG, "--semua"])
+        periksa("nama ditulis produsen resolve-vw diganti: gerbang gagal (Audit 855)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(prod, ignore_errors=True)
+
         idact = klon(tmp, "idact")
         berkas_act = os.path.join(idact, ".github", "actions",
                                   "resolve-vw", "action.yml")
