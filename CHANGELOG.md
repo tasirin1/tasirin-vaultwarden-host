@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji cek-cepat kini mengunci cabang struktur README (Audit 868)
+- Cabang perbandingan struktur judul README 3 bahasa di `scripts/cek-cepat.sh` tak punya skenario di `tools/uji-cek-cepat.py`, jadi regresinya tak akan memerahkan CI mana pun (di CI cek-cepat hanya berjalan di pohon bersih). Skenario baru mengubah satu tingkat heading di `README.id.md` pada salinan buang dan mengasersi cek-cepat gagal dengan pesan struktur.
+
+
 ## [Belum rilis] — Nama produsen resolve-vw hanya dihitung dari echo ber-redirect $GITHUB_OUTPUT (Audit 867)
 - Sisa Audit 855: gerbang mengumpulkan nama keluaran dari `echo` mana pun di action.yml, sehingga echo log polos bernama sama bisa memenuhi kontrak sementara baris tulis sungguhan salah nama. Nama kini hanya dihitung dari baris echo yang benar-benar mengarah `>> …$GITHUB_OUTPUT`. Skenario uji-diri baru (baris tulis salah nama + echo umpan) menguncinya.
 

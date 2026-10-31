@@ -12,7 +12,8 @@ Sejak Audit 831, cek layout dan berkas biner/nama terlarang dimiliki
 satu pintu oleh verifikasi-patch (skenarionya hidup di
 tools/uji-verifikasi.py); skrip ini mengunci cabang milik cek-cepat
 sendiri: pola rahasia (satu baris dan terbelah antar-baris, cabang
-bungkus `tr -d` di cek-cepat) dan vektor tanpa nol depan (Audit 841).
+bungkus `tr -d` di cek-cepat), vektor tanpa nol depan (Audit 841), dan
+struktur judul README 3 bahasa (Audit 868).
 
 Jalankan: python3 tools/uji-cek-cepat.py (berhenti dengan kode 1 bila
 ada skenario yang menyimpang).
@@ -99,6 +100,17 @@ def main():
         periksa("token terbelah dua baris tertangkap (cabang bungkus)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(terbelah, ignore_errors=True)
+
+        readme = klon(tmp, "readme")
+        berkas_rm = os.path.join(readme, "README.id.md")
+        with open(berkas_rm, encoding="utf-8") as f:
+            isi_rm = f.read()
+        with open(berkas_rm, "w", encoding="utf-8") as f:
+            f.write(isi_rm.replace("\n## ", "\n### ", 1))
+        rc, out = jalan(readme, ["bash", SKRIP])
+        periksa("struktur judul README beda: cek-cepat gagal (Audit 868)",
+                rc != 0 and "struktur judul" in out)
+        shutil.rmtree(readme, ignore_errors=True)
 
         vektor = klon(tmp, "vektor")
         tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",
