@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Klasifikasi crash menunggu pembaca output sampai 2 detik (Audit 846)
+- `watchProcess` menggolongkan crash (panic shim / port direbut / biasa) dari ekor log, tetapi `tungguPembacaOutput` hanya memberi thread pembaca 500 ms untuk mengejar — saat banjir log, baris fatal sering belum terpompa sehingga crash port-direbut/panic digolongkan biasa dan server di-restart sia-sia beberapa kali sebelum berhenti. Batas tunggu kini 2 detik; pembaca berhenti sendiri saat aliran proses tutup, jadi waktu ekstra hanya terbayar bila pembaca memang tertinggal.
+
+
 ## [Belum rilis] — Entri penunggu proses dibuang juga pada jalur interupsi (Audit 845)
 - Sisa Audit 818: pembuangan entri `PENUNGGU_PROSES` di `waitForOrKill` hanya terjadi pada lanjutan normal sesudah `join`; pemanggil yang terinterupsi saat menunggu menyisakan entri sampai penghentian berikutnya untuk proses yang sama. Pembuangan kini di blok `finally` (hanya bila proses sudah terkonfirmasi mati, dengan cek identitas yang sama), sehingga jalur interupsi membersihkan juga tanpa mengubah perilaku tunggu.
 

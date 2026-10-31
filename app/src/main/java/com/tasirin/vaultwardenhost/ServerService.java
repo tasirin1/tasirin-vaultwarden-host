@@ -2193,7 +2193,14 @@ public class ServerService extends Service {
             return;
         }
         try {
-            baca.join(500);
+            // Batas total 2 detik (dulu 500 ms): klasifikasi crash tepat
+            // sesudah ini membaca ekor log, dan saat banjir log baris
+            // fatal (port direbut / panic shim) sering belum terpompa
+            // dalam 500 ms pertama sehingga crash salah digolongkan
+            // sebagai crash biasa (Audit 846). Pembaca berhenti sendiri
+            // saat aliran proses tutup, jadi tunggu lebih lama hanya
+            // terbayar bila pembaca memang tertinggal.
+            baca.join(2000);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
