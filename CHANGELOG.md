@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda selesai restore dipasang di finally sesudah penjadwalan ulang (Audit 865)
+- Sisa Audit 858: di akhir `restoreFromZip`, dua panggilan penjadwalan ulang berjalan sebelum `tandaiRestoreSelesai` tanpa pembungkus — satu RuntimeException dari AlarmManager/PendingIntent akan membuat restore yang sudah berhasil dilaporkan gagal dan penandanya tertinggal (peringatan palsu "proses mati di tengah restore" di boot berikutnya). Penjadwalan kini dibungkus try/catch berlog dan penanda dipasang di `finally`.
+
+
 ## [Belum rilis] — authDangerous fail-closed bila hash segar di dalam kunci kosong (Audit 864)
 - Sisa Audit 860: bacaan segar hash PIN di dalam kunci hanya menimpa bacaan luar bila tidak kosong, sehingga bila PIN baru saja dimatikan/direset pada jeda sempit itu, verifikasi jatuh kembali ke hash basi dan PIN lama masih bisa diterima satu kali. Bacaan segar kini selalu dipakai — kosong berarti verifikasi gagal — sejalan sikap fail-closed jalur UI (PinActivity).
 

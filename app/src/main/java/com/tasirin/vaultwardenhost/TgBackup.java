@@ -3512,9 +3512,19 @@ public final class TgBackup {
         }
         SharedPreferences fresh = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
-        TgBackup.schedule(ctx, amanBoolean(fresh, KEY_TG_AUTO, false));
-        TgBot.schedule(ctx);
-        tandaiRestoreSelesai(ctx);
+        // Penanda selesai dipasang di finally (Audit 865): penjadwalan
+        // ulang sesudah restore tak boleh membuat restore yang sudah
+        // berhasil dilaporkan gagal atau penandanya tertinggal (yang
+        // akan terbaca sebagai "proses mati di tengah restore").
+        try {
+            TgBackup.schedule(ctx, amanBoolean(fresh, KEY_TG_AUTO, false));
+            TgBot.schedule(ctx);
+        } catch (Exception eJadwal) {
+            ServerService.catatLog("[restore] Penjadwalan ulang sesudah"
+                    + " restore gagal: " + eJadwal);
+        } finally {
+            tandaiRestoreSelesai(ctx);
+        }
         return "Database dipulihkan"
                 + (lengkap ? " (lengkap, termasuk pengaturan)" : "")
                 + ". Ukuran DB: " + dbFile.length() + " bytes."
