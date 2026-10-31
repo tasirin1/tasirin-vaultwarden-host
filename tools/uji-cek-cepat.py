@@ -11,7 +11,8 @@ pohon asli tak disentuh) dan mengasersi kode keluar + pesan cek-cepat.
 Sejak Audit 831, cek layout dan berkas biner/nama terlarang dimiliki
 satu pintu oleh verifikasi-patch (skenarionya hidup di
 tools/uji-verifikasi.py); skrip ini mengunci cabang milik cek-cepat
-sendiri: pola rahasia dan vektor tanpa nol depan.
+sendiri: pola rahasia (satu baris dan terbelah antar-baris, cabang
+bungkus `tr -d` di cek-cepat) dan vektor tanpa nol depan (Audit 841).
 
 Jalankan: python3 tools/uji-cek-cepat.py (berhenti dengan kode 1 bila
 ada skenario yang menyimpang).
@@ -88,6 +89,16 @@ def main():
         periksa("pola token rahasia tertangkap",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(rahasia, ignore_errors=True)
+
+        terbelah = klon(tmp, "terbelah")
+        paruh = len(token_palsu) // 2
+        tanam(terbelah, "catatan-token-terbelah.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(terbelah, ["bash", SKRIP])
+        periksa("token terbelah dua baris tertangkap (cabang bungkus)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(terbelah, ignore_errors=True)
 
         vektor = klon(tmp, "vektor")
         tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",

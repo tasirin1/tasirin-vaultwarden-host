@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji cek-cepat kini mengunci cabang token terbelah (Audit 841)
+- Sisa Audit 830: satu-satunya skenario rahasia di `tools/uji-cek-cepat.py` menanam token satu baris yang sudah tertangkap `git grep` lebih dulu, jadi cabang bungkus (`tr -d` menggabungkan baris) di cek-cepat tak pernah terbukti hidup. Skenario baru menanam token Telegram yang sama terbelah dua baris dan mengasersi cek-cepat gagal karenanya; docstring skrip diperbarui menyebut cabang itu.
+
+
 ## [Belum rilis] — Gerbang memvalidasi id langkah internal action resolve-vw (Audit 840)
 - Sisa Audit 814: mengganti id langkah internal di `.github/actions/resolve-vw/action.yml` (`vw` → nama lain) lolos gerbang karena ekspresi `value:` pada `outputs` action tak pernah diperiksa — kedua keluaran action akan kosong di runtime. Kini gerbang mengumpulkan id langkah di `runs.steps` action dan menggagalkan setiap rujukan `steps.<id>.outputs.*` di nilai keluaran yang id-nya tak terdefinisi. Skenario uji-diri baru menguncinya.
 
