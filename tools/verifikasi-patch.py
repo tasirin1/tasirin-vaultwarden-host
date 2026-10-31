@@ -1612,6 +1612,12 @@ def utama():
     diff_gagal = False
     rentang_cek = ""
     if args.jalur:
+        for j in args.jalur:
+            if not os.path.exists(os.path.join(AKAR, j)):
+                gagal.append("Jalur diminta tak ada: %s — ejaan/nama berkas "
+                             "mungkin keliru atau berkas sudah dihapus "
+                             "(cek penghapusan berjalan lewat mode "
+                             "diff/rentang, bukan jalur eksplisit)" % j)
         berubah = [j for j in args.jalur if os.path.exists(os.path.join(AKAR, j))]
         diff, ok = jalan_diff("git", "diff", "HEAD", "--", *berubah)
         diff_gagal = diff_gagal or not ok

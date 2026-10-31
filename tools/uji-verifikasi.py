@@ -151,6 +151,15 @@ def main():
         rc, out = jalan(gradle, [sys.executable, GERBANG, "--semua"])
         periksa("repositoriesMode dilonggarkan: gerbang gagal (Audit 815)",
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
+        shutil.rmtree(gradle, ignore_errors=True)
+
+        bersih2 = klon(tmp, "bersih2")
+        rc, out = jalan(bersih2,
+                        [sys.executable, GERBANG,
+                         "app/src/main/java/com/tasirin/vaultwardenhost/"
+                         "BerkasNgawur.java"])
+        periksa("jalur eksplisit tak ada: gerbang gagal (Audit 829)",
+                rc != 0 and "BerkasNgawur.java" in out)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

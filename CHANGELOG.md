@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Jalur eksplisit yang tak ada kini menggagalkan gerbang, bukan dibuang diam-diam (Audit 829)
+- Mode jalur eksplisit `verifikasi-patch.py` sebelumnya menyaring argumen dengan `os.path.exists` tanpa sisa: satu nama berkas yang salah ketik atau sudah dihapus menghasilkan `Hasil: LOLOS (0 berkas diperiksa)` dengan kode keluar 0 — kepastian palsu bagi maintainer yang justru ingin memeriksa berkas yang baru dihapus/di-rename. Kini setiap jalur yang diminta tetapi tak ada dilaporkan sebagai kegagalan yang menyebut jalurnya (cek penghapusan tetap berjalan lewat mode diff/rentang seperti sebelumnya). Dikunci sebagai skenario baru di `tools/uji-verifikasi.py`.
+
+
 ## [Belum rilis] — Isi berkas web-vault kini ikut di-fsync sebelum swap (Audit 828)
 - Pemasangan web-vault sebelumnya hanya mem-fsync direktori staging (dan data folder) sebelum direktori ditukar masuk, tetapi isi tiap berkas hasil unzip tidak pernah di-fsync — menyimpang dari jalur binary/penanda versi di repo ini yang selalu mem-fsync isi sebelum rename. Mati listrik tepat sesudah swap bisa menyisakan entri direktori yang awet dengan isi berkas kosong/robek, dan pemeriksaan runtime hanya memastikan `index.html` ada dan tak kosong. Kini setiap berkas hasil unzip di-`getFD().sync()` sebelum ditutup.
 
