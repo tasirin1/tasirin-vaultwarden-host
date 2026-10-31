@@ -784,6 +784,24 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(tempelpro, ignore_errors=True)
 
+        jarakpro = klon(tmp, "jarakpro")
+        berkas_aksi38 = os.path.join(
+            jarakpro, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi38, encoding="utf-8") as f:
+            isi_aksi38 = f.read()
+        baris_tulis38 = [b for b in isi_aksi38.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi38, "w", encoding="utf-8") as f:
+            f.write(isi_aksi38.replace(
+                baris_tulis38,
+                baris_tulis38.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cat >> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(jarakpro, [sys.executable, GERBANG, "--semua"])
+        periksa("target substitusi proses berjarak produsen: gerbang "
+                "lolos (Audit 911)", rc == 0)
+        shutil.rmtree(jarakpro, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
