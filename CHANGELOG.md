@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Retry unggah APK kini menyaring galat permanen, sama seperti build-binary (Audit 832)
+- Langkah publish `build-apk.yml` sebelumnya mengulang semua kegagalan `gh release upload` sampai 6 kali dengan jeda 15 detik — termasuk galat permanen (401/403 otorisasi, validasi) yang pasti gagal lagi, membuang ±75 detik + waktu `gh` per kejadian. Logika unggahnya kini disamakan persis dengan fungsi `unggah_asset` di `build-binary.yml`: log galat ditangkap, hanya pola sementara (`already exists|validation failed|502|503|504|timeout|EOF|connection reset`) yang diulang, galat lain langsung gagal.
+
+
 ## [Belum rilis] — Cek layout dan berkas biner/nama kini satu pintu di verifikasi-patch (Audit 831)
 - Paritas ID layout + layout-land yatim + layout wajib dan deteksi berkas biner/nama terlarang sebelumnya diimplementasikan dua kali — di `verifikasi-patch.py` dan di `scripts/cek-cepat.sh` — padahal keduanya selalu berjalan bersamaan (hook dan CI), dan kedua salinan sudah mulai drift (ekstraktor ID cek-cepat tak setara antarjalur rg/grep-nya sendiri; daftar ekstensi terlarang berbeda bentuk). Kini kepemilikannya satu pintu: `verifikasi-patch.py` — yang memang mem-parse XML dan memeriksa magic berkas — memiliki cek layout dan berkas (daftar nama terlarangnya disamakan dengan cakupan lama cek-cepat: tambah `.zip/.p12/.pfx/.so/.a`, `.env`, `vw_version.txt`, komponen `keystore`, dan nama binary/shim), sedangkan cek-cepat mempertahankan miliknya sendiri (pola rahasia termasuk token terbelah, vektor tanpa nol depan, struktur README). Skenario uji-diri berpindah mengikuti kepemilikan: layout-land yatim dan biner menyamar kini skenario `uji-verifikasi.py`, dan `uji-cek-cepat.py` mengunci cabang sisanya.
 

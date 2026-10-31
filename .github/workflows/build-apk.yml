@@ -228,19 +228,28 @@ jobs:
           gh release view "$TAG" >/dev/null 2>&1
           APK_NAME=tasirin-vaultwarden-host-armeabi-v7a.apk
 
-          percobaan=1
-          while :; do
-            if gh release upload "$TAG" "$APK_NAME" --clobber; then
-              break
-            fi
-            if [ "$percobaan" -ge 6 ]; then
-              echo "::error::Gagal mengunggah $APK_NAME setelah 6 percobaan"
-              exit 1
-            fi
-            echo "Unggah $APK_NAME gagal (percobaan $percobaan), coba lagi 15 dtk..."
-            sleep 15
-            percobaan=$((percobaan + 1))
-          done
+          unggah_asset() {
+            berkas="$1"
+            percobaan=1
+            while [ "$percobaan" -le 6 ]; do
+              if gh release upload "$TAG" "$berkas" --clobber 2>"$berkas.gagal.log"; then
+                rm -f "$berkas.gagal.log"
+                return 0
+              fi
+              cat "$berkas.gagal.log"
+              if ! grep -Eqi "already exists|validation failed|502|503|504|timed? ?out|EOF|connection reset" "$berkas.gagal.log"; then
+                return 1
+              fi
+              echo "percobaan $percobaan: unggah $berkas gagal sementara, tunggu 15 dtk..."
+              sleep 15
+              percobaan=$((percobaan + 1))
+            done
+            return 1
+          }
+          if ! unggah_asset "$APK_NAME"; then
+            echo "::error::Gagal mengunggah $APK_NAME"
+            exit 1
+          fi
 
           LOKAL=$(stat -c %s "$APK_NAME")
           OK=false
