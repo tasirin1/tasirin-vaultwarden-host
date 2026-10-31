@@ -439,6 +439,12 @@ def _potong_komentar_sisa(sisa):
     return sisa
 
 
+# Perintah-perintah yang lazim mengonsumsi stdin sampai habis —
+# dipakai menilai isi substitusi proses multi-perintah (Audit 931).
+_PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
+                  "uniq"}
+
+
 def segmen_redirect_output(segmen):
     """True bila segmen memuat redirect `>>` ke PERSIS $GITHUB_OUTPUT
     yang berada DI LUAR kutip dan menjadi penutup segmen (Audit 874):
@@ -625,8 +631,29 @@ def segmen_redirect_output(segmen):
                     k += 1
                 # Kurung tak seimbang = sintaks tak sah (Audit 916):
                 # isi terpotong tak boleh dinilai sama sekali.
-                hasil = (segmen_redirect_output(segmen[awal + 2:k])
-                         if kedalaman == 0 else False)
+                if kedalaman == 0:
+                    # Isi substitusi bisa berisi beberapa perintah
+                    # (Audit 931): stdin bersama dikonsumsi berurutan,
+                    # jadi penulis yang muncul SEBELUM pembaca stdin
+                    # mana pun yang berlaku; sesudah pembaca, stdin
+                    # sudah terkuras dan penulis berikutnya menerima
+                    # EOF. Perintah yang tak membaca stdin (echo dan
+                    # kawanannya) tak menguras apa pun. Aturan
+                    # redirect-terakhir (Audit 885) berlaku di dalam
+                    # satu perintah, bukan melintasi perintah.
+                    hasil = False
+                    for bagian in pecah_segmen_shell(
+                            segmen[awal + 2:k]):
+                        if segmen_redirect_output(bagian):
+                            hasil = True
+                            break
+                        kata_awal = bagian.strip().lstrip("({ ").split(
+                            None, 1)
+                        if (kata_awal and kata_awal[0].strip("\"'")
+                                in _PEMBACA_STDIN):
+                            break
+                else:
+                    hasil = False
                 # Target sudah dikonsumsi lompatan ini — keadaan
                 # sesudah-operator harus mati, bukan menyala, agar
                 # redirect sah berikutnya tak ditolak penjaga

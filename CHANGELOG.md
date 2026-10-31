@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Rekursi substitusi proses menilai konsumsi stdin berurutan (Audit 931)
+- Deviasi dua arah: rekursi Audit 911 menilai isi substitusi multi-perintah dengan aturan redirect-terakhir satu perintah, melintasi batas antar-perintah. Isi kini dipecah per perintah: penulis yang muncul sebelum pembaca stdin mana pun yang berlaku, sesudah pembaca stdin sudah terkuras; perintah yang tak membaca stdin tak menguras apa pun. Skenario uji-diri baru mengunci kedua arah.
+
+
 ## [Belum rilis] — Segmen perintah aritmetika dilewati pemindai produsen (Audit 930)
 - Arah fail-open: sesudah kurung ganda dilewati sebagai aritmetika (Audit 926), sisa segmen perintah aritmetika masih dicocokkan sebagai echo biasa sehingga teks mirip echo di dalam ekspresi terkredit sebagai penulisan. Segmen yang diawali kurung ganda kini dilewati utuh. Skenario uji-diri baru menguncinya.
 
