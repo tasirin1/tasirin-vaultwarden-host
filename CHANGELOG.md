@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Semua perintah info bot melewati gerbang PIN yang sama (Audit 861)
+- `/uptime`, `/alive`, dan `/versi` dulu menjawab sebelum gerbang PIN di `perintahInfo`, sementara `/status`, `/log`, dan `/crashlog` wajib lolos `authDangerous` bila PIN aktif atau chat berupa grup — inkonsistensi yang niatnya tak tercatat di kode. Gerbang kini berlaku untuk semua perintah info: di chat pribadi tanpa PIN perilaku tak berubah; di grup/PIN aktif ketiganya meminta PIN seperti saudara-saudaranya.
+
+
 ## [Belum rilis] — authDangerous bot memverifikasi ke hash PIN segar di dalam kunci (Audit 860)
 - Pasangan jalur UI yang ditutup Audit 849, tertinggal di jalur bot: `authDangerous` memverifikasi PIN terhadap hash yang dibaca *sebelum* masuk kunci bersama. Koreksi segar yang ada hanya satu arah (bila verifikasi basi berhasil, dibaca ulang) — PIN baru yang benar bisa ditolak dan tercatat sebagai kegagalan menuju lockout bila PIN diganti pada jeda sempit itu. Hash kini dibaca ulang segar di dalam kunci sebelum verifikasi pertama, sehingga kedua arah memakai hash terkini.
 

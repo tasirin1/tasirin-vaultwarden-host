@@ -1922,6 +1922,15 @@ public final class TgBot {
     }
 
     private static boolean perintahInfo(Context ctx, String cmd, String arg, long idRuang) {
+        // Audit 861: SEMUA perintah info kini melewati gerbang PIN yang
+        // sama bila PIN aktif atau chat berupa grup. Dulu /uptime,
+        // /alive, /versi menjawab lebih dulu sebelum gerbang — tak
+        // konsisten dengan /status, /log, /crashlog di fungsi yang sama
+        // dan niat pengecualiannya tak tercatat; kini perilakunya satu.
+        boolean perluPin = pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx);
+        if (perluPin && authDangerous(ctx, arg, cmd.substring(1), idRuang) == null) {
+            return false;
+        }
         if ("/uptime".equals(cmd)) {
             long up = ServerService.uptimeMs();
             if (up <= 0) {
@@ -1940,10 +1949,6 @@ public final class TgBot {
         }
         if ("/versi".equals(cmd)) {
             balas(ctx, idRuang, teksVersi(ctx));
-            return false;
-        }
-        boolean perluPin = pinPerangkatAktif(ctx) || chatResmiAdalahGrup(ctx);
-        if (perluPin && authDangerous(ctx, arg, cmd.substring(1), idRuang) == null) {
             return false;
         }
         if ("/status".equals(cmd)) {
