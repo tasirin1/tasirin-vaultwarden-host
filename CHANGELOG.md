@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Sisa crash sinkron TLS internal dipulihkan, tak lagi yatim selamanya (Audit 859)
+- Sisa Audit 851: jendela crash antar-rename di `sinkronTlsKeInternal` bisa meninggalkan folder `tls-sinkron-bak`/`tls-sinkron-tmp` berisi salinan TLS lengkap (termasuk kunci privat CA) tanpa ada yang membersihkannya. Kini `TgBackup.pulihkanSisaSinkronTls` merekonsiliasi keduanya — staging selalu dihapus, cadangan tanpa folder tujuan dikembalikan menjadi folder TLS, cadangan bersama folder tujuan dihapus — dan ia dipanggil di awal sinkron berikutnya serta pada setiap Start server (`siapkanTls`).
+
+
 ## [Belum rilis] — Penanda restore dibersihkan juga pada jalur exception pemasangan DB (Audit 858)
 - Di `restoreFromZip` jalur bot, bila `pasangDbRestoreAtomik` melempar exception (bukan mengembalikan string galat), penanda `KEY_RESTORE_TANDA` tertinggal karena catch hanya membersihkan staging/TLS lalu melempar ulang. Pada boot berikutnya penanda itu terbaca sebagai bukti proses mati di tengah restore dan memicu peringatan palsu ke log + Telegram. Catch kini memanggil `tandaiRestoreSelesai` sebelum melempar ulang, sejalan jalur galatDb dan jalur Settings.
 

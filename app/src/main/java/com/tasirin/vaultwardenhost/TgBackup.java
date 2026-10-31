@@ -1726,10 +1726,38 @@ public final class TgBackup {
     // catatan. Kini salinan dibangun di folder staging, ditukar dengan
     // pola ganti-rename + cadangan, dan kegagalan dicatat + dikembalikan
     // sebagai false agar pemanggil bisa memperingatkan pengguna.
+    // Pulihkan sisa crash sinkron TLS internal (Audit 859): jendela
+    // antar-rename bisa meninggalkan tls-sinkron-bak (salinan TLS lama,
+    // termasuk kunci privat CA) atau tls-sinkron-tmp yatim selamanya.
+    // Aturan rekonsiliasi: tmp tak pernah otoritatif -> hapus; bak tanpa
+    // folder tls berarti tukar terputus di tengah -> bak dikembalikan
+    // menjadi tls; bak bersama tls berarti tukar selesai -> bak dihapus.
+    static void pulihkanSisaSinkronTls(File filesDir) {
+        try {
+            File tujuan = new File(filesDir, "tls");
+            File staging = new File(filesDir, "tls-sinkron-tmp");
+            File cadangan = new File(filesDir, "tls-sinkron-bak");
+            if (staging.exists()) {
+                hapusPohon(staging);
+            }
+            if (cadangan.isDirectory()) {
+                if (!tujuan.isDirectory()) {
+                    if (!cadangan.renameTo(tujuan)) {
+                        hapusPohon(cadangan);
+                    }
+                } else {
+                    hapusPohon(cadangan);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     static boolean sinkronTlsKeInternal(Context ctx, File dataFolder) {
         File tujuan = new File(ctx.getFilesDir(), "tls");
         File staging = new File(ctx.getFilesDir(), "tls-sinkron-tmp");
         File cadangan = new File(ctx.getFilesDir(), "tls-sinkron-bak");
+        pulihkanSisaSinkronTls(ctx.getFilesDir());
         try {
             File asal = new File(dataFolder, "tls");
             if (!new File(asal, "ca.pem").isFile()) {

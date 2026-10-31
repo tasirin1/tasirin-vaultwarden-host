@@ -1926,6 +1926,7 @@ public class ServerService extends Service {
     }
 
     private boolean siapkanTls(SharedPreferences sp, SesiStart sesi) {
+        TgBackup.pulihkanSisaSinkronTls(getFilesDir());
         if (!tungguKunciDataStart()) {
             return false;
         }
