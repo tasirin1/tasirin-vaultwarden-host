@@ -531,15 +531,6 @@ public final class TgBackup {
 
         checkpointWal(db);
 
-        String cekDb = cekIntegritasDbUlang(db);
-        if (dbSibuk(cekDb)) {
-            throw new IOException("Database sibuk (server sedang menulis)"
-                    + " - backup dibatalkan, coba lagi sebentar.");
-        }
-        if (cekDb != null) {
-            throw new IOException("Database korup (" + cekDb + ") - backup dibatalkan.");
-        }
-
         File zip = null;
 
         File snapDir = new File(ctx.getCacheDir(), "vwsnap-" + System.nanoTime());

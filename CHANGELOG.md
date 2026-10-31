@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup Telegram tak lagi membayar quick_check penuh di DB live (Audit 821)
+- Awal `createBackupZip` versi Telegram sebelumnya menjalankan `cekIntegritasDbUlang` atas database live: satu `quick_check` penuh ekstra per backup di STB kelas rendah, padahal salinan yang benar-benar dikirim sudah diperiksa tiga lapis sesudahnya — kestabilan + integritas snapshot di `snapshotDbKonsisten` (dengan coba-ulang sibuknya sendiri yang lebih sabar), verifikasi zip, dan verifikasi isi DB di dalam zip. Pemeriksaan live itu tidak menambah jaminan atas artefak terkirim (DB live bisa berubah sedetik sesudahnya) dan justru bisa menggagalkan backup lebih awal karena kesibukan sesaat. Bloknya dihapus dari jalur Telegram; `cekIntegritasDbUlang` tetap dipakai backup lokal di Settings yang memang menyalin DB live tanpa tahap snapshot.
+
+
 ## [Belum rilis] — Kirim CA kini terisolasi per-chat dan memakai ulang file_id (Audit 820)
 - `kirimCa` sebelumnya mengunggah CA dengan satu loop tanpa isolasi: satu chat rusak (bot diblokir/chat berubah) menggagalkan seluruh perintah `/ca`, chat sesudahnya tak pernah dicoba, dan pengguna menerima "Kirim CA gagal" padahal chat sebelumnya sudah menerima CA — ditambah unggahan multipart penuh berulang ke tiap chat. Jalurnya kini meniru jalur backup (Audit 793/795): kegagalan diisolasi per-chat dan dilaporkan sebagai sukses sebagian di pesan hasil, kegagalan di semua chat barulah galat, dan chat lanjutan menerima CA yang sama lewat `file_id` hasil unggahan pertama (jatuh kembali ke unggahan penuh per-chat bila by-id gagal, dengan jejak di log).
 
