@@ -159,9 +159,14 @@ public class PinActivity extends Activity {
             boolean cocok = false;
             boolean terkunci = false;
             long sisaKalah = 0;
+            String segar = "";
             try {
-                String segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                 synchronized (PinGate.KUNCI_PERCOBAAN) {
+                    // Hash dibaca DI DALAM kunci bersama (Audit 849):
+                    // membaca sebelum masuk kunci membuat verifikasi bisa
+                    // memakai hash lama tepat sesudah PIN diganti jalur
+                    // lain — pola yang sudah ditutup jalur bot (Audit 809).
+                    segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                     // Audit 791: cek ulang otoritatif di dalam kunci bersama
                     // dengan jalur bot — kunci yang terpasang jalur lain
                     // sejak cek awal membatalkan percobaan tanpa verifikasi.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — PinActivity membaca hash PIN di dalam kunci bersama (Audit 849)
+- Jalur UI membaca hash PIN tersimpan tepat *sebelum* masuk `PinGate.KUNCI_PERCOBAAN`, lalu memverifikasi terhadap bacaan itu di dalam kunci — bila PIN diganti jalur lain pada jeda sempit itu, PIN lama masih bisa diterima satu kali. Hash kini dibaca di dalam kunci, menyelaraskan jalur UI dengan jalur bot yang sudah lebih dulu kebal pola ini (Audit 809); nilai yang sama tetap dipakai cek tulis-balik upgrade sesudahnya.
+
+
 ## [Belum rilis] — Verifikasi berkas berbagi FileShareProvider menjadi satu pintu (Audit 848)
 - Rantai verifikasi yang sama (jalur kanonik, cek akar bagi, kanonik ulang + kesetaraan, cek symlink induk, `isFile`) dulu ditulis ulang di `query`, `getType`, dan `openFile`, sehingga satu aksi bagikan membayarnya tiga kali dan ketiganya bisa menyimpang sendiri-sendiri. Kini ketiganya memakai helper bersama `berkasBagiTerverifikasi`; hasil sengaja tetap tak di-cache (tiap panggilan memverifikasi segar, fail-closed) dan pemeriksaan jalur fd sesudah buka di `openFile` dipertahankan.
 
