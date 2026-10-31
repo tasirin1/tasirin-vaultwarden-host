@@ -1336,7 +1336,8 @@ public final class TgBot {
     static boolean perintahPerluPin(String text) {
         String cmd = namaPerintah(text);
         return perintahBerbahaya(text) || "crashlog".equals(cmd) || "log".equals(cmd)
-                || "status".equals(cmd) || "ca".equals(cmd) || "cabackup".equals(cmd);
+                || "status".equals(cmd) || "ca".equals(cmd) || "cabackup".equals(cmd)
+                || "uptime".equals(cmd) || "alive".equals(cmd) || "versi".equals(cmd);
     }
 
     static boolean pesanPinWajibHapus(String text) {
@@ -1938,18 +1939,18 @@ public final class TgBot {
             } else {
                 balas(ctx, idRuang, "Server jalan selama " + durationText(up) + ".");
             }
-            return false;
+            return perluPin;
         }
         if ("/alive".equals(cmd)) {
             if (!Util.jalankanBg(() -> balas(ctx, idRuang,
                     pesanAlive(ServerService.pingAlive(ctx))))) {
                 balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
             }
-            return false;
+            return perluPin;
         }
         if ("/versi".equals(cmd)) {
             balas(ctx, idRuang, teksVersi(ctx));
-            return false;
+            return perluPin;
         }
         if ("/status".equals(cmd)) {
             balas(ctx, idRuang, statusText(ctx));

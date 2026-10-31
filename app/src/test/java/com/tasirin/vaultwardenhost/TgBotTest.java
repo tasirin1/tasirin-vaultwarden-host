@@ -409,9 +409,12 @@ public class TgBotTest {
         assertTrue(TgBot.perintahPerluPin("/crashlog"));
         assertTrue(TgBot.perintahPerluPin("/ca"));
         assertTrue(TgBot.perintahPerluPin("/cabackup"));
-        assertFalse(TgBot.perintahPerluPin("/uptime"));
-        assertFalse(TgBot.perintahPerluPin("/alive"));
-        assertFalse(TgBot.perintahPerluPin("/versi"));
+        // Sejak Audit 861/862 semua perintah info bergerbang PIN, jadi
+        // ketiganya ikut perintahPerluPin (mesin pending tombol + hapus
+        // pesan PIN kini menjangkaunya juga).
+        assertTrue(TgBot.perintahPerluPin("/uptime"));
+        assertTrue(TgBot.perintahPerluPin("/alive"));
+        assertTrue(TgBot.perintahPerluPin("/versi"));
         assertFalse(TgBot.perintahPerluPin("/help"));
         assertFalse(TgBot.perintahPerluPin(null));
     }

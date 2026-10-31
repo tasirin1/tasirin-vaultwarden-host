@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Mesin PIN bot kini menjangkau /uptime, /alive, /versi (Audit 862)
+- Sisa integrasi Audit 861: gerbang PIN dipasang untuk semua perintah info, tetapi daftar `perintahPerluPin` tidak diperbarui — akibatnya tombol Uptime/Alive/Versi buntu (tak ada sesi pending PIN dibuat, lalu gerbang menolak) dan pesan berisi PIN untuk ketiga perintah itu tidak dihapus dari riwayat. Ketiganya kini masuk `perintahPerluPin` dan `perintahInfo` mengembalikan `perluPin` untuk mereka seperti perintah info lain, sehingga sesi pending tombol dan penghapusan pesan PIN bekerja. Uji JVM yang mengunci perilaku lama diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Semua perintah info bot melewati gerbang PIN yang sama (Audit 861)
 - `/uptime`, `/alive`, dan `/versi` dulu menjawab sebelum gerbang PIN di `perintahInfo`, sementara `/status`, `/log`, dan `/crashlog` wajib lolos `authDangerous` bila PIN aktif atau chat berupa grup — inkonsistensi yang niatnya tak tercatat di kode. Gerbang kini berlaku untuk semua perintah info: di chat pribadi tanpa PIN perilaku tak berubah; di grup/PIN aktif ketiganya meminta PIN seperti saudara-saudaranya.
 
