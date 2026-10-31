@@ -1107,6 +1107,24 @@ def main():
                 "vonis: gerbang lolos (Audit 927)", rc == 0)
         shutil.rmtree(kurungluput, ignore_errors=True)
 
+        polakutip = klon(tmp, "polakutip")
+        berkas_aksi55 = os.path.join(
+            polakutip, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi55, encoding="utf-8") as f:
+            isi_aksi55 = f.read()
+        baris_tulis55 = [b for b in isi_aksi55.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi55, "w", encoding="utf-8") as f:
+            f.write(isi_aksi55.replace(
+                baris_tulis55,
+                baris_tulis55.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG } >> x"; }'), 1))
+        rc, out = jalan(polakutip, [sys.executable, GERBANG, "--semua"])
+        periksa("pola kurung di dalam string argumen bukan kurung "
+                "argumen: gerbang lolos (Audit 928)", rc == 0)
+        shutil.rmtree(polakutip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

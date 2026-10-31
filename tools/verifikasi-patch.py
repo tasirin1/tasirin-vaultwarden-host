@@ -748,6 +748,65 @@ def _punya_redirect_luar(segmen):
     return False
 
 
+def _pola_kurung_redirect(segmen):
+    """True bila segmen memuat kurung tutup kata-tersendiri di tingkat
+    luar (di luar kutip, substitusi gaya lama, dan substitusi) yang
+    diikuti operator redirect — pola kurung-argumen Audit 924 yang
+    dinilai sadar konteks (Audit 928): pola yang sama di dalam string
+    argumen atau perintah-dalam adalah data, bukan kurung argumen."""
+    kutip = ""
+    dalam = 0
+    tikus = False
+    i = 0
+    n = len(segmen)
+    while i < n:
+        c = segmen[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "`":
+            tikus = not tikus
+            i += 1
+            continue
+        if c == "$" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c in "><" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c == "(" and dalam > 0:
+            dalam += 1
+            i += 1
+            continue
+        if c == ")" and dalam > 0:
+            dalam -= 1
+            i += 1
+            continue
+        if (c == "}" and dalam == 0 and not tikus and i > 0
+                and segmen[i - 1] in " \t"):
+            j = i + 1
+            while j < n and segmen[j] in " \t":
+                j += 1
+            if j < n and segmen[j] in "><":
+                return True
+        i += 1
+    return False
+
+
 def cek_yaml_github_lain(gagal, peringatan):
     # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
     # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
@@ -855,9 +914,7 @@ def cek_yaml_github_lain(gagal, peringatan):
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
                             and (segmen_cek.rstrip().endswith(" }")
-                                 or re.search(
-                                     r"\s\}(?=\s*(?:>>|>|<))",
-                                     segmen_cek))):
+                                 or _pola_kurung_redirect(segmen_cek))):
                         # Grup satu baris tanpa `;` sebelum `}` penutup
                         # adalah sintaks tak sah — `}` di sana argumen
                         # biasa, bukan penutup grup (Audit 905). Redirect

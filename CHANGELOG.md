@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pencarian pola kurung penjaga grup sadar konteks (Audit 928)
+- Arah fail-closed: pola teks mentah Audit 924 menembak juga pada teks kurung-redirect di dalam string argumen atau perintah-dalam substitusi, membuang segmen pembuka grup yang sah. Pencarian kini berupa pemindai sadar konteks yang hanya menilai kurung di tingkat luar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pemindai keseimbangan kurung target sadar escape (Audit 927)
 - Arah fail-closed: penghitung kurung pada cabang target substitusi proses dan target kurung polos sudah sadar kutip (Audit 922) tetapi menghitung kurung ter-escape sebagai kurung sungguhan, sehingga penjaga keseimbangan Audit 916 membatalkan vonis sah. Kedua pemindai kini melompati pasangan backslash sebagai literal. Skenario uji-diri baru menguncinya.
 
