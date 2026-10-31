@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengupas komentar gerbang menghitung komentar blok bersarang (Audit 866)
+- Sisa Audit 854: `kupas_komentar_kotlin` berhenti di `*/` pertama, padahal komentar blok Kotlin resmi bisa bersarang — baris mode yang terbungkus `/* luar /* dalam */ … */` terbaca gerbang sebagai kode aktif dan cek `FAIL_ON_PROJECT_REPOS` terpenuhi palsu. Pemindai kini menghitung kedalaman sarang dan hanya keluar pada penutup terluar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penanda selesai restore dipasang di finally sesudah penjadwalan ulang (Audit 865)
 - Sisa Audit 858: di akhir `restoreFromZip`, dua panggilan penjadwalan ulang berjalan sebelum `tandaiRestoreSelesai` tanpa pembungkus — satu RuntimeException dari AlarmManager/PendingIntent akan membuat restore yang sudah berhasil dilaporkan gagal dan penandanya tertinggal (peringatan palsu "proses mati di tengah restore" di boot berikutnya). Penjadwalan kini dibungkus try/catch berlog dan penanda dipasang di `finally`.
 

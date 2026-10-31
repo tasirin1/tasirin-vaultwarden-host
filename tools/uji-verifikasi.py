@@ -202,6 +202,19 @@ def main():
                 rc != 0 and "ambil" in out)
         shutil.rmtree(idl, ignore_errors=True)
 
+        sarang = klon(tmp, "sarang")
+        berkas_set5 = os.path.join(sarang, "settings.gradle.kts")
+        with open(berkas_set5, encoding="utf-8") as f:
+            isi_set5 = f.read()
+        with open(berkas_set5, "w", encoding="utf-8") as f:
+            f.write(isi_set5.replace(
+                "repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)",
+                "/* luar /* dalam */ repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) */"))
+        rc, out = jalan(sarang, [sys.executable, GERBANG, "--semua"])
+        periksa("komentar blok bersarang menyembunyikan mode: gerbang gagal (Audit 866)",
+                rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
+        shutil.rmtree(sarang, ignore_errors=True)
+
         komen = klon(tmp, "komen")
         berkas_set3 = os.path.join(komen, "settings.gradle.kts")
         with open(berkas_set3, encoding="utf-8") as f:

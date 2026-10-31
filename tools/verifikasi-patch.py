@@ -1367,12 +1367,23 @@ def kupas_komentar_kotlin(isi):
             while i < n and isi[i] != "\n":
                 i += 1
         elif c == "/" and i + 1 < n and isi[i + 1] == "*":
+            # Komentar blok Kotlin RESMI bisa bersarang: hitung kedalaman
+            # (Audit 866) — berhenti di */ pertama membuat teks di dalam
+            # sarang terbaca sebagai kode oleh cek-cek sesudahnya.
             i += 2
-            while i + 1 < n and not (isi[i] == "*" and isi[i + 1] == "/"):
+            dalam = 1
+            while i < n and dalam:
+                if isi[i] == "/" and i + 1 < n and isi[i + 1] == "*":
+                    dalam += 1
+                    i += 2
+                    continue
+                if isi[i] == "*" and i + 1 < n and isi[i + 1] == "/":
+                    dalam -= 1
+                    i += 2
+                    continue
                 if isi[i] == "\n":
                     hasil.append("\n")
                 i += 1
-            i += 2
             hasil.append(" ")
         else:
             hasil.append(c)
