@@ -691,6 +691,8 @@ def cek_yaml_github_lain(gagal, peringatan):
             # persis — echo umpan pada baris majemuk yang sama tak ikut.
             # Pemecahan segmen sadar kutip (Audit 874).
             nama_ditulis = set()
+            grup_nama = set()
+            grup_buka = False
             for baris_act in mentah_action.splitlines():
                 if baris_act.lstrip().startswith("#"):
                     continue
@@ -708,10 +710,27 @@ def cek_yaml_github_lain(gagal, peringatan):
                         # adalah sintaks tak sah — `}` di sana argumen
                         # biasa, bukan penutup grup (Audit 905).
                         continue
+                    segmen_r = segmen.strip()
+                    if grup_buka and segmen_r.startswith("}"):
+                        # Redirect tingkat grup (Audit 912): penutup
+                        # grup yang membawa redirect ke berkas keluaran
+                        # membuat semua echo kandidat di dalam grup
+                        # sungguh tertulis.
+                        sisa_grup = segmen_r[1:].strip()
+                        if (sisa_grup and segmen_redirect_output(
+                                "echo z=1 " + sisa_grup)):
+                            nama_ditulis |= grup_nama
+                        grup_buka = False
+                        grup_nama = set()
+                        continue
+                    if segmen.lstrip().startswith("{"):
+                        grup_buka = True
                     m_nama = re.match(
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
                     if m_nama and segmen_redirect_output(segmen_cek):
                         nama_ditulis.add(m_nama.group(1))
+                    elif m_nama and grup_buka:
+                        grup_nama.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):

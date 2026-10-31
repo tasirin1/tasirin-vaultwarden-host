@@ -802,6 +802,27 @@ def main():
                 "lolos (Audit 911)", rc == 0)
         shutil.rmtree(jarakpro, ignore_errors=True)
 
+        grupredir = klon(tmp, "grupredir")
+        berkas_aksi39 = os.path.join(
+            grupredir, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi39, encoding="utf-8") as f:
+            isi_aksi39 = f.read()
+        baris_tulis39 = [b for b in isi_aksi39.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        indentasi39 = baris_tulis39[:len(baris_tulis39)
+                                    - len(baris_tulis39.lstrip())]
+        inti39 = baris_tulis39.strip().replace(
+            ' >> "$GITHUB_OUTPUT"', "")
+        with open(berkas_aksi39, "w", encoding="utf-8") as f:
+            f.write(isi_aksi39.replace(
+                baris_tulis39,
+                indentasi39 + "{ " + inti39
+                + "; } >> \"$GITHUB_OUTPUT\"", 1))
+        rc, out = jalan(grupredir, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect tingkat grup produsen: gerbang lolos "
+                "(Audit 912)", rc == 0)
+        shutil.rmtree(grupredir, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

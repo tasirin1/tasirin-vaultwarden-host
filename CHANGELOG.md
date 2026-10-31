@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect tingkat grup dihitung gerbang (Audit 912)
+- Arah fail-closed: pemindaian produsen hanya menilai segmen berawalan echo, sehingga penulisan lewat redirect grup `{ ...; } >> keluaran` tak pernah dihitung — segmen echo di dalam grup tak membawa redirect-nya sendiri dan segmen penutup pembawa redirect tak dinilai. Pemindaian kini mengingat echo kandidat selama grup terbuka dan mengesahkannya bila penutup grup membawa redirect persis ke berkas keluaran. Skenario uji-diri baru menguncinya (terbukti diskriminatif: gagal di gerbang lama, lolos di gerbang baru).
+
+
 ## [Belum rilis] — Skenario target substitusi proses berjarak mengunci Audit 911
 - Arah fail-closed dari akar yang sama dengan Audit 910: target substitusi proses yang sah ditolak gerbang — mekanismenya sudah ditutup perbaikan Audit 910 (isi perintah-dalam target dinilai rekursif); entri ini menambahkan skenario uji-diri yang mengunci arah ini agar tak regresi.
 
