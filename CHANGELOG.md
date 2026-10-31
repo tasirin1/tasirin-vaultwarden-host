@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemotongan komentar shell gerbang: sesudah kurung tutup juga komentar (Audit 884)
+- Sisa Audit 881 arah fail-open: bagi shell, `#` sesudah `)` penutup perintah/subshell juga mengawali kata baru, jadi sisa baris sesudahnya adalah komentar — tetapi himpunan karakter pengawali kata pada penolong pemotong komentar tak memuat `)`, sehingga contoh perintah di dalam komentar semacam itu tetap dihitung sebagai produsen. Karakter `)` kini termasuk dalam himpunan itu. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penolong string gerbang mengenal raw string di dalam template (Audit 883)
 - Sisa Audit 877 arah fail-closed: pengupas tingkat atas mengenal raw string, tetapi penolong string yang dipakai di dalam template tidak — raw string berisi petik di dalam `${...}` (bentuk Kotlin sah) menutup string semu lebih awal dan menelan isi berkas, sehingga berkas Gradle sehat digagalkan palsu. Penolong string kini menangani raw string (tanpa escape, template di dalamnya tetap dilompati utuh) sebelum mode string biasa. Skenario uji-diri baru menguncinya.
 

@@ -294,6 +294,27 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(tempel, ignore_errors=True)
 
+        umpankurung = klon(tmp, "umpankurung")
+        berkas_aksi11 = os.path.join(
+            umpankurung, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi11, encoding="utf-8") as f:
+            isi_aksi11 = f.read()
+        baris_tulis11 = [b for b in isi_aksi11.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_aksi11 = isi_aksi11.replace(
+            'echo "tag_mentah=', 'echo "salah_nama=', 1)
+        isi_aksi11 = isi_aksi11.replace(
+            baris_tulis11.replace("tag_mentah", "salah_nama"),
+            baris_tulis11.replace("tag_mentah", "salah_nama")
+            + '\n          (true)#teks; echo "tag_mentah=$TAG"'
+            ' >> "$GITHUB_OUTPUT"', 1)
+        with open(berkas_aksi11, "w", encoding="utf-8") as f:
+            f.write(isi_aksi11)
+        rc, out = jalan(umpankurung, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen semu di komentar sesudah kurung tutup: gerbang gagal (Audit 884)",
+                rc != 0 and "tag_mentah" in out)
+        shutil.rmtree(umpankurung, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

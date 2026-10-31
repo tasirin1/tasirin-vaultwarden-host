@@ -313,7 +313,9 @@ def _potong_komentar_shell(baris):
             kutip = c
             i += 1
             continue
-        if c == "#" and (i == 0 or baris[i - 1] in " \t;&|"):
+        if c == "#" and (i == 0 or baris[i - 1] in " \t;&|)"):
+            # `)` termasuk: sesudah kurung tutup perintah/subshell,
+            # `#` juga mengawali kata baru bagi shell (Audit 884).
             return baris[:i]
         i += 1
     return baris
