@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Produsen sah gerbang: sufiks || dan echo kutip tunggal diakui (Audit 875)
+- Sisa Audit 872 arah sebaliknya (fail-closed): baris tulis sah `>> "$GITHUB_OUTPUT" || true` tak dihitung karena segmen tak berakhir di redirect, dan echo kutip tunggal tak dihitung karena pola nama hanya mengakui kutip ganda — CI bisa memerahkan berkas action yang sehat. Sufiks `|| ...` sesudah target kini sah dan pola nama mengakui kutip tunggal. Dua skenario uji-diri arah-lolos baru menguncinya.
+
+
 ## [Belum rilis] — Pencocokan produsen gerbang sadar kutip penuh (Audit 874)
 - Sisa Audit 872: baris action dipecah pada `;`/`&&` tanpa sadar kutip dan nama/redirect dicocokkan dari seluruh segmen, sehingga teks di dalam kutip — `echo "catatan; echo tag_mentah=x >> $GITHUB_OUTPUT"` — mengarang penulisan semu yang memenuhi kontrak sementara baris tulis sungguhan salah nama. Pemecahan segmen kini sadar kutip, nama wajib menjadi argumen pertama echo di kepala segmen, dan redirect wajib berada di luar kutip serta menunjuk persis berkas keluaran sebagai penutup segmen. Skenario uji-diri baru menguncinya.
 

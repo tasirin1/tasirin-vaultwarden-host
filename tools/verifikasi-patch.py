@@ -337,7 +337,9 @@ def pecah_segmen_shell(baris):
 def segmen_redirect_output(segmen):
     """True bila segmen memuat redirect `>>` ke PERSIS $GITHUB_OUTPUT
     yang berada DI LUAR kutip dan menjadi penutup segmen (Audit 874):
-    redirect di dalam teks berkutip adalah data, bukan penulisan."""
+    redirect di dalam teks berkutip adalah data, bukan penulisan.
+    Sufiks `|| ...` sesudah target tetap sah (Audit 875): penulisan
+    sudah terjadi sebelum rantai ATAU dievaluasi shell."""
     i = 0
     n = len(segmen)
     kutip = ""
@@ -356,7 +358,7 @@ def segmen_redirect_output(segmen):
             i += 1
             continue
         if c == ">" and i + 1 < n and segmen[i + 1] == ">":
-            sisa = segmen[i + 2:].strip()
+            sisa = segmen[i + 2:].strip().split("||")[0].strip()
             return sisa in ('"$GITHUB_OUTPUT"', "$GITHUB_OUTPUT",
                             '"${GITHUB_OUTPUT}"', "${GITHUB_OUTPUT}")
         i += 1
@@ -434,7 +436,7 @@ def cek_yaml_github_lain(gagal, peringatan):
                     continue
                 for segmen in pecah_segmen_shell(baris_act):
                     m_nama = re.match(
-                        r"\s*echo\s+\"?([A-Za-z0-9_-]+)=", segmen)
+                        r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen)
                     if m_nama and segmen_redirect_output(segmen):
                         nama_ditulis.add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():

@@ -213,6 +213,34 @@ def main():
                 rc != 0 and "tag_mentah" in out)
         shutil.rmtree(umpankutip, ignore_errors=True)
 
+        prodtrue = klon(tmp, "prodtrue")
+        berkas_pt = os.path.join(prodtrue, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_pt, encoding="utf-8") as f:
+            isi_pt = f.read()
+        with open(berkas_pt, "w", encoding="utf-8") as f:
+            f.write(isi_pt.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT" || true'))
+        rc, out = jalan(prodtrue, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen sah sufiks || true: gerbang lolos (Audit 875)",
+                rc == 0)
+        shutil.rmtree(prodtrue, ignore_errors=True)
+
+        prodkutip1 = klon(tmp, "prodkutip1")
+        berkas_pk = os.path.join(prodkutip1, ".github", "actions",
+                                 "resolve-vw", "action.yml")
+        with open(berkas_pk, encoding="utf-8") as f:
+            isi_pk = f.read()
+        with open(berkas_pk, "w", encoding="utf-8") as f:
+            f.write(isi_pk.replace(
+                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                "echo 'tag_mentah=$TAG' >> \"$GITHUB_OUTPUT\""))
+        rc, out = jalan(prodkutip1, [sys.executable, GERBANG, "--semua"])
+        periksa("produsen sah echo kutip tunggal: gerbang lolos (Audit 875)",
+                rc == 0)
+        shutil.rmtree(prodkutip1, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
