@@ -391,6 +391,7 @@ def segmen_redirect_output(segmen):
     hasil = False
     sesudah_op = False
     dalam = 0
+    tikus = False
     i = 0
     n = len(segmen)
     kutip = ""
@@ -411,6 +412,13 @@ def segmen_redirect_output(segmen):
             continue
         if c in ("'", '"'):
             kutip = c
+            i += 1
+            continue
+        if c == "`":
+            # Substitusi gaya lama: isi di antara dua backtick milik
+            # perintah-dalam seperti substitusi perintah
+            # (Audit 903/904).
+            tikus = not tikus
             i += 1
             continue
         if c in "><" and i + 1 < n and segmen[i + 1] == "(":
@@ -434,7 +442,7 @@ def segmen_redirect_output(segmen):
             dalam -= 1
             i += 1
             continue
-        if c == "<" and dalam == 0:
+        if c == "<" and dalam == 0 and not tikus:
             # `<` adalah operator redirect masukan: ia ikut
             # memasang keadaan sesudah-operator (Audit 898), kecuali
             # `<` kedua dari heredoc `<<` yang memang berurutan.
@@ -443,16 +451,16 @@ def segmen_redirect_output(segmen):
             sesudah_op = True
             i += 1
             continue
-        if (c == ">" and dalam == 0 and i > 0
+        if (c == ">" and dalam == 0 and not tikus and i > 0
                 and segmen[i - 1] == "<"):
             # `>` pada operator `<>` adalah redirect baca-tulis di
             # stdin, bukan penulisan stdout (Audit 894).
             sesudah_op = True
             i += 1
             continue
-        if (c == ">" and dalam == 0 and sesudah_op):
+        if (c == ">" and dalam == 0 and not tikus and sesudah_op):
             return False
-        if (c == ">" and dalam == 0
+        if (c == ">" and dalam == 0 and not tikus
                 and not (i + 2 < n and segmen[i + 1] == "&"
                               and (segmen[i + 2].isdigit()
                                    or segmen[i + 2] == "-"))):
