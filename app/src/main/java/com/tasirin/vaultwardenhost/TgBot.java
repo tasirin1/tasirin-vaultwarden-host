@@ -2117,10 +2117,12 @@ public final class TgBot {
             // (sudah tertutup verifikasi ulang Audit 809) dan PIN BARU
             // yang benar ditolak + tercatat gagal karena diverifikasi ke
             // hash lama sesudah PIN diganti di bawah kunci yang sama.
+            // Audit 864: bacaan segar selalu dipakai, termasuk bila
+            // KOSONG (PIN baru saja dimatikan/direset di bawah kunci yang
+            // sama) — fail-closed seperti jalur UI, bukan jatuh kembali
+            // ke hash basi hasil bacaan luar kunci.
             String segarAwal = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
-            if (segarAwal != null && !segarAwal.isEmpty()) {
-                hash = segarAwal;
-            }
+            hash = segarAwal == null ? "" : segarAwal;
             // Audit 791: cek ulang otoritatif di dalam kunci bersama —
             // tanpa ini percobaan bot dan UI bisa sama-sama lolos cek awal
             // dan sama-sama memverifikasi sebelum satu pun mencatat.

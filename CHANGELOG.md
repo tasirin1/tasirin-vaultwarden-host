@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — authDangerous fail-closed bila hash segar di dalam kunci kosong (Audit 864)
+- Sisa Audit 860: bacaan segar hash PIN di dalam kunci hanya menimpa bacaan luar bila tidak kosong, sehingga bila PIN baru saja dimatikan/direset pada jeda sempit itu, verifikasi jatuh kembali ke hash basi dan PIN lama masih bisa diterima satu kali. Bacaan segar kini selalu dipakai — kosong berarti verifikasi gagal — sejalan sikap fail-closed jalur UI (PinActivity).
+
+
 ## [Belum rilis] — Rekonsiliasi sisa sinkron TLS di Start pindah ke dalam kunci data (Audit 863)
 - Sisa Audit 859: panggilan `pulihkanSisaSinkronTls` di `siapkanTls` berada sebelum `tungguKunciDataStart()`, yaitu di jendela tanpa kunci data, sementara tukar-folder sinkron pada jalur restore memegang kunci itu — Start yang terjadi tepat pada detik tukar bisa menghapus staging yang sedang disalin atau mengembalikan cadangan di antara dua rename. Panggilan kini tepat sesudah kunci data berhasil diambil, sejajar pola rekonsiliasi folder data.
 
