@@ -767,10 +767,15 @@ def cek_yaml_github_lain(gagal, peringatan):
             # persis — echo umpan pada baris majemuk yang sama tak ikut.
             # Pemecahan segmen sadar kutip (Audit 874).
             nama_ditulis = set()
-            grup_nama = set()
-            grup_buka = False
-            kulit_nama = set()
-            kulit_buka = False
+            # Tumpukan pembungkus yang sedang terbuka (Audit 920):
+            # tiap entri [jenis, {kandidat}]. Kandidat dicatat ke
+            # pembungkus TERDALAM — redirect dialah yang pertama
+            # mengatur stdout echo — dan pembuka dicatat dari loop
+            # kupas di bawah, sehingga pembungkus yang dibuka di
+            # tengah segmen (di belakang pembungkus lain pada segmen
+            # yang sama) ikut terlacak; sebelumnya keadaan hanya
+            # dinyalakan bila segmen diawali pembungkus terluar.
+            tumpuk = []
             for baris_act in mentah_action.splitlines():
                 if baris_act.lstrip().startswith("#"):
                     continue
@@ -780,6 +785,7 @@ def cek_yaml_github_lain(gagal, peringatan):
                     # dibuka lebih dulu (Audit 886): penulisan di
                     # dalamnya tetap penulisan sungguhan bagi shell.
                     segmen_cek = segmen.lstrip()
+                    bukaan = []
                     while (segmen_cek[:1] == "("
                            or (segmen_cek[:1] == "{"
                                and (len(segmen_cek) == 1
@@ -788,6 +794,8 @@ def cek_yaml_github_lain(gagal, peringatan):
                         # kata tersendiri — `{echo` adalah satu kata
                         # perintah, bukan grup (Audit 913); `(` memang
                         # metakarakter.
+                        bukaan.append(
+                            "kulit" if segmen_cek[:1] == "(" else "grup")
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
                             and segmen_cek.rstrip().endswith(" }")):
@@ -796,42 +804,30 @@ def cek_yaml_github_lain(gagal, peringatan):
                         # biasa, bukan penutup grup (Audit 905).
                         continue
                     segmen_r = segmen.strip()
-                    if grup_buka and segmen_r.startswith("}"):
-                        # Redirect tingkat grup (Audit 912): penutup
-                        # grup yang membawa redirect ke berkas keluaran
-                        # membuat semua echo kandidat di dalam grup
-                        # sungguh tertulis.
-                        sisa_grup = segmen_r[1:].strip()
-                        if (sisa_grup and segmen_redirect_output(
-                                "echo z=1 " + sisa_grup)):
-                            nama_ditulis |= grup_nama
-                        grup_buka = False
-                        grup_nama = set()
+                    if (tumpuk and segmen_r[:1] in ("}", ")")
+                            and ((segmen_r[:1] == "}"
+                                  and tumpuk[-1][0] == "grup")
+                                 or (segmen_r[:1] == ")"
+                                     and tumpuk[-1][0] == "kulit"))):
+                        # Redirect tingkat pembungkus (Audit 912/915):
+                        # penutup yang membawa redirect ke berkas
+                        # keluaran membuat echo kandidat pembungkus
+                        # itu sungguh tertulis.
+                        sisa = segmen_r[1:].strip()
+                        if (sisa and segmen_redirect_output(
+                                "echo z=1 " + sisa)):
+                            nama_ditulis |= tumpuk[-1][1]
+                        tumpuk.pop()
                         continue
-                    if kulit_buka and segmen_r.startswith(")"):
-                        # Redirect tingkat subshell (Audit 915):
-                        # padanan penutup grup untuk kurung biasa.
-                        sisa_kulit = segmen_r[1:].strip()
-                        if (sisa_kulit and segmen_redirect_output(
-                                "echo z=1 " + sisa_kulit)):
-                            nama_ditulis |= kulit_nama
-                        kulit_buka = False
-                        kulit_nama = set()
-                        continue
-                    if segmen.lstrip().startswith("{"):
-                        grup_buka = True
-                    if segmen.lstrip().startswith("("):
-                        kulit_buka = True
+                    for jenis in bukaan:
+                        tumpuk.append([jenis, set()])
                     m_nama = re.match(
                         r"\s*echo\s+[\"']?([A-Za-z0-9_-]+)=", segmen_cek)
                     if m_nama and segmen_redirect_output(segmen_cek):
                         nama_ditulis.add(m_nama.group(1))
-                    elif (m_nama and (grup_buka or kulit_buka)
+                    elif (m_nama and tumpuk
                           and not _punya_redirect_luar(segmen_cek)):
-                        if grup_buka:
-                            grup_nama.add(m_nama.group(1))
-                        if kulit_buka:
-                            kulit_nama.add(m_nama.group(1))
+                        tumpuk[-1][1].add(m_nama.group(1))
             for nama_out, isi_out in keluaran.items():
                 nilai = ""
                 if isinstance(isi_out, dict):

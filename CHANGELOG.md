@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Keadaan pembungkus menjadi tumpukan bersarang (Audit 920)
+- Arah fail-open: keadaan grup/subshell hanya dinyalakan bila segmen diawali pembungkus terluar, sehingga pembungkus bersarang yang dibuka di tengah segmen tak terlacak dan kredit redirect pembungkus-luar jatuh ke echo yang diatur pembungkus-dalam. Keadaan kini berupa tumpukan: pembuka dicatat dari loop kupas, kandidat masuk ke pembungkus terdalam, dan penutup menilai entri teratas — sekaligus menutup arah sebaliknya (Audit 921). Skenario uji-diri baru mengunci kedua arah.
+
+
 ## [Belum rilis] — Penolong redirect luar melacak ekspansi parameter (Audit 919)
 - Arah fail-closed: `_punya_redirect_luar` tak melacak kedalaman ekspansi parameter, sehingga `>` di dalam nilai bawaan terbaca sebagai redirect tingkat luar dan menyaring kandidat grup/subshell yang sah. Ekspansi kini dilacak sebagai kedalaman tersendiri. Skenario uji-diri baru menguncinya.
 
