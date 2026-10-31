@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Baris CODEOWNERS yang tak terjangkau dihapus (Audit 834)
+- Baris pertama `.github/CODEOWNERS` (`* @tasirin1`) sudah mencakup semua berkas, sehingga baris `.github/ @tasirin1` tidak pernah menjadi penentu kepemilikan (pemiliknya pun sama). Baris mati itu dihapus agar cakupan kepemilikan tidak membingungkan pembaca; perilaku peninjauan tidak berubah.
+
+
 ## [Belum rilis] — Tiga keterangan basi AGENTS.md tentang workflow diluruskan (Audit 833)
 - AGENTS.md adalah hukum kerja repo ini, tetapi tiga keterangannya tak lagi cocok dengan workflow: (1) `assembleRelease` ditulis "(signed bila secrets ada)", padahal build gagal keras bila satu saja dari 4 secret signing kosong — tidak ada jalur APK unsigned di `main`; (2) web-vault ditulis "hanya bila belum ada di rilis", padahal selalu diunduh ulang dan diverifikasi digest-nya, dan baru dibangun ulang dari Docker bila zip rilis korup/beda digest; (3) idempotensi unggahan ditulis "(hapus duplikat per ID + coba ulang)", padahal mekanismenya `--clobber` dengan coba ulang tersaring galat sementara. Sekalian diluruskan: keterangan pemicu gerbang di `build-apk.yml` yang masih menyebut pengecualian dokumen, menyusul perubahan daftar-putih Audit 817.
 
