@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pelacakan ekspansi parameter hanya di tingkat luar (Audit 925)
+- Arah fail-closed: penurunan counter ekspansi pada penolong Audit 919 tak dijaga kedalaman substitusi, sehingga kurung tutup literal di dalam perintah-dalam menutup ekspansi secara keliru dan panah data sesudahnya terbaca sebagai redirect sendiri. Kenaikan dan penurunan counter kini sama-sama hanya berlaku di tingkat luar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Syarat penjaga grup tak sah tak bisa digeser redirect (Audit 924)
 - Arah fail-open: penjaga Audit 905 hanya menembak bila segmen berakhir persis pada kurung tutup, sehingga redirect yang menempel sesudahnya membuat grup satu baris tak sah terkredit lewat jalur langsung. Syarat kini juga menembak bila kurung tutup kata-tersendiri diikuti operator redirect. Skenario uji-diri baru menguncinya.
 

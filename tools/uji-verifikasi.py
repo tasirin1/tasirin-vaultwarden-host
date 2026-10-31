@@ -1053,6 +1053,24 @@ def main():
                 "gagal (Audit 924)", rc != 0)
         shutil.rmtree(grupgeser, ignore_errors=True)
 
+        paramsub = klon(tmp, "paramsub")
+        berkas_aksi52 = os.path.join(
+            paramsub, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi52, encoding="utf-8") as f:
+            isi_aksi52 = f.read()
+        baris_tulis52 = [b for b in isi_aksi52.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi52, "w", encoding="utf-8") as f:
+            f.write(isi_aksi52.replace(
+                baris_tulis52,
+                baris_tulis52.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" ${x:-$(echo })>y}; }'), 1))
+        rc, out = jalan(paramsub, [sys.executable, GERBANG, "--semua"])
+        periksa("kurung isi substitusi tak menutup ekspansi: gerbang "
+                "lolos (Audit 925)", rc == 0)
+        shutil.rmtree(paramsub, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

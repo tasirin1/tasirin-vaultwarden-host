@@ -707,13 +707,16 @@ def _punya_redirect_luar(segmen):
             dalam += 1
             i += 2
             continue
-        if c == "$" and i + 1 < n and segmen[i + 1] == "{":
+        if c == "$" and i + 1 < n and segmen[i + 1] == "{" and dalam == 0:
             # Ekspansi parameter juga sebuah kedalaman (Audit 919):
             # `>` di dalam nilai bawaannya bukan operator redirect.
+            # Hanya yang di tingkat luar yang dihitung: pasangan
+            # buka/tutup di dalam substitusi perintah sudah tertutup
+            # kedalaman substitusi itu sendiri (Audit 925).
             param += 1
             i += 2
             continue
-        if c == "}" and param > 0:
+        if c == "}" and param > 0 and dalam == 0:
             param -= 1
             i += 1
             continue
