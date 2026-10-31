@@ -832,10 +832,16 @@ def cek_yaml_github_lain(gagal, peringatan):
                             "kulit" if segmen_cek[:1] == "(" else "grup")
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
-                            and segmen_cek.rstrip().endswith(" }")):
+                            and (segmen_cek.rstrip().endswith(" }")
+                                 or re.search(
+                                     r"\s\}(?=\s*(?:>>|>|<))",
+                                     segmen_cek))):
                         # Grup satu baris tanpa `;` sebelum `}` penutup
                         # adalah sintaks tak sah — `}` di sana argumen
-                        # biasa, bukan penutup grup (Audit 905).
+                        # biasa, bukan penutup grup (Audit 905). Redirect
+                        # yang menempel sesudah `}` tak mengubahnya:
+                        # syarat akhiran saja bisa digeser satu redirect
+                        # ke kanan (Audit 924).
                         continue
                     segmen_r = segmen.strip()
                     if (tumpuk and segmen_r[:1] in ("}", ")")

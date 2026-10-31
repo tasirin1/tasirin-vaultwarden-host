@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Syarat penjaga grup tak sah tak bisa digeser redirect (Audit 924)
+- Arah fail-open: penjaga Audit 905 hanya menembak bila segmen berakhir persis pada kurung tutup, sehingga redirect yang menempel sesudahnya membuat grup satu baris tak sah terkredit lewat jalur langsung. Syarat kini juga menembak bila kurung tutup kata-tersendiri diikuti operator redirect. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Uji pengawali kata pemotong komentar memakai keadaan efektif (Audit 923)
 - Arah fail-closed: `_potong_komentar_shell` menilai apakah `#` mengawali kata dari karakter mentah sebelumnya, sehingga sesudah spasi ter-escape (Audit 918) pagar tengah-kata terpotong sebagai komentar dan redirect sesudahnya hilang dari penilaian. Pemotong kini melacak keadaan di-dalam-kata yang efektif dari pemrosesan. Skenario uji-diri baru menguncinya.
 

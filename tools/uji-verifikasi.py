@@ -1035,6 +1035,24 @@ def main():
                 "komentar: gerbang lolos (Audit 923)", rc == 0)
         shutil.rmtree(pagarkata, ignore_errors=True)
 
+        grupgeser = klon(tmp, "grupgeser")
+        berkas_aksi51 = os.path.join(
+            grupgeser, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi51, encoding="utf-8") as f:
+            isi_aksi51 = f.read()
+        baris_tulis51 = [b for b in isi_aksi51.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi51, "w", encoding="utf-8") as f:
+            f.write(isi_aksi51.replace(
+                baris_tulis51,
+                baris_tulis51.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" }'), 1))
+        rc, out = jalan(grupgeser, [sys.executable, GERBANG, "--semua"])
+        periksa("grup tak sah bergeser redirect tetap ditolak: gerbang "
+                "gagal (Audit 924)", rc != 0)
+        shutil.rmtree(grupgeser, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
