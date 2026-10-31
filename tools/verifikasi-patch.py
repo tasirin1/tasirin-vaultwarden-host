@@ -807,6 +807,72 @@ def _pola_kurung_redirect(segmen):
     return False
 
 
+def _ada_kurung_argumen(segmen):
+    """True bila segmen memuat kurung tutup APA PUN di tingkat luar
+    (kata tersendiri atau menempel kata lain). Pada segmen yang
+    membuka grup, kurung seperti itu selalu argumen perintah —
+    penutup grup sungguhan hanya bisa muncul sebagai segmen sendiri
+    sesudah pemisah (Audit 929). Pemindaian sadar konteks yang sama
+    dengan Audit 928; kurung penutup ekspansi parameter bukan kurung
+    argumen (pasangan Audit 919/925)."""
+    kutip = ""
+    dalam = 0
+    param = 0
+    tikus = False
+    i = 0
+    n = len(segmen)
+    while i < n:
+        c = segmen[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "`":
+            tikus = not tikus
+            i += 1
+            continue
+        if c == "$" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c in "><" and i + 1 < n and segmen[i + 1] == "(":
+            dalam += 1
+            i += 2
+            continue
+        if c == "(" and dalam > 0:
+            dalam += 1
+            i += 1
+            continue
+        if c == ")" and dalam > 0:
+            dalam -= 1
+            i += 1
+            continue
+        if (c == "$" and i + 1 < n and segmen[i + 1] == "{"
+                and dalam == 0):
+            param += 1
+            i += 2
+            continue
+        if c == "}" and param > 0 and dalam == 0:
+            param -= 1
+            i += 1
+            continue
+        if c == "}" and dalam == 0 and not tikus:
+            return True
+        i += 1
+    return False
+
+
 def cek_yaml_github_lain(gagal, peringatan):
     # YAML .github di luar workflows/ dulu tak divalidasi gerbang sama
     # sekali (Audit 584): dependabot.yml rusak menghentikan Dependabot
@@ -913,14 +979,15 @@ def cek_yaml_github_lain(gagal, peringatan):
                             "kulit" if segmen_cek[:1] == "(" else "grup")
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
-                            and (segmen_cek.rstrip().endswith(" }")
-                                 or _pola_kurung_redirect(segmen_cek))):
+                            and _ada_kurung_argumen(segmen_cek)):
                         # Grup satu baris tanpa `;` sebelum `}` penutup
                         # adalah sintaks tak sah — `}` di sana argumen
-                        # biasa, bukan penutup grup (Audit 905). Redirect
-                        # yang menempel sesudah `}` tak mengubahnya:
-                        # syarat akhiran saja bisa digeser satu redirect
-                        # ke kanan (Audit 924).
+                        # biasa, bukan penutup grup (Audit 905). Syarat
+                        # posisi apa pun (akhiran, sebelum redirect)
+                        # bisa digeser (Audit 924: pipa, kata menempel,
+                        # nomor fd — Audit 929), jadi yang dinilai
+                        # adalah KEBERADAAN kurung argumen di tingkat
+                        # luar pada segmen pembuka itu sendiri.
                         continue
                     segmen_r = segmen.strip()
                     if (tumpuk and segmen_r[:1] in ("}", ")")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Syarat skip grup tak sah menilai keberadaan kurung argumen (Audit 929)
+- Arah fail-open: syarat posisi penjaga grup tak sah (akhiran, sebelum redirect) selalu bisa digeser — pipa, kata menempel, dan nomor fd lolos. Syarat kini menilai keberadaan kurung tutup argumen apa pun di tingkat luar pada segmen pembuka itu sendiri, sadar konteks dan sadar ekspansi parameter. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pencarian pola kurung penjaga grup sadar konteks (Audit 928)
 - Arah fail-closed: pola teks mentah Audit 924 menembak juga pada teks kurung-redirect di dalam string argumen atau perintah-dalam substitusi, membuang segmen pembuka grup yang sah. Pencarian kini berupa pemindai sadar konteks yang hanya menilai kurung di tingkat luar. Skenario uji-diri baru menguncinya.
 

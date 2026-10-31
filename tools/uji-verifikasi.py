@@ -1125,6 +1125,25 @@ def main():
                 "argumen: gerbang lolos (Audit 928)", rc == 0)
         shutil.rmtree(polakutip, ignore_errors=True)
 
+        grupgeser2 = klon(tmp, "grupgeser2")
+        berkas_aksi56 = os.path.join(
+            grupgeser2, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi56, encoding="utf-8") as f:
+            isi_aksi56 = f.read()
+        baris_tulis56 = [b for b in isi_aksi56.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi56, "w", encoding="utf-8") as f:
+            f.write(isi_aksi56.replace(
+                baris_tulis56,
+                baris_tulis56.replace(
+                    'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+                    '{ echo "tag_mentah=$TAG" } | cat '
+                    '>> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(grupgeser2, [sys.executable, GERBANG, "--semua"])
+        periksa("grup tak sah bergeser pipa tetap ditolak: gerbang "
+                "gagal (Audit 929)", rc != 0)
+        shutil.rmtree(grupgeser2, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
