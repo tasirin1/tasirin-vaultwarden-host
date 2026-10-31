@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Berkas restore Telegram tertunda dikecualikan dari sapuan TTL cache (Audit 852)
+- Sapuan cache `bersihkanExportPlainCache` menghapus semua `vwtg-restore-*.zip` yang berumur lebih dari 1 jam tanpa kecuali — termasuk berkas yang konfirmasi restore-nya masih tertunda, padahal sesudah Audit 808 keadaan tertunda itu disimpan di Bundle dan sah hidup melewati 1 jam. Pengguna yang kembali sesudahnya mendapati tertundanya dibersihkan diam-diam atau restore gagal "berkas hilang". Berkas tertunda kini dikecualikan dari sapuan, sejalan dengan pengecualian berkas impor tertunda yang sudah ada.
+
+
 ## [Belum rilis] — Sinkron TLS ke salinan internal menjadi atomik dan dilaporkan (Audit 851)
 - Sisa Audit 807: `sinkronTlsKeInternal` menyalin berkas TLS satu per satu langsung ke folder internal dan menelan semua kegagalan, sehingga folder internal bisa tertinggal campuran (CA baru, sertifikat lama/hilang) tanpa catatan sementara restore dilaporkan sukses penuh. Kini salinan dibangun di folder staging lalu ditukar dengan pola sisihkan-rename + cadangan (gagal tukar = folder lama kembali), fungsi mengembalikan keberhasilan, kegagalan dicatat ke log, dan kedua pemanggil (restore Telegram dan restore lokal Settings) menambahkan peringatan yang terlihat pengguna.
 

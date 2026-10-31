@@ -2537,7 +2537,16 @@ public class SettingsActivity extends Activity {
                         continue;
                     }
                     if (n.startsWith("vwtg-restore-") && n.endsWith(".zip")) {
-
+                        // Berkas restore Telegram yang masih TERTUNDA
+                        // konfirmasinya tak boleh disapu walau melewati
+                        // TTL: keadaan tertunda kini hidup di Bundle dan
+                        // bisa melewati 1 jam (Audit 852; pola yang sama
+                        // dengan pengecualian berkas impor tertunda).
+                        if (restoreTgTertundaFile != null
+                                && f.getAbsolutePath().equals(
+                                        restoreTgTertundaFile.getAbsolutePath())) {
+                            continue;
+                        }
                         long umur = System.currentTimeMillis() - f.lastModified();
                         if (umur < 0) {
                             umur = 0;
