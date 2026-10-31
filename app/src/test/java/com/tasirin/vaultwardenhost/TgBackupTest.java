@@ -596,6 +596,41 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tlsAktifUntukBackup_utamakanFolderTercatat() throws Exception {
+        java.io.File tercatat = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-rec-" + System.nanoTime());
+        java.io.File internal = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-int2-" + System.nanoTime());
+        java.io.File data = new java.io.File(
+                System.getProperty("java.io.tmpdir"), "vw-tls-data2-" + System.nanoTime());
+        tercatat.mkdirs();
+        internal.mkdirs();
+        data.mkdirs();
+        try (FileOutputStream o = new FileOutputStream(new File(tercatat, "ca.pem"))) {
+            o.write("ca-aktif".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try (FileOutputStream o = new FileOutputStream(new File(internal, "ca.pem"))) {
+            o.write("ca-internal".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try (FileOutputStream o = new FileOutputStream(new File(data, "ca.pem"))) {
+            o.write("ca-basi".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        try {
+            assertEquals(tercatat, TgBackup.tlsAktifUntukBackup(tercatat, internal, data));
+            assertEquals(internal, TgBackup.tlsAktifUntukBackup(
+                    new File("/tidak/ada/tls"), internal, data));
+            assertEquals(internal, TgBackup.tlsAktifUntukBackup(null, internal, data));
+        } finally {
+            new File(tercatat, "ca.pem").delete();
+            new File(internal, "ca.pem").delete();
+            new File(data, "ca.pem").delete();
+            tercatat.delete();
+            internal.delete();
+            data.delete();
+        }
+    }
+
+    @Test
     public void salinTls_menyalinEnamBerkas() throws Exception {
         java.io.File asal = new java.io.File(
                 System.getProperty("java.io.tmpdir"), "vw-tls-asal-" + System.nanoTime());

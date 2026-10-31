@@ -1628,10 +1628,23 @@ public final class TgBackup {
         return dataTls;
     }
 
+    static File tlsAktifUntukBackup(File tercatat, File internalTls, File dataTls) {
+        if (tercatat != null && new File(tercatat, "ca.pem").isFile()) {
+            return tercatat;
+        }
+        return tlsAktifUntukBackup(internalTls, dataTls);
+    }
+
     private static File tlsAktifUntukBackup(Context ctx, File dataFolder) {
         File dataTls = new File(dataFolder, "tls");
         try {
-            return tlsAktifUntukBackup(new File(ctx.getFilesDir(), "tls"), dataTls);
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String dirTls = amanString(sp, ServerService.KEY_TLS_DIR, "");
+            File tercatat = (dirTls == null || dirTls.trim().isEmpty())
+                    ? null : new File(dirTls);
+            return tlsAktifUntukBackup(tercatat,
+                    new File(ctx.getFilesDir(), "tls"), dataTls);
         } catch (Exception ignored) {
             return dataTls;
         }

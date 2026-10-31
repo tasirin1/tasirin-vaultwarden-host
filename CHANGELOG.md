@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup kini mengemas set TLS dari folder yang benar-benar aktif (Audit 806)
+- `createBackupZip` sebelumnya mengambil `ca.pem`/`cert.pem` (dan kunci bila terenkripsi) dari folder yang dipilih `tlsAktifUntukBackup` berdasar keberadaan — internal selalu menang bila `ca.pem`-nya ada — sisa lubang Audit 804 di jalur backup. Pada sesi darurat yang sama (server berjalan memakai TLS folder data), backup justru mengemas set internal yang tidak aktif; karena set itu konsisten dengan dirinya sendiri, pemeriksaan pasangan saat restore lolos dan CA yang salah terpasang diam-diam. Pemilihan folder kini memakai keputusan murni baru `tlsAktifUntukBackup(tercatat, internal, data)`: folder TLS aktif sesi yang tercatat (`tls_dir`) didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; keputusan itu dikunci uji JVM.
+
+
 ## [Belum rilis] — Health check kini mem-pin CA dari folder TLS yang benar-benar aktif (Audit 805)
 - `capCaAktif` dan `cobaPinnedCa` di `ServerService` sebelumnya memilih CA berdasar keberadaan (internal selalu menang bila ada) — sisa lubang dari perbaikan Audit 804 yang hanya menjangkau jalur kirim/backup CA. Pada sesi darurat yang sama (internal gagal menyiapkan TLS sehingga server berjalan memakai TLS lama di folder data), health check bisa mem-pin CA internal yang basi: handshake `/alive` gagal terus, server yang sehat di-restart berulang sampai episodenya diakhiri. Kedua situs kini memilih CA lewat penolong baru `caUntukHealthCheck` yang memakai keputusan murni yang sama dengan jalur kirim (`TgBackup.pilihCaKirim`): catatan folder TLS aktif sesi (`tls_dir`) didahulukan, pemilihan berdasar keberadaan hanya menjadi cadangan. Perilaku sesi normal tidak berubah; penolong itu dikunci uji JVM untuk konteks null.
 
