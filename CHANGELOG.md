@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi berkas berbagi FileShareProvider menjadi satu pintu (Audit 848)
+- Rantai verifikasi yang sama (jalur kanonik, cek akar bagi, kanonik ulang + kesetaraan, cek symlink induk, `isFile`) dulu ditulis ulang di `query`, `getType`, dan `openFile`, sehingga satu aksi bagikan membayarnya tiga kali dan ketiganya bisa menyimpang sendiri-sendiri. Kini ketiganya memakai helper bersama `berkasBagiTerverifikasi`; hasil sengaja tetap tak di-cache (tiap panggilan memverifikasi segar, fail-closed) dan pemeriksaan jalur fd sesudah buka di `openFile` dipertahankan.
+
+
 ## [Belum rilis] — killStaleVaultwarden berhenti memindai /proc berulang per kandidat (Audit 847)
 - Di dalam loop kandidat, PID anak dihitung ulang lewat `runningChildPid()` sampai dua kali per kandidat; di pra-API 26 (perangkat sasaran utama) itu adalah pemindaian seluruh `/proc`, jadi Start membayar biaya kuadratik terhadap jumlah proses satu-UID. Kini PID anak disegarkan paling banyak sekali selama loop dan dipakai ulang untuk kedua pemeriksaan; nilai sesaat yang basi selalu berarah aman (melewatkan bunuh, bukan membunuh anak yang hidup).
 

@@ -19,6 +19,37 @@ public class FileShareProvider extends ContentProvider {
         return true;
     }
 
+    // Satu pintu verifikasi berkas berbagi (Audit 848): rantai yang dulu
+    // ditulis ulang di query/getType/openFile — kanonik, cek akar bagi,
+    // kanonik ulang + kesetaraan, cek symlink induk, isFile — kini satu
+    // implementasi. Hasil SENGAJA tak di-cache: tiap panggilan tetap
+    // memverifikasi segar (fail-closed), hanya kodenya yang satu pintu.
+    private File berkasBagiTerverifikasi(Uri uri) throws Exception {
+        if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
+            return null;
+        }
+        String path = uri.getPath();
+        if (path == null) {
+            return null;
+        }
+        File f = new File(path);
+        AkarBagi akar = akarBagi();
+        String kanon = f.getCanonicalPath();
+        if (!isShareable(kanon, akar)) {
+            return null;
+        }
+        String kanonUlang = new File(kanon).getCanonicalPath();
+        if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
+                || adaSymlinkInduk(kanonUlang)) {
+            return null;
+        }
+        File cf = new File(kanonUlang);
+        if (!cf.isFile()) {
+            return null;
+        }
+        return cf;
+    }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
@@ -26,24 +57,8 @@ public class FileShareProvider extends ContentProvider {
             if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
                 return null;
             }
-            String path = uri.getPath();
-            File f = path == null ? null : new File(path);
-            if (f == null) {
-                return null;
-            }
-            AkarBagi akar = akarBagi();
-            String kanon = f.getCanonicalPath();
-            if (!isShareable(kanon, akar)) {
-                return null;
-            }
-
-            String kanonUlang = new File(kanon).getCanonicalPath();
-            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
-                    || adaSymlinkInduk(kanonUlang)) {
-                return null;
-            }
-            File cf = new File(kanonUlang);
-            if (!cf.isFile() || !cf.canRead()) {
+            File cf = berkasBagiTerverifikasi(uri);
+            if (cf == null || !cf.canRead()) {
                 return null;
             }
             android.database.MatrixCursor c = new android.database.MatrixCursor(
@@ -68,24 +83,7 @@ public class FileShareProvider extends ContentProvider {
             if (uri == null || !AUTHORITY.equals(uri.getAuthority())) {
                 return null;
             }
-            String path = uri.getPath();
-            File f = path == null ? null : new File(path);
-            if (f == null) {
-                return null;
-            }
-            AkarBagi akar = akarBagi();
-            String kanon = f.getCanonicalPath();
-            if (!isShareable(kanon, akar)) {
-                return null;
-            }
-
-            String kanonUlang = new File(kanon).getCanonicalPath();
-            if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
-                    || adaSymlinkInduk(kanonUlang)) {
-                return null;
-            }
-
-            if (!new File(kanonUlang).isFile()) {
+            if (berkasBagiTerverifikasi(uri) == null) {
                 return null;
             }
             return tipeMime(uri);
@@ -168,41 +166,18 @@ public class FileShareProvider extends ContentProvider {
         if (!modeBacaSaja(mode)) {
             throw new FileNotFoundException("Akses ditolak.");
         }
-        String path = uri.getPath();
-        File f = path == null ? null : new File(path);
-        if (f == null) {
-            throw new FileNotFoundException("Berkas tidak ditemukan.");
-        }
-
-        final AkarBagi akar = akarBagi();
-        final String canon;
+        final File buka;
         try {
-            canon = f.getCanonicalPath();
-            if (!isShareable(canon, akar)) {
-                throw new FileNotFoundException("Akses ditolak.");
-            }
-        } catch (FileNotFoundException e) {
-            throw e;
+            buka = berkasBagiTerverifikasi(uri);
         } catch (Exception e) {
             throw new FileNotFoundException("Berkas tidak ditemukan.");
         }
-        final File target = new File(canon);
-        if (!target.isFile()) {
-            throw new FileNotFoundException("Berkas tidak ditemukan.");
+        if (buka == null) {
+            throw new FileNotFoundException("Akses ditolak.");
         }
 
         try {
-            String canonUlang = target.getCanonicalPath();
-            if (!canonUlang.equals(canon) || !isShareable(canonUlang, akar)) {
-                throw new FileNotFoundException("Akses ditolak.");
-            }
-            if (adaSymlinkInduk(canonUlang)) {
-                throw new FileNotFoundException("Akses ditolak.");
-            }
-            File buka = new File(canonUlang);
-            if (!buka.isFile()) {
-                throw new FileNotFoundException("Berkas tidak ditemukan.");
-            }
+            String canonUlang = buka.getCanonicalPath();
             ParcelFileDescriptor pfd = ParcelFileDescriptor.open(buka,
                     ParcelFileDescriptor.MODE_READ_ONLY);
             String jalurFd = jalurFdTerbuka(pfd.getFd());
