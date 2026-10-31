@@ -511,6 +511,24 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(opganda, ignore_errors=True)
 
+        lampau = klon(tmp, "lampau")
+        berkas_aksi23 = os.path.join(
+            lampau, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi23, encoding="utf-8") as f:
+            isi_aksi23 = f.read()
+        baris_tulis23 = [b for b in isi_aksi23.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi23, "w", encoding="utf-8") as f:
+            f.write(isi_aksi23.replace(
+                baris_tulis23,
+                baris_tulis23.replace('>> "$GITHUB_OUTPUT"',
+                                      '>>| "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(lampau, [sys.executable, GERBANG, "--semua"])
+        periksa("append+clobber >>| bukan produsen: gerbang gagal (Audit 896)",
+                rc != 0 and "tag_mentah" in out
+                and "tak pernah ditulis" in out)
+        shutil.rmtree(lampau, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Konsumsi clobber gerbang hanya untuk > tunggal (Audit 896)
+- Sisa Audit 892 arah fail-open: pipa clobber dikonsumsi untuk operator mana pun, sehingga `>>|` — yang bukan operator bash dan barisnya tak akan pernah berjalan — ikut diberi kredit produsen. Konsumsi pipa kini hanya berlaku bagi `>` tunggal (`>|` yang sah). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Operator redirect ganda tak lagi diberi kredit produsen gerbang (Audit 895)
 - Arah fail-open terbatas: operator kedua yang langsung mengikuti operator pertama (`>> > target`) adalah sintaks tak sah di shell sehingga barisnya tak akan pernah berjalan, tetapi penilai menilai operator kedua sebagai redirect sah dan menghitung produsen. Penilai kini melacak keadaan "baru sesudah operator": operator lain yang muncul sebelum ada kata di antaranya membuat segmen ditolak sebagai produsen. Skenario uji-diri baru menguncinya.
 

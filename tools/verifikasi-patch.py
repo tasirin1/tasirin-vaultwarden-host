@@ -433,7 +433,9 @@ def segmen_redirect_output(segmen):
                 continue
             # Clobber `>|` adalah redirect truncate paksa (Audit 892):
             # pipa di sini bagian operator, bukan pemisah perintah.
-            if i + op < n and segmen[i + op] == "|":
+            # Hanya untuk `>` tunggal — `>>|` bukan operator bash
+            # (Audit 896), pipanya tidak dikonsumsi di sana.
+            if op == 1 and i + op < n and segmen[i + op] == "|":
                 op += 1
             # Redirect fd selain stdout (`2>>` dsb.) tidak menulis
             # keluaran perintah (Audit 890): digit fd hanya dihitung
