@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek layout dan berkas biner/nama kini satu pintu di verifikasi-patch (Audit 831)
+- Paritas ID layout + layout-land yatim + layout wajib dan deteksi berkas biner/nama terlarang sebelumnya diimplementasikan dua kali — di `verifikasi-patch.py` dan di `scripts/cek-cepat.sh` — padahal keduanya selalu berjalan bersamaan (hook dan CI), dan kedua salinan sudah mulai drift (ekstraktor ID cek-cepat tak setara antarjalur rg/grep-nya sendiri; daftar ekstensi terlarang berbeda bentuk). Kini kepemilikannya satu pintu: `verifikasi-patch.py` — yang memang mem-parse XML dan memeriksa magic berkas — memiliki cek layout dan berkas (daftar nama terlarangnya disamakan dengan cakupan lama cek-cepat: tambah `.zip/.p12/.pfx/.so/.a`, `.env`, `vw_version.txt`, komponen `keystore`, dan nama binary/shim), sedangkan cek-cepat mempertahankan miliknya sendiri (pola rahasia termasuk token terbelah, vektor tanpa nol depan, struktur README). Skenario uji-diri berpindah mengikuti kepemilikan: layout-land yatim dan biner menyamar kini skenario `uji-verifikasi.py`, dan `uji-cek-cepat.py` mengunci cabang sisanya.
+
+
 ## [Belum rilis] — cek-cepat kini punya uji-diri untuk cabang deteksinya (Audit 830)
 - `scripts/cek-cepat.sh` sebelumnya tanpa uji-diri sama sekali: di CI ia hanya pernah berjalan pada pohon bersih, jadi cabang deteksinya (berkas terlarang, biner menyamar, layout-land yatim, pola rahasia, vektor tanpa nol depan) tidak pernah terpicu dan regresi pola/regex bisa mengubahnya menjadi cap lolos exit-0 secara diam-diam. Skrip baru `tools/uji-cek-cepat.py` menanam pelanggaran pada salinan buang dan mengasersi kelima cabang itu tertangkap (plus kontrol pohon bersih), dan dijalankan sebagai langkah CI di `cek-wajib.yml` dan job verifikasi `build-apk.yml` — berkasnya juga masuk daftar-putih pemicu workflow itu.
 

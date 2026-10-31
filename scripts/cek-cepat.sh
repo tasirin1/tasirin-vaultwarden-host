@@ -30,64 +30,6 @@ else
   fi
 fi
 
-ekstrak_id() {
-  if [ "$ADA_RG" = 1 ]; then rg -o 'android:id="@\+id/[A-Za-z0-9_]+"' "$1" | sort -u;
-  else grep -o 'android:id="@+id/[A-Za-z0-9_]*"' "$1" | sort -u; fi
-}
-for f in app/src/main/res/layout/*.xml; do
-  land="app/src/main/res/layout-land/$(basename "$f")"
-  if [ -f "$land" ]; then
-    if ! cmp -s <(ekstrak_id "$f") <(ekstrak_id "$land"); then gagal_msg "ID $f != $land"; fi
-  fi
-done
-for f in app/src/main/res/layout-land/*.xml; do
-  [ -f "$f" ] || continue
-  potret="app/src/main/res/layout/$(basename "$f")"
-  if [ ! -f "$potret" ]; then gagal_msg "layout-land yatim tanpa pasangan: $f"; fi
-done
-for wajib in activity_pin.xml; do
-  if [ ! -f "app/src/main/res/layout/$wajib" ]; then gagal_msg "layout wajib hilang: $wajib"; fi
-  if [ ! -f "app/src/main/res/layout-land/$wajib" ]; then gagal_msg "layout-land wajib hilang: $wajib (varian landscape berkas ini wajib ada)"; fi
-done
-
-POLA_TERLARANG='\.(apk|aab|zip|jks|keystore|p12|pfx|so|a|dex)$|/vaultwarden-armeabi|/libgetrandom-shim-|(^|/)keystore|(^|/)\.env(\.|$)|app/src/main/assets/bin/|(^|/)vw_version\.txt$'
-TERLARANG="$(
-  git -c core.quotepath=false diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true
-  git -c core.quotepath=false ls-files 2>/dev/null || true
-  git -c core.quotepath=false ls-files --others --exclude-standard 2>/dev/null || true
-)"
-if [ -n "$(printf '%s\n' "$TERLARANG" | sort -u | grep -iE "$POLA_TERLARANG" || true)" ]; then
-  gagal_msg "binary/APK/zip/secret ada di repo/staged (apk|aab|zip|jks|keystore|p12|pfx|so|a|dex|assets/bin|vw_version.txt|.env dilarang)"
-fi
-biner_bungkus() {
-  od -An -tx1 -v "$1" 2>/dev/null | tr -d ' \n' | grep -qiE '7f454c46|504b0304|6465780a|cffaedfe|cefaedfe|cafebabe'
-}
-while IFS= read -r berkas_b; do
-  [ -f "$berkas_b" ] || continue
-  [ "$berkas_b" = "gradle/wrapper/gradle-wrapper.jar" ] && continue
-  if [ -s "$berkas_b" ] && ! grep -qI . "$berkas_b" 2>/dev/null; then
-    sig_b="$(head -c 12 "$berkas_b" | od -An -tx1 | tr -d ' \n')"
-    ext_b=".$(printf '%s' "${berkas_b##*.}" | tr 'A-Z' 'a-z')"
-    pasif_b=0
-    case "$sig_b" in
-      89504e47*) [ "$ext_b" = ".png" ] && pasif_b=1 ;;
-      ffd8ff*) case "$ext_b" in .jpg|.jpeg) pasif_b=1 ;; esac ;;
-      47494638*) [ "$ext_b" = ".gif" ] && pasif_b=1 ;;
-      25504446*) [ "$ext_b" = ".pdf" ] && pasif_b=1 ;;
-      00000100*) [ "$ext_b" = ".ico" ] && pasif_b=1 ;;
-      52494646????????57454250*) [ "$ext_b" = ".webp" ] && pasif_b=1 ;;
-    esac
-    if [ "$pasif_b" = "1" ] && biner_bungkus "$berkas_b"; then
-      pasif_b=0
-    fi
-    if [ "$pasif_b" != "1" ]; then
-      gagal_msg "berkas biner format tak dikenal: $berkas_b"
-    fi
-  fi
-done <<EOF_B
-$(printf '%s\n' "$TERLARANG" | sort -u)
-EOF_B
-
 struktur_judul() {
   awk '/^#{1,6} / { n = 0; while (substr($0, n + 1, 1) == "#") n++; printf "%d,", n }' "$1" 2>/dev/null
 }

@@ -153,6 +153,28 @@ def main():
                 rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
         shutil.rmtree(gradle, ignore_errors=True)
 
+        yatim = klon(tmp, "yatim")
+        berkas_yatim = os.path.join(yatim, "app", "src", "main", "res",
+                                    "layout-land", "yatimuji.xml")
+        with open(berkas_yatim, "w") as f:
+            f.write("<LinearLayout xmlns:android="
+                    "\"http://schemas.android.com/apk/res/android\" />\n")
+        rc, out = jalan(yatim, [sys.executable, GERBANG, "--semua"])
+        periksa("layout-land yatim: gerbang gagal (Audit 831)",
+                rc != 0 and "layout-land" in out)
+        shutil.rmtree(yatim, ignore_errors=True)
+
+        nyamar = klon(tmp, "nyamar")
+        with open(os.path.join(nyamar, "catatan-uji.txt"), "wb") as f:
+            f.write(b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 16)
+        git(nyamar, "add", "-A")
+        git(nyamar, "commit", "-q", "-m", "tanam biner menyamar")
+        rc, out = jalan(nyamar, [sys.executable, GERBANG,
+                                "--rentang", "HEAD~1..HEAD"])
+        periksa("biner menyamar sebagai teks: gerbang gagal (Audit 831)",
+                rc != 0 and "catatan-uji.txt" in out)
+        shutil.rmtree(nyamar, ignore_errors=True)
+
         bersih2 = klon(tmp, "bersih2")
         rc, out = jalan(bersih2,
                         [sys.executable, GERBANG,

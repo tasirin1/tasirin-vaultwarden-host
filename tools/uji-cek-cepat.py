@@ -3,12 +3,15 @@
 
 Alasan yang sama dengan tools/uji-verifikasi.py (Audit 782): di CI,
 cek-cepat hanya pernah berjalan pada pohon bersih, jadi yang teruji
-hanya cabang "tidak ada temuan" — cabang deteksinya (berkas terlarang,
-biner menyamar, layout-land yatim, pola rahasia, vektor tanpa nol
-depan) tidak pernah terpicu dan regresinya bisa mengubah skrip itu
+hanya cabang "tidak ada temuan" — cabang deteksinya (pola rahasia, token
+terbelah, vektor tanpa nol depan) tidak pernah terpicu dan regresinya bisa mengubah skrip itu
 menjadi cap lolos exit-0 secara diam-diam. Skrip ini menanam pelanggaran
 pada salinan buang pohon kerja (di-commit sebagai snapshot git lokal;
 pohon asli tak disentuh) dan mengasersi kode keluar + pesan cek-cepat.
+Sejak Audit 831, cek layout dan berkas biner/nama terlarang dimiliki
+satu pintu oleh verifikasi-patch (skenarionya hidup di
+tools/uji-verifikasi.py); skrip ini mengunci cabang milik cek-cepat
+sendiri: pola rahasia dan vektor tanpa nol depan.
 
 Jalankan: python3 tools/uji-cek-cepat.py (berhenti dengan kode 1 bila
 ada skenario yang menyimpang).
@@ -74,28 +77,8 @@ def main():
                 "" if rc == 0 else out[-400:])
         shutil.rmtree(bersih, ignore_errors=True)
 
-        ziprepo = klon(tmp, "zip")
-        tanam(ziprepo, "data-uji.zip", b"PK\x03\x04")
-        rc, out = jalan(ziprepo, ["bash", SKRIP])
-        periksa("berkas .zip terlarang tertangkap",
-                rc != 0 and "binary/APK/zip/secret" in out)
-        shutil.rmtree(ziprepo, ignore_errors=True)
 
-        biner = klon(tmp, "biner")
-        tanam(biner, "catatan-uji.txt", b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 16)
-        rc, out = jalan(biner, ["bash", SKRIP])
-        periksa("biner menyamar sebagai teks tertangkap",
-                rc != 0 and "berkas biner format tak dikenal" in out)
-        shutil.rmtree(biner, ignore_errors=True)
 
-        yatim = klon(tmp, "yatim")
-        tanam(yatim, "app/src/main/res/layout-land/yatimuji.xml",
-              "<LinearLayout xmlns:android="
-              "\"http://schemas.android.com/apk/res/android\" />\n", "w")
-        rc, out = jalan(yatim, ["bash", SKRIP])
-        periksa("layout-land yatim tertangkap",
-                rc != 0 and "layout-land yatim" in out)
-        shutil.rmtree(yatim, ignore_errors=True)
 
         rahasia = klon(tmp, "rahasia")
         token_palsu = "123456789" + ":" + "AA" + "Ab3_" * 10

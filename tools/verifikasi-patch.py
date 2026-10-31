@@ -1159,7 +1159,15 @@ def cek_aturan_repo(gagal, berubah):
         if not os.path.exists(os.path.join(AKAR, path)):
             continue
         rendah = path.lower()
-        if rendah.endswith((".apk", ".aab", ".dex", ".jks", ".keystore")):
+        if rendah.endswith((".apk", ".aab", ".dex", ".jks", ".keystore",
+                            ".zip", ".p12", ".pfx", ".so", ".a")):
+            gagal.append("Berkas terlarang masuk repo: " + path)
+            continue
+        nama_dasar = rendah.rsplit("/", 1)[-1]
+        if ("/vaultwarden-armeabi" in rendah or "/libgetrandom-shim-" in rendah
+                or "keystore" in rendah.split("/")
+                or nama_dasar == ".env" or nama_dasar.startswith(".env.")
+                or nama_dasar == "vw_version.txt"):
             gagal.append("Berkas terlarang masuk repo: " + path)
             continue
         if path.startswith("app/src/main/assets/bin/"):
