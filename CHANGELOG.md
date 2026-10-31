@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengupas gerbang melewati komentar di dalam template string (Audit 880)
+- Sisa Audit 877 arah fail-closed: penolong template menghitung kurung dan melompati string/char, tetapi tidak melewati komentar — petik di dalam komentar blok di dalam `${...}` (bentuk Kotlin sah) dibaca sebagai awal string bersarang dan menelan hampir seluruh berkas, sehingga berkas Gradle sehat digagalkan palsu. Komentar baris dan komentar blok (termasuk bersarang) di dalam template kini dilewati utuh. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Penilai gradle.properties gerbang mendekode escape format properties (Audit 879)
 - Sisa Audit 871/876 arah fail-open: penilaian membaca teks mentah, padahal format Java properties mendekode escape sebelum parsing — kunci ter-escape (`android.useAndroid\u0058=true`) dan pemisah ter-escape (`\u003d`) bernilai efektif `true` bagi Gradle tetapi tak terbaca penilai. Baris logis kini didekode lebih dulu (escape unicode, kontrol, dan karakter) sebelum dinilai. Dua skenario uji-diri baru menguncinya. (Catatan proses: draf pertama memuat urutan escape mentah di docstring penolong baru sampai Python sendiri menolak berkasnya — ditangkap suite uji-diri sebelum commit, docstring ditulis ulang tanpa urutan escape mentah.)
 

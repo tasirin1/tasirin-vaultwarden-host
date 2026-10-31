@@ -385,6 +385,17 @@ def main():
                 rc != 0 and "8.13.2" in out)
         shutil.rmtree(tplagp, ignore_errors=True)
 
+        tplkomen = klon(tmp, "tplkomen")
+        berkas_set10 = os.path.join(tplkomen, "settings.gradle.kts")
+        with open(berkas_set10, encoding="utf-8") as f:
+            isi_set10 = f.read()
+        with open(berkas_set10, "w", encoding="utf-8") as f:
+            f.write('val penanda = "${x /* " */ + y}"\n' + isi_set10)
+        rc, out = jalan(tplkomen, [sys.executable, GERBANG, "--semua"])
+        periksa("komentar berisi petik di dalam template settings sehat: gerbang lolos (Audit 880)",
+                rc == 0)
+        shutil.rmtree(tplkomen, ignore_errors=True)
+
         strmode = klon(tmp, "strmode")
         berkas_set6 = os.path.join(strmode, "settings.gradle.kts")
         with open(berkas_set6, encoding="utf-8") as f:

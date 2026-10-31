@@ -1444,6 +1444,28 @@ def _lompat_template(isi, i):
     dalam = 1
     while j < n and dalam:
         c = isi[j]
+        if c == "/" and j + 1 < n and isi[j + 1] == "/":
+            k = isi.find("\n", j)
+            j = n if k < 0 else k + 1
+            continue
+        if c == "/" and j + 1 < n and isi[j + 1] == "*":
+            # Komentar blok di dalam template (Audit 880): petik di
+            # dalamnya teks komentar, bukan awal string. Komentar
+            # blok Kotlin bisa bersarang.
+            k = j + 2
+            dalam_k = 1
+            while k < n and dalam_k:
+                if isi[k:k + 2] == "/*":
+                    dalam_k += 1
+                    k += 2
+                    continue
+                if isi[k:k + 2] == "*/":
+                    dalam_k -= 1
+                    k += 2
+                    continue
+                k += 1
+            j = k
+            continue
         if c == '"':
             j = _lompat_string(isi, j)
             continue
