@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Keadaan sesudah-operator mati sesudah target kurung (Audit 917)
+- Arah fail-closed sisa Audit 910/911: kedua cabang target kurung memasang keadaan sesudah-operator menyala lalu melompati target, sehingga tak ada karakter kata yang membersihkannya dan redirect sah berikutnya ditolak penjaga Audit 895. Target yang dikonsumsi lompatan kini mematikan keadaan itu. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Target substitusi proses tak seimbang tak dinilai gerbang (Audit 916)
 - Arah fail-open sisa Audit 911: bila kurung target substitusi proses tak tertutup (sintaks tak sah), pemindai berhenti di akhir segmen dan rekursi tetap menilai isi terpotong sehingga kredit produsen lolos. Rekursi kini hanya berjalan bila kurung terbukti seimbang; selain itu vonisnya bukan penulisan. Skenario uji-diri baru menguncinya.
 

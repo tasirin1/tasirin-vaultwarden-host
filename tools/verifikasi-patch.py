@@ -594,7 +594,11 @@ def segmen_redirect_output(segmen):
                 # isi terpotong tak boleh dinilai sama sekali.
                 hasil = (segmen_redirect_output(segmen[awal + 2:k])
                          if kedalaman == 0 else False)
-                sesudah_op = True
+                # Target sudah dikonsumsi lompatan ini — keadaan
+                # sesudah-operator harus mati, bukan menyala, agar
+                # redirect sah berikutnya tak ditolak penjaga
+                # Audit 895 (Audit 917).
+                sesudah_op = False
                 i = k + 1 if k < n else n
                 continue
             if mentah.startswith("("):
@@ -613,7 +617,7 @@ def segmen_redirect_output(segmen):
                             break
                     k += 1
                 hasil = False
-                sesudah_op = True
+                sesudah_op = False
                 i = k + 1 if k < n else n
                 continue
             # Redirect TERAKHIR yang berlaku bagi shell (Audit 885):

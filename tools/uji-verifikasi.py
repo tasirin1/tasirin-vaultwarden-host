@@ -906,6 +906,24 @@ def main():
                 and "tak pernah ditulis" in out)
         shutil.rmtree(proseimbang, ignore_errors=True)
 
+        prosisa = klon(tmp, "prosisa")
+        berkas_aksi44 = os.path.join(
+            prosisa, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi44, encoding="utf-8") as f:
+            isi_aksi44 = f.read()
+        baris_tulis44 = [b for b in isi_aksi44.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi44, "w", encoding="utf-8") as f:
+            f.write(isi_aksi44.replace(
+                baris_tulis44,
+                baris_tulis44.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cat > /tmp/lain) >> "$GITHUB_OUTPUT"'), 1))
+        rc, out = jalan(prosisa, [sys.executable, GERBANG, "--semua"])
+        periksa("redirect sah sesudah target substitusi: gerbang lolos "
+                "(Audit 917)", rc == 0)
+        shutil.rmtree(prosisa, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
