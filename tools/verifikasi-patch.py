@@ -574,10 +574,13 @@ def _menguras_stdin(bagian, _batas_argv=0):
                         if awal >= len(toks):
                             return False
                         daftar = toks[awal:]
+                        geser = awal
                     elif opsi.startswith("--split-string="):
                         daftar = [opsi.split("=", 1)[1]] + toks[awal:]
+                        geser = awal - 1
                     else:
                         daftar = [opsi[2:]] + toks[awal:]
+                        geser = awal - 1
                     rentang = 1
                     pembuka = daftar[0][:1]
                     if pembuka in ("'", '"') and not (
@@ -589,8 +592,14 @@ def _menguras_stdin(bagian, _batas_argv=0):
                             if daftar[j].endswith(pembuka):
                                 break
                             j += 1
-                    return _menguras_stdin(" ".join(daftar),
-                                           _batas_argv=rentang)
+                    # Audit 964: batas argv lapisan luar diwariskan —
+                    # token yang berasal dari string -S lapisan luar
+                    # tetap argv harfiah di rekursi ini, jadi batas
+                    # yang berlaku adalah yang terluas dari keduanya.
+                    warisan = max(0, _batas_argv - geser)
+                    return _menguras_stdin(
+                        " ".join(daftar),
+                        _batas_argv=max(rentang, warisan))
                 if opsi in ("-u", "--unset", "-C", "--chdir"):
                     if awal < len(toks):
                         awal += 1

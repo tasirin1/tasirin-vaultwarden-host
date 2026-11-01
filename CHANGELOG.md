@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Batas argv env -S diwariskan melewati rekursi bersarang (Audit 964)
+- Bug (fail-open): rekursi `env -S` (Audit 963) mengganti batas argv dengan rentang string miliknya sendiri, sehingga pada `env -S 'env -S cat > x'` token `>` milik string terdalam dinilai redirect shell. Batas lapisan luar kini diwariskan (digeser sesuai posisi nilai `-S`) dan batas yang berlaku adalah yang terluas dari keduanya. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect di dalam string env -S dinilai operand harfiah oleh gerbang (Audit 963)
 - Bug (fail-open): rekursi `env -S` (Audit 960) menilai string-nya sebagai baris perintah shell segar, sehingga `>`/`<` di dalamnya dianggap operator redirect — padahal env tidak menjalankan shell dan meneruskan token itu sebagai operand harfiah (`env -S 'cat > /dev/null'` membuat cat menggalat di operand `>`, stdin utuh). Rentang string `-S` (mengikuti kutip pembuka) kini diteruskan ke penilaian rekursif sebagai batas argv: token di dalamnya dinilai operand, token sesudahnya tetap semantik shell. Skenario uji-diri baru menguncinya.
 
