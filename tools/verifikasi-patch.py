@@ -472,6 +472,18 @@ def _menguras_stdin(bagian):
             continue
         if t0 == "env":
             awal += 1
+            # Audit 951: opsi env sendiri bukan perintah — lompatan
+            # wajib melewatinya beserta nilai opsi yang terpisah
+            # (-u NAMA, -C DIR, -S STRING), bukan berhenti di sana.
+            while awal < len(toks) and toks[awal].startswith("-"):
+                opsi = toks[awal]
+                awal += 1
+                if opsi == "--":
+                    break
+                if opsi in ("-u", "--unset", "-C", "--chdir", "-S",
+                        "--split-string"):
+                    if awal < len(toks):
+                        awal += 1
             continue
         if t0 == "timeout":
             awal += 1

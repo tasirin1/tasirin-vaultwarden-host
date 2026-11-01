@@ -1415,6 +1415,25 @@ def main():
                 "lingkar: gerbang lolos (Audit 942)", rc == 0)
         shutil.rmtree(subdone, ignore_errors=True)
 
+        subenv = klon(tmp, "subenv")
+        berkas_aksi71 = os.path.join(
+            subenv, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi71, encoding="utf-8") as f:
+            isi_aksi71 = f.read()
+        baris_tulis71 = [b for b in isi_aksi71.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi71, "w", encoding="utf-8") as f:
+            f.write(isi_aksi71.replace(
+                baris_tulis71,
+                baris_tulis71.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(env -i cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subenv, [sys.executable, GERBANG, "--semua"])
+        periksa("penguras di balik opsi env tetap menguras: gerbang "
+                "gagal (Audit 951)", rc != 0)
+        shutil.rmtree(subenv, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

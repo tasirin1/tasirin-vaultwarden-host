@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Resolusi perintah efektif melewati opsi env (Audit 951)
+- Deviasi fail-open: resolusi perintah efektif (Audit 937) berhenti pada opsi `env` (`-i`, `-u NAMA`, …) sehingga penguras di baliknya (`env -i cat`) tak dikenali dan penulis sesudahnya terkredit semu. Lompatan `env` kini melewati opsinya beserta nilai opsi yang terpisah. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Dua pengisi buffer shim digabung satu inti (Audit 950)
 - Kode sampah (duplikasi): `isi_dari` dan `isi_dari_nonblok` di `shim/getrandom_shim.c` berkerangka identik (cache fd + mutex per sumber, open lazy, loop read, pemulihan EBADF). Kini satu inti `isi_dari_inti` berparameter nonblok; kedua nama lama menjadi pembungkus satu baris, cache fd blocking/nonblocking tetap terpisah, dan semantik parsial EAGAIN/read-0 khusus nonblok dipertahankan persis.
 
