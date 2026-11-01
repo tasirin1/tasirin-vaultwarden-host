@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pemindaian xargs mengenali redirect masukan yang merekat di tengah kata (Audit 996)
+
+- Perbaikan perkakas: pemindaian titik-akhir xargs (Audit 986) hanya mengenali redirect masukan di awal token, sehingga bentuk merekat di tengah kata seperti `xargs cat a<berkas` terlewat — shell memecah token itu menjadi operand `a` plus redirect fd 0 milik xargs, jadi xargs membaca item dari berkas dan pipa bersama tak tersentuh (fail-closed). Pemindaian kini mencari `<` pertama di luar kutip pada tiap token: awalan digit adalah nomor fd (semantik Audit 995), awalan bukan-digit adalah operand dengan redirect fd 0 merekat; `<` di dalam kutip tetap data, bukan redirect. Skenario uji-diri baru (aksi 95) mengunci bentuk `xargs cat a<...` sebagai segmen tak-menguras di depan penulis substitusi proses — gerbang wajib LOLOS. Probe dua arah 21 bentuk cocok semua.
+
 ## [Belum rilis] — Gerbang: pemindaian xargs memakai semantik fd untuk redirect masukan (Audit 995)
 
 - Perbaikan perkakas: pemindaian titik-akhir xargs (Audit 986) memakai regex tumpul digit+`<`, sehingga redirect fd selain 0 sesudah nama anak (`xargs cat 3<berkas`, `9<`, `2<`) dan duplikasi-diri `<&0` dinilai sebagai pengalihan stdin — padahal stdin xargs tetap pipa bersama dan tetap terkuras (fail-open). Pemindaian kini memakai semantik fd yang sama dengan `_indeks_sesudah_redirect`: hanya redirect yang mengganti stdin (fd 0 ke berkas/fd lain atau menutupnya) yang membatalkan vonis xargs. Skenario uji-diri baru (aksi 94) mengunci bentuk penguras `xargs cat 3<...` di segmen pertama substitusi proses — penulis sesudah penguras menerima EOF, jadi gerbang wajib GAGAL (semantik Audit 931). Probe dua arah 27 bentuk cocok semua.

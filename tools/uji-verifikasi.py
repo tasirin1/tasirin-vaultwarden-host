@@ -1942,6 +1942,28 @@ def main():
                 rc != 0)
         shutil.rmtree(subxargsfd, ignore_errors=True)
 
+        subxargslekat = klon(tmp, "subxargslekat")
+        berkas_aksi95 = os.path.join(
+            subxargslekat, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi95, encoding="utf-8") as f:
+            isi_aksi95 = f.read()
+        baris_tulis95 = [b for b in isi_aksi95.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi95, "w", encoding="utf-8") as f:
+            f.write(isi_aksi95.replace(
+                baris_tulis95,
+                baris_tulis95.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xargs cat a<berkasKeluaran; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subxargslekat,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect masukan merekat di tengah kata sesudah "
+                "anak xargs milik xargs sendiri: gerbang lolos "
+                "(Audit 996)", rc == 0)
+        shutil.rmtree(subxargslekat, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -886,25 +886,53 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         for pos in range(awal + 1, len(toks)):
             if pos < _batas_argv:
                 continue  # di dalam string env -S: argv harfiah
-            m_lt = re.match(r"(\d*)<(&)?(\d+|-)?", toks[pos])
-            if m_lt:
-                # Audit 995: semantik fd yang sama dengan
-                # _indeks_sesudah_redirect — hanya redirect yang
-                # MENGGANTI stdin (fd 0 ke berkas/fd lain, atau
-                # menutupnya) yang membatalkan vonis xargs. Redirect
-                # fd lain (3<, 9<, ...) tak menyentuh stdin xargs,
-                # dan <&0 adalah duplikasi-diri yang netral: xargs
-                # tetap menguras pipa bersama.
-                if m_lt.group(1) not in ("", "0"):
+            tok = toks[pos]
+            # '<' pertama di luar kutip pada token ini.
+            idx_lt = -1
+            q_lt = ""
+            j_lt = 0
+            while j_lt < len(tok):
+                ch_lt = tok[j_lt]
+                if q_lt:
+                    if ch_lt == q_lt:
+                        q_lt = ""
+                elif ch_lt in "\"'":
+                    q_lt = ch_lt
+                elif ch_lt == "\\":
+                    j_lt += 1
+                elif ch_lt == "<":
+                    idx_lt = j_lt
+                    break
+                j_lt += 1
+            if idx_lt < 0:
+                continue
+            awalan_lt = tok[:idx_lt]
+            if awalan_lt and not awalan_lt.isdigit():
+                # Audit 996: redirect yang merekat di tengah kata —
+                # shell memecah "a<berkas" menjadi operand "a" plus
+                # redirect fd 0 milik xargs; awalan bukan fd.
+                fd_lt = "0"
+            else:
+                fd_lt = awalan_lt
+            # Audit 995: semantik fd yang sama dengan
+            # _indeks_sesudah_redirect — hanya redirect yang
+            # MENGGANTI stdin (fd 0 ke berkas/fd lain, atau
+            # menutupnya) yang membatalkan vonis xargs. Redirect
+            # fd lain (3<, 9<, ...) tak menyentuh stdin xargs,
+            # dan <&0 adalah duplikasi-diri yang netral: xargs
+            # tetap menguras pipa bersama.
+            if fd_lt not in ("", "0"):
+                continue
+            sufiks_lt = tok[idx_lt + 1:]
+            if sufiks_lt.startswith("&"):
+                m_t = re.match(r"(\d+|-)", sufiks_lt[1:])
+                target = m_t.group(1) if m_t else None
+                if target is None and pos + 1 < len(toks):
+                    target = toks[pos + 1].strip("\"'")
+                if target == "0":
                     continue
-                if m_lt.group(2):
-                    target = m_lt.group(3)
-                    if target is None and pos + 1 < len(toks):
-                        target = toks[pos + 1].strip("\"'")
-                    if target == "0":
-                        continue
-                    return False
                 return False
+            return False
     if awal >= len(toks):
         return xargs_sendiri
     perintah = toks[awal].strip("\"'")
