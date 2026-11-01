@@ -501,6 +501,36 @@ def _gt_di_luar_kutip(token):
     return False
 
 
+def _awalan_sebelum_gt(token):
+    """Awalan token sebelum `>` pertama di LUAR kutip dan tak
+    ter-escape (Audit 959); None bila tak ada `>` semacam itu.
+    Awalan itulah operand yang merekat ke redirect-nya."""
+    kutip = ""
+    i = 0
+    n = len(token)
+    while i < n:
+        c = token[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c == ">":
+            return token[:i]
+        i += 1
+    return None
+
+
 def _menguras_stdin(bagian):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -578,7 +608,23 @@ def _menguras_stdin(bagian):
         if ">" in t and _gt_di_luar_kutip(t):
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
                 lewati = True
-            continue
+                continue
+            awalan = _awalan_sebelum_gt(t)
+            if (awalan is None or awalan == "" or awalan == "&"
+                    or awalan.isdigit() or awalan.startswith("-")):
+                # Redirect merekat murni (target/fd/opsi yang
+                # merekat) — tak ada operand yang dinilai.
+                continue
+            # Audit 959: awalan adalah operand berkas yang merekat
+            # ke redirect — nilainya seperti operand biasa.
+            if perintah == "tee":
+                continue
+            if perintah == "dd":
+                if awalan.startswith("if="):
+                    return False
+                if "=" in awalan:
+                    continue
+            return False
         if t.startswith("-"):
             # Audit 938: opsi bernilai tak hanya -n/-c dan -o;
             # nilai opsi yang terpisah bukan operand berkas.

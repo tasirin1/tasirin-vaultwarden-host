@@ -1510,6 +1510,28 @@ def main():
                 "menguras, gerbang gagal (Audit 958)", rc != 0)
         shutil.rmtree(subteekutip, ignore_errors=True)
 
+        submerekat = klon(tmp, "submerekat")
+        berkas_aksi75 = os.path.join(
+            submerekat, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi75, encoding="utf-8") as f:
+            isi_aksi75 = f.read()
+        baris_tulis75 = [b for b in isi_aksi75.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi75, "w", encoding="utf-8") as f:
+            f.write(isi_aksi75.replace(
+                baris_tulis75,
+                baris_tulis75.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cat keluaran.txt>log1; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(submerekat,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand merekat ke redirect adalah berkas yang "
+                "dibaca: penulis tetap menerima stdin, gerbang "
+                "lolos (Audit 959)", rc == 0)
+        shutil.rmtree(submerekat, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

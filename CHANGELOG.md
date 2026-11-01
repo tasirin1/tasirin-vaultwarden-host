@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Operand yang merekat ke redirect kini dinilai gerbang (Audit 959)
+- Bug (fail-open): token berbentuk `<operand>><target>` dibuang utuh sebagai redirect murni, sehingga operand-nya — berkas yang sungguh dibaca perintah — tak pernah dinilai dan `cat keluaran.txt>log1` dianggap menguras stdin. Awalan sebelum `>` pertama di luar kutip kini dinilai seperti operand biasa (pengecualian tee dan operand `dd` berlaku sama); redirect merekat murni (target, fd, opsi) tetap dilewati. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Operand tee berkutip tetap dinilai keluaran oleh gerbang (Audit 958)
 - Bug (fail-open): cabang token berkutip penuh (Audit 939) mengembalikan tak-menguras untuk perintah apa pun, padahal argumen `tee` adalah berkas keluaran dan tee selalu menguras stdin — `tee "keluaran.txt"` dinilai tak menguras. Cabang itu kini melanjutkan penilaian khusus untuk tee; skenario uji-diri baru menguncinya.
 
