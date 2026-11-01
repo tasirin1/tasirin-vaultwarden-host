@@ -1726,6 +1726,28 @@ def main():
                 rc != 0)
         shutil.rmtree(subrednilai, ignore_errors=True)
 
+        subenvtawar = klon(tmp, "subenvtawar")
+        berkas_aksi85 = os.path.join(
+            subenvtawar, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi85, encoding="utf-8") as f:
+            isi_aksi85 = f.read()
+        baris_tulis85 = [b for b in isi_aksi85.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi85, "w", encoding="utf-8") as f:
+            f.write(isi_aksi85.replace(
+                baris_tulis85,
+                baris_tulis85.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nice env A=1 cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subenvtawar,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("env sesudah pembungkus memulihkan penetapan: "
+                "penulis menguras stdin, gerbang gagal (Audit 969)",
+                rc != 0)
+        shutil.rmtree(subenvtawar, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

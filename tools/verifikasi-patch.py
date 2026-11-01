@@ -645,6 +645,10 @@ def _menguras_stdin(bagian, _batas_argv=0):
             awal += 1
             continue
         if t0 == "env":
+            # Audit 969: env yang dijalankan pembungkus memulihkan
+            # wilayah penetapan — penetapan sesudah env ini adalah
+            # penetapan env sungguhan, bukan nama program.
+            lewat_pembungkus = False
             awal += 1
             # Audit 951: opsi env sendiri bukan perintah — lompatan
             # wajib melewatinya beserta nilai opsi yang terpisah

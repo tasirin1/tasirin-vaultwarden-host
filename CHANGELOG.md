@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Env sesudah pembungkus memulihkan transparansi penetapan bagi resolver gerbang (Audit 969)
+- Bug (fail-open): bendera Audit 966 tak pernah dipadamkan, sehingga `nice env A=1 cat` dinilai tak menguras — padahal env yang dijalankan pembungkus menafsirkan `A=1` sebagai penetapannya dan menjalankan `cat`. Cabang `env` kini memadamkan bendera itu; arah sebaliknya (`env nice A=1 cat`) tetap tertahan. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Redirect yang menyela nilai opsi tak lagi tertelan sebagai nilai oleh resolver gerbang (Audit 968)
 - Bug (fail-open): cek redirect Audit 965 hanya ada di kepala lingkar opsi, sehingga redirect yang muncul persis sesudah opsi bernilai (`timeout -s > /dev/null KILL 5 cat`, `env -u > /dev/null PATH cat`) tertelan sebagai nilai dan perintah sesudahnya hilang dari penilaian. Penolong berantai baru melompati redirect di semua titik penelanan nilai: nilai `-S`/`-u`/`-C` env, nilai opsi pembungkus, operand durasi timeout, dan nilai digit xargs. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 
