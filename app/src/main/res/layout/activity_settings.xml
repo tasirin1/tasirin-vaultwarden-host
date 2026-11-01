@@ -160,7 +160,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:nextFocusDown="@id/netInfo"
                 android:nextFocusUp="@id/navServer"
                 android:orientation="horizontal">
@@ -227,7 +227,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:nextFocusDown="@id/adminToken"
                 android:nextFocusUp="@id/navKeamanan"
                 android:orientation="horizontal">
@@ -294,7 +294,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:nextFocusDown="@id/autoStart"
                 android:nextFocusUp="@id/navRawat"
                 android:orientation="horizontal">
@@ -361,7 +361,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:nextFocusDown="@id/tgToken"
                 android:nextFocusUp="@id/navTelegram"
                 android:orientation="horizontal">
@@ -428,7 +428,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:nextFocusDown="@id/logOpen"
                 android:nextFocusUp="@id/navLog"
                 android:orientation="horizontal">

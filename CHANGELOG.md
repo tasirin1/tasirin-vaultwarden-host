@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Target sentuh chip dan header Pengaturan dinaikkan ke 48dp (Audit 983)
+- Perbaikan aksesibilitas: gaya `TasirinChip` menetapkan minHeight 40dp (menimpa 48dp induknya) dan kelima header seksi Pengaturan yang bisa diklik juga 40dp — 8dp di bawah pedoman target sentuh 48dp dan pola semua gaya interaktif lain di repo. Keduanya kini 48dp.
+
+
 ## [Belum rilis] — Restore dari pemilih berkas menyalin stream penyedia sebelum server dihentikan (Audit 982)
 - Perbaikan: restore dari pemilih berkas membuka stream penyedia dokumen SESUDAH kunci restore+data ditahan dan server dihentikan — penyedia cloud/jaringan yang berhenti mengirim di tengah akan mengunci server mati tanpa batas waktu (satu-satunya batas dulu adalah volume). Stream kini disalin dulu ke berkas cache lokal (dibatasi plafon restore 200 MB) selagi server masih berjalan dan belum ada kunci yang ditahan; proses restore di dalam kunci membaca berkas lokal itu, dan salinannya dihapus sesudahnya.
 
