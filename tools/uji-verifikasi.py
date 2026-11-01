@@ -1898,6 +1898,27 @@ def main():
                 "gerbang gagal (Audit 988)", rc != 0)
         shutil.rmtree(subcommandganda, ignore_errors=True)
 
+        subpidpalsu = klon(tmp, "subpidpalsu")
+        berkas_aksi93 = os.path.join(
+            subpidpalsu, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi93, encoding="utf-8") as f:
+            isi_aksi93 = f.read()
+        baris_tulis93 = [b for b in isi_aksi93.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi93, "w", encoding="utf-8") as f:
+            f.write(isi_aksi93.replace(
+                baris_tulis93,
+                baris_tulis93.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ionice -p 1234 wc -l; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subpidpalsu,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bentuk pid ionice adalah mode pid, bukan perintah: "
+                "gerbang lolos (Audit 989)", rc == 0)
+        shutil.rmtree(subpidpalsu, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

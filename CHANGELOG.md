@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk pid ionice/taskset dimodelkan sebagai mode pid (Audit 989)
+- Perbaikan perkakas: Audit 970 memodelkan `-p`/`--pid` ionice dan taskset sebagai opsi bernilai, sehingga kata sesudah pid dinilai perintah yang menguras. Kenyataannya keduanya bendera mode pid (operand sesudahnya pid-pid, tak pernah perintah), dan bentuk `--pid=`/`--cpu-list=` ditolak getopt taskset sama sekali. `-p`/`--pid` dikeluarkan dari daftar opsi bernilai, resolver mengenal keadaan mode-pid yang menelan sisa operand, dan bentuk `=` taskset dinilai perintah tak sah. Skenario uji-diri baru `subpidpalsu`.
+
+
 ## [Belum rilis] — Gerbang: command sesudah command tetap transparan (Audit 988)
 - Perbaikan perkakas: cabang pembungkus memadamkan keadaan posisi-awal juga bila pembungkusnya `command` sendiri, sehingga `command command cat` dinilai tak menguras. Padahal `command` adalah builtin — kata berikutnya tetap dijalankan shell dan `command` kedua tetap transparan; hanya pembungkus eksternal dan `env` yang memadamkan posisi awal (Audit 972). Skenario uji-diri baru `subcommandganda`.
 

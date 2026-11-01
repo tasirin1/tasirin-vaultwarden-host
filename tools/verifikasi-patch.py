@@ -470,9 +470,11 @@ _OPSI_PEMBUNGKUS = {
               "--max-procs", "--max-chars", "--delimiter"},
     # Audit 970: pembungkus transparan tambahan beserta opsi
     # bernilainya (setsid/eatmydata/nohup tanpa opsi bernilai).
-    "ionice": {"-c", "--class", "-n", "--classdata", "-p", "--pid",
-               "-u", "--which"},
-    "taskset": {"-c", "--cpu-list", "-p", "--pid"},
+    # Audit 989: -p/--pid ionice dan taskset BUKAN opsi bernilai —
+    # keduanya bendera mode pid (operand sesudahnya pid, bukan
+    # nilai opsi dan bukan perintah); lihat mode_pid di resolver.
+    "ionice": {"-c", "--class", "-n", "--classdata", "-u", "--which"},
+    "taskset": {"-c", "--cpu-list"},
     "chrt": {"-T", "--sched-runtime", "-D", "--sched-deadline",
              "-P", "--sched-period"},
 }
@@ -770,6 +772,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 970: taskset/chrt berbentuk daftar/pid tak
             # mempunyai operand masker/prio sebelum perintah.
             tanpa_masker = False
+            # Audit 989: mode pid ionice/taskset — semua operand
+            # sesudah bendera -p adalah pid, tak pernah perintah.
+            mode_pid = False
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
@@ -810,6 +815,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     # Audit 962: item dari berkas argumen menjadi
                     # operand perintah anak, bukan stdin bersama.
                     xargs_dari_berkas = True
+                if t0 == "taskset" and (opsi.startswith("--cpu-list=")
+                        or opsi.startswith("--pid=")):
+                    # Audit 989: getopt taskset menolak argumen =
+                    # untuk opsi mode ini ("doesn't allow an
+                    # argument") — perintah tak pernah berjalan.
+                    return xargs_sendiri
+                if ((t0 == "ionice" and (opsi in ("-p", "--pid")
+                        or opsi.startswith("--pid=")
+                        or (opsi.startswith("-p") and len(opsi) > 2)))
+                        or (t0 == "taskset"
+                            and opsi in ("-p", "--pid"))):
+                    # Audit 989: bendera mode pid — operand
+                    # sesudahnya adalah pid-pid, bukan perintah.
+                    mode_pid = True
                 if ((t0 == "taskset"
                         and (opsi in ("-c", "--cpu-list", "-p", "--pid")
                              or opsi.startswith("--cpu-list=")
@@ -828,6 +847,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         return False
                     if awal < len(toks):
                         awal += 1
+            if mode_pid:
+                # Audit 989: mode pid — sisa token adalah pid-pid,
+                # resolusi selesai tanpa perintah.
+                awal = len(toks)
             if (t0 == "timeout" or (t0 in ("taskset", "chrt")
                     and not tanpa_masker)) and awal < len(toks):
                 # Audit 968: redirect sebelum durasi (mis. sesudah
