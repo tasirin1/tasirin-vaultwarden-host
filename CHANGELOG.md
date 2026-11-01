@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — 'command' hanya transparan sebagai kata perintah pertama segmen (Audit 972)
+- Bug: resolver menilai `command` sebagai pembungkus transparan di posisi mana pun, padahal ia builtin shell — di balik pembungkus/env (`nice command cat`, `env command cat`) ia di-exec sebagai program eksternal yang tidak ada dan perintahnya gugur tanpa menyentuh stdin, tetapi model mengklaim menguras. Bendera posisi awal segmen kini membatasinya; bentuk awal (termasuk bendera tanya Audit 961) tetap transparan. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Xargs tanpa -a dinilai menguras stdin sendiri oleh resolver gerbang (Audit 971)
 - Bug (fail-open): vonis resolver hanya menilai perintah anak xargs, padahal xargs tanpa `-a` selalu membaca stdin bersama untuk itemnya — `xargs echo` dan `xargs cat berkas` dinilai tak menguras. Bendera baru mencatat lapisan xargs mana pun tanpa `-a`; vonis tak-menguras di titik akhir resolusi kini mengembalikannya, dan kasus `-a` (Audit 962) tetap mengikuti aturan lama. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 

@@ -630,6 +630,7 @@ def _menguras_stdin(bagian, _batas_argv=0):
     xargs_dari_berkas = False
     xargs_sendiri = False
     lewat_pembungkus = False
+    masih_awal = True
     while awal < len(toks):
         if awal >= _batas_argv:
             # Audit 965: redirect di wilayah awalan bukan perintah —
@@ -657,6 +658,9 @@ def _menguras_stdin(bagian, _batas_argv=0):
             # wilayah penetapan — penetapan sesudah env ini adalah
             # penetapan env sungguhan, bukan nama program.
             lewat_pembungkus = False
+            # Audit 972: sesudah env, kata berikutnya adalah program
+            # eksternal yang di-exec env, bukan builtin shell.
+            masih_awal = False
             awal += 1
             # Audit 951: opsi env sendiri bukan perintah — lompatan
             # wajib melewatinya beserta nilai opsi yang terpisah
@@ -733,9 +737,18 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     if awal < len(toks):
                         awal += 1
             continue
+        if t0 == "command" and not masih_awal:
+            # Audit 972: 'command' adalah builtin shell — transparan
+            # hanya sebagai kata perintah pertama segmen. Di balik
+            # pembungkus/env ia di-exec sebagai program eksternal
+            # yang tak ada, jadi resolusi berhenti di namanya.
+            break
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
                 "eatmydata", "nohup"):
+            # Audit 972: sesudah pembungkus mana pun, kata perintah
+            # berikutnya adalah program eksternal.
+            masih_awal = False
             if t0 == "xargs":
                 # Audit 962: xargs terdalam yang menentukan sumber
                 # item — xargs di balik xargs -a membaca stdin
