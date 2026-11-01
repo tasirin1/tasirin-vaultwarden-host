@@ -1964,6 +1964,29 @@ def main():
                 "(Audit 996)", rc == 0)
         shutil.rmtree(subxargslekat, ignore_errors=True)
 
+        suboperandfd = klon(tmp, "suboperandfd")
+        berkas_aksi96 = os.path.join(
+            suboperandfd, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi96, encoding="utf-8") as f:
+            isi_aksi96 = f.read()
+        baris_tulis96 = [b for b in isi_aksi96.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi96, "w", encoding="utf-8") as f:
+            f.write(isi_aksi96.replace(
+                baris_tulis96,
+                baris_tulis96.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat 3<berkasKeluaran; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(suboperandfd,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect fd bukan-0 di posisi operand tak "
+                "mengganti stdin, jadi cat sungguh menguras dan "
+                "penulis kebagian EOF: gerbang gagal (Audit 997)",
+                rc != 0)
+        shutil.rmtree(suboperandfd, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pemindaian operand memakai semantik fd untuk redirect masukan (Audit 997)
+
+- Perbaikan perkakas: pemindaian operand `_menguras_stdin` menilai setiap token berawalan `<` sebagai pengalihan stdin dan token berawalan fd seperti `3<berkas` sebagai operand berkas, sehingga `cat 3<berkas`, `cat 3< berkas`, dan `cat <&0` dinilai tak menguras — padahal fd selain 0 tak menyentuh stdin dan `<&0` adalah duplikasi-diri yang netral, jadi perintah tetap membaca pipa bersama (fail-open). Posisi awalan sudah benar sejak Audit 967; kini posisi operand memakai semantik fd yang sama: fd 0 sungguh mengganti stdin, fd lain dilompati bersama target terpisahnya, dan `<&0` (merekat maupun target terpisah) netral. Skenario uji-diri baru (aksi 96) mengunci `cat 3<...` sebagai penguras di segmen pertama substitusi proses — gerbang wajib GAGAL. Probe dua arah 23 bentuk cocok semua.
+
 ## [Belum rilis] — Gerbang: pemindaian xargs mengenali redirect masukan yang merekat di tengah kata (Audit 996)
 
 - Perbaikan perkakas: pemindaian titik-akhir xargs (Audit 986) hanya mengenali redirect masukan di awal token, sehingga bentuk merekat di tengah kata seperti `xargs cat a<berkas` terlewat — shell memecah token itu menjadi operand `a` plus redirect fd 0 milik xargs, jadi xargs membaca item dari berkas dan pipa bersama tak tersentuh (fail-closed). Pemindaian kini mencari `<` pertama di luar kutip pada tiap token: awalan digit adalah nomor fd (semantik Audit 995), awalan bukan-digit adalah operand dengan redirect fd 0 merekat; `<` di dalam kutip tetap data, bukan redirect. Skenario uji-diri baru (aksi 95) mengunci bentuk `xargs cat a<...` sebagai segmen tak-menguras di depan penulis substitusi proses — gerbang wajib LOLOS. Probe dua arah 21 bentuk cocok semua.

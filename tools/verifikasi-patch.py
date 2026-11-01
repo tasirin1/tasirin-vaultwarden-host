@@ -958,7 +958,31 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # argv harfiah — operator redirect di dalamnya operand,
         # bukan redirect shell.
         argv_saja = pos < _batas_argv
+        m_fd_lt = (re.match(r"(\d+)<", t)
+                   if not argv_saja else None)
+        if m_fd_lt:
+            # Audit 997: redirect masukan ber-fd di posisi operand —
+            # posisi AWALAN sudah paham semantik fd sejak Audit 967,
+            # posisi operand tidak. fd 0 sungguh mengganti stdin;
+            # fd lain tak menyentuh stdin bersama, jadi token ini
+            # (dan targetnya bila terpisah) dilompati saja.
+            if m_fd_lt.group(1) == "0":
+                return False
+            if t[m_fd_lt.end():] in ("", "&"):
+                lewati = True
+            continue
         if t.startswith("<") and not argv_saja:
+            # Audit 997: <&0 adalah duplikasi-diri yang netral —
+            # stdin perintah tetap pipa bersama. Target "0" yang
+            # terpisah sesudah "<&" telanjang juga netral.
+            if t == "<&0":
+                continue
+            if t == "<&":
+                if (pos + 1 < len(toks)
+                        and toks[pos + 1].strip("\"'") == "0"):
+                    lewati = True
+                    continue
+                return False
             return False
         if (len(t) >= 2 and t[0] in "\"'"
                 and t[-1] == t[0]):
