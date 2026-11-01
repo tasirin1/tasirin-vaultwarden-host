@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Checksum aset diambil sekali per alur update (Audit 945)
+- Tak efisien: sesudah probe checksum berhasil (jalur fallback binary dan web-vault), jalur unduh mengambil berkas `.sha256` yang sama sekali lagi. Hasil probe kini diteruskan ke `shaDariRilis` dan dipakai ulang hanya bila URL checksum yang diminta persis sama; URL cadangan/fallback tetap mengambil segar seperti sebelumnya.
+
+
 ## [Belum rilis] — Penanda backup-tertunda satu pintu di TgBackup (Audit 944)
 - Kode sampah (duplikasi): penulisan penanda `KEY_BACKUP_TERTUNDA` hidup sebagai dua implementasi terpisah di BootReceiver dan AlarmReceiver. Kini satu helper bersama `TgBackup.tandaiBackupTertunda` (sekeluarga dengan helper throttle dan penanda restore di berkas yang sama); kedua receiver memanggilnya, perilaku penulisan identik.
 

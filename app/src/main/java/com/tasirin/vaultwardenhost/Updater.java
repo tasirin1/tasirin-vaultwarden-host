@@ -795,10 +795,23 @@ public final class Updater {
 
     static ShaTarget shaDariRilis(final Context ctx, final int connectMs, final int readMs,
                                   final String pesanNull, final String[] simpan) {
+        return shaDariRilis(ctx, connectMs, readMs, pesanNull, simpan, null, null);
+    }
+
+    static ShaTarget shaDariRilis(final Context ctx, final int connectMs, final int readMs,
+                                  final String pesanNull, final String[] simpan,
+                                  final String urlChecksumSiap,
+                                  final HasilChecksum checksumSiap) {
         return new ShaTarget() {
             @Override
             public String ambil(String urlAkhir) throws IOException {
-                HasilChecksum hasil = fetchChecksumRinci(ctx, urlAkhir + ".sha256",
+                String urlSha = urlAkhir + ".sha256";
+                if (checksumSiap != null && checksumSiap.hex != null
+                        && urlSha.equals(urlChecksumSiap)) {
+                    simpan[0] = checksumSiap.hex;
+                    return checksumSiap.hex;
+                }
+                HasilChecksum hasil = fetchChecksumRinci(ctx, urlSha,
                         connectMs, readMs);
                 if (hasil.hex == null) {
 
@@ -1220,6 +1233,8 @@ public final class Updater {
             return sebutan + latest;
         }
 
+        HasilChecksum checksumSiap = null;
+        String urlChecksumSiap = null;
         if (!paksa && !butuhRefresh && !adaKuncianBinary(ctx)
                 && fallbackTercatatUntuk(latest,
                         TgBackup.amanString(sp, KEY_BIN_FALLBACK_FOR, ""))) {
@@ -1229,9 +1244,8 @@ public final class Updater {
                 return "Cek pembaruan tertunda (jaringan GitHub terganggu); binary"
                         + " rilis sebelumnya tetap dipakai.";
             }
-            HasilChecksum probe = fetchChecksumRinci(ctx,
-                    binaryAssetUrl(latest, ServerService.ABI) + ".sha256",
-                    20000, 20000);
+            String urlProbe = binaryAssetUrl(latest, ServerService.ABI) + ".sha256";
+            HasilChecksum probe = fetchChecksumRinci(ctx, urlProbe, 20000, 20000);
             if (probe.hex == null) {
                 if (probe.sementara) {
                     sp.edit().putLong(KEY_CEK_GANGGUAN_AT, sekarang).apply();
@@ -1241,6 +1255,8 @@ public final class Updater {
                 return "Build Android v" + latest + " belum tersedia; binary rilis"
                         + " sebelumnya tetap dipakai (dicek ulang otomatis nanti).";
             }
+            checksumSiap = probe;
+            urlChecksumSiap = urlProbe;
             sp.edit().remove(KEY_BIN_FALLBACK_FOR)
                     .remove(KEY_BIN_FALLBACK_AT)
                     .remove(KEY_CEK_GANGGUAN_AT).apply();
@@ -1253,7 +1269,8 @@ public final class Updater {
         }
 
         File out = new File(ctx.getFilesDir(), "bin/vaultwarden-" + ServerService.ABI);
-        String msg = downloadBinaryVersi(ctx, out, latest);
+        String msg = downloadBinaryVersi(ctx, out, latest, null,
+                urlChecksumSiap, checksumSiap);
         sp.edit().putString(ServerService.KEY_BIN_PATCH,
                 String.valueOf(ServerService.BIN_PATCH_REV)).apply();
         return msg;
@@ -1330,6 +1347,12 @@ public final class Updater {
 
     public static String downloadBinaryVersi(Context ctx, File out, String versi,
                                              CekBatal batal) throws Exception {
+        return downloadBinaryVersi(ctx, out, versi, batal, null, null);
+    }
+
+    static String downloadBinaryVersi(Context ctx, File out, String versi,
+                                      CekBatal batal, String urlChecksumSiap,
+                                      HasilChecksum checksumSiap) throws Exception {
         // Unduh + pasang diserialkan global: dua pemicu update bersamaan
         // (bot, Settings, AutoUpdate, Start) dengan target versi berbeda
         // sebelumnya hanya diserialkan pada momen swap, sedangkan
@@ -1344,7 +1367,8 @@ public final class Updater {
         kunciPasangGlobal();
         mulaiUnduhan();
         try {
-            return downloadBinaryInner(ctx, out, versi, batal);
+            return downloadBinaryInner(ctx, out, versi, batal,
+                    urlChecksumSiap, checksumSiap);
         } finally {
             try {
                 selesaiUnduhan();
@@ -1356,7 +1380,8 @@ public final class Updater {
 
     @android.annotation.SuppressLint("ApplySharedPref")
     private static String downloadBinaryInner(Context ctx, File out, String diminta,
-                                              CekBatal batal) throws Exception {
+                                              CekBatal batal, String urlChecksumSiap,
+                                              HasilChecksum checksumSiap) throws Exception {
         String latest = diminta;
 
         boolean known = latest != null && !latest.isEmpty();
@@ -1440,7 +1465,8 @@ public final class Updater {
                                 }
                             },
                             shaDariRilis(ctx, 20000, 60000,
-                                    "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat),
+                                    "Verifikasi SHA-256 tidak bisa diambil dari release", shaDapat,
+                                    urlChecksumSiap, checksumSiap),
                             batal);
                 } catch (IOException e) {
 
@@ -1890,6 +1916,7 @@ public final class Updater {
                     + " Coba lagi nanti agar hemat kuota.";
         }
 
+        HasilChecksum shaSiap = null;
         if (wvExists && !adaKuncianWebVault(ctx)
                 && fallbackTercatatUntuk(latest,
                         TgBackup.amanString(sp, KEY_WV_FALLBACK_FOR, ""))) {
@@ -1910,6 +1937,7 @@ public final class Updater {
                 return "Web vault v" + latest + " belum tersedia; versi terpasang"
                         + " tetap dipakai (dicek ulang otomatis nanti).";
             }
+            shaSiap = probe;
             sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_CEK_GANGGUAN_AT).apply();
         }
 
@@ -1929,6 +1957,9 @@ public final class Updater {
                     sp.edit().putLong(KEY_CEK_GANGGUAN_AT, sekarang).apply();
                     return "Cek web vault terganggu jaringan; versi terpasang tetap"
                             + " dipakai (dicek ulang nanti).";
+                }
+                if (shaTarget.hex != null) {
+                    shaSiap = shaTarget;
                 }
                 if (shaTarget.hex != null && expectedHexEquals(shaTarget.hex, sidikLama)) {
                     sp.edit().putString(KEY_WV_FROM, latest).apply();
@@ -1965,7 +1996,10 @@ public final class Updater {
                         }
                     },
                     shaDariRilis(ctx, 20000, 60000,
-                            "Verifikasi SHA-256 web-vault tidak bisa diambil", shaDapat));
+                            "Verifikasi SHA-256 web-vault tidak bisa diambil", shaDapat,
+                            shaSiap == null ? null
+                                    : RELEASE_URL + "v" + latest + "/web-vault.zip.sha256",
+                            shaSiap));
         } catch (IOException e) {
             throw new IOException(pesanGalatUnduh("Unduh web-vault", e));
         }
