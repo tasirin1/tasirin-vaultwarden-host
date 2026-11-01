@@ -4034,7 +4034,7 @@ public class ServerService extends Service {
         }
     }
 
-    private static void writeText(File f, String text) throws Exception {
+    static void writeText(File f, String text) throws Exception {
         File induk = f.getAbsoluteFile().getParentFile();
         File baru = new File(induk, f.getName() + ".baru");
         try {

@@ -1779,28 +1779,18 @@ public final class Updater {
     }
 
     private static void writeVersionTag(File binDir, String apkVersion) {
-        File tujuan = new File(binDir, "version.txt");
-        File baru = new File(binDir, "version.txt.baru");
+        // Audit 974: satu pintu tulis untuk version.txt — penolong
+        // yang sama dengan ServerService (fsync berkas + rename +
+        // fsync direktori, kegagalan dilempar), bukan salinan yang
+        // lebih lemah. Kegagalan dicatat, bukan ditelan diam-diam;
+        // version.txt yang basi terpulihkan sendiri lewat smoke
+        // test --version pada start berikutnya.
         try {
-            baru.delete();
-            try (FileOutputStream fos = new FileOutputStream(baru)) {
-                fos.write(apkVersion.getBytes(StandardCharsets.UTF_8));
-                fos.flush();
-                try {
-                    fos.getFD().sync();
-                } catch (Exception ignored) {
-                }
-            }
-            if (!baru.renameTo(tujuan)) {
-                if (!tujuan.delete() || !baru.renameTo(tujuan)) {
-                    baru.delete();
-                }
-            }
-        } catch (Exception ignored) {
-            try {
-                baru.delete();
-            } catch (Exception ignored2) {
-            }
+            ServerService.writeText(new File(binDir, "version.txt"),
+                    apkVersion);
+        } catch (Exception e) {
+            ServerService.catatLog(
+                    "[updater] Gagal menulis version.txt: " + e);
         }
     }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penulisan bin/version.txt disatukan ke penolong tulis yang tahan padam (Audit 974)
+- Perbaikan duplikasi: `Updater.writeVersionTag` adalah salinan tulis-atomik yang lebih lemah dari `ServerService.writeText` untuk berkas yang sama — tanpa fsync direktori sesudah rename dan menelan semua kegagalan diam-diam. `writeVersionTag` kini mendelegasikan ke `writeText` (yang visibilitasnya dibuka sebatas paket) dan kegagalan tulisnya dicatat ke log; version.txt yang basi tetap terpulihkan sendiri lewat smoke test `--version`.
+
+
 ## [Belum rilis] — Backup DB lokal Settings dibuat dari snapshot konsisten (Audit 973)
 - Bug: tombol Backup DB di Settings men-zip trio `db.sqlite3`/`-wal`/`-shm` yang sedang live satu per satu (hasil checkpoint diabaikan), sehingga zip bisa berisi campuran generasi halaman saat server sedang menulis dan lolos pemeriksaan struktural sesudahnya. Jalur lokal kini memakai `snapshotDbKonsisten` yang sama dengan backup Telegram (checkpoint + salinan terverifikasi stabil + cek integritas salinan, dibatalkan dengan pesan bila tak stabil) dan men-zip dari folder snapshot; folder snapshot selalu dibersihkan.
 
