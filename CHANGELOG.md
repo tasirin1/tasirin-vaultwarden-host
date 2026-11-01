@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect di dalam string env -S dinilai operand harfiah oleh gerbang (Audit 963)
+- Bug (fail-open): rekursi `env -S` (Audit 960) menilai string-nya sebagai baris perintah shell segar, sehingga `>`/`<` di dalamnya dianggap operator redirect — padahal env tidak menjalankan shell dan meneruskan token itu sebagai operand harfiah (`env -S 'cat > /dev/null'` membuat cat menggalat di operand `>`, stdin utuh). Rentang string `-S` (mengikuti kutip pembuka) kini diteruskan ke penilaian rekursif sebagai batas argv: token di dalamnya dinilai operand, token sesudahnya tetap semantik shell. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Item xargs -a dinilai operand anak oleh gerbang (Audit 962)
 - Bug (fail-open): resolusi pembungkus `xargs` (Audit 957) melewati nilai `-a`/`--arg-file` lalu menilai perintah anak seolah membaca stdin bersama, padahal item dari berkas argumen menjadi operand perintah anak (`xargs -a daftar cat` menjalankan `cat <item...>`) dan stdin tak disentuh — klaim lama hanya benar untuk berkas argumen kosong. Pembaca di balik `xargs -a` kini dinilai tak menguras (tee dikecualikan: operandnya keluaran, ia tetap menguras). Skenario uji-diri baru menguncinya.
 

@@ -531,7 +531,7 @@ def _awalan_sebelum_gt(token):
     return None
 
 
-def _menguras_stdin(bagian):
+def _menguras_stdin(bagian, _batas_argv=0):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
     membaca berkas argumennya atau redirect masukan tak menguras
@@ -565,15 +565,32 @@ def _menguras_stdin(bagian):
                     # Audit 960: nilai -S adalah baris perintah yang
                     # dijalankan env — nilai itu, digabung sisa token
                     # sesudahnya, dinilai sebagai perintah itu sendiri.
+                    # Audit 963: env tak menjalankan shell, jadi token
+                    # di dalam rentang string -S adalah argv harfiah;
+                    # rentangnya (mengikuti kutip pembuka) diteruskan
+                    # sebagai _batas_argv agar operator redirect di
+                    # dalamnya dinilai operand, bukan redirect.
                     if opsi in ("-S", "--split-string"):
-                        sisa = toks[awal:]
+                        if awal >= len(toks):
+                            return False
+                        daftar = toks[awal:]
                     elif opsi.startswith("--split-string="):
-                        sisa = [opsi.split("=", 1)[1]] + toks[awal:]
+                        daftar = [opsi.split("=", 1)[1]] + toks[awal:]
                     else:
-                        sisa = [opsi[2:]] + toks[awal:]
-                    if not sisa:
-                        return False
-                    return _menguras_stdin(" ".join(sisa))
+                        daftar = [opsi[2:]] + toks[awal:]
+                    rentang = 1
+                    pembuka = daftar[0][:1]
+                    if pembuka in ("'", '"') and not (
+                            len(daftar[0]) >= 2
+                            and daftar[0].endswith(pembuka)):
+                        j = 1
+                        while j < len(daftar):
+                            rentang += 1
+                            if daftar[j].endswith(pembuka):
+                                break
+                            j += 1
+                    return _menguras_stdin(" ".join(daftar),
+                                           _batas_argv=rentang)
                 if opsi in ("-u", "--unset", "-C", "--chdir"):
                     if awal < len(toks):
                         awal += 1
@@ -632,11 +649,16 @@ def _menguras_stdin(bagian):
         # mengikuti pemakaian lazim -a, yaitu berkas berisi item.
         return False
     lewati = False
-    for t in toks[awal + 1:]:
+    for pos in range(awal + 1, len(toks)):
+        t = toks[pos]
         if lewati:
             lewati = False
             continue
-        if t.startswith("<"):
+        # Audit 963: token di dalam rentang string env -S adalah
+        # argv harfiah — operator redirect di dalamnya operand,
+        # bukan redirect shell.
+        argv_saja = pos < _batas_argv
+        if t.startswith("<") and not argv_saja:
             return False
         if (len(t) >= 2 and t[0] in "\"'"
                 and t[-1] == t[0]):
@@ -647,7 +669,7 @@ def _menguras_stdin(bagian):
             if perintah == "tee":
                 continue
             return False
-        if ">" in t and _gt_di_luar_kutip(t):
+        if ">" in t and _gt_di_luar_kutip(t) and not argv_saja:
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
                 lewati = True
                 continue
