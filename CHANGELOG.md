@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji redirect pada token sadar kutip sebagian (Audit 952)
+- Deviasi fail-closed: uji token memuat `>` pada `_menguras_stdin` hanya membebaskan token berkutip PENUH (Audit 939), sehingga operand berkutip sebagian seperti `a">b"` tetap dianggap redirect. Uji kini memakai penolong `_gt_di_luar_kutip`: `>` yang seluruhnya di dalam kutip (atau ter-escape) adalah data nama berkas. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Resolusi perintah efektif melewati opsi env (Audit 951)
 - Deviasi fail-open: resolusi perintah efektif (Audit 937) berhenti pada opsi `env` (`-i`, `-u NAMA`, …) sehingga penguras di baliknya (`env -i cat`) tak dikenali dan penulis sesudahnya terkredit semu. Lompatan `env` kini melewati opsinya beserta nilai opsi yang terpisah. Skenario uji-diri baru menguncinya.
 

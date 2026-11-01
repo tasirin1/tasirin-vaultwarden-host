@@ -1434,6 +1434,27 @@ def main():
                 "gagal (Audit 951)", rc != 0)
         shutil.rmtree(subenv, ignore_errors=True)
 
+        subkutipsebagian = klon(tmp, "subkutipsebagian")
+        berkas_aksi72 = os.path.join(
+            subkutipsebagian, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi72, encoding="utf-8") as f:
+            isi_aksi72 = f.read()
+        baris_tulis72 = [b for b in isi_aksi72.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi72, "w", encoding="utf-8") as f:
+            f.write(isi_aksi72.replace(
+                baris_tulis72,
+                baris_tulis72.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cat a">b" > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subkutipsebagian, [sys.executable, GERBANG,
+                                           "--semua"])
+        periksa("operand berkutip sebagian memuat > adalah berkas, "
+                "bukan redirect: gerbang lolos (Audit 952)", rc == 0)
+        shutil.rmtree(subkutipsebagian, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

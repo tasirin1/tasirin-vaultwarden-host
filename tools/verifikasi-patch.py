@@ -453,6 +453,36 @@ _OPSI_BERNILAI = {
 }
 
 
+def _gt_di_luar_kutip(token):
+    """True bila token memuat `>` di LUAR kutip dan tak ter-escape
+    (Audit 952): `>` di dalam kutip — penuh maupun sebagian — adalah
+    data nama berkas, bukan operator redirect."""
+    kutip = ""
+    i = 0
+    n = len(token)
+    while i < n:
+        c = token[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c == ">":
+            return True
+        i += 1
+    return False
+
+
 def _menguras_stdin(bagian):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -518,7 +548,7 @@ def _menguras_stdin(bagian):
             # Audit 939: token berkutip penuh adalah operand data,
             # walau isinya memuat karakter redirect.
             return False
-        if ">" in t:
+        if ">" in t and _gt_di_luar_kutip(t):
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
                 lewati = True
             continue
