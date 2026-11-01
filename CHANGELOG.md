@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi berkas berbagi tanpa penelusuran ganda (Audit 943)
+- Tak efisien: `berkasBagiTerverifikasi` mengkanonikalisasi jalur yang sama dua kali dan `adaSymlinkInduk` menelusuri rantai induk dua kali (lstat, lalu `getCanonicalPath()` per induk). Pemanggil satu-satunya selalu menyerahkan jalur yang sudah kanonis, sehingga penelusuran kedua tak bisa menemukan apa pun yang tak ditemukan penelusuran lstat — kini verifikasi cukup satu lintasan dan satu kanonikalisasi, semua cek keamanan (akar bagi, lstat induk, fail-closed saat refleksi tak tersedia) tetap utuh.
+
+
 ## [Belum rilis] — Kata kunci lingkar dibandingkan pada token mentah (Audit 942)
 - Deviasi fail-closed: kata pertama segmen dilucuti kutipnya sebelum dibandingkan dengan kata kunci, sehingga `'done'` berkutip — yang di bash hanyalah perintah biasa di badan lingkar — dihitung sebagai penutup lingkar dan penulis di badan digugurkan. Perbandingan kini memakai token mentah, dan segmen badan lingkar dinilai dengan aturan urutan yang sama seperti segmen biasa. Skenario uji-diri baru menguncinya.
 

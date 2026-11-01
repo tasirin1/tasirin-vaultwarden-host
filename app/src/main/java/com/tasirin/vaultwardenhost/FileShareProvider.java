@@ -21,7 +21,7 @@ public class FileShareProvider extends ContentProvider {
 
     // Satu pintu verifikasi berkas berbagi (Audit 848): rantai yang dulu
     // ditulis ulang di query/getType/openFile — kanonik, cek akar bagi,
-    // kanonik ulang + kesetaraan, cek symlink induk, isFile — kini satu
+    // cek symlink induk, isFile — kini satu
     // implementasi. Hasil SENGAJA tak di-cache: tiap panggilan tetap
     // memverifikasi segar (fail-closed), hanya kodenya yang satu pintu.
     private File berkasBagiTerverifikasi(Uri uri) throws Exception {
@@ -35,15 +35,10 @@ public class FileShareProvider extends ContentProvider {
         File f = new File(path);
         AkarBagi akar = akarBagi();
         String kanon = f.getCanonicalPath();
-        if (!isShareable(kanon, akar)) {
+        if (!isShareable(kanon, akar) || adaSymlinkInduk(kanon)) {
             return null;
         }
-        String kanonUlang = new File(kanon).getCanonicalPath();
-        if (!kanonUlang.equals(kanon) || !isShareable(kanonUlang, akar)
-                || adaSymlinkInduk(kanonUlang)) {
-            return null;
-        }
-        File cf = new File(kanonUlang);
+        File cf = new File(kanon);
         if (!cf.isFile()) {
             return null;
         }
@@ -308,30 +303,7 @@ public class FileShareProvider extends ContentProvider {
                 }
             }
         };
-        if (adaSymlinkDariMode(canon, penyedia)) {
-            return true;
-        }
-        File induk = new File(canon).getParentFile();
-        for (int i = 0; i < 256 && induk != null; i++) {
-            try {
-                if (!induk.getCanonicalPath().equals(induk.getAbsolutePath())) {
-                    return true;
-                }
-            } catch (Exception ignored) {
-                return true;
-            }
-            induk = induk.getParentFile();
-        }
-
-        try {
-            File f = new File(canon);
-            if (!f.getCanonicalPath().equals(f.getAbsolutePath())) {
-                return true;
-            }
-        } catch (Exception e) {
-            return true;
-        }
-        return false;
+        return adaSymlinkDariMode(canon, penyedia);
     }
 
     static boolean kunciPrivat(String name) {
