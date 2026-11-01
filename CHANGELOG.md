@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Label formulir dikaitkan ke kolomnya dan backupPass mendapat hint (Audit 977)
+- Perbaikan aksesibilitas: tak satu pun dari 11 berkas layout memakai `android:labelFor`, jadi pembaca layar tak mengaitkan label visual dengan kolomnya. Semua label formulir kini ber-`labelFor` ke kolom pasangannya (label yang belum ber-id diberi id: labelPin, labelTgToken, labelTgChat, labelBackupPass, labelBinSha, labelPinLogin di kedua varian pin), dan `backupPass` — satu-satunya EditText tanpa hint — mendapat `backup_pass_hint` (Inggris + Indonesia).
+
+
 ## [Belum rilis] — Terjemahan open_settings disamakan dengan settings (Audit 976)
 - Perbaikan kosmetik: di `values-in`, `open_settings` masih "Settings" sedangkan `settings` sudah "Pengaturan" untuk kata sumber yang sama — menu overflow dan judul layar tujuan berbeda nama. `open_settings` kini "Pengaturan".
 

@@ -82,6 +82,7 @@
     <string name="chat_id">Chat ID</string>
     <string name="chat_id_hint">ID chat tujuan, pisahkan koma (maks 5)</string>
     <string name="backup_pass_label">Password enkripsi (opsional)</string>
+    <string name="backup_pass_hint">Masukkan password enkripsi</string>
     <string name="bin_sha_label">SHA-256 binary manual (opsional)</string>
     <string name="bin_sha_hint">wajib bila pakai binary sendiri</string>
     <string name="backup_auto_24h">Backup otomatis saat tanggal berganti &amp; saat Start</string>

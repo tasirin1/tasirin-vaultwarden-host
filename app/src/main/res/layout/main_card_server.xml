@@ -127,6 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:labelFor="@id/dataDir"
                 android:text="@string/folder_data" />
 
             <EditText
@@ -152,6 +153,7 @@
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/port"
                 android:text="@string/port" />
 
             <EditText

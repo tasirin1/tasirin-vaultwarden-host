@@ -82,6 +82,7 @@
     <string name="chat_id">Chat ID</string>
     <string name="chat_id_hint">destination chat IDs, comma-separated (max 5)</string>
     <string name="backup_pass_label">Encryption password (optional)</string>
+    <string name="backup_pass_hint">Enter encryption password</string>
     <string name="bin_sha_label">Manual binary SHA-256 (optional)</string>
     <string name="bin_sha_hint">required when using your own binary</string>
     <string name="backup_auto_24h">Automatic backup on date change &amp; on Start</string>

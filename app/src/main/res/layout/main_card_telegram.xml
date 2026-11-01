@@ -11,10 +11,12 @@
                     android:text="@string/sub_tg_kredensial" />
 
                 <TextView
+                    android:id="@+id/labelTgToken"
                     style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:labelFor="@id/tgToken"
                     android:text="@string/bot_token" />
 
                 <LinearLayout
@@ -70,9 +72,11 @@
                     android:visibility="gone" />
 
                 <TextView
+                    android:id="@+id/labelTgChat"
                     style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:labelFor="@id/tgChat"
                     android:text="@string/chat_id" />
 
                 <EditText
@@ -103,9 +107,11 @@
                     android:layout_height="wrap_content" />
 
                 <TextView
+                    android:id="@+id/labelBackupPass"
                     style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:labelFor="@id/backupPass"
                     android:text="@string/backup_pass_label" />
 
                 <LinearLayout
@@ -115,6 +121,7 @@
 
                     <EditText
                         android:id="@+id/backupPass"
+                        android:hint="@string/backup_pass_hint"
                         android:maxLength="256"
                         android:nextFocusDown="@id/showPass"
                         android:nextFocusUp="@id/tgChat"
@@ -137,10 +144,12 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/labelBinSha"
                     style="@style/TasirinLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:labelFor="@id/binSha"
                     android:text="@string/bin_sha_label" />
 
                 <EditText

@@ -17,6 +17,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:labelFor="@id/adminToken"
                 android:text="@string/admin_token" />
 
             <LinearLayout
@@ -97,10 +98,12 @@
                 android:visibility="gone" />
 
             <TextView
+                android:id="@+id/labelPin"
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:labelFor="@id/pinInput"
                 android:text="@string/pin_label" />
 
             <LinearLayout
