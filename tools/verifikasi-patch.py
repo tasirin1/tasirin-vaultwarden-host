@@ -459,6 +459,18 @@ _OPSI_BERNILAI = {
 }
 
 
+# Audit 957: opsi bernilai milik pembungkus perintah — nilai yang
+# terpisah dari opsinya bukan perintah sungguhan.
+_OPSI_PEMBUNGKUS = {
+    "nice": {"-n", "--adjustment"},
+    "stdbuf": {"-i", "--input", "-o", "--output", "-e", "--error"},
+    "timeout": {"-s", "--signal", "-k", "--kill-after"},
+    "xargs": {"-a", "--arg-file", "-E", "-I", "-L", "-n", "-P",
+              "-s", "-d", "--eof", "--max-lines", "--max-args",
+              "--max-procs", "--max-chars", "--delimiter"},
+}
+
+
 def _gt_di_luar_kutip(token):
     """True bila token memuat `>` di LUAR kutip dan tak ter-escape
     (Audit 952): `>` di dalam kutip — penuh maupun sebagian — adalah
@@ -521,17 +533,22 @@ def _menguras_stdin(bagian):
                     if awal < len(toks):
                         awal += 1
             continue
-        if t0 == "timeout":
+        if t0 == "timeout" or t0 in ("xargs", "nice", "command",
+                "stdbuf"):
             awal += 1
+            # Audit 957: nilai opsi pembungkus yang terpisah bukan
+            # perintah — lompatan wajib melewatinya juga, kalau
+            # tidak nilai itu yang dinilai sebagai perintah.
+            bernilai = _OPSI_PEMBUNGKUS.get(t0, ())
             while awal < len(toks) and toks[awal].startswith("-"):
+                opsi = toks[awal]
                 awal += 1
-            if awal < len(toks):
+                if opsi == "--":
+                    break
+                if opsi in bernilai and awal < len(toks):
+                    awal += 1
+            if t0 == "timeout" and awal < len(toks):
                 awal += 1  # operand durasi
-            continue
-        if t0 in ("xargs", "nice", "command", "stdbuf"):
-            awal += 1
-            while awal < len(toks) and toks[awal].startswith("-"):
-                awal += 1
             if (t0 == "xargs" and awal < len(toks)
                     and toks[awal].isdigit()):
                 awal += 1  # nilai opsi xargs yang terpisah

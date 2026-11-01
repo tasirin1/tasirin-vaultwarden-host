@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nilai opsi pembungkus dilewati saat resolusi perintah gerbang (Audit 957)
+- Bug (fail-open): resolusi perintah efektif di `_menguras_stdin` melompati token opsi pembungkus (`nice`/`stdbuf`/`timeout`/`xargs`) tetapi tidak nilai opsi yang terpisah, sehingga nilai itu dinilai sebagai perintah dan penguras di baliknya luput (`nice -n 5 cat` berhenti di `5`). Cabang pembungkus kini satu dengan lompatan berkamus `_OPSI_PEMBUNGKUS`; skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Konstanta mati UJI dihapus (Audit 956)
 - Kode sampah: konstanta `UJI` di `tools/verifikasi-patch.py` tak dirujuk sama sekali (pohon uji dijangkau gerbang lewat literal jalurnya). Dihapus; tak dicatat di bekas-hapusan karena daftar itu khusus nama metode.
 

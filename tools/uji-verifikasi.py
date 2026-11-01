@@ -1467,6 +1467,28 @@ def main():
                 "(Audit 954)", rc == 0)
         shutil.rmtree(subpycache, ignore_errors=True)
 
+        subbungkusnilai = klon(tmp, "subbungkusnilai")
+        berkas_aksi73 = os.path.join(
+            subbungkusnilai, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi73, encoding="utf-8") as f:
+            isi_aksi73 = f.read()
+        baris_tulis73 = [b for b in isi_aksi73.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi73, "w", encoding="utf-8") as f:
+            f.write(isi_aksi73.replace(
+                baris_tulis73,
+                baris_tulis73.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(nice -n 5 cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subbungkusnilai,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai opsi pembungkus bukan perintah: penguras di "
+                "balik nice -n tetap menguras, gerbang gagal "
+                "(Audit 957)", rc != 0)
+        shutil.rmtree(subbungkusnilai, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
