@@ -454,11 +454,40 @@ def _menguras_stdin(bagian):
     toks = bagian.strip().lstrip("({ ").split()
     if not toks:
         return False
-    perintah = toks[0].strip("\"'")
+    # Audit 937: perintah sungguhan bisa tersembunyi di balik
+    # penetapan variabel lingkungan dan pembungkus umum.
+    awal = 0
+    while awal < len(toks):
+        t0 = toks[awal].strip("\"'")
+        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0):
+            awal += 1
+            continue
+        if t0 == "env":
+            awal += 1
+            continue
+        if t0 == "timeout":
+            awal += 1
+            while awal < len(toks) and toks[awal].startswith("-"):
+                awal += 1
+            if awal < len(toks):
+                awal += 1  # operand durasi
+            continue
+        if t0 in ("xargs", "nice", "command", "stdbuf"):
+            awal += 1
+            while awal < len(toks) and toks[awal].startswith("-"):
+                awal += 1
+            if (t0 == "xargs" and awal < len(toks)
+                    and toks[awal].isdigit()):
+                awal += 1  # nilai opsi xargs yang terpisah
+            continue
+        break
+    if awal >= len(toks):
+        return False
+    perintah = toks[awal].strip("\"'")
     if perintah not in _PEMBACA_STDIN:
         return False
     lewati = False
-    for t in toks[1:]:
+    for t in toks[awal + 1:]:
         if lewati:
             lewati = False
             continue

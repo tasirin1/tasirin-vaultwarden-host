@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model stdin mengenali perintah di balik awalan dan pembungkus (Audit 937)
+- Deviasi fail-open: `_menguras_stdin` hanya membaca token pertama, sehingga pembaca di balik penetapan variabel lingkungan (`LC_ALL=C cat`) atau pembungkus (`env`, `timeout`, `xargs`, `nice`, `command`, `stdbuf`) tak dikenali sebagai penguras dan penulis sesudahnya terkredit. Perintah efektif kini diselesaikan lebih dulu sebelum penilaian. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Pasangan ekspansi kurung hanya berlaku di dalam satu kata (Audit 936)
 - Deviasi fail-open: penghitung pasangan kurung Audit 933 bocor melintasi batas kata dan backtick — kurung buka argumen pada satu kata menyerap kurung tutup yatim pada kata berikutnya, sehingga bentuk grup tak sah lolos dari syarat skip. Penghitung kini direset pada batas kata di tingkat luar. Skenario uji-diri baru menguncinya.
 

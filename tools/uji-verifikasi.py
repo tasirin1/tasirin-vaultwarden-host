@@ -1300,6 +1300,26 @@ def main():
                 rc != 0)
         shutil.rmtree(kurungtikus, ignore_errors=True)
 
+        subbungkus = klon(tmp, "subbungkus")
+        berkas_aksi65 = os.path.join(
+            subbungkus, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi65, encoding="utf-8") as f:
+            isi_aksi65 = f.read()
+        baris_tulis65 = [b for b in isi_aksi65.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi65, "w", encoding="utf-8") as f:
+            f.write(isi_aksi65.replace(
+                baris_tulis65,
+                baris_tulis65.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(LC_ALL=C cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subbungkus, [sys.executable, GERBANG, "--semua"])
+        periksa("penguras berawalan variabel lingkungan tetap "
+                "menguras: gerbang gagal (Audit 937)", rc != 0)
+        shutil.rmtree(subbungkus, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
