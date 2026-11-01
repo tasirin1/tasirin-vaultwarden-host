@@ -1377,6 +1377,25 @@ def main():
                 "menguras: gerbang gagal (Audit 940)", rc != 0)
         shutil.rmtree(subkunci, ignore_errors=True)
 
+        subputus = klon(tmp, "subputus")
+        berkas_aksi69 = os.path.join(
+            subputus, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi69, encoding="utf-8") as f:
+            isi_aksi69 = f.read()
+        baris_tulis69 = [b for b in isi_aksi69.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi69, "w", encoding="utf-8") as f:
+            f.write(isi_aksi69.replace(
+                baris_tulis69,
+                baris_tulis69.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(while read l; do break; done; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subputus, [sys.executable, GERBANG, "--semua"])
+        periksa("break mengakhiri lingkar baca lebih awal: penulis "
+                "tetap menulis sisa stdin (Audit 941)", rc == 0)
+        shutil.rmtree(subputus, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -726,15 +726,35 @@ def segmen_redirect_output(segmen):
                     hasil = False
                     stdin_habis = False
                     lingkar_baca = False
+                    lingkar_putus = False
+                    loop_lain = 0
                     for bagian in pecah_segmen_shell(
                             segmen[awal + 2:k]):
                         kata = bagian.strip().lstrip("({ ").split(
                             None, 1)
                         kata1 = kata[0].strip("\"'") if kata else ""
                         if lingkar_baca:
-                            if kata1 == "done":
-                                lingkar_baca = False
-                                stdin_habis = True
+                            # Audit 941: break di badan mengakhiri
+                            # lingkar lebih awal — stdin belum tentu
+                            # habis. break/done milik loop bersarang
+                            # dihitung lewat kedalamannya; kata kunci
+                            # bisa bersembunyi sesudah do/then/else.
+                            kunci = kata1
+                            if (kunci in ("do", "then", "else")
+                                    and len(kata) > 1):
+                                kunci = kata[1].split(
+                                    None, 1)[0].strip("\"'")
+                            if kunci in ("while", "until", "for"):
+                                loop_lain += 1
+                            elif kunci == "done":
+                                if loop_lain > 0:
+                                    loop_lain -= 1
+                                else:
+                                    lingkar_baca = False
+                                    stdin_habis = not lingkar_putus
+                                    lingkar_putus = False
+                            elif kunci == "break" and loop_lain == 0:
+                                lingkar_putus = True
                             continue
                         if (kata1 in ("while", "until")
                                 and re.search(r"\bread\b", bagian)):

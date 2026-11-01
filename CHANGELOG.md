@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model lingkar menghormati break di badan (Audit 941)
+- Deviasi fail-closed: model Audit 935 menganggap while-read selalu menguras stdin sampai EOF, padahal `break` di badan mengakhiri lingkar lebih awal dan penulis sesudahnya tetap menulis sisa stdin. Model kini melacak break (termasuk yang bersembunyi sesudah `do`) dan kedalaman loop bersarang. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model substitusi menilai perintah di balik kata kunci lingkar (Audit 940)
 - Deviasi fail-open: kata pertama segmen di dalam isi substitusi bisa berupa kata kunci, sehingga penguras sebagai kondisi lingkar (`until cat ...`) atau badan sesudah `do`/`then`/`else` tak dinilai sama sekali. Segmen kini dinilai dari perintah efektif sesudah kata kuncinya. Skenario uji-diri baru menguncinya.
 
