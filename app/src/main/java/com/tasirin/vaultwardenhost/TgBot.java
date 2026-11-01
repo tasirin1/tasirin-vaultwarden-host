@@ -350,6 +350,7 @@ public final class TgBot {
     }
 
     private static volatile String galatPollTercatat = "";
+    private static volatile long hapusWebhookTerakhirMs = 0L;
 
     static void refreshMenuAsync(Context ctx) {
         if (ctx == null) {
@@ -2678,6 +2679,33 @@ public final class TgBot {
         }
     }
 
+    // Audit 1002: HTTP 409 pada getUpdates berarti webhook terpasang
+    // atau ada konsumen getUpdates lain — tanpa penanganan, polling
+    // mati selamanya dengan satu baris log generik. Catat penjelasan
+    // yang berbeda dan coba hapus webhook (penyebab yang bisa sembuh
+    // sendiri), dijepit 10 menit agar tidak berbadai.
+    private static void tanganiKonflikPoll(Context ctx, String url) {
+        try {
+            long kini = SystemClock.elapsedRealtime();
+            if (kini - hapusWebhookTerakhirMs < 10L * 60L * 1000L) {
+                return;
+            }
+            hapusWebhookTerakhirMs = kini;
+            ServerService.catatLog("[tg] Konflik polling (HTTP 409): bot sedang"
+                    + " dipakai aplikasi lain atau webhook terpasang."
+                    + " Mencoba menghapus webhook agar polling pulih.");
+            String urlHapus = url.substring(0, url.length() - "getUpdates".length())
+                    + "deleteWebhook";
+            String hasil = httpPostForm(ctx, urlHapus, "");
+            ServerService.catatLog(hasil != null
+                    ? "[tg] Webhook terhapus; polling dicoba lagi seperti biasa."
+                    : "[tg] Penghapusan webhook gagal; konflik mungkin dari"
+                            + " konsumen getUpdates lain — matikan aplikasi"
+                            + " lain yang memakai bot ini.");
+        } catch (Exception ignored) {
+        }
+    }
+
     private static String httpPostForm(Context ctx, String url, String param) {
         HttpURLConnection c = null;
         try {
@@ -2699,6 +2727,9 @@ public final class TgBot {
             if (code < 200 || code >= 300) {
 
                 catatGalatPollSekali(ringkasGalatTelegram(isi, code));
+                if (code == 409 && url.endsWith("/getUpdates")) {
+                    tanganiKonflikPoll(ctx, url);
+                }
                 return null;
             }
             return isi;

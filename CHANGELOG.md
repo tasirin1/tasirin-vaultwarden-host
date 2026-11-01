@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Polling Telegram pulih dari konflik HTTP 409 (Audit 1002)
+
+- Perbaikan bot: getUpdates yang dijawab 409 Conflict (webhook terpasang atau konsumen getUpdates lain memakai token yang sama) kini ditangani khusus — sebelumnya semua non-2xx diperlakukan sama sehingga perintah bot bisa mati selamanya dengan satu baris log generik yang tak terbedakan dari galat sesaat, dan aplikasi tak pernah memanggil deleteWebhook sama sekali. Penanganan baru mencatat penjelasan yang berbeda, lalu mencoba menghapus webhook (penyebab yang bisa sembuh sendiri) dengan penjepit 10 menit agar tidak berbadai; hasil upaya dicatat jujur termasuk kemungkinan penyebab lain. Peringatan gerbang "metode baru tanpa jejak uji" diterima sadar: `tanganiKonflikPoll` terikat Context/jaringan HTTP dan tak punya logika murni yang bisa diuji JVM.
+
 ## [Belum rilis] — Catatan URL mempertahankan spasi awal lewat kutip resource (Audit 1001)
 
 - Perbaikan tampilan: nilai `url_note_loopback` dan `url_note_ip_changed` diawali spasi yang terpangkas aapt karena tak berkutip (regresi kosmetik Audit 992) — catatan menempel langsung pada URL di netInfoView kedua activity. Kedua nilai di kedua locale kini dibungkus tanda kutip di XML, bentuk yang memang dirancang Android untuk mempertahankan spasi awal/akhir; teks tampil kembali persis seperti literal Java pra-992.
