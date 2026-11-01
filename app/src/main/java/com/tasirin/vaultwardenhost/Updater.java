@@ -697,9 +697,26 @@ public final class Updater {
             long batas = System.currentTimeMillis() - 10L * 60L * 1000L;
             for (File f : isi) {
                 String n = f.getName();
-                if (!n.startsWith(awalan) || !n.endsWith(".tmp")
+                // Audit 994: penanda gagal ".tmp.gagal" ikut disapu —
+                // sebelumnya hanya nama berakhiran ".tmp" yang cocok,
+                // jadi penanda versi lama yatim selamanya sesudah
+                // versi berikutnya berhasil terpasang. Penanda milik
+                // tmp yang dikecualikan (target percobaan berjalan)
+                // dan milik tmp yang sedang aktif diunduh TIDAK
+                // disapu: penanda itulah yang menahan unduh-ulang zip
+                // rusak yang sama pada percobaan berikutnya.
+                boolean penandaGagal = n.endsWith(".tmp.gagal");
+                String jalurTmpPenanda = penandaGagal
+                        ? f.getAbsolutePath().substring(0,
+                                f.getAbsolutePath().length() - ".gagal".length())
+                        : "";
+                if (!n.startsWith(awalan)
+                        || (!n.endsWith(".tmp") && !penandaGagal)
                         || f.getAbsolutePath().equals(kecualiPath)
-                        || TMP_UNDUH_AKTIF.contains(f.getAbsolutePath())) {
+                        || f.getAbsolutePath().equals(kecualiPath + ".gagal")
+                        || TMP_UNDUH_AKTIF.contains(f.getAbsolutePath())
+                        || (penandaGagal
+                                && TMP_UNDUH_AKTIF.contains(jalurTmpPenanda))) {
                     continue;
                 }
                 try {

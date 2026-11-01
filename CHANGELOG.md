@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda gagal web-vault versi lama kini ikut disapu (Audit 994)
+
+- Penanda `*.tmp.gagal` (sidik zip web-vault yang gagal uji payload) sebelumnya tak pernah terhapus kecuali pada jalur sukses versi yang sama: penyapu `sapuTmpUnduhBasi` hanya mencocokkan nama berakhiran `.tmp`. Sesudah upstream merilis versi berikutnya dan pembaruan berhasil, penanda versi lama yatim selamanya di folder data. Penyapu kini juga mencocokkan `.tmp.gagal` dengan pengecualian yang menjaga fungsi penanda: penanda milik tmp target percobaan berjalan dan penanda milik tmp yang sedang aktif diunduh tidak disapu, karena penanda itulah yang menahan unduh-ulang zip rusak yang sama pada percobaan berikutnya.
+
 ## [Belum rilis] — Salinan restore pemilih kini punya penyapu basi (Audit 993)
 
 - Salinan cache `restore-pilih-*.bin` dari Audit 982 sebelumnya hanya terhapus di jalur try/finally `restoreDatabase` dan penangkap penyalin — proses yang mati di tengah penyalinan/restore (force-stop, OOM, daya tercabut) meninggalkan yatim sampai 200 MB per kejadian di cacheDir selamanya, berbeda dari semua keluarga berkas sementara lain yang punya penyapu berbasis umur. `bersihkanExportPlainCache` kini juga menyapu awalan `restore-pilih-` yang berumur lebih dari TTL restore (1 jam), dengan satu pengecualian: salinan yang sedang dipakai restore berjalan (dilacak di field `salinanRestorePilihAktif`, disetel sesudah salin berhasil dan dibersihkan di semua jalur keluar). Restore pemilih tak punya keadaan dialog tertunda, jadi tak ada pengecualian lain.
