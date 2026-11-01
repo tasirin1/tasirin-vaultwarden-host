@@ -1877,6 +1877,27 @@ def main():
                 "tak ada: gerbang lolos (Audit 987)", rc == 0)
         shutil.rmtree(subcommandstr, ignore_errors=True)
 
+        subcommandganda = klon(tmp, "subcommandganda")
+        berkas_aksi92 = os.path.join(
+            subcommandganda, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi92, encoding="utf-8") as f:
+            isi_aksi92 = f.read()
+        baris_tulis92 = [b for b in isi_aksi92.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi92, "w", encoding="utf-8") as f:
+            f.write(isi_aksi92.replace(
+                baris_tulis92,
+                baris_tulis92.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(command command wc -l; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subcommandganda,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'command' sesudah 'command' tetap transparan: "
+                "gerbang gagal (Audit 988)", rc != 0)
+        shutil.rmtree(subcommandganda, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

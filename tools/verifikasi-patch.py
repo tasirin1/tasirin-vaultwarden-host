@@ -754,7 +754,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "eatmydata", "nohup"):
             # Audit 972: sesudah pembungkus mana pun, kata perintah
             # berikutnya adalah program eksternal.
-            masih_awal = False
+            # Audit 988: kecuali 'command' sendiri — ia builtin yang
+            # menjalankan kata berikutnya lewat shell, jadi posisi
+            # awal diteruskan (command kedua tetap transparan).
+            if t0 != "command":
+                masih_awal = False
             if t0 == "xargs":
                 # Audit 962: xargs terdalam yang menentukan sumber
                 # item — xargs di balik xargs -a membaca stdin

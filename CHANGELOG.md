@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: command sesudah command tetap transparan (Audit 988)
+- Perbaikan perkakas: cabang pembungkus memadamkan keadaan posisi-awal juga bila pembungkusnya `command` sendiri, sehingga `command command cat` dinilai tak menguras. Padahal `command` adalah builtin — kata berikutnya tetap dijalankan shell dan `command` kedua tetap transparan; hanya pembungkus eksternal dan `env` yang memadamkan posisi awal (Audit 972). Skenario uji-diri baru `subcommandganda`.
+
+
 ## [Belum rilis] — Gerbang: isi env -S tidak lagi dinilai berposisi awal segmen (Audit 987)
 - Perbaikan perkakas: rekursi `_menguras_stdin` untuk isi `env -S` membuat keadaan posisi-awal segar, sehingga `command` sebagai kata pertama string dinilai builtin transparan — padahal env mengeksekusinya sebagai program eksternal dan gagal (`env: 'command': No such file or directory`). Rekursi kini menerima parameter posisi-awal dan isi `-S` selalu dinilai bukan posisi awal, menyamai perlakuan `command` sesudah env di jalur biasa (Audit 972). Skenario uji-diri baru `subcommandstr`.
 
