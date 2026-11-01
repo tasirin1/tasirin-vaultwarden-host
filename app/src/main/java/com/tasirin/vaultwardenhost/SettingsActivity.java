@@ -3352,7 +3352,9 @@ public class SettingsActivity extends Activity {
                 if (sb.length() > 0) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append(getString(R.string.info_uptime, TgBot.durationText(up)));
+                sb.append(getString(R.string.info_uptime, TgBot.durationText(up,
+                        getString(R.string.dur_hour), getString(R.string.dur_minute),
+                        getString(R.string.dur_second))));
             }
         }
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);

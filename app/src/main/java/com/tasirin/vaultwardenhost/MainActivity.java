@@ -713,7 +713,9 @@ public class MainActivity extends Activity {
             lastUpDetik = upDetik;
             String uptime = "";
             if (upDetik >= 0) {
-                uptime = getString(R.string.uptime_format, TgBot.durationText(upDetik * 1000));
+                uptime = getString(R.string.uptime_format, TgBot.durationText(upDetik * 1000,
+                        getString(R.string.dur_hour), getString(R.string.dur_minute),
+                        getString(R.string.dur_second)));
             }
             if (!uptime.equals(lastShownUptime)) {
                 lastShownUptime = uptime;

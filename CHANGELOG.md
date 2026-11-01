@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Satuan durasi uptime di UI mengikuti locale (Audit 991)
+
+- `TgBot.durationText` sebelumnya selalu memakai satuan Indonesia ("jam/menit/detik") dari literal, padahal selain jalur Telegram (memang satu bahasa by design) fungsi ini juga mengisi baris uptime di layar utama (`uptime_format`) dan info Settings (`info_uptime`) — di locale Inggris tampil "Uptime: 2 jam 5 menit". Kini ada varian `durationText(ms, jam, menit, detik)`: jalur Telegram tetap memanggil varian lama yang mendelegasikan satuan Indonesia persis seperti sebelumnya, sedangkan kedua pemanggil UI meneruskan satuan dari resource baru `dur_hour`/`dur_minute`/`dur_second` (Inggris: hr/min/sec; Indonesia: jam/menit/detik, tampilannya tak berubah). Uji `durationText` ditambah asersi varian ber-satuan di commit yang sama.
+
 ## [Belum rilis] — Teks status unduhan mengikuti locale perangkat (Audit 990)
 
 - Tiga teks status unduhan di `Updater.downloadStatus` yang tampil di banner UI layar utama dan Settings (coba-lagi koneksi putus, menunggu unduhan/pemasangan lain, progres unduh) sebelumnya terkunci bahasa Indonesia dari literal. Kini templatnya berasal dari resource pemanggil (`dl_status_retry`, `dl_status_waiting`, `dl_status_progress`, `dl_status_progress_unknown` di values + values-in; pola Audit 975: fungsi tetap murni, teks diteruskan pemanggil yang memegang Context). Akhiran "(N%)" pada status progres dipertahankan persis karena `persenUnduhan` mem-parse-nya balik untuk bilah progres. Uji `reportDownload` diperbarui meneruskan templat dan mengunci bentuk akhir status. Gerbang memberi 3 peringatan "metode baru" untuk tiga metode yang tanda tangannya berubah (bukan metode baru; logika substitusi templatnya terkunci lewat uji reportDownload) — diterima sadar.

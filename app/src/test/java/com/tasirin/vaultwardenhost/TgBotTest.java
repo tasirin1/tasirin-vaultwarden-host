@@ -77,6 +77,11 @@ public class TgBotTest {
         assertEquals("3 menit 4 detik", TgBot.durationText((3 * 60 + 4) * 1000L));
         assertEquals("1 jam 2 menit", TgBot.durationText((3600 + 120) * 1000L));
         assertEquals("25 jam 0 menit", TgBot.durationText(25L * 3600 * 1000));
+        // Audit 991: varian ber-satuan pemanggil (UI) memakai satuan
+        // yang diteruskan, bentuk strukturnya sama persis.
+        assertEquals("0 sec", TgBot.durationText(0, "hr", "min", "sec"));
+        assertEquals("3 min 4 sec", TgBot.durationText((3 * 60 + 4) * 1000L, "hr", "min", "sec"));
+        assertEquals("1 hr 2 min", TgBot.durationText((3600 + 120) * 1000L, "hr", "min", "sec"));
     }
 
     @Test

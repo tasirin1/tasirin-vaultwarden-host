@@ -2549,18 +2549,29 @@ public final class TgBot {
     }
 
     static String durationText(long ms) {
+        // Jalur Telegram memang satu bahasa (Indonesia) by design.
+        return durationText(ms, "jam", "menit", "detik");
+    }
+
+    // Audit 991: varian ber-satuan dari pemanggil — layar utama dan
+    // Settings mengisi format resource uptime dengan fungsi ini, jadi
+    // satuannya mengikuti locale perangkat (resource dur_*), bukan
+    // terkunci Indonesia seperti jalur Telegram.
+    static String durationText(long ms, String jam, String menit, String detik) {
 
         long s = ms / 1000;
         long h = s / 3600;
         long m = (s % 3600) / 60;
         StringBuilder o = new StringBuilder(24);
         if (h > 0) {
-            return o.append(h).append(" jam ").append(m).append(" menit").toString();
+            return o.append(h).append(" ").append(jam).append(" ")
+                    .append(m).append(" ").append(menit).toString();
         }
         if (m > 0) {
-            return o.append(m).append(" menit ").append(s % 60).append(" detik").toString();
+            return o.append(m).append(" ").append(menit).append(" ")
+                    .append(s % 60).append(" ").append(detik).toString();
         }
-        return o.append(s).append(" detik").toString();
+        return o.append(s).append(" ").append(detik).toString();
     }
 
     static String statusText(Context ctx) {
