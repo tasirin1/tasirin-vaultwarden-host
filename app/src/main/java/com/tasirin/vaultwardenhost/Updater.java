@@ -1800,10 +1800,15 @@ public final class Updater {
             } else if (pct > 100) {
                 pct = 100;
             }
+            // Templat resource menulis persen sebagai "%%" (idiom
+            // String.format); rantai replace tidak melipatnya, jadi
+            // lipat di sini — tanpa ini status berakhir "(34%%)" dan
+            // persenUnduhan gagal mem-parse-nya (Audit 999).
             downloadStatus = tmplTotal.replace("%1$s", label)
                     .replace("%2$s", TgBackup.humanBytes(done))
                     .replace("%3$s", TgBackup.humanBytes(total))
-                    .replace("%4$d", String.valueOf(pct));
+                    .replace("%4$d", String.valueOf(pct))
+                    .replace("%%", "%");
         } else {
             downloadStatus = tmplTanpaTotal.replace("%1$s", label)
                     .replace("%2$s", TgBackup.humanBytes(done));
