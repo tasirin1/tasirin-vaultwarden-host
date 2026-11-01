@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Catatan URL mempertahankan spasi awal lewat kutip resource (Audit 1001)
+
+- Perbaikan tampilan: nilai `url_note_loopback` dan `url_note_ip_changed` diawali spasi yang terpangkas aapt karena tak berkutip (regresi kosmetik Audit 992) — catatan menempel langsung pada URL di netInfoView kedua activity. Kedua nilai di kedua locale kini dibungkus tanda kutip di XML, bentuk yang memang dirancang Android untuk mempertahankan spasi awal/akhir; teks tampil kembali persis seperti literal Java pra-992.
+
 ## [Belum rilis] — Perbaikan galat kompilasi penanda web-vault di Settings (Audit 999)
 
 - Build APK merah sejak maraton audit-69: `webVaultInfoLine` di SettingsActivity memanggil `Updater.wvBedaVersiServer(penanda, server)` dengan variabel `penanda` yang tidak ada di lingkup itu (nama parameter di sisi Updater terbawa ke situs pemanggil) — `compileDebugJavaWithJavac` gagal di setiap commit sejak Audit 978. Kini meneruskan `updated`, yaitu versi web-vault efektif yang didahulukan dari disk folder aktif persis seperti yang ditampilkan baris info itu. Vonis terverifikasi dari log run Build APK (1 error, baris 3357) sesudah owner menanyakan status build.
