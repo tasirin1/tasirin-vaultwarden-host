@@ -584,11 +584,13 @@ def _indeks_sesudah_redirect(toks, i):
     if sisa.startswith(">&"):
         target = sisa[2:]
         if target == "-":
-            if fd in ("", "1"):
-                # Stdout ditutup: perintah gugur seketika pada
-                # keluaran pertamanya — stdin tak sempat terkuras.
-                return -1
-            return i + 1  # fd keluaran lain ditutup: netral
+            # Audit 985: stdout ditutup TIDAK menghentikan mayoritas
+            # pembaca — wc/sort/head/dd/tee membaca stdin sampai
+            # habis dulu, galat tulis muncul belakangan; hanya cat
+            # yang berhenti sebelum membaca. Perlakukan seperti
+            # redirect keluaran biasa dan biarkan vonis ditentukan
+            # perintahnya ('>&- cat' menjadi fail-closed, arah aman).
+            return i + 1
         if target == "":
             return min(i + 2, len(toks))  # '>&' murni, target pisah
         return i + 1

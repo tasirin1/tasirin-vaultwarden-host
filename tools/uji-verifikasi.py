@@ -1814,6 +1814,27 @@ def main():
                 rc == 0)
         shutil.rmtree(subcommandprog, ignore_errors=True)
 
+        subtutupout = klon(tmp, "subtutupout")
+        berkas_aksi89 = os.path.join(
+            subtutupout, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi89, encoding="utf-8") as f:
+            isi_aksi89 = f.read()
+        baris_tulis89 = [b for b in isi_aksi89.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi89, "w", encoding="utf-8") as f:
+            f.write(isi_aksi89.replace(
+                baris_tulis89,
+                baris_tulis89.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(&>- wc -l; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtutupout,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("stdout ditutup di awalan tidak menyembunyikan "
+                "pembaca: gerbang gagal (Audit 985)", rc != 0)
+        shutil.rmtree(subtutupout, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

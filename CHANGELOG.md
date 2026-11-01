@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: stdout ditutup di awalan tidak lagi menyembunyikan pembaca (Audit 985)
+- Perbaikan perkakas: `_indeks_sesudah_redirect` menilai `>&-`/`1>&-` di awalan sebagai "perintah gugur, stdin tak terkuras" — itu hanya benar untuk `cat`; `wc`/`sort`/`head`/`dd`/`tee` membaca stdin sampai habis dulu sebelum galat tulis muncul. Penutup stdout kini diperlakukan seperti redirect keluaran biasa dan vonis ditentukan perintahnya (`>&- cat` menjadi fail-closed, arah yang aman). Skenario uji-diri baru `subtutupout`.
+
+
 ## [Belum rilis] — Celah ikon baris Tentang mengikuti arah baca (RTL) (Audit 984)
 - Perbaikan kosmetik: ikon di baris Tentang memakai `setPadding` absolut, sehingga di locale RTL (manifest memang mendukung RTL dan layout sudah start/end) celah 10dp jatuh di tepi luar ikon dan ikon menempel ke teks. Kini `setPaddingRelative` — celah selalu di sisi end yang menghadap teks.
 
