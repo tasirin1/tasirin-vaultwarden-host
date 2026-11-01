@@ -1770,6 +1770,28 @@ def main():
                 rc != 0)
         shutil.rmtree(subbungkusbaru, ignore_errors=True)
 
+        subxargssendiri = klon(tmp, "subxargssendiri")
+        berkas_aksi87 = os.path.join(
+            subxargssendiri, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi87, encoding="utf-8") as f:
+            isi_aksi87 = f.read()
+        baris_tulis87 = [b for b in isi_aksi87.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi87, "w", encoding="utf-8") as f:
+            f.write(isi_aksi87.replace(
+                baris_tulis87,
+                baris_tulis87.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xargs echo; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subxargssendiri,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xargs tanpa -a menguras stdin sendiri walau "
+                "anaknya bukan pembaca: gerbang gagal (Audit 971)",
+                rc != 0)
+        shutil.rmtree(subxargssendiri, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

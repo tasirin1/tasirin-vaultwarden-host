@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Xargs tanpa -a dinilai menguras stdin sendiri oleh resolver gerbang (Audit 971)
+- Bug (fail-open): vonis resolver hanya menilai perintah anak xargs, padahal xargs tanpa `-a` selalu membaca stdin bersama untuk itemnya — `xargs echo` dan `xargs cat berkas` dinilai tak menguras. Bendera baru mencatat lapisan xargs mana pun tanpa `-a`; vonis tak-menguras di titik akhir resolusi kini mengembalikannya, dan kasus `-a` (Audit 962) tetap mengikuti aturan lama. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Resolver gerbang mengenal enam pembungkus transparan tambahan (Audit 970)
 - Bug (fail-open): resolver hanya mengenal `env`/`timeout`/`xargs`/`nice`/`command`/`stdbuf`; pembungkus transparan `setsid`, `ionice`, `chrt`, `taskset`, `eatmydata`, dan `nohup` berhenti dinilai sebagai nama program sehingga pembaca di baliknya tak terlihat. Keenamnya kini dikenal beserta opsi bernilainya, termasuk operand masker `taskset` dan prio `chrt` yang berposisi seperti durasi `timeout` (dan pengecualiannya pada bentuk daftar/pid). Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 

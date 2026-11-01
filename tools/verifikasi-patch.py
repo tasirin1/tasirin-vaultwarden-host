@@ -628,6 +628,7 @@ def _menguras_stdin(bagian, _batas_argv=0):
     # penetapan variabel lingkungan dan pembungkus umum.
     awal = 0
     xargs_dari_berkas = False
+    xargs_sendiri = False
     lewat_pembungkus = False
     while awal < len(toks):
         if awal >= _batas_argv:
@@ -775,7 +776,9 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     # Audit 961: -v/-V pada command adalah bendera
                     # tanya — perintah di baliknya tidak dijalankan
                     # dan stdin tidak dibaca sama sekali.
-                    return False
+                    # Audit 971: xargs lapisan luar tanpa -a tetap
+                    # menguras stdin untuk itemnya sendiri.
+                    return xargs_sendiri
                 if (t0 == "xargs"
                         and (opsi in ("-a", "--arg-file")
                              or opsi.startswith("--arg-file=")
@@ -822,20 +825,27 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     return False
                 if awal < len(toks) and toks[awal].isdigit():
                     awal += 1  # nilai opsi xargs yang terpisah
+            if t0 == "xargs" and not xargs_dari_berkas:
+                # Audit 971: xargs tanpa -a membaca stdin bersama
+                # untuk itemnya sendiri, apa pun perintah anaknya.
+                xargs_sendiri = True
             continue
         break
     if awal >= len(toks):
-        return False
+        return xargs_sendiri
     perintah = toks[awal].strip("\"'")
     if perintah not in _PEMBACA_STDIN:
-        return False
+        return xargs_sendiri
     if xargs_dari_berkas and perintah != "tee":
         # Audit 962: perintah anak menerima operand item dari berkas
         # argumen xargs, jadi tak membaca stdin bersama (tee
         # dikecualikan: operandnya berkas keluaran, ia tetap
         # menguras). Isi berkas tak bisa diketahui gerbang; vonis
         # mengikuti pemakaian lazim -a, yaitu berkas berisi item.
-        return False
+        # Audit 971: lapisan xargs lain tanpa -a tetap menguras.
+        return xargs_sendiri
+    if xargs_sendiri:
+        return True
     lewati = False
     for pos in range(awal + 1, len(toks)):
         t = toks[pos]
