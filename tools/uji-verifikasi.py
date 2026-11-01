@@ -1280,6 +1280,26 @@ def main():
                 "sesudahnya tak terkredit (Audit 935)", rc != 0)
         shutil.rmtree(sublingkar, ignore_errors=True)
 
+        kurungtikus = klon(tmp, "kurungtikus")
+        berkas_aksi64 = os.path.join(
+            kurungtikus, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi64, encoding="utf-8") as f:
+            isi_aksi64 = f.read()
+        baris_tulis64 = [b for b in isi_aksi64.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi64, "w", encoding="utf-8") as f:
+            f.write(isi_aksi64.replace(
+                baris_tulis64,
+                baris_tulis64.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" {a`echo }` }'), 1))
+        rc, out = jalan(kurungtikus, [sys.executable, GERBANG, "--semua"])
+        periksa("kurung buka kata sebelumnya tak menyerap kurung "
+                "yatim sesudah backtick: gerbang gagal (Audit 936)",
+                rc != 0)
+        shutil.rmtree(kurungtikus, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

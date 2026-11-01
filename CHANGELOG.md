@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pasangan ekspansi kurung hanya berlaku di dalam satu kata (Audit 936)
+- Deviasi fail-open: penghitung pasangan kurung Audit 933 bocor melintasi batas kata dan backtick — kurung buka argumen pada satu kata menyerap kurung tutup yatim pada kata berikutnya, sehingga bentuk grup tak sah lolos dari syarat skip. Penghitung kini direset pada batas kata di tingkat luar. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model substitusi mengenali lingkar while-read sebagai penguras stdin (Audit 935)
 - Deviasi fail-open: kata awal lingkar adalah `while` dan `read` tak pernah diperiksa, sehingga penulis pembaca sesudah lingkar terkredit padahal stdin sudah terkuras sampai EOF. Model kini melacak lingkar baca sampai `done`: penulis pembaca sesudahnya gugur, penulis penghasil-sendiri tetap berlaku. Skenario uji-diri baru menguncinya.
 

@@ -926,6 +926,14 @@ def _ada_kurung_argumen(segmen):
             tikus = not tikus
             i += 1
             continue
+        if c in (" ", "\t") and dalam == 0 and not tikus:
+            # Audit 936: pasangan ekspansi kurung hanya berlaku di
+            # dalam kata yang sama; kurung buka yang tak tertutup
+            # sampai batas kata adalah teks literal, bukan pembuka
+            # yang bisa menyerap kurung tutup kata berikutnya.
+            kurung = 0
+            i += 1
+            continue
         if c == "$" and i + 1 < n and segmen[i + 1] == "(":
             dalam += 1
             i += 2
