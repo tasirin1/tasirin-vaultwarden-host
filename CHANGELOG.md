@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bendera gabungan taskset dikenali sebagai mode pid (Audit 998)
+
+- Perbaikan perkakas: deteksi mode pid Audit 989 mencocokkan token opsi secara persis, sehingga bendera gabungan taskset seperti `-pc`/`-cp` tak dikenali — model menilai `0` sebagai masker dan kata berikutnya sebagai perintah yang menguras. Kenyataannya util-linux memperlakukan `p` di dalam token gabungan sebagai bendera mode pid (perangkat nyata menjawab "invalid PID argument" untuk kata sesudahnya), jadi tak ada perintah yang berjalan (fail-closed). Token opsi pendek taskset yang memuat `p` kini menyalakan mode pid. Skenario uji-diri baru (aksi 97) mengunci `taskset -pc 0 wc -l` sebagai segmen tak-menguras di depan penulis substitusi proses — gerbang wajib LOLOS. Probe dua arah 17 bentuk cocok semua.
+
 ## [Belum rilis] — Gerbang: pemindaian operand memakai semantik fd untuk redirect masukan (Audit 997)
 
 - Perbaikan perkakas: pemindaian operand `_menguras_stdin` menilai setiap token berawalan `<` sebagai pengalihan stdin dan token berawalan fd seperti `3<berkas` sebagai operand berkas, sehingga `cat 3<berkas`, `cat 3< berkas`, dan `cat <&0` dinilai tak menguras — padahal fd selain 0 tak menyentuh stdin dan `<&0` adalah duplikasi-diri yang netral, jadi perintah tetap membaca pipa bersama (fail-open). Posisi awalan sudah benar sejak Audit 967; kini posisi operand memakai semantik fd yang sama: fd 0 sungguh mengganti stdin, fd lain dilompati bersama target terpisahnya, dan `<&0` (merekat maupun target terpisah) netral. Skenario uji-diri baru (aksi 96) mengunci `cat 3<...` sebagai penguras di segmen pertama substitusi proses — gerbang wajib GAGAL. Probe dua arah 23 bentuk cocok semua.

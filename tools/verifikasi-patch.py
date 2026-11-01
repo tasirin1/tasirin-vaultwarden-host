@@ -829,6 +829,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     # Audit 989: bendera mode pid — operand
                     # sesudahnya adalah pid-pid, bukan perintah.
                     mode_pid = True
+                if (t0 == "taskset" and len(opsi) > 2
+                        and opsi.startswith("-")
+                        and not opsi.startswith("--")
+                        and "p" in opsi[1:]):
+                    # Audit 998: bendera gabungan — util-linux
+                    # memperlakukan "p" di dalam token gabungan
+                    # (-pc, -cp, -ap, ...) sebagai bendera mode pid,
+                    # jadi operand sesudahnya pid, bukan perintah
+                    # ("invalid PID argument" di perangkat nyata).
+                    mode_pid = True
                 if ((t0 == "taskset"
                         and (opsi in ("-c", "--cpu-list", "-p", "--pid")
                              or opsi.startswith("--cpu-list=")

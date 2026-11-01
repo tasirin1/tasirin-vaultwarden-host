@@ -1987,6 +1987,28 @@ def main():
                 rc != 0)
         shutil.rmtree(suboperandfd, ignore_errors=True)
 
+        subtasksetgabung = klon(tmp, "subtasksetgabung")
+        berkas_aksi97 = os.path.join(
+            subtasksetgabung, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi97, encoding="utf-8") as f:
+            isi_aksi97 = f.read()
+        baris_tulis97 = [b for b in isi_aksi97.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi97, "w", encoding="utf-8") as f:
+            f.write(isi_aksi97.replace(
+                baris_tulis97,
+                baris_tulis97.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(taskset -pc 0 wc -l; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtasksetgabung,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bendera gabungan taskset -pc adalah mode pid, "
+                "bukan perintah: gerbang lolos (Audit 998)",
+                rc == 0)
+        shutil.rmtree(subtasksetgabung, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
