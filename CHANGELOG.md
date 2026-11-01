@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Satu sumber konstanta AlgorithmId SHA256withRSA (Audit 948)
+- Kode sampah (duplikasi): larik byte AlgorithmId SHA256withRSA ditulis dua kali di TlsCert (`sha256RsaAlgorithmId` dan `Der.oidSha256Rsa`). `oidSha256Rsa` kini memakai `sha256RsaAlgorithmId()`; literalnya tinggal satu di berkas.
+
+
 ## [Belum rilis] — Satu implementasi irisan pengawet-urutan di HttpsCompat (Audit 947)
 - Kode sampah (duplikasi): badan `protokolCadangan` dan `cipherCadangan` identik byte-per-byte. `cipherCadangan` kini mendelegasikan ke `protokolCadangan`; kedua nama dan perilaku (termasuk uji JVM-nya) tetap.
 

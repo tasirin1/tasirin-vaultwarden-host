@@ -1214,8 +1214,7 @@ public final class TlsCert {
 
         void oidSha256Rsa() throws IOException {
 
-            raw(new byte[]{0x30, 0x0D, 0x06, 0x09, 0x2A, (byte) 0x86, 0x48,
-                    (byte) 0x86, (byte) 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00});
+            raw(TlsCert.sha256RsaAlgorithmId());
         }
 
         void oidCn() throws IOException {
