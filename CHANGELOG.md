@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Satu implementasi irisan pengawet-urutan di HttpsCompat (Audit 947)
+- Kode sampah (duplikasi): badan `protokolCadangan` dan `cipherCadangan` identik byte-per-byte. `cipherCadangan` kini mendelegasikan ke `protokolCadangan`; kedua nama dan perilaku (termasuk uji JVM-nya) tetap.
+
+
 ## [Belum rilis] — Penilaian pasangan sertifikat/kunci dimemoisasi per stat berkas (Audit 946)
 - Tak efisien: `pasanganCertKeyCocok` menilai pasangan yang sama enam kali lebih per Start (tiap penilaian = 2 baca berkas + parse X.509 + parse kunci RSA). Hasil COCOK kini dimemoisasi 60 detik berkunci stat kedua berkas (pola `MEMO_MASA` yang sama, termasuk hanya hasil sukses yang ditempel); hasil tak-cocok selalu dinilai segar.
 

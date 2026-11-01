@@ -91,19 +91,7 @@ public final class HttpsCompat {
     }
 
     static String[] cipherCadangan(String[] dipilih, String[] didukung) {
-        if (dipilih == null || didukung == null) {
-            return new String[0];
-        }
-        java.util.List<String> hasil = new java.util.ArrayList<>();
-        for (String p : dipilih) {
-            for (String d : didukung) {
-                if (p.equals(d)) {
-                    hasil.add(p);
-                    break;
-                }
-            }
-        }
-        return hasil.toArray(new String[0]);
+        return protokolCadangan(dipilih, didukung);
     }
 
     static boolean cipherKuat(String c) {
