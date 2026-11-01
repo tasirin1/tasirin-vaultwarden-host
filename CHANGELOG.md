@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model substitusi mengenali lingkar while-read sebagai penguras stdin (Audit 935)
+- Deviasi fail-open: kata awal lingkar adalah `while` dan `read` tak pernah diperiksa, sehingga penulis pembaca sesudah lingkar terkredit padahal stdin sudah terkuras sampai EOF. Model kini melacak lingkar baca sampai `done`: penulis pembaca sesudahnya gugur, penulis penghasil-sendiri tetap berlaku. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model substitusi membedakan pembaca stdin dari pembaca berkas (Audit 934)
 - Deviasi fail-closed: model Audit 931 berhenti menilai isi substitusi hanya dari kata awal perintah, sehingga pembaca yang membaca berkas argumennya sendiri (atau redirect masukan) dianggap menguras stdin bersama dan penulis sesudahnya kehilangan kredit. Penolong baru `_menguras_stdin` menilai sumber masukan sungguhan: argumen berkas, redirect masukan, opsi bernilai (head/tail/sort), pengecualian tee (selalu membaca stdin) dan dd (if=). Skenario uji-diri baru menguncinya.
 

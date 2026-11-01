@@ -682,9 +682,28 @@ def segmen_redirect_output(segmen):
                     # redirect-terakhir (Audit 885) berlaku di dalam
                     # satu perintah, bukan melintasi perintah.
                     hasil = False
+                    stdin_habis = False
+                    lingkar_baca = False
                     for bagian in pecah_segmen_shell(
                             segmen[awal + 2:k]):
+                        kata = bagian.strip().lstrip("({ ").split(
+                            None, 1)
+                        kata1 = kata[0].strip("\"'") if kata else ""
+                        if lingkar_baca:
+                            if kata1 == "done":
+                                lingkar_baca = False
+                                stdin_habis = True
+                            continue
+                        if (kata1 in ("while", "until")
+                                and re.search(r"\bread\b", bagian)):
+                            # Audit 935: lingkar baca menguras stdin
+                            # sampai done; segmen di dalamnya bukan
+                            # penulis bebas.
+                            lingkar_baca = True
+                            continue
                         if segmen_redirect_output(bagian):
+                            if stdin_habis and _menguras_stdin(bagian):
+                                break
                             hasil = True
                             break
                         if _menguras_stdin(bagian):

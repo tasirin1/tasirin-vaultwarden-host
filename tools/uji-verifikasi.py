@@ -1260,6 +1260,26 @@ def main():
                 "gerbang lolos (Audit 934)", rc == 0)
         shutil.rmtree(subberkas, ignore_errors=True)
 
+        sublingkar = klon(tmp, "sublingkar")
+        berkas_aksi63 = os.path.join(
+            sublingkar, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi63, encoding="utf-8") as f:
+            isi_aksi63 = f.read()
+        baris_tulis63 = [b for b in isi_aksi63.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi63, "w", encoding="utf-8") as f:
+            f.write(isi_aksi63.replace(
+                baris_tulis63,
+                baris_tulis63.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(while read l; do echo "$l" > /dev/null; '
+                    'done; cat >> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sublingkar, [sys.executable, GERBANG, "--semua"])
+        periksa("lingkar while-read menguras stdin: penulis pembaca "
+                "sesudahnya tak terkredit (Audit 935)", rc != 0)
+        shutil.rmtree(sublingkar, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
