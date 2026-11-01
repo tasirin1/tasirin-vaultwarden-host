@@ -271,6 +271,11 @@ public class TgBackupTest {
         assertEquals(7L, TgBackup.fileSizeDariRespons("{\"file_size\"\n:\n7}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size2\":99}}"));
         assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":}}"));
+        // Audit 980: file_size bertipe string kini terbaca (dulu -1
+        // sehingga gerbang 20 MB gugur); string bukan angka tetap -1.
+        assertEquals(12345L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":\"12345\"}}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons("{\"ok\":true,\"result\":{\"file_size\":\"abc\"}}"));
+        assertEquals(-1L, TgBackup.fileSizeDariRespons("bukan json"));
     }
 
     @Test

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — file_size respons Telegram dibaca lewat JSONObject (Audit 980)
+- Perbaikan: `fileSizeDariRespons` adalah pemindai manual yang hanya menerima digit polos — `file_size` bertipe string menghasilkan -1 (tak diketahui) sehingga gerbang unduh-ulang 20 MB dan pemeriksaan ruang kosong terlewati, dan unduhan hanya berhenti pada plafon 200 MB. Ukuran kini dibaca lewat `JSONObject` seperti `file_path`, toleran nilai Number maupun String; uji JVM-nya ditambah untuk bentuk string di commit ini.
+
+
 ## [Belum rilis] — Segmen versi tak-angka di tengah kini memangkas, bukan meruntuhkan versi (Audit 979)
 - Perbaikan: `uraiVersi` mengembalikan array kosong (versi 0.0.0) bila segmen tak-angka/kosong muncul di tengah string, padahal `normVersion` menerima bentuk itu — tag upstream berbentuk seperti `1..2` atau `1.2.x.4` akan dinilai paling tua dan update terlewat diam-diam. Segmen tak-angka kini memangkas versi dari segmen itu, sama seperti perlakuan di ekor; uji `bandingVersi` ditambah asersi pengunci di commit ini.
 

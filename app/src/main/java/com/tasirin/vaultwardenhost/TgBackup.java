@@ -2667,38 +2667,35 @@ public final class TgBackup {
     }
 
     static long fileSizeDariRespons(String body) {
-        if (body == null) {
-            return -1;
-        }
-        String kunci = "\"file_size\"";
-        int k = body.indexOf(kunci);
-        if (k < 0) {
-            return -1;
-        }
-        int n = body.length();
-        int i = k + kunci.length();
-        while (i < n && (body.charAt(i) == ' ' || body.charAt(i) == '\t'
-                || body.charAt(i) == '\n' || body.charAt(i) == '\r')) {
-            i++;
-        }
-        if (i >= n || body.charAt(i) != ':') {
-            return -1;
-        }
-        i++;
-        while (i < n && (body.charAt(i) == ' ' || body.charAt(i) == '\t'
-                || body.charAt(i) == '\n' || body.charAt(i) == '\r')) {
-            i++;
-        }
-        int j = i;
-        while (j < n && body.charAt(j) >= '0' && body.charAt(j) <= '9') {
-            j++;
-        }
-        if (j == i || j - i > 19) {
+        // Audit 980: dulu pemindai manual hanya menerima digit polos,
+        // jadi file_size bertipe string lolos sebagai -1 (tak
+        // diketahui) dan gerbang 20 MB + cek ruang gugur. Kini dibaca
+        // lewat JSONObject seperti file_path, toleran Number/String.
+        if (body == null || body.isEmpty()) {
             return -1;
         }
         try {
-            return Long.parseLong(body.substring(i, j));
-        } catch (NumberFormatException e) {
+            JSONObject resp = new JSONObject(body);
+            JSONObject res = resp.optJSONObject("result");
+            Object nilai = res != null ? res.opt("file_size") : null;
+            if (nilai == null) {
+                nilai = resp.opt("file_size");
+            }
+            if (nilai instanceof Number) {
+                return ((Number) nilai).longValue();
+            }
+            if (nilai instanceof String) {
+                String t = ((String) nilai).trim();
+                if (!t.isEmpty() && t.length() <= 19) {
+                    try {
+                        return Long.parseLong(t);
+                    } catch (NumberFormatException e) {
+                        return -1;
+                    }
+                }
+            }
+            return -1;
+        } catch (Exception e) {
             return -1;
         }
     }
