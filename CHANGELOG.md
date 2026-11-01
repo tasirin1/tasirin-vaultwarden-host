@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dua pengisi buffer shim digabung satu inti (Audit 950)
+- Kode sampah (duplikasi): `isi_dari` dan `isi_dari_nonblok` di `shim/getrandom_shim.c` berkerangka identik (cache fd + mutex per sumber, open lazy, loop read, pemulihan EBADF). Kini satu inti `isi_dari_inti` berparameter nonblok; kedua nama lama menjadi pembungkus satu baris, cache fd blocking/nonblocking tetap terpisah, dan semantik parsial EAGAIN/read-0 khusus nonblok dipertahankan persis.
+
+
 ## [Belum rilis] — Cabang kosong yang tak terjangkau di fetchChecksumRinci dibuang (Audit 949)
 - Kode sampah (cabang mati): `baris.isEmpty()` sesudah `pecahBarisChecksum(badan)` tak bisa bernilai true — badan tak pernah null dan penolong itu selalu menghasilkan minimal satu elemen (badan kosong menghasilkan satu elemen ""). Hasil akhir untuk badan kosong tetap `BELUM_TERBIT` lewat jalur hex null yang sama.
 
