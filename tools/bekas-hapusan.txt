@@ -111,3 +111,5 @@ galatDomainTerimaKosongDanNamaSah
 ensure_leafMemuatSanDnsDanIp
 # Duplikat fsyncDirektori (TlsCert) yang disatukan (Audit 827).
 syncDirAman
+# Fungsi gerbang yatim tanpa pemanggil sejak Audit 929 (Audit 955).
+_pola_kurung_redirect

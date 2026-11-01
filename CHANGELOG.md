@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Fungsi mati _pola_kurung_redirect dihapus (Audit 955)
+- Kode sampah: `_pola_kurung_redirect` di `tools/verifikasi-patch.py` tak punya pemanggil sejak Audit 929 mengganti syarat skip grup ke `_ada_kurung_argumen` (nol rujukan terkonfirmasi tiga putaran berturut). Fungsi dihapus dan namanya dicatat di `tools/bekas-hapusan.txt` sesuai konvensi repo agar tak diciptakan ulang diam-diam.
+
+
 ## [Belum rilis] — Pemindaian gerbang melewati __pycache__ (Audit 954)
 - Tak stabil: vonis `--semua` bergantung sisa keadaan — satu berkas `tools/__pycache__/*.pyc` (hasil impor/probe gerbang sendiri) menggagalkan gerbang sebagai "biner format tak dikenal", padahal `.gitignore` dan `klon()` uji-diri sudah mengecualikannya. `jalan_repo` kini melewati direktori `__pycache__` selaras keduanya. Skenario uji-diri baru menguncinya.
 
