@@ -1425,10 +1425,13 @@ def baca(path):
     except OSError:
         return ""
 
+# __pycache__ dilewati selaras .gitignore dan klon() uji-diri: sisa
+# bytecode lokal bukan isi repo dan tak boleh mengubah vonis (Audit 954).
 def jalan_repo(rel, ext=(".java",)):
     for akar, dirs, berkas in os.walk(os.path.join(AKAR, rel)):
 
-        dirs[:] = [d for d in dirs if d not in ("build", ".gradle", ".git")]
+        dirs[:] = [d for d in dirs if d not in ("build", ".gradle", ".git",
+                                                "__pycache__")]
         for nama in berkas:
             if ext is None or nama.endswith(ext):
                 yield os.path.relpath(os.path.join(akar, nama), AKAR)

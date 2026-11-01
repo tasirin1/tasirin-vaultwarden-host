@@ -1455,6 +1455,18 @@ def main():
                 "bukan redirect: gerbang lolos (Audit 952)", rc == 0)
         shutil.rmtree(subkutipsebagian, ignore_errors=True)
 
+        subpycache = klon(tmp, "subpycache")
+        folder_cache = os.path.join(subpycache, "tools", "__pycache__")
+        os.makedirs(folder_cache)
+        with open(os.path.join(folder_cache,
+                               "verifikasi-patch.cpython-311.pyc"),
+                  "wb") as f:
+            f.write(b"\x42\x0d\x0d\x0a" + b"\x00" * 32)
+        rc, out = jalan(subpycache, [sys.executable, GERBANG, "--semua"])
+        periksa("sisa __pycache__ tak mengubah vonis gerbang: lolos "
+                "(Audit 954)", rc == 0)
+        shutil.rmtree(subpycache, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

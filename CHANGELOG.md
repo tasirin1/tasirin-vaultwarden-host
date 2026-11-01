@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pemindaian gerbang melewati __pycache__ (Audit 954)
+- Tak stabil: vonis `--semua` bergantung sisa keadaan — satu berkas `tools/__pycache__/*.pyc` (hasil impor/probe gerbang sendiri) menggagalkan gerbang sebagai "biner format tak dikenal", padahal `.gitignore` dan `klon()` uji-diri sudah mengecualikannya. `jalan_repo` kini melewati direktori `__pycache__` selaras keduanya. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Gerbang jauh lebih cepat: ekstraksi kandidat satu lintasan + cache baris (Audit 953)
 - Tak efisien: satu lari `--semua` memakan ±5,1 detik dan suite uji-diri membayarnya 104+ kali (±10 menit). Dua akar dipangkas: `cek_daftar_hapusan` tak lagi menyusun regex per nama dan memindai ulang semua berkas Java untuk tiap nama (kini nama kandidat diekstrak sekali per berkas lalu disilangkan dengan daftar hapusan), dan hasil `baris_tanpa_komentar` di-cache per isi dengan jalur cepat untuk baris tanpa pemicu komentar/string. Terukur: `--semua` 5,1 → 2,0 detik; keluaran gerbang dan pesan kegagalan terverifikasi identik (termasuk uji tanam panggilan nama terhapus, referensi metode, dan nyaris-sama yang tak boleh tertangkap).
 
