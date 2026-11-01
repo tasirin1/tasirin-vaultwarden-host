@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan galat kompilasi penanda web-vault di Settings (Audit 999)
+
+- Build APK merah sejak maraton audit-69: `webVaultInfoLine` di SettingsActivity memanggil `Updater.wvBedaVersiServer(penanda, server)` dengan variabel `penanda` yang tidak ada di lingkup itu (nama parameter di sisi Updater terbawa ke situs pemanggil) — `compileDebugJavaWithJavac` gagal di setiap commit sejak Audit 978. Kini meneruskan `updated`, yaitu versi web-vault efektif yang didahulukan dari disk folder aktif persis seperti yang ditampilkan baris info itu. Vonis terverifikasi dari log run Build APK (1 error, baris 3357) sesudah owner menanyakan status build.
+
+## [Belum rilis] — Status progres unduhan melipat %% menjadi % (Audit 1000)
+
+- Regresi Audit 990: templat resource `dl_status_progress` menulis persen sebagai `%%` (idiom String.format), tetapi `reportDownload` menerapkannya dengan `String.replace` yang tidak melipat `%%` — status akhir menjadi "(34%%)", `persenUnduhan` mengembalikan -1 (bilah progres Settings indeterminate), dan uji JVM reportDownload yang diperbarui di commit 990 gagal deterministik. Rantai replace kini diakhiri lipatan `%%`→`%`, meniru semantik String.format; bentuk akhir "(N%)" pulih persis. Terverifikasi dengan porting 1:1 (100/0/34 semua cocok).
+
 ## [Belum rilis] — Gerbang: bendera gabungan taskset dikenali sebagai mode pid (Audit 998)
 
 - Perbaikan perkakas: deteksi mode pid Audit 989 mencocokkan token opsi secara persis, sehingga bendera gabungan taskset seperti `-pc`/`-cp` tak dikenali — model menilai `0` sebagai masker dan kata berikutnya sebagai perintah yang menguras. Kenyataannya util-linux memperlakukan `p` di dalam token gabungan sebagai bendera mode pid (perangkat nyata menjawab "invalid PID argument" untuk kata sesudahnya), jadi tak ada perintah yang berjalan (fail-closed). Token opsi pendek taskset yang memuat `p` kini menyalakan mode pid. Skenario uji-diri baru (aksi 97) mengunci `taskset -pc 0 wc -l` sebagai segmen tak-menguras di depan penulis substitusi proses — gerbang wajib LOLOS. Probe dua arah 17 bentuk cocok semua.

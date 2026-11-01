@@ -3354,7 +3354,7 @@ public class SettingsActivity extends Activity {
                     getString(updated != null ? R.string.info_wv_updated
                             : R.string.info_wv_bundled)));
             String server = Updater.currentServerVersion(this);
-            if (Updater.wvBedaVersiServer(penanda, server)) {
+            if (Updater.wvBedaVersiServer(updated, server)) {
                 sb.append(' ').append(getString(R.string.info_wv_beda, server));
             }
             wvLine = sb.toString();
