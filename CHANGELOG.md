@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup DB lokal Settings dibuat dari snapshot konsisten (Audit 973)
+- Bug: tombol Backup DB di Settings men-zip trio `db.sqlite3`/`-wal`/`-shm` yang sedang live satu per satu (hasil checkpoint diabaikan), sehingga zip bisa berisi campuran generasi halaman saat server sedang menulis dan lolos pemeriksaan struktural sesudahnya. Jalur lokal kini memakai `snapshotDbKonsisten` yang sama dengan backup Telegram (checkpoint + salinan terverifikasi stabil + cek integritas salinan, dibatalkan dengan pesan bila tak stabil) dan men-zip dari folder snapshot; folder snapshot selalu dibersihkan.
+
+
 ## [Belum rilis] — 'command' hanya transparan sebagai kata perintah pertama segmen (Audit 972)
 - Bug: resolver menilai `command` sebagai pembungkus transparan di posisi mana pun, padahal ia builtin shell — di balik pembungkus/env (`nice command cat`, `env command cat`) ia di-exec sebagai program eksternal yang tidak ada dan perintahnya gugur tanpa menyentuh stdin, tetapi model mengklaim menguras. Bendera posisi awal segmen kini membatasinya; bentuk awal (termasuk bendera tanya Audit 961) tetap transparan. Skenario uji-diri baru menguncinya.
 

@@ -1840,36 +1840,59 @@ public class SettingsActivity extends Activity {
 
             File tmpZip = new File(backupDir, backup.getName() + ".tmp");
 
-            String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+            // Audit 973: zip dibuat dari snapshot konsisten (jalur
+            // yang sama dengan backup Telegram), bukan dari trio
+            // live — trio live bisa berganti generasi di tengah
+            // penyalinan saat server sedang menulis.
+            File snapDir = new File(getCacheDir(),
+                    "vwsnap-" + System.nanoTime());
+            TgBackup.sapuSnapshotBasi(getCacheDir());
             try {
-                try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmpZip))) {
-                    byte[] buf = new byte[64 * 1024];
-                    for (String name : names) {
-                        File f = new File(dataDir, name);
-                        if (f.exists() && f.length() > 0) {
-                            zos.putNextEntry(new ZipEntry(name));
-                            try (InputStream in = new java.io.FileInputStream(f)) {
-                                int n;
-                                while ((n = in.read(buf)) != -1) {
-                                    zos.write(buf, 0, n);
+                String galatSnap = TgBackup.snapshotDbKonsisten(
+                        new File(dataDir), snapDir);
+                if (galatSnap != null) {
+                    toast(getString(R.string.backup_gagal, galatSnap));
+                    appendUiLog("[app] Backup dibatalkan: " + galatSnap + ".");
+                    return;
+                }
+
+                String[] names = {"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"};
+                try {
+                    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmpZip))) {
+                        byte[] buf = new byte[64 * 1024];
+                        for (String name : names) {
+                            File f = new File(snapDir, name);
+                            if (f.exists() && f.length() > 0) {
+                                zos.putNextEntry(new ZipEntry(name));
+                                try (InputStream in = new java.io.FileInputStream(f)) {
+                                    int n;
+                                    while ((n = in.read(buf)) != -1) {
+                                        zos.write(buf, 0, n);
+                                    }
                                 }
+                                zos.closeEntry();
                             }
-                            zos.closeEntry();
                         }
                     }
+                    if (backup.exists() && !backup.delete()) {
+                        throw new java.io.IOException(getString(R.string.galat_backup_ganti));
+                    }
+                    if (!tmpZip.renameTo(backup)) {
+                        throw new java.io.IOException(getString(R.string.galat_backup_pasang));
+                    }
+                } catch (Exception e) {
+                    try {
+                        tmpZip.delete();
+                    } catch (Exception ignored) {
+                    }
+                    throw e;
                 }
-                if (backup.exists() && !backup.delete()) {
-                    throw new java.io.IOException(getString(R.string.galat_backup_ganti));
-                }
-                if (!tmpZip.renameTo(backup)) {
-                    throw new java.io.IOException(getString(R.string.galat_backup_pasang));
-                }
-            } catch (Exception e) {
+            } finally {
+                TgBackup.hapusIsiFolder(snapDir);
                 try {
-                    tmpZip.delete();
+                    snapDir.delete();
                 } catch (Exception ignored) {
                 }
-                throw e;
             }
 
             File tmpIsi = TgBackup.berkasPlainSementara(
