@@ -10,7 +10,6 @@ import xml.etree.ElementTree as ET
 
 AKAR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAIN = os.path.join(AKAR, "app", "src", "main")
-UJI = os.path.join(AKAR, "app", "src", "test")
 KATA_KUNCI_JAVA = {
     "if", "for", "while", "switch", "catch", "return", "new", "throw",
     "else", "do", "try", "synchronized", "assert", "case",

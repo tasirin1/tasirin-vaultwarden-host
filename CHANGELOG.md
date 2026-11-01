@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Konstanta mati UJI dihapus (Audit 956)
+- Kode sampah: konstanta `UJI` di `tools/verifikasi-patch.py` tak dirujuk sama sekali (pohon uji dijangkau gerbang lewat literal jalurnya). Dihapus; tak dicatat di bekas-hapusan karena daftar itu khusus nama metode.
+
+
 ## [Belum rilis] — Fungsi mati _pola_kurung_redirect dihapus (Audit 955)
 - Kode sampah: `_pola_kurung_redirect` di `tools/verifikasi-patch.py` tak punya pemanggil sejak Audit 929 mengganti syarat skip grup ke `_ada_kurung_argumen` (nol rujukan terkonfirmasi tiga putaran berturut). Fungsi dihapus dan namanya dicatat di `tools/bekas-hapusan.txt` sesuai konvensi repo agar tak diciptakan ulang diam-diam.
 
