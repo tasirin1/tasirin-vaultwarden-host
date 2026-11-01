@@ -1704,6 +1704,28 @@ def main():
                 rc != 0)
         shutil.rmtree(subredfd, ignore_errors=True)
 
+        subrednilai = klon(tmp, "subrednilai")
+        berkas_aksi84 = os.path.join(
+            subrednilai, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi84, encoding="utf-8") as f:
+            isi_aksi84 = f.read()
+        baris_tulis84 = [b for b in isi_aksi84.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi84, "w", encoding="utf-8") as f:
+            f.write(isi_aksi84.replace(
+                baris_tulis84,
+                baris_tulis84.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(timeout -s > /dev/null KILL 5 cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subrednilai,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect yang menyela nilai opsi tidak lagi "
+                "menelan perintah: gerbang gagal (Audit 968)",
+                rc != 0)
+        shutil.rmtree(subrednilai, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect yang menyela nilai opsi tak lagi tertelan sebagai nilai oleh resolver gerbang (Audit 968)
+- Bug (fail-open): cek redirect Audit 965 hanya ada di kepala lingkar opsi, sehingga redirect yang muncul persis sesudah opsi bernilai (`timeout -s > /dev/null KILL 5 cat`, `env -u > /dev/null PATH cat`) tertelan sebagai nilai dan perintah sesudahnya hilang dari penilaian. Penolong berantai baru melompati redirect di semua titik penelanan nilai: nilai `-S`/`-u`/`-C` env, nilai opsi pembungkus, operand durasi timeout, dan nilai digit xargs. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Penolong redirect gerbang mengenal fd arbitrer, bentuk murni terpisah, dan penutup fd (Audit 967)
 - Bug (fail-open): `_indeks_sesudah_redirect` (Audit 965) tak kenal redirect berawalan fd (`3> /dev/null cat` dinilai tak menguras), bentuk murni `>&` terpisah, redirect ke fd masukan selain 0 (`3< berkas cat`), dan penutup fd (`<&- cat` dinilai menguras padahal stdin-nya ditutup). Penolong kini mengurai awalan fd: masukan fd 0 tetap pengalihan stdin, fd masukan lain netral, `>&`/`N>&` murni melompati targetnya, dan `<&-` berarti tak menguras. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 

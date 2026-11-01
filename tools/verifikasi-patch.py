@@ -593,6 +593,21 @@ def _indeks_sesudah_redirect(toks, i):
     return i
 
 
+def _sesudah_redirect_berantai(toks, i, batas):
+    """Audit 968: indeks sesudah rangkaian redirect yang dimulai
+    pada posisi i, selama posisi itu masih wilayah shell
+    (i >= batas argv). -1 bila redirect masukan mengalihkan atau
+    menutup stdin — vonis akhir pemanggil adalah tak menguras."""
+    while i < len(toks) and i >= batas:
+        sesudah = _indeks_sesudah_redirect(toks, i)
+        if sesudah < 0:
+            return -1
+        if sesudah == i:
+            break
+        i = sesudah
+    return i
+
+
 def _menguras_stdin(bagian, _batas_argv=0):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -661,6 +676,12 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     # sebagai _batas_argv agar operator redirect di
                     # dalamnya dinilai operand, bukan redirect.
                     if opsi in ("-S", "--split-string"):
+                        # Audit 968: redirect bisa menyela sebelum
+                        # nilai -S — lompati beserta targetnya dulu.
+                        awal = _sesudah_redirect_berantai(
+                            toks, awal, _batas_argv)
+                        if awal < 0:
+                            return False
                         if awal >= len(toks):
                             return False
                         daftar = toks[awal:]
@@ -691,6 +712,12 @@ def _menguras_stdin(bagian, _batas_argv=0):
                         " ".join(daftar),
                         _batas_argv=max(rentang, warisan))
                 if opsi in ("-u", "--unset", "-C", "--chdir"):
+                    # Audit 968: redirect yang menyela bukan nilai
+                    # opsi — lompati dulu, baru telan nilainya.
+                    awal = _sesudah_redirect_berantai(
+                        toks, awal, _batas_argv)
+                    if awal < 0:
+                        return False
                     if awal < len(toks):
                         awal += 1
             continue
@@ -742,13 +769,32 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     # Audit 962: item dari berkas argumen menjadi
                     # operand perintah anak, bukan stdin bersama.
                     xargs_dari_berkas = True
-                if opsi in bernilai and awal < len(toks):
-                    awal += 1
+                if opsi in bernilai:
+                    # Audit 968: redirect yang menyela bukan nilai
+                    # opsi — lompati dulu, baru telan nilainya.
+                    awal = _sesudah_redirect_berantai(
+                        toks, awal, _batas_argv)
+                    if awal < 0:
+                        return False
+                    if awal < len(toks):
+                        awal += 1
             if t0 == "timeout" and awal < len(toks):
-                awal += 1  # operand durasi
-            if (t0 == "xargs" and awal < len(toks)
-                    and toks[awal].isdigit()):
-                awal += 1  # nilai opsi xargs yang terpisah
+                # Audit 968: redirect sebelum durasi (mis. sesudah
+                # '--') dilompati dulu, jangan ditelan sebagai
+                # operand durasi.
+                awal = _sesudah_redirect_berantai(
+                    toks, awal, _batas_argv)
+                if awal < 0:
+                    return False
+                if awal < len(toks):
+                    awal += 1  # operand durasi
+            if t0 == "xargs" and awal < len(toks):
+                awal = _sesudah_redirect_berantai(
+                    toks, awal, _batas_argv)
+                if awal < 0:
+                    return False
+                if awal < len(toks) and toks[awal].isdigit():
+                    awal += 1  # nilai opsi xargs yang terpisah
             continue
         break
     if awal >= len(toks):
