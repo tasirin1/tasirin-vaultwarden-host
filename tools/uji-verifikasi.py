@@ -1396,6 +1396,25 @@ def main():
                 "tetap menulis sisa stdin (Audit 941)", rc == 0)
         shutil.rmtree(subputus, ignore_errors=True)
 
+        subdone = klon(tmp, "subdone")
+        berkas_aksi70 = os.path.join(
+            subdone, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi70, encoding="utf-8") as f:
+            isi_aksi70 = f.read()
+        baris_tulis70 = [b for b in isi_aksi70.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi70, "w", encoding="utf-8") as f:
+            f.write(isi_aksi70.replace(
+                baris_tulis70,
+                baris_tulis70.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(while read l; do echo "$l" > /dev/null; '
+                    "'done'; cat >> \"$GITHUB_OUTPUT\"; done)"), 1))
+        rc, out = jalan(subdone, [sys.executable, GERBANG, "--semua"])
+        periksa("'done' berkutip adalah perintah biasa di badan "
+                "lingkar: gerbang lolos (Audit 942)", rc == 0)
+        shutil.rmtree(subdone, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

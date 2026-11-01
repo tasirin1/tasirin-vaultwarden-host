@@ -728,11 +728,15 @@ def segmen_redirect_output(segmen):
                     lingkar_baca = False
                     lingkar_putus = False
                     loop_lain = 0
+                    badan_kuras = False
                     for bagian in pecah_segmen_shell(
                             segmen[awal + 2:k]):
                         kata = bagian.strip().lstrip("({ ").split(
                             None, 1)
-                        kata1 = kata[0].strip("\"'") if kata else ""
+                        # Audit 942: kata kunci dibandingkan pada
+                        # token MENTAH — kata cadangan berkutip
+                        # kehilangan statusnya di bash.
+                        kata1 = kata[0] if kata else ""
                         if lingkar_baca:
                             # Audit 941: break di badan mengakhiri
                             # lingkar lebih awal — stdin belum tentu
@@ -746,21 +750,45 @@ def segmen_redirect_output(segmen):
                                     None, 1)[0].strip("\"'")
                             if kunci in ("while", "until", "for"):
                                 loop_lain += 1
-                            elif kunci == "done":
+                                continue
+                            if kunci == "done":
                                 if loop_lain > 0:
                                     loop_lain -= 1
-                                else:
-                                    lingkar_baca = False
-                                    stdin_habis = not lingkar_putus
-                                    lingkar_putus = False
-                            elif kunci == "break" and loop_lain == 0:
+                                    continue
+                                lingkar_baca = False
+                                stdin_habis = (badan_kuras
+                                               or not lingkar_putus)
+                                lingkar_putus = False
+                                badan_kuras = False
+                                continue
+                            if kunci == "break" and loop_lain == 0:
                                 lingkar_putus = True
+                                continue
+                            if loop_lain == 0:
+                                # Audit 942: segmen badan dinilai
+                                # dengan aturan urutan yang sama —
+                                # penulis di badan berlaku pada
+                                # iterasi pertama, penguras di badan
+                                # menghabiskan stdin bagi segmen
+                                # berikutnya.
+                                efektif = (kata[1] if kata1 in (
+                                    "do", "then", "else")
+                                    and len(kata) > 1 else bagian)
+                                if segmen_redirect_output(efektif):
+                                    if (badan_kuras
+                                            and _menguras_stdin(
+                                                efektif)):
+                                        continue
+                                    hasil = True
+                                    break
+                                if _menguras_stdin(efektif):
+                                    badan_kuras = True
                             continue
                         if (kata1 in ("while", "until")
                                 and re.search(r"\bread\b", bagian)):
                             # Audit 935: lingkar baca menguras stdin
-                            # sampai done; segmen di dalamnya bukan
-                            # penulis bebas.
+                            # sampai done; segmen badan dinilai di
+                            # cabang lingkar_baca di atas.
                             lingkar_baca = True
                             continue
                         efektif = bagian

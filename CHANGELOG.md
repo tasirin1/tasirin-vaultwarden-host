@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kata kunci lingkar dibandingkan pada token mentah (Audit 942)
+- Deviasi fail-closed: kata pertama segmen dilucuti kutipnya sebelum dibandingkan dengan kata kunci, sehingga `'done'` berkutip — yang di bash hanyalah perintah biasa di badan lingkar — dihitung sebagai penutup lingkar dan penulis di badan digugurkan. Perbandingan kini memakai token mentah, dan segmen badan lingkar dinilai dengan aturan urutan yang sama seperti segmen biasa. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model lingkar menghormati break di badan (Audit 941)
 - Deviasi fail-closed: model Audit 935 menganggap while-read selalu menguras stdin sampai EOF, padahal `break` di badan mengakhiri lingkar lebih awal dan penulis sesudahnya tetap menulis sisa stdin. Model kini melacak break (termasuk yang bersembunyi sesudah `do`) dan kedalaman loop bersarang. Skenario uji-diri baru menguncinya.
 
