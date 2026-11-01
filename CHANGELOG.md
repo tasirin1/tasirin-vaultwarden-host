@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Restore dari pemilih berkas menyalin stream penyedia sebelum server dihentikan (Audit 982)
+- Perbaikan: restore dari pemilih berkas membuka stream penyedia dokumen SESUDAH kunci restore+data ditahan dan server dihentikan — penyedia cloud/jaringan yang berhenti mengirim di tengah akan mengunci server mati tanpa batas waktu (satu-satunya batas dulu adalah volume). Stream kini disalin dulu ke berkas cache lokal (dibatasi plafon restore 200 MB) selagi server masih berjalan dan belum ada kunci yang ditahan; proses restore di dalam kunci membaca berkas lokal itu, dan salinannya dihapus sesudahnya.
+
+
 ## [Belum rilis] — Restore Settings menoleransi app-config.json yang rusak (Audit 981)
 - Perbaikan: satu `app-config.json` rusak/terpotong di dalam zip backup menggagalkan SELURUH restore dari Settings (pengecualian parse naik ke penangkap luar dan DB lama dipulihkan), padahal jalur bot menoleransinya. Parse config kini ditangkap setempat: restore DB tetap berjalan dan config yang tak terbaca hanya menjadi peringatan "pengaturan TIDAK diterapkan", sama seperti jalur Telegram.
 

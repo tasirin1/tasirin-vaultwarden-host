@@ -2005,8 +2005,20 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreDatabase(Uri uri, String dataDirMentah) {
-
+        // Audit 982: salin dulu stream penyedia ke berkas cache lokal
+        // SEBELUM kunci ditahan dan server dihentikan — penyedia
+        // dokumen (cloud/jaringan) bisa berhenti mengirim tanpa
+        // batas waktu, dan itu tidak boleh mengunci server yang mati.
+        File salinan;
+        try {
+            salinan = salinUriKeCacheRestore(uri);
+        } catch (Exception e) {
+            toast(getString(R.string.restore_berkas_gagal));
+            appendUiLog("[app] Restore gagal membaca berkas pilihan: " + e);
+            return;
+        }
         if (!TgBackup.kunciRestore()) {
+            salinan.delete();
             toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
@@ -2015,16 +2027,44 @@ public class SettingsActivity extends Activity {
 
             ServerService.kunciData();
             try {
-                restoreDatabaseIsi(uri, dataDirMentah);
+                restoreDatabaseIsi(salinan, dataDirMentah);
             } finally {
                 ServerService.lepasKunciData();
             }
         } finally {
             TgBackup.lepasRestore();
+            salinan.delete();
         }
     }
 
-    private void restoreDatabaseIsi(Uri uri, String dataDirMentah) {
+    private File salinUriKeCacheRestore(Uri uri) throws Exception {
+        File tujuan = new File(getCacheDir(),
+                "restore-pilih-" + TgBackup.stempelUnik() + ".bin");
+        try (InputStream in = getContentResolver().openInputStream(uri);
+                java.io.FileOutputStream out = new java.io.FileOutputStream(tujuan)) {
+            if (in == null) {
+                throw new Exception("stream penyedia null");
+            }
+            byte[] buf = new byte[64 * 1024];
+            long total = 0;
+            int n;
+            while ((n = in.read(buf)) != -1) {
+                total += n;
+                if (total > Util.BATAS_UNZIP_RESTORE) {
+                    throw new Exception("berkas pilihan melebihi batas "
+                            + Util.BATAS_UNZIP_RESTORE + " byte");
+                }
+                out.write(buf, 0, n);
+            }
+            out.flush();
+        } catch (Exception e) {
+            tujuan.delete();
+            throw e;
+        }
+        return tujuan;
+    }
+
+    private void restoreDatabaseIsi(File berkas, String dataDirMentah) {
         String dataDir = dataDirMentah == null ? "" : dataDirMentah.trim();
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = ServerService.dataDirBawaanSegar();
@@ -2100,12 +2140,7 @@ public class SettingsActivity extends Activity {
             boolean restored = false;
             java.util.List<String> tlsTerStaging = new java.util.ArrayList<>();
             byte[] buf = new byte[64 * 1024];
-            try (InputStream raw = getContentResolver().openInputStream(uri)) {
-                if (raw == null) {
-                    toast(getString(R.string.restore_berkas_gagal));
-                    appendUiLog("[app] Restore gagal: stream null");
-                    return;
-                }
+            try (InputStream raw = new java.io.FileInputStream(berkas)) {
 
                 PushbackInputStream in = new PushbackInputStream(raw, 2);
                 byte[] magic = new byte[2];
