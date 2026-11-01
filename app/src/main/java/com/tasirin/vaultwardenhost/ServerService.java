@@ -3250,15 +3250,27 @@ public class ServerService extends Service {
     }
 
     static String catatanUrl(String host, String hostBerjalan, boolean berjalan) {
+        // Jalur Telegram memang satu bahasa (Indonesia) by design.
+        return catatanUrl(host, hostBerjalan, berjalan,
+                " (loopback - IP LAN tidak terdeteksi)",
+                " (IP baru - server masih memakai IP lama sampai restart)");
+    }
+
+    // Audit 992: varian ber-teks dari pemanggil — URL beserta catatan
+    // ini tampil di netInfoView kedua activity, jadi teksnya mengikuti
+    // locale perangkat (resource url_note_*), bukan terkunci Indonesia
+    // seperti jalur Telegram.
+    static String catatanUrl(String host, String hostBerjalan, boolean berjalan,
+                             String teksLoopback, String teksIpBaru) {
         if (host == null || host.isEmpty()) {
             return "";
         }
         if ("127.0.0.1".equals(host)) {
-            return " (loopback - IP LAN tidak terdeteksi)";
+            return teksLoopback;
         }
         if (berjalan && hostBerjalan != null && !hostBerjalan.isEmpty()
                 && !host.equals(hostBerjalan)) {
-            return " (IP baru - server masih memakai IP lama sampai restart)";
+            return teksIpBaru;
         }
         return "";
     }
@@ -3267,6 +3279,14 @@ public class ServerService extends Service {
         String host = localIp();
         return localUrlDariHost(context, host)
                 + catatanUrl(host, runningLanHost, running);
+    }
+
+    // Audit 992: varian UI — catatan diteruskan dari resource activity.
+    public static String localUrlDenganCatatan(Context context,
+                                               String teksLoopback, String teksIpBaru) {
+        String host = localIp();
+        return localUrlDariHost(context, host)
+                + catatanUrl(host, runningLanHost, running, teksLoopback, teksIpBaru);
     }
 
     private void setStatus(String text) {

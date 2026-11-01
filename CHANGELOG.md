@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Catatan di samping URL pada UI mengikuti locale (Audit 992)
+
+- `ServerService.catatanUrl` sebelumnya selalu mengembalikan catatan Indonesia (" (loopback - IP LAN tidak terdeteksi)" / " (IP baru - server masih memakai IP lama sampai restart)") dari literal, padahal hasilnya tampil di `netInfoView` layar utama dan Settings. Kini ada varian `catatanUrl(..., teksLoopback, teksIpBaru)` dan `localUrlDenganCatatan(ctx, teksLoopback, teksIpBaru)`: kedua activity meneruskan resource baru `url_note_loopback`/`url_note_ip_changed`, sedangkan jalur Telegram tetap memakai varian lama berteks Indonesia persis seperti sebelumnya (satu bahasa by design). Uji `catatanUrl` ditambah asersi varian ber-teks di commit yang sama. Gerbang memberi 2 peringatan "metode baru" untuk pembangun URL terikat Context (keputusan murninya, catatanUrl, terkunci uji) — diterima sadar.
+
 ## [Belum rilis] — Satuan durasi uptime di UI mengikuti locale (Audit 991)
 
 - `TgBot.durationText` sebelumnya selalu memakai satuan Indonesia ("jam/menit/detik") dari literal, padahal selain jalur Telegram (memang satu bahasa by design) fungsi ini juga mengisi baris uptime di layar utama (`uptime_format`) dan info Settings (`info_uptime`) — di locale Inggris tampil "Uptime: 2 jam 5 menit". Kini ada varian `durationText(ms, jam, menit, detik)`: jalur Telegram tetap memanggil varian lama yang mendelegasikan satuan Indonesia persis seperti sebelumnya, sedangkan kedua pemanggil UI meneruskan satuan dari resource baru `dur_hour`/`dur_minute`/`dur_second` (Inggris: hr/min/sec; Indonesia: jam/menit/detik, tampilannya tak berubah). Uji `durationText` ditambah asersi varian ber-satuan di commit yang sama.

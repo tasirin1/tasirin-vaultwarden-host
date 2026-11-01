@@ -1153,6 +1153,14 @@ public class ServerServiceTest {
         assertTrue(ServerService.catatanUrl("192.168.1.9", "192.168.1.5", true)
                 .contains("IP baru"));
         assertEquals("", ServerService.catatanUrl("192.168.1.9", "192.168.1.5", false));
+        // Audit 992: varian ber-teks pemanggil memakai teks yang
+        // diteruskan persis, keputusan kondisinya sama.
+        assertEquals(" (LB)", ServerService.catatanUrl("127.0.0.1", "192.168.1.5", true,
+                " (LB)", " (BARU)"));
+        assertEquals(" (BARU)", ServerService.catatanUrl("192.168.1.9", "192.168.1.5", true,
+                " (LB)", " (BARU)"));
+        assertEquals("", ServerService.catatanUrl("192.168.1.9", "192.168.1.5", false,
+                " (LB)", " (BARU)"));
     }
 
     @Test

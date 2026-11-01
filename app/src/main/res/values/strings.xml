@@ -31,6 +31,8 @@
     <string name="close">Close</string>
     <string name="crash">Crash</string>
     <string name="busy_work">Working…</string>
+    <string name="url_note_loopback"> (loopback - LAN IP not detected)</string>
+    <string name="url_note_ip_changed"> (new IP - server keeps using the old IP until restart)</string>
     <string name="dur_hour">hr</string>
     <string name="dur_minute">min</string>
     <string name="dur_second">sec</string>
