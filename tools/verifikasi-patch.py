@@ -589,6 +589,13 @@ def _menguras_stdin(bagian):
                 awal += 1
                 if opsi == "--":
                     break
+                if (t0 == "command" and len(opsi) > 1
+                        and all(c in "pvV" for c in opsi[1:])
+                        and ("v" in opsi or "V" in opsi)):
+                    # Audit 961: -v/-V pada command adalah bendera
+                    # tanya — perintah di baliknya tidak dijalankan
+                    # dan stdin tidak dibaca sama sekali.
+                    return False
                 if opsi in bernilai and awal < len(toks):
                     awal += 1
             if t0 == "timeout" and awal < len(toks):

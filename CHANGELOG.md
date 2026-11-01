@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Bendera tanya command -v/-V dikenali gerbang (Audit 961)
+- Bug (fail-open): cabang pembungkus `command` (Audit 937) menganggap `command -v X` menjalankan X, padahal `-v`/`-V` hanya mencetak jalur/jenis X — X tidak dijalankan dan stdin tidak dibaca. Bendera tanya itu (termasuk gabungan seperti `-pv`) kini mengembalikan tak-menguras; skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Nilai env -S dinilai sebagai perintah oleh gerbang (Audit 960)
 - Bug (fail-open): lompatan opsi `env` (Audit 951) memperlakukan nilai `-S`/`--split-string` sebagai nilai biasa lalu mencari perintah sesudahnya, padahal nilai itu adalah baris perintah yang dijalankan env — `env -S cat` dinilai tak menguras. Nilai `-S` (terpisah, merekat, maupun bentuk `=`) kini digabung sisa token dan dinilai rekursif sebagai perintah itu sendiri. Skenario uji-diri baru menguncinya.
 

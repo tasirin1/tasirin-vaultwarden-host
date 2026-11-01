@@ -1552,6 +1552,28 @@ def main():
                 "tetap menguras, gerbang gagal (Audit 960)", rc != 0)
         shutil.rmtree(subenvs, ignore_errors=True)
 
+        subcommandv = klon(tmp, "subcommandv")
+        berkas_aksi77 = os.path.join(
+            subcommandv, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi77, encoding="utf-8") as f:
+            isi_aksi77 = f.read()
+        baris_tulis77 = [b for b in isi_aksi77.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi77, "w", encoding="utf-8") as f:
+            f.write(isi_aksi77.replace(
+                baris_tulis77,
+                baris_tulis77.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(command -v cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subcommandv,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("command -v hanya bertanya, tak menjalankan: "
+                "penulis tetap menerima stdin, gerbang lolos "
+                "(Audit 961)", rc == 0)
+        shutil.rmtree(subcommandv, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
