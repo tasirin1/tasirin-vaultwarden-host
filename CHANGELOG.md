@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Versi web-vault diselaraskan dari disk folder data aktif (Audit 978)
+- Perbaikan: penanda `wv_from_version` bersifat global dan tidak terikat folder data — sesudah pengguna mengganti folder, pemeriksa update dan UI bisa mengklaim versi folder lama sebagai versi terpasang dan web-vault lama bertahan tanpa pernah diperbarui. Pemeriksa kini membaca `vw-version.json` di folder aktif (disk menang, penanda diselaraskan), dan tampilan versi Settings mendahulukan disk atas penanda.
+
+
 ## [Belum rilis] — Label formulir dikaitkan ke kolomnya dan backupPass mendapat hint (Audit 977)
 - Perbaikan aksesibilitas: tak satu pun dari 11 berkas layout memakai `android:labelFor`, jadi pembaca layar tak mengaitkan label visual dengan kolomnya. Semua label formulir kini ber-`labelFor` ke kolom pasangannya (label yang belum ber-id diberi id: labelPin, labelTgToken, labelTgChat, labelBackupPass, labelBinSha, labelPinLogin di kedua varian pin), dan `backupPass` — satu-satunya EditText tanpa hint — mendapat `backup_pass_hint` (Inggris + Indonesia).
 

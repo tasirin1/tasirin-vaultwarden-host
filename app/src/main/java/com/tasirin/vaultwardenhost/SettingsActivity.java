@@ -3254,10 +3254,12 @@ public class SettingsActivity extends Activity {
             SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
 
-            String penanda = Updater.webVaultFromVersion(this);
-            String updated = penanda;
+            // Audit 978: versi di disk folder aktif didahulukan atas
+            // penanda global, yang bisa tertinggal dari folder lain.
+            String updated = Updater.readWvVersion(
+                    new File(dataDir, "web-vault/vw-version.json"));
             if (updated == null) {
-                updated = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
+                updated = Updater.webVaultFromVersion(this);
             }
             String bundled = bundledRaw != null ? bundledRaw : Updater.readBundledVersionRaw(this);
             String wv = updated != null ? updated

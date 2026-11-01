@@ -1891,6 +1891,17 @@ public final class Updater {
 
         boolean wvExists = wvPayloadAda(targetDir);
         String installed = TgBackup.amanString(sp, KEY_WV_FROM, "");
+        // Audit 978: penanda bersifat global dan bisa tak selaras
+        // dengan folder data aktif (folder diganti pengguna, atau
+        // proses mati antara swap dan commit penanda) — isi disk
+        // folder aktif yang menang dan penanda diselaraskan ke sana.
+        if (wvExists) {
+            String diDisk = readWvVersion(new File(targetDir, "vw-version.json"));
+            if (diDisk != null && !versiSamaPersis(diDisk, installed)) {
+                installed = diDisk;
+                sp.edit().putString(KEY_WV_FROM, diDisk).apply();
+            }
+        }
 
         if (wvExists && latest != null && !installed.isEmpty()
                 && versiSamaPersis(installed, latest)) {
