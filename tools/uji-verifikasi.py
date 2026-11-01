@@ -1574,6 +1574,27 @@ def main():
                 "(Audit 961)", rc == 0)
         shutil.rmtree(subcommandv, ignore_errors=True)
 
+        subxargsa = klon(tmp, "subxargsa")
+        berkas_aksi78 = os.path.join(
+            subxargsa, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi78, encoding="utf-8") as f:
+            isi_aksi78 = f.read()
+        baris_tulis78 = [b for b in isi_aksi78.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi78, "w", encoding="utf-8") as f:
+            f.write(isi_aksi78.replace(
+                baris_tulis78,
+                baris_tulis78.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(xargs -a daftar cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subxargsa, [sys.executable, GERBANG, "--semua"])
+        periksa("item xargs -a adalah operand anak, bukan stdin: "
+                "penulis tetap menerima stdin, gerbang lolos "
+                "(Audit 962)", rc == 0)
+        shutil.rmtree(subxargsa, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

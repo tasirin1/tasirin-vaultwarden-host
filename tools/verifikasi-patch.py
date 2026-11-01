@@ -543,6 +543,7 @@ def _menguras_stdin(bagian):
     # Audit 937: perintah sungguhan bisa tersembunyi di balik
     # penetapan variabel lingkungan dan pembungkus umum.
     awal = 0
+    xargs_dari_berkas = False
     while awal < len(toks):
         t0 = toks[awal].strip("\"'")
         if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0):
@@ -579,6 +580,11 @@ def _menguras_stdin(bagian):
             continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf"):
+            if t0 == "xargs":
+                # Audit 962: xargs terdalam yang menentukan sumber
+                # item — xargs di balik xargs -a membaca stdin
+                # sendiri, jadi bendera -a lapisan luar gugur.
+                xargs_dari_berkas = False
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
@@ -596,6 +602,14 @@ def _menguras_stdin(bagian):
                     # tanya — perintah di baliknya tidak dijalankan
                     # dan stdin tidak dibaca sama sekali.
                     return False
+                if (t0 == "xargs"
+                        and (opsi in ("-a", "--arg-file")
+                             or opsi.startswith("--arg-file=")
+                             or (opsi.startswith("-a")
+                                 and len(opsi) > 2))):
+                    # Audit 962: item dari berkas argumen menjadi
+                    # operand perintah anak, bukan stdin bersama.
+                    xargs_dari_berkas = True
                 if opsi in bernilai and awal < len(toks):
                     awal += 1
             if t0 == "timeout" and awal < len(toks):
@@ -609,6 +623,13 @@ def _menguras_stdin(bagian):
         return False
     perintah = toks[awal].strip("\"'")
     if perintah not in _PEMBACA_STDIN:
+        return False
+    if xargs_dari_berkas and perintah != "tee":
+        # Audit 962: perintah anak menerima operand item dari berkas
+        # argumen xargs, jadi tak membaca stdin bersama (tee
+        # dikecualikan: operandnya berkas keluaran, ia tetap
+        # menguras). Isi berkas tak bisa diketahui gerbang; vonis
+        # mengikuti pemakaian lazim -a, yaitu berkas berisi item.
         return False
     lewati = False
     for t in toks[awal + 1:]:

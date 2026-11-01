@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Item xargs -a dinilai operand anak oleh gerbang (Audit 962)
+- Bug (fail-open): resolusi pembungkus `xargs` (Audit 957) melewati nilai `-a`/`--arg-file` lalu menilai perintah anak seolah membaca stdin bersama, padahal item dari berkas argumen menjadi operand perintah anak (`xargs -a daftar cat` menjalankan `cat <item...>`) dan stdin tak disentuh — klaim lama hanya benar untuk berkas argumen kosong. Pembaca di balik `xargs -a` kini dinilai tak menguras (tee dikecualikan: operandnya keluaran, ia tetap menguras). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Bendera tanya command -v/-V dikenali gerbang (Audit 961)
 - Bug (fail-open): cabang pembungkus `command` (Audit 937) menganggap `command -v X` menjalankan X, padahal `-v`/`-V` hanya mencetak jalur/jenis X — X tidak dijalankan dan stdin tidak dibaca. Bendera tanya itu (termasuk gabungan seperti `-pv`) kini mengembalikan tak-menguras; skenario uji-diri baru menguncinya.
 
