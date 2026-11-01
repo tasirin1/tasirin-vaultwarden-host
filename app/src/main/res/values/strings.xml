@@ -31,6 +31,10 @@
     <string name="close">Close</string>
     <string name="crash">Crash</string>
     <string name="busy_work">Working…</string>
+    <string name="dl_status_retry">Connection lost, retrying %1$d/%2$d...</string>
+    <string name="dl_status_waiting">Waiting for another download/install to finish...</string>
+    <string name="dl_status_progress">Downloading %1$s %2$s/%3$s (%4$d%%)</string>
+    <string name="dl_status_progress_unknown">Downloading %1$s %2$s...</string>
 
     <string name="copy_url">Copy URL</string>
     <string name="folder_data">Data folder</string>

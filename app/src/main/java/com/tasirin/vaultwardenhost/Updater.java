@@ -578,8 +578,12 @@ public final class Updater {
                 || rendah.contains("broken pipe") || rendah.contains("http");
     }
 
-    static boolean tundaCobaLagiUnduh(int coba) {
-        downloadStatus = "Koneksi putus, coba lagi " + (coba + 1) + "/" + MAX_COBA_UNDUH + "...";
+    static boolean tundaCobaLagiUnduh(int coba, String tmpl) {
+        // Audit 990: teks status unduhan tampil di banner UI kedua
+        // activity, jadi templatnya berasal dari resource pemanggil
+        // (pola Audit 975) agar mengikuti locale perangkat.
+        downloadStatus = tmpl.replace("%1$d", String.valueOf(coba + 1))
+                .replace("%2$d", String.valueOf(MAX_COBA_UNDUH));
         try {
             Thread.sleep(3000);
             return true;
@@ -884,7 +888,7 @@ public final class Updater {
                         || mismatchSha >= 2) {
                     break;
                 }
-                if (!tundaCobaLagiUnduh(coba)) {
+                if (!tundaCobaLagiUnduh(coba, ctx.getString(R.string.dl_status_retry))) {
                     break;
                 }
             } catch (Exception e) {
@@ -1002,7 +1006,9 @@ public final class Updater {
             if (code != 200 && code != 206) {
                 throw new IOException("Unduhan gagal (HTTP " + code + ").");
             }
-            return salinSambilHash(dl, tmp, code, resumeFrom, label, batal);
+            return salinSambilHash(dl, tmp, code, resumeFrom, label, batal,
+                    ctx.getString(R.string.dl_status_progress),
+                    ctx.getString(R.string.dl_status_progress_unknown));
         } finally {
             if (dl != null) {
                 dl.disconnect();
@@ -1039,7 +1045,8 @@ public final class Updater {
     }
 
     static String salinSambilHash(HttpURLConnection dl, File tmp, int kodeHttp,
-                                  long lanjutDari, String label, CekBatal batal)
+                                  long lanjutDari, String label, CekBatal batal,
+                                  String tmplProgres, String tmplProgresTanpaTotal)
             throws IOException {
         long total = panjangKonten(dl);
         if (kodeHttp == 206 && total >= 0) {
@@ -1083,7 +1090,7 @@ public final class Updater {
                 }
                 if (done - lastReport >= 256 * 1024) {
                     lastReport = done;
-                    reportDownload(label, done, total);
+                    reportDownload(label, done, total, tmplProgres, tmplProgresTanpaTotal);
                 }
             }
         }
@@ -1338,9 +1345,10 @@ public final class Updater {
     private static final java.util.concurrent.locks.ReentrantLock KUNCI_PASANG_GLOBAL =
             new java.util.concurrent.locks.ReentrantLock();
 
-    private static void kunciPasangGlobal() {
+    private static void kunciPasangGlobal(String teksMenunggu) {
         if (!KUNCI_PASANG_GLOBAL.tryLock()) {
-            downloadStatus = "Menunggu unduhan/pemasangan lain selesai...";
+            // Audit 990: teks tunggu dari resource pemanggil.
+            downloadStatus = teksMenunggu;
             KUNCI_PASANG_GLOBAL.lock();
         }
     }
@@ -1364,7 +1372,7 @@ public final class Updater {
         // status tunggu yang terlihat user (Audit 656); reentrant per
         // thread sehingga jalur bersarang unduh-binary → unduh-shim
         // pada thread yang sama tetap aman.
-        kunciPasangGlobal();
+        kunciPasangGlobal(ctx.getString(R.string.dl_status_waiting));
         mulaiUnduhan();
         try {
             return downloadBinaryInner(ctx, out, versi, batal,
@@ -1656,7 +1664,7 @@ public final class Updater {
     }
 
     public static String downloadShim(Context ctx, File out) throws Exception {
-        kunciPasangGlobal();
+        kunciPasangGlobal(ctx.getString(R.string.dl_status_waiting));
         mulaiUnduhan();
         try {
             return downloadShimInner(ctx, out);
@@ -1763,7 +1771,11 @@ public final class Updater {
         }
     }
 
-    static void reportDownload(String label, long done, long total) {
+    static void reportDownload(String label, long done, long total,
+                               String tmplTotal, String tmplTanpaTotal) {
+        // Audit 990: templat dari resource pemanggil (pola Audit 975).
+        // Bentuk akhiran "(N%)" wajib dipertahankan: persenUnduhan
+        // mem-parse-nya balik untuk bilah progres UI.
         if (total > 0) {
             int pct = (int) (done * 100 / total);
             if (pct < 0) {
@@ -1771,10 +1783,13 @@ public final class Updater {
             } else if (pct > 100) {
                 pct = 100;
             }
-            downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done)
-                    + "/" + TgBackup.humanBytes(total) + " (" + pct + "%)";
+            downloadStatus = tmplTotal.replace("%1$s", label)
+                    .replace("%2$s", TgBackup.humanBytes(done))
+                    .replace("%3$s", TgBackup.humanBytes(total))
+                    .replace("%4$d", String.valueOf(pct));
         } else {
-            downloadStatus = "Unduh " + label + " " + TgBackup.humanBytes(done) + "...";
+            downloadStatus = tmplTanpaTotal.replace("%1$s", label)
+                    .replace("%2$s", TgBackup.humanBytes(done));
         }
     }
 

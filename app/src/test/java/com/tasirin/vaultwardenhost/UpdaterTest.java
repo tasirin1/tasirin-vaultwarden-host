@@ -758,12 +758,18 @@ public class UpdaterTest {
 
     @Test
     public void reportDownload_jepitPersenNolSampaiSeratus() {
-        Updater.reportDownload("binary", 104, 100);
+        // Audit 990: templat diteruskan pemanggil; uji memakai
+        // templat Indonesia yang sama dengan resource values-in.
+        String tmplTotal = "Unduh %1$s %2$s/%3$s (%4$d%%)";
+        String tmplTanpa = "Unduh %1$s %2$s...";
+        Updater.reportDownload("binary", 104, 100, tmplTotal, tmplTanpa);
         assertEquals(100, Updater.persenUnduhan(Updater.downloadStatus));
-        Updater.reportDownload("binary", -5, 100);
+        Updater.reportDownload("binary", -5, 100, tmplTotal, tmplTanpa);
         assertEquals(0, Updater.persenUnduhan(Updater.downloadStatus));
-        Updater.reportDownload("binary", 34, 100);
+        Updater.reportDownload("binary", 34, 100, tmplTotal, tmplTanpa);
         assertEquals(34, Updater.persenUnduhan(Updater.downloadStatus));
+        assertTrue(Updater.downloadStatus.startsWith("Unduh binary "));
+        assertTrue(Updater.downloadStatus.endsWith("(34%)"));
     }
 
     @Test
@@ -1525,7 +1531,8 @@ public class UpdaterTest {
         Updater.downloadStatus = "";
         Updater.mulaiUnduhan();
         Updater.mulaiUnduhan();
-        Updater.reportDownload("binary", 1, 2);
+        Updater.reportDownload("binary", 1, 2,
+                "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
         assertFalse("progres unduhan harus tampil", Updater.downloadStatus.isEmpty());
         Updater.selesaiUnduhan();
 
@@ -1535,7 +1542,8 @@ public class UpdaterTest {
 
         Updater.selesaiUnduhan();
         Updater.mulaiUnduhan();
-        Updater.reportDownload("shim", 5, 10);
+        Updater.reportDownload("shim", 5, 10,
+                "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
         Updater.selesaiUnduhan();
         assertEquals("", Updater.downloadStatus);
     }

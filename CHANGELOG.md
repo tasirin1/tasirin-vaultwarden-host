@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks status unduhan mengikuti locale perangkat (Audit 990)
+
+- Tiga teks status unduhan di `Updater.downloadStatus` yang tampil di banner UI layar utama dan Settings (coba-lagi koneksi putus, menunggu unduhan/pemasangan lain, progres unduh) sebelumnya terkunci bahasa Indonesia dari literal. Kini templatnya berasal dari resource pemanggil (`dl_status_retry`, `dl_status_waiting`, `dl_status_progress`, `dl_status_progress_unknown` di values + values-in; pola Audit 975: fungsi tetap murni, teks diteruskan pemanggil yang memegang Context). Akhiran "(N%)" pada status progres dipertahankan persis karena `persenUnduhan` mem-parse-nya balik untuk bilah progres. Uji `reportDownload` diperbarui meneruskan templat dan mengunci bentuk akhir status. Gerbang memberi 3 peringatan "metode baru" untuk tiga metode yang tanda tangannya berubah (bukan metode baru; logika substitusi templatnya terkunci lewat uji reportDownload) — diterima sadar.
+
 ## [Belum rilis] — Gerbang: bentuk pid ionice/taskset dimodelkan sebagai mode pid (Audit 989)
 - Perbaikan perkakas: Audit 970 memodelkan `-p`/`--pid` ionice dan taskset sebagai opsi bernilai, sehingga kata sesudah pid dinilai perintah yang menguras. Kenyataannya keduanya bendera mode pid (operand sesudahnya pid-pid, tak pernah perintah), dan bentuk `--pid=`/`--cpu-list=` ditolak getopt taskset sama sekali. `-p`/`--pid` dikeluarkan dari daftar opsi bernilai, resolver mengenal keadaan mode-pid yang menelan sisa operand, dan bentuk `=` taskset dinilai perintah tak sah. Skenario uji-diri baru `subpidpalsu`.
 

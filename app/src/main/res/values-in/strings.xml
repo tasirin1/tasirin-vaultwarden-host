@@ -31,6 +31,10 @@
     <string name="close">Tutup</string>
     <string name="crash">Crash</string>
     <string name="busy_work">Bekerja…</string>
+    <string name="dl_status_retry">Koneksi putus, coba lagi %1$d/%2$d...</string>
+    <string name="dl_status_waiting">Menunggu unduhan/pemasangan lain selesai...</string>
+    <string name="dl_status_progress">Unduh %1$s %2$s/%3$s (%4$d%%)</string>
+    <string name="dl_status_progress_unknown">Unduh %1$s %2$s...</string>
 
     <string name="copy_url">Salin URL</string>
     <string name="folder_data">Folder data</string>
