@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pemindaian xargs memakai semantik fd untuk redirect masukan (Audit 995)
+
+- Perbaikan perkakas: pemindaian titik-akhir xargs (Audit 986) memakai regex tumpul digit+`<`, sehingga redirect fd selain 0 sesudah nama anak (`xargs cat 3<berkas`, `9<`, `2<`) dan duplikasi-diri `<&0` dinilai sebagai pengalihan stdin — padahal stdin xargs tetap pipa bersama dan tetap terkuras (fail-open). Pemindaian kini memakai semantik fd yang sama dengan `_indeks_sesudah_redirect`: hanya redirect yang mengganti stdin (fd 0 ke berkas/fd lain atau menutupnya) yang membatalkan vonis xargs. Skenario uji-diri baru (aksi 94) mengunci bentuk penguras `xargs cat 3<...` di segmen pertama substitusi proses — penulis sesudah penguras menerima EOF, jadi gerbang wajib GAGAL (semantik Audit 931). Probe dua arah 27 bentuk cocok semua.
+
 ## [Belum rilis] — Penanda gagal web-vault versi lama kini ikut disapu (Audit 994)
 
 - Penanda `*.tmp.gagal` (sidik zip web-vault yang gagal uji payload) sebelumnya tak pernah terhapus kecuali pada jalur sukses versi yang sama: penyapu `sapuTmpUnduhBasi` hanya mencocokkan nama berakhiran `.tmp`. Sesudah upstream merilis versi berikutnya dan pembaruan berhasil, penanda versi lama yatim selamanya di folder data. Penyapu kini juga mencocokkan `.tmp.gagal` dengan pengecualian yang menjaga fungsi penanda: penanda milik tmp target percobaan berjalan dan penanda milik tmp yang sedang aktif diunduh tidak disapu, karena penanda itulah yang menahan unduh-ulang zip rusak yang sama pada percobaan berikutnya.

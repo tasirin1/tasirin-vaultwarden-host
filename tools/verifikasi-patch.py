@@ -886,7 +886,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         for pos in range(awal + 1, len(toks)):
             if pos < _batas_argv:
                 continue  # di dalam string env -S: argv harfiah
-            if re.match(r"\d*<", toks[pos]):
+            m_lt = re.match(r"(\d*)<(&)?(\d+|-)?", toks[pos])
+            if m_lt:
+                # Audit 995: semantik fd yang sama dengan
+                # _indeks_sesudah_redirect — hanya redirect yang
+                # MENGGANTI stdin (fd 0 ke berkas/fd lain, atau
+                # menutupnya) yang membatalkan vonis xargs. Redirect
+                # fd lain (3<, 9<, ...) tak menyentuh stdin xargs,
+                # dan <&0 adalah duplikasi-diri yang netral: xargs
+                # tetap menguras pipa bersama.
+                if m_lt.group(1) not in ("", "0"):
+                    continue
+                if m_lt.group(2):
+                    target = m_lt.group(3)
+                    if target is None and pos + 1 < len(toks):
+                        target = toks[pos + 1].strip("\"'")
+                    if target == "0":
+                        continue
+                    return False
                 return False
     if awal >= len(toks):
         return xargs_sendiri

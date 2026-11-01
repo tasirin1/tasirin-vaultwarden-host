@@ -1919,6 +1919,29 @@ def main():
                 "gerbang lolos (Audit 989)", rc == 0)
         shutil.rmtree(subpidpalsu, ignore_errors=True)
 
+        subxargsfd = klon(tmp, "subxargsfd")
+        berkas_aksi94 = os.path.join(
+            subxargsfd, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi94, encoding="utf-8") as f:
+            isi_aksi94 = f.read()
+        baris_tulis94 = [b for b in isi_aksi94.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi94, "w", encoding="utf-8") as f:
+            f.write(isi_aksi94.replace(
+                baris_tulis94,
+                baris_tulis94.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xargs cat 3<berkasKeluaran; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subxargsfd,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect fd bukan-0 sesudah anak xargs tak "
+                "mengganti stdin xargs, jadi xargs sungguh menguras "
+                "dan penulis kebagian EOF: gerbang gagal (Audit 995)",
+                rc != 0)
+        shutil.rmtree(subxargsfd, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
