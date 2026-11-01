@@ -846,6 +846,17 @@ def _menguras_stdin(bagian, _batas_argv=0):
                 xargs_sendiri = True
             continue
         break
+    if xargs_sendiri:
+        # Audit 986: redirect masukan yang tertulis sesudah nama
+        # perintah anak adalah milik invokasi xargs itu sendiri —
+        # shell menerapkannya ke proses xargs dan anak mewarisi
+        # stdin dari berkas/penutup itu, jadi pipa bersama tak
+        # tersentuh walau xargs sendiri tadinya akan menguras.
+        for pos in range(awal + 1, len(toks)):
+            if pos < _batas_argv:
+                continue  # di dalam string env -S: argv harfiah
+            if re.match(r"\d*<", toks[pos]):
+                return False
     if awal >= len(toks):
         return xargs_sendiri
     perintah = toks[awal].strip("\"'")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: redirect masukan sesudah anak xargs diakui milik xargs (Audit 986)
+- Perbaikan perkakas: vonis `xargs_sendiri` (Audit 971) dikembalikan sebelum redirect masukan sesudah nama perintah anak sempat dinilai — padahal redirect itu diterapkan shell ke proses xargs itu sendiri, jadi stdin xargs berasal dari berkas dan pipa bersama tak tersentuh. Titik akhir resolusi kini memindai sisa token untuk redirect masukan (di luar rentang argv `env -S`) sebelum mengembalikan vonis xargs. Skenario uji-diri baru `subxargsredir`.
+
+
 ## [Belum rilis] — Gerbang: stdout ditutup di awalan tidak lagi menyembunyikan pembaca (Audit 985)
 - Perbaikan perkakas: `_indeks_sesudah_redirect` menilai `>&-`/`1>&-` di awalan sebagai "perintah gugur, stdin tak terkuras" — itu hanya benar untuk `cat`; `wc`/`sort`/`head`/`dd`/`tee` membaca stdin sampai habis dulu sebelum galat tulis muncul. Penutup stdout kini diperlakukan seperti redirect keluaran biasa dan vonis ditentukan perintahnya (`>&- cat` menjadi fail-closed, arah yang aman). Skenario uji-diri baru `subtutupout`.
 
