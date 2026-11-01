@@ -1489,6 +1489,27 @@ def main():
                 "(Audit 957)", rc != 0)
         shutil.rmtree(subbungkusnilai, ignore_errors=True)
 
+        subteekutip = klon(tmp, "subteekutip")
+        berkas_aksi74 = os.path.join(
+            subteekutip, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi74, encoding="utf-8") as f:
+            isi_aksi74 = f.read()
+        baris_tulis74 = [b for b in isi_aksi74.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi74, "w", encoding="utf-8") as f:
+            f.write(isi_aksi74.replace(
+                baris_tulis74,
+                baris_tulis74.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tee "keluaran.txt" > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subteekutip,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand tee berkutip tetap keluaran: tee tetap "
+                "menguras, gerbang gagal (Audit 958)", rc != 0)
+        shutil.rmtree(subteekutip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

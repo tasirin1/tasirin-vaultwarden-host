@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Operand tee berkutip tetap dinilai keluaran oleh gerbang (Audit 958)
+- Bug (fail-open): cabang token berkutip penuh (Audit 939) mengembalikan tak-menguras untuk perintah apa pun, padahal argumen `tee` adalah berkas keluaran dan tee selalu menguras stdin — `tee "keluaran.txt"` dinilai tak menguras. Cabang itu kini melanjutkan penilaian khusus untuk tee; skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Nilai opsi pembungkus dilewati saat resolusi perintah gerbang (Audit 957)
 - Bug (fail-open): resolusi perintah efektif di `_menguras_stdin` melompati token opsi pembungkus (`nice`/`stdbuf`/`timeout`/`xargs`) tetapi tidak nilai opsi yang terpisah, sehingga nilai itu dinilai sebagai perintah dan penguras di baliknya luput (`nice -n 5 cat` berhenti di `5`). Cabang pembungkus kini satu dengan lompatan berkamus `_OPSI_PEMBUNGKUS`; skenario uji-diri baru menguncinya.
 

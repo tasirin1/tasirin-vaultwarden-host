@@ -570,6 +570,10 @@ def _menguras_stdin(bagian):
                 and t[-1] == t[0]):
             # Audit 939: token berkutip penuh adalah operand data,
             # walau isinya memuat karakter redirect.
+            # Audit 958: operand tee adalah berkas keluaran — tee
+            # tetap menguras stdin walau operand-nya berkutip.
+            if perintah == "tee":
+                continue
             return False
         if ">" in t and _gt_di_luar_kutip(t):
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
