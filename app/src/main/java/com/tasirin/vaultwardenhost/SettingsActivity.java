@@ -110,6 +110,9 @@ public class SettingsActivity extends Activity {
     private Button importCfgBtn;
 
     private volatile File exportPlainTertunda = null;
+    // Audit 993: salinan restore pemilih yang sedang dipakai —
+    // dikecualikan dari penyapu basi di bawah.
+    private volatile File salinanRestorePilihAktif = null;
 
     // Impor terenkripsi yang dialog passwordnya sedang tampil; disimpan
     // lintas rotasi agar rotasi tak membatalkan impor diam-diam
@@ -2019,7 +2022,9 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] Restore gagal membaca berkas pilihan: " + e);
             return;
         }
+        salinanRestorePilihAktif = salinan;
         if (!TgBackup.kunciRestore()) {
+            salinanRestorePilihAktif = null;
             salinan.delete();
             toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
@@ -2036,6 +2041,7 @@ public class SettingsActivity extends Activity {
         } finally {
             TgBackup.lepasRestore();
             salinan.delete();
+            salinanRestorePilihAktif = null;
         }
     }
 
@@ -2634,6 +2640,30 @@ public class SettingsActivity extends Activity {
                         if (restoreTgTertundaFile != null
                                 && f.getAbsolutePath().equals(
                                         restoreTgTertundaFile.getAbsolutePath())) {
+                            continue;
+                        }
+                        long umur = System.currentTimeMillis() - f.lastModified();
+                        if (umur < 0) {
+                            umur = 0;
+                        }
+                        if (umur > RESTORE_TG_TTL_MS) {
+                            f.delete();
+                        }
+                        continue;
+                    }
+                    if (n.startsWith("restore-pilih-") && n.endsWith(".bin")) {
+                        // Audit 993: salinan restore pemilih (Audit
+                        // 982) sebelumnya hanya terhapus di jalur
+                        // finally — proses yang mati di tengah restore
+                        // meninggalkan yatim sampai 200 MB selamanya.
+                        // Sapu berbasis umur seperti keluarga
+                        // sementara lain; salinan yang sedang dipakai
+                        // dikecualikan (restore pemilih tak punya
+                        // keadaan dialog tertunda, jadi hanya itu
+                        // pengecualiannya).
+                        File aktif = salinanRestorePilihAktif;
+                        if (aktif != null
+                                && f.getAbsolutePath().equals(aktif.getAbsolutePath())) {
                             continue;
                         }
                         long umur = System.currentTimeMillis() - f.lastModified();

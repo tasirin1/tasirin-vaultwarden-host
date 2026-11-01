@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Salinan restore pemilih kini punya penyapu basi (Audit 993)
+
+- Salinan cache `restore-pilih-*.bin` dari Audit 982 sebelumnya hanya terhapus di jalur try/finally `restoreDatabase` dan penangkap penyalin — proses yang mati di tengah penyalinan/restore (force-stop, OOM, daya tercabut) meninggalkan yatim sampai 200 MB per kejadian di cacheDir selamanya, berbeda dari semua keluarga berkas sementara lain yang punya penyapu berbasis umur. `bersihkanExportPlainCache` kini juga menyapu awalan `restore-pilih-` yang berumur lebih dari TTL restore (1 jam), dengan satu pengecualian: salinan yang sedang dipakai restore berjalan (dilacak di field `salinanRestorePilihAktif`, disetel sesudah salin berhasil dan dibersihkan di semua jalur keluar). Restore pemilih tak punya keadaan dialog tertunda, jadi tak ada pengecualian lain.
+
 ## [Belum rilis] — Catatan di samping URL pada UI mengikuti locale (Audit 992)
 
 - `ServerService.catatanUrl` sebelumnya selalu mengembalikan catatan Indonesia (" (loopback - IP LAN tidak terdeteksi)" / " (IP baru - server masih memakai IP lama sampai restart)") dari literal, padahal hasilnya tampil di `netInfoView` layar utama dan Settings. Kini ada varian `catatanUrl(..., teksLoopback, teksIpBaru)` dan `localUrlDenganCatatan(ctx, teksLoopback, teksIpBaru)`: kedua activity meneruskan resource baru `url_note_loopback`/`url_note_ip_changed`, sedangkan jalur Telegram tetap memakai varian lama berteks Indonesia persis seperti sebelumnya (satu bahasa by design). Uji `catatanUrl` ditambah asersi varian ber-teks di commit yang sama. Gerbang memberi 2 peringatan "metode baru" untuk pembangun URL terikat Context (keputusan murninya, catatanUrl, terkunci uji) — diterima sadar.
