@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penetapan sesudah pembungkus non-env tak lagi transparan bagi resolver gerbang (Audit 966)
+- Bug (fail-open): resolver gerbang melewati token berbentuk penetapan (`A=1`) di posisi mana pun, padahal sesudah pembungkus non-env token itu adalah nama program yang dijalankan pembungkus — `nice A=1 cat` dan `timeout 5 A=1 cat` gagal di shell dan tak membaca stdin, tetapi dinilai menguras. Penetapan kini hanya transparan di awal segmen atau sesudah `env`. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Redirect di wilayah awalan perintah dilompati resolver gerbang (Audit 965)
 - Bug (fail-open): resolusi perintah efektif gerbang berhenti di token redirect yang muncul sebelum perintah (`> /dev/null cat`, `2>/dev/null cat`, `env > /dev/null -S cat`, `timeout > /dev/null 5 cat`), sehingga pembaca di baliknya tak terlihat. Resolver kini melompati redirect keluaran beserta targetnya di semua titik awalan (depan perintah, sela opsi env dan pembungkus, sebelum operand durasi); redirect masukan di awalan berarti stdin perintah dialihkan dan pembaca dinyatakan tak menguras. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 

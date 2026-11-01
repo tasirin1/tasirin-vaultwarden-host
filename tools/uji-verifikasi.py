@@ -1661,6 +1661,27 @@ def main():
                 "(Audit 965)", rc != 0)
         shutil.rmtree(subredirdepan, ignore_errors=True)
 
+        subtawar = klon(tmp, "subtawar")
+        berkas_aksi82 = os.path.join(
+            subtawar, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi82, encoding="utf-8") as f:
+            isi_aksi82 = f.read()
+        baris_tulis82 = [b for b in isi_aksi82.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi82, "w", encoding="utf-8") as f:
+            f.write(isi_aksi82.replace(
+                baris_tulis82,
+                baris_tulis82.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nice A=1 cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtawar,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("penetapan sesudah pembungkus non-env adalah nama "
+                "program: gerbang lolos (Audit 966)", rc == 0)
+        shutil.rmtree(subtawar, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

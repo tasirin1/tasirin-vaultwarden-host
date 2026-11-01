@@ -564,6 +564,7 @@ def _menguras_stdin(bagian, _batas_argv=0):
     # penetapan variabel lingkungan dan pembungkus umum.
     awal = 0
     xargs_dari_berkas = False
+    lewat_pembungkus = False
     while awal < len(toks):
         if awal >= _batas_argv:
             # Audit 965: redirect di wilayah awalan bukan perintah —
@@ -578,7 +579,12 @@ def _menguras_stdin(bagian, _batas_argv=0):
                 awal = sesudah
                 continue
         t0 = toks[awal].strip("\"'")
-        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0):
+        if (not lewat_pembungkus
+                and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0)):
+            # Audit 966: penetapan hanya transparan di awal segmen
+            # atau sesudah env — sesudah pembungkus lain, token
+            # berbentuk penetapan adalah nama program yang
+            # dijalankan pembungkus itu, bukan penetapan shell.
             awal += 1
             continue
         if t0 == "env":
@@ -653,6 +659,9 @@ def _menguras_stdin(bagian, _batas_argv=0):
                 # item — xargs di balik xargs -a membaca stdin
                 # sendiri, jadi bendera -a lapisan luar gugur.
                 xargs_dari_berkas = False
+            # Audit 966: sesudah pembungkus non-env, penetapan tak
+            # lagi transparan.
+            lewat_pembungkus = True
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
