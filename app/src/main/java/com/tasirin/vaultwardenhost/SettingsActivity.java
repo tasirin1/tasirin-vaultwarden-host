@@ -91,6 +91,7 @@ public class SettingsActivity extends Activity {
     private static final String STATE_IMPOR_SIDIK = "impor_sidik";
     private static final String STATE_RESTORE_TG_PATH = "restore_tg_path";
     private static final String STATE_RESTORE_TG_NAMA = "restore_tg_nama";
+    private static final String STATE_RESTORE_PILIH_PATH = "restore_pilih_path";
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -430,6 +431,15 @@ public class SettingsActivity extends Activity {
             if (pathRestoreTg != null) {
                 restoreTgTertundaFile = new File(pathRestoreTg);
                 restoreTgTertundaNama = savedInstanceState.getString(STATE_RESTORE_TG_NAMA);
+            }
+            // Audit 1003: pengecualian penyapu salinan restore-pilih
+            // ikut disimpan seperti keadaan tertunda lainnya (Audit
+            // 852) — tanpa ini rekreasi activity menghapusnya dari
+            // ingatan dan salinan yang sedang dibaca bisa tersapu.
+            String pathRestorePilih = savedInstanceState.getString(
+                    STATE_RESTORE_PILIH_PATH);
+            if (pathRestorePilih != null) {
+                salinanRestorePilihAktif = new File(pathRestorePilih);
             }
         }
         TgBackup.healkanStringPrefs(this);
@@ -995,6 +1005,11 @@ public class SettingsActivity extends Activity {
             outState.putString(STATE_RESTORE_TG_PATH,
                     restoreTgTertundaFile.getAbsolutePath());
             outState.putString(STATE_RESTORE_TG_NAMA, restoreTgTertundaNama);
+        }
+        File salinanAktif = salinanRestorePilihAktif;
+        if (salinanAktif != null) {
+            outState.putString(STATE_RESTORE_PILIH_PATH,
+                    salinanAktif.getAbsolutePath());
         }
     }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengecualian salinan restore-pilih disimpan di Bundle (Audit 1003)
+
+- Perbaikan restore: pengecualian penyapu untuk salinan restore-pilih yang sedang dipakai (Audit 993) adalah satu-satunya keadaan berkas tertunda yang hanya hidup di field per-instance — tiga saudaranya (ekspor plain, impor terenkripsi, restore Telegram) semua disimpan di Bundle mengikuti pelajaran Audit 852. Rekreasi activity (mis. rotasi) saat restore latar berjalan bisa membuat instance baru menyapu salinan yang sedang dibaca begitu umurnya melewati 1 jam. Jalur salinan kini disimpan dan dipulihkan lewat kunci Bundle `restore_pilih_path` dengan pola yang sama persis.
+
 ## [Belum rilis] — Polling Telegram pulih dari konflik HTTP 409 (Audit 1002)
 
 - Perbaikan bot: getUpdates yang dijawab 409 Conflict (webhook terpasang atau konsumen getUpdates lain memakai token yang sama) kini ditangani khusus — sebelumnya semua non-2xx diperlakukan sama sehingga perintah bot bisa mati selamanya dengan satu baris log generik yang tak terbedakan dari galat sesaat, dan aplikasi tak pernah memanggil deleteWebhook sama sekali. Penanganan baru mencatat penjelasan yang berbeda, lalu mencoba menghapus webhook (penyebab yang bisa sembuh sendiri) dengan penjepit 10 menit agar tidak berbadai; hasil upaya dicatat jujur termasuk kemungkinan penyebab lain. Peringatan gerbang "metode baru tanpa jejak uji" diterima sadar: `tanganiKonflikPoll` terikat Context/jaringan HTTP dan tak punya logika murni yang bisa diuji JVM.
