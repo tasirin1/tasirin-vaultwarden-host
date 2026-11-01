@@ -1748,6 +1748,28 @@ def main():
                 rc != 0)
         shutil.rmtree(subenvtawar, ignore_errors=True)
 
+        subbungkusbaru = klon(tmp, "subbungkusbaru")
+        berkas_aksi86 = os.path.join(
+            subbungkusbaru, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi86, encoding="utf-8") as f:
+            isi_aksi86 = f.read()
+        baris_tulis86 = [b for b in isi_aksi86.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi86, "w", encoding="utf-8") as f:
+            f.write(isi_aksi86.replace(
+                baris_tulis86,
+                baris_tulis86.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(setsid cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subbungkusbaru,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pembungkus setsid kini dikenal resolver: penulis "
+                "menguras stdin, gerbang gagal (Audit 970)",
+                rc != 0)
+        shutil.rmtree(subbungkusbaru, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

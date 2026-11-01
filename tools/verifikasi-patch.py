@@ -468,6 +468,13 @@ _OPSI_PEMBUNGKUS = {
     "xargs": {"-a", "--arg-file", "-E", "-I", "-L", "-n", "-P",
               "-s", "-d", "--eof", "--max-lines", "--max-args",
               "--max-procs", "--max-chars", "--delimiter"},
+    # Audit 970: pembungkus transparan tambahan beserta opsi
+    # bernilainya (setsid/eatmydata/nohup tanpa opsi bernilai).
+    "ionice": {"-c", "--class", "-n", "--classdata", "-p", "--pid",
+               "-u", "--which"},
+    "taskset": {"-c", "--cpu-list", "-p", "--pid"},
+    "chrt": {"-T", "--sched-runtime", "-D", "--sched-deadline",
+             "-P", "--sched-period"},
 }
 
 
@@ -726,7 +733,8 @@ def _menguras_stdin(bagian, _batas_argv=0):
                         awal += 1
             continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
-                "stdbuf"):
+                "stdbuf", "setsid", "ionice", "chrt", "taskset",
+                "eatmydata", "nohup"):
             if t0 == "xargs":
                 # Audit 962: xargs terdalam yang menentukan sumber
                 # item — xargs di balik xargs -a membaca stdin
@@ -735,6 +743,9 @@ def _menguras_stdin(bagian, _batas_argv=0):
             # Audit 966: sesudah pembungkus non-env, penetapan tak
             # lagi transparan.
             lewat_pembungkus = True
+            # Audit 970: taskset/chrt berbentuk daftar/pid tak
+            # mempunyai operand masker/prio sebelum perintah.
+            tanpa_masker = False
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
@@ -773,6 +784,15 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     # Audit 962: item dari berkas argumen menjadi
                     # operand perintah anak, bukan stdin bersama.
                     xargs_dari_berkas = True
+                if ((t0 == "taskset"
+                        and (opsi in ("-c", "--cpu-list", "-p", "--pid")
+                             or opsi.startswith("--cpu-list=")
+                             or opsi.startswith("--pid=")))
+                        or (t0 == "chrt"
+                            and opsi in ("-p", "--pid"))):
+                    # Audit 970: bentuk daftar/pid — tak ada
+                    # operand masker/prio yang perlu dilompati.
+                    tanpa_masker = True
                 if opsi in bernilai:
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.
@@ -782,16 +802,19 @@ def _menguras_stdin(bagian, _batas_argv=0):
                         return False
                     if awal < len(toks):
                         awal += 1
-            if t0 == "timeout" and awal < len(toks):
+            if (t0 == "timeout" or (t0 in ("taskset", "chrt")
+                    and not tanpa_masker)) and awal < len(toks):
                 # Audit 968: redirect sebelum durasi (mis. sesudah
                 # '--') dilompati dulu, jangan ditelan sebagai
                 # operand durasi.
+                # Audit 970: operand pertama taskset (masker) dan
+                # chrt (prio) berposisi seperti durasi timeout.
                 awal = _sesudah_redirect_berantai(
                     toks, awal, _batas_argv)
                 if awal < 0:
                     return False
                 if awal < len(toks):
-                    awal += 1  # operand durasi
+                    awal += 1  # operand durasi/masker/prio
             if t0 == "xargs" and awal < len(toks):
                 awal = _sesudah_redirect_berantai(
                     toks, awal, _batas_argv)

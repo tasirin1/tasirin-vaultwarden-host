@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Resolver gerbang mengenal enam pembungkus transparan tambahan (Audit 970)
+- Bug (fail-open): resolver hanya mengenal `env`/`timeout`/`xargs`/`nice`/`command`/`stdbuf`; pembungkus transparan `setsid`, `ionice`, `chrt`, `taskset`, `eatmydata`, dan `nohup` berhenti dinilai sebagai nama program sehingga pembaca di baliknya tak terlihat. Keenamnya kini dikenal beserta opsi bernilainya, termasuk operand masker `taskset` dan prio `chrt` yang berposisi seperti durasi `timeout` (dan pengecualiannya pada bentuk daftar/pid). Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Env sesudah pembungkus memulihkan transparansi penetapan bagi resolver gerbang (Audit 969)
 - Bug (fail-open): bendera Audit 966 tak pernah dipadamkan, sehingga `nice env A=1 cat` dinilai tak menguras — padahal env yang dijalankan pembungkus menafsirkan `A=1` sebagai penetapannya dan menjalankan `cat`. Cabang `env` kini memadamkan bendera itu; arah sebaliknya (`env nice A=1 cat`) tetap tertahan. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
 
