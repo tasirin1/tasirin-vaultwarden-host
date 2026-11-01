@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Terjemahan open_settings disamakan dengan settings (Audit 976)
+- Perbaikan kosmetik: di `values-in`, `open_settings` masih "Settings" sedangkan `settings` sudah "Pengaturan" untuk kata sumber yang sama — menu overflow dan judul layar tujuan berbeda nama. `open_settings` kini "Pengaturan".
+
+
 ## [Belum rilis] — Teks notifikasi mengikuti locale perangkat lewat resource (Audit 975)
 - Perbaikan i18n: notifikasi pembaruan selalu berbahasa Inggris dan notifikasi server selalu berbahasa Indonesia karena teksnya literal di kode. Keduanya kini dari resource (`notif_update`, `update_tersedia_singkat`, `notif_server_aktif`, `notif_tugas_latar`, `notif_channel_server` — Inggris + Indonesia). `teksNotifikasi` tetap fungsi murni: templat diteruskan pemanggil dari resource, dan uji JVM-nya diperbarui di commit ini dengan ekspektasi keluaran Indonesia yang sama persis seperti perilaku lama.
 
