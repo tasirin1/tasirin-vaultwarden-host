@@ -1320,6 +1320,25 @@ def main():
                 "menguras: gerbang gagal (Audit 937)", rc != 0)
         shutil.rmtree(subbungkus, ignore_errors=True)
 
+        subopsi = klon(tmp, "subopsi")
+        berkas_aksi66 = os.path.join(
+            subopsi, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi66, encoding="utf-8") as f:
+            isi_aksi66 = f.read()
+        baris_tulis66 = [b for b in isi_aksi66.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi66, "w", encoding="utf-8") as f:
+            f.write(isi_aksi66.replace(
+                baris_tulis66,
+                baris_tulis66.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(sort -k 2 > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subopsi, [sys.executable, GERBANG, "--semua"])
+        periksa("nilai opsi sort -k bukan operand berkas: gerbang "
+                "gagal (Audit 938)", rc != 0)
+        shutil.rmtree(subopsi, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

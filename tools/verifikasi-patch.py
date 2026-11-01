@@ -445,6 +445,14 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "uniq"}
 
 
+_OPSI_BERNILAI = {
+    "head": {"-n", "-c"},
+    "tail": {"-n", "-c"},
+    "sort": {"-k", "-o", "-t", "-S", "-T"},
+    "uniq": {"-f", "-s"},
+}
+
+
 def _menguras_stdin(bagian):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -498,9 +506,9 @@ def _menguras_stdin(bagian):
                 lewati = True
             continue
         if t.startswith("-"):
-            if perintah in ("head", "tail") and t in ("-n", "-c"):
-                lewati = True
-            elif perintah == "sort" and t == "-o":
+            # Audit 938: opsi bernilai tak hanya -n/-c dan -o;
+            # nilai opsi yang terpisah bukan operand berkas.
+            if t in _OPSI_BERNILAI.get(perintah, ()):
                 lewati = True
             continue
         if perintah == "tee":

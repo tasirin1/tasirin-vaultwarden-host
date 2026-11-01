@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nilai opsi perintah pembaca dilengkapi (Audit 938)
+- Deviasi fail-open: daftar opsi bernilai pada `_menguras_stdin` hanya memuat -n/-c head/tail dan -o sort, sehingga nilai opsi lain (mis. `sort -k 2`, `uniq -f 3`) dianggap operand berkas dan perintahnya lolos sebagai bukan penguras. Daftar kini kamus per perintah. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model stdin mengenali perintah di balik awalan dan pembungkus (Audit 937)
 - Deviasi fail-open: `_menguras_stdin` hanya membaca token pertama, sehingga pembaca di balik penetapan variabel lingkungan (`LC_ALL=C cat`) atau pembungkus (`env`, `timeout`, `xargs`, `nice`, `command`, `stdbuf`) tak dikenali sebagai penguras dan penulis sesudahnya terkredit. Perintah efektif kini diselesaikan lebih dulu sebelum penilaian. Skenario uji-diri baru menguncinya.
 
