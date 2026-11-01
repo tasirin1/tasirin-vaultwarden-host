@@ -51,15 +51,22 @@ def cek_daftar_hapusan(gagal):
                 if b.endswith(".java"):
                     p = os.path.relpath(os.path.join(akar, b), AKAR)
                     isi_java.append((p, kupas_java(baca(p))))
+        # Audit 953: kandidat nama pemanggilan diekstrak SEKALI per
+        # berkas lalu disilangkan dengan daftar — pola lama menyusun
+        # regex per nama dan memindai ulang seluruh berkas untuk
+        # tiap nama (90 nama x 46 berkas).
+        pola_kandidat = re.compile(r"(\w+)\s*\(|::\s*(\w+)")
+        berkas_pertama = {}
+        for p, isi in isi_java:
+            for cocok in pola_kandidat.finditer(isi):
+                nama = cocok.group(1) or cocok.group(2)
+                if nama in BEKAS_HAPUSAN and nama not in berkas_pertama:
+                    berkas_pertama[nama] = p
         for nama in sorted(BEKAS_HAPUSAN):
-            pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
-                              % (re.escape(nama), re.escape(nama)))
-            for p, isi in isi_java:
-                if pola.search(isi):
-                    gagal.append("Pohon masih memanggil %s() yang sudah "
-                                 "dihapus (di %s) — regresi hapusan di luar "
-                                 "rentang diff" % (nama, p))
-                    break
+            if nama in berkas_pertama:
+                gagal.append("Pohon masih memanggil %s() yang sudah "
+                             "dihapus (di %s) — regresi hapusan di luar "
+                             "rentang diff" % (nama, berkas_pertama[nama]))
 
 def _impor_yaml(gagal):
     """PyYAML wajib ada: tanpa itu validasi YAML mati diam-diam sementara
@@ -2181,21 +2188,43 @@ def nama_metode_hilang(diff, lewati_berkas=()):
         hilang.append(cocok.group(1))
     return hilang
 
+_CACHE_BARIS = {}
+
+
+def _daftar_baris_tanpa_komentar(isi):
+    # Audit 953: hasil per isi di-cache — banyak cek memindai berkas
+    # yang sama berulang kali dalam satu lari gerbang.
+    daftar = _CACHE_BARIS.get(isi)
+    if daftar is None:
+        daftar = []
+        dalam = False
+        for i, baris in enumerate(isi.splitlines(), 1):
+            s = baris.strip()
+            if dalam:
+                if "*/" in s:
+                    dalam = False
+                continue
+            if s.startswith("/*"):
+                if "*/" not in s:
+                    dalam = True
+                continue
+            if s.startswith("//") or s.startswith("*"):
+                continue
+            if "/" not in baris and '"' not in baris \
+                    and "'" not in baris:
+                # Jalur cepat: tanpa pemicu komentar/string, hasil
+                # kupas_java atas baris ini adalah baris itu sendiri.
+                daftar.append((i, baris))
+            else:
+                daftar.append((i, kupas_java(baris)))
+        if len(_CACHE_BARIS) > 1000:
+            _CACHE_BARIS.clear()
+        _CACHE_BARIS[isi] = daftar
+    return daftar
+
+
 def baris_tanpa_komentar(isi):
-    dalam = False
-    for i, baris in enumerate(isi.splitlines(), 1):
-        s = baris.strip()
-        if dalam:
-            if "*/" in s:
-                dalam = False
-            continue
-        if s.startswith("/*"):
-            if "*/" not in s:
-                dalam = True
-            continue
-        if s.startswith("//") or s.startswith("*"):
-            continue
-        yield i, kupas_java(baris)
+    yield from _daftar_baris_tanpa_komentar(isi)
 
 BUKAN_TIPE = KATA_KUNCI_JAVA | {"break", "continue", "super", "this", "yield"}
 

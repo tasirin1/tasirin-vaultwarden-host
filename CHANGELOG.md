@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang jauh lebih cepat: ekstraksi kandidat satu lintasan + cache baris (Audit 953)
+- Tak efisien: satu lari `--semua` memakan ±5,1 detik dan suite uji-diri membayarnya 104+ kali (±10 menit). Dua akar dipangkas: `cek_daftar_hapusan` tak lagi menyusun regex per nama dan memindai ulang semua berkas Java untuk tiap nama (kini nama kandidat diekstrak sekali per berkas lalu disilangkan dengan daftar hapusan), dan hasil `baris_tanpa_komentar` di-cache per isi dengan jalur cepat untuk baris tanpa pemicu komentar/string. Terukur: `--semua` 5,1 → 2,0 detik; keluaran gerbang dan pesan kegagalan terverifikasi identik (termasuk uji tanam panggilan nama terhapus, referensi metode, dan nyaris-sama yang tak boleh tertangkap).
+
+
 ## [Belum rilis] — Uji redirect pada token sadar kutip sebagian (Audit 952)
 - Deviasi fail-closed: uji token memuat `>` pada `_menguras_stdin` hanya membebaskan token berkutip PENUH (Audit 939), sehingga operand berkutip sebagian seperti `a">b"` tetap dianggap redirect. Uji kini memakai penolong `_gt_di_luar_kutip`: `>` yang seluruhnya di dalam kutip (atau ter-escape) adalah data nama berkas. Skenario uji-diri baru menguncinya.
 
