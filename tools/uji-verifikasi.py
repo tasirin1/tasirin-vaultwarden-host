@@ -1241,6 +1241,25 @@ def main():
                 rc == 0)
         shutil.rmtree(kurungtempel, ignore_errors=True)
 
+        subberkas = klon(tmp, "subberkas")
+        berkas_aksi62 = os.path.join(
+            subberkas, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi62, encoding="utf-8") as f:
+            isi_aksi62 = f.read()
+        baris_tulis62 = [b for b in isi_aksi62.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi62, "w", encoding="utf-8") as f:
+            f.write(isi_aksi62.replace(
+                baris_tulis62,
+                baris_tulis62.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cat /tmp/berkas > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subberkas, [sys.executable, GERBANG, "--semua"])
+        periksa("pembaca berargumen berkas tak menguras stdin: "
+                "gerbang lolos (Audit 934)", rc == 0)
+        shutil.rmtree(subberkas, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

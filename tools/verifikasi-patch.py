@@ -445,6 +445,46 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "uniq"}
 
 
+def _menguras_stdin(bagian):
+    """True bila perintah pembaca ini sungguh menguras stdin bersama
+    (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
+    membaca berkas argumennya atau redirect masukan tak menguras
+    stdin; tee selalu membaca stdin walau berargumen berkas keluaran;
+    dd membaca berkas bila ada if=."""
+    toks = bagian.strip().lstrip("({ ").split()
+    if not toks:
+        return False
+    perintah = toks[0].strip("\"'")
+    if perintah not in _PEMBACA_STDIN:
+        return False
+    lewati = False
+    for t in toks[1:]:
+        if lewati:
+            lewati = False
+            continue
+        if t.startswith("<"):
+            return False
+        if ">" in t:
+            if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
+                lewati = True
+            continue
+        if t.startswith("-"):
+            if perintah in ("head", "tail") and t in ("-n", "-c"):
+                lewati = True
+            elif perintah == "sort" and t == "-o":
+                lewati = True
+            continue
+        if perintah == "tee":
+            continue
+        if perintah == "dd":
+            if t.startswith("if="):
+                return False
+            if "=" in t:
+                continue
+        return False
+    return True
+
+
 def segmen_redirect_output(segmen):
     """True bila segmen memuat redirect `>>` ke PERSIS $GITHUB_OUTPUT
     yang berada DI LUAR kutip dan menjadi penutup segmen (Audit 874):
@@ -647,10 +687,7 @@ def segmen_redirect_output(segmen):
                         if segmen_redirect_output(bagian):
                             hasil = True
                             break
-                        kata_awal = bagian.strip().lstrip("({ ").split(
-                            None, 1)
-                        if (kata_awal and kata_awal[0].strip("\"'")
-                                in _PEMBACA_STDIN):
+                        if _menguras_stdin(bagian):
                             break
                 else:
                     hasil = False

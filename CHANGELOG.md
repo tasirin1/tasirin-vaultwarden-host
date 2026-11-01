@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model substitusi membedakan pembaca stdin dari pembaca berkas (Audit 934)
+- Deviasi fail-closed: model Audit 931 berhenti menilai isi substitusi hanya dari kata awal perintah, sehingga pembaca yang membaca berkas argumennya sendiri (atau redirect masukan) dianggap menguras stdin bersama dan penulis sesudahnya kehilangan kredit. Penolong baru `_menguras_stdin` menilai sumber masukan sungguhan: argumen berkas, redirect masukan, opsi bernilai (head/tail/sort), pengecualian tee (selalu membaca stdin) dan dd (if=). Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Syarat skip grup sadar pasangan kurung dan redirect sendiri (Audit 933)
 - Deviasi fail-closed: generalisasi Audit 929 membuang segmen pembuka grup yang sah — kurung tutup ekspansi kurung ikut terhitung sebagai kurung argumen yatim, dan kurung menempel kata pada segmen tanpa redirect sendiri dibuang walau penutup grup sah mengikuti. Penolong kini memasangkan kurung buka/tutup argumen, dan syarat skip hanya berlaku bila segmennya sendiri memuat redirect keluaran (bentuk yang memang mengkredit langsung). Dua skenario uji-diri baru mengunci kedua bentuk sah.
 
