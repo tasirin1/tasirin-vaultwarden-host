@@ -2641,10 +2641,6 @@ public final class Updater {
                 String badan = new String(TgBackup.bacaTerbatas(
                         c.getInputStream(), 1024 * 1024), StandardCharsets.UTF_8);
                 java.util.List<String> baris = pecahBarisChecksum(badan);
-                if (baris.isEmpty()) {
-                    return HasilChecksum.BELUM_TERBIT;
-                }
-
                 String hex = pindaiHexDariBaris(baris, namaAssetDariUrl(url));
                 return hex == null ? HasilChecksum.BELUM_TERBIT
                         : new HasilChecksum(hex, false);

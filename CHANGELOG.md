@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cabang kosong yang tak terjangkau di fetchChecksumRinci dibuang (Audit 949)
+- Kode sampah (cabang mati): `baris.isEmpty()` sesudah `pecahBarisChecksum(badan)` tak bisa bernilai true — badan tak pernah null dan penolong itu selalu menghasilkan minimal satu elemen (badan kosong menghasilkan satu elemen ""). Hasil akhir untuk badan kosong tetap `BELUM_TERBIT` lewat jalur hex null yang sama.
+
+
 ## [Belum rilis] — Satu sumber konstanta AlgorithmId SHA256withRSA (Audit 948)
 - Kode sampah (duplikasi): larik byte AlgorithmId SHA256withRSA ditulis dua kali di TlsCert (`sha256RsaAlgorithmId` dan `Der.oidSha256Rsa`). `oidSha256Rsa` kini memakai `sha256RsaAlgorithmId()`; literalnya tinggal satu di berkas.
 
