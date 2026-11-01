@@ -1200,6 +1200,47 @@ def main():
                 "gagal (Audit 931)", rc != 0)
         shutil.rmtree(subkuras, ignore_errors=True)
 
+        kurungekspansi = klon(tmp, "kurungekspansi")
+        berkas_aksi60 = os.path.join(
+            kurungekspansi, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi60, encoding="utf-8") as f:
+            isi_aksi60 = f.read()
+        baris_tulis60 = [b for b in isi_aksi60.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi60, "w", encoding="utf-8") as f:
+            f.write(isi_aksi60.replace(
+                baris_tulis60,
+                baris_tulis60.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" {a,b}c; }'), 1))
+        rc, out = jalan(kurungekspansi,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kurung tutup ekspansi kurung bukan kurung argumen "
+                "yatim: gerbang lolos (Audit 933)", rc == 0)
+        shutil.rmtree(kurungekspansi, ignore_errors=True)
+
+        kurungtempel = klon(tmp, "kurungtempel")
+        berkas_aksi61 = os.path.join(
+            kurungtempel, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi61, encoding="utf-8") as f:
+            isi_aksi61 = f.read()
+        baris_tulis61 = [b for b in isi_aksi61.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi61, "w", encoding="utf-8") as f:
+            f.write(isi_aksi61.replace(
+                baris_tulis61,
+                baris_tulis61.replace(
+                    'echo "tag_mentah=$TAG"',
+                    '{ echo "tag_mentah=$TAG" x}; }'), 1))
+        rc, out = jalan(kurungtempel,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kurung menempel kata tanpa redirect sendiri sah "
+                "bila penutup mengikuti: gerbang lolos (Audit 933)",
+                rc == 0)
+        shutil.rmtree(kurungtempel, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
