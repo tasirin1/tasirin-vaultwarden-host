@@ -266,7 +266,8 @@ public final class AutoUpdate {
                     ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null) {
                 NotificationChannel ch = new NotificationChannel("vw_updates",
-                        "Vaultwarden Update", NotificationManager.IMPORTANCE_DEFAULT);
+                        ctx.getString(R.string.notif_update),
+                        NotificationManager.IMPORTANCE_DEFAULT);
                 nm.createNotificationChannel(ch);
             }
         }
@@ -281,8 +282,10 @@ public final class AutoUpdate {
         } else {
             b = new android.app.Notification.Builder(ctx);
         }
-        android.app.Notification n = b.setContentTitle("Vaultwarden Update")
-                .setContentText("v" + version + " available")
+        android.app.Notification n = b.setContentTitle(
+                        ctx.getString(R.string.notif_update))
+                .setContentText(ctx.getString(
+                        R.string.update_tersedia_singkat, version))
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)

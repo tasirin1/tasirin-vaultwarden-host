@@ -1269,7 +1269,9 @@ public class ServerService extends Service {
                 : new Notification.Builder(this);
         boolean jalan = running || alive(process);
         return b.setContentTitle("Vaultwarden Host")
-                .setContentText(teksNotifikasi(jalan, portTampil(), statusLine))
+                .setContentText(teksNotifikasi(jalan, portTampil(), statusLine,
+                        getString(R.string.notif_server_aktif),
+                        getString(R.string.notif_tugas_latar)))
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
                 .setOngoing(true)
@@ -1277,9 +1279,14 @@ public class ServerService extends Service {
                 .build();
     }
 
-    static String teksNotifikasi(boolean jalan, String port, String status) {
+    // Audit 975: templat teks berasal dari resource pemanggil agar
+    // notifikasi mengikuti locale perangkat; fungsi ini tetap murni
+    // dan teruji JVM dengan templat yang diteruskan.
+    static String teksNotifikasi(boolean jalan, String port, String status,
+            String templatAktif, String teksLatar) {
         if (jalan) {
-            return "Server aktif di port " + (port == null || port.isEmpty() ? "?" : port);
+            return String.format(templatAktif,
+                    port == null || port.isEmpty() ? "?" : port);
         }
         String s = status == null ? "" : status.trim();
         int baris = s.indexOf('\n');
@@ -1287,7 +1294,7 @@ public class ServerService extends Service {
             s = s.substring(0, baris).trim();
         }
         if (s.isEmpty()) {
-            return "Menjalankan tugas latar...";
+            return teksLatar;
         }
         return s.length() > 80 ? s.substring(0, 77) + "..." : s;
     }
@@ -1550,7 +1557,8 @@ public class ServerService extends Service {
 
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Vaultwarden server",
+            NotificationChannel ch = new NotificationChannel(CHANNEL_ID,
+                    getString(R.string.notif_channel_server),
                     NotificationManager.IMPORTANCE_LOW);
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (nm != null) {

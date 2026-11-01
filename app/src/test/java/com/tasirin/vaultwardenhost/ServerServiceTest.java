@@ -840,22 +840,31 @@ public class ServerServiceTest {
 
     @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
-
+        // Audit 975: templat diteruskan pemanggil dari resource —
+        // uji memakai templat values-in, hasil harus sama persis
+        // dengan perilaku literal lama.
+        String aktif = "Server aktif di port %1$s";
+        String latar = "Menjalankan tugas latar...";
         assertEquals("Server aktif di port 8080",
-                ServerService.teksNotifikasi(true, "8080", "apa saja"));
+                ServerService.teksNotifikasi(true, "8080", "apa saja",
+                        aktif, latar));
         assertEquals("Server aktif di port ?",
-                ServerService.teksNotifikasi(true, null, ""));
+                ServerService.teksNotifikasi(true, null, "", aktif, latar));
 
         assertEquals("Server crash - restart dalam 2 dtk",
                 ServerService.teksNotifikasi(false, "8080",
-                        "Server crash - restart dalam 2 dtk\n" + "tail " + "x".repeat(300)));
+                        "Server crash - restart dalam 2 dtk\n" + "tail " + "x".repeat(300),
+                        aktif, latar));
         assertEquals("Menjalankan tugas latar...",
-                ServerService.teksNotifikasi(false, "8080", "   \n  "));
+                ServerService.teksNotifikasi(false, "8080", "   \n  ",
+                        aktif, latar));
         assertEquals("Menjalankan tugas latar...",
-                ServerService.teksNotifikasi(false, "8080", null));
+                ServerService.teksNotifikasi(false, "8080", null,
+                        aktif, latar));
 
         String panjang = "y".repeat(200);
-        String hasil = ServerService.teksNotifikasi(false, "8080", panjang);
+        String hasil = ServerService.teksNotifikasi(false, "8080", panjang,
+                aktif, latar);
         assertEquals(80, hasil.length());
         assertTrue(hasil.endsWith("..."));
     }

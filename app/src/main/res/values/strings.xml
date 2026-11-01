@@ -205,6 +205,10 @@
     <string name="ca_bagikan_gagal">Failed to share CA: %1$s</string>
     <string name="ca_reset_gagal">Certificate reset failed: %1$s</string>
     <string name="update_tersedia_singkat">Update available: v%1$s</string>
+    <string name="notif_update">Vaultwarden Update</string>
+    <string name="notif_server_aktif">Server active on port %1$s</string>
+    <string name="notif_tugas_latar">Running background task...</string>
+    <string name="notif_channel_server">Vaultwarden server</string>
     <string name="wv_update_judul">Web Vault update available</string>
     <string name="wv_update_pesan">Current web vault v%1$s, while the server is v%2$s.\n\nUpdate the web vault now? (one ~35 MB download, takes effect after a server restart)</string>
     <string name="wv_update_pesan_kunci">Current web vault v%1$s, while the server is v%2$s.\n\nWeb vault version pinned to v%3$s: sync now? (one ~35 MB download, takes effect after a server restart)</string>

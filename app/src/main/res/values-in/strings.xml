@@ -204,6 +204,10 @@
     <string name="ca_bagikan_gagal">Gagal membagikan CA: %1$s</string>
     <string name="ca_reset_gagal">Reset sertifikat gagal: %1$s</string>
     <string name="update_tersedia_singkat">Update tersedia: v%1$s</string>
+    <string name="notif_update">Pembaruan Vaultwarden</string>
+    <string name="notif_server_aktif">Server aktif di port %1$s</string>
+    <string name="notif_tugas_latar">Menjalankan tugas latar...</string>
+    <string name="notif_channel_server">Server Vaultwarden</string>
     <string name="wv_update_judul">Update web vault tersedia</string>
     <string name="wv_update_pesan">Web vault saat ini v%1$s, sedangkan server v%2$s.\n\nPerbarui web vault sekarang? (unduhan ~35 MB, berlaku setelah server di-restart)</string>
     <string name="wv_update_pesan_kunci">Web vault saat ini v%1$s, sedangkan server v%2$s.\n\nVersi web vault dikunci ke v%3$s: sinkronkan sekarang? (unduhan ~35 MB, berlaku setelah server di-restart)</string>

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks notifikasi mengikuti locale perangkat lewat resource (Audit 975)
+- Perbaikan i18n: notifikasi pembaruan selalu berbahasa Inggris dan notifikasi server selalu berbahasa Indonesia karena teksnya literal di kode. Keduanya kini dari resource (`notif_update`, `update_tersedia_singkat`, `notif_server_aktif`, `notif_tugas_latar`, `notif_channel_server` — Inggris + Indonesia). `teksNotifikasi` tetap fungsi murni: templat diteruskan pemanggil dari resource, dan uji JVM-nya diperbarui di commit ini dengan ekspektasi keluaran Indonesia yang sama persis seperti perilaku lama.
+
+
 ## [Belum rilis] — Penulisan bin/version.txt disatukan ke penolong tulis yang tahan padam (Audit 974)
 - Perbaikan duplikasi: `Updater.writeVersionTag` adalah salinan tulis-atomik yang lebih lemah dari `ServerService.writeText` untuk berkas yang sama — tanpa fsync direktori sesudah rename dan menelan semua kegagalan diam-diam. `writeVersionTag` kini mendelegasikan ke `writeText` (yang visibilitasnya dibuka sebatas paket) dan kegagalan tulisnya dicatat ke log; version.txt yang basi tetap terpulihkan sendiri lewat smoke test `--version`.
 
