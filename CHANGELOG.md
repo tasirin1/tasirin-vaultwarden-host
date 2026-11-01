@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penolong redirect gerbang mengenal fd arbitrer, bentuk murni terpisah, dan penutup fd (Audit 967)
+- Bug (fail-open): `_indeks_sesudah_redirect` (Audit 965) tak kenal redirect berawalan fd (`3> /dev/null cat` dinilai tak menguras), bentuk murni `>&` terpisah, redirect ke fd masukan selain 0 (`3< berkas cat`), dan penutup fd (`<&- cat` dinilai menguras padahal stdin-nya ditutup). Penolong kini mengurai awalan fd: masukan fd 0 tetap pengalihan stdin, fd masukan lain netral, `>&`/`N>&` murni melompati targetnya, dan `<&-` berarti tak menguras. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Penetapan sesudah pembungkus non-env tak lagi transparan bagi resolver gerbang (Audit 966)
 - Bug (fail-open): resolver gerbang melewati token berbentuk penetapan (`A=1`) di posisi mana pun, padahal sesudah pembungkus non-env token itu adalah nama program yang dijalankan pembungkus — `nice A=1 cat` dan `timeout 5 A=1 cat` gagal di shell dan tak membaca stdin, tetapi dinilai menguras. Penetapan kini hanya transparan di awal segmen atau sesudah `env`. Skenario uji-diri baru menguncinya.
 

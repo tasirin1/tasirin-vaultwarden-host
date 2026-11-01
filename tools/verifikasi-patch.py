@@ -538,13 +538,55 @@ def _indeks_sesudah_redirect(toks, i):
     i apa adanya bila toks[i] bukan redirect keluaran, dan -1 bila
     redirect MASUKAN ('< berkas' / '<berkas'): stdin perintah
     dialihkan dari berkas itu, bukan stdin bersama. Bentuk '<&'
-    (duplikasi fd dari stdin itu sendiri) netral: dilompati."""
+    (duplikasi fd dari stdin itu sendiri) netral: dilompati.
+    Audit 967: awalan fd arbitrer dikenali di kedua arah — redirect
+    ke fd masukan selain 0 ('3< berkas') tak menyentuh stdin
+    bersama sehingga netral; bentuk murni '>&'/'N>&' melompati
+    target terpisahnya; penutup fd ('<&-', '>&-') berarti fd
+    ditutup: masukan yang ditutup membuat perintah tak menguras
+    (-1), keluaran yang ditutup netral."""
     t = toks[i]
-    if t.startswith("<"):
-        if t.startswith("<&"):
-            return i + 1
-        return -1
-    if t in (">", ">>", "1>", "2>", "1>>", "2>>", "&>", "&>>"):
+    j = 0
+    while j < len(t) and t[j].isdigit():
+        j += 1
+    fd = t[:j]
+    sisa = t[j:]
+    if sisa.startswith("<"):
+        if sisa.startswith("<&"):
+            if fd not in ("", "0"):
+                # Duplikasi ke fd lain: stdin bersama tak tersentuh.
+                return (min(i + 2, len(toks)) if sisa == "<&"
+                        else i + 1)
+            target = sisa[2:]
+            if target == "-":
+                return -1  # stdin ditutup: perintah tak menguras
+            if target == "":
+                berikut = (toks[i + 1] if i + 1 < len(toks) else "")
+                if berikut in ("", "0"):
+                    return min(i + 2, len(toks))
+                return -1  # '<& -' tutup, '<& N' alihkan dari fd lain
+            if target == "0":
+                return i + 1  # stdin diduplikasi dari dirinya: netral
+            return -1  # '<&N': stdin berasal dari fd lain
+        if fd in ("", "0"):
+            return -1  # stdin perintah dialihkan dari berkas
+        # Fd masukan lain: netral — bentuk murni melompati target.
+        if sisa in ("<", "<>"):
+            return min(i + 2, len(toks))
+        return i + 1
+    if sisa.startswith(">&"):
+        target = sisa[2:]
+        if target == "-":
+            if fd in ("", "1"):
+                # Stdout ditutup: perintah gugur seketika pada
+                # keluaran pertamanya — stdin tak sempat terkuras.
+                return -1
+            return i + 1  # fd keluaran lain ditutup: netral
+        if target == "":
+            return min(i + 2, len(toks))  # '>&' murni, target pisah
+        return i + 1
+    if (re.fullmatch(r"(\d*)(>|>>)", t)
+            or re.fullmatch(r"&(>|>>)", t)):
         return min(i + 2, len(toks))
     if re.match(r"^(\d+|&)?>>?", t):
         return i + 1

@@ -1682,6 +1682,28 @@ def main():
                 "program: gerbang lolos (Audit 966)", rc == 0)
         shutil.rmtree(subtawar, ignore_errors=True)
 
+        subredfd = klon(tmp, "subredfd")
+        berkas_aksi83 = os.path.join(
+            subredfd, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi83, encoding="utf-8") as f:
+            isi_aksi83 = f.read()
+        baris_tulis83 = [b for b in isi_aksi83.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi83, "w", encoding="utf-8") as f:
+            f.write(isi_aksi83.replace(
+                baris_tulis83,
+                baris_tulis83.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(3> /dev/null cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subredfd,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect ber-fd di depan perintah tidak lagi "
+                "menyembunyikan pembaca: gerbang gagal (Audit 967)",
+                rc != 0)
+        shutil.rmtree(subredfd, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
