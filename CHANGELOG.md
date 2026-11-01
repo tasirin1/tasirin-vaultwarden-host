@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Segmen versi tak-angka di tengah kini memangkas, bukan meruntuhkan versi (Audit 979)
+- Perbaikan: `uraiVersi` mengembalikan array kosong (versi 0.0.0) bila segmen tak-angka/kosong muncul di tengah string, padahal `normVersion` menerima bentuk itu — tag upstream berbentuk seperti `1..2` atau `1.2.x.4` akan dinilai paling tua dan update terlewat diam-diam. Segmen tak-angka kini memangkas versi dari segmen itu, sama seperti perlakuan di ekor; uji `bandingVersi` ditambah asersi pengunci di commit ini.
+
+
 ## [Belum rilis] — Versi web-vault diselaraskan dari disk folder data aktif (Audit 978)
 - Perbaikan: penanda `wv_from_version` bersifat global dan tidak terikat folder data — sesudah pengguna mengganti folder, pemeriksa update dan UI bisa mengklaim versi folder lama sebagai versi terpasang dan web-vault lama bertahan tanpa pernah diperbarui. Pemeriksa kini membaca `vw-version.json` di folder aktif (disk menang, penanda diselaraskan), dan tampilan versi Settings mendahulukan disk atas penanda.
 

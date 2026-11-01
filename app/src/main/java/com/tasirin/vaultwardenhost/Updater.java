@@ -2393,17 +2393,12 @@ public final class Updater {
                 int angka = angkaAwalan(t.substring(awal, i));
                 awal = i + 1;
                 if (angka < 0) {
-                    boolean ekor = true;
-                    for (int j = i; j < t.length(); j++) {
-                        if (t.charAt(j) != '.') {
-                            ekor = false;
-                            break;
-                        }
-                    }
-                    if (ekor) {
-                        break;
-                    }
-                    return new int[0];
+                    // Audit 979: segmen tak-angka/kosong memangkas
+                    // versi dari segmen itu — di tengah sama seperti
+                    // di ekor. Dulu posisi tengah mengembalikan
+                    // array kosong (versi runtuh jadi 0.0.0) padahal
+                    // normVersion menerima bentuknya.
+                    break;
                 }
                 keluar[hitung++] = angka;
             }

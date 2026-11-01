@@ -1015,6 +1015,12 @@ public class UpdaterTest {
         assertTrue(Updater.bandingVersi("...", "1.37.1") < 0);
         assertTrue(Updater.bandingVersi(".1", "1.37.1") < 0);
         assertTrue(Updater.bandingVersi("1.37.0.", "1.37") == 0);
+        // Audit 979: segmen tak-angka di tengah memangkas seperti
+        // di ekor — tidak lagi runtuh menjadi 0.0.0.
+        assertTrue(Updater.bandingVersi("1..2", "1") == 0);
+        assertTrue(Updater.bandingVersi("1.2.x.4", "1.2") == 0);
+        assertTrue(Updater.bandingVersi("1.2.x.4", "1.2.1") < 0);
+        assertTrue(Updater.bandingVersi("1.2.x.4", "1.1.9") > 0);
     }
 
     @Test
