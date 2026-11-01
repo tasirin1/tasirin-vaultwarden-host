@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model stdin sadar kutip pada uji redirect token (Audit 939)
+- Deviasi fail-closed: uji token memuat `>` pada `_menguras_stdin` tak sadar kutip, sehingga operand berkas berkutip yang memuat karakter itu (mis. `cat "a>b"`) diperlakukan sebagai redirect dan perintahnya dinilai menguras stdin. Token berkutip penuh kini dinilai operand data. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Nilai opsi perintah pembaca dilengkapi (Audit 938)
 - Deviasi fail-open: daftar opsi bernilai pada `_menguras_stdin` hanya memuat -n/-c head/tail dan -o sort, sehingga nilai opsi lain (mis. `sort -k 2`, `uniq -f 3`) dianggap operand berkas dan perintahnya lolos sebagai bukan penguras. Daftar kini kamus per perintah. Skenario uji-diri baru menguncinya.
 

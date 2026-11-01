@@ -501,6 +501,11 @@ def _menguras_stdin(bagian):
             continue
         if t.startswith("<"):
             return False
+        if (len(t) >= 2 and t[0] in "\"'"
+                and t[-1] == t[0]):
+            # Audit 939: token berkutip penuh adalah operand data,
+            # walau isinya memuat karakter redirect.
+            return False
         if ">" in t:
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
                 lewati = True
