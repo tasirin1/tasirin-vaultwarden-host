@@ -1532,6 +1532,26 @@ def main():
                 "lolos (Audit 959)", rc == 0)
         shutil.rmtree(submerekat, ignore_errors=True)
 
+        subenvs = klon(tmp, "subenvs")
+        berkas_aksi76 = os.path.join(
+            subenvs, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi76, encoding="utf-8") as f:
+            isi_aksi76 = f.read()
+        baris_tulis76 = [b for b in isi_aksi76.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi76, "w", encoding="utf-8") as f:
+            f.write(isi_aksi76.replace(
+                baris_tulis76,
+                baris_tulis76.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(env -S cat > /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(subenvs, [sys.executable, GERBANG, "--semua"])
+        periksa("nilai env -S adalah perintah yang dijalankan: "
+                "tetap menguras, gerbang gagal (Audit 960)", rc != 0)
+        shutil.rmtree(subenvs, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

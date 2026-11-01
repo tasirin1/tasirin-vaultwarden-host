@@ -558,8 +558,22 @@ def _menguras_stdin(bagian):
                 awal += 1
                 if opsi == "--":
                     break
-                if opsi in ("-u", "--unset", "-C", "--chdir", "-S",
-                        "--split-string"):
+                if (opsi in ("-S", "--split-string")
+                        or opsi.startswith("--split-string=")
+                        or (opsi.startswith("-S") and len(opsi) > 2)):
+                    # Audit 960: nilai -S adalah baris perintah yang
+                    # dijalankan env — nilai itu, digabung sisa token
+                    # sesudahnya, dinilai sebagai perintah itu sendiri.
+                    if opsi in ("-S", "--split-string"):
+                        sisa = toks[awal:]
+                    elif opsi.startswith("--split-string="):
+                        sisa = [opsi.split("=", 1)[1]] + toks[awal:]
+                    else:
+                        sisa = [opsi[2:]] + toks[awal:]
+                    if not sisa:
+                        return False
+                    return _menguras_stdin(" ".join(sisa))
+                if opsi in ("-u", "--unset", "-C", "--chdir"):
                     if awal < len(toks):
                         awal += 1
             continue

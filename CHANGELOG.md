@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nilai env -S dinilai sebagai perintah oleh gerbang (Audit 960)
+- Bug (fail-open): lompatan opsi `env` (Audit 951) memperlakukan nilai `-S`/`--split-string` sebagai nilai biasa lalu mencari perintah sesudahnya, padahal nilai itu adalah baris perintah yang dijalankan env — `env -S cat` dinilai tak menguras. Nilai `-S` (terpisah, merekat, maupun bentuk `=`) kini digabung sisa token dan dinilai rekursif sebagai perintah itu sendiri. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Operand yang merekat ke redirect kini dinilai gerbang (Audit 959)
 - Bug (fail-open): token berbentuk `<operand>><target>` dibuang utuh sebagai redirect murni, sehingga operand-nya — berkas yang sungguh dibaca perintah — tak pernah dinilai dan `cat keluaran.txt>log1` dianggap menguras stdin. Awalan sebelum `>` pertama di luar kutip kini dinilai seperti operand biasa (pengecualian tee dan operand `dd` berlaku sama); redirect merekat murni (target, fd, opsi) tetap dilewati. Skenario uji-diri baru menguncinya.
 
