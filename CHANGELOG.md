@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Restore Settings menoleransi app-config.json yang rusak (Audit 981)
+- Perbaikan: satu `app-config.json` rusak/terpotong di dalam zip backup menggagalkan SELURUH restore dari Settings (pengecualian parse naik ke penangkap luar dan DB lama dipulihkan), padahal jalur bot menoleransinya. Parse config kini ditangkap setempat: restore DB tetap berjalan dan config yang tak terbaca hanya menjadi peringatan "pengaturan TIDAK diterapkan", sama seperti jalur Telegram.
+
+
 ## [Belum rilis] — file_size respons Telegram dibaca lewat JSONObject (Audit 980)
 - Perbaikan: `fileSizeDariRespons` adalah pemindai manual yang hanya menerima digit polos — `file_size` bertipe string menghasilkan -1 (tak diketahui) sehingga gerbang unduh-ulang 20 MB dan pemeriksaan ruang kosong terlewati, dan unduhan hanya berhenti pada plafon 200 MB. Ukuran kini dibaca lewat `JSONObject` seperti `file_path`, toleran nilai Number maupun String; uji JVM-nya ditambah untuk bentuk string di commit ini.
 

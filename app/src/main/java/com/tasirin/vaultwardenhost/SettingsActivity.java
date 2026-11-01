@@ -2041,6 +2041,7 @@ public class SettingsActivity extends Activity {
 
         java.util.Map<String, byte[]> tlsAsal = null;
         JSONObject zipCfg = null;
+        boolean zipCfgRusak = false;
         try {
 
             if (!ServerService.stopAndWait(SettingsActivity.this,
@@ -2143,8 +2144,18 @@ public class SettingsActivity extends Activity {
                             continue;
                         }
                         if ("app-config.json".equals(name)) {
-                            zipCfg = new JSONObject(new String(TgBackup.bacaTerbatas(
-                                    zis, TgBackup.BATAS_CONFIG_JSON), StandardCharsets.UTF_8));
+                            // Audit 981: config rusak tidak boleh
+                            // menggagalkan seluruh restore — samakan
+                            // jalur bot: DB tetap direstore, config
+                            // menjadi peringatan saja.
+                            try {
+                                zipCfg = new JSONObject(new String(
+                                        TgBackup.bacaTerbatas(zis,
+                                                TgBackup.BATAS_CONFIG_JSON),
+                                        StandardCharsets.UTF_8));
+                            } catch (Exception eCfg) {
+                                zipCfgRusak = true;
+                            }
                             zis.closeEntry();
                             continue;
                         }
@@ -2316,6 +2327,10 @@ public class SettingsActivity extends Activity {
                         + " internal gagal - salinan internal mungkin"
                         + " tertinggal; mulai ulang server untuk"
                         + " menyelaraskannya.");
+            }
+            if (zipCfgRusak) {
+                appendUiLog("[app] Peringatan: app-config.json tidak terbaca"
+                        + " - pengaturan TIDAK diterapkan.");
             }
             if (zipCfg != null) {
                 JSONObject prefsZip = zipCfg.optJSONObject("prefs");
