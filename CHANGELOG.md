@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Syarat skip grup sadar pasangan kurung dan redirect sendiri (Audit 933)
+- Deviasi fail-closed: generalisasi Audit 929 membuang segmen pembuka grup yang sah — kurung tutup ekspansi kurung ikut terhitung sebagai kurung argumen yatim, dan kurung menempel kata pada segmen tanpa redirect sendiri dibuang walau penutup grup sah mengikuti. Penolong kini memasangkan kurung buka/tutup argumen, dan syarat skip hanya berlaku bila segmennya sendiri memuat redirect keluaran (bentuk yang memang mengkredit langsung). Dua skenario uji-diri baru mengunci kedua bentuk sah.
+
+
 ## [Belum rilis] — Probe checksum membaca badan dengan batas byte streaming (Audit 932)
 - Perbaikan: `fetchChecksumRinci` tak lagi memakai `readLine`, yang mengalokasikan satu baris utuh sebelum batas 4096 karakter diterapkan (satu baris raksasa bisa memicu OutOfMemoryError yang lolos dari penangkap Exception). Badan kini dibaca lewat pembaca terbatas 1 MB lebih dulu, lalu dipecah oleh penolong murni baru `pecahBarisChecksum` (maksimal 200 baris, 4096 karakter per baris, CR dibuang) yang terkunci uji JVM.
 

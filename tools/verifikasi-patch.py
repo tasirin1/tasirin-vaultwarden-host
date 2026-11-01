@@ -845,6 +845,7 @@ def _ada_kurung_argumen(segmen):
     kutip = ""
     dalam = 0
     param = 0
+    kurung = 0
     tikus = False
     i = 0
     n = len(segmen)
@@ -894,7 +895,18 @@ def _ada_kurung_argumen(segmen):
             param -= 1
             i += 1
             continue
+        if c == "{" and dalam == 0 and not tikus:
+            # Audit 933: kurung buka argumen (mis. ekspansi kurung
+            # {a,b}) berpasangan dengan kurung tutupnya sendiri —
+            # tutupnya bukan kurung argumen yatim.
+            kurung += 1
+            i += 1
+            continue
         if c == "}" and dalam == 0 and not tikus:
+            if kurung > 0:
+                kurung -= 1
+                i += 1
+                continue
             return True
         i += 1
     return False
@@ -1012,7 +1024,8 @@ def cek_yaml_github_lain(gagal, peringatan):
                             "kulit" if segmen_cek[:1] == "(" else "grup")
                         segmen_cek = segmen_cek[1:].lstrip()
                     if (segmen.lstrip().startswith("{")
-                            and _ada_kurung_argumen(segmen_cek)):
+                            and _ada_kurung_argumen(segmen_cek)
+                            and segmen_redirect_output(segmen_cek)):
                         # Grup satu baris tanpa `;` sebelum `}` penutup
                         # adalah sintaks tak sah — `}` di sana argumen
                         # biasa, bukan penutup grup (Audit 905). Syarat
