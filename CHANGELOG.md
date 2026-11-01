@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Celah ikon baris Tentang mengikuti arah baca (RTL) (Audit 984)
+- Perbaikan kosmetik: ikon di baris Tentang memakai `setPadding` absolut, sehingga di locale RTL (manifest memang mendukung RTL dan layout sudah start/end) celah 10dp jatuh di tepi luar ikon dan ikon menempel ke teks. Kini `setPaddingRelative` — celah selalu di sisi end yang menghadap teks.
+
+
 ## [Belum rilis] — Target sentuh chip dan header Pengaturan dinaikkan ke 48dp (Audit 983)
 - Perbaikan aksesibilitas: gaya `TasirinChip` menetapkan minHeight 40dp (menimpa 48dp induknya) dan kelima header seksi Pengaturan yang bisa diklik juga 40dp — 8dp di bawah pedoman target sentuh 48dp dan pola semua gaya interaktif lain di repo. Keduanya kini 48dp.
 

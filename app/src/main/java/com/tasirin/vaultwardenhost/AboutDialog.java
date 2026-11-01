@@ -79,7 +79,10 @@ final class AboutDialog {
             TextView ikonView = new TextView(a);
             ikonView.setText(ikon[i]);
             ikonView.setTextSize(16);
-            ikonView.setPadding(0, 0, jarak, 0);
+            // Audit 984: padding relatif arah agar celah selalu di
+            // sisi end (menghadap teks) — setPadding absolut membuat
+            // celah ikon-teks salah sisi di locale RTL.
+            ikonView.setPaddingRelative(0, 0, jarak, 0);
             TextView teksView = new TextView(a);
             teksView.setText(teks[i]);
             teksView.setTextSize(13.5f);
