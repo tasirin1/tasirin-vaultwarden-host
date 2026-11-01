@@ -743,12 +743,19 @@ def segmen_redirect_output(segmen):
                             # penulis bebas.
                             lingkar_baca = True
                             continue
-                        if segmen_redirect_output(bagian):
-                            if stdin_habis and _menguras_stdin(bagian):
+                        efektif = bagian
+                        if (kata1 in ("while", "until", "do", "then",
+                                      "else") and len(kata) > 1):
+                            # Audit 940: perintah sungguhan bersembunyi
+                            # di balik kata kunci — kondisi lingkar
+                            # atau badan sesudah do/then/else.
+                            efektif = kata[1]
+                        if segmen_redirect_output(efektif):
+                            if stdin_habis and _menguras_stdin(efektif):
                                 break
                             hasil = True
                             break
-                        if _menguras_stdin(bagian):
+                        if _menguras_stdin(efektif):
                             break
                 else:
                     hasil = False

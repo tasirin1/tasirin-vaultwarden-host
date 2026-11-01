@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Model substitusi menilai perintah di balik kata kunci lingkar (Audit 940)
+- Deviasi fail-open: kata pertama segmen di dalam isi substitusi bisa berupa kata kunci, sehingga penguras sebagai kondisi lingkar (`until cat ...`) atau badan sesudah `do`/`then`/`else` tak dinilai sama sekali. Segmen kini dinilai dari perintah efektif sesudah kata kuncinya. Skenario uji-diri baru menguncinya.
+
+
 ## [Belum rilis] — Model stdin sadar kutip pada uji redirect token (Audit 939)
 - Deviasi fail-closed: uji token memuat `>` pada `_menguras_stdin` tak sadar kutip, sehingga operand berkas berkutip yang memuat karakter itu (mis. `cat "a>b"`) diperlakukan sebagai redirect dan perintahnya dinilai menguras stdin. Token berkutip penuh kini dinilai operand data. Skenario uji-diri baru menguncinya.
 
