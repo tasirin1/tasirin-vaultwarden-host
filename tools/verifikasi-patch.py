@@ -531,6 +531,26 @@ def _awalan_sebelum_gt(token):
     return None
 
 
+def _indeks_sesudah_redirect(toks, i):
+    """Audit 965: indeks sesudah token redirect KELUARAN pada
+    posisi i — bentuk murni ('>' dsb.) melompati targetnya juga,
+    bentuk merekat ('>log', '2>err', '>&2') satu token. Mengembalikan
+    i apa adanya bila toks[i] bukan redirect keluaran, dan -1 bila
+    redirect MASUKAN ('< berkas' / '<berkas'): stdin perintah
+    dialihkan dari berkas itu, bukan stdin bersama. Bentuk '<&'
+    (duplikasi fd dari stdin itu sendiri) netral: dilompati."""
+    t = toks[i]
+    if t.startswith("<"):
+        if t.startswith("<&"):
+            return i + 1
+        return -1
+    if t in (">", ">>", "1>", "2>", "1>>", "2>>", "&>", "&>>"):
+        return min(i + 2, len(toks))
+    if re.match(r"^(\d+|&)?>>?", t):
+        return i + 1
+    return i
+
+
 def _menguras_stdin(bagian, _batas_argv=0):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -545,6 +565,18 @@ def _menguras_stdin(bagian, _batas_argv=0):
     awal = 0
     xargs_dari_berkas = False
     while awal < len(toks):
+        if awal >= _batas_argv:
+            # Audit 965: redirect di wilayah awalan bukan perintah —
+            # resolusi melompatinya beserta targetnya, di mana pun
+            # ia muncul sebelum perintah sungguhan (di depan
+            # perintah, di sela opsi pembungkus/env). Redirect
+            # masukan berarti stdin perintah itu sendiri dialihkan.
+            sesudah = _indeks_sesudah_redirect(toks, awal)
+            if sesudah < 0:
+                return False
+            if sesudah != awal:
+                awal = sesudah
+                continue
         t0 = toks[awal].strip("\"'")
         if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0):
             awal += 1
@@ -554,7 +586,17 @@ def _menguras_stdin(bagian, _batas_argv=0):
             # Audit 951: opsi env sendiri bukan perintah — lompatan
             # wajib melewatinya beserta nilai opsi yang terpisah
             # (-u NAMA, -C DIR, -S STRING), bukan berhenti di sana.
-            while awal < len(toks) and toks[awal].startswith("-"):
+            while awal < len(toks):
+                if awal >= _batas_argv:
+                    # Audit 965: redirect bisa menyela daftar opsi.
+                    sesudah = _indeks_sesudah_redirect(toks, awal)
+                    if sesudah < 0:
+                        return False
+                    if sesudah != awal:
+                        awal = sesudah
+                        continue
+                if not toks[awal].startswith("-"):
+                    break
                 opsi = toks[awal]
                 awal += 1
                 if opsi == "--":
@@ -616,7 +658,20 @@ def _menguras_stdin(bagian, _batas_argv=0):
             # perintah — lompatan wajib melewatinya juga, kalau
             # tidak nilai itu yang dinilai sebagai perintah.
             bernilai = _OPSI_PEMBUNGKUS.get(t0, ())
-            while awal < len(toks) and toks[awal].startswith("-"):
+            while awal < len(toks):
+                if awal >= _batas_argv:
+                    # Audit 965: redirect bisa menyela daftar opsi
+                    # pembungkus (termasuk sebelum operand durasi
+                    # timeout) — lompati dulu, jangan dinilai opsi
+                    # atau operand.
+                    sesudah = _indeks_sesudah_redirect(toks, awal)
+                    if sesudah < 0:
+                        return False
+                    if sesudah != awal:
+                        awal = sesudah
+                        continue
+                if not toks[awal].startswith("-"):
+                    break
                 opsi = toks[awal]
                 awal += 1
                 if opsi == "--":

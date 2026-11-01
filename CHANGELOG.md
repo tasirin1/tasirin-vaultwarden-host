@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redirect di wilayah awalan perintah dilompati resolver gerbang (Audit 965)
+- Bug (fail-open): resolusi perintah efektif gerbang berhenti di token redirect yang muncul sebelum perintah (`> /dev/null cat`, `2>/dev/null cat`, `env > /dev/null -S cat`, `timeout > /dev/null 5 cat`), sehingga pembaca di baliknya tak terlihat. Resolver kini melompati redirect keluaran beserta targetnya di semua titik awalan (depan perintah, sela opsi env dan pembungkus, sebelum operand durasi); redirect masukan di awalan berarti stdin perintah dialihkan dan pembaca dinyatakan tak menguras. Skenario uji-diri baru menguncinya dari sisi gerbang gagal.
+
+
 ## [Belum rilis] — Batas argv env -S diwariskan melewati rekursi bersarang (Audit 964)
 - Bug (fail-open): rekursi `env -S` (Audit 963) mengganti batas argv dengan rentang string miliknya sendiri, sehingga pada `env -S 'env -S cat > x'` token `>` milik string terdalam dinilai redirect shell. Batas lapisan luar kini diwariskan (digeser sesuai posisi nilai `-S`) dan batas yang berlaku adalah yang terluas dari keduanya. Skenario uji-diri baru menguncinya.
 
