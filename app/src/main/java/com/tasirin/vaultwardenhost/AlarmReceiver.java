@@ -51,15 +51,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     @SuppressLint("ApplySharedPref")
-    static void tandaiBackupTertunda(Context context) {
-        try {
-            context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
-        } catch (Exception ignored) {
-        }
-    }
-
-    @SuppressLint("ApplySharedPref")
     private static void mulaiBackup(Context context) {
 
         TgBackup.healkanStringPrefs(context);
@@ -83,7 +74,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         } catch (Exception ignored) {
         }
         if (!terkirim) {
-            tandaiBackupTertunda(context);
+            TgBackup.tandaiBackupTertunda(context);
         }
     }
 
@@ -108,7 +99,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
             } else if (ACTION_TUNDA.equals(action)) {
-                tandaiBackupTertunda(context);
+                TgBackup.tandaiBackupTertunda(context);
                 ServerService.catatLog("[tg] Alarm tunda boot gugur: rahasia alarm"
                         + " tak cocok - backup ditandai tertunda.");
             }
@@ -130,7 +121,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             if (!terjadwal) {
                 jadwalUlangBilaOtomatis(context);
-                tandaiBackupTertunda(context);
+                TgBackup.tandaiBackupTertunda(context);
                 ServerService.catatLog("[tg] Alarm jatuh pada masa tunggu boot dan"
                         + " penjadwalan tunda gagal - rantai harian dipasang ulang"
                         + " dan backup ditandai tertunda.");
@@ -202,7 +193,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (!lolosThrottleAlarm(context)) {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
-                tandaiBackupTertunda(context);
+                TgBackup.tandaiBackupTertunda(context);
                 ServerService.catatLog("[tg] Alarm harian tertelan throttle"
                         + " - rantai dipasang ulang dan backup ditandai tertunda.");
             }

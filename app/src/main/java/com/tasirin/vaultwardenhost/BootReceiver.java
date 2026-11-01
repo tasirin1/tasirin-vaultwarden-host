@@ -3,7 +3,6 @@ package com.tasirin.vaultwardenhost;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 public class BootReceiver extends BroadcastReceiver {
@@ -184,13 +183,13 @@ public class BootReceiver extends BroadcastReceiver {
 
                         if (!token.isEmpty() && !chat.isEmpty() && dbAda) {
                             if (!TgBackup.jadwalTundaBoot(ctx)) {
-                                tandaiBackupTertunda(sp);
+                                TgBackup.tandaiBackupTertunda(ctx);
                             }
                         }
                     } catch (Exception ignored) {
 
                         try {
-                            tandaiBackupTertunda(sp);
+                            TgBackup.tandaiBackupTertunda(ctx);
                         } catch (Exception ignored2) {
                         }
                     }
@@ -259,11 +258,4 @@ public class BootReceiver extends BroadcastReceiver {
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_WALL, kini);
     }
 
-    @SuppressLint("ApplySharedPref")
-    private static void tandaiBackupTertunda(SharedPreferences sp) {
-        try {
-            sp.edit().putBoolean(TgBackup.KEY_BACKUP_TERTUNDA, true).commit();
-        } catch (Exception ignored) {
-        }
-    }
 }

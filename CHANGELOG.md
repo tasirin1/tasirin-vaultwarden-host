@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup-tertunda satu pintu di TgBackup (Audit 944)
+- Kode sampah (duplikasi): penulisan penanda `KEY_BACKUP_TERTUNDA` hidup sebagai dua implementasi terpisah di BootReceiver dan AlarmReceiver. Kini satu helper bersama `TgBackup.tandaiBackupTertunda` (sekeluarga dengan helper throttle dan penanda restore di berkas yang sama); kedua receiver memanggilnya, perilaku penulisan identik.
+
+
 ## [Belum rilis] — Verifikasi berkas berbagi tanpa penelusuran ganda (Audit 943)
 - Tak efisien: `berkasBagiTerverifikasi` mengkanonikalisasi jalur yang sama dua kali dan `adaSymlinkInduk` menelusuri rantai induk dua kali (lstat, lalu `getCanonicalPath()` per induk). Pemanggil satu-satunya selalu menyerahkan jalur yang sudah kanonis, sehingga penelusuran kedua tak bisa menemukan apa pun yang tak ditemukan penelusuran lstat — kini verifikasi cukup satu lintasan dan satu kanonikalisasi, semua cek keamanan (akar bagi, lstat induk, fail-closed saat refleksi tak tersedia) tetap utuh.
 

@@ -3131,6 +3131,15 @@ public final class TgBackup {
         }
     }
 
+    @android.annotation.SuppressLint("ApplySharedPref")
+    static void tandaiBackupTertunda(Context ctx) {
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putBoolean(KEY_BACKUP_TERTUNDA, true).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
     static long tandaRestoreTersisa(Context ctx) {
         try {
             return amanLong(ctx.getSharedPreferences(ServerService.PREFS,
