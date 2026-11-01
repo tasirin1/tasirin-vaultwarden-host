@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penilaian pasangan sertifikat/kunci dimemoisasi per stat berkas (Audit 946)
+- Tak efisien: `pasanganCertKeyCocok` menilai pasangan yang sama enam kali lebih per Start (tiap penilaian = 2 baca berkas + parse X.509 + parse kunci RSA). Hasil COCOK kini dimemoisasi 60 detik berkunci stat kedua berkas (pola `MEMO_MASA` yang sama, termasuk hanya hasil sukses yang ditempel); hasil tak-cocok selalu dinilai segar.
+
+
 ## [Belum rilis] — Checksum aset diambil sekali per alur update (Audit 945)
 - Tak efisien: sesudah probe checksum berhasil (jalur fallback binary dan web-vault), jalur unduh mengambil berkas `.sha256` yang sama sekali lagi. Hasil probe kini diteruskan ke `shaDariRilis` dan dipakai ulang hanya bila URL checksum yang diminta persis sama; URL cadangan/fallback tetap mengambil segar seperti sebelumnya.
 

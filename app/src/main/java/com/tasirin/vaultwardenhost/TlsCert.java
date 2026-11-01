@@ -86,6 +86,14 @@ public final class TlsCert {
 
     static final long MEMO_MASA_TTL_MS = 60_000;
 
+    private static final java.util.Map<String, Long> MEMO_PASANGAN =
+            new java.util.LinkedHashMap<String, Long>(64, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(
+                        java.util.Map.Entry<String, Long> tertua) {
+                    return size() > 64;
+                }
+            };
+
     static long elapsedAman() {
         try {
             return android.os.SystemClock.elapsedRealtime();
@@ -597,14 +605,44 @@ public final class TlsCert {
     }
 
     static boolean pasanganCertKeyCocok(File certFile, File keyFile) {
+        String kunciMemo = null;
+        try {
+            String ksCert = kunciStat(certFile);
+            String ksKey = kunciStat(keyFile);
+            if (ksCert != null && ksKey != null) {
+                kunciMemo = ksCert + "|" + ksKey;
+            }
+        } catch (Exception ignored) {
+            kunciMemo = null;
+        }
+        if (kunciMemo != null) {
+            synchronized (MEMO_PASANGAN) {
+                Long catat = MEMO_PASANGAN.get(kunciMemo);
+                long kini = elapsedAman();
+                if (catat != null && kini > 0 && catat.longValue() > 0
+                        && kini - catat.longValue() < MEMO_MASA_TTL_MS) {
+                    return true;
+                }
+            }
+        }
+        boolean cocok;
         try {
             X509Certificate cert = bacaCert(certFile);
             PrivateKey key = bacaPrivateKey(keyFile);
-            return cert != null && key != null
+            cocok = cert != null && key != null
                     && kunciCocokCert(cert.getPublicKey(), key);
         } catch (Exception e) {
             return false;
         }
+        if (cocok && kunciMemo != null) {
+            long catat = elapsedAman();
+            if (catat > 0) {
+                synchronized (MEMO_PASANGAN) {
+                    MEMO_PASANGAN.put(kunciMemo, Long.valueOf(catat));
+                }
+            }
+        }
+        return cocok;
     }
 
     static boolean ditandatanganiCa(File leafFile, File caFile) {
