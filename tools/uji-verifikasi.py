@@ -1856,6 +1856,27 @@ def main():
                 "sendiri: gerbang lolos (Audit 986)", rc == 0)
         shutil.rmtree(subxargsredir, ignore_errors=True)
 
+        subcommandstr = klon(tmp, "subcommandstr")
+        berkas_aksi91 = os.path.join(
+            subcommandstr, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi91, encoding="utf-8") as f:
+            isi_aksi91 = f.read()
+        baris_tulis91 = [b for b in isi_aksi91.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi91, "w", encoding="utf-8") as f:
+            f.write(isi_aksi91.replace(
+                baris_tulis91,
+                baris_tulis91.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(env -S 'command cat'; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subcommandstr,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'command' di dalam string env -S adalah program "
+                "tak ada: gerbang lolos (Audit 987)", rc == 0)
+        shutil.rmtree(subcommandstr, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

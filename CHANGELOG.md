@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: isi env -S tidak lagi dinilai berposisi awal segmen (Audit 987)
+- Perbaikan perkakas: rekursi `_menguras_stdin` untuk isi `env -S` membuat keadaan posisi-awal segar, sehingga `command` sebagai kata pertama string dinilai builtin transparan — padahal env mengeksekusinya sebagai program eksternal dan gagal (`env: 'command': No such file or directory`). Rekursi kini menerima parameter posisi-awal dan isi `-S` selalu dinilai bukan posisi awal, menyamai perlakuan `command` sesudah env di jalur biasa (Audit 972). Skenario uji-diri baru `subcommandstr`.
+
+
 ## [Belum rilis] — Gerbang: redirect masukan sesudah anak xargs diakui milik xargs (Audit 986)
 - Perbaikan perkakas: vonis `xargs_sendiri` (Audit 971) dikembalikan sebelum redirect masukan sesudah nama perintah anak sempat dinilai — padahal redirect itu diterapkan shell ke proses xargs itu sendiri, jadi stdin xargs berasal dari berkas dan pipa bersama tak tersentuh. Titik akhir resolusi kini memindai sisa token untuk redirect masukan (di luar rentang argv `env -S`) sebelum mengembalikan vonis xargs. Skenario uji-diri baru `subxargsredir`.
 

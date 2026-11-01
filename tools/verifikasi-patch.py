@@ -617,7 +617,7 @@ def _sesudah_redirect_berantai(toks, i, batas):
     return i
 
 
-def _menguras_stdin(bagian, _batas_argv=0):
+def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
     membaca berkas argumennya atau redirect masukan tak menguras
@@ -632,7 +632,10 @@ def _menguras_stdin(bagian, _batas_argv=0):
     xargs_dari_berkas = False
     xargs_sendiri = False
     lewat_pembungkus = False
-    masih_awal = True
+    # Audit 987: isi string env -S di-exec env sebagai program
+    # eksternal — kata pertamanya tidak pernah builtin shell,
+    # jadi rekursi -S berjalan dengan _posisi_awal=False.
+    masih_awal = _posisi_awal
     while awal < len(toks):
         if awal >= _batas_argv:
             # Audit 965: redirect di wilayah awalan bukan perintah —
@@ -728,7 +731,8 @@ def _menguras_stdin(bagian, _batas_argv=0):
                     warisan = max(0, _batas_argv - geser)
                     return _menguras_stdin(
                         " ".join(daftar),
-                        _batas_argv=max(rentang, warisan))
+                        _batas_argv=max(rentang, warisan),
+                        _posisi_awal=False)
                 if opsi in ("-u", "--unset", "-C", "--chdir"):
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.
