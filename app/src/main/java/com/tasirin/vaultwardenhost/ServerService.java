@@ -1285,7 +1285,7 @@ public class ServerService extends Service {
     static String teksNotifikasi(boolean jalan, String port, String status,
             String templatAktif, String teksLatar) {
         if (jalan) {
-            return String.format(templatAktif,
+            return templatAktif.replace("%1$s",
                     port == null || port.isEmpty() ? "?" : port);
         }
         String s = status == null ? "" : status.trim();
