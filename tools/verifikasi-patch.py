@@ -791,7 +791,9 @@ _OPSI_BERNILAI = {
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
     # Audit 1211: wall selama ini tanpa entri — -t bernilai.
-    "wall": {"-t", "--timeout"},
+    "wall": {"-t", "--timeout",
+            # Audit 1236: -g/--group wall bernilai.
+            "-g", "--group"},
     # Audit 1213: kompresor tanpa entri untuk opsi bersamanya.
     "lzma": {"-F", "--format", "-S", "--suffix", "-T", "--threads",
              "--block-size", "-C", "--check"},

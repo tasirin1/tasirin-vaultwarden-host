@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — wall: -g/--group bernilai, hilang dari entri (Audit 1236)
+
 ## [Belum rilis] — ptx: -F/--flag-truncation bernilai, hilang dari tabel (Audit 1235)
 
 ## [Belum rilis] — pr: -s/--separator bernilai opsional juga (Audit 1234)
