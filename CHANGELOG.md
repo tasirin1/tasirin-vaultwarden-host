@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Numfmt --round bernilai (Audit 1294)
+
 ## [Belum rilis] — Keluarga tables-restore -W/--wait-interval bernilai (Audit 1293)
 
 ## [Belum rilis] — Xzcat --block-size bernilai (Audit 1292)

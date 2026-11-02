@@ -803,7 +803,9 @@ _OPSI_BERNILAI = {
                # Audit 1265: --grouping numfmt adalah BENDERA.
                # Audit 1125: opsi konversi bernilai yang hilang.
                "--from", "--to", "--from-unit", "--to-unit",
-               "--invalid", "--suffix"},
+               "--invalid", "--suffix",
+               # Audit 1294: --round hilang.
+               "--round"},
     "basenc": {"-w", "--wrap"},
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",

@@ -9736,6 +9736,24 @@ def main():
         periksa("iptables-nft-restore -W 1000: "
                 "gerbang gagal (Audit 1293)", rc != 0)
         shutil.rmtree(sub516, ignore_errors=True)
+        sub517 = klon(tmp, "sub517")
+        berkas_aksi517 = os.path.join(
+            sub517, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi517, encoding="utf-8") as f:
+            isi_aksi517 = f.read()
+        baris_aksi517 = [b for b in isi_aksi517.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi517, "w", encoding="utf-8") as f:
+            f.write(isi_aksi517.replace(
+                baris_aksi517,
+                baris_aksi517.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(numfmt --round up; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub517, [sys.executable, GERBANG, "--semua"])
+        periksa("numfmt --round up: "
+                "gerbang gagal (Audit 1294)", rc != 0)
+        shutil.rmtree(sub517, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
