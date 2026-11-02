@@ -2794,6 +2794,25 @@ def main():
         periksa("shell membaca perintah dari stdin: penguras — gerbang gagal (Audit 1058)", rc != 0)
         shutil.rmtree(subshell, ignore_errors=True)
 
+        subsqlite = klon(tmp, "subsqlite")
+        berkas_aksi137 = os.path.join(
+            subsqlite, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi137, encoding="utf-8") as f:
+            isi_aksi137 = f.read()
+        baris_aksi137 = [b for b in isi_aksi137.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi137, "w", encoding="utf-8") as f:
+            f.write(isi_aksi137.replace(
+                baris_aksi137,
+                baris_aksi137.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsqlite,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sqlite3 membaca SQL dari stdin: penguras — gerbang gagal (Audit 1059)", rc != 0)
+        shutil.rmtree(subsqlite, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

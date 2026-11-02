@@ -1237,6 +1237,48 @@ def _menguras_mapfile(toks, awal):
     return True
 
 
+def _operand_sesudah_opsi(toks, awal, bernilai):
+    """Daftar operand polos sesudah melompati opsi (yang bernilai
+    menelan token berikutnya; bentuk --opsi=nilai dan -o<nilai>
+    merekat ditangani). Dipakai penilai khusus Audit 1059-1072."""
+    hasil = []
+    i = awal + 1
+    n = len(toks)
+    while i < n:
+        t = toks[i]
+        bersih = t.strip("\"'")
+        if bersih == "--":
+            hasil.extend(x.strip("\"'") for x in toks[i + 1:])
+            break
+        if bersih.startswith("-") and bersih != "-":
+            dasar = bersih.split("=", 1)[0]
+            if dasar in bernilai:
+                i += 1 if "=" in bersih else 2
+                continue
+            i += 1
+            continue
+        hasil.append(bersih)
+        i += 1
+    return hasil
+
+
+def _menguras_khusus(perintah, toks, awal):
+    """Audit 1059-1072: penilai perintah yang pengurasannya
+    bergantung pada subcommand / bentuk opsi khas — tak bisa
+    dinilai aturan operand generik."""
+    sisa = toks[awal + 1:]
+    mentah = [t.strip("\"'") for t in sisa]
+    if perintah == "sqlite3":
+        # Audit 1059: operand pertama = berkas db (bukan sumber
+        # perintah); operand kedua = string SQL yang menekan.
+        ops = _operand_sesudah_opsi(
+            toks, awal,
+            {"-cmd", "-init", "-separator", "-nullvalue",
+             "-maxwidth", "-vfs", "-pagecache", "-lookaside"})
+        return len(ops) < 2
+    return False
+
+
 def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -1740,6 +1782,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
+        if perintah in ("sqlite3",):
+            # Audit 1059-1072: penilai subcommand/bentuk khas.
+            return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
     if xargs_dari_berkas and perintah != "tee":
         # Audit 962: perintah anak menerima operand item dari berkas
