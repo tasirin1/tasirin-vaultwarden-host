@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi bernilai menggantung di token terakhir kini ditolak gerbang patch (Audit 1096)
+
 ## [Belum rilis] — mode daftar rg --files tak lagi divonis menguras oleh gerbang patch (Audit 1095)
 
 ## [Belum rilis] — zip -@ tanpa arsip tak lagi divonis menguras oleh gerbang patch (Audit 1094)

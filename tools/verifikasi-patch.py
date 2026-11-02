@@ -1345,6 +1345,12 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
         if bersih.startswith("-") and bersih != "-":
             dasar = bersih.split("=", 1)[0]
             if dasar in bernilai:
+                if "=" not in bersih and i + 1 >= n:
+                    # Audit 1096: opsi bernilai menggantung di
+                    # token terakhir — program galat ("requires an
+                    # argument") dan tak membaca. Penanda operand
+                    # membuat semua pemanggil condong ke False.
+                    hasil.append("\x00gantung")
                 i += 1 if "=" in bersih else 2
                 continue
             i += 1
@@ -1385,6 +1391,9 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal,
             {"-cmd", "-init", "-separator", "-nullvalue",
              "-maxwidth", "-vfs", "-pagecache", "-lookaside"})
+        # Audit 1096: opsi menggantung = program galat.
+        if "\x00gantung" in ops:
+            return False
         return len(ops) < 2
     if perintah == "openssl":
         # Audit 1060: hanya subcommand dgst (dan alias nama
@@ -1669,9 +1678,13 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1092: mode pindai -z hanya menguji port terbuka.
         if "-z" in mentah:
             return False
-        return bool(_operand_sesudah_opsi(
+        ops_nc = _operand_sesudah_opsi(
             toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
-                         "--proxy", "--proxy-auth"}))
+                         "--proxy", "--proxy-auth"})
+        # Audit 1096: opsi menggantung = program galat.
+        if "\x00gantung" in ops_nc:
+            return False
+        return bool(ops_nc)
     if perintah == "make":
         # Audit 1071: makefile dari stdin lewat -f -.
         for i, t in enumerate(mentah):
@@ -1713,6 +1726,9 @@ def _menguras_khusus(perintah, toks, awal):
              "-r", "--reject-file", "-p", "--strip", "-F", "--fuzz",
              "-B", "--prefix", "-Y", "-Z", "--quoting-style",
              "--suffix", "--basename-prefix"})
+        # Audit 1096: opsi menggantung = program galat.
+        if "\x00gantung" in ops:
+            return False
         return len(ops) < 2
     if perintah == "more":
         # Audit 1089: more util-linux menyangga stdin pipa sampai
@@ -2469,6 +2485,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if "=" in t:
                 continue
+        return False
+    # Audit 1096: opsi bernilai (atau operator redirect) di token
+    # terakhir menggantung — program/shell galat tanpa membaca.
+    if lewati:
         return False
     return True
 
