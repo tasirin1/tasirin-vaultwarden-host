@@ -3195,6 +3195,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             nama_interp = "python3"
         elif re.fullmatch(r"tclsh(\d+(\.\d+)?)?", perintah):
             nama_interp = "tclsh"
+        elif perintah == "nodejs":
+            # Audit 1251: alias Debian untuk node.
+            nama_interp = "node"
         if nama_interp in ("python3", "python", "node", "perl",
                            # Audit 1058: shell membaca perintah
                            # dari stdin bila tanpa skrip berkas.

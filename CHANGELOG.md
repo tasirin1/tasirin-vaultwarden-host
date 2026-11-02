@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — nodejs dipetakan ke interpreter node (Audit 1251)
+
 ## [Belum rilis] — socat1 dipetakan ke penilai socat (Audit 1250)
 
 ## [Belum rilis] — sdiff: operand '-' adalah stdin (Audit 1249)
