@@ -1902,6 +1902,11 @@ def _menguras_khusus(perintah, toks, awal):
             if re.fullmatch(r"-[a-z]*i", t_p):
                 return k_p + 1 < len(mentah) \
                     and mentah[k_p + 1] == "-"
+            if re.fullmatch(r"-i.+", t_p):
+                # Audit 1131: nilai -i merekat — "-" = patch dari
+                # stdin (hanya -i sebagai huruf pertama yang pasti;
+                # huruf sebelumnya bisa opsi bernilai lain).
+                return t_p[2:] == "-"
             if re.fullmatch(r"-[a-z]*i.+", t_p):
                 return False
         ops = _operand_sesudah_opsi(
